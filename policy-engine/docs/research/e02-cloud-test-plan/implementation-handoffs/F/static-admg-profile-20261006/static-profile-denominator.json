@@ -1,0 +1,2922 @@
+{
+  "schema": "policyos.e02.static_admg_profile_census.v1",
+  "source_sha": "5182825c190aa403bee765e339a119bb53e805e0",
+  "working_tree_note": "Development footprint; final frozen receipt must bind provider hashes exactly",
+  "provider_paths": [
+    "admg_ops.py",
+    "do_calculus.py",
+    "sigma_calculus.py",
+    "id_engine/core.py",
+    "id_engine/transport.py",
+    "id_engine/counterfactual.py",
+    "amn.py",
+    "ctf_calculus.py"
+  ],
+  "entries": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "module": "polisyos.foundry.methods.catalog.causal.admg_ops",
+      "function": "extract_directed_edges",
+      "line": 162,
+      "args": [
+        "graph"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": false,
+      "first_statement": "return _get_cached_adjacency(graph).directed_edges",
+      "calls": [
+        "_get_cached_adjacency"
+      ],
+      "provider_sha256": "85c3ab8806f708ca2cd5bfb66ec6f105c76bb944704dd75b0cdcabfae98bef3a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "module": "polisyos.foundry.methods.catalog.causal.admg_ops",
+      "function": "extract_bidirected_edges",
+      "line": 171,
+      "args": [
+        "graph"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": false,
+      "first_statement": "return _get_cached_adjacency(graph).bidirected_edges",
+      "calls": [
+        "_get_cached_adjacency"
+      ],
+      "provider_sha256": "85c3ab8806f708ca2cd5bfb66ec6f105c76bb944704dd75b0cdcabfae98bef3a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "module": "polisyos.foundry.methods.catalog.causal.admg_ops",
+      "function": "ancestors",
+      "line": 185,
+      "args": [
+        "graph",
+        "variables",
+        "include_self"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": false,
+      "first_statement": "rev = _get_cached_adjacency(graph).rev",
+      "calls": [
+        "_get_cached_adjacency",
+        "deque",
+        "frozenset",
+        "queue.append",
+        "queue.popleft",
+        "rev.get",
+        "set",
+        "visited.add"
+      ],
+      "provider_sha256": "85c3ab8806f708ca2cd5bfb66ec6f105c76bb944704dd75b0cdcabfae98bef3a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "module": "polisyos.foundry.methods.catalog.causal.admg_ops",
+      "function": "descendants",
+      "line": 221,
+      "args": [
+        "graph",
+        "variables",
+        "include_self"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": false,
+      "first_statement": "fwd = _get_cached_adjacency(graph).fwd",
+      "calls": [
+        "_get_cached_adjacency",
+        "deque",
+        "frozenset",
+        "fwd.get",
+        "queue.append",
+        "queue.popleft",
+        "set",
+        "visited.add"
+      ],
+      "provider_sha256": "85c3ab8806f708ca2cd5bfb66ec6f105c76bb944704dd75b0cdcabfae98bef3a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "module": "polisyos.foundry.methods.catalog.causal.admg_ops",
+      "function": "do_operator",
+      "line": 252,
+      "args": [
+        "graph",
+        "intervention_set"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": true,
+      "first_statement": "from polisyos.ir.analytics.causal_graph import EdgeMark",
+      "calls": [
+        "_derived_graph_model",
+        "_validate_static_admg",
+        "kept_edges.append",
+        "list"
+      ],
+      "provider_sha256": "85c3ab8806f708ca2cd5bfb66ec6f105c76bb944704dd75b0cdcabfae98bef3a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "module": "polisyos.foundry.methods.catalog.causal.admg_ops",
+      "function": "remove_incoming_edges",
+      "line": 295,
+      "args": [
+        "graph",
+        "nodes"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": false,
+      "first_statement": "return do_operator(graph, nodes)",
+      "calls": [
+        "do_operator"
+      ],
+      "provider_sha256": "85c3ab8806f708ca2cd5bfb66ec6f105c76bb944704dd75b0cdcabfae98bef3a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "module": "polisyos.foundry.methods.catalog.causal.admg_ops",
+      "function": "remove_outgoing_edges",
+      "line": 311,
+      "args": [
+        "graph",
+        "nodes"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": true,
+      "first_statement": "from polisyos.ir.analytics.causal_graph import EdgeMark",
+      "calls": [
+        "_derived_graph_model",
+        "_validate_static_admg",
+        "kept_edges.append",
+        "list"
+      ],
+      "provider_sha256": "85c3ab8806f708ca2cd5bfb66ec6f105c76bb944704dd75b0cdcabfae98bef3a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "module": "polisyos.foundry.methods.catalog.causal.admg_ops",
+      "function": "c_components",
+      "line": 352,
+      "args": [
+        "graph"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": true,
+      "first_statement": "_validate_static_admg(graph)",
+      "calls": [
+        "_CC_CACHE.get",
+        "_ensure_cache_ref",
+        "_validate_static_admg",
+        "comp.setdefault",
+        "comp.setdefault(root, set()).add",
+        "comp.values",
+        "dict.fromkeys",
+        "extract_bidirected_edges",
+        "find",
+        "frozenset",
+        "id",
+        "list",
+        "set",
+        "sorted",
+        "tuple",
+        "union"
+      ],
+      "provider_sha256": "85c3ab8806f708ca2cd5bfb66ec6f105c76bb944704dd75b0cdcabfae98bef3a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "module": "polisyos.foundry.methods.catalog.causal.admg_ops",
+      "function": "districts",
+      "line": 409,
+      "args": [
+        "graph",
+        "node_subset"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": false,
+      "first_statement": "if node_subset is None:\n    return c_components(graph)",
+      "calls": [
+        "c_components",
+        "induced_subgraph"
+      ],
+      "provider_sha256": "85c3ab8806f708ca2cd5bfb66ec6f105c76bb944704dd75b0cdcabfae98bef3a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "module": "polisyos.foundry.methods.catalog.causal.admg_ops",
+      "function": "induced_subgraph",
+      "line": 440,
+      "args": [
+        "graph",
+        "node_subset"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": true,
+      "first_statement": "_validate_static_admg(graph)",
+      "calls": [
+        "_derived_graph_model",
+        "_validate_static_admg"
+      ],
+      "provider_sha256": "85c3ab8806f708ca2cd5bfb66ec6f105c76bb944704dd75b0cdcabfae98bef3a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "module": "polisyos.foundry.methods.catalog.causal.admg_ops",
+      "function": "m_separation",
+      "line": 485,
+      "args": [
+        "graph",
+        "x_set",
+        "y_set",
+        "z_set"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": true,
+      "first_statement": "from polisyos.ir.analytics.causal_graph import EdgeMark",
+      "calls": [
+        "_m_separation_adjacency",
+        "_validate_static_admg",
+        "ancestors",
+        "deque",
+        "frozenset",
+        "queue.append",
+        "queue.popleft",
+        "set",
+        "visited.add"
+      ],
+      "provider_sha256": "85c3ab8806f708ca2cd5bfb66ec6f105c76bb944704dd75b0cdcabfae98bef3a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "module": "polisyos.foundry.methods.catalog.causal.admg_ops",
+      "function": "d_separation",
+      "line": 542,
+      "args": [
+        "graph",
+        "x_set",
+        "y_set",
+        "z_set"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": false,
+      "first_statement": "if extract_bidirected_edges(graph):\n    raise ValueError('d_separation() requires a pure DAG (no bidirected edges). Use m_separation() for ADMGs or graphs with latent common causes.')",
+      "calls": [
+        "ValueError",
+        "extract_bidirected_edges",
+        "m_separation"
+      ],
+      "provider_sha256": "85c3ab8806f708ca2cd5bfb66ec6f105c76bb944704dd75b0cdcabfae98bef3a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "module": "polisyos.foundry.methods.catalog.causal.admg_ops",
+      "function": "markov_boundary",
+      "line": 566,
+      "args": [
+        "graph",
+        "node"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": false,
+      "first_statement": "dir_edges = extract_directed_edges(graph)",
+      "calls": [
+        "children.add",
+        "co_parents.add",
+        "extract_directed_edges",
+        "frozenset",
+        "parents.add",
+        "set"
+      ],
+      "provider_sha256": "85c3ab8806f708ca2cd5bfb66ec6f105c76bb944704dd75b0cdcabfae98bef3a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "module": "polisyos.foundry.methods.catalog.causal.admg_ops",
+      "function": "reachable_closure",
+      "line": 608,
+      "args": [
+        "graph",
+        "query_vars",
+        "intervened",
+        "conditioning"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": false,
+      "first_statement": "z_set: frozenset[str] = conditioning if conditioning is not None else frozenset()",
+      "calls": [
+        "adj[dst].append",
+        "adj[src].append",
+        "ancestors",
+        "deque",
+        "do_operator",
+        "extract_bidirected_edges",
+        "extract_directed_edges",
+        "frozenset",
+        "queue.append",
+        "queue.popleft",
+        "reachable.add",
+        "set",
+        "tuple",
+        "visited.add"
+      ],
+      "provider_sha256": "85c3ab8806f708ca2cd5bfb66ec6f105c76bb944704dd75b0cdcabfae98bef3a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "module": "polisyos.foundry.methods.catalog.causal.admg_ops",
+      "function": "topological_order",
+      "line": 693,
+      "args": [
+        "graph"
+      ],
+      "public": true,
+      "classification": "raw_endpoint_or_orientation_inspection",
+      "direct_shared_guard": false,
+      "first_statement": "from polisyos.ir.analytics.causal_graph import EdgeMark",
+      "calls": [
+        "ValueError",
+        "deque",
+        "dict.fromkeys",
+        "fwd[source].append",
+        "indegree.items",
+        "len",
+        "order.append",
+        "queue.append",
+        "queue.popleft",
+        "sorted"
+      ],
+      "provider_sha256": "85c3ab8806f708ca2cd5bfb66ec6f105c76bb944704dd75b0cdcabfae98bef3a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "module": "polisyos.foundry.methods.catalog.causal.admg_ops",
+      "function": "tarjan_scc",
+      "line": 751,
+      "args": [
+        "graph"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": false,
+      "first_statement": "adj = _directed_adjacency(graph)",
+      "calls": [
+        "_directed_adjacency",
+        "adj.get",
+        "component.append",
+        "components.append",
+        "frozenset",
+        "len",
+        "min",
+        "on_stack.add",
+        "on_stack.remove",
+        "set",
+        "sorted",
+        "stack.append",
+        "stack.pop",
+        "tuple",
+        "visit"
+      ],
+      "provider_sha256": "85c3ab8806f708ca2cd5bfb66ec6f105c76bb944704dd75b0cdcabfae98bef3a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "module": "polisyos.foundry.methods.catalog.causal.admg_ops",
+      "function": "condense_graph",
+      "line": 804,
+      "args": [
+        "graph",
+        "sccs"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": true,
+      "first_statement": "_validate_static_admg(graph)",
+      "calls": [
+        "CausalGraphModel.model_construct",
+        "_scc_label",
+        "_validate_static_admg",
+        "condensed_edges.append",
+        "condensed_nodes.append",
+        "dict",
+        "edge.model_copy",
+        "frozenset",
+        "len",
+        "list",
+        "seen_bidirected.add",
+        "seen_directed.add",
+        "set"
+      ],
+      "provider_sha256": "85c3ab8806f708ca2cd5bfb66ec6f105c76bb944704dd75b0cdcabfae98bef3a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "module": "polisyos.foundry.methods.catalog.causal.admg_ops",
+      "function": "has_directed_cycle",
+      "line": 879,
+      "args": [
+        "graph"
+      ],
+      "public": true,
+      "classification": "raw_endpoint_or_orientation_inspection",
+      "direct_shared_guard": false,
+      "first_statement": "try:\n    topological_order(graph)\nexcept ValueError:\n    return True",
+      "calls": [
+        "topological_order"
+      ],
+      "provider_sha256": "85c3ab8806f708ca2cd5bfb66ec6f105c76bb944704dd75b0cdcabfae98bef3a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "module": "polisyos.foundry.methods.catalog.causal.admg_ops",
+      "function": "extract_undirected_edges",
+      "line": 893,
+      "args": [
+        "graph"
+      ],
+      "public": true,
+      "classification": "raw_endpoint_or_orientation_inspection",
+      "direct_shared_guard": false,
+      "first_statement": "from polisyos.ir.analytics.causal_graph import EdgeMark",
+      "calls": [
+        "frozenset",
+        "result.add",
+        "set"
+      ],
+      "provider_sha256": "85c3ab8806f708ca2cd5bfb66ec6f105c76bb944704dd75b0cdcabfae98bef3a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "module": "polisyos.foundry.methods.catalog.causal.admg_ops",
+      "function": "is_adjacent",
+      "line": 910,
+      "args": [
+        "graph",
+        "a",
+        "b"
+      ],
+      "public": true,
+      "classification": "raw_endpoint_or_orientation_inspection",
+      "direct_shared_guard": false,
+      "first_statement": "for e in graph.edges:\n    if e.src == a and e.dst == b or (e.src == b and e.dst == a):\n        return True",
+      "calls": [],
+      "provider_sha256": "85c3ab8806f708ca2cd5bfb66ec6f105c76bb944704dd75b0cdcabfae98bef3a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "module": "polisyos.foundry.methods.catalog.causal.admg_ops",
+      "function": "has_directed_path",
+      "line": 923,
+      "args": [
+        "graph",
+        "src",
+        "dst"
+      ],
+      "public": true,
+      "classification": "raw_endpoint_or_orientation_inspection",
+      "direct_shared_guard": false,
+      "first_statement": "from polisyos.ir.analytics.causal_graph import EdgeMark",
+      "calls": [
+        "deque",
+        "fwd.get",
+        "fwd[e.dst].append",
+        "fwd[e.src].append",
+        "queue.append",
+        "queue.popleft",
+        "visited.add"
+      ],
+      "provider_sha256": "85c3ab8806f708ca2cd5bfb66ec6f105c76bb944704dd75b0cdcabfae98bef3a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "module": "polisyos.foundry.methods.catalog.causal.admg_ops",
+      "function": "augment_with_s_nodes",
+      "line": 967,
+      "args": [
+        "graph",
+        "s_var_names"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": true,
+      "first_statement": "from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType",
+      "calls": [
+        "CausalEdge",
+        "CausalGraphModel",
+        "_validate_static_admg",
+        "dict",
+        "extra_edges.append",
+        "extra_nodes.append",
+        "list",
+        "set",
+        "sorted"
+      ],
+      "provider_sha256": "85c3ab8806f708ca2cd5bfb66ec6f105c76bb944704dd75b0cdcabfae98bef3a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "module": "polisyos.foundry.methods.catalog.causal.admg_ops",
+      "function": "s_reachable",
+      "line": 1036,
+      "args": [
+        "graph",
+        "target_vars",
+        "s_node_names"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": false,
+      "first_statement": "fwd: dict[str, set[str]] = {n: set() for n in graph.nodes}",
+      "calls": [
+        "deque",
+        "extract_bidirected_edges",
+        "extract_directed_edges",
+        "frozenset",
+        "fwd.get",
+        "fwd[src].add",
+        "fwd[u].add",
+        "fwd[v].add",
+        "queue.append",
+        "queue.popleft",
+        "set",
+        "tuple",
+        "visited.add"
+      ],
+      "provider_sha256": "85c3ab8806f708ca2cd5bfb66ec6f105c76bb944704dd75b0cdcabfae98bef3a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "module": "polisyos.foundry.methods.catalog.causal.admg_ops",
+      "function": "resolve_s_node_by_adjustment",
+      "line": 1084,
+      "args": [
+        "graph",
+        "s_var_name",
+        "adjustment_set"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": true,
+      "first_statement": "_validate_static_admg(graph)",
+      "calls": [
+        "_derived_graph_model",
+        "_validate_static_admg"
+      ],
+      "provider_sha256": "85c3ab8806f708ca2cd5bfb66ec6f105c76bb944704dd75b0cdcabfae98bef3a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "module": "polisyos.foundry.methods.catalog.causal.admg_ops",
+      "function": "project_to_subgraph",
+      "line": 1125,
+      "args": [
+        "graph",
+        "variable_subset",
+        "keep_s_nodes"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": false,
+      "first_statement": "if keep_s_nodes:\n    s_node_names = frozenset((n for n in graph.nodes if n.startswith('S_')))\n    effective_subset = variable_subset | s_node_names\nelse:\n    effective_subset = variable_subset",
+      "calls": [
+        "frozenset",
+        "induced_subgraph",
+        "n.startswith"
+      ],
+      "provider_sha256": "85c3ab8806f708ca2cd5bfb66ec6f105c76bb944704dd75b0cdcabfae98bef3a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/do_calculus.py",
+      "module": "polisyos.foundry.methods.catalog.causal.do_calculus",
+      "function": "apply_rule1",
+      "line": 80,
+      "args": [
+        "dist_ref",
+        "graph",
+        "z_vars"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": true,
+      "first_statement": "_validate_static_admg(graph)",
+      "calls": [
+        "IRProofStep",
+        "_validate_static_admg",
+        "dist_ref.model_copy",
+        "frozenset",
+        "m_separation",
+        "remove_incoming_edges",
+        "sorted",
+        "tuple"
+      ],
+      "provider_sha256": "06ce594a304d9823a373ad37bb787a7953cc8bd3651bd65e1ff3c2476fd4a38e"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/do_calculus.py",
+      "module": "polisyos.foundry.methods.catalog.causal.do_calculus",
+      "function": "apply_rule2",
+      "line": 135,
+      "args": [
+        "dist_ref",
+        "graph",
+        "z_vars"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": true,
+      "first_statement": "_validate_static_admg(graph)",
+      "calls": [
+        "IRProofStep",
+        "_validate_static_admg",
+        "dist_ref.model_copy",
+        "frozenset",
+        "m_separation",
+        "remove_incoming_edges",
+        "remove_outgoing_edges",
+        "sorted",
+        "tuple"
+      ],
+      "provider_sha256": "06ce594a304d9823a373ad37bb787a7953cc8bd3651bd65e1ff3c2476fd4a38e"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/do_calculus.py",
+      "module": "polisyos.foundry.methods.catalog.causal.do_calculus",
+      "function": "apply_rule3",
+      "line": 202,
+      "args": [
+        "dist_ref",
+        "graph",
+        "z_vars"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": true,
+      "first_statement": "_validate_static_admg(graph)",
+      "calls": [
+        "IRProofStep",
+        "_validate_static_admg",
+        "ancestors",
+        "dist_ref.model_copy",
+        "frozenset",
+        "m_separation",
+        "remove_incoming_edges",
+        "sorted",
+        "tuple"
+      ],
+      "provider_sha256": "06ce594a304d9823a373ad37bb787a7953cc8bd3651bd65e1ff3c2476fd4a38e"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/do_calculus.py",
+      "module": "polisyos.foundry.methods.catalog.causal.do_calculus",
+      "function": "rewrite_estimand",
+      "line": 397,
+      "args": [
+        "ast",
+        "graph",
+        "max_iterations",
+        "ctf_postpass"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": true,
+      "first_statement": "_validate_static_admg(graph)",
+      "calls": [
+        "_resolve_ctf_postpass",
+        "_rewrite_node",
+        "_validate_static_admg",
+        "all_steps.extend",
+        "ast.model_copy",
+        "range",
+        "resolved_postpass"
+      ],
+      "provider_sha256": "06ce594a304d9823a373ad37bb787a7953cc8bd3651bd65e1ff3c2476fd4a38e"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/sigma_calculus.py",
+      "module": "polisyos.foundry.methods.catalog.causal.sigma_calculus",
+      "function": "_build_sigma_graph",
+      "line": 37,
+      "args": [
+        "graph",
+        "selection_vars"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": true,
+      "first_statement": "_validate_static_admg(graph)",
+      "calls": [
+        "_validate_static_admg",
+        "augment_with_s_nodes",
+        "frozenset"
+      ],
+      "provider_sha256": "b2fbb4e12b00b5641ec9d49f04bec62532173b323719eb5e7d3e751a343a3573"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/sigma_calculus.py",
+      "module": "polisyos.foundry.methods.catalog.causal.sigma_calculus",
+      "function": "apply_sigma_rule1",
+      "line": 48,
+      "args": [
+        "dist_ref",
+        "graph",
+        "z_vars",
+        "selection_vars"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": true,
+      "first_statement": "_validate_static_admg(graph)",
+      "calls": [
+        "IRProofStep",
+        "_build_sigma_graph",
+        "_validate_static_admg",
+        "dist_ref.model_copy",
+        "frozenset",
+        "m_separation",
+        "remove_incoming_edges",
+        "sorted",
+        "tuple"
+      ],
+      "provider_sha256": "b2fbb4e12b00b5641ec9d49f04bec62532173b323719eb5e7d3e751a343a3573"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/sigma_calculus.py",
+      "module": "polisyos.foundry.methods.catalog.causal.sigma_calculus",
+      "function": "apply_sigma_rule2",
+      "line": 92,
+      "args": [
+        "dist_ref",
+        "graph",
+        "z_vars",
+        "selection_vars"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": true,
+      "first_statement": "_validate_static_admg(graph)",
+      "calls": [
+        "IRProofStep",
+        "_build_sigma_graph",
+        "_validate_static_admg",
+        "dist_ref.model_copy",
+        "frozenset",
+        "m_separation",
+        "remove_incoming_edges",
+        "remove_outgoing_edges",
+        "sorted",
+        "tuple"
+      ],
+      "provider_sha256": "b2fbb4e12b00b5641ec9d49f04bec62532173b323719eb5e7d3e751a343a3573"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/sigma_calculus.py",
+      "module": "polisyos.foundry.methods.catalog.causal.sigma_calculus",
+      "function": "apply_sigma_rule3",
+      "line": 148,
+      "args": [
+        "dist_ref",
+        "graph",
+        "z_vars",
+        "selection_vars"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": true,
+      "first_statement": "_validate_static_admg(graph)",
+      "calls": [
+        "IRProofStep",
+        "_build_sigma_graph",
+        "_validate_static_admg",
+        "ancestors",
+        "dist_ref.model_copy",
+        "frozenset",
+        "m_separation",
+        "remove_incoming_edges",
+        "sorted",
+        "tuple"
+      ],
+      "provider_sha256": "b2fbb4e12b00b5641ec9d49f04bec62532173b323719eb5e7d3e751a343a3573"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/sigma_calculus.py",
+      "module": "polisyos.foundry.methods.catalog.causal.sigma_calculus",
+      "function": "rewrite_estimand_with_selection",
+      "line": 337,
+      "args": [
+        "ast",
+        "graph",
+        "selection_vars",
+        "max_iterations",
+        "ctf_postpass"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": true,
+      "first_statement": "_validate_static_admg(graph)",
+      "calls": [
+        "_resolve_ctf_postpass",
+        "_rewrite_node_with_selection",
+        "_validate_static_admg",
+        "all_steps.extend",
+        "ast.model_copy",
+        "range",
+        "resolved_postpass"
+      ],
+      "provider_sha256": "b2fbb4e12b00b5641ec9d49f04bec62532173b323719eb5e7d3e751a343a3573"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/sigma_calculus.py",
+      "module": "polisyos.foundry.methods.catalog.causal.sigma_calculus",
+      "function": "sigma_identify",
+      "line": 367,
+      "args": [
+        "ast",
+        "graph",
+        "selection_vars",
+        "max_iterations",
+        "ctf_postpass"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": false,
+      "first_statement": "from .do_calculus import rewrite_estimand",
+      "calls": [
+        "frozenset",
+        "rewrite_estimand",
+        "rewrite_estimand_with_selection"
+      ],
+      "provider_sha256": "b2fbb4e12b00b5641ec9d49f04bec62532173b323719eb5e7d3e751a343a3573"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/sigma_calculus.py",
+      "module": "polisyos.foundry.methods.catalog.causal.sigma_calculus",
+      "function": "sigma_z_identify",
+      "line": 394,
+      "args": [
+        "ast",
+        "graph",
+        "selection_vars",
+        "z_interventions",
+        "max_iterations",
+        "ctf_postpass"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": false,
+      "first_statement": "combined_selection = frozenset(selection_vars) | frozenset(z_interventions)",
+      "calls": [
+        "frozenset",
+        "rewrite_estimand_with_selection"
+      ],
+      "provider_sha256": "b2fbb4e12b00b5641ec9d49f04bec62532173b323719eb5e7d3e751a343a3573"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "module": "polisyos.foundry.methods.catalog.causal.id_engine.core",
+      "function": "_pag_id_algorithm",
+      "line": 91,
+      "args": [
+        "treatment",
+        "outcome",
+        "graph",
+        "available_vars",
+        "dataset_ref",
+        "domain",
+        "_depth",
+        "_trace",
+        "_pag_steps"
+      ],
+      "public": false,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": true,
+      "first_statement": "_validate_static_admg(graph)",
+      "calls": [
+        "CausalEdge",
+        "CausalGraphModel",
+        "IdentificationResult",
+        "ProofStep",
+        "_trace.append",
+        "_validate_static_admg",
+        "apply_pag_orientation_rules",
+        "bool",
+        "committed_edges.append",
+        "dataclasses.replace",
+        "dict",
+        "id_algorithm",
+        "list",
+        "pag_steps.append",
+        "reachable_closure",
+        "sorted",
+        "sum",
+        "tuple"
+      ],
+      "provider_sha256": "f1974d6f7e7d44023f3be66df17a71271e8b657d6daccaf4da8fac54e4c99b3c"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "module": "polisyos.foundry.methods.catalog.causal.id_engine.core",
+      "function": "id_algorithm",
+      "line": 553,
+      "args": [
+        "treatment",
+        "outcome",
+        "graph",
+        "available_vars",
+        "dataset_ref",
+        "domain",
+        "_depth",
+        "_trace"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": true,
+      "first_statement": "_validate_static_admg(graph)",
+      "calls": [
+        "DistributionRef",
+        "IdentificationResult",
+        "ProofStep",
+        "_check_hedge_condition",
+        "_dag_g_formula",
+        "_detect_frontdoor_mediator",
+        "_pag_id_algorithm",
+        "_step5_formula",
+        "_step6_formula",
+        "_steps.append",
+        "_trace.append",
+        "_validate_static_admg",
+        "_wrap_root",
+        "ancestors",
+        "c_components",
+        "dataclasses.replace",
+        "do_operator",
+        "extract_bidirected_edges",
+        "frontdoor_ast.collect_distribution_refs",
+        "frozenset",
+        "id_algorithm",
+        "induced_subgraph",
+        "iter",
+        "list",
+        "make_frontdoor_estimand",
+        "next",
+        "sorted",
+        "tuple"
+      ],
+      "provider_sha256": "f1974d6f7e7d44023f3be66df17a71271e8b657d6daccaf4da8fac54e4c99b3c"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "module": "polisyos.foundry.methods.catalog.causal.id_engine.core",
+      "function": "idc_algorithm",
+      "line": 871,
+      "args": [
+        "treatment",
+        "outcome",
+        "conditions",
+        "graph",
+        "dataset_ref",
+        "domain"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": true,
+      "first_statement": "_validate_static_admg(graph)",
+      "calls": [
+        "EstimandAST",
+        "IdentificationResult",
+        "ProofStep",
+        "RatioNode",
+        "_validate_static_admg",
+        "dataclasses.replace",
+        "id_algorithm",
+        "idc_steps.append",
+        "iter",
+        "len",
+        "list",
+        "next",
+        "set",
+        "sorted",
+        "str",
+        "trace.append",
+        "tuple"
+      ],
+      "provider_sha256": "f1974d6f7e7d44023f3be66df17a71271e8b657d6daccaf4da8fac54e4c99b3c"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "module": "polisyos.foundry.methods.catalog.causal.id_engine.core",
+      "function": "tr_algorithm",
+      "line": 1204,
+      "args": [
+        "treatment",
+        "outcome",
+        "selection_diagram",
+        "dataset_ref"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": true,
+      "first_statement": "from polisyos.ir.analytics.transportability import SelectionDiagram",
+      "calls": [
+        "IdentificationResult",
+        "ProofStep",
+        "_s_trim_lemma",
+        "_steps.append",
+        "_validate_static_admg",
+        "augment_with_s_nodes",
+        "dataclasses.replace",
+        "frozenset",
+        "id_algorithm",
+        "isinstance",
+        "len",
+        "list",
+        "sorted",
+        "trace.append",
+        "tuple"
+      ],
+      "provider_sha256": "f1974d6f7e7d44023f3be66df17a71271e8b657d6daccaf4da8fac54e4c99b3c"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "module": "polisyos.foundry.methods.catalog.causal.id_engine.core",
+      "function": "id_with_oracle_fallback",
+      "line": 1321,
+      "args": [
+        "treatment",
+        "outcome",
+        "graph",
+        "oracle",
+        "dataset_ref",
+        "domain"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": false,
+      "first_statement": "result = id_algorithm(treatment=treatment, outcome=outcome, graph=graph, dataset_ref=dataset_ref, domain=domain)",
+      "calls": [
+        "_oracle_dosearch",
+        "_oracle_y0",
+        "id_algorithm"
+      ],
+      "provider_sha256": "f1974d6f7e7d44023f3be66df17a71271e8b657d6daccaf4da8fac54e4c99b3c"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "module": "polisyos.foundry.methods.catalog.causal.id_engine.core",
+      "function": "find_hedge",
+      "line": 1380,
+      "args": [
+        "treatment",
+        "outcome",
+        "graph",
+        "available_vars"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": false,
+      "first_statement": "from polisyos.foundry.methods.catalog.causal.admg_ops import ancestors, c_components, extract_bidirected_edges, induced_subgraph",
+      "calls": [
+        "DistributionRef",
+        "HedgeCertificate",
+        "RequiredDataSpec",
+        "ancestors",
+        "c_components",
+        "extract_bidirected_edges",
+        "frozenset",
+        "induced_subgraph",
+        "minimal_s.add",
+        "set",
+        "sorted",
+        "tuple"
+      ],
+      "provider_sha256": "f1974d6f7e7d44023f3be66df17a71271e8b657d6daccaf4da8fac54e4c99b3c"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "module": "polisyos.foundry.methods.catalog.causal.id_engine.core",
+      "function": "find_thicket",
+      "line": 1472,
+      "args": [
+        "treatment",
+        "outcome",
+        "graph",
+        "available_vars"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": false,
+      "first_statement": "from polisyos.foundry.methods.catalog.causal.admg_ops import ancestors, c_components, extract_bidirected_edges, induced_subgraph",
+      "calls": [
+        "DistributionRef",
+        "HedgeCertificate",
+        "RequiredDataSpec",
+        "all_certs.append",
+        "ancestors",
+        "any",
+        "c_components",
+        "extract_bidirected_edges",
+        "frozenset",
+        "induced_subgraph",
+        "minimal_certs.append",
+        "minimal_s.add",
+        "seen.add",
+        "set",
+        "sorted",
+        "tuple"
+      ],
+      "provider_sha256": "f1974d6f7e7d44023f3be66df17a71271e8b657d6daccaf4da8fac54e4c99b3c"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/transport.py",
+      "module": "polisyos.foundry.methods.catalog.causal.id_engine.transport",
+      "function": "z_id_algorithm",
+      "line": 129,
+      "args": [
+        "treatment",
+        "outcome",
+        "z_interventions",
+        "graph",
+        "available_domains",
+        "dataset_ref",
+        "_depth",
+        "_trace"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": true,
+      "first_statement": "_validate_static_admg(graph)",
+      "calls": [
+        "IdentificationResult",
+        "ProofStep",
+        "_steps.append",
+        "_trace.append",
+        "_validate_static_admg",
+        "_z_transport_direct_pass",
+        "dataclasses.replace",
+        "frozenset",
+        "id_algorithm",
+        "id_with_oracle_fallback",
+        "idc_algorithm",
+        "list",
+        "sorted",
+        "status_rank.get",
+        "tuple"
+      ],
+      "provider_sha256": "3b98ceacd57b4ba953432e7e1af0d9dc928c0b142ed4d6ba5f4a57510753c540"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/transport.py",
+      "module": "polisyos.foundry.methods.catalog.causal.id_engine.transport",
+      "function": "mz_id_algorithm",
+      "line": 488,
+      "args": [
+        "treatment",
+        "outcome",
+        "source_domains",
+        "graph",
+        "dataset_ref"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": true,
+      "first_statement": "_validate_static_admg(graph)",
+      "calls": [
+        "ContextProfile",
+        "SNode",
+        "SelectionDiagram",
+        "_mz_factorize_by_c_component",
+        "_normalize_source_domains",
+        "_prune_source_domains",
+        "_trace.append",
+        "_validate_static_admg",
+        "augment_with_s_nodes",
+        "bool",
+        "enumerate",
+        "id_with_oracle_fallback",
+        "identified_results.append",
+        "identified_results.sort",
+        "len",
+        "sorted",
+        "tr_algorithm",
+        "z_id_algorithm"
+      ],
+      "provider_sha256": "3b98ceacd57b4ba953432e7e1af0d9dc928c0b142ed4d6ba5f4a57510753c540"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/transport.py",
+      "module": "polisyos.foundry.methods.catalog.causal.id_engine.transport",
+      "function": "sid_algorithm",
+      "line": 877,
+      "args": [
+        "treatment",
+        "outcome",
+        "graph",
+        "policy",
+        "available_vars",
+        "dataset_ref",
+        "domain",
+        "s_nodes"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": true,
+      "first_statement": "_validate_static_admg(graph)",
+      "calls": [
+        "IdentificationResult",
+        "ProofStep",
+        "_attempt_sigma_policy_identification",
+        "_dag_g_formula",
+        "_make_policy_estimand_ast",
+        "_policy_metadata",
+        "_policy_side_conditions",
+        "_resolve_selection_targets",
+        "_steps.append",
+        "_trace.append",
+        "_trace.extend",
+        "_validate_static_admg",
+        "conditional_intervention_id",
+        "dataclasses.replace",
+        "dict",
+        "frozenset",
+        "getattr",
+        "id_algorithm",
+        "iter",
+        "len",
+        "list",
+        "next",
+        "sorted",
+        "str",
+        "tuple"
+      ],
+      "provider_sha256": "3b98ceacd57b4ba953432e7e1af0d9dc928c0b142ed4d6ba5f4a57510753c540"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/transport.py",
+      "module": "polisyos.foundry.methods.catalog.causal.id_engine.transport",
+      "function": "conditional_intervention_id",
+      "line": 1102,
+      "args": [
+        "treatment",
+        "outcome",
+        "condition_vars",
+        "graph",
+        "available_vars",
+        "dataset_ref",
+        "domain"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": true,
+      "first_statement": "_validate_static_admg(graph)",
+      "calls": [
+        "ConditionalInterventionNode",
+        "EstimandAST",
+        "IdentificationResult",
+        "ProofStep",
+        "_steps.append",
+        "_trace.append",
+        "_trace.extend",
+        "_validate_static_admg",
+        "dataclasses.replace",
+        "id_algorithm",
+        "iter",
+        "len",
+        "list",
+        "next",
+        "sorted",
+        "str",
+        "tuple"
+      ],
+      "provider_sha256": "3b98ceacd57b4ba953432e7e1af0d9dc928c0b142ed4d6ba5f4a57510753c540"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/transport.py",
+      "module": "polisyos.foundry.methods.catalog.causal.id_engine.transport",
+      "function": "dynamic_intervention_id",
+      "line": 1217,
+      "args": [
+        "treatment_sequence",
+        "outcome",
+        "graph",
+        "time_points",
+        "covariate_sequence",
+        "dataset_ref",
+        "domain"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": true,
+      "first_statement": "_validate_static_admg(graph)",
+      "calls": [
+        "'; '.join",
+        "DistributionRef",
+        "EstimandAST",
+        "IdentificationResult",
+        "ProductNode",
+        "ProofStep",
+        "SumNode",
+        "_steps.append",
+        "_trace.append",
+        "_validate_static_admg",
+        "ancestors",
+        "do_operator",
+        "enumerate",
+        "factors.append",
+        "frozenset",
+        "len",
+        "m_separation",
+        "set",
+        "si_warnings.append",
+        "sorted",
+        "str",
+        "tuple"
+      ],
+      "provider_sha256": "3b98ceacd57b4ba953432e7e1af0d9dc928c0b142ed4d6ba5f4a57510753c540"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/transport.py",
+      "module": "polisyos.foundry.methods.catalog.causal.id_engine.transport",
+      "function": "joint_id_algorithm",
+      "line": 1410,
+      "args": [
+        "treatments",
+        "outcomes",
+        "graph",
+        "available_vars",
+        "dataset_ref",
+        "domain"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": true,
+      "first_statement": "_validate_static_admg(graph)",
+      "calls": [
+        "EstimandAST",
+        "IdentificationResult",
+        "ProductNode",
+        "ProofStep",
+        "_steps.append",
+        "_trace.append",
+        "_trace.extend",
+        "_validate_static_admg",
+        "all_required.extend",
+        "c_components",
+        "comp_outcome_groups.append",
+        "dataclasses.replace",
+        "dict.fromkeys",
+        "dict.fromkeys(((str(d), d) for d in all_required)).values",
+        "factor_estimands.append",
+        "frozenset",
+        "id_algorithm",
+        "induced_subgraph",
+        "iter",
+        "len",
+        "list",
+        "next",
+        "set",
+        "sorted",
+        "str",
+        "tuple"
+      ],
+      "provider_sha256": "3b98ceacd57b4ba953432e7e1af0d9dc928c0b142ed4d6ba5f4a57510753c540"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/transport.py",
+      "module": "polisyos.foundry.methods.catalog.causal.id_engine.transport",
+      "function": "multi_outcome_id",
+      "line": 1590,
+      "args": [
+        "treatment",
+        "outcomes",
+        "graph",
+        "available_vars",
+        "dataset_ref",
+        "domain"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": true,
+      "first_statement": "_validate_static_admg(graph)",
+      "calls": [
+        "ProofStep",
+        "_trace.append",
+        "_validate_static_admg",
+        "c_components",
+        "dataclasses.replace",
+        "frozenset",
+        "id_algorithm",
+        "induced_subgraph",
+        "len",
+        "list",
+        "sorted",
+        "tuple"
+      ],
+      "provider_sha256": "3b98ceacd57b4ba953432e7e1af0d9dc928c0b142ed4d6ba5f4a57510753c540"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/counterfactual.py",
+      "module": "polisyos.foundry.methods.catalog.causal.id_engine.counterfactual",
+      "function": "_build_counterfactual_graph",
+      "line": 418,
+      "args": [
+        "graph",
+        "normalized_query"
+      ],
+      "public": false,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": true,
+      "first_statement": "_validate_static_admg(graph)",
+      "calls": [
+        "CausalEdge",
+        "CausalGraphModel.model_construct",
+        "_add_edge",
+        "_validate_static_admg",
+        "dict",
+        "dict.fromkeys",
+        "edges.append",
+        "enumerate",
+        "extract_directed_edges",
+        "list",
+        "nodes.append",
+        "seen_edges.add",
+        "set",
+        "sorted",
+        "tuple"
+      ],
+      "provider_sha256": "9403daa9823f7cc3d5d8e3c8c13d68804fee45156b189234f47c4e48d154a2a8"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/counterfactual.py",
+      "module": "polisyos.foundry.methods.catalog.causal.id_engine.counterfactual",
+      "function": "id_star_algorithm",
+      "line": 889,
+      "args": [
+        "counterfactual_query",
+        "graph",
+        "_depth",
+        "_trace"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": true,
+      "first_statement": "_validate_static_admg(graph)",
+      "calls": [
+        "', '.join",
+        "IdentificationResult",
+        "ProofStep",
+        "_build_counterfactual_graph",
+        "_counterfactual_ast",
+        "_counterfactual_conflicts",
+        "_counterfactual_negative_certificate",
+        "_ctf_c_components",
+        "_ctf_node_base",
+        "_ctf_node_name",
+        "_ctf_reduction_treatment",
+        "_ctf_world_lookup",
+        "_format_assignment",
+        "_normalize_counterfactual_query",
+        "_normalized_counterfactual_query_str",
+        "_reduce_counterfactual_graph",
+        "_validate_static_admg",
+        "focus_nodes.update",
+        "frozenset",
+        "id_algorithm",
+        "len",
+        "list",
+        "proof_steps.append",
+        "reduced_results.append",
+        "required_distributions.extend",
+        "sorted",
+        "trace.append",
+        "tuple"
+      ],
+      "provider_sha256": "9403daa9823f7cc3d5d8e3c8c13d68804fee45156b189234f47c4e48d154a2a8"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/counterfactual.py",
+      "module": "polisyos.foundry.methods.catalog.causal.id_engine.counterfactual",
+      "function": "idc_star_algorithm",
+      "line": 1130,
+      "args": [
+        "counterfactual_query",
+        "graph",
+        "_depth",
+        "_trace"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": true,
+      "first_statement": "_validate_static_admg(graph)",
+      "calls": [
+        "CausalGraphModel.model_construct",
+        "CtfQuery",
+        "DistributionRef",
+        "EstimandAST",
+        "IdentificationResult",
+        "ProofStep",
+        "RatioNode",
+        "_build_counterfactual_graph",
+        "_ctf_is_not_self_intervened",
+        "_ctf_node_name",
+        "_ctf_world_lookup",
+        "_format_assignment",
+        "_format_counterfactual_query_str",
+        "_normalize_counterfactual_query",
+        "_sorted_assignments",
+        "_validate_static_admg",
+        "dataclasses.replace",
+        "dict",
+        "float",
+        "frozenset",
+        "id_star_algorithm",
+        "idc_star_algorithm",
+        "len",
+        "list",
+        "m_separation",
+        "sorted",
+        "trace.append",
+        "tuple"
+      ],
+      "provider_sha256": "9403daa9823f7cc3d5d8e3c8c13d68804fee45156b189234f47c4e48d154a2a8"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/amn.py",
+      "module": "polisyos.foundry.methods.catalog.causal.amn",
+      "function": "build_amn",
+      "line": 54,
+      "args": [
+        "graph",
+        "interventions"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": true,
+      "first_statement": "_validate_static_admg(graph)",
+      "calls": [
+        "AMNMetadata",
+        "CausalEdge",
+        "CausalGraphModel",
+        "_infer_shared_exogenous",
+        "_source_graph_hash",
+        "_validate_static_admg",
+        "_world_node",
+        "amn_edges.append",
+        "amn_nodes.append",
+        "bridge_edges.append",
+        "combinations",
+        "dict",
+        "edge.metadata.items",
+        "edge.model_copy",
+        "intervened_vars.update",
+        "interventions.items",
+        "interventions.values",
+        "meta.model_dump",
+        "seen.add",
+        "set",
+        "sorted",
+        "tuple",
+        "world_data.keys",
+        "world_nodes.append"
+      ],
+      "provider_sha256": "af743f3493cf99c62a7715a4be20dfb5631a7564363e382d9cac31cb24ca0172"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/amn.py",
+      "module": "polisyos.foundry.methods.catalog.causal.amn",
+      "function": "amn_d_separation",
+      "line": 157,
+      "args": [
+        "graph",
+        "meta",
+        "x_set",
+        "y_set",
+        "z_set"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": true,
+      "first_statement": "_validate_static_admg(graph)",
+      "calls": [
+        "', '.join",
+        "ValueError",
+        "_validate_static_admg",
+        "m_separation",
+        "set",
+        "sorted"
+      ],
+      "provider_sha256": "af743f3493cf99c62a7715a4be20dfb5631a7564363e382d9cac31cb24ca0172"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/amn.py",
+      "module": "polisyos.foundry.methods.catalog.causal.amn",
+      "function": "amn_ctf_independence",
+      "line": 179,
+      "args": [
+        "amn",
+        "x_vars",
+        "y_vars",
+        "z_vars"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": true,
+      "first_statement": "_validate_static_admg(amn)",
+      "calls": [
+        "', '.join",
+        "ValueError",
+        "_validate_static_admg",
+        "m_separation",
+        "set",
+        "sorted"
+      ],
+      "provider_sha256": "af743f3493cf99c62a7715a4be20dfb5631a7564363e382d9cac31cb24ca0172"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/amn.py",
+      "module": "polisyos.foundry.methods.catalog.causal.amn",
+      "function": "amn_ancestral_projection",
+      "line": 199,
+      "args": [
+        "amn",
+        "target_vars"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": true,
+      "first_statement": "_validate_static_admg(amn)",
+      "calls": [
+        "', '.join",
+        "ValueError",
+        "_validate_static_admg",
+        "ancestors",
+        "induced_subgraph",
+        "set",
+        "sorted"
+      ],
+      "provider_sha256": "af743f3493cf99c62a7715a4be20dfb5631a7564363e382d9cac31cb24ca0172"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/amn.py",
+      "module": "polisyos.foundry.methods.catalog.causal.amn",
+      "function": "verify_ctf_faithfulness",
+      "line": 228,
+      "args": [
+        "amn",
+        "scm",
+        "n_samples",
+        "alpha",
+        "rng"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": true,
+      "first_statement": "_validate_static_admg(amn)",
+      "calls": [
+        "_np.asarray",
+        "_np.asarray(data[a], dtype=float).ravel",
+        "_np.asarray(data[b], dtype=float).ravel",
+        "_np.asarray(data[v], dtype=float).ravel",
+        "_np.column_stack",
+        "_np.corrcoef",
+        "_np.cov",
+        "_np.eye",
+        "_np.linalg.inv",
+        "_np.random.default_rng",
+        "_np.sqrt",
+        "_validate_static_admg",
+        "abs",
+        "adjacent_pairs.add",
+        "enumerate",
+        "float",
+        "frozenset",
+        "len",
+        "list",
+        "m_separation",
+        "max",
+        "min",
+        "scm.sample",
+        "set",
+        "t_dist.cdf",
+        "tests.append"
+      ],
+      "provider_sha256": "af743f3493cf99c62a7715a4be20dfb5631a7564363e382d9cac31cb24ca0172"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/ctf_calculus.py",
+      "module": "polisyos.foundry.methods.catalog.causal.ctf_calculus",
+      "function": "apply_ctf_rule1",
+      "line": 169,
+      "args": [
+        "node",
+        "amn",
+        "z_vars"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": true,
+      "first_statement": "_validate_static_admg(amn)",
+      "calls": [
+        "AMNMetadata.model_validate",
+        "IRProofStep",
+        "_amn_node_name",
+        "_validate_static_admg",
+        "_world_label",
+        "amn_d_separation",
+        "frozenset",
+        "node.model_copy",
+        "remove_incoming_edges",
+        "sorted",
+        "tuple"
+      ],
+      "provider_sha256": "e9a3d918423e6c791b95de509271ca2324738cd7722d7e8a25b4663877930c88"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/ctf_calculus.py",
+      "module": "polisyos.foundry.methods.catalog.causal.ctf_calculus",
+      "function": "apply_ctf_rule2",
+      "line": 227,
+      "args": [
+        "node",
+        "amn",
+        "z_vars"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": true,
+      "first_statement": "_validate_static_admg(amn)",
+      "calls": [
+        "AMNMetadata.model_validate",
+        "IRProofStep",
+        "_amn_node_name",
+        "_validate_static_admg",
+        "_world_label",
+        "amn_d_separation",
+        "frozenset",
+        "node.intervention.items",
+        "node.model_copy",
+        "remove_incoming_edges",
+        "remove_outgoing_edges",
+        "sorted",
+        "tuple"
+      ],
+      "provider_sha256": "e9a3d918423e6c791b95de509271ca2324738cd7722d7e8a25b4663877930c88"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/ctf_calculus.py",
+      "module": "polisyos.foundry.methods.catalog.causal.ctf_calculus",
+      "function": "apply_ctf_rule3",
+      "line": 291,
+      "args": [
+        "node",
+        "amn",
+        "z_vars"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": true,
+      "first_statement": "_validate_static_admg(amn)",
+      "calls": [
+        "AMNMetadata.model_validate",
+        "IRProofStep",
+        "_amn_node_name",
+        "_validate_static_admg",
+        "_world_label",
+        "amn_d_separation",
+        "ancestors",
+        "frozenset",
+        "node.intervention.items",
+        "node.model_copy",
+        "remove_incoming_edges",
+        "sorted",
+        "tuple",
+        "z_node_map.items"
+      ],
+      "provider_sha256": "e9a3d918423e6c791b95de509271ca2324738cd7722d7e8a25b4663877930c88"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/ctf_calculus.py",
+      "module": "polisyos.foundry.methods.catalog.causal.ctf_calculus",
+      "function": "rewrite_ctf_estimand",
+      "line": 523,
+      "args": [
+        "ast",
+        "graph",
+        "max_iterations"
+      ],
+      "public": true,
+      "classification": "static_causal_entry_or_builder",
+      "direct_shared_guard": true,
+      "first_statement": "_validate_static_admg(graph)",
+      "calls": [
+        "_build_amn_for_ast",
+        "_protected_interventions",
+        "_rewrite_ctf_node",
+        "_validate_static_admg",
+        "all_steps.extend",
+        "ast.model_copy",
+        "ast_contains_counterfactual",
+        "range"
+      ],
+      "provider_sha256": "e9a3d918423e6c791b95de509271ca2324738cd7722d7e8a25b4663877930c88"
+    }
+  ],
+  "entry_count": 62,
+  "classification_counts": {
+    "raw_endpoint_or_orientation_inspection": 5,
+    "static_causal_entry_or_builder": 57
+  },
+  "resolved_static_callers": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/amn.py",
+      "line": 176,
+      "call": "m_separation",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.m_separation"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/amn.py",
+      "line": 196,
+      "call": "m_separation",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.m_separation"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/amn.py",
+      "line": 225,
+      "call": "induced_subgraph",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.induced_subgraph"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/amn.py",
+      "line": 224,
+      "call": "ancestors",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.ancestors"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/amn.py",
+      "line": 277,
+      "call": "m_separation",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.m_separation"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/identification.py",
+      "line": 987,
+      "call": "sigma_identify",
+      "resolved": "polisyos.foundry.methods.catalog.causal.sigma_calculus.sigma_identify"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/identification.py",
+      "line": 1077,
+      "call": "sigma_identify",
+      "resolved": "polisyos.foundry.methods.catalog.causal.sigma_calculus.sigma_identify"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/identification.py",
+      "line": 1155,
+      "call": "sigma_identify",
+      "resolved": "polisyos.foundry.methods.catalog.causal.sigma_calculus.sigma_identify"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/constraint_discovery.py",
+      "line": 953,
+      "call": "extract_directed_edges",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.extract_directed_edges"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/constraint_discovery.py",
+      "line": 960,
+      "call": "extract_bidirected_edges",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.extract_bidirected_edges"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/constraint_discovery.py",
+      "line": 1056,
+      "call": "ancestors",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.ancestors"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/constraint_discovery.py",
+      "line": 1057,
+      "call": "ancestors",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.ancestors"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/constraint_discovery.py",
+      "line": 1153,
+      "call": "ancestors",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.ancestors"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/constraint_discovery.py",
+      "line": 1154,
+      "call": "ancestors",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.ancestors"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/ctf_calculus.py",
+      "line": 136,
+      "call": "build_amn",
+      "resolved": "polisyos.foundry.methods.catalog.causal.amn.build_amn"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/ctf_calculus.py",
+      "line": 190,
+      "call": "remove_incoming_edges",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.remove_incoming_edges"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/ctf_calculus.py",
+      "line": 249,
+      "call": "remove_incoming_edges",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.remove_incoming_edges"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/ctf_calculus.py",
+      "line": 250,
+      "call": "remove_outgoing_edges",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.remove_outgoing_edges"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/ctf_calculus.py",
+      "line": 315,
+      "call": "remove_incoming_edges",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.remove_incoming_edges"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/ctf_calculus.py",
+      "line": 323,
+      "call": "remove_incoming_edges",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.remove_incoming_edges"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/ctf_calculus.py",
+      "line": 316,
+      "call": "ancestors",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.ancestors"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/ctf_calculus.py",
+      "line": 193,
+      "call": "amn_d_separation",
+      "resolved": "polisyos.foundry.methods.catalog.causal.amn.amn_d_separation"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/ctf_calculus.py",
+      "line": 200,
+      "call": "amn_d_separation",
+      "resolved": "polisyos.foundry.methods.catalog.causal.amn.amn_d_separation"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/ctf_calculus.py",
+      "line": 253,
+      "call": "amn_d_separation",
+      "resolved": "polisyos.foundry.methods.catalog.causal.amn.amn_d_separation"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/ctf_calculus.py",
+      "line": 260,
+      "call": "amn_d_separation",
+      "resolved": "polisyos.foundry.methods.catalog.causal.amn.amn_d_separation"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/ctf_calculus.py",
+      "line": 326,
+      "call": "amn_d_separation",
+      "resolved": "polisyos.foundry.methods.catalog.causal.amn.amn_d_separation"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/ctf_calculus.py",
+      "line": 333,
+      "call": "amn_d_separation",
+      "resolved": "polisyos.foundry.methods.catalog.causal.amn.amn_d_separation"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/ctf_transport.py",
+      "line": 517,
+      "call": "rewrite_ctf_estimand",
+      "resolved": "polisyos.foundry.methods.catalog.causal.ctf_calculus.rewrite_ctf_estimand"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/ctf_transport.py",
+      "line": 518,
+      "call": "rewrite_estimand_with_selection",
+      "resolved": "polisyos.foundry.methods.catalog.causal.sigma_calculus.rewrite_estimand_with_selection"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/ctf_transport.py",
+      "line": 516,
+      "call": "augment_with_s_nodes",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.augment_with_s_nodes"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/cyclic_id.py",
+      "line": 264,
+      "call": "tarjan_scc",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.tarjan_scc"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/cyclic_id.py",
+      "line": 327,
+      "call": "m_separation",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.m_separation"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/cyclic_id.py",
+      "line": 464,
+      "call": "tarjan_scc",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.tarjan_scc"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/cyclic_id.py",
+      "line": 446,
+      "call": "has_directed_cycle",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.has_directed_cycle"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/do_calculus.py",
+      "line": 109,
+      "call": "remove_incoming_edges",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.remove_incoming_edges"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/do_calculus.py",
+      "line": 165,
+      "call": "remove_incoming_edges",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.remove_incoming_edges"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/do_calculus.py",
+      "line": 166,
+      "call": "remove_outgoing_edges",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.remove_outgoing_edges"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/do_calculus.py",
+      "line": 232,
+      "call": "remove_incoming_edges",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.remove_incoming_edges"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/do_calculus.py",
+      "line": 238,
+      "call": "remove_incoming_edges",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.remove_incoming_edges"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/do_calculus.py",
+      "line": 111,
+      "call": "m_separation",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.m_separation"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/do_calculus.py",
+      "line": 168,
+      "call": "m_separation",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.m_separation"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/do_calculus.py",
+      "line": 233,
+      "call": "ancestors",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.ancestors"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/do_calculus.py",
+      "line": 240,
+      "call": "m_separation",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.m_separation"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/do_calculus.py",
+      "line": 391,
+      "call": "rewrite_ctf_estimand",
+      "resolved": "polisyos.foundry.methods.catalog.causal.ctf_calculus.rewrite_ctf_estimand"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/estimand_compiler.py",
+      "line": 2270,
+      "call": "rewrite_estimand",
+      "resolved": "polisyos.foundry.methods.catalog.causal.do_calculus.rewrite_estimand"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+      "line": 194,
+      "call": "tarjan_scc",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.tarjan_scc"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "line": 239,
+      "call": "reachable_closure",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.reachable_closure"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "line": 353,
+      "call": "c_components",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.c_components"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "line": 377,
+      "call": "extract_bidirected_edges",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.extract_bidirected_edges"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "line": 433,
+      "call": "extract_directed_edges",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.extract_directed_edges"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "line": 434,
+      "call": "extract_bidirected_edges",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.extract_bidirected_edges"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "line": 477,
+      "call": "extract_directed_edges",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.extract_directed_edges"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "line": 673,
+      "call": "do_operator",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.do_operator"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "line": 760,
+      "call": "induced_subgraph",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.induced_subgraph"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "line": 761,
+      "call": "c_components",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.c_components"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "line": 1064,
+      "call": "ancestors",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.ancestors"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "line": 1136,
+      "call": "extract_bidirected_edges",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.extract_bidirected_edges"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "line": 1141,
+      "call": "do_operator",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.do_operator"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "line": 1152,
+      "call": "descendants",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.descendants"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "line": 1300,
+      "call": "augment_with_s_nodes",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.augment_with_s_nodes"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "line": 1421,
+      "call": "induced_subgraph",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.induced_subgraph"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "line": 1424,
+      "call": "induced_subgraph",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.induced_subgraph"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "line": 1425,
+      "call": "c_components",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.c_components"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "line": 1428,
+      "call": "c_components",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.c_components"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "line": 1430,
+      "call": "extract_bidirected_edges",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.extract_bidirected_edges"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "line": 1506,
+      "call": "induced_subgraph",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.induced_subgraph"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "line": 1507,
+      "call": "induced_subgraph",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.induced_subgraph"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "line": 1508,
+      "call": "c_components",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.c_components"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "line": 1509,
+      "call": "c_components",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.c_components"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "line": 1510,
+      "call": "extract_bidirected_edges",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.extract_bidirected_edges"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "line": 1909,
+      "call": "extract_directed_edges",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.extract_directed_edges"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "line": 1992,
+      "call": "induced_subgraph",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.induced_subgraph"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "line": 644,
+      "call": "ancestors",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.ancestors"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "line": 656,
+      "call": "induced_subgraph",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.induced_subgraph"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "line": 674,
+      "call": "ancestors",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.ancestors"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "line": 809,
+      "call": "c_components",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.c_components"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "line": 1420,
+      "call": "ancestors",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.ancestors"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "line": 1505,
+      "call": "ancestors",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.ancestors"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "line": 1896,
+      "call": "topological_order",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.topological_order"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "line": 482,
+      "call": "topological_order",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.topological_order"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "line": 613,
+      "call": "ancestors",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.ancestors"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "line": 704,
+      "call": "extract_bidirected_edges",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.extract_bidirected_edges"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "line": 1089,
+      "call": "resolve_s_node_by_adjustment",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.resolve_s_node_by_adjustment"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "line": 1161,
+      "call": "m_separation",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.m_separation"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "line": 459,
+      "call": "descendants",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.descendants"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/counterfactual.py",
+      "line": 597,
+      "call": "topological_order",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.topological_order"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/counterfactual.py",
+      "line": 698,
+      "call": "c_components",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.c_components"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/counterfactual.py",
+      "line": 453,
+      "call": "extract_directed_edges",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.extract_directed_edges"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/counterfactual.py",
+      "line": 666,
+      "call": "induced_subgraph",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.induced_subgraph"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/counterfactual.py",
+      "line": 698,
+      "call": "induced_subgraph",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.induced_subgraph"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/counterfactual.py",
+      "line": 665,
+      "call": "ancestors",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.ancestors"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/counterfactual.py",
+      "line": 1188,
+      "call": "m_separation",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.m_separation"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/transport.py",
+      "line": 293,
+      "call": "c_components",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.c_components"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/transport.py",
+      "line": 294,
+      "call": "ancestors",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.ancestors"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/transport.py",
+      "line": 346,
+      "call": "ancestors",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.ancestors"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/transport.py",
+      "line": 347,
+      "call": "induced_subgraph",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.induced_subgraph"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/transport.py",
+      "line": 349,
+      "call": "c_components",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.c_components"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/transport.py",
+      "line": 819,
+      "call": "sigma_identify",
+      "resolved": "polisyos.foundry.methods.catalog.causal.sigma_calculus.sigma_identify"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/transport.py",
+      "line": 1473,
+      "call": "induced_subgraph",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.induced_subgraph"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/transport.py",
+      "line": 1474,
+      "call": "c_components",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.c_components"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/transport.py",
+      "line": 1628,
+      "call": "induced_subgraph",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.induced_subgraph"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/transport.py",
+      "line": 1629,
+      "call": "c_components",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.c_components"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/transport.py",
+      "line": 364,
+      "call": "induced_subgraph",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.induced_subgraph"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/transport.py",
+      "line": 1279,
+      "call": "ancestors",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.ancestors"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/transport.py",
+      "line": 1516,
+      "call": "induced_subgraph",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.induced_subgraph"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/transport.py",
+      "line": 1659,
+      "call": "induced_subgraph",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.induced_subgraph"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/transport.py",
+      "line": 549,
+      "call": "augment_with_s_nodes",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.augment_with_s_nodes"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/transport.py",
+      "line": 1278,
+      "call": "do_operator",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.do_operator"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/transport.py",
+      "line": 1286,
+      "call": "m_separation",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.m_separation"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/transport.py",
+      "line": 377,
+      "call": "augment_with_s_nodes",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.augment_with_s_nodes"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/measurement_error.py",
+      "line": 171,
+      "call": "m_separation",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.m_separation"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/missing_data.py",
+      "line": 1653,
+      "call": "m_separation",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.m_separation"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/optimal_design.py",
+      "line": 100,
+      "call": "extract_directed_edges",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.extract_directed_edges"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/optimal_design.py",
+      "line": 138,
+      "call": "remove_incoming_edges",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.remove_incoming_edges"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/optimal_design.py",
+      "line": 141,
+      "call": "ancestors",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.ancestors"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/optimal_design.py",
+      "line": 150,
+      "call": "descendants",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.descendants"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/optimal_design.py",
+      "line": 178,
+      "call": "descendants",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.descendants"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/optimal_design.py",
+      "line": 183,
+      "call": "remove_outgoing_edges",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.remove_outgoing_edges"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/optimal_design.py",
+      "line": 184,
+      "call": "m_separation",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.m_separation"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/optimal_design.py",
+      "line": 284,
+      "call": "descendants",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.descendants"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/optimal_design.py",
+      "line": 590,
+      "call": "extract_directed_edges",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.extract_directed_edges"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/optimal_design.py",
+      "line": 298,
+      "call": "remove_outgoing_edges",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.remove_outgoing_edges"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/optimal_design.py",
+      "line": 301,
+      "call": "m_separation",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.m_separation"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/optimal_design.py",
+      "line": 629,
+      "call": "descendants",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.descendants"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/optimal_design.py",
+      "line": 293,
+      "call": "has_directed_path",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.has_directed_path"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/optimal_design.py",
+      "line": 593,
+      "call": "ancestors",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.ancestors"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/optimal_design.py",
+      "line": 594,
+      "call": "ancestors",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.ancestors"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/optimal_design.py",
+      "line": 595,
+      "call": "descendants",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.descendants"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/pag_completion.py",
+      "line": 408,
+      "call": "has_directed_path",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.has_directed_path"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/pag_completion.py",
+      "line": 412,
+      "call": "has_directed_path",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.has_directed_path"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/path_specific_identify.py",
+      "line": 184,
+      "call": "induced_subgraph",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.induced_subgraph"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/path_specific_identify.py",
+      "line": 197,
+      "call": "descendants",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.descendants"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/path_specific_identify.py",
+      "line": 260,
+      "call": "extract_directed_edges",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.extract_directed_edges"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/path_specific_identify.py",
+      "line": 273,
+      "call": "extract_directed_edges",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.extract_directed_edges"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/path_specific_identify.py",
+      "line": 179,
+      "call": "ancestors",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.ancestors"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/path_specific_identify.py",
+      "line": 180,
+      "call": "descendants",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.descendants"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/path_specific_identify.py",
+      "line": 686,
+      "call": "districts",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.districts"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/path_specific_identify.py",
+      "line": 421,
+      "call": "topological_order",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.topological_order"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/proof_trace_composability.py",
+      "line": 88,
+      "call": "induced_subgraph",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.induced_subgraph"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/proof_trace_composability.py",
+      "line": 135,
+      "call": "induced_subgraph",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.induced_subgraph"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/proof_trace_composability.py",
+      "line": 513,
+      "call": "m_separation",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.m_separation"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/proof_trace_composability.py",
+      "line": 136,
+      "call": "c_components",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.c_components"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/proof_trace_composability.py",
+      "line": 122,
+      "call": "ancestors",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.ancestors"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/proof_trace_composability.py",
+      "line": 152,
+      "call": "remove_incoming_edges",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.remove_incoming_edges"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/proof_trace_composability.py",
+      "line": 154,
+      "call": "remove_outgoing_edges",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.remove_outgoing_edges"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/proximal_identify.py",
+      "line": 584,
+      "call": "c_components",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.c_components"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/proximal_mediation.py",
+      "line": 470,
+      "call": "has_directed_cycle",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.has_directed_cycle"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/query_preservation.py",
+      "line": 1078,
+      "call": "descendants",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.descendants"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/query_preservation.py",
+      "line": 1790,
+      "call": "descendants",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.descendants"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/query_preservation.py",
+      "line": 1798,
+      "call": "remove_outgoing_edges",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.remove_outgoing_edges"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/query_preservation.py",
+      "line": 1800,
+      "call": "induced_subgraph",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.induced_subgraph"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/query_preservation.py",
+      "line": 1816,
+      "call": "remove_outgoing_edges",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.remove_outgoing_edges"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/query_preservation.py",
+      "line": 1799,
+      "call": "ancestors",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.ancestors"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/query_preservation.py",
+      "line": 1872,
+      "call": "has_directed_cycle",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.has_directed_cycle"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/query_preservation.py",
+      "line": 1817,
+      "call": "ancestors",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.ancestors"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/query_preservation.py",
+      "line": 1841,
+      "call": "d_separation",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.d_separation"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/query_preservation.py",
+      "line": 1851,
+      "call": "m_separation",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.m_separation"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/query_preservation.py",
+      "line": 1087,
+      "call": "ancestors",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.ancestors"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/query_preservation.py",
+      "line": 1088,
+      "call": "ancestors",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.ancestors"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/query_validator.py",
+      "line": 381,
+      "call": "topological_order",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.topological_order"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/recoverability_engine.py",
+      "line": 162,
+      "call": "descendants",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.descendants"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/recoverability_engine.py",
+      "line": 285,
+      "call": "topological_order",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.topological_order"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/sigma_calculus.py",
+      "line": 43,
+      "call": "augment_with_s_nodes",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.augment_with_s_nodes"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/sigma_calculus.py",
+      "line": 67,
+      "call": "remove_incoming_edges",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.remove_incoming_edges"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/sigma_calculus.py",
+      "line": 111,
+      "call": "remove_incoming_edges",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.remove_incoming_edges"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/sigma_calculus.py",
+      "line": 112,
+      "call": "remove_outgoing_edges",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.remove_outgoing_edges"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/sigma_calculus.py",
+      "line": 167,
+      "call": "remove_incoming_edges",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.remove_incoming_edges"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/sigma_calculus.py",
+      "line": 173,
+      "call": "remove_incoming_edges",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.remove_incoming_edges"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/sigma_calculus.py",
+      "line": 168,
+      "call": "ancestors",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.ancestors"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/sigma_calculus.py",
+      "line": 331,
+      "call": "rewrite_ctf_estimand",
+      "resolved": "polisyos.foundry.methods.catalog.causal.ctf_calculus.rewrite_ctf_estimand"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/sigma_calculus.py",
+      "line": 71,
+      "call": "m_separation",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.m_separation"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/sigma_calculus.py",
+      "line": 71,
+      "call": "m_separation",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.m_separation"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/sigma_calculus.py",
+      "line": 116,
+      "call": "m_separation",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.m_separation"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/sigma_calculus.py",
+      "line": 117,
+      "call": "m_separation",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.m_separation"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/sigma_calculus.py",
+      "line": 177,
+      "call": "m_separation",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.m_separation"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/sigma_calculus.py",
+      "line": 178,
+      "call": "m_separation",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.m_separation"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/transport_engine.py",
+      "line": 297,
+      "call": "rewrite_estimand",
+      "resolved": "polisyos.foundry.methods.catalog.causal.do_calculus.rewrite_estimand"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level2_causal.py",
+      "line": 530,
+      "call": "ancestors",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.ancestors"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level2_causal.py",
+      "line": 535,
+      "call": "m_separation",
+      "resolved": "polisyos.foundry.methods.catalog.causal.admg_ops.m_separation"
+    }
+  ],
+  "resolved_static_caller_count": 179,
+  "complete_source_parse_denominator": 2699,
+  "limitations": [
+    "Relative/reflection/dynamic dispatch calls not resolved by static census; public method facades examined separately",
+    "Census proves finite source/input denominator and routing, not universal algorithm correctness"
+  ]
+}

@@ -1,0 +1,910 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "F",
+  "slice": "static-admg-profile-20261006",
+  "role": "primary_property_delta",
+  "closure_ids": [
+    "B216",
+    "B217"
+  ],
+  "related_finding_ids": [
+    "B216",
+    "B217",
+    "B220"
+  ],
+  "bundle_ids": [
+    "GRF-01",
+    "GRF-02"
+  ],
+  "slice_base_sha": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+  "implementation_commits": [
+    "5182825c190aa403bee765e339a119bb53e805e0"
+  ],
+  "candidate_tree_sha": "87e2bc0e426a2e1cc41fdb3adb340a70ed0c8b1e",
+  "branch": "codex/e02-F-graph-20261006",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/docs/reference/foundry/static-admg-profile.md",
+    "policy-engine/release-fragments/unreleased/2026-10-06-causal-graph-cache-rows.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-static-admg-profile.toml",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/amn.py",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/ctf_calculus.py",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/do_calculus.py",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/counterfactual.py",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/transport.py",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/sigma_calculus.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_profile_consumers.py"
+  ],
+  "source_bindings": [
+    {
+      "source_path": "policy-engine/docs/reference/foundry/static-admg-profile.md",
+      "source_sha": "5182825c190aa403bee765e339a119bb53e805e0",
+      "bytes": 3209,
+      "sha256": "d0d8e5e9f37d5c4c029af66f37102cc7858f0f9775e164f0042df5c2c6637df1"
+    },
+    {
+      "source_path": "policy-engine/release-fragments/unreleased/2026-10-06-causal-graph-cache-rows.toml",
+      "source_sha": "5182825c190aa403bee765e339a119bb53e805e0",
+      "bytes": 1747,
+      "sha256": "c5a4614af0cae6a8534ebbb85d050af57d6a16ebfe05377b5e8646ccddaebe55"
+    },
+    {
+      "source_path": "policy-engine/release-fragments/unreleased/2026-10-06-static-admg-profile.toml",
+      "source_sha": "5182825c190aa403bee765e339a119bb53e805e0",
+      "bytes": 2036,
+      "sha256": "89a0e2bec7db4c3da1fa899c519495e194463d978b8b78707c8fd1f455fb8ba3"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "source_sha": "5182825c190aa403bee765e339a119bb53e805e0",
+      "bytes": 41585,
+      "sha256": "85c3ab8806f708ca2cd5bfb66ec6f105c76bb944704dd75b0cdcabfae98bef3a"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/amn.py",
+      "source_sha": "5182825c190aa403bee765e339a119bb53e805e0",
+      "bytes": 11087,
+      "sha256": "af743f3493cf99c62a7715a4be20dfb5631a7564363e382d9cac31cb24ca0172"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/ctf_calculus.py",
+      "source_sha": "5182825c190aa403bee765e339a119bb53e805e0",
+      "bytes": 19100,
+      "sha256": "e9a3d918423e6c791b95de509271ca2324738cd7722d7e8a25b4663877930c88"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/do_calculus.py",
+      "source_sha": "5182825c190aa403bee765e339a119bb53e805e0",
+      "bytes": 16141,
+      "sha256": "06ce594a304d9823a373ad37bb787a7953cc8bd3651bd65e1ff3c2476fd4a38e"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "source_sha": "5182825c190aa403bee765e339a119bb53e805e0",
+      "bytes": 81116,
+      "sha256": "f1974d6f7e7d44023f3be66df17a71271e8b657d6daccaf4da8fac54e4c99b3c"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/counterfactual.py",
+      "source_sha": "5182825c190aa403bee765e339a119bb53e805e0",
+      "bytes": 48259,
+      "sha256": "9403daa9823f7cc3d5d8e3c8c13d68804fee45156b189234f47c4e48d154a2a8"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/transport.py",
+      "source_sha": "5182825c190aa403bee765e339a119bb53e805e0",
+      "bytes": 61466,
+      "sha256": "3b98ceacd57b4ba953432e7e1af0d9dc928c0b142ed4d6ba5f4a57510753c540"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/sigma_calculus.py",
+      "source_sha": "5182825c190aa403bee765e339a119bb53e805e0",
+      "bytes": 14845,
+      "sha256": "b2fbb4e12b00b5641ec9d49f04bec62532173b323719eb5e7d3e751a343a3573"
+    },
+    {
+      "source_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_profile_consumers.py",
+      "source_sha": "5182825c190aa403bee765e339a119bb53e805e0",
+      "bytes": 21704,
+      "sha256": "f3f6b9ace213662fcc74ed213edcd0c4a58d7bc1a1ce547c07fca8e05dbb6e65"
+    }
+  ],
+  "baseline_cells": [
+    {
+      "cell_id": "F01-P025",
+      "check": "FAIL",
+      "candidate_witness": false,
+      "raw_archive_custody": "not_established",
+      "role": "historical navigation only"
+    },
+    {
+      "cell_id": "F08-P048",
+      "check": "FAIL",
+      "candidate_witness": false,
+      "raw_archive_custody": "not_established",
+      "role": "historical navigation only"
+    },
+    {
+      "cell_id": "F13-P030",
+      "check": "FAIL",
+      "candidate_witness": false,
+      "raw_archive_custody": "not_established",
+      "role": "historical navigation only"
+    }
+  ],
+  "checks": [
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "-s",
+        "--tb=short",
+        "/tmp/e02-F-continuation-20261006/graph/test_endpoint_profile_red.py"
+      ],
+      "target_sha": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "environment": {
+        "python": "3.14.2",
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+        "networkx": "actual installed3.6.1 for frozen native graph consumers; no backend claim for checks not invoking it"
+      },
+      "input_closure": "complete finite synthetic/native selectors bound by the command and source bindings; no admitted production data",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 9.024161244989955,
+      "rss_kib": 580600,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/endpoint-profile-original.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/endpoint-profile-original.json",
+      "expected_negative": false,
+      "role": "historical_original_failure"
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/graph/replay-resolved-neighbors-base.py"
+      ],
+      "target_sha": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "environment": {
+        "python": "3.14.2",
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+        "networkx": "actual installed3.6.1 for frozen native graph consumers; no backend claim for checks not invoking it"
+      },
+      "input_closure": "complete finite synthetic/native selectors bound by the command and source bindings; no admitted production data",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 8.584799094998743,
+      "rss_kib": 590276,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/resolved-neighbors-base-memory.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/resolved-neighbors-base-memory.json",
+      "expected_negative": false,
+      "role": "base_source_characterization_not_P41"
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "-ra",
+        "--tb=short",
+        "tests/unit/foundry/methods/catalog/causal/test_admg_profile_consumers.py",
+        "tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py",
+        "tests/unit/ir/test_causal_graph_contract.py",
+        "tests/unit/ir/test_causal_graph_networkx_roundtrip.py",
+        "tests/unit/remediation/test_grf_03.py",
+        "tests/unit/foundry/methods/catalog/causal/test_do_calculus_postpass.py",
+        "tests/unit/ir/test_causal_graph_cache_rows.py",
+        "tests/unit/foundry/methods/catalog/causal/test_performance_primitives.py::test_cached_adjacency_reuse",
+        "tests/unit/foundry/methods/catalog/causal/test_performance_primitives.py::test_cached_adjacency_eviction",
+        "tests/unit/foundry/methods/catalog/causal/test_performance_primitives.py::test_published_graph_rejects_nested_topology_mutation",
+        "tests/unit/foundry/methods/catalog/causal/test_performance_primitives.py::test_warmed_derived_rows_are_not_reused_after_copy_update"
+      ],
+      "target_sha": "5182825c190aa403bee765e339a119bb53e805e0",
+      "environment": {
+        "python": "3.14.2",
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+        "networkx": "actual installed3.6.1 for frozen native graph consumers; no backend claim for checks not invoking it"
+      },
+      "input_closure": "complete finite synthetic/native selectors bound by the command and source bindings; no admitted production data",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 17.0660814629955,
+      "rss_kib": 601484,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/profile-frozen-native.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/profile-frozen-native.json",
+      "expected_negative": false,
+      "role": "current_deciding_or_consumer_check"
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "-ra",
+        "--tb=short",
+        "tests/unit/foundry/methods/catalog/causal/test_sigma_calculus_standalone.py",
+        "tests/unit/foundry/methods/catalog/causal/test_admg_s_ops.py",
+        "tests/unit/foundry/methods/catalog/causal/test_ctf_calculus.py",
+        "tests/unit/foundry/methods/catalog/causal/test_twin_amn_graph.py",
+        "tests/unit/foundry/methods/catalog/causal/test_id_engine_extensions.py",
+        "tests/unit/foundry/methods/catalog/causal/test_compile_estimand_do_calculus_prepass.py"
+      ],
+      "target_sha": "5182825c190aa403bee765e339a119bb53e805e0",
+      "environment": {
+        "python": "3.14.2",
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+        "networkx": "actual installed3.6.1 for frozen native graph consumers; no backend claim for checks not invoking it"
+      },
+      "input_closure": "complete finite synthetic/native selectors bound by the command and source bindings; no admitted production data",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 18.98381381299987,
+      "rss_kib": 591684,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/profile-frozen-neighbors.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/profile-frozen-neighbors.json",
+      "expected_negative": false,
+      "role": "current_deciding_or_consumer_check"
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/graph/remove-profile-property.py",
+        "admission"
+      ],
+      "target_sha": "5182825c190aa403bee765e339a119bb53e805e0",
+      "environment": {
+        "python": "3.14.2",
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+        "networkx": "actual installed3.6.1 for frozen native graph consumers; no backend claim for checks not invoking it"
+      },
+      "input_closure": "complete finite synthetic/native selectors bound by the command and source bindings; no admitted production data",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 13.874323896001442,
+      "rss_kib": 590156,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/profile-removal-admission.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/profile-removal-admission.json",
+      "expected_negative": true,
+      "role": "current_deciding_or_consumer_check"
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/graph/remove-profile-property.py",
+        "reverse"
+      ],
+      "target_sha": "5182825c190aa403bee765e339a119bb53e805e0",
+      "environment": {
+        "python": "3.14.2",
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+        "networkx": "actual installed3.6.1 for frozen native graph consumers; no backend claim for checks not invoking it"
+      },
+      "input_closure": "complete finite synthetic/native selectors bound by the command and source bindings; no admitted production data",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 16.114053099998273,
+      "rss_kib": 590452,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/profile-removal-reverse.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/profile-removal-reverse.json",
+      "expected_negative": true,
+      "role": "current_deciding_or_consumer_check"
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "polisyos.runtime.quality.production_invocation",
+        "--base",
+        "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+        "--receipt",
+        "/tmp/e02-F-continuation-20261006/graph/profile-production-invocation.raw.json"
+      ],
+      "target_sha": "5182825c190aa403bee765e339a119bb53e805e0",
+      "environment": {
+        "python": "3.14.2",
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+        "networkx": "actual installed3.6.1 for frozen native graph consumers; no backend claim for checks not invoking it"
+      },
+      "input_closure": "complete finite synthetic/native selectors bound by the command and source bindings; no admitted production data",
+      "outcome": "ERROR",
+      "exit_code": -9,
+      "wall_s": 252.92619712099258,
+      "rss_kib": 8048624,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/profile-production-invocation.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/profile-production-invocation.json",
+      "expected_negative": false,
+      "role": "partial_static_diagnostic_UNRUN_to_completion"
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-ra",
+        "--tb=short",
+        "tests/unit/remediation/test_emp_01.py"
+      ],
+      "target_sha": "5182825c190aa403bee765e339a119bb53e805e0",
+      "environment": {
+        "python": "3.14.2",
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+        "networkx": "actual installed3.6.1 for frozen native graph consumers; no backend claim for checks not invoking it"
+      },
+      "input_closure": "complete finite synthetic/native selectors bound by the command and source bindings; no admitted production data",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 44.948258257994894,
+      "rss_kib": 1344452,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/profile-emp01-consumer.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/profile-emp01-consumer.json",
+      "expected_negative": false,
+      "role": "current_deciding_or_consumer_check"
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/graph/check-owned-fragments.py"
+      ],
+      "target_sha": "5182825c190aa403bee765e339a119bb53e805e0",
+      "environment": {
+        "python": "3.14.2",
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+        "networkx": "actual installed3.6.1 for frozen native graph consumers; no backend claim for checks not invoking it"
+      },
+      "input_closure": "complete finite synthetic/native selectors bound by the command and source bindings; no admitted production data",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 0.18430960401019547,
+      "rss_kib": 20332,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/profile-fragments.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/profile-fragments.json",
+      "expected_negative": false,
+      "role": "current_deciding_or_consumer_check"
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+        "src/polisyos/foundry/methods/catalog/causal/amn.py",
+        "src/polisyos/foundry/methods/catalog/causal/ctf_calculus.py",
+        "src/polisyos/foundry/methods/catalog/causal/do_calculus.py",
+        "src/polisyos/foundry/methods/catalog/causal/sigma_calculus.py",
+        "src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+        "src/polisyos/foundry/methods/catalog/causal/id_engine/transport.py",
+        "src/polisyos/foundry/methods/catalog/causal/id_engine/counterfactual.py",
+        "tests/unit/foundry/methods/catalog/causal/test_admg_profile_consumers.py"
+      ],
+      "target_sha": "5182825c190aa403bee765e339a119bb53e805e0",
+      "environment": {
+        "python": "3.14.2",
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+        "networkx": "actual installed3.6.1 for frozen native graph consumers; no backend claim for checks not invoking it"
+      },
+      "input_closure": "complete finite synthetic/native selectors bound by the command and source bindings; no admitted production data",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 0.047832691998337395,
+      "rss_kib": 23012,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/profile-ruff.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/profile-ruff.json",
+      "expected_negative": false,
+      "role": "current_deciding_or_consumer_check"
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-o",
+        "cache_dir=/tmp/e02-F-continuation-20261006/root-review-graph/cache",
+        "--basetemp",
+        "/tmp/e02-F-continuation-20261006/root-review-graph/tmp",
+        "tests/unit/foundry/methods/catalog/causal/test_admg_profile_consumers.py"
+      ],
+      "target_sha": "5182825c190aa403bee765e339a119bb53e805e0",
+      "environment": "root independent reviewer; same genuine Python3.14.2 readonly application interpreter; ownsrc imports",
+      "input_closure": "entire unique static-profile consumer file,559 tests/no skip/error",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 18.7025174730079,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/independent-root.stdout",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/independent-root.receipt.json",
+      "role": "independent_review"
+    }
+  ],
+  "property": {
+    "statement": "Original unresolved endpoints or compact temporal lag cannot become admitted static causal evidence through separation, surgery, graph construction, rewrites, PAG policy, or no-op requests; known reverse arrows retain directed semantics.",
+    "runtime_path": [
+      "published typed CausalGraphModel",
+      "shared CachedAdjacency original profile admission",
+      "ADMG surgery/builders and do/sigma/ID/IDC/ID*/IDC*/transport/CTF/AMN entries",
+      "real symbolic rewrite or explicit ValueError refusal"
+    ],
+    "proxy_divergence": "At immutable bf335 the valid CPDAG Y—Z yielded m_separation=True and a genuine Rule1 deletion. The stable graph-type/enumeration and real proof DTO were insufficient to establish the endpoint property.",
+    "negative_controls": [
+      "Original native CPDAG escape preserved full2629B FAIL",
+      "Shared admission removed in process while guard calls/class/refusal strings remain: genuine noopRule1 FAIL(DID NOT RAISE)",
+      "Reverse normalization removed while arrow marks/profile names remain: directed-law oracle FAIL",
+      "Actual fork/collider/conditioned-descendant do/sigma controls; ordinaryIDC executes2realID calls; actualIDC* separator returns checked by independent latent moralization",
+      "Real2nodebow SID/conditional-ID non-identification and disjoint AMN open/blocked queries, with original malformed fixtures retained"
+    ],
+    "supported_profile": [
+      "TAIL→ARROW",
+      "ARROW←TAIL reverse storage normalized",
+      "ARROW↔ARROW",
+      "lagNone or0"
+    ],
+    "unsupported_profile": [
+      "all6other endpoint pairs",
+      "compactlag1/2 andpositive selflag"
+    ],
+    "exception_contract": "ValueError prefix Unsupported static ADMG profile: plus offending edge endpoints/lag; no new public exception or completion engine",
+    "complete_entry_denominator": {
+      "providers": 8,
+      "graph_taking_entry_or_builder_functions": 62,
+      "static_causal_entries": 57,
+      "raw_orientation_or_endpoint_utilities": 5,
+      "whole_python_source_parse_files": 2699,
+      "resolved_absolute_import_or_FQN_callers": 179,
+      "full_census": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/static-profile-denominator.json",
+      "static_resolution_limits": [
+        "relative/reflection/dynamic callers remain unresolved; finite public entries are independently exercised",
+        "no universalID/completion correctness claim"
+      ]
+    },
+    "native_counts": {
+      "current_defining_and_graph_cache_consumers": {
+        "PASS": 634,
+        "FAIL": 0,
+        "SKIP": 0,
+        "ERROR": 0,
+        "warnings": 1
+      },
+      "independent_full_unique_consumer_file": {
+        "PASS": 559,
+        "FAIL": 0,
+        "SKIP": 0,
+        "ERROR": 0
+      },
+      "affected_neighbors": {
+        "PASS": 133,
+        "FAIL": 3,
+        "SKIP": 2,
+        "ERROR": 0,
+        "warnings": 1
+      },
+      "property_removals": {
+        "FAIL_expected": 2
+      },
+      "EMP01": {
+        "PASS": 5,
+        "FAIL": 5,
+        "SKIP": 0,
+        "ERROR": 0
+      }
+    },
+    "authority_purpose": "finite synthetic graph/method property only; no admitted real-data causal effect or production readiness"
+  },
+  "per_id": {
+    "B216": {
+      "check": "PASS",
+      "outcome": "closed",
+      "criterion": "Original GRF01 native m-separation and actual do/sigma/IDC consumer walk on supported static profile",
+      "checks": [
+        "profile-frozen-native",
+        "independent-root"
+      ],
+      "limits": [
+        "unknown/PAG equivalence completion and compact temporal inference explicitly refuse",
+        "generalID completeness not asserted;3malformed consumer characterizations remainFAIL"
+      ]
+    },
+    "B217": {
+      "check": "PASS",
+      "outcome": "closed",
+      "criterion": "Perfect incoming surgery and reverse-stored known arrow semantics retain independent finite latent-DAG surgery oracle",
+      "checks": [
+        "profile-frozen-native",
+        "profile-removal-reverse"
+      ],
+      "limits": [
+        "finite3node ADMG domain; unsupported original profile refused before surgery"
+      ]
+    },
+    "B220": {
+      "check": "PASS",
+      "outcome": "closed",
+      "criterion": "Previously accepted cache row isolation axes retain current native19cases; fragment correctly classifies actual internal provider",
+      "checks": [
+        "profile-frozen-native",
+        "profile-fragments"
+      ],
+      "limits": [
+        "old e2c/213 removal/native evidence retains original source identity; no liveKuzu engine claim; no new public facade"
+      ]
+    }
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "closed_for_supported_static_graph_property_with_explicit_consumer_limits",
+  "compatibility": {
+    "source_schema_or_public_exports_changed": false,
+    "B220_fragment_classification": "internal provider; no schema or row value ABI change",
+    "own_profile_fragment": "internal breaking refusal boundary, canonical structured record+substantive migration doc checked"
+  },
+  "evidence_transfer": {
+    "complete_companions": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/endpoint-profile-original.json",
+        "bytes": 1115,
+        "sha256": "1e7d7802c44da4202806d88e56bad539c45f433e5a041112e1942f4ecd04db03",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/endpoint-profile-original.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/endpoint-profile-original.stdout.txt",
+        "bytes": 2629,
+        "sha256": "c0d80681ecf2a2fe100ae609d1463129f3df7f6d82b211911f75e81d87774acc",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/endpoint-profile-original.stdout.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/endpoint-profile-original.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/endpoint-profile-original.stderr.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/resolved-neighbors-base-memory.json",
+        "bytes": 1008,
+        "sha256": "e7625e1164cad3d390b0b6243b9ff286ca4fa24c624b5bc30d58146d2bef38a2",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/resolved-neighbors-base-memory.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/resolved-neighbors-base-memory.stdout.txt",
+        "bytes": 6406,
+        "sha256": "33e0bfa9a76f5b5811e397021d13a7b4f4c01a7682acf097e103ed170fee1e43",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/resolved-neighbors-base-memory.stdout.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/resolved-neighbors-base-memory.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/resolved-neighbors-base-memory.stderr.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/profile-frozen-native.json",
+        "bytes": 1971,
+        "sha256": "8756f981035d48811c624773cad90da524a5ad324adf0bea67c060d07729da6b",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/profile-frozen-native.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/profile-frozen-native.stdout.txt",
+        "bytes": 1261,
+        "sha256": "d64a277c9c399d4830a4bf2fc9f9ea4b4422f05df801f7dfe3508930fdbcb5c3",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/profile-frozen-native.stdout.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/profile-frozen-native.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/profile-frozen-native.stderr.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/profile-frozen-neighbors.json",
+        "bytes": 1504,
+        "sha256": "b2321ef52f2d000996c7a749a0234d00f5ac04e554e5f24afa25dfde4cdaaada",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/profile-frozen-neighbors.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/profile-frozen-neighbors.stdout.txt",
+        "bytes": 4128,
+        "sha256": "9fbd3316466dee71f11f46930e37cc3ea0ab9f1391f22e15775656a2f840dc7f",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/profile-frozen-neighbors.stdout.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/profile-frozen-neighbors.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/profile-frozen-neighbors.stderr.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/profile-removal-admission.json",
+        "bytes": 1009,
+        "sha256": "2794109290c921d37aa5b4f262ce3be847ecdcfb5e8219dc287e054f9e155ee3",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/profile-removal-admission.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/profile-removal-admission.stdout.txt",
+        "bytes": 1770,
+        "sha256": "d47bcc526439d9500d5db5fa4dc60555ac5626678622412563401406382bfde1",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/profile-removal-admission.stdout.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/profile-removal-admission.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/profile-removal-admission.stderr.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/profile-removal-reverse.json",
+        "bytes": 1003,
+        "sha256": "54e055ea9b55baf0a80c2e76ad17edac96fa146b489106a93966db078d16a4c3",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/profile-removal-reverse.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/profile-removal-reverse.stdout.txt",
+        "bytes": 1736,
+        "sha256": "b07e7e486515cc8c8bf6f1a4a3f63de3b9b5546ebb0e4fc64c21fb2a9c3a2986",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/profile-removal-reverse.stdout.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/profile-removal-reverse.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/profile-removal-reverse.stderr.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/profile-production-invocation.json",
+        "bytes": 1154,
+        "sha256": "0bd3f82acd1dc20fb40a68da82d146048bccfa44fb0f02fd0abf84704c4ae0c3",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/profile-production-invocation.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/profile-production-invocation.stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/profile-production-invocation.stdout.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/profile-production-invocation.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/profile-production-invocation.stderr.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/profile-emp01-consumer.json",
+        "bytes": 1048,
+        "sha256": "c42e5c529572fb72839fe4064a0c08a62841d587bc9c0456ddf422aaf515447c",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/profile-emp01-consumer.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/profile-emp01-consumer.stdout.txt",
+        "bytes": 3435,
+        "sha256": "ccba350500034e4d9949600d9e3b546deddc8a7dfe809d058a9f274748ef7e7c",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/profile-emp01-consumer.stdout.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/profile-emp01-consumer.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/profile-emp01-consumer.stderr.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/profile-fragments.json",
+        "bytes": 974,
+        "sha256": "02600222843a98fc8f26b5ab648bd30c1882d801b63d023b600ac31ce09a87c9",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/profile-fragments.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/profile-fragments.stdout.txt",
+        "bytes": 4201,
+        "sha256": "138c8331808983aa052692e4d65cbea47aa08fd38254278baf597feaa0f24ede",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/profile-fragments.stdout.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/profile-fragments.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/profile-fragments.stderr.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/profile-ruff.json",
+        "bytes": 1552,
+        "sha256": "cc1f722573a9a15c0ead3ada917c984fa12deca6ef0db5eedf598d9e08ef92f0",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/profile-ruff.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/profile-ruff.stdout.txt",
+        "bytes": 19,
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/profile-ruff.stdout.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/profile-ruff.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/profile-ruff.stderr.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/execute_check.py",
+        "bytes": 1296,
+        "sha256": "4fee1b8fc0957b2571b21b9ac4e275a73526e3d0096d9218c7fb64cfd90597d3",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/execute_check.py",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/test_endpoint_profile_red.py",
+        "bytes": 1224,
+        "sha256": "93c76ce1672aedbe8520892027b515855c28993bb7ee54ba73cfae3096c68357",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/test_endpoint_profile_red.py",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/replay-resolved-neighbors-base.py",
+        "bytes": 2202,
+        "sha256": "8e385712516d0d4291d91eabe1927b8b3ea2a1995eea11b20bd2ae4fd32fe82d",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/replay-resolved-neighbors-base.py",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/remove-profile-property.py",
+        "bytes": 2365,
+        "sha256": "1558365ca78409988b2859b7ab212696c4d1e2d420320ae90de8ccc12998faab",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/remove-profile-property.py",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/census-static-profile.py",
+        "bytes": 4072,
+        "sha256": "e41f83eee605863e3619ee95ba5eaf120fa540de65a95f81591f48b45bf8f32d",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/census-static-profile.py",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/static-profile-denominator.json",
+        "bytes": 101162,
+        "sha256": "8851fe39ae075f7ac6c3f517c08051d9fe83cf9621a43545bd5756120969eef5",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/static-profile-denominator.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/check-owned-fragments.py",
+        "bytes": 1027,
+        "sha256": "1eccea952666d906f57c53cca2828a40063ae076937130a14a7dc8b9565e71f3",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/check-owned-fragments.py",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/baseline-failures-query.json",
+        "bytes": 19253,
+        "sha256": "23a1055d9986961c3130b79f72aa924bec7788f4f5c0670eb49caa1e3b139201",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/baseline-failures-query.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/independent-root.receipt.json",
+        "bytes": 878,
+        "sha256": "7384cb68ee5742608a83c29557ed520b275a356b27d8fff04a84730aa97dc1d6",
+        "original_path": "/tmp/e02-F-continuation-20261006/root-review-graph/receipt.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/independent-root.stdout",
+        "bytes": 661,
+        "sha256": "0a8b8c272142ff990bdf0a3646c5ae8b7524d2325cde12ddb48bf47746c4da31",
+        "original_path": "/tmp/e02-F-continuation-20261006/root-review-graph/stdout",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/independent-root.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/root-review-graph/stderr",
+        "encoding": "raw"
+      }
+    ],
+    "companion_count": 41,
+    "all_moderate_deciding_bytes_committed": true,
+    "original_failure_and_removal_bytes_preserved": true,
+    "root_independent_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/independent-root.receipt.json"
+  },
+  "limitations_and_next_owner": [
+    {
+      "owner": "F/root and G integration",
+      "state": "limited",
+      "detail": "Graph profile slice does not close all14 original graph/SCM criteria; B222 helper compatibility and SCMschema versionpacket are separate subsequent slices."
+    },
+    {
+      "owner": "F/root",
+      "check": "FAIL",
+      "state": "limited",
+      "detail": "Three original resolved consumer tests remainFAIL: AMN conditions on its own endpoint; SID fixtures encode observedU collider rather than intendedbow. Exactbaseprovider memory replay retains same3FAIL, canonical independent correctfixturesPASS. No method math changed."
+    },
+    {
+      "owner": "F/root",
+      "check": "SKIP",
+      "state": "limited",
+      "detail": "Two compile_estimand_do_calculus_prepass cases skip because facade CausalGraphModel unavailable; noPASS or backend witness from these skips."
+    },
+    {
+      "owner": "A/root",
+      "check": "FAIL",
+      "state": "limited",
+      "detail": "Entire existingEMP01 selector5FAIL5PASS. No P41 inherited label; full disjoint input denominator not established."
+    },
+    {
+      "owner": "F/root",
+      "check": "ERROR",
+      "state": "limited",
+      "detail": "Mandatory production_invocation was SIGKILL(-9),252.926s,RSS8048624KiB; emptylogs and requestedreceipt absent. Static diagnostic UNRUN to completion, no repeat/witness/P41."
+    },
+    {
+      "owner": "G",
+      "state": "limited",
+      "detail": "Full production inputs remainlocal; generic finite graph properties do not require their transfer. Any intrinsically real-data authority criterion needs local exactcandidate run."
+    }
+  ]
+}

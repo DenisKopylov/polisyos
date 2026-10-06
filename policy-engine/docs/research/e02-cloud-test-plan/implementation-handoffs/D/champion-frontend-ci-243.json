@@ -1,0 +1,253 @@
+{
+  "version": "e02-D.frontend-ci-closeout.v1",
+  "runtime_source": {
+    "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+    "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+    "worktree": "/workspace/e02-D-published-root",
+    "branch": "codex/e02-D-published-root",
+    "before_and_after_verified": true,
+    "final_git_status_porcelain": "",
+    "production_or_test_edits": false
+  },
+  "publication": {
+    "payload_commit": "fc53f483f032e12afeeea5dbd59a5f2c68431fee",
+    "payload_tree": "dc56f76c825a292eff3caf1b4b3da59cb534c24a",
+    "branch": "codex/e02-D-published-champion",
+    "remote_payload_readback": "fc53f483f032e12afeeea5dbd59a5f2c68431fee",
+    "normal_commit_and_push_hooks": "Lefthook pre-commit and pre-push executed; matched-code checks skipped because docs-only payload; no bypass.",
+    "payload_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/manifest.json",
+      "sha256": "0be01280170b3cf9383286902b3d39b404d8f93cdb2cca7d2c3771b560c95c13",
+      "bytes": 26303
+    },
+    "complete_payload_files": 44,
+    "original_payload_bytes": 327122,
+    "compressed_payload_bytes": 61089,
+    "all44_lossless_roundtrips_verified": true
+  },
+  "canonical_plan": {
+    "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+    "path": "policy-engine/tools/devx/workspace/ci_parity.py",
+    "git_blob": "26b66d48e7ce4d28a92389842213fd51acf53f34",
+    "sha256": "8ee3abda4668c4bbc24c58412b11eda51eaae9c046b98ad80ff5b17705e26619",
+    "selection": "_frontend_commands(skip_browser=True, include_e2e_smoke=False, include_visual=False)",
+    "defining_gate_count": 8,
+    "source_input_denominator": "All12 exact files in source-plan.json, every byte/hash/size reconciled again after execution; immutable full tree binds the remaining source.",
+    "canonical_wrapper_status": "UNRUN: source wrapper numeric-thread caps and literal coverage --maxWorkers=1 conflict with user instruction. No wrapper or full CI parity PASS claimed.",
+    "coverage_delta": "Remove only --maxWorkers=1; retain actual configured project/file corpus, V8 coverage, testTimeout/hookTimeout20000ms and && ratchet semantics. No ratchet execution because actual uncapped test run did not finish."
+  },
+  "gates": [
+    {
+      "gate": "typecheck",
+      "literal_argv": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "status": "ERROR_PROCESS_KILLED",
+      "exit_code": 137,
+      "complete_log": "typecheck.txt",
+      "detail": "Only Killed diagnostic; no completed TS verification. Aggregate cgroup counters do not establish exact killer attribution."
+    },
+    {
+      "gate": "lint",
+      "literal_argv": [
+        "npm",
+        "run",
+        "lint"
+      ],
+      "status": "ERROR_ENV_RESOURCE_BLOCKED",
+      "exit_code": -15,
+      "complete_partial_log": "lint.txt",
+      "detail": "Parent-authorized identified own-process termination amid actual cgroup memory floor; no completed lint result."
+    },
+    {
+      "gate": "format:check",
+      "literal_argv": [
+        "npm",
+        "run",
+        "format:check"
+      ],
+      "status": "ERROR_ENV_RESOURCE_BLOCKED",
+      "exit_code": -15,
+      "complete_partial_log": "format.txt",
+      "detail": "Started Checking formatting; parent-authorized own-process termination, no completed result."
+    },
+    {
+      "gate": "check:architecture",
+      "literal_argv": [
+        "npm",
+        "run",
+        "check:architecture"
+      ],
+      "status": "ERROR_ENV_RESOURCE_BLOCKED",
+      "exit_code": -15,
+      "complete_partial_log": "architecture.txt",
+      "completed_output": "Architecture checks passed; no dependency violations found (1203 modules,5073 dependencies).",
+      "detail": "Outer npm process kernel exit status -15 confirms no whole-gate exit0, despite both subphase success diagnostics."
+    },
+    {
+      "gate": "contracts:verify",
+      "literal_argv": [
+        "npm",
+        "run",
+        "contracts:verify"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "complete_log": "contracts-pinned-pnpm.txt",
+      "tests": 1,
+      "files": 1,
+      "wall_seconds": 2.8502713939960813,
+      "initial_attempt": "contracts.txt ERROR_INPUT_TOOL_PROFILE: global bare pnpm11.19.0/Node24 refused automatic modules purge; source unchanged; task-local launcher corrected bare pnpm to existing Node22/Corepack/pnpm10.33.2."
+    },
+    {
+      "gate": "test:coverage",
+      "literal_argv": [
+        "npm",
+        "run",
+        "test:coverage"
+      ],
+      "literal_status": "UNRUN_INCOMPATIBLE_WORKER_CAP",
+      "uncapped_argv": [
+        "corepack",
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "--coverage",
+        "--testTimeout=20000",
+        "--hookTimeout=20000"
+      ],
+      "status": "ERROR_ENV_RESOURCE_BLOCKED",
+      "exit_code": 143,
+      "complete_partial_log": "coverage-uncapped.txt",
+      "detail": "Actual Vitest4.1.5/V8 started all configured projects with no CLI worker cap. Parent-authorized termination before test completion; no counts or coverage claim; conditional ratchet UNRUN."
+    },
+    {
+      "gate": "build",
+      "literal_argv": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "status": "ERROR_ENV_RESOURCE_BLOCKED",
+      "exit_code": -15,
+      "complete_partial_log": "build.txt",
+      "detail": "Actual package pipeline started configured typecheck prerequisite; remaining vite/security/Tailwind subphases UNRUN. No successful build."
+    },
+    {
+      "gate": "build-storybook",
+      "literal_argv": [
+        "npm",
+        "run",
+        "build-storybook"
+      ],
+      "status": "UNRUN",
+      "detail": "Serial cache-sharing chain stopped with orchestrator termination before Storybook started; no log/output or Storybook pass invented."
+    }
+  ],
+  "overall": "ERROR_UNRUN: 1of8 gates PASS under corrected pinned executable profile; five resource-terminated gates and one killed typecheck are incomplete, Storybook UNRUN. Native readiness positives are separate and do not promote incomplete frontend gates.",
+  "readiness": [
+    {
+      "name": "initial canonical doctor helpers",
+      "status": "ERROR_MISSING_BROWSER",
+      "exit_code": 1,
+      "log": "doctor-readiness.txt"
+    },
+    {
+      "name": "actual Node22/Corepack pnpm",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "node-pnpm-readiness.txt"
+    },
+    {
+      "name": "disk browser install",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "chromium-disk-install.txt"
+    },
+    {
+      "name": "successor canonical doctor four readiness helpers",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "doctor-readiness-disk-browser.txt"
+    },
+    {
+      "name": "actual native Chromium DevTools Browser.getVersion and DOM consumer",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "cdp-readiness.txt"
+    }
+  ],
+  "actual_native_browser": {
+    "status": "PASS within actual canonical smoke + CDP/DOM readiness scope",
+    "engine": {
+      "path": "/workspace/e02-D2-receipts/browser-chromium-243/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell",
+      "relative_path": "chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell",
+      "bytes": 185257184,
+      "sha256": "22d72b589f908111fa29ff4e61ead8a0601e925177f59c70e2e851c22e9b1886"
+    },
+    "chrome_version": "147.0.7727.15",
+    "cdp_protocol": "1.3",
+    "cdp_revision": "@6b5a1b80ccc1e8a4967901d8e58fc2e162cdf050",
+    "actual_page_text": "ready",
+    "actual_launch_and_devtools_exit_code": 0,
+    "playwright_version": "1.59.1",
+    "used_nested_playwright_core_version": "1.59.1",
+    "used_nested_core_module": "/workspace/e02-D-published-root/policy-engine/node_modules/.pnpm/playwright-core@1.59.1/node_modules/playwright-core/index.js",
+    "generic_top_level_core": {
+      "version": "1.62.1",
+      "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright-core/package.json",
+      "scope": "Pre-existing generic import resolves another version; nested pinned core used by native launch verified separately."
+    },
+    "browser_install_path": "/workspace/e02-D2-receipts/browser-chromium-243",
+    "asset_file_denominator": 294,
+    "asset_total_bytes": 272844239,
+    "all_asset_hashes": "browser-assets-manifest.json.gz",
+    "installation": "Pinned existing Playwright install chromium-headless-shell into fresh disk path; additionally installed requiredFFmpeg. No --with-deps/system-package/source/package metadata mutation. Initial empty tmpfs attempt143 due explicit parent path correction, preserved separately.",
+    "excluded_claims": [
+      "No dashboard application/browser test pass",
+      "No Storybook/e2e/visual pass",
+      "No backend/GP/scientific closure inferred from browser readiness"
+    ]
+  },
+  "runtime_profile": {
+    "python": "3.14.7",
+    "doctor_python": "/dev/shm/e02-D-parity-env/bin/python",
+    "node": "v22.23.3",
+    "node_executable": "/home/agent/.npm/_npx/52027bd8fc0022aa/node_modules/node/bin/node",
+    "uv": "0.9.21",
+    "pnpm": "10.33.2",
+    "tool_profile_correction": "Canonical bare-pnpm child initially resolved existing globalpnpm11.19.0/Node24; task-local launcher invokes existing Node22+Corepack and source packageManager10.33.2. Original refused auto-install output preserved; no successful auto-purge/install claimed.",
+    "numeric_or_process_or_worker_caps_added": false,
+    "actual_environment_caps": "All10 captured caps/settings null in source-plan.json; per-command env/argv in complete logs.",
+    "serialization": "Only named TypeScript/Vite shared caches and contract/coverage Vitest cache serialized; six independent source-default chains launched.",
+    "backend_duplication": false,
+    "pytest_children": false,
+    "overlay_consumer_release": "Explicit message sent after actual successor doctor exit0; no subsequent frontend overlay consumer/writer; transfer_owner independent extension installer retains sole lease."
+  },
+  "termination_and_resources": {
+    "authority": "Parent explicitly authorized resource-blocked termination, after actual cgroup16GiB floor with tmpfs resident approximately14GiB; no task timeout/quota fabricated.",
+    "captured": "Full proc/stat plus cgroup snapshot, own ancestor graph and status/cmdline, per-process birthticks before SIGTERM.",
+    "observed_own_process_state": "npm build201209 D in first snapshot; later S in details, documenting changing state.",
+    "signal_scope": "Only identified own orchestrator199452 and birthtick-matched descendants, then unique original processgroup199449; no other agents/global process signals.",
+    "terminal_codes": "Raw retained zombie Linux/proc/stat field52 decoded in exit-status-observed.json; outerarchitecture -15, despite both successful output diagnostics.",
+    "final_process_scope": "Final processgroup snapshot had16zombie rows and no live own descendants; not claiming every zombie reaped.",
+    "cause_limit": "Cgroup counters do not attribute each signal9/137 to an individual actor. No source-defect finding or inherited waiver inferred from a killed/terminated check.",
+    "preserved_outputs": "Complete streams through actual completion or termination; Storybook was never started, so no invented empty deciding log."
+  },
+  "cleanup_and_preparation_deviations": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/cleanup-observed.json.gz",
+    "manual_cleanup": false,
+    "observed_internal_cleanup": "Playwright managed profiles /tmp/playwright_chromiumdev_profile-6P9MMM and /tmp/playwright_chromiumdev_profile-7Ij4Ya absent after launch/close; DEBUG records temporary directories cleanup. BrowserFetcher1.59.1 finally removes per-download temp directories/ZIPs; exact download tempnames not logged. Extracted294file native assets remain.",
+    "unknown_scope": "Additional tool transient directory effects not fully captured; no universal preservation or all-temporary-files retention claim. Vite output dirs were nonexistent before wave and build never completed prerequisite.",
+    "diagnostic_capture_limitation": "Per-thread wchan content recorder omitted values because those proc files have no newline. Full stat/status/cmdline remain; no wchan-value proof asserted.",
+    "preparation_errors": "Wrong obsolete cwd read only; app-local corepack metadata resolution error; unexported Playwright browsers.json metadata subpath error; initial Bash regex parse error. Each corrected without source/package changes. Immediate Playwright1.58.2 notice corrected to actual1.59.1; receipt uses actual output."
+  },
+  "remaining_obligations": [
+    "Complete typecheck/lint/format/architecture/coverage/build/Storybook uncapped on an adequate admitted runtime profile; these receipts do not waive them.",
+    "Full backend/CI parity and expanded doctor belong to independent transfer_owner, not this receipt.",
+    "Keep unsupported persisted SearchService and scientific/authority residuals separately stated by aggregate; frontend/native readiness introduces no promotion or custody authority."
+  ]
+}

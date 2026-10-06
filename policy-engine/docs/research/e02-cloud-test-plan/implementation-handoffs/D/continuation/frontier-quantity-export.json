@@ -21,7 +21,7 @@
     "B111"
   ],
   "closure_ids": [],
-  "canonical_original_criterion": "continuation/criterion-ledger.json#/criterion_occurrences/B111@OPT-01; original text/binding unchanged",
+  "canonical_original_criterion": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/criterion-ledger.json#/criterion_occurrences/5 (B111@OPT-01); original text/binding unchanged",
   "runtime_property": "Typed producer availability/reason survives actual native registry disk readback -> ordinary PolicyArtifactBuilder -> PolicyFrontierReport CAS -> fresh store reader; scalar/membership unchanged.",
   "consumer": "PolicyArtifactBuilder._build_frontier_report / persist_policy_frontier_report / load_policy_frontier_report",
   "input_scope": "Actual five finite local quantity fixtures; empty eligible source set explicitly remains empty. No complete frontier provider or population universe is inferred.",

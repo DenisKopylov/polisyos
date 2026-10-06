@@ -1,0 +1,587 @@
+FFFFFFF..FFFFFFF.F                                                       [100%]
+=================================== FAILURES ===================================
+________ test_cold_seed_is_off_loop_and_replays_real_operations[trace] _________
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/baseline-recovery-full-ref-input/tmp/test_cold_seed_is_off_loop_and0')
+seed_source = 'trace'
+
+    @pytest.mark.parametrize("seed_source", ["trace", "checkpoint"])
+    @pytest.mark.asyncio
+    async def test_cold_seed_is_off_loop_and_replays_real_operations(tmp_path: Path, seed_source: str):
+        store, executor, node, spec, refs = await cold_setup(tmp_path, seed_source)
+        loop_thread = threading.get_ident()
+        ticks = 0
+        stop = False
+    
+        async def neighbor():
+            nonlocal ticks
+            while not stop:
+                if store.entered.is_set() and not store.release.is_set():
+                    ticks += 1
+                await asyncio.sleep(0.002)
+    
+        def physical_release():
+            assert store.entered.wait(3)
+            time.sleep(0.12)
+            store.release.set()
+    
+        releaser = threading.Thread(target=physical_release)
+        releaser.start()
+        token = _CALLER_CONTEXT.set("caller-scope")
+        peer = asyncio.create_task(neighbor())
+        try:
+            result = await executor.execute(spec, state("R_cache_recovery", current=True))
+        finally:
+            _CALLER_CONTEXT.reset(token)
+            stop = True
+            await peer
+            releaser.join(3)
+>       assert store.read_thread != loop_thread
+E       assert 139823506651008 != 139823506651008
+E        +  where 139823506651008 = <engine.test_async_cache_recovery.GatedCAS object at 0x7f2ad56bae40>.read_thread
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py:188: AssertionError
+______ test_cold_seed_is_off_loop_and_replays_real_operations[checkpoint] ______
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/baseline-recovery-full-ref-input/tmp/test_cold_seed_is_off_loop_and1')
+seed_source = 'checkpoint'
+
+    @pytest.mark.parametrize("seed_source", ["trace", "checkpoint"])
+    @pytest.mark.asyncio
+    async def test_cold_seed_is_off_loop_and_replays_real_operations(tmp_path: Path, seed_source: str):
+        store, executor, node, spec, refs = await cold_setup(tmp_path, seed_source)
+        loop_thread = threading.get_ident()
+        ticks = 0
+        stop = False
+    
+        async def neighbor():
+            nonlocal ticks
+            while not stop:
+                if store.entered.is_set() and not store.release.is_set():
+                    ticks += 1
+                await asyncio.sleep(0.002)
+    
+        def physical_release():
+            assert store.entered.wait(3)
+            time.sleep(0.12)
+            store.release.set()
+    
+        releaser = threading.Thread(target=physical_release)
+        releaser.start()
+        token = _CALLER_CONTEXT.set("caller-scope")
+        peer = asyncio.create_task(neighbor())
+        try:
+            result = await executor.execute(spec, state("R_cache_recovery", current=True))
+        finally:
+            _CALLER_CONTEXT.reset(token)
+            stop = True
+            await peer
+            releaser.join(3)
+>       assert store.read_thread != loop_thread
+E       assert 139823506651008 != 139823506651008
+E        +  where 139823506651008 = <engine.test_async_cache_recovery.GatedCAS object at 0x7f2ad43547d0>.read_thread
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py:188: AssertionError
+________ test_cold_seed_late_read_cannot_publish_cache[deadline-trace] _________
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/baseline-recovery-full-ref-input/tmp/test_cold_seed_late_read_canno0')
+seed_source = 'trace', end = 'deadline'
+
+    @pytest.mark.parametrize("seed_source", ["trace", "checkpoint"])
+    @pytest.mark.parametrize("end", ["deadline", "cancel"])
+    @pytest.mark.asyncio
+    async def test_cold_seed_late_read_cannot_publish_cache(tmp_path: Path, seed_source: str, end: str):
+        store, executor, node, spec, _refs = await cold_setup(tmp_path, seed_source)
+        # The configured budget includes startup. The physical read remains held
+        # beyond its expiry, avoiding a scheduler-speed assertion.
+        executor._workflow_timeout_s = 0.5 if end == "deadline" else None
+        loop = asyncio.get_running_loop()
+        task = asyncio.create_task(executor.execute(spec, state("R_cache_recovery", current=True)))
+    
+        def interrupt_then_release():
+            assert store.entered.wait(3)
+            if end == "cancel":
+                loop.call_soon_threadsafe(task.cancel)
+            time.sleep(0.75)
+            store.release.set()
+    
+        helper = threading.Thread(target=interrupt_then_release)
+        helper.start()
+        try:
+>           with pytest.raises(WorkflowTimeoutError if end == "deadline" else asyncio.CancelledError):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE <class 'polisyos.scientist.orchestration.engine.errors.WorkflowTimeoutError'>
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py:227: Failed
+------------------------------ Captured log call -------------------------------
+ERROR    recovery_consumer:async_executor.py:1763 Node compute timed out
+______ test_cold_seed_late_read_cannot_publish_cache[deadline-checkpoint] ______
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/baseline-recovery-full-ref-input/tmp/test_cold_seed_late_read_canno1')
+seed_source = 'checkpoint', end = 'deadline'
+
+    @pytest.mark.parametrize("seed_source", ["trace", "checkpoint"])
+    @pytest.mark.parametrize("end", ["deadline", "cancel"])
+    @pytest.mark.asyncio
+    async def test_cold_seed_late_read_cannot_publish_cache(tmp_path: Path, seed_source: str, end: str):
+        store, executor, node, spec, _refs = await cold_setup(tmp_path, seed_source)
+        # The configured budget includes startup. The physical read remains held
+        # beyond its expiry, avoiding a scheduler-speed assertion.
+        executor._workflow_timeout_s = 0.5 if end == "deadline" else None
+        loop = asyncio.get_running_loop()
+        task = asyncio.create_task(executor.execute(spec, state("R_cache_recovery", current=True)))
+    
+        def interrupt_then_release():
+            assert store.entered.wait(3)
+            if end == "cancel":
+                loop.call_soon_threadsafe(task.cancel)
+            time.sleep(0.75)
+            store.release.set()
+    
+        helper = threading.Thread(target=interrupt_then_release)
+        helper.start()
+        try:
+>           with pytest.raises(WorkflowTimeoutError if end == "deadline" else asyncio.CancelledError):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE <class 'polisyos.scientist.orchestration.engine.errors.WorkflowTimeoutError'>
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py:227: Failed
+------------------------------ Captured log call -------------------------------
+ERROR    recovery_consumer:async_executor.py:1763 Node compute timed out
+_________ test_cold_seed_late_read_cannot_publish_cache[cancel-trace] __________
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/baseline-recovery-full-ref-input/tmp/test_cold_seed_late_read_canno2')
+seed_source = 'trace', end = 'cancel'
+
+    @pytest.mark.parametrize("seed_source", ["trace", "checkpoint"])
+    @pytest.mark.parametrize("end", ["deadline", "cancel"])
+    @pytest.mark.asyncio
+    async def test_cold_seed_late_read_cannot_publish_cache(tmp_path: Path, seed_source: str, end: str):
+        store, executor, node, spec, _refs = await cold_setup(tmp_path, seed_source)
+        # The configured budget includes startup. The physical read remains held
+        # beyond its expiry, avoiding a scheduler-speed assertion.
+        executor._workflow_timeout_s = 0.5 if end == "deadline" else None
+        loop = asyncio.get_running_loop()
+        task = asyncio.create_task(executor.execute(spec, state("R_cache_recovery", current=True)))
+    
+        def interrupt_then_release():
+            assert store.entered.wait(3)
+            if end == "cancel":
+                loop.call_soon_threadsafe(task.cancel)
+            time.sleep(0.75)
+            store.release.set()
+    
+        helper = threading.Thread(target=interrupt_then_release)
+        helper.start()
+        try:
+            with pytest.raises(WorkflowTimeoutError if end == "deadline" else asyncio.CancelledError):
+                await task
+>           assert not store.release.is_set(), "caller returned only after physical read completed"
+E           AssertionError: caller returned only after physical read completed
+E           assert not True
+E            +  where True = is_set()
+E            +    where is_set = <threading.Event at 0x7f2ad4231cd0: set>.is_set
+E            +      where <threading.Event at 0x7f2ad4231cd0: set> = <engine.test_async_cache_recovery.GatedCAS object at 0x7f2ad4249590>.release
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py:229: AssertionError
+_______ test_cold_seed_late_read_cannot_publish_cache[cancel-checkpoint] _______
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/baseline-recovery-full-ref-input/tmp/test_cold_seed_late_read_canno3')
+seed_source = 'checkpoint', end = 'cancel'
+
+    @pytest.mark.parametrize("seed_source", ["trace", "checkpoint"])
+    @pytest.mark.parametrize("end", ["deadline", "cancel"])
+    @pytest.mark.asyncio
+    async def test_cold_seed_late_read_cannot_publish_cache(tmp_path: Path, seed_source: str, end: str):
+        store, executor, node, spec, _refs = await cold_setup(tmp_path, seed_source)
+        # The configured budget includes startup. The physical read remains held
+        # beyond its expiry, avoiding a scheduler-speed assertion.
+        executor._workflow_timeout_s = 0.5 if end == "deadline" else None
+        loop = asyncio.get_running_loop()
+        task = asyncio.create_task(executor.execute(spec, state("R_cache_recovery", current=True)))
+    
+        def interrupt_then_release():
+            assert store.entered.wait(3)
+            if end == "cancel":
+                loop.call_soon_threadsafe(task.cancel)
+            time.sleep(0.75)
+            store.release.set()
+    
+        helper = threading.Thread(target=interrupt_then_release)
+        helper.start()
+        try:
+            with pytest.raises(WorkflowTimeoutError if end == "deadline" else asyncio.CancelledError):
+                await task
+>           assert not store.release.is_set(), "caller returned only after physical read completed"
+E           AssertionError: caller returned only after physical read completed
+E           assert not True
+E            +  where True = is_set()
+E            +    where is_set = <threading.Event at 0x7f2ad4233470: set>.is_set
+E            +      where <threading.Event at 0x7f2ad4233470: set> = <engine.test_async_cache_recovery.GatedCAS object at 0x7f2ad424a850>.release
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py:229: AssertionError
+______ test_successful_native_publication_restores_trace_hit_after_reopen ______
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/baseline-recovery-full-ref-input/tmp/test_successful_native_publica0')
+
+    @pytest.mark.asyncio
+    async def test_successful_native_publication_restores_trace_hit_after_reopen(tmp_path: Path):
+        store = FileSystemCAS(tmp_path / "cas")
+        node = RecoveryNode()
+        spec, registry = workflow(node)
+        run_dir = tmp_path / "run"
+        first_ctx = context(store, "R_trace_reopen", run_dir)
+        await AsyncWorkflowExecutor(first_ctx, registry).execute(spec, state("R_trace_reopen"))
+        events = [json.loads(line) for line in first_ctx.run.trace_path.read_text().splitlines()]
+        publications = [event for event in events if event["event"] == "NODE_CACHE_STORE"]
+>       assert len(publications) == 1
+E       assert 0 == 1
+E        +  where 0 = len([])
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py:254: AssertionError
+_ test_recovery_respects_read_budget_and_warm_hit_skips_compute_budget[read-trace] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/baseline-recovery-full-ref-input/tmp/test_recovery_respects_read_bu2')
+seed_source = 'trace', exhausted = 'read'
+
+    @pytest.mark.parametrize("seed_source", ["trace", "checkpoint"])
+    @pytest.mark.parametrize("exhausted", ["run", "read"])
+    @pytest.mark.asyncio
+    async def test_recovery_respects_read_budget_and_warm_hit_skips_compute_budget(
+        tmp_path: Path, seed_source: str, exhausted: str
+    ):
+        store, executor, node, spec, _refs = await cold_setup(tmp_path, seed_source)
+        store.release.set()
+        executor._budget_middleware = BudgetMiddleware(
+            BudgetState(
+                limits={
+                    key: BudgetLimit(key=key, max_usd=Decimal(0 if key == exhausted else 1))
+                    for key in ("run", "read")
+                }
+            )
+        )
+        result = await executor.execute(spec, state("R_cache_recovery", current=True))
+        assert node.calls == 1
+        if exhausted == "read":
+>           assert store.target_reads == 0
+E           assert 1 == 0
+E            +  where 1 = <engine.test_async_cache_recovery.GatedCAS object at 0x7f2ad424b9d0>.target_reads
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py:297: AssertionError
+_ test_recovery_respects_read_budget_and_warm_hit_skips_compute_budget[read-checkpoint] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/baseline-recovery-full-ref-input/tmp/test_recovery_respects_read_bu3')
+seed_source = 'checkpoint', exhausted = 'read'
+
+    @pytest.mark.parametrize("seed_source", ["trace", "checkpoint"])
+    @pytest.mark.parametrize("exhausted", ["run", "read"])
+    @pytest.mark.asyncio
+    async def test_recovery_respects_read_budget_and_warm_hit_skips_compute_budget(
+        tmp_path: Path, seed_source: str, exhausted: str
+    ):
+        store, executor, node, spec, _refs = await cold_setup(tmp_path, seed_source)
+        store.release.set()
+        executor._budget_middleware = BudgetMiddleware(
+            BudgetState(
+                limits={
+                    key: BudgetLimit(key=key, max_usd=Decimal(0 if key == exhausted else 1))
+                    for key in ("run", "read")
+                }
+            )
+        )
+        result = await executor.execute(spec, state("R_cache_recovery", current=True))
+        assert node.calls == 1
+        if exhausted == "read":
+>           assert store.target_reads == 0
+E           assert 1 == 0
+E            +  where 1 = <engine.test_async_cache_recovery.GatedCAS object at 0x7f2ad42e0410>.target_reads
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py:297: AssertionError
+__________ test_seed_deadline_prevents_any_following_real_read[trace] __________
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/baseline-recovery-full-ref-input/tmp/test_seed_deadline_prevents_an0')
+seed_source = 'trace'
+
+    @pytest.mark.parametrize("seed_source", ["trace", "checkpoint"])
+    def test_seed_deadline_prevents_any_following_real_read(tmp_path: Path, seed_source: str):
+        store = GatedCAS(tmp_path / "cas")
+        node = RecoveryNode()
+        original = state("R_seed_deadline")
+        from polisyos.scientist.orchestration.engine.state_branching import branch_state
+    
+        outcome = node.execute(None, branch_state(original, write_paths=("params",)).state)
+        key = compute_idempotency_key(node.spec, original)
+        ref = NodeResultCache(store, run_id=original.run_id).put(
+            key, node_id=str(node.spec.metadata.component_id), outcome=outcome
+        )
+        trace_path = tmp_path / "trace.jsonl"
+        trace_path.write_text(
+            json.dumps(
+                {"event": "NODE_CACHE_STORE", "refs": {"outputs": [ref.model_dump(mode="json")]}}
+            )
+            + "\n"
+        )
+        store.target = str(ref.artifact_id)
+        cache = NodeResultCache(store, run_id=original.run_id)
+        deadline = time.perf_counter() + 0.05
+    
+        def release():
+            assert store.entered.wait(3)
+            time.sleep(0.12)
+            store.release.set()
+    
+        worker = threading.Thread(target=release)
+        worker.start()
+        try:
+            seed = cache.seed_from_trace if seed_source == "trace" else cache.seed_from_entry_refs
+            inputs = trace_path if seed_source == "trace" else [ref, ref]
+            with pytest.raises(TimeoutError):
+>               seed(inputs, deadline_monotonic=deadline)
+E               TypeError: NodeResultCache.seed_from_trace() got an unexpected keyword argument 'deadline_monotonic'
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py:348: TypeError
+_______ test_seed_deadline_prevents_any_following_real_read[checkpoint] ________
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/baseline-recovery-full-ref-input/tmp/test_seed_deadline_prevents_an1')
+seed_source = 'checkpoint'
+
+    @pytest.mark.parametrize("seed_source", ["trace", "checkpoint"])
+    def test_seed_deadline_prevents_any_following_real_read(tmp_path: Path, seed_source: str):
+        store = GatedCAS(tmp_path / "cas")
+        node = RecoveryNode()
+        original = state("R_seed_deadline")
+        from polisyos.scientist.orchestration.engine.state_branching import branch_state
+    
+        outcome = node.execute(None, branch_state(original, write_paths=("params",)).state)
+        key = compute_idempotency_key(node.spec, original)
+        ref = NodeResultCache(store, run_id=original.run_id).put(
+            key, node_id=str(node.spec.metadata.component_id), outcome=outcome
+        )
+        trace_path = tmp_path / "trace.jsonl"
+        trace_path.write_text(
+            json.dumps(
+                {"event": "NODE_CACHE_STORE", "refs": {"outputs": [ref.model_dump(mode="json")]}}
+            )
+            + "\n"
+        )
+        store.target = str(ref.artifact_id)
+        cache = NodeResultCache(store, run_id=original.run_id)
+        deadline = time.perf_counter() + 0.05
+    
+        def release():
+            assert store.entered.wait(3)
+            time.sleep(0.12)
+            store.release.set()
+    
+        worker = threading.Thread(target=release)
+        worker.start()
+        try:
+            seed = cache.seed_from_trace if seed_source == "trace" else cache.seed_from_entry_refs
+            inputs = trace_path if seed_source == "trace" else [ref, ref]
+            with pytest.raises(TimeoutError):
+>               seed(inputs, deadline_monotonic=deadline)
+E               TypeError: NodeResultCache.seed_from_entry_refs() got an unexpected keyword argument 'deadline_monotonic'
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py:348: TypeError
+_ test_seed_rejects_valid_foreign_manifest_view_without_default_fallback[trace] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/baseline-recovery-full-ref-input/tmp/test_seed_rejects_valid_foreig0')
+inlet = 'trace'
+
+    @pytest.mark.parametrize("inlet", ["trace", "checkpoint"])
+    def test_seed_rejects_valid_foreign_manifest_view_without_default_fallback(tmp_path, inlet):
+        store = FileSystemCAS(tmp_path / "cas")
+        ref = publish(store)
+        alternate = alternate_view(store, ref)
+        # A fresh filesystem store must resolve the offered profile, including
+        # its producer epoch, rather than a cached/default manifest for the blob.
+        reopened = FileSystemCAS(tmp_path / "cas")
+        cache = NodeResultCache(reopened, "R_view")
+        if inlet == "trace":
+            trace = tmp_path / "trace.jsonl"
+            trace.write_text(
+                json.dumps(
+                    {
+                        "event": "NODE_CACHE_STORE",
+                        "refs": {"outputs": [alternate.model_dump(mode="json")]},
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            restored = cache.seed_from_trace(trace)
+        else:
+            restored = cache.seed_from_entry_refs([alternate])
+>       assert restored == 0
+E       assert 1 == 0
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py:90: AssertionError
+_ test_seed_rejects_valid_foreign_manifest_view_without_default_fallback[checkpoint] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/baseline-recovery-full-ref-input/tmp/test_seed_rejects_valid_foreig1')
+inlet = 'checkpoint'
+
+    @pytest.mark.parametrize("inlet", ["trace", "checkpoint"])
+    def test_seed_rejects_valid_foreign_manifest_view_without_default_fallback(tmp_path, inlet):
+        store = FileSystemCAS(tmp_path / "cas")
+        ref = publish(store)
+        alternate = alternate_view(store, ref)
+        # A fresh filesystem store must resolve the offered profile, including
+        # its producer epoch, rather than a cached/default manifest for the blob.
+        reopened = FileSystemCAS(tmp_path / "cas")
+        cache = NodeResultCache(reopened, "R_view")
+        if inlet == "trace":
+            trace = tmp_path / "trace.jsonl"
+            trace.write_text(
+                json.dumps(
+                    {
+                        "event": "NODE_CACHE_STORE",
+                        "refs": {"outputs": [alternate.model_dump(mode="json")]},
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            restored = cache.seed_from_trace(trace)
+        else:
+            restored = cache.seed_from_entry_refs([alternate])
+>       assert restored == 0
+E       assert 1 == 0
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py:90: AssertionError
+________ test_verified_default_does_not_dedupe_a_distinct_foreign_view _________
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/baseline-recovery-full-ref-input/tmp/test_verified_default_does_not0')
+
+    def test_verified_default_does_not_dedupe_a_distinct_foreign_view(tmp_path):
+        store = FileSystemCAS(tmp_path / "cas")
+        ref = publish(store)
+        alternate = alternate_view(store, ref)
+        cache = NodeResultCache(FileSystemCAS(tmp_path / "cas"), "R_view")
+        assert cache.load_entry(ref)
+>       with pytest.raises(ValueError, match="immutable_epoch_mismatch"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py:110: Failed
+___________ test_legacy_outcome_ref_keeps_its_selected_manifest_view ___________
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/baseline-recovery-full-ref-input/tmp/test_legacy_outcome_ref_keeps_0')
+
+    def test_legacy_outcome_ref_keeps_its_selected_manifest_view(tmp_path):
+        store = FileSystemCAS(tmp_path / "cas")
+        state = branch_state(ExperimentState(run_id="R_view"), write_paths=()).state
+        producer = ProducerInfo(component="scientist.engine.idempotency", version="1.0.0")
+        outcome_ref = store.put_json(
+            NodeOutcome(status="ok", state=state).model_dump(mode="python"),
+            PutOptions(
+                kind="scientist.node_outcome",
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name="polisyos.scientist.orchestration.engine.NodeOutcome", version="1.0"
+                ),
+                producer=producer,
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        offered_outcome = alternate_view(store, outcome_ref)
+        schema = SchemaInfo(
+            name="polisyos.scientist.orchestration.engine.NodeCacheEntry", version="1.0"
+        )
+        entry = NodeCacheEntry(
+            schema_version="1.0",
+            run_id="R_view",
+            node_id="scientist.view_consumer@1.0.0",
+            idempotency_key="c" * 64,
+            outcome_ref=offered_outcome,
+            state_mutations_version="1.0",
+            replay_epoch=REPLAY_EPOCH,
+        )
+        entry = entry.model_copy(
+            update={
+                "journal_proof": _build_journal_proof(
+                    entry, manifest_schema=schema, manifest_producer=producer
+                )
+            }
+        )
+        entry_ref = store.put_json(
+            entry.model_dump(mode="python", exclude_none=False),
+            PutOptions(
+                kind="scientist.node_cache_entry",
+                media_type="application/json",
+                schema=schema,
+                producer=producer,
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        cache = NodeResultCache(FileSystemCAS(tmp_path / "cas"), "R_view")
+>       with pytest.raises(ValueError, match="immutable_epoch_mismatch"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py:174: Failed
+=============================== warnings summary ===============================
+tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_cold_seed_late_read_cannot_publish_cache[deadline-trace]
+tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_cold_seed_late_read_cannot_publish_cache[deadline-checkpoint]
+  /workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/popen_fork.py:70: DeprecationWarning: This process (pid=97288) is multi-threaded, use of fork() may lead to deadlocks in the child.
+    self.pid = os.fork()
+
+tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_seed_deadline_prevents_any_following_real_read[trace]
+  /workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/threadexception.py:58: PytestUnhandledThreadExceptionWarning: Exception in thread Thread-12 (release)
+  
+  Traceback (most recent call last):
+    File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/threading.py", line 1082, in _bootstrap_inner
+      self._context.run(self.run)
+      ~~~~~~~~~~~~~~~~~^^^^^^^^^^
+    File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/threading.py", line 1024, in run
+      self._target(*self._args, **self._kwargs)
+      ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/workspace/e02-B-current-execution-state/policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py", line 338, in release
+      assert store.entered.wait(3)
+  AssertionError: assert False
+   +  where False = wait(3)
+   +    where wait = <threading.Event at 0x7f2ad4285bb0: unset>.wait
+   +      where <threading.Event at 0x7f2ad4285bb0: unset> = <engine.test_async_cache_recovery.GatedCAS object at 0x7f2ad42e0910>.entered
+  
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+    warnings.warn(pytest.PytestUnhandledThreadExceptionWarning(msg))
+
+tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_seed_deadline_prevents_any_following_real_read[checkpoint]
+  /workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/threadexception.py:58: PytestUnhandledThreadExceptionWarning: Exception in thread Thread-13 (release)
+  
+  Traceback (most recent call last):
+    File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/threading.py", line 1082, in _bootstrap_inner
+      self._context.run(self.run)
+      ~~~~~~~~~~~~~~~~~^^^^^^^^^^
+    File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/threading.py", line 1024, in run
+      self._target(*self._args, **self._kwargs)
+      ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/workspace/e02-B-current-execution-state/policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py", line 338, in release
+      assert store.entered.wait(3)
+  AssertionError: assert False
+   +  where False = wait(3)
+   +    where wait = <threading.Event at 0x7f2b2457c950: unset>.wait
+   +      where <threading.Event at 0x7f2b2457c950: unset> = <engine.test_async_cache_recovery.GatedCAS object at 0x7f2ad42e0f50>.entered
+  
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+    warnings.warn(pytest.PytestUnhandledThreadExceptionWarning(msg))
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_cold_seed_is_off_loop_and_replays_real_operations[trace]
+FAILED policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_cold_seed_is_off_loop_and_replays_real_operations[checkpoint]
+FAILED policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_cold_seed_late_read_cannot_publish_cache[deadline-trace]
+FAILED policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_cold_seed_late_read_cannot_publish_cache[deadline-checkpoint]
+FAILED policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_cold_seed_late_read_cannot_publish_cache[cancel-trace]
+FAILED policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_cold_seed_late_read_cannot_publish_cache[cancel-checkpoint]
+FAILED policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_successful_native_publication_restores_trace_hit_after_reopen
+FAILED policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_recovery_respects_read_budget_and_warm_hit_skips_compute_budget[read-trace]
+FAILED policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_recovery_respects_read_budget_and_warm_hit_skips_compute_budget[read-checkpoint]
+FAILED policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_seed_deadline_prevents_any_following_real_read[trace]
+FAILED policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_seed_deadline_prevents_any_following_real_read[checkpoint]
+FAILED policy-engine/tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py::test_seed_rejects_valid_foreign_manifest_view_without_default_fallback[trace]
+FAILED policy-engine/tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py::test_seed_rejects_valid_foreign_manifest_view_without_default_fallback[checkpoint]
+FAILED policy-engine/tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py::test_verified_default_does_not_dedupe_a_distinct_foreign_view
+FAILED policy-engine/tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py::test_legacy_outcome_ref_keeps_its_selected_manifest_view

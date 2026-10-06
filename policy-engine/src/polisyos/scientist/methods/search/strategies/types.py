@@ -10,6 +10,7 @@ from enum import Enum
 from typing import Any
 from uuid import uuid4
 
+from polisyos.common.serialization import finite_real_scalar
 from polisyos.scientist.methods.search.objective import ObjectiveValue
 
 NormalizedVector = tuple[float, ...]
@@ -127,9 +128,7 @@ class Evaluation:
         return (
             self.status == EvaluationStatus.SUCCESS
             and self.stage_a_passed is True
-            and isinstance(self.scalar_score, (int, float))
-            and not isinstance(self.scalar_score, bool)
-            and math.isfinite(self.scalar_score)
+            and finite_real_scalar(self.scalar_score) is not None
         )
 
 

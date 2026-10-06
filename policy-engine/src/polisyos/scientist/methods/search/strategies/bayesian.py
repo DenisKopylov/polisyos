@@ -14,6 +14,7 @@ from importlib.metadata import version
 from typing import Any
 
 from polisyos.common.logger import get_logger
+from polisyos.common.serialization import finite_real_scalar
 from polisyos.scientist.methods.search.objective import ObjectiveValue, OptimizationDirection
 
 # Imported lazily through _deps to keep module importable without optional stack.
@@ -46,7 +47,7 @@ from polisyos.scientist.methods.search.strategies.types import (
 
 logger = get_logger(__name__)
 _ACQUISITION_POLICY = "sobol_ranked_restarts.v1"
-_GP_STATE_VERSION = 3
+_GP_STATE_VERSION = 4
 
 _WARM_COMPATIBILITY_METADATA = "warm_start_compatibility"
 _WARM_COMPATIBILITY_FIELDS = (
@@ -111,11 +112,14 @@ class BayesianOptimizer(BaseSearchStrategy):
         self._warm_start_admission = warm_start_admission
         self._basis_payload = self._validated_basis(numerical_basis)
         self._training_record_ids: list[str] = []
+        self._training_evaluations: list[dict[str, Any]] = []
+        self._fitted_evaluations: list[dict[str, Any]] = []
         self._fitted_record_ids: list[str] = []
         self._refit_record_ids: list[str] = []
         self._refit_train_X = None
         self._refit_train_y_bo = None
         self.last_warm_start_report: list[dict[str, str]] = []
+        self.last_training_admission_report: list[dict[str, str]] = []
         self._arbiter = resource_arbiter or ResourceArbiter.from_env()
         self._model: Any = None
         self._train_X: Any = None
@@ -387,6 +391,7 @@ class BayesianOptimizer(BaseSearchStrategy):
                     "refit_train_X": self._refit_train_X.tolist(),
                     "refit_train_y_bo": self._refit_train_y_bo.tolist(),
                     "fitted_record_ids": list(self._fitted_record_ids),
+                    "fitted_evaluations": copy.deepcopy(self._fitted_evaluations),
                     "refit_record_ids": list(self._refit_record_ids),
                 }
             )
@@ -422,9 +427,7 @@ class BayesianOptimizer(BaseSearchStrategy):
                 raise ValueError("GP integer configuration requires an integer")
             if isinstance(value, bool) and type(actual) is not bool:
                 raise ValueError("GP boolean configuration requires a boolean")
-            if isinstance(value, float) and (
-                type(actual) not in (int, float) or not math.isfinite(actual)
-            ):
+            if isinstance(value, float) and (finite_real_scalar(actual) is None):
                 raise ValueError("GP numeric configuration requires a finite number")
             if key != "seed" and actual != value:
                 raise ValueError("GP checkpoint configuration changed")
@@ -468,6 +471,7 @@ class BayesianOptimizer(BaseSearchStrategy):
                 raise ValueError("GP Torch RNG state is invalid") from exc
         model = X = Y = refit_X = refit_Y = None
         fitted_ids = refit_ids = []
+        fitted_evaluations = []
         if state.model_state is not None:
             if meta.get("corpus_sha256") != self._corpus_digest(meta):
                 raise ValueError("GP checkpoint corpus content differs from its saved binding")
@@ -493,8 +497,10 @@ class BayesianOptimizer(BaseSearchStrategy):
                 or len(refit_ids) != last_size
                 or fitted_ids[:last_size] != refit_ids
                 or any(not isinstance(v, str) or not v for v in fitted_ids)
+                or len(set(fitted_ids)) != len(fitted_ids)
             ):
                 raise ValueError("GP checkpoint observation identities disagree")
+            fitted_evaluations = self._reconcile_fitted_evaluations(meta, X, Y, fitted_ids, warm)
             try:
                 weights = self._torch.load(
                     io.BytesIO(state.model_state), weights_only=True, map_location=self._device
@@ -547,7 +553,15 @@ class BayesianOptimizer(BaseSearchStrategy):
             or last_size != 0
             or any(
                 key in meta
-                for key in ("train_X", "train_y_bo", "refit_train_X", "refit_train_y_bo")
+                for key in (
+                    "train_X",
+                    "train_y_bo",
+                    "refit_train_X",
+                    "refit_train_y_bo",
+                    "fitted_evaluations",
+                    "fitted_record_ids",
+                    "refit_record_ids",
+                )
             )
         ):
             raise ValueError("GP checkpoint missing its fitted model")
@@ -556,6 +570,9 @@ class BayesianOptimizer(BaseSearchStrategy):
         self._fitted_train_X, self._fitted_train_y_bo = X, Y
         self._refit_train_X, self._refit_train_y_bo = refit_X, refit_Y
         self._fitted_record_ids, self._refit_record_ids = fitted_ids, refit_ids
+        self._fitted_evaluations = fitted_evaluations
+        self._training_evaluations = copy.deepcopy(fitted_evaluations)
+        self._training_record_ids = list(fitted_ids)
         self._last_refit_iteration, self._last_train_size = last_fit, last_size
         self._warm_evals = warm
         self._warm_evaluation_ids = {id(e) for e in warm}
@@ -580,6 +597,7 @@ class BayesianOptimizer(BaseSearchStrategy):
                             "refit_train_X",
                             "refit_train_y_bo",
                             "fitted_record_ids",
+                            "fitted_evaluations",
                             "refit_record_ids",
                             "numerical_basis",
                             "warm_evaluations",
@@ -598,15 +616,14 @@ class BayesianOptimizer(BaseSearchStrategy):
         for key in (x_key, y_key):
             rows = meta.get(key)
             if not isinstance(rows, list) or any(
-                not isinstance(row, list)
-                or any(type(value) not in (int, float) or not math.isfinite(value) for value in row)
+                not isinstance(row, list) or any(finite_real_scalar(value) is None for value in row)
                 for row in rows
             ):
                 raise ValueError("GP checkpoint tensors require finite numeric rows")
         try:
             X = self._torch.tensor(meta.get(x_key), dtype=self._torch.float64, device=self._device)
             Y = self._torch.tensor(meta.get(y_key), dtype=self._torch.float64, device=self._device)
-        except (TypeError, ValueError, RuntimeError) as exc:
+        except (TypeError, ValueError, OverflowError, RuntimeError) as exc:
             raise ValueError("GP checkpoint tensors are invalid") from exc
         if (
             X.ndim != 2
@@ -619,6 +636,37 @@ class BayesianOptimizer(BaseSearchStrategy):
         ):
             raise ValueError("GP checkpoint tensor shape/range is invalid")
         return X, Y
+
+    def _reconcile_fitted_evaluations(self, meta, X, Y, fitted_ids, warm):
+        """Resolve source rows and recompute their ordered numerical association.
+
+        Model bytes and corpus hashes establish neither source custody nor the
+        identity of a tensor row. Reuse the configured reader before constructing
+        a model, then reconcile every original row against raw X/Y and its id.
+        """
+        payloads = meta.get("fitted_evaluations")
+        if not isinstance(payloads, list) or len(payloads) != len(X):
+            raise ValueError("GP checkpoint fitted source-row coverage is incomplete")
+        records = [self._decode_evaluation(payload) for payload in payloads]
+        probe = copy.copy(self)
+        probe._warm_evals = []
+        probe._warm_evaluation_ids = set()
+        admitted = probe._effective_training_corpus(records)
+        if [self._encode_evaluation(e) for e in admitted] != payloads:
+            raise ValueError("GP checkpoint fitted source rows are no longer admitted")
+        actual_X, actual_Y = probe._prepare_training_data(admitted)
+        if (
+            probe._training_record_ids != fitted_ids
+            or not self._torch.equal(actual_X, X)
+            or not self._torch.equal(actual_Y, Y)
+        ):
+            raise ValueError("GP checkpoint source identities differ from their numeric rows")
+        by_identity = {self._evaluation_identity(e): self._record_id(e) for e in admitted}
+        for evaluation in warm:
+            identity = self._evaluation_identity(evaluation)
+            if identity in by_identity and self._record_id(evaluation) != by_identity[identity]:
+                raise ValueError("GP checkpoint warm source differs from its fitted row")
+        return copy.deepcopy(payloads)
 
     @staticmethod
     def _encode_evaluation(evaluation):
@@ -676,9 +724,13 @@ class BayesianOptimizer(BaseSearchStrategy):
                     "Transferred training rows are no longer content-bound to the target"
                 )
         corpus: list[Evaluation] = []
+        self.last_training_admission_report = []
         seen: set[tuple[Any, ...]] = set()
         for evaluation in [*self._warm_evals, *evaluations]:
             if not evaluation.is_valid or not math.isfinite(evaluation.scalar_score):
+                self.last_training_admission_report.append(
+                    {"candidate_id": evaluation.candidate_id, "reason": "invalid_outcome"}
+                )
                 continue
             if not self._has_compatible_params(evaluation):
                 continue
@@ -778,22 +830,8 @@ class BayesianOptimizer(BaseSearchStrategy):
         ]
         if not admitted:
             raise RuntimeError("No valid measured objective values available for GP fitting")
-        self._training_record_ids = [
-            hashlib.sha256(
-                json.dumps(
-                    {
-                        "identity": self._evaluation_identity(e),
-                        "numeric_basis": e.metadata.get("numeric_transfer_basis"),
-                        "space": self._space.sobol_space_fingerprint(),
-                        "params": e.params,
-                        "scalar": e.scalar_score,
-                    },
-                    sort_keys=True,
-                    allow_nan=False,
-                ).encode()
-            ).hexdigest()
-            for e in admitted
-        ]
+        self._training_record_ids = [self._record_id(e) for e in admitted]
+        self._training_evaluations = [self._encode_evaluation(e) for e in admitted]
         X = self._torch.tensor(
             [list(self._space.normalize(e.params)) for e in admitted],
             dtype=self._torch.float64,
@@ -804,6 +842,22 @@ class BayesianOptimizer(BaseSearchStrategy):
         )
         self._train_X, self._train_y_bo = X, Y
         return X, Y
+
+    def _record_id(self, evaluation: Evaluation) -> str:
+        """Bind an observation's identity to its admitted raw numerical input."""
+        return hashlib.sha256(
+            json.dumps(
+                {
+                    "identity": self._evaluation_identity(evaluation),
+                    "numeric_basis": evaluation.metadata.get("numeric_transfer_basis"),
+                    "space": self._space.sobol_space_fingerprint(),
+                    "params": evaluation.params,
+                    "scalar": evaluation.scalar_score,
+                },
+                sort_keys=True,
+                allow_nan=False,
+            ).encode()
+        ).hexdigest()
 
     def _fit_gp(self, X, y_bo) -> None:
         current_train_size = X.shape[0]
@@ -849,6 +903,7 @@ class BayesianOptimizer(BaseSearchStrategy):
             self._fitted_train_X = X.detach().clone()
             self._fitted_train_y_bo = y_bo.detach().clone()
             self._fitted_record_ids = list(self._training_record_ids)
+            self._fitted_evaluations = copy.deepcopy(self._training_evaluations)
         except Exception as exc:
             raise RuntimeError(
                 "GP append conditioning failed; no silent same-basis MLL refit"
@@ -869,6 +924,7 @@ class BayesianOptimizer(BaseSearchStrategy):
         self._refit_train_X = X.detach().clone()
         self._refit_train_y_bo = y_bo.detach().clone()
         self._fitted_record_ids = list(self._training_record_ids)
+        self._fitted_evaluations = copy.deepcopy(self._training_evaluations)
         self._refit_record_ids = list(self._training_record_ids)
         self._last_refit_iteration = self._iteration
         self._last_train_size = X.shape[0]

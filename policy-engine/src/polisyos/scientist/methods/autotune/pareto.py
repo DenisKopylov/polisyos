@@ -6,10 +6,11 @@ import hashlib
 import json
 import math
 from importlib.metadata import PackageNotFoundError, version
-from numbers import Real
 from typing import Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
+
+from polisyos.common.serialization import finite_real_scalar
 
 from .models import (
     BenchmarkEvaluation,
@@ -248,17 +249,6 @@ class HypervolumeResult(BaseModel):
         if self.value is not None and self.value < 0:
             raise ValueError("Hypervolume cannot be negative")
         return self
-
-
-def finite_real_scalar(raw: object) -> float | None:
-    """One scalar admission primitive for Pareto, native MO and legacy frontier."""
-    if isinstance(raw, bool) or not isinstance(raw, Real):
-        return None
-    try:
-        value = float(raw)
-    except (TypeError, ValueError, OverflowError):
-        return None
-    return value if math.isfinite(value) else None
 
 
 def _finite_vector(values: object) -> tuple[float, ...] | None:

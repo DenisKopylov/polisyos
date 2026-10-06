@@ -222,6 +222,37 @@ def test_standalone_current_transferred_rows_are_readmitted_before_model_restore
         peer.set_state(invalid)
     assert peer.get_state() == before
 
+    # A fitted identity must resolve to the actual saved numeric row, not
+    # merely occur somewhere among the admitted source record ids.
+    import json
+
+    from polisyos.scientist.methods.search.strategies.types import StrategyState
+
+    for mutation in ("alias", "permutation"):
+        invalid = deepcopy(checkpoint)
+        native = StrategyState.from_artifact(
+            original_generator._json_bytes(invalid["strategy_state"])
+        )
+        for field in ("fitted_record_ids", "refit_record_ids"):
+            if mutation == "alias":
+                native.metadata[field][0] = native.metadata[field][1]
+            else:
+                native.metadata[field][:2] = list(reversed(native.metadata[field][:2]))
+        native.metadata["corpus_sha256"] = original_generator._optimizer._corpus_digest(
+            native.metadata
+        )
+        invalid["strategy_state"] = json.loads(native.to_artifact())
+        peer = receiver()
+        before = peer.get_state()
+        with pytest.raises(ValueError):
+            peer.set_state(invalid)
+        assert peer.get_state() == before
+        # Native checkpoint callers receive the same source-row reconciliation;
+        # this cannot depend only on the generator's wrapper membership gate.
+        with pytest.raises(ValueError):
+            peer._optimizer.set_state(native)
+        assert peer.get_state() == before
+
     # Falsify source declarations coherently with the wrapper checksum. The
     # actual same CAS reader, not presence or a saved digest, must decide them.
     for mutation in ("direction", "reference", "outcome"):

@@ -1,0 +1,28 @@
+id = "2026-10-06-static-admg-profile"
+title = "Refuse unsupported original graph profiles before static inference"
+type = "fixed"
+component = "foundry"
+owner = "team-foundry"
+summary = "Share original-graph admission across static ADMG separation, surgery, rewriting and inference builders, and normalize known reverse-stored arrows."
+change_class = "internal"
+surface_classification = "internal: causal graph inference providers"
+compatibility = "Resolved contemporaneous directed and bidirected relations remain supported; unresolved endpoints and compact lagged relations now raise ValueError before transformations or no-op returns. No IR schema or graph row value ABI changes."
+migration = "Handle the unsupported-profile refusal and supply a supported graph; do not delete uncertain or temporal relations to bypass admission."
+limitations = "Finite graph and consumer properties do not establish general ID/PAG/transport completeness or real-data causal authority."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["docs/reference/foundry/static-admg-profile.md"]
+runbook_docs = ["docs/reference/foundry/static-admg-profile.md"]
+evidence = ["tests/unit/foundry/methods/catalog/causal/test_admg_profile_consumers.py", "tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py"]
+
+[[compatibility_change]]
+id = "static-admg-original-profile-admission"
+change_class = "internal"
+impact = "breaking"
+surface = "internal: polisyos.foundry.methods.catalog.causal static graph inference providers"
+owner = "team-foundry"
+version_owner = "team-foundry"
+deprecation_window = "not_applicable: correction of unsupported causal inference"
+release_note = "Static inference refuses unresolved endpoints and compact lagged edges on the original graph, including empty/no-op requests; known reverse arrows retain directed semantics."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["docs/reference/foundry/static-admg-profile.md"]
+runbook_docs = ["docs/reference/foundry/static-admg-profile.md"]

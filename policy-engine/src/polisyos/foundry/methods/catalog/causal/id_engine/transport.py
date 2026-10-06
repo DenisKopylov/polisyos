@@ -50,6 +50,7 @@ from polisyos.foundry.methods.catalog.causal._id_contracts import (
     SourceDomain,
 )
 from polisyos.foundry.methods.catalog.causal.admg_ops import (
+    _validate_static_admg,
     ancestors,
     augment_with_s_nodes,
     c_components,
@@ -150,6 +151,7 @@ def z_id_algorithm(
     available_domains: optional list of SourceDomain objects (unused in base impl)
     dataset_ref:       tag for DistributionRef leaves
     """
+    _validate_static_admg(graph)
     if _trace is None:
         _trace = []
 
@@ -512,6 +514,7 @@ def mz_id_algorithm(
     graph:          target-domain causal graph G
     dataset_ref:    tag for DistributionRef leaves
     """
+    _validate_static_admg(graph)
     source_domains = _normalize_source_domains(source_domains)
     _trace: list[str] = [
         f"mz_id_algorithm(X={sorted(treatment)}, Y={sorted(outcome)}, "
@@ -915,6 +918,7 @@ def sid_algorithm(
     Díaz, I. & van der Laan, M.J. (2012). "Population Intervention Causal
         Effects Based on Stochastic Interventions." Biometrics 68(2).
     """
+    _validate_static_admg(graph)
     _trace: list[str] = []
     _steps: list[ProofStep] = []
 
@@ -1133,6 +1137,7 @@ def conditional_intervention_id(
     ----------
     Pearl, J. (2009). *Causality*, 2nd ed., §4.2. Cambridge University Press.
     """
+    _validate_static_admg(graph)
     _trace: list[str] = []
     _steps: list[ProofStep] = []
 
@@ -1251,6 +1256,7 @@ def dynamic_intervention_id(
     Hernán, M.A. & Robins, J.M. (2020). *Causal Inference: What If.*
         Chapman & Hall.
     """
+    _validate_static_admg(graph)
     _trace: list[str] = []
     _steps: list[ProofStep] = []
 
@@ -1440,6 +1446,7 @@ def joint_id_algorithm(
     Tian, J. & Pearl, J. (2002). "A General Identification Condition for
         Causal Effects." AAAI 2002.
     """
+    _validate_static_admg(graph)
     _trace: list[str] = []
     _steps: list[ProofStep] = []
 
@@ -1610,6 +1617,7 @@ def multi_outcome_id(
         Keyed by outcome variable name.  Each value is a standard
         :class:`IdentificationResult` (IDENTIFIED or failure).
     """
+    _validate_static_admg(graph)
     if available_vars is None:
         available_vars = frozenset(graph.nodes)
 

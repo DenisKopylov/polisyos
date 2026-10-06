@@ -1,0 +1,15 @@
+import hashlib,json,os,subprocess,time
+from pathlib import Path
+wd=Path('/workspace/e02-F-graph-20261006/policy-engine');out=Path('/workspace/e02-F-20261006-receipts/final-root/b220-independent-review');sha='e2c4eb3142f329dfee798d22cea3ae1035306ab0';tree='c13b8953adedd15f0db735aec1e39860a92e7dc4'
+def git(*a):return subprocess.check_output(['git',*a],cwd=wd,text=True).strip()
+assert git('rev-parse','HEAD')==sha and git('rev-parse','HEAD^{tree}')==tree
+assert not git('diff','--name-only') and not git('diff','--cached','--name-only')
+cmd=['/workspace/e02-F-graph-env/bin/python','-m','pytest','-o','addopts=','-p','no:cacheprovider','-q',str(out/'test_b220_independent.py'),'tests/unit/ir/test_causal_graph_cache_rows.py','tests/unit/foundry/methods/catalog/causal/test_performance_primitives.py::test_cached_adjacency_reuse','tests/unit/foundry/methods/catalog/causal/test_performance_primitives.py::test_cached_adjacency_eviction','tests/unit/foundry/methods/catalog/causal/test_performance_primitives.py::test_published_graph_rejects_nested_topology_mutation','tests/unit/foundry/methods/catalog/causal/test_performance_primitives.py::test_warmed_derived_rows_are_not_reused_after_copy_update']
+env=os.environ.copy();env['PYTHONPATH']='src:.:/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages';env['PYTHONDONTWRITEBYTECODE']='1'
+start=time.monotonic();p=subprocess.run(cmd,cwd=wd,env=env,capture_output=True);elapsed=time.monotonic()-start
+(out/'native.stdout.txt').write_bytes(p.stdout);(out/'native.stderr.txt').write_bytes(p.stderr)
+source={}
+for path in ['src/polisyos/ir/analytics/causal_graph.py','src/polisyos/ir/analytics/causal_graph_kuzu.py','src/polisyos/foundry/methods/catalog/causal/admg_ops.py','tests/unit/ir/test_causal_graph_cache_rows.py','tests/unit/foundry/methods/catalog/causal/test_performance_primitives.py']:
+ raw=(wd/path).read_bytes();source[path]={'sha256':hashlib.sha256(raw).hexdigest(),'bytes':len(raw),'git_blob':git('rev-parse',sha+':policy-engine/'+path)}
+r={'implementation_sha':sha,'tree':tree,'command':cmd,'cwd':str(wd),'environment':{'PYTHONPATH':env['PYTHONPATH'],'PYTHONDONTWRITEBYTECODE':'1','cloud_artificial_quota':'none'},'wall_s':elapsed,'exit':p.returncode,'outcome':'PASS' if p.returncode==0 else 'FAIL','output':str(out/'native.stdout.txt'),'stderr':str(out/'native.stderr.txt'),'source_bindings':source,'before':{'sha':sha,'tree':tree,'tracked_diff_empty':True},'after':{'sha':git('rev-parse','HEAD'),'tracked_diff':git('diff','--name-only'),'tracked_index_diff':git('diff','--cached','--name-only')},'limits':['Synthetic bounded source/API/cache property, not real-data causal identification.','Real CSV helpers and native to_kuzu parameter boundary are exercised; recording parameter consumer is not a live Kuzu backend witness.','No broad performance benchmark or architecture rerun.']}
+(out/'native.json').write_text(json.dumps(r,indent=2)+'\n');print(json.dumps(r,indent=2));print(p.stdout.decode());print(p.stderr.decode())

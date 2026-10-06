@@ -1,0 +1,1 @@
+{"distributions": {"hatchling": "1.27.0", "packaging": "26.3", "pathspec": "1.1.1", "pluggy": "1.6.0", "trove-classifiers": "2026.9.21.13"}, "python": "/tmp/e02-B-la057-final-dd9584728bd9/build-env/bin/python", "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"}

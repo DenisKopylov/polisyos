@@ -1,0 +1,72 @@
+{
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-vv",
+    "-s",
+    "--noconftest",
+    "-c",
+    "/workspace/e02-B-current-adapters/policy-engine/pyproject.toml",
+    "/workspace/e02-B-current-durability/policy-engine/tests/unit/scientist/policy_design/test_worker_accounting_boundary_e02.py",
+    "--basetemp",
+    "/tmp/e02-B-worker-accounting-a697-tokenized-sgxx84_u/pytest",
+    "-o",
+    "cache_dir=/tmp/e02-B-worker-accounting-a697-tokenized-sgxx84_u/cache",
+    "--junitxml=/tmp/e02-B-worker-accounting-a697-tokenized-sgxx84_u/native.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-durability/policy-engine",
+  "target_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96",
+  "source_before": {
+    "head": "a697a8312ff00edfcc766f9906dbcd2252cfcf96",
+    "tree": "b2e13011d78a871f7f7ee6a7cc00444d479d2f95",
+    "tracked_status": "",
+    "test_sha256": "7efbfdf59f8bab9b38a427c601d4554f8f12984be9512a01f41dae6937c38c5b"
+  },
+  "source_after": {
+    "head": "a697a8312ff00edfcc766f9906dbcd2252cfcf96",
+    "tree": "b2e13011d78a871f7f7ee6a7cc00444d479d2f95",
+    "tracked_status": "",
+    "test_sha256": "7efbfdf59f8bab9b38a427c601d4554f8f12984be9512a01f41dae6937c38c5b"
+  },
+  "test_input_sha": "a311172aec902a855e4acc44d4e887b45f892544",
+  "start": "2026-10-06T21:57:31.092280+00:00",
+  "end": "2026-10-06T21:57:44.104730+00:00",
+  "wall_seconds": 12.990915053989738,
+  "exit_code": 1,
+  "raw_wait_status": 256,
+  "maxrss_kib": 711516,
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-adapters/policy-engine/src:/workspace/e02-B-current-adapters/policy-engine",
+    "E02_WORKER_ACCOUNTING_ROOT": "/workspace/e02-B-current-adapters",
+    "E02_WORKER_ACCOUNTING_SHA": "a697a8312ff00edfcc766f9906dbcd2252cfcf96",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "POLISYOS_METRICS_PORT": "0",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache"
+  },
+  "ambient_numeric_caps_removed": {
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "NUMEXPR_NUM_THREADS": null,
+    "VECLIB_MAXIMUM_THREADS": null,
+    "BLIS_NUM_THREADS": null
+  },
+  "tokenizer_input": {
+    "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache/9b5ad71b2ce5302211f9c61530b329a4922fc6a4",
+    "bytes": 1681126,
+    "sha256": "223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7"
+  },
+  "actual_python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+  "tmp_scope": "Actual local filesystem fsync work witness; no powerloss durability claim",
+  "outputs": {
+    "native.txt": {
+      "bytes": 77681,
+      "sha256": "5de76f94c30f7886b703e183aacb77b4d9dcab83b116bfbf06226d29f2dc0661"
+    },
+    "native.xml": {
+      "bytes": 29153,
+      "sha256": "9d8b5de0689c61ba312e61ca9ef54d55cbbc01b677084e93cdadd9c9ffc49f61"
+    }
+  }
+}

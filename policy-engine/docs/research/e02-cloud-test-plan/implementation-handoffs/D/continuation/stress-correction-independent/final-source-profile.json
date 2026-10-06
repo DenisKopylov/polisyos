@@ -1,0 +1,164 @@
+{
+  "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+  "tree": "139db301e70eea5173811b066592278ee3f91eb4",
+  "entire_src_tree": "c6199ee8bcb953ffcfcc7230fd0f14b19b91314f",
+  "entire_architecture_tree": "4ee55a12145835f59e93c0100dccd0c27672f8e6",
+  "files": [
+    {
+      "path": "policy-engine/pyproject.toml",
+      "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "bytes": 11007,
+      "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c"
+    },
+    {
+      "path": "policy-engine/pytest.ini",
+      "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+      "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+      "bytes": 1021,
+      "git_blob": "f6b18091a37290d7b5c375b3aef44ffebc0a293a"
+    },
+    {
+      "path": "policy-engine/uv.lock",
+      "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+      "bytes": 779204,
+      "git_blob": "85f1fb2150a4da454fee02108565381d44f56730"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+      "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+      "sha256": "a00f99197074360a8ec969d671180e01a57ffde37126f78addbba938b74698b1",
+      "bytes": 37161,
+      "git_blob": "23538253a6c49ebfee01574b02a2d4d07d4dfc5d"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/policy_design/adversary.py",
+      "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+      "sha256": "edcf3b78c47eaf458fcad98023fc7247bd2bbe5500a5a00389b60033bfae1529",
+      "bytes": 17160,
+      "git_blob": "f5dd49480dae308e341edfac8bd01cc0c578d5dd"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/stress_report.py",
+      "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+      "sha256": "cdf7ffe7bd6e3921749e7aa61624d43fa9e8f831495533bf22441744478cc4ee",
+      "bytes": 10530,
+      "git_blob": "428c5cbfa2edf118f2a4957ebd851e3dc1b14a93"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+      "sha256": "2cdff56bdd7641bea47efe0bfb57677039389a72975e749c51089d4d5513586e",
+      "bytes": 14386,
+      "git_blob": "de831a24d51efaa0c9c017a109e9a9912ad2c719"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+      "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+      "sha256": "6a580b15706cb26ef3cbcdc0f06b3b2995b3f1c505ab82aebd9a580c8d4f0745",
+      "bytes": 102451,
+      "git_blob": "b148a1290c348e05f6d6215c5c67d44f74dfd7f7"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/adversarial.py",
+      "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+      "sha256": "f27357119530f2b126903926a362de595a081fe337133d2c71b573c00a08035d",
+      "bytes": 19925,
+      "git_blob": "8d86fcedabe0da458aa3c9c2cac1a980062671eb"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_adversarial.py",
+      "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+      "sha256": "331de9a07ab9b6e50ab0f53bf5811c89d81ad3da9de41d5ca028a7e4706962c1",
+      "bytes": 19765,
+      "git_blob": "fbb5c536d1164fb720d9a694567b859b704e8260"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_stress_scenario_evidence.py",
+      "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+      "sha256": "2305ffaecac2613846308cd03fcd618be22519d1289ef5fe42e155595dd13ca0",
+      "bytes": 13248,
+      "git_blob": "46eb13801fc5ce5f0529b4d7df20033d63c8bef5"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_challenge_scenario_projection.py",
+      "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+      "sha256": "2d860e5f67a816884215388b2b2d10445dc01b51ccddd84fc81da6e02e82e6cc",
+      "bytes": 9998,
+      "git_blob": "6b78b1d3d8fbd944d1e150a0145c80a5296bee57"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_blueprint_resource_projection.py",
+      "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+      "sha256": "4686046be866f2846ce33c7f4de839f367cab0b0c459b661333dbb61c94eb021",
+      "bytes": 6530,
+      "git_blob": "8209dd1b2902c675f208f0e1b738e43b6baa8133"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_phase_d4_challenge_suites.py",
+      "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+      "sha256": "1b53543b89c294ade7e8ab921f3cab9f24defb0a7a05f3b7679878c488635690",
+      "bytes": 12039,
+      "git_blob": "7fa3a7c4a0aa6de2892e9ef855323b3b02c19dc2"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_adversarial_streaming.py",
+      "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+      "sha256": "0227f239fd504924a2591bdbe391ddc1bb2f62d516d1d0e3221e6bd614ccadb5",
+      "bytes": 10766,
+      "git_blob": "94a2ba899a6f5c26481e1747e9e6ec787f826730"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_policy_blueprint_runtime_guards.py",
+      "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+      "sha256": "b91b7d84ade1f2caf7b54d3b586c3824a5b1bcf5bd99108db82d87fa3606b6bb",
+      "bytes": 22198,
+      "git_blob": "d90a9e2a7ab1d9a6a88d4c3d79cc33f3cecb2cec"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/funnel/test_level5_refutation_governance.py",
+      "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+      "sha256": "c430123968bc3a3acc180a470377ae7afbde9dc5e893bc8a61700fc588a33820",
+      "bytes": 7470,
+      "git_blob": "9b5e2babdd364006b4ccf80d1d59679ded8f028a"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_fun_03.py",
+      "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+      "sha256": "3121bfade5befa9b6175ae8adf66690c18258a37610255a62156752efb0f81eb",
+      "bytes": 26008,
+      "git_blob": "29b58f452610d32f3783d88939ca7623d9028e5a"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+      "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+      "sha256": "80986710cf9f54e8c37c3d2cb12f7edfeb303e35a41cbbd5708c695db5d075c5",
+      "bytes": 11914,
+      "git_blob": "1a23e241868467ef25da5e328f5ae68d4e0accd9"
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/methods/search/stress_doe_bridge_probe.py",
+      "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+      "sha256": "4bfbcecd73dbc126a9711a384bf283cdaf779b2918e7beb6bf8d5a9ab8ea51fb",
+      "bytes": 11855,
+      "git_blob": "4fb854d01a7c954b3d2a9a614f2a824fbd4d376b"
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/methods/search/stress_property_removal_probe.py",
+      "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+      "sha256": "b7f3a736ab2f48cb32059798888020b0a3f055bc7e8e5145d440a19513160ecd",
+      "bytes": 4557,
+      "git_blob": "9d7dd8f5969eb5e458b24fb3c58195b3a1d69c3f"
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/methods/search/stress_case_intake_probe.py",
+      "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+      "sha256": "d0977d77d24ee5491adc7a10b6a8f550f4c957340fd378fca388805288ecf746",
+      "bytes": 4091,
+      "git_blob": "e12dae825e90db18af1c601452f737b36f2f1b30"
+    }
+  ],
+  "runtime_origin_scope": "Actual loaded origins recorded in each complete pytest footer; null means unimported, not exercised. All nine actual final-wave origins matched pinned bytes.",
+  "predicate_basis": "independently_reconciled"
+}

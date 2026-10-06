@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="142" time="47.796" timestamp="2026-10-06T16:44:08.471260+00:00" hostname="565838a1e059"><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_blueprint_fraction_uses_32_scenarios_not_one_issue_example[1]" time="0.038" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_blueprint_fraction_uses_32_scenarios_not_one_issue_example[20]" time="0.007" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_absent_threshold_does_not_assess_robustness" time="0.001" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_threshold_intakes_refuse_values_before_float_coercion[plan-True]" time="0.001" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_threshold_intakes_refuse_values_before_float_coercion[plan-False]" time="0.000" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_threshold_intakes_refuse_values_before_float_coercion[plan-0]" time="0.000" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_threshold_intakes_refuse_values_before_float_coercion[plan-nan]" time="0.000" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_threshold_intakes_refuse_values_before_float_coercion[plan-inf]" time="0.000" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_threshold_intakes_refuse_values_before_float_coercion[plan-10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]" time="0.001" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_threshold_intakes_refuse_values_before_float_coercion[surface-True]" time="0.000" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_threshold_intakes_refuse_values_before_float_coercion[surface-False]" time="0.000" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_threshold_intakes_refuse_values_before_float_coercion[surface-0]" time="0.000" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_threshold_intakes_refuse_values_before_float_coercion[surface-nan]" time="0.000" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_threshold_intakes_refuse_values_before_float_coercion[surface-inf]" time="0.000" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_threshold_intakes_refuse_values_before_float_coercion[surface-10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]" time="0.000" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_unknown_or_empty_finite_basis_remains_partial[values0-1.0]" time="0.001" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_unknown_or_empty_finite_basis_remains_partial[values1-None]" time="0.001" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_suite_replacement_keeps_count_basis_separate_from_issue_groups" time="0.003" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_legacy_issue_counts_cannot_supply_missing_scenario_evidence" time="0.001" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_known_complete_nonviolating_stream_is_robust" time="0.001" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_fresh_report_reader_refuses_corrupted_count_basis[attempted-True]" time="0.001" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_fresh_report_reader_refuses_corrupted_count_basis[violated_scenarios-3]" time="0.001" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_fresh_reader_refuses_score_independent_of_retained_basis" time="0.001" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_actual_blueprint_existing_report_path_requires_scenario_basis[False]" time="0.037" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_actual_blueprint_existing_report_path_requires_scenario_basis[True]" time="0.036" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_typed_basis_requires_exact_supported_schema[2.0]" time="0.001" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_typed_basis_requires_exact_supported_schema[1.1-dev]" time="0.001" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_typed_basis_requires_exact_supported_schema[1.0]" time="0.001" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_new_schema_cannot_claim_score_without_typed_basis" time="0.000" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_anonymous_report_retry_is_counted_once_at_actual_cas_path" time="0.042" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_same_anonymous_report_as_base_is_not_an_extra_attempt" time="0.001" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_budget_port_uses_ordinary_typed_context_not_json_state" time="0.029" /><testcase classname="tests.unit.scientist.search.test_adversarial" name="test_negated_objective_inverts_sign" time="0.000" /><testcase classname="tests.unit.scientist.search.test_adversarial" name="test_run_stress_test_grid_extreme_reports_worst_case" time="0.001" /><testcase classname="tests.unit.scientist.search.test_adversarial" name="test_run_stress_test_top_k_does_not_change_ten_violation_score" time="0.002" /><testcase classname="tests.unit.scientist.search.test_adversarial" name="test_run_stress_test_lower_tail_selects_negative_worst_case" time="0.000" /><testcase classname="tests.unit.scientist.search.test_adversarial" name="test_run_stress_test_search_loop_tracks_lower_tail_through_adaptive_step" time="0.004" /><testcase classname="tests.unit.scientist.search.test_adversarial" name="test_run_stress_test_search_loop_stops_on_first_lower_tail_vulnerability" time="0.001" /><testcase classname="tests.unit.scientist.search.test_adversarial" name="test_run_stress_test_search_loop_reverses_order_for_minimize_cost" time="0.001" /><testcase classname="tests.unit.scientist.search.test_adversarial" name="test_run_stress_test_composite_budget_cost_selects_high_cost_as_worst_case" time="0.000" /><testcase classname="tests.unit.scientist.search.test_adversarial" name="test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result[missing]" time="0.001" /><testcase classname="tests.unit.scientist.search.test_adversarial" name="test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result[non_numeric]" time="0.001" /><testcase classname="tests.unit.scientist.search.test_adversarial" name="test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result[nan]" time="0.001" /><testcase classname="tests.unit.scientist.search.test_adversarial" name="test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result[inf]" time="0.001" /><testcase classname="tests.unit.scientist.search.test_adversarial" name="test_platform_meta_evaluator_passes_healthy_sentinel_injection" time="0.001" /><testcase classname="tests.unit.scientist.search.test_adversarial" name="test_platform_meta_evaluator_detects_holdout_rotation_failure" time="0.001" /><testcase classname="tests.unit.scientist.search.test_adversarial" name="test_platform_meta_evaluator_rejects_mistyped_rotations" time="0.001" /><testcase classname="tests.unit.scientist.search.test_adversarial" name="test_platform_meta_evaluator_passes_drift_attack_when_tracker_degrades" time="0.000" /><testcase classname="tests.unit.scientist.search.test_adversarial_streaming" name="test_physical_direction_fraction_and_exact_cas_readback[-0.5-gdp]" time="0.006" /><testcase classname="tests.unit.scientist.search.test_adversarial_streaming" name="test_physical_direction_fraction_and_exact_cas_readback[-0.5-cost]" time="0.006" /><testcase classname="tests.unit.scientist.search.test_adversarial_streaming" name="test_physical_direction_fraction_and_exact_cas_readback[0.0-gdp]" time="0.005" /><testcase classname="tests.unit.scientist.search.test_adversarial_streaming" name="test_physical_direction_fraction_and_exact_cas_readback[0.0-cost]" time="0.006" /><testcase classname="tests.unit.scientist.search.test_adversarial_streaming" name="test_physical_direction_fraction_and_exact_cas_readback[0.5-gdp]" time="0.005" /><testcase classname="tests.unit.scientist.search.test_adversarial_streaming" name="test_physical_direction_fraction_and_exact_cas_readback[0.5-cost]" time="0.006" /><testcase classname="tests.unit.scientist.search.test_adversarial_streaming" name="test_unknown_outcomes_are_separate_from_finite_fraction[1]" time="0.001" /><testcase classname="tests.unit.scientist.search.test_adversarial_streaming" name="test_unknown_outcomes_are_separate_from_finite_fraction[2]" time="0.001" /><testcase classname="tests.unit.scientist.search.test_adversarial_streaming" name="test_first_violation_does_not_claim_complete_observed_stream" time="0.001" /><testcase classname="tests.unit.scientist.search.test_adversarial_streaming" name="test_typed_adaptive_extremum_and_best_feedback_survive_cas[gdp]" time="0.006" /><testcase classname="tests.unit.scientist.search.test_adversarial_streaming" name="test_typed_adaptive_extremum_and_best_feedback_survive_cas[cost]" time="0.006" /><testcase classname="tests.unit.scientist.search.test_adversarial_streaming" name="test_repeated_scenarios_are_not_unique_issue_denominator[1]" time="0.002" /><testcase classname="tests.unit.scientist.search.test_adversarial_streaming" name="test_repeated_scenarios_are_not_unique_issue_denominator[10]" time="0.002" /><testcase classname="tests.unit.scientist.search.test_adversarial_streaming" name="test_search_loop_without_adaptive_producer_remains_partial" time="0.001" /><testcase classname="tests.unit.scientist.search.test_adversarial_streaming" name="test_full_vulnerability_payloads_are_bounded_during_real_run" time="15.630" /><testcase classname="tests.unit.scientist.search.test_policy_blueprint_runtime_guards" name="test_replay_resolution_does_not_fallback_to_checkpoint_ref" time="0.000" /><testcase classname="tests.unit.scientist.search.test_policy_blueprint_runtime_guards" name="test_replay_resolution_prefers_replayable_audit_bundle" time="0.000" /><testcase classname="tests.unit.scientist.search.test_policy_blueprint_runtime_guards" name="test_runtime_source_statuses_fall_back_to_nested_evidence_sources" time="0.000" /><testcase classname="tests.unit.scientist.search.test_policy_blueprint_runtime_guards" name="test_runtime_source_statuses_prefer_cross_graph_profile_when_available" time="0.000" /><testcase classname="tests.unit.scientist.search.test_policy_blueprint_runtime_guards" name="test_blueprint_caller_cannot_bypass_production_eval_safety_owner" time="0.030" /><testcase classname="tests.unit.scientist.search.test_policy_blueprint_runtime_guards" name="test_merge_stress_reports_replaces_phase_d4_suite_findings_by_suite_id" time="0.001" /><testcase classname="tests.unit.scientist.search.test_policy_blueprint_runtime_guards" name="test_merge_stress_reports_can_clear_stale_phase_d4_findings_after_pass" time="0.000" /><testcase classname="tests.unit.scientist.search.test_policy_blueprint_runtime_guards" name="test_runtime_spec_declares_strategic_phase_d_reads_and_writes" time="0.000" /><testcase classname="tests.unit.scientist.search.test_policy_blueprint_runtime_guards" name="test_runtime_strategic_helper_persists_normalized_contract_and_real_causal_component" time="0.073" /><testcase classname="tests.unit.scientist.search.test_policy_blueprint_runtime_guards" name="test_runtime_strategic_helper_blocks_when_causal_report_is_missing" time="0.037" /><testcase classname="tests.unit.scientist.search.test_policy_blueprint_runtime_guards" name="test_runtime_strategic_helper_blocks_on_unreadable_contract_payoff_refs" time="0.058" /><testcase classname="tests.unit.scientist.search.test_policy_blueprint_runtime_guards" name="test_runtime_strategic_helper_blocks_on_contract_payoff_mismatch" time="0.040" /><testcase classname="tests.unit.scientist.search.test_policy_blueprint_runtime_guards" name="test_runtime_strategic_helper_invalid_input_records_degraded_path" time="0.028" /><testcase classname="tests.unit.scientist.search.test_policy_blueprint_runtime_guards" name="test_runtime_strategic_helper_persistence_failure_records_degraded_path" time="0.041" /><testcase classname="tests.unit.scientist.methods.search.funnel.test_level5_refutation_governance" name="test_real_level5_consumes_adequacy_scope_without_probability_claim[2-0-2-complete]" time="0.014" /><testcase classname="tests.unit.scientist.methods.search.funnel.test_level5_refutation_governance" name="test_real_level5_consumes_adequacy_scope_without_probability_claim[1-1-2-partial]" time="0.001" /><testcase classname="tests.unit.scientist.methods.search.funnel.test_level5_refutation_governance" name="test_real_level5_consumes_adequacy_scope_without_probability_claim[1-0-2-partial]" time="0.001" /><testcase classname="tests.unit.scientist.methods.search.funnel.test_level5_refutation_governance" name="test_real_level5_consumes_adequacy_scope_without_probability_claim[0-2-2-partial]" time="0.001" /><testcase classname="tests.unit.scientist.methods.search.funnel.test_level5_refutation_governance" name="test_real_level5_consumes_adequacy_scope_without_probability_claim[0-0-0-partial]" time="0.001" /><testcase classname="tests.unit.scientist.methods.search.funnel.test_level5_refutation_governance" name="test_missing_or_malformed_scope_is_unassessed_even_with_score_one[corrupt0]" time="0.001" /><testcase classname="tests.unit.scientist.methods.search.funnel.test_level5_refutation_governance" name="test_missing_or_malformed_scope_is_unassessed_even_with_score_one[corrupt1]" time="0.001" /><testcase classname="tests.unit.scientist.methods.search.funnel.test_level5_refutation_governance" name="test_missing_or_malformed_scope_is_unassessed_even_with_score_one[corrupt2]" time="0.001" /><testcase classname="tests.unit.scientist.methods.search.funnel.test_level5_refutation_governance" name="test_missing_or_malformed_scope_is_unassessed_even_with_score_one[corrupt3]" time="0.001" /><testcase classname="tests.unit.scientist.methods.search.funnel.test_level5_refutation_governance" name="test_missing_or_malformed_scope_is_unassessed_even_with_score_one[corrupt4]" time="0.001" /><testcase classname="tests.unit.scientist.methods.search.funnel.test_level5_refutation_governance" name="test_actual_producer_partial_preserves_observed_critical_failure_and_high_violation[1]" time="0.001" /><testcase classname="tests.unit.scientist.methods.search.funnel.test_level5_refutation_governance" name="test_actual_producer_partial_preserves_observed_critical_failure_and_high_violation[3]" time="0.001" /><testcase classname="tests.unit.scientist.methods.search.funnel.test_level5_refutation_governance" name="test_actual_stage_and_funnel_aggregate_keep_observed_complete_unknown_model_distinct" time="0.001" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_same_scope_refinement_is_current_while_history_keeps_unknown_risk" time="0.002" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_scope_identity_prevents_cross_scope_continuation[subject_id]" time="0.002" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_scope_identity_prevents_cross_scope_continuation[value_slot]" time="0.002" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_scope_identity_prevents_cross_scope_continuation[input_signature]" time="0.003" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_scope_identity_prevents_cross_scope_continuation[procedure_id]" time="0.002" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_scope_identity_prevents_cross_scope_continuation[population_scope]" time="0.002" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_empty_tracker_has_one_explicit_not_established_routing_state" time="0.000" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_persisted_empty_report_fails_closed_over_stale_normal_mode" time="0.005" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_statistically_bad_tracker_is_observed_drift_not_empty_state" time="0.001" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_level6_degradation_preflight_reads_existing_payload_without_runner" time="0.000" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_level6_owner_recheck_happens_before_effectful_runner" time="0.000" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_level6_normal_path_bool_preflight_cannot_admit_runner_effects" time="0.000" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_production_owner_recheck_requires_explicit_write_permission" time="0.001" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_orchestrator_honors_persisted_no_promotion_projection_without_tracker" time="0.001" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_run_policy_blueprint_execute_caps_promotion_after_real_l4_candidate_work[no_promotion]" time="0.031" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_run_policy_blueprint_execute_caps_promotion_after_real_l4_candidate_work[reduced_judge]" time="0.031" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_run_policy_blueprint_execute_caps_promotion_after_real_l4_candidate_work[auto_cap]" time="0.028" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_run_policy_blueprint_execute_refuses_bool_admission_after_real_l4_work" time="0.029" /><testcase classname="tests.unit.scientist.policy_design.test_phase_b_policy_workers" name="test_translator_falls_back_deterministically_without_gateway" time="0.002" /><testcase classname="tests.unit.scientist.policy_design.test_phase_b_policy_workers" name="test_translator_gateway_parses_think_prefixed_json" time="0.002" /><testcase classname="tests.unit.scientist.policy_design.test_phase_b_policy_workers" name="test_translator_surfaces_degraded_evidence_channels" time="0.001" /><testcase classname="tests.unit.scientist.policy_design.test_phase_b_policy_workers" name="test_translator_compliance_flags_all_anti_spin_invariants" time="0.000" /><testcase classname="tests.unit.scientist.policy_design.test_phase_b_policy_workers" name="test_constraint_critic_surfaces_budget_and_not_assessed_findings" time="0.002" /><testcase classname="tests.unit.scientist.policy_design.test_phase_b_policy_workers" name="test_scenario_adversary_fallback_and_execution" time="0.011" /><testcase classname="tests.unit.scientist.policy_design.test_phase_b_policy_workers" name="test_scenario_adversary_gateway_parses_think_prefixed_json" time="0.001" /><testcase classname="tests.unit.scientist.search.test_challenge_scenario_projection" name="test_real_32_case_producer_and_blueprint_fresh_reader_keep_fraction[1]" time="0.045" /><testcase classname="tests.unit.scientist.search.test_challenge_scenario_projection" name="test_real_32_case_producer_and_blueprint_fresh_reader_keep_fraction[20]" time="0.045" /><testcase classname="tests.unit.scientist.search.test_challenge_scenario_projection" name="test_empty_unknown_skipped_or_inconsistent_case_basis_is_unavailable[cases0-0-0-0]" time="0.005" /><testcase classname="tests.unit.scientist.search.test_challenge_scenario_projection" name="test_empty_unknown_skipped_or_inconsistent_case_basis_is_unavailable[cases1-0-0-1]" time="0.005" /><testcase classname="tests.unit.scientist.search.test_challenge_scenario_projection" name="test_empty_unknown_skipped_or_inconsistent_case_basis_is_unavailable[cases2-1-1-0]" time="0.005" /><testcase classname="tests.unit.scientist.search.test_challenge_scenario_projection" name="test_empty_unknown_skipped_or_inconsistent_case_basis_is_unavailable[cases3-1-1-0]" time="0.005" /><testcase classname="tests.unit.scientist.search.test_challenge_scenario_projection" name="test_empty_unknown_skipped_or_inconsistent_case_basis_is_unavailable[cases4-1-1-0]" time="0.005" /><testcase classname="tests.unit.scientist.search.test_challenge_scenario_projection" name="test_partial_named_cases_retain_only_observed_conditional_fraction" time="0.005" /><testcase classname="tests.unit.scientist.search.test_challenge_scenario_projection" name="test_duplicate_case_ids_refuse_and_nonboolean_outcome_is_unknown" time="0.007" /><testcase classname="tests.unit.scientist.search.test_challenge_scenario_projection" name="test_actual_case_intake_refuses_before_boolean_coercion[1]" time="0.000" /><testcase classname="tests.unit.scientist.search.test_challenge_scenario_projection" name="test_actual_case_intake_refuses_before_boolean_coercion[false]" time="0.000" /><testcase classname="tests.unit.scientist.search.test_challenge_scenario_projection" name="test_actual_case_intake_refuses_before_boolean_coercion[nan]" time="0.000" /><testcase classname="tests.unit.scientist.search.test_challenge_scenario_projection" name="test_actual_case_intake_refuses_before_boolean_coercion[inf]" time="0.000" /><testcase classname="tests.unit.scientist.search.test_challenge_scenario_projection" name="test_ten_same_issue_case_occurrences_remain_ten_after_presentation[1]" time="0.005" /><testcase classname="tests.unit.scientist.search.test_challenge_scenario_projection" name="test_ten_same_issue_case_occurrences_remain_ten_after_presentation[10]" time="0.005" /><testcase classname="tests.unit.scientist.search.test_challenge_scenario_projection" name="test_empty_component_stays_incomplete_beside_a_complete_case_set" time="0.012" /><testcase classname="tests.unit.scientist.methods.backtesting.test_phase_d4_challenge_suites" name="test_strategic_suites_emit_rotating_challenge_evaluations_for_raw_inputs" time="0.002" /><testcase classname="tests.unit.scientist.methods.backtesting.test_phase_d4_challenge_suites" name="test_multiplicity_summary_audit_fails_without_explicit_disclosure" time="0.001" /><testcase classname="tests.unit.scientist.methods.backtesting.test_phase_d4_challenge_suites" name="test_multiplicity_summary_audit_passes_with_explicit_disclosure" time="0.001" /><testcase classname="tests.unit.scientist.methods.backtesting.test_phase_d4_challenge_suites" name="test_abstraction_suite_passes_for_exact_certificate_backed_macro_use" time="0.001" /><testcase classname="tests.unit.scientist.methods.backtesting.test_phase_d4_challenge_suites" name="test_abstraction_suite_passes_for_bounded_approximate_certificate_macro_use" time="0.001" /><testcase classname="tests.unit.scientist.methods.backtesting.test_phase_d4_challenge_suites" name="test_abstraction_suite_requires_heuristic_disclaimer_without_certificate" time="0.001" /><testcase classname="tests.unit.scientist.methods.backtesting.test_phase_d4_challenge_suites" name="test_abstraction_suite_fails_macro_shortcut_without_supported_certificate" time="0.001" /><testcase classname="tests.unit.scientist.search.test_blueprint_resource_projection" name="test_declared_resource_observations_survive_blueprint_json_and_fresh_cas_reader[None]" time="0.001"><failure message="pydantic_core._pydantic_core.ValidationError: 17 validation errors for ExperimentState&#10;reports_index.funnel.artifact_id&#10;  Field required [type=missing, input_value={'ticket_id': 'typed-tick...e_information_refs': []}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/missing&#10;reports_index.funnel.kind&#10;  Field required [type=missing, input_value={'ticket_id': 'typed-tick...e_information_refs': []}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/missing&#10;reports_index.funnel.media_type&#10;  Field required [type=missing, input_value={'ticket_id': 'typed-tick...e_information_refs': []}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/missing&#10;reports_index.funnel.ticket_id&#10;  Extra inputs are not permitted [type=extra_forbidden, input_value='typed-ticket', input_type=str]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden&#10;reports_index.funnel.candidate_hash&#10;  Extra inputs are not permitted [type=extra_forbidden, input_value='typed-candidate', input_type=str]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden&#10;reports_index.funnel.trace&#10;  Extra inputs are not permitted [type=extra_forbidden, input_value=[{'fidelity_level': 3, 's... 0, 'blocker_count': 0}], input_type=list]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden&#10;reports_index.funnel.stage_results&#10;  Extra inputs are not permitted [type=extra_forbidden, input_value={'3': {'stage_name': 'nat...esource_event_ids': []}}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden&#10;reports_index.funnel.final_action&#10;  Extra inputs are not permitted [type=extra_forbidden, input_value='reject', input_type=str]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden&#10;reports_index.funnel.completed&#10;  Extra inputs are not permitted [type=extra_forbidden, input_value=True, input_type=bool]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden&#10;reports_index.funnel.evaluation_status&#10;  Extra inputs are not permitted [type=extra_forbidden, input_value='partial', input_type=str]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden&#10;reports_index.funnel.compute_actual_usd&#10;  Extra inputs are not permitted [type=extra_forbidden, input_value=0.125, input_type=float]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden&#10;reports_index.funnel.compute_cost_source&#10;  Extra inputs are not permitted [type=extra_forbidden, input_value='estimated', input_type=str]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden&#10;reports_index.funnel.provider_spend_usd&#10;  Extra inputs are not permitted [type=extra_forbidden, input_value=None, input_type=NoneType]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden&#10;reports_index.funnel.resource_event_ids&#10;  Extra inputs are not permitted [type=extra_forbidden, input_value=[], input_type=list]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden&#10;reports_index.funnel.degradation_mode&#10;  Extra inputs are not permitted [type=extra_forbidden, input_value='normal', input_type=str]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden&#10;reports_index.funnel.audit_refs&#10;  Extra inputs are not permitted [type=extra_forbidden, input_value=[], input_type=list]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden&#10;reports_index.funnel.actionable_side_information_refs&#10;  Extra inputs are not permitted [type=extra_forbidden, input_value=[], input_type=list]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden">tmp_path = PosixPath('/dev/shm/e02-D-final-consumer-wave-06f91411131a4fca93484ae727c3d4cb/test_declared_resource_observa0')
+spend = None
+
+    @pytest.mark.parametrize("spend", [None, Decimal("0"), Decimal("0.10000000000000000001")])
+    def test_declared_resource_observations_survive_blueprint_json_and_fresh_cas_reader(
+        tmp_path: Path, spend: Decimal | None
+    ) -&gt; None:
+        # This is a DTO projection contract, not an executed provider/billing claim.
+        source = "estimated" if spend is None else "provider_reported_only"
+        events = () if spend is None else ("actual-event-reference",)
+        feedback = {
+            "resource_pending_event_id": "pending-reference",
+            "resource_response_digest": "response-digest",
+            "resource_local_recorded_spend": "0.10000000000000000001",
+        }
+        stage = FunnelStageResult(
+            policy_candidate={"candidate": "typed-fixture"},
+            objective_value=0.5,
+            is_promising=False,
+            stage_name="native-fixture",
+            fidelity_level=3,
+            compute_actual_usd=0.125,
+            compute_cost_source=source,
+            provider_spend_usd=spend,
+            resource_event_ids=events,
+            feedback=feedback,
+            terminal_action="reject",
+        )
+        trace = FunnelTraceStep(
+            fidelity_level=3,
+            stage_name=stage.stage_name,
+            objective_value=stage.objective_value,
+            is_promising=False,
+            duration_seconds=0.25,
+            compute_actual_usd=stage.compute_actual_usd,
+            compute_cost_source=source,
+            provider_spend_usd=spend,
+            resource_event_ids=events,
+        )
+        outcome = FunnelOutcome(
+            ticket_id="typed-ticket",
+            candidate_hash="typed-candidate",
+            trace=[trace],
+            stage_results={3: stage},
+            final_result=stage,
+            failure_cards=[],
+            uncertainty_envelope=UncertaintyEnvelope.unknown(),
+            compute_actual_usd=0.125,
+            degradation_mode="normal",
+            final_action="reject",
+            completed=True,
+            evaluation_status="partial",
+            compute_cost_source=source,
+            provider_spend_usd=spend,
+            resource_event_ids=events,
+        )
+        projection = _serialize_funnel_outcome(outcome)
+        assert projection["evaluation_status"] == "partial"
+        for observed in (projection, projection["trace"][0], projection["stage_results"]["3"]):
+            assert observed["compute_actual_usd"] == 0.125
+            assert observed["compute_cost_source"] == source
+            assert observed["provider_spend_usd"] == (None if spend is None else str(spend))
+            assert observed["resource_event_ids"] == list(events)
+        assert projection["stage_results"]["3"]["feedback"] == feedback
+&gt;       state = ExperimentState(run_id="projection", reports_index={"funnel": projection})
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       pydantic_core._pydantic_core.ValidationError: 17 validation errors for ExperimentState
+E       reports_index.funnel.artifact_id
+E         Field required [type=missing, input_value={'ticket_id': 'typed-tick...e_information_refs': []}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/missing
+E       reports_index.funnel.kind
+E         Field required [type=missing, input_value={'ticket_id': 'typed-tick...e_information_refs': []}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/missing
+E       reports_index.funnel.media_type
+E         Field required [type=missing, input_value={'ticket_id': 'typed-tick...e_information_refs': []}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/missing
+E       reports_index.funnel.ticket_id
+E         Extra inputs are not permitted [type=extra_forbidden, input_value='typed-ticket', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.candidate_hash
+E         Extra inputs are not permitted [type=extra_forbidden, input_value='typed-candidate', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.trace
+E         Extra inputs are not permitted [type=extra_forbidden, input_value=[{'fidelity_level': 3, 's... 0, 'blocker_count': 0}], input_type=list]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.stage_results
+E         Extra inputs are not permitted [type=extra_forbidden, input_value={'3': {'stage_name': 'nat...esource_event_ids': []}}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.final_action
+E         Extra inputs are not permitted [type=extra_forbidden, input_value='reject', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.completed
+E         Extra inputs are not permitted [type=extra_forbidden, input_value=True, input_type=bool]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.evaluation_status
+E         Extra inputs are not permitted [type=extra_forbidden, input_value='partial', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.compute_actual_usd
+E         Extra inputs are not permitted [type=extra_forbidden, input_value=0.125, input_type=float]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.compute_cost_source
+E         Extra inputs are not permitted [type=extra_forbidden, input_value='estimated', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.provider_spend_usd
+E         Extra inputs are not permitted [type=extra_forbidden, input_value=None, input_type=NoneType]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.resource_event_ids
+E         Extra inputs are not permitted [type=extra_forbidden, input_value=[], input_type=list]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.degradation_mode
+E         Extra inputs are not permitted [type=extra_forbidden, input_value='normal', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.audit_refs
+E         Extra inputs are not permitted [type=extra_forbidden, input_value=[], input_type=list]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.actionable_side_information_refs
+E         Extra inputs are not permitted [type=extra_forbidden, input_value=[], input_type=list]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+
+tests/unit/scientist/search/test_blueprint_resource_projection.py:90: ValidationError</failure></testcase><testcase classname="tests.unit.scientist.search.test_blueprint_resource_projection" name="test_declared_resource_observations_survive_blueprint_json_and_fresh_cas_reader[spend1]" time="0.001"><failure message="pydantic_core._pydantic_core.ValidationError: 17 validation errors for ExperimentState&#10;reports_index.funnel.artifact_id&#10;  Field required [type=missing, input_value={'ticket_id': 'typed-tick...e_information_refs': []}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/missing&#10;reports_index.funnel.kind&#10;  Field required [type=missing, input_value={'ticket_id': 'typed-tick...e_information_refs': []}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/missing&#10;reports_index.funnel.media_type&#10;  Field required [type=missing, input_value={'ticket_id': 'typed-tick...e_information_refs': []}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/missing&#10;reports_index.funnel.ticket_id&#10;  Extra inputs are not permitted [type=extra_forbidden, input_value='typed-ticket', input_type=str]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden&#10;reports_index.funnel.candidate_hash&#10;  Extra inputs are not permitted [type=extra_forbidden, input_value='typed-candidate', input_type=str]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden&#10;reports_index.funnel.trace&#10;  Extra inputs are not permitted [type=extra_forbidden, input_value=[{'fidelity_level': 3, 's... 0, 'blocker_count': 0}], input_type=list]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden&#10;reports_index.funnel.stage_results&#10;  Extra inputs are not permitted [type=extra_forbidden, input_value={'3': {'stage_name': 'nat...tual-event-reference']}}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden&#10;reports_index.funnel.final_action&#10;  Extra inputs are not permitted [type=extra_forbidden, input_value='reject', input_type=str]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden&#10;reports_index.funnel.completed&#10;  Extra inputs are not permitted [type=extra_forbidden, input_value=True, input_type=bool]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden&#10;reports_index.funnel.evaluation_status&#10;  Extra inputs are not permitted [type=extra_forbidden, input_value='partial', input_type=str]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden&#10;reports_index.funnel.compute_actual_usd&#10;  Extra inputs are not permitted [type=extra_forbidden, input_value=0.125, input_type=float]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden&#10;reports_index.funnel.compute_cost_source&#10;  Extra inputs are not permitted [type=extra_forbidden, input_value='provider_reported_only', input_type=str]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden&#10;reports_index.funnel.provider_spend_usd&#10;  Extra inputs are not permitted [type=extra_forbidden, input_value='0', input_type=str]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden&#10;reports_index.funnel.resource_event_ids&#10;  Extra inputs are not permitted [type=extra_forbidden, input_value=['actual-event-reference'], input_type=list]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden&#10;reports_index.funnel.degradation_mode&#10;  Extra inputs are not permitted [type=extra_forbidden, input_value='normal', input_type=str]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden&#10;reports_index.funnel.audit_refs&#10;  Extra inputs are not permitted [type=extra_forbidden, input_value=[], input_type=list]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden&#10;reports_index.funnel.actionable_side_information_refs&#10;  Extra inputs are not permitted [type=extra_forbidden, input_value=[], input_type=list]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden">tmp_path = PosixPath('/dev/shm/e02-D-final-consumer-wave-06f91411131a4fca93484ae727c3d4cb/test_declared_resource_observa1')
+spend = Decimal('0')
+
+    @pytest.mark.parametrize("spend", [None, Decimal("0"), Decimal("0.10000000000000000001")])
+    def test_declared_resource_observations_survive_blueprint_json_and_fresh_cas_reader(
+        tmp_path: Path, spend: Decimal | None
+    ) -&gt; None:
+        # This is a DTO projection contract, not an executed provider/billing claim.
+        source = "estimated" if spend is None else "provider_reported_only"
+        events = () if spend is None else ("actual-event-reference",)
+        feedback = {
+            "resource_pending_event_id": "pending-reference",
+            "resource_response_digest": "response-digest",
+            "resource_local_recorded_spend": "0.10000000000000000001",
+        }
+        stage = FunnelStageResult(
+            policy_candidate={"candidate": "typed-fixture"},
+            objective_value=0.5,
+            is_promising=False,
+            stage_name="native-fixture",
+            fidelity_level=3,
+            compute_actual_usd=0.125,
+            compute_cost_source=source,
+            provider_spend_usd=spend,
+            resource_event_ids=events,
+            feedback=feedback,
+            terminal_action="reject",
+        )
+        trace = FunnelTraceStep(
+            fidelity_level=3,
+            stage_name=stage.stage_name,
+            objective_value=stage.objective_value,
+            is_promising=False,
+            duration_seconds=0.25,
+            compute_actual_usd=stage.compute_actual_usd,
+            compute_cost_source=source,
+            provider_spend_usd=spend,
+            resource_event_ids=events,
+        )
+        outcome = FunnelOutcome(
+            ticket_id="typed-ticket",
+            candidate_hash="typed-candidate",
+            trace=[trace],
+            stage_results={3: stage},
+            final_result=stage,
+            failure_cards=[],
+            uncertainty_envelope=UncertaintyEnvelope.unknown(),
+            compute_actual_usd=0.125,
+            degradation_mode="normal",
+            final_action="reject",
+            completed=True,
+            evaluation_status="partial",
+            compute_cost_source=source,
+            provider_spend_usd=spend,
+            resource_event_ids=events,
+        )
+        projection = _serialize_funnel_outcome(outcome)
+        assert projection["evaluation_status"] == "partial"
+        for observed in (projection, projection["trace"][0], projection["stage_results"]["3"]):
+            assert observed["compute_actual_usd"] == 0.125
+            assert observed["compute_cost_source"] == source
+            assert observed["provider_spend_usd"] == (None if spend is None else str(spend))
+            assert observed["resource_event_ids"] == list(events)
+        assert projection["stage_results"]["3"]["feedback"] == feedback
+&gt;       state = ExperimentState(run_id="projection", reports_index={"funnel": projection})
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       pydantic_core._pydantic_core.ValidationError: 17 validation errors for ExperimentState
+E       reports_index.funnel.artifact_id
+E         Field required [type=missing, input_value={'ticket_id': 'typed-tick...e_information_refs': []}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/missing
+E       reports_index.funnel.kind
+E         Field required [type=missing, input_value={'ticket_id': 'typed-tick...e_information_refs': []}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/missing
+E       reports_index.funnel.media_type
+E         Field required [type=missing, input_value={'ticket_id': 'typed-tick...e_information_refs': []}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/missing
+E       reports_index.funnel.ticket_id
+E         Extra inputs are not permitted [type=extra_forbidden, input_value='typed-ticket', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.candidate_hash
+E         Extra inputs are not permitted [type=extra_forbidden, input_value='typed-candidate', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.trace
+E         Extra inputs are not permitted [type=extra_forbidden, input_value=[{'fidelity_level': 3, 's... 0, 'blocker_count': 0}], input_type=list]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.stage_results
+E         Extra inputs are not permitted [type=extra_forbidden, input_value={'3': {'stage_name': 'nat...tual-event-reference']}}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.final_action
+E         Extra inputs are not permitted [type=extra_forbidden, input_value='reject', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.completed
+E         Extra inputs are not permitted [type=extra_forbidden, input_value=True, input_type=bool]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.evaluation_status
+E         Extra inputs are not permitted [type=extra_forbidden, input_value='partial', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.compute_actual_usd
+E         Extra inputs are not permitted [type=extra_forbidden, input_value=0.125, input_type=float]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.compute_cost_source
+E         Extra inputs are not permitted [type=extra_forbidden, input_value='provider_reported_only', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.provider_spend_usd
+E         Extra inputs are not permitted [type=extra_forbidden, input_value='0', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.resource_event_ids
+E         Extra inputs are not permitted [type=extra_forbidden, input_value=['actual-event-reference'], input_type=list]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.degradation_mode
+E         Extra inputs are not permitted [type=extra_forbidden, input_value='normal', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.audit_refs
+E         Extra inputs are not permitted [type=extra_forbidden, input_value=[], input_type=list]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.actionable_side_information_refs
+E         Extra inputs are not permitted [type=extra_forbidden, input_value=[], input_type=list]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+
+tests/unit/scientist/search/test_blueprint_resource_projection.py:90: ValidationError</failure></testcase><testcase classname="tests.unit.scientist.search.test_blueprint_resource_projection" name="test_declared_resource_observations_survive_blueprint_json_and_fresh_cas_reader[spend2]" time="0.001"><failure message="pydantic_core._pydantic_core.ValidationError: 17 validation errors for ExperimentState&#10;reports_index.funnel.artifact_id&#10;  Field required [type=missing, input_value={'ticket_id': 'typed-tick...e_information_refs': []}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/missing&#10;reports_index.funnel.kind&#10;  Field required [type=missing, input_value={'ticket_id': 'typed-tick...e_information_refs': []}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/missing&#10;reports_index.funnel.media_type&#10;  Field required [type=missing, input_value={'ticket_id': 'typed-tick...e_information_refs': []}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/missing&#10;reports_index.funnel.ticket_id&#10;  Extra inputs are not permitted [type=extra_forbidden, input_value='typed-ticket', input_type=str]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden&#10;reports_index.funnel.candidate_hash&#10;  Extra inputs are not permitted [type=extra_forbidden, input_value='typed-candidate', input_type=str]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden&#10;reports_index.funnel.trace&#10;  Extra inputs are not permitted [type=extra_forbidden, input_value=[{'fidelity_level': 3, 's... 0, 'blocker_count': 0}], input_type=list]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden&#10;reports_index.funnel.stage_results&#10;  Extra inputs are not permitted [type=extra_forbidden, input_value={'3': {'stage_name': 'nat...tual-event-reference']}}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden&#10;reports_index.funnel.final_action&#10;  Extra inputs are not permitted [type=extra_forbidden, input_value='reject', input_type=str]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden&#10;reports_index.funnel.completed&#10;  Extra inputs are not permitted [type=extra_forbidden, input_value=True, input_type=bool]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden&#10;reports_index.funnel.evaluation_status&#10;  Extra inputs are not permitted [type=extra_forbidden, input_value='partial', input_type=str]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden&#10;reports_index.funnel.compute_actual_usd&#10;  Extra inputs are not permitted [type=extra_forbidden, input_value=0.125, input_type=float]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden&#10;reports_index.funnel.compute_cost_source&#10;  Extra inputs are not permitted [type=extra_forbidden, input_value='provider_reported_only', input_type=str]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden&#10;reports_index.funnel.provider_spend_usd&#10;  Extra inputs are not permitted [type=extra_forbidden, input_value='0.10000000000000000001', input_type=str]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden&#10;reports_index.funnel.resource_event_ids&#10;  Extra inputs are not permitted [type=extra_forbidden, input_value=['actual-event-reference'], input_type=list]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden&#10;reports_index.funnel.degradation_mode&#10;  Extra inputs are not permitted [type=extra_forbidden, input_value='normal', input_type=str]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden&#10;reports_index.funnel.audit_refs&#10;  Extra inputs are not permitted [type=extra_forbidden, input_value=[], input_type=list]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden&#10;reports_index.funnel.actionable_side_information_refs&#10;  Extra inputs are not permitted [type=extra_forbidden, input_value=[], input_type=list]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden">tmp_path = PosixPath('/dev/shm/e02-D-final-consumer-wave-06f91411131a4fca93484ae727c3d4cb/test_declared_resource_observa2')
+spend = Decimal('0.10000000000000000001')
+
+    @pytest.mark.parametrize("spend", [None, Decimal("0"), Decimal("0.10000000000000000001")])
+    def test_declared_resource_observations_survive_blueprint_json_and_fresh_cas_reader(
+        tmp_path: Path, spend: Decimal | None
+    ) -&gt; None:
+        # This is a DTO projection contract, not an executed provider/billing claim.
+        source = "estimated" if spend is None else "provider_reported_only"
+        events = () if spend is None else ("actual-event-reference",)
+        feedback = {
+            "resource_pending_event_id": "pending-reference",
+            "resource_response_digest": "response-digest",
+            "resource_local_recorded_spend": "0.10000000000000000001",
+        }
+        stage = FunnelStageResult(
+            policy_candidate={"candidate": "typed-fixture"},
+            objective_value=0.5,
+            is_promising=False,
+            stage_name="native-fixture",
+            fidelity_level=3,
+            compute_actual_usd=0.125,
+            compute_cost_source=source,
+            provider_spend_usd=spend,
+            resource_event_ids=events,
+            feedback=feedback,
+            terminal_action="reject",
+        )
+        trace = FunnelTraceStep(
+            fidelity_level=3,
+            stage_name=stage.stage_name,
+            objective_value=stage.objective_value,
+            is_promising=False,
+            duration_seconds=0.25,
+            compute_actual_usd=stage.compute_actual_usd,
+            compute_cost_source=source,
+            provider_spend_usd=spend,
+            resource_event_ids=events,
+        )
+        outcome = FunnelOutcome(
+            ticket_id="typed-ticket",
+            candidate_hash="typed-candidate",
+            trace=[trace],
+            stage_results={3: stage},
+            final_result=stage,
+            failure_cards=[],
+            uncertainty_envelope=UncertaintyEnvelope.unknown(),
+            compute_actual_usd=0.125,
+            degradation_mode="normal",
+            final_action="reject",
+            completed=True,
+            evaluation_status="partial",
+            compute_cost_source=source,
+            provider_spend_usd=spend,
+            resource_event_ids=events,
+        )
+        projection = _serialize_funnel_outcome(outcome)
+        assert projection["evaluation_status"] == "partial"
+        for observed in (projection, projection["trace"][0], projection["stage_results"]["3"]):
+            assert observed["compute_actual_usd"] == 0.125
+            assert observed["compute_cost_source"] == source
+            assert observed["provider_spend_usd"] == (None if spend is None else str(spend))
+            assert observed["resource_event_ids"] == list(events)
+        assert projection["stage_results"]["3"]["feedback"] == feedback
+&gt;       state = ExperimentState(run_id="projection", reports_index={"funnel": projection})
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       pydantic_core._pydantic_core.ValidationError: 17 validation errors for ExperimentState
+E       reports_index.funnel.artifact_id
+E         Field required [type=missing, input_value={'ticket_id': 'typed-tick...e_information_refs': []}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/missing
+E       reports_index.funnel.kind
+E         Field required [type=missing, input_value={'ticket_id': 'typed-tick...e_information_refs': []}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/missing
+E       reports_index.funnel.media_type
+E         Field required [type=missing, input_value={'ticket_id': 'typed-tick...e_information_refs': []}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/missing
+E       reports_index.funnel.ticket_id
+E         Extra inputs are not permitted [type=extra_forbidden, input_value='typed-ticket', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.candidate_hash
+E         Extra inputs are not permitted [type=extra_forbidden, input_value='typed-candidate', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.trace
+E         Extra inputs are not permitted [type=extra_forbidden, input_value=[{'fidelity_level': 3, 's... 0, 'blocker_count': 0}], input_type=list]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.stage_results
+E         Extra inputs are not permitted [type=extra_forbidden, input_value={'3': {'stage_name': 'nat...tual-event-reference']}}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.final_action
+E         Extra inputs are not permitted [type=extra_forbidden, input_value='reject', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.completed
+E         Extra inputs are not permitted [type=extra_forbidden, input_value=True, input_type=bool]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.evaluation_status
+E         Extra inputs are not permitted [type=extra_forbidden, input_value='partial', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.compute_actual_usd
+E         Extra inputs are not permitted [type=extra_forbidden, input_value=0.125, input_type=float]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.compute_cost_source
+E         Extra inputs are not permitted [type=extra_forbidden, input_value='provider_reported_only', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.provider_spend_usd
+E         Extra inputs are not permitted [type=extra_forbidden, input_value='0.10000000000000000001', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.resource_event_ids
+E         Extra inputs are not permitted [type=extra_forbidden, input_value=['actual-event-reference'], input_type=list]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.degradation_mode
+E         Extra inputs are not permitted [type=extra_forbidden, input_value='normal', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.audit_refs
+E         Extra inputs are not permitted [type=extra_forbidden, input_value=[], input_type=list]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.actionable_side_information_refs
+E         Extra inputs are not permitted [type=extra_forbidden, input_value=[], input_type=list]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+
+tests/unit/scientist/search/test_blueprint_resource_projection.py:90: ValidationError</failure></testcase><testcase classname="tests.unit.scientist.search.test_blueprint_resource_projection" name="test_actual_phase_d4_report_manifest_matches_typed_body_on_fresh_reader" time="0.050" /></testsuite></testsuites>

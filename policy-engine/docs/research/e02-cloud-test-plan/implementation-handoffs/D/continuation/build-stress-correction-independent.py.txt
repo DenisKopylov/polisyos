@@ -1,0 +1,137 @@
+"""Append a bounded independent correction review without executing a backend."""
+from pathlib import Path
+import ast
+import hashlib
+import json
+import shutil
+import subprocess
+import xml.etree.ElementTree as ET
+
+REPO = Path('/workspace/e02-D-published-oracle')
+RAW = Path('/workspace/e02-D3-receipts/stress')
+DOC = REPO / 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation'
+OUT = DOC / 'stress-correction-independent'
+OUT.mkdir(exist_ok=True)
+OLD = '82d3532fd53a74206ee4f31a2fc7150cc1e4962e'
+CORRECTION = 'ee6d0024cc9dd7e1c27381f6fdfe112c465b6581'
+WAVE = '40220c6f0f0b63223b9974e4bdf6add5262aa5af'
+FINAL = 'c9200d0309bec7b2eee04a3fc44a057dfe48cdec'
+
+def git(*args):
+    return subprocess.check_output(['git', *args], cwd=REPO)
+
+def digest(data):
+    return hashlib.sha256(data).hexdigest()
+
+def bind(sha, path):
+    data = git('show', f'{sha}:{path}')
+    return {'source_sha': sha, 'path': path, 'git_blob': git('rev-parse', f'{sha}:{path}').decode().strip(), 'bytes': len(data), 'sha256': digest(data)}
+
+names = ['projection-green-complete.txt', 'projection-green-resource.json',
+         'final-consumer-wave-complete.txt', 'final-consumer-wave-resource.json', 'final-consumer-wave-junit.xml',
+         'final-projection-companion-complete.txt', 'final-projection-companion-resource.json', 'final-projection-companion-junit.xml',
+         'final-mypy-four-paths-complete.txt', 'final-mypy-four-paths-resource.json',
+         'final-ruff14-complete.txt', 'final-ruff14-format.txt', 'final-source-profile.json',
+         'case-intake-positive-complete.txt', 'case-intake-positive-resource.json',
+         'case-intake-remove_strict_bool-complete.txt', 'case-intake-remove_strict_bool-resource.json']
+manifest = []
+for name in names:
+    shutil.copyfile(RAW / name, OUT / name)
+    data = (OUT / name).read_bytes()
+    manifest.append({'path': 'stress-correction-independent/' + name, 'original_path': str(RAW / name), 'bytes': len(data), 'sha256': digest(data)})
+
+origins = []
+for name, sha in [('final-consumer-wave-complete.txt', WAVE), ('final-projection-companion-complete.txt', FINAL)]:
+    footer = json.loads(next(line for line in (OUT / name).read_text().splitlines() if line.startswith('RUNTIME_ENVIRONMENT=')).split('=', 1)[1])
+    for row in footer['modules']:
+        if row['path'] is None:
+            origins.append({'log': name, 'module': row['module'], 'status': 'UNIMPORTED'})
+            continue
+        path = 'policy-engine/' + row['path'].split('/policy-engine/', 1)[1]
+        actual = bind(sha, path)
+        assert actual['sha256'] == row['sha256']
+        origins.append({'log': name, 'module': row['module'], 'loaded_path': row['path'], **actual, 'status': 'MATCH'})
+
+profile = json.loads((OUT / 'final-source-profile.json').read_bytes())
+profile_checks = []
+for row in profile['files']:
+    actual = bind(row['source_sha'], row['path'])
+    assert all(actual[key] == row[key] for key in ['sha256', 'bytes', 'git_blob'])
+    profile_checks.append({**actual, 'status': 'MATCH'})
+for path, expected in [('policy-engine/src', profile['entire_src_tree']), ('policy-engine/architecture', profile['entire_architecture_tree'])]:
+    assert git('rev-parse', f'{FINAL}:{path}').decode().strip() == expected
+
+owned_product = ['policy-engine/src/polisyos/scientist/methods/doe/stress_report.py',
+                 'policy-engine/src/polisyos/scientist/methods/doe/designs.py',
+                 'policy-engine/src/polisyos/scientist/methods/backtesting/adversarial.py',
+                 'policy-engine/src/polisyos/scientist/methods/search/adversarial.py',
+                 'policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py']
+assert git('diff', '--name-only', CORRECTION, FINAL, '--', *owned_product) == b''
+assert git('diff', '--name-only', WAVE, FINAL, '--', 'policy-engine/src') == b''
+assert git('diff', '--name-only', WAVE, FINAL).decode().splitlines() == ['policy-engine/tests/unit/scientist/search/test_blueprint_resource_projection.py']
+product_correction_paths = git('diff', '--name-only', OLD, CORRECTION, '--', 'policy-engine/src').decode().splitlines()
+source_manifest = [bind(CORRECTION, path) for path in product_correction_paths]
+
+def junit(name):
+    root = ET.fromstring((OUT / name).read_bytes())
+    suites = [root] if root.tag == 'testsuite' else root.findall('testsuite')
+    counts = {key: sum(int(s.attrib.get(key, 0)) for s in suites) for key in ['tests', 'failures', 'errors', 'skipped']}
+    failures = [t.attrib for t in root.iter('testcase') if t.find('failure') is not None]
+    return counts, failures, root
+
+wave_counts, failures, wave_xml = junit('final-consumer-wave-junit.xml')
+final_counts, _, _ = junit('final-projection-companion-junit.xml')
+assert wave_counts == {'tests': 142, 'failures': 3, 'errors': 0, 'skipped': 0}
+assert final_counts == {'tests': 4, 'failures': 0, 'errors': 0, 'skipped': 0}
+empty = next(t for t in wave_xml.iter('testcase') if t.attrib['name'] == 'test_empty_component_stays_incomplete_beside_a_complete_case_set')
+assert not list(empty)
+old_node = ast.parse(git('show', f'{OLD}:{owned_product[-1]}'))
+new_node = ast.parse(git('show', f'{FINAL}:{owned_product[-1]}'))
+def execute(tree):
+    return [ast.dump(n, include_attributes=False) for n in ast.walk(tree) if isinstance(n, ast.FunctionDef) and n.name == 'execute']
+assert execute(old_node) == execute(new_node)
+
+for name in ['case-intake-positive-complete.txt', 'case-intake-remove_strict_bool-complete.txt']:
+    record = json.loads((OUT / name).read_text())
+    assert bind(CORRECTION, record['path'])['sha256'] == record['file_sha256']
+helper_path = 'policy-engine/tests/integration/scientist/methods/search/stress_case_intake_probe.py'
+helper_sha = 'cf358ef1f08eb6836d0dd399297f059dc9aaa15b'
+helper = git('show', f'{helper_sha}:{helper_path}')
+(OUT / 'case-intake-helper.py.txt').write_bytes(helper)
+manifest.append({'path': 'stress-correction-independent/case-intake-helper.py.txt', 'source_sha': helper_sha, 'source_path': helper_path, 'bytes': len(helper), 'sha256': digest(helper)})
+
+review = {
+    'schema': 'e02.D.independent-source-review-addendum.v1', 'reviewer': 'numerical_oracle', 'closure_ids': [],
+    'supersedes_only': 'Frozen82 aggregate-empty-component/phaseD4 manifest/serializer regression hold; original4f917d76bb7447ad1174eeef4c0b4f6fd55ddc01 evidence remains historical and immutable.',
+    'correction_source_sha': CORRECTION, 'correction_tree': git('rev-parse', CORRECTION + '^{tree}').decode().strip(),
+    'composed_runtime_sha': WAVE, 'test_fixture_successor_sha': FINAL, 'successor_tree': git('rev-parse', FINAL + '^{tree}').decode().strip(),
+    'verdict': 'PASS within bounded corrected properties: all-component completeness, actual phaseD4 CAS schema alignment, declared resource DTO JSON preservation. Overall originalSTR/E/quality closure remains PARTIAL/UNRUN/FAIL as recorded.',
+    'independent_source_review': {
+        'full_frozen82_to_ee6_product_delta_read': True,
+        'product_delta_manifest': source_manifest,
+        'completeness': 'scenario_complete requires aggregate evidence.complete AND every declared component present/complete. DTO status validation, is_robust and blueprint recompute metadata/status all use this property. Empty declared components remain conditional despite an observed positive finite subset.',
+        'phaseD4_schema': 'Actual _run_and_register_phase_d4_challenge_suites now writes SchemaInfo version from its typed suite report rather than hardcoded1.0.',
+        'projection': 'Actual existing serializer retains outcome evaluation_status plus outcome/stage/trace compute amount, cost source, Decimal amount as string-or-null, and resource-event references. Stage feedback remains. No provider settlement/billing or actual paid node execution inferred from declared DTO fixtures.',
+        'caller_path': 'Frozen successor actual blueprint execute writes _serialize_funnel_outcome to new_state.params.funnel_outcome and _funnel_outcome. Fixture correction uses this admitted existing params field instead of ArtifactRef-only reports_index.',
+        'own_product_bytes_ee6_to_composed_successor': 'All5 listed counter/report/blueprint product paths identical. Composed peer resource/core/funnel changes are separate owner/root review inputs, not an independent whole-source acceptance claim here.',
+        'wave_to_successor_product_diff': [],
+        'wave_to_successor_test_delta': 'Only the three-case persistence fixture uses ExperimentState.params.funnel_outcome and reads restored.params.funnel_outcome. Existing serialization assertions/expected values are unchanged.',
+        'B04_execute_AST': 'Exact execute AST is identical frozen82→successor; independent82 canonical one-file declared-read PASS remains applicable to this unchanged read body. Whole9 foreign-node contract errors remain held.'
+    },
+    'actual_runtime': {
+        'earlier_ee6_projection_attempt': {'status': 'ERROR/UNRUN', 'resource': json.loads((OUT / 'projection-green-resource.json').read_bytes()), 'complete_output': 'stress-correction-independent/projection-green-complete.txt'},
+        'composed_142': {'resource': json.loads((OUT / 'final-consumer-wave-resource.json').read_bytes()), 'junit_counts': wave_counts, 'actual_pass_count': 139, 'failures': failures, 'empty_component_actual_case': dict(empty.attrib), 'whole_verdict': 'FAIL; not142PASS', 'interpretation': 'All three failures occur after every new serializer assertion passed, at a malformed reports_index persistence fixture. Full completed output/JUnit is retained; empty-component and actual phaseD4 report cases pass.'},
+        'fixture_successor_4': {'resource': json.loads((OUT / 'final-projection-companion-resource.json').read_bytes()), 'junit_counts': final_counts, 'scope': 'Same source; three declared amount variants None/Decimal0/precision amount roundtrip through actual FileSystemCAS/newreader plus actual phaseD4 manifest/body schema. Not a rerun of the complete142 suite.'}
+    },
+    'actual_case_intake_removal': {'intact': 'Actual helper four malformed passed values1/text false/NaN/Inf refuse; genuineFalse remains failed.', 'removed': 'Actual defining-function bool guard removed plus old bool coercion restored with markers retained: all4 malformed values admitted; expectedFAIL exit1.', 'runtime_scope': 'Actual case helper/class only; no fullblueprint/backend/billing claim. Earlier fullrawbool removal SIGKILL remains ERROR/UNRUN.'},
+    'origin_integrity': origins,
+    'final_source_profile_integrity': {'files': profile_checks, 'entire_src_tree': profile['entire_src_tree'], 'architecture_tree': profile['entire_architecture_tree'], 'verdict': 'Git input integrity only, not whole-source behavior acceptance'},
+    'quality': {'ruff_author_scoped': 'Actual captured14 paths check/formatPASS; no whole repository gate inferred.', 'mypy_latest': json.loads((OUT / 'final-mypy-four-paths-resource.json').read_bytes()), 'mypy_latest_verdict': 'SIGKILL-9/83.465s emptyoutput =>ERROR/UNRUN, notPASS.', 'original_B04_B19_B23': 'Complete original9 state-read errors/53+9+15 modulebudget/date errors/10publiclinkerrors remain held; no waiver.'},
+    'preservation_and_limitations': ['No reviewer production/test edits, backend runs, source archives, dependencies, children or CPU/process/thread/test-worker caps.', 'No cleanup/deletion; moderate copies only. Original commands retain exactbasetemps; no universal transient existence claim.', 'Observed finite-set fractions remain conditional; case scientific predicates are consumer asserted; no population law/issuer/source-universe proof.', 'Native E/D full-profile composition remains two actual SIGKILLERROR/UNRUN attempts, not closed by these adapter cases.', 'No current GP26 repetition or changed analytic expected values. Independent23GPv4 and prior transferCAS witnesses retain their exact source profile scope.'],
+    'lossless_evidence': manifest,
+}
+target = DOC / 'stress-correction-independent-review.json'
+target.write_text(json.dumps(review, indent=2) + '\n')
+result = {'correction_sha': CORRECTION, 'successor_sha': FINAL, 'origin_matches': sum(row['status'] == 'MATCH' for row in origins), 'unimported': sum(row['status'] == 'UNIMPORTED' for row in origins), 'profile_file_matches': len(profile_checks), 'wave_counts': wave_counts, 'four_counts': final_counts, 'copied_files': len(manifest), 'copied_bytes': sum(row['bytes'] for row in manifest), 'review_sha256': digest(target.read_bytes()), 'verdict': review['verdict']}
+(OUT / 'binding-output.json').write_text(json.dumps(result, indent=2) + '\n')
+print(json.dumps(result, indent=2))

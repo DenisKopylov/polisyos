@@ -1,0 +1,27 @@
+{
+  "source_sha": "40220c6f0f0b63223b9974e4bdf6add5262aa5af",
+  "command": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "/workspace/e02-D3-receipts/stress/challenge_runtime_runner.py",
+    "-q",
+    "tests/unit/scientist/search/test_stress_scenario_evidence.py",
+    "tests/unit/scientist/search/test_adversarial.py",
+    "tests/unit/scientist/search/test_adversarial_streaming.py",
+    "tests/unit/scientist/search/test_policy_blueprint_runtime_guards.py",
+    "tests/unit/scientist/methods/search/funnel/test_level5_refutation_governance.py",
+    "tests/unit/remediation/test_fun_03.py",
+    "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+    "tests/unit/scientist/search/test_challenge_scenario_projection.py",
+    "tests/unit/scientist/methods/backtesting/test_phase_d4_challenge_suites.py",
+    "tests/unit/scientist/search/test_blueprint_resource_projection.py",
+    "--basetemp",
+    "/dev/shm/e02-D-final-consumer-wave-06f91411131a4fca93484ae727c3d4cb",
+    "--junitxml",
+    "/workspace/e02-D3-receipts/stress/final-consumer-wave-junit.xml"
+  ],
+  "exit_code": 1,
+  "wall_seconds": 56.164719332999084,
+  "peak_rss_kib": 940384,
+  "source_sha_after": "40220c6f0f0b63223b9974e4bdf6add5262aa5af",
+  "git_status": "?? docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/complete-result-pack-census.json\n"
+}

@@ -1,0 +1,77 @@
+{
+  "command": {
+    "argv": [
+      "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/unit/remediation/test_rep_01_partial_resume.py",
+      "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/rep-partial-be8/raw/pytest.junit.xml",
+      "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/rep-partial-be8/raw/pytest-basetemp"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine",
+    "harness_timeout_seconds": 300,
+    "shell_display": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python -m pytest -q tests/unit/remediation/test_rep_01_partial_resume.py --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/rep-partial-be8/raw/pytest.junit.xml --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/rep-partial-be8/raw/pytest-basetemp"
+  },
+  "duration_seconds": 8.00069395796163,
+  "ended_at_utc": "2026-10-06T15:52:56.453063+00:00",
+  "environment": {
+    "BLIS_NUM_THREADS": "1",
+    "HOME": "/Users/deniskopylov",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PATH": "/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0IKaEzY:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources:/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS",
+    "POLISYOS_RUNNER_BACKEND": "local",
+    "POLISYOS_RUNNER_MAX_PARALLELISM": "1",
+    "PYTHONHASHSEED": "0",
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine",
+    "TMPDIR": "/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/",
+    "VECLIB_MAXIMUM_THREADS": "1"
+  },
+  "evidence_paths": {
+    "junit": "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/rep-partial-be8/raw/pytest.junit.xml",
+    "pytest_basetemp_cas": "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/rep-partial-be8/raw/pytest-basetemp",
+    "stderr": "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/rep-partial-be8/raw/pytest.stderr.log",
+    "stdout": "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/rep-partial-be8/raw/pytest.stdout.log"
+  },
+  "exit_code": 0,
+  "harness_timeout_expired": false,
+  "outputs_sha256": {
+    "pytest.junit.xml": "c2b92b1f9d1ce5baedc650722a728f6d77b6d3bbbc45c91c34ca145fa53ea213",
+    "pytest.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "pytest.stdout.log": "423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d"
+  },
+  "schema": "polisyos.rep_01_partial_resume_execution.v1",
+  "scope": {
+    "direct_oracle": "fresh full AsyncWorkflowExecutor run plus independent integer-cents arithmetic",
+    "expected_partial_completed_nodes": [
+      "income",
+      "rate"
+    ],
+    "expected_residual_node": "tax",
+    "fresh_run_id": "R_rep_01_partial_fresh",
+    "interrupted_run_id": "R_rep_01_partial_resume",
+    "resume_owner": "polisyos.scientist.orchestration.engine.checkpoint.resume_from_checkpoint",
+    "runtime_node_timeout_seconds": 1.0,
+    "test": "policy-engine/tests/unit/remediation/test_rep_01_partial_resume.py",
+    "workflow_id": "rep_01_partial_resume",
+    "workflow_nodes": [
+      "income",
+      "rate",
+      "tax"
+    ]
+  },
+  "source": {
+    "branch": "codex/e02-A-replay-full",
+    "head": "be8d9cefba439e21a02fd98a7c129309c8a9989d",
+    "test_blob": "272505dfdde7889c1b50f9615632a3d4500a5ead",
+    "tree": "5a13082419762f312aa7ed010cfb518fe866b1b7",
+    "working_tree_status": "",
+    "worktree": "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos"
+  },
+  "started_at_utc": "2026-10-06T15:52:48.452200+00:00"
+}

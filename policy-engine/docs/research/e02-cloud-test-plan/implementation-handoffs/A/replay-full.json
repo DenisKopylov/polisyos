@@ -13,12 +13,15 @@
   "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
   "implementation_commits": [
     "33e9a165172052d9fd2301a0423904ceba4d17b8",
-    "3334775bcad7045361c3c7e3395674b49fcebaab"
+    "3334775bcad7045361c3c7e3395674b49fcebaab",
+    "be8d9cefba439e21a02fd98a7c129309c8a9989d",
+    "4f47b4f512eb67e6f563bf7e81d7a1b7200e81a5",
+    "e19fd2c741cbd0398d2cd94f72112bb20b3b3e1f"
   ],
-  "candidate_tree_sha": "14c4be8109a1a7c1e635fd8be3355f2b04437619",
+  "candidate_tree_sha": "fd1048a121b6a16ec4a760ae6ff6185d166a345d",
   "branch": "codex/e02-A-replay-full",
   "pull_request": null,
-  "environment_identity_note": "The retained Foundry, wheel, CLI and import-probe evidence used the existing root policy-engine environment at CPython 3.14.0 with leaf source pinned by PYTHONPATH. A separately provisioned root environment at CPython 3.14.3 is distinct and was not used for these runs.",
+  "environment_identity_note": "The Foundry, wheel, and earlier CLI evidence used the existing root policy-engine environment at CPython 3.14.0 with leaf source pinned by PYTHONPATH. The default partial-CLI attempt at e19fd2c used the separate full-queue root environment at CPython 3.14.3; its command and environment are preserved in replay-full-default-cli-partial.execution.json.",
   "bundle": "REP-01",
   "finding": "LA-033",
   "handoff_kind": "candidate_execution_evidence",
@@ -30,22 +33,22 @@
     "code_acceptance_submitted": false,
     "finding_closed": false,
     "closure_now": "not_adjudicated",
-    "rationale": "The first-party migration and compatibility properties now have exact-head behavioral, wheel, CLI, artifact round-trip, import-budget, and FQN evidence. The row remains limited because the CLI resume checkpoint had no residual node to execute, no separately supplied historical artifact corpus was available, and external shim/FQN caller scope remains not_established."
+    "rationale": "The first-party migration and compatibility properties have exact-source behavioral, wheel, CLI, artifact round-trip, import-budget, FQN, and canonical-engine partial-resume evidence. A separate authentic default-CLI checkpoint had 7/23 nodes complete, but resume stopped at the required-state guard for params.pii_scan_results before any residual node executed. The typed producer/checkpoint handshake needs its owners; no external historical artifact corpus or external shim/FQN caller scope is established."
   },
   "finding_outcome": {
     "decision": "limited",
     "original_criterion_status": "partial",
     "adjudication": "not_adjudicated",
-    "note": "This execution slice supplies additional first-party evidence but does not convert the original LA-033 partial criterion into a closed finding. Actual partial-checkpoint resume execution, a separately supplied historical artifact corpus, and external caller scope remain unresolved."
+    "note": "This execution slice proves canonical resume_from_checkpoint continuation from a real 2/3 checkpoint. It separately attempted the public default-workflow CLI from a real CAS checkpoint with 7/23 nodes complete; the CLI refused it because params.pii_scan_results is absent even though the runtime consumer can fall back to the persisted DataSnapshot. LA-033 remains limited and not adjudicated: default-CLI residual execution and the typed producer/checkpoint handshake remain unresolved, as do external historical artifacts and external caller scope."
   },
   "worktree": {
     "path": "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos",
     "branch": "codex/e02-A-replay-full",
     "base_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
-    "implementation_commit": "3334775bcad7045361c3c7e3395674b49fcebaab",
-    "implementation_parent": "33e9a165172052d9fd2301a0423904ceba4d17b8",
-    "implementation_commit_message": "test: verify installed replay root bindings",
-    "status_at_test_run": "wheel smoke ran immediately before the append commit on an identical test-file blob; commit 3334775bcad7045361c3c7e3395674b49fcebaab reads back the same blob; handoff evidence was untracked during source-test verification",
+    "implementation_commit": "e19fd2c741cbd0398d2cd94f72112bb20b3b3e1f",
+    "implementation_parent": "4f47b4f512eb67e6f563bf7e81d7a1b7200e81a5",
+    "implementation_commit_message": "test(replay): preserve CLI resume output",
+    "status_at_test_run": "The canonical partial-resume check ran on be8d9cef (test blob 272505df) and passed; the default CLI partial case ran on e19fd2c (test blob 154b1474) and pytest failed after the CLI correctly refused the incomplete checkpoint state. Full commands, environments, JUnit, stdout/stderr and CLI subprocess output are preserved in the tracked handoff files; raw CAS remains under the unique ignored evidence root.",
     "production_paths_changed": false,
     "v1_1_or_versioned_v2_replay_semantics_changed": false
   },
@@ -75,7 +78,9 @@
   },
   "changed_paths": [
     "policy-engine/tests/unit/remediation/test_rep_01.py",
-    "policy-engine/tests/unit/remediation/test_rep_01_execution.py"
+    "policy-engine/tests/unit/remediation/test_rep_01_execution.py",
+    "policy-engine/tests/unit/remediation/test_rep_01_partial_resume.py",
+    "policy-engine/tests/unit/remediation/test_rep_01_default_cli_partial_resume.py"
   ],
   "changed_path_details": [
     {
@@ -89,6 +94,18 @@
       "git_blob": "adcfcf23cdc25eff583ac4777928bf39e0903067",
       "sha256": "cb84e66f2c90af6a4de276eee4190d90db5bf6595e3c5fa7afbe111324eb9e51",
       "change": "Added real Foundry replay and compatibility-consumer tests; the installed-wheel subprocess now checks identity and inspect.signature for every one of the ten lazy Runtime root exports against the canonical Scientist module."
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_rep_01_partial_resume.py",
+      "git_blob": "272505dfdde7889c1b50f9615632a3d4500a5ead",
+      "sha256": "b948fd5a53d35822b8e80e810c0ed8dbe7f5f73552697415a9a5cfeeaedff382",
+      "change": "Added a real AsyncWorkflowExecutor/CAS 2-of-3 checkpoint, timeout/late-result corruption control, canonical resume of only the remaining tax node, fresh execution comparison, and independent integer-cents oracle."
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_rep_01_default_cli_partial_resume.py",
+      "git_blob": "154b14743c621b6f631bc165222c47e4e383b381",
+      "sha256": "b84c4baf76dcde298fc6c06be65d16fa5306031459f3add63b05f7fa4ece6e3b",
+      "change": "Added real default-workflow CLI resume after verified recovery of the exact missing DataSnapshot. The actual partial checkpoint is preserved; the CLI refuses continuation at the completed-writer-state guard for params.pii_scan_results, exposing the bounded producer/checkpoint handshake limitation."
     }
   ],
   "checks": [
@@ -211,6 +228,125 @@
       "input_closure": "The available current source-supported v1 shapes are exercised separately; they are not treated as a substitute for an external historical corpus.",
       "outcome": "UNRUN",
       "output": "No external historical corpus comparison is claimed. Versioned v1.1-to-v2 identity remains a separate B31/PublicIR concern."
+    },
+    {
+      "id": "REP-01-canonical-partial-checkpoint-resume-engine",
+      "status": "PASS",
+      "outcome": "PASS",
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python -m pytest -q tests/unit/remediation/test_rep_01_partial_resume.py --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/rep-partial-be8/raw/pytest.junit.xml --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/rep-partial-be8/raw/pytest-basetemp",
+      "target_sha": "be8d9cefba439e21a02fd98a7c129309c8a9989d",
+      "target_tree_sha": "5a13082419762f312aa7ed010cfb518fe866b1b7",
+      "target": "tests/unit/remediation/test_rep_01_partial_resume.py::test_real_partial_checkpoint_resumes_only_the_remaining_tax_node",
+      "test_source": {
+        "path": "policy-engine/tests/unit/remediation/test_rep_01_partial_resume.py",
+        "git_blob": "272505dfdde7889c1b50f9615632a3d4500a5ead",
+        "sha256": "b948fd5a53d35822b8e80e810c0ed8dbe7f5f73552697415a9a5cfeeaedff382"
+      },
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/replay-full-partial-api.execution.json@sha256:9df525631dde778fc546494e2f6a6cc1266d1adfe94708b19b9bd29087baed67",
+      "environment": {
+        "python": "CPython 3.14.0; /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+        "platform": "macOS arm64; JAX CPU backend",
+        "runner": "local; max parallelism 1; one-second per-node tax timeout is intentional; harness timeout 300 seconds",
+        "thread_overrides": "BLIS_NUM_THREADS, MKL_NUM_THREADS, NUMEXPR_NUM_THREADS, OMP_NUM_THREADS, OPENBLAS_NUM_THREADS, VECLIB_MAXIMUM_THREADS are 1",
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine"
+      },
+      "input_closure": {
+        "workflow_id": "rep_01_partial_resume",
+        "node_count": 3,
+        "workflow_nodes": ["income", "rate", "tax"],
+        "partial_checkpoint": {
+          "run_id": "R_rep_01_partial_resume",
+          "sequence_number": 1,
+          "completed_nodes_count": 2,
+          "completed_nodes": ["income", "rate"],
+          "residual_nodes": ["tax"],
+          "cas_blob": "policy-engine/_build/e02-A-full-queue/rep-partial-be8/raw/pytest-basetemp/test_real_partial_checkpoint_r0/cas/artifacts/sha256/b3/e5/b3e510d4d3840903c529980a5d01cae3d63added27f189db250aba9a6525cbd4.blob@sha256:b3e510d4d3840903c529980a5d01cae3d63added27f189db250aba9a6525cbd4"
+        },
+        "resumed_checkpoint": {
+          "sequence_number": 2,
+          "completed_nodes_count": 3,
+          "completed_nodes": ["income", "rate", "tax"],
+          "cas_blob": "policy-engine/_build/e02-A-full-queue/rep-partial-be8/raw/pytest-basetemp/test_real_partial_checkpoint_r0/cas/artifacts/sha256/1e/9e/1e9e46c5c342633cad7983a9a6b5fc815659056a8386ddc150e1244ee126690f.blob@sha256:1e9e46c5c342633cad7983a9a6b5fc815659056a8386ddc150e1244ee126690f"
+        },
+        "fresh_execution": "R_rep_01_partial_fresh persisted the same three-node completion and values",
+        "independent_integer_cents_oracle": {"tax_cents": 1000, "net_income_cents": 9000},
+        "late_timed_out_result_control": "The timeout attempt returned poisoned state; re-read checkpoint head/history showed no late write or extra checkpoint."
+      },
+      "result": "1 passed in 8.0007 seconds; only the residual tax node ran on resume and the persisted result matched a separate fresh run and arithmetic oracle.",
+      "raw_evidence": {
+        "cas_root": "policy-engine/_build/e02-A-full-queue/rep-partial-be8/raw/pytest-basetemp/test_real_partial_checkpoint_r0/cas/ (ignored unique CAS; retained locally)",
+        "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/replay-full-partial-api.stdout.log@sha256:423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d",
+        "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/replay-full-partial-api.stderr.log@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/replay-full-partial-api.junit.xml@sha256:c2b92b1f9d1ce5baedc650722a728f6d77b6d3bbbc45c91c34ca145fa53ea213"
+      }
+    },
+    {
+      "id": "REP-01-default-cli-partial-checkpoint-resume",
+      "status": "FAIL",
+      "outcome": "FAIL",
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python -m pytest -q tests/unit/remediation/test_rep_01_default_cli_partial_resume.py --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/rep-default-cli-e19fd2/raw/pytest.junit.xml --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/rep-default-cli-e19fd2/raw/pytest-basetemp",
+      "target_sha": "e19fd2c741cbd0398d2cd94f72112bb20b3b3e1f",
+      "target_tree_sha": "fd1048a121b6a16ec4a760ae6ff6185d166a345d",
+      "target": "tests/unit/remediation/test_rep_01_default_cli_partial_resume.py::test_default_cli_resume_executes_residual_from_native_partial_checkpoint",
+      "test_source": {
+        "path": "policy-engine/tests/unit/remediation/test_rep_01_default_cli_partial_resume.py",
+        "git_blob": "154b14743c621b6f631bc165222c47e4e383b381",
+        "sha256": "b84c4baf76dcde298fc6c06be65d16fa5306031459f3add63b05f7fa4ece6e3b"
+      },
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/replay-full-default-cli-partial.execution.json@sha256:bab3ebc01ae8baf73dd96aef6b65fe6e1cd13b6837742d199ce6c7fa891aab7d",
+      "environment": {
+        "python": "CPython 3.14.3; /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+        "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+        "runner": "POLISYOS_RUNNER_BACKEND=local; POLISYOS_RUNNER_MAX_PARALLELISM=1; JAX_PLATFORMS=cpu; subprocess timeout 180 seconds; pytest harness timeout 300 seconds",
+        "thread_overrides": "MKL_NUM_THREADS, NUMEXPR_NUM_THREADS, OMP_NUM_THREADS, OPENBLAS_NUM_THREADS are 1",
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine"
+      },
+      "input_closure": {
+        "workflow_id": "scientist_default",
+        "declared_workflow_node_count": 23,
+        "partial_checkpoint": {
+          "run_id": "R_rep_01_default_cli_partial_resume",
+          "sequence_number": 6,
+          "completed_node_alias": "link_trinity",
+          "completed_nodes_count_read_from_cas": 7,
+          "completed_nodes_read_from_cas": ["start", "build_data_snapshot", "build_execution_plan", "build_method_catalog_snapshot", "run_preflight", "ready_to_run", "link_trinity"],
+          "checkpoint_artifact_id": "sha256:9a212e22a72b6419120d1ce5f6b36785fa1a11ef9d9d16ba1a8a3b5979692453",
+          "checkpoint_blob": "policy-engine/_build/e02-A-full-queue/rep-default-cli-e19fd2/raw/pytest-basetemp/test_default_cli_resume_execut0/resume-cas/artifacts/sha256/9a/21/9a212e22a72b6419120d1ce5f6b36785fa1a11ef9d9d16ba1a8a3b5979692453.blob@sha256:9a212e22a72b6419120d1ce5f6b36785fa1a11ef9d9d16ba1a8a3b5979692453"
+        },
+        "source_data_snapshot": {
+          "artifact_id": "sha256:ae531a9a062fced780e437db96775c5745076802cf263b112a2c6910fd5c58f7",
+          "sha256": "ae531a9a062fced780e437db96775c5745076802cf263b112a2c6910fd5c58f7",
+          "payload_pii_scan_summary": null,
+          "recovery": "Verified public CAS import restored the exact DataSnapshot bytes and manifest after the authentic partial transfer omitted this one artifact."
+        },
+        "cli_argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+          "-m",
+          "tools.ops_runners.runtime_cli",
+          "resume",
+          "R_rep_01_default_cli_partial_resume",
+          "--cas-root",
+          "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/rep-default-cli-e19fd2/raw/pytest-basetemp/test_default_cli_resume_execut0/resume-cas",
+          "--json"
+        ],
+        "raw_cas_root": "policy-engine/_build/e02-A-full-queue/rep-default-cli-e19fd2/raw/pytest-basetemp/test_default_cli_resume_execut0/resume-cas/ (ignored unique CAS; retained locally)",
+        "actual_cli_result": {
+          "exit_code": 1,
+          "stdout_empty": true,
+          "stderr": "ERROR: resume failed for run_id=R_rep_01_default_cli_partial_resume: checkpoint resume state is incomplete for remaining nodes: params.pii_scan_results",
+          "residual_nodes_executed": 0,
+          "pytest_result": "1 failed in 25.426 seconds; the positive execution assertion reached json.loads on empty stdout after the CLI returned the guard error."
+        },
+        "base_replay": "not performed; the e19fd2c candidate run is recorded as FAIL without an inherited-red attribution."
+      },
+      "result": "The actual default CLI partial checkpoint had 7/23 nodes complete, but resume rejected it before residual execution because params.pii_scan_results was absent.",
+      "raw_evidence": {
+        "pytest_stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/replay-full-default-cli-partial.stdout.log@sha256:d7c9c8af4d99e6a7a189b9dba285361ff8e1231113351b7313be12efdc68e746",
+        "pytest_stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/replay-full-default-cli-partial.stderr.log@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/replay-full-default-cli-partial.junit.xml@sha256:3a1f6a4089301516c85091f2eac29559210625e2ed6c3b59ae98cb78a4fcf914",
+        "cli_stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/replay-full-default-cli-partial-cli.stdout.log@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "cli_stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/replay-full-default-cli-partial-cli.stderr.log@sha256:c9e3975a2cb1357c13f15b9a6e7208eb56c2d786ae5ed73f4dd4481256ebe4ed"
+      }
     }
   ],
   "authoritative_sources": [
@@ -231,6 +367,13 @@
     "real replay, fresh CAS readback, arithmetic oracle and fake/corrupt/removal controls": "policy-engine/tests/unit/remediation/test_rep_01_execution.py@adcfcf23cdc25eff583ac4777928bf39e0903067:234-324",
     "blocked-shim CLI/benchmark consumers": "policy-engine/tests/unit/remediation/test_rep_01_execution.py@adcfcf23cdc25eff583ac4777928bf39e0903067:326-390",
     "built-wheel smoke": "policy-engine/tests/unit/remediation/test_rep_01_execution.py@adcfcf23cdc25eff583ac4777928bf39e0903067:394-483",
+    "canonical partial-checkpoint resume witness": "policy-engine/tests/unit/remediation/test_rep_01_partial_resume.py@272505dfdde7889c1b50f9615632a3d4500a5ead",
+    "default CLI partial-checkpoint attempt and retained subprocess output": "policy-engine/tests/unit/remediation/test_rep_01_default_cli_partial_resume.py@154b14743c621b6f631bc165222c47e4e383b381",
+    "C producer and conditional PII state write": "policy-engine/src/polisyos/scientist/nodes/builtins/data/build_data_snapshot.py@473096fa28879eb70c0ce3986294eb06f6e73e2c:35-43,71-87,98-116",
+    "B checkpoint missing-completed-state guard": "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py@d00feba0e10023fbbc7c3c55b5ce18c6701e4931:1294-1322",
+    "runtime PII consumer snapshot fallback": "policy-engine/src/polisyos/scientist/nodes/builtins/governance/data_plane_gate.py@5e4003bb43c2814d4ffe429c8f7c5460dced427f:219-228",
+    "default Fabric fetch and separate ingestion PII stage": "policy-engine/src/polisyos/scientist/adapters/fabric_bridge.py@66f041adfc98171ca6bbd98eee358af9dd2e018e:106-127,165-171; policy-engine/src/polisyos/fabric/ingestion/ingestion.py@996e1d8cc8dac15f023ae5260146f49b0336bf69:939-946,1008-1010",
+    "existing producer tests pin no-op and absent summary behavior": "policy-engine/tests/unit/scientist/nodes/builtins/data/test_build_data_snapshot.py@cda3d66449b0cc12e745d7dc0202ac3f521ba9b9:41-75",
     "root lazy exports": "policy-engine/src/polisyos/runtime/__init__.py@967b92442bf6c49e0db07c2ae2a157b5248650dd:30-93",
     "20-symbol compatibility facade": "policy-engine/src/polisyos/runtime/replay.py@9ec3225c6832d00391430468d8c0c0eb7c10b573:10-54",
     "replay strategy and execution routing": "policy-engine/src/polisyos/scientist/replay/backend.py@97cdba8747f180ce52b10de72ee186c4169641c1:115-185,327-364",
@@ -244,16 +387,18 @@
       "A real, schema-valid income-tax TrinityBundle and bound input artifacts compile through the canonical Foundry compiler to persisted exec-plan and lowered-IR artifacts.",
       "Scientist replay selects FOUNDRY, calls the real execute_foundry implementation exactly once, and persists a foundry.simulation_result plus post-execution state snapshot.",
       "A fresh process in a distinct scratch cwd under policy-engine/_build resolves and validates the simulation result and state snapshot from CAS using the explicit leaf-source PYTHONPATH; observed income is [90, 180, 270] and government balance is 60, matching an independently calculated 10-percent tax oracle.",
+      "A real canonical checkpoint-engine partial run persisted income and rate (2/3), timed out tax without allowing late poisoned state to mutate the CAS frontier, then resumed only tax to 3/3; a separate fresh run and independent cents oracle agreed.",
       "Absent plan ref, corrupted plan bytes, and removed-executor controls each reject replay; the failure/removal controls cannot pass from the presence of a stored result marker.",
       "Direct Scientist/root/compatibility import identity, exact ten root names, exact twenty transitional exports, delayed CLI import, dynamic inventory, benchmark consumer, unknown-name refusal, and a fresh installed-wheel smoke with package-origin check are covered. The installed-wheel audit independently confirms identity and inspect.signature equality for all ten root exports plus all twenty shim exports.",
       "The public CLI exported the 19-artifact income-tax packet (61,016 bytes), checked the imported bundle as complete (19/19, no missing/corrupt artifacts), and imported/replayed it through the actual Foundry strategy. CLI replay succeeded with result sha256:048e7f55489a04d7f27216f2e0d5ce0b8b9fca4ee8f0afd0699b85f1b3560a2e; --no-verify means this command did not itself check semantic equivalence.",
       "A verified CAS import compared all 19 source/imported payload and manifest bytes plus kind and role edges. Current source-supported RunManifest v1 (schema 1.0) manifest/artifact bytes and roles round-tripped unchanged; current source-supported quality replay manifest v1 CAS bytes and embedded semantic role keys round-tripped unchanged.",
       "Cold Runtime-root import measured 2.0715 ms with only polisyos and polisyos.runtime loaded; neither replay owner nor shim loaded. Resolving all ten exports loads the canonical Scientist module but not the shim. LA-033 states no numeric import-budget threshold.",
       "Canonical-owner and Runtime-root FQN monkeypatch probes pass before lazy binding; retained-shim FQN patching is local after root migration. This observed external compatibility boundary is not a zero-traffic inference.",
-      "A complete tracked test-input census covered 2,762 Python files and 401 serialized JSON/YAML files; no static serialized replay_manifest marker was present. No external historic artifact corpus was supplied."
+      "A complete tracked test-input census covered 2,762 Python files and 401 serialized JSON/YAML files; no static serialized replay_manifest marker was present. No external historic artifact corpus was supplied.",
+      "A separate default-workflow run produced and read back an authentic CAS checkpoint with 7/23 nodes complete after the DataSnapshot transfer/recovery scenario. The public CLI was invoked on that partial checkpoint and returned the exact state-completeness refusal for params.pii_scan_results; it executed zero residual nodes."
     ],
     "not_established_or_still_required_for_full_LA_033": [
-      "Public resume CLI dispatch and checkpoint validation returned status=ok for a source-generated scientist_default checkpoint with all 23 nodes complete; no residual node executed, so actual resume continuation is not established.",
+      "The earlier public resume CLI smoke returned status=ok for a different source-generated scientist_default checkpoint with all 23 nodes complete. In the later 7/23 partial case the CLI stopped at the missing params.pii_scan_results guard. Thus default-CLI continuation remains not established, while canonical resume_from_checkpoint continuation is established on its real 2/3 witness.",
       "No complete external caller census or zero-traffic claim is established. Patching the retained compatibility shim FQN is local after the root moved to the canonical Scientist owner; external reflection/string/monkeypatch callers remain not_established.",
       "No externally supplied historical RunManifest/replay_manifest artifact corpus was available. Current source-supported Runtime v1 shapes round-trip byte-for-byte, but they do not stand in for a separately supplied historic artifact set. Versioned v1.1-to-v2 identity belongs to B31/PublicIR, outside LA-033's RunManifest/runtime.replay_manifest artifact family.",
       "The wheel smoke installs with --no-deps into a fresh Python 3.14 venv using system_site_packages=True; it proves installed package resolution and replay ABI imports, not isolated dependency resolution."
@@ -675,8 +820,8 @@
     "acceptance_signal": "Real executor call, content-addressed result and state snapshot, independent arithmetic oracle, absent/corrupt refs fail before execution, and removing execution makes the semantic test fail."
   },
   "review_and_publication": {
-    "independent_test_review": "Initial independent review validated the real Foundry path and exact-head artifacts, and identified the wheel root-export identity gap. Follow-up commit 3334775bcad7045361c3c7e3395674b49fcebaab closes that gap; the wheel run and full audit are retained, but no second independent review of the append commit is recorded yet.",
-    "topic_branch_push": "not performed; wait for root review confirmation",
+    "independent_test_review": "The initial Foundry/wheel review is retained. Independent compiler reviewer review of the canonical partial-checkpoint test is at /Users/deniskopylov/.codex/worktrees/e02-a-compiler-full/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/replay-partial-review.json@sha256:b6e9789bdc7f33528b57425984d6a3cad48b3b8a7883ec95ceca32c4b8246217; it is an independent GO on be8d9cef's 2/3 API witness and explicitly excludes default CLI partial restoration. It predates the e19fd2c CLI result; do not treat it as review of that result.",
+    "topic_branch_push": "ordinary topic-branch push is authorized; report the exact remote head and handoff-file blob readback to the coordinating task after publication",
     "main_or_history_rewrite": "not performed"
   },
   "raw_evidence_root": [
@@ -741,15 +886,85 @@
       "The exact twenty-symbol transitional ABI remains available and identity-bound; runtime root and direct internal consumers work with the compatibility module import blocked.",
       "A schema-valid income-tax program compiles through Foundry, executes through replay_packet using the actual Foundry executor, persists a typed result and state snapshot, and a separate process recomputes the declared arithmetic from CAS.",
       "The installed wheel resolves from fresh venv purelib and the wheel audit checks the ten root and twenty compatibility bindings against Scientist by identity and signature.",
-      "Public CLI export, bundle --check-only, bundle import plus real Foundry replay, and resume dispatch all ran. The resume checkpoint was 23/23 complete, so continuation execution remains a separate limitation.",
+      "Public CLI export, bundle --check-only, bundle import plus real Foundry replay, and resume dispatch all ran. The earlier complete-case resume was 23/23; the later native partial CLI checkpoint was 7/23 and the command refused before residual execution at params.pii_scan_results.",
+      "Canonical resume_from_checkpoint ran the actual residual tax node from an authentic 2/3 checkpoint, persisted 3/3 completion, and matched independent arithmetic and a separate fresh workflow execution.",
       "Source-supported RunManifest v1 and quality replay manifest v1 bytes/roles round-tripped; cold import and FQN behavior were measured, with external shim caller scope still not_established."
     ],
     "separate_residuals": [
       "Keep runtime/replay.py until the supported window and external caller scope are resolved; no external-caller absence claim is made.",
-      "Actual resume continuation is not established: the only usable CLI checkpoint was COMPLETE with 23/23 nodes already finished, so resume status=ok was validation/dispatch without residual execution.",
+      "Public default-CLI partial continuation is not established: the earlier 23/23 case had no residual, and the later 7/23 case was refused because the completed-writer guard required absent params.pii_scan_results. Canonical checkpoint-engine continuation is established separately on the 2/3 witness.",
       "No separate externally supplied historical RunManifest/replay_manifest artifacts were available for byte/role comparison; current source-supported v1 shapes passed round-trip controls.",
       "The shim FQN monkeypatch no longer controls the migrated root owner; no in-repository shim-FQN monkeypatch caller was found, but external callers remain not_established. Versioned v1.1-to-v2 identity is a distinct B31/PublicIR concern outside LA-033."
     ],
     "overall_finding": "The coverage row and overall LA-033 remain partial/not_adjudicated; this bounded criterion decision is not full finding closure and code acceptance was not submitted."
+  },
+  "typed_producer_checkpoint_handoff": {
+    "finding_id": "LA033",
+    "bundle_id": "REP01",
+    "original_criterion_status": "partial",
+    "bounded_row_decision": "limited",
+    "closure_ids": [],
+    "source_candidate": {
+      "branch": "codex/e02-A-replay-full",
+      "head": "e19fd2c741cbd0398d2cd94f72112bb20b3b3e1f",
+      "tree": "fd1048a121b6a16ec4a760ae6ff6185d166a345d",
+      "source_files_changed": 4,
+      "production_paths_changed": false
+    },
+    "actual_default_cli_partial_checkpoint": {
+      "source_cas_root": "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/rep-default-cli-e19fd2/raw/pytest-basetemp/test_default_cli_resume_execut0/source-cas",
+      "resume_cas_root": "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/rep-default-cli-e19fd2/raw/pytest-basetemp/test_default_cli_resume_execut0/resume-cas",
+      "transfer": "The authentic source CAS inventory contained 12 artifacts; the initial verified public import omitted only the DataSnapshot and preserved all transferred bytes/manifests/lineage. A later verified public import restored the exact DataSnapshot bytes and manifest.",
+      "checkpoint_artifact_id": "sha256:9a212e22a72b6419120d1ce5f6b36785fa1a11ef9d9d16ba1a8a3b5979692453",
+      "checkpoint_blob_path": "policy-engine/_build/e02-A-full-queue/rep-default-cli-e19fd2/raw/pytest-basetemp/test_default_cli_resume_execut0/resume-cas/artifacts/sha256/9a/21/9a212e22a72b6419120d1ce5f6b36785fa1a11ef9d9d16ba1a8a3b5979692453.blob@sha256:9a212e22a72b6419120d1ce5f6b36785fa1a11ef9d9d16ba1a8a3b5979692453",
+      "checkpoint_sequence_number": 6,
+      "latest_node_alias": "link_trinity",
+      "completed_nodes_count_read_from_checkpoint_blob": 7,
+      "declared_workflow_nodes_count": 23,
+      "completed_nodes_read_from_checkpoint_blob": ["start", "build_data_snapshot", "build_execution_plan", "build_method_catalog_snapshot", "run_preflight", "ready_to_run", "link_trinity"],
+      "residual_execution_count": 0,
+      "data_snapshot_artifact_id": "sha256:ae531a9a062fced780e437db96775c5745076802cf263b112a2c6910fd5c58f7",
+      "data_snapshot_payload_pii_scan_summary": null,
+      "cli_outcome": "FAIL: resume rejected the otherwise genuine partial checkpoint with `checkpoint resume state is incomplete for remaining nodes: params.pii_scan_results`; CLI stdout is empty and stderr is retained. No residual node ran.",
+      "base_replay": "not performed; this exact-candidate FAIL is not characterized as inherited."
+    },
+    "C_producer_owner": {
+      "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/data/build_data_snapshot.py",
+      "source_blob_at_candidate": "473096fa28879eb70c0ce3986294eb06f6e73e2c",
+      "contract_location": "_SPEC.state_writes at lines 35-43 declares both inputs.data_snapshot_ref and params.pii_scan_results.",
+      "runtime_location": "execute at lines 71-87 returns success with the original state when a data_snapshot_ref is already supplied; the DataViewRequest branch writes params.pii_scan_results only when _read_snapshot_pii_summary returns a non-None dict. Summary load errors degrade to None at lines 98-116.",
+      "existing_test_source": "policy-engine/tests/unit/scientist/nodes/builtins/data/test_build_data_snapshot.py@cda3d66449b0cc12e745d7dc0202ac3f521ba9b9:41-75",
+      "producer_contract_evidence": "The existing test pins the supplied-snapshot success path as an identity no-op and pins summary-load failure as success without params.pii_scan_results. The actual e19 witness's restored DataSnapshot also has pii_scan_summary=null.",
+      "default_builder_path": "DefaultFabricPort.snapshot calls fabric_get_data directly and copies FetchResult.pii_scan only when present; the first-party PIIDetectionStage.from_env/process_fetch_result calls are in the separate Fabric ingestion path. No default-workflow state bridge from that ingestion output was established here.",
+      "owner_question": "Define a typed, provenance-bearing producer/optional-state contract for this field. Do not manufacture `{}` or a no-findings summary when a scan did not run."
+    },
+    "B_checkpoint_resume_owner": {
+      "source_path": "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+      "source_blob_at_candidate": "d00feba0e10023fbbc7c3c55b5ce18c6701e4931",
+      "guard_location": "_missing_completed_state_paths at lines 1294-1322 collects state_writes from completed nodes, then rejects every absent remaining-node read overlapping any completed write.",
+      "observed_missing_path": "params.pii_scan_results",
+      "owner_question": "Carry the producer's required-versus-optional state semantics into resume validation, or require a verified producer output before marking the producer complete. Keep genuinely required missing evidence fail-closed; do not remove or weaken the guard wholesale."
+    },
+    "runtime_consumer_context": {
+      "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/governance/data_plane_gate.py",
+      "source_blob_at_candidate": "5e4003bb43c2814d4ffe429c8f7c5460dced427f",
+      "location": "_extract_pii_summary at lines 219-228 first reads params.pii_scan_results, then falls back to DataSnapshot.pii_scan_summary, then returns None.",
+      "semantic_boundary": "The state parameter has a snapshot fallback, but the tested recovered snapshot itself had no PII summary. This evidence does not justify interpreting a missing scan as an empty/no-findings scan."
+    },
+    "accepted_engine_partial_resume": {
+      "source_commit": "be8d9cefba439e21a02fd98a7c129309c8a9989d",
+      "source_tree": "5a13082419762f312aa7ed010cfb518fe866b1b7",
+      "partial_frontier_from_cas": "2/3 nodes complete (income, rate), residual tax only",
+      "resumed_frontier_from_cas": "3/3 nodes complete",
+      "review": "Independent compiler review GO, with an explicit limit: injected WorkflowSpec/NodeRegistry canonical engine API, not default CLI restoration."
+    },
+    "independent_review_ref": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-a-compiler-full/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/replay-partial-review.json",
+      "sha256": "b6e9789bdc7f33528b57425984d6a3cad48b3b8a7883ec95ceca32c4b8246217",
+      "reviewed_candidate": "be8d9cefba439e21a02fd98a7c129309c8a9989d",
+      "review_artifact_state_at_capture": "untracked in compiler-full worktree; root can read the exact file by the path and SHA above",
+      "review_scope": "Independent source review of the canonical partial API witness only; not a review of e19fd2c's default CLI result."
+    },
+    "remaining_witness": "After the C/B state handshake is resolved, rerun a genuine scientist_default public CLI resume from an actual partial checkpoint, demonstrate at least one residual Foundry node executes, and verify persisted output against a fresh independent arithmetic oracle. External historical artifacts and external shim/FQN caller scope remain separate declared unknowns, not universal-zero prerequisites."
   }
 }

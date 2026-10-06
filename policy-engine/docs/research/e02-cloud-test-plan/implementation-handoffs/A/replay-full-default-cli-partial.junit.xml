@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="22.060" timestamp="2026-10-06T19:35:49.269229+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.unit.remediation.test_rep_01_default_cli_partial_resume" name="test_default_cli_resume_executes_residual_from_native_partial_checkpoint" time="15.447"><failure message="json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)">tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/rep-default-cli-e19fd2/raw/pytest-basetemp/test_default_cli_resume_execut0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x13765c770&gt;
+
+    @pytest.mark.integration
+    def test_default_cli_resume_executes_residual_from_native_partial_checkpoint(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -&gt; None:
+        """Public CLI resume must execute residual nodes after a real CAS input recovers."""
+        monkeypatch.setenv("POLISYOS_RUNNER_BACKEND", "local")
+        monkeypatch.setenv("POLISYOS_RUNNER_MAX_PARALLELISM", "1")
+        monkeypatch.setenv("JAX_PLATFORMS", "cpu")
+        monkeypatch.setenv("OMP_NUM_THREADS", "1")
+        monkeypatch.setenv("OPENBLAS_NUM_THREADS", "1")
+        monkeypatch.setenv("MKL_NUM_THREADS", "1")
+        monkeypatch.setenv("NUMEXPR_NUM_THREADS", "1")
+        source = FileSystemCAS(tmp_path / "source-cas")
+        trinity_ref, registry_ref, data_snapshot_ref = _build_income_tax_inputs(source)
+        source_ids = source.iter_artifact_ids()
+        source_id_strings = {str(artifact_id) for artifact_id in source_ids}
+        data_snapshot_id = str(data_snapshot_ref.artifact_id)
+        assert data_snapshot_id in source_id_strings
+    
+        transferable_ids = [
+            artifact_id for artifact_id in source_ids if str(artifact_id) != data_snapshot_id
+        ]
+        transferable_id_strings = {str(artifact_id) for artifact_id in transferable_ids}
+        assert transferable_id_strings == source_id_strings - {data_snapshot_id}
+        for artifact_id in transferable_ids:
+            manifest = source.get_manifest(artifact_id)
+            assert all(
+                str(input_ref.artifact_id) in transferable_id_strings
+                for input_ref in manifest.inputs
+            ), f"partial source transfer would sever manifest lineage for {artifact_id}"
+    
+        target_root = tmp_path / "resume-cas"
+        target = FileSystemCAS(target_root)
+        partial_transfer = source.export_subgraph(
+            transferable_ids,
+            tmp_path / "source-without-data-snapshot",
+            compress=False,
+        )
+        assert partial_transfer.missing_artifacts == []
+        assert partial_transfer.missing_manifests == []
+        partial_import = target.import_subgraph(
+            partial_transfer.output_path,
+            verify_integrity=True,
+        )
+        assert partial_import.verification_failed == []
+        assert partial_import.imported_artifacts == len(transferable_ids)
+        for artifact_id in transferable_ids:
+            assert target.get_bytes(artifact_id) == source.get_bytes(artifact_id)
+            assert target.get_manifest(artifact_id) == source.get_manifest(artifact_id)
+        with pytest.raises(FileNotFoundError):
+            target.get_bytes(data_snapshot_ref.artifact_id)
+    
+        run_id = "R_rep_01_default_cli_partial_resume"
+        initial_state = _initial_experiment_state(
+            run_id=run_id,
+            trinity_ref=trinity_ref,
+            registry_ref=registry_ref,
+            data_snapshot_ref=data_snapshot_ref,
+        )
+        partial_result = run_default_workflow(initial_state, store=target)
+        assert partial_result.report.status == "fail"
+        partial_nodes = {record.alias: record for record in partial_result.report.nodes}
+        assert partial_nodes["bind_foundry_inputs"].status == "fail"
+    
+        partial_checkpoint = resolve_latest_checkpoint(target, run_id)
+        assert partial_checkpoint is not None
+        _, partial_artifact = partial_checkpoint
+        default_spec = default_workflow_spec()
+        expected_aliases = {invocation.alias for invocation in default_spec.nodes}
+        assert len(expected_aliases) == 23
+        assert partial_artifact.metadata.workflow_id == "scientist_default"
+        assert (
+            partial_artifact.metadata.origin_workflow_fingerprint
+            == compute_workflow_fingerprint(default_spec)
+        )
+        partial_completed = set(partial_artifact.metadata.completed_nodes)
+        assert "start" in partial_completed
+        assert "build_execution_plan" in partial_completed
+        assert "bind_foundry_inputs" not in partial_completed
+        assert partial_completed &lt; expected_aliases
+    
+        recovery_transfer = source.export_subgraph(
+            source_ids,
+            tmp_path / "authentic-source-recovery",
+            compress=False,
+        )
+        assert recovery_transfer.missing_artifacts == []
+        assert recovery_transfer.missing_manifests == []
+        recovered_import = target.import_subgraph(
+            recovery_transfer.output_path,
+            verify_integrity=True,
+        )
+        assert recovered_import.verification_failed == []
+        assert recovered_import.imported_artifacts == len(source_ids)
+        assert target.get_bytes(data_snapshot_ref.artifact_id) == source.get_bytes(
+            data_snapshot_ref.artifact_id
+        )
+        assert target.get_manifest(data_snapshot_ref) == source.get_manifest(data_snapshot_ref)
+    
+        cli = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "tools.ops_runners.runtime_cli",
+                "resume",
+                run_id,
+                "--cas-root",
+                str(target_root),
+                "--json",
+            ],
+            cwd=PROJECT_ROOT,
+            env=_cli_environment(),
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=180,
+        )
+        (tmp_path / "cli.stdout.log").write_text(cli.stdout, encoding="utf-8")
+        (tmp_path / "cli.stderr.log").write_text(cli.stderr, encoding="utf-8")
+&gt;       cli_payload: dict[str, Any] = json.loads(cli.stdout)
+                                      ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/remediation/test_rep_01_default_cli_partial_resume.py:287: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/json/__init__.py:352: in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/json/decoder.py:345: in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;json.decoder.JSONDecoder object at 0x101e8ae40&gt;, s = '', idx = 0
+
+    def raw_decode(self, s, idx=0):
+        """Decode a JSON document from ``s`` (a ``str`` beginning with
+        a JSON document) and return a 2-tuple of the Python
+        representation and the index in ``s`` where the document ended.
+    
+        This can be used to decode a JSON document from a string that may
+        have extraneous data at the end.
+    
+        """
+        try:
+            obj, end = self.scan_once(s, idx)
+        except StopIteration as err:
+&gt;           raise JSONDecodeError("Expecting value", s, err.value) from None
+E           json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/json/decoder.py:363: JSONDecodeError</failure></testcase></testsuite></testsuites>

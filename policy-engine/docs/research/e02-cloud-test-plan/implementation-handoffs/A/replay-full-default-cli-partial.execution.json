@@ -1,0 +1,215 @@
+{
+  "candidate": {
+    "branch": "codex/e02-A-replay-full",
+    "head": "e19fd2c741cbd0398d2cd94f72112bb20b3b3e1f",
+    "status": "",
+    "test_blob": "154b14743c621b6f631bc165222c47e4e383b381",
+    "tree": "fd1048a121b6a16ec4a760ae6ff6185d166a345d"
+  },
+  "command": {
+    "argv": [
+      "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/unit/remediation/test_rep_01_default_cli_partial_resume.py",
+      "--junitxml",
+      "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/rep-default-cli-e19fd2/raw/pytest.junit.xml",
+      "--basetemp",
+      "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/rep-default-cli-e19fd2/raw/pytest-basetemp"
+    ],
+    "basetemp": "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/rep-default-cli-e19fd2/raw/pytest-basetemp",
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine",
+    "environment": {
+      "JAX_PLATFORMS": "cpu",
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "POLISYOS_RUNNER_BACKEND": "local",
+      "POLISYOS_RUNNER_MAX_PARALLELISM": "1",
+      "PYTEST_ADDOPTS": "",
+      "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine"
+    },
+    "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+    "timeout_seconds": 300
+  },
+  "raw_evidence": {
+    "cli_captured_stdout_stderr": [
+      {
+        "byte_size": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/rep-default-cli-e19fd2/raw/pytest-basetemp/test_default_cli_resume_execut0/cli.stdout.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "byte_size": 152,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/rep-default-cli-e19fd2/raw/pytest-basetemp/test_default_cli_resume_execut0/cli.stderr.log",
+        "sha256": "c9e3975a2cb1357c13f15b9a6e7208eb56c2d786ae5ed73f4dd4481256ebe4ed"
+      }
+    ],
+    "junit": {
+      "byte_size": 7980,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/rep-default-cli-e19fd2/raw/pytest.junit.xml",
+      "sha256": "3a1f6a4089301516c85091f2eac29559210625e2ed6c3b59ae98cb78a4fcf914"
+    },
+    "pytest_stderr": {
+      "byte_size": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/rep-default-cli-e19fd2/raw/pytest.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "pytest_stdout": {
+      "byte_size": 163731,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/rep-default-cli-e19fd2/raw/pytest.stdout.log",
+      "sha256": "d7c9c8af4d99e6a7a189b9dba285361ff8e1231113351b7313be12efdc68e746"
+    }
+  },
+  "result": {
+    "elapsed_seconds": 25.42614937503822,
+    "exit_code": 1,
+    "finished_at_utc": "2026-10-06T16:36:13.718100+00:00",
+    "started_at_utc": "2026-10-06T16:35:48.291753+00:00",
+    "timed_out": false
+  },
+  "schema": "policyos.rep01.default_cli_partial_resume_execution.v1",
+  "scope": {
+    "input_source_inventories": [
+      {
+        "artifact_count": 12,
+        "artifacts": [
+          {
+            "artifact_id": "sha256:0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d",
+            "blob_sha256": "0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d",
+            "kind": "ir.mechanism_registry",
+            "manifest_inputs": [],
+            "media_type": "application/json"
+          },
+          {
+            "artifact_id": "sha256:125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62",
+            "blob_sha256": "125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62",
+            "kind": "ir.slot_registry",
+            "manifest_inputs": [],
+            "media_type": "application/json"
+          },
+          {
+            "artifact_id": "sha256:1bc47049de08c1727b07b4deb1fbd0ca792ca5d04750550aa4bcc8aded806cac",
+            "blob_sha256": "1bc47049de08c1727b07b4deb1fbd0ca792ca5d04750550aa4bcc8aded806cac",
+            "kind": "foundry.state_snapshot",
+            "manifest_inputs": [
+              {
+                "artifact_id": "sha256:75c7b7239e04bf3fc45c746e8022acb62c13e4c8255cdb36f616a3be7e595613",
+                "manifest_profile_sha256": null,
+                "role": "state_blob"
+              }
+            ],
+            "media_type": "application/json"
+          },
+          {
+            "artifact_id": "sha256:625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47",
+            "blob_sha256": "625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47",
+            "kind": "ir.merge_rule_registry",
+            "manifest_inputs": [],
+            "media_type": "application/json"
+          },
+          {
+            "artifact_id": "sha256:75c7b7239e04bf3fc45c746e8022acb62c13e4c8255cdb36f616a3be7e595613",
+            "blob_sha256": "75c7b7239e04bf3fc45c746e8022acb62c13e4c8255cdb36f616a3be7e595613",
+            "kind": "foundry.state_blob",
+            "manifest_inputs": [],
+            "media_type": "application/x-npz"
+          },
+          {
+            "artifact_id": "sha256:876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec",
+            "blob_sha256": "876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec",
+            "kind": "ir.selector_field_registry",
+            "manifest_inputs": [],
+            "media_type": "application/json"
+          },
+          {
+            "artifact_id": "sha256:8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9",
+            "blob_sha256": "8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9",
+            "kind": "ir.metric_registry",
+            "manifest_inputs": [],
+            "media_type": "application/json"
+          },
+          {
+            "artifact_id": "sha256:ae531a9a062fced780e437db96775c5745076802cf263b112a2c6910fd5c58f7",
+            "blob_sha256": "ae531a9a062fced780e437db96775c5745076802cf263b112a2c6910fd5c58f7",
+            "kind": "fabric.data_snapshot",
+            "manifest_inputs": [],
+            "media_type": "application/json"
+          },
+          {
+            "artifact_id": "sha256:b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20",
+            "blob_sha256": "b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20",
+            "kind": "core.registry_bundle",
+            "manifest_inputs": [
+              {
+                "artifact_id": "sha256:125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62",
+                "manifest_profile_sha256": null,
+                "role": "slot_registry"
+              },
+              {
+                "artifact_id": "sha256:625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47",
+                "manifest_profile_sha256": null,
+                "role": "merge_registry"
+              },
+              {
+                "artifact_id": "sha256:f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3",
+                "manifest_profile_sha256": null,
+                "role": "constraint_registry"
+              },
+              {
+                "artifact_id": "sha256:0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d",
+                "manifest_profile_sha256": null,
+                "role": "mechanism_registry"
+              },
+              {
+                "artifact_id": "sha256:876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec",
+                "manifest_profile_sha256": null,
+                "role": "selector_field_registry"
+              },
+              {
+                "artifact_id": "sha256:8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9",
+                "manifest_profile_sha256": null,
+                "role": "metric_registry"
+              },
+              {
+                "artifact_id": "sha256:d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31",
+                "manifest_profile_sha256": null,
+                "role": "units_registry"
+              }
+            ],
+            "media_type": "application/json"
+          },
+          {
+            "artifact_id": "sha256:d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31",
+            "blob_sha256": "d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31",
+            "kind": "ir.units_registry",
+            "manifest_inputs": [],
+            "media_type": "application/json"
+          },
+          {
+            "artifact_id": "sha256:f087a6b5ffec260f16a5a71f2e0b61794dea7e5f607cb2bf451535d26186a53e",
+            "blob_sha256": "f087a6b5ffec260f16a5a71f2e0b61794dea7e5f607cb2bf451535d26186a53e",
+            "kind": "ir.trinity_bundle",
+            "manifest_inputs": [],
+            "media_type": "application/json"
+          },
+          {
+            "artifact_id": "sha256:f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3",
+            "blob_sha256": "f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3",
+            "kind": "ir.constraint_registry",
+            "manifest_inputs": [],
+            "media_type": "application/json"
+          }
+        ],
+        "cas_root": "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/rep-default-cli-e19fd2/raw/pytest-basetemp/test_default_cli_resume_execut0/source-cas"
+      }
+    ],
+    "test_file": "tests/unit/remediation/test_rep_01_default_cli_partial_resume.py",
+    "test_name": "test_default_cli_resume_executes_residual_from_native_partial_checkpoint",
+    "workflow": "scientist_default",
+    "workflow_node_count": 23
+  }
+}

@@ -68,8 +68,11 @@ result contains the exact reference in `telemetry["checkpoint_ref"]`; an exposed
 service also retains its latest reference after an evaluator failure. Resume
 restores pending/completed candidate IDs, typed history/frontier and the original
 wall clock, and keeps stopped runs terminal. The exact reference binds the B
-verified byte/manifest snapshot and selected manifest profile. A failed tell
+verified byte/manifest snapshot and selected manifest profile. A failed ask or tell
 publication or readback restores local pending ownership and the prior run ledger;
+supported ask generators also restore their cursor/state. If that custody is
+unavailable, the live service refuses further publication and requires a fresh
+reader of the last acknowledged reference.
 retry acknowledges the transition only after checkpoint readback. Reopened callbacks and external
 owner handles remain caller inputs; callback source authority, a transaction
 across external promotion and checkpoint publication, and distributed
@@ -100,6 +103,16 @@ distinct from a claim of measured zero.
 `ImprovementPlateau` rejects unrepresentable coefficients and treats invalid or
 nonzero-underflow observations as unavailable. Its declared-unit, direction and
 0.01 absolute/relative default formula remain the same.
+
+Autotune CAS producers return full manifest-profile references for candidates,
+suites, splits and evaluations. Their readers use the configured store's public
+`get_verified_snapshot` port to consume one verified byte/manifest view. Store
+proxies must delegate this optional proof port; unsupported backends refuse.
+Keep the complete reference when persisting or reopening a comparison. Legacy
+bare IDs select the current store view and do not establish historical view
+identity. Native results retain the full references beside their existing ID
+strings. Local champion publication keeps its lock-held predecessor reread and
+atomic pointer replacement; CAS identity does not appoint promotion authority.
 
 ## Architecture Diagram
 

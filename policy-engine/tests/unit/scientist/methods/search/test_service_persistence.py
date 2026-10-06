@@ -292,6 +292,8 @@ def test_wall_clock_origin_survives_pause_and_empty_generation_is_terminal(tmp_p
         "cost_origin_claim",
         "hard_limit_bool",
         "stage_a_integer",
+        "pending_carrier",
+        "initial_carrier",
     ],
 )
 def test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect(
@@ -329,6 +331,12 @@ def test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_
         payload["configuration"]["hard_limit"] = True
     elif mutation == "stage_a_integer":
         payload["configuration"]["stage_a_enabled"] = 0
+    elif mutation == "pending_carrier":
+        payload["pending_candidates"]["candidate_0_0"]["cost"] = {
+            "__search_nonfinite_float__": "invalid"
+        }
+    elif mutation == "initial_carrier":
+        payload["initial_candidate"] = {"cost": {"__search_nonfinite_float__": "invalid"}}
     else:
         payload["pending_candidate_ids"] = []
     bad = store.put_json(
@@ -465,6 +473,39 @@ class _FailingCAS(FileSystemCAS):
         if self.fail_readback:
             raise OSError("actual checkpoint readback failed")
         return super().get_verified_snapshot(ref)
+
+
+@pytest.mark.parametrize("failure", ["fail_write", "fail_readback"])
+def test_failed_ask_publication_restores_cursor_ids_and_last_acknowledged_fresh_view(
+    tmp_path, failure
+):
+    store = _FailingCAS(tmp_path / "cas")
+    service = _direct(store)
+    first = service.ask(None, None, {})[0]
+    service.tell(
+        first.candidate_id,
+        service.controller._evaluate_for_tell(first.payload, iteration=0, context={}),
+    )
+    acknowledged = service.checkpoint_ref
+    before = service.controller._generator.get_state()
+    setattr(store, failure, True)
+    with pytest.raises(OSError, match="actual checkpoint"):
+        service.ask(None, None, {})
+    assert service.checkpoint_ref == acknowledged
+    assert service.controller._generator.get_state() == before
+    assert service._ask_iteration == 1
+    assert service._pending_candidates == {}
+    fresh = _direct(FileSystemCAS(tmp_path / "cas"))
+    fresh.restore(acknowledged)
+    assert fresh.controller._history == service.controller._history
+    assert fresh._ask_iteration == service._ask_iteration
+    assert fresh.controller._generator.get_state() == service.controller._generator.get_state()
+    setattr(store, failure, False)
+    live_next = service.ask(None, None, {})[0]
+    fresh_next = fresh.ask(None, None, {})[0]
+    assert live_next == fresh_next
+    assert live_next.candidate_id == "candidate_1_0"
+    assert live_next.payload == {"cost": 1}
 
 
 @pytest.mark.parametrize("failure", ["fail_write", "fail_readback"])

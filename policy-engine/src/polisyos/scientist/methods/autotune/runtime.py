@@ -365,6 +365,9 @@ class SearchLoopRunner:
                 spec.promotion_policy.primary_metric: primary_value,
                 "evaluation_ref": str(evaluation_ref.artifact_id),
                 "candidate_ref": str(candidate_ref.artifact_id),
+                "evaluation_artifact_ref": evaluation_ref.model_dump(mode="json"),
+                "candidate_artifact_ref": candidate_ref.model_dump(mode="json"),
+                "suite_artifact_ref": suite_ref.model_dump(mode="json"),
             },
             "feedback": {
                 "verdict": "APPROVE" if evaluation.promotable else "REJECT",

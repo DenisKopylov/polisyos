@@ -1,0 +1,7 @@
+16384	/workspace/e02-B-current-execution-state/.ruff_cache
+1421144064	/workspace/e02-B-current-execution-state/_build
+1323466752	/workspace/e02-B-current-execution-state/policy-engine
+8192	/workspace/e02-B-current-execution-state/_cache
+225280	/workspace/e02-B-current-execution-state/.github
+102400	/workspace/e02-B-current-execution-state/.polisyos
+2745012224	/workspace/e02-B-current-execution-state

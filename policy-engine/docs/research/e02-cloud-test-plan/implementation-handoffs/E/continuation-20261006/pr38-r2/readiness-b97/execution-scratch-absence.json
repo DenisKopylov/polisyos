@@ -1,0 +1,218 @@
+{
+  "schema": "policyos.e02.readiness_fresh_paths.v1",
+  "execution_output_root": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006",
+  "all_absent": true,
+  "paths": [
+    {
+      "kind": "execution_output_root",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006",
+      "exists": false
+    },
+    {
+      "kind": "plan",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/plan.json",
+      "exists": false
+    },
+    {
+      "kind": "wave_started",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/wave-started.json",
+      "exists": false
+    },
+    {
+      "kind": "job_output",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/checks/pcl-continuous-persistence",
+      "exists": false
+    },
+    {
+      "kind": "job_tmpdir",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/tmp-env/pcl-continuous-persistence",
+      "exists": false
+    },
+    {
+      "kind": "numeric_basetemp",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/temporary/pcl-continuous-persistence",
+      "exists": false
+    },
+    {
+      "kind": "job_output",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/checks/ddm-runtime-and-facade",
+      "exists": false
+    },
+    {
+      "kind": "job_tmpdir",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/tmp-env/ddm-runtime-and-facade",
+      "exists": false
+    },
+    {
+      "kind": "numeric_basetemp",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/temporary/ddm-runtime-and-facade",
+      "exists": false
+    },
+    {
+      "kind": "job_output",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/checks/bkt-frc-s10-and-adjacent-report-consumers",
+      "exists": false
+    },
+    {
+      "kind": "job_tmpdir",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/tmp-env/bkt-frc-s10-and-adjacent-report-consumers",
+      "exists": false
+    },
+    {
+      "kind": "numeric_basetemp",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/temporary/bkt-frc-s10-and-adjacent-report-consumers",
+      "exists": false
+    },
+    {
+      "kind": "job_output",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/checks/cal-and-welfare-consumer",
+      "exists": false
+    },
+    {
+      "kind": "job_tmpdir",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/tmp-env/cal-and-welfare-consumer",
+      "exists": false
+    },
+    {
+      "kind": "numeric_basetemp",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/temporary/cal-and-welfare-consumer",
+      "exists": false
+    },
+    {
+      "kind": "job_output",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/checks/mc-joint-law-support-and-scientist-consumer",
+      "exists": false
+    },
+    {
+      "kind": "job_tmpdir",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/tmp-env/mc-joint-law-support-and-scientist-consumer",
+      "exists": false
+    },
+    {
+      "kind": "numeric_basetemp",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/temporary/mc-joint-law-support-and-scientist-consumer",
+      "exists": false
+    },
+    {
+      "kind": "job_output",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/checks/doe-salib-and-consumer-factory",
+      "exists": false
+    },
+    {
+      "kind": "job_tmpdir",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/tmp-env/doe-salib-and-consumer-factory",
+      "exists": false
+    },
+    {
+      "kind": "numeric_basetemp",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/temporary/doe-salib-and-consumer-factory",
+      "exists": false
+    },
+    {
+      "kind": "job_output",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/checks/g-checkpoint10-controlplanestore-companion",
+      "exists": false
+    },
+    {
+      "kind": "job_tmpdir",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/tmp-env/g-checkpoint10-controlplanestore-companion",
+      "exists": false
+    },
+    {
+      "kind": "numeric_basetemp",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/temporary/g-checkpoint10-controlplanestore-companion",
+      "exists": false
+    },
+    {
+      "kind": "job_output",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/checks/results-importer",
+      "exists": false
+    },
+    {
+      "kind": "job_tmpdir",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/tmp-env/results-importer",
+      "exists": false
+    },
+    {
+      "kind": "job_output",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/checks/architecture",
+      "exists": false
+    },
+    {
+      "kind": "job_tmpdir",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/tmp-env/architecture",
+      "exists": false
+    },
+    {
+      "kind": "job_output",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/checks/runtime-api-contract",
+      "exists": false
+    },
+    {
+      "kind": "job_tmpdir",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/tmp-env/runtime-api-contract",
+      "exists": false
+    },
+    {
+      "kind": "job_output",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/checks/static-invocation",
+      "exists": false
+    },
+    {
+      "kind": "job_tmpdir",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/tmp-env/static-invocation",
+      "exists": false
+    },
+    {
+      "kind": "job_output",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/checks/ruff",
+      "exists": false
+    },
+    {
+      "kind": "job_tmpdir",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/tmp-env/ruff",
+      "exists": false
+    },
+    {
+      "kind": "job_output",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/checks/ruff-format",
+      "exists": false
+    },
+    {
+      "kind": "job_tmpdir",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/tmp-env/ruff-format",
+      "exists": false
+    },
+    {
+      "kind": "job_output",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/checks/workspace-verify",
+      "exists": false
+    },
+    {
+      "kind": "job_tmpdir",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/tmp-env/workspace-verify",
+      "exists": false
+    },
+    {
+      "kind": "job_output",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/checks/ci-parity",
+      "exists": false
+    },
+    {
+      "kind": "job_tmpdir",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/tmp-env/ci-parity",
+      "exists": false
+    },
+    {
+      "kind": "umbrella_temp_root",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/umbrella-temp/workspace-verify",
+      "exists": false
+    },
+    {
+      "kind": "umbrella_temp_root",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/umbrella-temp/ci-parity",
+      "exists": false
+    }
+  ],
+  "limitation": "Recheck at actual root freeze; future exact candidate gets its own never-created execution output directory. This output is not created by inspection."
+}

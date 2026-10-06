@@ -45,6 +45,7 @@ _CAS_EXPORT_MEMBER_RE = re.compile(
 )
 _CAS_EXPORT_LAYOUT = "artifacts/sha256/ab/cd/<hex>(.view.<profile>)?.(blob|manifest.json|sig)"
 _CAS_EXPORT_OWNER = "polisyos.filesystem_cas.export"
+_TransferMemberKind = Literal["blob", "manifest", "signature"]
 _VIEW_MANIFEST_MEMBER_RE = re.compile(
     r"^(?P<artifact_id>[0-9a-f]{64})\.view\.(?P<profile>[0-9a-f]{64})\.manifest\.json$"
 )
@@ -137,16 +138,24 @@ def snapshot_transfer_member(member: str, stream: _TransferReadStream) -> Transf
 class CASMemberReceipt(Protocol):
     """Verified digest and size for one owner-streamed CAS member."""
 
-    member: str
-    sha256: str
-    byte_size: int
+    @property
+    def member(self) -> str: ...
+
+    @property
+    def sha256(self) -> str: ...
+
+    @property
+    def byte_size(self) -> int: ...
 
 
 class CASMemberStream(Protocol):
     """Bounded read surface for one CAS member while its owner lease is held."""
 
-    size: int
-    receipt: CASMemberReceipt
+    @property
+    def size(self) -> int: ...
+
+    @property
+    def receipt(self) -> CASMemberReceipt: ...
 
     def read(self, size: int = -1) -> bytes: ...
 
@@ -672,8 +681,10 @@ def validate_transfer_signatures(members: dict[str, TransferMemberSnapshot]) -> 
 
 def export_subgraph(
     *,
-    open_member: Callable[[ArtifactID | ArtifactRef, str], AbstractContextManager[CASMemberStream]],
-    member_name: Callable[[ArtifactID | ArtifactRef, str], str],
+    open_member: Callable[
+        [ArtifactID | ArtifactRef, _TransferMemberKind], AbstractContextManager[CASMemberStream]
+    ],
+    member_name: Callable[[ArtifactID | ArtifactRef, _TransferMemberKind], str],
     artifact_ids: Iterable[ArtifactID | ArtifactRef | str],
     target: Path,
     compress: bool = True,
@@ -702,7 +713,7 @@ def export_subgraph(
     def add_archive_member(
         tar: tarfile.TarFile,
         request: ArtifactID | ArtifactRef,
-        kind: str,
+        kind: _TransferMemberKind,
     ) -> int:
         name = member_name(request, kind)
         if name in added_members:
@@ -720,7 +731,7 @@ def export_subgraph(
     def copy_directory_member(
         staging_root: Path,
         request: ArtifactID | ArtifactRef,
-        kind: str,
+        kind: _TransferMemberKind,
     ) -> int:
         name = member_name(request, kind)
         if name in added_members:

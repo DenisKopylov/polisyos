@@ -1,0 +1,30 @@
+id = "2026-10-06-e02-b-cas-typed-ports"
+title = "Align CAS internal owner and transfer types with existing guards"
+type = "changed"
+component = "artifacts"
+owner = "team-runtime"
+summary = "Internal CAS owner and transfer ports retain the concrete types established by existing runtime guards."
+evidence = ["src/polisyos/core/artifacts/README.md", "tests/unit/core/artifacts/test_import_admission_noop.py", "tests/unit/core/artifacts/test_transfer_generation_publication.py"]
+compatibility = "Runtime admission, tenant/cell identity, publication and public report schemas retain their existing behavior."
+change_class = "internal"
+surface_classification = "internal: CAS resolved write owner and read-only transfer stream"
+migration = "No caller migration."
+api = "No facade exports or public wire fields change."
+limitations = "Type checking and affected consumer tests do not establish broader finding closure or ratify held owner semantics."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = ["src/polisyos/core/artifacts/README.md"]
+
+[[compatibility_change]]
+id = "cas-internal-typed-ports"
+change_class = "internal"
+impact = "internal"
+surface = "internal: CAS owner and transfer ports"
+owner = "team-runtime"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "CAS internal types reflect guarded tenant identities and read-only verified transfer measurements."
+generated_client_compatibility = "not_applicable"
+migration_docs = []
+runbook_docs = ["src/polisyos/core/artifacts/README.md"]

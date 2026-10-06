@@ -117,6 +117,11 @@ member reads, so a concurrent generation replacement cannot mix their input byte
 
 ### Scoped import admission and passive caches
 
+The internal write-owner type retains the concrete tenant established by owner resolution
+and the existing optional cell identity. Transfer callbacks accept only blob, manifest and
+signature members; their stream measurements and verified receipts expose read-only fields.
+These type refinements preserve the existing admission guards and runtime behavior.
+
 Transfer intake hashes incoming blobs without buffering their payloads and retains bounded
 manifest/signature bytes. The common archive/directory/exact-view admission holds artifact
 and input leases before private staging, and reapplies that invariant before durable intent.

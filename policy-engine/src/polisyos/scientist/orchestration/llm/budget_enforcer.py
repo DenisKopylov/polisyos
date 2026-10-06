@@ -14,18 +14,26 @@ from typing import TYPE_CHECKING, Any
 
 from polisyos.common.logger import get_logger
 from polisyos.common.serialization import stable_json_dumps, to_python_data
-from polisyos.core.llm.response import extract_llm_response_data
+from polisyos.core.llm.response import (
+    _extract_physical_provider_response_data,
+    extract_llm_response_data,
+)
 from polisyos.core.llm.settlement import (
     LLMAuditObligation,
     LLMAuditResolution,
     LLMProducerEvent,
+    LLMProducerSettlement,
+    LLMSettledResponse,
     LLMSettlementAck,
+    _cache_reuse_consumer_context,
+    _CacheFlightOutcome,
     _completion_amount,
     _new_producer_id,
+    _producer_completion_context,
     _request_digest,
     _settlement_owner_context,
 )
-from polisyos.core.llm.traced_client import LLMAccountingError
+from polisyos.core.llm.traced_client import LLMAccountingError, TracedLLMClient
 from polisyos.core.observability import estimate_llm_cost_usd
 from polisyos.scientist.orchestration.engine.budget import BudgetExhaustedError, BudgetState
 from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
@@ -61,6 +69,7 @@ class _BudgetReservation:
     attempt_id: str = ""
     request_digest: str = ""
     provider_started: bool = False
+    flight_outcome: _CacheFlightOutcome | None = None
 
     def outstanding_items(self) -> list[tuple[str, Decimal]]:
         return [(key, amount) for key, amount in self.reserved_amounts.items() if amount > 0]
@@ -129,6 +138,16 @@ class LLMBudgetEnforcer:
         if len(set(budget_keys)) != len(budget_keys):
             raise ValueError("LLM accounting budget target keys must be unique")
         self._client = client
+        # The receiver admits the actual configured emitter before any request.
+        # A response, request kwarg or newly constructed issuer cannot install it.
+        if isinstance(client, TracedLLMClient):
+            self._flight_owner = client._accounting_flight_owner
+        else:
+            from polisyos.scientist.orchestration.llm.prompt_cache import CachingLLMClient
+
+            self._flight_owner = (
+                client._cache_reuse_owner if isinstance(client, CachingLLMClient) else None
+            )
         self._completion_proofs: dict[str, tuple[str, str | None, str]] = {}
         self._completion_records: dict[str, Any] = {}
         self._pending_audits: dict[str, tuple[LLMAuditObligation, Any]] = {}
@@ -228,12 +247,12 @@ class LLMBudgetEnforcer:
             )
         if self._budget_middleware is not None:
             pending = self._budget_middleware.list_completion_obligations_safe(self._budget_keys)
-            pending = [
+            pending = tuple(
                 r
                 for r in pending
                 if r.phase != "provider_in_flight"
                 or r.owner_epoch != self._budget_middleware.completion_owner_epoch
-            ]
+            )
             if pending:
                 raise LLMAccountingError(
                     response=None,
@@ -815,7 +834,10 @@ class LLMBudgetEnforcer:
             )
         try:
             if resolved is None:
-                resolved = self._audit_reconciler(obligation)
+                resolver = self._audit_reconciler
+                if resolver is None:
+                    raise RuntimeError("audit owner is unavailable")
+                resolved = resolver(obligation)
             if not isinstance(resolved, LLMAuditResolution) or (
                 resolved.obligation_digest != obligation.payload_digest
                 or resolved.status != "committed"
@@ -924,6 +946,9 @@ class LLMBudgetEnforcer:
         run_id: str,
         ack: LLMSettlementAck,
     ) -> LLMSettlementAck:
+        amount = event.amount
+        if amount is None:
+            raise ValueError("unknown producer amount cannot finish a monetary settlement")
         metadata = {
             "producer_event_id": event.event_id,
             "payload_digest": event.payload_digest,
@@ -974,7 +999,7 @@ class LLMBudgetEnforcer:
         self._retained_run_ids.pop(event.event_id, None)
         if self._budget_middleware is not None or event.kind == "reuse":
             try:
-                self._emit_cost_metrics(event.amount, extract_llm_response_data(response))
+                self._emit_cost_metrics(amount, extract_llm_response_data(response))
             except Exception:
                 logger.warning("Optional LLM budget metrics sink failed")
         return ack
@@ -1106,6 +1131,60 @@ class LLMBudgetEnforcer:
             cause=cause,
         )
 
+    def _completion_event(
+        self,
+        response: Any,
+        reservation: _BudgetReservation,
+        *,
+        physical_provider: bool,
+    ) -> LLMProducerEvent:
+        data = (
+            _extract_physical_provider_response_data(response)
+            if physical_provider
+            else extract_llm_response_data(response)
+        )
+        amount, origin = _completion_amount(data, self._model_name)
+        from polisyos.core.llm.settlement import producer_settlement
+
+        prior = producer_settlement(response)
+        return LLMProducerEvent(
+            event_id=data.reuse_event_id or _new_producer_id()
+            if data.cache_hit
+            else reservation.attempt_id,
+            request_digest=reservation.request_digest,
+            response_digest="sha256:" + hashlib.sha256(str(data.content).encode()).hexdigest(),
+            model=data.model or self._model_name,
+            provider=data.provider or "unknown",
+            amount=amount,
+            cost_origin=origin,
+            kind="reuse" if data.cache_hit else "provider",
+            origin_event_id=prior.event.event_id if prior is not None else None,
+        )
+
+    def _observe_flight(
+        self,
+        reservation: _BudgetReservation,
+        run_id: str,
+        outcome: _CacheFlightOutcome,
+    ) -> None:
+        if (
+            outcome.owner is not self._flight_owner
+            or not outcome.owner.registered_outcome(outcome)
+            or outcome.receiver_attempt_id != reservation.attempt_id
+            or outcome.request_digest != reservation.request_digest
+            or outcome.scope_key != self._accounting_scope(run_id)
+            or (
+                outcome.role == "producer" and outcome.producer_attempt_id != reservation.attempt_id
+            )
+            or (outcome.role == "joined" and outcome.producer_attempt_id == reservation.attempt_id)
+        ):
+            raise RuntimeError("cache outcome cannot retire a different accounting intent")
+        reservation.flight_outcome = outcome
+        if outcome.role != "producer":
+            # The canonical emitter observed this request's actual participation;
+            # only its own undispatched intent is eligible for not-admitted abort.
+            reservation.provider_started = False
+
     async def ainvoke(self, prompt: str, **kwargs: Any) -> Any:
         """Keep the asynchronous invoke producer and settlement owned after cancellation."""
         task = asyncio.create_task(self._generate_owned(kwargs, prompt=prompt))
@@ -1140,12 +1219,36 @@ class LLMBudgetEnforcer:
             committed = ack.status == "committed"
             return ack
 
+        def complete(response: Any, physical_provider: bool = False) -> LLMSettledResponse:
+            event = self._completion_event(
+                response, reservation, physical_provider=physical_provider
+            )
+            return LLMSettledResponse(
+                response, LLMProducerSettlement(event, settle(event, response))
+            )
+
         try:
-            with _settlement_owner_context(
-                self._accounting_scope(run_id),
-                settle,
-                attempt_id=producer_id,
-                request_digest=request_digest,
+            with (
+                _settlement_owner_context(
+                    self._accounting_scope(run_id),
+                    settle,
+                    attempt_id=producer_id,
+                    request_digest=request_digest,
+                    flight_owner=self._flight_owner,
+                    observe_flight=lambda outcome: self._observe_flight(
+                        reservation, run_id, outcome
+                    ),
+                    entry_client=self._client
+                    if isinstance(self._client, TracedLLMClient)
+                    else None,
+                    observe_entry=lambda phase: setattr(
+                        reservation, "provider_started", phase == "delegated"
+                    ),
+                ),
+                _cache_reuse_consumer_context(self._flight_owner, request_digest),
+                _producer_completion_context(
+                    self._accounting_scope(run_id), request_digest, complete
+                ),
             ):
                 reservation.provider_started = True
                 if prompt is None:
@@ -1153,18 +1256,13 @@ class LLMBudgetEnforcer:
                 else:
                     response = await self._client.ainvoke(prompt, **stripped)
                 if not committed:
-                    data = extract_llm_response_data(response)
-                    event = LLMProducerEvent(
-                        event_id=producer_id,
-                        request_digest=request_digest,
-                        response_digest="sha256:"
-                        + hashlib.sha256(str(data.content).encode()).hexdigest(),
-                        model=data.model or self._model_name,
-                        provider=data.provider or "unknown",
-                        amount=_completion_amount(data, self._model_name)[0],
-                        cost_origin=_completion_amount(data, self._model_name)[1],
+                    completed = complete(
+                        response,
+                        physical_provider=reservation.flight_outcome is None
+                        or reservation.flight_outcome.role == "producer",
                     )
-                    settle(event, response)
+                    if self._flight_owner is not None:
+                        response = completed
             try:
                 self._record_latency(time.perf_counter() - t0)
             except Exception:
@@ -1191,7 +1289,8 @@ class LLMBudgetEnforcer:
                 not committed
                 and not reservation.provider_started
                 and reservation.has_outstanding()
-                and not self._unknown_settlements
+                and not any(owned is reservation for _, owned in self._unknown_settlements.values())
+                and not any(owned is reservation for owned in self._audit_reservations.values())
             ):
                 self._abort_unstarted_intent(reservation, run_id)
 
@@ -1215,29 +1314,42 @@ class LLMBudgetEnforcer:
             committed = ack.status == "committed"
             return ack
 
+        def complete(response: Any, physical_provider: bool = False) -> LLMSettledResponse:
+            event = self._completion_event(
+                response, reservation, physical_provider=physical_provider
+            )
+            return LLMSettledResponse(
+                response, LLMProducerSettlement(event, settle(event, response))
+            )
+
         try:
             stripped = {k: v for k, v in kwargs.items() if not k.startswith("_")}
-            with _settlement_owner_context(
-                self._accounting_scope(run_id),
-                settle,
-                attempt_id=producer_id,
-                request_digest=request_digest,
+            with (
+                _settlement_owner_context(
+                    self._accounting_scope(run_id),
+                    settle,
+                    attempt_id=producer_id,
+                    request_digest=request_digest,
+                    flight_owner=self._flight_owner,
+                    observe_flight=lambda outcome: self._observe_flight(
+                        reservation, run_id, outcome
+                    ),
+                    entry_client=self._client
+                    if isinstance(self._client, TracedLLMClient)
+                    else None,
+                    observe_entry=lambda phase: setattr(
+                        reservation, "provider_started", phase == "delegated"
+                    ),
+                ),
+                _cache_reuse_consumer_context(self._flight_owner, request_digest),
+                _producer_completion_context(
+                    self._accounting_scope(run_id), request_digest, complete
+                ),
             ):
                 reservation.provider_started = True
                 response = self._client.invoke(prompt, **stripped)
                 if not committed:
-                    data = extract_llm_response_data(response)
-                    event = LLMProducerEvent(
-                        event_id=producer_id,
-                        request_digest=request_digest,
-                        response_digest="sha256:"
-                        + hashlib.sha256(str(data.content).encode()).hexdigest(),
-                        model=data.model or self._model_name,
-                        provider=data.provider or "unknown",
-                        amount=_completion_amount(data, self._model_name)[0],
-                        cost_origin=_completion_amount(data, self._model_name)[1],
-                    )
-                    settle(event, response)
+                    complete(response, True)
             try:
                 self._record_latency(time.perf_counter() - t0)
             except Exception:
@@ -1264,6 +1376,7 @@ class LLMBudgetEnforcer:
                 not committed
                 and not reservation.provider_started
                 and reservation.has_outstanding()
-                and not self._unknown_settlements
+                and not any(owned is reservation for _, owned in self._unknown_settlements.values())
+                and not any(owned is reservation for owned in self._audit_reservations.values())
             ):
                 self._abort_unstarted_intent(reservation, run_id)

@@ -38,6 +38,7 @@ from .settlement import (
     _completion_amount,
     _current_settlement_owner,
     _new_producer_id,
+    _observe_traced_entry,
     _producer_completion_context,
     _request_digest,
     producer_settlement,
@@ -193,6 +194,11 @@ class TracedLLMClient:
             self._detect_prompt_mode(client) if prompt_mode == "auto" else prompt_mode
         )
 
+    @property
+    def _accounting_flight_owner(self) -> _CacheReuseOwner | None:
+        """Return only the emitter admitted for this configured cache client."""
+        return self._cache_reuse_owner
+
     @contextmanager
     def _optional_span(self, *args: Any, **kwargs: Any) -> Iterator[_OptionalSpan]:
         manager = None
@@ -225,6 +231,7 @@ class TracedLLMClient:
                     )
 
     async def _await_owned_call(self, operation: Any) -> Any:
+        _observe_traced_entry(self, "preflight")
         try:
             self._require_accounting_ready()
         except BaseException:
@@ -612,6 +619,7 @@ class TracedLLMClient:
         return settlement
 
     def invoke(self, prompt: str, **kwargs: Any) -> Any:
+        _observe_traced_entry(self, "preflight")
         self._require_accounting_ready()
         prompt_text = self._build_prompt_text(prompt)
         provider = self._detect_provider()
@@ -628,6 +636,7 @@ class TracedLLMClient:
         ) as span:
             try:
                 call_args, call_kwargs = self._sanitize_call_args((prompt,), kwargs)
+                _observe_traced_entry(self, "delegated")
                 response = self._client.invoke(*call_args, **call_kwargs)
                 parsed = _extract_physical_provider_response_data(response)
                 provider = self._detect_provider(parsed.provider)
@@ -663,6 +672,7 @@ class TracedLLMClient:
         return await self._await_owned_call(self._ainvoke_owned(prompt, kwargs))
 
     async def _ainvoke_owned(self, prompt: str, kwargs: dict[str, Any]) -> Any:
+        _observe_traced_entry(self, "preflight")
         self._require_accounting_ready()
         prompt_text = self._build_prompt_text(prompt)
         provider = self._detect_provider()
@@ -679,6 +689,7 @@ class TracedLLMClient:
         ) as span:
             try:
                 call_args, call_kwargs = self._sanitize_call_args((prompt,), kwargs)
+                _observe_traced_entry(self, "delegated")
                 response = await self._client.ainvoke(*call_args, **call_kwargs)
                 parsed = _extract_physical_provider_response_data(response)
                 provider = self._detect_provider(parsed.provider)
@@ -736,6 +747,7 @@ class TracedLLMClient:
         return await self._await_owned_call(self._generate_owned(call_args, call_kwargs))
 
     async def _generate_owned(self, call_args: tuple[Any, ...], call_kwargs: dict[str, Any]) -> Any:
+        _observe_traced_entry(self, "preflight")
         self._require_accounting_ready()
         prompt = call_args[0] if call_args else call_kwargs.get("prompt")
         prompt_kwargs = dict(call_kwargs)
@@ -810,6 +822,7 @@ class TracedLLMClient:
                     _cache_reuse_consumer_context(self._cache_reuse_owner, request_digest),
                     _producer_completion_context(scope, request_digest, complete),
                 ):
+                    _observe_traced_entry(self, "delegated")
                     response = self._client.generate(*sanitized_args, **sanitized_kwargs)
                     if inspect.isawaitable(response):
                         response = await response

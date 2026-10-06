@@ -11,7 +11,7 @@ import time
 from collections import OrderedDict
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
-from typing import Any, Protocol
+from typing import Any, Literal, Protocol
 
 from polisyos.common.logger import get_logger
 from polisyos.common.serialization import stable_json_dumps, to_python_data
@@ -19,10 +19,13 @@ from polisyos.core.llm.response import LLMUsageStatus, extract_llm_response_data
 from polisyos.core.llm.settlement import (
     LLMProducerSettlement,
     LLMSettledResponse,
+    _CacheFlightRegistration,
     _CacheReuseOwner,
     _CacheReuseProvenance,
     _completion_amount,
     _current_producer_completion,
+    _current_settlement_owner,
+    _observe_cache_flight,
     _request_digest,
     producer_settlement,
 )
@@ -243,10 +246,34 @@ class CacheAdmissionUnsupportedError(RuntimeError):
     """The configured cache cannot accept the required atomic admission contract."""
 
 
+@dataclass(slots=True)
+class _FlightObservation:
+    """Written only by the actual producer, before any result emission check."""
+
+    settlement: LLMProducerSettlement | None = None
+    response: Any = None
+    error: BaseException | None = None
+
+
 @dataclass(frozen=True, slots=True)
 class _ProducerFlight:
     task: asyncio.Task[Any]
     deadline: float | None
+    request_digest: str
+    scope_key: tuple[str, ...]
+    producer_attempt_id: str | None
+    observation: _FlightObservation
+    registration: _CacheFlightRegistration | None
+
+
+@dataclass(slots=True)
+class _CacheParticipation:
+    """Local request role; no caller or response can set this execution state."""
+
+    cache_key: str = ""
+    role: Literal["producer", "joined", "not_dispatched"] = "not_dispatched"
+    flight: _ProducerFlight | None = None
+    registration: _CacheFlightRegistration | None = None
 
 
 def compute_cache_key(
@@ -428,6 +455,8 @@ class CachingLLMClient:
         self, args: tuple[Any, ...], kwargs: dict[str, Any]
     ) -> tuple[CacheReuseRequest, CacheReuseDecision] | None:
         metadata = kwargs.get("metadata")
+        if not isinstance(metadata, Mapping):
+            return None
         context = _cache_reuse_context(metadata)
         if context is None or self._reuse_authorizer is None:
             return None
@@ -479,6 +508,52 @@ class CachingLLMClient:
             raise CacheReuseDeniedError("snapshot reuse permission changed before consumption")
 
     async def generate(self, *args: Any, **kwargs: Any) -> Any:
+        owner = _current_settlement_owner()
+        participation = _CacheParticipation()
+        if (
+            owner is not None
+            and owner.flight_owner is self._cache_reuse_owner
+            and owner.attempt_id
+            and owner.request_digest
+        ):
+            participation.registration = self._cache_reuse_owner.register_request(
+                owner.scope_key, owner.request_digest, owner.attempt_id
+            )
+        response = None
+        error = None
+        try:
+            response = await self._generate(args, kwargs, participation)
+            return response
+        except BaseException as exc:
+            error = exc
+            raise
+        finally:
+            if owner is not None:
+                flight = participation.flight
+                _observe_cache_flight(
+                    self._cache_reuse_owner,
+                    registration=flight.registration if flight else participation.registration,
+                    cache_key=participation.cache_key,
+                    request_digest=flight.request_digest if flight else owner.request_digest or "",
+                    scope_key=flight.scope_key if flight else owner.scope_key,
+                    producer_attempt_id=(
+                        flight.producer_attempt_id
+                        if flight
+                        else owner.attempt_id
+                        if participation.role == "producer"
+                        else None
+                    ),
+                    role=participation.role,
+                    settlement=flight.observation.settlement
+                    if flight
+                    else producer_settlement(response),
+                    response=flight.observation.response if flight else response,
+                    error=flight.observation.error or error if flight else error,
+                )
+
+    async def _generate(
+        self, args: tuple[Any, ...], kwargs: dict[str, Any], participation: _CacheParticipation
+    ) -> Any:
         args, kwargs = _normalize_prompt_call(args, kwargs)
         timeout = _coerce_timeout(kwargs.get("timeout")) or self._inflight_timeout_s
         deadline = asyncio.get_running_loop().time() + timeout if timeout is not None else None
@@ -493,7 +568,12 @@ class CachingLLMClient:
             reason = reason or "permission_owner_unavailable_or_denied"
         if reason is not None:
             _record_cache_skip(self._cache, reason)
-            return await _maybe_await(self._client.generate(*args, **_provider_kwargs(kwargs)))
+            participation.role = "producer"
+            owner = _current_settlement_owner()
+            if participation.registration is not None and owner is not None and owner.attempt_id:
+                self._cache_reuse_owner.dispatch(participation.registration, owner.attempt_id)
+            response = await _maybe_await(self._client.generate(*args, **_provider_kwargs(kwargs)))
+            return self._complete_physical_response(response)
 
         self._require_producer_budget(deadline)
         if deadline is not None or admission is not None:
@@ -553,6 +633,9 @@ class CachingLLMClient:
                 },
             },
         )
+        participation.cache_key = cache_key
+        if participation.registration is not None:
+            self._cache_reuse_owner.bind_request_key(participation.registration, cache_key)
         cached = self._cache.get(cache_key)
         if cached is not None:
             self._require_emission_admission(deadline, admission)
@@ -571,6 +654,10 @@ class CachingLLMClient:
         is_owner = flight is None
         if is_owner:
             self._require_emission_admission(deadline, admission)
+            observation = _FlightObservation()
+            owner = _current_settlement_owner()
+            if participation.registration is not None and owner is not None and owner.attempt_id:
+                self._cache_reuse_owner.dispatch(participation.registration, owner.attempt_id)
             owner_task = asyncio.create_task(
                 self._produce(
                     cache_key,
@@ -578,13 +665,34 @@ class CachingLLMClient:
                     provider_kwargs,
                     admission,
                     deadline,
+                    observation,
                 )
             )
-            flight = _ProducerFlight(owner_task, deadline)
+            flight = _ProducerFlight(
+                owner_task,
+                deadline,
+                request_digest,
+                owner.scope_key if owner is not None else (),
+                owner.attempt_id if owner is not None else None,
+                observation,
+                participation.registration,
+            )
             self._inflight[cache_key] = flight
             owner_task.add_done_callback(_consume_task_exception)
 
         assert flight is not None
+        participation.role = "producer" if is_owner else "joined"
+        participation.flight = flight
+        if not is_owner and flight.registration is not None:
+            owner = _current_settlement_owner()
+            if owner is not None and owner.attempt_id:
+                self._cache_reuse_owner.join(
+                    flight.registration,
+                    owner.scope_key,
+                    request_digest,
+                    cache_key,
+                    owner.attempt_id,
+                )
         response = await asyncio.shield(flight.task)
         self._require_producer_budget(flight.deadline)
         if is_owner:
@@ -620,6 +728,7 @@ class CachingLLMClient:
         kwargs: dict[str, Any],
         admission: tuple[CacheReuseRequest, CacheReuseDecision] | None,
         deadline: float | None,
+        observation: _FlightObservation,
     ) -> Any:
         """Produce and publish one cache miss, always releasing its flight."""
 
@@ -627,16 +736,9 @@ class CachingLLMClient:
         try:
             async with asyncio.timeout_at(deadline):
                 response = await self._call_provider(args, kwargs)
-                completion = _current_producer_completion()
-                if completion is not None:
-                    completed = completion.complete(response, True)
-                    raw_response = completed.response
-                    if isinstance(raw_response, GatewayLLMResponse):
-                        response = _ProducerGatewayResponse(
-                            raw_response, completed._polisyos_settlement
-                        )
-                    else:
-                        response = completed
+                observation.response = response
+                response = self._complete_physical_response(response)
+                observation.settlement = producer_settlement(response)
                 if isinstance(response, GatewayLLMResponse):
                     _mark_cache_response(response, status="miss", cache_key=cache_key)
 
@@ -669,10 +771,25 @@ class CachingLLMClient:
                     # its permission to publish reusable evidence was revoked.
                     self._require_producer_budget(deadline)
                 return response
+        except BaseException as exc:
+            observation.error = exc
+            raise
         finally:
             flight = self._inflight.get(cache_key)
             if flight is not None and flight.task is current_task:
                 self._inflight.pop(cache_key, None)
+
+    @staticmethod
+    def _complete_physical_response(response: Any) -> Any:
+        """Settle actual provider work before any reusable result can be emitted."""
+        completion = _current_producer_completion()
+        if completion is None:
+            return response
+        completed = completion.complete(response, True)
+        raw_response = completed.response
+        if isinstance(raw_response, GatewayLLMResponse):
+            return _ProducerGatewayResponse(raw_response, completed._polisyos_settlement)
+        return completed
 
     @staticmethod
     def _require_producer_budget(deadline: float | None) -> None:

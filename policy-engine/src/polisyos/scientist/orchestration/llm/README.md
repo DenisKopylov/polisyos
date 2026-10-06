@@ -44,6 +44,15 @@ outlive that deadline when a provider or synchronous accounting/cache lock canno
 Followers share the producer deadline. Cache reads recheck the supplied owner decision
 before emission; custom caches must implement `put(..., admission_check=...)` at their
 atomic storage boundary. An unsupported signature refuses before provider work starts.
+
+An accounted flight records actual dispatch and join participation before awaiting the producer.
+The constructor-admitted cache emitter reports the exact request, scope, receiver attempt and
+physical producer identity even when completion or result admission fails. A joined receiver
+retires its own undispatched intent without declaring a zero monetary charge; the physical
+producer's original known or unknown settlement remains separate. Direct
+`LLMBudgetEnforcer(client=CachingLLMClient(...))` composition uses the same mandatory physical
+completion hook before cache publication, including late responses refused at emission. The
+runtime registration is internal and cannot be installed by response metadata or request kwargs.
 Atomic publication is verified here for `InMemoryPromptCache`; a foreign implementation
   requires its own conformance evidence. The owner decision itself remains a deployment
   premise, including any required atomic epoch semantics.

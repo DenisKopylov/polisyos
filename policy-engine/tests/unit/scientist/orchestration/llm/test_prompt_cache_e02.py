@@ -4,11 +4,15 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
+import json
+import os
 import pickle
+import stat
 import threading
 from contextlib import contextmanager, nullcontext
 from dataclasses import replace
 from decimal import Decimal
+from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
@@ -29,6 +33,7 @@ from polisyos.core.security.tenant_context import (
     set_current_access_scope,
     tenant_scope,
 )
+from polisyos.scientist.orchestration.engine import budget_ledger
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 from polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedger
 from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
@@ -158,7 +163,7 @@ async def test_metadata_permission_cannot_authorize_snapshot_reuse() -> None:
     assert gateway.calls == 2
 
 
-def _durable_stack(tmp_path, *, gateway=None, client=None, name="budget"):
+def _durable_stack(tmp_path, *, gateway=None, client=None, name="budget", direct=False):
     gateway = gateway or _Gateway()
     events = []
     cache, traced = _stack(gateway, events)
@@ -167,7 +172,7 @@ def _durable_stack(tmp_path, *, gateway=None, client=None, name="budget"):
         ledger=FileBudgetLedger(tmp_path / f"{name}.json", ledger_id=f"ledger:{name}"),
     )
     enforcer = LLMBudgetEnforcer(
-        client=client or traced,
+        client=client or (cache if direct else traced),
         budget_state=middleware.budget_state,
         budget_keys=["run"],
         budget_middleware=middleware,
@@ -175,6 +180,160 @@ def _durable_stack(tmp_path, *, gateway=None, client=None, name="budget"):
         run_id="run-e02",
     )
     return gateway, cache, enforcer, middleware, events
+
+
+def _fail_actual_spend_syscall(monkeypatch, enforcer, ledger_path, *, after_replace):
+    """Arm the actual owned settlement path, leaving intent publication unchanged."""
+    owned_middleware = enforcer._budget_middleware
+    actual_settle = owned_middleware.settle_spend_safe
+    observed = []
+    ledger_path = Path(ledger_path).resolve()
+    actual_fsync = budget_ledger.os.fsync
+    actual_replace = budget_ledger.os.replace
+
+    def refuse_directory_fsync(fd):
+        if stat.S_ISDIR(os.fstat(fd).st_mode) and (
+            Path(os.readlink(f"/proc/self/fd/{fd}")).resolve() == ledger_path.parent
+        ):
+            observed.append("directory-fsync-after-replace")
+            raise OSError("actual settlement directory fsync refused after replace")
+        return actual_fsync(fd)
+
+    def refuse_ledger_replace(source, destination):
+        if Path(destination).resolve() == ledger_path:
+            observed.append("replace-before-publication")
+            raise OSError("actual settlement replace refused before publication")
+        return actual_replace(source, destination)
+
+    def settle_with_fault(*args, **kwargs):
+        with monkeypatch.context() as armed:
+            armed.setattr(
+                budget_ledger.os,
+                "fsync" if after_replace else "replace",
+                refuse_directory_fsync if after_replace else refuse_ledger_replace,
+            )
+            return actual_settle(*args, **kwargs)
+
+    monkeypatch.setattr(owned_middleware, "settle_spend_safe", settle_with_fault)
+    return owned_middleware, actual_settle, observed
+
+
+class _FileGateway(_Gateway):
+    """Perform a real file-backed operation before the gated terminal response."""
+
+    def __init__(self, path, *, unknown=False, suppress=False):
+        super().__init__()
+        self.path = path
+        self.unknown = unknown
+        self.suppress = suppress
+        self.cancel_observed = asyncio.Event()
+
+    async def generate(self, **kwargs):
+        self.calls += 1
+        with self.path.open("a") as stream:
+            stream.write(json.dumps({"provider_operation": self.calls}) + "\n")
+            stream.flush()
+            os.fsync(stream.fileno())
+        self.started.set()
+        try:
+            await self.release.wait()
+        except asyncio.CancelledError:
+            if not self.suppress:
+                raise
+            self.cancel_observed.set()
+            await self.release.wait()
+        return GatewayLLMResponse(
+            content="actual file-backed completion",
+            model="e02",
+            provider="synthetic-filesystem-operation",
+            request_id=f"actual-operation-{self.calls}",
+            usage=GatewayUsage() if self.unknown else GatewayUsage(cost_usd=0.02),
+            raw=None,
+        )
+
+
+@pytest.mark.asyncio
+async def test_direct_cache_consumer_settles_actual_provider_before_reusable_emission(tmp_path):
+    gateway = _FileGateway(tmp_path / "provider.jsonl")
+    gateway.release.set()
+    _, cache, enforcer, _, _ = _durable_stack(tmp_path, gateway=gateway, direct=True)
+    first = await enforcer.generate(
+        user="direct healthy", temperature=0.0, _prompt_tokens_estimate=1
+    )
+    reused = await enforcer.generate(
+        user="direct healthy", temperature=0.0, _prompt_tokens_estimate=1
+    )
+    first_settlement = producer_settlement(first)
+    reuse_settlement = producer_settlement(reused)
+    assert first_settlement.event.kind == "provider"
+    assert first_settlement.event.amount == Decimal("0.02")
+    assert first_settlement.ack.status == "committed"
+    assert reuse_settlement.event.kind == "reuse" and reuse_settlement.event.amount == 0
+    assert reuse_settlement.event.origin_event_id == first_settlement.event.event_id
+    reopened = FileBudgetLedger(tmp_path / "budget.json")
+    assert reopened.load().spent["run"] == Decimal("0.02")
+    assert reopened.load().reserved["run"] == 0
+    assert reopened.list_completion_obligations(("run",)) == ()
+    assert len(gateway.path.read_text().splitlines()) == gateway.calls == cache._cache.size == 1
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("direct", [False, True])
+@pytest.mark.parametrize("terminal", ["known-after-expiry", "unknown"])
+async def test_actual_join_retires_only_undispatched_intent_after_terminal_failure(
+    tmp_path, monkeypatch, direct, terminal
+):
+    gateway = _FileGateway(
+        tmp_path / "provider.jsonl",
+        unknown=terminal == "unknown",
+        suppress=terminal == "known-after-expiry",
+    )
+    _, cache, enforcer, _, _ = _durable_stack(tmp_path, gateway=gateway, direct=direct)
+    cache._inflight_timeout_s = 0.03 if terminal == "known-after-expiry" else None
+    joined = asyncio.Event()
+    actual_join = _CacheReuseOwner.join
+
+    def observe_actual_join(owner, *args):
+        actual_join(owner, *args)
+        if owner is cache._cache_reuse_owner:
+            joined.set()
+
+    monkeypatch.setattr(_CacheReuseOwner, "join", observe_actual_join)
+    leader = asyncio.create_task(
+        enforcer.generate(user="actual joined failure", temperature=0.0, _prompt_tokens_estimate=1)
+    )
+    await gateway.started.wait()
+    follower = asyncio.create_task(
+        enforcer.generate(user="actual joined failure", temperature=0.0, _prompt_tokens_estimate=1)
+    )
+    await joined.wait()
+    if terminal == "known-after-expiry":
+        await gateway.cancel_observed.wait()
+    gateway.release.set()
+    results = await asyncio.gather(leader, follower, return_exceptions=True)
+    reopened = FileBudgetLedger(tmp_path / "budget.json")
+    state = reopened.load()
+    pending = reopened.list_completion_obligations(("run",))
+    assert len(gateway.path.read_text().splitlines()) == gateway.calls == 1
+    assert cache._cache.size == 0 and cache._inflight == {}
+    if terminal == "known-after-expiry":
+        assert all(isinstance(result, TimeoutError) for result in results)
+        assert state.spent["run"] == Decimal("0.02") and state.reserved["run"] == 0
+        assert pending == ()
+    else:
+        assert all(isinstance(result, LLMAccountingError) for result in results)
+        # Both callers observe the actual producer's original error; the joined
+        # caller never invents another monetary event or clears the producer.
+        assert results[0] is results[1]
+        original = results[0].event["producer_event"]
+        assert original.amount is None and original.cost_origin == "unknown"
+        assert state.spent["run"] == 0 and state.reserved["run"] > 0
+        assert len(pending) == 1 and pending[0].phase == "cost_unknown"
+        assert pending[0].event_payload["event_id"] == original.event_id
+        assert state.reserved["run"] == pending[0].reserved_amounts["run"]
+        with pytest.raises(LLMAccountingError):
+            await enforcer.generate(user="another provider", _prompt_tokens_estimate=1)
+        assert len(gateway.path.read_text().splitlines()) == gateway.calls == 1
 
 
 @pytest.mark.asyncio
@@ -219,24 +378,21 @@ async def test_cancelled_initiator_settles_actual_ledger_before_cache_publicatio
 async def test_lost_actual_ack_is_unknown_and_blocks_reuse_until_reconciled(tmp_path, monkeypatch):
     gateway, cache, enforcer, middleware, _ = _durable_stack(tmp_path)
     gateway.release.set()
-    actual_settle = middleware.settle_spend_safe
-
-    def lose_ack(*args, **kwargs):
-        actual_settle(*args, **kwargs)
-        raise OSError("durable publication succeeded; ACK transport unavailable")
-
-    monkeypatch.setattr(middleware, "settle_spend_safe", lose_ack)
+    owned_middleware, actual_settle, fault = _fail_actual_spend_syscall(
+        monkeypatch, enforcer, tmp_path / "budget.json", after_replace=True
+    )
     with pytest.raises(LLMAccountingError) as failure:
         await enforcer.generate(user="unknown", temperature=0.0, _prompt_tokens_estimate=1)
     event = failure.value.event["producer_event"]
+    assert fault == ["directory-fsync-after-replace"]
     assert failure.value.event["settlement_status"] == "unknown"
-    assert middleware.budget_state.spent["run"] == Decimal("0.02")
+    assert FileBudgetLedger(tmp_path / "budget.json").load().spent["run"] == Decimal("0.02")
     assert middleware.budget_state.reserved["run"] > 0
     assert cache._cache.size == 0
     with pytest.raises(LLMAccountingError):
         await enforcer.generate(user="unknown", temperature=0.0, _prompt_tokens_estimate=1)
     assert gateway.calls == 1
-    monkeypatch.setattr(middleware, "settle_spend_safe", actual_settle)
+    monkeypatch.setattr(owned_middleware, "settle_spend_safe", actual_settle)
     ack = enforcer.reconcile_settlement(event)
     assert ack.status == "committed" and ack.durability == "ledger"
     assert (
@@ -259,18 +415,16 @@ async def test_absent_ack_retry_requires_retained_actual_producer_and_never_reis
 ):
     gateway, cache, enforcer, middleware, _ = _durable_stack(tmp_path)
     gateway.release.set()
-    actual_settle = middleware.settle_spend_safe
-
-    def failed_delivery(*args, **kwargs):
-        raise OSError("settlement delivery unavailable before publication")
-
-    monkeypatch.setattr(middleware, "settle_spend_safe", failed_delivery)
+    owned_middleware, actual_settle, fault = _fail_actual_spend_syscall(
+        monkeypatch, enforcer, tmp_path / "budget.json", after_replace=False
+    )
     with pytest.raises(LLMAccountingError) as failure:
         await enforcer.generate(user="absent ACK", temperature=0.0, _prompt_tokens_estimate=1)
     event = failure.value.event["producer_event"]
+    assert fault == ["replace-before-publication"]
     assert enforcer.reconcile_settlement(event).status == "unknown"
     assert cache._cache.size == 0 and gateway.calls == 1
-    monkeypatch.setattr(middleware, "settle_spend_safe", actual_settle)
+    monkeypatch.setattr(owned_middleware, "settle_spend_safe", actual_settle)
     ack = enforcer.reconcile_settlement(event, retry_missing=True)
     assert ack.status == "committed" and ack.receipts[0].amount == Decimal("0.02")
     assert gateway.calls == 1 and middleware.budget_state.spent["run"] == Decimal("0.02")
@@ -791,13 +945,13 @@ async def test_expired_response_unknown_ack_remains_primary_and_retains_actual_e
     _, cache, enforcer, middleware, _ = _durable_stack(tmp_path, gateway=gateway)
     cache._inflight_timeout_s = 0.01
 
-    def lose_ack(*args, **kwargs):
-        raise OSError("no durable acknowledgement available")
-
-    monkeypatch.setattr(middleware, "settle_spend_safe", lose_ack)
+    _, _, fault = _fail_actual_spend_syscall(
+        monkeypatch, enforcer, tmp_path / "budget.json", after_replace=False
+    )
     with pytest.raises(LLMAccountingError) as failure:
         await enforcer.generate(user="expired unknown", temperature=0.0, _prompt_tokens_estimate=1)
     event = failure.value.event["producer_event"]
+    assert fault == ["replace-before-publication"]
     assert event.amount == Decimal("0.02")
     assert failure.value.event["settlement_status"] == "unknown"
     assert enforcer.reconcile_settlement(event).status == "unknown"

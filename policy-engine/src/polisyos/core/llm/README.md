@@ -70,3 +70,13 @@ telemetry, cost estimation, response parsing, and retry logic so domain packages
 - `TracedLLMClient.with_model(model_name)` preserves the same client for the same model and
   refuses a protected model change without an owner-transfer contract. Unmanaged views retain
   tracing configuration; callers cannot unwrap away a pending accounting owner during normalization.
+
+The actual configured cache emitter records each request's opaque runtime registration before
+physical dispatch or joining a flight. Its terminal report binds that receiver's request, owner
+scope and attempt to the actual producer identity and original settlement or error. A joined
+receiver can retire only its own undispatched budget intent; denied result admission does not
+erase a known physical charge or turn the producer's unknown amount into zero. These internal
+registrations are not serialized permission or financial authority.
+The exact configured traced wrapper also reports preflight versus delegation. A refusal before
+delegation cannot manufacture a new provider event from an older pending accounting response;
+failure after entering a foreign provider remains unknown without exact completion evidence.

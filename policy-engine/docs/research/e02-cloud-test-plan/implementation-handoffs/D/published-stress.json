@@ -913,7 +913,14 @@
         "PYTHONPATH": "src:.",
         "PYTHONDONTWRITEBYTECODE": "1"
       },
-      "input_binding_limitation": "The helper reads the full tracked working-tree denominator into memory; no completed census hash/report was produced. The invocation started at b85; subsequent small stopping companion commits do not turn this incomplete diagnostic into an exact-final-source verdict."
+      "input_binding_limitation": "The helper reads the full tracked working-tree denominator into memory; no completed census hash/report was produced. The invocation started at b85; subsequent small stopping companion commits do not turn this incomplete diagnostic into an exact-final-source verdict.",
+      "expected_input_denominator": {
+        "source_sha": "b85a17e0ebc53b4d151ab51f8196b8fe121717a0",
+        "selection": "all tracked policy-engine/src/**/*.py, policy-engine/tools/**/*.py, policy-engine/tests/**/*.py plus pyproject.toml script entrypoints",
+        "tracked_python_files": 5909,
+        "scope": "complete input path set; no sample or evaluator/history replacement",
+        "completed_runtime_census_binding": "not_established because no result/denominator hash was produced"
+      }
     }
   ],
   "property": {

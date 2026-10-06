@@ -1,0 +1,367 @@
+{
+  "schema": "policyos.e02.D.final_accounting_capability_wording_correction.v1",
+  "unit": "D",
+  "role": "APPEND_ONLY_METADATA_SCOPE_CLARIFICATION",
+  "predicate_basis": "independently_reconciled",
+  "predicate_scope": "Reconcile existing Git-bound capability/provenance wording only. Original scientific and engineering predicates are not reexecuted or accepted by this clarification.",
+  "source_candidate": {
+    "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+    "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd"
+  },
+  "metadata_parent_sha": "68c634210d2926ece915a5cf55bb1b1a66b0988c",
+  "target_immutable_metadata_source_sha": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5",
+  "interpretation_rule": "Read these exact pointer clarifications with the immutable original documents. They supersede only the quoted capability/scope wording, not bytes in historical receipts, original acceptance text, source pins, recorded outcomes or dispositions.",
+  "reviewed_document_refs": [
+    {
+      "source_sha": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+      "git_blob": "adc82dcdb7ead904acd99aba8af3dde82d5d7221",
+      "bytes": 555218,
+      "sha256": "702638d85dacaddcb6a7952a4c0a279897f08b23840e15a7d8af8beacb506bc4"
+    },
+    {
+      "source_sha": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+      "git_blob": "3b6b1e55e5a5e8b670fcfc0a5d70f3a2a62e229b",
+      "bytes": 135805,
+      "sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+    },
+    {
+      "source_sha": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/root-G-verification-packet.json",
+      "git_blob": "4986c08e4dd0520615da45a5a5535380e3ef284e",
+      "bytes": 71761,
+      "sha256": "02800726dc16b224135e80f7b1ca7e9e71a1502872d362c69ccf4d248101059a"
+    }
+  ],
+  "whole_class_review": {
+    "method": "Recursive inspection of current capability, recipe, missing/pending, constructor and historical-source labels across the entire ledger, all16 owner packets and the complete G verification packet; original acceptance strings and actual source-qualified historical outcomes preserved.",
+    "keyword_match_inventory": {
+      "ledger": 340,
+      "owner": 160,
+      "G": 14
+    },
+    "changed_pointers": 5,
+    "already_bound_native_factory_correction": {
+      "source_sha": "68c634210d2926ece915a5cf55bb1b1a66b0988c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/native-factory-scope-correction.json",
+      "git_blob": "05d5c40986965e2f2d297913a0420d8088d5837f",
+      "bytes": 11400,
+      "sha256": "ea43ee20da9ef4fa45e03d042094a715f0029b3bb2f15e9afa7ff30d8e267056"
+    },
+    "supplied_capabilities_retained": [
+      {
+        "capability": "Configured D canonical registry/tenant/Money+scalar/fresh report bridge",
+        "state": "PROVIDED_BOUNDED_CONSUMER",
+        "reference_keys": [
+          "hierarchical_author35",
+          "hierarchical_independent7",
+          "root_composed44"
+        ]
+      },
+      {
+        "capability": "Native public factory15 and complete2701-file caller inventory",
+        "state": "PROVIDED_SOURCE_QUALIFIED; two old pending pointers clarified separately at68c",
+        "reference_keys": [
+          "native_factory_current"
+        ]
+      },
+      {
+        "capability": "Native enforcer/middleware/reopened B1.1 receipt/existing D resolver/cache consumer",
+        "state": "PROVIDED_CACHE13; not a new FunnelOrchestrator run",
+        "reference_keys": [
+          "final_cache13",
+          "final_cache_independent"
+        ]
+      },
+      {
+        "capability": "Coordinate omission/representability corrective and actual ordinary registry/A readback",
+        "state": "PROVIDED_BOUNDED; not a missing numerical-law input",
+        "reference_keys": [
+          "quantity_current",
+          "quantity_independent13",
+          "quantity_ordinary2"
+        ]
+      },
+      {
+        "capability": "Existing public FileBudgetLedger snapshot and canonical B completion/flight source APIs",
+        "state": "SOURCE_AVAILABLE; additional middleware delegate/adoption/two-key owner contracts separately requested",
+        "reference_keys": [
+          "current_B_availability",
+          "current_B_inputs",
+          "current_B_requirements"
+        ]
+      }
+    ],
+    "remaining_input_scope": "The five held original positives, B120 available canonical decoder defect, unreceived default A producer/caller/context, additional consumed owner contracts and final composed verification remain explicitly separate. Keyword 'pending' in final verification, actual unreceived authority/ref or source-qualified historical outcomes is retained."
+  },
+  "corrections": [
+    {
+      "document_ref": {
+        "source_sha": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+        "git_blob": "adc82dcdb7ead904acd99aba8af3dde82d5d7221",
+        "bytes": 555218,
+        "sha256": "702638d85dacaddcb6a7952a4c0a279897f08b23840e15a7d8af8beacb506bc4"
+      },
+      "pointer": "/separate_scope_tasks/B109/gap",
+      "original_value": "Default HierarchicalPolicySearchAdapter coordinator lacks ParetoRegistry and actual A-W04 complete eligible/feasible/unknown export plus A-W01 caller bridge.",
+      "interpret_as": "The configured D registry receiver is PROVIDED: the existing node passes the supplied canonical ParetoRegistry through all three coordinator ports, with tenant/cell and ordinary Money+scalar/parameterless-row custody measured by author35, independent7 and root44. The remaining separate ordinary-default task requests actual A-W04 admitted assessments/export and eligible/feasible/unknown universe, plus A-W01 caller/admission/context mapping. These unreceived A inputs are not an absent D constructor port. Original B109 finite criteria remain unchanged; final258 composed predicates are UNRUN.",
+      "reason": "The old missing-registry sentence predates the supplied configured D bridge; it must not describe final258 as lacking that capability.",
+      "evidence_reference_keys": [
+        "hierarchical_author35",
+        "hierarchical_independent7",
+        "root_composed44",
+        "root_composed44_independent"
+      ],
+      "predicate_basis": "independently_reconciled"
+    },
+    {
+      "document_ref": {
+        "source_sha": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "git_blob": "3b6b1e55e5a5e8b670fcfc0a5d70f3a2a62e229b",
+        "bytes": 135805,
+        "sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "pointer": "/packets/8/local_read_only_recipe/2/recipe",
+      "original_value": "Read HierarchicalPolicySearchAdapter.instantiate_coordinator and fresh G owner-actions. Current ordinary constructor supplies config without ParetoRegistry. Read actual A-W04 assessed export plus eligible/feasible/unknown denominator and A-W01 caller mapping when supplied; then inspect ordinary persisted frontier/ref with the existing reader. No manual registry injection substitutes for that task.",
+      "interpret_as": "Read the exact final258 D node and the committed hierarchical_author35, hierarchical_independent7 and root_composed44 receipts through their existing source-qualified output readers. Reconcile the configured registry at all three coordinator ports, tenant/cell identity, ordinary Money+scalar wire, parameterless-row projection and fresh persisted frontier/report. Then read the actual A-W04 admitted assessed export and complete eligible/feasible/unknown denominator, together with A-W01 ordinary caller/admission/context mapping when those minimum refs are supplied. The remaining A default input/request contract is requested and appointment_not_established; supplied configured D controls do not manufacture that input. This is read-only reconciliation, not a new final258 execution.",
+      "reason": "The old recipe falsely describes the current ordinary constructor as having no ParetoRegistry port even though its adjacent packet state already marks the D bridge provided.",
+      "evidence_reference_keys": [
+        "hierarchical_author35",
+        "hierarchical_independent7",
+        "root_composed44"
+      ],
+      "predicate_basis": "independently_reconciled"
+    },
+    {
+      "document_ref": {
+        "source_sha": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "git_blob": "3b6b1e55e5a5e8b670fcfc0a5d70f3a2a62e229b",
+        "bytes": 135805,
+        "sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "pointer": "/packets/8/bridge",
+      "original_value": "Wire the existing ParetoRegistry into actual default HierarchicalPolicySearchAdapter coordinator, or cite a real appointed served caller; manual injected fixture is insufficient for this task.",
+      "interpret_as": "The configured D node already forwards an existing supplied canonical ParetoRegistry through all three coordinator construction ports. Read its actual35/independent7/root44 supplied consumer scopes. The remaining default A workflow task requests a real admitted producer, complete export/basis/denominator and ordinary caller/context mapping to this existing bridge; an injected fixture does not appoint that foreign default input or owner.",
+      "reason": "The adjacent future-tense wire instruction could be mistaken for unfinished D-owned wiring; the configured receiver is supplied while the default A producer/caller contract remains requested.",
+      "evidence_reference_keys": [
+        "hierarchical_author35",
+        "hierarchical_independent7",
+        "root_composed44"
+      ],
+      "predicate_basis": "independently_reconciled"
+    },
+    {
+      "document_ref": {
+        "source_sha": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "git_blob": "3b6b1e55e5a5e8b670fcfc0a5d70f3a2a62e229b",
+        "bytes": 135805,
+        "sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "pointer": "/packets/8/producer",
+      "original_value": "Actual current admitted frontier assessments originate from the appointed evaluator/source owner.",
+      "interpret_as": "Requested A-W04 evaluator/source owner supplies actual admitted frontier assessments with their source/input/evaluator basis and complete requested universe. The owner appointment and minimum input ref remain not_established; the provided configured D receiver does not grant that authority.",
+      "reason": "The old appointed-owner phrase describes a required future supplier role; it is not evidence that such an appointment was established.",
+      "evidence_reference_keys": [
+        "hierarchical_author35",
+        "hierarchical_independent7",
+        "root_composed44"
+      ],
+      "predicate_basis": "independently_reconciled"
+    },
+    {
+      "document_ref": {
+        "source_sha": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/root-G-verification-packet.json",
+        "git_blob": "4986c08e4dd0520615da45a5a5535380e3ef284e",
+        "bytes": 71761,
+        "sha256": "02800726dc16b224135e80f7b1ca7e9e71a1502872d362c69ccf4d248101059a"
+      },
+      "pointer": "/current_root_metadata_checkpoint/freeze_role",
+      "original_value": "ACTUAL_INTERRUPTED_C17_ATTEMPT; pending test-guard successor is not yet frozen",
+      "interpret_as": "HISTORICAL_ACTUAL_INTERRUPTED_C17_ATTEMPT. The preserved sha/tree and source-lineage record identify c17 only. Its later corrective successor was frozen at258a6c89ea7cbb8394d39965a243a4bab3592358/tree2528701d167b1c07efa96b8891c4d825eea5a1fd, whose received final100 wave ended SIGKILL with zero observed test phases and1249 predicates UNRUN. This historical checkpoint is not the final runtime candidate.",
+      "reason": "The old successor-not-yet-frozen statement was true at c17 but is no longer a current availability claim.",
+      "evidence_reference_keys": [
+        "final258_root_receipt",
+        "final258_complete_output"
+      ],
+      "predicate_basis": "independently_reconciled"
+    }
+  ],
+  "references": {
+    "hierarchical_author35": {
+      "source_sha": "4da8c866c654225de81dd68878874ba7cf4cc7d1",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-consumer.json",
+      "git_blob": "a259955f24c12f7046f10b6cf4cad0eedf71604d",
+      "bytes": 182845,
+      "sha256": "6a630796c9dbd5076fd1c37d20782c01466bc000f02b729f02a1f082a949ccb1"
+    },
+    "hierarchical_independent7": {
+      "source_sha": "a4281c05533eb82940a5f9ca71eb6341ba210618",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/independent-registry-f471-review.json",
+      "git_blob": "cd820ee812e204b992d7d2d6e8ef2eb0cf54a52b",
+      "bytes": 17467,
+      "sha256": "0b2b42e2eea60941d30951119e488c1b27548f76c578fa843e4e27327cf8fb64"
+    },
+    "root_composed44": {
+      "source_sha": "aa6c7b589c465bfe3aa5204be774195b627b72ea",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-composed-affected44.json",
+      "git_blob": "b38e35e70f824ff81ba60ee41bcc0fe6e44a3c13",
+      "bytes": 17900,
+      "sha256": "b7fcb87fb8e555c6f7e96a1468d2413cd23972bc8cfd275145359d5ceffc5a13"
+    },
+    "root_composed44_independent": {
+      "source_sha": "672384852a3b9fedb0cbb8fa4019d4df7dc6845b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-affected44-independent-handoff.json",
+      "git_blob": "ed29d60a45138c7c08ae778f0624b19bb05d997e",
+      "bytes": 5996,
+      "sha256": "fd3792354d1777e7401a19d9f9691042c7d8609261c99994b570fc6e8b48d3e4"
+    },
+    "final258_root_receipt": {
+      "source_sha": "2e0a48f7e522663f6dfcb231fa105e09f05e34ad",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-wave-258-final.json",
+      "bytes": 18121,
+      "sha256": "347ee5b42191a13b183534bd266b20bd2baaf332a478006144bde174191a3f5a",
+      "git_blob": "1005ac27633215d816e8c334531b2561068baf9b"
+    },
+    "final258_complete_output": {
+      "source_sha": "ba9f1a664b818b37878e8c62454cb60bad80209c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-wave-258-final/complete-output.json.xz",
+      "git_blob": "069ee3f12165a1650819b883c9be418116ec9228",
+      "bytes": 783012,
+      "sha256": "2814a0afd62219bd03527b3dbd1d6635014f69b35c311b431bde7c11db824f88"
+    },
+    "native_factory_current": {
+      "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-default-factory.json",
+      "git_blob": "0c3b85ad03ef7742b1801b4b1ff3a6707046542e",
+      "bytes": 143526,
+      "sha256": "f103ac31caa046763fda31b3d62af79ccf1b4d04b4a03617ddfa537f0eb44d44"
+    },
+    "final_cache13": {
+      "source_sha": "89f0520e7176bc15e86fdad4ca087e5b8335e2af",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/llm-cache-native-custody.json",
+      "git_blob": "9c54487e8e1897a4e46b0bb7931143828ad6eccf",
+      "bytes": 19059,
+      "sha256": "7fce7141f096d38fa637c8acdb8e7645b48cfd0fdfd55d4a392e16fd4c7daf33"
+    },
+    "final_cache_independent": {
+      "source_sha": "861feab4f83bd31c9386e771838753e112df49d7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-independent-review/paid-cache-consumer-06c-readonly-review.json",
+      "sha256": "97a56cc6abc00ee88bfa730ee70cefbb7cb0eaa894e7b6c3cc36497aa80f258c",
+      "bytes": 74329,
+      "git_blob": "29dc7fd9a6b971b452cafba3d7432c916a41f54c"
+    },
+    "quantity_current": {
+      "source_sha": "bd50417df1e467cc3d2e2292f23aaad58fa21f40",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/quantity-omission-representability.json",
+      "git_blob": "0d1eb21e4da3b533bb09a848167999a3471fb544",
+      "bytes": 24250,
+      "sha256": "8c4f41b2d6e7cf870576186610f75800ccf01cd72b128a54d8b0d49ac5ebb18f"
+    },
+    "quantity_independent13": {
+      "source_sha": "0a20b5012f9c9d46b6a45a1d7723d142ccebe556",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/subnormal-reindex-independent-candidate-review.json",
+      "git_blob": "74a07e5052602731e47221dfdb26dfbed28201d5",
+      "bytes": 13073,
+      "sha256": "3613fda2c25b6b4acb53ee69d5a04acaf53b771c30c37879209bf595e7a3784a"
+    },
+    "quantity_ordinary2": {
+      "source_sha": "e54d00205f19493a7495b8daf8aa3df6a276bb61",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/ordinary-quantity-independent-review.json",
+      "git_blob": "666a9712ee5c4532892c567fe3b8abf6b6188473",
+      "bytes": 5376,
+      "sha256": "5a91e2f0f6817b4fdf9aae877a2c097b3bb1a27628f36718e8a64dbdcf3110e9"
+    },
+    "current_B_availability": {
+      "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-current-B-availability.json",
+      "git_blob": "15def9366f4c2d4ebd010f4d26253f36014459d8",
+      "bytes": 5015,
+      "sha256": "aea6212d7ddc14054761ae4c0337a6b77ce72ea75680a46f4322f499706a0e76"
+    },
+    "current_B_inputs": {
+      "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-current-B-inputs.json",
+      "git_blob": "04c2fd6502541afcbd2bf5e706eabd05fc8eb479",
+      "bytes": 12470,
+      "sha256": "7bb4585d3abf6ddc6af3e745b38493e6eba6e0248eb3bd2a7aeaa7b2cee0129d"
+    },
+    "current_B_requirements": {
+      "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-current-B-requirements.json",
+      "git_blob": "027be14577718bf6aaf6747ae68329a251b3c733",
+      "bytes": 10908,
+      "sha256": "469500709ca88b8606372135af269f7667db36ff0852119ea538330bc3ace228"
+    },
+    "final258_complete_changed_paths": {
+      "source_sha": "2e0a48f7e522663f6dfcb231fa105e09f05e34ad",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final258-complete-changed-paths.json",
+      "bytes": 345835,
+      "sha256": "66f37aec338e34accfdb65d9edfe18ba2e747f0f812efbca72f5ce2ee4f52d06",
+      "git_blob": "10c191dd6920acb78b31c067a288534028616494"
+    }
+  },
+  "source_path_census_confirmation": {
+    "state": "NO_COUNT_CORRECTION_NEEDED",
+    "base_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+    "candidate_source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+    "path_count": 973,
+    "source_prefix_paths": 67,
+    "production_dot_py_paths": 60,
+    "README_paths": 7,
+    "other_source_suffix_paths": 0,
+    "README_path_names": [
+      "policy-engine/src/polisyos/common/README.md",
+      "policy-engine/src/polisyos/core/artifacts/README.md",
+      "policy-engine/src/polisyos/core/llm/README.md",
+      "policy-engine/src/polisyos/scientist/methods/doe/README.md",
+      "policy-engine/src/polisyos/scientist/methods/search/README.md",
+      "policy-engine/src/polisyos/scientist/methods/search/strategies/README.md",
+      "policy-engine/src/polisyos/scientist/orchestration/llm/README.md"
+    ],
+    "full_pathset_ref": {
+      "source_sha": "2e0a48f7e522663f6dfcb231fa105e09f05e34ad",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final258-complete-changed-paths.json",
+      "bytes": 345835,
+      "sha256": "66f37aec338e34accfdb65d9edfe18ba2e747f0f812efbca72f5ce2ee4f52d06",
+      "git_blob": "10c191dd6920acb78b31c067a288534028616494"
+    },
+    "predicate_basis": "independently_reconciled"
+  },
+  "unchanged_boundary": {
+    "original_findings": 45,
+    "criterion_occurrences": 46,
+    "bundles": 17,
+    "queues": 5,
+    "owner_packets": 16,
+    "original_acceptance_text_and_binding_changed": false,
+    "distribution": {
+      "OPEN_VERIFICATION_PENDING": 39,
+      "HELD_ORIGINAL_POSITIVE_INPUT": 5,
+      "OPEN_CURRENT_UPSTREAM_FAIL": 1
+    },
+    "conditional_engineering_proposals": 39,
+    "formal_closed": 0,
+    "accepted_in_G": false,
+    "final258_observed_test_phases": 0,
+    "final258_recorded_predicates_UNRUN": 1249,
+    "LA015_CTL01_role": "supplier_companion_only",
+    "LA015_canonical_closure_owner": "SRV-03",
+    "owner_appointment_refs": null,
+    "P41_inherited_attribution": "not_established"
+  },
+  "publication_execution_scope": {
+    "method": "GitHub Git-data single-parent metadata-only commit with expected-parent nonforce ref advancement",
+    "local_hooks": "UNRUN_REMOTE_METADATA_API; no hook PASS claimed",
+    "source_test_root_writes": 0,
+    "backend_runs": 0,
+    "children": 0,
+    "new_checkouts_or_worktrees": 0,
+    "historical_receipts_rewritten": 0
+  }
+}

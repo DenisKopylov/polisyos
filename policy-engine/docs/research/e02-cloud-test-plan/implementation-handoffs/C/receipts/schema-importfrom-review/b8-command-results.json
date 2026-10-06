@@ -1,0 +1,72 @@
+{
+  "candidate": {
+    "branch": "codex/e02-C-schema-20261006",
+    "commit": "b8d9115cdc6a55920c1e0a3cae2e5f9092010c27",
+    "tree": "467cd6f01ec204767dc60bb939955578428bf102"
+  },
+  "checks": [
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "--tb=short",
+        "policy-engine/tests/unit/remediation/test_dfk_01.py",
+        "-k",
+        "resolves_importfrom_package_children_and_removal or binds_imports_strings_dynamic_loaders_and_exclusions"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-schema-20261006/polisyos",
+      "environment": {
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-c-schema-20261006/polisyos/policy-engine"
+      },
+      "name": "focused_importfrom_regression_and_existing_relative_census",
+      "returncode": 0,
+      "stderr": {
+        "bytes": 0,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/b8-focused-tests.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 80,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/b8-focused-tests.stdout.txt",
+        "sha256": "99db33d5c94c6f7da021687c7391181685cc33299c5435b1c861e2db3be3ec87"
+      },
+      "summary": "2 passed (quiet output shows two dots)."
+    },
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "policy-engine/tools/quality/validation/schema_fqn_census.py",
+        "policy-engine/tests/unit/remediation/test_dfk_01.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-schema-20261006/polisyos",
+      "name": "ruff_changed_python_files",
+      "returncode": 0,
+      "stderr": {
+        "bytes": 0,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/b8-ruff.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 19,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/b8-ruff.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      "summary": "All checks passed."
+    }
+  ],
+  "environment": {
+    "note": "Reused private source-verification venv; no install, build, or package artifact audit. PYTHONPATH points at this b8 worktree policy-engine source.",
+    "python": "Python 3.14",
+    "python_executable": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.venv/bin/python"
+  },
+  "independent_cli_falsifier_metadata": {
+    "bytes": 13434,
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/probe-metadata.json",
+    "sha256": "6bb0f5e3ebfb29e38a7a3766e07d52de82f933153cbe2683ff11d435f63fc843"
+  }
+}

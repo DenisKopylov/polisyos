@@ -30,6 +30,14 @@ monitor = DriftAndDegradationMonitor()
 
 ## Persisted registry source rebind
 
+Current registry producers emit explicit version 2 under a distinct schema ID.
+The original strict schema remains in `integration/model_registry_record.v1.schema.json`;
+legacy records retain their historical read/serialization form. New records are
+incompatible with the old strict reader. The directional reader matrix, explicit
+prerelease-record migration and `team-scientist` rollout ownership are recorded
+in [model_registry_gate.md](integration/model_registry_gate.md). Reading or
+migrating bytes never restores checker authority.
+
 The monitor reconciles every common field of a shift/calibration pair and of
 a degradation/metric-policy pair. A registry projection retains the original
 readiness event ID, effective time and expiry separately from calibration

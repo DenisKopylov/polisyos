@@ -1,0 +1,19 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+____ test_prerelease_enriched_record_requires_explicit_migration_and_rebind ____
+
+context = (CalibrationReport(model_id='model-1', model_version='v1', detector_id='detector-1', stationarity_regime_id='regime-1'...ast_shift_event_model_version=None, last_degradation_event_model_id=None, last_degradation_event_model_version=None))))
+
+    def test_prerelease_enriched_record_requires_explicit_migration_and_rebind(context):
+        """Migration creates distinct bytes and restores no private permission."""
+    
+        payload = context[3].registry_record.model_dump(mode="json")
+        payload.pop("schema_version")
+        original = copy.deepcopy(payload)
+>       with pytest.raises(ValidationError, match="require schema_version"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'pydantic_core._pydantic_core.ValidationError'>
+
+tests/unit/ddm/test_registry_schema_compatibility.py:152: Failed
+=========================== short test summary info ============================
+FAILED tests/unit/ddm/test_registry_schema_compatibility.py::test_prerelease_enriched_record_requires_explicit_migration_and_rebind

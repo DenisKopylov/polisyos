@@ -1,0 +1,28 @@
+id = "2026-10-06-e02-stopping-stress-profile"
+title = "Declare plateau units and separate stress scenario evidence"
+type = "fixed"
+component = "scientist"
+owner = "team-polisyos"
+summary = "Search plateau checks require declared objective units and apply signed absolute/relative tolerances; stress reports count finite scenarios and violations before issue grouping or top-k."
+evidence = ["src/polisyos/scientist/methods/search/README.md", "tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py", "tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py", "tests/unit/scientist/search/test_adversarial_streaming.py", "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py"]
+compatibility = "ImprovementPlateau retains its three positional parameters and adds keyword-only unit, direction, absolute tolerance, and profile version. An omitted unit now prevents a plateau claim. StressTestReport.total_scenarios_evaluated now counts finite admitted outcomes; attempted and unknown counts are explicit metadata. Its existing nullable score and adequacy fields carry unavailable/partial results without a DTO schema change."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.scientist; search helper exports are existing child-package surfaces"
+migration = "Supply objective_unit and the actual objective direction to plateau checks, scaling absolute_tolerance with any unit conversion. Stress consumers must inspect adequacy, completeness, score_scope and score_status; use metadata.attempted for attempted evaluations and do not treat a conditional observed fraction as complete probability or model uncertainty."
+api = "Plateau profile 1.0 identifies the gain <= max(absolute_tolerance, min_improvement * abs(historical_best)) formula; defaults are 0.01 objective units and 0.01 relative tolerance. Custom coefficients are recorded and do not claim default-coefficient equivalence. Patience requires an integer >=1 and rejects booleans. Stress metadata exposes attempted, finite_evaluated, violated_scenarios, unknown_or_nonfinite, planned_scenarios, completeness and observed-finite score scope."
+limitations = "The tolerance is engineering policy rather than statistical significance. Adaptive stress samples do not establish a population probability. Full retained vulnerability payloads are bounded by top-k plus one transient object, while digest identities, initial samples and adaptive history retain their own memory costs. Production embedding profile equivalence and finding-level closure remain separate verification work."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/scientist/methods/search/README.md"]
+
+[[compatibility_change]]
+id = "e02-stopping-stress-explicit-evidence"
+change_class = "python-public-api"
+impact = "breaking"
+surface = "public_stable: polisyos.scientist; existing search helper exports"
+owner = "team-polisyos"
+version_owner = "team-architecture"
+deprecation_window = "not_applicable; absent units and incomplete observations cannot establish convergence or complete robustness"
+release_note = "Plateau callers must declare units, and stress consumers must separate attempted/unknown scenarios from the finite observed fraction and partial adequacy."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/scientist/methods/search/README.md"]

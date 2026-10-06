@@ -11,7 +11,48 @@ from polisyos.core.canon import CanonSpec
 from polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation import (
     RunCausalEvaluationNode,
     _actual_causal_input_identities,
+    _append_input_ref,
+    _load_observational_data,
 )
+
+
+def test_selected_typed_view_survives_resolver_loader_and_lineage(execution_context, minimal_state):
+    import numpy as np
+
+    from polisyos.foundry.methods.causal import PanelObservationalData
+    from polisyos.ir.observation import OBSERVATION_METHOD_INPUT_KIND
+
+    data = PanelObservationalData(
+        outcome=np.arange(12, dtype=float).reshape(4, 3),
+        treatment=np.array([1, 1, 0, 0]),
+        time_treatment=1,
+    )
+    store = execution_context.store
+    first = store.put_json(
+        data.model_dump(mode="json"),
+        PutOptions(kind=OBSERVATION_METHOD_INPUT_KIND, media_type="application/json"),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    selected = store.put_json(
+        data.model_dump(mode="json"),
+        PutOptions(kind="ir.observational_data", media_type="application/json"),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    assert first.artifact_id == selected.artifact_id
+    assert store.get_manifest(selected.artifact_id).kind == first.kind
+    assert store.get_manifest(selected).kind == selected.kind
+    state = _state(minimal_state, selected)
+    assert _actual_causal_input_identities(state, store=store)
+    loaded = _load_observational_data(
+        execution_context, state, "causal.inference.did.standard@1.0.0"
+    )
+    np.testing.assert_array_equal(loaded.outcome, data.outcome)
+    lineage = []
+    _append_input_ref(lineage, artifact_ref=selected, role="selected-source")
+    assert lineage[0].manifest_profile_sha256 == selected.manifest_profile_sha256
+    assert lineage[0].artifact_id == selected.artifact_id
+
+
 from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_UKRAINE_FOUNDRY_METHOD_BUNDLE_REF,
     INPUT_UKRAINE_SELECTED_METHOD_CONTRACT_REF,

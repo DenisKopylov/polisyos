@@ -445,12 +445,12 @@ def _build_sensitivity_params(
 def _append_input_ref(
     refs: list[core_artifacts.InputRef],
     *,
-    artifact_id: object | None,
+    artifact_ref: object | None,
     role: str,
 ) -> None:
-    if artifact_id is None:
-        return
-    refs.append(core_artifacts.InputRef(artifact_id=str(artifact_id), role=role))
+    ref = _to_core_artifact_ref(artifact_ref)
+    if ref is not None:
+        refs.append(core_artifacts.input_ref_from_artifact_ref(ref, role=role))
 
 
 def _run_primary_causal_job(
@@ -626,8 +626,8 @@ def _load_observational_data(
         raise ValueError("observational_data_ref is required for causal evaluation")
     ref = _to_core_artifact_ref(state.observational_data_ref)
     assert ref is not None
-    payload = from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
-    manifest = ctx.store.get_manifest(ref.artifact_id)
+    payload = from_canonical_bytes(ctx.store.get_bytes(ref))
+    manifest = ctx.store.get_manifest(ref)
     envelope_fields = ObservationMethodInputEnvelope.model_fields
     schema_namespace = envelope_fields["schema_version"].default.rsplit(".", 1)[0] + "."
     discriminator = payload.get("schema_version") if isinstance(payload, dict) else None
@@ -646,7 +646,7 @@ def _load_observational_data(
             or manifest.kind != ref.kind
             or ref.media_type != "application/json"
             or manifest.media_type != ref.media_type
-            or not ctx.store.verify(ref.artifact_id).ok
+            or not ctx.store.verify(ref).ok
         ):
             raise ValueError("observational_envelope_artifact_identity_mismatch")
         envelope = ObservationMethodInputEnvelope.model_validate(payload)
@@ -726,12 +726,12 @@ def _load_output_contract_json(
     ctx: ExecutionContext, ref: core_artifacts.ArtifactRef
 ) -> dict[str, Any]:
     ref = core_artifacts.ArtifactRef.model_validate(ref)
-    if not ctx.store.verify(ref.artifact_id).ok:
+    if not ctx.store.verify(ref).ok:
         raise ValueError("output_contract_cas_integrity_failed")
-    manifest = ctx.store.get_manifest(ref.artifact_id)
+    manifest = ctx.store.get_manifest(ref)
     if manifest.kind != ref.kind or manifest.media_type != ref.media_type:
         raise ValueError("output_contract_ref_identity_mismatch")
-    payload = from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
+    payload = from_canonical_bytes(ctx.store.get_bytes(ref))
     if not isinstance(payload, dict):
         raise ValueError("output_contract_source_object_required")
     return payload
@@ -907,7 +907,7 @@ def _persist_output_refusal(
                 component=refusal.node_id, version="polisyos.scientist.causal_output.v1"
             ),
             inputs=[
-                core_artifacts.InputRef(artifact_id=ref.artifact_id, role=f"source:{index}")
+                core_artifacts.input_ref_from_artifact_ref(ref, role=f"source:{index}")
                 for index, ref in enumerate(refusal.source_refs)
             ],
         ),
@@ -1009,7 +1009,7 @@ class RunCausalEvaluationNode:
             )
             if actual != expected:
                 raise ValueError(f"causal_output_refusal_content_mismatch:{key}")
-            manifest = ctx.store.get_manifest(row.artifact_ref.artifact_id)
+            manifest = ctx.store.get_manifest(row.artifact_ref)
             if (
                 manifest.kind != "scientist.node_output_refusal"
                 or manifest.artifact_schema
@@ -1022,7 +1022,7 @@ class RunCausalEvaluationNode:
                 )
                 or manifest.inputs
                 != [
-                    core_artifacts.InputRef(artifact_id=ref.artifact_id, role=f"source:{index}")
+                    core_artifacts.input_ref_from_artifact_ref(ref, role=f"source:{index}")
                     for index, ref in enumerate(expected.source_refs)
                 ]
             ):
@@ -1166,13 +1166,13 @@ class RunCausalEvaluationNode:
         if result.method_result_ref is not None:
             _append_input_ref(
                 input_refs,
-                artifact_id=result.method_result_ref.artifact_id,
+                artifact_ref=result.method_result_ref,
                 role="causal_method_result",
             )
         if result.method_evidence_ref is not None:
             _append_input_ref(
                 input_refs,
-                artifact_id=result.method_evidence_ref.artifact_id,
+                artifact_ref=result.method_evidence_ref,
                 role="causal_method_evidence",
             )
 
@@ -1213,13 +1213,13 @@ class RunCausalEvaluationNode:
                 if refutation_result.method_result_ref is not None:
                     _append_input_ref(
                         input_refs,
-                        artifact_id=refutation_result.method_result_ref.artifact_id,
+                        artifact_ref=refutation_result.method_result_ref,
                         role="causal_refutation_method_result",
                     )
                 if refutation_result.method_evidence_ref is not None:
                     _append_input_ref(
                         input_refs,
-                        artifact_id=refutation_result.method_evidence_ref.artifact_id,
+                        artifact_ref=refutation_result.method_evidence_ref,
                         role="causal_refutation_method_evidence",
                     )
                 if refutation_result.issues:
@@ -1309,13 +1309,13 @@ class RunCausalEvaluationNode:
                 if sensitivity_job.method_result_ref is not None:
                     _append_input_ref(
                         input_refs,
-                        artifact_id=sensitivity_job.method_result_ref.artifact_id,
+                        artifact_ref=sensitivity_job.method_result_ref,
                         role="causal_sensitivity_method_result",
                     )
                 if sensitivity_job.method_evidence_ref is not None:
                     _append_input_ref(
                         input_refs,
-                        artifact_id=sensitivity_job.method_evidence_ref.artifact_id,
+                        artifact_ref=sensitivity_job.method_evidence_ref,
                         role="causal_sensitivity_method_evidence",
                     )
                 supporting_artifacts["causal_sensitivity_attempt"] = ctx.store.put_json(

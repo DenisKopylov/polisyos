@@ -13,6 +13,11 @@ extra or duplicated offered input identities cannot reach the verifier or job.
 This profile projects the verified byte digest into the PDC input hash; it does
 not infer a semantic hash from an arbitrary payload field. A source owner using
 a distinct semantic content hash must supply its supported resolver contract.
+Every subsequent causal input and output-contract read keeps the selected typed
+reference, including its manifest profile. Method and refusal lineage uses the
+existing Core reference-to-lineage projection. Reading by physical ID alone can
+select a different manifest for the same bytes and is insufficient for this
+contract.
 
 Binding tests are `test_causal_input_byte_binding.py` beside the node tests.
 They use actual persisted CAS sources for input identity and untrusted contexts

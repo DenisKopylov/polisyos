@@ -182,6 +182,7 @@ class BayesianCandidateGenerator:
         self._warm_evals: list[Any] = []
         self._activity_started = False
         self._history_digests: list[str] = []
+        self._history_rows: list[dict[str, Any]] = []
         self._resume_history_required = False
         if (warm_start_bridge is None) != (warm_start_fingerprint is None):
             raise ValueError("Warm-start bridge and configured target fingerprint must be paired")
@@ -310,11 +311,12 @@ class BayesianCandidateGenerator:
         if self._optimizer is None:
             raise ValueError("Generator checkpoint requires a native strategy receiver")
         return {
-            "schema_version": "bayesian_candidate_generator.v1",
+            "schema_version": "bayesian_candidate_generator.v2",
             "config": self._checkpoint_config(),
             "native_backend_available": self._botorch_available,
             "activity_started": self._activity_started,
             "history_digests": list(self._history_digests),
+            "history_rows": json.loads(self._json_bytes(self._history_rows)),
             "strategy_state": json.loads(self._optimizer.get_state().to_artifact()),
         }
 
@@ -326,11 +328,12 @@ class BayesianCandidateGenerator:
             "native_backend_available",
             "activity_started",
             "history_digests",
+            "history_rows",
             "strategy_state",
         }
         if type(state) is not dict or set(state) != fields:
             raise ValueError("Generator checkpoint fields are incomplete or unknown")
-        if state["schema_version"] != "bayesian_candidate_generator.v1":
+        if state["schema_version"] != "bayesian_candidate_generator.v2":
             raise ValueError("Unsupported generator checkpoint schema")
         if self._json_bytes(state["config"]) != self._json_bytes(self._checkpoint_config()):
             raise ValueError("Generator checkpoint metric/split/space/configuration changed")
@@ -353,9 +356,62 @@ class BayesianCandidateGenerator:
         if self._optimizer is None:
             raise ValueError("Generator checkpoint requires a native strategy receiver")
         native = StrategyState.from_artifact(self._json_bytes(state["strategy_state"]))
+        rows = state["history_rows"]
+        if not isinstance(rows, list) or len(rows) != len(digests):
+            raise ValueError("Generator checkpoint current-row coverage is incomplete")
+        current = []
+        for index, record in enumerate(rows):
+            if (
+                not isinstance(record, dict)
+                or set(record) != {"input_index", "evaluation"}
+                or type(record["input_index"]) is not int
+                or record["input_index"] != index
+            ):
+                raise ValueError("Generator checkpoint current-row index is invalid")
+            if record["evaluation"] is None:
+                continue  # An unavailable converted outcome cannot supply model evidence.
+            evaluation = self._optimizer._decode_evaluation(record["evaluation"])
+            if not evaluation.is_valid or self._history_row_digest(evaluation) != digests[index]:
+                raise ValueError(
+                    "Generator checkpoint current-row content differs from its history"
+                )
+            current.append(evaluation)
+
+        # Use the existing receiving strategy's one admission reader. This
+        # resolves transferred current rows before any live model/RNG restore,
+        # including rows that were not part of the saved warm corpus.
+        deps = _try_import_bayesian()
+        if deps is None or self._search_space is None:
+            raise ValueError("Generator checkpoint lacks its native receiver")
+        _, BayesianOptimizer, _, _, _, _, _ = deps
+        probe = BayesianOptimizer(
+            self._search_space,
+            config=self._optimizer._config,
+            numerical_basis=self._optimizer._numerical_basis,
+            warm_start_admission=self._optimizer._warm_start_admission,
+        )
+        warm = [
+            probe._decode_evaluation(record)
+            for record in native.metadata.get("warm_evaluations", [])
+        ]
+        probe.warm_start(warm)
+        admitted = probe._effective_training_corpus(current)
+        if native.model_state is not None:
+            if not admitted:
+                raise ValueError("Generator checkpoint has no source-bound fitted observations")
+            # Prepare actual numeric records without a model construction or
+            # MLL fit. Every saved fitted row needs its original current/warm
+            # source binding, including legitimate pending-refit prefixes.
+            probe._prepare_training_data(admitted)
+            fitted_ids = native.metadata.get("fitted_record_ids")
+            if not isinstance(fitted_ids, list) or not set(fitted_ids) <= set(
+                probe._training_record_ids
+            ):
+                raise ValueError("Generator fitted corpus lacks complete original row bindings")
         self._optimizer.set_state(native)
         self._activity_started = state["activity_started"]
         self._history_digests = list(digests)
+        self._history_rows = json.loads(self._json_bytes(rows))
         self._resume_history_required = True
         self._warm_evals = list(self._optimizer._warm_evals)
 
@@ -377,6 +433,15 @@ class BayesianCandidateGenerator:
         ):
             raise ValueError("Generator resume history differs from checkpoint numerical inputs")
         self._history_digests = digests
+        self._history_rows = [
+            {
+                "input_index": index,
+                "evaluation": self._optimizer._encode_evaluation(evaluation)
+                if evaluation.is_valid
+                else None,
+            }
+            for index, evaluation in enumerate(evals)
+        ]
         self._resume_history_required = False
         try:
             candidate = self._optimizer.suggest(evals)

@@ -9,3 +9,15 @@ compatibility = "Finite historical coordinate v1 and indicator assessment v1 rem
 migration = "Preserve HypervolumeAssessment and check availability before stopping or comparing indicator values. Configure actual ordered metric definition versions when supplied by the producer; legacy v1 does not establish them. Display labels do not define coordinate identity."
 evidence = ["tests/unit/scientist/methods/autotune/test_hypervolume_profile.py", "tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py", "tests/unit/scientist/methods/search/test_frontier_quantity_readback.py"]
 limitations = "Conditional numeric fixtures do not establish source truth, measured performance, institutional authority, complete A-owned eligibility/unknown denominator, or production exporter wiring. Registry view providers retain their existing bounded objective channels."
+
+surface_classification = "internal"
+
+[[compatibility_change]]
+id = "D-Pareto-quantity-coordinate-v2"
+change_class = "artifact-schema"
+impact = "breaking_requires_consumer_action"
+surface = "internal: scientist.autotune.ParetoFront schema2 and native MO quantity"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "not_applicable"
+release_note = "Indicator assessment v2 describes exact supported1–4D quantity availability; callers retain null and producer-supplied coordinate definition versions. Legacy coordinatev1/assessmentv1 stay bounded historical profiles."

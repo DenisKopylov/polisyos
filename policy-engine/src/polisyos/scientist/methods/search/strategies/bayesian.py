@@ -46,7 +46,7 @@ from polisyos.scientist.methods.search.strategies.types import (
 
 logger = get_logger(__name__)
 _ACQUISITION_POLICY = "sobol_ranked_restarts.v1"
-_GP_STATE_VERSION = 2
+_GP_STATE_VERSION = 3
 
 _WARM_COMPATIBILITY_METADATA = "warm_start_compatibility"
 _WARM_COMPATIBILITY_FIELDS = (
@@ -582,6 +582,9 @@ class BayesianOptimizer(BaseSearchStrategy):
                             "fitted_record_ids",
                             "refit_record_ids",
                             "numerical_basis",
+                            "warm_evaluations",
+                            "last_refit_iteration",
+                            "last_train_size",
                         )
                     },
                     sort_keys=True,
@@ -1023,7 +1026,7 @@ class BayesianOptimizer(BaseSearchStrategy):
             other_execution = self._effective_execution(other)
             if other_execution is None:
                 continue
-            if candidate_execution == other_execution:
+            if self._space.same_execution(candidate_execution, other_execution):
                 return True
         return False
 

@@ -91,7 +91,9 @@ class RLStrategyWrapper:
             occupied = [*(pending or []), *(PolicyCandidate(params=e.params) for e in evaluations)]
             for _ in range(20):
                 candidate = self._explore_random()
-                if not any(candidate.params == other.params for other in occupied):
+                if not any(
+                    self._space.same_execution(candidate.params, other.params) for other in occupied
+                ):
                     return candidate
             return self._explore_random()
         return self._base.suggest(evaluations, pending=pending)

@@ -1,0 +1,140 @@
+MARKER_PRESERVING_WARM_CHANGE_ADMITTED scalar_score ACTUAL_EXTRA_MLL_FITS 1
+FMARKER_PRESERVING_WARM_CHANGE_ADMITTED params ACTUAL_EXTRA_MLL_FITS 1
+F
+=================================== FAILURES ===================================
+_ test_saved_warm_content_changed_with_fitted_markers_preserved_refuses[scalar_score] _
+
+field = 'scalar_score'
+
+    @pytest.mark.parametrize("field", ["scalar_score", "params"])
+    @pytest.mark.skipif(module.fit_gpytorch_mll is None, reason="optional GP stack unavailable")
+    def test_saved_warm_content_changed_with_fitted_markers_preserved_refuses(field):
+        space = SearchSpace([ParameterBounds("x")])
+        basis = {
+            "profile": "synthetic_scalar_gp.v1",
+            "search_space_fingerprint": space.sobol_space_fingerprint(),
+            "context_fingerprint": "fixture/warm-basis",
+            "metric": "cost",
+            "unit": "fixture_cost",
+            "direction": "minimize",
+        }
+        producer = BayesianOptimizer(
+            space,
+            BayesianConfig(
+                n_initial=3, seed=37, num_restarts=2, raw_samples=16, fallback_on_failure=False
+            ),
+            numerical_basis=basis,
+        )
+        warm = rows(space, 6)
+        for evaluation in warm:
+            evaluation.metadata["warm_start_compatibility"] = {
+                "search_space_fingerprint": space.sobol_space_fingerprint(),
+                "input_transform_fingerprint": "Normalize[0,1]",
+                "outcome_transform_fingerprint": "Standardize[m=1]",
+                "noise_model_fingerprint": "GaussianLikelihood[inferred]",
+                "objective_fingerprint": "scalar_score[minimize]",
+                "context_fingerprint": "fixture/warm-basis",
+            }
+        producer.warm_start(warm)
+        producer.suggest([])
+        changed = StrategyState.from_artifact(producer.get_state().to_artifact())
+        if field == "scalar_score":
+            changed.metadata["warm_evaluations"][0][field] += 0.2
+        else:
+            changed.metadata["warm_evaluations"][0][field]["x"] += 0.002
+            changed.metadata["warm_evaluations"][0]["params_normalized"][0] += 0.002
+        before = producer.get_state().to_artifact()
+        try:
+            producer.set_state(changed)
+        except ValueError:
+            assert producer.get_state().to_artifact() == before
+            return
+        real_fit = module.fit_gpytorch_mll
+        with patch.object(module, "fit_gpytorch_mll", wraps=real_fit) as fit:
+            producer.suggest([])
+            print(
+                "MARKER_PRESERVING_WARM_CHANGE_ADMITTED", field, "ACTUAL_EXTRA_MLL_FITS", fit.call_count
+            )
+>       pytest.fail("Persisted warm content changed while fitted/model/corpus markers remained intact")
+E       Failed: Persisted warm content changed while fitted/model/corpus markers remained intact
+
+tests/unit/remediation/test_opt_03_continuation.py:170: Failed
+_ test_saved_warm_content_changed_with_fitted_markers_preserved_refuses[params] _
+
+field = 'params'
+
+    @pytest.mark.parametrize("field", ["scalar_score", "params"])
+    @pytest.mark.skipif(module.fit_gpytorch_mll is None, reason="optional GP stack unavailable")
+    def test_saved_warm_content_changed_with_fitted_markers_preserved_refuses(field):
+        space = SearchSpace([ParameterBounds("x")])
+        basis = {
+            "profile": "synthetic_scalar_gp.v1",
+            "search_space_fingerprint": space.sobol_space_fingerprint(),
+            "context_fingerprint": "fixture/warm-basis",
+            "metric": "cost",
+            "unit": "fixture_cost",
+            "direction": "minimize",
+        }
+        producer = BayesianOptimizer(
+            space,
+            BayesianConfig(
+                n_initial=3, seed=37, num_restarts=2, raw_samples=16, fallback_on_failure=False
+            ),
+            numerical_basis=basis,
+        )
+        warm = rows(space, 6)
+        for evaluation in warm:
+            evaluation.metadata["warm_start_compatibility"] = {
+                "search_space_fingerprint": space.sobol_space_fingerprint(),
+                "input_transform_fingerprint": "Normalize[0,1]",
+                "outcome_transform_fingerprint": "Standardize[m=1]",
+                "noise_model_fingerprint": "GaussianLikelihood[inferred]",
+                "objective_fingerprint": "scalar_score[minimize]",
+                "context_fingerprint": "fixture/warm-basis",
+            }
+        producer.warm_start(warm)
+        producer.suggest([])
+        changed = StrategyState.from_artifact(producer.get_state().to_artifact())
+        if field == "scalar_score":
+            changed.metadata["warm_evaluations"][0][field] += 0.2
+        else:
+            changed.metadata["warm_evaluations"][0][field]["x"] += 0.002
+            changed.metadata["warm_evaluations"][0]["params_normalized"][0] += 0.002
+        before = producer.get_state().to_artifact()
+        try:
+            producer.set_state(changed)
+        except ValueError:
+            assert producer.get_state().to_artifact() == before
+            return
+        real_fit = module.fit_gpytorch_mll
+        with patch.object(module, "fit_gpytorch_mll", wraps=real_fit) as fit:
+            producer.suggest([])
+            print(
+                "MARKER_PRESERVING_WARM_CHANGE_ADMITTED", field, "ACTUAL_EXTRA_MLL_FITS", fit.call_count
+            )
+>       pytest.fail("Persisted warm content changed while fitted/model/corpus markers remained intact")
+E       Failed: Persisted warm content changed while fitted/model/corpus markers remained intact
+
+tests/unit/remediation/test_opt_03_continuation.py:170: Failed
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+tests/unit/remediation/test_opt_03_continuation.py::test_saved_warm_content_changed_with_fitted_markers_preserved_refuses[scalar_score]
+tests/unit/remediation/test_opt_03_continuation.py::test_saved_warm_content_changed_with_fitted_markers_preserved_refuses[scalar_score]
+tests/unit/remediation/test_opt_03_continuation.py::test_saved_warm_content_changed_with_fitted_markers_preserved_refuses[params]
+tests/unit/remediation/test_opt_03_continuation.py::test_saved_warm_content_changed_with_fitted_markers_preserved_refuses[params]
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/acquisition/analytic.py:340: NumericsWarning: ExpectedImprovement has known numerical issues that lead to suboptimal optimization performance. It is strongly recommended to simply replace
+  
+  	 ExpectedImprovement 	 --> 	 LogExpectedImprovement 
+  
+  instead, which fixes the issues and has the same API. See https://arxiv.org/abs/2310.20708 for details.
+    legacy_ei_numerics_warning(legacy_name=type(self).__name__)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/remediation/test_opt_03_continuation.py::test_saved_warm_content_changed_with_fitted_markers_preserved_refuses[scalar_score]
+FAILED tests/unit/remediation/test_opt_03_continuation.py::test_saved_warm_content_changed_with_fitted_markers_preserved_refuses[params]
+2 failed, 3 deselected, 6 warnings in 25.87s

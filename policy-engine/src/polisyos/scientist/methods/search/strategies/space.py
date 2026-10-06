@@ -193,6 +193,13 @@ class SearchSpace:
             repr(("attainable_projection.v1", signature)).encode("utf-8")
         ).hexdigest()
 
+    def same_execution(self, left: dict[str, Any], right: dict[str, Any]) -> bool:
+        """Compare executed actions in their canonical typed coordinate domain."""
+        try:
+            return self.normalize(left) == self.normalize(right)
+        except (TypeError, ValueError):
+            return False
+
     @property
     def last_sobol_sampler_identity(self) -> str | None:
         """Return the implementation that produced the most recent samples."""

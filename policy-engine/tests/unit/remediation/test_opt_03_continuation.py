@@ -116,3 +116,55 @@ def test_saved_corpus_changed_with_model_markers_preserved_refuses_atomically():
         with pytest.raises(ValueError):
             producer.set_state(changed)
         assert producer.get_state().to_artifact() == before
+
+
+@pytest.mark.parametrize("field", ["scalar_score", "params"])
+@pytest.mark.skipif(module.fit_gpytorch_mll is None, reason="optional GP stack unavailable")
+def test_saved_warm_content_changed_with_fitted_markers_preserved_refuses(field):
+    space = SearchSpace([ParameterBounds("x")])
+    basis = {
+        "profile": "synthetic_scalar_gp.v1",
+        "search_space_fingerprint": space.sobol_space_fingerprint(),
+        "context_fingerprint": "fixture/warm-basis",
+        "metric": "cost",
+        "unit": "fixture_cost",
+        "direction": "minimize",
+    }
+    producer = BayesianOptimizer(
+        space,
+        BayesianConfig(
+            n_initial=3, seed=37, num_restarts=2, raw_samples=16, fallback_on_failure=False
+        ),
+        numerical_basis=basis,
+    )
+    warm = rows(space, 6)
+    for evaluation in warm:
+        evaluation.metadata["warm_start_compatibility"] = {
+            "search_space_fingerprint": space.sobol_space_fingerprint(),
+            "input_transform_fingerprint": "Normalize[0,1]",
+            "outcome_transform_fingerprint": "Standardize[m=1]",
+            "noise_model_fingerprint": "GaussianLikelihood[inferred]",
+            "objective_fingerprint": "scalar_score[minimize]",
+            "context_fingerprint": "fixture/warm-basis",
+        }
+    producer.warm_start(warm)
+    producer.suggest([])
+    changed = StrategyState.from_artifact(producer.get_state().to_artifact())
+    if field == "scalar_score":
+        changed.metadata["warm_evaluations"][0][field] += 0.2
+    else:
+        changed.metadata["warm_evaluations"][0][field]["x"] += 0.002
+        changed.metadata["warm_evaluations"][0]["params_normalized"][0] += 0.002
+    before = producer.get_state().to_artifact()
+    try:
+        producer.set_state(changed)
+    except ValueError:
+        assert producer.get_state().to_artifact() == before
+        return
+    real_fit = module.fit_gpytorch_mll
+    with patch.object(module, "fit_gpytorch_mll", wraps=real_fit) as fit:
+        producer.suggest([])
+        print(
+            "MARKER_PRESERVING_WARM_CHANGE_ADMITTED", field, "ACTUAL_EXTRA_MLL_FITS", fit.call_count
+        )
+    pytest.fail("Persisted warm content changed while fitted/model/corpus markers remained intact")

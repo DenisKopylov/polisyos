@@ -4,6 +4,11 @@ from dataclasses import replace
 
 import pytest
 
+pytest.importorskip("SALib", reason="UNRUN: actual DOE backend required", exc_type=ImportError)
+pytest.importorskip("torch", reason="UNRUN: native Sobol backend required", exc_type=ImportError)
+pytest.importorskip("botorch", reason="UNRUN: native receiver required", exc_type=ImportError)
+pytest.importorskip("gpytorch", reason="UNRUN: native receiver required", exc_type=ImportError)
+
 from polisyos.core.artifacts import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.scientist.methods.autotune.bayesian_generator import (
@@ -64,7 +69,7 @@ def _generator():
         compare_split=BenchmarkSplit.SELECTION,
         seed=31,
     )
-    assert value.botorch_available, "UNRUN: actual native backend unavailable"
+    assert value.botorch_available, "native backend unavailable after required optional imports"
     return value
 
 

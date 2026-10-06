@@ -8,7 +8,9 @@ state and they do not execute mechanisms.
 
 from __future__ import annotations
 
+import math
 from collections.abc import Mapping
+from numbers import Real
 from typing import Any
 
 import jax.numpy as jnp
@@ -16,6 +18,33 @@ import numpy as np
 
 from polisyos.ir.analytics.calibration import CalibrationConfig, CalibrationTarget
 from polisyos.ir.analytics.data_views import DataViewRequest
+
+
+def validate_gaussian_observation_std(
+    scales: Mapping[str, float] | None,
+) -> dict[str, float] | None:
+    """Copy supported finite positive real noise scalars before runtime callbacks.
+
+    Boolean values are not noise scales. Target-ID coverage is a separate
+    contextual check, performed after the calibration targets are resolved.
+    """
+    if scales is None:
+        return None
+    message = "Gaussian observation standard deviations must be finite positive real scalars"
+    if not isinstance(scales, Mapping):
+        raise ValueError(message)
+    admitted: dict[str, float] = {}
+    for target_id, value in scales.items():
+        if isinstance(value, (bool, np.bool_)) or not isinstance(value, Real):
+            raise ValueError(message)
+        try:
+            scalar = float(value)
+        except (OverflowError, TypeError, ValueError) as exc:
+            raise ValueError(message) from exc
+        if not math.isfinite(scalar) or scalar <= 0:
+            raise ValueError(message)
+        admitted[target_id] = scalar
+    return admitted
 
 
 def _normalize_raw_target(raw: object) -> tuple[np.ndarray, np.ndarray | None]:
@@ -188,15 +217,13 @@ def extract_fabric_series(
     if isinstance(result, dict) and ("values" in result or "series" in result):
         if time_col and result.get("time") is None:
             raise ValueError(
-                f"Configured alignment time column '{time_col}' is missing "
-                "from Fabric result"
+                f"Configured alignment time column '{time_col}' is missing from Fabric result"
             )
         return result
     if isinstance(result, tuple) and len(result) == 2:
         if time_col and result[1] is None:
             raise ValueError(
-                f"Configured alignment time column '{time_col}' is missing "
-                "from Fabric result"
+                f"Configured alignment time column '{time_col}' is missing from Fabric result"
             )
         return result
     columns = getattr(result, "columns", None)
@@ -219,14 +246,12 @@ def extract_fabric_series(
             return {"values": values, "time": time}
         if time_col:
             raise ValueError(
-                f"Configured alignment time column '{time_col}' is missing "
-                "from Fabric result"
+                f"Configured alignment time column '{time_col}' is missing from Fabric result"
             )
         return values
     if time_col:
         raise ValueError(
-            f"Configured alignment time column '{time_col}' is missing "
-            "from Fabric result"
+            f"Configured alignment time column '{time_col}' is missing from Fabric result"
         )
     return result
 

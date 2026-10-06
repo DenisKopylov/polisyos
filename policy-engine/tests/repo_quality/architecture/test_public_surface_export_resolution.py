@@ -130,8 +130,17 @@ def test_unresolved_mapping_never_becomes_empty_manifest(
     else:
         mapping.write_text('PUBLIC_NAMES = {"Old": None}\nPUBLIC_NAMES.update({"New": None})\n')
         error = ValueError
-    with pytest.raises(error):
-        guardrails._entrypoint_inventory("polisyos.fixture")
+    if error is ValueError:
+        result = guardrails._entrypoint_inventory("polisyos.fixture")
+        assert result.export_count is None
+        assert result.known_export_count == 0
+        assert result.exports == ()
+        assert result.facade_mode_observed == "unresolved_exports"
+        assert result.export_resolution["complete"] is False
+        assert "not an empty runtime namespace" in result.export_resolution["exports_scope"]
+    else:
+        with pytest.raises(error):
+            guardrails._entrypoint_inventory("polisyos.fixture")
 
 
 def test_static_literal_mapping_is_read_without_executing_module(
@@ -313,3 +322,34 @@ def test_passive_map_alias_table_is_audited_without_calling_runtime_lookup() -> 
     )
     with pytest.raises(ValueError, match="consumer"):
         guardrails._extract_exports(mutated)
+
+
+@pytest.mark.parametrize("error", [ValueError("unexpected"), TypeError("unexpected"), SyntaxError("broken")])
+def test_unexpected_reader_failure_is_not_relabelled_as_parser_unknown(
+    tmp_path: Path, monkeypatch, error,
+) -> None:
+    _fixture(tmp_path, monkeypatch)
+
+    def unexpected(*args):
+        raise error
+
+    monkeypatch.setattr(guardrails, "_extract_exports", unexpected)
+    with pytest.raises(type(error)) as caught:
+        guardrails._entrypoint_inventory("polisyos.fixture")
+    assert caught.value is error
+
+
+def test_complete_representation_does_not_grant_complete_inventory_verdict() -> None:
+    policies = guardrails._parse_public_surface(guardrails.DEFAULT_PUBLIC_MANIFEST)
+    inventory = guardrails.build_public_surface_inventory(policies)
+    payload = json.loads(guardrails.render_public_surface_json(inventory))
+    expected = {entry for policy in policies for entry in policy.supported_entrypoints}
+    rows = [row for package in payload["packages"] for row in package["entrypoints"]]
+    assert {row["module"] for row in rows} == expected
+    unknown = {row["module"] for row in rows if row["export_count"] is None}
+    assert "polisyos.fabric.world" in unknown
+    assert all(row["export_resolution"]["complete"] is False for row in rows if row["module"] in unknown)
+    assert {
+        item.subject for item in guardrails._check_public_surface_contracts(inventory)
+        if item.detail == "incomplete_exports"
+    } == unknown

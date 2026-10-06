@@ -585,6 +585,10 @@ def _symbol_binding_nodes(tree: ast.Module, symbol: str) -> Iterator[ast.AST]:
                 yield node
 
 
+class _UnresolvedExportDeclarationError(ValueError):
+    """An intentional refusal by the bounded static export grammar."""
+
+
 class _StaticExportResolver:
     """Resolve declared export names without importing or executing facade code.
 
@@ -608,7 +612,7 @@ class _StaticExportResolver:
     def resolve(self, source: Path, symbol: str) -> object:
         key = (source, symbol)
         if key in self._active:
-            raise ValueError(f"Unresolved export declaration cycle: {source}:{symbol}")
+            raise _UnresolvedExportDeclarationError(f"Unresolved export declaration cycle: {source}:{symbol}")
         self._active.add(key)
         try:
             tree = self._tree(source)
@@ -625,7 +629,7 @@ class _StaticExportResolver:
                     alias.name != "*" for alias in node.names
                 )
                 if id(node) not in direct_nodes or not (supported_assignment or supported_import):
-                    raise ValueError(f"Unresolved conditional/mutated exports: {source}:{symbol}")
+                    raise _UnresolvedExportDeclarationError(f"Unresolved conditional/mutated exports: {source}:{symbol}")
             declarations: list[ast.AST] = []
             imported: list[tuple[ast.ImportFrom, str]] = []
             for node in tree.body:
@@ -650,7 +654,7 @@ class _StaticExportResolver:
                     )
                 elif isinstance(node, ast.AugAssign) and isinstance(node.target, ast.Name):
                     if node.target.id == symbol:
-                        raise ValueError(
+                        raise _UnresolvedExportDeclarationError(
                             f"Unresolved mutated export declaration: {source}:{symbol}"
                         )
                 elif isinstance(node, ast.Expr) and isinstance(node.value, ast.Call):
@@ -660,7 +664,7 @@ class _StaticExportResolver:
                         and isinstance(function.value, ast.Name)
                         and function.value.id == symbol
                     ):
-                        raise ValueError(
+                        raise _UnresolvedExportDeclarationError(
                             f"Unresolved mutated export declaration: {source}:{symbol}"
                         )
             if len(declarations) == 1 and not imported:
@@ -671,14 +675,14 @@ class _StaticExportResolver:
                 node, imported_name = imported[0]
                 info = _module_name_for_path(source)
                 if info is None:
-                    raise ValueError(f"Unresolved export import source: {source}")
+                    raise _UnresolvedExportDeclarationError(f"Unresolved export import source: {source}")
                 module = _resolve_import_module(*info, node)
                 if module is None or not module.startswith("polisyos."):
-                    raise ValueError(f"Unresolved export import: {source}:{symbol}")
+                    raise _UnresolvedExportDeclarationError(f"Unresolved export import: {source}:{symbol}")
                 value = self.resolve(_facade_source_for(module), imported_name)
                 self._resolved[key] = node.end_lineno
                 return value
-            raise ValueError(f"Unresolved or ambiguous export declaration: {source}:{symbol}")
+            raise _UnresolvedExportDeclarationError(f"Unresolved or ambiguous export declaration: {source}:{symbol}")
         finally:
             self._active.remove(key)
 
@@ -694,12 +698,12 @@ class _StaticExportResolver:
                 if key is None:
                     mapping = self._value(source, value)
                     if not isinstance(mapping, dict):
-                        raise ValueError(f"Unresolved export mapping expansion: {source}")
+                        raise _UnresolvedExportDeclarationError(f"Unresolved export mapping expansion: {source}")
                     keys.update(mapping)
                 elif isinstance(key, ast.Constant) and isinstance(key.value, str):
                     keys[key.value] = None
                 else:
-                    raise ValueError(f"Unresolved export mapping key: {source}")
+                    raise _UnresolvedExportDeclarationError(f"Unresolved export mapping key: {source}")
             return keys
         if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add):
             left, right = self._value(source, node.left), self._value(source, node.right)
@@ -713,7 +717,7 @@ class _StaticExportResolver:
             and not node.keywords
         ):
             if any(_symbol_binding_nodes(self._tree(source), node.func.id)):
-                raise ValueError(f"Unresolved shadowed export builtin: {source}:{node.func.id}")
+                raise _UnresolvedExportDeclarationError(f"Unresolved shadowed export builtin: {source}:{node.func.id}")
             value = self._value(source, node.args[0])
             if isinstance(value, (dict, list, tuple)) and all(
                 isinstance(item, str) for item in value
@@ -723,7 +727,7 @@ class _StaticExportResolver:
         strings = _string_list_value(node)
         if strings is not None:
             return strings
-        raise ValueError(f"Unresolved export expression: {source}:{ast.unparse(node)}")
+        raise _UnresolvedExportDeclarationError(f"Unresolved export expression: {source}:{ast.unparse(node)}")
 
     @staticmethod
     def _passive_container(node: ast.AST) -> bool:
@@ -775,7 +779,7 @@ class _StaticExportResolver:
                         and node.id in symbols and (source, id(node)) not in self._allowed_reads
                     ):
                         if not self._admit_passive_alias(source, node):
-                            raise ValueError(f"Unresolved export binding consumer: {source}:{node.id}")
+                            raise _UnresolvedExportDeclarationError(f"Unresolved export binding consumer: {source}:{node.id}")
                         changed = True
                 if not changed:
                     break
@@ -788,15 +792,15 @@ class _StaticExportResolver:
                     isinstance(node, ast.Call) and node.lineno >= first_bound_line
                     and (source, id(node)) not in self._allowed_calls
                 ):
-                    raise ValueError(f"Unresolved call after export binding: {source}:{ast.unparse(node)}")
+                    raise _UnresolvedExportDeclarationError(f"Unresolved call after export binding: {source}:{ast.unparse(node)}")
                 if (
                     isinstance(node, ast.ClassDef) and node.lineno >= first_bound_line
                     and (node.bases or node.keywords or node.decorator_list)
                 ):
-                    raise ValueError(f"Unresolved class construction after export binding: {source}:{node.name}")
+                    raise _UnresolvedExportDeclarationError(f"Unresolved class construction after export binding: {source}:{node.name}")
 
 
-class _IncompleteExportDeclarationError(ValueError):
+class _IncompleteExportDeclarationError(_UnresolvedExportDeclarationError):
     """A literal prefix is readable, but its extension has no static total."""
 
     def __init__(self, prefix: tuple[str, ...]) -> None:
@@ -874,7 +878,7 @@ def _extract_exports(tree: ast.Module, source_file: Path | None = None) -> tuple
     exports = resolver.resolve(source, "__all__")
     resolver.audit_consumers()
     if not isinstance(exports, (tuple, list)) or not all(isinstance(item, str) for item in exports):
-        raise ValueError(f"Export declaration must resolve to string sequence: {source}")
+        raise _UnresolvedExportDeclarationError(f"Export declaration must resolve to string sequence: {source}")
     return tuple(exports)
 
 
@@ -904,6 +908,7 @@ def _facade_source_for(module: str) -> Path:
 
 def _entrypoint_inventory(module: str) -> SupportedEntrypointInventory:
     incomplete_reason = None
+    exports_scope = None
     with measure_file_reads(REPO_ROOT) as reads:
         try:
             source_file = _facade_source_for(module)
@@ -913,6 +918,11 @@ def _entrypoint_inventory(module: str) -> SupportedEntrypointInventory:
             except _IncompleteExportDeclarationError as exc:
                 exports = exc.prefix
                 incomplete_reason = str(exc)
+                exports_scope = "direct unconditional literal prefix; extensions unresolved"
+            except _UnresolvedExportDeclarationError as exc:
+                exports = ()
+                incomplete_reason = str(exc)
+                exports_scope = "no names proven by the bounded parser; not an empty runtime namespace"
         except (OSError, ValueError, SyntaxError, TypeError) as exc:
             exc.add_note(json.dumps(reads.snapshot(complete_verdict=False), sort_keys=True))
             raise
@@ -920,7 +930,7 @@ def _entrypoint_inventory(module: str) -> SupportedEntrypointInventory:
     export_resolution["complete"] = incomplete_reason is None
     if incomplete_reason is not None:
         export_resolution["reason"] = incomplete_reason
-        export_resolution["exports_scope"] = "direct unconditional literal prefix; extensions unresolved"
+        export_resolution["exports_scope"] = exports_scope
     export_resolution["selector"] = (
         "Declared __all__; literal sequences/mapping keys, named/imported declarations, "
         "concatenation and sorted/list/tuple. No module execution or runtime dispatch."
@@ -929,9 +939,9 @@ def _entrypoint_inventory(module: str) -> SupportedEntrypointInventory:
     summary = (ast.get_docstring(tree) or "").strip().splitlines()
     return SupportedEntrypointInventory(
         module=module,
-        facade_mode_observed=_observed_facade_mode(
-            exports=exports,
-            has_getattr="__getattr__" in function_names,
+        facade_mode_observed=(
+            "unresolved_exports" if incomplete_reason is not None and not exports
+            else _observed_facade_mode(exports=exports, has_getattr="__getattr__" in function_names)
         ),
         export_count=len(exports) if incomplete_reason is None else None,
         known_export_count=len(exports),
@@ -1133,7 +1143,9 @@ def render_public_surface_json(
 
 
 def _export_count_display(count: int | None, known_count: int) -> str:
-    return str(count) if count is not None else f"unknown ({known_count} known prefix)"
+    if count is not None:
+        return str(count)
+    return f"unknown ({known_count} known prefix)" if known_count else "unknown (no names proven)"
 
 
 def render_public_surface_markdown(inventory: list[PackageInventory]) -> str:
@@ -1527,7 +1539,7 @@ def _check_public_surface_contracts(inventory: list[PackageInventory]) -> list[G
                         ),
                     )
                 )
-        if item.facade_mode_expected != item.facade_mode_observed:
+        if item.export_count is not None and item.facade_mode_expected != item.facade_mode_observed:
             violations.append(
                 GuardrailViolation(
                     check="public_surface",

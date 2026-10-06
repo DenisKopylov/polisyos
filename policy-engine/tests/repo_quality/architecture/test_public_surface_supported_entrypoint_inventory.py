@@ -53,11 +53,19 @@ def test_supported_entrypoint_inventory_resolves_module_and_package_facades() ->
 
 
 def test_foundry_public_surface_exposes_only_embedding_contract_from_backends() -> None:
+    import polisyos.foundry as facade
+    from polisyos.foundry.methods import backends
+
     foundry = next(package for package in _inventory() if package.module == "polisyos.foundry")
-    root_exports = set(foundry.exports)
-    internal_backend_exports = set(
-        guardrails._entrypoint_inventory("polisyos.foundry.methods.backends").exports
-    )
+    root_entrypoint = next(row for row in foundry.entrypoints if row.module == foundry.module)
+    assert foundry.export_count is None
+    assert foundry.known_export_count == 0
+    assert root_entrypoint.export_resolution["complete"] is False
+    assert "not an empty runtime namespace" in root_entrypoint.export_resolution["exports_scope"]
+    # Real declaration consumers preserve the original embedding boundary;
+    # import/name checks do not execute any optional estimator backend.
+    root_exports = set(facade.__all__)
+    internal_backend_exports = set(backends.__all__)
     embedding_exports = {
         "EmbedderProtocol",
         "SentenceTransformerEmbedder",

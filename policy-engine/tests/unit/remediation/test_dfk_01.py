@@ -394,6 +394,66 @@ def test_dfk_01_census_binds_imports_strings_dynamic_loaders_and_exclusions(
     assert read_paths == set(files) | {"generated/descriptor.json"}
 
 
+def test_dfk_01_census_selects_repository_text_resource_and_config_types(
+    tmp_path: Path,
+) -> None:
+    """The census includes tracked text formats beyond Python and common manifests."""
+    files = {
+        ".env.example": "LEGACY_MODULE=polisyos.foundry.domain.mechanisms\n",
+        "owners.tsv": "finding\tfqn\nLA-027\tpolisyos.data_forge.kernel.pipeline.schemas\n",
+        "policy.rego": 'package fixtures\nmodule := "polisyos.data_forge.kernel.schemas.codegen"\n',
+        "runtime.log": "loaded polisyos.foundry.domain.schema\n",
+        "styles.css": "/* resource foundry/domain/schema.py */\n",
+        "template.tmpl": "module: polisyos.data_forge.kernel.schemas.codegen\n",
+        "template.tpl": "module: polisyos.foundry.domain.schema\n",
+        "change.patch": "+polisyos.foundry.domain.mechanisms\n",
+        "query.cypher": "// polisyos.data_forge.kernel.pipeline.schemas\n",
+        "sample.fixture": '{"module": "polisyos.foundry.domain.mechanisms"}\n',
+        "snapshot.blob": '{"module": "polisyos.foundry.domain.schema"}\n',
+        "Dockerfile.reproducible": "FROM python:3.14\n",
+        "receipt.sha256": "0123456789abcdef  file\n",
+        ".nvmrc": "22\n",
+        ".yamllint": "extends: default\n",
+        ".prettierignore": "dist\n",
+        "LICENSE": "fixture license\n",
+        "docs/OWNER": "maintained by the fixture\n",
+        "docs/.gitkeep": "",
+    }
+    _init_census_repository(tmp_path, files)
+
+    completed, receipt = _run_census(tmp_path)
+
+    assert completed.returncode == 0
+    selected_paths = set(receipt["selection"]["selected_paths"])
+    assert set(files).issubset(selected_paths)
+    matches = receipt["matches"]
+    expected = {
+        ".env.example": "polisyos.foundry.domain.mechanisms",
+        "owners.tsv": "polisyos.data_forge.kernel.pipeline.schemas",
+        "policy.rego": "polisyos.data_forge.kernel.schemas.codegen",
+        "runtime.log": "polisyos.foundry.domain.schema",
+        "styles.css": "polisyos.foundry.domain.schema",
+        "template.tmpl": "polisyos.data_forge.kernel.schemas.codegen",
+        "template.tpl": "polisyos.foundry.domain.schema",
+        "change.patch": "polisyos.foundry.domain.mechanisms",
+        "query.cypher": "polisyos.data_forge.kernel.pipeline.schemas",
+        "sample.fixture": "polisyos.foundry.domain.mechanisms",
+        "snapshot.blob": "polisyos.foundry.domain.schema",
+    }
+    for path, target in expected.items():
+        assert any(hit["path"] == path and hit["target"] == target for hit in matches)
+    assert any(
+        hit["path"] == "styles.css" and hit["evidence_kind"] == "resource_path_reference"
+        for hit in matches
+    )
+    read_paths = {
+        item["path"]
+        for item in receipt["read_receipt"]["inputs"]
+        if item["operation"] == "read_bytes" and item["status"] == "read"
+    }
+    assert read_paths == set(files)
+
+
 def test_dfk_01_census_does_not_turn_missing_tracked_input_into_zero(
     tmp_path: Path,
 ) -> None:

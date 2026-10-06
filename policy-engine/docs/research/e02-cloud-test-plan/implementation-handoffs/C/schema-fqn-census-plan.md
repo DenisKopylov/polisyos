@@ -46,7 +46,9 @@
 - [x] Write tests for exact relative-import, serialized-name and resource-path hits, a nonliteral loader reported as unresolved, an ignored-only candidate input, an unreadable enumerated input, and a changed input changing both digest and match results.
 - [x] Run those tests first and confirm they fail at the absent census command.
 - [x] Implement the smallest CLI using Git's tracked, nonignored-untracked, and ignored path queries plus `measure_file_reads` / `measured_read_bytes`; keep Git/subprocess and dynamic-import limits explicit in the output.
-- [x] Re-run the focused tests and inspect every output field on a fixture; run a full local text-input census to measure its denominator and findings.
+- [x] Test and include the repository's present text/resource suffixes and no-suffix configuration names, including owner TSV, policy, serialized `.blob`, log, CSS, templates, patches, Cypher, fixtures, and `.env.example`; prove each selected input contributes the expected FQN/resource evidence.
+- [x] Re-run the focused tests and inspect every output field on a fixture.
+- [ ] Run the complete local text-input census at the post-selector-fix implementation SHA; the earlier census at `248cf935` was superseded when the text-type denominator expanded.
 
 ### Task 2: Exercise canonical Foundry and Data Forge consumers
 
@@ -56,7 +58,7 @@
 - [x] Add a real `PureExecutor.run` witness using canonical `TaxationMechanism` and an independently calculated fixed-rate result.
 - [x] Compare the full canonical Foundry runtime registry to an independent ID/class-path fixture; resolve every registered runtime class and dispatch a mechanism through `MethodDispatcher`.
 - [x] Assert exact tombstone FQN import failure and absence of the source-package resource; never recreate it in product source.
-- [x] Run DFK schema/evolution/migration, the registry/runner witness, and real agent-sim mechanism/world consumer selectors (30 passed).
+- [x] Run DFK schema/evolution/migration, the registry/runner witness, and real agent-sim mechanism/world consumer selectors (31 passed).
 - [ ] The existing unified Foundry runtime consumer selector was run in the combined suite (33 passed, 1 failed): `test_simulation_methods_dispatch_and_agent_sim_bridge_runs` expects `not_available`, while the runtime returns `diagnostic_attached`. Its test and Foundry source inputs are unchanged from the slice base, but an exact base replay was unavailable under the one-worktree lease; classify this failure `not_established` under P41 and leave that separate consumer assertion untouched.
 - [x] Do not add a registry, DTO migration, generator, or alias retirement to make the tests pass.
 

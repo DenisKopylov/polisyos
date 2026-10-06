@@ -576,6 +576,7 @@
         "cache_dir=/tmp/e02-B-completion-consumer-a391-f838d5837d24/cache",
         "--junitxml=/tmp/e02-B-completion-consumer-a391-f838d5837d24/native.xml"
       ],
+      "command": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python -m pytest -vv -p origin_guard tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py --basetemp /tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest -o cache_dir=/tmp/e02-B-completion-consumer-a391-f838d5837d24/cache --junitxml=/tmp/e02-B-completion-consumer-a391-f838d5837d24/native.xml",
       "complete_result": {
         "bytes": 12049,
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/result.json",
@@ -639,6 +640,13 @@
         "source_sha": "533985871f1320c8a2c3bc525e96e8f98f13e13b"
       },
       "outcome": "PASS",
+      "output": {
+        "bytes": 4097,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/native-stdout.txt",
+        "qualification": "Complete original stdout bytes; mandatory HANDOFF alias, no new execution.",
+        "sha256": "91dd293a2a7befe83a58c4f1bc334a1f6725cb936497f81a5961ba221e58ce5b",
+        "source_sha": "533985871f1320c8a2c3bc525e96e8f98f13e13b"
+      },
       "qualification": "Actual whole11-case independent finite consumer baseline; healthy source behavior",
       "rusage_exact_pytest_pid": {
         "maxrss_kib": 106236,
@@ -687,6 +695,7 @@
         "cache_dir=/tmp/e02-B-completion-consumer-removal-a391-b2ecbf77cb67/cache",
         "--junitxml=/tmp/e02-B-completion-consumer-removal-a391-b2ecbf77cb67/native.xml"
       ],
+      "command": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python -m pytest -vv -p origin_guard -p removal_guard 'tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py::test_posteffect_completion_publication_fault_blocks_live_and_fresh_consumers[file_fsync-invoke]' --basetemp /tmp/e02-B-completion-consumer-removal-a391-b2ecbf77cb67/pytest -o cache_dir=/tmp/e02-B-completion-consumer-removal-a391-b2ecbf77cb67/cache --junitxml=/tmp/e02-B-completion-consumer-removal-a391-b2ecbf77cb67/native.xml",
       "complete_result": {
         "bytes": 3929,
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/initial-nondistinguishing-removal/result.json",
@@ -750,6 +759,13 @@
         "source_sha": "533985871f1320c8a2c3bc525e96e8f98f13e13b"
       },
       "outcome": "FAIL",
+      "output": {
+        "bytes": 3727,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/initial-nondistinguishing-removal/native-stdout.txt",
+        "qualification": "Complete original stdout bytes; mandatory HANDOFF alias, no new execution.",
+        "sha256": "56e21b50a67dc8b8bca598d239b5518ec6876d14733db5a0abe25009e12614e7",
+        "source_sha": "533985871f1320c8a2c3bc525e96e8f98f13e13b"
+      },
       "qualification": "Actual1FAIL retained; NONDISTINGUISHING: first transition stagefault not reached, no property-removal proof",
       "rusage_exact_pytest_pid": {
         "maxrss_kib": 107976,
@@ -798,6 +814,7 @@
         "cache_dir=/tmp/e02-B-completion-consumer-removal2-a391-b98c1250eb70/cache",
         "--junitxml=/tmp/e02-B-completion-consumer-removal2-a391-b98c1250eb70/native.xml"
       ],
+      "command": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python -m pytest -vv -p origin_guard -p removal_guard2 'tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py::test_posteffect_completion_publication_fault_blocks_live_and_fresh_consumers[file_fsync-invoke]' --basetemp /tmp/e02-B-completion-consumer-removal2-a391-b98c1250eb70/pytest -o cache_dir=/tmp/e02-B-completion-consumer-removal2-a391-b98c1250eb70/cache --junitxml=/tmp/e02-B-completion-consumer-removal2-a391-b98c1250eb70/native.xml",
       "complete_result": {
         "bytes": 3945,
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/defining-removal/result.json",
@@ -861,6 +878,13 @@
         "source_sha": "533985871f1320c8a2c3bc525e96e8f98f13e13b"
       },
       "outcome": "FAIL",
+      "output": {
+        "bytes": 4595,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/defining-removal/native-stdout.txt",
+        "qualification": "Complete original stdout bytes; mandatory HANDOFF alias, no new execution.",
+        "sha256": "55b9a5e418e48a55d054588f00c6dffc4c934194072053b4db9fb944537535e3",
+        "source_sha": "533985871f1320c8a2c3bc525e96e8f98f13e13b"
+      },
       "qualification": "Actual1FAIL expected original refusal assertion after genuine first stagefault and second physical effect; distinguishing property-removal control",
       "rusage_exact_pytest_pid": {
         "maxrss_kib": 108408,
@@ -888,7 +912,18 @@
         "check",
         "tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py"
       ],
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m ruff check tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py",
       "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "environment": {
+        "execution_profile": {
+          "bytes": 2118,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/static-profile.json",
+          "sha256": "d866e83cc5ca85cd2bae3b38433cc88e1d6a06300e0bd22912b78c9ec8513845",
+          "source_sha": "533985871f1320c8a2c3bc525e96e8f98f13e13b"
+        },
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "scope": "Original authored-file Ruff profile, actual checkout/test projection and exact argv recorded in profile; executable version census was not separately captured. No new environment measurement."
+      },
       "input_closure": {
         "bytes": 2118,
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/static-profile.json",
@@ -896,6 +931,13 @@
         "source_sha": "533985871f1320c8a2c3bc525e96e8f98f13e13b"
       },
       "outcome": "PASS",
+      "output": {
+        "bytes": 19,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/ruff-stdout.txt",
+        "qualification": "Complete original stdout bytes; mandatory HANDOFF alias, no new execution.",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "source_sha": "533985871f1320c8a2c3bc525e96e8f98f13e13b"
+      },
       "qualification": "Exact new test-file authored Ruff scope; docs literal custody driver copies/global gates not established by this check",
       "stdout": {
         "bytes": 19,
@@ -913,7 +955,18 @@
         "--check",
         "tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py"
       ],
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m ruff format --check tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py",
       "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "environment": {
+        "execution_profile": {
+          "bytes": 2118,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/static-profile.json",
+          "sha256": "d866e83cc5ca85cd2bae3b38433cc88e1d6a06300e0bd22912b78c9ec8513845",
+          "source_sha": "533985871f1320c8a2c3bc525e96e8f98f13e13b"
+        },
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "scope": "Original authored-file Ruff profile, actual checkout/test projection and exact argv recorded in profile; executable version census was not separately captured. No new environment measurement."
+      },
       "input_closure": {
         "bytes": 2118,
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/static-profile.json",
@@ -921,6 +974,13 @@
         "source_sha": "533985871f1320c8a2c3bc525e96e8f98f13e13b"
       },
       "outcome": "PASS",
+      "output": {
+        "bytes": 25,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/format-stdout.txt",
+        "qualification": "Complete original stdout bytes; mandatory HANDOFF alias, no new execution.",
+        "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+        "source_sha": "533985871f1320c8a2c3bc525e96e8f98f13e13b"
+      },
       "qualification": "Exact new test-file authored Ruff scope; docs literal custody driver copies/global gates not established by this check",
       "stdout": {
         "bytes": 25,
@@ -965,6 +1025,12 @@
       "Four sync/async pre-provider staged-file fsync/replace-before failures: actual provider0, no effect file, no published intent/reservation/spend mutation.",
       "Four sync/async post-effect stage failures: one physical effect, exact old full in-flight intent/hash retained, stage known0.02 ledger_ack_unknown observed, different live sibling refused, two new OSprocess/new-epoch consumers refused without a second effect."
     ],
+    "negative_controls": [
+      "Four sync/async pre-provider staged-file fsync/replace-before failures: actual provider0, no effect file, no published intent/reservation/spend mutation.",
+      "Four sync/async post-effect stage failures: one physical effect, exact old full in-flight intent/hash retained, stage known0.02 ledger_ack_unknown observed, different live sibling refused, two new OSprocess/new-epoch consumers refused without a second effect.",
+      "On one unchanged defining test, activate in-memory omission of admission gates only after the original actual stagefault. Original models/read/index/write/settlement and old record retained. A second actual physical effect and accepted sibling make original refusal assertion FAIL.",
+      "First broad omission was NONDISTINGUISHING because completion phase lookup was also changed and actual staged fault was never reached; full original FAIL preserved."
+    ],
     "positive_controls": [
       "Genuine reported known-zero completions allow two successive real physical calls in distinct processes.",
       "Two same-live genuinely concurrent async physical calls enter with two retained intent records and complete with two genuine0.02 receipts."
@@ -976,6 +1042,12 @@
   },
   "proposed_criterion_ids": [],
   "pull_request": "https://github.com/DenisKopylov/polisyos/pull/42",
+  "receipt_schema_correction": {
+    "predecessor_receipt_sha": "140d1358e7bdd2da17038579d63c4fdbedc33f31",
+    "predecessor_sha256": "bc0394582208594d32c4bdb3efc62edc75f3e04a7168d9872e21ebadae62b7aa",
+    "qualification": "Current later upper/lower source remains a distinct target; this receipt continues to prove only actual a391 composed-source behavior.",
+    "scope": "Mandatory command/output/environment aliases for existing checks and negative_controls property. Original implementation/tree/77 changed paths (one test +76 evidence artifacts), native 11PASS and both preserved removal FAILs, inputs and all deciding bytes unchanged. No runtime, collection, source or test changes."
+  },
   "receiver_availability": {
     "complete_moderate_deciding_bytes": "All source-byte inventories, literal instruments, complete pytest stdout/XML, child stdout/stderr, physical effect records and final ledger wires committed in candidate533; native source a391 and test619 separately pinned Git refs. Original /tmp paths require same environment; receiver can reconstruct instruments from exact .txt files and source refs.",
     "ignored_original_inputs": "Original unique /tmp fixtures and ignored instruments remain in place; no move/delete/prune. Empty file-lock witnesses retained. Pytest current-directory aliases excluded from unique denominator."

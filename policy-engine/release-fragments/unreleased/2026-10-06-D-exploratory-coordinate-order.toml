@@ -1,0 +1,22 @@
+id = "2026-10-06-D-exploratory-coordinate-order"
+title = "Apply resolved exploratory sensitivity to native coordinate order"
+type = "added"
+component = "scientist-search"
+owner = "team-policyos-runtime"
+change_class = "internal"
+summary = "The existing sensitivity adapter resolves a full verified DOE receipt, recomputes its analysis, and applies an explicit complete coordinate-order permutation through the native Bayesian generator before activity. Physical proposals and generator continuation retain the full ref and parameter basis."
+compatibility = "Existing generators without an ordering port remain metadata-only. Native activation requires matching complete continuous non-log uniform bounds and known declared units; prior unbound metadata-only recipes are refused. Default unconfigured native proposals retain their stream. The same configured reader runs before proposals and restore."
+evidence = ["tests/unit/scientist/methods/autotune/test_sensitivity_order_consumer.py"]
+limitations = "This is an exploratory permutation of the existing algorithm, not an optimization-quality or population-law claim. Default spec metadata activation and typed-codec projection require the separate canonical runtime companion."
+
+[[compatibility_change]]
+id = "D-exploratory-order-profile-v1"
+change_class = "runtime-state-format"
+impact = "breaking"
+surface = "internal: scientist.methods.autotune.BayesianCandidateGenerator sensitivity configuration"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "not_applicable"
+release_note = "Explicit native sensitivity activation now changes coordinate assignment and binds complete source configuration; old metadata-only states cannot impersonate this ordered stream."
+migration_docs = ["docs/how-to/search-exploratory-coordinate-order.md"]
+runbook_docs = ["docs/how-to/search-exploratory-coordinate-order.md"]

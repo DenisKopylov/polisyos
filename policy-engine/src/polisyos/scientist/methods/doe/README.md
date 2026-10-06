@@ -50,7 +50,10 @@ or triangular sampling law. Finite values and divisible row counts alone are
 insufficient. Whole valid blocks may be reordered or bootstrapped; individual
 row resampling cannot preserve this design. `RankingStabilityChecker` therefore
 resamples whole Morris trajectories. Its Sobol/FAST resampling is outside this
-bounded repair. It validates the original Morris design before resampling and
+bounded repair; those methods return `unsupported` with the requested bootstrap
+and input-run denominators before attempting a replicate. Morris reports every
+replicate outcome and marks success-only ranking summaries `limited` when any
+replicate fails. It validates the original Morris design before resampling and
 refuses failed original runs; ranking stability under dropped or imputed runs
 has no admitted selection or recovery contract.
 
@@ -59,6 +62,41 @@ The uniform elementary-effect helper requires explicit physical bounds and
 uncertainty remains unavailable until its coordinate contract is admitted.
 Geometry does not authenticate original trajectory provenance or establish
 statistical sufficiency or absence of failure-selection bias.
+
+## Ordered experiment and consumer readback
+
+Sobol plans now require `input_law="independent"` and an explicit seed before
+sampling. This declares a product parameter experiment; it does not establish
+independence of a population source. Analysis reconciles the complete Saltelli
+blocks with the canonical seeded SALib sampler, including block multiplicity and
+the A/AB/BA/B role order inside each block. Whole blocks with their paired outputs
+may be permuted; this preserves the point estimands while changing the actual
+ordered design/analysis content IDs. Missing/duplicated blocks, changed interior
+roles, correlated, or differently transformed rows are rejected before estimating
+indices. A prior receipt cannot bind the new order merely because its numerical
+indices agree.
+
+The native interaction oracle uses independent uniform inputs and
+`y=x+z+2*x*z`: first-order indices are `12/25` each, the interaction is `1/25`,
+and total-order indices are `13/25` each. Its numerical tolerance is declared
+separately from the analytic truth. It exercises sampler, analyzer and interaction
+ranking; list/tuple shape alone does not verify those quantities.
+
+The autotune `SensitivityBridge` uses this same producer for distribution,
+seed, and budget admission. Passing its configured `store` persists a
+`doe_sensitivity_analysis` artifact containing the complete plan, ordered
+samples, all outcomes (nonfinite failures have explicit tags), denominator, and result.
+`_receipt.py` owns this internal writer/loader. The existing search
+`SensitivityAwareCandidateGenerator.from_artifact` checks CAS kind/schema and
+integrity, reproduces the native analysis, and carries exact design/analysis
+IDs and the typed reference through both single and batch candidate paths.
+A content-valid receipt with a fabricated index is rejected on readback.
+
+Effects declare `unit_coordinate_full_range` for Morris and `variance_fraction`
+for Sobol/FAST; parameter units remain explicit, with `unspecified` preserved
+as a limitation. Artifacts are exploratory parameter experiments. Evaluator
+provenance, population source-law validity, causal effects, and production
+history remain `not_established`; numerical replay does not create authority.
 
 ## Public API
 
@@ -82,7 +120,7 @@ statistical sufficiency or absence of failure-selection bias.
 
 ## Текущее состояние
 
-- Последнее обновление: 2026-10-05
-- Python modules: 11
+- Последнее обновление: 2026-10-06
+- Python modules: 12
 - Exports: 82
 - README синхронизирован с тем, что `doe` остается upstream для search/stress flows

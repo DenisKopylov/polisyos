@@ -1,0 +1,212 @@
+{
+  "payload_count": 41,
+  "payload_bytes": 9595476,
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 2702,
+      "sha256": "c57cdaea73a165a8b2f7f5627c8934e317b125db30299bbea223ae8522008f83"
+    },
+    {
+      "path": "all-eight-first-attempt-interpretation.json",
+      "bytes": 13256,
+      "sha256": "50e7b6c580d5fb906dcd7c172f89f30c678df8c707e4787964db17f39c38cf62"
+    },
+    {
+      "path": "architecture-first-attempt-state.json",
+      "bytes": 48416,
+      "sha256": "222a925cdcf18511ab47882950a2741cb2957fda7b5bee0769536ff87303aa24"
+    },
+    {
+      "path": "architecture-profile.json",
+      "bytes": 12036,
+      "sha256": "490b6703550e68aca91c8490d9c2145e0056cedc5a028e07aa890c0a3d319a5a"
+    },
+    {
+      "path": "architecture.json",
+      "bytes": 2600,
+      "sha256": "75c0038afae610f1b1748b812b33b3f5b362c79438d62d5570e398e33e3cc158"
+    },
+    {
+      "path": "architecture.txt",
+      "bytes": 130854,
+      "sha256": "f50bf77c51ce57163af7c25bd9a63059249de6176a506ecad027c9272e6c2f90"
+    },
+    {
+      "path": "cache-warm-cache-after.json",
+      "bytes": 1711544,
+      "sha256": "ab72cee0c7827c8038b12d4b6657635db3bcd7f2d523ee8e7765f7bd8c18174e"
+    },
+    {
+      "path": "cache-warm-cache-before.json",
+      "bytes": 16587,
+      "sha256": "9aaf334fa461a0c9e624b446fecde1debf6e3f3fdc4b848255f48e5dce43e296"
+    },
+    {
+      "path": "cache-warm-prepare.source.txt",
+      "bytes": 4688,
+      "sha256": "b2813b03ac2b62d529c707632618b865ff9b2eae3946ceae73aa7d36dab7e9d3"
+    },
+    {
+      "path": "cache-warm-private-imports-and-packages.json",
+      "bytes": 10292,
+      "sha256": "205c86ae5b4d420a156f3faae85ced6ec83d58ba04244f20a22b54fc0e470b29"
+    },
+    {
+      "path": "cache-warm-profile.json",
+      "bytes": 7927,
+      "sha256": "2160e9a862d6d2f0e56ca8f9d063219d17741834dd7468be5dbe800e70fb24ce"
+    },
+    {
+      "path": "cache-warm-sync.json",
+      "bytes": 626,
+      "sha256": "04c50b47570f1e538cc79ff3fd611d93f0d798bb81eaff3ec0d5a5dae036ecc1"
+    },
+    {
+      "path": "cache-warm-sync.txt",
+      "bytes": 5067,
+      "sha256": "e6166c3e7243c063891a3ec092b463437b60d77b51f6ec9866dfe9686daca4af"
+    },
+    {
+      "path": "cache-warm-venv.json",
+      "bytes": 789,
+      "sha256": "6b13239eaf969d5ae124d2ace2bc7f5c13350d8525174439573265c82b66f887"
+    },
+    {
+      "path": "cache-warm-venv.txt",
+      "bytes": 318,
+      "sha256": "c3263e2c297352eae2198f03caa5b051021f0ab4375694af4d1c797611c39a0f"
+    },
+    {
+      "path": "format-complete-path-census.json",
+      "bytes": 12493,
+      "sha256": "adeba553313c60002ca3327b890c1896712090bee0ef4c4bb94672b6422ac4f4"
+    },
+    {
+      "path": "format-profile.json",
+      "bytes": 1267503,
+      "sha256": "212bd260876805a23df9036221f575d232a2e8930c5e82d11ba486eb1bb4d00d"
+    },
+    {
+      "path": "format.json",
+      "bytes": 27675,
+      "sha256": "d350f987e173274abab5c899fc39eeee52b7983a7a68e3a47e012c32b0a7d503"
+    },
+    {
+      "path": "format.txt",
+      "bytes": 13342,
+      "sha256": "b8ef37db82492c3bb687b19b99d8a54c80465a495b3a3474d169934adf0fc666"
+    },
+    {
+      "path": "mypy-profile.json",
+      "bytes": 22148,
+      "sha256": "a739e3ea7f33b79acd22fc0111b50e0b0b2b35a17d7e9f2f7239e04b6d3f7d5c"
+    },
+    {
+      "path": "mypy.json",
+      "bytes": 3339,
+      "sha256": "dae0919d4ee79b7b37e46386f63d6db4e35e6998c065ea56f9b7cddc55eb7d80"
+    },
+    {
+      "path": "mypy.txt",
+      "bytes": 522,
+      "sha256": "8c0c9b162c464b26f5d7bb42dacb2997549922def46bd68f0066c47e3188b018"
+    },
+    {
+      "path": "parity-uncapped-profile.json",
+      "bytes": 13553,
+      "sha256": "75370dae889dfb12a7343480d24180167b0887bc3efe6a19c7fba7bd9f27ffff"
+    },
+    {
+      "path": "parity-uncapped.json",
+      "bytes": 2855,
+      "sha256": "4c60314c355e109b6b75a59f476d8ec28a1445f96595f7869f2d74c3fbb4f771"
+    },
+    {
+      "path": "parity-uncapped.txt",
+      "bytes": 28797,
+      "sha256": "99392d4f09004e1259264f66b635345658cb89de5565aa72148e2f3717b58aea"
+    },
+    {
+      "path": "production-invocation-profile.json",
+      "bytes": 10838,
+      "sha256": "8eb1969c202ba86060f2df52883ea97d052f41fa48d5b863d405354e61f6a128"
+    },
+    {
+      "path": "production-invocation.json",
+      "bytes": 2667,
+      "sha256": "c6c6a0403f3ebaa47bcc000a8ff9264829ea105c1c9e3fd365e80b2d4cc077eb"
+    },
+    {
+      "path": "production-invocation.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "review.source.txt",
+      "bytes": 15111,
+      "sha256": "90950ff3945b05615b15faaf1c286c6b6d5d8fe2e6d2775cf2d377281bdb57a9"
+    },
+    {
+      "path": "ruff-complete-diagnostic-census.json",
+      "bytes": 1215995,
+      "sha256": "238805c1d35bcaa71f16f9bcae1b04c2a57f3364adbd22fe1bdb48eb14d0789a"
+    },
+    {
+      "path": "ruff-profile.json",
+      "bytes": 1267487,
+      "sha256": "26af6e5a843d283c06e5bf55121ea50fae4060b940e5801a66800d300df87598"
+    },
+    {
+      "path": "ruff.json",
+      "bytes": 27675,
+      "sha256": "69f81f80ff5c2c89f6b67702685a0db4f2ce7d1ed5f741918b484dbfaec038d0"
+    },
+    {
+      "path": "ruff.txt",
+      "bytes": 2914362,
+      "sha256": "e0be76c099d6e89e44dbc1887b4ffdcf238fec819b362805293f692634edac89"
+    },
+    {
+      "path": "runtime-api-profile.json",
+      "bytes": 10170,
+      "sha256": "0f30774d937612d16f70b87599504cec8a546ec4c0576faeeca09552ed97b57a"
+    },
+    {
+      "path": "runtime-api.json",
+      "bytes": 2481,
+      "sha256": "1330e458c1487ed3b9a84e2fc60a8077b9c6e5e24b031e8dc985bda0d66b2cc5"
+    },
+    {
+      "path": "runtime-api.txt",
+      "bytes": 7059,
+      "sha256": "50b2389f8127b9a0e0e5336717e6ff3a371f90d03d62d1c847a32faa5ec03ee7"
+    },
+    {
+      "path": "source-and-artifact-custody.json",
+      "bytes": 665078,
+      "sha256": "c2e7806c169d46738c95cf83d9b8b95babdd4caa4d62eb52e95af1e73d294689"
+    },
+    {
+      "path": "uncapped-complete-phase-interpretation.json",
+      "bytes": 62151,
+      "sha256": "3c8ebaa7f3ae89d86f1b3c0299c52043ce91ac9a7a68cba1f91c52a9eb6dba2a"
+    },
+    {
+      "path": "verify-uncapped-profile.json",
+      "bytes": 13547,
+      "sha256": "4b07cf3f5cdc3a248ab48d050c226c2ace839b33af5f6f1e81f001d8fbab1e5d"
+    },
+    {
+      "path": "verify-uncapped.json",
+      "bytes": 2851,
+      "sha256": "975a0e513b8fcfb2aa467d7d0cd9b3253381c0ef4ae5577e06cf1fcc50dd0b22"
+    },
+    {
+      "path": "verify-uncapped.txt",
+      "bytes": 18075,
+      "sha256": "c3031cf0dba852239a3bf68cfe3cff9696a08fad2849082f4cbd3be56f4bd841"
+    }
+  ],
+  "scope": "Actual first8 full moderate outputs/captures/profiles plus exact data-only census and separately authorized frozen dependency-cache preparation. No large copied environments, wheels, cached distributions or production data committed."
+}

@@ -160,6 +160,37 @@ def test_generation_collision_cannot_delete_existing_generation(tmp_path, monkey
     np.testing.assert_array_equal(ChainCheckpoint.load(path).intermediate_state["arr"], [1.0])
 
 
+@pytest.mark.parametrize("unsupported", ["integer", "boolean", "null", "mixed", "reserved_tag"])
+def test_unsupported_mapping_refuses_before_pointer_and_preserves_original(
+    tmp_path, unsupported
+) -> None:
+    path = tmp_path / "selected.json"
+    ChainCheckpoint("mapping", [], [], {"arr": np.array([1.0])}).save(path)
+    pointer_bytes = path.read_bytes()
+    generation_root = tmp_path / f".{path.name}.generations"
+    old_generations = set(generation_root.iterdir())
+    if unsupported == "mixed":
+        nested = {1: np.array([2.0]), "1": np.array([3.0])}
+    elif unsupported == "reserved_tag":
+        nested = {"__npy_ref__": "ordinary user label", "arr": np.array([2.0])}
+    else:
+        key = {"integer": 1, "boolean": True, "null": None}[unsupported]
+        nested = {key: np.array([2.0])}
+
+    with pytest.raises(CheckpointSaveError):
+        ChainCheckpoint("mapping", [], [], {"nested": [nested]}).save(path)
+    assert path.read_bytes() == pointer_bytes
+    assert set(generation_root.iterdir()) == old_generations
+    np.testing.assert_array_equal(ChainCheckpoint.load(path).intermediate_state["arr"], [1.0])
+
+    # Removing only the unsupported key form retains actual generation/array
+    # publication and admits the nested list/mapping/NumPy consumer normally.
+    ChainCheckpoint("mapping", [], [], {"nested": [{"ordinary": np.array([2.0])}]}).save(path)
+    np.testing.assert_array_equal(
+        ChainCheckpoint.load(path).intermediate_state["nested"][0]["ordinary"], [2.0]
+    )
+
+
 def test_find_latest_checkpoint_skips_corrupt_latest_and_records_issue(tmp_path) -> None:
     chain = _FakeChain(["demo.a@1.0.0", "demo.b@1.0.0"])
     digest = _compute_chain_digest(chain)

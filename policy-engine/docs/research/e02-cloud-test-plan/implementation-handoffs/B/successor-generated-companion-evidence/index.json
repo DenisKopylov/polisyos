@@ -43,6 +43,66 @@
       "bytes": 1099,
       "sha256": "e1201295af3673d7bfff18f6f2e758c8f349a36abbb0d0b3406c7b8b1301bd6c",
       "original_path": "/tmp/e02-B-successor-public-sync-launch.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step0.txt",
+      "bytes": 226,
+      "sha256": "cb299935d7449081b4081a0c0abb488c063695f53bd5e0e10915815e858594d3",
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-prefreeze-client-421-step0.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step0.json",
+      "bytes": 2314,
+      "sha256": "522582f0d167d4cf5d552ce0d2eff1b8b2f488b0c547ddb685a2f990c67ee54c",
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-prefreeze-client-421-step0.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step1.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-prefreeze-client-421-step1.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step1.json",
+      "bytes": 2151,
+      "sha256": "ced4159f2ffbe20a6cf292a038501f6f31aa86aaa54904abc43984749d423532",
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-prefreeze-client-421-step1.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step2.txt",
+      "bytes": 104,
+      "sha256": "6e09243b29671e6f6a7eb312f4512c9d801a627c9f380d4be9efdbdc729dd7a5",
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-prefreeze-client-421-step2.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step2.json",
+      "bytes": 2360,
+      "sha256": "d718dd2e41de66c97107320fbc5799e144bf568bf54aed6376623039e7df6aa1",
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-prefreeze-client-421-step2.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step3.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-prefreeze-client-421-step3.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step3.json",
+      "bytes": 2564,
+      "sha256": "4596311b1c2cccbdd6b7db0fb3cfa44fddcb7cb81e08064bc101f0252d2382f2",
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-prefreeze-client-421-step3.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-result.json",
+      "bytes": 3121,
+      "sha256": "56a59b9df1be715e3123d92ec2512414c40ca98b323bdc7c0366ca0b00bf7a86",
+      "original_path": "/tmp/e02-B-successor-client-421/result.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-launch.source.txt",
+      "bytes": 3317,
+      "sha256": "13c8bd67b05746dc4135a48199fc247a5ff759f33ae5dfbeda4df133b52a5ab9",
+      "original_path": "/tmp/e02-B-successor-client-421-launch.py"
     }
   ]
 }

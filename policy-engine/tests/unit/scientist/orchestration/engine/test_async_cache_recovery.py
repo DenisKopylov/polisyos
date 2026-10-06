@@ -13,8 +13,10 @@ from pathlib import Path
 
 import pytest
 
+from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.canon import content_hash
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
@@ -76,6 +78,7 @@ class GatedCAS(FileSystemCAS):
         self.release = threading.Event()
         self.finished = threading.Event()
         self.target_reads = 0
+        self.gate_read = 1
         self.read_thread: int | None = None
         self.read_context: str | None = None
 
@@ -85,7 +88,7 @@ class GatedCAS(FileSystemCAS):
         )
         if self.target is not None and content_id == self.target:
             self.target_reads += 1
-            if self.target_reads == 1:
+            if self.target_reads == self.gate_read:
                 self.read_thread = threading.get_ident()
                 self.read_context = _CALLER_CONTEXT.get()
                 self.entered.set()
@@ -96,6 +99,33 @@ class GatedCAS(FileSystemCAS):
                 finally:
                     self.finished.set()
         return super().get_bytes(artifact_id)
+
+
+class GatedPublicationCAS(FileSystemCAS):
+    def __init__(self, root: Path, *, corrupt_destination: bool = False) -> None:
+        super().__init__(root)
+        self.entered = threading.Event()
+        self.release = threading.Event()
+        self.published: ArtifactRef | None = None
+        self.corrupt_destination = corrupt_destination
+
+    def put_bytes(self, data, opts):
+        if opts.kind != "scientist.node_cache_entry":
+            return super().put_bytes(data, opts)
+        self.entered.set()
+        if self.corrupt_destination:
+            blob, _manifest = self._paths(ArtifactID.from_sha256_hex(content_hash(data)))
+            assert not blob.exists()
+            blob.parent.mkdir(parents=True, exist_ok=True)
+            blob.write_bytes(b"corrupt existing cache destination")
+            try:
+                return super().put_bytes(data, opts)
+            finally:
+                blob.unlink(missing_ok=True)
+        if not self.release.wait(3):
+            raise RuntimeError("physical publication watchdog exhausted")
+        self.published = super().put_bytes(data, opts)
+        return self.published
 
 
 def context(store: FileSystemCAS, run_id: str, run_dir: Path) -> ExecutionContext:
@@ -352,3 +382,140 @@ def test_seed_deadline_prevents_any_following_real_read(tmp_path: Path, seed_sou
     assert store.target_reads == 1
     assert cache.size == 0
     assert cache.get(key) is None
+
+
+@pytest.mark.parametrize("seed_source", ["trace", "checkpoint"])
+@pytest.mark.parametrize("gate_read", [1, 2], ids=["recovery", "warm_read"])
+@pytest.mark.asyncio
+async def test_absent_owner_deadline_does_not_inherit_helper_timeout(
+    tmp_path: Path, monkeypatch, seed_source: str, gate_read: int
+):
+    from polisyos.common import async_tools
+
+    store, executor, node, spec, _refs = await cold_setup(tmp_path, seed_source)
+    store.gate_read = gate_read
+    monkeypatch.setattr(async_tools, "_DEFAULT_TIMEOUT_SECONDS", 0.1)
+
+    def release():
+        assert store.entered.wait(3)
+        time.sleep(0.3)
+        store.release.set()
+
+    helper = threading.Thread(target=release)
+    helper.start()
+    try:
+        result = await executor.execute(spec, state("R_cache_recovery", current=True))
+    finally:
+        store.release.set()
+        helper.join(3)
+    assert node.calls == 1
+    assert result.report.status == "ok"
+    assert result.state.params == {
+        "seed": 7,
+        "same": 4,
+        "nullable": None,
+        "unrelated": "new",
+        "result": 14,
+    }
+    assert executor._cache is not None
+    assert store.finished.is_set()
+
+
+@pytest.mark.asyncio
+async def test_startup_and_body_share_one_absolute_workflow_deadline(tmp_path: Path):
+    store, executor, node, spec, _refs = await cold_setup(tmp_path, "checkpoint")
+    old_head = resolve_latest_checkpoint(store, "R_cache_recovery", run_dir=tmp_path / "run")
+    hook_entered = asyncio.Event()
+
+    class DelayedCheckpointHook(CASCheckpointHook):
+        async def on_tier_complete_async(self, **kwargs):
+            hook_entered.set()
+            # Cancellation arrives before the actual publication operation.
+            # Already-entered synchronous backend publication is a separate
+            # recovery/generation criterion, not established by this control.
+            await asyncio.sleep(0.45)
+            return await super().on_tier_complete_async(**kwargs)
+
+    executor._checkpoint_hook = DelayedCheckpointHook(store=store, run_dir=tmp_path / "run")
+    executor._workflow_timeout_s = 0.6
+
+    def release():
+        assert store.entered.wait(3)
+        time.sleep(0.3)
+        store.release.set()
+
+    helper = threading.Thread(target=release)
+    helper.start()
+    try:
+        with pytest.raises(WorkflowTimeoutError):
+            await executor.execute(spec, state("R_cache_recovery", current=True))
+    finally:
+        store.release.set()
+        helper.join(3)
+    assert hook_entered.is_set()
+    assert node.calls == 1
+    new_head = resolve_latest_checkpoint(store, "R_cache_recovery", run_dir=tmp_path / "run")
+    assert new_head[0] == old_head[0]
+    assert new_head[1].state == old_head[1].state
+
+
+@pytest.mark.parametrize("end", ["unbounded", "cancel", "corrupt_destination"])
+@pytest.mark.asyncio
+async def test_publication_trace_requires_completed_verified_storage(
+    tmp_path: Path, monkeypatch, end: str
+):
+    from polisyos.common import async_tools
+
+    store = GatedPublicationCAS(tmp_path / "cas", corrupt_destination=end == "corrupt_destination")
+    node = RecoveryNode()
+    spec, registry = workflow(node)
+    run_dir = tmp_path / "run"
+    ctx = context(store, "R_publication", run_dir)
+    executor = AsyncWorkflowExecutor(ctx, registry)
+    if end == "unbounded":
+        monkeypatch.setattr(async_tools, "_DEFAULT_TIMEOUT_SECONDS", 0.1)
+    loop = asyncio.get_running_loop()
+    task = asyncio.create_task(executor.execute(spec, state("R_publication")))
+
+    def release():
+        assert store.entered.wait(3)
+        if end == "cancel":
+            loop.call_soon_threadsafe(task.cancel)
+        time.sleep(0.3)
+        store.release.set()
+
+    helper = threading.Thread(target=release)
+    helper.start()
+    try:
+        if end == "cancel":
+            with pytest.raises(asyncio.CancelledError):
+                await task
+        else:
+            result = await task
+            assert result.report.status == "ok"
+    finally:
+        store.release.set()
+        helper.join(3)
+    events = [json.loads(line) for line in ctx.run.trace_path.read_text().splitlines()]
+    publications = [event for event in events if event["event"] == "NODE_CACHE_STORE"]
+    assert len(publications) == (1 if end == "unbounded" else 0)
+    if end != "corrupt_destination":
+        assert store.published is not None
+        assert FileSystemCAS(tmp_path / "cas").verify(store.published).ok
+    if end == "cancel":
+        assert (
+            executor._cache.get(compute_idempotency_key(node.spec, state("R_publication"))) is None
+        )
+    fresh = FileSystemCAS(tmp_path / "cas")
+    fresh_ctx = context(fresh, "R_publication", run_dir)
+    resumed = await AsyncWorkflowExecutor(fresh_ctx, registry).execute(
+        spec, state("R_publication", current=True)
+    )
+    assert node.calls == (1 if end == "unbounded" else 2)
+    assert resumed.state.params == {
+        "seed": 7,
+        "same": 4,
+        "nullable": None,
+        "unrelated": "new",
+        "result": 14,
+    }

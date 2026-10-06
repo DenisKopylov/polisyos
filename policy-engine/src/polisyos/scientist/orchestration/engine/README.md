@@ -60,6 +60,10 @@ workflow deadline. A cancelled or superseded recovery cannot publish a late inde
 The same deadline covers trace iteration, entry verification, index admission,
 and the residual workflow body. Read-budget admission precedes recovery reads;
 compute-budget admission applies to a cache miss.
+When no owner deadline is configured, recovery, cache reads and cache publication
+explicitly select the shared executor's unbounded wait. They do not inherit its
+default timeout. Checkpoint publication and already-entered backend operations
+retain their separate durability and cancellation contracts.
 
 The synchronous store must support access from the shared executor, matching the
 existing async artifact-store adapter contract. Already-entered synchronous

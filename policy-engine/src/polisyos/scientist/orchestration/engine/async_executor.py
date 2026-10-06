@@ -1456,6 +1456,7 @@ class AsyncWorkflowExecutor:
         return await run_blocking_async(
             recover,
             timeout_seconds=self._remaining_deadline_seconds(deadline_monotonic),
+            unbounded=deadline_monotonic is None,
         )
 
     def _run_tenant_context(self) -> ArtifactTenantContextInfo | None:
@@ -1563,6 +1564,7 @@ class AsyncWorkflowExecutor:
             run_blocking_async(
                 put_and_reconcile,
                 timeout_seconds=timeout_seconds,
+                unbounded=deadline_monotonic is None,
             )
         )
         try:
@@ -1702,6 +1704,7 @@ class AsyncWorkflowExecutor:
                     cache_key,
                     deadline_monotonic=cache_deadline,
                     timeout_seconds=self._remaining_deadline_seconds(cache_deadline),
+                    unbounded=cache_deadline is None,
                 )
             except _EXECUTOR_DEGRADED_ERRORS as exc:
                 _executor_degraded(

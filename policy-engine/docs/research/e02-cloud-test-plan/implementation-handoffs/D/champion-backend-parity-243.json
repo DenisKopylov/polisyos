@@ -1,0 +1,1641 @@
+{
+  "schema": "e02.backend_parity_receipt.v1",
+  "captured_at": "2026-10-06T12:20:34.820421+00:00",
+  "stage": "First completed/blocked backend wave; canonical full extension queued for a separate append receipt.",
+  "overall_status": "NOT_ACCEPTED: no full backend, literal-wrapper, full doctored browser-profile, full extension or architecture generated-freshness PASS",
+  "closure_ids": [],
+  "source": {
+    "root_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+    "root_tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+    "actual_repo_root": "/workspace/e02-D-published-root",
+    "actual_product_root": "/workspace/e02-D-published-root/policy-engine",
+    "all_started_gate_source_before_after_match": true
+  },
+  "execution_input_checkpoint": {
+    "sha": "a13fbae958014fa3673d507817382c45c3bb1bae",
+    "tree": "46a6c56b31c05d1a0365e99d9eb3786e9b4baded",
+    "ordinary_push_remote_readback": "a13fbae958014fa3673d507817382c45c3bb1bae",
+    "publisher_base": "9b48e6878d7384b6144c7d1430f52e6cffcf4800"
+  },
+  "denominator": {
+    "source_derived_backend": 25,
+    "additional_expanded_doctor": 5,
+    "additional_full_architecture": 1,
+    "backend_counts": {
+      "ERROR_ENVIRONMENT_RESOURCE_BLOCKED_UNRUN_INCOMPLETE": 11,
+      "FAIL_COMPLETED_CONTRACT": 3,
+      "PASS": 6,
+      "ERROR_INCOMPLETE_SIGNAL": 4,
+      "UNRUN": 1
+    },
+    "complete_selectors": "verify14 + ci_parity backend11, with existing pytest.ini intact; fullfast -m not integration --ignore=tests/unit/runtime/http and separate runtime/http. No additions/exclusions, no CPU/numeric/test-worker caps."
+  },
+  "literal_wrappers": {
+    "status": "UNRUN_INCOMPATIBLE_WITH_REQUESTED_UNCAPPED_PROFILE",
+    "reason": "verify/ci_parity inject6 numerical environment overrides equal1. Direct commands retain exact actual selectors/config and remove only those wrapper overrides; canonical uv run environment synchronization is not executed against shared locked base."
+  },
+  "runtime": {
+    "python": "/dev/shm/e02-D-parity-env/bin/python",
+    "sys_prefix": "/dev/shm/e02-D-parity-env",
+    "uv": "uv 0.9.21",
+    "actual57_doc_ml_locked_versions": "environment-preparation-v2.json in complete bundle",
+    "root_import_origins": "actual polisyos/tools origins recorded in environment-preparation-v2.json",
+    "locked_metadata_integrity": {
+      "quantity": "dist-info files and pyvenv.cfg byte hashes/pathset only; not whole environment bytes or .pyc census",
+      "count_before": 1417,
+      "count_after": 1417,
+      "byte_changes": [],
+      "added_paths": [],
+      "removed_paths": [],
+      "observed_at": "2026-10-06T12:17:20.275851+00:00"
+    },
+    "limitations": "57 measured dependency closure is not a whole-environment byte census. Supplier observed69 .pyc mtimes during initial preparation; no sole-actor attribution. Own Python children all PYTHONDONTWRITEBYTECODE=1. Third-party/environment identity does not establish production measurement truth or institutional authority."
+  },
+  "own_preparation_corrections": [
+    {
+      "issue": "Initial uv version probe expected an extra trailing space/build suffix; actual canonical baseline was bare uv0.9.21",
+      "action": "Corrected using existing _common.uv_baseline_matches; initial output/source preserved."
+    },
+    {
+      "issue": "/usr/bin/time absent",
+      "action": "All28 initial launcher attempts failed before any gate child; execute_gate_v2 direct argv + stdlib resource observation retained separately."
+    },
+    {
+      "issue": "Foreign /proc/198/io PermissionError during termination census",
+      "action": "No signals sent by first census; skip inaccessible foreign records, verify exact owner ancestry/argv/starttime before signals in v2."
+    }
+  ],
+  "gates": [
+    {
+      "id": "B01",
+      "label": "lint imports",
+      "status": "ERROR_ENVIRONMENT_RESOURCE_BLOCKED_UNRUN_INCOMPLETE",
+      "reason": "Explicit parent-authorized termination after observed resident tmpfs saturation and stalled progress; no imposed run/worker/CPU quota.",
+      "actual_exit_code": -15,
+      "wall_seconds": 719.8606649330031,
+      "actual_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/lint/lint_imports.py",
+        "--policy",
+        "architecture/imports/policy.toml",
+        "--exceptions",
+        "architecture/imports/exceptions.toml"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "source_before": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_after": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_unchanged": true,
+      "numeric_and_worker_env": {
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "BLIS_NUM_THREADS": null,
+        "POLISYOS_PYTEST_WORKERS": null,
+        "POLISYOS_PYTEST_DIST": null,
+        "POLISYOS_TORCH_NUM_THREADS": null,
+        "POLISYOS_TORCH_INTEROP_THREADS": null,
+        "XLA_FLAGS": null
+      },
+      "stdout": {
+        "bytes": 0,
+        "rawfile_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "observed_output_paths_before": [],
+      "artifact_scope": "Retained files are observations. Preexisting unchanged outputs are not evidence that a blocked producer completed.",
+      "record_relative_path": "results-v2/B01/record.json"
+    },
+    {
+      "id": "B02",
+      "label": "check package import gates (shell-package closure)",
+      "status": "ERROR_ENVIRONMENT_RESOURCE_BLOCKED_UNRUN_INCOMPLETE",
+      "reason": "Explicit parent-authorized termination after observed resident tmpfs saturation and stalled progress; no imposed run/worker/CPU quota.",
+      "actual_exit_code": -15,
+      "wall_seconds": 719.8075406339922,
+      "actual_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "-m",
+        "tools.cli",
+        "validation",
+        "check-package-import-gates",
+        "--fail-closed",
+        "--json-output",
+        "_build/.tmp/last-mile/package-import-gates.json"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "source_before": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_after": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_unchanged": true,
+      "numeric_and_worker_env": {
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "BLIS_NUM_THREADS": null,
+        "POLISYOS_PYTEST_WORKERS": null,
+        "POLISYOS_PYTEST_DIST": null,
+        "POLISYOS_TORCH_NUM_THREADS": null,
+        "POLISYOS_TORCH_INTEROP_THREADS": null,
+        "XLA_FLAGS": null
+      },
+      "stdout": {
+        "bytes": 0,
+        "rawfile_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "observed_output_paths_before": [
+        {
+          "path": "_build/.tmp/last-mile/package-import-gates.json",
+          "before": "absent"
+        }
+      ],
+      "artifact_scope": "Retained files are observations. Preexisting unchanged outputs are not evidence that a blocked producer completed.",
+      "record_relative_path": "results-v2/B02/record.json"
+    },
+    {
+      "id": "B03",
+      "label": "lint foundry",
+      "status": "ERROR_ENVIRONMENT_RESOURCE_BLOCKED_UNRUN_INCOMPLETE",
+      "reason": "Explicit parent-authorized termination after observed resident tmpfs saturation and stalled progress; no imposed run/worker/CPU quota.",
+      "actual_exit_code": -15,
+      "wall_seconds": 719.8890737790061,
+      "actual_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "-m",
+        "tools.quality.lint.lint_foundry",
+        "--repo-root",
+        "."
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "source_before": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_after": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_unchanged": true,
+      "numeric_and_worker_env": {
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "BLIS_NUM_THREADS": null,
+        "POLISYOS_PYTEST_WORKERS": null,
+        "POLISYOS_PYTEST_DIST": null,
+        "POLISYOS_TORCH_NUM_THREADS": null,
+        "POLISYOS_TORCH_INTEROP_THREADS": null,
+        "XLA_FLAGS": null
+      },
+      "stdout": {
+        "bytes": 0,
+        "rawfile_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "observed_output_paths_before": [],
+      "artifact_scope": "Retained files are observations. Preexisting unchanged outputs are not evidence that a blocked producer completed.",
+      "record_relative_path": "results-v2/B03/record.json"
+    },
+    {
+      "id": "B04",
+      "label": "check state reads",
+      "status": "FAIL_COMPLETED_CONTRACT",
+      "reason": "Actual completed check reports contract violations; no pinned-base complete-input waiver established.",
+      "actual_exit_code": 1,
+      "wall_seconds": 3.501619098999072,
+      "actual_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/diagnostics/check_state_reads.py"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "source_before": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_after": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_unchanged": true,
+      "numeric_and_worker_env": {
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "BLIS_NUM_THREADS": null,
+        "POLISYOS_PYTEST_WORKERS": null,
+        "POLISYOS_PYTEST_DIST": null,
+        "POLISYOS_TORCH_NUM_THREADS": null,
+        "POLISYOS_TORCH_INTEROP_THREADS": null,
+        "XLA_FLAGS": null
+      },
+      "stdout": {
+        "bytes": 1494,
+        "rawfile_sha256": "025fdd295a2336e97cf5cddae1afc31f0f3f24bea97a3f34586897a4152d6e1e"
+      },
+      "observed_output_paths_before": [],
+      "artifact_scope": "Retained files are observations. Preexisting unchanged outputs are not evidence that a blocked producer completed.",
+      "record_relative_path": "results-v2/B04/record.json"
+    },
+    {
+      "id": "B05",
+      "label": "check scholar imports",
+      "status": "PASS",
+      "reason": "Actual command completed successfully.",
+      "actual_exit_code": 0,
+      "wall_seconds": 1.3153146439872216,
+      "actual_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/lint/check_scholar_imports.py"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "source_before": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_after": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_unchanged": true,
+      "numeric_and_worker_env": {
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "BLIS_NUM_THREADS": null,
+        "POLISYOS_PYTEST_WORKERS": null,
+        "POLISYOS_PYTEST_DIST": null,
+        "POLISYOS_TORCH_NUM_THREADS": null,
+        "POLISYOS_TORCH_INTEROP_THREADS": null,
+        "XLA_FLAGS": null
+      },
+      "stdout": {
+        "bytes": 24,
+        "rawfile_sha256": "43f2361ccca6bc36f0477e6db72c3a0875502a3b4a1622deb4d1de713648e5ad"
+      },
+      "observed_output_paths_before": [],
+      "artifact_scope": "Retained files are observations. Preexisting unchanged outputs are not evidence that a blocked producer completed.",
+      "record_relative_path": "results-v2/B05/record.json"
+    },
+    {
+      "id": "B06",
+      "label": "check connector contracts",
+      "status": "PASS",
+      "reason": "Actual command completed successfully.",
+      "actual_exit_code": 0,
+      "wall_seconds": 98.87737129100424,
+      "actual_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "-m",
+        "tools.cli",
+        "connectors",
+        "check-contracts",
+        "--check"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "source_before": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_after": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_unchanged": true,
+      "numeric_and_worker_env": {
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "BLIS_NUM_THREADS": null,
+        "POLISYOS_PYTEST_WORKERS": null,
+        "POLISYOS_PYTEST_DIST": null,
+        "POLISYOS_TORCH_NUM_THREADS": null,
+        "POLISYOS_TORCH_INTEROP_THREADS": null,
+        "XLA_FLAGS": null
+      },
+      "stdout": {
+        "bytes": 32,
+        "rawfile_sha256": "8afb1abaffac02edb4baa91bf813c45fe1ca9a346f5eac71db731d4aaba6aa57"
+      },
+      "observed_output_paths_before": [],
+      "artifact_scope": "Retained files are observations. Preexisting unchanged outputs are not evidence that a blocked producer completed.",
+      "record_relative_path": "results-v2/B06/record.json"
+    },
+    {
+      "id": "B07",
+      "label": "check schema freshness",
+      "status": "ERROR_INCOMPLETE_SIGNAL",
+      "reason": "SIGKILL; no complete deciding verdict; shared observed OOM counters do not establish sole PID causation.",
+      "actual_exit_code": -9,
+      "wall_seconds": 177.2484067309997,
+      "actual_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/diagnostics/gen_schema.py",
+        "--check"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "source_before": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_after": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_unchanged": true,
+      "numeric_and_worker_env": {
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "BLIS_NUM_THREADS": null,
+        "POLISYOS_PYTEST_WORKERS": null,
+        "POLISYOS_PYTEST_DIST": null,
+        "POLISYOS_TORCH_NUM_THREADS": null,
+        "POLISYOS_TORCH_INTEROP_THREADS": null,
+        "XLA_FLAGS": null
+      },
+      "stdout": {
+        "bytes": 0,
+        "rawfile_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "observed_output_paths_before": [],
+      "artifact_scope": "Retained files are observations. Preexisting unchanged outputs are not evidence that a blocked producer completed.",
+      "record_relative_path": "results-v2/B07/record.json"
+    },
+    {
+      "id": "B08",
+      "label": "check runtime API contract",
+      "status": "ERROR_ENVIRONMENT_RESOURCE_BLOCKED_UNRUN_INCOMPLETE",
+      "reason": "Explicit parent-authorized termination after observed resident tmpfs saturation and stalled progress; no imposed run/worker/CPU quota.",
+      "actual_exit_code": -15,
+      "wall_seconds": 719.5080820120056,
+      "actual_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/ops_runners/runtime/check_runtime_api_contract.py"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "source_before": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_after": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_unchanged": true,
+      "numeric_and_worker_env": {
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "BLIS_NUM_THREADS": null,
+        "POLISYOS_PYTEST_WORKERS": null,
+        "POLISYOS_PYTEST_DIST": null,
+        "POLISYOS_TORCH_NUM_THREADS": null,
+        "POLISYOS_TORCH_INTEROP_THREADS": null,
+        "XLA_FLAGS": null
+      },
+      "stdout": {
+        "bytes": 0,
+        "rawfile_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "observed_output_paths_before": [],
+      "artifact_scope": "Retained files are observations. Preexisting unchanged outputs are not evidence that a blocked producer completed.",
+      "record_relative_path": "results-v2/B08/record.json"
+    },
+    {
+      "id": "B09",
+      "label": "check last-mile inventory baseline",
+      "status": "ERROR_ENVIRONMENT_RESOURCE_BLOCKED_UNRUN_INCOMPLETE",
+      "reason": "Explicit parent-authorized termination after observed resident tmpfs saturation and stalled progress; no imposed run/worker/CPU quota.",
+      "actual_exit_code": -15,
+      "wall_seconds": 719.7117288750014,
+      "actual_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/validation/repository_last_mile_inventory.py",
+        "--json-output",
+        "_build/.tmp/last-mile/inventory.json",
+        "--check"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "source_before": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_after": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_unchanged": true,
+      "numeric_and_worker_env": {
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "BLIS_NUM_THREADS": null,
+        "POLISYOS_PYTEST_WORKERS": null,
+        "POLISYOS_PYTEST_DIST": null,
+        "POLISYOS_TORCH_NUM_THREADS": null,
+        "POLISYOS_TORCH_INTEROP_THREADS": null,
+        "XLA_FLAGS": null
+      },
+      "stdout": {
+        "bytes": 0,
+        "rawfile_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "observed_output_paths_before": [
+        {
+          "path": "_build/.tmp/last-mile/inventory.json",
+          "before": "absent"
+        }
+      ],
+      "artifact_scope": "Retained files are observations. Preexisting unchanged outputs are not evidence that a blocked producer completed.",
+      "record_relative_path": "results-v2/B09/record.json"
+    },
+    {
+      "id": "B10",
+      "label": "build honest diagnostics coverage dashboard",
+      "status": "ERROR_INCOMPLETE_SIGNAL",
+      "reason": "SIGKILL; no complete deciding verdict; shared observed OOM counters do not establish sole PID causation.",
+      "actual_exit_code": -9,
+      "wall_seconds": 234.7695053829957,
+      "actual_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/validation/build_honest_diagnostics_coverage.py",
+        "--repo-root",
+        ".",
+        "--output-dir",
+        "_build/honest-diagnostics/coverage"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "source_before": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_after": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_unchanged": true,
+      "numeric_and_worker_env": {
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "BLIS_NUM_THREADS": null,
+        "POLISYOS_PYTEST_WORKERS": null,
+        "POLISYOS_PYTEST_DIST": null,
+        "POLISYOS_TORCH_NUM_THREADS": null,
+        "POLISYOS_TORCH_INTEROP_THREADS": null,
+        "XLA_FLAGS": null
+      },
+      "stdout": {
+        "bytes": 0,
+        "rawfile_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "observed_output_paths_before": [
+        {
+          "path": "_build/honest-diagnostics/coverage/coverage.json",
+          "before": "absent"
+        },
+        {
+          "path": "_build/honest-diagnostics/coverage/coverage.md",
+          "before": "absent"
+        }
+      ],
+      "artifact_scope": "Retained files are observations. Preexisting unchanged outputs are not evidence that a blocked producer completed.",
+      "record_relative_path": "results-v2/B10/record.json"
+    },
+    {
+      "id": "B11",
+      "label": "check honest diagnostics substrate drift",
+      "status": "ERROR_ENVIRONMENT_RESOURCE_BLOCKED_UNRUN_INCOMPLETE",
+      "reason": "Explicit parent-authorized termination after observed resident tmpfs saturation and stalled progress; no imposed run/worker/CPU quota.",
+      "actual_exit_code": -15,
+      "wall_seconds": 719.1972626839997,
+      "actual_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/validation/check_substrate_drift.py",
+        "--repo-root",
+        ".",
+        "--require-passing"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "source_before": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_after": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_unchanged": true,
+      "numeric_and_worker_env": {
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "BLIS_NUM_THREADS": null,
+        "POLISYOS_PYTEST_WORKERS": null,
+        "POLISYOS_PYTEST_DIST": null,
+        "POLISYOS_TORCH_NUM_THREADS": null,
+        "POLISYOS_TORCH_INTEROP_THREADS": null,
+        "XLA_FLAGS": null
+      },
+      "stdout": {
+        "bytes": 0,
+        "rawfile_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "observed_output_paths_before": [],
+      "artifact_scope": "Retained files are observations. Preexisting unchanged outputs are not evidence that a blocked producer completed.",
+      "record_relative_path": "results-v2/B11/record.json"
+    },
+    {
+      "id": "B12",
+      "label": "check extension example contract coverage",
+      "status": "PASS",
+      "reason": "Actual command completed successfully.",
+      "actual_exit_code": 0,
+      "wall_seconds": 1.1198206240078434,
+      "actual_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/validation/check_extension_examples.py",
+        "--skip-install",
+        "--skip-discovery",
+        "--skip-pytest"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "source_before": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_after": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_unchanged": true,
+      "numeric_and_worker_env": {
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "BLIS_NUM_THREADS": null,
+        "POLISYOS_PYTEST_WORKERS": null,
+        "POLISYOS_PYTEST_DIST": null,
+        "POLISYOS_TORCH_NUM_THREADS": null,
+        "POLISYOS_TORCH_INTEROP_THREADS": null,
+        "XLA_FLAGS": null
+      },
+      "stdout": {
+        "bytes": 48,
+        "rawfile_sha256": "ab15a4fdd55e1f7e85de95e6f47e0468deb6dbe7ac982c230f8d773d381d8026"
+      },
+      "observed_output_paths_before": [],
+      "artifact_scope": "Retained files are observations. Preexisting unchanged outputs are not evidence that a blocked producer completed.",
+      "record_relative_path": "results-v2/B12/record.json"
+    },
+    {
+      "id": "B13",
+      "label": "check schemas pure-data closure",
+      "status": "PASS",
+      "reason": "Actual command completed successfully.",
+      "actual_exit_code": 0,
+      "wall_seconds": 0.2079471139877569,
+      "actual_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "-c",
+        "from pathlib import Path\n\nroot = Path(\"schemas\")\noutput = Path(\"_build/.tmp/last-mile/schemas-python-residue.txt\")\noutput.parent.mkdir(parents=True, exist_ok=True)\nmatches = []\nif root.exists():\n    for path in sorted(root.rglob(\"*\")):\n        if path.name == \"__pycache__\" or path.suffix == \".py\":\n            matches.append(path.as_posix())\noutput.write_text(\"\\n\".join(matches) + (\"\\n\" if matches else \"\"), encoding=\"utf-8\")\nif matches:\n    print(\"\\n\".join(matches))\n    raise SystemExit(1)"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "source_before": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_after": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_unchanged": true,
+      "numeric_and_worker_env": {
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "BLIS_NUM_THREADS": null,
+        "POLISYOS_PYTEST_WORKERS": null,
+        "POLISYOS_PYTEST_DIST": null,
+        "POLISYOS_TORCH_NUM_THREADS": null,
+        "POLISYOS_TORCH_INTEROP_THREADS": null,
+        "XLA_FLAGS": null
+      },
+      "stdout": {
+        "bytes": 0,
+        "rawfile_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "observed_output_paths_before": [
+        {
+          "path": "_build/.tmp/last-mile/schemas-python-residue.txt",
+          "before": "absent"
+        }
+      ],
+      "artifact_scope": "Retained files are observations. Preexisting unchanged outputs are not evidence that a blocked producer completed.",
+      "record_relative_path": "results-v2/B13/record.json"
+    },
+    {
+      "id": "B14",
+      "label": "pytest fast backend gate",
+      "status": "ERROR_INCOMPLETE_SIGNAL",
+      "reason": "SIGKILL; no complete deciding verdict; shared observed OOM counters do not establish sole PID causation.",
+      "actual_exit_code": -9,
+      "wall_seconds": 147.67632984400552,
+      "actual_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "-m",
+        "pytest",
+        "-m",
+        "not integration",
+        "--ignore=tests/unit/runtime/http",
+        "--basetemp=/dev/shm/e02-D-parity-B14-234f4e0580e5477dbcc868d1c6afb2fd"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "source_before": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_after": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_unchanged": true,
+      "numeric_and_worker_env": {
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "BLIS_NUM_THREADS": null,
+        "POLISYOS_PYTEST_WORKERS": null,
+        "POLISYOS_PYTEST_DIST": null,
+        "POLISYOS_TORCH_NUM_THREADS": null,
+        "POLISYOS_TORCH_INTEROP_THREADS": null,
+        "XLA_FLAGS": null
+      },
+      "stdout": {
+        "bytes": 0,
+        "rawfile_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "observed_output_paths_before": [],
+      "artifact_scope": "Retained files are observations. Preexisting unchanged outputs are not evidence that a blocked producer completed.",
+      "record_relative_path": "results-v2/B14/record.json"
+    },
+    {
+      "id": "B15",
+      "label": "pytest runtime/http",
+      "status": "ERROR_ENVIRONMENT_RESOURCE_BLOCKED_UNRUN_INCOMPLETE",
+      "reason": "Explicit parent-authorized termination after observed resident tmpfs saturation and stalled progress; no imposed run/worker/CPU quota.",
+      "actual_exit_code": -15,
+      "wall_seconds": 542.1025882709946,
+      "actual_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/runtime/http",
+        "--basetemp=/dev/shm/e02-D-parity-B15-14afb7ce574e407d980771b5b3cb21cc"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "source_before": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_after": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_unchanged": true,
+      "numeric_and_worker_env": {
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "BLIS_NUM_THREADS": null,
+        "POLISYOS_PYTEST_WORKERS": null,
+        "POLISYOS_PYTEST_DIST": null,
+        "POLISYOS_TORCH_NUM_THREADS": null,
+        "POLISYOS_TORCH_INTEROP_THREADS": null,
+        "XLA_FLAGS": null
+      },
+      "stdout": {
+        "bytes": 0,
+        "rawfile_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "observed_output_paths_before": [],
+      "artifact_scope": "Retained files are observations. Preexisting unchanged outputs are not evidence that a blocked producer completed.",
+      "record_relative_path": "results-v2/B15/record.json"
+    },
+    {
+      "id": "B16",
+      "label": "check directory health ratchet",
+      "status": "ERROR_ENVIRONMENT_RESOURCE_BLOCKED_UNRUN_INCOMPLETE",
+      "reason": "Explicit parent-authorized termination after observed resident tmpfs saturation and stalled progress; no imposed run/worker/CPU quota.",
+      "actual_exit_code": -15,
+      "wall_seconds": 719.5683121979964,
+      "actual_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/validation/directory_health.py",
+        "--repo-root",
+        ".",
+        "--json-output",
+        "_build/.tmp/last-mile/directory-health.json",
+        "--markdown-output",
+        "_build/.tmp/last-mile/directory-health.md",
+        "--fail-on-regression"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "source_before": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_after": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_unchanged": true,
+      "numeric_and_worker_env": {
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "BLIS_NUM_THREADS": null,
+        "POLISYOS_PYTEST_WORKERS": null,
+        "POLISYOS_PYTEST_DIST": null,
+        "POLISYOS_TORCH_NUM_THREADS": null,
+        "POLISYOS_TORCH_INTEROP_THREADS": null,
+        "XLA_FLAGS": null
+      },
+      "stdout": {
+        "bytes": 0,
+        "rawfile_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "observed_output_paths_before": [
+        {
+          "path": "_build/.tmp/last-mile/directory-health.json",
+          "before": "absent"
+        },
+        {
+          "path": "_build/.tmp/last-mile/directory-health.md",
+          "before": "absent"
+        }
+      ],
+      "artifact_scope": "Retained files are observations. Preexisting unchanged outputs are not evidence that a blocked producer completed.",
+      "record_relative_path": "results-v2/B16/record.json"
+    },
+    {
+      "id": "B17",
+      "label": "check test ratchets and helper topology",
+      "status": "ERROR_ENVIRONMENT_RESOURCE_BLOCKED_UNRUN_INCOMPLETE",
+      "reason": "Explicit parent-authorized termination after observed resident tmpfs saturation and stalled progress; no imposed run/worker/CPU quota.",
+      "actual_exit_code": -15,
+      "wall_seconds": 719.5686368239985,
+      "actual_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/testing/report_test_ratchets.py",
+        "--format",
+        "json",
+        "--output",
+        "_build/.tmp/last-mile/test-ratchets.json",
+        "--fail-on-regression"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "source_before": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_after": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_unchanged": true,
+      "numeric_and_worker_env": {
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "BLIS_NUM_THREADS": null,
+        "POLISYOS_PYTEST_WORKERS": null,
+        "POLISYOS_PYTEST_DIST": null,
+        "POLISYOS_TORCH_NUM_THREADS": null,
+        "POLISYOS_TORCH_INTEROP_THREADS": null,
+        "XLA_FLAGS": null
+      },
+      "stdout": {
+        "bytes": 0,
+        "rawfile_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "observed_output_paths_before": [
+        {
+          "path": "_build/.tmp/last-mile/test-ratchets.json",
+          "before": "absent"
+        }
+      ],
+      "artifact_scope": "Retained files are observations. Preexisting unchanged outputs are not evidence that a blocked producer completed.",
+      "record_relative_path": "results-v2/B17/record.json"
+    },
+    {
+      "id": "B18",
+      "label": "check architecture phase6-1 report-only contracts",
+      "status": "ERROR_ENVIRONMENT_RESOURCE_BLOCKED_UNRUN_INCOMPLETE",
+      "reason": "Explicit parent-authorized termination after observed resident tmpfs saturation and stalled progress; no imposed run/worker/CPU quota.",
+      "actual_exit_code": -15,
+      "wall_seconds": 719.3951689520036,
+      "actual_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/validation/architecture_report_only_contracts.py",
+        "--report",
+        "phase6-1",
+        "--json-output",
+        "_build/.tmp/last-mile/architecture-phase6-1.json",
+        "--fail-on-contract-errors"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "source_before": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_after": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_unchanged": true,
+      "numeric_and_worker_env": {
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "BLIS_NUM_THREADS": null,
+        "POLISYOS_PYTEST_WORKERS": null,
+        "POLISYOS_PYTEST_DIST": null,
+        "POLISYOS_TORCH_NUM_THREADS": null,
+        "POLISYOS_TORCH_INTEROP_THREADS": null,
+        "XLA_FLAGS": null
+      },
+      "stdout": {
+        "bytes": 0,
+        "rawfile_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "observed_output_paths_before": [
+        {
+          "path": "_build/.tmp/last-mile/architecture-phase6-1.json",
+          "before": "absent"
+        }
+      ],
+      "artifact_scope": "Retained files are observations. Preexisting unchanged outputs are not evidence that a blocked producer completed.",
+      "record_relative_path": "results-v2/B18/record.json"
+    },
+    {
+      "id": "B19",
+      "label": "check validator module-size budget",
+      "status": "FAIL_COMPLETED_CONTRACT",
+      "reason": "Actual completed check reports contract violations; no pinned-base complete-input waiver established.",
+      "actual_exit_code": 1,
+      "wall_seconds": 9.686400899998262,
+      "actual_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/validation/architecture_report_only_contracts.py",
+        "--report",
+        "module-size",
+        "--json-output",
+        "_build/.tmp/last-mile/module-size.json",
+        "--fail-on-contract-errors"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "source_before": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_after": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_unchanged": true,
+      "numeric_and_worker_env": {
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "BLIS_NUM_THREADS": null,
+        "POLISYOS_PYTEST_WORKERS": null,
+        "POLISYOS_PYTEST_DIST": null,
+        "POLISYOS_TORCH_NUM_THREADS": null,
+        "POLISYOS_TORCH_INTEROP_THREADS": null,
+        "XLA_FLAGS": null
+      },
+      "stdout": {
+        "bytes": 0,
+        "rawfile_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "observed_output_paths_before": [
+        {
+          "path": "_build/.tmp/last-mile/module-size.json",
+          "before": "absent"
+        }
+      ],
+      "artifact_scope": "Retained files are observations. Preexisting unchanged outputs are not evidence that a blocked producer completed.",
+      "record_relative_path": "results-v2/B19/record.json"
+    },
+    {
+      "id": "B20",
+      "label": "report debt ledger reconciliation",
+      "status": "PASS",
+      "reason": "Actual command completed successfully.",
+      "actual_exit_code": 0,
+      "wall_seconds": 9.113181841996266,
+      "actual_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/validation/check_debt_ledger.py",
+        "--check",
+        "--report-only"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "source_before": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_after": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_unchanged": true,
+      "numeric_and_worker_env": {
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "BLIS_NUM_THREADS": null,
+        "POLISYOS_PYTEST_WORKERS": null,
+        "POLISYOS_PYTEST_DIST": null,
+        "POLISYOS_TORCH_NUM_THREADS": null,
+        "POLISYOS_TORCH_INTEROP_THREADS": null,
+        "XLA_FLAGS": null
+      },
+      "stdout": {
+        "bytes": 79617,
+        "rawfile_sha256": "eacc5e389938206bec43747cbc581885ab9a3707d8aedfedca53b3a94b8c4f3c"
+      },
+      "observed_output_paths_before": [],
+      "artifact_scope": "Retained files are observations. Preexisting unchanged outputs are not evidence that a blocked producer completed.",
+      "record_relative_path": "results-v2/B20/record.json"
+    },
+    {
+      "id": "B21",
+      "label": "check extension example installability",
+      "status": "UNRUN",
+      "reason": "Full extension requires exclusive overlay metadata access and shared-root pytest writer window; queued after current accepted consumers.",
+      "argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/validation/check_extension_examples.py"
+      ]
+    },
+    {
+      "id": "B22",
+      "label": "check ADR thematic index freshness",
+      "status": "PASS",
+      "reason": "Actual command completed successfully.",
+      "actual_exit_code": 0,
+      "wall_seconds": 2.2033238370058825,
+      "actual_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/validation/generate_adr_index.py",
+        "--check"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "source_before": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_after": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_unchanged": true,
+      "numeric_and_worker_env": {
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "BLIS_NUM_THREADS": null,
+        "POLISYOS_PYTEST_WORKERS": null,
+        "POLISYOS_PYTEST_DIST": null,
+        "POLISYOS_TORCH_NUM_THREADS": null,
+        "POLISYOS_TORCH_INTEROP_THREADS": null,
+        "XLA_FLAGS": null
+      },
+      "stdout": {
+        "bytes": 28,
+        "rawfile_sha256": "e6cb3d25339d1fb5adff0f49a1bec2afc7a9101bac49d652c862d1cee37058b9"
+      },
+      "observed_output_paths_before": [],
+      "artifact_scope": "Retained files are observations. Preexisting unchanged outputs are not evidence that a blocked producer completed.",
+      "record_relative_path": "results-v2/B22/record.json"
+    },
+    {
+      "id": "B23",
+      "label": "check docs accuracy",
+      "status": "FAIL_COMPLETED_CONTRACT",
+      "reason": "Actual completed check reports contract violations; no pinned-base complete-input waiver established.",
+      "actual_exit_code": 1,
+      "wall_seconds": 4.489565448006033,
+      "actual_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/validation/check_docs_accuracy.py",
+        "--repo-root",
+        "."
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "source_before": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_after": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_unchanged": true,
+      "numeric_and_worker_env": {
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "BLIS_NUM_THREADS": null,
+        "POLISYOS_PYTEST_WORKERS": null,
+        "POLISYOS_PYTEST_DIST": null,
+        "POLISYOS_TORCH_NUM_THREADS": null,
+        "POLISYOS_TORCH_INTEROP_THREADS": null,
+        "XLA_FLAGS": null
+      },
+      "stdout": {
+        "bytes": 2589,
+        "rawfile_sha256": "459cc4ff53c6dcb5cb8444e1bc22c715583f3a69411870176a6bf06bafcdb6be"
+      },
+      "observed_output_paths_before": [],
+      "artifact_scope": "Retained files are observations. Preexisting unchanged outputs are not evidence that a blocked producer completed.",
+      "record_relative_path": "results-v2/B23/record.json"
+    },
+    {
+      "id": "B24",
+      "label": "build docs in strict mode",
+      "status": "ERROR_ENVIRONMENT_RESOURCE_BLOCKED_UNRUN_INCOMPLETE",
+      "reason": "Explicit parent-authorized termination after observed resident tmpfs saturation and stalled progress; no imposed run/worker/CPU quota.",
+      "actual_exit_code": -15,
+      "wall_seconds": 718.8998955110001,
+      "actual_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "-m",
+        "mkdocs",
+        "build",
+        "--strict"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "source_before": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_after": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_unchanged": true,
+      "numeric_and_worker_env": {
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "BLIS_NUM_THREADS": null,
+        "POLISYOS_PYTEST_WORKERS": null,
+        "POLISYOS_PYTEST_DIST": null,
+        "POLISYOS_TORCH_NUM_THREADS": null,
+        "POLISYOS_TORCH_INTEROP_THREADS": null,
+        "XLA_FLAGS": null
+      },
+      "stdout": {
+        "bytes": 58067,
+        "rawfile_sha256": "4d09094de09dff13ff8f4dce1bf7a47d173a319409b8ed94f9d3ce3c769d4cff"
+      },
+      "observed_output_paths_before": [],
+      "artifact_scope": "Retained files are observations. Preexisting unchanged outputs are not evidence that a blocked producer completed.",
+      "record_relative_path": "results-v2/B24/record.json"
+    },
+    {
+      "id": "B25",
+      "label": "check semantic docstring quality",
+      "status": "ERROR_INCOMPLETE_SIGNAL",
+      "reason": "SIGKILL; no complete deciding verdict; shared observed OOM counters do not establish sole PID causation.",
+      "actual_exit_code": -9,
+      "wall_seconds": 97.43691042000137,
+      "actual_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/validation/check_docstring_quality.py",
+        "--repo-root",
+        ".",
+        "--allowlist",
+        "tools/quality/validation/docstring_quality_allowlist.txt",
+        "--coverage-scope",
+        "public-surface",
+        "--minimum-coverage",
+        "85"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "source_before": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_after": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_unchanged": true,
+      "numeric_and_worker_env": {
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "BLIS_NUM_THREADS": null,
+        "POLISYOS_PYTEST_WORKERS": null,
+        "POLISYOS_PYTEST_DIST": null,
+        "POLISYOS_TORCH_NUM_THREADS": null,
+        "POLISYOS_TORCH_INTEROP_THREADS": null,
+        "XLA_FLAGS": null
+      },
+      "stdout": {
+        "bytes": 0,
+        "rawfile_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "observed_output_paths_before": [],
+      "artifact_scope": "Retained files are observations. Preexisting unchanged outputs are not evidence that a blocked producer completed.",
+      "record_relative_path": "results-v2/B25/record.json"
+    },
+    {
+      "id": "D01",
+      "label": "doctor baseline versions and default optional surfaces",
+      "status": "PASS",
+      "reason": "Actual command completed successfully.",
+      "actual_exit_code": 0,
+      "wall_seconds": 0.8973621299955994,
+      "actual_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "-c",
+        "from dataclasses import asdict; import json; from tools.devx.workspace import doctor; results=[doctor._check_python(),doctor._check_node(),doctor._check_uv(),*doctor._check_optional_surfaces([])]; print(json.dumps({'source':doctor.__file__,'results':[asdict(x) for x in results]},indent=2)); raise SystemExit(int(any(not x.ok for x in results)))"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "source_before": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_after": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_unchanged": true,
+      "numeric_and_worker_env": {
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "BLIS_NUM_THREADS": null,
+        "POLISYOS_PYTEST_WORKERS": null,
+        "POLISYOS_PYTEST_DIST": null,
+        "POLISYOS_TORCH_NUM_THREADS": null,
+        "POLISYOS_TORCH_INTEROP_THREADS": null,
+        "XLA_FLAGS": null
+      },
+      "stdout": {
+        "bytes": 560,
+        "rawfile_sha256": "db327bd577b06c6b4d338801ff45ac970f71f80ee60e072068b7cfe7d4560a74"
+      },
+      "observed_output_paths_before": [],
+      "artifact_scope": "Retained files are observations. Preexisting unchanged outputs are not evidence that a blocked producer completed.",
+      "record_relative_path": "results-v2/D01/record.json"
+    },
+    {
+      "id": "D02",
+      "label": "doctor Chromium launch",
+      "status": "ERROR_ENVIRONMENT_MISSING_BROWSER",
+      "reason": "Actual pinned engine executable absent in initial profile; separate later engine profile/reader is not waived here.",
+      "actual_exit_code": 1,
+      "wall_seconds": 3.2399395820102654,
+      "actual_argv": [
+        "node",
+        "-e",
+        "const { chromium } = require(\"playwright\");\n(async () => {\n  const browser = await chromium.launch({ headless: true });\n  await browser.close();\n})().catch((error) => {\n  console.error(error);\n  process.exit(1);\n});"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine/apps/runtime-dashboard",
+      "source_before": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_after": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_unchanged": true,
+      "numeric_and_worker_env": {
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "BLIS_NUM_THREADS": null,
+        "POLISYOS_PYTEST_WORKERS": null,
+        "POLISYOS_PYTEST_DIST": null,
+        "POLISYOS_TORCH_NUM_THREADS": null,
+        "POLISYOS_TORCH_INTEROP_THREADS": null,
+        "XLA_FLAGS": null
+      },
+      "stdout": {
+        "bytes": 1022,
+        "rawfile_sha256": "91b9e5a9c09dfc046096c52d6a11052684c1ea998121c638c9566a0119a1ce79"
+      },
+      "observed_output_paths_before": [],
+      "artifact_scope": "Retained files are observations. Preexisting unchanged outputs are not evidence that a blocked producer completed.",
+      "record_relative_path": "results-v2/D02/record.json"
+    },
+    {
+      "id": "D03",
+      "label": "doctor uv lock freshness",
+      "status": "PASS",
+      "reason": "Actual command completed successfully.",
+      "actual_exit_code": 0,
+      "wall_seconds": 0.841404334991239,
+      "actual_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "lock",
+        "--check"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "source_before": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_after": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_unchanged": true,
+      "numeric_and_worker_env": {
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "BLIS_NUM_THREADS": null,
+        "POLISYOS_PYTEST_WORKERS": null,
+        "POLISYOS_PYTEST_DIST": null,
+        "POLISYOS_TORCH_NUM_THREADS": null,
+        "POLISYOS_TORCH_INTEROP_THREADS": null,
+        "XLA_FLAGS": null
+      },
+      "stdout": {
+        "bytes": 51,
+        "rawfile_sha256": "997d3c660494ef94c4d1f6dd66383a4148e18ac303955a339a7f7ea29ebb283d"
+      },
+      "observed_output_paths_before": [],
+      "artifact_scope": "Retained files are observations. Preexisting unchanged outputs are not evidence that a blocked producer completed.",
+      "record_relative_path": "results-v2/D03/record.json"
+    },
+    {
+      "id": "D04",
+      "label": "doctor pnpm lock freshness",
+      "status": "PASS",
+      "reason": "Actual command completed successfully.",
+      "actual_exit_code": 0,
+      "wall_seconds": 4.2645590149913915,
+      "actual_argv": [
+        "corepack",
+        "pnpm",
+        "install",
+        "--frozen-lockfile",
+        "--lockfile-only",
+        "--ignore-scripts"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "source_before": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_after": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_unchanged": true,
+      "numeric_and_worker_env": {
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "BLIS_NUM_THREADS": null,
+        "POLISYOS_PYTEST_WORKERS": null,
+        "POLISYOS_PYTEST_DIST": null,
+        "POLISYOS_TORCH_NUM_THREADS": null,
+        "POLISYOS_TORCH_INTEROP_THREADS": null,
+        "XLA_FLAGS": null
+      },
+      "stdout": {
+        "bytes": 65,
+        "rawfile_sha256": "60761c2e5b17b603a11667c32abd9154b9db93981c60ed6177d9dc0c7fc49797"
+      },
+      "observed_output_paths_before": [],
+      "artifact_scope": "Retained files are observations. Preexisting unchanged outputs are not evidence that a blocked producer completed.",
+      "record_relative_path": "results-v2/D04/record.json"
+    },
+    {
+      "id": "D05",
+      "label": "doctor frontend generated contracts",
+      "status": "PASS",
+      "reason": "Actual command completed successfully.",
+      "actual_exit_code": 0,
+      "wall_seconds": 237.7757490260119,
+      "actual_argv": [
+        "corepack",
+        "pnpm",
+        "run",
+        "contracts:verify"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine/apps/runtime-dashboard",
+      "source_before": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_after": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_unchanged": true,
+      "numeric_and_worker_env": {
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "BLIS_NUM_THREADS": null,
+        "POLISYOS_PYTEST_WORKERS": null,
+        "POLISYOS_PYTEST_DIST": null,
+        "POLISYOS_TORCH_NUM_THREADS": null,
+        "POLISYOS_TORCH_INTEROP_THREADS": null,
+        "XLA_FLAGS": null
+      },
+      "stdout": {
+        "bytes": 430,
+        "rawfile_sha256": "32b6ca672e65104bd4614d81d2e5ccdc57e9474723f06097445a48616ab4fb2b"
+      },
+      "observed_output_paths_before": [],
+      "artifact_scope": "Retained files are observations. Preexisting unchanged outputs are not evidence that a blocked producer completed.",
+      "record_relative_path": "results-v2/D05/record.json"
+    },
+    {
+      "id": "A01",
+      "label": "additional full architecture guardrails including required generated freshness",
+      "status": "ERROR_ENVIRONMENT_RESOURCE_BLOCKED_UNRUN_INCOMPLETE",
+      "reason": "Explicit parent-authorized termination after observed resident tmpfs saturation and stalled progress; no imposed run/worker/CPU quota.",
+      "actual_exit_code": -15,
+      "wall_seconds": 620.8966450169974,
+      "actual_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "-m",
+        "tools.cli",
+        "architecture",
+        "guardrails",
+        "check",
+        "--generated-freshness-workspace-root",
+        "/dev/shm/e02-D-architecture-freshness-243-9cd5c1e988854c36af7099432903249a",
+        "--generated-freshness-uv-cache-dir",
+        "/dev/shm/e02-D-parity-uv-cache"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "source_before": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_after": {
+        "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+        "tracked_status": "",
+        "tracked_diff": ""
+      },
+      "source_unchanged": true,
+      "numeric_and_worker_env": {
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "BLIS_NUM_THREADS": null,
+        "POLISYOS_PYTEST_WORKERS": null,
+        "POLISYOS_PYTEST_DIST": null,
+        "POLISYOS_TORCH_NUM_THREADS": null,
+        "POLISYOS_TORCH_INTEROP_THREADS": null,
+        "XLA_FLAGS": null
+      },
+      "stdout": {
+        "bytes": 0,
+        "rawfile_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "observed_output_paths_before": [],
+      "artifact_scope": "Retained files are observations. Preexisting unchanged outputs are not evidence that a blocked producer completed.",
+      "record_relative_path": "results-v2/A01/record.json"
+    }
+  ],
+  "completed_failures": {
+    "B04": "Nine missing state-read declarations at run_causal_evaluation.py, full1494-byte output.",
+    "B19": "Actual module-size artifact77 contract errors +6 report-only findings; full JSON retained.",
+    "B23": "10 docs accuracy violations; full2589-byte output.",
+    "base_waivers": "None. No identical pinned-base complete-input replay or zero input-intersection proof; no inherited-red waiver."
+  },
+  "termination": {
+    "all12_verified_own_blocked_children_reaped": true,
+    "orphan_census": "termination-reap-check.json in complete bundle",
+    "actual_facts": "termination-environment-blocked.json records resident shmem\u224814GB and kernel\u22481.18GB vs16GiB limit, full process ownership, observed counters; no solely attributed OOM cause.",
+    "resource_caps": "None imposed; interruption responded to demonstrated environment saturation."
+  },
+  "outputs": {
+    "lossless_bundle": "implementation-handoffs/D/champion-backend-parity-243-complete.json.gz",
+    "compressed_bytes": 276469,
+    "compressed_rawfile_sha256": "3b43811027e728a29773621628325adedaa4605a229edf6cda18f31cb0893b96",
+    "uncompressed_bytes": 1607629,
+    "uncompressed_rawfile_sha256": "bbd99363e3017c36384e5ad9b85c703cbbe45a706e4d05b6c3cc08a88f805a82",
+    "file_count": 371,
+    "encoding": "Deterministic gzip of JSON carrying every exact raw byte as base64; SHA256 for each file. Lossless compression keeps371+ moderate logs/metadata together without truncation.",
+    "direct_complete_logs": "implementation-handoffs/D/champion-backend-parity/actual-complete-logs/"
+  },
+  "preservation": {
+    "manual_deletion_or_cleanup": "None in this task. Previous deviation remains separately tracked.",
+    "retained_path_observations": "retained-paths-preextension.json in bundle; suppliedfreshbasetemp/retainedguard paths remained absent because consumers did not reach those phases.",
+    "normal_tool_lifecycle": "MkDocs reports Cleaning site directory; pre-existing site was verified absent before build, and site remains absent after interruption. No full rendered-site artifact or generated freshness workspace exists. Tool-default transient cleanup is not claimed globally measured.",
+    "source_mutations": "No production source or tests changed; only own-topic handoff inputs/outputs/receipts."
+  },
+  "pending": [
+    {
+      "id": "B21",
+      "needed": "One full canonical7-example install/discovery/pytest invocation only in writable overlay after all overlay consumers and shared pytest cache queue release."
+    },
+    {
+      "id": "D02",
+      "needed": "Initial missing-browser profile remains ERROR; gp_witness separately completed actual disk-engine launch/CDP successor and is publishing exact evidence."
+    }
+  ]
+}

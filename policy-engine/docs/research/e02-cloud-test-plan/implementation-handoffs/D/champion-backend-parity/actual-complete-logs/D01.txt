@@ -1,0 +1,25 @@
+{
+  "source": "/workspace/e02-D-published-root/policy-engine/tools/devx/workspace/doctor.py",
+  "results": [
+    {
+      "name": "python",
+      "ok": true,
+      "message": "Python 3.14.7 via /dev/shm/e02-D-parity-env/bin/python"
+    },
+    {
+      "name": "node",
+      "ok": true,
+      "message": "Node v22.23.3"
+    },
+    {
+      "name": "uv",
+      "ok": true,
+      "message": "uv 0.9.21 at /dev/shm/e02-D-parity-env/bin/uv"
+    },
+    {
+      "name": "optional-surfaces",
+      "ok": true,
+      "message": "No optional surfaces selected"
+    }
+  ]
+}

@@ -7,7 +7,6 @@
     "B216",
     "B217",
     "B219",
-    "B220",
     "B221",
     "B222",
     "B223",
@@ -1037,7 +1036,7 @@
     "authority_purpose": "candidate computation and bounded generic source-card verification; all result and estimator uncertainty envelopes gate_eligible=False; no admitted real-world causal estimate or policy/legal authority"
   },
   "predicate_basis": "independently_reconciled",
-  "capability_state_or_finding_state": "Technical recommendations:10closed bounded originalcard properties; B214/B218limited existing-intake companion, LA007/019limited full installedretirement criterion. No ledger closure writes. SCM entries supersede graph-only notexecuted rows; currentB219actualbackend established supersedes oldreceipt pendingbackend hold reason.",
+  "capability_state_or_finding_state": "Technical recommendations:9closed bounded originalcard properties in this original source receipt; current B220 is owned by the separately referenced graph-cache-immutability delta. Original B220 overclaim is sealed historical_non_deciding; B214/B218limited existing-intake companion, LA007/019limited full installedretirement criterion. No ledger closure writes. SCM entries supersede graph-only notexecuted rows; currentB219actualbackend established supersedes oldreceipt pendingbackend hold reason.",
   "per_id": [
     {
       "finding_id": "B214",
@@ -1164,20 +1163,6 @@
       "recorded_ledger_state": "held",
       "canonical_bundle_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/GRF-02.md",
       "baseline_route_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/baseline-routes-full/B219.json"
-    },
-    {
-      "finding_id": "B220",
-      "bundle_id": "GRF-02",
-      "criterion": "Deep immutable graph, cold-copy derived values, warm/cold/dump/cache agreement and weakref cleanup",
-      "check": "PASS",
-      "outcome": "closed",
-      "oracle_and_deciding_checks": "graph56 native contract/mutation/copy/cache selectors",
-      "negative_or_removal": "Nested mutation rejects; copy empty edges after warm export has cold correct projections; old cache entry cleans throughweakref.",
-      "limit_and_next_owner": "Actual topology/cache scope, not live Kuzu mutation or unrestricted algorithms.",
-      "authority": "F-W06 technical method owner recommends this bounded per-card outcome; G accepts code/integration and publishes any ledger decision",
-      "recorded_ledger_state": "partial",
-      "canonical_bundle_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/GRF-02.md",
-      "baseline_route_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/baseline-routes-full/B220.json"
     },
     {
       "finding_id": "B221",
@@ -2657,5 +2642,57 @@
     "Installedab56wheel/sdist3+3PASS exists for source-specific stackthrough0b+f6+66; does not include laterb692importidentity/423metadata, no promoted finalsourceinstalledPASS here.",
     "Productioninvocationbase diagnosticERRORexit137; no completedgate/noP41. EMPexactbase198andgraph07both5FAIL5PASS but full disjointdenominator absent, not inherited.",
     "Fullproduction inputs read-only remain local. G runs any data-dependent estimand/sourceadmission remainder on acceptedcandidateSHA with actualsource refs; no genericDGPcriterion is held solely for absentproductiondataset."
-  ]
+  ],
+  "historical_non_deciding_per_id": [
+    {
+      "classification": "historical_non_deciding",
+      "source_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+      "original_decision": {
+        "finding_id": "B220",
+        "bundle_id": "GRF-02",
+        "criterion": "Deep immutable graph, cold-copy derived values, warm/cold/dump/cache agreement and weakref cleanup",
+        "check": "PASS",
+        "outcome": "closed",
+        "oracle_and_deciding_checks": "graph56 native contract/mutation/copy/cache selectors",
+        "negative_or_removal": "Nested mutation rejects; copy empty edges after warm export has cold correct projections; old cache entry cleans throughweakref.",
+        "limit_and_next_owner": "Actual topology/cache scope, not live Kuzu mutation or unrestricted algorithms.",
+        "authority": "F-W06 technical method owner recommends this bounded per-card outcome; G accepts code/integration and publishes any ledger decision",
+        "recorded_ledger_state": "partial",
+        "canonical_bundle_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/GRF-02.md",
+        "baseline_route_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/baseline-routes-full/B220.json"
+      },
+      "historical_check": "FAIL",
+      "scope": "Original graph56 selector omitted returned-row mutation and full cleanup axes; original B220 PASS/closed recommendation was an overclaim. The complete original37 checks and source6d remain historical immutable evidence; only B220 decision is superseded by the separately source-bound delta receipt."
+    }
+  ],
+  "current_delta_receipts": [
+    {
+      "finding_ids": [
+        "B220"
+      ],
+      "artifact_git_ref": "7300ae11976ab45ffe776b4223098e59e20c280a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006.json",
+      "bytes": 66228,
+      "sha256": "b36bac6bf8f01a2821d8077e34166acdda487d21467a8c06a706177747177b6b",
+      "candidate_sha": "2137961b0d3a2b39b85c5a57bf774777d2a4204e",
+      "candidate_tree_sha": "9fd2bd6d9aebdb48d1a2bed266483a8b4ab1974e",
+      "check": "PASS",
+      "outcome": "closed",
+      "scope": "New separate primary B220 decision: native75/independent23; originalFAIL, all3 removalFAIL and EMP5FAIL5PASS retained. Original scientific checks are not relabeled to the new source."
+    }
+  ],
+  "receipt_decision_supersession": {
+    "prior_artifact_git_ref": "a0a050d24c137b4893a7b52b2f83ea710da46471",
+    "prior_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+    "prior_bytes": 147818,
+    "prior_sha256": "ff33acf653c10acb9476d33f1ca258d2d3daf4d79302b13afd62dd217d679d2e",
+    "superseded_finding_ids": [
+      "B220"
+    ],
+    "original_scientific_checks_unchanged": true,
+    "original_checks_count": 37,
+    "original_checks_sha256": "ab9248336a351ea381df25f496c0db2d0e4abb1e5bf889d5c77b935495907cc7",
+    "related_finding_ids_unchanged": true,
+    "scope": "Current primary rows13 plus unique B220 delta1 preserve complete original14-ID ownership; no ledger closure or other scientific/source decision modified."
+  }
 }

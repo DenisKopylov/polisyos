@@ -16,7 +16,7 @@ from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.foundry import Metrics, SimulationResult, SimulationResultRef
-from polisyos.foundry.calibration.report import CalibrationReport
+from polisyos.foundry.calibration.report import load_calibration_report
 from polisyos.foundry.uncertainty import (
     BoundedIndicatorResponse,
     reconcile_draw_outcomes,
@@ -330,16 +330,16 @@ def _collect_input_envelopes(
 
     calibration_ref = state.inputs.get(INPUT_CALIBRATION_REPORT_REF)
     if calibration_ref is not None:
-        try:
-            report = _load_model(ctx, calibration_ref, CalibrationReport)
-            if report.uncertainty_envelopes:
-                for name, env in report.uncertainty_envelopes.items():
-                    envelopes[str(name)] = env
-            elif report.uncertainty_envelope_refs:
-                for name, ref in report.uncertainty_envelope_refs.items():
-                    envelopes[str(name)] = load_uncertainty_envelope(ctx.store, ref)
-        except _PROPAGATION_LOAD_ERRORS:
-            logger.debug("Failed to load calibration uncertainty envelopes", exc_info=True)
+        # A configured report is an explicit input, not an optional payload
+        # hint. Preserve its selected CAS profile and reject an invalid report
+        # before a different valid input could hide the missing calibration law.
+        report = load_calibration_report(ctx.store, calibration_ref)
+        if report.uncertainty_envelopes:
+            for name, env in report.uncertainty_envelopes.items():
+                envelopes[str(name)] = env
+        elif report.uncertainty_envelope_refs:
+            for name, ref in report.uncertainty_envelope_refs.items():
+                envelopes[str(name)] = load_uncertainty_envelope(ctx.store, ref)
 
     return envelopes
 

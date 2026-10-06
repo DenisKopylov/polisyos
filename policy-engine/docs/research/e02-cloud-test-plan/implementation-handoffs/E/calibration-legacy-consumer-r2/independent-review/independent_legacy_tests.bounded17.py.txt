@@ -1,0 +1,229 @@
+"""Independent admission/readback checks for the real legacy calibration consumer."""
+import hashlib,json,logging,os,platform,runpy,sys
+from pathlib import Path
+import jax
+import numpy as np
+import pytest
+from polisyos.core.artifacts import FileSystemCAS,PutOptions
+from polisyos.core.artifacts.manifest import InputRef,SchemaInfo
+from polisyos.core.canon import CanonSpec,from_canonical_bytes
+from polisyos.core.contracts.foundry import Metrics,MetricsRef,SimulationResult,ExecPlanRef
+from polisyos.core.registry import build_default_registry_bundle
+from polisyos.core.run.context import RunContext
+from polisyos.foundry.calibration.report import CalibrationReport,load_calibration_report
+from polisyos.foundry.uncertainty.covariance import build_covariance_matrix
+from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
+from polisyos.scientist.nodes.builtins.simulate import propagate_uncertainty as node
+from polisyos.scientist.nodes.builtins.state_keys import INPUT_CALIBRATION_REPORT_REF,ARTIFACT_SIMULATION_RESULT_REF,ARTIFACT_PROPAGATION_REPORT_REF
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+RESULTS=[]
+
+@pytest.fixture(scope='module')
+def native(tmp_path_factory):
+    root=tmp_path_factory.mktemp('independent-legacy-native')/'cas'
+    store=FileSystemCAS(root)
+    # This pre-existing real producer fixture executes Calibrator.run. Its
+    # expected assertions are not the independent downstream covariance oracle.
+    helper=runpy.run_path(str(Path(os.environ['PYTHONPATH']).parent/'tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'))
+    report_ref,report=helper['_run_b197_tied_calibrator'](store)
+    registry=build_default_registry_bundle(store).bundle_ref
+    run=RunContext.start(store=store,registry_bundle=registry,run_id='independent-legacy-readback')
+    metrics=store.put_json(Metrics(values={'difference':0}),PutOptions(kind='foundry.metrics',media_type='application/json'))
+    sim=store.put_json(SimulationResult(exec_plan_ref=ExecPlanRef(artifact_id='sha256:'+'0'*64),
+        metrics_ref=MetricsRef(artifact_id=metrics.artifact_id)),PutOptions(kind='foundry.simulation_result',media_type='application/json'))
+    yield root,store,run,report_ref,report,sim
+
+
+def context(root,run):
+    return ExecutionContext(store=FileSystemCAS(root),run=run,logger=logging.getLogger('independent-legacy-consumer'))
+
+def state(ref,sim):
+    return ExperimentState(run_id='independent-legacy-readback',inputs={INPUT_CALIBRATION_REPORT_REF:ref},
+        artifacts_index={ARTIFACT_SIMULATION_RESULT_REF:sim},params={
+        'propagation_config':{'preferred_method':'delta','delta_covariance_jitter':0},
+        'propagation_sensitivity':{'difference':{'A.rate':1.,'B.rate':-1.}}})
+
+def raw(store,payload,kind='foundry.calibration_report',schema='polisyos.foundry.CalibrationReport',version='2.0',inputs=()):
+    return store.put_json(payload,PutOptions(kind=kind,media_type='application/json',
+        schema=SchemaInfo(name=schema,version=version),inputs=list(inputs)),
+        canon_spec=CanonSpec(forbid_floats=False,exclude_none=False))
+
+
+def test_actual_calibrator_v2_cas_fresh_node_retains_tied_covariance_and_nongating(native):
+    root,store,run,ref,_,sim=native
+    fresh=context(root,run)
+    loaded=load_calibration_report(fresh.store,ref)
+    assert loaded.schema_version=='2.0'
+    collected=node._collect_input_envelopes(fresh,state(ref,sim))
+    assert set(collected)=={'A.rate','B.rate'}
+    assert loaded.coordinate_projection.field_order==('A.rate','B.rate')
+    assert loaded.coordinate_projection.coordinate_order==('shared_rate',)
+    assert loaded.coordinate_projection.matrix==((1.,),(1.,))
+    # Each of two scalar tax nodes contributes derivative100 to one shared
+    # coordinate; known observational sigma10 gives H=(100+100)^2/10^2=400.
+    # Thus coordinate variance1/400=.0025; J=[1,1]^T gives a singular all-.0025
+    # field covariance. Var(A-B)=[1,-1]Sigma[1,-1]^T=0, independent proxy .005.
+    cov=np.asarray(build_covariance_matrix(['A.rate','B.rate'],collected,use_full_covariance=True,jitter=0))
+    np.testing.assert_allclose(cov,np.full((2,2),1/400),rtol=1e-4,atol=1e-8)
+    assert np.linalg.matrix_rank(cov)==1
+    assert np.array([1.,-1.])@cov@np.array([1.,-1.])==0
+    assert all(env.gate_eligible is False and env.confidence_level is None for env in collected.values())
+    outcome=node.PropagateUncertaintyNode().execute(fresh,state(ref,sim))
+    assert outcome.status=='ok'
+    sim_loaded=SimulationResult.model_validate(from_canonical_bytes(fresh.store.get_bytes(outcome.state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF].artifact_id)))
+    output=load_uncertainty_envelope(FileSystemCAS(root),sim_loaded.uncertainty_envelopes['difference'])
+    assert output.gate_eligible is False
+    assert output.metadata['output_std']==0
+    report=from_canonical_bytes(fresh.store.get_bytes(outcome.state.artifacts_index[ARTIFACT_PROPAGATION_REPORT_REF].artifact_id))
+    assert report['input_envelope_count']==2 and report['mapped_params']==['A.rate','B.rate']
+    assert report['methods']==['delta_method']
+    RESULTS.append(dict(test='real_calibrator_v2_fresh_node',cas=str(root),input_ref=ref.model_dump(mode='json'),
+        config_edges=[i.model_dump(mode='json') for i in store.get_manifest(ref).inputs],
+        covariance=cov.tolist(),independent_marginals_variance=.005,true_tied_difference_variance=0,
+        node_status=outcome.status,output_ref=sim_loaded.uncertainty_envelopes['difference'].model_dump(mode='json'),
+        propagation_report=report,output_gate_eligible=output.gate_eligible))
+
+
+@pytest.mark.parametrize('defect',['wrong_kind','wrong_schema','schema_payload_version','unsupported_schema_version',
+    'missing_config','duplicate_config','wrong_config_kind','bad_config_payload',
+    'missing_objective_profile','wrong_objective_profile_kind','wrong_objective_profile_payload','invalid_report_payload'])
+def test_report_admission_precedes_any_propagation_callback(native,monkeypatch,defect):
+    root,store,run,ref,_,sim=native
+    payload=from_canonical_bytes(store.get_bytes(ref.artifact_id))
+    payload['diagnostics'].append('independent-negative-'+defect)
+    manifest=store.get_manifest(ref)
+    inputs=list(manifest.inputs);kind='foundry.calibration_report';schema='polisyos.foundry.CalibrationReport';version='2.0'
+    if defect=='wrong_kind':kind='foundry.funnel_calibration_report'
+    elif defect=='wrong_schema':schema='polisyos.foundry.FunnelCalibrationReport'
+    elif defect=='schema_payload_version':version='1.0'
+    elif defect=='unsupported_schema_version':version='9.0'
+    elif defect=='missing_config':inputs=[i for i in inputs if i.role!='calibration_config']
+    elif defect=='duplicate_config':
+        old=next(i for i in inputs if i.role=='calibration_config');cfg=from_canonical_bytes(store.get_bytes(old.artifact_id));cfg['seed']=91
+        duplicate=raw(store,cfg,kind='foundry.calibration_config',schema='polisyos.ir.CalibrationConfig',version=cfg['schema_version'])
+        inputs.append(InputRef(artifact_id=duplicate.artifact_id,role='calibration_config',manifest_profile_sha256=duplicate.manifest_profile_sha256))
+    elif defect in ('wrong_config_kind','bad_config_payload'):
+        old=next(i for i in inputs if i.role=='calibration_config');cfg=from_canonical_bytes(store.get_bytes(old.artifact_id))
+        cfg['targets']='invalid' if defect=='bad_config_payload' else cfg['targets']
+        replacement=raw(store,cfg,kind='fake.config' if defect=='wrong_config_kind' else 'foundry.calibration_config',
+            schema='polisyos.ir.CalibrationConfig',version=cfg['schema_version'])
+        inputs=[i for i in inputs if i.role!='calibration_config']+[InputRef(artifact_id=replacement.artifact_id,role='calibration_config',manifest_profile_sha256=replacement.manifest_profile_sha256)]
+    elif defect=='missing_objective_profile':inputs=[i for i in inputs if i.role!='calibration_objective_profile']
+    elif defect in ('wrong_objective_profile_kind','wrong_objective_profile_payload'):
+        old=next(i for i in inputs if i.role=='calibration_objective_profile');profile=from_canonical_bytes(store.get_bytes(old.artifact_id))
+        if defect=='wrong_objective_profile_payload':profile['identity']='changed-present-profile'
+        replacement=raw(store,profile,kind='fake.profile' if defect=='wrong_objective_profile_kind' else 'foundry.calibration_objective_profile',
+            schema='polisyos.foundry.GaussianObservationProfile',version='1.0')
+        inputs=[i for i in inputs if i.role!='calibration_objective_profile']+[InputRef(artifact_id=replacement.artifact_id,role='calibration_objective_profile',manifest_profile_sha256=replacement.manifest_profile_sha256)]
+    else:payload['total_loss']='not-numeric'
+    bad=raw(store,payload,kind,schema,version,inputs)
+    with pytest.raises(ValueError):load_calibration_report(FileSystemCAS(root),bad)
+    calls=[]
+    def forbidden(*args,**kwargs):calls.append(1);raise AssertionError('invalid report reached propagation callback')
+    monkeypatch.setattr(node.PropagationDispatcher,'propagate',forbidden)
+    fresh=context(root,run);bad_state=state(bad,sim)
+    with pytest.raises(ValueError):node._collect_input_envelopes(fresh,bad_state)
+    with pytest.raises(ValueError) as rejected:node.PropagateUncertaintyNode().execute(fresh,bad_state)
+    assert calls==[]
+    RESULTS.append(dict(test='refusal',defect=defect,ref=bad.model_dump(mode='json'),node_status='refused',error=str(rejected.value),propagation_calls=0))
+
+
+def test_existing_report_byte_corruption_refused_without_callbacks(native,monkeypatch):
+    root,store,run,ref,_,sim=native
+    payload=from_canonical_bytes(store.get_bytes(ref.artifact_id));payload['diagnostics'].append('independent-corrupt-unique')
+    bad=raw(store,payload,inputs=store.get_manifest(ref).inputs)
+    path,_=store._paths(bad.artifact_id)
+    path.write_bytes(b'{"schema_version":"2.0","present_but_corrupt":true}')
+    calls=[]
+    def forbidden(*args,**kwargs):calls.append(1);raise AssertionError('corruption propagated')
+    monkeypatch.setattr(node.PropagationDispatcher,'propagate',forbidden)
+    with pytest.raises(ValueError):node.PropagateUncertaintyNode().execute(context(root,run),state(bad,sim))
+    assert calls==[]
+
+
+def test_reader_property_removal_reopens_populated_wrong_kind_report(native,monkeypatch):
+    root,store,run,ref,_,sim=native
+    payload=from_canonical_bytes(store.get_bytes(ref.artifact_id));payload['diagnostics'].append('independent-removal-fake')
+    bad=raw(store,payload,kind='foundry.funnel_calibration_report',schema='polisyos.foundry.FunnelCalibrationReport',inputs=store.get_manifest(ref).inputs)
+    # Keep real populated report, envelopes, projection, profile and config.
+    # Remove only the strict read edge, restoring the old actual generic read.
+    monkeypatch.setattr(node,'load_calibration_report',lambda store,ref:CalibrationReport.model_validate(from_canonical_bytes(store.get_bytes(ref.artifact_id))))
+    calls=[]
+    def reached(*args,**kwargs):calls.append(1);raise AssertionError('reader-property-removal reached propagation')
+    monkeypatch.setattr(node.PropagationDispatcher,'propagate',reached)
+    with pytest.raises(AssertionError,match='reader-property-removal'):
+        node.PropagateUncertaintyNode().execute(context(root,run),state(bad,sim))
+    assert calls==[1]
+
+
+def teardown_module():
+    import polisyos.foundry.calibration.report as canonical
+    origins={name:str(Path(m.__file__).resolve()) for name,m in sys.modules.items() if name.startswith('polisyos') and getattr(m,'__file__',None)}
+    assert all(Path(p).is_relative_to(Path(os.environ['PYTHONPATH'])) for p in origins.values())
+    output=dict(environment=dict(python=sys.version,executable=sys.executable,platform=platform.platform(),
+        numpy=np.__version__,jax=jax.__version__,jax_enable_x64=jax.config.jax_enable_x64,
+        devices=[str(d) for d in jax.devices()],PYTHONPATH=os.environ['PYTHONPATH'],no_artificial_caps=True),
+        caller=str(Path(node.__file__).resolve()),canonical_loader=str(Path(canonical.__file__).resolve()),
+        caller_sha256=hashlib.sha256(Path(node.__file__).read_bytes()).hexdigest(),
+        all_polysios_origins_exact_lane=True,polisyos_origin_count=len(origins),results=RESULTS)
+    Path(os.environ['LEGACY_REVIEW_OUTPUT']).write_text(json.dumps(output,indent=2))
+
+
+def test_exact_902d_falsifier_input_replayed_on_frozen_consumer(native,monkeypatch):
+    from polisyos.core.artifacts.manifest import ArtifactRef
+    _,_,run,_,_,_=native
+    prefix=Path('/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/legacy-calibration')
+    decided=json.loads((prefix/'baseline-falsifier-result.json').read_text())
+    store=FileSystemCAS(prefix/'baseline-native-cas-902d')
+    ref=ArtifactRef.model_validate(decided['input_ref'])
+    before=hashlib.sha256(store.get_bytes(ref.artifact_id)).hexdigest()
+    metrics=store.put_json(Metrics(values={'difference':0}),PutOptions(kind='foundry.metrics',media_type='application/json'))
+    sim=store.put_json(SimulationResult(exec_plan_ref=ExecPlanRef(artifact_id='sha256:'+'0'*64),metrics_ref=MetricsRef(artifact_id=metrics.artifact_id)),PutOptions(kind='foundry.simulation_result',media_type='application/json'))
+    calls=[]
+    def forbidden(*args,**kwargs):calls.append(1);raise AssertionError('exact old input escaped frozen reader')
+    monkeypatch.setattr(node.PropagationDispatcher,'propagate',forbidden)
+    with pytest.raises(ValueError) as rejected:
+        node.PropagateUncertaintyNode().execute(ExecutionContext(store=store,run=run,logger=logging.getLogger('independent-exact-legacy')),state(ref,sim))
+    assert calls==[]
+    assert before==hashlib.sha256(store.get_bytes(ref.artifact_id)).hexdigest()
+    RESULTS.append(dict(test='exact_902d_input_replay',input_ref=ref.model_dump(mode='json'),
+        input_bytes_sha256=before,old_status=decided['actual_legacy_node_status'],old_calls=decided['propagation_calls'],
+        new_status='refused',new_error=str(rejected.value),new_calls=len(calls),input_bytes_unchanged=True))
+
+
+def test_real_tied_v2_fresh_node_mc_samples_preserve_one_coordinate(native):
+    from polisyos.ir.analytics.uncertainty import PosteriorSamplesCarrier
+    root,_,run,ref,_,sim=native
+    fresh=context(root,run);mcstate=state(ref,sim)
+    mcstate.params['propagation_config']={'preferred_method':'monte_carlo','mc_n_samples':100,
+        'mc_min_valid_samples':50,'compute_sensitivity':False,'mc_seed':37}
+    outcome=node.PropagateUncertaintyNode().execute(fresh,mcstate)
+    assert outcome.status=='ok'
+    updated=SimulationResult.model_validate(from_canonical_bytes(fresh.store.get_bytes(outcome.state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF].artifact_id)))
+    env=load_uncertainty_envelope(FileSystemCAS(root),updated.uncertainty_envelopes['difference'])
+    assert isinstance(env.distribution_payload,PosteriorSamplesCarrier)
+    assert len(env.distribution_payload.samples)==100
+    assert all(x==0 for x in env.distribution_payload.samples)
+    assert env.gate_eligible is False
+    RESULTS.append(dict(test='real_tied_v2_native_mc',requested_draws=100,draws=len(env.distribution_payload.samples),
+        max_abs_draw=max(abs(x) for x in env.distribution_payload.samples),gate_eligible=env.gate_eligible,
+        output_ref=updated.uncertainty_envelopes['difference'].model_dump(mode='json')))
+
+
+def test_invalid_report_with_valid_data_snapshot_still_refuses_before_callback(native,monkeypatch):
+    from polisyos.core.contracts.fabric import DataSnapshot,DataSnapshotRef
+    from polisyos.ir.analytics.uncertainty import persist_uncertainty_envelope
+    from polisyos.scientist.nodes.builtins.state_keys import INPUT_DATA_SNAPSHOT_REF
+    root,store,run,ref,report,sim=native
+    payload=from_canonical_bytes(store.get_bytes(ref.artifact_id));payload['diagnostics'].append('independent-valid-sibling-invalid-explicit-report')
+    bad=raw(store,payload,kind='foundry.funnel_calibration_report',inputs=store.get_manifest(ref).inputs)
+    data=store.put_json({'value':1},PutOptions(kind='test.independent.observed',media_type='application/json'))
+    env=persist_uncertainty_envelope(store,report.uncertainty_envelopes['A.rate'])
+    snapshot=store.put_json(DataSnapshot(data_ref=data,uncertainty_envelope_ref=env),PutOptions(kind='fabric.data_snapshot',media_type='application/json'))
+    invalid=state(bad,sim);invalid.inputs[INPUT_DATA_SNAPSHOT_REF]=DataSnapshotRef(artifact_id=snapshot.artifact_id)
+    calls=[]
+    def forbidden(*args,**kwargs):calls.append(1);raise AssertionError('valid sibling hides invalid explicit report')
+    monkeypatch.setattr(node.PropagationDispatcher,'propagate',forbidden)
+    with pytest.raises(ValueError,match='kind/schema'):node.PropagateUncertaintyNode().execute(context(root,run),invalid)
+    assert calls==[]

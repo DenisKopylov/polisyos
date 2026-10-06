@@ -1,0 +1,52 @@
+import hashlib,json,os,sys
+from pathlib import Path
+from types import SimpleNamespace
+from polisyos.core.artifacts import FileSystemCAS,PutOptions
+from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.canon import CanonSpec,from_canonical_bytes
+from polisyos.core.contracts.foundry import Metrics,MetricsRef,SimulationResult,ExecPlanRef
+from polisyos.foundry.calibration.report import CalibrationReport,load_calibration_report
+from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope,DistributionFamily,IntervalSemantics,UncertaintySource,PropagationMethod
+from polisyos.scientist.nodes.builtins.simulate import propagate_uncertainty as module
+from polisyos.scientist.nodes.builtins.state_keys import INPUT_CALIBRATION_REPORT_REF,ARTIFACT_SIMULATION_RESULT_REF
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+out=Path('/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/legacy-calibration')
+store=FileSystemCAS(out/'baseline-native-cas-902d')
+caller=Path(module.__file__);before=hashlib.sha256(caller.read_bytes()).hexdigest()
+env=UncertaintyEnvelope(point_estimate=.25,confidence_interval=(.15,.35),confidence_level=.95,
+    distribution_family=DistributionFamily.NORMAL,source=UncertaintySource.CALIBRATION,
+    propagation_method=PropagationMethod.NONE,interval_semantics=IntervalSemantics.CONFIDENCE_INTERVAL,gate_eligible=False)
+report=CalibrationReport(schema_version='1.0',calibrated_params={'A.rate':.25},total_loss=.01,
+    uncertainty_envelopes={'A.rate':env})
+wrong=store.put_json(report,PutOptions(kind='foundry.funnel_calibration_report',media_type='application/json',
+    schema=SchemaInfo(name='polisyos.foundry.FunnelCalibrationReport',version='1.0')),canon_spec=CanonSpec(forbid_floats=False))
+strict_error=None
+try:load_calibration_report(FileSystemCAS(store.root),wrong)
+except ValueError as e:strict_error=str(e)
+assert strict_error is not None
+metrics=store.put_json(Metrics(values={'y':0}),PutOptions(kind='foundry.metrics',media_type='application/json'))
+sim=store.put_json(SimulationResult(exec_plan_ref=ExecPlanRef(artifact_id='sha256:'+'0'*64),
+    metrics_ref=MetricsRef(artifact_id=metrics.artifact_id)),PutOptions(kind='foundry.simulation_result',media_type='application/json'))
+state=ExperimentState(run_id='independent-legacy-falsifier',inputs={INPUT_CALIBRATION_REPORT_REF:wrong},
+    artifacts_index={ARTIFACT_SIMULATION_RESULT_REF:sim},params={'propagation_config':{'method':'delta_method'},
+        'propagation_sensitivity':{'y':{'A.rate':1.}}})
+ctx=SimpleNamespace(store=FileSystemCAS(store.root))
+collected=module._collect_input_envelopes(ctx,state)
+original=module.PropagationDispatcher.propagate
+calls=[]
+def counted(self,*args,**kwargs):calls.append(1);return original(self,*args,**kwargs)
+module.PropagationDispatcher.propagate=counted
+outcome=module.PropagateUncertaintyNode().execute(ctx,state)
+assert outcome.status=='ok' and len(calls)==1 and set(collected)=={'A.rate'}
+assert before==hashlib.sha256(caller.read_bytes()).hexdigest()
+origins={name:str(Path(m.__file__).resolve()) for name,m in sys.modules.items() if name.startswith('polisyos') and getattr(m,'__file__',None)}
+assert all(Path(p).is_relative_to(Path(os.environ['PYTHONPATH'])) for p in origins.values())
+result=dict(source_sha='902d9f6b224f0fbeec709bc3683910fa08eba4b7',caller=str(caller),caller_sha256=before,
+    PYTHONPATH=os.environ['PYTHONPATH'],python=sys.version,executable=sys.executable,
+    input_ref=wrong.model_dump(mode='json'),strict_reader_error=strict_error,
+    actual_legacy_node_status=outcome.status,propagation_calls=len(calls),collected_fields=list(collected),
+    output_refs=[r.model_dump(mode='json') for r in outcome.artifacts],backend='native JAX Delta via real PropagationDispatcher',
+    source_law_authority_claim=False,capability='falsified generic legacy report reader admission',
+    polisyos_origin_count=len(origins),all_origins_in_exact_overlay=True)
+(out/'baseline-falsifier-result.json').write_text(json.dumps(result,indent=2))
+print(json.dumps(result,indent=2))

@@ -1,0 +1,9 @@
+from polisyos.core.canon import from_canonical_bytes
+from polisyos.foundry.calibration.report import CalibrationReport
+from polisyos.scientist.nodes.builtins.simulate import propagate_uncertainty as node
+import pytest
+
+def old_payload_only(store, ref):
+    return CalibrationReport.model_validate(from_canonical_bytes(store.get_bytes(ref.artifact_id)))
+node.load_calibration_report = old_payload_only
+raise SystemExit(pytest.main(['-q','-s','--junitxml=/workspace/e02-E-pr38-r2-receipts/technical-held-trace/b197-frozen/property-removal.junit.xml','tests/unit/scientist/nodes/test_calibration_report_consumer.py','-k','wrong_cas_profile']))

@@ -106,3 +106,13 @@ routing, or decision artifact shape.
 ## Last Updated
 
 - Last updated: 2026-05-06
+
+## Calibration input admission in simulation
+
+The legacy uncertainty node and welfare node load an explicitly configured
+Foundry calibration report through its canonical CAS reader. The selected
+kind, schema/version, payload, configuration and objective-profile edges must
+resolve before propagation. A byte-identical Funnel report is rejected. Invalid
+explicit calibration input causes refusal even when a separate DataSnapshot
+envelope is valid. This integrity check does not establish source/noise-law
+authority; configured synthetic covariance controls remain non-gating.

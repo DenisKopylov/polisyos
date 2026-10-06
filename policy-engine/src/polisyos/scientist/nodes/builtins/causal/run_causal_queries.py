@@ -9,12 +9,12 @@ from typing import Any
 
 from pydantic import ValidationError
 
-from polisyos.common.serialization import to_python_data
+from polisyos.common import serialization
+from polisyos.core import canon
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
-from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
-from polisyos.foundry.methods import (
+from polisyos.foundry import (
     causal_worker_execution_context,
     validate_source_bound_causal_estimator_interval,
     validate_source_bound_gcm_spec,
@@ -175,13 +175,14 @@ def _load_bound_query_result(
     ):
         raise ValueError("causal query method result lacks original SCM input binding")
     source_bytes = ctx.store.get_bytes(ref)
-    payload = from_canonical_bytes(source_bytes)
+    payload = canon.from_canonical_bytes(source_bytes)
     if not isinstance(payload, dict) or not isinstance(result.final_state, dict):
         raise ValueError("causal query method result must be an object")
     # Use the same complete runtime-to-JSON projection as the canonical job writer.
     # This includes draws, both aliases, metadata, envelopes and ancillary outputs.
-    peer_bytes = to_canonical_bytes(
-        to_python_data(result.final_state, sort_keys=True), CanonSpec(forbid_floats=False)
+    peer_bytes = canon.to_canonical_bytes(
+        serialization.to_python_data(result.final_state, sort_keys=True),
+        canon.CanonSpec(forbid_floats=False),
     )
     if peer_bytes != source_bytes:
         raise ValueError("causal query peer output differs from canonical method-result payload")

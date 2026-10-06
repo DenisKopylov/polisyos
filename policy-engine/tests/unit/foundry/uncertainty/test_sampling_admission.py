@@ -439,6 +439,54 @@ def test_direct_analytical_cannot_substitute_diagonal_covariance_for_declared_la
         )
 
 
+@pytest.mark.parametrize("covariance", [[[-1]], [[100]], [[0]], [[1, 0]], [[1e-50]]])
+def test_direct_analytical_array_enters_common_covariance_admission(covariance):
+    from polisyos.foundry.uncertainty.analytical import AnalyticalPropagator
+
+    with pytest.raises(ValueError):
+        AnalyticalPropagator.propagate_linear_combination(
+            weights={"x": 1},
+            input_envelopes={"x": gaussian(1)},
+            output_metric_id="y",
+            covariance=np.asarray(covariance),
+        )
+
+
+@pytest.mark.parametrize("scale", [1, 1e-6, 1e-12])
+def test_direct_analytical_covariance_admission_is_scale_invariant(scale):
+    from polisyos.foundry.uncertainty.analytical import AnalyticalPropagator
+
+    law = {name: gaussian(math.sqrt(scale)) for name in ["a", "b"]}
+    result = AnalyticalPropagator.propagate_linear_combination(
+        weights={"a": 1, "b": -1},
+        input_envelopes=law,
+        output_metric_id="y",
+        covariance=scale * np.ones((2, 2)),
+    )
+    assert result.diagnostics["output_variance"] == 0
+    for invalid in [
+        scale * np.asarray([[1, 2], [2, 1]]),
+        scale * np.asarray([[1, 0], [1, 1]]),
+        scale * np.zeros((2, 2)),
+    ]:
+        with pytest.raises(ValueError):
+            AnalyticalPropagator.propagate_linear_combination(
+                weights={"a": 1, "b": -1},
+                input_envelopes=law,
+                output_metric_id="y",
+                covariance=invalid,
+            )
+
+
+def test_direct_analytical_refuses_an_undeclared_gaussian_family():
+    from polisyos.foundry.uncertainty.analytical import AnalyticalPropagator
+
+    with pytest.raises(ValueError, match="normal inputs"):
+        AnalyticalPropagator.propagate_linear_combination(
+            weights={"x": 1}, input_envelopes={"x": uniform()}, output_metric_id="y"
+        )
+
+
 @pytest.mark.parametrize(
     "field,value",
     [

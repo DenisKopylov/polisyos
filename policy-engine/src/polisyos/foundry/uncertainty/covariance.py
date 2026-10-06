@@ -171,7 +171,7 @@ def build_covariance_matrix(
     diagonal = np.diag(np.square(np.asarray(marginal_stds, dtype=np.float64)))
     if not np.all(np.isfinite(covariance)):
         raise ValueError("covariance matrix must contain finite values")
-    if not np.allclose(np.diag(covariance), np.diag(diagonal), rtol=1e-3, atol=1e-5):
+    if not np.allclose(np.diag(covariance), np.diag(diagonal), rtol=1e-3, atol=0.0):
         raise ValueError("covariance diagonal must match marginal standard deviations")
     if preserve_singular:
         covariance = preserve_singular_covariance(covariance)
@@ -207,11 +207,12 @@ def preserve_singular_covariance(
         raise ValueError("covariance matrix must be square")
     if not np.all(np.isfinite(matrix)):
         raise ValueError("covariance matrix must contain finite values")
+    scale = float(np.max(np.abs(matrix))) if matrix.size else 0.0
     if not np.allclose(
         matrix,
         matrix.T,
         rtol=symmetry_rtol,
-        atol=symmetry_atol,
+        atol=symmetry_atol * scale,
     ):
         raise ValueError("covariance matrix must be symmetric")
     symmetric = 0.5 * (matrix + matrix.T)
@@ -219,7 +220,6 @@ def preserve_singular_covariance(
         return symmetric
     eigenvalues = np.linalg.eigvalsh(symmetric)
     minimum_eigenvalue = float(np.min(eigenvalues))
-    scale = max(1.0, float(np.max(np.abs(symmetric))))
     # The tolerance is independent of jitter; regularization cannot make an
     # indefinite declared law acceptable.
     if minimum_eigenvalue < -1e-10 * scale:

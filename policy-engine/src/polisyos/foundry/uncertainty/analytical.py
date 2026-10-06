@@ -54,8 +54,17 @@ class AnalyticalPropagator:
         covariance: jnp.ndarray | None = None,
         use_full_covariance: bool = True,
     ) -> PropagationResult:
+        """Push a Gaussian law forward; supplied covariance uses sorted input order."""
         param_names = sorted(input_envelopes)
         admit_sampling_support(input_envelopes)
+        if not param_names or any(
+            env.distribution_family is not DistributionFamily.NORMAL
+            for env in input_envelopes.values()
+        ):
+            raise ValueError("analytical Gaussian propagation requires nonempty normal inputs")
+        if not set(weights).issubset(input_envelopes):
+            raise ValueError("analytical weights reference an unknown input")
+        admit_float32_range(list(weights.values()))
         declared_covariance = any(
             "covariance_row" in env.metadata or "covariance_params" in env.metadata
             for env in input_envelopes.values()
@@ -78,7 +87,31 @@ class AnalyticalPropagator:
                 raise ValueError("supplied covariance differs from the declared joint law")
             covariance = admitted_covariance
         if covariance is not None:
-            admit_float32_range(covariance)
+            supplied = admit_float32_range(covariance)
+            if supplied.shape != (len(param_names), len(param_names)):
+                raise ValueError("supplied covariance has the wrong dimension")
+            # Direct callers enter the same marginal/axis/PSD admission as the
+            # metadata producer. A raw array is not a prevalidated law.
+            supplied_inputs = {
+                name: input_envelopes[name].model_copy(
+                    update={
+                        "metadata": {
+                            **input_envelopes[name].metadata,
+                            "covariance_row": supplied[index].tolist(),
+                            "covariance_params": param_names,
+                        }
+                    }
+                )
+                for index, name in enumerate(param_names)
+            }
+            covariance = build_covariance_matrix(
+                param_names,
+                supplied_inputs,
+                use_full_covariance=True,
+                jitter=0.0,
+                preserve_singular=True,
+            )
+            use_full_covariance = True
         elif has_unknown_dependency(input_envelopes):
             raise ValueError("joint input law is unknown; missing covariance is not independence")
         if covariance is None:

@@ -19,7 +19,7 @@
   "scientific_implementation_sha": "03bbfe14225d64a9977b77775c200e83eb717c5f",
   "candidate_tree_sha": "dab61c3e7a161e00837f5a128fc2768a36e9b19a",
   "branch": "codex/e02-F-fry-20261006",
-  "pull_request": null,
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/60",
   "changed_paths": [
     "policy-engine/docs/reference/foundry/randomization-profile.md",
     "policy-engine/release-fragments/unreleased/2026-10-06-foundry-treasury-salts.toml",
@@ -924,7 +924,8 @@
       "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/independent/fry-independent-review.json",
       "limits": [
         "Bounded GO for numerical RNG binding;LA002familystateactivation limited."
-      ]
+      ],
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/environment.json"
     },
     {
       "command": "Canonical build_gate_plan complete8paths and remove-README adversarial7paths;Git bytes03bb→634 reconciled",
@@ -934,7 +935,8 @@
       "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-only-fidelity.json",
       "limits": [
         "No second numeric run on634 is claimed;full docs gate is separatelyFAIL."
-      ]
+      ],
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/environment.json"
     },
     {
       "command": "Canonical4-family get_mechanism_class admission census",
@@ -944,7 +946,8 @@
       "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/family-trace.json",
       "limits": [
         "PASS is refusal/census evidence;no family state activation;source files are unchanged frombase198."
-      ]
+      ],
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/environment.json"
     },
     {
       "command": "API729 installed source bindings and final peer receipt/manifest hashes",
@@ -954,14 +957,17 @@
       "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/installed-layout-companion-binding.json",
       "limits": [
         "Installed existinglayout ABI only;not installation of the new FRY Treasury code and not family activation."
-      ]
+      ],
+      "environment": "Read-only Git object and receipt hash comparison. Actual installed wheel/sdist runtime environments are bound in the API729 peer receipt and complete outputs manifest cited by installed-layout-companion-binding.json; this comparison is not a new installed Treasury run."
     },
     {
       "command": "ruff check;ruff format --check;git diff base198..634 --check",
       "target_sha": "63425f734946979cfc990e9cb91b00163f051898",
       "outcome": "PASS",
       "input_closure": "Exact5changedPython files plus complete8pathsource diff",
-      "output": [
+      "output": "Complete committed outputs: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/ruff-check.txt; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/ruff-format.txt; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/diff-check.txt",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/environment.json",
+      "output_refs": [
         "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/ruff-check.txt",
         "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/ruff-format.txt",
         "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/diff-check.txt"
@@ -1063,5 +1069,10 @@
       "The dispatcher assertion wrongly narrowed serialized values to float32 while the suite enabled JAX x64. Narrowing was removed and exact equality retained; no tolerance was relaxed.",
       "The default docs window had zero changed files and did not validate the slice. The actual seven-path gate found the owned README gap; the append-only README fix and actual eight-path replay remove that finding while preserving the global child failure."
     ]
+  },
+  "receipt_protocol_corrections": {
+    "supersedes_receipt_head": "7ab97aa425f64819280ef1c4241a8f51de0fc5f3",
+    "scope": "Metadata only: required environment for checks9–13, canonical string output plus retained output_refs on check13, and actual published draftPR60. Native/independent output bytes, scientific03bb and documentation634 source bindings, all criterion decisions and full red/UNRUN limits unchanged.",
+    "retests": "No numerical/source rerun: no implementation source or deciding output was modified."
   }
 }

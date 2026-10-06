@@ -5,11 +5,7 @@
   "closure_ids": [
     "B204",
     "B205",
-    "B206",
-    "B207",
-    "B208",
-    "B209",
-    "LA-016"
+    "B206"
   ],
   "bundle_ids": [
     "CAU-01",
@@ -3597,5 +3593,35 @@
     "consumer_semantic_check": "FAIL_CACHE_CUSTODY_AND_ENDPOINT_LOSS",
     "outcome": "limited",
     "success_is_not_protected_policy_authority": true
+  },
+  "prior_publication_closure_ids": [
+    "B204",
+    "B205",
+    "B206",
+    "B207",
+    "B208",
+    "B209",
+    "LA-016"
+  ],
+  "related_finding_ids": [
+    "B204",
+    "B205",
+    "B206",
+    "B207",
+    "B208",
+    "B209",
+    "LA-016"
+  ],
+  "scientific_criterion_closed_ids": [
+    "B204",
+    "B205",
+    "B206",
+    "B207",
+    "B208",
+    "B209"
+  ],
+  "closure_id_scope_correction": {
+    "source_implementation_unchanged": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+    "reason": "Canonical closure_ids now select only per-finding outcome closed; original bounded scientific criteria closed separately from B207–209 continuation integration limits and LA016 full migration residual. No tests/source edits or rerun/relabel."
   }
 }

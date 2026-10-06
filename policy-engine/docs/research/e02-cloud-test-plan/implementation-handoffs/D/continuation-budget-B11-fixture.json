@@ -1,0 +1,184 @@
+{
+  "schema": "e02_bounded_owner_handoff_v1",
+  "author": "D/funnel_owner",
+  "closure_ids": [],
+  "scope": "Fixture-only native canonical B1.1 migration; independent finding acceptance and full 99-selector collection are separate.",
+  "base": {
+    "sha": "5ab28d7621a6e290d4d0482a5091a62d201de850",
+    "tree": "9c72ab486b5570a452c8ecd89a1fa3edd2ffa2e3"
+  },
+  "implementation_shas": [
+    "1264dfd94a84c4197144ff8b3b3836e8f612ccd0",
+    "dee52f69005dca0df7e3de77ce348fe8086047a5"
+  ],
+  "candidate": {
+    "sha": "dee52f69005dca0df7e3de77ce348fe8086047a5",
+    "tree": "27d436302735cbb4c4856f159d66e41d9889db62"
+  },
+  "changed_test": {
+    "source_sha": "dee52f69005dca0df7e3de77ce348fe8086047a5",
+    "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger.py",
+    "git_blob": "29d2a4a2fb972af1dac72ce568a67da966c806ea",
+    "sha256": "ee64851e54b4013110cc9c5b782c96864f25369587d31b6d82a0d1c58582fdb6",
+    "bytes": 7164
+  },
+  "changed_product_paths": [],
+  "original_collection_error": {
+    "source_sha": "613343",
+    "status": "ERROR",
+    "collected_cases": 1202,
+    "optional_module_skips": 15,
+    "optional_skip_status": "UNRUN: no numerical test bodies",
+    "exception": "ImportError: cannot import name BudgetResourceEvent from canonical B1.1 budget_ledger",
+    "receipt": {
+      "source_sha": "8f3fd532ce3e6a668e297bdce11d3d4bbcb3b019",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/minimal-profile-613-collection-independent-handoff.json",
+      "sha256": "760fe833dc97323dec0ecd4ee540eb581a7831b96f79cd82903cbf17b88a3be6"
+    },
+    "proof_source_sha": "fa4b6f12afdb254ec3f5abb3a7a762b9905fd85d",
+    "interpretation": "Retained actual nonoptional collection failure; targeted successor does not relabel or supersede the complete original collection verdict."
+  },
+  "environment": {
+    "executable": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "python": "3.14.7",
+    "profile": "locked UV core/runtime/test, 148 exact installed distributions; no optional numerical backends",
+    "original_profile_sha256": "8ac6a0f04c56b3d1ff0976c81aedb0b805e9a9efee486939467af01b93fd36d7",
+    "immutable_profile_receipt": {
+      "source_sha": "6a157f301b400fe46268bcc53610359bb9ee4a71",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/minimal-runtime-profile.json",
+      "git_blob": "5c8c4d3470e43133acf9d6ff7882651ac5942877",
+      "sha256": "ffaad852c0b507931a7b2337a314446712aa9feb319d8450a9046068fe98d859"
+    },
+    "immutable_profile_proof": {
+      "source_sha": "8391c8db699564a6af39cf66477e141cc6d30030",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/minimal-runtime-profile-proof/complete-profile-metadata.json.xz",
+      "sha256": "f32a1f520b799bf749431da753f12e67e1b22031b9da11350fdab90770d615a4"
+    },
+    "actual_loaded_optional": {
+      "torch": false,
+      "botorch": false,
+      "gpytorch": false,
+      "hnswlib": false,
+      "SALib": false
+    },
+    "tokenizer_cache": "/workspace/e02-D2-receipts/tokenizer",
+    "cl100k_bytes_sha256": "223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7",
+    "quotas_added": false,
+    "cleanup_actions": 0
+  },
+  "initial_runtime": {
+    "source_sha": "1264dfd94a84c4197144ff8b3b3836e8f612ccd0",
+    "tree": "478fc6e5258dd24bb66635bed0dbe762e5962fe6",
+    "status": "FAIL",
+    "passed": 8,
+    "failed": 1,
+    "errors": 0,
+    "skips": 0,
+    "pytest_seconds": 13.22,
+    "wall_seconds": 20.525681314000394,
+    "maxrss_kib": 532040,
+    "failing_nodeid": "tests/unit/scientist/orchestration/engine/test_budget_ledger.py::test_actual_above_estimate_and_unlimited_key_are_fully_charged[unlimited]",
+    "mechanism": "Own fixture assumed unlimited-key reserve creates capacity; actual existing reserve returns True without a reserved entry. Corrective assertion retains paid2 and unlimited remainingNone.",
+    "actual_origin_observer": "UNAVAILABLE: -p capture selected built-in pytest capture; explicit frozen input identities remained equal before/after.",
+    "output_pointer": "/members/initial~1complete.stdout.txt"
+  },
+  "successor_runtime": {
+    "status": "PASS",
+    "passed": 9,
+    "failed": 0,
+    "errors": 0,
+    "skips": 0,
+    "pytest_seconds": 13.05,
+    "wall_seconds": 22.365157749998616,
+    "maxrss_kib": 546252,
+    "actual_product_origins": 1141,
+    "actual_origin_errors": [],
+    "before_after_source_equal": true,
+    "observed_source_status": "clean",
+    "argv_pointer": "/members/successor~1execution-manifest.json",
+    "all_nodeids_pointer": "/members/successor~1collected-nodeids.json",
+    "full_stdout_pointer": "/members/successor~1complete.stdout.txt",
+    "full_stderr_pointer": "/members/successor~1complete.stderr.txt",
+    "junit_pointer": "/members/successor~1junit.xml",
+    "all_actual_origins_pointer": "/members/successor~1actual-origins.json",
+    "actual_origin_bindings": "Each loaded source raw SHA256 and Git blob matched immutable dee52. The full unique records are retained; the derivable per-row verification copy stays intact locally.",
+    "native_consumer_count": 2,
+    "whole_migrated_file_count": 7,
+    "cache_writer": "released after natural completion"
+  },
+  "production_binding": {
+    "canonical_B_ledger_blob": "48908cebc44656fc6b22105d8d7a99d3acf915b6",
+    "canonical_B_middleware_blob": "4dcf43321044bd9bf9a0c579417af8ba29344945",
+    "funnel_orchestrator_blob": "f5752151ab11d4df0cde974d3454acb126228933",
+    "comparison": "These three actual loaded production files are byte-identical to root8c. No shared B product write or compatibility alias was introduced.",
+    "all_other_actual_product_bytes": "Bound to dee52 by full actual-origin records; no claim of whole-root source equivalence."
+  },
+  "properties": [
+    {
+      "original_purpose": "Paid amount, fresh reopen, bounded journal eviction, exact duplicate and conflicting payload, immutable snapshot",
+      "verified": "Single-key settle_spend_safe returns frozen BudgetLedgerSpendReceipt; resolve_spend_safe and exact retry recover that original receipt after reopen and journal eviction. Conflicting amount/key/provider/digest rejects without changing the snapshot.",
+      "oracle": "Persisted spent1, remaining4 after explicit aggregate release; snapshot equality; original typed receipt equality and mutation refusal."
+    },
+    {
+      "original_purpose": "Actual cost above estimate and unlimited scope",
+      "verified": "Separate actual single-key ledgers charge amount2 against estimate0.5 for run and unlimited. Run reserved0.5 remains until explicit release; unlimited reserve creates no capacity.",
+      "oracle": "One selected key spent2/provider2; limited remaining2.5 then3; unlimited remainingNone.",
+      "missing_input_or_capability": "One physical event atomically charged across two owned scopes remains a separate canonical B owner input."
+    },
+    {
+      "original_purpose": "Reservation isolation and replay",
+      "verified": "Receipt settlement and exact retry never release aggregate reserved capacity. Explicit existing release_safe controls the reserved balance.",
+      "oracle": "Reserved4 survives first charge/retry, explicit release leaves2, second paid0.5 plus explicit release ends spent1.5/remaining3.5.",
+      "missing_input_or_capability": "Attempt-owned reservation identity/durable release authority is absent from B1.1; this fixture does not fabricate it."
+    },
+    {
+      "original_purpose": "Same receipt delivered with later reservation",
+      "verified": "Exact same event/digest receipt charges once even after another aggregate reservation; release is explicit, never inferred from receipt delivery.",
+      "oracle": "Spent1 after two deliveries, each reserved1 remains until separate release."
+    },
+    {
+      "original_purpose": "Unknown billing reconciliation",
+      "verified": "Actual FileBudgetLedger os.replace delivery fault before/after publication raises BudgetLedgerSettlementOutcomeUnknownError with exact event/digest. Fresh public receipt readback distinguishes absent from committed unknown ACK; same-ID exact retry settles once and preserves reserved2 until explicit release.",
+      "oracle": "Before-write spent{} and no receipt versus after-write spent1 and durable receipt; both exact retries/fresh reopen finish spent1/remaining4.",
+      "missing_input_or_capability": "No synthetic reconciliation status or durable owned-reservation transition is supplied."
+    },
+    {
+      "original_purpose": "Actual downstream rather than constructor proof",
+      "verified": "Two unchanged native selectors run configured actual Gateway-backed adversary/translator calls in full and split workflows, reopen FileBudgetLedger, and recheck released aggregate capacity before remaining downstream work.",
+      "oracle": "Actual full/split receipts total2 and identical charge scope, stage costs1/1 and Foundry draw20/80; paid change alone does not resume deferred ticket while released capacity permits remaining native work.",
+      "scope_limit": "These selectors do not prove durable attempt ownership, default deployment/producer appointment, revoke-serialized promotion permission, or scientific optional GP/DOE backend properties."
+    }
+  ],
+  "canonical_owner_requests": {
+    "requested_canonical_owner": "B budget_ledger/budget_middleware contract owner via G integration",
+    "appointment_not_established": "An institutionally appointed durable owned-reservation/multi-key transition owner is not inferred from this fixture.",
+    "conditional_missing_capabilities": [
+      "Durable attempt-owned reservation+release transition where the actual caller needs it.",
+      "Atomic two-key settlement for the existing translator two-key profile."
+    ],
+    "unrelated_remaining_input": "Raw Gateway response-text lexical Decimal preservation and public middleware typed snapshot delegation remain separate owner packets; this fixture migration does not implement them."
+  },
+  "evidence": {
+    "input_source_sha": "566574237b0e7a6c8bcb196425226d76c952efff",
+    "input_directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-budget-B11-fixture-proof",
+    "payload_source_sha": "8573527c2019edf17e882b81ac38bcc3e19c5c67",
+    "payload_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-budget-B11-fixture-proof/output.json.gz",
+    "payload_sha256": "4d347d279bfd47af15ccb561a4ce3766c88716647ac404a4092fdfd88c882137",
+    "payload_bytes": 165048,
+    "lossless_selected_members": 66,
+    "fresh_ledgers_per_execution": 10,
+    "all_originals_retained": [
+      "/tmp/e02-D-ledger-B11-1264-Cab4C2mR",
+      "/tmp/e02-D-ledger-B11-dee52-5ozjgTCa"
+    ],
+    "tracked_input_bodies_in_payload": "Pinned exact Git references; no duplicate tracked script bodies."
+  },
+  "acceptance": {
+    "author_runtime_verification": "bounded PASS9",
+    "independent_review": "pending numerical_oracle source/receipt review",
+    "full_99_selector_collection_successor": "UNRUN; root performs after adoption",
+    "finding_acceptance_owner": "G",
+    "G_acceptance": false,
+    "formal_closures": 0
+  }
+}

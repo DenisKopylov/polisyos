@@ -1,4 +1,4 @@
-"""Stable autotune facade for search-loop contracts, persistence, and optional runtimes.
+"""Internal autotune facade for search-loop contracts, persistence, and optional runtimes.
 
 Eager exports cover the registry-facing models and CAS helpers that planners and
 promotion logic depend on directly. Runtime loaders and candidate generators are
@@ -63,28 +63,15 @@ __all__ = [
     "persist_split_manifest",
     "read_split_manifest",
     "resolve_item_split",
+    "ChampionBackedRuntimeLoader",
+    "PydanticMutationCodec",
+    "SearchLoopRunner",
+    "SequenceCandidateGenerator",
+    "seed_loop_baseline",
+    "CapabilityAwareExecutionPlanCandidateGenerator",
+    "build_execution_plan_generation_context",
+    "suggest_execution_plan_topology_mutations",
 ]
-
-try:
-    from .runtime import (
-        ChampionBackedRuntimeLoader,
-        PydanticMutationCodec,
-        SearchLoopRunner,
-        SequenceCandidateGenerator,
-        seed_loop_baseline,
-    )
-
-    __all__.extend(
-        [
-            "ChampionBackedRuntimeLoader",
-            "PydanticMutationCodec",
-            "SearchLoopRunner",
-            "SequenceCandidateGenerator",
-            "seed_loop_baseline",
-        ]
-    )
-except Exception:  # pragma: no cover - optional import guard for package init cycles
-    pass
 
 _OPTIONAL_LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "ChampionBackedRuntimeLoader": (
@@ -124,27 +111,11 @@ _OPTIONAL_LAZY_IMPORTS: dict[str, tuple[str, str]] = {
 
 def __getattr__(name: str) -> Any:
     if name not in _OPTIONAL_LAZY_IMPORTS:
-        raise AttributeError(f"module 'polisyos.scientist.methods.autotune' has no attribute '{name}'")
+        raise AttributeError(
+            f"module 'polisyos.scientist.methods.autotune' has no attribute '{name}'"
+        )
     module_name, attr_name = _OPTIONAL_LAZY_IMPORTS[name]
     module = importlib.import_module(module_name)
     value = getattr(module, attr_name)
     globals()[name] = value
     return value
-
-
-try:
-    from .execution_plan import (
-        CapabilityAwareExecutionPlanCandidateGenerator,
-        build_execution_plan_generation_context,
-        suggest_execution_plan_topology_mutations,
-    )
-
-    __all__.extend(
-        [
-            "CapabilityAwareExecutionPlanCandidateGenerator",
-            "build_execution_plan_generation_context",
-            "suggest_execution_plan_topology_mutations",
-        ]
-    )
-except Exception:  # pragma: no cover - optional import guard for package init cycles
-    pass

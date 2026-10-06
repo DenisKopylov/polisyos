@@ -1,0 +1,24 @@
+{
+  "source": "e2b1c6f7e7157e72d4a56008da5edb85f01a9312",
+  "tree": "1b6e573e04df38c53b15944f314d3aad7309144c",
+  "test_commit": "5d351d0f1f8a34acad951537ba47f36a4849f401",
+  "test_sha256": "1d9849a2669fc1bec1161ed44171347042fd4765223f64362780825aeb216824",
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/scientist/methods/search/strategies/test_multiobjective_reference_independent_oracle.py",
+    "-p",
+    "reference_source_binding_probe",
+    "-ra",
+    "--basetemp=/dev/shm/mo-reference-e2-f16eeed87c3c4cafa172c9b627bda9a3",
+    "--junitxml=/workspace/e02-D-published-oracle/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/mo-reference-independent/baseline-junit.xml"
+  ],
+  "cwd": "/tmp/pareto-box-union-e2-113f4d507bb647d1a90639749330f2dc/policy-engine",
+  "returncode": 1,
+  "wall_seconds": 28.74228528099775,
+  "fresh_basetemp": "/dev/shm/mo-reference-e2-f16eeed87c3c4cafa172c9b627bda9a3",
+  "agent_added_caps": false,
+  "existing_application_runtime_policy": "MOBayesianOptimizer calls existing apply_torch_runtime_settings; observed Torch threads4/interop1. No extra test/orchestrator thread setting."
+}

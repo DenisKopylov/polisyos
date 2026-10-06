@@ -435,7 +435,19 @@ def _observed_stress_assessment(report: StressTestReport | None) -> dict[str, An
         return unavailable
     metadata = report.metadata
     evidence = report.scenario_evidence
-    if any(metadata.get(name) != value for name, value in evidence.accounting_metadata().items()):
+    complete = report.scenario_complete
+    expected_metadata = evidence.accounting_metadata()
+    expected_metadata.update(
+        completeness=complete,
+        score_status=(
+            "unavailable"
+            if evidence.observed_fraction is None
+            else "observed"
+            if complete
+            else "conditional"
+        ),
+    )
+    if any(metadata.get(name) != value for name, value in expected_metadata.items()):
         return unavailable
     names = (
         "attempted",
@@ -465,7 +477,6 @@ def _observed_stress_assessment(report: StressTestReport | None) -> dict[str, An
         )
     ):
         return unavailable
-    complete = planned > 0 and attempted == finite == planned and unknown == 0
     if metadata.get("completeness") is not complete or report.set_adequacy_status != (
         "complete" if complete else "partial"
     ):

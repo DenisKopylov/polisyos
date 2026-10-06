@@ -464,8 +464,8 @@ def test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution(
 def test_reopened_plan_refuses_damaged_effective_graph_before_scientific_bodies(
     tmp_path: Path, damage: str
 ) -> None:
-    from polisyos.core.artifacts import FileSystemCAS
-    from polisyos.core.artifacts.manifest import SchemaInfo
+    from polisyos.core.artifacts import FileSystemCAS, artifact_manifest_profile_sha256
+    from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
     from polisyos.core.artifacts.store import PutOptions
     from polisyos.core.canon import CanonSpec, to_canonical_bytes
     from polisyos.foundry.methods.artifacts import CompiledChainPlan, load_compiled_chain_plan
@@ -497,6 +497,12 @@ def test_reopened_plan_refuses_damaged_effective_graph_before_scientific_bodies(
             media_type="application/json",
             schema=SchemaInfo(name="polisyos.foundry.compiled_chain_plan", version="1.0.0"),
         ),
+    )
+    ref = ArtifactRef(
+        artifact_id=ref.artifact_id,
+        kind=ref.kind,
+        media_type=ref.media_type,
+        manifest_profile_sha256=artifact_manifest_profile_sha256(cas.get_manifest(ref)),
     )
     with _body_observer() as calls:
         with pytest.raises(expected_error, match=message) as refusal:

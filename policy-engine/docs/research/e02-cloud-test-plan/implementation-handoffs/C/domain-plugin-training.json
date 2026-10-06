@@ -19,9 +19,10 @@
   "implementation_commits": [
     "26950e5f12344d3bebef90f2743af362683a2667",
     "84fb31635011d9df35d7ce6ac587b47f1d21c507",
-    "fb5a66e4a522a2c208ec5b76d8380021e1cd6cc2"
+    "fb5a66e4a522a2c208ec5b76d8380021e1cd6cc2",
+    "a452011da3de26d90877ae95ab10a72cce8e0b45"
   ],
-  "candidate_tree_sha": "186bdd07869015c703e8850acc1c29af125761e2",
+  "candidate_tree_sha": "d35c3e132b930eb7b9512ab7314a5f94c4733d3a",
   "branch": "codex/e02-C-plugins-20261006",
   "pull_request": null,
   "changed_paths": [
@@ -30,6 +31,7 @@
     "policy-engine/src/polisyos/foundry/plugins/cli.py",
     "policy-engine/src/polisyos/foundry/plugins/core.py",
     "policy-engine/src/polisyos/foundry/plugins/discovery.py",
+    "policy-engine/src/polisyos/foundry/plugins/training_adapter.py",
     "policy-engine/tests/unit/foundry/plugins/test_discovery.py",
     "policy-engine/tests/unit/remediation/test_plg_02.py",
     "policy-engine/tests/unit/remediation/test_plg_03.py"
@@ -38,22 +40,32 @@
   "checks": [
     {
       "command": "PYTHONDONTWRITEBYTECODE=1 JAX_PLATFORMS=cpu OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 PYTHONPATH=src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -p no:cacheprovider -o addopts='' -q -c pytest.ini tests/unit/foundry/plugins/test_discovery.py tests/unit/foundry/plugins/test_plugin_system.py tests/unit/remediation/test_plg_01.py tests/unit/remediation/test_plg_02.py",
-      "target_sha": "fb5a66e4a522a2c208ec5b76d8380021e1cd6cc2",
-      "environment": "macOS; original policy-engine .venv Python 3.14; candidate source via PYTHONPATH; CPU JAX and one-thread BLAS controls",
-      "input_closure": "Focused plugin fixtures and existing unit tests only; no production data or package installation.",
+      "target_sha": "a452011da3de26d90877ae95ab10a72cce8e0b45",
+      "target_tree_sha": "d35c3e132b930eb7b9512ab7314a5f94c4733d3a",
+      "environment": "macOS; original policy-engine .venv Python 3.14; source from this worktree via PYTHONPATH; JAX_PLATFORMS=cpu; OPENBLAS_NUM_THREADS=1, OMP_NUM_THREADS=1, MKL_NUM_THREADS=1, NUMEXPR_NUM_THREADS=1; PYTHONDONTWRITEBYTECODE=1",
+      "input_closure": "Focused plugin discovery/system and PLG-01/PLG-02 unit tests; no production data, package install, or GPU.",
       "outcome": "PASS",
-      "output": ".............\n.............\n.....                                          [100%]\n=============================== warnings summary ===============================\nPytestConfigWarning: Unknown config option: cache_dir\ntests/unit/foundry/plugins/test_discovery.py: 4 warnings\ntests/unit/remediation/test_plg_01.py: 11 warnings\nDeprecationWarning: sha1 content hashing is deprecated and must be requested explicitly; use sha256 for canonical CAS paths.\n31 passed, 16 warnings in 98.36s (0:01:38)"
+      "exit_code": 0,
+      "pytest_elapsed_seconds": 65.14,
+      "output": "31 passed, 16 warnings in 65.14s. Complete pytest stdout/stderr captured at policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/plugins-light31-a452011da.log@429c76d1f9b78de709f280fbaccc118a80a99f863e923a28342d3659fcb5b8d6."
     },
     {
-      "command": "PYTHONDONTWRITEBYTECODE=1 JAX_PLATFORMS=cpu OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 PYTHONPATH=src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -q -c pytest.ini tests/unit/remediation/test_plg_03.py tests/unit/foundry/agent_sim/test_training.py",
-      "target_sha": "26950e5f12344d3bebef90f2743af362683a2667",
-      "environment": "macOS; original policy-engine .venv Python 3.14; candidate source via PYTHONPATH; CPU JAX and one-thread BLAS controls; exclusive numeric slot",
-      "input_closure": "Eight bounded PLG-03 tests and four existing native trainer tests; tiny Economics configuration (one episode, two steps, one PPO epoch); temporary tenant-scoped CAS; no production data or GPU.",
+      "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -p no:cacheprovider -o addopts='' -q -c pytest.ini tests/unit/remediation/test_plg_03.py tests/unit/foundry/agent_sim/test_training.py",
+      "target_sha": "a452011da3de26d90877ae95ab10a72cce8e0b45",
+      "target_tree_sha": "d35c3e132b930eb7b9512ab7314a5f94c4733d3a",
+      "environment": "macOS; original policy-engine .venv Python 3.14; cwd is this worktree's policy-engine directory; PYTHONPATH=src; JAX_PLATFORMS=cpu; OPENBLAS_NUM_THREADS=1, OMP_NUM_THREADS=1, MKL_NUM_THREADS=1, NUMEXPR_NUM_THREADS=1; PYTHONDONTWRITEBYTECODE=1; exclusive numerical slot",
+      "input_closure": "Complete PLG-03 bridge suite and existing native trainer tests; real one-call CPU Economics training with tiny config, tenant-scoped CAS write and fresh load, independently loaded action oracle, and optimizer-removal negative control; no production data, GPU, package install, or shared database.",
       "outcome": "PASS",
-      "output": "Exit 0; 12 tests passed. Pytest progress was streamed in chunks (7 dots, then 4, then 1 with [100%]); elapsed wall time was approximately 126.6 seconds summed across polling results. Warnings included Equinox LayerNorm(elementwise_affine=...) deprecation, pytest's existing unknown cache_dir option, and an expected duplicate Economics registration warning in the CLI test. The detailed final warning-summary text was not retained in the streamed tool result.",
+      "exit_code": 0,
+      "pytest_elapsed_seconds": 116.18,
+      "launcher_elapsed_seconds": 128.57,
+      "timeout_seconds": 1500,
+      "output": "17 passed, 30 warnings in 116.18s; launcher exit 0 and elapsed 128.57s. Complete stdout/stderr at policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/plg03-numeric-a452011da.log@c61d7fdf7c5db0d377d928ea59c82283fae0585143e4be630ce166315c1c533f.",
       "coverage": [
-        "real one-call PolisySimulator.train -> EconomicsTrainingAdapter -> train_actor_critic_with_artifact",
-        "parameter movement and changed deterministic action from independently loaded saved policy",
+        "real one-call PolisySimulator.train -> EconomicsTrainingAdapter -> existing train_actor_critic_with_artifact",
+        "runtime owner profile is recomputed before the optimizer; missing, unavailable, unsupported, owner-error, or tier/device-mismatched profiles are held before training/CAS",
+        "the observed determinism tier is passed unchanged to native training and strict tenant-CAS readback",
+        "trained parameters change and the independently loaded saved policy changes its deterministic action",
         "tenant-owned CAS write and fresh readback; foreign tenant cannot read",
         "optimizer-removal negative control preserves trained status, loss, artifact, and CAS markers while the saved-action oracle fails",
         "unsupported composite remains bridge_pending",
@@ -61,39 +73,45 @@
       ]
     },
     {
-      "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check src/polisyos/foundry/plugins/core.py src/polisyos/foundry/plugins/discovery.py src/polisyos/foundry/plugins/cli.py tests/unit/foundry/plugins/test_discovery.py tests/unit/remediation/test_plg_02.py tests/unit/remediation/test_plg_03.py",
-      "target_sha": "fb5a66e4a522a2c208ec5b76d8380021e1cd6cc2",
+      "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check policy-engine/src/polisyos/foundry/plugins/core.py policy-engine/src/polisyos/foundry/plugins/discovery.py policy-engine/src/polisyos/foundry/plugins/cli.py policy-engine/src/polisyos/foundry/plugins/training_adapter.py policy-engine/tests/unit/foundry/plugins/test_discovery.py policy-engine/tests/unit/remediation/test_plg_02.py policy-engine/tests/unit/remediation/test_plg_03.py",
+      "target_sha": "a452011da3de26d90877ae95ab10a72cce8e0b45",
+      "target_tree_sha": "d35c3e132b930eb7b9512ab7314a5f94c4733d3a",
       "environment": "macOS; original policy-engine .venv Python 3.14",
-      "input_closure": "All six changed Python paths.",
+      "input_closure": "All seven changed Python implementation and test files.",
       "outcome": "PASS",
+      "exit_code": 0,
       "output": "All checks passed!"
     },
     {
-      "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff format --check src/polisyos/foundry/plugins/core.py src/polisyos/foundry/plugins/discovery.py src/polisyos/foundry/plugins/cli.py tests/unit/foundry/plugins/test_discovery.py tests/unit/remediation/test_plg_02.py tests/unit/remediation/test_plg_03.py",
-      "target_sha": "fb5a66e4a522a2c208ec5b76d8380021e1cd6cc2",
+      "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff format --check policy-engine/src/polisyos/foundry/plugins/core.py policy-engine/src/polisyos/foundry/plugins/discovery.py policy-engine/src/polisyos/foundry/plugins/cli.py policy-engine/src/polisyos/foundry/plugins/training_adapter.py policy-engine/tests/unit/foundry/plugins/test_discovery.py policy-engine/tests/unit/remediation/test_plg_02.py policy-engine/tests/unit/remediation/test_plg_03.py",
+      "target_sha": "a452011da3de26d90877ae95ab10a72cce8e0b45",
+      "target_tree_sha": "d35c3e132b930eb7b9512ab7314a5f94c4733d3a",
       "environment": "macOS; original policy-engine .venv Python 3.14",
-      "input_closure": "All six changed Python paths.",
+      "input_closure": "All seven changed Python implementation and test files.",
       "outcome": "PASS",
-      "output": "6 files already formatted"
+      "exit_code": 0,
+      "output": "7 files already formatted"
     },
     {
-      "command": "git diff --check 198076863e143dea9f89f02734b13d50dae3eed5..HEAD",
-      "target_sha": "fb5a66e4a522a2c208ec5b76d8380021e1cd6cc2",
+      "command": "git diff --check 198076863e143dea9f89f02734b13d50dae3eed5..a452011da3de26d90877ae95ab10a72cce8e0b45",
+      "target_sha": "a452011da3de26d90877ae95ab10a72cce8e0b45",
+      "target_tree_sha": "d35c3e132b930eb7b9512ab7314a5f94c4733d3a",
       "environment": "Git worktree",
-      "input_closure": "Candidate diff against the admitted slice base.",
+      "input_closure": "Complete implementation diff against the admitted slice base, excluding this evidence-only handoff receipt update.",
       "outcome": "PASS",
+      "exit_code": 0,
       "output": "No output; exit 0."
     }
   ],
   "property": {
-    "statement": "Legacy DomainPlugin discovery uses Core's shared collector with stable source ordering and rejects non-DomainPlugin or malformed-metadata candidates. For the supported Economics profile, one actual call through PolisySimulator.train invokes the existing native actor-critic trainer, persists the resulting policy through the selected tenant CAS, reloads it, and changes the same-observation action. Unsupported composite training stays bridge_pending. Rollout evaluation remains a SimulationResult over trajectory; its [2,2,2] per-agent rewards are never presented as PPO loss.",
+    "statement": "Legacy DomainPlugin discovery uses Core's shared collector with stable source ordering and rejects non-DomainPlugin or malformed-metadata candidates. For the supported Economics profile, one actual call through PolisySimulator.train invokes the existing native actor-critic trainer, persists the resulting policy through the selected tenant CAS, reloads it, and changes the same-observation action. The existing backend runtime-fingerprint owner supplies the observed JAX device and determinism tier before training; missing or tier/device-inconsistent profiles are held, and the same observed tier is used for strict artifact readback. Unsupported composite training stays bridge_pending. Rollout evaluation remains a SimulationResult over trajectory; its [2,2,2] per-agent rewards are never presented as PPO loss.",
     "runtime_path": [
       "polisyos.foundry.plugins.discovery.discover_plugins -> polisyos.core.discovery.BaseDiscovery -> DomainPlugin registry",
       "polisyos.foundry.plugins.api.PolisySimulator.train -> polisyos.foundry.plugins.training_adapter.EconomicsTrainingAdapter -> polisyos.foundry.agent_sim.training.train_actor_critic_with_artifact",
       "native result -> tenant-scoped CAS via store_policy_artifact -> load_policy_artifact readback -> independent deterministic action oracle and simulator policy consumption",
       "unsupported profile -> TrainingResult(status=bridge_pending) -> CLI reason and nonzero process status"
     ],
-    "proxy_divergence": "A trained status, finite loss, artifact reference, CAS persistence, or a plugin-supplied .verified=True flag can remain present when the actual policy effect or an owner-issued verification is absent. The optimizer-removal probe keeps the success markers and replaces the native optimizer result with the unchanged actor; the independently loaded saved-action assertion fails. Discovery exposes no registry verification/admission artifact or verifier-provenance consumer; a candidate's arbitrary Python attribute remains an untrusted attribute, not a verification result.",
+    "proxy_divergence": "The pre-fix Economics adapter hardcoded STRICT_CPU while the native trainer's validate_for_tier path only warned; on a GPU runtime this could stamp a CPU-tier artifact without enforcing CPU execution (P38). The frozen candidate now recomputes the profile through the existing runtime-fingerprint owner, checks tier/device consistency before training/publication, and passes the same tier to trainer and readback. The CPU numerical run confirms its runtime-observed profile matches the persisted artifact fingerprint. Separately, a trained status, finite loss, artifact reference, CAS persistence, or plugin-supplied .verified=True flag can remain when a policy effect or owner-issued verification is absent. The optimizer-removal probe keeps success markers and replaces the native optimizer result with the unchanged actor; the independently loaded saved-action assertion fails. Discovery exposes no registry verification/admission artifact or verifier-provenance consumer; a candidate's arbitrary Python attribute remains untrusted.",
     "negative_controls": [
       "reverse entry-point sequence and filesystem child order; stable duplicate winner is alpha and entry-point names sort",
       "malformed metadata returning None and factory returning object() are rejected; direct registry calls reject non-DomainPlugin and absent metadata",
@@ -108,10 +126,10 @@
   "capability_state_or_finding_state": "PLG-01/LA-022 is limited; the discovery behavior is tested, but verification_missing remains for owner-issued admission and verifier provenance. PLG-02/PLG-03 provide a bounded real Economics one-call trainer-to-tenant-CAS readback path and honest bridge_pending for unsupported profiles. LA-023 remains partial/semantic_test_missing overall; this receipt does not close either finding or ratify a broader public training promise.",
   "pattern_pass": {
     "ids": ["P01", "P02", "P04", "P05", "P06", "P10", "P14", "P27", "P29", "P32", "P33", "P37", "P38"],
-    "existing_failure_modes": "Discovery had separate source paths and candidate validation gaps; legacy training reported rollout rewards as if they were optimizer losses and could return an unchanged policy as trained.",
-    "target_pattern": "Reuse Core's collector and preserve the legacy DomainPlugin ABI; route only the supported Economics profile through the existing trainer; use typed bridge_pending for unsupported profiles; verify training with independent persisted-policy action readback and an optimizer-removal negative control.",
+    "existing_failure_modes": "Discovery had separate source paths and candidate validation gaps; legacy training reported rollout rewards as if they were optimizer losses and could return an unchanged policy as trained. Review also found a P38 runtime-profile proxy: the adapter hardcoded STRICT_CPU while the native helper only emitted tier-validation warnings.",
+    "target_pattern": "Reuse Core's collector and preserve the legacy DomainPlugin ABI; route only the supported Economics profile through the existing trainer; derive its tier from the existing runtime-fingerprint owner and hold missing or mismatched profiles; use typed bridge_pending for unsupported profiles; verify training with independent persisted-policy action readback and an optimizer-removal negative control.",
     "missing_capability_labels": ["verification_missing", "semantic_test_missing"],
-    "acceptance_signal": "Focused source and native-trainer tests pass; independent review plus named owner decisions and missing semantic controls remain before any LA closure."
+    "acceptance_signal": "Focused discovery/plugin and PLG-03/native-trainer suites, formatter, and lint pass at the frozen source SHA; the runtime-tier/device divergence is guarded before training and the actual CPU artifact readback matches its observed profile. Independent review, named owner decisions, and missing semantic controls remain before any LA closure."
   },
   "limitations_and_next_owner": [
     "The PLG-01 entry-point test uses a monkeypatched importlib.metadata EntryPoint and temporary modules, not a genuinely installed distribution. Prefix discovery is ordered after builtins, declared entry points, and explicit dev roots, but the full installed-package packaging/install path was not exercised.",
@@ -122,6 +140,7 @@
     "The reward fixture proves current live trajectory and CompositeReward evaluation semantics, but SimulationResult does not persist or expose reward_history; durable historical reward readback is not implemented by this change.",
     "Product owner must ratify the public .train promise as Economics one-call support, typed bridge_pending for other profiles, and the checkpoint/resume boundary before LA-023 can be closed. Reviewers must independently inspect the frozen implementation; no self-review or closure-ledger update is claimed.",
     "No pyproject/lockfile or backend service change was needed. Tests used the existing Python 3.14/JAX CPU environment. No package installation, GPU, shared database, production dataset, or full backend suite was used.",
-    "The repository pre-commit hook could not run because its configured runtime-dashboard lefthook executable is absent in this worktree. Installs were prohibited; implementation commits therefore used a one-command git -c core.hooksPath=/dev/null override after recording the failed hook condition."
+    "The repository pre-commit hook could not run because its configured runtime-dashboard lefthook executable is absent in this worktree. Installs were prohibited; implementation commits therefore used a one-command git -c core.hooksPath=/dev/null override after recording the failed hook condition.",
+    "Runtime tier/device alignment is enforced against the existing fingerprint owner's observation before the optimizer and on strict artifact readback. Only the actual CPU profile was exercised numerically in this slice; no GPU numerical replay was run."
   ]
 }

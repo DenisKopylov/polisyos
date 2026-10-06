@@ -327,7 +327,7 @@ def test_posteffect_completion_publication_fault_blocks_live_and_fresh_consumers
         advanced = next(iter(wire["completion_obligations"].values()))
         assert advanced["phase"] == "ledger_ack_unknown"
         assert advanced["event_payload"]["kind"] == "provider"
-        assert advanced["event_payload"]["amount"] == "0.02"
+        assert Decimal(advanced["event_payload"]["amount"]) == Decimal("0.02")
     pending = failed["snapshot"]["completion_obligations"]
     assert len(pending) == 1
     assert pending == effect["admitted_records_at_effect"]
@@ -364,10 +364,10 @@ def test_genuine_known_zero_completion_allows_a_fresh_physical_call(
     assert all(effect["reported_cost"] == "0" for effect in second["physical_effects"])
     assert all(effect["admitted_records_at_effect"] for effect in second["physical_effects"])
     assert second["snapshot"]["completion_obligations"] == {}
-    assert second["snapshot"]["state"]["spent"]["run"] == "0"
+    assert Decimal(second["snapshot"]["state"]["spent"]["run"]) == Decimal("0")
     receipts = second["snapshot"]["spend_receipts"]
     assert len(receipts) == 2
-    assert all(receipt["amount"] == "0" for receipt in receipts.values())
+    assert all(Decimal(receipt["amount"]) == Decimal("0") for receipt in receipts.values())
 
 
 def test_same_live_owner_can_finish_two_genuinely_concurrent_physical_calls(tmp_path: Path) -> None:
@@ -377,5 +377,5 @@ def test_same_live_owner_can_finish_two_genuinely_concurrent_physical_calls(tmp_
     assert len(observed["physical_effects"]) == 2
     assert all(effect["admitted_records_at_effect"] for effect in observed["physical_effects"])
     assert observed["snapshot"]["completion_obligations"] == {}
-    assert observed["snapshot"]["state"]["spent"]["run"] == "0.04"
+    assert Decimal(observed["snapshot"]["state"]["spent"]["run"]) == Decimal("0.04")
     assert len(observed["snapshot"]["spend_receipts"]) == 2

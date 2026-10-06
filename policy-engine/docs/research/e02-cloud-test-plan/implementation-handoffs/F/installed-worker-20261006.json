@@ -2,13 +2,7 @@
   "schema": "policyos.e02.implementation_handoff.v1",
   "unit": "F",
   "slice": "installed-worker-20261006",
-  "closure_ids": [
-    "B212",
-    "B213",
-    "B221",
-    "B223",
-    "LA-020"
-  ],
+  "closure_ids": [],
   "bundle_ids": [
     "CAU-04",
     "SCM-01",
@@ -1161,6 +1155,24 @@
     "first_published_head": "d1d42d7211d3576ed8579d004b854ef09d0c6748",
     "remote_branch": "codex/e02-F-installed-worker-20261006",
     "transport": "ordinary git push succeeded; initial remote head matches local receipt commit",
-    "attachment": "Required leaf tool attempted; host call remained pending and was terminated. Root requested to attach PR63 through working host."
-  }
+    "attachment": "Root confirmed PR63 attached through its working host after the required leaf attachment attempt remained pending."
+  },
+  "finding_ids": [
+    "B212",
+    "B213",
+    "B221",
+    "B223",
+    "LA-020"
+  ],
+  "related_finding_ids": [
+    "B212",
+    "B213",
+    "B221",
+    "B223",
+    "LA-020"
+  ],
+  "closure_id_semantics": "Only findings explicitly closed by this receipt in their declared technical scope. Related limited/held/open findings are retained in finding_ids/related_finding_ids and their original decisions; accepted code and finite property PASS do not imply their closure.",
+  "receipt_corrections": [
+    "Normalized closure_ids to explicitly closed technical IDs only and retained every related finding ID. Metadata-only correction: implementation/source/test/evidence/check/finding decisions unchanged; no tests repeated."
+  ]
 }

@@ -1,0 +1,24 @@
+from __future__ import annotations
+import hashlib,json,subprocess,sys
+from pathlib import Path
+import pytest
+from polisyos.scientist.methods.search.service import NativeSearchService
+from polisyos.scientist.methods.autotune.registry import ChampionRegistry
+assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip() == 'dcae37b9d775abfbd8da63d9a1b0fdddcdb7c230'
+NativeSearchService.ask=NativeSearchService._ask_proposals
+original_get=ChampionRegistry.get
+retained={}
+def without_canonical_reread(self,loop_id):
+    actual=original_get(self,loop_id)
+    if type(self._store).__name__ == '_SnapshotCAS':
+        key=(id(self),loop_id)
+        if key in retained:
+            return retained[key]
+        if actual is not None:
+            retained[key]=actual
+    return actual
+ChampionRegistry.get=without_canonical_reread
+print(json.dumps({'source':'dcae37b9d775abfbd8da63d9a1b0fdddcdb7c230','removed_properties':['ask local-state publication rollback','fresh canonical predecessor reread for the actual slow writer'],'service_path':sys.modules[NativeSearchService.__module__].__file__,'registry_path':sys.modules[ChampionRegistry.__module__].__file__}),flush=True)
+status=pytest.main(['tests/unit/scientist/methods/search/test_service_persistence.py::test_failed_ask_publication_restores_cursor_ids_and_last_acknowledged_fresh_view','tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py::test_competing_native_writer_refuses_actual_stale_pair_after_lock_held_reread','-s','--basetemp=/workspace/e02-D-continuation-receipts/champion-verified-negative-74220b752ded47fcab9d5151eacb04e2','--junitxml=/workspace/e02-D-continuation-receipts/champion-verified-negative-junit.xml'])
+print(json.dumps({'pytest_exit':int(status),'torch_loaded':'torch' in sys.modules}),flush=True)
+raise SystemExit(status)

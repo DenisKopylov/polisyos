@@ -1,0 +1,16 @@
+{"fresh_process_pointer": {"loop_id": "verified", "candidate_ref": {"artifact_id": "sha256:23f3440acecd2af7d21081de477bda075ba4627be242e404a99e3f3e2e3b0d6b", "kind": "scientist.autotune.verified.candidate", "media_type": "application/json", "manifest_profile_sha256": "sha256:7907acbd6ec207bd1857fa0865b8af812dd4a53472315c39eacf73f83108f4c5"}, "evaluation_ref": {"artifact_id": "sha256:e958f87810d1ef9736c0854fdbb48a15a59498c415448f28f3e317b66598db15", "kind": "scientist.autotune.verified.evaluation", "media_type": "application/json", "manifest_profile_sha256": "sha256:70546d68d1d3000776fca1bae288b510507d2f11f83d00d9362d5872885efb80"}, "metrics": {"score": 2.0}, "suite_version": "1.0", "promoted_at": "2026-10-06T16:50:46.721486Z", "search_space_version": "1.0", "metadata": {"promoted_by_policy": {"loop_id": "verified", "primary_metric": "score", "unit": "fixture_points", "direction": "maximize", "compare_split": "holdout", "min_improvement": 0.0, "min_sample_count": 0, "required_guardrails": ["finite"]}, "compare_split": "holdout", "suite_id": "verified-data", "suite_ref": "sha256:5aa143f839c1780f5adbc7beb1997d5504dd28623afa5439c54818f474900338"}}, "model_origin": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/autotune/models.py"}
+
+.actual_reused_views {'artifact_id': 'sha256:4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1', 'kind': 'scientist.autotune.verified.candidate', 'media_type': 'application/json', 'manifest_profile_sha256': 'sha256:aa7563911812453e0f2a00343088a528277e788e7bc4a4b447259ba20496516e'} {'artifact_id': 'sha256:4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1', 'kind': 'scientist.autotune.verified.candidate', 'media_type': 'application/json', 'manifest_profile_sha256': 'sha256:6a3772f549adb3e1ef400794eac4167a1e5ad10b59a6deadc51a5745b5700420'}
+..{"actual_pointer_boundary": "before", "pointer": "/workspace/e02-D-continuation-receipts/champion-verified-precommit-2-3a42b5b9fae04f208a1dedbdaea03fa7/test_actual_process_exit_aroun0/champions/verified/champion.json"}
+
+.{"actual_pointer_boundary": "after", "pointer": "/workspace/e02-D-continuation-receipts/champion-verified-precommit-2-3a42b5b9fae04f208a1dedbdaea03fa7/test_actual_process_exit_aroun1/champions/verified/champion.json"}
+
+.....................
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+25 passed, 2 warnings in 112.73s (0:01:52)

@@ -1,0 +1,35 @@
+{
+  "schema": "lossless-new-output-encoding.v1",
+  "df_before": "Filesystem       1B-blocks        Used Available Use% Mounted on\noverlay        33770192896 32035213312    217088 100% /\n",
+  "df_after": "Filesystem       1B-blocks        Used Available Use% Mounted on\noverlay        33770192896 32033460224   1970176 100% /\n",
+  "operations": [
+    {
+      "fresh_untracked_output": "/workspace/e02-D-published-champion/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/preserved-input-index.json",
+      "encoded_output": "/workspace/e02-D-published-champion/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/preserved-input-index.json.gz",
+      "same_inode": 951856,
+      "raw_backup": "/dev/shm/e02-D3-champion-output-encoding-20261006/preserved-input-index.json",
+      "raw_bytes": 1034528,
+      "raw_sha256": "35c838aeffeadae45db3602852f4a55fa79987cfbe7dc846cfd50ad7ca18df5d",
+      "encoded_bytes": 75932,
+      "encoded_sha256": "f86d0dd050cb89c3aec068df19bdcd6362b9f3ebc89f9f424c1a45a6da8b0ad4",
+      "all_original_indexed_sources_verified_before_rewrite": true,
+      "gzip_roundtrip_verified": true,
+      "operation": "backup raw bytes; rewrite same fresh untracked output inode to gzip; rename; no unlink/delete or source/fixture/env change"
+    },
+    {
+      "fresh_untracked_output": "/workspace/e02-D-published-champion/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/actual-cas-pointer-inputs.json",
+      "encoded_output": "/workspace/e02-D-published-champion/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/actual-cas-pointer-inputs.json.gz",
+      "same_inode": 951857,
+      "raw_backup": "/dev/shm/e02-D3-champion-output-encoding-20261006/actual-cas-pointer-inputs.json",
+      "raw_bytes": 843248,
+      "raw_sha256": "feb4b4ea57b99eb40a1def9093abbe24528dd6417e58c53c358d23980c4bdfec",
+      "encoded_bytes": 46610,
+      "encoded_sha256": "ea70125803614ea4b401766d0932c26db7ed54045c0657935caf22516f410b83",
+      "all_original_indexed_sources_verified_before_rewrite": true,
+      "gzip_roundtrip_verified": true,
+      "operation": "backup raw bytes; rewrite same fresh untracked output inode to gzip; rename; no unlink/delete or source/fixture/env change"
+    }
+  ],
+  "no_manual_cleanup": true,
+  "authorization": "parent explicit source-preserving publication-capacity instruction"
+}

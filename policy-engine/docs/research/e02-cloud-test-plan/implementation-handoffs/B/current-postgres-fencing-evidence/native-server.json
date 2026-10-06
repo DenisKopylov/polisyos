@@ -1,0 +1,36 @@
+{
+  "argv": [
+    "/tmp/e02-B38-pg-evidence/oci/rootfs/usr/local/bin/postgres",
+    "-D",
+    "/tmp/e02-B38-pg-evidence/native-data-v2",
+    "-h",
+    "127.0.0.1",
+    "-p",
+    "45483",
+    "-k",
+    "/tmp/e02-B38-pg-evidence/native-socket-v2",
+    "-c",
+    "dynamic_library_path=/tmp/e02-B38-pg-evidence/oci/rootfs/usr/local/lib/postgresql"
+  ],
+  "pid": 381902,
+  "port": 45483,
+  "host": "127.0.0.1",
+  "database": "postgres",
+  "user": "e02_b38",
+  "password": "redacted",
+  "data_directory": "/tmp/e02-B38-pg-evidence/native-data-v2",
+  "socket_directory": "/tmp/e02-B38-pg-evidence/native-socket-v2",
+  "uid": 1000,
+  "policy": "no CPU/worker/thread quota; native musl image binaries, task-local process",
+  "readiness": "READY",
+  "actual_sql_identity": [
+    "PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+    381909,
+    "postgres",
+    "e02_b38",
+    45483
+  ],
+  "driver_version": "3.3.2",
+  "driver_origin": "/tmp/e02-B38-pg-profile/psycopg/__init__.py",
+  "dsn_secret_file": "/tmp/e02-B38-pg-evidence/postgres-dsn"
+}

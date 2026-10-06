@@ -1,0 +1,98 @@
+"""Reconcile a proposed manual ledger against immutable Git/XML; no product imports."""
+import collections
+import csv
+import hashlib
+import json
+from pathlib import Path
+import re
+import subprocess
+import xml.etree.ElementTree as ET
+
+ROOT = Path(subprocess.check_output(['git', 'rev-parse', '--show-toplevel'], cwd=Path(__file__).resolve().parent, text=True).strip())
+PACKET = ROOT / 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json'
+
+def read_git(ref):
+    data = subprocess.check_output(['git', 'show', ref['commit'] + ':' + ref['path']], cwd=ROOT)
+    assert len(data) == ref['bytes'], ref['path']
+    assert hashlib.sha256(data).hexdigest() == ref['sha256'], ref['path']
+    return data
+
+def outcome(case):
+    if case.find('error') is not None:
+        return 'ERROR'
+    if case.find('failure') is not None:
+        return 'FAIL'
+    if case.find('skipped') is not None:
+        return 'SKIP'
+    return 'PASS'
+
+def main():
+    packet = json.loads(PACKET.read_bytes())
+    refs = packet['evidence_index']
+    evidence = {key: read_git(ref) for key, ref in refs.items()}
+    test_inputs = {key: read_git(ref) for key, ref in packet['test_input_index'].items()}
+    cases = ET.fromstring(evidence['dd_xml']).findall('.//testcase')
+    assert len(cases) == packet['source_cuts']['DD']['actual_case_count']
+    assert dict(collections.Counter(outcome(case) for case in cases)) == {
+        'PASS': 2880, 'FAIL': 140, 'ERROR': 600, 'SKIP': 2
+    }
+    finding_source = read_git(packet['denominator']['finding_source'])
+    routes_source = read_git(packet['denominator']['routes_source'])
+    cells_source = read_git(packet['denominator']['baseline_cells_source'])
+    read_git(packet['denominator']['baseline_context_source'])
+    owners = [row for row in csv.DictReader(finding_source.decode().splitlines(), delimiter='\t') if row['unit'] == 'B']
+    owner_ids = {row['finding_id'] for row in owners}
+    routes = [row for row in csv.DictReader(routes_source.decode().splitlines(), delimiter='\t') if row['finding_id'] in owner_ids]
+    cell_rows = {row['id']: row for row in csv.DictReader(cells_source.decode().splitlines(), delimiter='\t')}
+    assert all(row['cell_id'] in cell_rows for row in routes)
+    assert all(row['route_grade'] == 'candidate_unverified' for row in routes)
+    rows = packet['all60_manual_rows']
+    assert {row['finding_id'] for row in rows} == owner_ids
+    assert len(rows) == len(owner_ids) == 60
+    assert len({row['bundle_id'] for row in rows}) == 25
+    assert len(routes) == 561
+    assert len({row['cell_id'] for row in routes}) == 189
+    assert packet['closure_ids'] == []
+    source_cut = packet['source_cuts']['canonical_cards']['sha']
+    discrepancies = []
+    per_row = []
+    for row in rows:
+        assert row['proposal']['formal_closure'] is False
+        card_path = packet['source_cuts']['canonical_cards']['path_template'].format(bundle_id=row['bundle_id'])
+        card = subprocess.check_output(['git', 'show', source_cut + ':' + card_path], cwd=ROOT).decode()
+        raw = re.search(r'<!-- SOURCE_BEGIN [^\n]*' + re.escape(row['finding_id']) + r' -->(.*?)<!-- SOURCE_END', card, re.S)
+        assert raw and hashlib.sha256(raw.group(1).encode()).hexdigest() == row['canonical_criterion']['source_block_sha256']
+        deciding = row['DD_deciding_cases']
+        picked = [cases[index] for index in deciding['junit_indexes']]
+        states = dict(collections.Counter(outcome(case) for case in picked))
+        if states != deciding['literal_states']:
+            discrepancies.append({'finding_id': row['finding_id'], 'phase_partition': deciding['literal_states'], 'XML': states})
+        assert all(key in test_inputs for key in deciding['test_input_refs'])
+        assert all(key in refs for key in row['additional_deciding_refs'])
+        if row['proposal']['finding_status'] == 'closed':
+            assert picked and states == {'PASS': len(picked)}
+        per_row.append({'finding_id': row['finding_id'], 'proposal': row['proposal']['finding_status'], 'XML_states': states})
+    assert discrepancies == [], discrepancies
+    status_counts = dict(collections.Counter(row['proposal']['finding_status'] for row in rows))
+    assert status_counts == packet['proposal_status_counts']
+    assert {row['finding_id'] for row in rows if row['proposal']['finding_status'] == 'held'} == {'B61', 'B67', 'B68', 'B78', 'B93', 'B148'}
+    assert {row['finding_id'] for row in rows if row['proposal']['finding_status'] == 'open'} == {'B65', 'B66', 'B87'}
+    print(json.dumps({
+        'schema': 'policyos.e02.manual_adjudication_reconciliation.v1',
+        'mode': 'Git/XML/source data only; no pytest/gate/product import',
+        'packet_sha256': hashlib.sha256(PACKET.read_bytes()).hexdigest(),
+        'source_sha': packet['source_cuts']['DD']['sha'],
+        'denominator': {'findings': 60, 'bundles': 25, 'routes': 561, 'baseline_cells': 189},
+        'evidence_refs_checked': len(evidence),
+        'test_inputs_checked': len(test_inputs),
+        'all_60_criterion_raw_hashes_match': True,
+        'all_60_case_projections_reconcile': True,
+        'literal_DD_XML_cases': len(cases),
+        'status_counts': status_counts,
+        'per_row': per_row,
+        'semantic_decision_warning': 'Byte/hash/XML reconciliation verifies custody, not scientific/institutional authority or correctness of each proposed manual decision; root/G review remains required.',
+        'closure_ids': []
+    }, ensure_ascii=False, indent=2))
+
+if __name__ == '__main__':
+    main()

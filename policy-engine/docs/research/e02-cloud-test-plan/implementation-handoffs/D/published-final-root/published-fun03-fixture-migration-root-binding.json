@@ -1,0 +1,161 @@
+{
+  "receipt_commit": "128731122a5fe5ca9d49955ae6ba0ad76a4b1a7d",
+  "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration.json",
+  "receipt_sha256": "c5e96eb747dfcc9a8966ac3c90295c53ebb9530d2ead0046272c5fcd2f259180",
+  "checked_git_bindings": [
+    {
+      "pointer": "/original_red/complete_git_refs/complete.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/06-FUN-03/complete.txt",
+      "sha256": "b22ab673644a51f84342371ec9125ece4ce50dd51eb0af972d71d0bf9adcb75f",
+      "matching_git_sources": [
+        "0c235483c7368fbf8f004e7aba4e499d4db5870d"
+      ]
+    },
+    {
+      "pointer": "/original_red/complete_git_refs/result.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/06-FUN-03/result.json",
+      "sha256": "4aaa6c4e50dc50085a0f22984674b878e4930244d1c8a32eb70ea8b990ffa81a",
+      "matching_git_sources": [
+        "0c235483c7368fbf8f004e7aba4e499d4db5870d"
+      ]
+    },
+    {
+      "pointer": "/original_red/complete_git_refs/events.jsonl.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/06-FUN-03/events.jsonl.txt",
+      "sha256": "f27a650818595791547423f91661e47f5094752ca7eaf8fdb900c246e42f702e",
+      "matching_git_sources": [
+        "0c235483c7368fbf8f004e7aba4e499d4db5870d"
+      ]
+    },
+    {
+      "pointer": "/original_red/complete_git_refs/junit.xml",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/06-FUN-03/junit.xml",
+      "sha256": "691e5f3ec316aca04a59b6aa7e74cfc7296e84a7ef36009dc9c41a2f72492f38",
+      "matching_git_sources": [
+        "0c235483c7368fbf8f004e7aba4e499d4db5870d"
+      ]
+    },
+    {
+      "pointer": "/original_red/complete_git_refs/environment.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/06-FUN-03/environment.json",
+      "sha256": "02a24226ed889c3696b259b98d768c95d45863ab54bd5173bbd41b9a014675b7",
+      "matching_git_sources": [
+        "0c235483c7368fbf8f004e7aba4e499d4db5870d"
+      ]
+    },
+    {
+      "pointer": "/masked_fixture_failure/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration/native-intermediate.txt",
+      "sha256": "760936074963662fa31347d9458a1b90ec24a9f5318eaa9fc27821bd9d18c6f9",
+      "matching_git_sources": [
+        "128731122a5fe5ca9d49955ae6ba0ad76a4b1a7d"
+      ]
+    },
+    {
+      "pointer": "/checks/0/complete_output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration/canonical-a935.txt",
+      "sha256": "ce30af50c864f42e8aecb5fe574f6cdf58e7af9d0171b8457d4b87cc76db9678",
+      "matching_git_sources": [
+        "128731122a5fe5ca9d49955ae6ba0ad76a4b1a7d"
+      ]
+    },
+    {
+      "pointer": "/checks/0/junit",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration/canonical-a935.xml",
+      "sha256": "68ad14ba4e08d64f82c4b400f337c54ed4d503e70401d945d8ce167c8ae75a0a",
+      "matching_git_sources": [
+        "128731122a5fe5ca9d49955ae6ba0ad76a4b1a7d"
+      ]
+    },
+    {
+      "pointer": "/checks/0/raw_metadata",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration/canonical-a935-result.json",
+      "sha256": "1c20c540c88a4bc002c3b0b73438a9c78b22524d56b07461318dfb5fbdc8c47c",
+      "matching_git_sources": [
+        "128731122a5fe5ca9d49955ae6ba0ad76a4b1a7d"
+      ]
+    },
+    {
+      "pointer": "/checks/1/complete_output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration/guard-removal.txt",
+      "sha256": "d34e3ddd3f44661ca8cdef7ddd45f98af2ca944c251b2f6a50b991b891a7563f",
+      "matching_git_sources": [
+        "128731122a5fe5ca9d49955ae6ba0ad76a4b1a7d"
+      ]
+    },
+    {
+      "pointer": "/checks/1/raw_metadata",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration/guard-removal-result.json",
+      "sha256": "9779553e87e70de0d04209d4a95982f87497d1d280b3172890c4b2314a065c2c",
+      "matching_git_sources": [
+        "128731122a5fe5ca9d49955ae6ba0ad76a4b1a7d"
+      ]
+    },
+    {
+      "pointer": "/checks/1/exact_probe_code",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration/fun03_guard_removal.py.txt",
+      "sha256": "800f0c9e0f992cc7be1fbfc1017d9c4cb266ca386bb010a4aff6e9c2abb41762",
+      "matching_git_sources": [
+        "128731122a5fe5ca9d49955ae6ba0ad76a4b1a7d"
+      ]
+    },
+    {
+      "pointer": "/outputs/canonical-a935.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration/canonical-a935.txt",
+      "sha256": "ce30af50c864f42e8aecb5fe574f6cdf58e7af9d0171b8457d4b87cc76db9678",
+      "matching_git_sources": [
+        "128731122a5fe5ca9d49955ae6ba0ad76a4b1a7d"
+      ]
+    },
+    {
+      "pointer": "/outputs/canonical-a935.xml",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration/canonical-a935.xml",
+      "sha256": "68ad14ba4e08d64f82c4b400f337c54ed4d503e70401d945d8ce167c8ae75a0a",
+      "matching_git_sources": [
+        "128731122a5fe5ca9d49955ae6ba0ad76a4b1a7d"
+      ]
+    },
+    {
+      "pointer": "/outputs/canonical-a935-result.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration/canonical-a935-result.json",
+      "sha256": "1c20c540c88a4bc002c3b0b73438a9c78b22524d56b07461318dfb5fbdc8c47c",
+      "matching_git_sources": [
+        "128731122a5fe5ca9d49955ae6ba0ad76a4b1a7d"
+      ]
+    },
+    {
+      "pointer": "/outputs/native-intermediate.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration/native-intermediate.txt",
+      "sha256": "760936074963662fa31347d9458a1b90ec24a9f5318eaa9fc27821bd9d18c6f9",
+      "matching_git_sources": [
+        "128731122a5fe5ca9d49955ae6ba0ad76a4b1a7d"
+      ]
+    },
+    {
+      "pointer": "/outputs/guard-removal.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration/guard-removal.txt",
+      "sha256": "d34e3ddd3f44661ca8cdef7ddd45f98af2ca944c251b2f6a50b991b891a7563f",
+      "matching_git_sources": [
+        "128731122a5fe5ca9d49955ae6ba0ad76a4b1a7d"
+      ]
+    },
+    {
+      "pointer": "/outputs/guard-removal-result.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration/guard-removal-result.json",
+      "sha256": "9779553e87e70de0d04209d4a95982f87497d1d280b3172890c4b2314a065c2c",
+      "matching_git_sources": [
+        "128731122a5fe5ca9d49955ae6ba0ad76a4b1a7d"
+      ]
+    },
+    {
+      "pointer": "/outputs/fun03_guard_removal.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration/fun03_guard_removal.py.txt",
+      "sha256": "800f0c9e0f992cc7be1fbfc1017d9c4cb266ca386bb010a4aff6e9c2abb41762",
+      "matching_git_sources": [
+        "128731122a5fe5ca9d49955ae6ba0ad76a4b1a7d"
+      ]
+    }
+  ],
+  "external_path_scope": [],
+  "result": "PASS metadata hashes/bytes only; no runtime or finding verdict"
+}

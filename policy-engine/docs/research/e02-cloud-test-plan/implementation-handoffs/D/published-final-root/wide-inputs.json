@@ -1,0 +1,1281 @@
+{
+  "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+  "source_tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+  "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "changed_paths_complete": [
+    "policy-engine/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-893-independent-green.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-893-independent-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-893-input-manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-893-legacy-front-boundary.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-893-production-review.diff",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-893-source-cells.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-ebeb-independent-audit.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-ebeb-independent-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-ebeb-initial-audit.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-native-893-green.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-native-893-input.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-native-ebeb-input.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-native-ebeb-red.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget_deficit_legacy_front_native_probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget_deficit_presence_independent_probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-native-lifecycle.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-native-lifecycle/architecture-185.txt.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-native-lifecycle/canonical-lifecycle-final.txt.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-native-lifecycle/canonical-lifecycle-iteration.txt.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-native-lifecycle/canonical-lifecycle-preparation-source.txt.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-native-lifecycle/imports-185-derived.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-native-lifecycle/imports-185.txt.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-native-lifecycle/release-185.txt.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-native-lifecycle/uncapped-verification-plan.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-parity-environment.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-parity-environment/parity-locked-metadata-before.json.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-parity-environment/parity-locked-recent-bytecode.json.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-parity-environment/parity-overlay-after.json.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-parity-environment/parity-overlay-create.txt.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-parity-environment/parity-preparation-errors.json.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-parity-environment/parity-profile-install.txt.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-parity-environment/parity-profile-plan.json.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-parity-environment/parity-profile-requirements-hashed.txt.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-parity-environment/parity-uv-baseline-install.txt.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-primitive-admission.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-primitive-admission/primitive-consumers-c847.txt.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-primitive-admission/primitive-focused-iteration.txt.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-primitive-admission/primitive-mypy-c847.txt.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-primitive-admission/primitive-mypy-shell-result.txt.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-primitive-admission/primitive-release-b7.txt.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-primitive-admission/primitive-ruff-c847.txt.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-published.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-published/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-published/base-witness.txt.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-published/baseline-cell-routes.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-published/baseline-five-rebound.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-published/baseline-five-rebound.txt.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-published/builtins-consumers-63b.txt.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-published/builtins-consumers-base198-complete.txt.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-published/callback-af3-red.txt.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-published/consumer-denominator.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-published/final-consumers-659.txt.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-published/final-consumers.txt.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-published/final-static-checks.txt.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-published/production-invocation-attempt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-published/property-removal-recipe.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-published/remove-canonical-incumbent.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-published/remove-canonical-incumbent.txt.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-published/remove-public-tell.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-published/remove-public-tell.txt.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-published/schema-data-compatibility-final.txt.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-published/schema-data-compatibility.txt.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-published/schema-data-recipe.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-coordinate-consumers/search-consumers-87-negative.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-coordinate-consumers/search-consumers-cb47.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-coordinate-consumers/search-consumers-final-2.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-coordinate-consumers/search-consumers-final.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-fiscal-intake/fiscal-candidate.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-fiscal-intake/fiscal-corrected.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-fiscal-intake/fiscal-ebeb-negative.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-fiscal-intake/history-ebeb-negative.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-continuation-baseline-198.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-continuation-candidate-2.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-continuation-candidate.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-gp-final.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-gp-v3-final.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-native-candidate.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-reader-before-fit.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-warm-binding-4c-negative.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-warm-binding-final.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-history-frontier/history-frontier-ab-before.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-history-frontier/history-frontier-candidate.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-mo-vectors/search-mo-12ee-exact-negative.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-mo-vectors/search-mo-12ee-negative.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-mo-vectors/search-mo-candidate.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-mo-vectors/search-mo-ebeb.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-mo-vectors/search-ruff-ebeb.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/A-frontier-dependency.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/A-patch-apply-check.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/A-unapplied-hypervolume-export.patch",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/search-A-dependency-12ee.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/search-A-dependency.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/search-pareto-12ee.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/search-pareto-baseline-198.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/search-pareto-candidate-2.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/search-pareto-candidate.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/search-pareto-final.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/test_a_frontier_dependency.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/canonical-path-mapping.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/canonical-paths-ab7577.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/canonical-paths-candidate.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/canonical-ruff-candidate.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/criteria-and-evidence-binding.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/release-425-metadata.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/release-425-rendered.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/release-425-renderer.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/release-rendered-metadata.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/release-rendered.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/release-renderer.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/retired-source/test_opt_02_strategy_consumers.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/search-A-dependency-ab7577.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/search-core-12ee.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/search-q1-425-ruff.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/search-q1-425-runtime.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/search-ruff-12ee.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-state-v2/search-contract-baseline.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-state-v2/search-published-baseline.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-state-v2/search-state-35d2654.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-state-v2/search-state-schema-null.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-4c337-finite-domain-deciding.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-4c337-finite-domain-probe.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-analytic-continuation-4c337-review.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-analytic-continuation-4c337-source-cells.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-analytic-continuation-4c337-warm-binding.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-analytic-continuation-87f22-initial-collection.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-analytic-continuation-87f22-review.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-analytic-continuation-87f22-source-cells.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-analytic-continuation-baseline.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-analytic-continuation-cb47-review.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-analytic-continuation-immutable-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-analytic-continuation-initial-probe.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-analytic-continuation-oracle.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-analytic-continuation-review-matrix.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-analytic-continuation-rng-baseline.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-analytic-continuation-rng-refinement.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-analytic-five-queue-review-addendum.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-analytic-five-queue-review-resource-pass.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-transfer-continuation-independent-plan.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp_4c337_finite_domain_probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/independent-five-queue-review-frontier-resource-addendum.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-425-independent-native40.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-425-independent-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-425-input-manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-425-native40-command.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-425-original-cli-single.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-425-original-cli27.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-425-production-review.diff",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-425-replay-source-cells.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-425-source-origin-cells.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-893-independent-input.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-893-independent-red.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-893-independent-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/lesson-retention-base.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/lesson-retention-immutable.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/lesson-retention-origins-followup.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/lesson-retention-origins.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/lessons-base.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/lessons-immutable.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/lessons-origins.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/lessons-property-removal.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/numeric-immutable.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/numeric-origins.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/numeric-property-removal.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oracle-cli-style-check.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oracle-cli-style-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oracle-runtime-cap-audit.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oracle-runtime-profile-supersession.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oracle-temporary-state-clarification.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-base/admission/champion-create.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-base/admission/champion-resume.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-base/admission/funnel-create.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-base/admission/funnel-resume.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-base/admission/oracle-create.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-base/admission/oracle-resume.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-base/admission/search-create.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-base/admission/search-resume.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-base/admission/stress-create.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-base/admission/stress-resume.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-base/admission/transfer-create.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-base/admission/transfer-resume.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-base/base.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-base/custody.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-base/import-check.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-base/owner-cell-census.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-base/root-create-final.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-base/root-resource-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-base/root-resource/origins.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-base/root-resource/pytest.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-base/root-resource/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-base/root-resume.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-base/root-search-state-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-base/root-search-state/pytest.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-base/root-search-state/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-base/root-stress-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-base/root-stress/pytest.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-base/root-stress/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-base/root-vector-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-base/root-vector/pytest.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-base/root-vector/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-base/taskboard.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-champion-independent.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-champion-independent/callback-af3-red-capture.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-champion-independent/callback-af3-red-environment.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-champion-independent/callback-af3-red-pytest.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-champion-independent/callback-b328-green-capture.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-champion-independent/callback-b328-green-environment.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-champion-independent/callback-b328-green-pytest.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-champion-independent/capture-driver-v2.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-champion-independent/cleanup-deviation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-champion-independent/predecessor-af3-red-environment.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-champion-independent/predecessor-af3-red-v2-capture.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-champion-independent/predecessor-af3-red-v2-environment.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-champion-independent/predecessor-af3-red-v2-pytest.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-champion-independent/predecessor-b328-green-environment.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-champion-independent/predecessor-b328-green-v2-capture.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-champion-independent/predecessor-b328-green-v2-environment.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-champion-independent/predecessor-b328-green-v2-pytest.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-champion-independent/preparation-errors.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout/budget-deficit-893-independent-review-root-binding.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout/champion-native-lifecycle-root-binding.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout/champion-parity-environment-root-binding.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout/champion-primitive-admission-root-binding.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout/check_receipt_bindings.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout/check_result_binding.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout/gateway-green-receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout/gateway-green.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout/gateway-red-receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout/gateway-red.txt.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout/index-binding-receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout/index-exact-copy.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout/index-retained-markers-derived-count-mutation.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout/index-tracked.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout/legacy-frontier-425-independent-review-root-binding.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout/payload-manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout/published-criterion-accounting-root-binding.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout/published-funnel-final-root-binding.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout/published-funnel-native-cost-corrective-root-binding.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout/resource-979-independent-source-review-root-binding.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout/ruff-check-freeze.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout/ruff-format-freeze.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout/ruff-freeze.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout/run_gateway_probe.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout/run_wave.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout/search-q1-coverage-root-binding.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout/transfer-receiver-successor-c812-root-binding.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-criterion-accounting.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-criterion-accounting.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-criterion-accounting/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-criterion-accounting/canonical-complete-join.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-criterion-accounting/canonical-complete-join.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-criterion-accounting/canonical_join.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-criterion-accounting/capture.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-criterion-accounting/q1-ab-canonical.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-criterion-accounting/q1-ab-canonical.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-criterion-accounting/q1-ab-input.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-criterion-accounting/q1-ab-origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-criterion-accounting/q1-ab-origins.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-criterion-accounting/q1-ab-pareto-removal.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-criterion-accounting/q1-ab-pareto-removal.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-criterion-accounting/q1_pareto_removal.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-criterion-accounting/q1_source_origins.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-affected-green.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-affected-red-fixture.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-baseline-worker-negative.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-canonical-promotion-green.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-composed-native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-composed-producer.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-final.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-handoff-check.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/capture-runner.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/compatibility-projection-8eb-red.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/compatibility-projection-8eb-red.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/cost-projection-8eb-cached-red.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/cost-projection-8eb-cached-red.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/cost-projection-8eb-red.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/environment-fac5.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/environment-fac5.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/funnel-consumer-wave-8eb.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/funnel-consumer-wave-8eb.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/funnel-consumer-wave-fac5.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/funnel-consumer-wave-fac5.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/paid-projection-pair-a23-green.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/paid-projection-pair-a23-green.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/paid-projection-pair-fac5-green.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/paid-projection-pair-fac5-green.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/population-boundary-removal-8eb.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/population-boundary-removal-8eb.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/population-boundary-removal-fac5.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/population-boundary-removal-fac5.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/producer-four-8eb.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/producer-four-8eb.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/producer-four-fac5.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/producer-four-fac5.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/source-8eb.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/source-a23.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/source-fac5.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-native-cost-corrective.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-native-gateway-cost-green-focused.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-native-gateway-cost-range-red-deciding.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-native-gateway-cost-range-red.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-native-gateway-raw-cost-green.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-native-gateway-raw-cost-red.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-paid-sentinel.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-projection-corrective-green.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-projection-owner-red.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-resource-corrective.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-resource-corrective.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-stress.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-stress/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-stress/final-focused.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-stress/final-origin.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-stress/final-removal-absolute_tolerance.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-stress/final-ruff-check.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-stress/final-ruff-format.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-stress/immutable-focused-configured.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-stress/immutable-focused.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-stress/patience-before.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-stress/private-helper-references.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-stress/production-invocation.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-stress/removal-absolute_tolerance.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-stress/removal-current_embedding.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-stress/removal-objective_direction.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-stress/removal-payload_bound.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-stress/removal-scenario_fraction.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-stress/removal-zero_denominator.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-stress/slice-base-final-tests.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-stress/slice-base-test-inputs.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/resource-979-independent-source-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/resource-979-source-review-inputs.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/resource-979-source-review-inputs.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/resource-settlement-c8aafea-independent-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/resource-settlement-c8aafea-independent-review.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/resource-settlement-c8aafea-input-manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/resource-settlement-c8aafea-source-cells.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/resource-settlement-d80-independent-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/resource-settlement-d80-independent-review.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/resource-settlement-d80-initial-collection.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/resource-settlement-d80-source-cells.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/resource-settlement-dcb203-independent-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/resource-settlement-dcb203-independent-review.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/resource-settlement-dcb203-initial-metrics-fixture.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/resource-settlement-dcb203-source-cells.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-cb47-coordinate-before-format.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-cb47-coordinate-initial-fixtures.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-cb47-independent-coordinate-consumers.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-cb47-independent-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-cb47-input-manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-cb47-native-coordinate-consumers.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-cb47-source-cells.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-cleanup-deviation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-coordinate-oracle-ruff.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-defining-paths.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-ebeb-independent-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-ebeb-independent-review.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-ebeb-input-manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-ebeb-production-review.diff",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-ebeb-source-cells.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-ebeb-uncapped-coordinate-input.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-ebeb-uncapped-coordinate-review.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-executed-consumers.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-fiscal-intake.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-gp-continuation-v2.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-gp-warm-content-v3.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-history-frontier-admission.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-mo-complete-vectors.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-pareto-indicators.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-q1-coverage.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-state-v2.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-transfer-use-reader.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-cleanup-candidates-followup.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-composed-workflow-8eb.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-default-basis-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-final-ten-finding-matrix.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-lessons-evidence-clocks.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-lessons-retention-followup.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-numeric-admission.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-c812-actual-inputs.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-c812-complete.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-c812-native-observation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-c812-observer.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-c812-origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-c812-tracked-inputs.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-fac5-actual-inputs.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-fac5-initial-complete.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-fac5-initial-observer.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-fac5-initial-overlay.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-fac5-initial-test.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-fac5-q3-complete.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-fac5-q3-observer.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-fac5-q3-overlay.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-fac5-tracked-inputs.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-review-fac5.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-successor-c812.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-retention-origins-fixture-followup.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-scratch-trash-deviation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-typed-input-reporting.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-vector-envelope.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-vector-generation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-workflow-8eb-actual-inputs.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-workflow-8eb-complete.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-workflow-8eb-history-healthy.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-workflow-8eb-history-malformed.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-workflow-8eb-native-calls.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-workflow-8eb-observer.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-workflow-8eb-origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-workflow-8eb-tracked-inputs.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/typed-input-base.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/typed-input-immutable.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/typed-input-origins.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/vector-base.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/vector-envelope-base.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/vector-envelope-immutable.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/vector-envelope-origins.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/vector-immutable.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/vector-origins.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/vector-property-removal.txt",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-D-funnel-cost-projection.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-D-native-raw-cost-intake.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-D-provider-cost-intake.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-D-published-champion.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-D-published-funnel-boundaries.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-D-published-resource-settlement.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-D-published-search-owner.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-stopping-stress-profile.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-lesson-evidence-clocks.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-published-executed-coordinates.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-published-fiscal-scalar-intake.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-published-gp-continuation.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-published-mo-vector-admission.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-published-pareto-indicators.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-published-search-state.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-published-stage-frontier-admission.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-transfer-admission.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-transfer-generations.toml",
+    "policy-engine/src/polisyos/core/llm/response.py",
+    "policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/calibration.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/cheap_stage.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/claim_adjudication.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/execution_plan.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/reflexion.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+    "policy-engine/src/polisyos/scientist/methods/search/README.md",
+    "policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+    "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+    "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+    "policy-engine/src/polisyos/scientist/methods/search/funnel/level5_refutation_governance.py",
+    "policy-engine/src/polisyos/scientist/methods/search/funnel/level6_promotion.py",
+    "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+    "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
+    "policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+    "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+    "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+    "policy-engine/src/polisyos/scientist/methods/search/registry_contracts.py",
+    "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+    "policy-engine/src/polisyos/scientist/methods/search/service.py",
+    "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/_deps.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/neural.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+    "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+    "policy-engine/src/polisyos/scientist/policy_design/adversary.py",
+    "policy-engine/src/polisyos/scientist/policy_design/translator.py",
+    "policy-engine/tests/integration/core/llm/test_native_gateway_cost_intake.py",
+    "policy-engine/tests/integration/core/llm/test_native_gateway_cost_range.py",
+    "policy-engine/tests/integration/scientist/methods/search/funnel/producer_bridge_probe.py",
+    "policy-engine/tests/integration/scientist/methods/search/funnel/test_orchestrator.py",
+    "policy-engine/tests/integration/scientist/methods/search/test_controller.py",
+    "policy-engine/tests/integration/scientist/orchestration/llm/test_budget_enforcer.py",
+    "policy-engine/tests/unit/core/llm/test_response.py",
+    "policy-engine/tests/unit/remediation/test_srv_03.py",
+    "policy-engine/tests/unit/remediation/test_trn_02.py",
+    "policy-engine/tests/unit/scientist/agent/test_vector_memory.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_benchmark_primitive_admission.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_calibration_autotune.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_promotion_basis_witness.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_q3_independent_callback.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_q3_independent_predecessor.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_reflexion_autotune.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_warm_start.py",
+    "policy-engine/tests/unit/scientist/methods/search/funnel/fun_independent_removal_controls.py",
+    "policy-engine/tests/unit/scientist/methods/search/funnel/test_fun_independent_compatibility_cost.py",
+    "policy-engine/tests/unit/scientist/methods/search/funnel/test_fun_independent_cost_projection.py",
+    "policy-engine/tests/unit/scientist/methods/search/funnel/test_level5_refutation_governance.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/_continuation_fixture.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_effective_actions.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_coordinate_consumers_independent_oracle.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_mo_objective_admission.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_resource_settlement_independent_oracle.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_strategy_state.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_controller.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_fiscal_scalar_intake.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_hypervolume_limitations.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_legacy_frontier_admission.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_lesson_query_persistence.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_stopping_limitations.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py",
+    "policy-engine/tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+    "policy-engine/tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+    "policy-engine/tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+    "policy-engine/tests/unit/scientist/search/README.md",
+    "policy-engine/tests/unit/scientist/search/funnel/test_level6_promotion.py",
+    "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+    "policy-engine/tests/unit/scientist/search/queue5_removal_controls.py",
+    "policy-engine/tests/unit/scientist/search/strategies/test_bayesian.py",
+    "policy-engine/tests/unit/scientist/search/strategies/test_multi_objective.py",
+    "policy-engine/tests/unit/scientist/search/test_adversarial.py",
+    "policy-engine/tests/unit/scientist/search/test_adversarial_streaming.py",
+    "policy-engine/tests/unit/scientist/search/test_cheap_stage_autotune.py",
+    "policy-engine/tests/unit/scientist/search/test_search_loop.py"
+  ],
+  "defining_commands": [
+    {
+      "bundle": "CTL-01",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py tests/unit/scientist/search/test_search_loop.py tests/unit/scientist/search/test_controller_api.py -ra",
+      "selectors": [
+        "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+        "tests/unit/scientist/search/test_search_loop.py",
+        "tests/unit/scientist/search/test_controller_api.py"
+      ]
+    },
+    {
+      "bundle": "CTL-02",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/search/strategies/test_strategy_state.py tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py -ra",
+      "selectors": [
+        "tests/unit/scientist/methods/search/strategies/test_strategy_state.py",
+        "tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py",
+        "tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py"
+      ]
+    },
+    {
+      "bundle": "CTL-03",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/test_search_loop.py::TestOptimizationFlow::test_malformed_typed_evaluation_cannot_fall_back_to_legacy_objective tests/unit/scientist/search/test_cost_stopping.py tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py tests/unit/scientist/orchestration/engine/test_budget.py tests/unit/scientist/orchestration/engine/test_budget_middleware.py tests/unit/scientist/orchestration/engine/test_budget_ledger.py -ra",
+      "selectors": [
+        "tests/unit/scientist/search/test_search_loop.py::TestOptimizationFlow::test_malformed_typed_evaluation_cannot_fall_back_to_legacy_objective",
+        "tests/unit/scientist/search/test_cost_stopping.py",
+        "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+        "tests/unit/scientist/orchestration/engine/test_budget.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_ledger.py"
+      ]
+    },
+    {
+      "bundle": "FUN-01",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/funnel/test_orchestrator.py tests/unit/scientist/orchestration/engine/test_budget.py tests/unit/scientist/orchestration/engine/test_budget_middleware.py tests/unit/scientist/orchestration/engine/test_budget_ledger.py -ra",
+      "selectors": [
+        "tests/unit/scientist/search/funnel/test_orchestrator.py",
+        "tests/unit/scientist/orchestration/engine/test_budget.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_ledger.py"
+      ]
+    },
+    {
+      "bundle": "FUN-02",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/funnel/test_orchestrator.py tests/unit/remediation/test_fun_02.py -ra",
+      "selectors": [
+        "tests/unit/scientist/search/funnel/test_orchestrator.py",
+        "tests/unit/remediation/test_fun_02.py"
+      ]
+    },
+    {
+      "bundle": "FUN-03",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/funnel/test_orchestrator.py tests/unit/scientist/search/funnel/test_level6_promotion.py tests/unit/remediation/test_fun_03.py -ra",
+      "selectors": [
+        "tests/unit/scientist/search/funnel/test_orchestrator.py",
+        "tests/unit/scientist/search/funnel/test_level6_promotion.py",
+        "tests/unit/remediation/test_fun_03.py"
+      ]
+    },
+    {
+      "bundle": "OPT-01",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_pareto.py tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py tests/unit/scientist/methods/search/test_hypervolume_limitations.py -ra",
+      "selectors": [
+        "tests/unit/scientist/methods/autotune/test_pareto.py",
+        "tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py",
+        "tests/unit/scientist/methods/search/test_hypervolume_limitations.py"
+      ]
+    },
+    {
+      "bundle": "OPT-02",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_bayesian_generator.py tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py tests/unit/scientist/methods/search/strategies/test_effective_actions.py -ra",
+      "selectors": [
+        "tests/unit/scientist/methods/autotune/test_bayesian_generator.py",
+        "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+        "tests/unit/scientist/methods/search/strategies/test_effective_actions.py"
+      ]
+    },
+    {
+      "bundle": "OPT-03",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py tests/unit/scientist/methods/autotune/test_transfer_workflow.py -ra",
+      "selectors": [
+        "tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py",
+        "tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py",
+        "tests/unit/scientist/methods/autotune/test_transfer_workflow.py"
+      ]
+    },
+    {
+      "bundle": "OPT-04",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py tests/unit/scientist/search/test_frontier.py tests/unit/scientist/methods/autotune/test_registry_and_runner.py -ra",
+      "selectors": [
+        "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+        "tests/unit/scientist/search/test_frontier.py",
+        "tests/unit/scientist/methods/autotune/test_registry_and_runner.py"
+      ]
+    },
+    {
+      "bundle": "SRV-01",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py tests/unit/scientist/search/test_contracts.py tests/unit/scientist/search/test_search_loop.py -ra",
+      "selectors": [
+        "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+        "tests/unit/scientist/search/test_contracts.py",
+        "tests/unit/scientist/search/test_search_loop.py"
+      ]
+    },
+    {
+      "bundle": "SRV-03",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py tests/unit/scientist/methods/autotune/test_registry_and_runner.py -ra",
+      "selectors": [
+        "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+        "tests/unit/scientist/methods/autotune/test_registry_and_runner.py"
+      ]
+    },
+    {
+      "bundle": "STP-01",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py tests/unit/scientist/methods/search/test_stopping_limitations.py tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py -ra",
+      "selectors": [
+        "tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py",
+        "tests/unit/scientist/methods/search/test_stopping_limitations.py",
+        "tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py"
+      ]
+    },
+    {
+      "bundle": "STR-01",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/test_adversarial_streaming.py tests/unit/scientist/search/test_adversarial.py tests/unit/scientist/policy_design/test_phase_b_policy_workers.py -ra",
+      "selectors": [
+        "tests/unit/scientist/search/test_adversarial_streaming.py",
+        "tests/unit/scientist/search/test_adversarial.py",
+        "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py"
+      ]
+    },
+    {
+      "bundle": "TRN-01",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/search/strategies/test_transfer.py tests/unit/scientist/methods/autotune/test_warm_start.py tests/unit/scientist/methods/autotune/test_transfer_workflow.py -ra",
+      "selectors": [
+        "tests/unit/scientist/methods/search/strategies/test_transfer.py",
+        "tests/unit/scientist/methods/autotune/test_warm_start.py",
+        "tests/unit/scientist/methods/autotune/test_transfer_workflow.py"
+      ]
+    },
+    {
+      "bundle": "TRN-02",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/agent/test_vector_memory.py tests/unit/remediation/test_trn_02.py tests/unit/scientist/methods/search/strategies/test_transfer.py -ra",
+      "selectors": [
+        "tests/unit/scientist/agent/test_vector_memory.py",
+        "tests/unit/remediation/test_trn_02.py",
+        "tests/unit/scientist/methods/search/strategies/test_transfer.py"
+      ]
+    },
+    {
+      "bundle": "TRN-03",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/search/test_lesson_query_persistence.py tests/unit/scientist/search/test_lessons.py tests/unit/scientist/search/test_lesson_transfer.py -ra",
+      "selectors": [
+        "tests/unit/scientist/methods/search/test_lesson_query_persistence.py",
+        "tests/unit/scientist/search/test_lessons.py",
+        "tests/unit/scientist/search/test_lesson_transfer.py"
+      ]
+    }
+  ],
+  "execution_scope": "Coalesced union executes each defining file in full, including every specified selector, plus changed and affected consumer files once on this exact candidate.",
+  "test_paths": [
+    "tests/integration/core/llm/test_native_gateway_cost_intake.py",
+    "tests/integration/core/llm/test_native_gateway_cost_range.py",
+    "tests/integration/scientist/methods/search/funnel/test_orchestrator.py",
+    "tests/integration/scientist/methods/search/test_controller.py",
+    "tests/integration/scientist/orchestration/llm/test_budget_enforcer.py",
+    "tests/unit/core/llm/test_response.py",
+    "tests/unit/remediation/test_fun_02.py",
+    "tests/unit/remediation/test_fun_03.py",
+    "tests/unit/remediation/test_srv_03.py",
+    "tests/unit/remediation/test_trn_02.py",
+    "tests/unit/scientist/agent/test_vector_memory.py",
+    "tests/unit/scientist/methods/autotune/test_bayesian_generator.py",
+    "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+    "tests/unit/scientist/methods/autotune/test_benchmark_primitive_admission.py",
+    "tests/unit/scientist/methods/autotune/test_calibration_autotune.py",
+    "tests/unit/scientist/methods/autotune/test_claim_adjudication_runtime.py",
+    "tests/unit/scientist/methods/autotune/test_execution_plan_autotune.py",
+    "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+    "tests/unit/scientist/methods/autotune/test_pareto.py",
+    "tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py",
+    "tests/unit/scientist/methods/autotune/test_promotion_basis_witness.py",
+    "tests/unit/scientist/methods/autotune/test_q3_independent_callback.py",
+    "tests/unit/scientist/methods/autotune/test_q3_independent_predecessor.py",
+    "tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py",
+    "tests/unit/scientist/methods/autotune/test_reflexion_autotune.py",
+    "tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+    "tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+    "tests/unit/scientist/methods/autotune/test_warm_start.py",
+    "tests/unit/scientist/methods/search/funnel/test_fun_independent_compatibility_cost.py",
+    "tests/unit/scientist/methods/search/funnel/test_fun_independent_cost_projection.py",
+    "tests/unit/scientist/methods/search/funnel/test_level5_refutation_governance.py",
+    "tests/unit/scientist/methods/search/strategies/test_effective_actions.py",
+    "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py",
+    "tests/unit/scientist/methods/search/strategies/test_gp_coordinate_consumers_independent_oracle.py",
+    "tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py",
+    "tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py",
+    "tests/unit/scientist/methods/search/strategies/test_mo_objective_admission.py",
+    "tests/unit/scientist/methods/search/strategies/test_resource_settlement_independent_oracle.py",
+    "tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py",
+    "tests/unit/scientist/methods/search/strategies/test_strategy_state.py",
+    "tests/unit/scientist/methods/search/strategies/test_transfer.py",
+    "tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py",
+    "tests/unit/scientist/methods/search/test_controller.py",
+    "tests/unit/scientist/methods/search/test_fiscal_scalar_intake.py",
+    "tests/unit/scientist/methods/search/test_hypervolume_limitations.py",
+    "tests/unit/scientist/methods/search/test_legacy_frontier_admission.py",
+    "tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py",
+    "tests/unit/scientist/methods/search/test_lesson_query_persistence.py",
+    "tests/unit/scientist/methods/search/test_stopping_limitations.py",
+    "tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py",
+    "tests/unit/scientist/mirror_contracts/test_calibration.py",
+    "tests/unit/scientist/mirror_contracts/test_cheap_stage.py",
+    "tests/unit/scientist/mirror_contracts/test_claim_adjudication.py",
+    "tests/unit/scientist/mirror_contracts/test_execution_plan.py",
+    "tests/unit/scientist/mirror_contracts/test_reflexion.py",
+    "tests/unit/scientist/orchestration/engine/test_budget.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_ledger.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+    "tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py",
+    "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+    "tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+    "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+    "tests/unit/scientist/search/funnel/test_level3_medium.py",
+    "tests/unit/scientist/search/funnel/test_level4_full.py",
+    "tests/unit/scientist/search/funnel/test_level6_promotion.py",
+    "tests/unit/scientist/search/funnel/test_orchestrator.py",
+    "tests/unit/scientist/search/funnel/test_types.py",
+    "tests/unit/scientist/search/strategies/test_bayesian.py",
+    "tests/unit/scientist/search/strategies/test_multi_objective.py",
+    "tests/unit/scientist/search/strategies/test_neural.py",
+    "tests/unit/scientist/search/test_adversarial.py",
+    "tests/unit/scientist/search/test_adversarial_streaming.py",
+    "tests/unit/scientist/search/test_cheap_stage_autotune.py",
+    "tests/unit/scientist/search/test_contracts.py",
+    "tests/unit/scientist/search/test_controller_api.py",
+    "tests/unit/scientist/search/test_cost_stopping.py",
+    "tests/unit/scientist/search/test_frontier.py",
+    "tests/unit/scientist/search/test_lesson_transfer.py",
+    "tests/unit/scientist/search/test_lessons.py",
+    "tests/unit/scientist/search/test_search_loop.py"
+  ],
+  "inputs": {
+    "tests/integration/core/llm/test_native_gateway_cost_intake.py": {
+      "bytes": 6919,
+      "sha256": "d57855d3a36c972400e879cd48debedc653cee3dea8d376a0f0e24e29e3e29e6"
+    },
+    "tests/integration/core/llm/test_native_gateway_cost_range.py": {
+      "bytes": 1118,
+      "sha256": "7071b401d3c4bca91da5e7fe1f02a23f1de0d8c8cce2411cb60ed429b404726c"
+    },
+    "tests/integration/scientist/methods/search/funnel/test_orchestrator.py": {
+      "bytes": 18518,
+      "sha256": "cf78bd437629e1df2b1baa868fb415b686d33fbb1e0201630ff7027f5772ff70"
+    },
+    "tests/integration/scientist/methods/search/test_controller.py": {
+      "bytes": 3871,
+      "sha256": "26383e2fde12b54eddff8b14bf4a481ded51e19585947d9e8960722c3bf59b8f"
+    },
+    "tests/integration/scientist/orchestration/llm/test_budget_enforcer.py": {
+      "bytes": 7552,
+      "sha256": "de957db08418413534ff31f6f98022801e35c394d4cdc08b855cf8ed48ae27c7"
+    },
+    "tests/unit/core/llm/test_response.py": {
+      "bytes": 2788,
+      "sha256": "83855488302fde0a0db444491f5085daea4851eab65090b16855d520012a5801"
+    },
+    "tests/unit/remediation/test_fun_02.py": {
+      "bytes": 6434,
+      "sha256": "c90d5b94053d38ae5ca17c4520f4db98b7af214bbc43a7bdded3c4bdf4c3d311"
+    },
+    "tests/unit/remediation/test_fun_03.py": {
+      "bytes": 24835,
+      "sha256": "6a85585b3dc9c9c99eee7e18f7a3e96e8c23da6991bb4c94fbd35ff89be8e096"
+    },
+    "tests/unit/remediation/test_srv_03.py": {
+      "bytes": 11181,
+      "sha256": "2aa32ae0d81633141b1b20c87e8b58df544636f95ba135a00607261988e4f07a"
+    },
+    "tests/unit/remediation/test_trn_02.py": {
+      "bytes": 4648,
+      "sha256": "108ccd62281295cb4e03455f9f1c491d22140ab9f00e5970b8ae506f039808dc"
+    },
+    "tests/unit/scientist/agent/test_vector_memory.py": {
+      "bytes": 7515,
+      "sha256": "5e1592f5644b33957fa26ac71462ebe5f64b9502ddcbed158f5dc646c16d6cb0"
+    },
+    "tests/unit/scientist/methods/autotune/test_bayesian_generator.py": {
+      "bytes": 14993,
+      "sha256": "a802505e0b79fa1e156b130b26ebda1a920ff4d0679c37fd9052bd9aa7d39d64"
+    },
+    "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py": {
+      "bytes": 7556,
+      "sha256": "f01ca0ca71da13bc5a0fdfeff8274ab6e58ac5f6467f995536a490fbab5929f5"
+    },
+    "tests/unit/scientist/methods/autotune/test_benchmark_primitive_admission.py": {
+      "bytes": 7279,
+      "sha256": "1838267e2bca47f37ca6bf76b90c1872dd4490567244fc40a110c255600ad3f4"
+    },
+    "tests/unit/scientist/methods/autotune/test_calibration_autotune.py": {
+      "bytes": 10162,
+      "sha256": "21f9ba538f809847dbb384c88d3bdafa3c02986ee71e4af1a3e58b6ffcfc8aeb"
+    },
+    "tests/unit/scientist/methods/autotune/test_claim_adjudication_runtime.py": {
+      "bytes": 14390,
+      "sha256": "87ba94f15c6a9acdf66dd12bcb134787a561cee317ce7113f062ba1c3eb4bc28"
+    },
+    "tests/unit/scientist/methods/autotune/test_execution_plan_autotune.py": {
+      "bytes": 13018,
+      "sha256": "96f4e74a8c5ed8bcf53e6ae0892e58a1f3b9e77a8478230af132b145aa20bb4e"
+    },
+    "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py": {
+      "bytes": 11363,
+      "sha256": "f9d51f6132961fa3580ce86b64b058f7a068f94d616766721ba793c60a716e3f"
+    },
+    "tests/unit/scientist/methods/autotune/test_pareto.py": {
+      "bytes": 31589,
+      "sha256": "0a4d3ac2e6559cc898f74833852e6c094cc4d6335e87fffb75c97391b2c1963e"
+    },
+    "tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py": {
+      "bytes": 2935,
+      "sha256": "3e61bd27dbf7a3e769e5effa843d5e98306475bc95fe16d94c35694a26ca7df4"
+    },
+    "tests/unit/scientist/methods/autotune/test_promotion_basis_witness.py": {
+      "bytes": 22434,
+      "sha256": "9909128c504e60df46dde11fbdd1f4fdf16b6f9bddc38b5972f806fc8d200c49"
+    },
+    "tests/unit/scientist/methods/autotune/test_q3_independent_callback.py": {
+      "bytes": 4997,
+      "sha256": "f6fde19db2eced1f67fe7d0724ddc2b643d5442c11db6ba9a9401f33d644f786"
+    },
+    "tests/unit/scientist/methods/autotune/test_q3_independent_predecessor.py": {
+      "bytes": 6008,
+      "sha256": "6198fa3cd865c1d212e0c0875b443e06566691409dc88501478108477c660bc8"
+    },
+    "tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py": {
+      "bytes": 8341,
+      "sha256": "ca886ae1422aa3bd08a93208c47c4ad14d3691323b0cf8c64dc73604f5a42720"
+    },
+    "tests/unit/scientist/methods/autotune/test_reflexion_autotune.py": {
+      "bytes": 6605,
+      "sha256": "5b04ed0ff4264c14d019977cd909fbfe8f3016560b55cacbc9cf81a334b3cd7b"
+    },
+    "tests/unit/scientist/methods/autotune/test_registry_and_runner.py": {
+      "bytes": 28236,
+      "sha256": "d2b7e85f839c1a57694e41cbd8c7a5fd6729808a51187667137481838167a390"
+    },
+    "tests/unit/scientist/methods/autotune/test_transfer_workflow.py": {
+      "bytes": 7616,
+      "sha256": "9e81703687536e65ea452ea84a1bbc2a554fd14592a1e7c6af621d197d8ef885"
+    },
+    "tests/unit/scientist/methods/autotune/test_warm_start.py": {
+      "bytes": 4604,
+      "sha256": "5f760489d73b675d014ed01a8f82a5e609b02d9a94f5c974b9387c79877ec9bd"
+    },
+    "tests/unit/scientist/methods/search/funnel/test_fun_independent_compatibility_cost.py": {
+      "bytes": 1736,
+      "sha256": "c56913e241cdff4023774aad03039d33f69e5c35604342b4781dd172020f2fc2"
+    },
+    "tests/unit/scientist/methods/search/funnel/test_fun_independent_cost_projection.py": {
+      "bytes": 2913,
+      "sha256": "e51b9918ca85495d99e1a0a705267cdeafcb73ac265f24268556ceeaf2fdcf60"
+    },
+    "tests/unit/scientist/methods/search/funnel/test_level5_refutation_governance.py": {
+      "bytes": 4430,
+      "sha256": "a3c75cc27764e1502d98c9f90fbc626649971d088884f49111f52d4691c50a06"
+    },
+    "tests/unit/scientist/methods/search/strategies/test_effective_actions.py": {
+      "bytes": 5546,
+      "sha256": "c98484f2d9bf920d8ed8e185bccfb96f97bf9fc658267c63a4b473be2c2c0ded"
+    },
+    "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py": {
+      "bytes": 31836,
+      "sha256": "95bb5e2137d807bd3d005c27b240c8b1d86d7ccffc65a3da045721fc55d79265"
+    },
+    "tests/unit/scientist/methods/search/strategies/test_gp_coordinate_consumers_independent_oracle.py": {
+      "bytes": 9679,
+      "sha256": "0e898bae6c41af2c79af671f35dea23df1db5048b0d32995189a81991897b4c8"
+    },
+    "tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py": {
+      "bytes": 2030,
+      "sha256": "004369b6fdcddf5d5adda03f0ba5f453ed036e10b1a1f0e4b22f7a6d678b37ef"
+    },
+    "tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py": {
+      "bytes": 5645,
+      "sha256": "437776962e7cc56d14340f6b277edb8ca7195e854a5400fbe3261f94ddb9ee5d"
+    },
+    "tests/unit/scientist/methods/search/strategies/test_mo_objective_admission.py": {
+      "bytes": 4551,
+      "sha256": "7fb941f3f8e0540a8ad9df06432a47e82ebef17e7a10e949c32bb825144cbb3d"
+    },
+    "tests/unit/scientist/methods/search/strategies/test_resource_settlement_independent_oracle.py": {
+      "bytes": 8367,
+      "sha256": "69bda1a6d8be607344ef1dc8eb9cc523a4e365810aa8f9dafcf9e4705597ad70"
+    },
+    "tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py": {
+      "bytes": 1886,
+      "sha256": "45b26bb168cc01dafcda969e928fe303c0d70e280c1d3114fb2af245c57c4f20"
+    },
+    "tests/unit/scientist/methods/search/strategies/test_strategy_state.py": {
+      "bytes": 2684,
+      "sha256": "fcdf153d70253388a62083839eb7bf16450748a9227e352569d49f8b96ce9e39"
+    },
+    "tests/unit/scientist/methods/search/strategies/test_transfer.py": {
+      "bytes": 18497,
+      "sha256": "28240feb1d45a369396fc503acd9b8ec5e723225c0527d253563fbc407c62884"
+    },
+    "tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py": {
+      "bytes": 7968,
+      "sha256": "cfaaf873bea4c4b786303d55083238d2579171bfff535386562e6e708d97f641"
+    },
+    "tests/unit/scientist/methods/search/test_controller.py": {
+      "bytes": 7752,
+      "sha256": "4e8f64605802917a07771af519cd665490aa099452d258ab0cc000a3074776af"
+    },
+    "tests/unit/scientist/methods/search/test_fiscal_scalar_intake.py": {
+      "bytes": 1353,
+      "sha256": "29f053fdb6f6ef0cff517be3b9b2f859d7132c16d64e4fa29c0aa98bf0959c96"
+    },
+    "tests/unit/scientist/methods/search/test_hypervolume_limitations.py": {
+      "bytes": 6320,
+      "sha256": "584e2bc08032040c9535302d0d2e093dde4fad76e2850098c2f5fe18842b3c62"
+    },
+    "tests/unit/scientist/methods/search/test_legacy_frontier_admission.py": {
+      "bytes": 2980,
+      "sha256": "799ad5032e53a23c7961f8abcc5f8b0ed85df925bfbf2c8de8900672c77d9ed3"
+    },
+    "tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py": {
+      "bytes": 3352,
+      "sha256": "87c9db46c72bfbd59b8c3f62fc78392548cc71d00cd1adb8570278e3d536733b"
+    },
+    "tests/unit/scientist/methods/search/test_lesson_query_persistence.py": {
+      "bytes": 7419,
+      "sha256": "bcc7c3a732c7cc99f8cad6745eb9755b24db035fd355337c1d062cc08fd1385a"
+    },
+    "tests/unit/scientist/methods/search/test_stopping_limitations.py": {
+      "bytes": 1248,
+      "sha256": "50be760cd99772cab25a0613494e264d468182b3507cdda7ea3f7ebda2b5664d"
+    },
+    "tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py": {
+      "bytes": 5129,
+      "sha256": "09d679aa22cc434e60ea054c1f84ad2c2b607e296a90885054d59ad2de31aaff"
+    },
+    "tests/unit/scientist/mirror_contracts/test_calibration.py": {
+      "bytes": 225,
+      "sha256": "cf78fad30f8bc691908b9f4ff2b87c86688be257d67706d6785e87b0d0f4ccd7"
+    },
+    "tests/unit/scientist/mirror_contracts/test_cheap_stage.py": {
+      "bytes": 225,
+      "sha256": "17e2c537534422aa936e7f45bb382dd7c7de497e03d6cfe35fbc95af6da84356"
+    },
+    "tests/unit/scientist/mirror_contracts/test_claim_adjudication.py": {
+      "bytes": 239,
+      "sha256": "13e204fa6c7fac3a005d1b162ea9ac6f005a4e0a041c22a1f262ece7ccb2224a"
+    },
+    "tests/unit/scientist/mirror_contracts/test_execution_plan.py": {
+      "bytes": 231,
+      "sha256": "1b47352a3987cb73c41d516f5ef8ba80cdaf60246726cec5e0a836a5bee3a67f"
+    },
+    "tests/unit/scientist/mirror_contracts/test_reflexion.py": {
+      "bytes": 221,
+      "sha256": "6fa8426a16b87f92759ee37d54c54145c0792309a86f3f69d370f431b4769bc2"
+    },
+    "tests/unit/scientist/orchestration/engine/test_budget.py": {
+      "bytes": 5297,
+      "sha256": "fed7ad30c7621dab538ae552b5bcb557c56be2eff0b5e4cf325022dcb19690d4"
+    },
+    "tests/unit/scientist/orchestration/engine/test_budget_ledger.py": {
+      "bytes": 4433,
+      "sha256": "bace2c7ad3bdda33856bb07b2a456e8e882fba388e9d39f0fd12c406b86b4654"
+    },
+    "tests/unit/scientist/orchestration/engine/test_budget_middleware.py": {
+      "bytes": 17339,
+      "sha256": "56e684f7fc8de07da14f228d05db70915f70543f641276ff0747d8e06850aa4d"
+    },
+    "tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py": {
+      "bytes": 2076,
+      "sha256": "a7b7c7bfd7d0e83f6e2306484c42b78eeb0f8fe16afffc90c749b4b0621a8dce"
+    },
+    "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py": {
+      "bytes": 19727,
+      "sha256": "42ac71db2df4c0b830e6d4753aa0b565f02e0dc50b55ff4a126758bd306e55cd"
+    },
+    "tests/unit/scientist/orchestration/llm/test_cost_metrics.py": {
+      "bytes": 6581,
+      "sha256": "225cf5e4d90e002a69041ad01d95505329b99bcf9637ce00a4eee49761e57362"
+    },
+    "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py": {
+      "bytes": 11914,
+      "sha256": "80986710cf9f54e8c37c3d2cb12f7edfeb303e35a41cbbd5708c695db5d075c5"
+    },
+    "tests/unit/scientist/search/funnel/test_level3_medium.py": {
+      "bytes": 5900,
+      "sha256": "620366e28bdf5988509121a55af5ec48a41751067cad023eb56f1c9be5701281"
+    },
+    "tests/unit/scientist/search/funnel/test_level4_full.py": {
+      "bytes": 1247,
+      "sha256": "5a6159b3b1af62f5b31d61e6d20dfffea679142b9086882d27e402b455e637ce"
+    },
+    "tests/unit/scientist/search/funnel/test_level6_promotion.py": {
+      "bytes": 2541,
+      "sha256": "3c8eae482bae140471b79f6c021601f379718e904c00f1feb47bb125e0fc773f"
+    },
+    "tests/unit/scientist/search/funnel/test_orchestrator.py": {
+      "bytes": 26876,
+      "sha256": "6c1dd5799fc792851ca614d5f49a821dc291f2ab52b9e185329109639a2b29f2"
+    },
+    "tests/unit/scientist/search/funnel/test_types.py": {
+      "bytes": 5803,
+      "sha256": "07ec4ffdebbfbd4e15b05e8caacaa6611bc95a0a95b04148b47a78c357b13305"
+    },
+    "tests/unit/scientist/search/strategies/test_bayesian.py": {
+      "bytes": 15616,
+      "sha256": "ac13fcd67d7f2c38f3da06f803f413a06d849ddf6d41138d3ad18d449b154976"
+    },
+    "tests/unit/scientist/search/strategies/test_multi_objective.py": {
+      "bytes": 3351,
+      "sha256": "81e27c1141ad873375f9d7a1d39c404f29f5977e099a8821475c5700b0d5fdef"
+    },
+    "tests/unit/scientist/search/strategies/test_neural.py": {
+      "bytes": 4231,
+      "sha256": "fb3c1778173fe5d1d452424635f4cd727f179cc90ce62f5991fe64db7ae78fee"
+    },
+    "tests/unit/scientist/search/test_adversarial.py": {
+      "bytes": 19728,
+      "sha256": "4afd6424485fcbaeb9a4b6e9f468d5d0f297bc95596a278e6d8bd34af1cfe9fa"
+    },
+    "tests/unit/scientist/search/test_adversarial_streaming.py": {
+      "bytes": 10766,
+      "sha256": "0227f239fd504924a2591bdbe391ddc1bb2f62d516d1d0e3221e6bd614ccadb5"
+    },
+    "tests/unit/scientist/search/test_cheap_stage_autotune.py": {
+      "bytes": 4808,
+      "sha256": "7d9856b3324b62f9fc0edbf9cabc67c5823508cafe06b1dfb0733d884fef183d"
+    },
+    "tests/unit/scientist/search/test_contracts.py": {
+      "bytes": 3419,
+      "sha256": "25657a74d27506f49e337c92ee1b66f74a9563ab486ee4cf8b1110d98b7183ab"
+    },
+    "tests/unit/scientist/search/test_controller_api.py": {
+      "bytes": 1710,
+      "sha256": "c09a00d0692c525ec2e592f3fd853743484d9569ba05364ca7a9db33ba2b8447"
+    },
+    "tests/unit/scientist/search/test_cost_stopping.py": {
+      "bytes": 4730,
+      "sha256": "5be71426a16abb77d196a1a9bd82371266368fb3baa559a1a8cdc166ab519a5f"
+    },
+    "tests/unit/scientist/search/test_frontier.py": {
+      "bytes": 3179,
+      "sha256": "db452e942e98827005997942d1bf7a5fa4002a87e4dbf8e8f5bf35888b3d7b51"
+    },
+    "tests/unit/scientist/search/test_lesson_transfer.py": {
+      "bytes": 9200,
+      "sha256": "e872ca78bca4ff0cbc141fe1602e6577fd213d3331702f0ba3c266b12cc13e11"
+    },
+    "tests/unit/scientist/search/test_lessons.py": {
+      "bytes": 4342,
+      "sha256": "dbc96fb574339da46c578215a33b1027523ade804e494afec49bbab9194f2bcc"
+    },
+    "tests/unit/scientist/search/test_search_loop.py": {
+      "bytes": 36072,
+      "sha256": "7b838056a933764b2eed3bf0962602cd32c2443e196ef0ca601ac82ada980818"
+    }
+  },
+  "defining_plan": {
+    "bytes": 110393,
+    "sha256": "622284b984ec12fcba96084cfad13e346112a0539ae081da683e1b663c5b4b6d"
+  },
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "executable": "/workspace/e02-D-locked-env/bin/python",
+  "native_modules": {
+    "torch": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/__init__.py",
+    "botorch": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/__init__.py",
+    "gpytorch": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/gpytorch/__init__.py",
+    "numpy": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/numpy/__init__.py",
+    "scipy": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/scipy/__init__.py",
+    "hnswlib": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/hnswlib.cpython-314-x86_64-linux-gnu.so",
+    "pytest": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/pytest/__init__.py",
+    "hypothesis": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/hypothesis/__init__.py",
+    "polisyos.scientist.methods.search.strategies.bayesian": {
+      "path": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "bytes": 48512,
+      "sha256": "ce9ff64af3438d4485c654e220b8d0a5d84ce90623e0e9a6a63e7ae8baf715c6"
+    },
+    "polisyos.scientist.methods.search.strategies.transfer": {
+      "path": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+      "bytes": 32366,
+      "sha256": "1feadfaa836580cc26c551cd75a607396402dc718f96e3b3aca4d681932a2df3"
+    },
+    "polisyos.scientist.methods.search.funnel.orchestrator": {
+      "path": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "bytes": 53528,
+      "sha256": "693f7646f03267b772284f003c3da3b2550e0be7f31d85b1a036fe902e506aff"
+    },
+    "polisyos.scientist.methods.search.adversarial": {
+      "path": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+      "bytes": 37080,
+      "sha256": "6766a3bdf3575885e7d304d3b0064a56bc37de2268af747b743f9cfbbdc98b4b"
+    },
+    "polisyos.scientist.orchestration.engine.budget_ledger": {
+      "path": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "bytes": 27862,
+      "sha256": "2249df49d8fe86c96a9d1bcec8336c7f62294573a70160ff4513ea9360ff3773"
+    },
+    "polisyos.scientist.methods.autotune.registry": {
+      "path": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+      "bytes": 26820,
+      "sha256": "2da84438a8707bcdd8da5ec7af93076d6b1765e65f0b0468ff37f758393bb78c"
+    }
+  },
+  "packages": {
+    "torch": "2.10.0",
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "hnswlib": "0.8.0",
+    "pytest": "9.0.2",
+    "hypothesis": "6.151.2"
+  },
+  "runtime_environment": {
+    "PYTHONPATH": "src:.",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer",
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "NUMEXPR_NUM_THREADS": null,
+    "VECLIB_MAXIMUM_THREADS": null,
+    "BLIS_NUM_THREADS": null,
+    "POLISYOS_PYTEST_WORKERS": null,
+    "PYTEST_ADDOPTS": null,
+    "CUDA_VISIBLE_DEVICES": null
+  },
+  "added_cpu_process_worker_limits": false,
+  "torch_initial_threads": 5,
+  "torch_initial_interop_threads": 5,
+  "command": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "--basetemp",
+    "/dev/shm/e02-D-root-wide-fixtures-2efe117dc58f4072aa60b18a77e4befe",
+    "--junitxml",
+    "/dev/shm/e02-D-root-closeout/wide.xml",
+    "-q",
+    "-rA",
+    "tests/integration/core/llm/test_native_gateway_cost_intake.py",
+    "tests/integration/core/llm/test_native_gateway_cost_range.py",
+    "tests/integration/scientist/methods/search/funnel/test_orchestrator.py",
+    "tests/integration/scientist/methods/search/test_controller.py",
+    "tests/integration/scientist/orchestration/llm/test_budget_enforcer.py",
+    "tests/unit/core/llm/test_response.py",
+    "tests/unit/remediation/test_fun_02.py",
+    "tests/unit/remediation/test_fun_03.py",
+    "tests/unit/remediation/test_srv_03.py",
+    "tests/unit/remediation/test_trn_02.py",
+    "tests/unit/scientist/agent/test_vector_memory.py",
+    "tests/unit/scientist/methods/autotune/test_bayesian_generator.py",
+    "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+    "tests/unit/scientist/methods/autotune/test_benchmark_primitive_admission.py",
+    "tests/unit/scientist/methods/autotune/test_calibration_autotune.py",
+    "tests/unit/scientist/methods/autotune/test_claim_adjudication_runtime.py",
+    "tests/unit/scientist/methods/autotune/test_execution_plan_autotune.py",
+    "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+    "tests/unit/scientist/methods/autotune/test_pareto.py",
+    "tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py",
+    "tests/unit/scientist/methods/autotune/test_promotion_basis_witness.py",
+    "tests/unit/scientist/methods/autotune/test_q3_independent_callback.py",
+    "tests/unit/scientist/methods/autotune/test_q3_independent_predecessor.py",
+    "tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py",
+    "tests/unit/scientist/methods/autotune/test_reflexion_autotune.py",
+    "tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+    "tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+    "tests/unit/scientist/methods/autotune/test_warm_start.py",
+    "tests/unit/scientist/methods/search/funnel/test_fun_independent_compatibility_cost.py",
+    "tests/unit/scientist/methods/search/funnel/test_fun_independent_cost_projection.py",
+    "tests/unit/scientist/methods/search/funnel/test_level5_refutation_governance.py",
+    "tests/unit/scientist/methods/search/strategies/test_effective_actions.py",
+    "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py",
+    "tests/unit/scientist/methods/search/strategies/test_gp_coordinate_consumers_independent_oracle.py",
+    "tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py",
+    "tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py",
+    "tests/unit/scientist/methods/search/strategies/test_mo_objective_admission.py",
+    "tests/unit/scientist/methods/search/strategies/test_resource_settlement_independent_oracle.py",
+    "tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py",
+    "tests/unit/scientist/methods/search/strategies/test_strategy_state.py",
+    "tests/unit/scientist/methods/search/strategies/test_transfer.py",
+    "tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py",
+    "tests/unit/scientist/methods/search/test_controller.py",
+    "tests/unit/scientist/methods/search/test_fiscal_scalar_intake.py",
+    "tests/unit/scientist/methods/search/test_hypervolume_limitations.py",
+    "tests/unit/scientist/methods/search/test_legacy_frontier_admission.py",
+    "tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py",
+    "tests/unit/scientist/methods/search/test_lesson_query_persistence.py",
+    "tests/unit/scientist/methods/search/test_stopping_limitations.py",
+    "tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py",
+    "tests/unit/scientist/mirror_contracts/test_calibration.py",
+    "tests/unit/scientist/mirror_contracts/test_cheap_stage.py",
+    "tests/unit/scientist/mirror_contracts/test_claim_adjudication.py",
+    "tests/unit/scientist/mirror_contracts/test_execution_plan.py",
+    "tests/unit/scientist/mirror_contracts/test_reflexion.py",
+    "tests/unit/scientist/orchestration/engine/test_budget.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_ledger.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+    "tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py",
+    "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+    "tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+    "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+    "tests/unit/scientist/search/funnel/test_level3_medium.py",
+    "tests/unit/scientist/search/funnel/test_level4_full.py",
+    "tests/unit/scientist/search/funnel/test_level6_promotion.py",
+    "tests/unit/scientist/search/funnel/test_orchestrator.py",
+    "tests/unit/scientist/search/funnel/test_types.py",
+    "tests/unit/scientist/search/strategies/test_bayesian.py",
+    "tests/unit/scientist/search/strategies/test_multi_objective.py",
+    "tests/unit/scientist/search/strategies/test_neural.py",
+    "tests/unit/scientist/search/test_adversarial.py",
+    "tests/unit/scientist/search/test_adversarial_streaming.py",
+    "tests/unit/scientist/search/test_cheap_stage_autotune.py",
+    "tests/unit/scientist/search/test_contracts.py",
+    "tests/unit/scientist/search/test_controller_api.py",
+    "tests/unit/scientist/search/test_cost_stopping.py",
+    "tests/unit/scientist/search/test_frontier.py",
+    "tests/unit/scientist/search/test_lesson_transfer.py",
+    "tests/unit/scientist/search/test_lessons.py",
+    "tests/unit/scientist/search/test_search_loop.py"
+  ],
+  "working_directory": "/workspace/e02-D-published-root/policy-engine",
+  "preserved_fixture_root": "/dev/shm/e02-D-root-wide-fixtures-2efe117dc58f4072aa60b18a77e4befe"
+}

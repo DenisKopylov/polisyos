@@ -1,0 +1,676 @@
+{
+  "schema": "policyos.e02.D.final_git_closeout.v1",
+  "unit": "D",
+  "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "slice_base_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "implementation_sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+  "implementation_tree": "e674e22edb8d94d47579326135a786c832402a15",
+  "production_source_tree": "ecb33f5d109f3c30ab5e9e59f1447d25cc8f5778",
+  "metadata_parent": "0a02d483600cac0653c85228eedcbafc71f19af6",
+  "denominator": {
+    "bundles": 17,
+    "findings": 45,
+    "criterion_occurrences": 46,
+    "complete_production_paths": 2910
+  },
+  "verdicts": {
+    "closed": 0,
+    "limited": 35,
+    "held": 7,
+    "open": 3
+  },
+  "historical_status": "45 partial; canonical closure not_adjudicated, unchanged",
+  "open_findings": [
+    "B109",
+    "LA-014",
+    "LA-015"
+  ],
+  "held_findings": [
+    "B108",
+    "B131",
+    "B134",
+    "B137",
+    "B157",
+    "B161",
+    "B164"
+  ],
+  "closure_ids": [],
+  "bundle_check_outcomes": [
+    {
+      "bundle": "CTL-01",
+      "original_canonical_execution": {
+        "executed_source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "outcome": "PASS",
+        "counts": {
+          "tests": 35,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "passed": 35
+        },
+        "final_input_lineage": "lineage_checked_only_no_new_execution",
+        "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py tests/unit/scientist/search/test_search_loop.py tests/unit/scientist/search/test_controller_api.py -ra",
+        "complete_output": {
+          "source_sha": "262749db1965726ee02c1e7618db99493eceb1fe",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-canonical-243.json",
+          "bytes": 47439,
+          "sha256": "8e88ae1705ab5326c540ca82bced28f1020b71bd3b02bac5c43150f3d2335a88"
+        },
+        "complete_output_pointer": "/checks/0"
+      },
+      "new_final_execution": null,
+      "finding_closure_inferred": false
+    },
+    {
+      "bundle": "CTL-02",
+      "original_canonical_execution": {
+        "executed_source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "outcome": "PASS",
+        "counts": {
+          "tests": 31,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "passed": 31
+        },
+        "final_input_lineage": "lineage_checked_only_no_new_execution",
+        "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/search/strategies/test_strategy_state.py tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py -ra",
+        "complete_output": {
+          "source_sha": "262749db1965726ee02c1e7618db99493eceb1fe",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-canonical-243.json",
+          "bytes": 47439,
+          "sha256": "8e88ae1705ab5326c540ca82bced28f1020b71bd3b02bac5c43150f3d2335a88"
+        },
+        "complete_output_pointer": "/checks/1"
+      },
+      "new_final_execution": null,
+      "finding_closure_inferred": false
+    },
+    {
+      "bundle": "CTL-03",
+      "original_canonical_execution": {
+        "executed_source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "outcome": "PASS",
+        "counts": {
+          "tests": 90,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "passed": 90
+        },
+        "final_input_lineage": "lineage_checked_only_no_new_execution",
+        "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/test_search_loop.py::TestOptimizationFlow::test_malformed_typed_evaluation_cannot_fall_back_to_legacy_objective tests/unit/scientist/search/test_cost_stopping.py tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py tests/unit/scientist/orchestration/engine/test_budget.py tests/unit/scientist/orchestration/engine/test_budget_middleware.py tests/unit/scientist/orchestration/engine/test_budget_ledger.py -ra",
+        "complete_output": {
+          "source_sha": "262749db1965726ee02c1e7618db99493eceb1fe",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-canonical-243.json",
+          "bytes": 47439,
+          "sha256": "8e88ae1705ab5326c540ca82bced28f1020b71bd3b02bac5c43150f3d2335a88"
+        },
+        "complete_output_pointer": "/checks/2"
+      },
+      "new_final_execution": null,
+      "finding_closure_inferred": false
+    },
+    {
+      "bundle": "FUN-01",
+      "original_canonical_execution": {
+        "executed_source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "outcome": "PASS",
+        "counts": {
+          "tests": 80,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "passed": 80
+        },
+        "final_input_lineage": "lineage_checked_only_no_new_execution",
+        "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/funnel/test_orchestrator.py tests/unit/scientist/orchestration/engine/test_budget.py tests/unit/scientist/orchestration/engine/test_budget_middleware.py tests/unit/scientist/orchestration/engine/test_budget_ledger.py -ra",
+        "complete_output": {
+          "source_sha": "262749db1965726ee02c1e7618db99493eceb1fe",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-canonical-243.json",
+          "bytes": 47439,
+          "sha256": "8e88ae1705ab5326c540ca82bced28f1020b71bd3b02bac5c43150f3d2335a88"
+        },
+        "complete_output_pointer": "/checks/3"
+      },
+      "new_final_execution": null,
+      "finding_closure_inferred": false
+    },
+    {
+      "bundle": "FUN-02",
+      "original_canonical_execution": {
+        "executed_source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "outcome": "PASS",
+        "counts": {
+          "tests": 36,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "passed": 36
+        },
+        "final_input_lineage": "lineage_checked_only_no_new_execution",
+        "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/funnel/test_orchestrator.py tests/unit/remediation/test_fun_02.py -ra",
+        "complete_output": {
+          "source_sha": "262749db1965726ee02c1e7618db99493eceb1fe",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-canonical-243.json",
+          "bytes": 47439,
+          "sha256": "8e88ae1705ab5326c540ca82bced28f1020b71bd3b02bac5c43150f3d2335a88"
+        },
+        "complete_output_pointer": "/checks/4"
+      },
+      "new_final_execution": null,
+      "finding_closure_inferred": false
+    },
+    {
+      "bundle": "FUN-03",
+      "original_canonical_execution": {
+        "executed_source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "outcome": "FAIL",
+        "counts": {
+          "tests": 52,
+          "failures": 2,
+          "errors": 0,
+          "skipped": 0,
+          "passed": 50
+        },
+        "final_input_lineage": "changed_fixture_requires_exact_final_replay",
+        "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/funnel/test_orchestrator.py tests/unit/scientist/search/funnel/test_level6_promotion.py tests/unit/remediation/test_fun_03.py -ra",
+        "complete_output": {
+          "source_sha": "262749db1965726ee02c1e7618db99493eceb1fe",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-canonical-243.json",
+          "bytes": 47439,
+          "sha256": "8e88ae1705ab5326c540ca82bced28f1020b71bd3b02bac5c43150f3d2335a88"
+        },
+        "complete_output_pointer": "/checks/5"
+      },
+      "new_final_execution": {
+        "executed_source_sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+        "outcome": "PASS",
+        "tests": 52,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "complete_output": {
+          "source_sha": "7602e3e259f6efdaa65104a90b77b6704c4326dc",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-root-replay.json",
+          "bytes": 137229,
+          "sha256": "81ae16dcff4d9bb7203aff9e06f0ce8e4fca8a2fd1d6e4e72ddb177f5da79d27"
+        },
+        "source_delta": "Reviewed test-only fixture migration; original red results remain archived. No production delta from243."
+      },
+      "finding_closure_inferred": false
+    },
+    {
+      "bundle": "OPT-01",
+      "original_canonical_execution": {
+        "executed_source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "outcome": "FAIL",
+        "counts": {
+          "tests": 75,
+          "failures": 5,
+          "errors": 0,
+          "skipped": 0,
+          "passed": 70
+        },
+        "final_input_lineage": "changed_fixture_requires_exact_final_replay",
+        "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_pareto.py tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py tests/unit/scientist/methods/search/test_hypervolume_limitations.py -ra",
+        "complete_output": {
+          "source_sha": "262749db1965726ee02c1e7618db99493eceb1fe",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-canonical-243.json",
+          "bytes": 47439,
+          "sha256": "8e88ae1705ab5326c540ca82bced28f1020b71bd3b02bac5c43150f3d2335a88"
+        },
+        "complete_output_pointer": "/checks/6"
+      },
+      "new_final_execution": {
+        "executed_source_sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+        "outcome": "PASS",
+        "tests": 75,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "complete_output": {
+          "source_sha": "7602e3e259f6efdaa65104a90b77b6704c4326dc",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-root-replay.json",
+          "bytes": 137229,
+          "sha256": "81ae16dcff4d9bb7203aff9e06f0ce8e4fca8a2fd1d6e4e72ddb177f5da79d27"
+        },
+        "source_delta": "Reviewed test-only fixture migration; original red results remain archived. No production delta from243."
+      },
+      "finding_closure_inferred": false
+    },
+    {
+      "bundle": "OPT-02",
+      "original_canonical_execution": {
+        "executed_source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "outcome": "PASS",
+        "counts": {
+          "tests": 48,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "passed": 48
+        },
+        "final_input_lineage": "lineage_checked_only_no_new_execution",
+        "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_bayesian_generator.py tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py tests/unit/scientist/methods/search/strategies/test_effective_actions.py -ra",
+        "complete_output": {
+          "source_sha": "262749db1965726ee02c1e7618db99493eceb1fe",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-canonical-243.json",
+          "bytes": 47439,
+          "sha256": "8e88ae1705ab5326c540ca82bced28f1020b71bd3b02bac5c43150f3d2335a88"
+        },
+        "complete_output_pointer": "/checks/7"
+      },
+      "new_final_execution": null,
+      "finding_closure_inferred": false
+    },
+    {
+      "bundle": "OPT-03",
+      "original_canonical_execution": {
+        "executed_source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "outcome": "PASS",
+        "counts": {
+          "tests": 9,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "passed": 9
+        },
+        "final_input_lineage": "lineage_checked_only_no_new_execution",
+        "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py tests/unit/scientist/methods/autotune/test_transfer_workflow.py -ra",
+        "complete_output": {
+          "source_sha": "262749db1965726ee02c1e7618db99493eceb1fe",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-canonical-243.json",
+          "bytes": 47439,
+          "sha256": "8e88ae1705ab5326c540ca82bced28f1020b71bd3b02bac5c43150f3d2335a88"
+        },
+        "complete_output_pointer": "/checks/8"
+      },
+      "new_final_execution": null,
+      "finding_closure_inferred": false
+    },
+    {
+      "bundle": "OPT-04",
+      "original_canonical_execution": {
+        "executed_source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "outcome": "PASS",
+        "counts": {
+          "tests": 28,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "passed": 28
+        },
+        "final_input_lineage": "lineage_checked_only_no_new_execution",
+        "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py tests/unit/scientist/search/test_frontier.py tests/unit/scientist/methods/autotune/test_registry_and_runner.py -ra",
+        "complete_output": {
+          "source_sha": "262749db1965726ee02c1e7618db99493eceb1fe",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-canonical-243.json",
+          "bytes": 47439,
+          "sha256": "8e88ae1705ab5326c540ca82bced28f1020b71bd3b02bac5c43150f3d2335a88"
+        },
+        "complete_output_pointer": "/checks/9"
+      },
+      "new_final_execution": null,
+      "finding_closure_inferred": false
+    },
+    {
+      "bundle": "SRV-01",
+      "original_canonical_execution": {
+        "executed_source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "outcome": "PASS",
+        "counts": {
+          "tests": 36,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "passed": 36
+        },
+        "final_input_lineage": "lineage_checked_only_no_new_execution",
+        "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py tests/unit/scientist/search/test_contracts.py tests/unit/scientist/search/test_search_loop.py -ra",
+        "complete_output": {
+          "source_sha": "262749db1965726ee02c1e7618db99493eceb1fe",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-canonical-243.json",
+          "bytes": 47439,
+          "sha256": "8e88ae1705ab5326c540ca82bced28f1020b71bd3b02bac5c43150f3d2335a88"
+        },
+        "complete_output_pointer": "/checks/10"
+      },
+      "new_final_execution": null,
+      "finding_closure_inferred": false
+    },
+    {
+      "bundle": "SRV-03",
+      "original_canonical_execution": {
+        "executed_source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "outcome": "PASS",
+        "counts": {
+          "tests": 25,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "passed": 25
+        },
+        "final_input_lineage": "lineage_checked_only_no_new_execution",
+        "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py tests/unit/scientist/methods/autotune/test_registry_and_runner.py -ra",
+        "complete_output": {
+          "source_sha": "262749db1965726ee02c1e7618db99493eceb1fe",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-canonical-243.json",
+          "bytes": 47439,
+          "sha256": "8e88ae1705ab5326c540ca82bced28f1020b71bd3b02bac5c43150f3d2335a88"
+        },
+        "complete_output_pointer": "/checks/11"
+      },
+      "new_final_execution": null,
+      "finding_closure_inferred": false
+    },
+    {
+      "bundle": "STP-01",
+      "original_canonical_execution": {
+        "executed_source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "outcome": "PASS",
+        "counts": {
+          "tests": 36,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "passed": 36
+        },
+        "final_input_lineage": "lineage_checked_only_no_new_execution",
+        "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py tests/unit/scientist/methods/search/test_stopping_limitations.py tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py -ra",
+        "complete_output": {
+          "source_sha": "262749db1965726ee02c1e7618db99493eceb1fe",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-canonical-243.json",
+          "bytes": 47439,
+          "sha256": "8e88ae1705ab5326c540ca82bced28f1020b71bd3b02bac5c43150f3d2335a88"
+        },
+        "complete_output_pointer": "/checks/12"
+      },
+      "new_final_execution": null,
+      "finding_closure_inferred": false
+    },
+    {
+      "bundle": "STR-01",
+      "original_canonical_execution": {
+        "executed_source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "outcome": "PASS",
+        "counts": {
+          "tests": 38,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "passed": 38
+        },
+        "final_input_lineage": "lineage_checked_only_no_new_execution",
+        "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/test_adversarial_streaming.py tests/unit/scientist/search/test_adversarial.py tests/unit/scientist/policy_design/test_phase_b_policy_workers.py -ra",
+        "complete_output": {
+          "source_sha": "262749db1965726ee02c1e7618db99493eceb1fe",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-canonical-243.json",
+          "bytes": 47439,
+          "sha256": "8e88ae1705ab5326c540ca82bced28f1020b71bd3b02bac5c43150f3d2335a88"
+        },
+        "complete_output_pointer": "/checks/13"
+      },
+      "new_final_execution": null,
+      "finding_closure_inferred": false
+    },
+    {
+      "bundle": "TRN-01",
+      "original_canonical_execution": {
+        "executed_source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "outcome": "PASS",
+        "counts": {
+          "tests": 48,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "passed": 48
+        },
+        "final_input_lineage": "lineage_checked_only_no_new_execution",
+        "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/search/strategies/test_transfer.py tests/unit/scientist/methods/autotune/test_warm_start.py tests/unit/scientist/methods/autotune/test_transfer_workflow.py -ra",
+        "complete_output": {
+          "source_sha": "262749db1965726ee02c1e7618db99493eceb1fe",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-canonical-243.json",
+          "bytes": 47439,
+          "sha256": "8e88ae1705ab5326c540ca82bced28f1020b71bd3b02bac5c43150f3d2335a88"
+        },
+        "complete_output_pointer": "/checks/14"
+      },
+      "new_final_execution": null,
+      "finding_closure_inferred": false
+    },
+    {
+      "bundle": "TRN-02",
+      "original_canonical_execution": {
+        "executed_source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "outcome": "PASS",
+        "counts": {
+          "tests": 59,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "passed": 59
+        },
+        "final_input_lineage": "lineage_checked_only_no_new_execution",
+        "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/agent/test_vector_memory.py tests/unit/remediation/test_trn_02.py tests/unit/scientist/methods/search/strategies/test_transfer.py -ra",
+        "complete_output": {
+          "source_sha": "262749db1965726ee02c1e7618db99493eceb1fe",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-canonical-243.json",
+          "bytes": 47439,
+          "sha256": "8e88ae1705ab5326c540ca82bced28f1020b71bd3b02bac5c43150f3d2335a88"
+        },
+        "complete_output_pointer": "/checks/15"
+      },
+      "new_final_execution": null,
+      "finding_closure_inferred": false
+    },
+    {
+      "bundle": "TRN-03",
+      "original_canonical_execution": {
+        "executed_source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "outcome": "PASS",
+        "counts": {
+          "tests": 18,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "passed": 18
+        },
+        "final_input_lineage": "lineage_checked_only_no_new_execution",
+        "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/search/test_lesson_query_persistence.py tests/unit/scientist/search/test_lessons.py tests/unit/scientist/search/test_lesson_transfer.py -ra",
+        "complete_output": {
+          "source_sha": "262749db1965726ee02c1e7618db99493eceb1fe",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-canonical-243.json",
+          "bytes": 47439,
+          "sha256": "8e88ae1705ab5326c540ca82bced28f1020b71bd3b02bac5c43150f3d2335a88"
+        },
+        "complete_output_pointer": "/checks/16"
+      },
+      "new_final_execution": null,
+      "finding_closure_inferred": false
+    }
+  ],
+  "bounded_independent_executions": [
+    {
+      "key": "GP26",
+      "executed_source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "PASS": 26,
+      "ERROR": 0,
+      "SKIP": 0,
+      "scope": "23 independent NumPy fixed-parameter analytic GP tests plus3 real configured native HNSW/CAS->BGC->SingleTaskGP workflows. Fitted data/state/clock/RNG, actual warm corpus8/7, restore/conditioning and malformed-content controls; no empirical production-history benefit."
+    },
+    {
+      "key": "current142",
+      "executed_source_sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+      "PASS": 142,
+      "ERROR": 0,
+      "SKIP": 0,
+      "scope": "10 legacy frontier +30 fiscal intake +98 native Gateway +4 native underflow; actual imported11 origins and reopen ledger. Fixture prices do not establish external billing/unit/source truth."
+    },
+    {
+      "key": "current127",
+      "executed_source_sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+      "PASS": 127,
+      "ERROR": 0,
+      "SKIP": 0,
+      "scope": "Exact FUN03 52 and OPT01 75 defining commands, independently executed by root after reviewed test-only migrations. Not a broad global replay."
+    }
+  ],
+  "lineage_scope": {
+    "original17": "744 test execution occurrences737PASS7FAIL;15 commandPASS2FAIL on243, not unique tests and not744 current-fresh PASS.",
+    "unchanged15": "617 originalPASS executions on243; source/test/config identity recomputed to3f38. No new execution. lineage_checked is metadata only.",
+    "production_identity": "All2910 production path/blob identities unchanged243->3f38; all later delivery changes documentation/evidence only."
+  },
+  "quality": {
+    "ruff108": {
+      "executed_source_sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+      "check": "PASS",
+      "format": "PASS",
+      "scope": "108 changed existing product/test Python files; archived measurement .py.txt excluded"
+    },
+    "broad80": {
+      "executed_source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "outcome": "ERROR",
+      "exit": -9,
+      "scope": "Incomplete~49%;7 unnamed F markers, no JUnit/no deciding per-test verdict. Complete available stream in published-final-root/wide.txt; no inferred cause."
+    },
+    "backend25": {
+      "executed_source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "PASS": 7,
+      "FAIL": 3,
+      "incomplete": 15,
+      "completed_FAIL": [
+        "state-read missing declared run_causal_evaluation.py",
+        "module-size77 contract errors plus6 report-only",
+        "docs-accuracy10 violations"
+      ],
+      "scope": "All25 actual uncapped source-derived commands started. Four killed and11 terminated resource-blocked incomplete; literal quota wrappers UNRUN. Extension B21 successorPASS separately pinned."
+    },
+    "frontend8": {
+      "executed_source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "PASS": 1,
+      "incomplete": 6,
+      "UNRUN": 1,
+      "scope": "ContractsPASS; typecheck/lint/format/architecture/coverage/build incomplete; StorybookUNRUN. Native pinned browser doctor/CDP/DOM readiness separatePASS, no application browser/e2e verdict."
+    },
+    "production_invocation": {
+      "executed_source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "outcome": "ERROR",
+      "exit": -9,
+      "scope": "No diagnostic output/deciding receipt; production graph completeness/runtime verdict UNRUN."
+    },
+    "archived_helper_style": "Recorded helper Ruff65/82 diagnostics FAIL remain; no whole-repo qualityPASS.",
+    "P41": "No inherited waiver; exact slice-base complete-denominator zero-overlap provenance not_established."
+  },
+  "environment_backend_seed_inputs": "Each runtime row resolves its immutable full receipt with actual environment/backend/seed/inputs/native source bindings. Aggregate and byte audits are stdlib metadata operations, not backend executions. Locked BoTorch0.16.1/GPyTorch1.15.1 SingleTaskGP actually ran CPU; no mock/package/import/skip inference.",
+  "consumer_oracle_negative_scope": "Per-finding46 original acceptance occurrences and pinned receipts bind real consumers, independent oracles and retained-marker removal controls. B164 legacybool/preflight0 effects is bounded negative only; owner-issued typed positive/revoke-at-commit UNRUN/bridge_missing.",
+  "references": {
+    "criterion_accounting": {
+      "source_sha": "300119d268bea0bcff0fb55dd5f447250589e2a1",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+      "bytes": 176452,
+      "sha256": "fb6f8d6fd8e7ebaea6df25c469429cfe9d1f314a4e62caa6dbce514f164e76ad"
+    },
+    "G_cross_unit_proposal": {
+      "source_sha": "f5b8251b9a02817fdfd42e42a5307f5d4c6fb2ba",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-G-local-contract-skeleton.json",
+      "bytes": 11605,
+      "sha256": "b69b9e5e95b0ed950ec845d8870d2ecf27074f1429fd9a5508b1fa1ffed60214"
+    },
+    "canonical17": {
+      "source_sha": "262749db1965726ee02c1e7618db99493eceb1fe",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-canonical-243.json",
+      "bytes": 47439,
+      "sha256": "8e88ae1705ab5326c540ca82bced28f1020b71bd3b02bac5c43150f3d2335a88"
+    },
+    "GP26": {
+      "source_sha": "a474ff675264e2264d24e49814f29d873320b1ee",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/root-243-gp-transfer-independent-review.json",
+      "bytes": 9183,
+      "sha256": "e7cab3ad98416ee911148564f3e98fe58a534ce32857730b7e241ba631e60ceb"
+    },
+    "current142": {
+      "source_sha": "668df4bc66eede8ca285bb8bce231d5e94f8626a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-current142-independent-review.json",
+      "bytes": 18548,
+      "sha256": "6eef8f6aeedc2ecf99d177f570822b19ee7c4b5873163fc6b086b824b372aba9"
+    },
+    "current127": {
+      "source_sha": "7602e3e259f6efdaa65104a90b77b6704c4326dc",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-root-replay.json",
+      "bytes": 137229,
+      "sha256": "81ae16dcff4d9bb7203aff9e06f0ce8e4fca8a2fd1d6e4e72ddb177f5da79d27"
+    },
+    "fixture_review": {
+      "source_sha": "4b9f7513aad779bef0bf895337bcd09c8d820e04",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-fixture-migration-independent.json",
+      "bytes": 12935,
+      "sha256": "1cea6585ad6ec2ecf9a0b77392e7060b85fd525598410a0e4eab722e0845e0f8"
+    },
+    "payload_review": {
+      "source_sha": "ce5cbb5a7dfa4cb8672d782ad0dc17a2273203c2",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-git-payload-binding-independent-review.json",
+      "bytes": 9309,
+      "sha256": "c979be8fa1402c2c8c0ddcbc56b6a9cb13e6acc27bf1530678ca8b4aeb16c12f"
+    },
+    "backend": {
+      "source_sha": "35ae64f34805395e29899898da79c769f31d336e",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-backend-parity-243.json",
+      "bytes": 65619,
+      "sha256": "feda42d12b265eaa18676f1f9d6427a8efc2169a170264a01751e962c91dd33b"
+    },
+    "backend_extension": {
+      "source_sha": "56708f9e38b44352e4e38ffe8808f1797764f3dc",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-backend-extension-243.json",
+      "bytes": 17075,
+      "sha256": "c3fe8929022d3d3be87f8bd28bab0c1a6d2e6e4cb5338fbec3616b7b3a8295ab"
+    },
+    "frontend": {
+      "source_sha": "7c04c45bbc8b7f63f544cc49ec6686c5a65b45da",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-frontend-ci-243.json",
+      "bytes": 13225,
+      "sha256": "89eab51d784d1a124a47f6a98d2f029d2f4d9752a0d320ed0206796cea5395e8"
+    },
+    "production_invocation": {
+      "source_sha": "9465c74a4bc4bdc12b2901104c2d4478cec415a1",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-production-invocation-final.json",
+      "bytes": 13981,
+      "sha256": "ba8e137bb4b38b66e3348a2145b028e7e3153435e251a4e486d1a3d221d71f0a"
+    }
+  },
+  "predicates": [
+    {
+      "predicate": "Canonical input/owner join and source bytes",
+      "predicate_basis": "recomputed"
+    },
+    {
+      "predicate": "Original recorded runtime/check outputs and payload bytes",
+      "predicate_basis": "independently_reconciled"
+    },
+    {
+      "predicate": "Root exact127 current test execution",
+      "predicate_basis": "recomputed"
+    },
+    {
+      "predicate": "Source or institutional truth, production benefit, valid typed permit, combined A-F/G acceptance",
+      "predicate_basis": "not_established"
+    }
+  ],
+  "publication": {
+    "D_topic": "codex/e02-D-published-root",
+    "draft_PR": "https://github.com/DenisKopylov/polisyos/pull/47",
+    "integration_publisher": "G only",
+    "main_authorization": null,
+    "other_chat_messages_sent": false
+  },
+  "limitations": [
+    "Bounded code/test acceptance does not close a finding. All45 retain criterion-level evidence or explicit next owner/input; canonical criteria were not rewritten.",
+    "B109 provider export, LA014 served factory cutover and LA015 persisted service resume/reader retirement/rollback remain open.",
+    "Held inputs/API remain null; optional population/history/profile extensions are outside new mandatory canonical criteria.",
+    "No artificial cloud compute quota was introduced. Actual reclaim/cgroup events and exact-owned terminations are recorded without per-PID causal claims.",
+    "Production data and evaluator/history remain local/read-only for G, with minimum refs/commands null until existing owner supplies them. No cheaper history surrogate.",
+    "No native Trash: exact candidates retained, prior cleanup deviations and unknown framework transient scope disclosed. No prune/registration deletion/main publication."
+  ],
+  "predicate_basis": "independently_reconciled",
+  "predicate_scope": "Aggregate of exact source-bound existing outputs and findings accounting only; no fresh backend run, authority appointment, or closure."
+}

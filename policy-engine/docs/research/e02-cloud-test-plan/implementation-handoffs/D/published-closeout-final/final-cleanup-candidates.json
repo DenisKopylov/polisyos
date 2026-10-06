@@ -1,0 +1,83 @@
+{
+  "schema": "e02.cleanup.retained_candidates.v1",
+  "runtime_candidate": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+  "trash_capability": "Unavailable in cloud; no manual deletion or DIY trash substitute performed by root",
+  "candidates": [
+    {
+      "absolute_path": "/workspace/e02-D2-receipts",
+      "exists_observed": true,
+      "action": "Retain; task-specific repeatable scratch/runtime candidate only. No native Trash available; no permanent cleanup authorized."
+    },
+    {
+      "absolute_path": "/workspace/e02-D-locked-env",
+      "exists_observed": true,
+      "action": "Retain; task-specific repeatable scratch/runtime candidate only. No native Trash available; no permanent cleanup authorized."
+    },
+    {
+      "absolute_path": "/dev/shm/e02-D-parity-env",
+      "exists_observed": true,
+      "action": "Retain; task-specific repeatable scratch/runtime candidate only. No native Trash available; no permanent cleanup authorized."
+    },
+    {
+      "absolute_path": "/dev/shm/e02-D-root-closeout",
+      "exists_observed": true,
+      "action": "Retain; task-specific repeatable scratch/runtime candidate only. No native Trash available; no permanent cleanup authorized."
+    },
+    {
+      "absolute_path": "/dev/shm/e02-D-backend-parity-review",
+      "exists_observed": true,
+      "action": "Retain; task-specific repeatable scratch/runtime candidate only. No native Trash available; no permanent cleanup authorized."
+    },
+    {
+      "absolute_path": "/dev/shm/e02-D-root-partial-oracle-merge",
+      "exists_observed": true,
+      "action": "Retain; task-specific repeatable scratch/runtime candidate only. No native Trash available; no permanent cleanup authorized."
+    },
+    {
+      "absolute_path": "/dev/shm/search-A-apply-base-198-tunumfzo",
+      "exists_observed": true,
+      "action": "Retain; task-specific repeatable scratch/runtime candidate only. No native Trash available; no permanent cleanup authorized."
+    },
+    {
+      "absolute_path": "/dev/shm/e02-oracle-final3f38-native142-0ab3369db8354882986a1e6979b1c818",
+      "exists_observed": true,
+      "action": "Retain; task-specific repeatable scratch/runtime candidate only. No native Trash available; no permanent cleanup authorized."
+    },
+    {
+      "absolute_path": "/workspace/e02-D-published-root/policy-engine/node_modules",
+      "exists_observed": true,
+      "action": "Retain; task-specific repeatable scratch/runtime candidate only. No native Trash available; no permanent cleanup authorized."
+    },
+    {
+      "absolute_path": "/workspace/e02-D-published-root/policy-engine/.pytest_cache",
+      "exists_observed": false,
+      "action": "Retain; task-specific repeatable scratch/runtime candidate only. No native Trash available; no permanent cleanup authorized."
+    },
+    {
+      "absolute_path": "/dev/shm/e02-D-root-wide-fixtures-2efe117dc58f4072aa60b18a77e4befe",
+      "exists_observed": true,
+      "action": "Retain; task-specific repeatable scratch/runtime candidate only. No native Trash available; no permanent cleanup authorized."
+    },
+    {
+      "absolute_path": "/dev/shm/e02-D-final-FUN-03-aa57ce848f724932bb5f358be4db91a1",
+      "exists_observed": true,
+      "action": "Retain; task-specific repeatable scratch/runtime candidate only. No native Trash available; no permanent cleanup authorized."
+    },
+    {
+      "absolute_path": "/dev/shm/e02-D-final-OPT-01-3f663109e14341b9956afc4548d36a51",
+      "exists_observed": true,
+      "action": "Retain; task-specific repeatable scratch/runtime candidate only. No native Trash available; no permanent cleanup authorized."
+    }
+  ],
+  "preservation": "Production data, tracked code, useful documents and unique unpublished data are excluded. Worktrees/registrations retained; no prune. Exact available deciding bytes are in Git; unknown untracked outputs are not assumed repeatable. Candidates stay until existing owner/G no longer needs them.",
+  "previous_observed_deviations": [
+    "published-funnel-final.json: historical base-worker-check incomplete directory removal/recreation",
+    "transfer-scratch-trash-deviation.json: explicit historical snapshot and generated package/cache removals",
+    "search-cleanup-deviation.json: two temporary test directories permanently removed",
+    "published-champion-independent/cleanup-deviation.json: helper snapshots/archives removed",
+    "champion-parity-environment.json: historical architectureTemporaryDirectory auto cleanup after ENOSPC; initial69pyc scope incomplete",
+    "transfer-cleanup-candidates-followup.json: default pytest retention directory absence, actor/time not established",
+    "frontend-ci-243-payload/cleanup-observed.json.gz: browser automatic profiles and download temporary cleanup; no wholetransient census"
+  ],
+  "limitations": "Earlier deviations remain recorded and are not excused or retroactively converted to Trash operations. Native tool/framework transient cleanup not globally measured; no universal retention claim. Trash not emptied."
+}

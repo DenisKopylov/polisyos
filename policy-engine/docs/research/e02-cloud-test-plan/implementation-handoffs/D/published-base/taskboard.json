@@ -1,5 +1,5 @@
 {
-  "schema": "policyos.e02.D.taskboard.v5",
+  "schema": "policyos.e02.D.taskboard.v6",
   "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
   "slice_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
   "queues": [
@@ -187,7 +187,7 @@
   "criterion_occurrences": 46,
   "input_predicate_basis": "recomputed",
   "closure_ids": [],
-  "state": "five_queues_handed_off_bounded_full_acceptance_not_established",
+  "state": "final_bounded_Git_handoff_published_full_acceptance_not_established",
   "rules": [
     "one writer per leased path",
     "no children",
@@ -218,5 +218,24 @@
     "limited": 35,
     "held": 7,
     "open": 3
+  },
+  "final_closeout": {
+    "implementation_sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+    "implementation_tree": "e674e22edb8d94d47579326135a786c832402a15",
+    "criterion_accounting": {
+      "source_sha": "300119d268bea0bcff0fb55dd5f447250589e2a1",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+      "bytes": 176452,
+      "sha256": "fb6f8d6fd8e7ebaea6df25c469429cfe9d1f314a4e62caa6dbce514f164e76ad"
+    },
+    "summary_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout-final/final-summary.json",
+    "G_local_production_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout-final/G-local-production-inputs.json",
+    "G_cross_unit": {
+      "source_sha": "f5b8251b9a02817fdfd42e42a5307f5d4c6fb2ba",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-G-local-contract-skeleton.json",
+      "bytes": 11605,
+      "sha256": "b69b9e5e95b0ed950ec845d8870d2ecf27074f1429fd9a5508b1fa1ffed60214"
+    },
+    "remaining": "35limited7held3open0closed; all17 bundles46criterion occurrences accounted; exact external owner/input and global quality limits preserved."
   }
 }

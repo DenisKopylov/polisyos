@@ -1,0 +1,94 @@
+{
+  "receipt_commit": "4b9f7513aad779bef0bf895337bcd09c8d820e04",
+  "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-fixture-migration-independent.json",
+  "receipt_sha256": "1cea6585ad6ec2ecf9a0b77392e7060b85fd525598410a0e4eab722e0845e0f8",
+  "checked_git_bindings": [
+    {
+      "pointer": "/reviewed_targets/0/author_receipt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration.json",
+      "sha256": "c5e96eb747dfcc9a8966ac3c90295c53ebb9530d2ead0046272c5fcd2f259180",
+      "matching_git_sources": [
+        "128731122a5fe5ca9d49955ae6ba0ad76a4b1a7d"
+      ]
+    },
+    {
+      "pointer": "/reviewed_targets/0/test_identity",
+      "path": "policy-engine/tests/unit/remediation/test_fun_03.py",
+      "sha256": "3121bfade5befa9b6175ae8adf66690c18258a37610255a62156752efb0f81eb",
+      "matching_git_sources": [
+        "a9356a5a9240384d890bc42e7c529b687be2e6c3"
+      ]
+    },
+    {
+      "pointer": "/reviewed_targets/0/baseline_test_identity",
+      "path": "policy-engine/tests/unit/remediation/test_fun_03.py",
+      "sha256": "6a85585b3dc9c9c99eee7e18f7a3e96e8c23da6991bb4c94fbd35ff89be8e096",
+      "matching_git_sources": [
+        "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "4b9f7513aad779bef0bf895337bcd09c8d820e04"
+      ]
+    },
+    {
+      "pointer": "/reviewed_targets/1/author_receipt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-opt01-fixture-migration.json",
+      "sha256": "946183032e7032995651b8dfa854e0138846ba1a729b0a14f0d0f630315f0861",
+      "matching_git_sources": [
+        "ddfee523bda85ac599e22cc6a3aa4ea490e43413"
+      ]
+    },
+    {
+      "pointer": "/reviewed_targets/1/author_evidence_manifest",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/manifest.json",
+      "sha256": "fb8b11b07ef34026cff8901516ccf34a8cc3b4614e5acad9dd04a65daf01246b",
+      "matching_git_sources": [
+        "977c447e84f84e01ec1ebfefc0fee2e2f6c6a477"
+      ]
+    },
+    {
+      "pointer": "/reviewed_targets/1/test_identity",
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py",
+      "sha256": "a540ee70dec0ad20d0960208eccdc2ec0441e40140f368ae0fc9b3b3090b6129",
+      "matching_git_sources": [
+        "c3fe956011df8185c226155b86488294fe16143e"
+      ]
+    },
+    {
+      "pointer": "/reviewed_targets/1/baseline_test_identity",
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py",
+      "sha256": "0a4d3ac2e6559cc898f74833852e6c094cc4d6335e87fffb75c97391b2c1963e",
+      "matching_git_sources": [
+        "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "4b9f7513aad779bef0bf895337bcd09c8d820e04"
+      ]
+    },
+    {
+      "pointer": "/payload_files/0",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-fixture-migration-independent/fun03-reconciliation.json",
+      "sha256": "17d3fb3019efc73449bbb51299c190d5cb72f2ef4f65c0761324186b33b9145d",
+      "matching_git_sources": [
+        "462053fb9ffafa427e1508d74d3f13efd320add5",
+        "4b9f7513aad779bef0bf895337bcd09c8d820e04"
+      ]
+    },
+    {
+      "pointer": "/payload_files/1",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-fixture-migration-independent/opt01-reconciliation.json",
+      "sha256": "08eb8bfecdf5f5ce7abbdb806dd886075393a1f881ce8473d17514737d36b03d",
+      "matching_git_sources": [
+        "462053fb9ffafa427e1508d74d3f13efd320add5",
+        "4b9f7513aad779bef0bf895337bcd09c8d820e04"
+      ]
+    },
+    {
+      "pointer": "/payload_files/2",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-fixture-migration-independent/review.txt",
+      "sha256": "65f69037a6d92948173221eb7af3de8299da6fc78242f705955f2c65a49161ea",
+      "matching_git_sources": [
+        "462053fb9ffafa427e1508d74d3f13efd320add5",
+        "4b9f7513aad779bef0bf895337bcd09c8d820e04"
+      ]
+    }
+  ],
+  "external_path_scope": [],
+  "result": "PASS metadata hashes/bytes only; no runtime or finding verdict"
+}

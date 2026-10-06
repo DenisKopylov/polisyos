@@ -1,0 +1,674 @@
+{
+  "schema": "e02.D.root.final_criterion_metadata_audit.v1",
+  "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "reviewed_delivery_tip": "f5b8251b9a02817fdfd42e42a5307f5d4c6fb2ba",
+  "runtime_candidate": {
+    "source_sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+    "tree_sha": "e674e22edb8d94d47579326135a786c832402a15",
+    "original_243_source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+    "production_source_tree": "ecb33f5d109f3c30ab5e9e59f1447d25cc8f5778",
+    "complete_production_path_count": 2910,
+    "production_bytes_unchanged": true,
+    "test_delta_paths": [
+      "policy-engine/tests/unit/remediation/test_fun_03.py",
+      "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py"
+    ]
+  },
+  "full_TSV_denominators": {
+    "finding_rows": 282,
+    "bundle_rows": 127,
+    "D_findings": 45,
+    "D_bundles": 17
+  },
+  "criterion_occurrences": 46,
+  "dispositions": {
+    "limited": 35,
+    "held": 7,
+    "open": 3
+  },
+  "closed": 0,
+  "finding_owner_route_join": [
+    {
+      "finding": "B106",
+      "owner": "STR-01",
+      "disposition": "limited",
+      "coverage_pointer": "/findings/16/selected_plan_not_executed",
+      "result": "PASS source identity only"
+    },
+    {
+      "finding": "B107",
+      "owner": "STR-01",
+      "disposition": "limited",
+      "coverage_pointer": "/findings/17/selected_plan_not_executed",
+      "result": "PASS source identity only"
+    },
+    {
+      "finding": "B108",
+      "owner": "OPT-01",
+      "disposition": "held",
+      "coverage_pointer": "/findings/18/selected_plan_not_executed",
+      "result": "PASS source identity only"
+    },
+    {
+      "finding": "B109",
+      "owner": "OPT-01",
+      "disposition": "open",
+      "coverage_pointer": "/findings/19/selected_plan_not_executed",
+      "result": "PASS source identity only"
+    },
+    {
+      "finding": "B110",
+      "owner": "OPT-01",
+      "disposition": "limited",
+      "coverage_pointer": "/findings/21/selected_plan_not_executed",
+      "result": "PASS source identity only"
+    },
+    {
+      "finding": "B111",
+      "owner": "OPT-01",
+      "disposition": "limited",
+      "coverage_pointer": "/findings/22/selected_plan_not_executed",
+      "result": "PASS source identity only"
+    },
+    {
+      "finding": "B112",
+      "owner": "OPT-02",
+      "disposition": "limited",
+      "coverage_pointer": "/findings/23/selected_plan_not_executed",
+      "result": "PASS source identity only"
+    },
+    {
+      "finding": "B113",
+      "owner": "OPT-02",
+      "disposition": "limited",
+      "coverage_pointer": "/findings/24/selected_plan_not_executed",
+      "result": "PASS source identity only"
+    },
+    {
+      "finding": "B114",
+      "owner": "OPT-03",
+      "disposition": "limited",
+      "coverage_pointer": "/findings/25/selected_plan_not_executed",
+      "result": "PASS source identity only"
+    },
+    {
+      "finding": "B115",
+      "owner": "OPT-03",
+      "disposition": "limited",
+      "coverage_pointer": "/findings/26/selected_plan_not_executed",
+      "result": "PASS source identity only"
+    },
+    {
+      "finding": "B116",
+      "owner": "OPT-04",
+      "disposition": "limited",
+      "coverage_pointer": "/findings/27/selected_plan_not_executed",
+      "result": "PASS source identity only"
+    },
+    {
+      "finding": "B117",
+      "owner": "OPT-04",
+      "disposition": "limited",
+      "coverage_pointer": "/findings/28/selected_plan_not_executed",
+      "result": "PASS source identity only"
+    },
+    {
+      "finding": "B118",
+      "owner": "CTL-01",
+      "disposition": "limited",
+      "coverage_pointer": "/findings/29/selected_plan_not_executed",
+      "result": "PASS source identity only"
+    },
+    {
+      "finding": "B119",
+      "owner": "CTL-01",
+      "disposition": "limited",
+      "coverage_pointer": "/findings/30/selected_plan_not_executed",
+      "result": "PASS source identity only"
+    },
+    {
+      "finding": "B120",
+      "owner": "CTL-03",
+      "disposition": "limited",
+      "coverage_pointer": "/findings/32/selected_plan_not_executed",
+      "result": "PASS source identity only"
+    },
+    {
+      "finding": "B121",
+      "owner": "CTL-03",
+      "disposition": "limited",
+      "coverage_pointer": "/findings/33/selected_plan_not_executed",
+      "result": "PASS source identity only"
+    },
+    {
+      "finding": "B122",
+      "owner": "STP-01",
+      "disposition": "limited",
+      "coverage_pointer": "/findings/34/selected_plan_not_executed",
+      "result": "PASS source identity only"
+    },
+    {
+      "finding": "B123",
+      "owner": "CTL-03",
+      "disposition": "limited",
+      "coverage_pointer": "/findings/35/selected_plan_not_executed",
+      "result": "PASS source identity only"
+    },
+    {
+      "finding": "B124",
+      "owner": "CTL-02",
+      "disposition": "limited",
+      "coverage_pointer": "/findings/36/selected_plan_not_executed",
+      "result": "PASS source identity only"
+    },
+    {
+      "finding": "B125",
+      "owner": "CTL-02",
+      "disposition": "limited",
+      "coverage_pointer": "/findings/37/selected_plan_not_executed",
+      "result": "PASS source identity only"
+    },
+    {
+      "finding": "B126",
+      "owner": "CTL-02",
+      "disposition": "limited",
+      "coverage_pointer": "/findings/38/selected_plan_not_executed",
+      "result": "PASS source identity only"
+    },
+    {
+      "finding": "B127",
+      "owner": "OPT-02",
+      "disposition": "limited",
+      "coverage_pointer": "/findings/39/selected_plan_not_executed",
+      "result": "PASS source identity only"
+    },
+    {
+      "finding": "B128",
+      "owner": "TRN-01",
+      "disposition": "limited",
+      "coverage_pointer": "/findings/40/selected_plan_not_executed",
+      "result": "PASS source identity only"
+    },
+    {
+      "finding": "B129",
+      "owner": "TRN-02",
+      "disposition": "limited",
+      "coverage_pointer": "/findings/41/selected_plan_not_executed",
+      "result": "PASS source identity only"
+    },
+    {
+      "finding": "B130",
+      "owner": "TRN-01",
+      "disposition": "limited",
+      "coverage_pointer": "/findings/43/selected_plan_not_executed",
+      "result": "PASS source identity only"
+    },
+    {
+      "finding": "B131",
+      "owner": "TRN-01",
+      "disposition": "held",
+      "coverage_pointer": "/findings/44/selected_plan_not_executed",
+      "result": "PASS source identity only"
+    },
+    {
+      "finding": "B132",
+      "owner": "TRN-01",
+      "disposition": "limited",
+      "coverage_pointer": "/findings/45/selected_plan_not_executed",
+      "result": "PASS source identity only"
+    },
+    {
+      "finding": "B133",
+      "owner": "TRN-02",
+      "disposition": "limited",
+      "coverage_pointer": "/findings/46/selected_plan_not_executed",
+      "result": "PASS source identity only"
+    },
+    {
+      "finding": "B134",
+      "owner": "TRN-02",
+      "disposition": "held",
+      "coverage_pointer": "/findings/47/selected_plan_not_executed",
+      "result": "PASS source identity only"
+    },
+    {
+      "finding": "B135",
+      "owner": "TRN-03",
+      "disposition": "limited",
+      "coverage_pointer": "/findings/48/selected_plan_not_executed",
+      "result": "PASS source identity only"
+    },
+    {
+      "finding": "B136",
+      "owner": "TRN-03",
+      "disposition": "limited",
+      "coverage_pointer": "/findings/49/selected_plan_not_executed",
+      "result": "PASS source identity only"
+    },
+    {
+      "finding": "B137",
+      "owner": "TRN-03",
+      "disposition": "held",
+      "coverage_pointer": "/findings/50/selected_plan_not_executed",
+      "result": "PASS source identity only"
+    },
+    {
+      "finding": "B156",
+      "owner": "FUN-01",
+      "disposition": "limited",
+      "coverage_pointer": "/findings/71/selected_plan_not_executed",
+      "result": "PASS source identity only"
+    },
+    {
+      "finding": "B157",
+      "owner": "FUN-02",
+      "disposition": "held",
+      "coverage_pointer": "/findings/72/selected_plan_not_executed",
+      "result": "PASS source identity only"
+    },
+    {
+      "finding": "B158",
+      "owner": "FUN-01",
+      "disposition": "limited",
+      "coverage_pointer": "/findings/73/selected_plan_not_executed",
+      "result": "PASS source identity only"
+    },
+    {
+      "finding": "B159",
+      "owner": "FUN-01",
+      "disposition": "limited",
+      "coverage_pointer": "/findings/74/selected_plan_not_executed",
+      "result": "PASS source identity only"
+    },
+    {
+      "finding": "B160",
+      "owner": "FUN-02",
+      "disposition": "limited",
+      "coverage_pointer": "/findings/76/selected_plan_not_executed",
+      "result": "PASS source identity only"
+    },
+    {
+      "finding": "B161",
+      "owner": "FUN-03",
+      "disposition": "held",
+      "coverage_pointer": "/findings/77/selected_plan_not_executed",
+      "result": "PASS source identity only"
+    },
+    {
+      "finding": "B162",
+      "owner": "FUN-02",
+      "disposition": "limited",
+      "coverage_pointer": "/findings/78/selected_plan_not_executed",
+      "result": "PASS source identity only"
+    },
+    {
+      "finding": "B163",
+      "owner": "FUN-03",
+      "disposition": "limited",
+      "coverage_pointer": "/findings/79/selected_plan_not_executed",
+      "result": "PASS source identity only"
+    },
+    {
+      "finding": "B164",
+      "owner": "FUN-03",
+      "disposition": "held",
+      "coverage_pointer": "/findings/80/selected_plan_not_executed",
+      "result": "PASS source identity only"
+    },
+    {
+      "finding": "B165",
+      "owner": "FUN-02",
+      "disposition": "limited",
+      "coverage_pointer": "/findings/81/selected_plan_not_executed",
+      "result": "PASS source identity only"
+    },
+    {
+      "finding": "B41",
+      "owner": "STP-01",
+      "disposition": "limited",
+      "coverage_pointer": "/findings/166/selected_plan_not_executed",
+      "result": "PASS source identity only"
+    },
+    {
+      "finding": "LA-014",
+      "owner": "SRV-01",
+      "disposition": "open",
+      "coverage_pointer": "/findings/238/selected_plan_not_executed",
+      "result": "PASS source identity only"
+    },
+    {
+      "finding": "LA-015",
+      "owner": "SRV-03",
+      "disposition": "open",
+      "coverage_pointer": "/findings/239/selected_plan_not_executed",
+      "result": "PASS source identity only"
+    }
+  ],
+  "canonical_fragments": [
+    {
+      "id": "B106@STR-01",
+      "original_fragment_sha256": "250b3bd2f5bc433b540605f3c9e37eddab7a5c693326c6193bb94cc9d4c67e33",
+      "acceptance_sha256": "1d212bb12a7346fc8c2480723fddd43da874e2e1daa2d2070a6233ab75795d43",
+      "card_contains_full_original_fragment": true,
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "B107@STR-01",
+      "original_fragment_sha256": "35367e5237da490c93fb99395113d7251a972437ec52e1a54a8003e74d63eb7e",
+      "acceptance_sha256": "83e4adcea92922a6991dbd16937e9dc47cca02d83f0beccf2eb7e2f43623e0a3",
+      "card_contains_full_original_fragment": true,
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "B108@OPT-01",
+      "original_fragment_sha256": "f43cecf8c2c66d6cc7bce5c5174b45fe7692e5018e1364c9798302104f8e4b55",
+      "acceptance_sha256": "8d4cbd469a454de4a7f4a26aa91c3fdf8aabf3b2b59bb77651b99146bcaa888c",
+      "card_contains_full_original_fragment": true,
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "B109@OPT-01",
+      "original_fragment_sha256": "817c0ddda8c8883a0b7cccb111a97d8c230dd67e9859a3fb1fba47553c1b402d",
+      "acceptance_sha256": "784670e535c99a1baee35da6689f515779b3b616a5829ab125c608fcc4f712b3",
+      "card_contains_full_original_fragment": true,
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "B110@OPT-01",
+      "original_fragment_sha256": "a6be752b83d6e94ed4d0bcccef41670106a65bac64827f8cf4645a0401239d6d",
+      "acceptance_sha256": "199ef2ac1ae718655b08fbb78829e6ed0768b46df5d1b99fad56aa69181c1184",
+      "card_contains_full_original_fragment": true,
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "B111@OPT-01",
+      "original_fragment_sha256": "534be6222dccd944bb884e893436c32d82eef90be857ad763412d9df270c6245",
+      "acceptance_sha256": "4d1c7ff7de3b274c2aa4e16230b323102adacd871d551f30616d9d8f3b2eec65",
+      "card_contains_full_original_fragment": true,
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "B112@OPT-02",
+      "original_fragment_sha256": "ebcbfcc121108068640bc1d871fd4f596f6fdd3c0e6c54203025810562dea15f",
+      "acceptance_sha256": "346a175ccdf5884dc409464a2363ff08bee370b2e406d2aa45a103abcedf7234",
+      "card_contains_full_original_fragment": true,
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "B113@OPT-02",
+      "original_fragment_sha256": "1bd3fb58eb1fd1fbdc00d8a88c085a3c60b33ee11fab6f5e8c8c80c1c5d17115",
+      "acceptance_sha256": "a58659486c95650eb9a6228a8df62809daede33c44d147794b7f4e78d7ed7624",
+      "card_contains_full_original_fragment": true,
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "B114@OPT-03",
+      "original_fragment_sha256": "751ea1f4c2439927f429abb7d2be1bd0c15d45fd802529085431f219337fd766",
+      "acceptance_sha256": "b2eab2dd0f76dd6fe89611272edc500c3b3d5e0ef5fa5857251aa73944c096b3",
+      "card_contains_full_original_fragment": true,
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "B115@OPT-03",
+      "original_fragment_sha256": "4d5afea998b22ec18956bf039ae38fd1751fe457a8994ce87161fa2fdac20872",
+      "acceptance_sha256": "60c5a8366edbd7193eafd15fb6c048061373a4dac4502e54b328c78b75225156",
+      "card_contains_full_original_fragment": true,
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "B116@OPT-04",
+      "original_fragment_sha256": "3f04f3ddd1d21f7ffbea51147028ae51287460255c7b5dc52ad9a1b487e49f98",
+      "acceptance_sha256": "838816f2bb639f8c98b0972d2433933f1d8c3f39d8d14f6ee03d52f59c4004ab",
+      "card_contains_full_original_fragment": true,
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "B117@OPT-04",
+      "original_fragment_sha256": "716aa89ce5b68d85b0487a8509806214c17d261958740f7363c2228a033f924d",
+      "acceptance_sha256": "9bc6c9b17b4234d10455cb41f4a8e6380c31163687291bb38242529bb954d319",
+      "card_contains_full_original_fragment": true,
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "B118@CTL-01",
+      "original_fragment_sha256": "c92cdd35554b9006c3632ceb0314c7378ad6ab123b9abf3ce040c25f5ba12b90",
+      "acceptance_sha256": "0b2c57a0df378303470a151c0d9ffa22e3e8eaa952e3f607113478a80e9581f0",
+      "card_contains_full_original_fragment": true,
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "B119@CTL-01",
+      "original_fragment_sha256": "c10292d6ac97feeb9e4cdb704950050d5f363157c2c7deb125810a2141891ac0",
+      "acceptance_sha256": "2df8d82c78083a0795327b04b6d0175330efa9f45f87e41b60ae40f89c635f97",
+      "card_contains_full_original_fragment": true,
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "B120@CTL-03",
+      "original_fragment_sha256": "5217798c76f0d4b4fdb0bcac33fb4b6eaf726f690f2c8babfbac7a37744c3b29",
+      "acceptance_sha256": "fc2bdc0f5a2f9ab501ed9195ce1b0116184989c4a1c66c6fd3ab34716b4fb8d6",
+      "card_contains_full_original_fragment": true,
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "B121@CTL-03",
+      "original_fragment_sha256": "b47c247722c53867b98ba5f11bf37fa25f5a904284cf2cabf99661c5347c5203",
+      "acceptance_sha256": "926f2f672300e9dd03830f1677ba7354bf461218ef9c41841e1f9f6a72f30548",
+      "card_contains_full_original_fragment": true,
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "B122@STP-01",
+      "original_fragment_sha256": "d9413dc95965e6f0b64b056c37dd5a1452b59dd7605a5b9f033db4776ac50f9c",
+      "acceptance_sha256": "9fb880ce2c75c7770deca54b1861fb86071f57aa1e4db5e51793fcfac56b115e",
+      "card_contains_full_original_fragment": true,
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "B123@CTL-03",
+      "original_fragment_sha256": "a36f027f31c7f0f4b9ff333811b9ecc4bb6a480853a13d7d026d2543593d9a95",
+      "acceptance_sha256": "e38f999cb45a59fb619e7f89e35f20f752b4f0be6d279b6136de1f674b45befd",
+      "card_contains_full_original_fragment": true,
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "B124@CTL-02",
+      "original_fragment_sha256": "77a12566a323c32df2df5d2440997a01226630d79ef6fd1d1f5b939a3b1fa3c5",
+      "acceptance_sha256": "dcfbad092c0072a6fb2c7094e9b53f0fa51977ab80a742ace74838785f9a1133",
+      "card_contains_full_original_fragment": true,
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "B125@CTL-02",
+      "original_fragment_sha256": "da6f01affaab6b25e26af7613845243eeafc15f0041b3374d39ce18adbe7721b",
+      "acceptance_sha256": "0a36083564c7d95755126ca040b59efa5abd004855ffbaa995399a6915d6217d",
+      "card_contains_full_original_fragment": true,
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "B126@CTL-02",
+      "original_fragment_sha256": "f05138039bb68e205dc185417722e7c5113d18276733c1e4f91577e83476e16d",
+      "acceptance_sha256": "0054a0cfb74b77d2cfa02a6671ed1ee829854b1a9cf1cbadb05537ffa85ef532",
+      "card_contains_full_original_fragment": true,
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "B127@OPT-02",
+      "original_fragment_sha256": "ae9f5e873bb33019cfd9524bd407a26c8aa7a5ec84cd2af79a6f2e497427cc70",
+      "acceptance_sha256": "0cb92c67b7ad455eb8cbb3bba8a88d7297d3ba6dd2e8ec6284edc152f670ac06",
+      "card_contains_full_original_fragment": true,
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "B128@TRN-01",
+      "original_fragment_sha256": "af4e4b72706ecdef581727483780ed33bff190d295add23a9813ed7b903ffb2b",
+      "acceptance_sha256": "549b289852eaabc2275c031208657ce535c20cdd971105ff0e452e5f6662e5d7",
+      "card_contains_full_original_fragment": true,
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "B129@TRN-02",
+      "original_fragment_sha256": "b84b680f12b3c9e1226bfe1f0db09c0afb8b4cc338bb20d850188be0ef1fc32b",
+      "acceptance_sha256": "88b1c5aec30b187f76018f9b7e7c7b8f7aabd54e4479465a0b39a549af27c49a",
+      "card_contains_full_original_fragment": true,
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "B130@TRN-01",
+      "original_fragment_sha256": "9f18f5b71de39a4ca820a167f74bf206775f04050db33327aa6ccd6525dca4e7",
+      "acceptance_sha256": "b70b31214ee588708f1536a62ef11dd85932c5bedf2e99e7b2d6320815ecabf3",
+      "card_contains_full_original_fragment": true,
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "B131@TRN-01",
+      "original_fragment_sha256": "60545080be6e14231a07b082abb322b91f9b304c40dbed2d2cc701223470910c",
+      "acceptance_sha256": "e6742f51f48e338f3410307c69a2e42b12c6205c34d9c8c4947e784ba842b8dd",
+      "card_contains_full_original_fragment": true,
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "B132@TRN-01",
+      "original_fragment_sha256": "53d130ee4cb74e9043c80076be6e6c123789c8d6d9de51e7105c1901f1243894",
+      "acceptance_sha256": "5833cd83c20ce8f2a897ab4c13b475daaabcfa4adec33cb2a1376fcba78c4fcb",
+      "card_contains_full_original_fragment": true,
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "B133@TRN-02",
+      "original_fragment_sha256": "8c7d3f2d133708780969d4ad10524a5cf9b461acb4d24117f4bb39506962890a",
+      "acceptance_sha256": "48f75c8fbb72fbc3c446e8677e4976ccc20d3f3624b34260ce20e01a26b39a3d",
+      "card_contains_full_original_fragment": true,
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "B134@TRN-02",
+      "original_fragment_sha256": "c877d26c3cb5a8d078a8e40b23e6d1bf3cf5ff5844a4357b08db2f8fb447cd3e",
+      "acceptance_sha256": "36d571033f9b9e3b58f6f9f7bc93a01ed4c6e799a7791d815fa39932fd68de9d",
+      "card_contains_full_original_fragment": true,
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "B135@TRN-03",
+      "original_fragment_sha256": "2616ea6686a29681f5379ae2e54588f2a82afd9882dd1909aa261ee5990ed1e7",
+      "acceptance_sha256": "01ce84941fd8680e13557f709b04c7978d7003b2c358dcc81363e2d973aaa136",
+      "card_contains_full_original_fragment": true,
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "B136@TRN-03",
+      "original_fragment_sha256": "1182d49f6e0f40a47b62e7bfe488d75ff540516f4ba6f022cbedba1340c60deb",
+      "acceptance_sha256": "dbc583087ea526396c4d1b2b4230d2058a76565496b4bdac824060a759dee116",
+      "card_contains_full_original_fragment": true,
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "B137@TRN-03",
+      "original_fragment_sha256": "133330308d63d9cf44d4105d556e1e4740ff31b519643791722beb8a8a7bc961",
+      "acceptance_sha256": "a712c0b6eddcecf9e4b23c77fc2f4732fea66953462e3cb3bfcd4a6ed376be2f",
+      "card_contains_full_original_fragment": true,
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "B156@FUN-01",
+      "original_fragment_sha256": "88bc80dd038085f5bdb4e2715279d0cc6a06fa677d318e847dc00614e6a56ca0",
+      "acceptance_sha256": "846c22dd69b5b1495efbaff0f982894e6e08b49e0c42e21e0f38b477aa243fa1",
+      "card_contains_full_original_fragment": true,
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "B157@FUN-02",
+      "original_fragment_sha256": "c27f7a7ba4108a5f8f2027bed47b3d3bfa56955f30034c1ede266fc07d7c8284",
+      "acceptance_sha256": "260d939d59a70f8f9acca08bc5386d4ac4e4070c4725b6287fd2c1a4d534444b",
+      "card_contains_full_original_fragment": true,
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "B158@FUN-01",
+      "original_fragment_sha256": "bd4643a221c0c9934fdf37c2d8b90d97aa93ad09ac95fa3324e23bd04ea4a2c3",
+      "acceptance_sha256": "17cc0ecc4baa734906042063c70ef2cbd4394c206b868333448594ad8897fb9f",
+      "card_contains_full_original_fragment": true,
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "B159@FUN-01",
+      "original_fragment_sha256": "d079d053de81c0e87ac40adcb2b25c4d1b5ed34f95636412a1abec5c629e0696",
+      "acceptance_sha256": "7c3b6b49bb03dfb2af6f56e6db82cd302fc5d9c2ae1f6e666b1ab16f11598f36",
+      "card_contains_full_original_fragment": true,
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "B160@FUN-02",
+      "original_fragment_sha256": "de9f5f2da46e9d846cdf6d085d670e14a8f42dea464b332e8764900444c026e8",
+      "acceptance_sha256": "7f3880ae72b62b26a91f8386be0ac3391e9188fb146b3ed1c757df1a7d2eafba",
+      "card_contains_full_original_fragment": true,
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "B161@FUN-03",
+      "original_fragment_sha256": "f08fecf0caf482a9f2d93c1f808ea16daa2232de161e5eeb98a7995fa2d41e0a",
+      "acceptance_sha256": "64bf6d3e30756d1ee3a22a8b81bc2164a41f51931333e269114da303a8fa3b78",
+      "card_contains_full_original_fragment": true,
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "B162@FUN-02",
+      "original_fragment_sha256": "898e61d52e838908faca4e23e38fdd86046fd7678a9c44a1c38b0ebda40bd837",
+      "acceptance_sha256": "806665be954b1b87fb1bcc5e05e2ef2779226c0558e4fa6a30cd18a680681075",
+      "card_contains_full_original_fragment": true,
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "B163@FUN-03",
+      "original_fragment_sha256": "0c5055c18e4bbfb9bc2ed8cbc6904766eb95627e736de08f4084a90fb2be8ba5",
+      "acceptance_sha256": "000272e0d8331087a33d20ff52c4d2a8696681b0c82513a8562f372789a48e92",
+      "card_contains_full_original_fragment": true,
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "B164@FUN-03",
+      "original_fragment_sha256": "ed8189c34e88eec186ca2c6c3d764e796f0cc4f967c601f6a5ec223c43b6c137",
+      "acceptance_sha256": "a367b70e08a3ff6f3515593c46fe2686a9c2f02532daf2c243f57613777b993e",
+      "card_contains_full_original_fragment": true,
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "B165@FUN-02",
+      "original_fragment_sha256": "93f3c511f14729529cf4353e326c6bd33ad6686ab19385bc56f88210cdd5e258",
+      "acceptance_sha256": "42c25e1cf8e4e9d84ab45a3cb8577b7c2d5d6791112006c30aa15b6d3ce7127e",
+      "card_contains_full_original_fragment": true,
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "B41@STP-01",
+      "original_fragment_sha256": "e1f40309a038a4a6b1e8e41e5c6aca361111791be6f58a32d8f4ccd8812d680a",
+      "acceptance_sha256": "4a76b7b1923f16245bdc19a10b05570aa47c2ca063e8e1a2faf3eb0112576937",
+      "card_contains_full_original_fragment": true,
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "LA-014@SRV-01",
+      "original_fragment_sha256": "7846126004d9315f65d6e3dc9fa392b3942a05ba430f862e7c7176e87c11b0e2",
+      "acceptance_sha256": "a94d827f2038968fc442e5801bf48f5a675dcacfb375b927e2de05cc541665fd",
+      "card_contains_full_original_fragment": true,
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "LA-015@CTL-01",
+      "original_fragment_sha256": "b47c90844cb88bfc43a454c4d3b1b550ab9a19913fafce7b138c9df1a8b22f29",
+      "acceptance_sha256": "219f17404aedddcd4196a85dc9b05d5d28403c12812d551c241e26b850d285e8",
+      "card_contains_full_original_fragment": true,
+      "predicate_basis": "recomputed"
+    },
+    {
+      "id": "LA-015@SRV-03",
+      "original_fragment_sha256": "b47c90844cb88bfc43a454c4d3b1b550ab9a19913fafce7b138c9df1a8b22f29",
+      "acceptance_sha256": "219f17404aedddcd4196a85dc9b05d5d28403c12812d551c241e26b850d285e8",
+      "card_contains_full_original_fragment": true,
+      "predicate_basis": "recomputed"
+    }
+  ],
+  "production_and_tests_diff_after_candidate": [],
+  "predicate_basis": "recomputed",
+  "scope": "Recomputed exact Git input identity, full TSV join and original criteria byte denominator only; not runtime execution, authority, scientific truth, or closure."
+}

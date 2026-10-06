@@ -1,0 +1,81 @@
+{
+  "receipt_commit": "7602e3e259f6efdaa65104a90b77b6704c4326dc",
+  "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-root-replay.json",
+  "receipt_sha256": "81ae16dcff4d9bb7203aff9e06f0ce8e4fca8a2fd1d6e4e72ddb177f5da79d27",
+  "checked_git_bindings": [
+    {
+      "pointer": "/canonical_15_unchanged_input_lineage",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-root/canonical15-input-lineage.json",
+      "sha256": "144414d578a7da8d1b41bdec55526befa36def8a4bb80afbb63411636a70306c",
+      "matching_git_sources": [
+        "5b8b0b05b3b4dbd4972f1e0edbf139f77a0cce0a",
+        "7602e3e259f6efdaa65104a90b77b6704c4326dc"
+      ]
+    },
+    {
+      "pointer": "/original_17_junit_census",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-root/canonical17-junit-independent-census.json",
+      "sha256": "ea4d98307d57b42c4e1e2165175f8f603d31854d9a0755ae8cbfe4d6915688ca",
+      "matching_git_sources": [
+        "5b8b0b05b3b4dbd4972f1e0edbf139f77a0cce0a",
+        "7602e3e259f6efdaa65104a90b77b6704c4326dc"
+      ]
+    },
+    {
+      "pointer": "/original_wide_error/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-root/wide.txt",
+      "sha256": "c1b63212098315f0247616f2f03a5f738daf1f555006b205bb52fd3cdda357f9",
+      "matching_git_sources": [
+        "5b8b0b05b3b4dbd4972f1e0edbf139f77a0cce0a",
+        "7602e3e259f6efdaa65104a90b77b6704c4326dc"
+      ]
+    },
+    {
+      "pointer": "/original_wide_error/metadata",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-root/wide-receipt.json",
+      "sha256": "a652de21b664f7da4dd3e3a86d8f7f337a9d6a2563dc94890d5f8799d680dc2a",
+      "matching_git_sources": [
+        "5b8b0b05b3b4dbd4972f1e0edbf139f77a0cce0a",
+        "7602e3e259f6efdaa65104a90b77b6704c4326dc"
+      ]
+    },
+    {
+      "pointer": "/current_style/receipt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-root/ruff-final.json",
+      "sha256": "690cfecceeafdc5b1e8a44343be389e02ec56b36334c75529039957fdfb7318b",
+      "matching_git_sources": [
+        "5b8b0b05b3b4dbd4972f1e0edbf139f77a0cce0a",
+        "7602e3e259f6efdaa65104a90b77b6704c4326dc"
+      ]
+    },
+    {
+      "pointer": "/complete_deciding_output_manifest",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-root/manifest.json",
+      "sha256": "d8b16485034ce22067d10af78900a1cd47ba2fb36d1140c98e56fe74b789b4c8",
+      "matching_git_sources": [
+        "5b8b0b05b3b4dbd4972f1e0edbf139f77a0cce0a",
+        "7602e3e259f6efdaa65104a90b77b6704c4326dc"
+      ]
+    },
+    {
+      "pointer": "/runtime_metadata",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-root/final-root-replay-runtime.json",
+      "sha256": "9c597150e2fe157f77ff74faf5cfa5cd1b2d9e8b1191451097340bf054f9f6e0",
+      "matching_git_sources": [
+        "5b8b0b05b3b4dbd4972f1e0edbf139f77a0cce0a",
+        "7602e3e259f6efdaa65104a90b77b6704c4326dc"
+      ]
+    },
+    {
+      "pointer": "/quality_lossless_integrity",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-root/quality-lossless-root-binding.json",
+      "sha256": "e801a98a6b675fbf9d5cc88c68df606584659408e95b8abde5919aa6965c9fad",
+      "matching_git_sources": [
+        "5b8b0b05b3b4dbd4972f1e0edbf139f77a0cce0a",
+        "7602e3e259f6efdaa65104a90b77b6704c4326dc"
+      ]
+    }
+  ],
+  "external_path_scope": [],
+  "result": "PASS metadata hashes/bytes only; no runtime or finding verdict"
+}

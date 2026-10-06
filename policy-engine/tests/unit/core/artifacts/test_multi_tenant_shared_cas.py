@@ -575,10 +575,18 @@ def test_exact_view_import_uses_deny_only_owner_transaction_and_exact_retry(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    from polisyos.core.artifacts.manifest import ArtifactTenantContextInfo
+
     # Admit genuine same-owner producer bytes before exercising durable import faults.
     source = FileSystemCAS(tmp_path / "source").for_tenant("tenant-exact-view")
     payload = b"exact-view imports must publish through the CAS owner transaction"
-    source_ref = source.put_bytes(payload, _options())
+    source_ref = source.put_bytes(
+        payload,
+        replace(
+            _options(),
+            tenant_context=ArtifactTenantContextInfo(tenant_id="tenant-exact-view"),
+        ),
+    )
     manifest_bytes = source.get_manifest_bytes(source_ref)
     target_root = tmp_path / "target"
     target = FileSystemCAS(target_root).for_tenant("tenant-exact-view")

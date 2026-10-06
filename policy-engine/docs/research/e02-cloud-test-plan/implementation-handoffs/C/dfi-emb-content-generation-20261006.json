@@ -211,7 +211,7 @@
     "production_model_release_or_weight_provenance": "not_established",
     "benchmark_qc_publish_quality_readset": "merged-record and duplicate-report bytes are recomputed for all three quality-stage bases; the real QC receipt mutation test exercises same-mtime changes."
   },
-  "capability_state_or_finding_state": "Independent adversarial source review is GO for this bounded implementation candidate. All five ledger findings remain partial; closure_ids is empty. The installed candidate audit is queued and production corpus/model provenance are not established.",
+  "capability_state_or_finding_state": "Independent adversarial source review is GO for the frozen candidate at 12190b1e8a25a6e9c2edc3b9c08f106e76ea5b63. Per-finding current assessments are recorded in finding_states using closed/limited/held/open; historical slice-base statuses remain separately recorded as historical_status. This receipt proposes no formal C ledger closures (closure_ids is empty). The installed-candidate audit is UNRUN and queued with root.",
   "finding_states": [
     {
       "id": "LA-038",
@@ -220,12 +220,12 @@
         "DFI-02"
       ],
       "historical_status": "partial / bridge_missing (C ledger at slice base 198076863e143dea9f89f02734b13d50dae3eed5)",
-      "new_outcome": "bounded code path implemented; adversarial source review GO; finding remains partial and no closure is claimed",
-      "candidate_result": "The legacy core-sources facade carries immutable request-scoped dependencies through ContextVar into six existing leaf modules. The 158-test frozen run includes real pipeline/facade coverage; concurrent sibling requests remain isolated.",
-      "limited": "Evidence is fixture-bound and does not establish complete external import/monkeypatch history or production ingestion parity.",
-      "missing_input": "Full external FQN/importer and monkeypatch census; production source-history parity.",
-      "remaining": "Root installed-candidate audit is queued. Keep the finding partial until the complete compatibility caller census and required source-history evidence exist.",
-      "finding_status": "partial",
+      "new_outcome": "Limited source-candidate result: the DFI-01/02 mechanism is implemented and independent adversarial source review is GO. No formal C finding closure is asserted.",
+      "candidate_result": "The batch pipeline imports the canonical core_sources.api directly. The legacy facade retains explicit bindings/delegates, the six-leaf request context is immutable and ContextVar-scoped, and _sync_implementation_globals is a no-op. The DFI tests cover direct pipeline use, owner-bound leaves, no broadcast, and overlapping async sibling requests. A tracked Python caller census at candidate tree fcfe8de3 is recorded under tracked_repository_census; it does not assert absence of external/dynamic callers.",
+      "limited": "The source property has independent GO, but the final installed-package proof is UNRUN. Full delta Ruff reports 99 diagnostics in changed core_sources/loaders.py; ownership is not established and the gate is not called green. No production ingestion run is claimed.",
+      "missing_input": "No input is asserted unavailable. Production source history was not inspected in this slice; any production-history-dependent check is UNRUN and deferred to G at candidate SHA 12190b1e8a25a6e9c2edc3b9c08f106e76ea5b63.",
+      "remaining": "Root still owns the installed-candidate check and Ruff diagnostic disposition. The compatibility facade remains in place, so this candidate does not claim ABI retirement or require a census of all outside-repository callers.",
+      "finding_status": "limited",
       "independent_installed_proof": {
         "status": "queued",
         "scope": "root installed-candidate audit; not run by this author"
@@ -238,13 +238,13 @@
         "EMB-02"
       ],
       "historical_status": "partial / verification_missing (C ledger at slice base 198076863e143dea9f89f02734b13d50dae3eed5)",
-      "new_outcome": "bounded publication/readback implementation exercised; adversarial source review GO; finding remains partial",
-      "candidate_result": "Academic and Catalog share generation publication and native HNSW/matrix coherence checks while retaining separate text projections. Fault controls preserve the old selector; final delta tests query both real fixture database readers with native hnswlib 0.8.0.",
-      "limited": "SentenceTransformer, tokenizer, and weights are deterministic fakes. The native HNSW binary is real and its origin/version/hash are recorded, but no production model was loaded.",
+      "new_outcome": "Limited source-candidate result: shared generation publication and reader behavior have bounded native-index fixture evidence and independent adversarial source review is GO. No formal C finding closure is asserted.",
+      "candidate_result": "Academic and Catalog keep separate text projections and use the shared generation publisher. The candidate validates the staged HNSW against NPZ IDs/vectors before selector publication, preserves the old selector on early failure, and reads selected generations through both actual fixture database readers. The v2 discriminator makes the old Catalog generation fail the ds-2 query readback. Native hnswlib 0.8.0 origin/version/hash are recorded.",
+      "limited": "The HNSW backend and fixture readers are real; SentenceTransformer, tokenizer, and weights are deterministic fixtures. This proves structural publication/readback behavior but not a production model release or production corpus membership. Root installed-candidate proof is UNRUN.",
       "held": "Do not claim production content authority from fake weights or fixture row membership.",
-      "missing_input": "Actual pretrained model assets/release provenance and complete production Academic/Catalog source membership.",
-      "remaining": "Installed candidate audit is queued; external source authority and model identity/provenance decisions remain open.",
-      "finding_status": "partial",
+      "missing_input": "No production model or corpus is asserted unavailable. Production Academic/Catalog data and pretrained model assets were not inspected in this slice.",
+      "remaining": "UNRUN: root installed-package/consumer audit at candidate SHA 12190b1e8a25a6e9c2edc3b9c08f106e76ea5b63. Keep production source/model authority unclaimed unless the actual inputs and their provenance are examined.",
+      "finding_status": "limited",
       "independent_installed_proof": {
         "status": "queued",
         "scope": "root installed-candidate audit; not run by this author"
@@ -256,13 +256,13 @@
         "EMB-03"
       ],
       "historical_status": "partial / producer_missing (C ledger at slice base 198076863e143dea9f89f02734b13d50dae3eed5)",
-      "new_outcome": "bounded legal embedding producer/readback code and fixture negatives are present; finding remains partial",
-      "candidate_result": "The legal generation basis binds current legal member content and IDs, projection inputs, inspectable test encoder/tokenizer identity, and entity/fact/provision outputs. Fixture tests cover edits, identity changes, membership changes, withdrawals, and actual legal-reader readback.",
-      "limited": "The tested model assets and legal database are deterministic tiny fixtures; this does not establish a production legal corpus or external model release.",
-      "held": "External model release/revision authority and globally authoritative legal corpus inventory remain unresolved; do not invent model-policy or source-completeness semantics.",
-      "missing_input": "Production legal corpus history, real encoder/tokenizer assets, and their externally verifiable release/provenance records.",
-      "remaining": "Installed-candidate proof is queued at root; owner decisions and production inputs are still required before any finding closure.",
-      "finding_status": "partial",
+      "new_outcome": "Held for production-level use: the legal incremental reuse mechanism has structural fixture evidence, but no production legal corpus or real encoder release was inspected. No formal C finding closure is asserted.",
+      "candidate_result": "The legal generation basis binds projected member text and IDs, projection/profile inputs, the inspectable encoder/tokenizer identity, and current entity/fact/provision membership. EMB tests exercise unchanged reuse, same-ID content edits, same-dimension encoder-weight/tokenizer changes, membership changes and withdrawals, and actual LegalKnowledgeStore readback.",
+      "limited": "These are deterministic model/tokenizer and small legal-database fixtures. They are valid evidence for the mechanics, not evidence of production model authority or full production corpus history.",
+      "held": "Do not promote the fixture result into a production legal embedding/reuse claim until the actual production member set and immutable encoder/tokenizer/weight revision are examined and their governing provenance is established.",
+      "missing_input": "None is asserted absent. Production legal corpus/history and real encoder/tokenizer/weight assets were not inspected by this slice.",
+      "remaining": "UNRUN: root installed-candidate proof at candidate SHA 12190b1e8a25a6e9c2edc3b9c08f106e76ea5b63. Any production-history or release-provenance confirmation is deferred to G; no fixture-derived authority is claimed.",
+      "finding_status": "held",
       "independent_installed_proof": {
         "status": "queued",
         "scope": "root installed-candidate audit; not run by this author"
@@ -274,13 +274,13 @@
         "DFI-03"
       ],
       "historical_status": "partial / verification_missing (C ledger at slice base 198076863e143dea9f89f02734b13d50dae3eed5)",
-      "new_outcome": "effective stage-basis widening and QC readset correction implemented; independent adversarial source review GO; finding remains partial",
-      "candidate_result": "Stage receipts recompute producer config, current local content inputs, source outcomes, required output inventory, and local encoder identity before reuse. The final correction adds merged_records and duplicates_report to the shared benchmark/QC/publish input basis. A real QC producer test changes each file's bytes while preserving mtime and rejects the saved QC receipt.",
-      "limited": "The basis is bounded by the current validated Catalog registry and observed local inputs. It is not an independent declaration of the global source universe or remote-provider completeness.",
-      "held": "Do not turn caller-selected registry membership or an absent external receipt into authority for complete production history.",
-      "missing_input": "Full production/remote source history and an independently established complete external source universe.",
-      "remaining": "Catalog publisher consumption of the committed exact receipt API is a separate dependent integration check; root installed-candidate proof is queued.",
-      "finding_status": "partial",
+      "new_outcome": "Limited source-candidate result: effective-input/output basis and QC readset corrections are implemented with adversarial producer tests and independent source review GO. No formal C finding closure is asserted.",
+      "candidate_result": "Stage receipts recompute effective producer configuration, current local content inputs, selected registry/source outcomes, required output inventory, and inspectable local encoder identity before reuse. The shared quality-stage basis binds merged_records and duplicates_report; a real QC producer test mutates each input without changing mtime and rejects the old receipt. A failed selected harvest source cannot be recorded as a complete resumable generation.",
+      "limited": "The evidence is bounded to the current validated registry and observed local inputs. The full production/remote source history was not read. Catalog publisher consumption of the exact receipt API and the root installed-candidate proof remain UNRUN.",
+      "held": "The current receipt binds the selected registry, producer outcomes, actual local inputs, and required outputs; do not infer coverage outside that request and its selected sources, or turn a caller-selected set into a claim about unbounded remote history.",
+      "missing_input": "No production input is asserted unavailable. Full production source history and installed Catalog consumer behavior were not inspected in this slice.",
+      "remaining": "UNRUN: root installed-package check at candidate SHA 12190b1e8a25a6e9c2edc3b9c08f106e76ea5b63, including the dependent Catalog publisher consumer. Defer production-history-dependent confirmation to G; do not infer absence from an uninspected corpus.",
+      "finding_status": "limited",
       "independent_installed_proof": {
         "status": "queued",
         "scope": "root installed-candidate audit; not run by this author"
@@ -292,13 +292,13 @@
         "EMB-03"
       ],
       "historical_status": "partial / bridge_missing (C ledger at slice base 198076863e143dea9f89f02734b13d50dae3eed5)",
-      "new_outcome": "legacy entrypoint invokes and binds a supported supplied encoder in fixture tests; finding remains partial",
-      "candidate_result": "The legacy legal embedding API calls the supplied supported recording encoder, binds its asset identity in the generated basis, and reads back through the legal fixture store. The behavior is exercised by the EMB fixture suite.",
-      "limited": "The recording encoder is a deterministic fixture. No external notebook/config/FQN caller census or real model asset load was performed.",
+      "new_outcome": "Limited source-candidate result: the retained legacy entrypoint now uses and binds a supported supplied encoder, while rejecting unsupported backends. No ABI removal or formal C finding closure is asserted.",
+      "candidate_result": "The legacy wrapper forwards a supplied SentenceTransformer-compatible encoder to the canonical legal builder. The behavioral fixture asserts the encoder actually receives the text, its derived identity appears in the selected generation, and LegalKnowledgeStore returns the expected entity; an unsupported backend is rejected before the builder runs. The legacy function remains available.",
+      "limited": "The encoder is a deterministic fixture, so no real model-release provenance is established. The tracked-code census found wrapper call expressions only in its remediation tests; this change retains the API and does not claim to retire it or establish zero external/dynamic callers.",
       "held": "Supported external model identity/revision policy remains an owner decision; no unsupported identity is silently converted into real release authority.",
-      "missing_input": "Complete external caller/config/notebook inventory and real registered encoder assets/revision provenance.",
-      "remaining": "Root installed-candidate audit is queued; preserve the legacy ABI until full callers and model policy are established.",
-      "finding_status": "partial",
+      "missing_input": "No external caller or model input is asserted unavailable. No production encoder asset was inspected; no ABI retirement is proposed.",
+      "remaining": "UNRUN: root installed-candidate proof at candidate SHA 12190b1e8a25a6e9c2edc3b9c08f106e76ea5b63. Keep the legacy symbol until a separately authorized retirement decision; this adapter change makes no production model-authority claim.",
+      "finding_status": "limited",
       "independent_installed_proof": {
         "status": "queued",
         "scope": "root installed-candidate audit; not run by this author"
@@ -306,16 +306,17 @@
     }
   ],
   "limitations_and_next_owner": [
-    "Independent adversarial source review is GO and accepted by root for the frozen source candidate; the root installed-candidate audit remains queued.",
-    "No finding IDs are closed; closure_ids is empty and LA-038 through LA-042 remain partial in the ledger.",
-    "The 158-test output targets the earlier frozen source commit 4a9350bf3e43d1785ab7ff51b37da442e84aca8e. The final source commit 12190b1e8a25a6e9c2edc3b9c08f106e76ea5b63 has a separate 29-test dependent delta output; these are not represented as one 187-test same-tree run.",
-    "The final delta Ruff gate fails with 99 diagnostics in the changed `core_sources/loaders.py` path. Its path intersects the gate denominator; ownership is not established, and the gate is not labeled inherited or green.",
-    "Real hnswlib 0.8.0 is used and its binary origin/hash is recorded. SentenceTransformer, tokenizer and encoder weights are deterministic fixtures; actual pretrained assets and release provenance were not run or established.",
-    "No production dataset or full production source history was read. Fixture database membership and the current validated registry do not establish global external source completeness.",
-    "Catalog publisher/CLI consumption of `current_content_stage_receipt` and `run_content_stage_with_receipt` remains a separate dependent integration check; this writer did not edit Catalog-owned publisher files.",
-    "Architecture guardrails were not rerun at final candidate 12190. An earlier f5-targeted attempt returned UNRUN because the isolated generated-check copy lacked `openapi-typescript`; its full output was not retained and it is not represented as a final-candidate verdict.",
-    "The fresh create and resume admission checks both returned exit 0/admitted for the exact branch/path, with no stale-registration exception. Their full JSON outputs remain at the cited original-machine paths and hashes.",
-    "Source commit and handoff commit use the parent-authorized per-command `git -c core.hooksPath=/dev/null` because the checkout does not have the lefthook binary; no hook configuration or dependency installation was changed."
+    "Independent adversarial source review is GO and accepted by root for the frozen source candidate; the root installed-candidate audit remains UNRUN/queued.",
+    "No finding IDs are formally closed by this handoff; closure_ids is empty. Historical slice-base statuses remain in each historical_status field, separate from the current per-finding assessment.",
+    "The 158-test output targets source commit 4a9350bf3e43d1785ab7ff51b37da442e84aca8e. The final source commit 12190b1e8a25a6e9c2edc3b9c08f106e76ea5b63 has a separate 29-test dependent-delta output; these are not represented as one same-tree 187-test run.",
+    "Full delta Ruff at 121 reports 99 diagnostics in changed core_sources/loaders.py. The changed path intersects the gate denominator; ownership is not established, and the gate is not labeled inherited or green. The small four-file corrective Ruff run passed but is not a full-delta receipt.",
+    "Native hnswlib 0.8.0 is used and its binary origin/hash is recorded. SentenceTransformer, tokenizer, and encoder weights are deterministic fixtures; actual pretrained assets and release provenance were not run or established.",
+    "No production corpus or full production source history was read in this slice. Fixture membership and the current validated registry are bounded evidence, not global external source completeness.",
+    "The tracked Python caller census is scoped to tracked source/tests and has a complete tracked-.py denominator; it does not prove absence of dynamic or external callers. The legacy APIs are retained and no ABI retirement is proposed.",
+    "Catalog publisher/CLI consumption of current_content_stage_receipt and run_content_stage_with_receipt remains a separate dependent integration check owned outside this slice.",
+    "Architecture guardrails were not rerun at final candidate 121. An earlier f5-targeted attempt returned UNRUN because the isolated generated-check copy lacked openapi-typescript; its full output was not retained and it is not a final-candidate verdict.",
+    "Fresh create and resume admission checks both returned exit 0/admitted for the exact branch/path, with no stale-registration exception. Their full JSON outputs remain at the cited original-machine paths and hashes.",
+    "Source and handoff commits use the parent-authorized per-command git -c core.hooksPath=/dev/null because the checkout does not have the lefthook binary; no hook configuration or dependency installation was changed."
   ],
   "source_refs": [
     "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DFI-01.md#LA-038",
@@ -328,6 +329,27 @@
     "policy-engine/docs/research/e02-cloud-test-plan/results/routes.tsv#LA-038..LA-042",
     "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/C.md#finding-la-038..finding-la-042"
   ],
+  "tracked_repository_census": {
+    "target_source_tree_sha": "fcfe8de3a6cbc0dd1c0df1d02b65cc2d7c1cee04",
+    "scope": "Static Python AST census over every tracked .py file at the candidate source tree. The scan covered import forms for the legacy core-sources facade and call expressions for build_embeddings_and_index. It is a tracked-code census, not proof about generated/dynamic or external callers.",
+    "denominator": {
+      "tracked_regular_files": 13706,
+      "tracked_python_files": 6442,
+      "python_ast_parse_failures": 0,
+      "tracked_notebooks": 0
+    },
+    "observations": {
+      "legacy_facade_import_records": 23,
+      "legacy_facade_importing_python_files": 12,
+      "legacy_embedding_wrapper_call_expressions": 3,
+      "legacy_embedding_wrapper_call_files": [
+        "policy-engine/tests/unit/remediation/test_emb_03.py"
+      ]
+    },
+    "deciding_output": ".tmp/e02-C-continuation-20261006/raw/lanes/dfi-emb/finding-census.stdout.txt@772053f757dcedfdc7a1c64607dfdc7139e2d21dec20a4dc87791ee7d4d44d05",
+    "script": ".tmp/e02-C-continuation-20261006/raw/lanes/dfi-emb/finding-census.py@a151f17a517a89a952ed0ec84ad1c53691ca172a37fab89b99c8ce49a7df794e",
+    "boundary": "The old facade and legacy embedding entrypoint remain available. This census does not claim zero external or dynamic callers and does not authorize ABI removal."
+  },
   "delta_parent_sha": "fd23ed448dd3664b80b499863573900ea03256ea",
   "delta_changed_paths": [
     "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",

@@ -289,8 +289,7 @@ policy-engine/
 │   ├── api/, runtime_api_v1.openapi.json
 │   ├── snapshots/                 # JSON-схеми для всіх IR-контрактів (131 файл)
 │   ├── artifacts/, codegen/, events/, fabric/, manifests/, ops/, topology/
-├── frontend/                      # 4 КБ (placeholder)
-├── packages/                      # workspace packages
+├── packages/                       # Atlas UI, CLI, and runtime API client workspaces
 ├── design/, architecture/         # design документи
 ├── data/                          # тестові дані
 ├── _build/, _cache/               # build artifacts (gitignored)
@@ -299,9 +298,11 @@ policy-engine/
 ├── package.json, pnpm-lock.yaml, pnpm-workspace.yaml
 ├── uv.lock, uv.toml               # uv як менеджер залежностей
 ├── Dockerfile.reproducible        # reproducible build
-├── install.sh, migrate.py, jax_bootstrap.py
+├── migrate.py
 └── README.md, CHANGELOG.md, CHANGELOG-DESIGN.md, LICENSE, CONTRIBUTING.md
 ```
+
+The pnpm workspace is declared by `apps/*` and `packages/*`. Those globs currently resolve five package roots (two apps and three packages), plus the product-root project. The former `frontend/` redirect and root `install.sh`/`jax_bootstrap.py` entrypoints have been retired.
 
 ### 3.3. Тестова інфраструктура
 

@@ -38,9 +38,8 @@ surfaces such as `.github/`, `cloud_deploy/`, `deploy/`, `docker/`, `gcp/`, and
 | `ops/` | Runtime, cloud, CI templates, deployment, observability, security, release, and migration configuration. |
 | `docs/` | Published docs, lifecycle-managed plans, ADRs, runbooks, and archived evidence. |
 | `schemas/` | JSON Schema and generated-schema source contracts. |
-| `apps/` | JavaScript application workspaces. |
-| `packages/` | Shared JavaScript packages, including the generated runtime API client and CLI workspace. |
-| `frontend/` | Legacy handoff path that points contributors to `apps/` and `packages/`. |
+| `apps/` | JavaScript application workspaces: runtime dashboard and runtime reference shell. |
+| `packages/` | JavaScript workspaces: Atlas UI, CLI, and runtime API client. |
 | `data/` | Committed fixtures, tiny examples, contracts, manifests, and registry entries only. |
 | `design/` | Product-level design concepts and implementation handoff assets. |
 | `.polisyos/` | Ignored local runtime state, caches, temporary outputs, and operator scratch state. |

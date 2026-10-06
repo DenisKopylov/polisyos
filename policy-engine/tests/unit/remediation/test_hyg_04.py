@@ -195,6 +195,66 @@ def test_repo_root_resolution_rejects_non_workspace_cwd_with_typed_error(
         tool_imports.repo_root_from(installed_module, allow_cwd_fallback=True)
 
 
+@pytest.mark.parametrize(
+    ("malformed_sentinel", "malformed_type"),
+    [("pyproject.toml", "directory"), ("tools", "file"), ("src", "file")],
+)
+def test_repo_root_resolution_rejects_malformed_sentinel_layouts(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    malformed_sentinel: str,
+    malformed_type: str,
+) -> None:
+    """Root lookup requires the expected file/directory types, not just named paths."""
+
+    fake_root = tmp_path / f"malformed-{malformed_sentinel.replace('.', '-')}"
+    fake_root.mkdir()
+    for sentinel in ("pyproject.toml", "tools", "src"):
+        path = fake_root / sentinel
+        if sentinel == malformed_sentinel:
+            if malformed_type == "directory":
+                path.mkdir()
+            else:
+                path.write_text("not a directory", encoding="utf-8")
+        elif sentinel == "pyproject.toml":
+            path.write_text("[project]\nname = 'decoy'\n", encoding="utf-8")
+        else:
+            path.mkdir()
+
+    fake_module = fake_root / "fake_module.py"
+    fake_module.write_text("", encoding="utf-8")
+    installed_module = _installed_workspace_module_path(tmp_path)
+    installed_module.touch()
+    installed_module_under_fake_root = _installed_workspace_module_path(fake_root)
+    installed_module_under_fake_root.touch()
+    monkeypatch.chdir(fake_root)
+    monkeypatch.setattr(sys, "path", sys.path.copy())
+    original_sys_path = sys.path.copy()
+
+    with pytest.raises(tool_imports.RepositoryRootUnavailableError):
+        tool_imports.repo_root_from(fake_module)
+    with pytest.raises(tool_imports.RepositoryRootUnavailableError):
+        tool_imports.repo_root_from(installed_module, allow_cwd_fallback=True)
+    with pytest.raises(tool_imports.RepositoryRootUnavailableError):
+        tool_imports.repo_root_from(installed_module_under_fake_root)
+    with pytest.raises(tool_imports.RepositoryRootUnavailableError):
+        tool_imports.repo_root_from(installed_module, workspace_root=fake_root)
+    with pytest.raises(tool_imports.RepositoryRootUnavailableError):
+        tool_imports.ensure_repo_import_roots(installed_module)
+    with pytest.raises(tool_imports.RepositoryRootUnavailableError):
+        tool_imports.ensure_repo_import_roots(installed_module_under_fake_root)
+    assert sys.path == original_sys_path
+
+    # The real source anchor remains authoritative even when the CWD is malformed.
+    assert (
+        tool_imports.repo_root_from(
+            REPO_ROOT / "tools" / "lib" / "imports.py",
+            allow_cwd_fallback=True,
+        )
+        == REPO_ROOT
+    )
+
+
 def test_repo_root_resolution_preserves_source_anchor_and_default_behavior(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -407,6 +467,7 @@ def test_frontend_redirect_stub_is_retired_without_touching_live_workspaces() ->
     for protected in (
         "apps/runtime-dashboard",
         "apps/runtime-reference-shell",
+        "packages/atlas-ui",
         "packages/runtime-api-client",
         "tools/research/benchmarks",
     ):
@@ -429,21 +490,34 @@ def test_frontend_workspace_build_paths_and_python_package_boundaries() -> None:
     )
     assert "--workspace-concurrency=1" in root_manifest["scripts"]["build"]
 
+    workspace_contract = tomllib.loads(
+        (REPO_ROOT / "architecture/frontend_workspaces.toml").read_text(encoding="utf-8")
+    )
+    contract_roots = {workspace["path"] for workspace in workspace_contract["workspace"]}
     workspace_manifests = {
-        relative: json.loads((REPO_ROOT / relative / "package.json").read_text(encoding="utf-8"))
-        for relative in (
-            "apps/runtime-dashboard",
-            "apps/runtime-reference-shell",
-            "packages/runtime-api-client",
+        manifest_path.parent.relative_to(REPO_ROOT).as_posix(): json.loads(
+            manifest_path.read_text(encoding="utf-8")
         )
+        for workspace_glob in workspace_globs
+        for manifest_path in sorted(REPO_ROOT.glob(f"{workspace_glob}/package.json"))
     }
+    assert set(workspace_manifests) == contract_roots
     for manifest in workspace_manifests.values():
         assert manifest["private"] is True
-        assert manifest["engines"]["node"] == ">=22 <23"
-        assert "build" in manifest["scripts"]
+        if "engines" in manifest:
+            assert manifest["engines"]["node"] == ">=22 <23"
     assert "vite build" in workspace_manifests["apps/runtime-dashboard"]["scripts"]["build"]
     assert "typecheck" in workspace_manifests["apps/runtime-reference-shell"]["scripts"]["build"]
     assert "typecheck" in workspace_manifests["packages/runtime-api-client"]["scripts"]["build"]
+
+    atlas_manifest = workspace_manifests["packages/atlas-ui"]
+    assert atlas_manifest["name"] == "@polisyos/atlas-ui"
+    assert atlas_manifest["exports"]["."]["types"] == "./src/index.ts"
+    assert "build" not in atlas_manifest["scripts"]
+    assert (
+        workspace_manifests["apps/runtime-dashboard"]["dependencies"]["@polisyos/atlas-ui"]
+        == "workspace:*"
+    )
 
     pyproject = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
     hatch_config = tomllib.loads((REPO_ROOT / "hatch.toml").read_text(encoding="utf-8"))
@@ -464,6 +538,7 @@ def test_frontend_workspace_build_paths_and_python_package_boundaries() -> None:
         input=(
             "apps/runtime-dashboard/dist/index.js\n"
             "packages/runtime-api-client/node_modules/.bin/tool\n"
+            "packages/atlas-ui/node_modules/.bin/tool\n"
         ),
         capture_output=True,
         text=True,
@@ -473,6 +548,7 @@ def test_frontend_workspace_build_paths_and_python_package_boundaries() -> None:
     assert set(ignored.stdout.splitlines()) == {
         "apps/runtime-dashboard/dist/index.js",
         "packages/runtime-api-client/node_modules/.bin/tool",
+        "packages/atlas-ui/node_modules/.bin/tool",
     }
 
 

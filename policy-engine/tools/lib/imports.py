@@ -6,30 +6,33 @@ import ast
 import sys
 from pathlib import Path
 
-_REPO_SENTINELS = ("pyproject.toml", "tools", "src")
+_REPO_ROOT_FILES = ("pyproject.toml",)
+_REPO_ROOT_DIRECTORIES = ("tools", "src")
 
 
 class RepositoryRootUnavailableError(ValueError):
-    """Raised when no existing PolicyOS workspace root can be resolved."""
+    """Raised when no existing PolicyOS workspace layout can be resolved."""
 
 
 def _find_repo_root(start: Path) -> Path | None:
-    """Return the nearest existing repository root at or above ``start``."""
+    """Return the nearest ancestor matching the minimal workspace file/directory layout."""
 
     current = start.parent if start.is_file() else start
     for candidate in (current, *current.parents):
-        if all((candidate / sentinel).exists() for sentinel in _REPO_SENTINELS):
+        if all((candidate / sentinel).is_file() for sentinel in _REPO_ROOT_FILES) and all(
+            (candidate / sentinel).is_dir() for sentinel in _REPO_ROOT_DIRECTORIES
+        ):
             return candidate
     return None
 
 
 def _explicit_workspace_root(root: str | Path, *, source: str) -> Path:
-    """Validate that ``root`` names an existing workspace root, not an inferred path."""
+    """Validate the expected layout without claiming Git or source authenticity."""
 
     candidate = Path(root).expanduser().resolve()
     if not candidate.is_dir() or _find_repo_root(candidate) != candidate:
         raise RepositoryRootUnavailableError(
-            f"{source} is not an existing PolicyOS workspace root: {candidate}"
+            f"{source} does not match an existing PolicyOS workspace layout: {candidate}"
         )
     return candidate
 
@@ -40,11 +43,14 @@ def repo_root_from(
     allow_cwd_fallback: bool = False,
     workspace_root: str | Path | None = None,
 ) -> Path:
-    """Resolve the workspace root from source ancestry or an explicitly enabled checkout.
+    """Resolve the minimal workspace layout from source ancestry or an explicit root.
 
     Source-file ancestry remains authoritative by default. ``workspace_root`` selects an
-    explicit existing workspace, while ``allow_cwd_fallback`` permits an unanchored installed
-    module to resolve the current directory only when it is inside an existing workspace.
+    explicit existing layout, while ``allow_cwd_fallback`` permits an unanchored installed
+    module to resolve the current directory only when it has a ``pyproject.toml`` file and
+    ``tools``/``src`` directories. This layout check does not attest Git identity, source
+    authenticity, or workspace admission; callers that need those guarantees must verify them
+    independently.
     """
 
     if workspace_root is not None:
@@ -62,7 +68,7 @@ def repo_root_from(
 
     raise RepositoryRootUnavailableError(
         f"Could not resolve a PolicyOS workspace root from {file_path!r}; "
-        "enable CWD fallback from an existing checkout or provide an existing workspace_root."
+        "enable CWD fallback from the expected workspace layout or provide a workspace_root."
     )
 
 
@@ -77,7 +83,8 @@ def ensure_repo_import_roots(
 
     Callers that identify their source file inside a checkout stay anchored to that root. An
     installed module with no source-tree anchor may use the current directory only when it has
-    the existing PolicyOS workspace layout; an explicit ``workspace_root`` takes precedence.
+    the expected workspace file/directory layout; an explicit ``workspace_root`` takes
+    precedence. This is layout discovery, not source or Git authenticity verification.
     """
 
     repo_root = repo_root_from(

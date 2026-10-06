@@ -64,19 +64,36 @@ def test_phase4_frontend_workspace_contract_has_owners_commands_and_ignores() ->
     contract = _read_toml("architecture/frontend_workspaces.toml")
     workspaces = {workspace["id"]: workspace for workspace in contract["workspace"]}
 
-    assert set(workspaces) == {
-        "cli",
-        "runtime-api-client",
-        "runtime-dashboard",
-        "runtime-reference-shell",
-    }
+    workspace_lines = (REPO_ROOT / "pnpm-workspace.yaml").read_text(encoding="utf-8")
+    workspace_globs = tuple(
+        line.strip()[2:].strip().strip("'\"")
+        for line in workspace_lines.splitlines()
+        if line.strip().startswith("- ")
+    )
+    package_projects: dict[str, tuple[str, dict[str, Any]]] = {}
+    for workspace_glob in workspace_globs:
+        for package_json in sorted(REPO_ROOT.glob(f"{workspace_glob}/package.json")):
+            manifest = json.loads(package_json.read_text(encoding="utf-8"))
+            package_name = manifest["name"]
+            project_id = package_name.rsplit("/", 1)[-1]
+            assert project_id not in package_projects, package_name
+            package_projects[project_id] = (
+                package_json.parent.relative_to(REPO_ROOT).as_posix(),
+                manifest,
+            )
+
+    assert set(workspaces) == set(package_projects)
 
     for workspace in workspaces.values():
+        workspace_id = workspace["id"]
+        actual_path, manifest = package_projects[workspace_id]
         root = REPO_ROOT / workspace["path"]
         package_json = _contract_path(workspace["package_json"])
         lockfile = _contract_path(workspace["lockfile"])
-        scripts = json.loads(package_json.read_text(encoding="utf-8"))["scripts"]
+        scripts = manifest["scripts"]
 
+        assert workspace["path"] == actual_path
+        assert workspace["package_json"] == f"{actual_path}/package.json"
         assert root.exists()
         assert workspace["owner"]
         assert package_json.exists()
@@ -84,7 +101,10 @@ def test_phase4_frontend_workspace_contract_has_owners_commands_and_ignores() ->
         assert workspace["public_entrypoints"]
 
         for command in (
-            workspace["build_commands"] + workspace["test_commands"] + workspace["drift_commands"]
+            workspace["build_commands"]
+            + workspace["test_commands"]
+            + workspace["drift_commands"]
+            + workspace.get("regenerate_commands", [])
         ):
             script = _npm_script_name(command)
             if script is not None:
@@ -253,6 +273,14 @@ def _npm_script_name(command: str) -> str | None:
         return "test"
     if command.startswith("npm run "):
         return command.removeprefix("npm run ").split()[0]
+    tokens = command.split()
+    if "pnpm" in tokens:
+        if "run" in tokens:
+            run_index = tokens.index("run")
+            if run_index + 1 < len(tokens):
+                return tokens[run_index + 1]
+        if tokens[-1:] == ["test"]:
+            return "test"
     return None
 
 

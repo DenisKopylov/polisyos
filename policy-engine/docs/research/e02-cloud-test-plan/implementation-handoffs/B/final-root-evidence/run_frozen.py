@@ -68,17 +68,17 @@ def main() -> None:
     raw = SCRATCH / "raw/review"
     raw.mkdir(parents=True, exist_ok=True)
     inputs: object = None
-    if tag == "repaired-final-B-cohort":
-        selector = json.loads((SCRATCH / "raw/repaired-final-selector.json").read_text())
+    if tag == "terminal-final-B-cohort":
+        selector = json.loads((SCRATCH / "raw/terminal-final-selector.json").read_text())
         if selector["root_snapshot_sha"] != SHA:
             raise RuntimeError("Selector belongs to another candidate")
         paths = selector["test_paths"]
         if len(paths) != len(set(paths)) or len(paths) != selector["candidate_whole_file_count"]:
             raise RuntimeError("Selector file denominator does not reconcile")
-        argsfile = raw / "repaired-final-B-cohort.args"
+        argsfile = raw / "terminal-final-B-cohort.args"
         with argsfile.open("x") as stream:
             stream.write("\n".join(paths) + "\n")
-        inventory = raw / "repaired-final-B-cohort-inventory.json"
+        inventory = raw / "terminal-final-B-cohort-inventory.json"
         if inventory.exists():
             raise RuntimeError("Refuse to overwrite an existing case inventory")
         env["E02_B_COHORT_INVENTORY_PATH"] = str(inventory)
@@ -92,15 +92,15 @@ def main() -> None:
             "@" + str(argsfile),
             "--continue-on-collection-errors",
             "--basetemp",
-            str(raw / "repaired-final-B-cohort-pytest"),
+            str(raw / "terminal-final-B-cohort-pytest"),
             "-o",
-            "cache_dir=" + str(raw / "repaired-final-B-cohort-cache"),
-            "--junitxml=" + str(raw / "repaired-final-B-cohort.xml"),
+            "cache_dir=" + str(raw / "terminal-final-B-cohort-cache"),
+            "--junitxml=" + str(raw / "terminal-final-B-cohort.xml"),
         ]
         inputs = {
-            "selector_path": str(SCRATCH / "raw/repaired-final-selector.json"),
+            "selector_path": str(SCRATCH / "raw/terminal-final-selector.json"),
             "selector_sha256": hashlib.sha256(
-                (SCRATCH / "raw/repaired-final-selector.json").read_bytes()
+                (SCRATCH / "raw/terminal-final-selector.json").read_bytes()
             ).hexdigest(),
             "test_paths": paths,
             "inventory": str(inventory),
@@ -109,7 +109,7 @@ def main() -> None:
                 "continue-on-collection-errors; no marker exclusions or numeric worker/thread caps."
             ),
         }
-    elif tag in {"repaired-final-all-changed-ruff", "repaired-final-all-changed-format"}:
+    elif tag in {"terminal-final-all-changed-ruff", "terminal-final-all-changed-format"}:
         base = "86f37d782a709d298a9908ca3ef891adc9f89253"
         paths = [
             p
@@ -145,7 +145,7 @@ def main() -> None:
                 "count": len(fresh),
             },
         }
-    elif tag == "repaired-final-architecture":
+    elif tag == "terminal-final-architecture":
         argv = [
             str(UV),
             "run",
@@ -155,7 +155,7 @@ def main() -> None:
             "guardrails",
             "check",
         ]
-    elif tag == "repaired-final-runtime-api":
+    elif tag == "terminal-final-runtime-api":
         argv = [
             str(UV),
             "run",
@@ -168,8 +168,8 @@ def main() -> None:
             "runtime",
             "check-runtime-api-contract",
         ]
-    elif tag in {"repaired-final-verify-uncapped", "repaired-final-parity-uncapped"}:
-        suite = "verify" if tag == "repaired-final-verify-uncapped" else "ci-parity"
+    elif tag in {"terminal-final-verify-uncapped", "terminal-final-parity-uncapped"}:
+        suite = "verify" if tag == "terminal-final-verify-uncapped" else "ci-parity"
         flag = "--backend-only" if suite == "verify" else "--skip-browser"
         argv = [
             str(PYTHON),
@@ -197,7 +197,7 @@ def main() -> None:
                 "verify and parity share actual last-mile outputs and pnpm lock writer; sequential."
             ),
         }
-    elif tag == "repaired-final-production-invocation":
+    elif tag == "terminal-final-production-invocation":
         argv = [
             str(PYTHON),
             "-m",
@@ -207,7 +207,7 @@ def main() -> None:
             "--base",
             "198076863e143dea9f89f02734b13d50dae3eed5",
             "--receipt",
-            str(raw / "repaired-final-production-invocation-full.json"),
+            str(raw / "terminal-final-production-invocation-full.json"),
         ]
         inputs = {"grade": "Static production invocation diagnosis only; no runtime evidence."}
     else:

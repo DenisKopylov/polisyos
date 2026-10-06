@@ -509,17 +509,27 @@ def main() -> None:
                     "source_refs": list(records.values()),
                     "state": "UNRUN_named_selector_absent",
                     "equivalent_candidate_selectors": [],
+                    "required_by_canonical_plan": bool(planned.get(p)),
+                    "has_reviewed_equivalence_map": p in mapping,
+                    "admission_grade": (
+                        "Absent named reference, never a collected case or satisfied criterion"
+                    ),
                 }
             )
-    if not {x["named_selector"] for x in missing}.issubset(mapping):
-        raise ValueError("Every absent selector needs a reviewed map or explicit UNRUN")
     resolved_proposals = [
         {"named_selector": p, "identity": identity("policy-engine/" + p)}
         for p in sorted(mapping)
         if "policy-engine/" + p in tracked
     ]
     for item in missing:
-        entry = mapping[item["named_selector"]]
+        entry = mapping.get(item["named_selector"])
+        if entry is None:
+            item["equivalence_grade"] = "UNRUN: no reviewed equivalence; no implicit satisfaction"
+            item["residuals"] = [
+                "Unmapped absent path reference retained with complete origins; "
+                "source mentions do not establish an executable native test input."
+            ]
+            continue
         for candidate in entry["candidates"]:
             selected = candidate["selector"]
             p = normalize(selected)
@@ -594,6 +604,15 @@ def main() -> None:
         "candidate_whole_file_count": len(existing),
         "candidate_test_inputs": existing,
         "absent_named_selectors": missing,
+        "absent_reference_counts": {
+            "all": len(missing),
+            "required_by_canonical_plan": sum(m["required_by_canonical_plan"] for m in missing),
+            "incidental_reference_only": sum(not m["required_by_canonical_plan"] for m in missing),
+            "without_reviewed_equivalence_map": sum(
+                not m["has_reviewed_equivalence_map"] for m in missing
+            ),
+            "grade": "UNRUN reference accounting, never a runtime case denominator",
+        },
         "previously_absent_proposals_now_present": resolved_proposals,
         "bundle_selector_map": {
             b: sorted(
@@ -747,6 +766,7 @@ def main() -> None:
         "test_paths": result["test_paths"],
         "candidate_whole_file_identities": [x["identity"] for x in existing],
         "absent_named_selectors": missing,
+        "absent_reference_counts": result["absent_reference_counts"],
         "previously_absent_proposals_now_present": resolved_proposals,
         "manifest_findings_reconciliation": {
             "ids": sorted(manifest_ids),

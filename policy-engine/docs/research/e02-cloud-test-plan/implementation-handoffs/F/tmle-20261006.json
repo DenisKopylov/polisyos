@@ -45,7 +45,9 @@
       "outcome": "PASS",
       "exit": 0,
       "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/native-frozen.json",
-      "complete_output": "See lossless gzip refs in outputs.json; all original stdout/stderr bytes available"
+      "complete_output": "See lossless gzip refs in outputs.json; all original stdout/stderr bytes available",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/native-frozen.stdout.txt.gz",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/native-frozen.stderr.txt.gz"
     },
     {
       "command": [
@@ -62,7 +64,9 @@
       "outcome": "FAIL",
       "exit": 2,
       "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/architecture.json",
-      "complete_output": "See lossless gzip refs in outputs.json; all original stdout/stderr bytes available"
+      "complete_output": "See lossless gzip refs in outputs.json; all original stdout/stderr bytes available",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/architecture.stdout.txt.gz",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/architecture.stderr.txt.gz"
     },
     {
       "command": [
@@ -80,7 +84,9 @@
       "outcome": "ERROR",
       "exit": -9,
       "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/production-invocation.json",
-      "complete_output": "See lossless gzip refs in outputs.json; all original stdout/stderr bytes available"
+      "complete_output": "See lossless gzip refs in outputs.json; all original stdout/stderr bytes available",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/production-invocation.stdout.txt.gz",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/production-invocation.stderr.txt.gz"
     },
     {
       "command": [
@@ -442,5 +448,8 @@
     "unchanged_runtime_and_test_blobs": true,
     "release_class": "python-public-api",
     "finding_decision_delta": "none; genericB54 closed andB56 limited remain exact originalscope"
-  }
+  },
+  "receipt_corrections": [
+    "Added mandatory output field to original three checks; exact complete committed deciding byte refs unchanged. No source, test, outcome or finding decision delta."
+  ]
 }

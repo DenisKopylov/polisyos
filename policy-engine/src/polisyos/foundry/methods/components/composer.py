@@ -498,6 +498,56 @@ class MethodComposer:
     def dag(self) -> CompositionDAG:
         return self._dag
 
+    @classmethod
+    def from_nodes(
+        cls,
+        nodes: Sequence[MethodNode],
+        *,
+        registry: MethodRegistry | None = None,
+        linker: SlotLinker | None = None,
+    ) -> MethodComposer:
+        """Restore concrete occurrences using the normal parameter builder.
+
+        This internal artifact-intake seam restores nodes only. Connections and
+        requirements still pass through ``connect`` and ``build``. It selects
+        the current registry implementation, not historical method code.
+        """
+        ordered = sorted(nodes, key=lambda node: node._insertion_order)
+        if len({node.id for node in ordered}) != len(ordered):
+            raise ValueError("Duplicate restored node UUID")
+        if [node._insertion_order for node in ordered] != list(range(len(ordered))):
+            raise ValueError("Restored insertion order must be complete and unique")
+        composer = cls(registry=registry, linker=linker)
+        restored_dag = CompositionDAG()
+        restored_signatures: dict[UUID, MethodSignature] = {}
+        for node in ordered:
+            if set(node.params).intersection(node.static_params):
+                raise ValueError("Restored static and dynamic parameters overlap")
+            prototype = composer.add(
+                node.method_fqn, **dict(node.static_params), **dict(node.params)
+            )
+            actual_payload = _stable_digest(
+                {"static": dict(prototype.static_params), "dynamic": dict(prototype.params)}
+            )
+            expected_payload = _stable_digest(
+                {"static": dict(node.static_params), "dynamic": dict(node.params)}
+            )
+            if (
+                prototype.method_fqn != node.method_fqn
+                or prototype.node_key != node.node_key
+                or prototype.instance_index != node.instance_index
+                or prototype.commutes_with != node.commutes_with
+                or actual_payload != expected_payload
+            ):
+                raise ValueError(f"Restored node does not match current parameter ABI: {node.id}")
+            restored = replace(prototype, id=node.id)
+            restored_dag.add_node(restored)
+            restored_signatures[node.id] = composer._signatures[prototype.id]
+        restored_dag._insertion_counter = len(ordered)
+        composer._dag = restored_dag
+        composer._signatures = restored_signatures
+        return composer
+
     def add(self, method_name: str, **params: Any) -> MethodNode:
         """Add a method instance to the composition."""
         method_class = self._registry.get(method_name)

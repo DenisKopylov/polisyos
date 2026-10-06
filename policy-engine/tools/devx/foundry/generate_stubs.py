@@ -20,6 +20,7 @@ TARGETS: tuple[str, ...] = (
     "polisyos.foundry.methods.base",
     "polisyos.foundry.methods.registry",
     "polisyos.foundry.methods.composer",
+    "polisyos.foundry.methods.components.composer",
 )
 OUTPUT_MAP: dict[str, Path] = {
     "polisyos.foundry.methods.base": SRC_ROOT / "polisyos" / "foundry" / "methods" / "base.pyi",
@@ -32,6 +33,12 @@ OUTPUT_MAP: dict[str, Path] = {
     / "polisyos"
     / "foundry"
     / "methods"
+    / "composer.pyi",
+    "polisyos.foundry.methods.components.composer": SRC_ROOT
+    / "polisyos"
+    / "foundry"
+    / "methods"
+    / "components"
     / "composer.pyi",
 }
 REEXPORT_STUBS: dict[str, str] = {
@@ -46,11 +53,7 @@ REEXPORT_STUBS: dict[str, str] = {
 
 def _run_stubgen(module: str, out_dir: Path, *, verbose: bool) -> Path | None:
     stubgen = Path(sys.executable).with_name("stubgen")
-    launcher = (
-        (str(stubgen),)
-        if stubgen.is_file()
-        else (sys.executable, "-m", "mypy.stubgen")
-    )
+    launcher = (str(stubgen),) if stubgen.is_file() else (sys.executable, "-m", "mypy.stubgen")
     cmd = (
         *launcher,
         "-m",

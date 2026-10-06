@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
+from polisyos.data_forge.domains.catalog.batch import publish as publish_module
 from polisyos.data_forge.domains.catalog.batch.benchmark import READINESS_THRESHOLDS
 from polisyos.data_forge.domains.catalog.batch.cli import _build_config, _run_single_stage
 from polisyos.data_forge.domains.catalog.batch.config import DEFAULT_RUN_STAGES, DatasetBatchConfig
@@ -151,6 +152,16 @@ def _write_qc_and_benchmark(
         )
 
 
+def _calculate_fixture_readiness(config: DatasetBatchConfig):
+    qc_payload = json.loads(config.qc_report_path.read_text(encoding="utf-8"))
+    benchmark_payload = json.loads(config.benchmark_report_path.read_text(encoding="utf-8"))
+    return _build_consumer_readiness(
+        config,
+        qc_payload=qc_payload,
+        benchmark_payload=benchmark_payload,
+    )
+
+
 def test_consumer_readiness_builder_reports_ready_fixture(tmp_path) -> None:
     registry_path = tmp_path / "registry.yaml"
     _write_test_registry(registry_path)
@@ -162,7 +173,7 @@ def test_consumer_readiness_builder_reports_ready_fixture(tmp_path) -> None:
     config.duplicates_report_path.write_text("dataset_id,duplicate_id\n", encoding="utf-8")
     _write_qc_and_benchmark(config)
 
-    readiness_payload, readiness, _blocking_source_statuses = _build_consumer_readiness(config)
+    readiness_payload, readiness, _blocking_source_statuses = _calculate_fixture_readiness(config)
 
     assert readiness["consumer_ready"] is True
     assert readiness_payload["readiness"]["consumer_ready"] is True
@@ -177,7 +188,7 @@ def test_consumer_readiness_reports_when_thresholds_fail(tmp_path) -> None:
     _build_publish_fixture(config)
     _write_qc_and_benchmark(config, search=50.0)
 
-    readiness_payload, readiness, _blocking_source_statuses = _build_consumer_readiness(config)
+    readiness_payload, readiness, _blocking_source_statuses = _calculate_fixture_readiness(config)
     assert readiness["consumer_ready"] is False
     assert readiness_payload["readiness"]["search_ready"] is False
 
@@ -214,7 +225,7 @@ def test_consumer_readiness_requires_blocking_source_status(tmp_path) -> None:
         )
 
     with pytest.raises(RuntimeError, match="missing blocking source statuses"):
-        _build_consumer_readiness(config)
+        _calculate_fixture_readiness(config)
 
 
 def test_consumer_readiness_rejects_unready_blocking_source(tmp_path) -> None:
@@ -252,7 +263,7 @@ def test_consumer_readiness_rejects_unready_blocking_source(tmp_path) -> None:
         ],
     )
 
-    readiness_payload, readiness, _blocking_source_statuses = _build_consumer_readiness(config)
+    readiness_payload, readiness, _blocking_source_statuses = _calculate_fixture_readiness(config)
     assert readiness["consumer_ready"] is False
     assert readiness_payload["readiness"]["source_preflight_ready"] is True
     assert readiness_payload["readiness"]["blocking_sources_ready"] is False
@@ -285,7 +296,7 @@ def test_consumer_readiness_requires_boolean_admission_values(
         ],
     )
 
-    _readiness_payload, readiness, _blocking_source_statuses = _build_consumer_readiness(config)
+    _readiness_payload, readiness, _blocking_source_statuses = _calculate_fixture_readiness(config)
     assert readiness["consumer_ready"] is False
 
 
@@ -320,7 +331,7 @@ def test_consumer_readiness_requires_exact_blocking_source_membership(
     _write_qc_and_benchmark(config, source_cases=source_cases)
 
     with pytest.raises(RuntimeError, match=expected_reason):
-        _build_consumer_readiness(config)
+        _calculate_fixture_readiness(config)
 
 
 def test_consumer_readiness_allows_core_ready_snapshot(tmp_path) -> None:
@@ -330,7 +341,7 @@ def test_consumer_readiness_allows_core_ready_snapshot(tmp_path) -> None:
     _build_publish_fixture(config)
     _write_qc_and_benchmark(config, evaluation_mode="core-ready")
 
-    readiness_payload, readiness, _blocking_source_statuses = _build_consumer_readiness(config)
+    readiness_payload, readiness, _blocking_source_statuses = _calculate_fixture_readiness(config)
 
     assert readiness["consumer_ready"] is True
     assert readiness["full_publish_ready"] is False
@@ -346,7 +357,7 @@ def test_consumer_readiness_blocks_partial_eval_even_if_thresholds_pass(tmp_path
     _build_publish_fixture(config)
     _write_qc_and_benchmark(config, evaluation_mode="partial-eval")
 
-    _readiness_payload, readiness, _blocking_source_statuses = _build_consumer_readiness(config)
+    _readiness_payload, readiness, _blocking_source_statuses = _calculate_fixture_readiness(config)
     assert readiness["consumer_ready"] is False
 
 
@@ -362,6 +373,7 @@ def test_run_publish_rejects_ready_json_without_current_producer_receipts(tmp_pa
 
     assert not config.consumer_readiness_path.exists()
     assert not config.publish_manifest_path.exists()
+    assert not (config.manifests_dir / "publish.json").exists()
 
 
 def test_standalone_cli_publish_consumes_current_producer_receipts(tmp_path: Path) -> None:
@@ -391,6 +403,52 @@ def test_standalone_cli_publish_consumes_current_producer_receipts(tmp_path: Pat
         "qc": qc_receipt,
     }
     assert not config.publish_manifest_path.exists()
+
+
+def test_standalone_cli_rejects_report_swap_before_any_publish_write(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    registry_path = tmp_path / "registry.yaml"
+    _write_test_registry(registry_path)
+    args = Namespace(
+        snapshot_root=str(tmp_path / "snap"),
+        registry_path=str(registry_path),
+        fail_fast=False,
+    )
+    config = _build_config(args, stages=DEFAULT_RUN_STAGES)
+    _build_publish_fixture(config)
+    asyncio.run(_run_single_stage(args, "benchmark"))
+    asyncio.run(_run_single_stage(args, "qc"))
+    assert current_content_stage_receipt(config, "benchmark") is not None
+    assert current_content_stage_receipt(config, "qc") is not None
+
+    build_readiness = publish_module._build_consumer_readiness
+
+    def replace_reports_after_receipt_check(
+        config: DatasetBatchConfig,
+        *,
+        qc_payload: dict[str, object],
+        benchmark_payload: dict[str, object],
+    ):
+        _write_qc_and_benchmark(config)
+        return build_readiness(
+            config,
+            qc_payload=qc_payload,
+            benchmark_payload=benchmark_payload,
+        )
+
+    monkeypatch.setattr(
+        publish_module,
+        "_build_consumer_readiness",
+        replace_reports_after_receipt_check,
+    )
+
+    with pytest.raises(RuntimeError, match="content-bound receipt changed before publication"):
+        asyncio.run(_run_single_stage(args, "publish"))
+
+    assert not config.consumer_readiness_path.exists()
+    assert not config.publish_manifest_path.exists()
+    assert not (config.manifests_dir / "publish.json").exists()
 
 
 @pytest.mark.parametrize("changed_basis", ["registry", "profile", "benchmark_report"])

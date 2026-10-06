@@ -3,21 +3,22 @@
 from __future__ import annotations
 
 import json
+from dataclasses import dataclass
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import duckdb
 
 from polisyos.data_forge.domains.catalog.batch.benchmark import readiness_thresholds_for_profile
 from polisyos.data_forge.kernel.embeddings import embedding_generation_manifest
+from polisyos.data_forge.kernel.io import atomic_write_bytes, sha256_bytes
 from polisyos.data_forge.kernel.pipeline.manifests import (
     write_publish_manifest,
     write_stage_manifest,
 )
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
     from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
 
 
@@ -34,19 +35,100 @@ def _table_count(db_path: Path, table_name: str) -> int:
         return int(con.execute(f"SELECT COUNT(*) FROM {table_name}").fetchone()[0])
 
 
-def _load_json(path: Path) -> dict[str, object]:
-    if not path.exists():
-        return {}
-    with open(path, encoding="utf-8") as fh:
-        payload = json.load(fh)
-    return payload if isinstance(payload, dict) else {}
+@dataclass(frozen=True)
+class _VerifiedReportSnapshot:
+    """Immutable report bytes admitted against a current producer receipt."""
+
+    content: bytes
+    payload: dict[str, object]
+
+
+def _capture_current_report_snapshots(
+    config: DatasetBatchConfig,
+) -> tuple[dict[str, dict[str, object]], dict[str, _VerifiedReportSnapshot]]:
+    from polisyos.data_forge.domains.catalog.batch.pipeline import (
+        current_content_stage_receipt,
+    )
+
+    receipts: dict[str, dict[str, object]] = {}
+    snapshots: dict[str, _VerifiedReportSnapshot] = {}
+    reports = {
+        "benchmark": config.benchmark_report_path,
+        "qc": config.qc_report_path,
+    }
+    for stage, path in reports.items():
+        receipt = current_content_stage_receipt(config, stage)
+        if receipt is None:
+            raise RuntimeError(f"Dataset publish blocked: no current {stage} content-bound receipt")
+        inventory = receipt.get("output_inventory")
+        entries = inventory.get("entries") if isinstance(inventory, dict) else None
+        matching_entries = [
+            entry
+            for entry in entries or []
+            if isinstance(entry, dict)
+            and isinstance(entry.get("path"), str)
+            and Path(str(entry["path"])).resolve() == path.resolve()
+        ]
+        if len(matching_entries) != 1:
+            raise RuntimeError(
+                f"Dataset publish blocked: {stage} receipt does not uniquely bind its report"
+            )
+        entry = matching_entries[0]
+        expected_digest = entry.get("sha256")
+        expected_size = entry.get("size")
+        if (
+            entry.get("exists") is not True
+            or not isinstance(expected_digest, str)
+            or len(expected_digest) != 64
+            or any(character not in "0123456789abcdef" for character in expected_digest)
+            or type(expected_size) is not int
+            or expected_size < 0
+        ):
+            raise RuntimeError(
+                f"Dataset publish blocked: {stage} receipt has no complete report inventory"
+            )
+        try:
+            content = path.read_bytes()
+        except OSError as exc:
+            raise RuntimeError(
+                f"Dataset publish blocked: cannot read current {stage} report bytes"
+            ) from exc
+        if len(content) != expected_size or sha256_bytes(content) != expected_digest:
+            raise RuntimeError(
+                f"Dataset publish blocked: {stage} report bytes differ from its producer receipt"
+            )
+        try:
+            decoded = json.loads(content)
+        except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+            raise RuntimeError(f"Dataset publish blocked: invalid {stage} report JSON") from exc
+        if not isinstance(decoded, dict):
+            raise RuntimeError(f"Dataset publish blocked: {stage} report must be a JSON object")
+        receipts[stage] = receipt
+        snapshots[stage] = _VerifiedReportSnapshot(content=content, payload=decoded)
+    return receipts, snapshots
+
+
+def _require_current_report_receipts(
+    config: DatasetBatchConfig,
+    expected_receipts: dict[str, dict[str, object]],
+) -> None:
+    from polisyos.data_forge.domains.catalog.batch.pipeline import (
+        current_content_stage_receipt,
+    )
+
+    for stage, expected in expected_receipts.items():
+        if current_content_stage_receipt(config, stage) != expected:
+            raise RuntimeError(
+                f"Dataset publish blocked: {stage} content-bound receipt changed before publication"
+            )
 
 
 def _build_consumer_readiness(
     config: DatasetBatchConfig,
+    *,
+    qc_payload: dict[str, object],
+    benchmark_payload: dict[str, object],
 ) -> tuple[dict[str, object], dict[str, bool], dict[str, str]]:
-    qc_payload = _load_json(config.qc_report_path)
-    benchmark_payload = _load_json(config.benchmark_report_path)
     benchmark_metrics = (
         benchmark_payload.get("metrics")
         if isinstance(benchmark_payload.get("metrics"), dict)
@@ -184,35 +266,35 @@ def _build_consumer_readiness(
     return payload, readiness, blocking_source_statuses
 
 
-def _write_consumer_readiness_manifest(
+def _calculate_consumer_readiness_snapshot(
     config: DatasetBatchConfig,
-) -> tuple[Path, dict[str, bool], dict[str, str]]:
-    from polisyos.data_forge.domains.catalog.batch.pipeline import (
-        current_content_stage_receipt,
+    content_stage_receipts: dict[str, dict[str, object]],
+    report_snapshots: dict[str, _VerifiedReportSnapshot],
+) -> tuple[dict[str, object], dict[str, bool], dict[str, str], bytes]:
+    payload, readiness, blocking_source_statuses = _build_consumer_readiness(
+        config,
+        qc_payload=report_snapshots["qc"].payload,
+        benchmark_payload=report_snapshots["benchmark"].payload,
     )
-
-    content_stage_receipts: dict[str, dict[str, object]] = {}
-    for stage in ("benchmark", "qc"):
-        receipt = current_content_stage_receipt(config, stage)
-        if receipt is None:
-            raise RuntimeError(f"Dataset publish blocked: no current {stage} content-bound receipt")
-        content_stage_receipts[stage] = receipt
-
-    payload, readiness, blocking_source_statuses = _build_consumer_readiness(config)
     payload["content_stage_receipts"] = content_stage_receipts
-    config.consumer_readiness_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(config.consumer_readiness_path, "w", encoding="utf-8") as fh:
-        json.dump(payload, fh, ensure_ascii=False, indent=2)
-    return config.consumer_readiness_path, readiness, blocking_source_statuses
+    content = json.dumps(payload, ensure_ascii=False, indent=2).encode("utf-8")
+    return payload, readiness, blocking_source_statuses, content
 
 
 def run_publish(config: DatasetBatchConfig) -> Path:
     """Write publish manifest with final dataset artifacts and checksums."""
     started_at = datetime.now(UTC).isoformat()
-    consumer_readiness_path, readiness, blocking_source_statuses = (
-        _write_consumer_readiness_manifest(config)
+    content_stage_receipts, report_snapshots = _capture_current_report_snapshots(config)
+    _readiness_payload, readiness, blocking_source_statuses, readiness_bytes = (
+        _calculate_consumer_readiness_snapshot(
+            config,
+            content_stage_receipts,
+            report_snapshots,
+        )
     )
     if not readiness["consumer_ready"]:
+        _require_current_report_receipts(config, content_stage_receipts)
+        atomic_write_bytes(config.consumer_readiness_path, readiness_bytes)
         failed = sorted(name for name, passed in readiness.items() if not passed)
         raise RuntimeError(
             f"Dataset publish blocked: consumer readiness failed ({', '.join(failed)})"
@@ -232,50 +314,52 @@ def run_publish(config: DatasetBatchConfig) -> Path:
         config.duplicates_report_path,
         config.benchmark_report_path,
         config.qc_report_path,
-        consumer_readiness_path,
+        config.consumer_readiness_path,
     ]
     artifacts.extend(generation_artifacts)
-    existing = [path for path in artifacts if path.exists()]
+    captured_artifact_bytes = {
+        config.benchmark_report_path: report_snapshots["benchmark"].content,
+        config.qc_report_path: report_snapshots["qc"].content,
+        config.consumer_readiness_path: readiness_bytes,
+    }
+    existing = [path for path in artifacts if path.exists() or path in captured_artifact_bytes]
 
     readiness_summary: dict[str, object] = {}
     source_publish_blocking: dict[str, bool] = {}
     rest_rows_by_source: dict[str, int] = {}
     rest_bytes_by_source: dict[str, int] = {}
-    blocking_source_statuses: dict[str, str] = {}
-    if config.qc_report_path.exists():
-        with open(config.qc_report_path, encoding="utf-8") as fh:
-            qc_payload = json.load(fh)
-        metrics = qc_payload.get("metrics") if isinstance(qc_payload, dict) else {}
-        if isinstance(metrics, dict):
-            readiness_summary = {
-                key: metrics[key]
-                for key in (
-                    "machine_readable_distribution_pct",
-                    "parser_supported_distribution_pct",
-                    "datasets_with_metric_binding_pct",
-                    "datasets_with_schema_profile_pct",
-                    "transport_ready_var_coverage_pct",
-                    "execution_readiness_score_avg",
-                    "observations_attempted",
-                    "observations_inserted",
-                    "observations_replaced",
-                    "history_budget_exceeded_sources",
-                    "benchmark_search_top5_relevance_pct",
-                    "benchmark_retrieval_ready_pct",
-                    "benchmark_transport_ready_pct",
-                    "benchmark_foundry_fitness_pct",
-                )
-                if key in metrics
-            }
-            rest_rows_by_source = {
-                str(key): int(value)
-                for key, value in (metrics.get("rest_rows_by_source") or {}).items()
-            }
-            rest_bytes_by_source = {
-                str(key): int(value)
-                for key, value in (metrics.get("rest_bytes_by_source") or {}).items()
-            }
-    benchmark_payload = _load_json(config.benchmark_report_path)
+    qc_payload = report_snapshots["qc"].payload
+    metrics = qc_payload.get("metrics")
+    if isinstance(metrics, dict):
+        readiness_summary = {
+            key: metrics[key]
+            for key in (
+                "machine_readable_distribution_pct",
+                "parser_supported_distribution_pct",
+                "datasets_with_metric_binding_pct",
+                "datasets_with_schema_profile_pct",
+                "transport_ready_var_coverage_pct",
+                "execution_readiness_score_avg",
+                "observations_attempted",
+                "observations_inserted",
+                "observations_replaced",
+                "history_budget_exceeded_sources",
+                "benchmark_search_top5_relevance_pct",
+                "benchmark_retrieval_ready_pct",
+                "benchmark_transport_ready_pct",
+                "benchmark_foundry_fitness_pct",
+            )
+            if key in metrics
+        }
+        rest_rows_by_source = {
+            str(key): int(value)
+            for key, value in (metrics.get("rest_rows_by_source") or {}).items()
+        }
+        rest_bytes_by_source = {
+            str(key): int(value)
+            for key, value in (metrics.get("rest_bytes_by_source") or {}).items()
+        }
+    benchmark_payload = report_snapshots["benchmark"].payload
     evaluation_mode = (
         str(benchmark_payload.get("evaluation_mode") or "full-ready").strip() or "full-ready"
     )
@@ -283,11 +367,14 @@ def run_publish(config: DatasetBatchConfig) -> Path:
         spec.name: spec.publish_blocking for spec in config.load_registry().sources
     }
 
+    _require_current_report_receipts(config, content_stage_receipts)
+    atomic_write_bytes(config.consumer_readiness_path, readiness_bytes)
     manifest_path = write_publish_manifest(
         manifest_path=config.publish_manifest_path,
         pipeline="datasets",
         artifacts=existing,
-        qc_report_path=config.qc_report_path if config.qc_report_path.exists() else None,
+        captured_artifact_bytes=captured_artifact_bytes,
+        qc_report_path=config.qc_report_path,
         extra={
             "snapshot_root": str(config.snapshot_root),
             "component_dir": str(config.component_dir),
@@ -298,10 +385,8 @@ def run_publish(config: DatasetBatchConfig) -> Path:
             "rest_rows_by_source": rest_rows_by_source,
             "rest_bytes_by_source": rest_bytes_by_source,
             "blocking_source_statuses": blocking_source_statuses,
-            "consumer_readiness_manifest": str(consumer_readiness_path),
-            "benchmark_report": str(config.benchmark_report_path)
-            if config.benchmark_report_path.exists()
-            else "",
+            "consumer_readiness_manifest": str(config.consumer_readiness_path),
+            "benchmark_report": str(config.benchmark_report_path),
             "consumer_ready": readiness["consumer_ready"],
             "full_publish_ready": readiness["full_publish_ready"],
             "evaluation_mode": evaluation_mode,

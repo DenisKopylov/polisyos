@@ -5,11 +5,12 @@ import tomllib
 from pathlib import Path
 from typing import Any
 
+import pytest
+
 import polisyos.data_forge.kernel.io as kernel_io
 import polisyos.data_forge.kernel.pipeline.manifests as kernel_manifest
 import polisyos.data_forge.kernel.quality as kernel_quality
 import polisyos.data_forge.kernel.runtime as kernel_runtime
-import pytest
 from polisyos.data_forge.kernel.pipeline.config import (
     EnvSecretBackend,
     MappingSecretBackend,
@@ -135,6 +136,28 @@ def test_manifest_writers_match_legacy_reference_shapes(tmp_path: Path) -> None:
         qc_report_path=tmp_path / "qc.json",
         extra={"ready": True},
     )
+
+
+def test_publish_manifest_hashes_captured_artifact_bytes(tmp_path: Path) -> None:
+    artifact_path = tmp_path / "report.json"
+    captured_bytes = b'{"producer":"verified"}'
+    artifact_path.write_bytes(b'{"producer":"replacement"}')
+
+    manifest_path = kernel_manifest.write_publish_manifest(
+        manifest_path=tmp_path / "publish.json",
+        pipeline="datasets",
+        artifacts=[artifact_path],
+        captured_artifact_bytes={artifact_path: captured_bytes},
+    )
+
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    assert manifest["artifacts"] == [
+        {
+            "path": str(artifact_path),
+            "sha256": kernel_io.sha256_bytes(captured_bytes),
+        }
+    ]
+    assert manifest["artifacts"][0]["sha256"] != kernel_io.sha256_file(artifact_path)
 
 
 def test_kernel_io_qc_thermal_and_phase0_contracts_remain_compatible(
@@ -319,9 +342,7 @@ def test_differential_harness_supports_file_and_json_comparisons(tmp_path: Path)
 def test_phase1_architecture_manifests_no_longer_track_removed_shims() -> None:
     repo_root = Path(__file__).resolve().parents[3]
     package_boundaries = tomllib.loads(
-        (repo_root / "architecture" / "packages" / "boundaries.toml").read_text(
-            encoding="utf-8"
-        )
+        (repo_root / "architecture" / "packages" / "boundaries.toml").read_text(encoding="utf-8")
     )
     packages = {item["module"]: item for item in package_boundaries["package"]}
 

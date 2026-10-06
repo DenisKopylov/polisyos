@@ -11,9 +11,11 @@ from typing import TYPE_CHECKING
 from pydantic import Field
 
 from polisyos.data_forge.kernel._base import DataForgeModel
-from polisyos.data_forge.kernel.io import atomic_write_json, sha256_file
+from polisyos.data_forge.kernel.io import atomic_write_json, sha256_bytes, sha256_file
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
+
     from polisyos.data_forge.kernel.observability import TraceContext
 
 SHA256_PATTERN = r"^[0-9a-f]{64}$"
@@ -140,17 +142,28 @@ def write_publish_manifest(
     manifest_path: str | pathlib.Path,
     pipeline: str,
     artifacts: list[str | pathlib.Path] | tuple[str | pathlib.Path, ...] | None = None,
+    captured_artifact_bytes: Mapping[str | pathlib.Path, bytes] | None = None,
     qc_report_path: str | pathlib.Path | None = None,
     extra: dict[str, object] | None = None,
     published_at: str | None = None,
     trace_context: TraceContext | None = None,
 ) -> pathlib.Path:
     """Write a legacy-compatible final publish manifest."""
+    captured = {
+        pathlib.Path(path): content for path, content in (captured_artifact_bytes or {}).items()
+    }
+    artifact_paths = [pathlib.Path(artifact) for artifact in artifacts or ()]
+    unexpected_captures = set(captured).difference(artifact_paths)
+    if unexpected_captures:
+        raise ValueError(
+            "captured artifact bytes were supplied for unlisted paths: "
+            + ", ".join(sorted(str(path) for path in unexpected_captures))
+        )
     manifest: dict[str, object] = {
         "kind": "publish",
         "pipeline": pipeline,
         "published_at": published_at or utc_now_iso(),
-        "artifacts": [_artifact_ref(pathlib.Path(artifact)) for artifact in artifacts or ()],
+        "artifacts": [_artifact_ref(path, content=captured.get(path)) for path in artifact_paths],
         "qc_report": str(qc_report_path) if qc_report_path else "",
     }
     if extra:
@@ -185,10 +198,14 @@ def validate_manifest_artifacts(
     return tuple(results)
 
 
-def _artifact_ref(path: pathlib.Path) -> dict[str, str]:
+def _artifact_ref(path: pathlib.Path, *, content: bytes | None = None) -> dict[str, str]:
     return {
         "path": str(path),
-        "sha256": sha256_file(path) if path.exists() else "",
+        "sha256": (
+            sha256_bytes(content)
+            if content is not None
+            else (sha256_file(path) if path.exists() else "")
+        ),
     }
 
 

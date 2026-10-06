@@ -15,6 +15,13 @@ consumers.
 - dashboard API types derived from Runtime OpenAPI
 - common persisted manifests migrated through `polisyos.common.migrations`
 
+The `dataset_manifest` converter is owned by `polisyos.fabric.identity` and
+is registered with Common's neutral engine by the canonical migration CLI.
+Renaming legacy aliases does not resolve conflicting aliases, fill missing
+fields, validate every converted payload, or establish provenance/admission.
+Consumers that require the current Fabric shape must still use the strict
+`DatasetManifest` DTO.
+
 ## Compatibility Classes
 
 - Additive: existing consumers keep working and generated clients can be

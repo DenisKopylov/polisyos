@@ -70,7 +70,9 @@ def _canonical_trinity_payload() -> dict[str, Any]:
 
 def _load_root_entrypoint() -> ModuleType:
     """Load the historical root script without executing its ``__main__`` block."""
-    spec = importlib.util.spec_from_file_location("polisyos_legacy_migrate_entrypoint", ROOT_ENTRYPOINT)
+    spec = importlib.util.spec_from_file_location(
+        "polisyos_legacy_migrate_entrypoint", ROOT_ENTRYPOINT
+    )
     if spec is None or spec.loader is None:
         raise AssertionError(f"could not load root entrypoint: {ROOT_ENTRYPOINT}")
     module = importlib.util.module_from_spec(spec)
@@ -78,7 +80,7 @@ def _load_root_entrypoint() -> ModuleType:
     return module
 
 
-@pytest.mark.parametrize("suffix, fmt", [(".json", "json"), (".yaml", "yaml")])
+@pytest.mark.parametrize(("suffix", "fmt"), [(".json", "json"), (".yaml", "yaml")])
 @pytest.mark.parametrize("explicit_target", [False, True])
 def test_canonical_cli_accepts_json_and_yaml_full_trinity(
     tmp_path: Path,
@@ -113,13 +115,65 @@ def test_canonical_cli_accepts_json_and_yaml_full_trinity(
     assert not list(tmp_path.glob(f".{output_path.stem}.*.tmp"))
 
 
-def test_current_version_migration_runs_the_real_trinity_validator(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_canonical_cli_persists_a_trinity_bundle_accepted_by_its_owner(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The public command validates before write and leaves strict readable bytes."""
+    payload = _canonical_trinity_payload()
+    input_path = tmp_path / "input.json"
+    output_path = tmp_path / "output.json"
+    input_path.write_text(json.dumps(payload), encoding="utf-8")
+    output_path.write_text("sentinel\n", encoding="utf-8")
+
+    import polisyos.ir.migrations as ir_migrations
+
+    migration_calls: list[tuple[dict[str, Any], str | None]] = []
+    original_migration = ir_migrations.migrate_policy_ir
+
+    def observed_migration(
+        data: dict[str, Any],
+        target_version: str | None = None,
+    ) -> dict[str, Any]:
+        migration_calls.append((data, target_version))
+        return original_migration(data, target_version)
+
+    monkeypatch.setattr(ir_migrations, "migrate_policy_ir", observed_migration)
+
+    calls: list[dict[str, Any]] = []
+    original = TrinityBundle.model_validate
+
+    def observed_validator(
+        cls: type[TrinityBundle],
+        value: Any,
+        *args: Any,
+        **kwargs: Any,
+    ) -> TrinityBundle:
+        calls.append(value)
+        return original(value, *args, **kwargs)
+
+    monkeypatch.setattr(TrinityBundle, "model_validate", classmethod(observed_validator))
+
+    assert canonical_main(["policy_ir", str(input_path), str(output_path)]) == 0
+
+    assert migration_calls == [(payload, "1.0")]
+    assert calls == [payload]
+    persisted = TrinityBundle.model_validate_json(output_path.read_bytes())
+    assert persisted.model_dump(mode="json", exclude_unset=True) == payload
+    assert input_path.read_bytes() == json.dumps(payload).encode("utf-8")
+
+
+def test_current_version_migration_runs_the_real_trinity_validator(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """The policy-IR no-op path cannot silently bypass full Trinity validation."""
     payload = _canonical_trinity_payload()
     calls: list[dict[str, Any]] = []
     original = TrinityBundle.model_validate
 
-    def observed_validator(cls: type[TrinityBundle], value: Any, *args: Any, **kwargs: Any) -> TrinityBundle:
+    def observed_validator(
+        cls: type[TrinityBundle], value: Any, *args: Any, **kwargs: Any
+    ) -> TrinityBundle:
         calls.append(value)
         return original(value, *args, **kwargs)
 
@@ -241,7 +295,9 @@ def test_loader_keeps_tuple_report_and_auto_migrate_error_contracts() -> None:
         load_policy(malformed, auto_migrate=False)
 
 
-def test_root_entrypoint_delegates_to_the_canonical_executor(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_root_entrypoint_delegates_to_the_canonical_executor(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """The historical root path forwards argv and return status to one runner."""
     canonical = importlib.import_module("tools.ops_runners.migrations.migrate")
     calls: list[list[str] | None] = []

@@ -17,7 +17,9 @@ manifest module.
 - **Executor** - `migrate_artifact()` applies the chain to a target version.
 - **Manifest compatibility** - the old `dataset_manifest` import path remains
   temporarily registered without importing Fabric; the canonical callback and
-  CLI registration live under `polisyos.fabric.identity.migrations`.
+  CLI composition live under `polisyos.fabric.identity.migrations`. The CLI
+  resolves the converter named by the operational helper binding and registers
+  that callable here; Common does not choose the DatasetManifest schema owner.
 
 ## Public API
 

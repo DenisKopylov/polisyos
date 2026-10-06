@@ -297,6 +297,123 @@ def test_canonical_cli_uses_fabric_registration_for_json_and_yaml(
     }
 
 
+def test_canonical_cli_persists_conversion_readable_by_fabric_owner(tmp_path: Path) -> None:
+    """The real CLI output can be parsed by the strict DatasetManifest DTO."""
+    from polisyos.fabric.identity.manifest import DatasetManifest
+    from tools.ops_runners.migrations.migrate import main as canonical_main
+
+    payload = _complete_current_manifest()
+    input_path = tmp_path / "input.json"
+    output_path = tmp_path / "output.json"
+    input_path.write_text(json.dumps(payload), encoding="utf-8")
+
+    assert canonical_main(["dataset_manifest", str(input_path), str(output_path)]) == 0
+
+    persisted = DatasetManifest.model_validate_json(output_path.read_bytes())
+    assert persisted.dataset_name == "baseline"
+    assert persisted.raw_hash == "sha256:abc"
+    assert json.loads(input_path.read_text(encoding="utf-8")) == payload
+
+
+def test_canonical_cli_keeps_conversion_separate_from_conflict_admission(tmp_path: Path) -> None:
+    """A conversion with colliding aliases remains rejected by the strict DTO."""
+    from polisyos.fabric.identity.manifest import DatasetManifest
+    from tools.ops_runners.migrations.migrate import main as canonical_main
+
+    payload = _complete_current_manifest(dataset_name="different")
+    input_path = tmp_path / "conflicting.json"
+    output_path = tmp_path / "conflicting-out.json"
+    input_path.write_text(json.dumps(payload), encoding="utf-8")
+
+    assert canonical_main(["dataset_manifest", str(input_path), str(output_path)]) == 0
+
+    converted = json.loads(output_path.read_text(encoding="utf-8"))
+    assert converted["datasetName"] == "baseline"
+    assert converted["dataset_name"] == "different"
+    with pytest.raises(ValidationError):
+        DatasetManifest.model_validate_json(output_path.read_bytes())
+    assert json.loads(input_path.read_text(encoding="utf-8")) == payload
+
+
+def test_canonical_cli_executes_the_callable_named_by_the_contract(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    request: pytest.FixtureRequest,
+) -> None:
+    """Changing the declared implementation changes the converter the CLI runs."""
+    import importlib
+
+    contract_module = importlib.import_module("tools.ops_runners.migrations.contracts")
+    compatibility_module = importlib.import_module("polisyos.common.migrations.manifest")
+    from polisyos.fabric.identity.migrations import register_manifest_migration
+
+    request.addfinalizer(register_manifest_migration)
+    original_load_contract = contract_module.load_contract
+
+    def load_contract_with_compatibility_callable(repo_root: Path | None = None) -> dict[str, Any]:
+        contract = original_load_contract(repo_root)
+        for binding in contract["helper_binding"]:
+            if binding["artifact"] == "dataset_manifest":
+                binding["implementation"] = (
+                    "polisyos.common.migrations.manifest.migrate_manifest_0_9_to_1_0"
+                )
+        return contract
+
+    def contract_selected_converter(data: dict[str, object]) -> dict[str, object]:
+        data["route_marker"] = "contract-selected"
+        return data
+
+    monkeypatch.setattr(contract_module, "load_contract", load_contract_with_compatibility_callable)
+    monkeypatch.setattr(
+        compatibility_module,
+        "migrate_manifest_0_9_to_1_0",
+        contract_selected_converter,
+    )
+
+    input_path = tmp_path / "input.json"
+    output_path = tmp_path / "output.json"
+    input_path.write_text(json.dumps(_legacy_manifest()), encoding="utf-8")
+
+    from tools.ops_runners.migrations.migrate import main as canonical_main
+
+    assert canonical_main(["dataset_manifest", str(input_path), str(output_path)]) == 0
+
+    migrated = json.loads(output_path.read_text(encoding="utf-8"))
+    assert migrated["route_marker"] == "contract-selected"
+    assert migrated["schema_version"] == "1.0"
+
+
+def test_canonical_cli_rejects_unresolvable_contract_implementation(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A broken callable binding fails before replacing an existing output."""
+    import importlib
+
+    contract_module = importlib.import_module("tools.ops_runners.migrations.contracts")
+    original_load_contract = contract_module.load_contract
+
+    def load_contract_with_missing_callable(repo_root: Path | None = None) -> dict[str, Any]:
+        contract = original_load_contract(repo_root)
+        for binding in contract["helper_binding"]:
+            if binding["artifact"] == "dataset_manifest":
+                binding["implementation"] = "polisyos.fabric.identity.migrations.missing_converter"
+        return contract
+
+    monkeypatch.setattr(contract_module, "load_contract", load_contract_with_missing_callable)
+    input_path = tmp_path / "input.json"
+    output_path = tmp_path / "output.json"
+    input_path.write_text(json.dumps(_legacy_manifest()), encoding="utf-8")
+    output_path.write_text("sentinel\n", encoding="utf-8")
+
+    from tools.ops_runners.migrations.migrate import main as canonical_main
+
+    with pytest.raises(ValueError, match=r"(?i)(implementation|callable|binding)"):
+        canonical_main(["dataset_manifest", str(input_path), str(output_path)])
+
+    assert output_path.read_text(encoding="utf-8") == "sentinel\n"
+
+
 def test_operational_binding_points_to_fabric_converter() -> None:
     """The TOML binding resolves and exercises the schema-owner converter."""
     import importlib

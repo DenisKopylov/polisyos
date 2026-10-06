@@ -1,0 +1,21 @@
+id = "2026-10-06-c2-migration-binding-resolution"
+title = "Execute declared artifact migration bindings"
+type = "fixed"
+component = "migrations"
+owner = "team-ops"
+summary = "The canonical artifact migration CLI now resolves and invokes the callable declared by each helper binding and fails before output publication when that binding cannot resolve."
+evidence = [
+  "tools/ops_runners/migrations/README.md",
+  "tests/unit/remediation/test_mig_01.py",
+  "tests/unit/remediation/test_mig_02.py",
+  "tests/unit/remediation/test_mig_04.py",
+  "tests/unit/remediation/test_mig_05.py",
+]
+compatibility = "Existing artifact owners and conversion profiles remain distinct. RunManifest path normalization remains version-neutral and rejects --to; dataset conversion remains separate from strict DTO validation and provenance/admission."
+change_class = "tooling"
+surface_classification = "internal: polisyos-tools migration CLI and operational helper bindings"
+migration = "No existing artifact is rewritten automatically. Operators continue to request a separate output path using the canonical migration command."
+limitations = "Callable resolution proves that the declared path names an importable callable and that the CLI executes it; it does not establish the semantic validity or provenance of converted artifacts."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["tools/ops_runners/migrations/README.md"]
+runbook_docs = ["docs/runbooks/migration-release-promotion.md"]

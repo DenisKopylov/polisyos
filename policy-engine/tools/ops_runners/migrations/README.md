@@ -3,6 +3,10 @@
 Операционные и форматные миграции для артефактов и хранилищ данных.
 Canonical contracts live in `ops/migrations/migration-contracts.toml`; helper
 CLIs fail closed if their `helper_binding` or target class path is missing.
+For `policy_ir`, `dataset_manifest`, and `run_manifest`, the canonical artifact
+CLI also resolves and invokes the declared callable; the binding is part of the
+executable route, not only a class/path checklist. Other operational helpers
+may declare a module entrypoint instead of an artifact converter callable.
 
 ## Скрипты
 
@@ -10,7 +14,7 @@ CLIs fail closed if their `helper_binding` or target class path is missing.
 | ------------------------- | ------------------------------------------------------------------------------------------------ | ---------------------------- |
 | `migrate_duckdb_to_pg.py` | Перенос tenant-scoped таблиц из DuckDB в PostgreSQL (`--duckdb-path`, `--pg-dsn`, `--tenant-id`) | manual/Ops                   |
 | `migrate.py`              | Миграция `policy_ir` / `dataset_manifest` / `run_manifest` между версиями                        | canonical CLI/module surface |
-| `contracts.py`            | Loads `ops/migrations/migration-contracts.toml` and validates helper bindings                     | contract bridge              |
+| `contracts.py`            | Loads migration contracts, validates paths, and resolves bound callables                          | contract bridge              |
 
 ## Связь с другими директориями
 
@@ -18,6 +22,13 @@ CLIs fail closed if their `helper_binding` or target class path is missing.
 - `ops/migrations/{db,runtime_state,api_schemas,ir}/README.md`
 - `runs/*` и JSON/YAML манифесты артефактов
 - внешние DuckDB/PostgreSQL инстансы для data migration
+
+`policy_ir` delegates to the IR migration/validation owner. `dataset_manifest`
+registers the resolved Fabric converter with Common's neutral linear engine.
+`run_manifest` invokes Runtime's path-only normalizer. These profiles keep
+version conversion, path normalization, strict DTO validation, and provenance
+or admission as separate operations; a successful conversion is not evidence
+that an artifact is admissible for another use.
 
 ## Типовой запуск
 

@@ -4,7 +4,11 @@ from __future__ import annotations
 
 from typing import Final
 
-from polisyos.common.migrations.base import ArtifactPayload, register_migration
+from polisyos.common.migrations.base import (
+    ArtifactPayload,
+    MigrationFn,
+    register_migration,
+)
 
 MANIFEST_CURRENT_VERSION: Final[str] = "1.0"
 
@@ -23,10 +27,15 @@ def migrate_manifest_0_9_to_1_0(data: ArtifactPayload) -> ArtifactPayload:
     return data
 
 
-def register_manifest_migration() -> None:
-    """Register the Fabric-owned manifest migration with Common's engine."""
+def register_manifest_migration(converter: MigrationFn | None = None) -> None:
+    """Register the selected Fabric-owned converter with Common's engine.
+
+    Args:
+        converter: Resolved composition-layer implementation. When omitted,
+            register this module's canonical 0.9-to-1.0 converter.
+    """
     register_migration("dataset_manifest", "0.9", "1.0")(
-        migrate_manifest_0_9_to_1_0
+        converter if converter is not None else migrate_manifest_0_9_to_1_0
     )
 
 

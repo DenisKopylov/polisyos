@@ -57,3 +57,9 @@ explicit relocation profile must be selected and reviewed before any such
 operation. Existing manifests and historical bytes remain untouched because
 the CLI writes a separate output path. Re-running the path-only profile is
 idempotent for the canonical path representation.
+
+The path-only converter preserves the persisted schema-version value and does
+not define an allowlist or assert that every syntactically valid version has
+supported semantics. Runtime's `RunManifest` DTO validates the persisted shape;
+version support and any future versioned conversion remain with the schema
+owner.

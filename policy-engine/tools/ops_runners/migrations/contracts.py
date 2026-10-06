@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import tomllib
+from collections.abc import Callable
 from dataclasses import dataclass
+from importlib import import_module
 from pathlib import Path
 from typing import Any
 
@@ -79,10 +81,41 @@ def validate_helper_binding(artifact: str, repo_root: Path | None = None) -> Hel
     return binding
 
 
+def resolve_helper_implementation(binding: HelperBinding) -> Callable[..., Any]:
+    """Resolve the declared migration implementation to a live callable."""
+    module_name, separator, attribute_name = binding.implementation.rpartition(".")
+    if not separator or not module_name or not attribute_name:
+        raise ValueError(
+            f"helper_binding for {binding.artifact!r} has an invalid implementation path: "
+            f"{binding.implementation!r}"
+        )
+    try:
+        module = import_module(module_name)
+    except ImportError as exc:
+        raise ValueError(
+            f"helper_binding for {binding.artifact!r} cannot import implementation "
+            f"{binding.implementation!r}"
+        ) from exc
+    try:
+        implementation = getattr(module, attribute_name)
+    except AttributeError as exc:
+        raise ValueError(
+            f"helper_binding for {binding.artifact!r} cannot resolve implementation "
+            f"{binding.implementation!r}"
+        ) from exc
+    if not callable(implementation):
+        raise ValueError(
+            f"helper_binding for {binding.artifact!r} implementation is not callable: "
+            f"{binding.implementation!r}"
+        )
+    return implementation
+
+
 __all__ = [
     "CONTRACT_PATH",
     "HelperBinding",
     "helper_binding_for",
     "load_contract",
+    "resolve_helper_implementation",
     "validate_helper_binding",
 ]

@@ -22,9 +22,11 @@ except ImportError:
 from polisyos.common.migrations import (
     migrate_artifact as migrate_common_artifact,
 )
-from polisyos.ir.migrations import POLICY_IR_CURRENT_VERSION, migrate_policy_ir
-from polisyos.runtime.manifest_migrations import migrate_run_manifest_paths
-from tools.ops_runners.migrations.contracts import validate_helper_binding
+from polisyos.ir.migrations import POLICY_IR_CURRENT_VERSION
+from tools.ops_runners.migrations.contracts import (
+    resolve_helper_implementation,
+    validate_helper_binding,
+)
 
 
 def _load(path: Path) -> tuple[dict[str, Any], str]:
@@ -58,11 +60,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("output", type=Path)
     parser.add_argument("--to", dest="target_version")
     args = parser.parse_args(argv)
-    validate_helper_binding(args.artifact, REPO_ROOT)
+    binding = validate_helper_binding(args.artifact, REPO_ROOT)
+    implementation = resolve_helper_implementation(binding)
 
     data, fmt = _load(args.input)
     if args.artifact == "run_manifest":
-        migrated = migrate_run_manifest_paths(
+        migrated = implementation(
             data,
             manifest_path=args.input,
             target_version=args.target_version,
@@ -72,14 +75,14 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     if args.artifact == "policy_ir":
         target = args.target_version or POLICY_IR_CURRENT_VERSION
-        migrated = migrate_policy_ir(data, target)
+        migrated = implementation(data, target)
     else:
         from polisyos.fabric.identity.migrations import (
             MANIFEST_CURRENT_VERSION,
             register_manifest_migration,
         )
 
-        register_manifest_migration()
+        register_manifest_migration(implementation)
         target = args.target_version or MANIFEST_CURRENT_VERSION
         migrated = migrate_common_artifact(data, args.artifact, target)
     _dump(args.output, migrated, fmt)

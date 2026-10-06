@@ -24,6 +24,13 @@ that release promotion reads.
 - Runtime and data-plane consumers must either read N-1 payloads directly or
   invoke a declared migration helper before promotion.
 
+The canonical `policy_ir` migration CLI invokes the callable declared in the
+operational helper binding. Its current-version path validates with the real
+`TrinityBundle` model before publishing output, and consumers should still read
+the persisted bytes through their strict model boundary. Model validation does
+not attest provenance or admission, and a syntactically valid version string
+does not by itself establish a supported historical profile.
+
 ## Release Gate
 
 `ops/release/promotion-gates.toml#ir_migration_review` blocks IR schema

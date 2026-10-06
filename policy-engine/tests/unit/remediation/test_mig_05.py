@@ -25,7 +25,10 @@ Callback = Callable[[dict[str, Any]], Any]
 def _payload(version: object = "0.1") -> dict[str, Any]:
     return {
         "schema_version": version,
-        "nested": {"x": 0},
+        "nested": {
+            "x": 0,
+            "branch": {"items": [{"state": {"value": 0}}]},
+        },
         "marker": "unchanged",
     }
 
@@ -61,18 +64,20 @@ def _two_step_corpus(
     def first(data: dict[str, Any]) -> dict[str, Any]:
         observed.append(("first", data["schema_version"]))
         data["nested"]["x"] = 7
+        data["nested"]["branch"]["items"][0]["state"]["value"] = 7
         return _return_without_schema_version(data)
 
     def second(data: dict[str, Any]) -> dict[str, Any]:
         observed.append(("second", data["schema_version"]))
         data["nested"]["step2"] = True
+        data["nested"]["branch"]["items"][0]["state"]["step2"] = True
         return _return_without_schema_version(data)
 
     return first, second
 
 
 def _mutate_then_fail(data: dict[str, Any]) -> dict[str, Any]:
-    data["nested"]["x"] = 99
+    data["nested"]["branch"]["items"][0]["state"]["value"] = 99
     raise RuntimeError("intentional callback failure")
 
 
@@ -107,7 +112,11 @@ def test_common_profile_isolates_nested_mutation_and_stamps_each_step() -> None:
     assert observed == [("first", "0.1"), ("second", "0.2")]
     assert original == before
     assert migrated["schema_version"] == "0.3"
-    assert migrated["nested"] == {"x": 7, "step2": True}
+    assert migrated["nested"] == {
+        "x": 7,
+        "branch": {"items": [{"state": {"value": 7, "step2": True}}]},
+        "step2": True,
+    }
 
 
 def test_ir_profile_preserves_live_nested_mutation_across_two_steps() -> None:
@@ -125,7 +134,11 @@ def test_ir_profile_preserves_live_nested_mutation_across_two_steps() -> None:
 
     assert observed == [("first", "0.1"), ("second", "0.2")]
     assert original["schema_version"] == "0.1"
-    assert original["nested"] == {"x": 7, "step2": True}
+    assert original["nested"] == {
+        "x": 7,
+        "branch": {"items": [{"state": {"value": 7, "step2": True}}]},
+        "step2": True,
+    }
     assert migrated["schema_version"] == "0.3"
     assert migrated["nested"] is original["nested"]
 
@@ -156,7 +169,7 @@ def test_ir_profile_exposes_nested_mutation_before_callback_failure() -> None:
             target_version="0.2",
         )
 
-    assert original["nested"]["x"] == 99
+    assert original["nested"]["branch"]["items"][0]["state"]["value"] == 99
 
 
 def test_common_noop_returns_deep_copy() -> None:

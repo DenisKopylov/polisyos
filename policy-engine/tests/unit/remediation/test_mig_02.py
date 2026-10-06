@@ -64,8 +64,13 @@ def _read_manifest(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def test_nested_relative_path_survives_basename_collision(tmp_path: Path) -> None:
+def test_nested_relative_path_survives_basename_collision(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """A nested relative reference must not be replaced by a same-name root file."""
+    import polisyos.runtime.manifest_migrations as runtime_migrations
+
     run_root = tmp_path / "run-root"
     nested = run_root / "sub" / "data.json"
     nested.parent.mkdir(parents=True)
@@ -74,13 +79,38 @@ def test_nested_relative_path_survives_basename_collision(tmp_path: Path) -> Non
     payload = _manifest_payload(run_root=run_root, artifacts=[_artifact("sub/data.json")])
     input_path, output_path = _write_input_and_output(tmp_path, payload)
 
-    assert canonical_main(["run_manifest", str(input_path), str(output_path)]) == 0
+    calls: list[tuple[Path, str | None]] = []
+    original_migration = runtime_migrations.migrate_run_manifest_paths
 
-    migrated = _read_manifest(output_path)
-    reference = migrated["artifacts"][0]
-    assert reference["path"] == "sub/data.json"
-    assert reference["relative_path"] == "sub/data.json"
-    assert (run_root / reference["relative_path"]).read_text(encoding="utf-8") == "original"
+    def observed_migration(
+        data: dict[str, Any],
+        *,
+        manifest_path: Path,
+        target_version: str | None = None,
+    ) -> dict[str, Any]:
+        calls.append((manifest_path, target_version))
+        return original_migration(
+            data,
+            manifest_path=manifest_path,
+            target_version=target_version,
+        )
+
+    monkeypatch.setattr(runtime_migrations, "migrate_run_manifest_paths", observed_migration)
+
+    assert canonical_main(["run_manifest", str(input_path), str(output_path)]) == 0
+    assert calls == [(input_path, None)]
+
+    from polisyos.runtime.api import resolve_artifact_path
+    from polisyos.runtime.manifest import RunManifest
+
+    migrated = RunManifest.model_validate_json(output_path.read_bytes())
+    reference = migrated.artifacts[0]
+    assert reference.path == "sub/data.json"
+    assert reference.relative_path == "sub/data.json"
+    resolved = resolve_artifact_path(reference, run_root=Path(migrated.run_root or ""))
+    assert resolved == nested.resolve()
+    assert resolved.read_text(encoding="utf-8") == "original"
+    assert (run_root / "data.json").read_text(encoding="utf-8") == "unrelated"
 
 
 def test_absolute_path_uses_declared_root_and_preserves_nested_layout(tmp_path: Path) -> None:
@@ -100,6 +130,70 @@ def test_absolute_path_uses_declared_root_and_preserves_nested_layout(tmp_path: 
     assert reference["path"] == "nested/data.json"
     assert reference["relative_path"] == "nested/data.json"
     assert (run_root / reference["relative_path"]).read_text(encoding="utf-8") == "source-bytes"
+
+
+def test_explicit_relative_path_resolves_from_the_declared_root(tmp_path: Path) -> None:
+    """An explicit relative_path remains anchored to the persisted run_root."""
+    from polisyos.runtime.api import resolve_artifact_path
+    from polisyos.runtime.manifest import RunManifest
+
+    run_root = tmp_path / "declared-root"
+    source = run_root / "nested" / "data.json"
+    source.parent.mkdir(parents=True)
+    source.write_text("explicit-relative-source", encoding="utf-8")
+    payload = _manifest_payload(
+        run_root=run_root,
+        artifacts=[
+            {
+                "artifact_type": "payload",
+                "relative_path": "nested/data.json",
+                "media_type": "application/json",
+            }
+        ],
+    )
+    input_path, output_path = _write_input_and_output(tmp_path, payload)
+
+    assert canonical_main(["run_manifest", str(input_path), str(output_path)]) == 0
+
+    migrated = RunManifest.model_validate_json(output_path.read_bytes())
+    reference = migrated.artifacts[0]
+    assert reference.path is None
+    assert reference.relative_path == "nested/data.json"
+    resolved = resolve_artifact_path(reference, run_root=Path(migrated.run_root or ""))
+    assert resolved == source.resolve()
+    assert resolved.read_text(encoding="utf-8") == "explicit-relative-source"
+
+
+def test_conflicting_path_and_relative_path_fail_before_output_write(tmp_path: Path) -> None:
+    """Two existing but different references are not collapsed into one identity."""
+    run_root = tmp_path / "run-root"
+    path_source = run_root / "path-choice" / "data.json"
+    relative_source = run_root / "relative-choice" / "data.json"
+    path_source.parent.mkdir(parents=True)
+    relative_source.parent.mkdir(parents=True)
+    path_source.write_text("path-choice", encoding="utf-8")
+    relative_source.write_text("relative-choice", encoding="utf-8")
+    payload = _manifest_payload(
+        run_root=run_root,
+        artifacts=[
+            {
+                **_artifact(str(path_source)),
+                "relative_path": "relative-choice/data.json",
+            }
+        ],
+    )
+    input_path, output_path = _write_input_and_output(
+        tmp_path,
+        payload,
+        output_sentinel="previous-output\n",
+    )
+
+    with pytest.raises(ValueError, match=r"(?i)(identity|different|conflict)"):
+        canonical_main(["run_manifest", str(input_path), str(output_path)])
+
+    assert output_path.read_text(encoding="utf-8") == "previous-output\n"
+    assert path_source.read_text(encoding="utf-8") == "path-choice"
+    assert relative_source.read_text(encoding="utf-8") == "relative-choice"
 
 
 def test_missing_source_fails_closed_without_basename_substitution(tmp_path: Path) -> None:
@@ -184,6 +278,25 @@ def test_path_only_run_manifest_rejects_explicit_target_version(tmp_path: Path) 
 
     with pytest.raises(ValueError, match=r"(?i)(--to|target|path.only|version)"):
         canonical_main(["run_manifest", str(input_path), str(output_path), "--to", "2.0"])
+
+    assert output_path.read_text(encoding="utf-8") == "previous-output\n"
+
+
+def test_path_only_run_manifest_rejects_unknown_explicit_target(tmp_path: Path) -> None:
+    """A syntactically unknown target is not silently treated as path migration."""
+    run_root = tmp_path / "run-root"
+    source = run_root / "data.json"
+    run_root.mkdir()
+    source.write_text("payload", encoding="utf-8")
+    payload = _manifest_payload(run_root=run_root, artifacts=[_artifact(str(source))])
+    input_path, output_path = _write_input_and_output(
+        tmp_path,
+        payload,
+        output_sentinel="previous-output\n",
+    )
+
+    with pytest.raises(ValueError, match=r"(?i)(--to|target|path.only|version)"):
+        canonical_main(["run_manifest", str(input_path), str(output_path), "--to", "9.9"])
 
     assert output_path.read_text(encoding="utf-8") == "previous-output\n"
 

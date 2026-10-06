@@ -885,6 +885,7 @@ class TestExecuteWithRetryAsync:
         node.execute.return_value = _ok_outcome(state)
 
         async def _bridge(func, *args, **kwargs):
+            assert kwargs.pop("unbounded") is True
             return func(*args, **kwargs)
 
         with patch(
@@ -1925,3 +1926,229 @@ def test_real_framed_control_reject_is_typed_terminal(payload):
         )
     finally:
         channel.close()
+
+
+_SPEND_ROUTES = (
+    "sync-direct",
+    "sync-fork",
+    "sync-thread",
+    "async-fork",
+    "async-thread",
+    "async-provider",
+    "async-provider-unbounded",
+    "async-sync-unbounded",
+)
+
+
+@pytest.mark.parametrize("route", _SPEND_ROUTES)
+@pytest.mark.parametrize("terminal", [False, True])
+def test_completed_failed_spend_settles_without_ordinary_branch(
+    route, terminal, tmp_path, monkeypatch
+):
+    from decimal import Decimal
+
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+    from polisyos.core.registry import build_default_registry_bundle
+    from polisyos.scientist.orchestration.engine.context import ExecutionContext
+    from polisyos.scientist.orchestration.engine.protocol import NodeSpec
+
+    if "fork" in route and not retry_module._can_use_forked_timeout_worker():
+        pytest.skip("actual fork consumer required")
+    effects = tmp_path / "attempts.jsonl"
+    store = FileSystemCAS(tmp_path / "cas")
+    bundle = build_default_registry_bundle(store)
+    run = RunContext.start(store=store, registry_bundle=bundle.bundle_ref, run_id="R_spend")
+    context = ExecutionContext(store=store, run=run, logger=MagicMock())
+    initial = ExperimentState(run_id="R_spend", budgets={"llm_spent_usd": Decimal(5)})
+
+    class Provider:
+        spec = NodeSpec(
+            metadata=ComponentMetadata(
+                component_id=ComponentId.parse("scientist.known_spend@1.0.0"),
+                kind=ComponentKind.SCIENTIST_NODE,
+                abi_targets={"world_abi": "1.x"},
+                display_name="known spend",
+                description="Real completed failure settlement",
+                capabilities=Capability.SCIENTIST_NODE,
+            ),
+            state_reads=["budgets", "params"],
+            state_writes=["budgets", "params"],
+        )
+
+        def execute(self, passed_ctx, passed_state):
+            ordinal = len(effects.read_text().splitlines()) + 1 if effects.exists() else 1
+            before = passed_state.budgets["llm_spent_usd"]
+            passed_state.budgets["llm_spent_usd"] += Decimal(2 if ordinal == 1 else 1)
+            with effects.open("a") as stream:
+                stream.write(
+                    json.dumps(
+                        {
+                            "ordinal": ordinal,
+                            "pid": os.getpid(),
+                            "before": str(before),
+                            "dirty_before": passed_state.params.get("failed_dirty"),
+                        }
+                    )
+                    + "\n"
+                )
+            if ordinal == 1 or terminal:
+                passed_state.params["failed_dirty"] = "must not publish"
+                raise TimeoutError("completed provider error with known spend")
+            passed_state.params["success"] = True
+            return _ok_outcome(passed_state)
+
+    class AsyncProvider(Provider):
+        async def execute_async(self, passed_ctx, passed_state):
+            await asyncio.sleep(0)
+            return self.execute(passed_ctx, passed_state)
+
+    if "thread" in route:
+        monkeypatch.setattr(retry_module, "_can_use_forked_timeout_worker", lambda: False)
+    node = AsyncProvider() if "provider" in route else Provider()
+    finite = route not in {"sync-direct", "async-provider-unbounded", "async-sync-unbounded"}
+    kwargs = dict(
+        retry_policy=RetryPolicy(max_retries=1, backoff_base_s=0.1, jitter="none"),
+        timeout_s=2.0 if finite else None,
+        deadline_monotonic=_time.monotonic() + 2 if finite else None,
+        alias=route,
+    )
+
+    def invoke():
+        if route.startswith("sync-"):
+            return execute_with_retry_sync(node, context, initial, **kwargs)
+        return asyncio.run(execute_with_retry_async(node, context, initial, **kwargs))
+
+    if terminal:
+        with pytest.raises(RetryExhaustedError) as caught:
+            invoke()
+        settled = initial
+        if "fork" not in route:
+            assert isinstance(caught.value.__cause__, TimeoutError)
+    else:
+        settled = invoke().state
+        assert settled.params == {"success": True}
+        assert initial.budgets["llm_spent_usd"] == Decimal(5)
+    attempts = [json.loads(line) for line in effects.read_text().splitlines()]
+    assert [entry["ordinal"] for entry in attempts] == [1, 2]
+    assert [entry["before"] for entry in attempts] == ["5", "5"]
+    assert [entry["dirty_before"] for entry in attempts] == [None, None]
+    assert settled.budgets["llm_spent_usd"] == Decimal(8)
+    assert "failed_dirty" not in settled.params
+    assert mp.active_children() == []
+
+
+@pytest.mark.parametrize("corruption", ["version", "hash", "identity", "negative", "other-budget"])
+def test_real_framed_failed_spend_wire_rejects_corrupt_projection(corruption):
+    import base64
+    from decimal import Decimal
+
+    from polisyos.scientist.orchestration.engine.runner.serialization import serialize_state_safe
+
+    budgets = {"llm_spent_usd": Decimal(2)}
+    run_id = "R_spend"
+    if corruption == "identity":
+        run_id = "R_other"
+    elif corruption == "negative":
+        budgets["llm_spent_usd"] = Decimal(-2)
+    elif corruption == "other-budget":
+        budgets = {"unrelated_budget": Decimal(2)}
+    wire, _ = serialize_state_safe(ExperimentState(run_id=run_id, budgets=budgets))
+    if corruption == "version":
+        wire = b"\x02" + wire[1:]
+    elif corruption == "hash":
+        wire = wire[:-1] + bytes([wire[-1] ^ 1])
+    payload = {
+        "message": "provider error",
+        "category": "transient",
+        "code": "node.exception",
+        "known_spend_state_v1": base64.b64encode(wire).decode("ascii"),
+    }
+    channel = retry_module._WorkerResultChannel(mp.get_context("fork"))
+    try:
+        channel.put(("error", payload))
+        status, received = channel.get(timeout=0.1)
+        assert status == "error"
+        with pytest.raises(Exception):
+            retry_module._worker_node_error(received, expected_run_id="R_spend")
+    finally:
+        channel.close()
+
+
+@pytest.mark.parametrize("route", ["thread", "async"])
+def test_late_failed_spend_stays_unknown_after_owner_timeout(route, tmp_path, ctx, monkeypatch):
+    from decimal import Decimal
+
+    initial = ExperimentState(run_id="R_late_spend", budgets={"llm_spent_usd": Decimal(5)})
+    release, started, finished = threading.Event(), threading.Event(), threading.Event()
+    effects = tmp_path / "late-spend"
+
+    class Node:
+        def body(self, passed_state):
+            passed_state.budgets["llm_spent_usd"] += Decimal(2)
+            effects.write_text(str(passed_state.budgets["llm_spent_usd"]))
+            finished.set()
+            raise TimeoutError("late completed failure")
+
+        def execute(self, passed_ctx, passed_state):
+            started.set()
+            release.wait(timeout=2)
+            return self.body(passed_state)
+
+    class AsyncNode(Node):
+        async def execute_async(self, passed_ctx, passed_state):
+            started.set()
+            while not release.is_set():
+                await asyncio.sleep(0.001)
+            return self.body(passed_state)
+
+    monkeypatch.setattr(retry_module, "_can_use_forked_timeout_worker", lambda: False)
+
+    async def invoke():
+        with pytest.raises(NodeTimeoutError):
+            await execute_with_retry_async(
+                AsyncNode() if route == "async" else Node(),
+                ctx,
+                initial,
+                retry_policy=RetryPolicy(max_retries=1),
+                timeout_s=0.03,
+                alias="late-spend",
+            )
+        assert started.is_set()
+        assert initial.budgets["llm_spent_usd"] == Decimal(5)
+        release.set()
+        for _ in range(100):
+            if finished.is_set():
+                break
+            await asyncio.sleep(0.001)
+        assert finished.is_set()
+        await asyncio.sleep(0)
+        assert effects.read_text() == "7"
+        assert initial.budgets["llm_spent_usd"] == Decimal(5)
+
+    try:
+        asyncio.run(invoke())
+    finally:
+        release.set()
+
+
+@pytest.mark.asyncio
+async def test_unbounded_sync_fast_path_preserves_original_error_and_known_spend(ctx):
+    from decimal import Decimal
+
+    initial = ExperimentState(run_id="R_fast_spend", budgets={"llm_spent_usd": Decimal(5)})
+    original = TimeoutError("known provider failure")
+
+    class Node:
+        def execute(self, passed_ctx, passed_state):
+            passed_state.budgets["llm_spent_usd"] += Decimal(2)
+            passed_state.params["failed_dirty"] = True
+            raise original
+
+    with pytest.raises(TimeoutError) as caught:
+        await execute_with_retry_async(
+            Node(), ctx, initial, retry_policy=RetryPolicy(), timeout_s=None, alias="fast-spend"
+        )
+    assert caught.value is original
+    assert initial.budgets["llm_spent_usd"] == Decimal(7)
+    assert initial.params == {}

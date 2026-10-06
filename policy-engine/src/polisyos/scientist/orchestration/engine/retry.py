@@ -52,6 +52,7 @@ from polisyos.scientist.orchestration.engine.protocol import (
     NodeOutcome,
     decode_node_outcome,
 )
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.state_branching import branch_state
 
 if TYPE_CHECKING:
@@ -59,7 +60,6 @@ if TYPE_CHECKING:
 
     from polisyos.scientist.orchestration.engine.circuit_breaker import CircuitBreaker
     from polisyos.scientist.orchestration.engine.context import ExecutionContext
-    from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 _logger = logging.getLogger(__name__)
 
@@ -789,21 +789,53 @@ def _worker_control_error(payload: Any) -> BaseException:
 class _WorkerNodeError(RuntimeError):
     """Carry typed retry semantics without reconstructing arbitrary exceptions."""
 
-    def __init__(self, *, message: str, category: str, code: str) -> None:
+    def __init__(
+        self,
+        *,
+        message: str,
+        category: str,
+        code: str,
+        known_spend: dict[str, Decimal] | None = None,
+    ) -> None:
         super().__init__(message)
         self.category = category
         self.code = code
+        self.known_spend = known_spend
 
 
-def _worker_error_payload(exc: BaseException) -> dict[str, str]:
-    return {
+class _CompletedAttemptError(RuntimeError):
+    """Deliver only known completed-failure spend beside the original local error."""
+
+    def __init__(self, error: BaseException, known_spend: dict[str, Decimal]) -> None:
+        super().__init__(str(error))
+        self.error = error
+        self.category = _exception_category(error)
+        self.code = _exception_code(error)
+        self.known_spend = known_spend
+
+
+def _worker_error_payload(
+    exc: BaseException, *, known_spend: dict[str, Decimal] | None = None, run_id: str | None = None
+) -> dict[str, Any]:
+    payload: dict[str, Any] = {
         "message": f"{type(exc).__name__}: {exc}",
         "category": _exception_category(exc),
         "code": _exception_code(exc),
     }
+    if known_spend is not None:
+        from polisyos.scientist.orchestration.engine.runner.serialization import (
+            serialize_state_safe,
+        )
+
+        if run_id is None:
+            raise ValueError("known failed-spend projection requires its run identity")
+        projection = ExperimentState(run_id=run_id, budgets=known_spend)
+        wire, _ = serialize_state_safe(projection)
+        payload["known_spend_state_v1"] = base64.b64encode(wire).decode("ascii")
+    return payload
 
 
-def _worker_node_error(payload: Any) -> _WorkerNodeError:
+def _worker_node_error(payload: Any, *, expected_run_id: str | None = None) -> _WorkerNodeError:
     if (
         not isinstance(payload, dict)
         or payload.get("category") not in {"fatal", "transient", "unknown"}
@@ -812,7 +844,29 @@ def _worker_node_error(payload: Any) -> _WorkerNodeError:
         or not isinstance(payload.get("message"), str)
     ):
         raise ValueError("invalid typed node error payload")
-    return _WorkerNodeError(**payload)
+    known_spend = None
+    if "known_spend_state_v1" in payload:
+        from polisyos.scientist.orchestration.engine.runner.serialization import (
+            deserialize_state_safe,
+        )
+
+        encoded = payload["known_spend_state_v1"]
+        if not isinstance(encoded, str):
+            raise ValueError("invalid known failed-spend wire payload")
+        projection = deserialize_state_safe(base64.b64decode(encoded, validate=True))
+        if expected_run_id is not None and projection.run_id != expected_run_id:
+            raise ValueError("failed-spend projection run identity mismatch")
+        known_spend = _spend_snapshot(projection)
+        if set(known_spend) != set(projection.budgets) or any(
+            value <= 0 for value in known_spend.values()
+        ):
+            raise ValueError("invalid known failed-spend quantity")
+    return _WorkerNodeError(
+        message=payload["message"],
+        category=payload["category"],
+        code=payload["code"],
+        known_spend=known_spend,
+    )
 
 
 def _spend_snapshot(state: ExperimentState) -> dict[str, Decimal]:
@@ -836,14 +890,24 @@ def _spend_delta(
     attempt_state: ExperimentState,
 ) -> dict[str, Decimal]:
     """Return positive spend added by one attempt relative to its baseline."""
-    before = _spend_snapshot(baseline)
-    after = _spend_snapshot(attempt_state)
+    return _spend_changes(_spend_snapshot(baseline), _spend_snapshot(attempt_state))
+
+
+def _spend_changes(before: dict[str, Decimal], after: dict[str, Decimal]) -> dict[str, Decimal]:
     delta: dict[str, Decimal] = {}
     for key, value in after.items():
         change = value - before.get(key, Decimal(0))
         if change > 0:
             delta[key] = change
     return delta
+
+
+def _execute_capture_failure(node: Any, ctx: Any, state: ExperimentState) -> NodeOutcome:
+    before = _spend_snapshot(state)
+    try:
+        return node.execute(ctx, state)
+    except _RETRY_RUNTIME_ERRORS as exc:
+        raise _CompletedAttemptError(exc, _spend_changes(before, _spend_snapshot(state))) from exc
 
 
 def _accumulate_spend(
@@ -1175,7 +1239,15 @@ def execute_with_retry_sync(
         except KeyboardInterrupt:
             raise
         except _RETRY_RUNTIME_ERRORS as exc:
-            attempt_spend = _spend_delta(state, attempt_state)
+            original_error = exc.error if isinstance(exc, _CompletedAttemptError) else exc
+            captured_spend = (
+                exc.known_spend
+                if isinstance(exc, (_CompletedAttemptError, _WorkerNodeError))
+                else None
+            )
+            attempt_spend = (
+                captured_spend if captured_spend is not None else _spend_delta(state, attempt_state)
+            )
             _accumulate_spend(failed_spend, attempt_spend)
             try:
                 _remaining_deadline(
@@ -1217,7 +1289,7 @@ def execute_with_retry_sync(
                 ctx,
                 alias,
                 node_id,
-                exc,
+                original_error,
                 attempts=attempt + 1,
                 policy=retry_policy,
             )
@@ -1231,7 +1303,7 @@ def execute_with_retry_sync(
                 )
             raise RetryExhaustedError(
                 f"Node {alias}: all {retry_policy.max_retries} retries exhausted",
-            ) from exc
+            ) from original_error
 
     # Should not reach here, but for safety:
     if last_outcome is not None:
@@ -1252,7 +1324,7 @@ def _submit_thread_attempt(
     def invoke() -> NodeOutcome:
         _remaining_deadline(deadline)
         try:
-            return node.execute(worker_ctx, worker_state)
+            return _execute_capture_failure(node, worker_ctx, worker_state)
         finally:
             completed[0] = time.monotonic()
 
@@ -1681,7 +1753,7 @@ def _execute_with_timeout_process(
             return deserialize_outcome(payload)
         return decode_node_outcome(payload)
     if status == "error":
-        raise _worker_node_error(payload)
+        raise _worker_node_error(payload, expected_run_id=state.run_id)
     if status == "control":
         raise _worker_control_error(payload)
     if status == "cleanup_incomplete":
@@ -1792,7 +1864,7 @@ async def _execute_with_timeout_process_async(
             return deserialize_outcome(payload)
         return decode_node_outcome(payload)
     if status == "error":
-        raise _worker_node_error(payload)
+        raise _worker_node_error(payload, expected_run_id=state.run_id)
     if status == "control":
         raise _worker_control_error(payload)
     if status == "cleanup_incomplete":
@@ -1826,8 +1898,13 @@ async def _execute_with_timeout_async(
 
     async def invoke() -> NodeOutcome:
         _remaining_deadline(deadline)
+        before = _spend_snapshot(worker_state)
         try:
             return await node.execute_async(worker_ctx, worker_state)
+        except _RETRY_RUNTIME_ERRORS as exc:
+            raise _CompletedAttemptError(
+                exc, _spend_changes(before, _spend_snapshot(worker_state))
+            ) from exc
         finally:
             completed[0] = time.monotonic()
 
@@ -1883,6 +1960,7 @@ def _node_execute_worker(
         if completion_time is not None:
             completion_time.value = time.monotonic()
 
+    before_spend = _spend_snapshot(state)
     try:
         outcome = node.execute(ctx, state)
         _mark_completion()
@@ -1905,7 +1983,14 @@ def _node_execute_worker(
             )
     except _RETRY_RUNTIME_ERRORS as exc:
         _mark_completion()
-        _send("error", _worker_error_payload(exc))
+        _send(
+            "error",
+            _worker_error_payload(
+                exc,
+                known_spend=_spend_changes(before_spend, _spend_snapshot(state)),
+                run_id=state.run_id,
+            ),
+        )
 
 
 async def execute_with_retry_async(
@@ -1973,7 +2058,9 @@ async def execute_with_retry_async(
         worker_ctx = _build_attempt_context(ctx, authority)
         worker_state = attempt_state.model_copy(deep=True)
         try:
-            return await run_blocking_async(node.execute, worker_ctx, worker_state, unbounded=True)
+            return await run_blocking_async(
+                _execute_capture_failure, node, worker_ctx, worker_state, unbounded=True
+            )
         finally:
             authority.revoke()
 
@@ -1981,7 +2068,11 @@ async def execute_with_retry_async(
     if retry_policy.max_retries == 0 and deadline is None and circuit_breaker is None:
         if retry_stats is not None:
             retry_stats["attempts"] = 1
-        return await _invoke(state)
+        try:
+            return await _invoke(state)
+        except _CompletedAttemptError as exc:
+            _merge_spend(state, exc.known_spend)
+            raise exc.error from None
 
     last_outcome: NodeOutcome | None = None
     failed_spend: dict[str, Decimal] = {}
@@ -2055,7 +2146,15 @@ async def execute_with_retry_async(
             _logger.info("Node %s cancelled during attempt %d", alias, attempt)
             raise
         except _RETRY_RUNTIME_ERRORS as exc:
-            attempt_spend = _spend_delta(state, attempt_state)
+            original_error = exc.error if isinstance(exc, _CompletedAttemptError) else exc
+            captured_spend = (
+                exc.known_spend
+                if isinstance(exc, (_CompletedAttemptError, _WorkerNodeError))
+                else None
+            )
+            attempt_spend = (
+                captured_spend if captured_spend is not None else _spend_delta(state, attempt_state)
+            )
             _accumulate_spend(failed_spend, attempt_spend)
             try:
                 _remaining_deadline(
@@ -2099,7 +2198,7 @@ async def execute_with_retry_async(
                 ctx,
                 alias,
                 node_id,
-                exc,
+                original_error,
                 attempts=attempt + 1,
                 policy=retry_policy,
             )
@@ -2113,7 +2212,7 @@ async def execute_with_retry_async(
                 )
             raise RetryExhaustedError(
                 f"Node {alias}: all {retry_policy.max_retries} retries exhausted",
-            ) from exc
+            ) from original_error
 
     if last_outcome is not None:  # pragma: no cover
         return last_outcome

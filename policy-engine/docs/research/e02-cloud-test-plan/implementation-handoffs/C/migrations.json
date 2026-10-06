@@ -1,0 +1,239 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "C",
+  "slice": "migrations",
+  "closure_ids": [],
+  "bundle_ids": [
+    "MIG-01",
+    "MIG-02",
+    "MIG-04",
+    "MIG-05"
+  ],
+  "criterion_ids": [
+    "LA-010",
+    "LA-047",
+    "LA-048",
+    "LA-049",
+    "LA-050"
+  ],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "slice_base_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "implementation_commits": [
+    "5a72f76b360e2635d06cee791c51f6e7100bc501"
+  ],
+  "candidate_tree_sha": "e18e810747b84a59d6c37453f8eb213438c98850",
+  "branch": "codex/e02-C-migrations-20261006",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/ops/migrations/api_schemas/README.md",
+    "policy-engine/ops/migrations/ir/README.md",
+    "policy-engine/ops/migrations/runtime_state/README.md",
+    "policy-engine/release-fragments/unreleased/2026-10-06-c2-migration-binding-resolution.toml",
+    "policy-engine/src/polisyos/common/migrations/README.md",
+    "policy-engine/src/polisyos/fabric/identity/migrations.py",
+    "policy-engine/tests/unit/remediation/test_mig_01.py",
+    "policy-engine/tests/unit/remediation/test_mig_02.py",
+    "policy-engine/tests/unit/remediation/test_mig_04.py",
+    "policy-engine/tests/unit/remediation/test_mig_05.py",
+    "policy-engine/tools/ops_runners/migrations/README.md",
+    "policy-engine/tools/ops_runners/migrations/contracts.py",
+    "policy-engine/tools/ops_runners/migrations/migrate.py"
+  ],
+  "handoff_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-verification.txt"
+  ],
+  "requirement_sources": [
+    "MIG-01.md: LA-010, LA-049",
+    "MIG-02.md: LA-048",
+    "MIG-04.md: LA-050",
+    "MIG-05.md: LA-047",
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/C.md#L165-L194",
+    "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv#LA-010,LA-047,LA-048,LA-049,LA-050"
+  ],
+  "prior_candidate_ancestry": {
+    "compared_against": "origin/main at 198076863e143dea9f89f02734b13d50dae3eed5",
+    "already_ancestors": [
+      "4e6a95acd (MIG-01 CLI delegation)",
+      "5e3e30bff (MIG-01 Trinity validation)",
+      "a9574e370 (MIG-01 characterization)",
+      "3c43fd939 and c44bc0046 (MIG-02 implementation and characterization)",
+      "0ae1a84de and 6f93ef2fb (MIG-04 converter move and characterization)",
+      "e9efde2a3 and de59fea6c (MIG-05 shared linear executor and profile corpus)",
+      "1c9803813, 08d5a969f, b270d6dcc (typing/runtime annotation support)",
+      "02b7f5e3c (LA-049 unreachable self-edge removal)"
+    ],
+    "not_ancestors": [
+      "0ec18c55ce3abdebe198987374e803c7f9b45912",
+      "6fa80a12aa764f06d75f55c3a21108dc2483ba85"
+    ],
+    "disposition": "No cherry-picks. The listed historical source commits were on origin/main. Retired-branch RunManifest readback commits were not ancestors; their prior PASS was not reused."
+  },
+  "recorded_finding_statuses": {
+    "LA-010": "closed, bounded historical row; unchanged",
+    "LA-047": "partial / semantic_test_missing; unchanged",
+    "LA-048": "partial / bridge_missing; unchanged",
+    "LA-049": "closed, bounded historical row; unchanged",
+    "LA-050": "partial / bridge_missing; unchanged"
+  },
+  "baseline_cells": [],
+  "checks": [
+    {
+      "command": "Focused pytest over test_mig_01/02/04/05, IR and Trinity contracts, Runtime manifest paths, Common purity, and phase5/6 release-topology importer.",
+      "target_sha": "5a72f76b360e2635d06cee791c51f6e7100bc501",
+      "environment": "macOS; original read-only policy-engine .venv Python 3.14; attached source via PYTHONPATH.",
+      "input_closure": "Nine focused modules; temporary fixtures only; no production data/database/install/build.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": "94 passed, 1 warning in 1.13s. Existing warning: pytest Unknown config option: cache_dir."
+    },
+    {
+      "command": "Ruff check and format --check on seven changed Python files; git diff --check.",
+      "target_sha": "5a72f76b360e2635d06cee791c51f6e7100bc501",
+      "environment": "Original read-only .venv; attached worktree.",
+      "input_closure": "Seven changed Python files and full source diff.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": "All checks passed!; 7 files already formatted; git diff --check empty."
+    },
+    {
+      "command": "PYTHONPATH=<worktree>/policy-engine:<worktree>/policy-engine/src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m tools.cli validation check-production-invocation --base 198076863e143dea9f89f02734b13d50dae3eed5 --receipt docs/research/e02-cloud-test-plan/raw/c-migrations/production-invocation.json",
+      "target_sha": "5a72f76b360e2635d06cee791c51f6e7100bc501",
+      "environment": "Public tools.cli entrypoint, original read-only .venv; full tracked src/tools/tests Python denominator.",
+      "input_closure": "Ignored raw receipt 170870899 bytes; SHA-256 9137128d21f8ae0309072f090e981519e5969ae5a5e44d89590627d2e79c7c5b.",
+      "outcome": "FAILED (static diagnostic)",
+      "exit_code": 1,
+      "output": "{\"status\":\"FAILED\",\"coverage\":\"partial\",\"summary\":\"Partial coverage: Static direct-call reachability from project scripts and non-test __main__ guards, stopping at deferred bodies. Unmeasured: HTTP router dispatch; dependency injection/container dispatch; event-bus dispatch; registered callback invocation; deferred lambda/coroutine execution and generator resumption; reflection and dynamic receiver/factory resolution; runtime execution, persisted business receipts, and gate substance.\",\"measured\":\"Static direct-call reachability from project scripts and non-test __main__ guards, stopping at deferred bodies.\",\"unmeasured\":[\"HTTP router dispatch\",\"dependency injection/container dispatch\",\"event-bus dispatch\",\"registered callback invocation\",\"deferred lambda/coroutine execution and generator resumption\",\"reflection and dynamic receiver/factory resolution\",\"runtime execution, persisted business receipts, and gate substance\"],\"uninvoked_meaning\":\"No resolved direct path or recognized indirect witness in the static model; not proof of runtime non-invocation.\",\"regressions\":[\"polisyos.ir.migrations.base.migrate_artifact\",\"polisyos.ir.migrations.is_major_bump\",\"polisyos.ir.migrations.migrate_policy_ir\",\"polisyos.ir.migrations.parse_version\",\"polisyos.runtime.manifest_migrations.migrate_run_manifest_paths\"],\"new_unresolved_by_construction\":[],\"unresolved_by_construction_count\":9191,\"unresolved_receiver_call_count\":139725,\"receipt\":\"docs/research/e02-cloud-test-plan/raw/c-migrations/production-invocation.json\",\"runtime_invocation_established\":false}"
+    },
+    {
+      "command": "Public polisyos-tools migrations migrate dataset_manifest on a complete local 0.9 input, then strict DatasetManifest.model_validate_json readback.",
+      "target_sha": "5a72f76b360e2635d06cee791c51f6e7100bc501",
+      "environment": "macOS, actual console script, original .venv; no install/build.",
+      "input_closure": "Local fixture. Persisted output SHA-256 259e37dae4e8f20128cc7e753858da0cd2a54cce0c1e07ecf12aab996f31470e.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": "{\"readback\":\"strict_DatasetManifest.model_validate_json\",\"schema_version\":\"1.0\",\"dataset_name\":\"migrations-smoke\",\"raw_hash\":\"sha256:abc\"}"
+    },
+    {
+      "command": "Public polisyos-tools migrations migrate run_manifest; strict RunManifest.model_validate_json then Runtime resolve_artifact_path readback.",
+      "target_sha": "5a72f76b360e2635d06cee791c51f6e7100bc501",
+      "environment": "macOS, actual console script; local nested file and same-basename decoy; no install/build.",
+      "input_closure": "Output SHA-256 ca9c5cd65cc144a249b8c67035e06f3b1d965fa5ef5811283414d25b2c645e94. Nested/decoy SHAs c3ea0f266cf3904bc9540a8098630129c24cc14030b12035f6033a475d6f5cf8 / 24aab1bed10844261cebce439a6d659bd7c8780949745769f94909ec6134d131.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": "{\"readback\":\"strict_RunManifest_then_Runtime_resolver\",\"resolved\":\"<worktree>/policy-engine/docs/research/e02-cloud-test-plan/raw/c-migrations/cli-fixture/run-root/sub/data.json\",\"resolved_bytes\":\"nested-source-bytes\",\"same_basename_decoy\":\"not selected\"}"
+    },
+    {
+      "command": "Public CLI --to 9.9 negative into a preexisting output sentinel; inspect stderr and persisted bytes.",
+      "target_sha": "5a72f76b360e2635d06cee791c51f6e7100bc501",
+      "environment": "macOS, actual console script; ignored local fixture.",
+      "input_closure": "Sentinel stayed byte-identical. stderr SHA-256 1504678079a2559d0e0a69bb3aa365ee19a8ac33c7d2bac6fed9baf3178e7dff.",
+      "outcome": "EXPECTED NEGATIVE",
+      "exit_code": 1,
+      "output": "migrations.migrate: failed\\nunhandled tool failure: ValueError: No migrator for 'dataset_manifest' from 1.0 to 9.9\\n"
+    },
+    {
+      "command": "One-off non-test caller patched only resolve_helper_implementation to raise control_callable_removed, then invoked tools.cli.main with public migrations migrate dataset_manifest arguments.",
+      "target_sha": "5a72f76b360e2635d06cee791c51f6e7100bc501",
+      "environment": "macOS, fresh original-venv process; ignored fixture; no test runner.",
+      "input_closure": "Binding metadata and CLI dispatcher remained; output sentinel SHA-256 24ba29142b643f2f881f51713ecb58d3aa0996d1c491d685e74ea88549fdae23.",
+      "outcome": "EXPECTED NEGATIVE",
+      "exit_code": 1,
+      "output": "migrations.migrate: failed\\nunhandled tool failure: ValueError: control_callable_removed:polisyos.fabric.identity.migrations.migrate_manifest_0_9_to_1_0\\n; output sentinel byte-identical."
+    }
+  ],
+  "property": {
+    "statement": "For three artifact CLI routes, the persisted helper binding resolves to the callable actually invoked; strict owner consumers reopen the persisted result. RunManifest identity remains nested-root-relative despite a same-basename decoy.",
+    "producer": "The CLI converts an already persisted DatasetManifest or normalizes a RunManifest; upstream production is not invoked.",
+    "artifact": "Persisted owner-version JSON output with aliases/path identity and fixture bytes.",
+    "bridge": "Public CLI validates helper bindings, resolves declared callables, and runs owner-specific conversion.",
+    "consumer": "Strict DatasetManifest and RunManifest DTO readback; Runtime resolve_artifact_path.",
+    "surface": "Public CLI filesystem boundary. API/dashboard is out_of_scope.",
+    "verification": "94 focused tests, Ruff/format/diff, two public CLI readbacks, unknown-version and callable-removal controls.",
+    "time_or_authority_semantics": "No authority, temporal status, or admission claim is added.",
+    "proxy_divergence": "Before this change contract implementation strings were metadata while CLI imported hard-coded functions. Removing resolver behavior with metadata/parser shape intact now makes the public path fail before output replacement. A basename-only rewrite can preserve field shape yet select the wrong sibling.",
+    "negative_controls": [
+      "Unknown target 9.9 refuses and preserves old output.",
+      "Call-removal control fails before replacement.",
+      "Nested RunManifest file beats a root-level same-basename decoy.",
+      "Focused tests reject absent/escaping/symlink paths, conflicting path aliases, strict DTO errors, publication failure, and nested callback mutation/exception profile violations."
+    ],
+    "runtime_path": [
+      "polisyos-tools migrations migrate dataset_manifest",
+      "tools.ops_runners.migrations.migrate.main and helper_binding resolver",
+      "Fabric converter registration with Common neutral linear runner",
+      "atomic output and DatasetManifest.model_validate_json",
+      "polisyos-tools migrations migrate run_manifest",
+      "Runtime path normalizer, RunManifest.model_validate_json, Runtime resolve_artifact_path"
+    ]
+  },
+  "predicate_basis": "Local DTO/path bytes recomputed. Static invocation output is only partial source-derived reachability and does not establish runtime invocation.",
+  "capability_state_or_finding_state": "Bounded CLI-to-persisted-owner-readback mechanism demonstrated; no finding-wide closure.",
+  "pattern_pass": {
+    "P01": "Named production caller is the public polisyos-tools migration CLI; it persists output, strict DTOs reopen it, and Runtime resolves RunManifest bytes.",
+    "P29": "Removing resolver behavior while retaining binding metadata/parser shape causes the public CLI to fail and preserve output.",
+    "P31": "One resolver seam wires all artifact converter callables; Common remains neutral and Fabric-owned.",
+    "P38": "The property is execution of the declared binding. Old code measured metadata while hard-coded imports selected behavior; removal control distinguishes this case.",
+    "P40": "Same inert-binding class one level deeper, closed at one resolver. DuckDB's module entrypoint is intentionally outside this artifact-converter path.",
+    "P41": "Static report lists five regressions; no exact-base replay or complete zero-intersection proof was run, so attribution is not_established."
+  },
+  "limitations_and_next_owner": [
+    {
+      "state": "closed bounded historically; unchanged",
+      "finding_ids": [
+        "LA-010",
+        "LA-049"
+      ],
+      "limitation": "No wider external/installed consumer census; no expanded closure."
+    },
+    {
+      "state": "partial; unchanged",
+      "finding_ids": [
+        "LA-047"
+      ],
+      "limitation": "No full historical callback/extension registry census."
+    },
+    {
+      "state": "partial; unchanged",
+      "finding_ids": [
+        "LA-048"
+      ],
+      "limitation": "No power-loss durability or all external manifest consumer proof."
+    },
+    {
+      "state": "partial; unchanged",
+      "finding_ids": [
+        "LA-050"
+      ],
+      "limitation": "No broader Fabric persisted lifecycle or API surface."
+    },
+    {
+      "state": "static diagnostic FAILED; attribution not_established",
+      "finding_ids": [
+        "P01",
+        "P41"
+      ],
+      "limitation": "Static model is partial and says runtime_invocation_established=false; no base replay or path/denominator zero-intersection evidence."
+    },
+    {
+      "state": "tooling UNRUN",
+      "finding_ids": [
+        "commit_hook"
+      ],
+      "limitation": "Missing Lefthook; no install/shared config change; parent-authorized command-local bypass used."
+    },
+    {
+      "state": "independent review pending",
+      "finding_ids": [
+        "review"
+      ],
+      "limitation": "Source frozen at 5a72f76b360e2635d06cee791c51f6e7100bc501 / e18e810747b84a59d6c37453f8eb213438c98850; no author self-review."
+    }
+  ],
+  "no_scope_changes": [
+    "Common and IR keep different copy/mutation, version, error, and no-op profiles.",
+    "Data Forge branching SchemaMigrationRegistry and schemas are untouched.",
+    "No unknown-version allowlist or authority rule was added.",
+    "No shared pyproject/uv.lock, CAS store, kernel schema, production data, shared scratch, or other chat was modified."
+  ]
+}

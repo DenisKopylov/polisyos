@@ -1,0 +1,21 @@
+Migration implementation handoff verification
+Frozen source: 5a72f76b360e2635d06cee791c51f6e7100bc501 / tree e18e810747b84a59d6c37453f8eb213438c98850.
+Exact base: 198076863e143dea9f89f02734b13d50dae3eed5 / tree 2b754a92c27959e2e747738d47ed0b419f3b6dd8.
+Branch/worktree: codex/e02-C-migrations-20261006 / /Users/deniskopylov/.codex/worktrees/e02-c-migrations-20261006/polisyos.
+
+Focused tests: 94 passed, 1 warning in 1.13s; warning is existing pytest Unknown config option: cache_dir.
+Ruff check: All checks passed! Ruff format: 7 files already formatted. git diff --check: empty.
+
+Required production-invocation diagnostic ran from public tools.cli against exact base. It exited 1 with status FAILED and partial coverage; it lists five static regressions (IR base migrate_artifact, is_major_bump, migrate_policy_ir, parse_version, Runtime migrate_run_manifest_paths), 9191 unresolved functions, 139725 unresolved receiver calls, and runtime_invocation_established=false. Full deciding stdout is in migrations.json checks[2]. The ignored raw receipt is policy-engine/docs/research/e02-cloud-test-plan/raw/c-migrations/production-invocation.json@9137128d21f8ae0309072f090e981519e5969ae5a5e44d89590627d2e79c7c5b (170870899 bytes). I did not replay those names on exact base or prove zero changed-path/input-denominator intersection; P41 attribution stays not_established.
+
+Actual public CLI DatasetManifest conversion plus strict persisted DTO readback passed; output SHA-256 259e37dae4e8f20128cc7e753858da0cd2a54cce0c1e07ecf12aab996f31470e.
+Actual public CLI RunManifest conversion plus strict DTO and Runtime resolver readback passed; nested source bytes were selected, same-basename decoy was not. Output SHA-256 ca9c5cd65cc144a249b8c67035e06f3b1d965fa5ef5811283414d25b2c645e94.
+Unknown target 9.9 negative exited 1 with No migrator for dataset_manifest from 1.0 to 9.9 and preserved the old output. The first verifier assumed different error wording and failed its text assertion; rereading actual stderr and output confirmed the expected refusal. Stderr SHA-256 1504678079a2559d0e0a69bb3aa365ee19a8ac33c7d2bac6fed9baf3178e7dff.
+Call-removal control patched only the live resolver to raise control_callable_removed, invoked tools.cli.main through the public migration command, and verified exit 1 with unchanged output sentinel. This ran outside the test runner.
+
+Historical ledger state is unchanged: LA-010 and LA-049 remain bounded closed; LA-047 partial/semantic_test_missing; LA-048 and LA-050 partial/bridge_missing. closure_ids is empty. No authority/time claim or API/dashboard surface is added; external surface is out_of_scope.
+Common and IR callback profiles remain distinct; Data Forge branching migration engine/schemas untouched. No unknown-version semantics or allowlist added.
+
+Ordinary commit attempt hook stderr: PolicyOS hook: missing binary: /Users/deniskopylov/.codex/worktrees/e02-c-migrations-20261006/polisyos/policy-engine/apps/runtime-dashboard/node_modules/.bin/lefthook; run corepack pnpm install --frozen-lockfile in policy-engine.
+No install or shared hook config change. Parent authorized command-local git -c core.hooksPath=/dev/null; source commit was read back from the attached branch. Hook checks are UNRUN.
+Independent review remains pending; author performed no self-review. No wheel/build/full backend/CI parity/production data/service/database check.

@@ -1,0 +1,122 @@
+{
+  "payload_count": 23,
+  "payload_bytes": 7453472,
+  "files": [
+    {
+      "path": "all-stage-interpretation.json",
+      "bytes": 8820,
+      "sha256": "2702965851ea63c6420ab29e185f2c11ccf89a9242747e8d3829cdee8ac02df6"
+    },
+    {
+      "path": "architecture-default-ready-profile.json",
+      "bytes": 2641,
+      "sha256": "668631aeb78a30bcb94d9f173c61fa23ab5dc302e7df00411d93b70c04c84c80"
+    },
+    {
+      "path": "architecture-default-ready.json",
+      "bytes": 2625,
+      "sha256": "a5a4682a07ca031bb267ab959a88a5d6070b3b0a43df0c3223a756131ab51fc6"
+    },
+    {
+      "path": "architecture-default-ready.txt",
+      "bytes": 129485,
+      "sha256": "c5c954983c24ea9ea43a96c3b46687e20001442cd40cfe942a177d5a06f49e78"
+    },
+    {
+      "path": "architecture-runtime-ml-ready-profile.json",
+      "bytes": 3078,
+      "sha256": "45933c5c354b85a4e9fdf372d6cba7464acaae952be0c368328df8608f5c7822"
+    },
+    {
+      "path": "architecture-runtime-ml-ready.json",
+      "bytes": 2638,
+      "sha256": "4b00cda6b95cc87406ae7c99051836c661eb5147023d51ddda9abac6fdc456b5"
+    },
+    {
+      "path": "architecture-runtime-ml-ready.txt",
+      "bytes": 129112,
+      "sha256": "7a92e6e62ffbeb133894aaf76b2b8811b958efc4b1ce4b358079a9c64ac0930d"
+    },
+    {
+      "path": "captured-profile-effective-preparation-qualification.json",
+      "bytes": 1866,
+      "sha256": "899be4d22f9c2c1456d450580bf86e4243a2372cf87763a8777165c0dc956af4"
+    },
+    {
+      "path": "complete-both-retry-output-maps.json",
+      "bytes": 12956,
+      "sha256": "b12db2515cc5325473adc5529f00e2ce4067ffbe1d365c18dffd3cfd5cd57e39"
+    },
+    {
+      "path": "complete-final-architecture-finding-census.json",
+      "bytes": 55894,
+      "sha256": "e916cdc77605876969343768915780bb0c40c703b9e0ebb239da95cd04a0e47a"
+    },
+    {
+      "path": "complete-typed-json-drift.json",
+      "bytes": 6946,
+      "sha256": "25137d4d82ec4db97daea2a2d69b4f9555d08b46f569e42d070b31ac73733d39"
+    },
+    {
+      "path": "final-output-bytes/runtime-api-client/packages/runtime-api-client/canonicalRuntimeApiClient.js.source.txt",
+      "bytes": 31276,
+      "sha256": "69a861c8e33251ca48fb87757c4d3000ef519c2bd110590c79e0b7f4dd5d5506"
+    },
+    {
+      "path": "final-output-bytes/runtime-api-client/packages/runtime-api-client/canonicalRuntimeApiClient.ts.source.txt",
+      "bytes": 108061,
+      "sha256": "e0f56c8964c2c0902b62875fca8d5a245f1a1727a808a28ef80500aacb06c1cd"
+    },
+    {
+      "path": "final-output-bytes/runtime-api-client/packages/runtime-api-client/types.ts.source.txt",
+      "bytes": 951543,
+      "sha256": "5a4d52d41451aabf77939840914a9c4c0c9d80e67333333138156e790dc867a4"
+    },
+    {
+      "path": "final-output-bytes/runtime-dashboard-api-types/apps/runtime-dashboard/src/api/types.ts.source.txt",
+      "bytes": 791736,
+      "sha256": "4b4285f496a45d697a92dffcccb4d9c998ba571d1886f99bc5e8cdc3579c466c"
+    },
+    {
+      "path": "final-output-bytes/runtime-openapi-snapshot/schemas/runtime_api_v1.openapi.json.source.txt",
+      "bytes": 2812414,
+      "sha256": "902564b2e0a60c249cda382686cc959585559a80cd24647a17b3ef26e21645a0"
+    },
+    {
+      "path": "final-output-bytes/trust-claim-posture-register/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json.source.txt",
+      "bytes": 2376644,
+      "sha256": "a8d6c1638690961fb33745bfdbb9ed4df6a4cf4a4d3828d3288459aeb487b119"
+    },
+    {
+      "path": "finalize.source.txt",
+      "bytes": 5309,
+      "sha256": "beaf87f2e2974ea37ca8e2dc6a7f49c0f20b3e810510e3269bfa04b41a21fa6b"
+    },
+    {
+      "path": "production-invocation-retry-profile.json",
+      "bytes": 2472,
+      "sha256": "90ed7f3321f6115296259ed943c492b90992a1c36ebecd436ad44cdf623eb27a"
+    },
+    {
+      "path": "production-invocation-retry.json",
+      "bytes": 2679,
+      "sha256": "034683efdd3c7c188f1a28012307c35f0589d8f5d8ac2eb2e6228dc6a24c4943"
+    },
+    {
+      "path": "production-invocation-retry.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "review.source.txt",
+      "bytes": 12737,
+      "sha256": "012e34d05408b404312ed9acf4ad893a2784379767c73f08a6f3b007c4785ad4"
+    },
+    {
+      "path": "root-native-partial-custody-locators.json",
+      "bytes": 2540,
+      "sha256": "77699d00116ee07c0641e7e753a44a158be1f23fc1e66da8f0db9902a0b35f28"
+    }
+  ],
+  "scope": "Full three completed retry stdout/profile/captures; complete6final observed artifacts; expected bytes bound by immutable1862 Git refs; full moderate maps/nine OpenAPI differences; huge13MB aligneddiff remains ignored with exacthash; native originals ROOT-only."
+}

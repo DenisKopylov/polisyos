@@ -1,0 +1,88 @@
+import hashlib,json,pathlib,re,shutil,subprocess
+ROOT=pathlib.Path('/workspace/e02-B-current-coordination');LANE=pathlib.Path('/workspace/e02-B-current-runtime');RAW=ROOT/'.polisyos/e02-B-current/raw/review';SHA='1862c021df74a5c5815bc5cd21a20e61b30132b6';TREE='f765043b27b96a1fbb0795aa600db9bd94df0e36';DEST=LANE/'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence';DEST.mkdir(exist_ok=False)
+STAGES={'architecture-default-ready':'completed-final-architecture-cache-ready-'+SHA[:12],'architecture-runtime-ml-ready':'completed-final-architecture-runtime-ml-ready-'+SHA[:12],'production-invocation-retry':'completed-final-production-invocation-retry-'+SHA[:12]}
+def git(*args):return subprocess.check_output(['git','-C',str(ROOT),*args])
+def ident(path):
+ b=path.read_bytes();return {'path':str(path),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()}
+def dump(name,data):(DEST/name).write_text(json.dumps(data,indent=2)+'\n')
+assert git('rev-parse','HEAD').decode().strip()==SHA and git('rev-parse','HEAD^{tree}').decode().strip()==TREE and not git('status','--porcelain')
+rows=[];profiles={};texts={}
+for label,tag in STAGES.items():
+ w=json.loads((RAW/(tag+'.json')).read_text());p=json.loads((RAW/(tag+'-profile.json')).read_text());b=(RAW/(tag+'.txt')).read_bytes()
+ assert (w['head'],w['tree'],w['head_after'])==(SHA,TREE,SHA) and w['harness_state']=='EXECUTED' and w['exec_setup_error'] is None
+ assert w['command']==p['argv'] and hashlib.sha256(b).hexdigest()==w['output_sha256']
+ assert p['source_sha']==SHA and p['source_tree']==TREE
+ for suffix in ('.txt','.json','-profile.json'):
+  source=RAW/(tag+suffix);data=source.read_bytes();(DEST/(label+suffix)).write_bytes(data);assert source.read_bytes()==data
+ row={'stage':label,'tag':tag,'exit_code':w['exit_code'],'wall_seconds':w['wall_s'],'maxrss_kib':w['process_rusage_maxrss_kib'],'source_before_after':SHA,'argv':w['command'],'cwd':w['cwd'],'stdout':ident(RAW/(tag+'.txt')),'profile':ident(RAW/(tag+'-profile.json')),'capture':ident(RAW/(tag+'.json'))};rows.append(row);profiles[label]=p;texts[label]=b.decode()
+first_arch=json.loads((RAW/('completed-final-architecture-'+SHA[:12]+'-profile.json')).read_text())
+for label in ('architecture-default-ready','architecture-runtime-ml-ready'):
+ a=first_arch['argv'][:];b=profiles[label]['argv'][:];idx=a.index('--generated-freshness-workspace-root')+1;a[idx]='<fresh workspace>';b[idx]='<fresh workspace>';assert a==b
+ assert profiles[label]['ambient_numeric_thread_caps_absent']
+first_prod=json.loads((RAW/('completed-final-production-invocation-'+SHA[:12]+'.json')).read_text());retry=json.loads((DEST/'production-invocation-retry.json').read_text());a=first_prod['command'][:];b=retry['command'][:];idx=a.index('--receipt')+1;a[idx]='<fresh receipt>';b[idx]='<fresh receipt>';assert a==b
+assert first_prod['exit_code']==retry['exit_code']==-9 and texts['production-invocation-retry']==''
+assert not pathlib.Path(profiles['production-invocation-retry']['full_raw_receipt']).exists()
+assert '- UNRUN runtime-openapi-snapshot [generator]' in texts['architecture-default-ready']
+assert 'Architecture guardrail check FAILED:' in texts['architecture-runtime-ml-ready'] and '- UNRUN ' not in texts['architecture-runtime-ml-ready']
+source_registry=ROOT/'policy-engine/architecture/generated_artifacts.toml';source_cli=ROOT/'policy-engine/tools/devx/architecture/guardrails.py'
+source_inputs=[{'source_ref':SHA+':policy-engine/'+str(p.relative_to(ROOT/'policy-engine')),'git_blob':git('rev-parse',SHA+':policy-engine/'+str(p.relative_to(ROOT/'policy-engine'))).decode().strip(),**ident(p)} for p in (source_registry,source_cli,ROOT/'policy-engine/uv.lock',ROOT/'policy-engine/pyproject.toml')]
+for r in source_inputs:
+ actual=git('show',r['source_ref']);assert len(actual)==r['bytes'] and hashlib.sha256(actual).hexdigest()==r['sha256']
+all_maps={};diffs={}
+def value_tag(value):return {'type':type(value).__name__,'value':value}
+def semantic_diff(old,new,path=''):
+ if type(old) is not type(new):return [{'path':path,'kind':'type-and-value','expected':value_tag(old),'observed':value_tag(new)}]
+ if isinstance(old,dict):
+  result=[]
+  for key in sorted(old.keys()|new.keys()):
+   p=path+'/'+str(key).replace('~','~0').replace('/','~1')
+   if key not in old:result.append({'path':p,'kind':'added','observed':value_tag(new[key])})
+   elif key not in new:result.append({'path':p,'kind':'removed','expected':value_tag(old[key])})
+   else:result.extend(semantic_diff(old[key],new[key],p))
+  return result
+ if isinstance(old,list):
+  result=[]
+  for i in range(max(len(old),len(new))):
+   p=path+'/'+str(i)
+   if i>=len(old):result.append({'path':p,'kind':'added','observed':value_tag(new[i])})
+   elif i>=len(new):result.append({'path':p,'kind':'removed','expected':value_tag(old[i])})
+   else:result.extend(semantic_diff(old[i],new[i],p))
+  return result
+ return [] if old==new else [{'path':path,'kind':'value','expected':value_tag(old),'observed':value_tag(new)}]
+for label in ('architecture-default-ready','architecture-runtime-ml-ready'):
+ workspace=pathlib.Path(profiles[label]['actual_retained_workspace']);map_rows=[]
+ for family in sorted((workspace/'outputs').iterdir()):
+  if not family.is_dir():continue
+  for path in sorted(family.rglob('*')):
+   if not path.is_file():continue
+   rel=path.relative_to(family).as_posix();data=path.read_bytes();ref=SHA+':policy-engine/'+rel;expected=git('show',ref)
+   row={'family':family.name,'relative_output':rel,'observed':ident(path),'expected':{'source_ref':ref,'git_blob':git('rev-parse',ref).decode().strip(),'bytes':len(expected),'sha256':hashlib.sha256(expected).hexdigest()},'whole_byte_equal':data==expected}
+   map_rows.append(row)
+   if label=='architecture-runtime-ml-ready':
+    # Keep full exact outputs as documentary bytes, with .source.txt extension.
+    target=DEST/'final-output-bytes'/family.name/(rel+'.source.txt');target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(data);row['committed_observed_path']=str(target.relative_to(DEST))
+   if data!=expected and path.suffix=='.json':
+    records=semantic_diff(json.loads(expected),json.loads(data));diffs[label+'/'+family.name]={'semantic_delta_count':len(records),'complete_typed_json_differences':records,'note':'Observed delta only; no inherited/seed/environment causal or public compatibility normalization.'}
+    if label=='architecture-runtime-ml-ready':
+     target=DEST/'expected-drift-bytes'/family.name/(rel+'.source.txt');target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(expected);row['committed_expected_path']=str(target.relative_to(DEST))
+ all_maps[label]={'workspace':str(workspace),'source_copy_lock':ident(workspace/'source/uv.lock'),'private_environment_cfg':ident(workspace/'environment/pyvenv.cfg'),'complete_output_file_count':len(map_rows),'complete_outputs':map_rows,'family_count':len({r['family'] for r in map_rows})}
+assert all_maps['architecture-default-ready']['complete_output_file_count']==5
+assert all_maps['architecture-runtime-ml-ready']['complete_output_file_count']==6 and all_maps['architecture-runtime-ml-ready']['family_count']==4
+assert sum(r['whole_byte_equal'] for r in all_maps['architecture-runtime-ml-ready']['complete_outputs'])==4
+assert sorted(r['family'] for r in all_maps['architecture-runtime-ml-ready']['complete_outputs'] if not r['whole_byte_equal'])==['runtime-openapi-snapshot','trust-claim-posture-register']
+dump('complete-both-retry-output-maps.json',all_maps);dump('complete-typed-json-drift.json',diffs)
+lines=[line for line in texts['architecture-runtime-ml-ready'].splitlines() if line.startswith('- ')]
+assert sum(line.startswith('- New deep-import creep detected:') for line in lines)==171
+dump('complete-final-architecture-finding-census.json',{'deep_import_diagnostics':171,'all_violation_lines':lines,'complete_four_family_measurement':'All6 observed files/four families; no required UNRUN lines in complete final output','whole_gate_outcome':'FAIL exit1','counts_are_not_finding_closure':True})
+old_profile=pathlib.Path('/tmp/e02-B-architecture-cache-warm-record-1862c021df74/profile.json');new_profile=pathlib.Path('/tmp/e02-B-architecture-runtime-ml-cache-warm-1862c021df74/profile.json')
+assert ident(old_profile)['sha256']==profiles['architecture-runtime-ml-ready']['cache_prerequisite_profile_sha256']
+assert ident(new_profile)['sha256']=='61ec072ef1515b4bea90d3bbfd59769c1e9238a4eee02793ba1cfa7de5cada69'
+dump('captured-profile-effective-preparation-qualification.json',{'qualification':'Forward-only custody erratum, not rewriting actual profile/capture bytes','affected_captured_profile':ident(RAW/(STAGES['architecture-runtime-ml-ready']+'-profile.json')),'field':'cache_prerequisite_profile_sha256','captured_value':profiles['architecture-runtime-ml-ready']['cache_prerequisite_profile_sha256'],'captured_actual_ancestor':{'source_ref':'71ffc6341623e53602564ad42fdc61c0cdc39c1d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-output-review-evidence/cache-warm-profile.json',**ident(old_profile),'role':'Prior DEFAULT149 preparation ancestor, not runtime+ml159 effective profile'},'correct_effective_profile':{'source_ref':'def52c48c9bc715f4126db05549c0831a67e83da:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite-evidence/runtime-ml-profile.json',**ident(new_profile),'role':'Actual registered runtime+ml159 preparation at referenced f70 receipt'},'correct_effective_receipt':'f70eeaaff3a6ff43e0d5a88b61fcd9b9c32d99d2:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite.json','actual_command_source_capture_unchanged':True,'no_freshness_or_verdict_upgrade':True})
+dump('all-stage-interpretation.json',{'source_sha':SHA,'source_tree':TREE,'first8_receipt':'916953164be6e21b8dd2e35888f7dfe48068cb63:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-output-review.json','registered_cache_receipt':'f70eeaaff3a6ff43e0d5a88b61fcd9b9c32d99d2:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite.json','literal_retry_rows':rows,'architecture_timeline':['First exit2 UNRUN four environment stages, absent exact Pillow;0 measured outputs.','Second exit2 UNRUN OpenAPI generator exact lifelines;5 measured outputs:4equal/1trustdrift.','Third exit1 completed FAIL;6 outputs/four families:4equal/2drift plus171 deep-import/baseline diagnostics. No UNRUN.'],'static_timeline':{'first':{'exit_code':-9,'wall_seconds':first_prod['wall_s'],'maxrss_kib':first_prod['process_rusage_maxrss_kib']},'retry':{'exit_code':-9,'wall_seconds':retry['wall_s'],'maxrss_kib':retry['process_rusage_maxrss_kib']},'same_complete_argv_except_fresh_receipt':True,'both_empty_stdout':True,'both_complete_receipt_absent':True,'causal_individual_PID_OOM_proof':'not_established','parent_reported_cgroup_interval':'oom2→5 / kill1→3 consistent resource events, not individual victim proof'},'native_execution_denominators':{'root_affected47':'Parent reports807 =806PASS1scientificFAIL; distinct wave, not fullcohort.','root_full250':'Parent reports collected3882; childSIGKILL/-9 after486s, no XML, inventory collection_finished_runtime_pending. No complete case partition or full regression PASS established.','qualification':'Native counts are parent-reported contextual quantities, not new native evidence execution/phase-parser result by this reader.'},'source_inputs':source_inputs,'all_source_clean_after':not git('status','--porcelain'),'no_gates_native_collection_or_cache_mutation_by_this_review':True,'closure_ids':[]})
+shutil.copyfile(pathlib.Path('/tmp/e02-B-completed-quality-retry-review-1862c021df74/package.source.txt'),DEST/'review.source.txt')
+rows=[]
+for path in sorted(DEST.rglob('*')):
+ if path.is_file():
+  b=path.read_bytes();rows.append({'path':str(path.relative_to(DEST)),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()})
+dump('index.json',{'payload_count':len(rows),'payload_bytes':sum(r['bytes'] for r in rows),'files':rows,'scope':'Full three completed retry stdout/profile/capture bytes; complete6final generated files +2exact expected drift artifacts; exact maps/typed differences and forward metadata qualification. No private copied environment or huge production data.'})
+print(json.dumps({'payload_count':len(rows),'payload_bytes':sum(r['bytes'] for r in rows),'final_generated_output_files':6,'actual_final_equal':4,'actual_final_drifts':2,'typed_json_diffs':{k:v['semantic_delta_count'] for k,v in diffs.items()}},indent=2))

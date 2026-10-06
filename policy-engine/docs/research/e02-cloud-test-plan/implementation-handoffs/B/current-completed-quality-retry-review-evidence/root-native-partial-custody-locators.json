@@ -1,0 +1,54 @@
+{
+  "raw_refs": [
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort.txt",
+      "bytes": 172778,
+      "sha256": "2f1ccd3ec853f830617b714cd7041ac18f7ce6b22ed7c70cfe4ac90a4dbbc84b",
+      "custody_owner": "ROOT only",
+      "portable_git_receipt": "pending ROOT publication; no local raw availability upgrade for G"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort.json",
+      "bytes": 2858,
+      "sha256": "128df0057719f39a62fc303c4c267fc04a1db4d34a1e67d2b49523bdef889d97",
+      "custody_owner": "ROOT only",
+      "portable_git_receipt": "pending ROOT publication; no local raw availability upgrade for G"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort-profile.json",
+      "bytes": 21086,
+      "sha256": "306f134d1c709a33b1e195f62775ce226fee61f9addeda95fbc3dd1151158f58",
+      "custody_owner": "ROOT only",
+      "portable_git_receipt": "pending ROOT publication; no local raw availability upgrade for G"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort-inventory.json",
+      "bytes": 4445184,
+      "sha256": "5904954da6fb919cf693d485fe665777b1f43cd5aa0419b244111a5ab93b46d4",
+      "custody_owner": "ROOT only",
+      "portable_git_receipt": "pending ROOT publication; no local raw availability upgrade for G"
+    }
+  ],
+  "actual_capture": {
+    "exit_code": -9,
+    "wall_seconds": 486.20474443299463,
+    "maxrss_kib": 1289484,
+    "head": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+    "tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+    "head_after": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+    "harness_state": "EXECUTED"
+  },
+  "actual_inventory_counts": {
+    "session_items": 3882,
+    "collect_reports": 406,
+    "collection_failed": 0,
+    "collection_skipped": 0,
+    "deselected": 0,
+    "runtime_phase_reports": 0
+  },
+  "inventory_state": "collection_finished_runtime_pending",
+  "junit_absent": true,
+  "junit_path": "/dev/shm/e02-B-completed-final-1862c021df74/native.xml",
+  "scope": "Literal already-completed parent artifact reads only; no native/collection/parser repetition, no complete per-case outcomes or full regression PASS.",
+  "availability": "Raw references are cloud-local until exact ROOT portable packet; G availability not_established and ROOT is sole deciding-byte custody writer."
+}

@@ -66,7 +66,8 @@ class MetricsBuffer:
         if name not in self.scalars:
             return self
         new_scalars = {
-            k: (v.at[idx].set(value) if k == name else v) for k, v in self.scalars.items()
+            k: (v.at[idx].set(jnp.asarray(value, dtype=v.dtype)) if k == name else v)
+            for k, v in self.scalars.items()
         }
         return self.replace(scalars=new_scalars)
 
@@ -90,7 +91,8 @@ class MetricsBuffer:
         hist, _ = jnp.histogram(safe_values, bins=bins, weights=weights)
         hist = hist / jnp.maximum(jnp.sum(hist), 1.0)
         new_histograms = {
-            k: (v.at[idx].set(hist) if k == name else v) for k, v in self.histograms.items()
+            k: (v.at[idx].set(hist.astype(v.dtype)) if k == name else v)
+            for k, v in self.histograms.items()
         }
         return self.replace(histograms=new_histograms)
 

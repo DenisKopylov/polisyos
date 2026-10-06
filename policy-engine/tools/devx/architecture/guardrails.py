@@ -535,7 +535,7 @@ def _string_list_value(node: ast.AST) -> tuple[str, ...] | None:
 
 
 def _module_level_nodes(tree: ast.AST) -> Iterator[ast.AST]:
-    """Traverse module statements without entering function or class scopes."""
+    """Traverse import-time expressions, including executable class bodies."""
     for node in ast.iter_child_nodes(tree):
         yield node
         if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda)):
@@ -547,9 +547,7 @@ def _module_level_nodes(tree: ast.AST) -> Iterator[ast.AST]:
                     yield expression
                     yield from _module_level_nodes(expression)
         elif isinstance(node, ast.ClassDef):
-            for expression in [*node.bases, *node.decorator_list, *(item.value for item in node.keywords)]:
-                yield expression
-                yield from _module_level_nodes(expression)
+            yield from _module_level_nodes(node)
         else:
             yield from _module_level_nodes(node)
 
@@ -791,6 +789,11 @@ class _StaticExportResolver:
                     and (source, id(node)) not in self._allowed_calls
                 ):
                     raise ValueError(f"Unresolved call after export binding: {source}:{ast.unparse(node)}")
+                if (
+                    isinstance(node, ast.ClassDef) and node.lineno >= first_bound_line
+                    and (node.bases or node.keywords or node.decorator_list)
+                ):
+                    raise ValueError(f"Unresolved class construction after export binding: {source}:{node.name}")
 
 
 class _IncompleteExportDeclarationError(ValueError):
@@ -849,6 +852,12 @@ def _literal_prefix_before_extensions(tree: ast.Module) -> tuple[str, ...] | Non
     if any(
         isinstance(node, ast.Call) and node.lineno > declaration.end_lineno
         and id(node) not in allowed_calls for node in _module_level_nodes(tree)
+    ):
+        return None
+    if any(
+        isinstance(node, ast.ClassDef) and node.lineno > declaration.end_lineno
+        and (node.bases or node.keywords or node.decorator_list)
+        for node in _module_level_nodes(tree)
     ):
         return None
     return prefix

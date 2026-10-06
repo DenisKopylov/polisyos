@@ -286,6 +286,10 @@ def test_current_world_optional_profile_has_unknown_static_total() -> None:
     'M = {"x": 1}\nglobals()["M"]["y"] = 2\n__all__ = sorted(M)',
     'M = {"x": 1}\nexec("M[\\\"y\\\"] = 2")\n__all__ = sorted(M)',
     'M = {"x": 1}\ndef mutate():\n    M["y"] = 2\nmutate()\n__all__ = sorted(M)',
+    'M = {"x": 1}\nclass C:\n    M["y"] = 2\n__all__ = sorted(M)',
+    'M = {"x": 1}\nclass C:\n    global M\n    M = {"y": 2}\n__all__ = sorted(M)',
+    'M = {"x": 1}\nclass C(metaclass=unknown):\n    pass\n__all__ = sorted(M)',
+    'M = {"x": 1}\nclass C(unknown):\n    pass\n__all__ = sorted(M)',
 ])
 def test_bindings_cannot_escape_finite_declaration_consumers(source: str) -> None:
     with pytest.raises(ValueError, match="Unresolved"):

@@ -35,6 +35,7 @@ from polisyos.scientist.methods.autotune.runtime import (
     PydanticMutationCodec,
     SearchLoopRunner,
     SequenceCandidateGenerator,
+    seed_loop_baseline,
 )
 
 
@@ -234,6 +235,32 @@ def test_actual_reused_content_keeps_old_qualified_view_and_refuses_wrong_candid
     print(
         "actual_reused_views", candidate_ref.model_dump(mode="json"), reused.model_dump(mode="json")
     )
+
+
+def test_native_seed_incumbent_is_actually_re_evaluated_on_active_immutable_suite(tmp_path):
+    store, registry, suite_ref, policy, spec = _environment(tmp_path, values=(2,))
+    initial = seed_loop_baseline(
+        loop_id="verified",
+        baseline=_Mutation(loop_id="verified", value=1),
+        store=store,
+        registry=registry,
+    )
+    assert initial.metrics == {}
+    result = SearchLoopRunner(store=store, registry=registry).run(
+        spec, suite_ref=suite_ref, max_iterations=1
+    )
+    decision = result.history[0].stage_b_result["feedback"]["promotion_decision"]
+    assert decision["promoted"] is True
+    fresh_store = FileSystemCAS(tmp_path / "cas")
+    pointer = ChampionRegistry(tmp_path / "champions", store=fresh_store).get("verified")
+    assert pointer.metrics == {"score": 2}
+    evaluation = load_model_artifact(fresh_store, pointer.evaluation_ref, BenchmarkEvaluation)
+    incumbent = load_model_artifact(
+        fresh_store, evaluation.incumbent_evaluation_ref, BenchmarkEvaluation
+    )
+    assert incumbent.holdout_metrics == {"score": 1}
+    assert incumbent.comparison_basis == evaluation.comparison_basis
+    assert incumbent.candidate_ref == initial.candidate_ref
 
 
 def test_competing_native_writer_refuses_actual_stale_pair_after_lock_held_reread(tmp_path):

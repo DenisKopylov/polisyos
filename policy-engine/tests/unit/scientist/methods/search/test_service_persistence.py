@@ -644,6 +644,57 @@ def test_same_actual_warm_corpus_fresh_reader_preserves_training_and_current_his
     assert target.controller._run_state.evaluation_iterations == 2
 
 
+def test_fresh_public_service_retains_typed_policy_history_frontier_and_next_tell(tmp_path):
+    from polisyos.scientist.policy_design.objectives import (
+        ObjectiveChannelValue,
+        ObjectiveDirection,
+        ObjectiveKind,
+        PolicyEvaluationVector,
+    )
+
+    def evaluation(cost):
+        return EvaluationBundle(
+            objective_value=float(cost),
+            is_promising=True,
+            policy_evaluation=PolicyEvaluationVector(
+                primary={
+                    "cost": ObjectiveChannelValue(
+                        name="cost",
+                        kind=ObjectiveKind.PRIMARY,
+                        value=float(cost),
+                        direction=ObjectiveDirection.MINIMIZE,
+                    )
+                }
+            ),
+        )
+
+    source = _direct(FileSystemCAS(tmp_path / "cas"))
+    first = source.ask(None, None, {})[0]
+    accepted = source.tell(first.candidate_id, evaluation(first.payload["cost"]))
+    assert accepted.frontier_delta
+    assert isinstance(source.controller._history[0].policy_evaluation, PolicyEvaluationVector)
+    fresh = _direct(FileSystemCAS(tmp_path / "cas"))
+    fresh.restore(source.checkpoint_ref)
+    assert fresh.controller._history == source.controller._history
+    assert fresh.controller._run_state.pareto_points == source.controller._run_state.pareto_points
+    assert (
+        fresh.controller._run_state.pareto_projection
+        == source.controller._run_state.pareto_projection
+    )
+    second = fresh.ask(None, None, {})[0]
+    final = fresh.tell(second.candidate_id, evaluation(second.payload["cost"]))
+    assert final.best_candidate == {"cost": 1}
+    assert final.best_objective == 1
+    observer = _direct(FileSystemCAS(tmp_path / "cas"))
+    observer.restore(fresh.checkpoint_ref)
+    assert observer.controller._history == fresh.controller._history
+    assert observer.controller._run_state.pareto_points == fresh.controller._run_state.pareto_points
+    assert all(
+        isinstance(row.policy_evaluation, PolicyEvaluationVector)
+        for row in observer.controller._history
+    )
+
+
 def test_checkpoint_requires_exact_public_snapshot_profile_on_resume(tmp_path):
     source = _direct(FileSystemCAS(tmp_path / "cas"))
     source.ask(None, None, {})

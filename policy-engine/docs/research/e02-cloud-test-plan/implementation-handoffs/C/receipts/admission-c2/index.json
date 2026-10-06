@@ -1,0 +1,423 @@
+{
+  "schema": "policyos.e02.C.admission-receipts.v1",
+  "purpose": "Full non-recomputable create/resume outputs retained losslessly for Git handoff; compressed to avoid duplicate bulk inventory views. No production content is present. Root output is cited from its existing tracked receipt.",
+  "fresh_pairs": 14,
+  "fresh_outputs": 28,
+  "lane_pairs": 13,
+  "root_pair_existing_receipts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/admission-resume.json",
+      "sha256": "fffff2b2d8da0aebff8b77013cbc77738e7cc83008e606d8b95b773f86387920",
+      "requested": {
+        "branch": "codex/e02-C-continuation-20261006",
+        "mode": "resume",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos"
+      },
+      "status": "admitted"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/admission-create.json",
+      "sha256": "468a95e79225d312df089557e81dbe828b4f0e7ade80142f038d7bcf7f8c02b5",
+      "requested": {
+        "branch": "codex/e02-C-continuation-20261006",
+        "mode": "create",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos"
+      },
+      "status": "admitted"
+    }
+  ],
+  "entries": [
+    {
+      "requested": {
+        "branch": "codex/e02-C-berl-20261006",
+        "mode": "create",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-berl-20261006/polisyos"
+      },
+      "source_receipt": "/Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/berl-create.json",
+      "source_bytes": 28107,
+      "source_sha256": "e2aa99ebd453cc9de5bf9e56a23d1fb94c128369d37949c8f5ec87c587ed8fda",
+      "git_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/berl-create.json.gz",
+      "compressed_bytes": 2856,
+      "compressed_sha256": "454166f9fe40a66779e60e7e72eb958e4e15b27c9f4f0c414eea7608313629fe",
+      "status": "admitted",
+      "complete_verdict": true
+    },
+    {
+      "requested": {
+        "branch": "codex/e02-C-berl-20261006",
+        "mode": "resume",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-berl-20261006/polisyos"
+      },
+      "source_receipt": "/Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/berl-resume.json",
+      "source_bytes": 34774,
+      "source_sha256": "a8f5bcb2d40649aef8e1f070ed6b54617583f6f218ad4faa70e114e59746e657",
+      "git_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/berl-resume.json.gz",
+      "compressed_bytes": 3178,
+      "compressed_sha256": "4f6530048162dd034d7eb4eeb63e900c34fd941418b4dab0323a4350882680be",
+      "status": "admitted",
+      "complete_verdict": true
+    },
+    {
+      "requested": {
+        "branch": "codex/e02-C-canon-20261006",
+        "mode": "create",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-canon-20261006/polisyos"
+      },
+      "source_receipt": "/Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/canon-create.json",
+      "source_bytes": 101199,
+      "source_sha256": "c8086c43016e9f3c09fa37dbbe837c30aaf0e89480fbd9268393c37b56c630fa",
+      "git_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/canon-create.json.gz",
+      "compressed_bytes": 6609,
+      "compressed_sha256": "5e7605c1e221959430dbab4834ad021cfd17640ae5822222493a3158c19cd723",
+      "status": "admitted",
+      "complete_verdict": true
+    },
+    {
+      "requested": {
+        "branch": "codex/e02-C-canon-20261006",
+        "mode": "resume",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-canon-20261006/polisyos"
+      },
+      "source_receipt": "/Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/canon-resume.json",
+      "source_bytes": 107905,
+      "source_sha256": "27f0506480633021b61db96303e619f55d24f67b17064d3aca113cd9357e8ce0",
+      "git_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/canon-resume.json.gz",
+      "compressed_bytes": 7115,
+      "compressed_sha256": "b81030e5e675a3d77741a3a3befd9a28973a772c7118513241e06577d911a65d",
+      "status": "admitted",
+      "complete_verdict": true
+    },
+    {
+      "requested": {
+        "branch": "codex/e02-C-catalog-20261006",
+        "mode": "create",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-catalog-20261006/polisyos"
+      },
+      "source_receipt": "/Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/catalog-create.json",
+      "source_bytes": 48048,
+      "source_sha256": "b644e644f49c75d42850e6f3ca3eb233f2f5e09a0817e9101b30f9093e2e0ce3",
+      "git_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/catalog-create.json.gz",
+      "compressed_bytes": 3906,
+      "compressed_sha256": "1e4b46b888ebca94a19e241485a1c365fc0fbcb6e7a92794a1a63b9db75a0de9",
+      "status": "admitted",
+      "complete_verdict": true
+    },
+    {
+      "requested": {
+        "branch": "codex/e02-C-catalog-20261006",
+        "mode": "resume",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-catalog-20261006/polisyos"
+      },
+      "source_receipt": "/Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/catalog-resume.json",
+      "source_bytes": 54793,
+      "source_sha256": "540aa8ac852f89b6c8a46e3d52e4e3896edcfa08aef06874f57a6253bd329a15",
+      "git_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/catalog-resume.json.gz",
+      "compressed_bytes": 4205,
+      "compressed_sha256": "ef6a308c610d0e21f7d7024e67a9ecbf6147a81b3d8a531fa8c14878509ad458",
+      "status": "admitted",
+      "complete_verdict": true
+    },
+    {
+      "requested": {
+        "branch": "codex/e02-C-client-20261006",
+        "mode": "create",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-client-20261006/polisyos"
+      },
+      "source_receipt": "/Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/client-create.json",
+      "source_bytes": 74643,
+      "source_sha256": "a84ddfc6e01eab150aad7cc6add837a8e3be5eb41f7ed6c370b7725a6bc7f704",
+      "git_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/client-create.json.gz",
+      "compressed_bytes": 5291,
+      "compressed_sha256": "80ecb613509165821a2f0c44d2e929ef7f4f5b202dc5084e644b4221af049d21",
+      "status": "admitted",
+      "complete_verdict": true
+    },
+    {
+      "requested": {
+        "branch": "codex/e02-C-client-20261006",
+        "mode": "resume",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-client-20261006/polisyos"
+      },
+      "source_receipt": "/Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/client-resume.json",
+      "source_bytes": 81362,
+      "source_sha256": "215d4a79c5ab0413d154ee0fe595f7c591d3fd42edbf3fcc0fb9acfc111dfcf8",
+      "git_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/client-resume.json.gz",
+      "compressed_bytes": 5598,
+      "compressed_sha256": "aa321d75e3cc9c73e897cb8cb6366cdc7b540dcf2fe91c1f5d2c71a77ea5de7b",
+      "status": "admitted",
+      "complete_verdict": true
+    },
+    {
+      "requested": {
+        "branch": "codex/e02-C-dfi-emb-20261006",
+        "mode": "create",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfi-emb-20261006/polisyos"
+      },
+      "source_receipt": "/Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/dfi-emb-create.json",
+      "source_bytes": 34694,
+      "source_sha256": "5041bb61afa6b48a2a490440cb03954a4b72875a5c6069997251aa1ad45bdd66",
+      "git_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/dfi-emb-create.json.gz",
+      "compressed_bytes": 3201,
+      "compressed_sha256": "c47fb608b3c6284b073b6605d9769abe925c568cd5ce05fc68e932f21dd7e253",
+      "status": "admitted",
+      "complete_verdict": true
+    },
+    {
+      "requested": {
+        "branch": "codex/e02-C-dfi-emb-20261006",
+        "mode": "resume",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfi-emb-20261006/polisyos"
+      },
+      "source_receipt": "/Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/dfi-emb-resume.json",
+      "source_bytes": 41439,
+      "source_sha256": "684e0575e475d0adb3206ebf4ffab280f104bec5ef3625feb08e35890e0aca0e",
+      "git_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/dfi-emb-resume.json.gz",
+      "compressed_bytes": 3552,
+      "compressed_sha256": "18679f22c9e2ed1e9aaa82e5892b312a2df71dc70a052353a106cac6e4c062ab",
+      "status": "admitted",
+      "complete_verdict": true
+    },
+    {
+      "requested": {
+        "branch": "codex/e02-C-federation-20261006",
+        "mode": "create",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-federation-20261006/polisyos"
+      },
+      "source_receipt": "/Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/federation-create.json",
+      "source_bytes": 41359,
+      "source_sha256": "16d4d9796d10dee3ef61badd6d819a186cdf512851072dad63ce4c2fd9a59aac",
+      "git_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/federation-create.json.gz",
+      "compressed_bytes": 3567,
+      "compressed_sha256": "1bbf38530fb0bb23ff828230a994baa5daa637d02fb395da91ffe53c180b1c4c",
+      "status": "admitted",
+      "complete_verdict": true
+    },
+    {
+      "requested": {
+        "branch": "codex/e02-C-federation-20261006",
+        "mode": "resume",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-federation-20261006/polisyos"
+      },
+      "source_receipt": "/Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/federation-resume.json",
+      "source_bytes": 48182,
+      "source_sha256": "54c86996c05bd851699d79d15345841799608951f3a88d465e68ca77af0e3ebb",
+      "git_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/federation-resume.json.gz",
+      "compressed_bytes": 3887,
+      "compressed_sha256": "c9cd2f3ba7a5dc6b0d62479b63fdc30cc65690a7c18f230a5c1bba83bfa8c6ac",
+      "status": "admitted",
+      "complete_verdict": true
+    },
+    {
+      "requested": {
+        "branch": "codex/e02-C-hygiene-20261006",
+        "mode": "create",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-hygiene-20261006/polisyos"
+      },
+      "source_receipt": "/Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/hygiene-create.json",
+      "source_bytes": 81264,
+      "source_sha256": "d0512d68b0490ced29fd13e8df467eae086e521daf1ac6bec762ec572eaca56e",
+      "git_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/hygiene-create.json.gz",
+      "compressed_bytes": 5630,
+      "compressed_sha256": "58dc57a9fe548a830e469f1b6602156585fe4a82f88815633f6ffa489cc8b7f5",
+      "status": "admitted",
+      "complete_verdict": true
+    },
+    {
+      "requested": {
+        "branch": "codex/e02-C-hygiene-20261006",
+        "mode": "resume",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-hygiene-20261006/polisyos"
+      },
+      "source_receipt": "/Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/hygiene-resume.json",
+      "source_bytes": 88022,
+      "source_sha256": "70519476c54ad3a15b51896f33b3885dfd68b81a5864126b8267ee84a43ddbc2",
+      "git_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/hygiene-resume.json.gz",
+      "compressed_bytes": 5929,
+      "compressed_sha256": "3cbc6810faf32c2b9913f7ace1b7c69dda7518775388dc7841e641e6bf2a166e",
+      "status": "admitted",
+      "complete_verdict": true
+    },
+    {
+      "requested": {
+        "branch": "codex/e02-C-ing-oracle-20261006",
+        "mode": "create",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-ing-oracle-20261006/polisyos"
+      },
+      "source_receipt": "/Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/ing-oracle-create.json",
+      "source_bytes": 107843,
+      "source_sha256": "2214336a6e9c71f0f93e5cc47fc0fa20bd000e5e0188ca5067269ac174d2799a",
+      "git_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/ing-oracle-create.json.gz",
+      "compressed_bytes": 7153,
+      "compressed_sha256": "64b939c45822f2c2ee4b6a92f0459fe6a12e556bb122d5f339b34f80dea362d2",
+      "status": "admitted",
+      "complete_verdict": true
+    },
+    {
+      "requested": {
+        "branch": "codex/e02-C-ing-oracle-20261006",
+        "mode": "resume",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-ing-oracle-20261006/polisyos"
+      },
+      "source_receipt": "/Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/ing-oracle-resume.json",
+      "source_bytes": 114679,
+      "source_sha256": "d1df088d94d86a7fdfd6f6bf75223809e158e990f6500e1c40ea7ce03de731f1",
+      "git_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/ing-oracle-resume.json.gz",
+      "compressed_bytes": 7473,
+      "compressed_sha256": "ef42d05601eb780d9d15a38fb3c9c17c2974ffd783eaa9d27f1d8e569ee04cb2",
+      "status": "admitted",
+      "complete_verdict": true
+    },
+    {
+      "requested": {
+        "branch": "codex/e02-C-migrations-20261006",
+        "mode": "create",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-migrations-20261006/polisyos"
+      },
+      "source_receipt": "/Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/migrations-create.json",
+      "source_bytes": 61325,
+      "source_sha256": "75e079993d735019dea8537b6634e9089085e34f123565fc3f524fbd3765470e",
+      "git_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/migrations-create.json.gz",
+      "compressed_bytes": 4564,
+      "compressed_sha256": "c721e62aaf4874c563bfd7e47a5232952254a986e502c14e783d189990dcbfc6",
+      "status": "admitted",
+      "complete_verdict": true
+    },
+    {
+      "requested": {
+        "branch": "codex/e02-C-migrations-20261006",
+        "mode": "resume",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-migrations-20261006/polisyos"
+      },
+      "source_receipt": "/Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/migrations-resume.json",
+      "source_bytes": 68148,
+      "source_sha256": "1260eb65618f9e3bfe3f38a134402acfd77ad8e74ba348990d7a7178c9cb09dd",
+      "git_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/migrations-resume.json.gz",
+      "compressed_bytes": 4870,
+      "compressed_sha256": "63ad0de3584c55bacd6bec13adb52c8eaf158218a0b957536379b9af70f0d5da",
+      "status": "admitted",
+      "complete_verdict": true
+    },
+    {
+      "requested": {
+        "branch": "codex/e02-C-obs-udf-20261006",
+        "mode": "create",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-obs-udf-20261006/polisyos"
+      },
+      "source_receipt": "/Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/obs-udf-create.json",
+      "source_bytes": 68014,
+      "source_sha256": "399e67532b7477750e21cd3c689227999d06cbba6c4502d11744bb5e004ec278",
+      "git_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/obs-udf-create.json.gz",
+      "compressed_bytes": 4890,
+      "compressed_sha256": "ba46648ef87b480638e053b9c85751976722e44eb58dbd8bebb7b5ca65f1c960",
+      "status": "admitted",
+      "complete_verdict": true
+    },
+    {
+      "requested": {
+        "branch": "codex/e02-C-obs-udf-20261006",
+        "mode": "resume",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-obs-udf-20261006/polisyos"
+      },
+      "source_receipt": "/Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/obs-udf-resume.json",
+      "source_bytes": 74759,
+      "source_sha256": "b8471f40156850aaaf3c5b14c525fd50bff455a928db93877bb9c87cbc1e601a",
+      "git_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/obs-udf-resume.json.gz",
+      "compressed_bytes": 5268,
+      "compressed_sha256": "ed9c9fd806bf3812c4c1701fa22854e7b9b0c3003baac247b570cd358d57c626",
+      "status": "admitted",
+      "complete_verdict": true
+    },
+    {
+      "requested": {
+        "branch": "codex/e02-C-plugins-20261006",
+        "mode": "create",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-plugins-20261006/polisyos"
+      },
+      "source_receipt": "/Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/plugins-create.json",
+      "source_bytes": 87915,
+      "source_sha256": "cdfcec38513033323e97e229e6d703c537ea3752f0f8e970aee0794db7fad91e",
+      "git_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/plugins-create.json.gz",
+      "compressed_bytes": 5957,
+      "compressed_sha256": "1001cf5d362c08df22c963e5a3674b673935957e1a4f1d80ee244b9dbcbd2c15",
+      "status": "admitted",
+      "complete_verdict": true
+    },
+    {
+      "requested": {
+        "branch": "codex/e02-C-plugins-20261006",
+        "mode": "resume",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-plugins-20261006/polisyos"
+      },
+      "source_receipt": "/Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/plugins-resume.json",
+      "source_bytes": 94673,
+      "source_sha256": "5feb9f70644da0943cf21facc190d56e5acaadfac3ffe3cbf967f6fc2544f927",
+      "git_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/plugins-resume.json.gz",
+      "compressed_bytes": 6266,
+      "compressed_sha256": "8a24d6a061c3c64764a03a7204151f634bc4ce950a4d7118885cac72b218a6e7",
+      "status": "admitted",
+      "complete_verdict": true
+    },
+    {
+      "requested": {
+        "branch": "codex/e02-C-schema-20261006",
+        "mode": "create",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-schema-20261006/polisyos"
+      },
+      "source_receipt": "/Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/schema-create.json",
+      "source_bytes": 54677,
+      "source_sha256": "07a8f5ba41c32f852b0498973d380663e9d867170a48853a8484478e8e662354",
+      "git_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/schema-create.json.gz",
+      "compressed_bytes": 4225,
+      "compressed_sha256": "f62a6bf15688332b49ab9e47a3045fc03539e2629e25888f5cbd876ffeb48a7c",
+      "status": "admitted",
+      "complete_verdict": true
+    },
+    {
+      "requested": {
+        "branch": "codex/e02-C-schema-20261006",
+        "mode": "resume",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-schema-20261006/polisyos"
+      },
+      "source_receipt": "/Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/schema-resume.json",
+      "source_bytes": 61396,
+      "source_sha256": "b19e1988eaff1e9fcc2152ca880e157e6251ef69a0a5cf3d4e487f4202bf3e17",
+      "git_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/schema-resume.json.gz",
+      "compressed_bytes": 4542,
+      "compressed_sha256": "f816e822925ad6c96fe9b2f3f47a2edc57f3e7840259a17e8f5a4441217a7bef",
+      "status": "admitted",
+      "complete_verdict": true
+    },
+    {
+      "requested": {
+        "branch": "codex/e02-C-scholar-20261006",
+        "mode": "create",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-scholar-20261006/polisyos"
+      },
+      "source_receipt": "/Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/scholar-create.json",
+      "source_bytes": 94566,
+      "source_sha256": "751f0c6a33880554178e703f5d3b7408fe199039c894152c5adf7330882d12f5",
+      "git_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/scholar-create.json.gz",
+      "compressed_bytes": 6282,
+      "compressed_sha256": "3c3dd2e63fee54dbfa15e40ad276865ee7e7be4caa30853c44be3f84001293b1",
+      "status": "admitted",
+      "complete_verdict": true
+    },
+    {
+      "requested": {
+        "branch": "codex/e02-C-scholar-20261006",
+        "mode": "resume",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-scholar-20261006/polisyos"
+      },
+      "source_receipt": "/Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/scholar-resume.json",
+      "source_bytes": 101324,
+      "source_sha256": "07fb9a761e90196f82baa3305487e1afb876a6e20ed58116f825358271b95d6e",
+      "git_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/scholar-resume.json.gz",
+      "compressed_bytes": 6590,
+      "compressed_sha256": "c88d060a168de73c4ab10d4ca7b0a3277c98610a99fd207900941e28843284e5",
+      "status": "admitted",
+      "complete_verdict": true
+    }
+  ],
+  "full_json_runtime_property_not_inferred_from_status_marker": "Consumers must inspect recomputed Git/filesystem command outputs and requested pair; status alone does not establish an atomic reservation.",
+  "stale_registration_exception_used_for_these_fresh_pairs": false
+}

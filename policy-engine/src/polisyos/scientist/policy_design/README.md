@@ -7,6 +7,9 @@ they are bound by governed runtime-quality producers and closeout gates.
 
 ## LLM Worker Accounting
 
+These worker module paths are internal under the public-surface manifest.
+The local lazy re-exports do not register them as supported public entrypoints.
+
 `ScenarioAdversaryWorker` and `PolicyTranslatorWorker` accept an optional
 constructor `budget_middleware`. Budgeted use requires an explicitly
 initialized `BudgetMiddleware` backed by a readable durable ledger. Its state

@@ -213,7 +213,10 @@ class CausalEffectReport(BaseModel):
 
     Combines the estimand, point estimate, uncertainty, diagnostics, placebo
     checks, and transportability context needed by Scientist governance and
-    downstream reporting.
+    downstream reporting. ``SUCCESS`` describes numerical estimation, not
+    independently verified causal identification. Its uncertainty projection
+    remains a non-gating candidate until an accepted identification owner can
+    verify the current source, graph, estimand, and target binding.
     """
 
     model_config = ConfigDict(extra="forbid")
@@ -335,13 +338,17 @@ class CausalEffectReport(BaseModel):
             interval_semantics=interval_semantics,
             sample_size=self.sample_size if self.sample_size > 0 else None,
             is_heuristic_ci=False,
-            gate_eligible=True,
+            # Estimator success, an interval, and producer-supplied proof labels
+            # do not establish causal-identification authority. No accepted
+            # identification verifier is bound by this report contract.
+            gate_eligible=False,
             metadata={
                 "causal_method": self.method.value,
                 "estimand": self.estimand,
                 "inference_method": self.inference_method,
                 "status": self.status.value,
                 "status_reason": self.status_reason,
+                "gate_eligibility_reason": "causal_identification_admission_not_established",
                 "p_value": self.p_value,
                 "placebo_p_value": self.placebo_p_value,
                 "assumptions": dict(self.assumptions),

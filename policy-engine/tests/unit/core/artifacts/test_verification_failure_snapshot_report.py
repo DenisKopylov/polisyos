@@ -7,6 +7,7 @@ import hashlib
 import pytest
 
 from polisyos.core.artifacts import (
+    ArtifactTenantContextInfo,
     FileSystemCAS,
     PutOptions,
     artifact_manifest_profile_sha256,
@@ -139,6 +140,32 @@ def test_pre_read_failure_cannot_invent_blob_measurements(tmp_path):
     report = store.verify(ref)
     assert not report.ok and report.error == "blob missing"
     assert report.actual_sha256_hex is None and report.byte_size is None
+
+
+@pytest.mark.parametrize("damaged", [False, True])
+def test_public_verify_capture_remains_consumable_by_actual_owner_index(tmp_path, damaged):
+    store = FileSystemCAS(tmp_path / "cas", tenant_id="snapshot-owner", ownership_enforced=True)
+    ref = store.put_bytes(
+        b"original",
+        PutOptions(
+            kind="snapshot",
+            media_type="text/plain",
+            tenant_context=ArtifactTenantContextInfo(tenant_id="snapshot-owner", cell_id=None),
+        ),
+    )
+    if damaged:
+        store._paths(ref.artifact_id)[0].write_bytes(b"damaged")
+    owner = store._register_governed_public_read_owner()
+    with store._capture_public_read_set() as capture:
+        report = store.verify(ref)
+    assert report.ok is not damaged
+    assert report.actual_sha256_hex is not None
+    record_id = "gpr_" + "a" * 32
+    recorded = store._record_governed_public_read_closure(record_id, capture, owner_token=owner)
+    reopened = FileSystemCAS(store.root, tenant_id="snapshot-owner", ownership_enforced=True)
+    loaded = reopened._ownership_index._get_public_read_closure(record_id)
+    assert loaded == recorded
+    assert {row["operation"] for row in loaded["operation_refs"]} == {"verify"}
 
 
 def test_valid_signature_cannot_admit_a_wrong_size_selected_snapshot(tmp_path):

@@ -4260,6 +4260,7 @@ class FileSystemCAS:
             record_integrity_failure=self._record_integrity_failure,
         )
 
+    @_transactional_read()
     def _load_verified_snapshot(
         self,
         artifact_id: ArtifactID | ArtifactRef,
@@ -4267,12 +4268,11 @@ class FileSystemCAS:
         """Load one owned, integrity-checked bytes/manifest snapshot."""
         return self._load_snapshot_read_result(artifact_id).require_verified()
 
-    @_transactional_read()
     def _load_snapshot_read_result(
         self,
         artifact_id: ArtifactID | ArtifactRef,
     ) -> _ArtifactSnapshotReadResult:
-        """Capture one owned pair and preserve its validation failure measurements."""
+        """Capture an owned pair under the calling verify/verified-snapshot lease."""
         aid, profile_sha256, ref = _artifact_reference(artifact_id)
         self._require_blob_owner(aid, operation="verify")
         if profile_sha256 is None:

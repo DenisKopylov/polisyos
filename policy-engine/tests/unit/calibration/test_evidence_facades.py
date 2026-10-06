@@ -16,6 +16,8 @@ from polisyos.foundry import uncertainty
 def test_foundry_report_reader_is_canonical_and_refuses_funnel_kind(tmp_path: Path) -> None:
     owner = importlib.import_module("polisyos.foundry.calibration.report")
     assert calibration.load_foundry_calibration_report is owner.load_calibration_report
+    assert uncertainty.load_foundry_calibration_report is owner.load_calibration_report
+    assert "load_foundry_calibration_report" in uncertainty.__all__
     assert "load_foundry_calibration_report" in calibration.__all__
     store = FileSystemCAS(tmp_path / "foundry-report-cas")
     wrong = store.put_json(

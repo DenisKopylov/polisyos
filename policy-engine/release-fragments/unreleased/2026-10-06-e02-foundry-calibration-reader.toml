@@ -1,0 +1,16 @@
+id = "2026-10-06-e02-foundry-calibration-reader"
+title = "Expose canonical Foundry calibration readback to uncertainty consumers"
+type = "added"
+component = "foundry-uncertainty"
+owner = "E"
+summary = "The admitted Foundry uncertainty facade exports the canonical calibration CAS reader by identity."
+change_class = "python-public-api"
+surface_classification = "public_stable"
+compatibility = "One additive explicitly named reader; report codecs, versions and strict admission remain unchanged."
+migration = "Use polisyos.foundry.uncertainty.load_foundry_calibration_report for calibrated input readback."
+limitations = "A valid report ref does not establish source-fit or served evaluator authority."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+evidence = ["tests/unit/calibration/test_evidence_facades.py", "tests/unit/scientist/nodes/test_calibration_report_consumer.py"]
+migration_docs = ["src/polisyos/foundry/uncertainty/README.md"]
+runbook_docs = []

@@ -2,6 +2,7 @@
 
 from polisyos.ir.analytics import UncertaintyEnvelope
 
+from ..calibration.report import load_calibration_report as load_foundry_calibration_report
 from .config import AdaptiveStoppingConfig, PropagationConfig
 from .fabric_quality import FabricUncertaintyContext, fabric_uncertainty_context_from_decision_data
 from .protocol import PropagationResult, PropagationStrategy
@@ -52,6 +53,7 @@ __all__ = [
     "empirical_cdf",
     "extract_std",
     "fabric_uncertainty_context_from_decision_data",
+    "load_foundry_calibration_report",
     "reconcile_draw_outcomes",
     "sampling_content_digest",
     "verify_mean_certificate",

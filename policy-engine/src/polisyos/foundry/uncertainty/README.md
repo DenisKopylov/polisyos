@@ -74,3 +74,7 @@ refuse instead of projecting away their imaginary components. The same inlet
 protects backend range admission and independent-pilot budget calculations.
 Nonzero real values that become zero during float64 conversion also refuse;
 canonicalization cannot silently delete a positive category or covariance.
+
+`load_foundry_calibration_report` exposes the canonical report reader for
+uncertainty consumers. Calibration re-exports the same object; both entrypoints
+retain exact Foundry CAS kind/schema/payload validation and grant no fit authority.

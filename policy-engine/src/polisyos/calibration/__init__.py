@@ -38,9 +38,7 @@ from polisyos.calibration.recalibration import (
     compare_calibrators,
     fit_calibrator,
 )
-from polisyos.foundry.calibration.report import (
-    load_calibration_report as load_foundry_calibration_report,
-)
+from polisyos.foundry.uncertainty import load_foundry_calibration_report
 
 __all__ = [
     "PREDICTIVE_AUTHORITY_DENIALS",

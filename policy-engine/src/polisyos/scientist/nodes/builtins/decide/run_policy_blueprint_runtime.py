@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from dataclasses import dataclass
+from hashlib import sha256
 from pathlib import Path
 from typing import Any
 
@@ -11,7 +12,7 @@ from pydantic import ValidationError
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.foundry.methods.catalog.causal.strategic import (
     persist_strategic_solve_artifacts,
@@ -176,7 +177,6 @@ _SPEC = NodeSpec(
         "last_checkpoint_ref",
         "params.workflow_id",
         "params.policy_mode",
-        "params._resource_budget_middleware",
         "params.policy_candidate_schema",
         "params.policy_candidate_ref",
         "params.policy_evaluation",
@@ -307,6 +307,23 @@ class _PolicyRuntimeWorkflowEngine(WorkflowEngine):
         return None
 
 
+@dataclass(frozen=True, kw_only=True)
+class PolicyBudgetExecutionContext(ExecutionContext):
+    """Internal blueprint context with an optional caller-supplied budget owner.
+
+    The keyword-only port forwards the same existing B middleware instance; it
+    creates no ledger or authority. Plain ExecutionContext remains unmanaged.
+    """
+
+    budget_middleware: BudgetMiddleware | None = None
+
+    def __post_init__(self) -> None:
+        if self.budget_middleware is not None and not isinstance(
+            self.budget_middleware, BudgetMiddleware
+        ):
+            raise TypeError("budget_middleware must be a configured BudgetMiddleware")
+
+
 @dataclass(frozen=True)
 class RunPolicyBlueprintRuntimeNode:
     """Run policy blueprint runtime node implementation."""
@@ -319,9 +336,9 @@ class RunPolicyBlueprintRuntimeNode:
         if not _is_policy_mode(state):
             return NodeOutcome(status="skip", state=state)
 
-        resource_owner = state.params.get("_resource_budget_middleware")
-        if resource_owner is not None and not isinstance(resource_owner, BudgetMiddleware):
-            raise TypeError("_resource_budget_middleware must be a configured BudgetMiddleware")
+        resource_owner = (
+            ctx.budget_middleware if isinstance(ctx, PolicyBudgetExecutionContext) else None
+        )
 
         runtime_request = resolve_policy_runtime_request(ctx, state)
         if runtime_request is None:
@@ -1568,9 +1585,6 @@ def _ensure_stress_test_report(
 ) -> ArtifactRef | None:
     existing_ref = state.artifacts_index.get(ARTIFACT_STRESS_TEST_REPORT_REF)
     replacement_suite_ids = [str(item) for item in (phase_d4_suite_ids or []) if str(item).strip()]
-    if existing_ref is not None and not supplemental_reports and not replacement_suite_ids:
-        return existing_ref
-
     report = _load_stress_test_report(ctx, existing_ref)
     if report is None:
         report = StressTestReport(
@@ -1616,9 +1630,41 @@ def _merge_stress_test_reports(
     *,
     replacement_suite_ids: list[str] | None = None,
 ) -> StressTestReport:
+    # Re-admit actual inputs before arithmetic, including model_copy bypasses.
+    base_report = StressTestReport.model_validate(base_report.model_dump(mode="json"))
+    supplemental_reports = [
+        StressTestReport.model_validate(report.model_dump(mode="json"))
+        for report in supplemental_reports
+    ]
     replacement_suite_ids_set = {
         str(item).strip() for item in (replacement_suite_ids or []) if str(item).strip()
     }
+    if not supplemental_reports and not replacement_suite_ids_set:
+        return base_report
+    components = dict(base_report.scenario_evidence_components)
+    component_hashes = dict(base_report.metadata.get("scenario_component_payload_sha256") or {})
+    if not components:
+        key = f"report:{base_report.report_id}"
+        components[key] = base_report.scenario_evidence
+        component_hashes[key] = _stress_report_payload_sha256(base_report)
+    accepted_reports = []
+    for supplemental in supplemental_reports:
+        suite_id = str(supplemental.metadata.get("challenge_suite_id") or "").strip()
+        key = f"suite:{suite_id}" if suite_id else f"report:{supplemental.report_id}"
+        payload_hash = _stress_report_payload_sha256(supplemental)
+        if not suite_id and key in components:
+            previous_hash = component_hashes.get(key)
+            if previous_hash is None:
+                raise ValueError("anonymous report retry has no bound original content")
+            if previous_hash != payload_hash:
+                raise ValueError("anonymous report identity has different content")
+            continue
+        if not suite_id and any(name not in component_hashes for name in components):
+            raise ValueError("anonymous component identity has no bound original content")
+        accepted_reports.append(supplemental)
+        components[key] = supplemental.scenario_evidence
+        component_hashes[key] = payload_hash
+    supplemental_reports = accepted_reports
     if not supplemental_reports and not replacement_suite_ids_set:
         return base_report
     replacement_suite_ids_set.update(
@@ -1656,18 +1702,16 @@ def _merge_stress_test_reports(
     total_scenarios = base_total_scenarios + sum(suite_scenario_counts.values())
     # Retain each scenario denominator separately from issue groups, including
     # unavailable legacy components. Replacement removes the old count basis.
-    components = dict(base_report.scenario_evidence_components)
-    if not components:
-        components["base"] = base_report.scenario_evidence
     for suite_id in replacement_suite_ids_set:
-        components.pop(f"suite:{suite_id}", None)
-    for index, supplemental in enumerate(supplemental_reports):
+        if not any(
+            str(item.metadata.get("challenge_suite_id") or "").strip() == suite_id
+            for item in supplemental_reports
+        ):
+            components.pop(f"suite:{suite_id}", None)
+            component_hashes.pop(f"suite:{suite_id}", None)
+    for supplemental in supplemental_reports:
         suite_id = str(supplemental.metadata.get("challenge_suite_id") or "").strip()
-        key = (
-            f"suite:{suite_id}"
-            if suite_id
-            else f"report:{supplemental.report_id}:{len(components)}:{index}"
-        )
+        key = f"suite:{suite_id}" if suite_id else f"report:{supplemental.report_id}"
         components[key] = supplemental.scenario_evidence
     evidence = None
     if all(
@@ -1702,9 +1746,16 @@ def _merge_stress_test_reports(
                 "phase_d4_suite_ids": sorted(suite_scenario_counts),
                 "phase_d4_suite_scenario_counts": suite_scenario_counts,
                 "base_total_scenarios_evaluated": base_total_scenarios,
+                "scenario_component_payload_sha256": component_hashes,
             },
         }
     )
+
+
+def _stress_report_payload_sha256(report: StressTestReport) -> str:
+    """Bind a delivered report's content, excluding its optional storage handle."""
+    payload = report.model_dump(mode="json", exclude={"cas_artifact_id"})
+    return sha256(to_canonical_bytes(payload, CanonSpec(forbid_floats=False))).hexdigest()
 
 
 def _phase_d4_suite_id_from_vulnerability(vulnerability) -> str | None:
@@ -1724,6 +1775,14 @@ def _phase_d4_suite_id_from_vulnerability(vulnerability) -> str | None:
 def _recompute_stress_test_report(report: StressTestReport) -> StressTestReport:
     evidence = report.scenario_evidence
     metadata = dict(report.metadata)
+    metadata["schema_compatibility"] = {
+        "source_schema_version": report.schema_version,
+        "supported_schema_versions": ["1.0", "1.1"],
+        "mode": "legacy_unassessed"
+        if report.schema_version == "1.0"
+        else "typed_scenario_evidence",
+        "population_probability": "not_established",
+    }
     for name in (
         "attempted",
         "finite_evaluated",

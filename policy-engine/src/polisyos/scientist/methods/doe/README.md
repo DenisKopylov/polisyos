@@ -38,7 +38,20 @@ New readers accept legacy 1.0 reports without inventing scenario evidence;
 `is_robust` requires complete, available evidence with no observed violation.
 Strict legacy readers must be upgraded before consuming 1.1 output. Optional
 absent evidence is omitted from legacy serialization. `StressScenarioEvidence`
-and threshold admission live in the documented `doe.stress_report` module.
+and threshold admission live in the documented `doe.stress_report` module. Unknown report schema versions and evidence carried as schema 1.0
+are refused. The blueprint records `schema_compatibility` for bounded legacy
+reads and still treats legacy scores without scenario evidence as unassessed.
+Anonymous delivery retries reuse the existing report identity and bind the
+actual canonical payload (excluding its optional CAS handle); changed content
+under that identity is refused. This does not authenticate scenario provenance.
+
+The internal blueprint node accepts an optional keyword-only
+`PolicyBudgetExecutionContext.budget_middleware` port. A configured caller
+constructs this frozen context with the same existing B `BudgetMiddleware`
+instance and its usual store/run/logger, then calls the ordinary node. JSON
+`ExperimentState.params` never carries the owner. Plain `ExecutionContext`
+remains unmanaged; the subtype creates no ledger, permission or authority.
+Serialized deployment-factory adoption requires its appointed owner separately.
 
 ## Bounded distribution contract (DOE-02)
 

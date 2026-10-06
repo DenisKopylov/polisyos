@@ -1,0 +1,67 @@
+from pathlib import Path
+import ast, hashlib, json, re, shutil, subprocess
+import xml.etree.ElementTree as ET
+OWN=Path('/workspace/e02-B-current-runtime')
+PREFIX='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence'
+DEST=OWN/PREFIX
+DEST.mkdir(parents=True, exist_ok=False)
+TEST='policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py'
+SOURCE='a391e0c1f5bec81e6033675e4d48dd1cbe8e194d'
+INPUTS={'original-actor-premise':('f1656b36dc438611bba0c3e14adab48c4bb47f51',Path('/tmp/e02-B65-recovery-a391-native')),'corrected-actor-premise':('31003278961d27b84603d28c26dc38bd44f0a84d',Path('/tmp/e02-B65-recovery-a391-corrected-native'))}
+def git(*args): return subprocess.check_output(['git',*args],cwd=OWN)
+def write(path,value): (DEST/path).write_text(json.dumps(value,indent=2,ensure_ascii=False)+'\n')
+all_runs=[]
+for label,(input_sha,raw) in INPUTS.items():
+ target=DEST/label; target.mkdir()
+ for filename in ['native.txt','native.xml','wrapper.json','source-context.json','child.source.txt']:
+  shutil.copyfile(raw/filename,target/filename)
+ actual=target/'actual-files'; actual.mkdir()
+ for path in sorted((raw/'pytest-tmp').rglob('*')):
+  if path.is_file() and not path.is_symlink():
+   relative=path.relative_to(raw/'pytest-tmp'); result=actual/relative
+   result.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(path,result)
+ records=[]
+ for line in (raw/'native.txt').read_text().splitlines():
+  m=re.search(r'B65_([A-Z_]+) (\{.*\})',line)
+  if m:
+   try: records.append({'tag':m.group(1),'value':json.loads(m.group(2))})
+   except json.JSONDecodeError: pass
+ xml=ET.parse(raw/'native.xml').getroot()
+ cases=[]
+ for item in xml.iter('testcase'):
+  failure=item.find('failure');error=item.find('error');skipped=item.find('skipped')
+  grade='ERROR' if error is not None else 'FAIL' if failure is not None else 'SKIP' if skipped is not None else 'PASS'
+  diagnostics=error if error is not None else failure if failure is not None else skipped
+  name=item.attrib['name']
+  if 'BUDGET_RESERVED' in name and label=='original-actor-premise':
+   qualification='Actual directory refusal, immutable metadata and reopened-owner barrier reached; test resolver actor.id unsupported, recovery predicate not_established.'
+  elif 'BUDGET_RESERVED' in name:
+   qualification='Exact retained-entry public write/fsync/full ChainVerifier succeeds, provider remains0, actual reservation positive→0 and obligations clear. Whole case subsequently fails at next legitimate provider completed charge/release-audit vector rejection. This partial observation is not a native PASS.'
+  elif 'wrong_binding' in name:
+   qualification='Required COMMITTED-directory-fault/captured-entry premise not_established: earlier source accounting rejection prevents sink fault; literal native FAIL retained.'
+  elif 'test_protected_audit' in name:
+   qualification='Provider physically entered and known.02 durable receipt obtained. RELEASED/COMMITTED log admission blocked by source empty reservation-coordinate vector before configured target fault; audit output contains RESERVED/CHECK only.'
+  else:
+   qualification='Post-provider accounting error observed; obligation digest getter raises UnsupportedSerializationError for Decimal charge receipt during diagnostic evaluation. Intended target fault and recovery predicate not_established; source digest is independently unusable, not proof of an append effect.'
+  cases.append({'native_xml_attributes':item.attrib,'native_grade':grade,'diagnostic_message':diagnostics.attrib.get('message') if diagnostics is not None else None,'full_native_diagnostic':diagnostics.text if diagnostics is not None else None,'input_context_nodeid':TEST+'::'+name,'qualification':qualification})
+ quantity={'PASS':sum(c['native_grade']=='PASS' for c in cases),'FAIL':sum(c['native_grade']=='FAIL' for c in cases),'ERROR':sum(c['native_grade']=='ERROR' for c in cases),'SKIP':sum(c['native_grade']=='SKIP' for c in cases),'cases':len(cases)}
+ assert quantity=={'PASS':0,'FAIL':13,'ERROR':0,'SKIP':0,'cases':13},quantity
+ for filename,value in [('case-join.json',{'input_sha':input_sha,'runtime_source_sha':SOURCE,'xml_cases':cases,'actual_counts':quantity}),('observations.json',{'actual_records':records,'tag_counts':{tag:sum(x['tag']==tag for x in records) for tag in sorted({x['tag'] for x in records})}})]:
+  (target/filename).write_text(json.dumps(value,indent=2,ensure_ascii=False)+'\n')
+ all_runs.append({'label':label,'input_sha':input_sha,'actual_counts':quantity,'wrapper':json.loads((raw/'wrapper.json').read_text()),'partial_property_observations':[x for x in records if x['tag']=='AUDIT_RECONCILED'],'complete_loaded_modules':json.loads((raw/'source-context.json').read_text())['complete_loaded_polisyos_module_denominator']})
+shutil.copyfile('/tmp/e02-B65-recovery-run.py',DEST/'run-native.source.txt')
+(DEST/'input-actor-only-delta.diff.txt').write_bytes(git('diff','f1656b36dc438611bba0c3e14adab48c4bb47f51','31003278961d27b84603d28c26dc38bd44f0a84d','--',TEST))
+(DEST/'input-preparation-to-actual.diff.txt').write_bytes(git('diff','5290d8a8f6af3ac2d19364b297e09467ecea6512','31003278961d27b84603d28c26dc38bd44f0a84d','--',TEST))
+pre_original=ast.parse(git('show','9c76d54cf10255ab5b926dfd961dcb3e07711ff4:'+TEST).decode())
+new=ast.parse(git('show','31003278961d27b84603d28c26dc38bd44f0a84d:'+TEST).decode())
+def function(tree,name):return next(node for node in tree.body if isinstance(node,ast.FunctionDef) and node.name==name)
+original_body={name:ast.dump(function(pre_original,name),include_attributes=False)==ast.dump(function(new,name),include_attributes=False) for name in ['_call','test_protected_audit_reconciliation_precedes_next_provider']}
+assert all(original_body.values())
+write('summary.json',{'runtime_source_sha':SOURCE,'runtime_tree_sha':'da24b5d33dad29e7d23ad953e687b73d99c5265e','runs':all_runs,'original4_function_AST_equal_to_qualified_DD_input':original_body,'qualification':'All native cases retain literal FAIL. Partial physical RESERVED reconciliation observations do not change native grade; post-provider coordinate rejection and unusable Decimal digest are different observed boundaries. Previous summaries initially over-attributed missing RELEASED append to digest; this packet explicitly qualifies the actual coordinate rejection first and digest getter separately.','own_input_correction':'actor.id→actor.identity only between matched actual13 runs, source bytes identical. Future candidate replay must use exact corrected310 input unless an explicitly disclosed new premise is ratified.','current_status':'B65 open on immutable a391; no source repair by reviewer, closure_ids=[]','boundaries':['Definite directory-open refusal; not ambiguous fsync-afterappend/powerloss proof.','Existing original initialc1814FAIL tokenizer pre-provider P37not_established and qualifiedDD2PASS2FAIL retained via immutable6432 references.','Constructor-reopen proves persisted barrier, not process crash or arbitrary owner recovery.','Only configured genuine protected local audit profile; Noop nonproduction and optional metrics/remote replicas are not made mandatory.']})
+write('source-input-custody.json',{'actual_runtime_point':SOURCE,'lower_source_point':'9f2a31c8869525ecf55fa55d0f5b08027c09a988','all_runs':{label:{'test_sha256':hashlib.sha256(git('show',sha+':'+TEST)).hexdigest(),'input_sha':sha,'source_context':str(Path(PREFIX)/label/'source-context.json'),'command_wrapper':str(Path(PREFIX)/label/'wrapper.json')} for label,(sha,_) in INPUTS.items()},'driver_execution':'The frozen captured runner was executed twice with explicit --source-sha/--input-sha/--source-root/--output. No source checkout/copy fallback; same-child all concrete loaded polisyos modules match actual Git bytes and target origins.','historical_preparation':'5290/7e/fcaf/b0ab preparation inputs were UNRUN, first physical setup target establishedf165; historical bytes not rewritten.','actor_test_premise_error':'Originalf165 actor.id accessor nonexistent; actual AuditActor.identity is corrected310.','public_API_only_except_observation':'Fault log delegates actual ChainedAuditLog append. Sink subclass only observes actual failed entry while running unchanged backend. Trusted resolver uses public LocalJsonlBackend.write/ChainVerifier; no effect mock.'})
+entries=[]
+for file in sorted(DEST.rglob('*')):
+ if file.is_file():
+  data=file.read_bytes();entries.append({'path':file.relative_to(OWN).as_posix(),'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()})
+write('index.json',{'count_excluding_index':len(entries),'bytes_excluding_index':sum(x['bytes'] for x in entries),'entries':entries,'retention_reason':'Full deciding stdout, JUnit, environment/origins, actual command/driver and all moderate actual filesystem provider/audit/ledger bytes for both13 cases. No shortened logs, future custody, private dataset, or financial invoice assertion.'})
+print(json.dumps({'evidence_dir':PREFIX,'count_including_index':len(entries)+1,'bytes_excluding_index':sum(x['bytes'] for x in entries),'actual_counts_per_run':all_runs[0]['actual_counts'],'all_loaded_module_counts':[x['complete_loaded_modules'] for x in all_runs],'original_function_AST_equal':original_body},indent=2))

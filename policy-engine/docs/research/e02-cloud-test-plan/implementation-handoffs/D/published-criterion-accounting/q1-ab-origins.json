@@ -1,0 +1,20 @@
+{
+  "source_sha": "ab7577cc807050735d1cd57c751299095ee899aa",
+  "cwd": "/dev/shm/e02-D-q1-canonical-review-ab7577cc/policy-engine",
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-B",
+    "/workspace/e02-D2-receipts/criterion-accounting/q1_source_origins.py"
+  ],
+  "env": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "src:."
+  },
+  "basetemp": null,
+  "basetemp_precondition": "explicit nonexistent path checked for pytest invocations",
+  "exit_code": 0,
+  "wall_seconds": 10.844515899007092,
+  "max_rss_kib": 1148812,
+  "rss_scope": "completed-child cumulative high-water in this capture process",
+  "log_sha256": "dce9ecb26801d93f54ad28259a2dfaaa029a42f7f9beb74699e50a02e985fca3"
+}

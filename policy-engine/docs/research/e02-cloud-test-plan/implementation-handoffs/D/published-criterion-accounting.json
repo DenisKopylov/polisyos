@@ -1,0 +1,1621 @@
+{
+  "schema": "policyos.e02.D.independent-criterion-accounting.v1",
+  "unit": "D",
+  "slice": "published-criterion-accounting",
+  "closure_ids": [],
+  "finding_ids": [
+    "B106",
+    "B107",
+    "B108",
+    "B109",
+    "B110",
+    "B111",
+    "B112",
+    "B113",
+    "B114",
+    "B115",
+    "B116",
+    "B117",
+    "B118",
+    "B119",
+    "B120",
+    "B121",
+    "B122",
+    "B123",
+    "B124",
+    "B125",
+    "B126",
+    "B127",
+    "B128",
+    "B129",
+    "B130",
+    "B131",
+    "B132",
+    "B133",
+    "B134",
+    "B135",
+    "B136",
+    "B137",
+    "B156",
+    "B157",
+    "B158",
+    "B159",
+    "B160",
+    "B161",
+    "B162",
+    "B163",
+    "B164",
+    "B165",
+    "B41",
+    "LA-014",
+    "LA-015"
+  ],
+  "review_role": "Independent accounting of complete D criteria/owners and received scope; Q1 canonical-test/oracle delta independently executed. Q5 mechanism authored by reviewer: accounting only, no second independent mechanism verdict.",
+  "point_in_time": {
+    "source_sha": "8cd6a07954b29b5b15860db375fab66bab6605d3",
+    "tree_sha": "9f7e67234289bd77ad0547c9a7eeee30173fe4fe",
+    "purpose": "Receipt/taskboard membership snapshot, not a runtime aggregate verdict. Later corrective owner receipts and final aggregate require an append-only supplement.",
+    "taskboard": {
+      "source_sha": "8cd6a07954b29b5b15860db375fab66bab6605d3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-base/taskboard.json",
+      "sha256": "537a48e653eb3a4e8244a4d14bd337f6521457f5412ecd11ed81b4ffe1d58ea0",
+      "bytes": 6385
+    },
+    "taskboard_scope": "Queue assignment only. Its older recorded_source_sha/states are not current acceptance.",
+    "root_reported_pending_bindings": "not_established"
+  },
+  "canonical_inputs": {
+    "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+    "coverage": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2",
+      "bytes": 549568
+    },
+    "bundle_owners": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv",
+      "sha256": "f587df5256ebef909b4060a588c2f947f31b173adf8d44b32e7f4eea5abd1f75",
+      "bytes": 12413
+    },
+    "finding_owners": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+      "sha256": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722",
+      "bytes": 9504
+    },
+    "D_task_card": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/D.md",
+      "sha256": "622284b984ec12fcba96084cfad13e346112a0539ae081da683e1b663c5b4b6d",
+      "bytes": 110393
+    },
+    "original_documents": {
+      "B_r19": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+        "bytes": 1336380
+      },
+      "LA_r09": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727",
+        "bytes": 648034
+      }
+    },
+    "baseline_navigation": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/baseline-map.json",
+      "sha256": "14cee3e4fd1325207e79a0760130d2d1a6f1eeb9e064c9b4d76a3981d7d27c60",
+      "bytes": 124158
+    },
+    "baseline_scope": "Historical complete map/cell/environment pointers retained without reclassification. This review does not reacquire historical raw outputs or rerun baseline cells.",
+    "row_resolution": "coverage_pointer identifies full original criterion_refs (document/lines/fragment SHA/card), literal owner, task anchors and separate historical status. baseline_pointer identifies existing exact cell/environment route navigation. No criterion text is replaced."
+  },
+  "denominator": {
+    "distinct_findings": 45,
+    "bundles": 17,
+    "criterion_source_block_occurrences": 46,
+    "whole_finding_owner_rows": 282,
+    "whole_bundle_owner_rows": 127,
+    "sampled": false,
+    "verified": "Both full TSVs and coverage arrays joined; every full original block hash, original Git blob and whole-card containment checked.",
+    "canonical_historical_status": {
+      "partial": 45
+    },
+    "canonical_closure_now": {
+      "not_adjudicated": 45
+    },
+    "accounting_disposition_counts": {
+      "limited": 30,
+      "held": 7,
+      "open": 8
+    },
+    "disposition_definition": {
+      "limited": "Bounded received evidence with remaining named input/consumer or verification scope.",
+      "held": "Absent declared unit/profile/input/authorization/update/permit boundary prevents the broader requested claim.",
+      "open": "Concrete missing consumer/dependency route or newly reported FAIL whose correction is pending. Pending unbound checks are not independently adjudicated by this review."
+    },
+    "dispositions_are": "Review checklist bookkeeping only; not canonical adjudication, runtime check outcome or closure.",
+    "LA015": {
+      "distinct_findings": 1,
+      "source_block_occurrences": 2,
+      "canonical_closure_owner": "SRV-03",
+      "supplier_companion": "CTL-01",
+      "primary_queue": 3,
+      "supplier_queue": 4
+    }
+  },
+  "queues": [
+    {
+      "queue": 1,
+      "owner": "search_owner",
+      "finding_ids": [
+        "B108",
+        "B109",
+        "B110",
+        "B111",
+        "B112",
+        "B113",
+        "B114",
+        "B115",
+        "B124",
+        "B125",
+        "B126",
+        "B127"
+      ],
+      "bundles": [
+        "OPT-01",
+        "OPT-02",
+        "OPT-03",
+        "CTL-02"
+      ]
+    },
+    {
+      "queue": 2,
+      "owner": "transfer_owner",
+      "finding_ids": [
+        "B128",
+        "B129",
+        "B130",
+        "B131",
+        "B132",
+        "B133",
+        "B134",
+        "B135",
+        "B136",
+        "B137"
+      ],
+      "bundles": [
+        "TRN-01",
+        "TRN-02",
+        "TRN-03"
+      ]
+    },
+    {
+      "queue": 3,
+      "owner": "gp_witness",
+      "finding_ids": [
+        "B116",
+        "B117",
+        "LA-014",
+        "LA-015"
+      ],
+      "bundles": [
+        "OPT-04",
+        "SRV-01",
+        "SRV-03"
+      ]
+    },
+    {
+      "queue": 4,
+      "owner": "funnel_owner",
+      "finding_ids": [
+        "B118",
+        "B119",
+        "B120",
+        "B121",
+        "B123",
+        "B156",
+        "B157",
+        "B158",
+        "B159",
+        "B160",
+        "B161",
+        "B162",
+        "B163",
+        "B164",
+        "B165"
+      ],
+      "bundles": [
+        "CTL-01",
+        "CTL-03",
+        "FUN-01",
+        "FUN-02",
+        "FUN-03"
+      ]
+    },
+    {
+      "queue": 5,
+      "owner": "baseline_census",
+      "finding_ids": [
+        "B106",
+        "B107",
+        "B122",
+        "B41"
+      ],
+      "bundles": [
+        "STP-01",
+        "STR-01"
+      ]
+    }
+  ],
+  "receipts": {
+    "q1_state": {
+      "source_sha": "8cd6a07954b29b5b15860db375fab66bab6605d3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-state-v2.json",
+      "sha256": "17d677b0c21a7bf9db2a719d1339531899786c5f1f83a3699f33a3daffb2dd56",
+      "bytes": 5405
+    },
+    "q1_continuation": {
+      "source_sha": "8cd6a07954b29b5b15860db375fab66bab6605d3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-gp-continuation-v2.json",
+      "sha256": "a0deb95654d4ecf9474d62815b51c9ba20fb4ab9e0ce5d9f3a4b89db9b40c891",
+      "bytes": 10266
+    },
+    "q1_warm_content": {
+      "source_sha": "8cd6a07954b29b5b15860db375fab66bab6605d3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-gp-warm-content-v3.json",
+      "sha256": "606ea57854698be835a32b5536f71a8c38a4bdc5927317214521fa640ad27aec",
+      "bytes": 5974
+    },
+    "q1_reader": {
+      "source_sha": "8cd6a07954b29b5b15860db375fab66bab6605d3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-transfer-use-reader.json",
+      "sha256": "750179f4816220b206acee0a9fd3f1178d7937c43c633eae82853e9994719071",
+      "bytes": 3441
+    },
+    "q1_executed": {
+      "source_sha": "8cd6a07954b29b5b15860db375fab66bab6605d3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-executed-consumers.json",
+      "sha256": "4ec009717775bbb4392f3b1b1231121ab7269eb086f5c3751c67d958f6b0d67d",
+      "bytes": 5514
+    },
+    "q1_pareto": {
+      "source_sha": "8cd6a07954b29b5b15860db375fab66bab6605d3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-pareto-indicators.json",
+      "sha256": "724af27475654ed1155d96d6e0d21d11b54576c6dd4ac6d43d20b73a5246de55",
+      "bytes": 9727
+    },
+    "q1_scalar_correction": {
+      "source_sha": "8cd6a07954b29b5b15860db375fab66bab6605d3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-893-independent-review.json",
+      "sha256": "61806ba1463d836915616bfb30721dc362f22b5bfe2edde5d07e2a85ffa50f56",
+      "bytes": 10443
+    },
+    "q1_numeric_independent": {
+      "source_sha": "8cd6a07954b29b5b15860db375fab66bab6605d3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-ebeb-independent-review.json",
+      "sha256": "2de03a0dacd605418e8898832bcf17f6e4e85e4d4dc854edc4e7507654d919ce",
+      "bytes": 15068
+    },
+    "q1_gp_independent": {
+      "source_sha": "8cd6a07954b29b5b15860db375fab66bab6605d3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-analytic-continuation-immutable-review.json",
+      "sha256": "1197c9004e5571190fc3db660304642e698d57f0bb01b83a9400094d8718fe0c",
+      "bytes": 18100
+    },
+    "q2_matrix": {
+      "source_sha": "8cd6a07954b29b5b15860db375fab66bab6605d3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-final-ten-finding-matrix.json",
+      "sha256": "e75c7bf499ab98fd4e2fa1a43b958e8ed225aeb234d900b5c19ba84e7dff0166",
+      "bytes": 16275
+    },
+    "q3_owner": {
+      "source_sha": "8cd6a07954b29b5b15860db375fab66bab6605d3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-published.json",
+      "sha256": "9f3c85f5ae931cf40b332c0be00a56a38f6a5c475efc6fd8500d24fcd798e2c0",
+      "bytes": 112472
+    },
+    "q3_lifecycle": {
+      "source_sha": "8cd6a07954b29b5b15860db375fab66bab6605d3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-native-lifecycle.json",
+      "sha256": "2ffca61a82c9204abda117c9d7259de47ef0c2d3225d786290c81898a664be38",
+      "bytes": 16044
+    },
+    "q4_owner": {
+      "source_sha": "8cd6a07954b29b5b15860db375fab66bab6605d3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-final.json",
+      "sha256": "0fc141ce8d19eedc6d8c1992e9f3606e416a56d038447bf61e1550ac3ba5a6d7",
+      "bytes": 51650
+    },
+    "q5_owner": {
+      "source_sha": "8cd6a07954b29b5b15860db375fab66bab6605d3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-stress.json",
+      "sha256": "55081ea8d40f7c879e816431c03fcfbebeef51796201b197c2bdb3b8c360d046",
+      "bytes": 48981
+    },
+    "q4_owner_published": {
+      "source_sha": "510507325975f137d3fe9cc5a76aca1cedc303d4",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-final.json",
+      "sha256": "0fc141ce8d19eedc6d8c1992e9f3606e416a56d038447bf61e1550ac3ba5a6d7",
+      "bytes": 51650
+    },
+    "q4_independent": {
+      "source_sha": "537dd9d8d30179a525da70b6822176b455026273",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent.json",
+      "sha256": "6ead1d66ea081c676a8c0ea29d1ff5fe3d9dfc0195924996bcb5d7bdadb98164",
+      "bytes": 64880
+    },
+    "q3_independent": {
+      "source_sha": "5290d418de47ab9061a63e1cdf376e186948aa9e",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-champion-independent.json",
+      "sha256": "0b651038f6822fd168c350139661fbac1a424727f3f2c5c58e2a936dcf212c63",
+      "bytes": 21570
+    }
+  },
+  "pending_receiver_controls": {
+    "public_BGC_and_raw_CAS": {
+      "reported_by": "root",
+      "report_state": "FAIL reported; initial fixture ERROR retained; corrective proof/receipt pending",
+      "proof": {
+        "source_sha": "4d2b9bdb975a61c7348028523abec707c8d2bfc0",
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py",
+        "sha256": "ca886ae1422aa3bd08a93208c47c4ad14d3691323b0cf8c64dc73604f5a42720",
+        "bytes": 8341
+      },
+      "source_identity": "not_established",
+      "source_navigation": "Parent supplied frozenfac5 and abbreviated fbc0 only; no complete executing source/output binding available to this accounting receipt.",
+      "deciding_output_binding": "not_established",
+      "applicable_findings": [
+        "B113",
+        "B114",
+        "B116"
+      ],
+      "linked_consumer_findings": [
+        "B128",
+        "B131"
+      ],
+      "next_owner": "search_owner / gp_witness / transfer_owner / root independent replay"
+    },
+    "legacy_nonfinite_frontier": {
+      "reported_by": "root",
+      "report_state": "10 pytest red reported; next proof/receipt pending",
+      "source_sha": "893e649bc477e8fceac5038d4cbc3b4337f6d76e",
+      "proof": {
+        "source_sha": "258200631ba7831321437955cb357515eecac5bd",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget_deficit_legacy_front_native_probe.py",
+        "sha256": "b8dc514a33b73c5c08a1740db9babaca5df7676d773a9a1c93ddea6601e6e1ce",
+        "bytes": 3229
+      },
+      "deciding_output_binding": "not_established",
+      "applicable_findings": [
+        "B111"
+      ],
+      "linked_consumer_findings": [
+        "B108"
+      ],
+      "next_owner": "numerical_oracle / search_owner / root independent replay"
+    },
+    "Gateway_raw_negative_cost": {
+      "reported_by": "root and funnel_owner",
+      "report_state": "FAIL reported; actual Gateway.generate rawusage cost-1 clamps0 and fresh ledger settles0; narrow core intake correction pending",
+      "source_navigation": "Owner receipt510507325975f137d3fe9cc5a76aca1cedc303d4 / cost source a23da7a9d17a13738804b535491798e63af43e3c; not a frozen composed raw-Gateway execution binding.",
+      "proof_navigation_only": "/dev/shm/e02-D-funnel-native-raw-negative-68x2ag3b",
+      "source_identity": "not_established",
+      "proof_git_binding": "not_established",
+      "deciding_output_binding": "not_established",
+      "applicable_findings": [
+        "B120"
+      ],
+      "next_owner": "funnel_owner / resource intake owner / root independent replay"
+    }
+  },
+  "Q1_canonical_delta_review": {
+    "source_sha": "ab7577cc807050735d1cd57c751299095ee899aa",
+    "tree_sha": "87804edd3be6bcefb0de06e509e7c73e88934aaa",
+    "input_selection": {
+      "source_sha": "b71b83a7a33f1a7cd42d7bf558814a43ba960786",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-criterion-accounting/q1-ab-input.json",
+      "sha256": "faaec5d8891b3a78b0b1aabda23e09d7155ef42b4fe621d2aa3ca2879ec5b8d2",
+      "bytes": 780
+    },
+    "backend": {
+      "executable": "/workspace/e02-D-locked-env/bin/python",
+      "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+      "packages": {
+        "torch": "2.10.0",
+        "botorch": "0.16.1",
+        "gpytorch": "1.15.1",
+        "numpy": "2.3.5",
+        "scipy": "1.16.3",
+        "pydantic": "2.12.5",
+        "pytest": "9.0.2"
+      },
+      "module_bindings": [
+        {
+          "module": "polisyos.scientist.methods.search.strategies.bayesian",
+          "source_sha": "ab7577cc807050735d1cd57c751299095ee899aa",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+          "sha256": "ce9ff64af3438d4485c654e220b8d0a5d84ce90623e0e9a6a63e7ae8baf715c6",
+          "bytes": 48512
+        },
+        {
+          "module": "polisyos.scientist.methods.search.strategies.multi_objective",
+          "source_sha": "ab7577cc807050735d1cd57c751299095ee899aa",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+          "sha256": "2bea94e7ac03fde9faf2710540d322d6e47f5bd4ca57d7a35f79e78fb35c6f58",
+          "bytes": 19869
+        },
+        {
+          "module": "polisyos.scientist.methods.autotune.pareto",
+          "source_sha": "ab7577cc807050735d1cd57c751299095ee899aa",
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+          "sha256": "886225ac0b00025ce25bbda5f4099798175fe647a3d9e6bf02881dcc189f077f",
+          "bytes": 30148
+        },
+        {
+          "module": "polisyos.scientist.methods.autotune.bayesian_generator",
+          "source_sha": "ab7577cc807050735d1cd57c751299095ee899aa",
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+          "sha256": "00551f51c14fbdd1e0589a7b2f79f2e1d31a3cc0f208b05853489f35daee8aeb",
+          "bytes": 21235
+        },
+        {
+          "module": "polisyos.scientist.methods.search.objective",
+          "source_sha": "ab7577cc807050735d1cd57c751299095ee899aa",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+          "sha256": "940c84a3425e8ed1e93de2eae881100fd88a49dd978a108e5d78e5f2fa5fe17c",
+          "bytes": 10078
+        }
+      ],
+      "source_overlays": [],
+      "backend_mutations": false,
+      "reviewer_caps": "none set"
+    },
+    "changed_test_review": "Full ab source/test/release delta read. Four existing tests are byte-identical renames; effective-action tests consolidated and original MO/neural cases retained; shared GP/resource fixtures split; new fiscal17 and native Bayesian7 admission cases, plus independent typed Pareto numerical oracle read. No new production delta versus893.",
+    "selectors": [
+      {
+        "source_sha": "ab7577cc807050735d1cd57c751299095ee899aa",
+        "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_strategy_state.py",
+        "sha256": "fcdf153d70253388a62083839eb7bf16450748a9227e352569d49f8b96ce9e39",
+        "bytes": 2684
+      },
+      {
+        "source_sha": "ab7577cc807050735d1cd57c751299095ee899aa",
+        "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_effective_actions.py",
+        "sha256": "c98484f2d9bf920d8ed8e185bccfb96f97bf9fc658267c63a4b473be2c2c0ded",
+        "bytes": 5546
+      },
+      {
+        "source_sha": "ab7577cc807050735d1cd57c751299095ee899aa",
+        "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py",
+        "sha256": "437776962e7cc56d14340f6b277edb8ca7195e854a5400fbe3261f94ddb9ee5d",
+        "bytes": 5645
+      },
+      {
+        "source_sha": "ab7577cc807050735d1cd57c751299095ee899aa",
+        "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py",
+        "sha256": "004369b6fdcddf5d5adda03f0ba5f453ed036e10b1a1f0e4b22f7a6d678b37ef",
+        "bytes": 2030
+      },
+      {
+        "source_sha": "ab7577cc807050735d1cd57c751299095ee899aa",
+        "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py",
+        "sha256": "45b26bb168cc01dafcda969e928fe303c0d70e280c1d3114fb2af245c57c4f20",
+        "bytes": 1886
+      },
+      {
+        "source_sha": "ab7577cc807050735d1cd57c751299095ee899aa",
+        "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_mo_objective_admission.py",
+        "sha256": "7fb941f3f8e0540a8ad9df06432a47e82ebef17e7a10e949c32bb825144cbb3d",
+        "bytes": 4551
+      },
+      {
+        "source_sha": "ab7577cc807050735d1cd57c751299095ee899aa",
+        "path": "policy-engine/tests/unit/scientist/methods/search/test_hypervolume_limitations.py",
+        "sha256": "584e2bc08032040c9535302d0d2e093dde4fad76e2850098c2f5fe18842b3c62",
+        "bytes": 6320
+      },
+      {
+        "source_sha": "ab7577cc807050735d1cd57c751299095ee899aa",
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py",
+        "sha256": "3e61bd27dbf7a3e769e5effa843d5e98306475bc95fe16d94c35694a26ca7df4",
+        "bytes": 2935
+      },
+      {
+        "source_sha": "ab7577cc807050735d1cd57c751299095ee899aa",
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+        "sha256": "9454e920416fba1595bb7fa672ca20eebcbbb0a36e6f27bfb740e1e64c7302fb",
+        "bytes": 5804
+      },
+      {
+        "source_sha": "ab7577cc807050735d1cd57c751299095ee899aa",
+        "path": "policy-engine/tests/unit/scientist/methods/search/test_fiscal_scalar_intake.py",
+        "sha256": "29f053fdb6f6ef0cff517be3b9b2f859d7132c16d64e4fa29c0aa98bf0959c96",
+        "bytes": 1353
+      }
+    ],
+    "checks": {
+      "canonical-complete-join": {
+        "capture": {
+          "source_sha": "b71b83a7a33f1a7cd42d7bf558814a43ba960786",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-criterion-accounting/canonical-complete-join.json",
+          "sha256": "f17390f9abc10de6f9a40318a3d12d628e8b87e1ef30282824a1c1638bb6741e",
+          "bytes": 731
+        },
+        "complete_output": {
+          "source_sha": "b71b83a7a33f1a7cd42d7bf558814a43ba960786",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-criterion-accounting/canonical-complete-join.txt",
+          "sha256": "21fea8482f3a64708d8ef397a57d9230a6914dcdc32e7c212bf57dd217f99db9",
+          "bytes": 641
+        }
+      },
+      "q1-ab-canonical": {
+        "capture": {
+          "source_sha": "b71b83a7a33f1a7cd42d7bf558814a43ba960786",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-criterion-accounting/q1-ab-canonical.json",
+          "sha256": "10681ce08c74c8aed8d10b5622eae1013b5acf483c20c769b93082e4df924125",
+          "bytes": 1582
+        },
+        "complete_output": {
+          "source_sha": "b71b83a7a33f1a7cd42d7bf558814a43ba960786",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-criterion-accounting/q1-ab-canonical.txt",
+          "sha256": "dd33b84ce9fdbcb01ac718492adf60a2c2e2bd8592161403c5b9552fcc9d9d07",
+          "bytes": 1489
+        }
+      },
+      "q1-ab-origins": {
+        "capture": {
+          "source_sha": "b71b83a7a33f1a7cd42d7bf558814a43ba960786",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-criterion-accounting/q1-ab-origins.json",
+          "sha256": "3e33d1845706cf7145f0423d0c08ff5fa670a6ecc69c5ce8e2db22abb1306125",
+          "bytes": 712
+        },
+        "complete_output": {
+          "source_sha": "b71b83a7a33f1a7cd42d7bf558814a43ba960786",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-criterion-accounting/q1-ab-origins.txt",
+          "sha256": "dce9ecb26801d93f54ad28259a2dfaaa029a42f7f9beb74699e50a02e985fca3",
+          "bytes": 1790
+        }
+      },
+      "q1-ab-pareto-removal": {
+        "capture": {
+          "source_sha": "b71b83a7a33f1a7cd42d7bf558814a43ba960786",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-criterion-accounting/q1-ab-pareto-removal.json",
+          "sha256": "4a7b8982cc5ace6f540cc3a325703c6c84ec96a71e61abc5c0e961248a8b13a6",
+          "bytes": 773
+        },
+        "complete_output": {
+          "source_sha": "b71b83a7a33f1a7cd42d7bf558814a43ba960786",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-criterion-accounting/q1-ab-pareto-removal.txt",
+          "sha256": "b52cb6dab5c40308dba6aadbeb7d54939ae689861cc7df6586feb7cf3bc752b8",
+          "bytes": 39691
+        }
+      }
+    },
+    "positive": {
+      "exit_code": 0,
+      "passed": 123,
+      "failed": 0,
+      "skipped": 0,
+      "count_basis": "Complete two pytest progress lines (72+51) because inherited -q plus explicit -q suppresses textual total. No outcome markers other than passing dots.",
+      "wall_seconds": 22.964092499008984,
+      "max_rss_kib": 1252456,
+      "scope": "All10 selected canonical test files on exactab; no whole Q1/current aggregate verdict."
+    },
+    "effective_removal": {
+      "exit_code": 1,
+      "failed": 12,
+      "passed": 18,
+      "mechanism": "Actual ParetoPromoter previous-group <= comparison replaced with < in memory; production typed schema/basis/direction, class and full numerical oracle retained.",
+      "deciding_failure": "Independent expected dominance membership assertions fail; not an acceptance/signature marker check.",
+      "production_file_writes": false,
+      "inner_basetemp": "/dev/shm/e02-D-q1-ab-pareto-remove-temp-20261006-1133",
+      "inner_precondition": "Fresh nonexistent checked by standalone driver; outer capture basetemp null correctly reflects script invocation.",
+      "scope": "Equality-rejection boundary in2D/3D; unaffected1D/4D18 cases remain PASS. Does not waive newly reported legacy-controller unavailable-vector receiver."
+    },
+    "standalone_inputs": {
+      "capture": {
+        "source_sha": "b71b83a7a33f1a7cd42d7bf558814a43ba960786",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-criterion-accounting/capture.py.txt",
+        "sha256": "de5ec130230847f876e5fb959dc10195f7c32c702b85d5e832e64ab002307f38",
+        "bytes": 1326
+      },
+      "canonical_join": {
+        "source_sha": "b71b83a7a33f1a7cd42d7bf558814a43ba960786",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-criterion-accounting/canonical_join.py.txt",
+        "sha256": "8f82f768abdbda59b1b8a5d2a7929208376749ec26b08d8c9cfc17dfa1216235",
+        "bytes": 2764
+      },
+      "q1_source_origins": {
+        "source_sha": "b71b83a7a33f1a7cd42d7bf558814a43ba960786",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-criterion-accounting/q1_source_origins.py.txt",
+        "sha256": "c62aa24d3de0039840a6ee1adb16a0de84b733eea41cc64b54a37659b35a506b",
+        "bytes": 805
+      },
+      "q1_pareto_removal": {
+        "source_sha": "b71b83a7a33f1a7cd42d7bf558814a43ba960786",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-criterion-accounting/q1_pareto_removal.py.txt",
+        "sha256": "7b42c72157eac1bb06e7598e171163a9d7aedebc9ed30bcec0a039eca14f7e97",
+        "bytes": 1471
+      }
+    },
+    "script_role": "Exact executed scratch bytes published after execution as text; not membership in testedab tree.",
+    "preservation": {
+      "manual_cleanup": "none",
+      "archives_and_exports": "retained; no native Trash/deletion invoked",
+      "pytest": "Every current invocation used fresh nonexistent explicit basetemp; inner negative driver enforces its own path. No global prior framework fixture-retention claim.",
+      "outputs": "Complete positive, removal, origins and canonical-join logs Git-bound in payload commit."
+    }
+  },
+  "findings": [
+    {
+      "id": "B106",
+      "queue": 5,
+      "canonical_closure_owner": "STR-01",
+      "canonical_cards": [
+        "STR-01"
+      ],
+      "coverage_pointer": "/findings/16",
+      "task_anchors": [
+        "D.md#bundle-str-01"
+      ],
+      "baseline_pointer": "/findings/B106",
+      "accounting_disposition": "limited",
+      "bounded_evidence": "Attempt/finite/violation/unknown occurrence counts precede top-k; zero finite denominator is unavailable. Actual Q5 CAS to L5/Funnel and confidence-boundary removal are recorded.",
+      "remaining_input_or_consumer": "Observed finite sample fraction is not population probability or model uncertainty; empirical completeness requires its declared scenario/profile input.",
+      "next_owner": "STR-01 verification owner / scenario-profile supplier / G",
+      "receipt_keys": [
+        "q5_owner",
+        "q4_independent"
+      ]
+    },
+    {
+      "id": "B107",
+      "queue": 5,
+      "canonical_closure_owner": "STR-01",
+      "canonical_cards": [
+        "STR-01"
+      ],
+      "coverage_pointer": "/findings/17",
+      "task_anchors": [
+        "D.md#bundle-str-01"
+      ],
+      "baseline_pointer": "/findings/B107",
+      "accounting_disposition": "limited",
+      "bounded_evidence": "Actual physical GDP/cost directions, adaptive search and CAS reopening have analytical controls.",
+      "remaining_input_or_consumer": "No runtime for unreceived production/historical backend inputs or empirical stress-search quality is inferred.",
+      "next_owner": "STR-01 verification owner / scenario-profile supplier / G",
+      "receipt_keys": [
+        "q5_owner"
+      ]
+    },
+    {
+      "id": "B108",
+      "queue": 1,
+      "canonical_closure_owner": "OPT-01",
+      "canonical_cards": [
+        "OPT-01"
+      ],
+      "coverage_pointer": "/findings/18",
+      "task_anchors": [
+        "D.md#bundle-opt-01"
+      ],
+      "baseline_pointer": "/findings/B108",
+      "accounting_disposition": "held",
+      "bounded_evidence": "Exact893 scalar Boolean/overflow intake correction passes actual native controller and public BGC; ab canonical tests also pass.",
+      "remaining_input_or_consumer": "Typed fiscal units and served owner input remain not_established. Separate legacy unavailable-vector frontier failure is still pending a source-bound corrective replay.",
+      "next_owner": "Fiscal metric/input owner / search_owner / G",
+      "receipt_keys": [
+        "q1_scalar_correction"
+      ]
+    },
+    {
+      "id": "B109",
+      "queue": 1,
+      "canonical_closure_owner": "OPT-01",
+      "canonical_cards": [
+        "OPT-01"
+      ],
+      "coverage_pointer": "/findings/19",
+      "task_anchors": [
+        "D.md#bundle-opt-01"
+      ],
+      "baseline_pointer": "/findings/B109",
+      "accounting_disposition": "open",
+      "bounded_evidence": "Actual typed Pareto equality boundary passes ab independent oracle; removing the defining equality rejection causes12 actual failures.",
+      "remaining_input_or_consumer": "A-owned frontier export patch is UNAPPLIED, provider ABSENT and dependency runtime FAIL in q1_pareto. Resolve the actual provider/export route before declaring that route accepted.",
+      "next_owner": "A frontier provider/export owner / search_owner / G",
+      "receipt_keys": [
+        "q1_pareto"
+      ]
+    },
+    {
+      "id": "B110",
+      "queue": 1,
+      "canonical_closure_owner": "OPT-01",
+      "canonical_cards": [
+        "OPT-01"
+      ],
+      "coverage_pointer": "/findings/21",
+      "task_anchors": [
+        "D.md#bundle-opt-01"
+      ],
+      "baseline_pointer": "/findings/B110",
+      "accounting_disposition": "limited",
+      "bounded_evidence": "Typed full coordinate/unit/direction basis and DTO identity have actual canonical numerical controls.",
+      "remaining_input_or_consumer": "Historical selector reconciliation and appointed coordinate conventions remain separate; high-dimensional approximation is not exact hypervolume.",
+      "next_owner": "OPT-01 verification owner / coordinate-profile owner / G",
+      "receipt_keys": [
+        "q1_pareto"
+      ]
+    },
+    {
+      "id": "B111",
+      "queue": 1,
+      "canonical_closure_owner": "OPT-01",
+      "canonical_cards": [
+        "OPT-01"
+      ],
+      "coverage_pointer": "/findings/22",
+      "task_anchors": [
+        "D.md#bundle-opt-01"
+      ],
+      "baseline_pointer": "/findings/B111",
+      "accounting_disposition": "open",
+      "bounded_evidence": "Typed MO admission refuses unknown/nonfinite coordinates and emits unavailable indicator state in bounded controls.",
+      "remaining_input_or_consumer": "Actual legacy-controller NaN frontier receiver and raw-CAS Boolean/count/guard receiver failures are reported; corrective source/output bindings and independent replay are pending. A builder origin/eligibility denominator is also missing.",
+      "next_owner": "search_owner / gp_witness / A assessment producer / G",
+      "receipt_keys": [
+        "q1_pareto",
+        "q3_owner"
+      ]
+    },
+    {
+      "id": "B112",
+      "queue": 1,
+      "canonical_closure_owner": "OPT-02",
+      "canonical_cards": [
+        "OPT-02"
+      ],
+      "coverage_pointer": "/findings/23",
+      "task_anchors": [
+        "D.md#bundle-opt-02"
+      ],
+      "baseline_pointer": "/findings/B112",
+      "accounting_disposition": "limited",
+      "bounded_evidence": "Base/random/Sobol/current GP state and native search-space adapters are exercised.",
+      "remaining_input_or_consumer": "All-strategy/deployed caller identity and unsupported legacy GP/RL profiles are not established by this state slice.",
+      "next_owner": "OPT-02 verification owner / strategy-profile owners / G",
+      "receipt_keys": [
+        "q1_state",
+        "q1_continuation"
+      ]
+    },
+    {
+      "id": "B113",
+      "queue": 1,
+      "canonical_closure_owner": "OPT-02",
+      "canonical_cards": [
+        "OPT-02"
+      ],
+      "coverage_pointer": "/findings/24",
+      "task_anchors": [
+        "D.md#bundle-opt-02"
+      ],
+      "baseline_pointer": "/findings/B113",
+      "accounting_disposition": "open",
+      "bounded_evidence": "Declared numerical corpus/history IDs, normalized coordinates and current GP continuation are exercised.",
+      "remaining_input_or_consumer": "Actual public BGC adapter is reported to coerce stage_a=\"false\" into an admitted measured outcome; source-bound corrective replay is pending. External observation truth is not conferred by preserved descriptors.",
+      "next_owner": "search_owner / transfer_owner / G",
+      "receipt_keys": [
+        "q1_continuation",
+        "q1_executed"
+      ]
+    },
+    {
+      "id": "B114",
+      "queue": 1,
+      "canonical_closure_owner": "OPT-03",
+      "canonical_cards": [
+        "OPT-03"
+      ],
+      "coverage_pointer": "/findings/25",
+      "task_anchors": [
+        "D.md#bundle-opt-03"
+      ],
+      "baseline_pointer": "/findings/B114",
+      "accounting_disposition": "open",
+      "bounded_evidence": "Known-role CAS warm corpus is consumed by genuine native GP; reader and composed transfer fit controls are recorded.",
+      "remaining_input_or_consumer": "Reported stage_a=\"false\" native warm-row admission remains open pending exact corrective source/output receipt and independent replay; live history issuer remains separate.",
+      "next_owner": "search_owner / transfer_owner / G",
+      "receipt_keys": [
+        "q1_warm_content",
+        "q1_reader",
+        "q2_matrix"
+      ]
+    },
+    {
+      "id": "B115",
+      "queue": 1,
+      "canonical_closure_owner": "OPT-03",
+      "canonical_cards": [
+        "OPT-03"
+      ],
+      "coverage_pointer": "/findings/26",
+      "task_anchors": [
+        "D.md#bundle-opt-03"
+      ],
+      "baseline_pointer": "/findings/B115",
+      "accounting_disposition": "limited",
+      "bounded_evidence": "Independent learned-backend GP continuation and composed restored fit0/MLL0 are recorded.",
+      "remaining_input_or_consumer": "Declared restore profile/content/bounds must match; no acceleration/optimization-quality or unreceived legacy profile equivalence is inferred.",
+      "next_owner": "OPT-03 verification owner / search_owner / G",
+      "receipt_keys": [
+        "q1_continuation",
+        "q1_warm_content",
+        "q1_gp_independent",
+        "q2_matrix"
+      ]
+    },
+    {
+      "id": "B116",
+      "queue": 3,
+      "canonical_closure_owner": "OPT-04",
+      "canonical_cards": [
+        "OPT-04"
+      ],
+      "coverage_pointer": "/findings/27",
+      "task_anchors": [
+        "D.md#bundle-opt-04"
+      ],
+      "baseline_pointer": "/findings/B116",
+      "accounting_disposition": "open",
+      "bounded_evidence": "Actual five builtin writers, public caller, active-context pair, candidate/evaluation/predecessor CAS binding and callback controls are recorded.",
+      "remaining_input_or_consumer": "New raw-CAS score/count Boolean and guard1 coercion failures are reported with retained complete basis; corrective source/output binding and independent replay are pending.",
+      "next_owner": "gp_witness / G",
+      "receipt_keys": [
+        "q3_owner",
+        "q3_independent"
+      ]
+    },
+    {
+      "id": "B117",
+      "queue": 3,
+      "canonical_closure_owner": "OPT-04",
+      "canonical_cards": [
+        "OPT-04"
+      ],
+      "coverage_pointer": "/findings/28",
+      "task_anchors": [
+        "D.md#bundle-opt-04"
+      ],
+      "baseline_pointer": "/findings/B117",
+      "accounting_disposition": "limited",
+      "bounded_evidence": "Lock-held reread, capture-before-challenger lineage and actual competing writer/guard barrier are recorded.",
+      "remaining_input_or_consumer": "Evidence is bounded to local POSIX concurrency/fault injection/fresh reader; real process-kill/power-loss or distributed guarantees are not established.",
+      "next_owner": "OPT-04 verification owner / registry boundary owner / G",
+      "receipt_keys": [
+        "q3_owner",
+        "q3_independent"
+      ]
+    },
+    {
+      "id": "B118",
+      "queue": 4,
+      "canonical_closure_owner": "CTL-01",
+      "canonical_cards": [
+        "CTL-01"
+      ],
+      "coverage_pointer": "/findings/29",
+      "task_anchors": [
+        "D.md#bundle-ctl-01"
+      ],
+      "baseline_pointer": "/findings/B118",
+      "accounting_disposition": "limited",
+      "bounded_evidence": "Actual native controller/service starts detached fresh run state and results.",
+      "remaining_input_or_consumer": "Deployed caller census and finding-level lifecycle acceptance remain separate from repeated-run fixtures.",
+      "next_owner": "SRV lifecycle owner / G",
+      "receipt_keys": [
+        "q4_owner",
+        "q3_lifecycle"
+      ]
+    },
+    {
+      "id": "B119",
+      "queue": 4,
+      "canonical_closure_owner": "CTL-01",
+      "canonical_cards": [
+        "CTL-01"
+      ],
+      "coverage_pointer": "/findings/30",
+      "task_anchors": [
+        "D.md#bundle-ctl-01"
+      ],
+      "baseline_pointer": "/findings/B119",
+      "accounting_disposition": "limited",
+      "bounded_evidence": "Persistent native empty generation exhausts after3 attempts with zero accepted history; fresh run resets state.",
+      "remaining_input_or_consumer": "Finite empty-supplier mechanisms are bounded controls, not exhaustive future supplier behavior.",
+      "next_owner": "CTL-01 verification owner / native supplier owners / G",
+      "receipt_keys": [
+        "q4_owner",
+        "q3_lifecycle"
+      ]
+    },
+    {
+      "id": "B120",
+      "queue": 4,
+      "canonical_closure_owner": "CTL-03",
+      "canonical_cards": [
+        "CTL-03"
+      ],
+      "coverage_pointer": "/findings/32",
+      "task_anchors": [
+        "D.md#bundle-ctl-03"
+      ],
+      "baseline_pointer": "/findings/B120",
+      "accounting_disposition": "open",
+      "bounded_evidence": "Actual paid native caller, ledger and stopping/report projections pass after two dataclasses.replace copy corrections.",
+      "remaining_input_or_consumer": "Actual Gateway raw cost-1 is reported clamped to0 before strict core intake and falsely settled0. Core corrective receipt and unchanged independent replay are pending; provider-reported amounts are not billing truth.",
+      "next_owner": "funnel_owner / resource cost-intake owner / G",
+      "receipt_keys": [
+        "q4_owner",
+        "q4_independent"
+      ]
+    },
+    {
+      "id": "B121",
+      "queue": 4,
+      "canonical_closure_owner": "CTL-03",
+      "canonical_cards": [
+        "CTL-03"
+      ],
+      "coverage_pointer": "/findings/33",
+      "task_anchors": [
+        "D.md#bundle-ctl-03"
+      ],
+      "baseline_pointer": "/findings/B121",
+      "accounting_disposition": "limited",
+      "bounded_evidence": "Actual paid sentinel, ordinary/scientific counters and warm-history separation are exercised.",
+      "remaining_input_or_consumer": "Caller/profile-specific counting and transfer admission remain bounded; no whole deployed execution census is inferred.",
+      "next_owner": "CTL-03 verification owner / native caller-profile owners / G",
+      "receipt_keys": [
+        "q4_owner"
+      ]
+    },
+    {
+      "id": "B122",
+      "queue": 5,
+      "canonical_closure_owner": "STP-01",
+      "canonical_cards": [
+        "STP-01"
+      ],
+      "coverage_pointer": "/findings/34",
+      "task_anchors": [
+        "D.md#bundle-stp-01"
+      ],
+      "baseline_pointer": "/findings/B122",
+      "accounting_disposition": "limited",
+      "bounded_evidence": "Signed plateau gain with default relative.01/absolute.01 declared units and explicitly configurable coefficients is recorded.",
+      "remaining_input_or_consumer": "Absent units do not establish convergence; converted/custom coefficients are not canonical1.0 equivalence without that declared profile.",
+      "next_owner": "STP-01 verification owner / objective-unit/profile supplier / G",
+      "receipt_keys": [
+        "q5_owner"
+      ]
+    },
+    {
+      "id": "B123",
+      "queue": 4,
+      "canonical_closure_owner": "CTL-03",
+      "canonical_cards": [
+        "CTL-03"
+      ],
+      "coverage_pointer": "/findings/35",
+      "task_anchors": [
+        "D.md#bundle-ctl-03"
+      ],
+      "baseline_pointer": "/findings/B123",
+      "accounting_disposition": "limited",
+      "bounded_evidence": "Malformed present typed results cannot fall back or carry old best; truly absent legacy port remains distinct.",
+      "remaining_input_or_consumer": "An unsupported schema/profile must be supplied explicitly; no fabricated typed schema or universal legacy removal is asserted.",
+      "next_owner": "CTL-03 verification owner / typed result producer / G",
+      "receipt_keys": [
+        "q4_owner"
+      ]
+    },
+    {
+      "id": "B124",
+      "queue": 1,
+      "canonical_closure_owner": "CTL-02",
+      "canonical_cards": [
+        "CTL-02"
+      ],
+      "coverage_pointer": "/findings/36",
+      "task_anchors": [
+        "D.md#bundle-ctl-02"
+      ],
+      "baseline_pointer": "/findings/B124",
+      "accounting_disposition": "limited",
+      "bounded_evidence": "Content-sensitive nested dates are retained by candidate identity controls.",
+      "remaining_input_or_consumer": "Full candidate-profile/deployed canonicalization acceptance remains separate from bounded nested-date cases.",
+      "next_owner": "CTL-02 verification owner / candidate-schema owner / G",
+      "receipt_keys": [
+        "q1_state",
+        "q1_continuation"
+      ]
+    },
+    {
+      "id": "B125",
+      "queue": 1,
+      "canonical_closure_owner": "CTL-02",
+      "canonical_cards": [
+        "CTL-02"
+      ],
+      "coverage_pointer": "/findings/37",
+      "task_anchors": [
+        "D.md#bundle-ctl-02"
+      ],
+      "baseline_pointer": "/findings/B125",
+      "accounting_disposition": "limited",
+      "bounded_evidence": "Owned Python RNG is JSON-restored with continuation/local-stream controls.",
+      "remaining_input_or_consumer": "Unsupported RL profiles are refused; no arbitrary external RNG/backend checkpoint equivalence is claimed.",
+      "next_owner": "CTL-02 verification owner / strategy-profile owner / G",
+      "receipt_keys": [
+        "q1_state",
+        "q1_continuation"
+      ]
+    },
+    {
+      "id": "B126",
+      "queue": 1,
+      "canonical_closure_owner": "CTL-02",
+      "canonical_cards": [
+        "CTL-02"
+      ],
+      "coverage_pointer": "/findings/38",
+      "task_anchors": [
+        "D.md#bundle-ctl-02"
+      ],
+      "baseline_pointer": "/findings/B126",
+      "accounting_disposition": "limited",
+      "bounded_evidence": "Actual Sobol cursor/cache continuation and Torch-independent sequence controls are recorded.",
+      "remaining_input_or_consumer": "Unreceived backend/profile variants require their own exact checkpoint inputs; no cross-version equivalence is inferred.",
+      "next_owner": "CTL-02 verification owner / backend-profile owner / G",
+      "receipt_keys": [
+        "q1_state",
+        "q1_continuation"
+      ]
+    },
+    {
+      "id": "B127",
+      "queue": 1,
+      "canonical_closure_owner": "OPT-02",
+      "canonical_cards": [
+        "OPT-02"
+      ],
+      "coverage_pointer": "/findings/39",
+      "task_anchors": [
+        "D.md#bundle-opt-02"
+      ],
+      "baseline_pointer": "/findings/B127",
+      "accounting_disposition": "limited",
+      "bounded_evidence": "Actual MO/neural executed physical coordinates and GP normalized numerical corpus have analytical controls.",
+      "remaining_input_or_consumer": "Complete MO/NN checkpoint replay and deployed adapters are not established by the executed-coordinate slice.",
+      "next_owner": "OPT-02 verification owner / MO/NN adapter owners / G",
+      "receipt_keys": [
+        "q1_executed",
+        "q1_continuation"
+      ]
+    },
+    {
+      "id": "B128",
+      "queue": 2,
+      "canonical_closure_owner": "TRN-01",
+      "canonical_cards": [
+        "TRN-01"
+      ],
+      "coverage_pointer": "/findings/40",
+      "task_anchors": [
+        "D.md#bundle-trn-01"
+      ],
+      "baseline_pointer": "/findings/B128",
+      "accounting_disposition": "limited",
+      "bounded_evidence": "Typed Evaluation CAS to native HNSW bridge and actual GP fits8 legitimate rows/7 after malformed-row exclusion.",
+      "remaining_input_or_consumer": "Live history issuer remains pending. The separately reported public BGC stage-flag repair is a linked receiver gap pending exact corrective replay.",
+      "next_owner": "transfer_owner / search_owner / live history issuer / G",
+      "receipt_keys": [
+        "q2_matrix"
+      ]
+    },
+    {
+      "id": "B129",
+      "queue": 2,
+      "canonical_closure_owner": "TRN-02",
+      "canonical_cards": [
+        "TRN-02"
+      ],
+      "coverage_pointer": "/findings/41",
+      "task_anchors": [
+        "D.md#bundle-trn-02"
+      ],
+      "baseline_pointer": "/findings/B129",
+      "accounting_disposition": "limited",
+      "bounded_evidence": "Exact history ref survives selection, without a second ANN search; same-run new-ref controls distinguish bytes.",
+      "remaining_input_or_consumer": "Second-process pinned snapshot and live history availability are not asserted by local exact-ref controls.",
+      "next_owner": "TRN-02 verification owner / history availability owner / G",
+      "receipt_keys": [
+        "q2_matrix"
+      ]
+    },
+    {
+      "id": "B130",
+      "queue": 2,
+      "canonical_closure_owner": "TRN-01",
+      "canonical_cards": [
+        "TRN-01"
+      ],
+      "coverage_pointer": "/findings/43",
+      "task_anchors": [
+        "D.md#bundle-trn-01"
+      ],
+      "baseline_pointer": "/findings/B130",
+      "accounting_disposition": "limited",
+      "bounded_evidence": "Declared normalization, best-first ordering and quotas are exercised.",
+      "remaining_input_or_consumer": "No acceleration or optimization-quality benefit follows from transfer ordering alone.",
+      "next_owner": "TRN-01 verification owner / numerical-profile owner / G",
+      "receipt_keys": [
+        "q2_matrix"
+      ]
+    },
+    {
+      "id": "B131",
+      "queue": 2,
+      "canonical_closure_owner": "TRN-01",
+      "canonical_cards": [
+        "TRN-01"
+      ],
+      "coverage_pointer": "/findings/44",
+      "task_anchors": [
+        "D.md#bundle-trn-01"
+      ],
+      "baseline_pointer": "/findings/B131",
+      "accounting_disposition": "held",
+      "bounded_evidence": "Technical space/units/direction/data/model/evaluator/split/origin descriptors are content-bound.",
+      "remaining_input_or_consumer": "Institutional tenant, split and source-access owner authorization is absent; technical labels do not appoint it.",
+      "next_owner": "Institutional source-access/split owner / transfer_owner / G",
+      "receipt_keys": [
+        "q2_matrix"
+      ]
+    },
+    {
+      "id": "B132",
+      "queue": 2,
+      "canonical_closure_owner": "TRN-01",
+      "canonical_cards": [
+        "TRN-01"
+      ],
+      "coverage_pointer": "/findings/45",
+      "task_anchors": [
+        "D.md#bundle-trn-01"
+      ],
+      "baseline_pointer": "/findings/B132",
+      "accounting_disposition": "limited",
+      "bounded_evidence": "Reverse bridge retains actual candidate/raw metrics/split and original refs as limited nonpromotable corpus.",
+      "remaining_input_or_consumer": "Live benchmark issuer is missing; no fabricated holdout or promotion authority is created.",
+      "next_owner": "Benchmark/input issuer / transfer_owner / G",
+      "receipt_keys": [
+        "q2_matrix"
+      ]
+    },
+    {
+      "id": "B133",
+      "queue": 2,
+      "canonical_closure_owner": "TRN-02",
+      "canonical_cards": [
+        "TRN-02"
+      ],
+      "coverage_pointer": "/findings/46",
+      "task_anchors": [
+        "D.md#bundle-trn-02"
+      ],
+      "baseline_pointer": "/findings/B133",
+      "accounting_disposition": "limited",
+      "bounded_evidence": "Immutable exact-ref/codec cache and local bounded LRU eviction/oversize bypass are exercised.",
+      "remaining_input_or_consumer": "Local history cache is not a principal/latest distributed pointer; owner-authorized live history remains separate.",
+      "next_owner": "TRN-02 verification owner / history issuer / G",
+      "receipt_keys": [
+        "q2_matrix"
+      ]
+    },
+    {
+      "id": "B134",
+      "queue": 2,
+      "canonical_closure_owner": "TRN-02",
+      "canonical_cards": [
+        "TRN-02"
+      ],
+      "coverage_pointer": "/findings/47",
+      "task_anchors": [
+        "D.md#bundle-trn-02"
+      ],
+      "baseline_pointer": "/findings/B134",
+      "accounting_disposition": "held",
+      "bounded_evidence": "Actual native HNSW failure/barrier and old/new generation tuple controls are recorded.",
+      "remaining_input_or_consumer": "Live owner-issued generation metadata and second-process scope remain unestablished.",
+      "next_owner": "Index-generation metadata owner / transfer_owner / G",
+      "receipt_keys": [
+        "q2_matrix"
+      ]
+    },
+    {
+      "id": "B135",
+      "queue": 2,
+      "canonical_closure_owner": "TRN-03",
+      "canonical_cards": [
+        "TRN-03"
+      ],
+      "coverage_pointer": "/findings/48",
+      "task_anchors": [
+        "D.md#bundle-trn-03"
+      ],
+      "baseline_pointer": "/findings/B135",
+      "accounting_disposition": "limited",
+      "bounded_evidence": "Nested typed/serialized context reaches actual native lesson consumer without an extra resolver patch.",
+      "remaining_input_or_consumer": "Task-family/domain labels do not establish authorization or arbitrary invalid-base/override profile behavior.",
+      "next_owner": "TRN-03 verification owner / context-profile owner / G",
+      "receipt_keys": [
+        "q2_matrix"
+      ]
+    },
+    {
+      "id": "B136",
+      "queue": 2,
+      "canonical_closure_owner": "TRN-03",
+      "canonical_cards": [
+        "TRN-03"
+      ],
+      "coverage_pointer": "/findings/49",
+      "task_anchors": [
+        "D.md#bundle-trn-03"
+      ],
+      "baseline_pointer": "/findings/B136",
+      "accounting_disposition": "limited",
+      "bounded_evidence": "Local and transfer query filters apply before and after projection in shared actual paths.",
+      "remaining_input_or_consumer": "Tenant labels and shared filtering are not institutional access authority.",
+      "next_owner": "Access/filter-profile owner / transfer_owner / G",
+      "receipt_keys": [
+        "q2_matrix"
+      ]
+    },
+    {
+      "id": "B137",
+      "queue": 2,
+      "canonical_closure_owner": "TRN-03",
+      "canonical_cards": [
+        "TRN-03"
+      ],
+      "coverage_pointer": "/findings/50",
+      "task_anchors": [
+        "D.md#bundle-trn-03"
+      ],
+      "baseline_pointer": "/findings/B137",
+      "accounting_disposition": "held",
+      "bounded_evidence": "Ordinary reads/restart/transfer preserve producer confidence and distinguish access clock from fresh producer inputs.",
+      "remaining_input_or_consumer": "Genuine authorized revalidation event, grounds and time issuer are absent; no empirical confidence truth is inferred.",
+      "next_owner": "Revalidation-event issuer / lesson lifecycle owner / G",
+      "receipt_keys": [
+        "q2_matrix"
+      ]
+    },
+    {
+      "id": "B156",
+      "queue": 4,
+      "canonical_closure_owner": "FUN-01",
+      "canonical_cards": [
+        "FUN-01"
+      ],
+      "coverage_pointer": "/findings/71",
+      "task_anchors": [
+        "D.md#bundle-fun-01"
+      ],
+      "baseline_pointer": "/findings/B156",
+      "accounting_disposition": "limited",
+      "bounded_evidence": "Actual context/role/time ticket identity, split cache and paid same-context reuse are exercised.",
+      "remaining_input_or_consumer": "Deployed context/caller profile coverage is not established by fixture identity controls.",
+      "next_owner": "FUN-01 verification owner / caller/context owner / G",
+      "receipt_keys": [
+        "q4_owner"
+      ]
+    },
+    {
+      "id": "B157",
+      "queue": 4,
+      "canonical_closure_owner": "FUN-02",
+      "canonical_cards": [
+        "FUN-02"
+      ],
+      "coverage_pointer": "/findings/72",
+      "task_anchors": [
+        "D.md#bundle-fun-02"
+      ],
+      "baseline_pointer": "/findings/B157",
+      "accounting_disposition": "held",
+      "bounded_evidence": "Actual Foundry bootstrap20/80 configurations preserve downstream numerical sample/CI input laws.",
+      "remaining_input_or_consumer": "Native policy runtime lacks the required raw-sample/estimand provider port; fixed500/64/32 labels are not actual sample counts.",
+      "next_owner": "B runtime/factory owner / F or E estimand/input supplier / funnel_owner / G",
+      "receipt_keys": [
+        "q4_owner"
+      ]
+    },
+    {
+      "id": "B158",
+      "queue": 4,
+      "canonical_closure_owner": "FUN-01",
+      "canonical_cards": [
+        "FUN-01"
+      ],
+      "coverage_pointer": "/findings/73",
+      "task_anchors": [
+        "D.md#bundle-fun-01"
+      ],
+      "baseline_pointer": "/findings/B158",
+      "accounting_disposition": "limited",
+      "bounded_evidence": "Actual full/split native resource event sets, amounts and fresh ledger reopening agree.",
+      "remaining_input_or_consumer": "L2 scheduler path and deployed factory/profile remain distinct from recorded L3/L4 split caller controls.",
+      "next_owner": "FUN-01 verification owner / L2 scheduler/factory owner / G",
+      "receipt_keys": [
+        "q4_owner",
+        "q4_independent"
+      ]
+    },
+    {
+      "id": "B159",
+      "queue": 4,
+      "canonical_closure_owner": "FUN-01",
+      "canonical_cards": [
+        "FUN-01"
+      ],
+      "coverage_pointer": "/findings/74",
+      "task_anchors": [
+        "D.md#bundle-fun-01"
+      ],
+      "baseline_pointer": "/findings/B159",
+      "accounting_disposition": "limited",
+      "bounded_evidence": "Actual paid1 plus held reservation3.5 leaves.5 and blocks L4; unrelated payment does not resume; owned release resumes only L4.",
+      "remaining_input_or_consumer": "Stage-owned blockers without an actual reevaluable prerequisite remain unsupported; no blanket resume permission is inferred.",
+      "next_owner": "FUN-01 verification owner / blocker prerequisite owner / G",
+      "receipt_keys": [
+        "q4_owner"
+      ]
+    },
+    {
+      "id": "B160",
+      "queue": 4,
+      "canonical_closure_owner": "FUN-02",
+      "canonical_cards": [
+        "FUN-02"
+      ],
+      "coverage_pointer": "/findings/76",
+      "task_anchors": [
+        "D.md#bundle-fun-02"
+      ],
+      "baseline_pointer": "/findings/B160",
+      "accounting_disposition": "limited",
+      "bounded_evidence": "Empty/capped not_evaluated is distinct from actual numerical zero.",
+      "remaining_input_or_consumer": "External projection/finding acceptance remains separate from bounded empty-stage outcomes.",
+      "next_owner": "FUN-02 verification owner / projection consumer owner / G",
+      "receipt_keys": [
+        "q4_owner"
+      ]
+    },
+    {
+      "id": "B161",
+      "queue": 4,
+      "canonical_closure_owner": "FUN-03",
+      "canonical_cards": [
+        "FUN-03"
+      ],
+      "coverage_pointer": "/findings/77",
+      "task_anchors": [
+        "D.md#bundle-fun-03"
+      ],
+      "baseline_pointer": "/findings/B161",
+      "accounting_disposition": "held",
+      "bounded_evidence": "Current final stage and historical maximum are separate; actual partial stress fraction remains MODEL1.",
+      "remaining_input_or_consumer": "Permitted same-subject/value/input/rule/time update and supersession relation is missing; do not appoint global-minimum or last-write semantics.",
+      "next_owner": "Uncertainty update/supersession rule owner / funnel_owner / G",
+      "receipt_keys": [
+        "q4_owner",
+        "q4_independent"
+      ]
+    },
+    {
+      "id": "B162",
+      "queue": 4,
+      "canonical_closure_owner": "FUN-02",
+      "canonical_cards": [
+        "FUN-02"
+      ],
+      "coverage_pointer": "/findings/78",
+      "task_anchors": [
+        "D.md#bundle-fun-02"
+      ],
+      "baseline_pointer": "/findings/B162",
+      "accounting_disposition": "limited",
+      "bounded_evidence": "Malformed/missing/negative/nonfinite interval widths remain unknown1; genuine0 stays0.",
+      "remaining_input_or_consumer": "Native scientific interval provenance and declared profile validity remain supplied-input boundaries.",
+      "next_owner": "FUN-02 verification owner / scientific interval supplier / G",
+      "receipt_keys": [
+        "q4_owner"
+      ]
+    },
+    {
+      "id": "B163",
+      "queue": 4,
+      "canonical_closure_owner": "FUN-03",
+      "canonical_cards": [
+        "FUN-03"
+      ],
+      "coverage_pointer": "/findings/79",
+      "task_anchors": [
+        "D.md#bundle-fun-03"
+      ],
+      "baseline_pointer": "/findings/B163",
+      "accounting_disposition": "limited",
+      "bounded_evidence": "Empty/bad tracker classification and routing agree on unknown/no-promotion states.",
+      "remaining_input_or_consumer": "Calibration corpus/provider/profile validity is not appointed by tracker labels.",
+      "next_owner": "Calibration corpus/profile owner / funnel_owner / G",
+      "receipt_keys": [
+        "q4_owner"
+      ]
+    },
+    {
+      "id": "B164",
+      "queue": 4,
+      "canonical_closure_owner": "FUN-03",
+      "canonical_cards": [
+        "FUN-03"
+      ],
+      "coverage_pointer": "/findings/80",
+      "task_anchors": [
+        "D.md#bundle-fun-03"
+      ],
+      "baseline_pointer": "/findings/B164",
+      "accounting_disposition": "held",
+      "bounded_evidence": "Generic bool/callback/retained-marker paths cause0 effects; read-only precomputed values remain possible.",
+      "remaining_input_or_consumer": "Typed issuer/current verifier/revoke-serialized writer API is absent; valid owner-issued positive is UNRUN/bridge_missing. Legacy-marker barrier is not typed permit revocation.",
+      "next_owner": "Typed promotion issuer/verifier/writer boundary owner / G",
+      "receipt_keys": [
+        "q4_owner",
+        "q4_independent"
+      ]
+    },
+    {
+      "id": "B165",
+      "queue": 4,
+      "canonical_closure_owner": "FUN-02",
+      "canonical_cards": [
+        "FUN-02"
+      ],
+      "coverage_pointer": "/findings/81",
+      "task_anchors": [
+        "D.md#bundle-fun-02"
+      ],
+      "baseline_pointer": "/findings/B165",
+      "accounting_disposition": "limited",
+      "bounded_evidence": "Actual aggregate compatibility verdict and stage verdict are distinct; corrected copies retain paid resource provenance.",
+      "remaining_input_or_consumer": "No downstream publication or promotion authority follows from the compatibility verdict alone.",
+      "next_owner": "FUN-02 verification owner / downstream publisher / G",
+      "receipt_keys": [
+        "q4_owner",
+        "q4_independent"
+      ]
+    },
+    {
+      "id": "B41",
+      "queue": 5,
+      "canonical_closure_owner": "STP-01",
+      "canonical_cards": [
+        "STP-01"
+      ],
+      "coverage_pointer": "/findings/166",
+      "task_anchors": [
+        "D.md#bundle-stp-01"
+      ],
+      "baseline_pointer": "/findings/B41",
+      "accounting_disposition": "limited",
+      "bounded_evidence": "Current missing/stale/invalid similarity controls are recorded.",
+      "remaining_input_or_consumer": "Historical/live profile equivalence and finding-level acceptance are not inferred from fresh controls.",
+      "next_owner": "STP-01 verification owner / G",
+      "receipt_keys": [
+        "q5_owner"
+      ]
+    },
+    {
+      "id": "LA-014",
+      "queue": 3,
+      "canonical_closure_owner": "SRV-01",
+      "canonical_cards": [
+        "SRV-01"
+      ],
+      "coverage_pointer": "/findings/238",
+      "task_anchors": [
+        "D.md#bundle-srv-01"
+      ],
+      "baseline_pointer": "/findings/LA-014",
+      "accounting_disposition": "open",
+      "bounded_evidence": "Public native ask/tell route and clean contracts have bounded actual tests.",
+      "remaining_input_or_consumer": "Served hierarchical factory/cutover consumer remains missing; global architecture/import/release failures/errors are not waived.",
+      "next_owner": "SRV-01 served factory/cutover owner / gp_witness / G",
+      "receipt_keys": [
+        "q3_owner",
+        "q3_lifecycle"
+      ]
+    },
+    {
+      "id": "LA-015",
+      "queue": 3,
+      "canonical_closure_owner": "SRV-03",
+      "canonical_cards": [
+        "CTL-01",
+        "SRV-03"
+      ],
+      "coverage_pointer": "/findings/239",
+      "task_anchors": [
+        "D.md#bundle-srv-03"
+      ],
+      "baseline_pointer": "/findings/LA-015",
+      "accounting_disposition": "open",
+      "bounded_evidence": "Actual public run/tell, detached evaluation bridge, repeated native lifecycle and supplier companion are recorded.",
+      "remaining_input_or_consumer": "Persisted SearchService restore/public resume, reader-window history/import retirement and rollback characterization remain missing. CTL-01 supplier evidence does not transfer SRV-03 closure ownership.",
+      "next_owner": "SRV-03 persistence/cutover/retirement owner / gp_witness / G",
+      "receipt_keys": [
+        "q3_owner",
+        "q3_lifecycle",
+        "q4_owner"
+      ]
+    }
+  ],
+  "global_gate_scope": {
+    "runtime_aggregate": "not_run_by_this_leaf",
+    "champion185": "Native lifecycle8PASS is bounded; architecture exit2 ERROR (ENOSPC/required generated checks UNRUN), imports exit1 FAIL21 and release exit1 FAIL2 remain in q3_lifecycle; no inherited waiver.",
+    "mandatory_invocation_analysis": "Earlier SIGKILL/ERROR/UNRUN remains separate; incomplete analyzer output is not complete invocation absence.",
+    "next_owner": "Root/G performs exact frozen final union, quality/gates and criterion-specific adjudication after corrective receipts."
+  },
+  "authority_boundary": [
+    "No criterion rewrite or closure claim.",
+    "No promotion/scientific/input authority from hashes, passing checks or checklist counts.",
+    "Q5 is accounting only because reviewer authored implementation.",
+    "No production writes, children, other-chat dispatch, reviewer quota, deletion or history rewrite."
+  ],
+  "pattern_pass": [
+    "P14",
+    "P29",
+    "P31",
+    "P35",
+    "P37",
+    "P38",
+    "P40",
+    "P41"
+  ],
+  "post_snapshot_owner_update": {
+    "receipt": {
+      "source_sha": "cbe90a83a93d01aa5b2da112c43f027a214e3a0d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-native-cost-corrective.json",
+      "sha256": "9a402d81af4ecf3503dca51f46390d419f50d426796bc1330774b1d5d795a06e",
+      "bytes": 23353
+    },
+    "candidate_source_sha": "9798170a329fd31441ec3e6afdba7a409a1bdfc4",
+    "covered_finding_ids": [
+      "B120",
+      "B158",
+      "B159"
+    ],
+    "role": "Later owner-published corrective receipt, read for accounting only; not independent source review or runtime replay by this accounting task. Not membership in8cd snapshot.",
+    "owner_reported_result": "323 focused PASS; original native90FAIL8PASS, four range FAIL and interrupted ERROR retained in owner receipt.",
+    "snapshot_rule": "Original point-in-time checklist remains8cd. Root independent binding/replay and final aggregate must reconcile the corrected cost premise; no closure or whole broader gate PASS follows."
+  }
+}

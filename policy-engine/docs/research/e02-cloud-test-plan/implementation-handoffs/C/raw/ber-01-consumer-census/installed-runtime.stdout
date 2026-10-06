@@ -1,0 +1,88 @@
+{
+  "candidate_commit": "87999f69c5f99d69ee2622ef00cd7f4e04d7d572",
+  "candidate_tree": "0280403e6837c5b220ac748a7674f4e5830ba0ab",
+  "conditional_evidence_removed": {
+    "builder_preserved_full_bundle_before_cas": true,
+    "builder_record_artifact_id": "sha256:ce08a6a5cb4d4305747a17b207516d1a1ddd01a01e9b1c0a28518d9b3fd4e5e7",
+    "builder_record_sha256": "ce08a6a5cb4d4305747a17b207516d1a1ddd01a01e9b1c0a28518d9b3fd4e5e7",
+    "bundle_artifact_id": "sha256:d58e255c0def554964919b6df315c15944ed79254790ea889dc82efc78cb0da8",
+    "bundle_payload_sha256": "d58e255c0def554964919b6df315c15944ed79254790ea889dc82efc78cb0da8",
+    "cas_readback_preserved_full_bundle": true,
+    "consumer_issue_codes": [
+      "policy_design_warrant_berl_validation_failed"
+    ],
+    "consumer_issue_messages": [
+      "BERL warrant reliability thresholds did not pass: conditional_law_evidence_missing:kernel_shap_conditional"
+    ],
+    "consumer_schema_version": "1.1.0",
+    "consumer_status": "fail",
+    "consumer_violations": [
+      "conditional_law_evidence_missing:kernel_shap_conditional"
+    ]
+  },
+  "conditional_unresolved": {
+    "builder_preserved_full_bundle_before_cas": true,
+    "builder_record_artifact_id": "sha256:abd9a17592999eeeba977eb8606d6f7e91243c159f1062726adacdc8c44ec5c4",
+    "builder_record_sha256": "abd9a17592999eeeba977eb8606d6f7e91243c159f1062726adacdc8c44ec5c4",
+    "bundle_artifact_id": "sha256:744861fc304fc635ec86381ca0c5a6cdbd15399a3223cbc8139076db7d2ba43a",
+    "bundle_payload_sha256": "744861fc304fc635ec86381ca0c5a6cdbd15399a3223cbc8139076db7d2ba43a",
+    "cas_readback_preserved_full_bundle": true,
+    "consumer_issue_codes": [
+      "policy_design_warrant_berl_validation_failed"
+    ],
+    "consumer_issue_messages": [
+      "BERL warrant reliability thresholds did not pass: conditional_law_authority_not_admitted:kernel_shap_conditional"
+    ],
+    "consumer_schema_version": "1.1.0",
+    "consumer_status": "fail",
+    "consumer_violations": [
+      "conditional_law_authority_not_admitted:kernel_shap_conditional"
+    ]
+  },
+  "echo_verifier_calls": 0,
+  "fixture_scope": "Synthetic schema/consumer fixture only; no scientific precision assertion, production model, or external evidence was run or admitted.",
+  "installed_builder_cas_consumer_profiles": {
+    "1.0.0": {
+      "builder_preserved_full_bundle_before_cas": true,
+      "builder_record_artifact_id": "sha256:0db76af912a7db398b405eaa463479f406ffb2467c5a3d7901650cba7e95aa45",
+      "builder_record_sha256": "0db76af912a7db398b405eaa463479f406ffb2467c5a3d7901650cba7e95aa45",
+      "bundle_artifact_id": "sha256:fc34621297000e22975ce63b4fe4a10e3aca91f53c2fdf7e3686fd0e9b860a9c",
+      "bundle_payload_sha256": "fc34621297000e22975ce63b4fe4a10e3aca91f53c2fdf7e3686fd0e9b860a9c",
+      "cas_readback_preserved_full_bundle": true,
+      "consumer_issue_codes": [],
+      "consumer_issue_messages": [],
+      "consumer_schema_version": "1.0.0",
+      "consumer_status": "pass",
+      "consumer_violations": []
+    },
+    "1.1.0": {
+      "builder_preserved_full_bundle_before_cas": true,
+      "builder_record_artifact_id": "sha256:a8616bc424d0e0ca669a6caf8ce106202121bc259d97de9ccbc396f5b19061c2",
+      "builder_record_sha256": "a8616bc424d0e0ca669a6caf8ce106202121bc259d97de9ccbc396f5b19061c2",
+      "bundle_artifact_id": "sha256:1a0943692b14ce7ab82300508e00456a7a86962cf448ae9ba222bd254ffed09f",
+      "bundle_payload_sha256": "1a0943692b14ce7ab82300508e00456a7a86962cf448ae9ba222bd254ffed09f",
+      "cas_readback_preserved_full_bundle": true,
+      "consumer_issue_codes": [],
+      "consumer_issue_messages": [],
+      "consumer_schema_version": "1.1.0",
+      "consumer_status": "pass",
+      "consumer_violations": []
+    }
+  },
+  "runtime_environment": {
+    "distribution_version": "0.1.0",
+    "isolated_flag": 1,
+    "module_origins": {
+      "polisyos": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl/venv/lib/python3.14/site-packages/polisyos/__init__.py",
+      "polisyos.berl": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl/venv/lib/python3.14/site-packages/polisyos/berl/__init__.py",
+      "polisyos.core.artifacts": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl/venv/lib/python3.14/site-packages/polisyos/core/artifacts/__init__.py",
+      "polisyos.core.canon": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl/venv/lib/python3.14/site-packages/polisyos/core/canon/__init__.py",
+      "polisyos.runtime.quality.explanation_reliability": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl/venv/lib/python3.14/site-packages/polisyos/runtime/quality/explanation_reliability.py"
+    },
+    "pytest_present": false,
+    "python": "3.14.0 (main, Oct  7 2025, 09:34:52) [Clang 17.0.0 (clang-1700.0.13.3)]",
+    "site_packages": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl/venv/lib/python3.14/site-packages"
+  },
+  "sdist_sha256": "222c2a0d724b883c769070a4af093186f753ac7deaf032579e969a1d5eabe549",
+  "wheel_sha256": "27f15cec628f5b8ab9c1e48dcb9ddf9c6d363ea6e4c413be2a0239832b0a7e2e"
+}

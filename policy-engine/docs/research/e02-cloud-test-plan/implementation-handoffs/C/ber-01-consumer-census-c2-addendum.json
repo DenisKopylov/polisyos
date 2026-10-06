@@ -1,0 +1,197 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "C",
+  "slice": "ber-01-consumer-census-c2-addendum",
+  "created_at": "2026-10-06T15:27:02Z",
+  "closure_ids": [],
+  "bundle_ids": ["BER-01"],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "slice_base_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "source_freeze_sha": "87999f69c5f99d69ee2622ef00cd7f4e04d7d572",
+  "source_freeze_tree_sha": "0280403e6837c5b220ac748a7674f4e5830ba0ab",
+  "evidence_review_head": "95ea3780f1101ba1ad1a3087923c65c8aac53b7d",
+  "previous_handoff": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/ber-01-final-combined-c2-adjudication.json@7d9cb75ee088f62ea849499bb012f3fcf16a9bb64b1248df8e1ff4e2ba91154a",
+  "branch": "codex/e02-C-berl-20261006",
+  "pull_request": null,
+  "source_freeze_status": {
+    "source_or_test_changes_after_freeze": 0,
+    "census_source_diff_after_target": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/ber-01-final-combined-c2-adjudication.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/ber-01-runtime-record-readback-review-response.json"
+    ],
+    "complete_base_to_source_freeze_path_set": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/ber-01-final-combined-c2-adjudication.json@7d9cb75ee088f62ea849499bb012f3fcf16a9bb64b1248df8e1ff4e2ba91154a#changed_paths_base_to_source_freeze (28 paths; read back against git diff-tree)."
+  },
+  "tracked_evidence": {
+    "directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/ber-01-consumer-census/",
+    "purpose": "Retains moderate decisive command argv, scripts, receipts, and small outputs in Git. The large complete pinned-tree search output remains in ignored scratch and is cited by path and SHA below.",
+    "files": [
+      {"path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/ber-01-consumer-census/consumer-census-receipt.json", "sha256": "708d60218b9138ef5e1d0bacb00b9f5d68f482d2db7447b13c273b6eff4e7d4a", "bytes": 10563},
+      {"path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/ber-01-consumer-census/commands.txt", "sha256": "879c5be6d34ad69d210b23f4291b75af53d2798d658169e0a7c13668b1e0c2ee", "bytes": 5073},
+      {"path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/ber-01-consumer-census/census.py", "sha256": "9a7cda12ca564df903a724b41cb9b7aaba14b9d1565638fb10790135fd2bab6f", "bytes": 3453},
+      {"path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/ber-01-consumer-census/pinned-tree-census.py", "sha256": "855c612c757a7eeb6288ae9703316b8b92bda33cdef51564ac992d7a6fc03e27", "bytes": 3601},
+      {"path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/ber-01-consumer-census/live-reader-profile-probe.py", "sha256": "fac78a124fda0690085995b5da0fe278d0d8cb73d58d7b82a34b1969d7c646f4", "bytes": 1041},
+      {"path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/ber-01-consumer-census/pinned-tree-census.stdout", "sha256": "afdae609a93c75c8cef9a961b2206d4cde16eea1a435bb41b93375d6e5dc882f", "bytes": 2315},
+      {"path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/ber-01-consumer-census/live-reader-profile-probe.stdout", "sha256": "098393fcc08ca50e02b7ea82d316c4a5d6bd9995ab26290fd91ff8abdb1cf22a", "bytes": 363},
+      {"path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/ber-01-consumer-census/source-test-output-captures.json", "sha256": "c6ed70ebcb457976eddad177a41bad7881586d213da8b8a31eac6b15c5714ae9", "bytes": 1951},
+      {"path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/ber-01-consumer-census/installed-command-results.json", "sha256": "11bd8ebe4a76bbf211edef76d60719cd7272cab661b4a8fd7ad8c5e71f80e2e8", "bytes": 16013},
+      {"path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/ber-01-consumer-census/installed_berl_probe_87999.py", "sha256": "847d809869cecea0a49fc804ecf5f68a2be6d234d4b4abb323d9dfcf34bd0702", "bytes": 12192},
+      {"path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/ber-01-consumer-census/installed-runtime.stdout", "sha256": "6a885ddda6238dd8015bc75c01303d088d8e880969b3bc9b1a9028e52b9c01c3", "bytes": 5350},
+      {"path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/ber-01-consumer-census/package-inventory.json", "sha256": "898fd4c3bf5fd6f22d042fae4dcf4ca58307957ee1df580e5dcb70b0ba3b3344", "bytes": 7715},
+      {"path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/ber-01-consumer-census/package_inventory_87999.py", "sha256": "60994b272f70ba270a3a6be225d53eb9a2ae9313b447bcced452707396ede06a", "bytes": 9081}
+    ]
+  },
+  "supersedes_specific_assessment": "The preceding handoff's LA-034 external-consumer census UNRUN is superseded only for the complete pinned tracked repository: the known in-repository readers and static-schema file paths have now been enumerated. This does not establish that no third-party reader exists, nor ratify the packaged static JSON as a supported external contract.",
+  "historical_ledger": "Unchanged. This appendix adds a current four-state assessment and does not rewrite the recorded partial status in historical ledgers or closure tables.",
+  "known_schema_consumer_census": {
+    "result": "PASS",
+    "target_commit": "87999f69c5f99d69ee2622ef00cd7f4e04d7d572",
+    "target_tree": "0280403e6837c5b220ac748a7674f4e5830ba0ab",
+    "enumeration": "Pinned Git tree: git ls-tree -r -z --full-tree 87999f69c5f99d69ee2622ef00cd7f4e04d7d572; full-tree pattern search and complete BERL source loader/writer search.",
+    "denominator": {
+      "tracked_git_paths": 13705,
+      "tracked_entries_are_blobs": 13705,
+      "suffix_counts": {
+        ".py": 6442,
+        ".json": 2956,
+        ".md": 2146,
+        ".ts": 519,
+        ".tsx": 720
+      },
+      "additional_suffix_counts_and_full_path_hits": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/berl-schema-consumers/pinned-tree-census.json@ef774d29abf928b35515d2a9a3fd85682815814c3414bdd888fcdd3ae224c955"
+    },
+    "known_persisted_readers": [
+      {
+        "class": "Canonical persisted parser",
+        "owner": "policy-engine/src/polisyos/berl/contracts/schema.py:65",
+        "behavior": "Selects exact persisted version and validates through the generated Draft 2020-12 schema with FormatChecker, then the strict DTO. Current 1.1.0 and generated historical 1.0.0 profiles are supported; unknown versions reject."
+      },
+      {
+        "class": "Runtime persisted reader",
+        "owner": "policy-engine/src/polisyos/runtime/quality/explanation_reliability.py:388",
+        "behavior": "_validate_bundle_record calls the canonical persisted parser and BERL semantic validator on the embedded bundle. The corrected builder/CAS/readback/evaluator path is covered by current source tests and the installed Runtime wheel probe."
+      },
+      {
+        "class": "Scientist Phase 5 persisted reader",
+        "owner": "policy-engine/src/polisyos/scientist/validation/phase5_preflight.py:559,1098",
+        "behavior": "Phase 5 passes serialized explanation records to _run_berl_validation, which calls the shared parser and semantic validator; malformed records fail as diagnostic-only."
+      }
+    ],
+    "related_non_readers": [
+      {
+        "class": "Schema producer/resource writer",
+        "owner": "policy-engine/src/polisyos/berl/contracts/schema.py:47,137",
+        "behavior": "One current schema is generated from the DTO owner; the writer writes to a caller-selected path. The checked-in 1.1.0 resource matches generated content and is shipped in the wheel, but no source resource loader reads it."
+      },
+      {
+        "class": "DTO producer and in-memory consumers",
+        "owner": "policy-engine/src/polisyos/berl/service.py:167,249",
+        "behavior": "The orchestrator constructs ExplanationBundle DTOs and applies semantic validation; these paths do not read the persisted JSON resource."
+      },
+      {
+        "class": "Typed reference contracts",
+        "owner": "policy-engine/src/polisyos/core/contracts/scientist.py:187; policy-engine/src/polisyos/ir/registry/refs.py:276",
+        "behavior": "Reference DTOs hold artifact id, kind, and media type; they do not parse or validate the full bundle payload."
+      }
+    ],
+    "surface_census": {
+      "tracked_apps_exact_schema_or_bundle_hits": 0,
+      "tracked_schemas_exact_schema_or_bundle_hits": 0,
+      "generated_artifacts_manifest_or_reference_has_schema_registration": false,
+      "http_or_dashboard_bundle_consumer_identified": false,
+      "direct_static_schema_resource_readers_in_berl_source": 0,
+      "external_consumer_identity": "not_established; no tracked external validator/consumer contract was found. Wheel distribution makes the file available but does not identify a reader.",
+      "supported_external_resource_contract": "not ratified; this keeps LA-034 limited. Do not interpret the bounded Git census as proof that third-party readers do not exist.",
+      "package_profile_caveat": "The shipped static JSON is current profile 1.1.0; the in-code persisted parser also supports historical 1.0.0. External compatibility scope for that distinction is not ratified."
+    },
+    "receipt": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/berl-schema-consumers/consumer-census-receipt.json@708d60218b9138ef5e1d0bacb00b9f5d68f482d2db7447b13c273b6eff4e7d4a",
+    "pinned_tree_raw": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/berl-schema-consumers/pinned-tree-census.json@ef774d29abf928b35515d2a9a3fd85682815814c3414bdd888fcdd3ae224c955",
+    "tracked_consumer_full_output": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/berl-schema-consumers/tracked-consumer-census.json@fd24440c383655fbd02a3f32ed52b62b675984c26a30f8e09fa608caccf1fc28",
+    "deciding_stdout": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/berl-schema-consumers/pinned-tree-census.stdout@afdae609a93c75c8cef9a961b2206d4cde16eea1a435bb41b93375d6e5dc882f",
+    "commands_manifest": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/berl-schema-consumers/commands.txt@879c5be6d34ad69d210b23f4291b75af53d2798d658169e0a7c13668b1e0c2ee"
+  },
+  "fresh_consumer_checks": [
+    {
+      "command": "Focused test_ber_01 persisted-profile/content/consumer-rejection selection at frozen source; exact argv in berl-schema-consumers/commands.txt.",
+      "result": "PASS",
+      "cases": 10,
+      "stdout_capture": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/ber-01-consumer-census/source-test-output-captures.json@c6ed70ebcb457976eddad177a41bad7881586d213da8b8a31eac6b15c5714ae9#profile_consumer_tests",
+      "raw_stdout": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/berl-schema-consumers/profile-consumer-tests.stdout@4c2ea2926ae86265f39b4b3ef007d038a1dabb1ce66eaa460121354f2dcf679f",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "test_explanation_reliability_bridge.py at frozen source; exact argv in berl-schema-consumers/commands.txt.",
+      "result": "PASS",
+      "cases": 1,
+      "stdout_capture": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/ber-01-consumer-census/source-test-output-captures.json@c6ed70ebcb457976eddad177a41bad7881586d213da8b8a31eac6b15c5714ae9#phase5_bridge",
+      "raw_stdout": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/berl-schema-consumers/phase5-bridge.stdout@4f8bc54b9bf791fd1f5488b98259854d436df139210ca171e2fdc713d4bdd180",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "Read-only actual Runtime _validate_bundle_record and Scientist Phase 5 _run_berl_validation profile probe against full synthetic payload dictionaries for current and historical persisted profiles; exact argv in berl-schema-consumers/commands.txt.",
+      "result": "PASS",
+      "fixture_only": true,
+      "profiles": {
+        "1.0.0": {"runtime_threshold_status": "pass", "phase5_passed": true, "phase5_violations": []},
+        "1.1.0": {"runtime_threshold_status": "pass", "phase5_passed": true, "phase5_violations": []}
+      },
+      "probe": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/berl-schema-consumers/live-reader-profile-probe.py@fac78a124fda0690085995b5da0fe278d0d8cb73d58d7b82a34b1969d7c646f4",
+      "stdout": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/berl-schema-consumers/live-reader-profile-probe.stdout@098393fcc08ca50e02b7ea82d316c4a5d6bd9995ab26290fd91ff8abdb1cf22a",
+      "environment_scope": "Frozen source/import path in the continuation worktree, not an installed-wheel Phase 5 execution."
+    }
+  ],
+  "installed_wheel_readback": {
+    "target_commit": "87999f69c5f99d69ee2622ef00cd7f4e04d7d572",
+    "target_tree": "0280403e6837c5b220ac748a7674f4e5830ba0ab",
+    "command_manifest": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl-87999/command-results.json@11bd8ebe4a76bbf211edef76d60719cd7272cab661b4a8fd7ad8c5e71f80e2e8",
+    "runtime_receipt": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl-87999/installed-berl-runtime-87999.json@6a885ddda6238dd8015bc75c01303d088d8e880969b3bc9b1a9028e52b9c01c3",
+    "probe_script": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl-87999/installed_berl_probe_87999.py@847d809869cecea0a49fc804ecf5f68a2be6d234d4b4abb323d9dfcf34bd0702",
+    "profile_results": {
+      "1.0.0": {"full_bundle_retained": true, "runtime_status": "pass", "violations": []},
+      "1.1.0": {"full_bundle_retained": true, "runtime_status": "pass", "violations": []},
+      "conditional_unresolved": {"runtime_status": "fail", "violation": "conditional_law_authority_not_admitted:kernel_shap_conditional"},
+      "conditional_evidence_removed_markers_kept": {"runtime_status": "fail", "violation": "conditional_law_evidence_missing:kernel_shap_conditional"},
+      "echo_verifier_calls": 0
+    },
+    "wheel_sha256": "27f15cec628f5b8ab9c1e48dcb9ddf9c6d363ea6e4c413be2a0239832b0a7e2e",
+    "sdist_sha256": "222c2a0d724b883c769070a4af093186f753ac7deaf032579e969a1d5eabe549",
+    "package_inventory": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl-87999/package-inventory.json@898fd4c3bf5fd6f22d042fae4dcf4ca58307957ee1df580e5dcb70b0ba3b3344",
+    "runtime_module_provenance": "Probe confirms imports originate in isolated site-packages; package inventory establishes exact source/sdist/wheel byte identity for the changed Runtime module. No in-run module hash was recorded, so none is claimed.",
+    "installed_phase5": "UNRUN by this command manifest. Phase 5 profile controls are the separate frozen-source probe above.",
+    "scope": "Synthetic profile and consumer fixtures only; no production model, law artifact, production data, or scientific precision assertion."
+  },
+  "finding_dispositions": [
+    {
+      "id": "LA-034",
+      "verdict": "limited",
+      "criterion_test_results": [
+        {"criterion": "Complete pinned tracked-tree census identifies known in-repository readers of the saved schema/profile and tests the supported Runtime and Phase 5 readers.", "result": "PASS"},
+        {"criterion": "Complete BERL source census classifies direct readers of the packaged static schema JSON.", "result": "PASS", "basis": "The census finds zero direct static-resource readers; the schema owner writes only to a caller-selected path. The wheel contains the current JSON file byte-identically."},
+        {"criterion": "A supported external static-schema contract and its actual third-party readers are identified and their version compatibility is ratified.", "result": "UNRUN", "basis": "No tracked external reader contract was found. The 1.1.0 static resource ships while code-generated persisted dispatch also accepts historical 1.0.0; no external support promise or consumer identity is established."}
+      ],
+      "residual": "Known tracked in-repository readers are enumerated and tested. LA-034 remains limited until the package owner ratifies whether the shipped static JSON is an external interoperability surface and, if so, its versioned compatibility obligations. No claim is made that unidentified third-party consumers are absent.",
+      "capability_labels": ["Runtime consumer wired", "Phase 5 consumer wired", "external schema contract not_established"]
+    },
+    {
+      "id": "LA-036",
+      "verdict": "held",
+      "criterion_test_results": [
+        {"criterion": "Current candidate conditional engine and bounded math/oracle controls are distinguished from marginal aliases; unsupported authority remains fail-closed.", "result": "PASS"},
+        {"criterion": "An admitted E/F source-law/model/bound producer and non-producer content-binding verifier are connected to persisted consumers.", "result": "UNRUN", "basis": "Supplier producer/artifact/verifier chain is absent; callback labels remain ignored and the Runtime/Phase 5 gates reject unresolved evidence."}
+      ],
+      "supplier_baseline_qualification": "The historical background-replacement observation in the original supplier finding describes the pinned source baseline, not the current 87999 candidate. Current candidate includes a separate conditional coalition engine; it still cannot claim admitted conditional authority without the missing producer/verifier chain.",
+      "capability_labels": ["producer_missing", "artifact_missing", "verification_missing", "conditional authority held"]
+    }
+  ],
+  "pattern_pass": {
+    "P29_P35": "The pinned Git-tree denominator and full hit artifacts are retained; positive historical/current profiles and malformed payloads execute actual persisted validators rather than marker checks.",
+    "P37_P38": "Third-party reader/support scope is not established; the packaged-file presence is not treated as an external consumer contract. Conditional authority remains fail-closed when resolver/verifier evidence is absent.",
+    "P40": "This is a narrowed update to the same LA-034 supported-resource/reader boundary, not a new schema defect; the known in-repository census is complete, leaving only an unratified external support boundary.",
+    "P41": "No architecture-gate inheritance or owner finding is inferred from this census."
+  },
+  "transport": {
+    "source_changes": "none",
+    "test_reruns": "none in this append; cited focused receipts are read-only evidence from their recorded runs",
+    "handoff_is_separate_docs_only_append": true,
+    "push": "not performed; parent review/integration pending"
+  }
+}

@@ -1,0 +1,25 @@
+Target source: /Users/deniskopylov/.codex/worktrees/e02-c-berl-20261006/polisyos at source commit 87999f69c5f99d69ee2622ef00cd7f4e04d7d572 (tree 0280403e6837c5b220ac748a7674f4e5830ba0ab). Reviewed current branch HEAD 95ea3780f1101ba1ad1a3087923c65c8aac53b7d; diff from target contains only two later implementation-handoff JSON additions, no source/schema/test changes.
+
+Complete tracked-path census:
+  python3 /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/berl-schema-consumers/census.py
+  Census enumerates git ls-files -z at the frozen BERL checkout, reads every tracked path, classifies UTF-8 text vs binary, and records full line hits for ExplanationBundle, explanation_bundle, validate_persisted_explanation_bundle, generated_explanation_bundle_schema, the exact saved schema path, BERL contract imports, and generic resource-loader APIs. Full raw result: tracked-consumer-census.json.
+
+Focused source tests; cwd /Users/deniskopylov/.codex/worktrees/e02-c-berl-20261006/polisyos/policy-engine:
+  PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-c-berl-20261006/polisyos/policy-engine:/Users/deniskopylov/.codex/worktrees/e02-c-berl-20261006/polisyos/policy-engine/src JAX_PLATFORMS=cpu OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.venv/bin/python -m pytest -p no:cacheprovider -q tests/unit/remediation/test_ber_01.py -k 'full_bundle_is_accepted_by_both_input_and_persisted_profiles or historical_persisted_profile_keeps_its_versioned_shape or construction_input_profile_keeps_supported_defaults_explicitly_distinct or generated_schema_matches_persisted_schema_content or nested_empty_objects_are_rejected_by_both_profiles or nested_extra_fields_are_rejected_by_both_profiles or unknown_version_is_rejected_by_persisted_profile_only or both_persisted_consumers_reject_noncanonical_records'
+  Result: exit 0, 10 passed; only existing pytest warning for unknown cache_dir option. stdout/stderr are profile-consumer-tests.stdout/.stderr.
+
+  PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-c-berl-20261006/polisyos/policy-engine:/Users/deniskopylov/.codex/worktrees/e02-c-berl-20261006/polisyos/policy-engine/src JAX_PLATFORMS=cpu OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.venv/bin/python -m pytest -p no:cacheprovider -q tests/integration/scientist_berl/test_explanation_reliability_bridge.py
+  Result: exit 0, 1 passed; only existing pytest warning for unknown cache_dir option. stdout/stderr are phase5-bridge.stdout/.stderr.
+
+Read-only actual-consumer profile probe:
+  PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-c-berl-20261006/polisyos/policy-engine:/Users/deniskopylov/.codex/worktrees/e02-c-berl-20261006/polisyos/policy-engine/src JAX_PLATFORMS=cpu OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.venv/bin/python /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/berl-schema-consumers/live-reader-profile-probe.py
+  Result: exit 0; _validate_bundle_record and Phase5 _run_berl_validation both pass synthetic full 1.0.0 and 1.1.0 records. stdout/stderr are live-reader-profile-probe.stdout/.stderr.
+
+Prior independently observed actual Runtime builder -> FileSystemCAS -> canonical-byte readback -> Runtime evaluator test receipt from the immediately preceding review: /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/berl-review/runtime-delta/pytest.stdout (11 passed; no stderr).
+
+Installed-wheel/package evidence reused from frozen final handoff, not rebuilt in this census:
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/ber-01-final-combined-c2-adjudication.json@current source handoff; raw installed report is .tmp/e02-C2/raw/installed/berl-87999/installed-berl-runtime-87999.json (wheel 27f15cec628f5b8ab9c1e48dcb9ddf9c6d363ea6e4c413be2a0239832b0a7e2e; packaged schema resource is present and byte-identical to the 30,565-byte source JSON, SHA-256 5e3e6a9d88e4bfb46175e6a2f0fbd2970b387ae154b5ff86d08ef76a1b3d1128).
+
+Pinned-ref census (this is the deciding denominator; uses Git tree objects, not the worktree file list):
+  python3 /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/berl-schema-consumers/pinned-tree-census.py
+  Script enumerates `git ls-tree -r -z --full-tree 87999f69c5f99d69ee2622ef00cd7f4e04d7d572`, counts every tracked suffix, then runs full-tree `git grep -n -I -i -E` at that ref for ExplanationBundle, explanation_bundle, the persisted/generated validator helpers, the exact schema filename, and `polisyos.berl`. It separately searches the complete BERL source subtree for resource-reader calls. Full line hits are retained in pinned-tree-census.json; its concise denominator/output are pinned-tree-census.stdout.

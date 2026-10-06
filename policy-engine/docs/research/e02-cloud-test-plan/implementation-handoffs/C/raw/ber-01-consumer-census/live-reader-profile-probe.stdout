@@ -1,0 +1,18 @@
+[
+  {
+    "fixture_only": true,
+    "phase5_passed": true,
+    "phase5_violations": [],
+    "profile": "1.0.0",
+    "runtime_issues": [],
+    "runtime_threshold_status": "pass"
+  },
+  {
+    "fixture_only": true,
+    "phase5_passed": true,
+    "phase5_violations": [],
+    "profile": "1.1.0",
+    "runtime_issues": [],
+    "runtime_threshold_status": "pass"
+  }
+]

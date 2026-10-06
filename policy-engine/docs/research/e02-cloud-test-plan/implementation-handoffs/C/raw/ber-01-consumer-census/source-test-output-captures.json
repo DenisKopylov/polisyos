@@ -1,0 +1,14 @@
+{
+  "phase5_bridge": {
+    "bytes": 644,
+    "source_file": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/berl-schema-consumers/phase5-bridge.stdout",
+    "source_sha256": "4f8bc54b9bf791fd1f5488b98259854d436df139210ca171e2fdc713d4bdd180",
+    "stdout_utf8": ".                                                                        [100%]\n=============================== warnings summary ===============================\n../../../e02-c-continuation-20261006/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428\n  /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir\n  \n    self._warn_or_fail_if_strict(f\"Unknown config option: {key}\\n\")\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n"
+  },
+  "profile_consumer_tests": {
+    "bytes": 644,
+    "source_file": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/berl-schema-consumers/profile-consumer-tests.stdout",
+    "source_sha256": "4c2ea2926ae86265f39b4b3ef007d038a1dabb1ce66eaa460121354f2dcf679f",
+    "stdout_utf8": "..........                                                               [100%]\n=============================== warnings summary ===============================\n../../../e02-c-continuation-20261006/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428\n  /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir\n  \n    self._warn_or_fail_if_strict(f\"Unknown config option: {key}\\n\")\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n"
+  }
+}

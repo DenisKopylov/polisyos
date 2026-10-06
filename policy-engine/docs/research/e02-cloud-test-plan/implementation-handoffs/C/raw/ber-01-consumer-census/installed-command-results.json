@@ -1,0 +1,347 @@
+{
+  "acceptance": {
+    "conditional_evidence_removed": {
+      "consumer_issue_codes": [
+        "policy_design_warrant_berl_validation_failed"
+      ],
+      "consumer_status": "fail",
+      "consumer_violations": [
+        "conditional_law_evidence_missing:kernel_shap_conditional"
+      ]
+    },
+    "conditional_unresolved": {
+      "consumer_issue_codes": [
+        "policy_design_warrant_berl_validation_failed"
+      ],
+      "consumer_status": "fail",
+      "consumer_violations": [
+        "conditional_law_authority_not_admitted:kernel_shap_conditional"
+      ]
+    },
+    "echo_verifier_calls": 0,
+    "module_origins": {
+      "polisyos": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl/venv/lib/python3.14/site-packages/polisyos/__init__.py",
+      "polisyos.berl": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl/venv/lib/python3.14/site-packages/polisyos/berl/__init__.py",
+      "polisyos.core.artifacts": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl/venv/lib/python3.14/site-packages/polisyos/core/artifacts/__init__.py",
+      "polisyos.core.canon": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl/venv/lib/python3.14/site-packages/polisyos/core/canon/__init__.py",
+      "polisyos.runtime.quality.explanation_reliability": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl/venv/lib/python3.14/site-packages/polisyos/runtime/quality/explanation_reliability.py"
+    },
+    "profiles": {
+      "1.0.0": {
+        "full_bundle_retained": true,
+        "status": "pass",
+        "violations": []
+      },
+      "1.1.0": {
+        "full_bundle_retained": true,
+        "status": "pass",
+        "violations": []
+      }
+    },
+    "pytest_present": false
+  },
+  "artifacts": {
+    "package_census": {
+      "changed_path_byte_map": [
+        {
+          "sdist_byte_identical": true,
+          "sdist_path": "src/polisyos/runtime/quality/explanation_reliability.py",
+          "sdist_sha256": "d81542d87f0acfeacc0a3931676e783213ef0e13c1edf2ba2889da73982af861",
+          "source_bytes": 21105,
+          "source_path": "policy-engine/src/polisyos/runtime/quality/explanation_reliability.py",
+          "source_sha256": "d81542d87f0acfeacc0a3931676e783213ef0e13c1edf2ba2889da73982af861",
+          "wheel_byte_identical": true,
+          "wheel_path": "polisyos/runtime/quality/explanation_reliability.py",
+          "wheel_sha256": "d81542d87f0acfeacc0a3931676e783213ef0e13c1edf2ba2889da73982af861"
+        },
+        {
+          "sdist_byte_identical": null,
+          "sdist_path": null,
+          "sdist_sha256": null,
+          "source_bytes": 17748,
+          "source_path": "policy-engine/tests/unit/runtime/quality/test_berl_warrant_reliability.py",
+          "source_sha256": "18ca9fefd69ffd699f0c401b6d98a7ebf4f660e007e5707a8656e3a86101f199",
+          "wheel_byte_identical": null,
+          "wheel_path": null,
+          "wheel_sha256": null
+        }
+      ],
+      "receipt": {
+        "bytes": 7715,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl-87999/package-inventory.json",
+        "sha256": "898fd4c3bf5fd6f22d042fae4dcf4ca58307957ee1df580e5dcb70b0ba3b3344"
+      },
+      "sdist": {
+        "all_source_readmes_included": true,
+        "exact_source_members": 8466,
+        "members": 8467,
+        "sha256": "222c2a0d724b883c769070a4af093186f753ac7deaf032579e969a1d5eabe549",
+        "source_omission_count": 5211
+      },
+      "source_denominator": {
+        "all_policy_engine_files": 13677,
+        "all_policy_engine_suffix_counts": {
+          ".blob": 11,
+          ".cfg": 1,
+          ".cjs": 9,
+          ".css": 17,
+          ".csv": 15,
+          ".cypher": 2,
+          ".d.ts": 1,
+          ".docx": 1,
+          ".duckdb": 4,
+          ".example": 3,
+          ".fixture": 2,
+          ".html": 3,
+          ".ini": 11,
+          ".js": 4,
+          ".json": 2955,
+          ".jsonc": 1,
+          ".jsonl": 14,
+          ".lock": 1,
+          ".log": 20,
+          ".md": 2144,
+          ".mdc": 1,
+          ".mjs": 40,
+          ".patch": 2,
+          ".pkl": 2,
+          ".png": 42,
+          ".py": 6440,
+          ".pyi": 5,
+          ".rego": 23,
+          ".reproducible": 1,
+          ".retired": 1,
+          ".sh": 45,
+          ".sha256": 1,
+          ".sql": 6,
+          ".sqlite": 2,
+          ".sqlite-wal": 2,
+          ".svg": 18,
+          ".tf": 1,
+          ".tmpl": 7,
+          ".toml": 265,
+          ".tpl": 1,
+          ".ts": 518,
+          ".tsv": 6,
+          ".tsx": 720,
+          ".txt": 108,
+          ".webm": 6,
+          ".whl": 1,
+          ".xml": 20,
+          ".yaml": 85,
+          ".yml": 54,
+          ".zip": 8,
+          "<none>": 25,
+          "py.typed": 2
+        },
+        "all_readmes": 425,
+        "package_payload_files": 3452,
+        "package_root_readmes": 167,
+        "readmes_outside_package_roots": 389,
+        "src_polisyos_files": 2911,
+        "tools_files": 540
+      },
+      "wheel": {
+        "all_wheel_payload_in_sdist": true,
+        "apps_packages_payload_members": 0,
+        "entry_points_groups": {
+          "console_scripts": 6,
+          "polisyos.fabric_connectors": 11,
+          "polisyos.foundry_methods": 1,
+          "polisyos.scientist_governance_passes": 22
+        },
+        "entry_points_total": 40,
+        "exact_package_payload_paths": 3452,
+        "members": 3457,
+        "package_readme_exceptions_outside_package_roots": null,
+        "package_readme_omissions": [],
+        "package_readmes": 167,
+        "payload_members": 3452,
+        "sha256": "27f15cec628f5b8ab9c1e48dcb9ddf9c6d363ea6e4c413be2a0239832b0a7e2e"
+      }
+    },
+    "runtime_probe_script": {
+      "bytes": 12192,
+      "mtime_utc": "2026-10-06T13:12:10.044071+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl-87999/installed_berl_probe_87999.py",
+      "sha256": "847d809869cecea0a49fc804ecf5f68a2be6d234d4b4abb323d9dfcf34bd0702"
+    },
+    "runtime_receipt": {
+      "bytes": 5350,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl-87999/installed-berl-runtime-87999.json",
+      "sha256": "6a885ddda6238dd8015bc75c01303d088d8e880969b3bc9b1a9028e52b9c01c3"
+    },
+    "sdist": {
+      "bytes": 65193975,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl-87999/dist/policy_engine-0.1.0.tar.gz",
+      "sha256": "222c2a0d724b883c769070a4af093186f753ac7deaf032579e969a1d5eabe549"
+    },
+    "wheel": {
+      "bytes": 15033801,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl-87999/dist/policy_engine-0.1.0-py3-none-any.whl",
+      "sha256": "27f15cec628f5b8ab9c1e48dcb9ddf9c6d363ea6e4c413be2a0239832b0a7e2e"
+    }
+  },
+  "candidate": {
+    "base_commit": "999f56c443e3b4ef74d849828641836a8f335b3d",
+    "base_tree": "20c78ec995bc8ff8f932cb262dce118283d3322d",
+    "commit": "87999f69c5f99d69ee2622ef00cd7f4e04d7d572",
+    "source_archive": {
+      "bytes": 460103680,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl-87999/candidate.tar",
+      "sha256": "1f36f56082ff304338aa814fcbcaa2cc0716bd6f8da82cd558741f103425fecf"
+    },
+    "tree": "0280403e6837c5b220ac748a7674f4e5830ba0ab"
+  },
+  "commands": {
+    "build": {
+      "archive_origin": {
+        "command": [
+          "git",
+          "archive",
+          "--format=tar",
+          "87999f69c5f99d69ee2622ef00cd7f4e04d7d572"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-berl-20261006/polisyos",
+        "exit_code": 0,
+        "output": {
+          "bytes": 460103680,
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl-87999/candidate.tar",
+          "sha256": "1f36f56082ff304338aa814fcbcaa2cc0716bd6f8da82cd558741f103425fecf"
+        }
+      },
+      "argv": [
+        "uv",
+        "build",
+        "--offline",
+        "--no-build-isolation",
+        "--out-dir",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl-87999/dist"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl-87999/source/policy-engine",
+      "env_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": [
+          "/Users/deniskopylov/.cache/uv/archive-v0/YUs921CMN7bGtgwyMykk3",
+          "/Users/deniskopylov/.cache/uv/archive-v0/QE6DREbYsK8sTuZOeKsM8",
+          "/Users/deniskopylov/.cache/uv/archive-v0/CYuBuDi6eT8vqgBcw1xmt",
+          "/Users/deniskopylov/.cache/uv/archive-v0/0_OIyaIgWrA6UuESVxSKg",
+          "/Users/deniskopylov/.cache/uv/archive-v0/fi4dB0uLY-31KEGEb5kjs",
+          "/Users/deniskopylov/.cache/uv/archive-v0/tS3T-feL91bRoib57dD1o"
+        ]
+      },
+      "exit_code": 0,
+      "stderr": {
+        "bytes": 409,
+        "captured_file_mtime_utc": "2026-10-06T13:05:54.256831+00:00",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl-87999/build.stderr",
+        "sha256": "e0653b1d556aeb4607097a978d4cfdacf92351b4a63c3a455ea21277e26e7af2"
+      },
+      "stdout": {
+        "bytes": 0,
+        "captured_file_mtime_utc": "2026-10-06T13:05:37.463879+00:00",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl-87999/build.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "timeout_ms": 30000
+    },
+    "install": {
+      "argv": [
+        "uv",
+        "pip",
+        "install",
+        "--offline",
+        "--no-deps",
+        "--reinstall",
+        "--python",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl/venv/bin/python",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl-87999/dist/policy_engine-0.1.0-py3-none-any.whl"
+      ],
+      "cwd": "/tmp",
+      "env_delta": {},
+      "exit_code": 0,
+      "stderr": {
+        "bytes": 642,
+        "captured_file_mtime_utc": "2026-10-06T13:30:24.808787+00:00",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl-87999/install-replay.stderr",
+        "sha256": "29cb03563903c7f99a2257ba297c67eae7fd3c58fe42c973bb729ffb24e335a5"
+      },
+      "stdout": {
+        "bytes": 0,
+        "captured_file_mtime_utc": "2026-10-06T13:30:24.271266+00:00",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl-87999/install-replay.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "timeout_ms": 30000
+    },
+    "package_census": {
+      "argv": [
+        "python3",
+        "package_inventory_87999.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl-87999",
+      "exit_code": 0,
+      "invocation_note": "The preserved runner is package_inventory_87999.py; earlier command-results argv incorrectly named the JSON output as the Python input.",
+      "stderr": {
+        "bytes": 0,
+        "captured_file_mtime_utc": "2026-10-06T13:07:53.880715+00:00",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl-87999/package-inventory.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 7715,
+        "captured_file_mtime_utc": "2026-10-06T13:07:55.364076+00:00",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl-87999/package-inventory.stdout",
+        "sha256": "898fd4c3bf5fd6f22d042fae4dcf4ca58307957ee1df580e5dcb70b0ba3b3344"
+      },
+      "timeout_ms": 30000
+    },
+    "runtime": {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl/venv/bin/python",
+        "-I",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl-87999/installed_berl_probe_87999.py"
+      ],
+      "cwd": "/tmp",
+      "env_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit_code": 0,
+      "stderr": {
+        "bytes": 0,
+        "captured_file_mtime_utc": "2026-10-06T13:30:31.917093+00:00",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl-87999/runtime-replay.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 5350,
+        "captured_file_mtime_utc": "2026-10-06T13:30:45.028825+00:00",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl-87999/runtime-replay.stdout",
+        "sha256": "6a885ddda6238dd8015bc75c01303d088d8e880969b3bc9b1a9028e52b9c01c3"
+      },
+      "timeout_ms": 30000
+    }
+  },
+  "runtime_module_evidence": {
+    "basis": "The actual probe receipt places the imported module under the venv site-packages. The independent frozen-source/sdist/wheel map proves the module bytes in the exact installed wheel equal the frozen source bytes. The probe did not calculate an in-run hash; do not label this as an in-run hash.",
+    "exact_source_sdist_wheel_byte_identity": true,
+    "exact_wheel_payload_sha256": "d81542d87f0acfeacc0a3931676e783213ef0e13c1edf2ba2889da73982af861",
+    "in_run_import_origins": {
+      "polisyos": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl/venv/lib/python3.14/site-packages/polisyos/__init__.py",
+      "polisyos.berl": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl/venv/lib/python3.14/site-packages/polisyos/berl/__init__.py",
+      "polisyos.core.artifacts": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl/venv/lib/python3.14/site-packages/polisyos/core/artifacts/__init__.py",
+      "polisyos.core.canon": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl/venv/lib/python3.14/site-packages/polisyos/core/canon/__init__.py",
+      "polisyos.runtime.quality.explanation_reliability": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl/venv/lib/python3.14/site-packages/polisyos/runtime/quality/explanation_reliability.py"
+    },
+    "in_run_module_sha256_recorded": false,
+    "relevant_module": "polisyos.runtime.quality.explanation_reliability"
+  },
+  "scope_note": "Base-only locked venv; no pytest, model weights, production dataset, external service, or heavyweight numerical backend. Receipt distinguishes archive/runtime facts from source-owner/finding disposition.",
+  "timestamps": {
+    "runtime_receipt_file_mtime_utc": "2026-10-06T13:30:45.028644+00:00",
+    "runtime_stderr_file_mtime_utc": "2026-10-06T13:30:31.917093+00:00",
+    "runtime_stdout_file_mtime_utc": "2026-10-06T13:30:45.028825+00:00",
+    "timestamp_semantics": "Filesystem output-capture mtimes; no wall-clock command-start timestamp was separately recorded."
+  }
+}

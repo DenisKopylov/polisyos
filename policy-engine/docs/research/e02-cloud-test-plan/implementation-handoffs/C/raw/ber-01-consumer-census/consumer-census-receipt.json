@@ -1,0 +1,187 @@
+{
+  "target_source_commit": "87999f69c5f99d69ee2622ef00cd7f4e04d7d572",
+  "target_source_tree": "0280403e6837c5b220ac748a7674f4e5830ba0ab",
+  "reviewed_current_head": "95ea3780f1101ba1ad1a3087923c65c8aac53b7d",
+  "source_diff_after_target": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/ber-01-final-combined-c2-adjudication.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/ber-01-runtime-record-readback-review-response.json"
+  ],
+  "tracked_census": {
+    "all_tracked_paths": 13705,
+    "tracked_git_entries": {
+      "blob": 13705
+    },
+    "suffix_denominator": {
+      ".py": 6442,
+      ".json": 2956,
+      ".md": 2146,
+      ".ts": 519,
+      ".tsx": 720,
+      ".toml": 266,
+      ".yaml": 85,
+      ".yml": 71
+    },
+    "prefix_denominators": {
+      "policy-engine/apps/": 1345,
+      "policy-engine/schemas/": 157,
+      "policy-engine/tools/": 540,
+      "policy-engine/src/": 2912,
+      "policy-engine/tests/": 3277,
+      "policy-engine/architecture/": 733,
+      "policy-engine/docs/reference/": 189,
+      "policy-engine/release-fragments/": 86
+    },
+    "full_tree_pattern_hit_files": {
+      "bundle_type": 44,
+      "bundle_wire": 64,
+      "persisted_validator": 13,
+      "generated_schema_helper": 8,
+      "schema_resource_path": 11,
+      "berl_package": 73
+    },
+    "full_tree_pattern_hit_lines": {
+      "bundle_type": 138,
+      "bundle_wire": 264,
+      "persisted_validator": 26,
+      "generated_schema_helper": 16,
+      "schema_resource_path": 17,
+      "berl_package": 381
+    },
+    "apps_and_schemas_direct_pattern_hit_lines": {
+      "bundle_type": 0,
+      "bundle_wire": 0,
+      "persisted_validator": 0,
+      "generated_schema_helper": 0,
+      "schema_resource_path": 0,
+      "berl_package": 0
+    },
+    "BERL_source_resource_loader_search": {
+      "exit_code": 1,
+      "matching_lines": 0
+    },
+    "raw_file": "pinned-tree-census.json"
+  },
+  "known_consumers": [
+    {
+      "class": "canonical persisted parser",
+      "owner": "policy-engine/src/polisyos/berl/contracts/schema.py:65",
+      "behavior": "Dispatches exact persisted version to generated Draft 2020-12 schema with FormatChecker, then strict DTO validation. Current 1.1.0; code-generated historical 1.0.0 profile; unknown versions reject."
+    },
+    {
+      "class": "Runtime persisted reader",
+      "owner": "policy-engine/src/polisyos/runtime/quality/explanation_reliability.py:388",
+      "behavior": "_validate_bundle_record calls canonical persisted parser and BERL semantic validator on the embedded serialized bundle. Builder/CAS/readback/evaluator path is covered by actual Runtime tests and installed-wheel probe."
+    },
+    {
+      "class": "Scientist Phase 5 persisted reader",
+      "owner": "policy-engine/src/polisyos/scientist/validation/phase5_preflight.py:559,1098",
+      "behavior": "_explanation_component sends serialized explanation records to _run_berl_validation, which calls the shared canonical parser and semantic validator; malformed records become diagnostic_only and fail."
+    },
+    {
+      "class": "schema producer/resource writer",
+      "owner": "policy-engine/src/polisyos/berl/contracts/schema.py:47,137",
+      "behavior": "One generated current schema comes from the DTO owner; writer writes to a caller-selected path. The checked-in current 1.1.0 JSON equals generated content and is packaged in the wheel, but no source resource loader reads it."
+    },
+    {
+      "class": "DTO producer/in-memory consumers",
+      "owner": "policy-engine/src/polisyos/berl/service.py:167,249",
+      "behavior": "Orchestrator constructs ExplanationBundle DTO and applies semantic validation; display/validation helpers consume DTO objects, not persisted JSON."
+    },
+    {
+      "class": "typed reference contracts",
+      "owner": "policy-engine/src/polisyos/core/contracts/scientist.py:187; policy-engine/src/polisyos/ir/registry/refs.py:276",
+      "behavior": "Reference DTOs carry artifact id, kind and media_type only; not full bundle parsing or schema validation."
+    }
+  ],
+  "surface_census": {
+    "tracked_apps_exact_schema_or_bundle_hits": 0,
+    "tracked_schemas_exact_schema_or_bundle_hits": 0,
+    "generated_artifacts_manifest_or_reference_has_berl_schema_registration": false,
+    "actual_http_or_dashboard_ExplanationBundle_consumer_identified": false,
+    "public_api": "polisyos.berl is public_experimental; root exports ExplanationBundle and validate_persisted_explanation_bundle. README marks subpackages as implementation details unless exported. No endpoint/resource-loader contract for the static JSON schema is declared.",
+    "external_consumer_identity": "not_established; no tracked external validator/consumer contract was found. The wheel ships the current schema file, so distribution makes it available but does not identify an external reader.",
+    "tracked_direct_static_schema_resource_reader": {
+      "source_readers_found": 0,
+      "basis": "Pinned full-tree search finds the exact resource path only in docs/tests; complete BERL source subtree has zero read/resource-loader call sites. schema.py writes to a caller-provided path; the test reads the checked-in current schema."
+    },
+    "direct_loader_writer_trace": {
+      "complete_BERL_source_search": "git grep at 879 for open(, Path(__file__), importlib, pkgutil, read_text/read_bytes, write_text",
+      "matches": [
+        "policy-engine/src/polisyos/berl/contracts/schema.py:141 path.write_text(...)"
+      ],
+      "meaning": "The only direct file I/O match is the schema writer; no source loader reads the checked-in schema resource."
+    }
+  },
+  "fresh_checks": [
+    {
+      "command": "focused test_ber_01 profile/content/consumer rejection selection (source paths unchanged from target)",
+      "result": "PASS",
+      "cases": 10,
+      "stdout_sha256": "4c2ea2926ae86265f39b4b3ef007d038a1dabb1ce66eaa460121354f2dcf679f",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "test_explanation_reliability_bridge.py (source paths unchanged from target)",
+      "result": "PASS",
+      "cases": 1,
+      "stdout_sha256": "4f8bc54b9bf791fd1f5488b98259854d436df139210ca171e2fdc713d4bdd180",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "read-only actual Runtime and Phase5 reader probe for valid 1.0.0 and 1.1.0",
+      "result": "PASS",
+      "fixture_only": true,
+      "stdout_sha256": "098393fcc08ca50e02b7ea82d316c4a5d6bd9995ab26290fd91ff8abdb1cf22a",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "prior actual Runtime full record CAS/evaluator 11-case test",
+      "result": "PASS",
+      "cases": 11,
+      "stdout_sha256": "08faea39fd19189f6544839f505d91d76ecb1367e219f5db362cdf22916ef869"
+    }
+  ],
+  "installed_wheel_evidence": {
+    "wheel_sha256": "27f15cec628f5b8ab9c1e48dcb9ddf9c6d363ea6e4c413be2a0239832b0a7e2e",
+    "schema_resource": "polisyos/berl/contracts/explanation_bundle.schema.json",
+    "source_and_wheel_schema_bytes_identical": true,
+    "schema_bytes": 30565,
+    "schema_sha256": "5e3e6a9d88e4bfb46175e6a2f0fbd2970b387ae154b5ff86d08ef76a1b3d1128",
+    "raw_installed_runtime_report": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl-87999/installed-berl-runtime-87999.json"
+  },
+  "finding_assessment": {
+    "four_state_verdict": "partial",
+    "basis": "Every identified in-repository reader routes persisted JSON through the shared parser and passes current/historical profile tests plus content-corruption refusals. Generated schema content equality, actual Runtime CAS readback, and Phase 5 record consumption are exercised. External static-resource readers remain not_established; no tracked identity exists, and the shipped JSON is 1.1.0 while 1.0.0 is accepted by code-generated historical dispatch.",
+    "remaining_capability_label": "verification_missing",
+    "bounded_next_step": "Resolve only the package’s supported external schema-resource contract: name/test actual external consumers if the file is a supported interop surface, or explicitly bound that external resource surface out of scope. No exhaustive audit of unidentified third parties is warranted.",
+    "pattern_pass": "P35: complete pinned Git tree path/type denominator and full match artifact; P38/P29: tests compare generated schema content and call real persisted readers on positive profiles and malformed profile mutations, not field-name markers.",
+    "same_class_bucket": "The remaining external resource-reader uncertainty is the original LA-034 supported-consumer census boundary, not a new source schema/parser defect; after the full tracked census it is bounded to unknown external use of the packaged current-version resource."
+  },
+  "non_consuming_candidates": [
+    {
+      "path": "policy-engine/tools/quality/validation/run_policy_design_case_pass2_phase34_3.py:993",
+      "classification": "diagnostic marker/ref census only",
+      "evidence": "Collects refs containing berl/explanation_bundle/infidelity to emit a warning; does not deserialize ExplanationBundle or invoke its schema validator."
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/state_keys.py:38",
+      "classification": "artifact-key constant",
+      "evidence": "Defines explanation_bundle_ref key; Phase 5 separately validates mapped record payload with the canonical parser."
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/schema_compat.py",
+      "classification": "generic runtime-quality schema-family metadata reader",
+      "evidence": "Its reader ranges name runtime-quality report families; it does not register BERL ExplanationBundle or read the BERL schema file. Its companion scanner roots exclude src/polisyos/berl/contracts."
+    },
+    {
+      "path": "policy-engine/ops/components/berl/*",
+      "classification": "report-only operations metadata",
+      "evidence": "Declares no standalone operational traffic and links README/SLO/dashboard; no ExplanationBundle parsing or schema path."
+    },
+    {
+      "path": "policy-engine/docs/reference/ir/schema-catalog.md:30583",
+      "classification": "typed artifact-reference schema only",
+      "evidence": "ExplanationBundleRef constrains artifact_id/kind/media_type; it is not the ExplanationBundle payload schema."
+    }
+  ]
+}

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 from dataclasses import replace
 from pathlib import Path
 
@@ -14,57 +13,32 @@ def bind_bounded_run_api_catalog(
 ) -> None:
     """Give run API tests a bounded catalog for eager retrieval construction.
 
-    The single zero-trust, unavailable fixture row exists only because the
-    control service eagerly opens its retrieval catalog. It is not admitted
-    source evidence and must not be used as a run profile or scientific input.
+    The empty epoch-zero graph exists only because the control service eagerly
+    opens its retrieval catalog. It contains no source rows and cannot serve as
+    admitted evidence, a run profile, or a scientific input.
     """
+    from polisyos.data_forge.domains.catalog.batch.graph_builder import build_graph
     from polisyos.data_forge.read_api import catalog as catalog_api
     from polisyos.runtime.quality import substrate_registry
 
     fixture_root = tmp_path / "run-api-catalog-bootstrap"
-    curated_root = fixture_root / "fixture-contracts"
-    curated_root.mkdir(parents=True)
-    (curated_root / "data_contracts.json").write_text(
-        json.dumps(
-            {
-                "contracts": [
-                    {
-                        "metric_id": "run_api_constructor_only",
-                        "source_column": "unused_fixture_column",
-                        "jurisdiction": "UA",
-                        "granularity": "annual",
-                    }
-                ]
-            }
-        ),
-        encoding="utf-8",
-    )
-    (curated_root / "source_bindings.json").write_text(
-        json.dumps(
-            {
-                "bindings": [
-                    {
-                        "metric_id": "run_api_constructor_only",
-                        "connector_id": "fixture.unavailable",
-                        "dataset_id": "run-api-bootstrap-only-not-a-source",
-                        "profile_id": "run-api-bootstrap-only",
-                        "trust": 0.0,
-                    }
-                ]
-            }
-        ),
-        encoding="utf-8",
-    )
-
     graph_root = fixture_root / "graph"
-    graph = catalog_api.build_production_data_contract_catalog_graph(
-        production_root=curated_root,
-        graph_root=graph_root,
-    )
-    graph.close()
+    graph_root.mkdir(parents=True)
     catalog_path = graph_root / "catalog.duckdb"
+    stats = build_graph(records=iter(()), db_path=catalog_path)
     if not catalog_path.is_file():
         raise RuntimeError("bounded run API catalog builder produced no DuckDB file")
+    if any(
+        (
+            stats.datasets,
+            stats.distributions,
+            stats.metric_bindings,
+            stats.schema_profiles,
+            stats.entity_mappings,
+            stats.alignment_hints,
+        )
+    ):
+        raise RuntimeError("bounded run API catalog must remain empty")
 
     original_paths = substrate_registry.default_substrate_catalog_paths
     monkeypatch.setattr(

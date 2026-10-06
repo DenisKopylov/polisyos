@@ -1,0 +1,13 @@
+{
+  "operation": "lossless zero-extent deallocation; no file/directory deletion, move or content change",
+  "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest/test_wave2_profiles_present0/runtime-http-cache/catalog-graphs/a857f3f4611c8f439526dbd07359efd7/catalog.duckdb",
+  "returncode": 0,
+  "stdout": "",
+  "stderr": "",
+  "before_sha256": "9b0e760e4550858edd52a6fc2aeac95ce9ba383c2873e019c86e5b13f96f62b6",
+  "after_sha256": "9b0e760e4550858edd52a6fc2aeac95ce9ba383c2873e019c86e5b13f96f62b6",
+  "bytes": 6303744,
+  "allocated_before": 6303744,
+  "allocated_after": 888832,
+  "same_inode": true
+}

@@ -428,9 +428,15 @@ def test_b79_supported_rest_request_uses_the_persisted_etag_cursor(
         registry.shutdown()
 
 
+@pytest.mark.parametrize(
+    "remove_cursor_injection",
+    [False, True],
+    ids=["stored-etag-cursor", "removed-cursor-injection"],
+)
 def test_b79_served_incremental_route_filters_source_rows_from_the_stored_etag(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
+    remove_cursor_injection: bool,
 ) -> None:
     """The public ingestion route uses its stored ETag through the real REST source."""
     from dataclasses import replace
@@ -536,17 +542,44 @@ def test_b79_served_incremental_route_filters_source_rows_from_the_stored_etag(
                     )
                 )
 
-            response = client.post(
-                "/api/v1/control/data/ingest",
-                headers=_with_fresh_step_up(client, headers),
-                json={
-                    "datasets": [{"connector_id": "rest.json", "dataset_id": "served-dataset"}],
-                    "source": "e02-b79-fixture",
-                    "license_name": "fixture-only",
-                    "execution_mode": "batch_incremental",
-                    "produce_data_snapshot": False,
-                },
-            )
+            request = {
+                "datasets": [{"connector_id": "rest.json", "dataset_id": "served-dataset"}],
+                "source": "e02-b79-fixture",
+                "license_name": "fixture-only",
+                "execution_mode": "batch_incremental",
+                "produce_data_snapshot": False,
+            }
+            if remove_cursor_injection:
+                original_find_latest_cursor = CursorStore.find_latest_cursor
+
+                def _remove_cursor_injection(
+                    cursor_store: CursorStore,
+                    connector_id: str,
+                    dataset_id: str,
+                    *,
+                    partition_key: str = "default",
+                ) -> None:
+                    del cursor_store, connector_id, dataset_id, partition_key
+                    return None
+
+                with monkeypatch.context() as cursor_without_injection:
+                    cursor_without_injection.setattr(
+                        CursorStore,
+                        "find_latest_cursor",
+                        _remove_cursor_injection,
+                    )
+                    response = client.post(
+                        "/api/v1/control/data/ingest",
+                        headers=_with_fresh_step_up(client, headers),
+                        json=request,
+                    )
+                assert CursorStore.find_latest_cursor is original_find_latest_cursor
+            else:
+                response = client.post(
+                    "/api/v1/control/data/ingest",
+                    headers=_with_fresh_step_up(client, headers),
+                    json=request,
+                )
             assert response.status_code == 200
             body = response.json()
             assert body["status"] == "completed"
@@ -554,9 +587,12 @@ def test_b79_served_incremental_route_filters_source_rows_from_the_stored_etag(
             assert body["datasets_fetched"] == 1
             assert body["evidence_bundle_ref"] is not None
             assert body["cursor_ref"] is None
-            assert [query for query in calls if "since" in query] == [
-                {"limit": ["100"], "page": ["1"], "since": [prior]}
-            ]
+            if remove_cursor_injection:
+                assert not [query for query in calls if "since" in query]
+            else:
+                assert [query for query in calls if "since" in query] == [
+                    {"limit": ["100"], "page": ["1"], "since": [prior]}
+                ]
 
             with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
                 evidence = EvidenceBundle.model_validate(
@@ -572,7 +608,20 @@ def test_b79_served_incremental_route_filters_source_rows_from_the_stored_etag(
                 )
                 assert len(evidence.sources) == 1
                 persisted = ResultSerializer.deserialize(store.get_bytes(evidence.sources[0]))
-                assert persisted.data == [{"id": "served-row-after-prior", "value": 12}]
+                expected_rows = [{"id": "served-row-after-prior", "value": 12}]
+                if remove_cursor_injection:
+                    assert persisted.data == [{"id": "served-row-before-prior", "value": 2}]
+                    with pytest.raises(
+                        AssertionError,
+                        match="served incremental evidence must exclude rows before persisted ETag",
+                    ):
+                        assert persisted.data == expected_rows, (
+                            "served incremental evidence must exclude rows before persisted ETag"
+                        )
+                else:
+                    assert persisted.data == expected_rows, (
+                        "served incremental evidence must exclude rows before persisted ETag"
+                    )
                 latest_cursor = CursorStore(
                     store,
                     index_root=sidecar_scope.cursor_index_root,
@@ -1949,6 +1998,94 @@ async def test_b86_schema_membership_and_quarantine_do_not_depend_on_batch_size(
             reference_summary = summary
         else:
             assert summary == reference_summary
+
+
+@pytest.mark.asyncio
+async def test_b86_schema_validator_removal_admits_wrong_type_with_binding_marker_intact(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    stream_registry: ConnectorRegistry,
+) -> None:
+    """The semantic schema oracle rejects bad CAS data when type validation is removed."""
+    from polisyos.fabric.data_plane import schema_rows
+    from polisyos.fabric.data_plane.modes import _bind_stream_sanitizer
+
+    dataset_id = "schema-validator-removal"
+    stream_path = tmp_path / f"{dataset_id}.jsonl"
+    source_rows = [
+        {"event_id": "valid-row", "value": 1},
+        {"event_id": "wrong-type-row", "value": "not-a-float"},
+    ]
+    stream_path.write_text(
+        "".join(json.dumps(row, sort_keys=True) + "\n" for row in source_rows),
+        encoding="utf-8",
+    )
+    registry = _configure_stream_registry(stream_registry, stream_path, chunk_size=2)
+    schema = DataSchema(
+        schema_id="test.e02.stream_schema_removal",
+        version=SchemaVersion(1, 0, 0),
+        fields=(
+            FieldSpec(name="event_id", data_type=SchemaType.STRING, nullable=False),
+            FieldSpec(name="value", data_type=SchemaType.FLOAT64, nullable=False),
+        ),
+        primary_key=("event_id",),
+        required_completeness=0.0,
+    )
+    contracts = ContractRegistry()
+    contract = ConnectorSchemaContract(
+        contract_id="test.e02.stream_schema_removal.contract",
+        connector_id="stream.jsonl",
+        dataset_id=dataset_id,
+        schema=schema,
+        created_by="test_e02_c_streaming_oracle",
+    )
+    contracts.register(contract)
+    registry.configure_contracts(contracts)
+    binding = StreamSchemaBinding.from_contract(
+        contract,
+        registry_revision=contracts.revision,
+    )
+
+    def _remove_per_field_membership(_value: Any, _field: Any) -> None:
+        return None
+
+    monkeypatch.setattr(schema_rows, "field_value_violation", _remove_per_field_membership)
+    cas_root = tmp_path / f"{dataset_id}-cas"
+    store = FileSystemCAS(cas_root)
+    result = await process_stream_dataset(
+        connector_id="stream.jsonl",
+        dataset_id=dataset_id,
+        store=store,
+        cursor_store=CursorStore(store),
+        sanitize_rows=_bind_stream_sanitizer(binding),
+        runtime_options=StreamRuntimeOptions(
+            checkpoint_every_chunks=1,
+            max_dedupe_keys=8,
+            window_policy=WindowPolicy(strategy=WindowStrategy.COUNT, size=8),
+        ),
+        registry=registry,
+        schema_binding=binding,
+    )
+
+    assert result.rows_emitted == 2
+    assert result.quarantined_rows == 0
+    assert len(result.chunk_refs) == 1
+    chunk = from_canonical_bytes(store.get_bytes(result.chunk_refs[0].artifact_id))
+    assert chunk["schema_binding"] == binding.snapshot()
+    persisted_semantics = [
+        {key: row[key] for key in ("event_id", "value")} for row in chunk["data"]
+    ]
+    assert persisted_semantics == [
+        {"event_id": "valid-row", "value": 1},
+        {"event_id": "wrong-type-row", "value": "not-a-float"},
+    ]
+    with pytest.raises(
+        AssertionError,
+        match="schema-bound stream chunks must exclude wrong-typed values",
+    ):
+        assert persisted_semantics == [{"event_id": "valid-row", "value": 1}], (
+            "schema-bound stream chunks must exclude wrong-typed values"
+        )
 
 
 def test_b88_served_replay_uses_owned_fixture_catalog_and_reads_back_evidence(

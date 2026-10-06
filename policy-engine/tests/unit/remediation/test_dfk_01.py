@@ -1,7 +1,12 @@
 from __future__ import annotations
 
 import importlib
+import json
+import subprocess
+import sys
+from pathlib import Path
 
+import jax.numpy as jnp
 import pytest
 
 import polisyos.data_forge as data_forge
@@ -32,6 +37,38 @@ from polisyos.data_forge.kernel.schemas.registry import (
 )
 from polisyos.data_forge.kernel.schemas.registry import SchemaRegistry as RegistrySchemaRegistry
 from polisyos.data_forge.kernel.schemas.registry import SchemaVersion as RegistrySchemaVersion
+from polisyos.foundry.agent_sim.executor import PureExecutor
+from polisyos.foundry.agent_sim.mechanisms import TaxationMechanism
+from polisyos.foundry.agent_sim.state import GlobalState
+
+REPO_ROOT = Path(__file__).resolve().parents[3]
+CENSUS_SCRIPT = REPO_ROOT / "tools/quality/validation/schema_fqn_census.py"
+
+
+def _init_census_repository(root: Path, files: dict[str, str]) -> None:
+    """Create a small Git-visible repository for the census CLI's input contract."""
+    subprocess.run(["git", "init", "--quiet"], cwd=root, check=True)
+    subprocess.run(["git", "config", "user.email", "dfk-test@example.invalid"], cwd=root, check=True)
+    subprocess.run(["git", "config", "user.name", "DFK test"], cwd=root, check=True)
+    for relative_path, content in files.items():
+        path = root / relative_path
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(content, encoding="utf-8")
+    subprocess.run(["git", "add", "--all"], cwd=root, check=True)
+    subprocess.run(["git", "commit", "--quiet", "-m", "census fixture"], cwd=root, check=True)
+
+
+def _run_census(root: Path) -> tuple[subprocess.CompletedProcess[str], dict[str, object]]:
+    """Invoke the real census command and decode its JSON evidence receipt."""
+    completed = subprocess.run(
+        [sys.executable, str(CENSUS_SCRIPT), "--repo-root", str(root)],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert completed.stdout.strip(), completed.stderr
+    return completed, json.loads(completed.stdout)
 
 
 def test_dfk_01_canonical_schema_exports_preserve_registry_identity() -> None:
@@ -176,3 +213,215 @@ def test_dfk_01_mechanisms_tombstone_is_not_importable() -> None:
     """The confirmed empty mechanisms tombstone remains an absence contract."""
     with pytest.raises(ModuleNotFoundError):
         importlib.import_module("polisyos.foundry.domain.mechanisms")
+
+
+def test_dfk_01_census_binds_imports_strings_dynamic_loaders_and_exclusions(
+    tmp_path: Path,
+) -> None:
+    """The census reports exact local evidence and keeps ignored inputs outside its verdict."""
+    files = {
+        ".gitignore": "ignored/\n",
+        "src/polisyos/foundry/domain/schema.py": "class RegionProfile: ...\n",
+        "src/polisyos/foundry/domain/caller.py": (
+            "from .schema import RegionProfile\n"
+            "from importlib import import_module as load_module\n"
+            "def load_unknown(name):\n"
+            "    return load_module(name)\n"
+            "def load_schema():\n"
+            '    return load_module("polisyos.foundry.domain.schema")\n'
+        ),
+        "src/polisyos/data_forge/kernel/schemas/codegen.py": (
+            "class GeneratedSchemaModule: ...\n"
+        ),
+        "src/polisyos/data_forge/kernel/pipeline/schemas/__init__.py": (
+            "from polisyos.data_forge.kernel.schemas import SchemaRegistry\n"
+        ),
+        "configs/legacy.json": (
+            '{"module": "polisyos.foundry.domain.schema", '
+            '"resource": "foundry/domain/schema.py", "symbol": "RegionProfile"}\n'
+        ),
+    }
+    _init_census_repository(tmp_path, files)
+    untracked = tmp_path / "generated" / "descriptor.json"
+    untracked.parent.mkdir(parents=True)
+    untracked.write_text(
+        '{"module": "polisyos.data_forge.kernel.schemas.codegen"}\n', encoding="utf-8"
+    )
+    ignored = tmp_path / "ignored" / "outside.json"
+    ignored.parent.mkdir()
+    ignored.write_text(
+        '{"module": "polisyos.foundry.domain.mechanisms"}\n', encoding="utf-8"
+    )
+
+    completed, receipt = _run_census(tmp_path)
+
+    assert completed.returncode == 0
+    assert receipt["schema"] == "polisyos.schema_fqn_census.v1"
+    selection = receipt["selection"]
+    assert selection["tracked_path_count"] == len(files)
+    assert selection["untracked_paths"] == ["generated/descriptor.json"]
+    assert selection["ignored_paths"] == ["ignored/outside.json"]
+    assert any(
+        item["class"] == "unselected_ignored_inputs" and item["status"] == "present"
+        for item in receipt["unresolved_by_construction"]
+    )
+
+    matches = receipt["matches"]
+    assert any(
+        hit["target"] == "polisyos.foundry.domain.schema"
+        and hit["path"] == "src/polisyos/foundry/domain/caller.py"
+        and hit["evidence_kind"] == "relative_import"
+        for hit in matches
+    )
+    assert any(
+        hit["target"] == "polisyos.foundry.domain.schema"
+        and hit["path"] == "configs/legacy.json"
+        and hit["evidence_kind"] == "serialized_or_text_reference"
+        for hit in matches
+    )
+    assert any(
+        hit["target"] == "polisyos.foundry.domain.schema"
+        and hit["path"] == "configs/legacy.json"
+        and hit["evidence_kind"] == "resource_path_reference"
+        for hit in matches
+    )
+    assert any(
+        hit["target"] == "polisyos.data_forge.kernel.schemas.codegen"
+        and hit["path"] == "generated/descriptor.json"
+        for hit in matches
+    )
+    assert not any(hit["path"] == "ignored/outside.json" for hit in matches)
+
+    dynamic_sites = receipt["dynamic_loader_sites"]
+    assert any(
+        site["path"] == "src/polisyos/foundry/domain/caller.py"
+        and site["status"] == "unresolved_nonliteral_target"
+        for site in dynamic_sites
+    )
+    assert any(
+        site["literal_target"] == "polisyos.foundry.domain.schema"
+        and site["status"] == "literal_target"
+        for site in dynamic_sites
+    )
+    assert receipt["read_receipt"]["complete_verdict"] is True
+    assert receipt["package_artifacts"]["wheel"] == "UNRUN"
+    assert receipt["package_artifacts"]["sdist"] == "UNRUN"
+    read_paths = {
+        item["path"]
+        for item in receipt["read_receipt"]["inputs"]
+        if item["operation"] == "read_bytes" and item["status"] == "read"
+    }
+    assert read_paths == set(files) | {"generated/descriptor.json"}
+
+
+def test_dfk_01_census_does_not_turn_missing_tracked_input_into_zero(
+    tmp_path: Path,
+) -> None:
+    """A tracked path that cannot be read keeps the census partial and names the path."""
+    files = {"src/polisyos/foundry/domain/schema.py": "class RegionProfile: ...\n"}
+    _init_census_repository(tmp_path, files)
+    (tmp_path / "src/polisyos/foundry/domain/schema.py").unlink()
+
+    completed, receipt = _run_census(tmp_path)
+
+    assert completed.returncode == 2
+    assert receipt["read_receipt"]["complete_verdict"] is False
+    assert receipt["unreadable_paths"] == ["src/polisyos/foundry/domain/schema.py"]
+    assert receipt["result"] == "partial_unreadable_input"
+
+
+def test_dfk_01_census_rejects_selected_symlink_outside_admitted_root(
+    tmp_path: Path,
+) -> None:
+    """A selected Git path cannot cause the census to read bytes outside its root."""
+    files = {"configs/linked.json": '{"module": "placeholder"}\n'}
+    census_root = tmp_path / "repo"
+    census_root.mkdir()
+    _init_census_repository(census_root, files)
+    outside = tmp_path / "dfk_external_schema_fqn.json"
+    outside.write_text(
+        '{"module": "polisyos.foundry.domain.schema"}\n', encoding="utf-8"
+    )
+    linked = census_root / "configs/linked.json"
+    linked.unlink()
+    linked.symlink_to(outside)
+
+    completed, receipt = _run_census(census_root)
+
+    assert completed.returncode == 2
+    assert receipt["result"] == "partial_unsupported_or_ambiguous"
+    assert receipt["read_receipt"]["complete_verdict"] is False
+    assert receipt["rejected_outside_root_paths"] == ["configs/linked.json"]
+    assert receipt["unsupported_or_ambiguous_inputs"] == [
+        {
+            "path": "configs/linked.json",
+            "class": "symlink_escapes_admitted_root",
+            "detail": "The selected path resolves outside the census root and was not read.",
+        }
+    ]
+    assert not any(hit["path"] == "configs/linked.json" for hit in receipt["matches"])
+
+
+def test_dfk_01_census_digest_changes_when_a_selected_input_changes(tmp_path: Path) -> None:
+    """The receipt binds working-tree bytes rather than a remembered path list."""
+    files = {"configs/legacy.json": '{"module": "polisyos.foundry.domain.schema"}\n'}
+    _init_census_repository(tmp_path, files)
+    first_command, first = _run_census(tmp_path)
+    config_path = tmp_path / "configs/legacy.json"
+    config_path.write_text('{"module": "polisyos.data_forge.kernel.schemas.codegen"}\n')
+
+    second_command, second = _run_census(tmp_path)
+
+    assert first_command.returncode == second_command.returncode == 0
+
+    def digest(receipt: dict[str, object]) -> str:
+        inputs = receipt["read_receipt"]["inputs"]
+        return next(
+            item["sha256"]
+            for item in inputs
+            if item["path"] == "configs/legacy.json" and item["operation"] == "read_bytes"
+        )
+
+    assert digest(first) != digest(second)
+    assert "configs/legacy.json" in second["selection"]["working_tree_changes"]
+    assert not any(
+        hit["target"] == "polisyos.foundry.domain.schema"
+        and hit["path"] == "configs/legacy.json"
+        for hit in second["matches"]
+    )
+    assert any(
+        hit["target"] == "polisyos.data_forge.kernel.schemas.codegen"
+        and hit["path"] == "configs/legacy.json"
+        for hit in second["matches"]
+    )
+
+
+def test_dfk_01_census_normalizes_git_status_paths_from_nested_product_root(
+    tmp_path: Path,
+) -> None:
+    """A product-root census maps Git's repository-prefixed status paths back to its root."""
+    files = {"policy-engine/configs/legacy.json": '{"module": "old"}\n'}
+    _init_census_repository(tmp_path, files)
+    product_root = tmp_path / "policy-engine"
+    (product_root / "configs/legacy.json").write_text('{"module": "new"}\n', encoding="utf-8")
+
+    completed, receipt = _run_census(product_root)
+
+    assert completed.returncode == 0
+    assert receipt["selection"]["working_tree_changes"] == ["configs/legacy.json"]
+
+
+def test_dfk_01_real_foundry_runner_executes_canonical_mechanism() -> None:
+    """PureExecutor consumes the canonical taxation mechanism and returns its state effect."""
+    state = GlobalState.empty(n_agents=2, seed=42, max_agents=2)
+    state = state.replace(
+        agents=state.agents.replace(income=jnp.asarray([100.0, 200.0], dtype=jnp.float32)),
+        policy=state.policy.replace(tax_rate=jnp.asarray(0.1, dtype=jnp.float32)),
+    )
+    runner = PureExecutor([TaxationMechanism(progressive_factor=0.0)])
+
+    final_state, metrics = runner.run(state, n_steps=1)
+
+    assert final_state.agents.income[:2].tolist() == pytest.approx([90.0, 180.0])
+    assert float(metrics["taxation/total_tax_collected"][0]) == pytest.approx(30.0)
+    assert int(final_state.time_step) == 1

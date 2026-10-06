@@ -9,6 +9,8 @@ from decimal import Decimal
 from math import isfinite
 from typing import Any
 
+from polisyos.scientist.methods.search.objective import OptimizationDirection
+
 
 @dataclass(frozen=True)
 class StoppingCondition:
@@ -115,65 +117,120 @@ class MaxWallTime(StoppingCriterion):
 
 
 class ImprovementPlateau(StoppingCriterion):
-    """Stop if no significant improvement for N consecutive iterations."""
+    """Stop on a direction-normalized plateau in declared objective units.
+
+    Profile 1.0 defaults to 0.01 absolute objective units and 0.01 relative
+    tolerance. This engineering tolerance is not statistical significance.
+    Missing units/profile or incomplete numbers cannot establish convergence.
+    """
 
     def __init__(
         self,
         patience: int = 3,
         min_improvement: float = 0.01,
         objective_key: str = "objective_value",
+        *,
+        objective_unit: str | None = None,
+        direction: OptimizationDirection = OptimizationDirection.MINIMIZE,
+        absolute_tolerance: float = 0.01,
+        profile_version: str | None = "1.0",
     ):
         if patience < 1:
             raise ValueError("patience must be >= 1")
+        for name, value in (
+            ("min_improvement", min_improvement),
+            ("absolute_tolerance", absolute_tolerance),
+        ):
+            if isinstance(value, bool) or not isinstance(value, (int, float)):
+                raise ValueError(f"{name} must be a finite nonnegative number")
+            if not isfinite(value) or value < 0:
+                raise ValueError(f"{name} must be a finite nonnegative number")
+        if objective_unit is not None and (
+            not isinstance(objective_unit, str) or not objective_unit.strip()
+        ):
+            raise ValueError("objective_unit must be a nonempty declared unit or None")
+        if profile_version not in (None, "1.0"):
+            raise ValueError("Unknown plateau profile version")
         self._patience = patience
         self._min_improvement = min_improvement
         self._objective_key = objective_key
+        self._objective_unit = objective_unit
+        self._direction = OptimizationDirection(direction)
+        self._absolute_tolerance = absolute_tolerance
+        self._profile_version = profile_version
 
     @property
     def name(self) -> str:
         return "improvement_plateau"
 
     def check(self, history: list[dict[str, Any]], state: dict[str, Any]) -> StoppingCondition:
+        if self._objective_unit is None or self._profile_version is None:
+            return self._unavailable("objective_unit_or_profile_missing")
         if len(history) < self._patience + 1:
             return StoppingCondition(should_stop=False)
 
-        values = [
-            h.get(self._objective_key, float("inf")) for h in history if self._objective_key in h
-        ]
-
-        if len(values) < self._patience + 1:
-            return StoppingCondition(should_stop=False)
+        values: list[float] = []
+        for row in history:
+            raw = row.get(self._objective_key)
+            if isinstance(raw, bool) or not isinstance(raw, (int, float, Decimal)):
+                return self._unavailable("objective_observation_missing_or_invalid")
+            try:
+                value = float(raw)
+            except (OverflowError, ValueError):
+                return self._unavailable("objective_observation_nonfinite")
+            if not isfinite(value):
+                return self._unavailable("objective_observation_nonfinite")
+            values.append(value)
 
         recent_values = values[-self._patience :]
         historical_values = values[: -self._patience]
 
-        best_recent = min(recent_values)
-        best_historical = min(historical_values)
-        signed_improvement = best_historical - best_recent
-
-        if abs(best_historical) < 1e-10:
-            # A zero baseline has no meaningful relative denominator.  Keep
-            # the signed gain in the objective's absolute scale so a positive
-            # loss remains a regression instead of becoming infinite progress.
-            improvement = signed_improvement
-        else:
-            improvement = signed_improvement / abs(best_historical)
-
-        if improvement < self._min_improvement:
+        best = max if self._direction is OptimizationDirection.MAXIMIZE else min
+        best_recent = best(recent_values)
+        best_historical = best(historical_values)
+        gain = (
+            best_recent - best_historical
+            if self._direction is OptimizationDirection.MAXIMIZE
+            else best_historical - best_recent
+        )
+        tolerance = max(self._absolute_tolerance, self._min_improvement * abs(best_historical))
+        if not isfinite(gain) or not isfinite(tolerance):
+            return self._unavailable("objective_gain_or_tolerance_nonfinite")
+        details = {
+            "best_recent": best_recent,
+            "best_historical": best_historical,
+            "gain": gain,
+            "improvement": gain,
+            "tolerance": tolerance,
+            "absolute_tolerance": self._absolute_tolerance,
+            "relative_tolerance": self._min_improvement,
+            "objective_unit": self._objective_unit,
+            "direction": self._direction.value,
+            "profile_version": self._profile_version,
+            "patience": self._patience,
+            "adequacy_status": "observed_finite_history",
+        }
+        if gain <= tolerance:
             return StoppingCondition(
                 should_stop=True,
                 reason=(
-                    f"Improvement plateau: no improvement above {self._min_improvement:.2%} "
-                    f"for {self._patience} iterations"
+                    f"Improvement plateau: gain {gain:g} <= {tolerance:g} "
+                    f"{self._objective_unit} for {self._patience} iterations"
                 ),
-                details={
-                    "best_recent": best_recent,
-                    "best_historical": best_historical,
-                    "improvement": improvement,
-                    "patience": self._patience,
-                },
+                details=details,
             )
-        return StoppingCondition(should_stop=False)
+        return StoppingCondition(should_stop=False, details=details)
+
+    def _unavailable(self, reason: str) -> StoppingCondition:
+        return StoppingCondition(
+            should_stop=False,
+            reason=reason,
+            details={
+                "adequacy_status": "not_established",
+                "objective_unit": self._objective_unit,
+                "profile_version": self._profile_version,
+            },
+        )
 
 
 class TargetAchieved(StoppingCriterion):
@@ -303,9 +360,7 @@ class CompositeStoppingCriterion(StoppingCriterion):
     def state_keys(self) -> tuple[str, ...]:
         """Return the de-duplicated state keys required by child criteria."""
         return tuple(
-            dict.fromkeys(
-                key for criterion in self._criteria for key in criterion.state_keys()
-            )
+            dict.fromkeys(key for criterion in self._criteria for key in criterion.state_keys())
         )
 
 
@@ -339,9 +394,7 @@ class AllStoppingCriteria(StoppingCriterion):
     def state_keys(self) -> tuple[str, ...]:
         """Return the de-duplicated state keys required by child criteria."""
         return tuple(
-            dict.fromkeys(
-                key for criterion in self._criteria for key in criterion.state_keys()
-            )
+            dict.fromkeys(key for criterion in self._criteria for key in criterion.state_keys())
         )
 
 
@@ -358,13 +411,18 @@ class StoppingPresets:
         max_iter: int = 10,
         max_seconds: float = 300.0,
         patience: int = 3,
+        *,
+        objective_unit: str | None = None,
+        direction: OptimizationDirection = OptimizationDirection.MINIMIZE,
     ) -> CompositeStoppingCriterion:
         """Standard stopping: iterations OR time OR plateau."""
         return CompositeStoppingCriterion(
             [
                 MaxIterations(max_iter),
                 MaxWallTime(max_seconds),
-                ImprovementPlateau(patience=patience),
+                ImprovementPlateau(
+                    patience=patience, objective_unit=objective_unit, direction=direction
+                ),
             ]
         )
 

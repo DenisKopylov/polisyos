@@ -47,6 +47,35 @@ and bridge are not established. A missing registry remains basis-limited and
 unranked. See the [policy-design package README](../../policy_design/README.md#persisted-frontier-artifacts)
 for artifact versions and rollout limits.
 
+## Plateau and Stress Evidence
+
+`ImprovementPlateau` profile `1.0` requires an explicit `objective_unit`.
+Its default absolute tolerance is 0.01 of those units and its relative
+tolerance (`min_improvement`) is 0.01. It stops when direction-normalized
+gain is at most the larger tolerance, including equality and deterioration.
+Missing units/profile or missing, invalid, and nonfinite observations cannot
+establish a plateau. `StoppingPresets.default` accepts the unit and direction;
+without a unit its iteration and wall-time limits still operate. Convert the
+absolute tolerance when converting objective units. This profile is an
+engineering tolerance, not statistical significance.
+
+`run_stress_test` reports `(finite_evaluated - violated_scenarios) /
+finite_evaluated` over observed finite scenarios. A repeated issue still
+counts once for each violated scenario; grouping and `collect_top_k` select
+examples only. Metadata distinguishes `attempted`, `finite_evaluated`,
+`violated_scenarios`, `unknown_or_nonfinite`, `planned_scenarios`, and
+`completeness`. `total_scenarios_evaluated` counts finite admitted outcomes.
+A zero finite denominator leaves the score unavailable; an incomplete or
+unknown stream has partial adequacy and a conditional score when available.
+Even a complete planned stream supplies an observed sample fraction, not a
+population failure probability or calibrated model uncertainty.
+
+Retained full vulnerability payloads are bounded by `collect_top_k` plus
+one transient object. Digest identities still require O(unique issues)
+memory; initial sampling and adaptive history are outside that payload bound.
+Typed objective direction, the physical worst case, and these metadata survive
+the existing CAS report serialization without a shared DTO schema change.
+
 ## Depends On / Depended On By
 
 - Depends on: [`../../governance/README.md`](../../governance/README.md), `doe`, policy-design/search-specific runtime helpers, and artifact persistence surfaces

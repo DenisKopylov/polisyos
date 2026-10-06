@@ -1202,13 +1202,14 @@
         "DUR-full-4f",
         "current-durability-settlement@71b1"
       ],
-      "residuals": [
-        "Physical power loss, remote/shared filesystem and multi-host durability unestablished; SIGKILL establishes process interruption only.",
-        "Valid-but-forged accounting content authenticity is outside typed completeness. Deployed production factory adoption is not proven by this isolated middleware consumer.",
-        "Raw record_spend has no event ID; durable dedupe only applies to immutable supplied settlement events. Receipt identity retirement needs a separate law."
+      "criterion_verdict": "met in actual local POSIX filesystem/process profile: coordinated reader never admits blank partial/no-limits; publication interruption admits valid old/new or typed recovery; corrupt/supplied-incomplete records refuse before defaults; same supplied immutable settlement operation ID retries once",
+      "residuals": [],
+      "out_of_scope_boundaries": [
+        "SIGKILL establishes process interruption only; physical power loss and multi-host/shared-filesystem guarantees are outside this DUR-01 acceptance criterion.",
+        "Idempotency applies when immutable event identity is supplied through the actual settlement API; raw legacy record_spend has no such identity. Receipt identity retirement is a separate B66 owner contract."
       ],
       "next_owner": "B root independent review and G formal acceptance; local G exact input rerun where required",
-      "minimal_countercase": "Physical power loss or shared filesystem publication; valid-but-forged structurally complete snapshot authentication. SIGKILL does not prove either."
+      "minimal_countercase": "No outstanding DUR-01 countercase established in the exercised profile; root/G final merged-cohort acceptance remains pending."
     },
     {
       "finding_id": "B38",
@@ -1540,9 +1541,7 @@
     "bytes": 2347
   },
   "limitations_and_next_owner": [
-    "Physical power loss, remote/shared filesystem and multi-host durability unestablished; SIGKILL establishes process interruption only.",
-    "Valid-but-forged accounting content authenticity is outside typed completeness. Deployed production factory adoption is not proven by this isolated middleware consumer.",
-    "Raw record_spend has no event ID; durable dedupe only applies to immutable supplied settlement events. Receipt identity retirement needs a separate law.",
+    "DUR-01 local POSIX/process criterion met by actual strict wire, reader/publication and fault/reopen consumers. Root/G final cohort acceptance pending.",
     "Finite real localSQLite bound-source-job publication profile; actual PostgreSQL six-case consumer remains skipped without isolated DSN. No multi-host/global store authorization or arbitrary external-side-effect exactly-once claim.",
     "Actual HTTP/full-runtime consumers require local catalogue/L6 inputs for269 blocked cases; their product verdicts are not established.",
     "Different unbound admin instance/raw SQL are outside this captured worker handler authority boundary; legitimate bound child publication is fenced by its source job.",

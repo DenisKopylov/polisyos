@@ -1,0 +1,214 @@
+"""Execute one unchanged tracked stress probe with independent custody capture."""
+
+import argparse
+import hashlib
+import importlib.util
+import json
+import os
+from pathlib import Path
+import runpy
+import subprocess
+import sys
+import time
+
+
+def write(path, value):
+    path.write_text(json.dumps(value, indent=2, default=str) + "\n")
+
+
+def git(repo, *args):
+    return subprocess.check_output(["git", "-C", str(repo), *args])
+
+
+def state(repo):
+    return {
+        "sha": git(repo, "rev-parse", "HEAD").decode().strip(),
+        "tree": git(repo, "rev-parse", "HEAD^{tree}").decode().strip(),
+        "status": git(repo, "status", "--porcelain=v1").decode(),
+    }
+
+
+def tracked(repo, sha):
+    result = {}
+    for raw in git(
+        repo, "ls-tree", "-rz", sha, "--", "policy-engine/src", "policy-engine/tests"
+    ).split(b"\0"):
+        if raw:
+            header, path = raw.split(b"\t", 1)
+            mode, kind, blob = header.decode().split()
+            if kind == "blob":
+                result[path.decode()] = {"git_blob": blob, "mode": mode}
+    return result
+
+
+def snapshot(repo, tree):
+    rows = {}
+    errors = []
+    for name, expected in sorted(tree.items()):
+        path = repo / name
+        try:
+            if expected["mode"] == "120000":
+                raw = os.fsencode(os.readlink(path))
+                size = len(raw)
+                digest = hashlib.sha256(raw)
+                git_digest = hashlib.sha1(b"blob " + str(size).encode() + b"\0" + raw)
+            else:
+                size = path.stat().st_size
+                digest = hashlib.sha256()
+                git_digest = hashlib.sha1(b"blob " + str(size).encode() + b"\0")
+                with path.open("rb") as stream:
+                    for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+                        digest.update(chunk)
+                        git_digest.update(chunk)
+            blob = git_digest.hexdigest()
+            rows[name] = {"bytes": size, "sha256": digest.hexdigest(), "git_blob": blob}
+            if blob != expected["git_blob"]:
+                errors.append(name)
+        except OSError as error:
+            rows[name] = {"error": repr(error)}
+            errors.append(name)
+    return {
+        "paths": rows,
+        "mismatches": errors,
+        "snapshot_sha256": hashlib.sha256(
+            json.dumps(rows, sort_keys=True, separators=(",", ":")).encode()
+        ).hexdigest(),
+    }
+
+
+def origins(project):
+    rows = []
+    for name, module in sorted(sys.modules.copy().items()):
+        rawpath = getattr(module, "__file__", None)
+        if rawpath:
+            path = Path(rawpath).resolve()
+            if path.is_relative_to(project / "src") and path.is_file():
+                raw = path.read_bytes()
+                rows.append(
+                    {
+                        "module": name,
+                        "path": str(path),
+                        "repo_path": str(path.relative_to(project.parent)),
+                        "bytes": len(raw),
+                        "sha256": hashlib.sha256(raw).hexdigest(),
+                        "git_blob": hashlib.sha1(
+                            b"blob " + str(len(raw)).encode() + b"\0" + raw
+                        ).hexdigest(),
+                    }
+                )
+    return rows
+
+
+def census():
+    result = {}
+    for name in ("memory.current", "memory.max", "memory.events", "cpu.max"):
+        try:
+            result[name] = Path("/sys/fs/cgroup", name).read_text()
+        except OSError as error:
+            result[name] = {"error": repr(error)}
+    return result
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--repo", type=Path, required=True)
+    parser.add_argument("--source", required=True)
+    parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--probe", required=True)
+    parser.add_argument("--requires-SALib", action="store_true")
+    parser.add_argument("probe_arguments", nargs=argparse.REMAINDER)
+    args = parser.parse_args()
+    repo, output = args.repo.resolve(), args.output.resolve()
+    project = repo / "policy-engine"
+    assert output.exists() and not (output / "input-before.json").exists()
+    assert Path.cwd().resolve() == project
+    before = state(repo)
+    assert before["sha"] == args.source and before["status"] == ""
+    tree = tracked(repo, args.source)
+    inputs_before = snapshot(repo, tree)
+    assert not inputs_before["mismatches"]
+    write(output / "source-before.json", before)
+    write(output / "input-before.json", inputs_before)
+    write(output / "resources-before.json", census())
+    tail = args.probe_arguments[1:] if args.probe_arguments[:1] == ["--"] else args.probe_arguments
+    original_argv = [str(project / args.probe), *tail]
+    write(
+        output / "command.json",
+        {
+            "wrapper_argv": sys.argv,
+            "probe_argv": original_argv,
+            "cwd": str(project),
+            "executable": sys.executable,
+            "python": sys.version,
+            "start_time_ns": time.time_ns(),
+            "added_compute_thread_process_time_limits": False,
+            "probe_path": "policy-engine/" + args.probe,
+            "probe_git_blob": tree["policy-engine/" + args.probe]["git_blob"],
+            "full_tracked_src_and_tests_files": len(tree),
+        },
+    )
+    code, status = 0, "EXECUTED"
+    start = time.monotonic()
+    try:
+        if args.requires_SALib and importlib.util.find_spec("SALib") is None:
+            status = "UNRUN_MISSING_SALib"
+            write(
+                output / "backend-preflight.json",
+                {
+                    "required_backend": "SALib",
+                    "find_spec": None,
+                    "status": status,
+                    "scientific_probe_body_executed": False,
+                    "scientific_positive_verdict": None,
+                },
+            )
+            print(
+                json.dumps(
+                    {"status": status, "probe": args.probe, "scientific_probe_body_executed": False}
+                ),
+                flush=True,
+            )
+        else:
+            sys.argv = original_argv
+            runpy.run_path(original_argv[0], run_name="__main__")
+    except SystemExit as error:
+        code = error.code if isinstance(error.code, int) else 1
+    except BaseException:
+        code, status = 1, "ERROR_PRECONDITION_OR_PROBE_EXCEPTION"
+        raise
+    finally:
+        after = state(repo)
+        inputs_after = snapshot(repo, tree)
+        loaded = origins(project)
+        mismatches = [
+            row
+            for row in loaded
+            if row["git_blob"] != tree.get(row["repo_path"], {}).get("git_blob")
+        ]
+        write(output / "source-after.json", after)
+        write(output / "input-after.json", inputs_after)
+        write(output / "actual-origins.json", loaded)
+        write(output / "resources-after.json", census())
+        result = {
+            "source_before": before,
+            "source_after": after,
+            "source_clean_equal": before == after,
+            "input_snapshots_equal": inputs_before == inputs_after,
+            "full_source_and_tests_files": len(tree),
+            "actual_product_paths": len({r["repo_path"] for r in loaded}),
+            "origin_mismatches": mismatches,
+            "probe_exitcode": code,
+            "execution_status": status,
+            "wall_seconds": time.monotonic() - start,
+            "end_time_ns": time.time_ns(),
+            "loaded_optional_backends": {
+                n: n in sys.modules for n in ("torch", "botorch", "gpytorch", "hnswlib", "SALib")
+            },
+        }
+        write(output / "result.json", result)
+        assert before == after and inputs_before == inputs_after and not mismatches
+    return code
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

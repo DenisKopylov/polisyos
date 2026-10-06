@@ -1,0 +1,11 @@
+# Independent final-source stress probe capture
+
+This directory contains an operational evidence harness, not product/test changes. `runner.py.txt` executes the unchanged tracked probe at the exact supplied root freeze using `runpy.run_path` and the original logical argument vector. The original probe bodies are referenced by immutable Git SHA/path/blob/hash, without copied source files.
+
+Before and after each child, the harness streams every tracked `policy-engine/src` and `policy-engine/tests` file and records byte counts, SHA256, actual Git blob identity, and canonical snapshot digest. Symlink identity is its tracked link text. It verifies the immutable supplied tree; the root source, tests and HEAD must remain clean and unchanged. No compute, time, process or thread limits are introduced. Product files are read only.
+
+The four standalone probe families are absent-report positive/invented-attempt removal, strict case-intake positive/guard removal, in-memory stress-property removals over the original two whole-file pytest selectors, and the actual SALib DOE bridge. The minimal runtime physically lacks SALib; its DOE bridge preflight must report UNRUN with scientific body not executed, never a scientific PASS. A successful availability preflight does not substitute another backend.
+
+The harness captures actual loaded product origins in `finally`, including non-pytest probes, and retains full streams, generated evidence and fresh filesystem CAS inputs. For the two pytest mutation probes, the existing independent observer is supplied through an exact Git reference to `continuation-budget-B11-fixture-proof/observer.py.txt` at `566574237b0e7a6c8bcb196425226d76c952efff`. It records every collected node ID and setup/call/teardown report. Each cache and basetemp is fresh; script-created `/dev/shm` CAS directories remain untouched. Mutations remain inside each child process.
+
+Original local streams and artifacts stay in place. The eventual lossless transport references tracked script and observer bodies once, retaining all deciding outputs, failures and errors separately. Actual test verdicts, expected marker-retaining falsifier failures, backend absence and interrupted/precondition errors are classified from complete outputs, not guessed from process status.

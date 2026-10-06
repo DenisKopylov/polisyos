@@ -1,0 +1,297 @@
+{
+  "schema": "policyos.e02.independent_adjudication_delta.v1",
+  "unit": "B",
+  "reviewer": "/root/dur_probe",
+  "slice": "current-final-open-delta-review",
+  "branch": "codex/e02-B-current-durability",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/43",
+  "own_review_source_sha": "69592e5ca095011bfd724a01da1e1f44cfb9f9d4",
+  "root_source_sha": "c59c31715943cc2fec8f25b499e0e832fe043d82",
+  "root_source_tree": "84b4dbc763c758b37ad8773582e61cd6c55d7459",
+  "root_joint_cohort": "UNRUN; no futurePASS transfer",
+  "canonical_source_basis": {
+    "git_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+    "card_path_template": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/{bundle_id}.md",
+    "criterion_locator": "Per finding SOURCE_BEGIN/SOURCE_END block, lines and hash."
+  },
+  "receipt_index": {
+    "exe": {
+      "git_sha": "d5ba7ae4984235c7f8138020b1d684074edc8146",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all15-execution-state.json",
+      "sha256": "186761143590191aaa4057700c50c1f90a04bf467d60194cd17854f6e9a9a7f0",
+      "bytes": 284620
+    },
+    "run": {
+      "git_sha": "42b777ef381f14794bbb91ad1905a07ada768577",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/review-final.json",
+      "sha256": "1faeda016479552d42d99e563d0deea79a4e5131aed1e403dcb00457bb438991",
+      "bytes": 36860
+    },
+    "run-a175": {
+      "git_sha": "1af0bfe220414b1c6ee84d1e4b5373272cf3026a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/review-a175.json",
+      "sha256": "f9ecf8b94dc466113a84666695fb46931b5c487ac89a3e4b3c11063d64c5704a",
+      "bytes": 62715
+    },
+    "old": {
+      "git_sha": "69592e5ca095011bfd724a01da1e1f44cfb9f9d4",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-independent-adjudication.json",
+      "sha256": "57824974c599414a246810f39724a7cb4e4386ae8ade514e6721737b177a3a28",
+      "bytes": 108445
+    }
+  },
+  "check_index": {
+    "exe:16": {
+      "receipt": "exe",
+      "pointer": "#/checks/16",
+      "executed_source_sha": "a175392fb4b49d19189152609d93e2ec149a4704",
+      "overall_outcome": "FAIL",
+      "environment_input_basis": "Original immutable check/environment/input_closure and committed wrapper; Git-derivable raw closure, no reconstructed product run",
+      "deciding_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-complete-all15-stdout.txt",
+        "sha256": "8ed3b2f3273ab613c1dbd90923c673502704e02e84f6ef9c4a736d183912094f",
+        "bytes": 105580
+      },
+      "native_xml": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-complete-all15-cohort.xml",
+        "sha256": "3f4b14d2bdbd228feb2f01df79a5c13e863ff0cae11de116e4800892b80eb3a0",
+        "bytes": 106158
+      }
+    },
+    "exe:23": {
+      "receipt": "exe",
+      "pointer": "#/checks/23",
+      "executed_source_sha": "bd490ea81ac5addb78a3f35532558a5b8042dcdb",
+      "overall_outcome": "PASS",
+      "environment_input_basis": "Original immutable check/environment/input_closure and committed wrapper; Git-derivable raw closure, no reconstructed product run",
+      "deciding_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-fixture-consumers-stdout.txt",
+        "sha256": "bd5ede7f1bc6f7d5d4f2d5c94bf82df4746bcda7ada636fb34bc8419a1c9990d",
+        "bytes": 769
+      },
+      "native_xml": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-fixture-consumers-cohort.xml",
+        "sha256": "0469e69de6c3d57c85371e8f22072abef8b830d8895642a7131fc3b4f6318de1",
+        "bytes": 8406
+      }
+    },
+    "exe:26": {
+      "receipt": "exe",
+      "pointer": "#/checks/26",
+      "executed_source_sha": "ed13ec37406a2d533d4a95e43c5afd84d2d0614a",
+      "overall_outcome": "PASS",
+      "environment_input_basis": "Original immutable check/environment/input_closure and committed wrapper; Git-derivable raw closure, no reconstructed product run",
+      "deciding_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-typed-group-consumers-stdout.txt",
+        "sha256": "3ca63df1dde3ba9e2d2084a8facf905367fe65246c76bc33b3d06e0024ecdfa9",
+        "bytes": 160
+      },
+      "native_xml": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-typed-group-consumers-cohort.xml",
+        "sha256": "eb19fe91fe76c874807d9df6dddd5cc60c6b21a50bf106f6eeca188d68977f3d",
+        "bytes": 25456
+      }
+    },
+    "exe:27": {
+      "receipt": "exe",
+      "pointer": "#/checks/27",
+      "executed_source_sha": "3eb2e887e07452a316aab95b7dbe3b4f2874951d",
+      "overall_outcome": "PASS",
+      "environment_input_basis": "Original immutable check/environment/input_closure and committed wrapper; Git-derivable raw closure, no reconstructed product run",
+      "deciding_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-bundle-consumers-stdout.txt",
+        "sha256": "585ba42829657b9e2d56f8614be6c3365a8405474eed008559511ab50f2ffcfb",
+        "bytes": 80
+      },
+      "native_xml": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-bundle-consumers-cohort.xml",
+        "sha256": "33647716525e367983a4b4989b8a38810e580365bde70e3adac43770b85cb532",
+        "bytes": 1803
+      }
+    },
+    "run:group": {
+      "receipt": "run",
+      "pointer": "#/checks/0",
+      "executed_source_sha": "ed13ec37406a2d533d4a95e43c5afd84d2d0614a",
+      "actual_outcome": "3PASS",
+      "basis": "Same actual validproof typed-group reader controls; olda175 healthy1PASS/malformed2FAIL retained separately."
+    },
+    "run-a175:graph": {
+      "receipt": "run-a175",
+      "pointer": "#/checks",
+      "basis": "Exactnamed graph_final_old11/graph_final_old10/native_owner_final/additive_final;9graph/4actualproducer/truelegacy1.0/1.1. Sourcea175, not ed13 reruns."
+    },
+    "run-a175:presence": {
+      "receipt": "run-a175",
+      "pointer": "#/checks/6",
+      "executed_source_sha": "a175392fb4b49d19189152609d93e2ec149a4704",
+      "deciding_packet": {
+        "git_sha": "1af0bfe220414b1c6ee84d1e4b5373272cf3026a",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/presence-owned-a175.json",
+        "sha256": "b56ef13e96bec0d162d41ea3757397960425cfba90153d01fe3f52751616b644",
+        "bytes": 225995
+      },
+      "basis": "presence_owned_final: actual JSON five-key readback and double_resume_B70; completed_reopen_nodes0 and changedquery typed refusal, genuine native checkpoints."
+    },
+    "old:stream": {
+      "receipt": "old",
+      "pointer": "#/check_index/stream:0",
+      "basis": "Original C restored-frontier actualFAIL; no canonicalB87cleanup defect inference from this budget assertion."
+    }
+  },
+  "findings": [
+    {
+      "finding_id": "B55",
+      "bundle_id": "EXE-01",
+      "previous_proposal": "limited",
+      "candidate_proposal": "closed_bounded",
+      "canonical_criterion": {
+        "line_begin": 96,
+        "line_end": 111,
+        "source_block_sha256": "8191ea528e4cb3823ee245a3c5ff0d7a66aef73cd44e4a4bcb57ac1c4c2409da"
+      },
+      "criterion": "Fail-fast rechecks after semaphore acquire, frees every slot on error/cancellation and preserves continue/completed outcomes.",
+      "actual_deciding_observation": "Saturated real semaphore rejects two queued bodies after first failure; continue runs both despite optional metric failures; cancel frees permit and preserves CAS seedprefix. Actual three cases are check16, within its retained overallFAIL.",
+      "scope_and_remaining_owner_law": "Declared local AsyncWorkflowExecutor queue/admission property, not distributed fairness or killing already-running external work.",
+      "check_refs": [
+        "exe:16"
+      ],
+      "closure_applied": false
+    },
+    {
+      "finding_id": "B57",
+      "bundle_id": "STA-01",
+      "previous_proposal": "open",
+      "candidate_proposal": "closed_bounded",
+      "canonical_criterion": {
+        "line_begin": 52,
+        "line_end": 69,
+        "source_block_sha256": "989c4b3d91329d24324c501149ed1325207d8755c3de0cb749b7ad79f339702a"
+      },
+      "criterion": "Replay applies actual assignments including same-value writes to current base without resurrecting unrelated/removed fields.",
+      "actual_deciding_observation": "Actual operation journal replays only producer intent against currentbase, including samevalue/delete/null, live aliases/reparent/heldviews and additive once-per-target; guarded producer grants cannot broaden. Real validproof malformed False0/nestedFalse0/0float groups miss before cache admission.",
+      "scope_and_remaining_owner_law": "Finite ordinary acyclic native JSON dict/list graph and declared pure state operations. NonJSON/custom reflection and external spend/events require their actual contracts; no broader history or permission authority inferred.",
+      "check_refs": [
+        "exe:26",
+        "run:group",
+        "run-a175:graph"
+      ],
+      "closure_applied": false
+    },
+    {
+      "finding_id": "B58",
+      "bundle_id": "STA-01",
+      "previous_proposal": "open",
+      "candidate_proposal": "closed_bounded",
+      "canonical_criterion": {
+        "line_begin": 75,
+        "line_end": 90,
+        "source_block_sha256": "f033cf80f557c6d0182c48122321772bc26ce47dff30de0b0cca1baf1279285a"
+      },
+      "criterion": "Delete/null/no-write replay preserves allowed deletion and refuses protected-index removal with explicit conflict semantics.",
+      "actual_deciding_observation": "Real direct/parallel/cache/reopened params deletion remains distinct fromnull/no-write; child-parent operation order and protected evidence-index refusal remain. Currentbase unrelated values survive.",
+      "scope_and_remaining_owner_law": "Only contract-permitted params removal; no evidence-index/CAS/history deletion or arbitrary custom mutable object law.",
+      "check_refs": [
+        "exe:26",
+        "exe:23"
+      ],
+      "closure_applied": false
+    },
+    {
+      "finding_id": "B60",
+      "bundle_id": "STA-02",
+      "previous_proposal": "open",
+      "candidate_proposal": "closed_bounded",
+      "canonical_criterion": {
+        "line_begin": 51,
+        "line_end": 66,
+        "source_block_sha256": "2064253937c5fc51352981eef9dada91cd145e1a85afd788b33cd72866ee7635"
+      },
+      "criterion": "Existing adaptive bundle is loaded and checked for actual context/graph/required parameters; inaccessible ref never gives presence-only ok.",
+      "actual_deciding_observation": "Actual ResolveParametersNode nine cases: matching frozen bundle reuses withzero selector work; changed context/domain/graph/requiredlist uses real selection and fresh fullmanifest graphlineage; oldCAS bytes stay verified; missing physicalCAS candidate yieldsskip, neverpresence-onlyOK.",
+      "scope_and_remaining_owner_law": "Existing v1 request/context/domain/graph/coverage/readability through real resolver+FileSystemCAS. B61 consumed immutable SKG snapshot/version ownerlaw remainsheld separately.",
+      "check_refs": [
+        "exe:27"
+      ],
+      "closure_applied": false
+    },
+    {
+      "finding_id": "B62",
+      "bundle_id": "STA-02",
+      "previous_proposal": "open",
+      "candidate_proposal": "closed_bounded",
+      "canonical_criterion": {
+        "line_begin": 93,
+        "line_end": 108,
+        "source_block_sha256": "1cae96d29d981d9650032e044e8fda65b6165702f2ff6aa9ca7640b1d6444ac2"
+      },
+      "criterion": "Declared method input key preserves missing/null/0/False/empty distinctions, safe cache-version compatibility and meaningful current-base replay.",
+      "actual_deciding_observation": "Actual native cold/warm/reopened keys and outputs distinguishmissing/null/0/False/[] withfive producer calls/five verified artifacts; method-declared absent-intermediate/default5 equivalence reuses withoutglobalnull normalization.",
+      "scope_and_remaining_owner_law": "Declared effective ordinaryJSON method input/value semantics. Prior implementation-subclass reflection failure remains outside this measured JSON roundtrip profile.",
+      "check_refs": [
+        "exe:26",
+        "exe:23",
+        "run-a175:presence"
+      ],
+      "closure_applied": false
+    },
+    {
+      "finding_id": "B70",
+      "bundle_id": "RES-01",
+      "previous_proposal": "open",
+      "candidate_proposal": "closed_bounded",
+      "canonical_criterion": {
+        "line_begin": 74,
+        "line_end": 91,
+        "source_block_sha256": "bcf7738eb29ed6a0676ca42fdd999c14a680494038333aa8d557a605dc2047cb"
+      },
+      "criterion": "Original functional fingerprint survives two real interrupted resumes and complete reopen without reexecuting successfulA/B; changed request refuses.",
+      "actual_deciding_observation": "Real WorkflowExecutor/CASCheckpointHook two stops retain originworkflow fingerprint; completedA/B do not rerun; genuine changedquery rejects. Independent native double_resume_B70 completed_reopen_nodes=0 supplies the separate fully-completed-run reopen control.",
+      "scope_and_remaining_owner_law": "Supported native workflow/config/checkpoint identity/history fixture; no scientific/evaluator/source-owner truth inferred from statuses. Production history only where the actual consumer criterion depends on it.",
+      "check_refs": [
+        "exe:16",
+        "run-a175:presence"
+      ],
+      "closure_applied": false
+    },
+    {
+      "finding_id": "B87",
+      "bundle_id": "NET-01",
+      "previous_proposal": "open",
+      "candidate_proposal": "open",
+      "canonical_criterion": {
+        "line_begin": 49,
+        "line_end": 62,
+        "source_block_sha256": "9c6e17b748643693b07a5fefefd6943e2ada4415b4b29c7a3e3aaa70d3846781"
+      },
+      "criterion": "Stream subscribe/checkpoint/rewind/close/cancel transfers pending physical cleanup ownership and leaves no permanently occupied pool slot.",
+      "actual_deciding_observation": "B ConnectionPool producer/cleanup protocol measured; fullactual C subscription/checkpoint-read/rewind/close/cancel cleanup consumer notestablished. Cap1 restoreFAIL is separate restored-frontier-budget divergence and alone is not a cleanup defect witness.",
+      "scope_and_remaining_owner_law": "C alone owns streaming.py. Need actual C cleanup fault/cancellation consumer on final Bpool+Csources, with exact slots/primarycause/partial-close retry effects.",
+      "check_refs": [
+        "old:stream"
+      ],
+      "closure_applied": false
+    }
+  ],
+  "closure_ids": [],
+  "summary": {
+    "rows": 7,
+    "candidate_proposals": {
+      "closed_bounded": 6,
+      "open": 1
+    },
+    "formal_closure_applied": 0
+  },
+  "qualifications": [
+    "Original6held laws B61/B67/B68/B78/B93/B148 unchanged; standing owners remain authoritative.",
+    "Native sourcechecks are a175/ed13/3eb exactauthor/importedchecks; originalbroadFAIL/staticFAIL retained, not allgreen.",
+    "No new tests/gates/source edits/helpers or worktrees; code/readback/immutable evidence review only.",
+    "Root/G applies formal closure only after finalacceptedsource/cohort; generic fixture law does not demand fullproductiondata without an actual criterion dependency."
+  ],
+  "metadata_validation": "60compactprior basis unchanged;7fullcanonicalblocks read;namednativeXML and actualtestbody consumers read;12 selected original output/XML/wrapper hashes verified.",
+  "baseline_navigation": {
+    "receipt": "old",
+    "pointer": "#/findings (select by finding_id)",
+    "qualification": "Original cells are navigation only; exact prior compact cut remains authoritative, with no new baseline attribution."
+  }
+}

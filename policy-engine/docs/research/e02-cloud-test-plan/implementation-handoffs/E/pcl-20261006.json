@@ -421,10 +421,13 @@
     {
       "command": "PYTHONPATH=src /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python -m tools.cli architecture guardrails check",
       "target_sha": "f96d964062697d2077be2e59b8e1ce7d27b1f0dd",
-      "outcome": "UNRUN",
-      "execution_state": "running; exact unified exec session 10058",
-      "output_path": "/workspace/e02-E-20261006-receipts/pcl-architecture.log",
-      "next_owner": "E root collect completion; no PASS or inherited-red attribution"
+      "outcome": "FAIL",
+      "execution_state": "completed",
+      "next_owner": "E root run the frozen combined architecture wave with all governed writes serialized; G assess global failures separately",
+      "exit_code": 1,
+      "output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-20261006-logs/architecture.txt",
+      "output_sha256": "5fba1c9aef451eee0115eb7eaebe780449c3a8b99efa9dbc90425854b6d93afe",
+      "limitations": "Global import/generated-drift failures are observed but inherited attribution is not established. During runtime-openapi-snapshot output-probe, the author wrote analytic-witness.json outside its assigned scratch root; this own concurrent-receipt contamination is explicitly retained and not attributed to the product."
     }
   ],
   "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-20261006-logs/environment.json",
@@ -493,8 +496,8 @@
     "LA-052 remains ledger partial / verdict limited: descriptive math and readback proven, higher configured-store composition belongs to Foundry owner. No production history/source law is inferred from analytic fixture.",
     "LA-053 remains ledger partial / verdict limited: supported alias is the same canonical objects; compatibility window/deprecation decision and external consumer inventory require canonical calibration and Scientist API owner. No alias retirement or sunset date invented.",
     "G accepts code separately from finding closure and can reproduce native selectors on exact candidate; production-dependent historical claims, if made, require local read-only original ordered outcomes and intervals with owner-issued source/split/horizon/temporal identities. No full production data is needed for the bounded generic property.",
-    "Architecture job still running at handoff construction; E root must collect exact output/outcome before final combined freeze.",
-    "No inherited-red claim: P41 raw historical replay/input-denominator attribution remains not_established."
+    "No inherited-red claim: P41 raw historical replay/input-denominator attribution remains not_established.",
+    "Architecture observation completed FAIL. Our simultaneous analytic-witness receipt write contaminated the generated output probe; full output retained. P41 attribution of the other global drifts remains not_established. This is not a calibration numerical failure or an inherited-red exclusion."
   ],
   "pattern_pass": [
     "P01/P02 existing actual caller + configured CAS readback, higher composition gap explicit",

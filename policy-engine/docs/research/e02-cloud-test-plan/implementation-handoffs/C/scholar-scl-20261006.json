@@ -130,7 +130,7 @@
       ],
       "p38_divergence": "The technical consumer now resolves and verifies the source-bound CAS snapshot and the removal control catches URL fallback. The remaining authority predicate is license permission: current `public-web`/other nonempty strings are metadata, while the license-policy owner/allowlist is absent. No code flag or allowlist can close this by assertion, so the finding verdict remains held even though technical continuity is closed.",
       "remaining_capability_label": "absent/unallocated",
-      "remaining": "Technical exact-CAS continuity is demonstrated and passed source delta review; overall reuse remains held until an authoritative license-policy owner supplies the admissibility rule. G integration admission remains separate, and the installed-runtime replay has not yet exercised the downstream packet consumer."
+      "remaining": "Technical exact-CAS continuity is demonstrated by the source delta review and the isolated installed packet-consumer probe; overall reuse remains held until an authoritative license-policy owner supplies the admissibility rule. G integration admission remains separate."
     }
   ],
   "independent_review": {
@@ -138,7 +138,7 @@
     "reviewed_source_tree_sha": "7bf3e8dda2bb1179b9960ffb3c5be5a5fb8e101f",
     "source_blob_readback": "All 12 Python source/test paths reviewed by c2_canon_writer have identical blob hashes at source 01c, handoff 9a, and the worktree. The complete base-to-source path set is listed in changed_paths.",
     "delta_test_result": "23 passed, 1 pytest cache_dir configuration warning, 12.87s. Ruff lint and git diff --check passed.",
-    "packet_reader_result": "The actual decision-packet `_build_web_evidence_section` reader verified exact CAS bytes for Scholar bundle schemas 1.1 and 1.2; this source review does not establish an installed-package packet-consumer run.",
+    "packet_reader_result": "The source review verified exact CAS bytes for Scholar bundle schemas 1.1 and 1.2. A separate installed-package probe recorded below exercised the actual decision-packet `_build_web_evidence_section` consumer against a source-bound V1 ArtifactRef after the URL cache advanced to V2.",
     "tracked_receipts": [
       {
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/independent-review/authorized-handoff-source-readback.txt",
@@ -184,7 +184,50 @@
       "no_hit_frontier_count": 0,
       "hard_whole_process_wall_limit": false
     },
-    "downstream_packet_consumer": "not_run; the installed probe does not execute `_build_web_evidence_section`. A separate isolated installed consumer probe is queued with c2_installed_audit.",
+    "downstream_packet_consumer": {
+      "status": "passed",
+      "module": "polisyos.scientist.nodes.builtins.decide.decision_packet.enrichment._build_web_evidence_section",
+      "argv": [
+        "env", "-u", "PYTHONPATH", "-u", "PYTHONHOME",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/base198/venv/bin/python",
+        "-I",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/scl-packet-consumer-probe-v3.py"
+      ],
+      "cwd": "/tmp",
+      "cwd_observed": "/private/tmp",
+      "exit_code": 0,
+      "wall_s": 5.367,
+      "isolated_mode": true,
+      "environment": {"PYTHONPATH": "unset", "PYTHONHOME": "unset"},
+      "external_provider_or_network_called": false,
+      "fixture_result": {
+        "bundle_schema_version": "1.2",
+        "v1_artifact_id": "sha256:2743628353098ee5a15ee016f098171869d03ed92a04973e883533e5262489f1",
+        "v1_digest": "2743628353098ee5a15ee016f098171869d03ed92a04973e883533e5262489f1",
+        "v2_artifact_id_and_latest_url_cache": "sha256:f7dc3d00749f0b7dcd0c4667f79ca0daeaaa6e004cd866b7aca8bd9a7b60d0b1",
+        "v2_parent": "sha256:2743628353098ee5a15ee016f098171869d03ed92a04973e883533e5262489f1",
+        "packet_selected_v1": true,
+        "v1_digest_and_claim_binding_verified": true,
+        "v1_reads": 1,
+        "wrong_digest_status": "mismatch",
+        "wrong_digest_claim_source_refs": []
+      },
+      "exact_wheel": {
+        "path": "raw/installed/scl-01c/dist/policy_engine-0.1.0-py3-none-any.whl",
+        "sha256": "e83f4cf6418b5dbe4d9962e39f9d4725ae79e4d9658901e542e559dd6d135fdb",
+        "bytes": 15023950
+      },
+      "frozen_module_identity": "11 relevant installed site-packages modules are byte-identical to the exact wheel and immutable source archive.",
+      "tracked_receipts": [
+        {"path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/packet-consumer-probe-v3.py", "sha256": "f3259b21ed30ac4036c2b1a8b0e9e8f3f9560d7017d0b85ada3cadb7b1de65df"},
+        {"path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/packet-consumer-v3.stdout", "bytes": 8107, "sha256": "9a2f6a1871f4afa21c56d2db038170cea1ae7f202192fdc60ad91edc98baebd8"},
+        {"path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/packet-consumer-v3.stderr", "bytes": 0, "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+        {"path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/packet-consumer-install.stdout", "bytes": 0, "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+        {"path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/packet-consumer-install.stderr", "sha256": "2095e80a41abf05abc2f75d9a7728368ba353c39bf1da22b2a71d54b1b098e69"}
+      ],
+      "install_argv_and_cwd": "not retained; do not reconstruct. Install stdout/stderr are preserved as separate receipts.",
+      "scope_limit": "This is an actual installed downstream packet-section and CAS-consumer probe, not a full installed enrich_topic/loopback-search replay. The full local-server search-to-enrichment chain remains covered by the source 23-test delta run; no live provider or network call was made in this installed consumer probe."
+    },
     "tracked_commands_stdout_and_scripts": {
       "directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/",
       "sha256": {
@@ -355,20 +398,19 @@
       "Earlier LA-025 test fixture used a stub _enrich_topic and did not prove the real consumer chain."
     ],
     "target_pattern": "Retain existing provider, URL-policy, transport, cache, CAS, enrich, and packet owners; pass one absolute remaining deadline through provider fallback, use one current-admission seam for fresh and cached raw bytes, verify source-bound CAS readback, and keep license permission held until its authoritative owner supplies a rule.",
-    "capability_state": "The source candidate has passing independent delta review; B17 is closed for the bounded technical criterion, LA-024 is limited by absent license-admissibility authority, and LA-025 is held on that same authority gap after technical exact-CAS continuity closes. Installed runtime producer/cache/deadline behavior is demonstrated, but the downstream packet consumer has not yet been exercised in the installed environment. Historical ledger rows remain partial/not_adjudicated until G records integration admission.",
+    "capability_state": "The source candidate has passing independent delta review; B17 is closed for the bounded technical criterion, LA-024 is limited by absent license-admissibility authority, and LA-025 is held on that same authority gap after technical exact-CAS continuity closes. Installed runtime producer/cache/deadline behavior and an isolated installed downstream packet consumer are demonstrated; full installed enrich_topic/loopback-search replay, live external provider behavior, and license permission remain unestablished. Historical ledger rows remain partial/not_adjudicated until G records integration admission.",
     "p37_basis": "Raw hash/size/artifact identity and elapsed wall time are recomputed; provider and local-server call sequences are independently reconciled; current URL/MIME admission is consumed from its existing owner; configured wall limit is institutionally supplied; license reuse permission is not_established and blocks LA-025.",
     "p38_property_code_divergence": "B17's prior loop passed each fallback provider the full timeout and only checked max-wall between batches; LA-024's prior cached.to_fetch_result trusted stored text/markers without current final-URL/MIME/actual-size admission. The implementation now tests the real search service and cached CAS intake; property-removal controls fail. LA-025's technical snapshot consumer is correct, but no code property establishes permission from `public-web` or other nonempty license strings."
   },
   "missing_inputs_and_limits": [
     "No authoritative license-policy owner contract or allowlist was supplied. LA-024 remains limited for license admissibility, and LA-025 is HELD overall despite its technical snapshot-continuity pass. Literal license metadata is preserved; no allowlist, trusted flag, or authorization rule was invented.",
     "Independent review of source freeze 8fa returned the B17 deadline and LA-024 cached-admission blockers; both were corrected in source freeze 01c. The exact 01c/tree 7bf3 delta passed 23 focused tests and reviewer source-blob readback. G integration admission is not recorded; the three original coverage rows remain closure_now=not_adjudicated and this handoff does not change the ledger.",
-    "The installed SCL package producer/cache/deadline probe passed against a fresh no-extra base environment. Its actual downstream decision-packet consumer is not covered by that probe; an additive isolated installed consumer check is queued with c2_installed_audit. No live external provider, production data, or model backend was used.",
+    "The installed SCL package producer/cache/deadline probe passed against a fresh no-extra base environment. A separate isolated installed consumer probe passed through `_build_web_evidence_section` with an exact V1 ArtifactRef after the cache advanced to V2; it is not a full installed enrich_topic/loopback-search replay. No live external provider, production data, or model backend was used.",
     "No production invocation was run under the lease's no-full-production boundary. A source-only audit is not represented as runtime proof.",
     "Architecture guardrails were attempted but interrupted after the runner spawned the runtime OpenAPI exporter for more than four minutes; the outer command was stopped with exit 143 and no deciding output. Record UNRUN, not a product failure.",
     "The checkout-local pre-commit dispatcher was missing apps/runtime-dashboard/node_modules/.bin/lefthook. No install or shared hook configuration was changed; commits used a per-command core.hooksPath=/dev/null after Ruff, focused tests, and diff checks."
   ],
   "next_owner": [
-    "c2_installed_audit: complete the queued isolated installed-package `_build_web_evidence_section` consumer check against the exact installed SCL wheel and raw ArtifactRef/CAS fixture; record exact command, stdout, script, readback, and hashes. No source or new wheel is needed.",
     "G: decide integration/admission and update the three separate ledger rows only with accepted evidence; do not treat this handoff or candidate tests as current-main closure.",
     "License-policy owner: supply the authoritative admissibility rule before any disallowed-license behavior is implemented or claimed."
   ]

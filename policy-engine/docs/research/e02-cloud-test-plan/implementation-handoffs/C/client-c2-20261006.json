@@ -1,0 +1,229 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "C",
+  "slice": "client-c2-20261006",
+  "bundle_ids": [
+    "CLI-01"
+  ],
+  "finding_ids": [
+    "LA-043",
+    "LA-044"
+  ],
+  "closure_ids": [],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "slice_base_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "implementation_commits": [
+    "c21584f390ae0e53602833df34571a0d9545f13e"
+  ],
+  "candidate_tree_sha": "70fbd5436efe077f046c18272e2ab64d3e178ad8",
+  "branch": "codex/e02-C-client-20261006",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/apps/runtime-dashboard/tsconfig.app.json",
+    "policy-engine/packages/runtime-api-client/README.md",
+    "policy-engine/packages/runtime-api-client/remediation.test.mjs",
+    "policy-engine/packages/runtime-api-client/scripts/check-architecture.mjs",
+    "policy-engine/tests/repo_quality/tools/test_runtime_client_generated_artifact_probe.py"
+  ],
+  "baseline_findings": [
+    {
+      "id": "LA-043",
+      "ledger_status_historical": "partial",
+      "appendix_c_status_separate": "partial",
+      "closure_now": "not_adjudicated",
+      "baseline_capability_label": "surface_missing",
+      "source_sha256": "f13d739e3f0345f9c5130d175def7afc61eea825bcb7b4f6e65bfd68934f8d34",
+      "slice_result": "Adds package tarball consumer and generic generated-family removal evidence; no finding-status edit."
+    },
+    {
+      "id": "LA-044",
+      "ledger_status_historical": "partial",
+      "appendix_c_status_separate": "partial",
+      "closure_now": "not_adjudicated",
+      "baseline_capability_label": "surface_missing",
+      "source_sha256": "c682108a422e6fbfba931556b2c06179dca3857c702aa73e37f282ea2576c20b",
+      "slice_result": "Reconfirms existing package-owned pinned generator after a frozen install; no manifest, lockfile, or finding-status edit."
+    }
+  ],
+  "owner_mapping": {
+    "canonical_runtime_client": "packages/runtime-api-client; generated-artifacts family runtime-api-client owns types.ts, canonicalRuntimeApiClient.ts, canonicalRuntimeApiClient.js.",
+    "legacy_runtime_api_client": "No committed runtimeApiClient.ts or runtimeApiClient.js output remains. The package generator creates those names only under a temporary scratch root as canonicalizer inputs.",
+    "openapi_typescript": "Declared by packages/runtime-api-client/package.json at 7.13.0 and resolved by the package-local corepack pnpm exec command; pnpm-lock.yaml package importer records the same version. Runtime dashboard has no direct openapi-typescript dependency.",
+    "dashboard_generated_types": "Dashboard keeps its own downstream formatting step while its schema generator resolves openapi-typescript from the client package."
+  },
+  "source_identities": {
+    "openapi_schema": {
+      "path": "policy-engine/schemas/runtime_api_v1.openapi.json",
+      "sha256": "73d9109067c01ae2391acfb4bc3017634c96f1482f208bd47f8aa556e20c764a"
+    },
+    "generated_family": {
+      "policy-engine/packages/runtime-api-client/types.ts": "5a4d52d41451aabf77939840914a9c4c0c9d80e67333333138156e790dc867a4",
+      "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts": "e0f56c8964c2c0902b62875fca8d5a245f1a1727a808a28ef80500aacb06c1cd",
+      "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.js": "69a861c8e33251ca48fb87757c4d3000ef519c2bd110590c79e0b7f4dd5d5506"
+    },
+    "package_manifest_sha256": "b64b9a9b3cbe11d874948964166e047c530a5f680c1fcda5d9c59c4cb40e17ac",
+    "lockfile_sha256_unchanged": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e"
+  },
+  "consumer_census": {
+    "basis": "Complete git ls-files walk at implementation commit; source suffix denominator is tracked .cjs, .js, .mjs, .ts, .tsx, .mts, .cts, .jsx.",
+    "tracked_paths": 13671,
+    "source_file_denominator": 1292,
+    "suffix_counts": {
+      ".cjs": 9,
+      ".js": 4,
+      ".mjs": 40,
+      ".ts": 519,
+      ".tsx": 720
+    },
+    "committed_raw_output_paths": [],
+    "direct_raw_import_specifier_files": [],
+    "package_specifier_files_by_tree": {
+      "runtime-dashboard": 121,
+      "atlas-ui": 6,
+      "other": 1
+    },
+    "other_package_specifier_file": "packages/runtime-api-client/remediation.test.mjs (isolated consumer fixture, not a product consumer)",
+    "direct_canonical_filename_imports": [
+      "apps/runtime-reference-shell/app.js",
+      "apps/runtime-reference-shell/governedProjectionProof.test.mjs",
+      "packages/runtime-api-client/runtimeApiClient.test.mjs",
+      "packages/runtime-api-client/runtimeApiClient.type-test.ts"
+    ],
+    "boundary": "Tracked repository source only. External filesystem imports are not_established. The static Runtime Reference Shell is a documented direct canonical-JS consumer, not a raw-twin consumer."
+  },
+  "checks": [
+    {
+      "command": "corepack pnpm install --frozen-lockfile --ignore-scripts",
+      "target_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "environment": "Fresh admitted worktree; Node 22.22.2; pnpm 10.33.2; lifecycle scripts ignored to avoid workspace prepare hooks mutating shared Git hooks.",
+      "input_closure": "Workspace manifests and pnpm-lock.yaml; frozen resolution.",
+      "outcome": "PASS",
+      "output": "All six workspaces installed from the unchanged lockfile; 1,215 packages resolved. Package-local openapi-typescript resolves to locked 7.13.0."
+    },
+    {
+      "command": "PYTHONPATH=src:. .venv/bin/python -m pytest tests/repo_quality/tools/test_runtime_client_generated_artifact_probe.py -q -s",
+      "target_sha": "c21584f390ae0e53602833df34571a0d9545f13e",
+      "environment": "Private worktree .venv; CPython 3.14.0 arm64; frozen Node workspace.",
+      "input_closure": "Copies the real package generator and generated-artifact manifest into pytest scratch; parses family members from copied TOML and runs the actual package generator.",
+      "outcome": "PASS",
+      "output": "Generated artifact freshness clean: runtime-api-client (3 generator-observed outputs). 1 passed.",
+      "negative_control": "The test tampers a manifest-selected generated candidate, generic family gate rejects that member, then restores and reads back exact original bytes. It next removes getRunHumanDecisionEvidenceContent in the scratch Python generator while retaining RuntimeApiClient and package exports; gate rejects exactly canonicalRuntimeApiClient.ts and canonicalRuntimeApiClient.js."
+    },
+    {
+      "command": "corepack pnpm --filter @polisyos/runtime-api-client test",
+      "target_sha": "c21584f390ae0e53602833df34571a0d9545f13e",
+      "environment": "Node 22.22.2; pnpm 10.33.2.",
+      "input_closure": "Client request/type behavior and canonicalizer/recursive-type normalizer tests.",
+      "outcome": "PASS",
+      "output": "9 tests passed; 0 failed."
+    },
+    {
+      "command": "corepack pnpm --filter @polisyos/runtime-api-client run test:remediation",
+      "target_sha": "c21584f390ae0e53602833df34571a0d9545f13e",
+      "environment": "Node 22.22.2; pnpm 10.33.2; temporary tarball and consumer roots are cleaned after test.",
+      "input_closure": "Real generator scratch outputs, custom OpenAPI input, npm pack, and two offline-installed tarball consumers without workspace paths.",
+      "outcome": "PASS",
+      "output": "3 tests passed; 0 failed. The packed package serves Dashboard-style and Atlas-style ESM/type imports."
+    },
+    {
+      "command": "corepack pnpm --filter @polisyos/runtime-api-client run typecheck && corepack pnpm --filter @polisyos/runtime-api-client run lint && corepack pnpm --filter @polisyos/runtime-api-client run check:architecture && corepack pnpm --filter @polisyos/runtime-api-client run format:check",
+      "target_sha": "c21584f390ae0e53602833df34571a0d9545f13e",
+      "environment": "Frozen Node workspace.",
+      "input_closure": "Runtime API client package.",
+      "outcome": "PASS",
+      "output": "Typecheck and ESLint exited 0; runtime-api-client architecture checks passed; Prettier reported all matched files formatted."
+    },
+    {
+      "command": "corepack pnpm --filter @polisyos/runtime-dashboard run typecheck && corepack pnpm --filter @polisyos/atlas-ui run typecheck",
+      "target_sha": "c21584f390ae0e53602833df34571a0d9545f13e",
+      "environment": "Frozen Node workspace.",
+      "input_closure": "Dashboard app/node/tools TypeScript projects and Atlas UI project; Dashboard package path bypass removed.",
+      "outcome": "PASS",
+      "output": "All four application TypeScript project checks exited 0 and resolve the workspace client package export."
+    },
+    {
+      "command": "corepack pnpm --filter @polisyos/runtime-dashboard run test:contracts",
+      "target_sha": "c21584f390ae0e53602833df34571a0d9545f13e",
+      "environment": "Frozen Node workspace.",
+      "input_closure": "Dashboard contractFixtures.test.ts.",
+      "outcome": "PASS",
+      "output": "1 test file and 1 test passed."
+    },
+    {
+      "command": "corepack pnpm --filter @polisyos/atlas-ui test",
+      "target_sha": "c21584f390ae0e53602833df34571a0d9545f13e",
+      "environment": "Frozen Node workspace.",
+      "input_closure": "Atlas UI suite.",
+      "outcome": "PASS",
+      "output": "18 test files and 85 tests passed."
+    },
+    {
+      "command": "PYTHONPATH=src:. .venv/bin/python -m pytest -q tests/integration/runtime_frontend/test_runtime_client_contract_bridge.py tests/repo_quality/architecture/test_repository_sota_phase4_discipline.py",
+      "target_sha": "c21584f390ae0e53602833df34571a0d9545f13e",
+      "environment": "Private CPython 3.14.0 arm64 environment; worktree has no production_data catalog DB.",
+      "input_closure": "The command selected 13 test cases.",
+      "outcome": "ERROR",
+      "output": "12 passed, 1 failed. test_generated_runtime_api_client_job_status_contract_hits_runtime_control_service fails during runtime fixture construction because production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb is absent; DatasetCatalogStore raises catalog_fetch_source_unreadable. A Prometheus exporter also logged its bind address already in use.",
+      "provenance": "not_established: exact command was not replayed from the slice base."
+    },
+    {
+      "command": "PYTHONPATH=src:. .venv/bin/python tools/ops_runners/runtime/check_runtime_api_contract.py",
+      "target_sha": "c21584f390ae0e53602833df34571a0d9545f13e",
+      "environment": "Private CPython 3.14.0 arm64 environment.",
+      "input_closure": "Runtime OpenAPI export comparison; no production data supplied.",
+      "outcome": "FAIL",
+      "output": "OpenAPI comparison reports governed confidence-ledger projection hash/dependency identity drift and count (committed 1,489; generated 1,491); exits 1 with instruction to regenerate using tools/ops_runners/runtime/export_runtime_openapi.py. It did not modify the OpenAPI snapshot or client generated files.",
+      "provenance": "not_established: exact command was not replayed from the slice base; this does not establish a client-family freshness failure."
+    },
+    {
+      "command": "corepack pnpm --filter @polisyos/runtime-dashboard run generate:api -- --openapi schemas/runtime_api_v1.openapi.json",
+      "target_sha": "c21584f390ae0e53602833df34571a0d9545f13e",
+      "environment": "Frozen Node workspace; dashboard keeps its downstream Prettier step.",
+      "input_closure": "Committed OpenAPI schema; package-owned 7.13.0 schema generator.",
+      "outcome": "PASS",
+      "output": "Dashboard type generation exited 0; tracked outputs remained byte-unchanged."
+    },
+    {
+      "command": "git diff --check",
+      "target_sha": "c21584f390ae0e53602833df34571a0d9545f13e",
+      "environment": "Attached Git worktree.",
+      "input_closure": "Five implementation paths.",
+      "outcome": "PASS",
+      "output": "No whitespace errors. Pre-commit contrast, reduced-motion, and Prettier hooks passed."
+    }
+  ],
+  "property": {
+    "statement": "Consumers use the published @polisyos/runtime-api-client root and /types exports independently of workspace paths, and the generic freshness gate detects a missing generated operation while package markers remain.",
+    "runtime_path": [
+      "schemas/runtime_api_v1.openapi.json",
+      "packages/runtime-api-client/scripts/generate-runtime-api-client.sh resolves openapi-typescript from the client package and keeps raw intermediates in temporary scratch",
+      "architecture/generated_artifacts.toml declares the three canonical family outputs",
+      "npm pack and offline installation expose package ESM and TypeScript declarations to isolated consumers",
+      "runtime-dashboard and Atlas UI compile against the workspace package export"
+    ],
+    "consumer_behavior": "Dashboard-style installed consumer checks encoded URL, GET method, required exposure header, and exact binary bytes [0,255,17,34]. Atlas-style installed consumer checks batch POST URL, serialized JSON body, and response. TS fixtures import root and /types exports and reject a missing exposure header or numeric run ID.",
+    "proxy_divergence": "File presence, package class/export markers, or byte agreement alone do not establish behavior. The tarball fixture imports and executes ESM and TypeScript contracts; operation removal preserves RuntimeApiClient and package exports but the generic family gate rejects changed canonical outputs.",
+    "predicate_basis": {
+      "package_install_and_import_behavior": "recomputed",
+      "generated_family_membership_and_freshness": "recomputed",
+      "tracked_source_consumer_census": "recomputed",
+      "external_filesystem_imports": "not_established",
+      "full_runtime_api_openapi_comparison": "not_established"
+    },
+    "negative_controls": [
+      "Tamper one manifest-selected family output after real generation: generic freshness gate rejects it, then exact bytes are restored and read back.",
+      "Remove getRunHumanDecisionEvidenceContent in scratch generator while retaining RuntimeApiClient and root package exports: gate rejects canonical TS and JS.",
+      "Installed TypeScript consumer omits required exposure header or uses a numeric run ID: @ts-expect-error verifies both invalid contracts.",
+      "Packed tarball contains canonical JS, canonical TS, and types.ts, and excludes legacy runtimeApiClient.ts/js."
+    ]
+  },
+  "capability_state_or_finding_state": "Candidate verification evidence for existing package-owned generation, public exports, installed consumer behavior, and runtime-family drift. No capability ledger or finding status was changed.",
+  "limitations_and_next_owner": [
+    "LA-043 and LA-044 remain historical/current partial with closure_now=not_adjudicated; C-level adjudicator owns any status decision.",
+    "The client-owned generator, pinned dependency, lock entry, and raw retirement already existed at the slice base. This commit adds tarball consumer and property-removal evidence and removes the Dashboard TypeScript path bypass; no lockfile or generated artifact is modified.",
+    "The static Runtime Reference Shell and two package-local tests import canonical filenames directly. The census found no raw filename imports. The shell is documented as a separate static diagnostics UI and is outside the installed Dashboard/Atlas consumer assertion.",
+    "The tarball and isolated npm consumer projects are temporary test artifacts and were cleaned after the test; the implementation commit reproduces them, and no package was published.",
+    "The missing-catalog integration result and full OpenAPI export drift are not established as inherited because neither was replayed from the exact slice base.",
+    "Deployed endpoint execution, production authorization behavior, all API operations, hosted CI, and external filesystem consumers were not established."
+  ]
+}

@@ -23,7 +23,7 @@
   "candidate_sha": "79b2a7095b15f159d0ca168e8c15a8f94727b685",
   "candidate_tree_sha": "83257a7fa1e67c06453b2086431d356a841fee89",
   "branch": "codex/e02-B-current-execution-state",
-  "pull_request": null,
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/54",
   "changed_paths": [
     "policy-engine/release-fragments/unreleased/2026-10-06-scientist-cache-recovery.toml",
     "policy-engine/release-fragments/unreleased/e02-current-runtime.toml",
@@ -3700,7 +3700,7 @@
     "Architecture guardFAIL and invocationUNRESOLVED14 construction/deferred boundaries remain unadmitted diagnostics, not runtimeproof; rawstatic170MB ignoreduntransferred. G/root decides exact dynamic-boundary followup.",
     "B40 absolute retry/admission continuation ownedRUN; currentcachefinite checks do not prove no refreshed producer allowance after expiry.",
     "Already-entered filesystem/backend/checkpointpublication cannot be preempted; physicalpowerloss/multihost durability unestablished. Do not claim fully reentrant oneexecutor execution.",
-    "Read-onlyB→C typedpool/stream lowercaprestart contract witness pending owner versions; C alone changesstreaming.",
+    "Read-onlyB\u2192C typedpool/stream lowercaprestart contract witness pending owner versions; C alone changesstreaming.",
     "Production source snapshot B61 held; fullproductiondataset stayslocal, exactG candidate79b for anyrealhistory/source law check.",
     "Leaf retains all15 assignedfindings; nextsourceB71 requiredexternalartifact availability/replay proof, B60currentrequest/source binding, remainingexistingstate/readiness/concurrency nativeconsumers. No A/C source edited."
   ],
@@ -3729,5 +3729,12 @@
   "independent_review": {
     "status": "pending transfer",
     "note": "Root owns independent review. RUN read-only79b source verdict nofinitecache blocker is not used as a transferredcheck yet."
+  },
+  "publication_checkpoint": {
+    "published_receipt_sha": "30b546d22695d568b1ae5eaa4ec63c5ca78c43c5",
+    "source_candidate_sha": "79b2a7095b15f159d0ca168e8c15a8f94727b685",
+    "remote_ref": "refs/heads/codex/e02-B-current-execution-state",
+    "remote_readback_sha": "30b546d22695d568b1ae5eaa4ec63c5ca78c43c5",
+    "attachment": "Root reported successful PR54 attachment; leaf timed-out attachment produced no completion evidence."
   }
 }

@@ -1,0 +1,30 @@
+{
+  "source_sha": "3f4455f11600f6a5c94e3a5dfbcd519d46ac6c6f",
+  "source_path": "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+  "source_sha256": "57a1ea6a58c8287935eed7d17679d229970c00c09be12cb3028cd808526014ba",
+  "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+    "POLISYOS_METRICS_PORT": "0"
+  },
+  "fd_before": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "RLIMIT_NOFILE_soft_fault": 7,
+  "exception": {
+    "type": "ValidationError",
+    "message": "1 validation error for ExperimentState\nrun_id\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing"
+  },
+  "fd_after_while_exception_retained": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "new_fds": []
+}

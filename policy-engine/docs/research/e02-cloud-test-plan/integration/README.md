@@ -1,6 +1,11 @@
 # Непрерывная интеграция E02
 
-Current continuation checkpoint: [checkpoint-10](checkpoint-10.json), with
+Current continuation checkpoint: [checkpoint-11](checkpoint-11.json), accepting
+the bounded A installed-compiler test and evidence slice. Fresh exact-source
+check: 1 PASS; production resolver and full REQ-01 closure remain unestablished.
+[Latest A–F intake and owner actions](reviews/2026-10-06-sixth-wave.md) records
+the next 24 external ref updates and C's independent numerical falsifiers.
+[Checkpoint-10](checkpoint-10.json) retains B38, with
 [third-wave code decisions and owner actions](reviews/2026-10-06-third-wave.md).
 B38 has 40 exact-source fixture PASS and 59 composed-source consumer PASS.
 B retry e187 remains HOLD after six actual Mac control failures. No new finding closure.
@@ -162,9 +167,11 @@ checkpoints, а не дополнительный runtime replay.
 receipts, independent checks, held admissions and follow-up consumers.
 No new finding closure or future main publication is authorized.
 
-[Latest B/E delta review](reviews/2026-10-06-fifth-wave.md) records the exact
+[Earlier B/E delta review](reviews/2026-10-06-fifth-wave.md) records the exact
 14:40 intake and separate [B](reviews/B-current-owner-actions-2026-10-06.md) /
 [E](reviews/E-r2-owner-actions-2026-10-06.md) owner actions. B nested-model
 write scope, Mac control transport, B47 carrier, E Welfare assembly and DoE
 direct run-cap admission remain held or limited as specified; bounded component
 evidence does not close those findings or verify the whole assembly.
+
+The [sixth intake](reviews/2026-10-06-sixth-wave.md) supersedes the prior E assembly/inventory hold only for verified Welfare884 carriage and reconciled inventories. Calibration→Foundry direction, compatibility metadata and exact aggregate verification still require owner action.

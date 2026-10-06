@@ -889,7 +889,10 @@ async def test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability
 
 
 @pytest.mark.asyncio
-async def test_actual_physical_completion_cannot_borrow_authentic_reuse_capability(tmp_path):
+@pytest.mark.parametrize("same_request", [False, True])
+async def test_actual_physical_completion_cannot_borrow_authentic_reuse_capability(
+    tmp_path, same_request
+):
     class BorrowingProvider(_Gateway):
         borrowed = None
 
@@ -914,7 +917,13 @@ async def test_actual_physical_completion_cannot_borrow_authentic_reuse_capabili
     with pytest.raises(TypeError, match="cannot be serialized"):
         pickle.dumps(reused._polisyos_cache_reuse_provenance)
     gateway.borrowed = reused.response
-    fresh = await enforcer.generate(user="physical new", temperature=0.0, _prompt_tokens_estimate=1)
+    if same_request:
+        cache._cache.clear()
+    fresh = await enforcer.generate(
+        user="original" if same_request else "physical new",
+        temperature=0.0,
+        _prompt_tokens_estimate=1,
+    )
     first_settlement, fresh_settlement = producer_settlement(first), producer_settlement(fresh)
     assert fresh_settlement.event.kind == "provider" and fresh_settlement.event.amount == Decimal(
         "0.02"
@@ -922,7 +931,7 @@ async def test_actual_physical_completion_cannot_borrow_authentic_reuse_capabili
     assert fresh_settlement.event.event_id != first_settlement.event.event_id
     assert len(fresh_settlement.ack.receipts) == 1
     assert middleware.budget_state.spent["run"] == Decimal("0.04")
-    assert gateway.calls == 2 and cache._cache.size == 2
+    assert gateway.calls == 2 and cache._cache.size == (1 if same_request else 2)
     assert len([event for event in events if event["provider_call"]]) == 2
 
 

@@ -538,6 +538,19 @@ def test_same_protected_owner_replays_exact_missing_act_before_unblocking(
         assert set(retained_audit.reserved_amounts) == {"run"}
         if not initial_calls:
             assert retained_audit.reserved_amounts["run"] == before.state.reserved["run"]
+        elif action == "BUDGET_COMMITTED":
+            # A transitioned provider intent preserves its original admission
+            # coordinates. Outstanding money is measured on BudgetState, not
+            # inferred from that immutable historical identity vector.
+            reserved_entry = next(
+                json.loads(line)
+                for line in audit_path.read_text().splitlines()
+                if json.loads(line)["payload"]["action"] == "BUDGET_RESERVED"
+            )
+            assert retained_audit.reserved_amounts["run"] == Decimal(
+                reserved_entry["payload"]["estimated_cost_usd"]
+            )
+            assert before.state.reserved["run"] == Decimal("0")
         else:
             assert retained_audit.reserved_amounts["run"] == Decimal("0")
         with pytest.raises(LLMAccountingError):

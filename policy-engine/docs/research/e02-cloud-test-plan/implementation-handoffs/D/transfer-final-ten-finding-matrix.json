@@ -1,0 +1,227 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "transfer-final-ten-finding-matrix",
+  "recorded_at": "2026-10-06T10:59:50.910934+00:00",
+  "closure_ids": [],
+  "finding_ids": [
+    "B128",
+    "B129",
+    "B130",
+    "B131",
+    "B132",
+    "B133",
+    "B134",
+    "B135",
+    "B136",
+    "B137"
+  ],
+  "source_sha": "8eb99fc1da48232321eba0e92ecff20d96beff1c",
+  "tree_sha": "dccf1ce0f5c3c6107b78b60bc2a73bba30327e64",
+  "decision_rule": "limited=bounded code/native oracle passed with listed scope gaps; held=original acceptance includes an absent actual issuer/authority/revalidation input. None is closed. G/root decides closure only after every applicable criterion; this author does not adjudicate closure.",
+  "source_identities": {
+    "policy-engine/src/polisyos/scientist/agent/vector_memory.py": {
+      "git_blob_sha1": "099aeb4d70b5e9725670945f636b5c09e0df0e6b",
+      "raw_file_sha256": "552486be6ec29c2ca9812f4f6afc58e7ef4d7ce6cb25c1c83a0b7bc6554a8baa"
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py": {
+      "git_blob_sha1": "ed9db38c5193a3ba3671f6378d1baad0b839c247",
+      "raw_file_sha256": "1feadfaa836580cc26c551cd75a607396402dc718f96e3b3aca4d681932a2df3"
+    },
+    "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py": {
+      "git_blob_sha1": "e3eb54a04c0121c548fb31fb6a7dc6d9c7504578",
+      "raw_file_sha256": "d2d1d6ba7ac45a473a2a185410d0e0b132eb72582fc4796dcb639b24e835adb7"
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/lessons.py": {
+      "git_blob_sha1": "627f270d6fd81c46b02b1006145e293d088edf98",
+      "raw_file_sha256": "749f17bcda4c65e8094e3e7cd0a8bedbb04897e129f8cbe222a56f6b170584ac"
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/transfer_context.py": {
+      "git_blob_sha1": "0963066824070b40fbe3d999d61d553b02728ec9",
+      "raw_file_sha256": "64a316309fcef6cd2074b39ca01f4d1cf76d5c676bd9475118caa9280170098f"
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/controller.py": {
+      "git_blob_sha1": "eaac632c22b3a9371884548fb14d4bb5af287a88",
+      "raw_file_sha256": "eb42bb8709756ba14f7e5ecdbaf4b7e30d204b3bb776fc545f9c50a641d9e8c3"
+    },
+    "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py": {
+      "git_blob_sha1": "b56ea23f882c30656c570ea57ce73a643a369673",
+      "raw_file_sha256": "a2a8df9800a7bd173c5930deeaa22fc0b5a453bf2d842fef162d36886218f48f"
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py": {
+      "git_blob_sha1": "8491843135fa4d9f54d5176464a812f2285a8b3c",
+      "raw_file_sha256": "ce9ff64af3438d4485c654e220b8d0a5d84ce90623e0e9a6a63e7ae8baf715c6"
+    }
+  },
+  "findings": [
+    {
+      "id": "B128",
+      "bundle": "TRN-01",
+      "status": "limited",
+      "criterion": "Faithful typed persisted Evaluation crosses existing bridge; malformed input differs visibly from empty/unavailable history and counts reconcile.",
+      "criterion_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-01.md",
+      "source_paths": [
+        "transfer.py",
+        "warm_start.py"
+      ],
+      "native_or_actual_consumer": "Actual configured HNSW\u2192CAS\u2192bridge\u2192SearchLoopRunner\u2192GP:8valid/7after malformed refusal; fitted X/y matches original rows.",
+      "oracle": "48PASS frozen8eb; full transfer/warm_start files plus3 workflowcases.",
+      "negative_control": "Malformed stage_a_passed string/numeric scalars/coordinates/outcomes refuse; bool physical input original benchmark control fails before5465 and passes afterward.",
+      "missing_criterion_or_scope": "Runtime fulfilled for supported explicit profile; representative live history and real evaluator/source record remain unestablished.",
+      "next_owner": "Actual source/evaluation issuer and G scoped acceptance.",
+      "evidence_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-composed-workflow-8eb.json"
+    },
+    {
+      "id": "B129",
+      "bundle": "TRN-02",
+      "status": "limited",
+      "criterion": "Known exact history ref survives ANN discovery/growth and is resolved directly, with unavailable/corrupt identity diagnosed.",
+      "criterion_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-02.md",
+      "source_paths": [
+        "transfer.py",
+        "vector_memory.py"
+      ],
+      "native_or_actual_consumer": "Configured workflow consumes pinned original history refs; exact alias path uses captured generation metadata_for_key and CAS.",
+      "oracle": "48PASS frozen8eb plus separate vector/root20 tests.",
+      "negative_control": "Known-ref no second ANN; new-ref same-run-id and same-ref altered bytes refuse stale replay.",
+      "missing_criterion_or_scope": "Second-process exact pinned snapshot replay is not asserted by this owner command; live history availability receipt remains pending.",
+      "next_owner": "Transfer/CAS runtime reviewer and real source-history issuer.",
+      "evidence_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-composed-workflow-8eb.json"
+    },
+    {
+      "id": "B130",
+      "bundle": "TRN-01",
+      "status": "limited",
+      "criterion": "Declared min/max normalization orders valid comparable rows; complete ties, volume cap and redistribution obey explicit fair quota.",
+      "criterion_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-01.md",
+      "source_paths": [
+        "transfer.py"
+      ],
+      "native_or_actual_consumer": "Real fitted y_bo equals negative normalized scalar, selected rows direction-normalized ascending; both directions and quota tests execute.",
+      "oracle": "48PASS frozen8eb includes full ranking/quota controls.",
+      "negative_control": "Bad outcome consumes no numeric row capacity; limits and signed raw/scalar disagreements refuse.",
+      "missing_criterion_or_scope": "No production acceleration or solution-quality benefit measured or claimed; G complete tie/quota/source policy acceptance remains scoped.",
+      "next_owner": "Transfer runtime/G; production benchmark owner for any benefit claim.",
+      "evidence_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-composed-workflow-8eb.json"
+    },
+    {
+      "id": "B131",
+      "bundle": "TRN-01",
+      "status": "held",
+      "criterion": "Spaces/physical coordinates/metric/unit/direction/data/model/evaluator/split/owner bind before numerical reuse; actual owner verifies tenant/split.",
+      "criterion_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-01.md",
+      "source_paths": [
+        "transfer.py",
+        "warm_start.py"
+      ],
+      "native_or_actual_consumer": "Complete configured technical basis and all original/full role refs are CAS resolved at initial admission, restore and effective fit.",
+      "oracle": "48PASS frozen8eb; native origin mismatch no model/fit/MLL.",
+      "negative_control": "Complete basis matrix, candidate-content property removal, bool/numeric-string/domain controls, missing target basis and same-ref content mutation.",
+      "missing_criterion_or_scope": "Institutional tenant/split/source authorization cannot be inferred from self-declared fixture descriptors or CAS content identity.",
+      "next_owner": "Actual execution/data/source owners issue and independently validate live provenance/permission.",
+      "evidence_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-composed-workflow-8eb.json"
+    },
+    {
+      "id": "B132",
+      "bundle": "TRN-01",
+      "status": "limited",
+      "criterion": "Reverse bridge preserves real candidate/evaluation/raw metrics/split/lineage; no zero ref, fabricated holdout, params-as-metrics or promotion.",
+      "criterion_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-01.md",
+      "source_paths": [
+        "warm_start.py",
+        "transfer.py"
+      ],
+      "native_or_actual_consumer": "Actual full original BenchmarkEvaluation resolves through bridge conversion; resulting historical view is limited/nonpromotable.",
+      "oracle": "Full real-CAS warm_start file inside48PASS frozen8eb.",
+      "negative_control": "Forged/missing provenance or incompatible complete basis refuses; no synthetic benchmark repair.",
+      "missing_criterion_or_scope": "Real live benchmark/evaluator validation remains pending; conditional analytic measurement is not production source equivalence.",
+      "next_owner": "Transfer lineage runtime plus original benchmark/evaluator owner.",
+      "evidence_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-composed-workflow-8eb.json"
+    },
+    {
+      "id": "B133",
+      "bundle": "TRN-02",
+      "status": "limited",
+      "criterion": "Full ArtifactRef+codec keyed immutable-copy local LRU\u2264128entries/32MiB serialized payload, oversized bypass; warm/cold/new-ref/mutation behavior exact.",
+      "criterion_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-02.md",
+      "source_paths": [
+        "transfer.py"
+      ],
+      "native_or_actual_consumer": "Actual local CAS manager and same shared admission reader before native GP; cachehit does not waive byte/ref reconciliation.",
+      "oracle": "48PASS frozen8eb includes cache identity/copy/eviction/byte-cap controls.",
+      "negative_control": "Same-run-id new-ref, consumer returned-object mutation, oversized bypass and same-ref altered bytes.",
+      "missing_criterion_or_scope": "Selected local profile needs no principal decision; G final scoped acceptance/second-process replay is not asserted here. Distributed latest-pointer semantics are outside profile.",
+      "next_owner": "Transfer cache/runtime/G; no new institutional owner prerequisite for local cache.",
+      "evidence_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-composed-workflow-8eb.json"
+    },
+    {
+      "id": "B134",
+      "bundle": "TRN-02",
+      "status": "held",
+      "criterion": "Failed native add/load cannot mix or damage published generation; true native failure/form/capacity tested; owner-bound live metadata record required separately.",
+      "criterion_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-02.md",
+      "source_paths": [
+        "vector_memory.py"
+      ],
+      "native_or_actual_consumer": "Frozen generation pointer capture, cloned writer, native barrier old/new complete triple, guarded full envelope/ref/header validation before swap.",
+      "oracle": "Separate vector implementation/envelope receipts5253; root independent20PASS17.74s real hnswlib. Not part of48count.",
+      "negative_control": "Real native partial-add error, after-knn query barrier during load/update, foreign/schema/header and bundle/native same-ref byte mutation controls; removing snapshot property exposes mixed tuple.",
+      "missing_criterion_or_scope": "Bounded native/runtime predicates pass. Live owner-issued transfer generation metadata record and second-process scoped replay remain unestablished here.",
+      "next_owner": "Actual transfer metadata/data issuer plus G native/CAS reviewer.",
+      "evidence_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-vector-envelope.json"
+    },
+    {
+      "id": "B135",
+      "bundle": "TRN-03",
+      "status": "limited",
+      "criterion": "Typed nested and serialized context retains task/domain before defaults; valid overrides/invalid-base/unknown-domain behavior stays explicit.",
+      "criterion_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-03.md",
+      "source_paths": [
+        "transfer_context.py (read-only unchanged)",
+        "controller.py (read-only unchanged)",
+        "lessons.py"
+      ],
+      "native_or_actual_consumer": "Real SearchController._build_lesson_hints uses CAS LessonRegistry with object and serialized nested context.",
+      "oracle": "Separate immutable18PASS5239 includes unchanged existing lessons/transfer suites and7 new cases.",
+      "negative_control": "Both native controller context forms expose task/domain; old baseline already passes these2 tests, so no unnecessary resolver edit.",
+      "missing_criterion_or_scope": "New proof specifically establishes valid nested object/JSON consumer forms. Whole institutional tenant permission and all deployment override/invalid-base scenarios are not inferred from it.",
+      "next_owner": "Existing resolver/controller owner and execution-owner tenant policy; G scoped criteria review.",
+      "evidence_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-lessons-evidence-clocks.json"
+    },
+    {
+      "id": "B136",
+      "bundle": "TRN-03",
+      "status": "limited",
+      "criterion": "Local and transferred effective query source/trust/confidence/stage/fidelity/tags/candidate/domain predicates hold before and after destination projection.",
+      "criterion_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-03.md",
+      "source_paths": [
+        "lessons.py"
+      ],
+      "native_or_actual_consumer": "Actual CAS registry find/materialize/query with projected destination trust and shared aged-card policy; requested ineligible result not returned.",
+      "oracle": "Separate immutable18PASS5239; explicit local+transfer age/destination positive and fieldwise negative controls.",
+      "negative_control": "Low-confidence old transferred cards cannot regain LOCAL/raw confidence; source/trust/threshold and other query field changes refuse.",
+      "missing_criterion_or_scope": "Caller-defined query correctness is established locally; source/trust labels do not authorize tenant access. Conflicting tenant override policy was not invented or tested.",
+      "next_owner": "Lesson runtime plus actual execution/access owner for live tenant semantics.",
+      "evidence_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-lessons-evidence-clocks.json"
+    },
+    {
+      "id": "B137",
+      "bundle": "TRN-03",
+      "status": "held",
+      "criterion": "Any ordinary reads leave empirical evidence clock unchanged; restart/transfer cold/warm confidence agrees; genuine authorized revalidation supplies new grounds/version.",
+      "criterion_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-03.md",
+      "source_paths": [
+        "lessons.py"
+      ],
+      "native_or_actual_consumer": "Producer-only freshness and tiny daily retention sidecar; max(producer,access) retention preserves fresh actual producer ref acrossGC without access refreshing confidence.",
+      "oracle": "Separate immutable18PASS5239, baseline4FAIL/2PASS and evidence-clock property-removal1FAIL; fresh-producer retention baseline1FAIL corrected.",
+      "negative_control": "100day repeated-read/restart case stays demoted; older arrival cannot replace newest ref; old access cannot archive fresh producer.",
+      "missing_criterion_or_scope": "Fresh producer-card fixture demonstrates clock/version selection and retention, not an authorized empirical revalidation event. Actual revalidation issuer/grounds/time contract remains pending.",
+      "next_owner": "Lesson producer/revalidation owner supplies real evidence event; G reviews bounded runtime separately.",
+      "evidence_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-lessons-retention-followup.json"
+    }
+  ],
+  "default_factory_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-default-basis-review.json",
+  "production_writes_after_workflow_freeze": false,
+  "receipt_only_followup": true
+}

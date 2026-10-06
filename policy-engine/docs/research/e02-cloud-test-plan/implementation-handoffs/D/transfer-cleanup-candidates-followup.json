@@ -1,0 +1,236 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "transfer-cleanup-candidates-and-framework-retention-followup",
+  "closure_ids": [],
+  "recorded_at": "2026-10-06T10:59:50.911419+00:00",
+  "action": "Read-only candidate enumeration. Nothing deleted, moved or trashed by this follow-up. Native Trash only or exact candidates if unavailable.",
+  "previous_deviation_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-scratch-trash-deviation.json",
+  "candidates_for_later_native_trash_review": [
+    {
+      "path": "/workspace/e02-D2-receipts/transfer/bridge-load-report-candidate.txt",
+      "kind": "file",
+      "still_present": true
+    },
+    {
+      "path": "/workspace/e02-D2-receipts/transfer/bridge-load-report-final.txt",
+      "kind": "file",
+      "still_present": true
+    },
+    {
+      "path": "/workspace/e02-D2-receipts/transfer/lesson-retention-base.txt",
+      "kind": "file",
+      "still_present": true
+    },
+    {
+      "path": "/workspace/e02-D2-receipts/transfer/lessons-all-candidate.txt",
+      "kind": "file",
+      "still_present": true
+    },
+    {
+      "path": "/workspace/e02-D2-receipts/transfer/lessons-base.txt",
+      "kind": "file",
+      "still_present": true
+    },
+    {
+      "path": "/workspace/e02-D2-receipts/transfer/lessons-existing-candidate.txt",
+      "kind": "file",
+      "still_present": true
+    },
+    {
+      "path": "/workspace/e02-D2-receipts/transfer/lessons-immutable.txt",
+      "kind": "file",
+      "still_present": true
+    },
+    {
+      "path": "/workspace/e02-D2-receipts/transfer/lessons-origins.txt",
+      "kind": "file",
+      "still_present": true
+    },
+    {
+      "path": "/workspace/e02-D2-receipts/transfer/lessons-property-removal.txt",
+      "kind": "file",
+      "still_present": true
+    },
+    {
+      "path": "/workspace/e02-D2-receipts/transfer/numeric-all-candidate.txt",
+      "kind": "file",
+      "still_present": true
+    },
+    {
+      "path": "/workspace/e02-D2-receipts/transfer/numeric-all-final.txt",
+      "kind": "file",
+      "still_present": true
+    },
+    {
+      "path": "/workspace/e02-D2-receipts/transfer/numeric-candidate-final.txt",
+      "kind": "file",
+      "still_present": true
+    },
+    {
+      "path": "/workspace/e02-D2-receipts/transfer/numeric-candidate-fixed.txt",
+      "kind": "file",
+      "still_present": true
+    },
+    {
+      "path": "/workspace/e02-D2-receipts/transfer/numeric-candidate.txt",
+      "kind": "file",
+      "still_present": true
+    },
+    {
+      "path": "/workspace/e02-D2-receipts/transfer/numeric-immutable.txt",
+      "kind": "file",
+      "still_present": true
+    },
+    {
+      "path": "/workspace/e02-D2-receipts/transfer/numeric-origins.txt",
+      "kind": "file",
+      "still_present": true
+    },
+    {
+      "path": "/workspace/e02-D2-receipts/transfer/numeric-property-removal.txt",
+      "kind": "file",
+      "still_present": true
+    },
+    {
+      "path": "/workspace/e02-D2-receipts/transfer/original-input-and-report-candidate.txt",
+      "kind": "file",
+      "still_present": true
+    },
+    {
+      "path": "/workspace/e02-D2-receipts/transfer/original-input-type-base.txt",
+      "kind": "file",
+      "still_present": true
+    },
+    {
+      "path": "/workspace/e02-D2-receipts/transfer/typed-input-base",
+      "kind": "directory",
+      "still_present": true
+    },
+    {
+      "path": "/workspace/e02-D2-receipts/transfer/typed-input-base-final.txt",
+      "kind": "file",
+      "still_present": true
+    },
+    {
+      "path": "/workspace/e02-D2-receipts/transfer/typed-input-base.txt",
+      "kind": "file",
+      "still_present": true
+    },
+    {
+      "path": "/workspace/e02-D2-receipts/transfer/typed-input-healthy",
+      "kind": "directory",
+      "still_present": true
+    },
+    {
+      "path": "/workspace/e02-D2-receipts/transfer/typed-input-immutable-final.txt",
+      "kind": "file",
+      "still_present": true
+    },
+    {
+      "path": "/workspace/e02-D2-receipts/transfer/typed-input-immutable.txt",
+      "kind": "file",
+      "still_present": true
+    },
+    {
+      "path": "/workspace/e02-D2-receipts/transfer/typed-input-origins-final.txt",
+      "kind": "file",
+      "still_present": true
+    },
+    {
+      "path": "/workspace/e02-D2-receipts/transfer/typed-input-origins.txt",
+      "kind": "file",
+      "still_present": true
+    },
+    {
+      "path": "/workspace/e02-D2-receipts/transfer/vector-base.log",
+      "kind": "file",
+      "still_present": true
+    },
+    {
+      "path": "/workspace/e02-D2-receipts/transfer/vector-candidate.log",
+      "kind": "file",
+      "still_present": true
+    },
+    {
+      "path": "/workspace/e02-D2-receipts/transfer/vector-envelope-base.txt",
+      "kind": "file",
+      "still_present": true
+    },
+    {
+      "path": "/workspace/e02-D2-receipts/transfer/vector-envelope-candidate-final.txt",
+      "kind": "file",
+      "still_present": true
+    },
+    {
+      "path": "/workspace/e02-D2-receipts/transfer/vector-envelope-candidate.txt",
+      "kind": "file",
+      "still_present": true
+    },
+    {
+      "path": "/workspace/e02-D2-receipts/transfer/vector-envelope-immutable.txt",
+      "kind": "file",
+      "still_present": true
+    },
+    {
+      "path": "/workspace/e02-D2-receipts/transfer/vector-envelope-origins.txt",
+      "kind": "file",
+      "still_present": true
+    },
+    {
+      "path": "/workspace/e02-D2-receipts/transfer/vector-final.log",
+      "kind": "file",
+      "still_present": true
+    },
+    {
+      "path": "/workspace/e02-D2-receipts/transfer/vector-immutable.log",
+      "kind": "file",
+      "still_present": true
+    },
+    {
+      "path": "/workspace/e02-D2-receipts/transfer/vector-origins.log",
+      "kind": "file",
+      "still_present": true
+    },
+    {
+      "path": "/workspace/e02-D2-receipts/transfer/vector-property-removal.log",
+      "kind": "file",
+      "still_present": true
+    },
+    {
+      "path": "/workspace/e02-D2-receipts/transfer/vector-source-bound.log",
+      "kind": "file",
+      "still_present": true
+    },
+    {
+      "path": "/dev/shm/e02-D2-transfer-retention-final",
+      "kind": "directory",
+      "still_present": true
+    },
+    {
+      "path": "/dev/shm/e02-D2-transfer-composed-8eb",
+      "kind": "directory",
+      "still_present": true
+    }
+  ],
+  "evidence_retention": "Deciding outputs are tracked in D receipts. Root source archives and failed/intermediate scratch logs are not all production evidence. Candidates are listed for review, not approved for deletion.",
+  "framework_retention_observation": {
+    "exact_observed_missing_path": "/tmp/pytest-of-agent/pytest-239",
+    "previously_observed_fixture_paths": [
+      "/tmp/pytest-of-agent/pytest-239/test_actual_public_workflow_fi0",
+      "/tmp/pytest-of-agent/pytest-239/test_actual_public_workflow_fi1",
+      "/tmp/pytest-of-agent/pytest-239/test_configured_origin_mismatc0"
+    ],
+    "method": "After successful native run, capture read actual history/checkpoint/suite inputs from the sole existing root containing these workflow fixtures. A later read observed that root absent and newer pytest242/243/244 roots present.",
+    "attribution": "The owner actual pytest run used default framework temp retention. Subsequent pytest runs were concurrent, so the exact later deleting process/time and any older roots removed by this owner run were not observed; no attribution or exact deleted-file inventory is fabricated.",
+    "retained_before_absence": [
+      "transfer-workflow-8eb-actual-inputs.json",
+      "transfer-workflow-8eb-history-healthy.txt",
+      "transfer-workflow-8eb-history-malformed.txt",
+      "transfer-workflow-8eb-complete.txt",
+      "transfer-workflow-8eb-native-calls.json"
+    ],
+    "correction_to_scope": "Prior receipt statement of no subsequent deletion refers to no explicit owner cleanup command afterSTOP; it cannot establish preservation of all framework-managed temporary data.",
+    "future_execution": "Use a unique nonexisting --basetemp directory under /dev/shm and preserve it. Do not pass an already-existing basetemp or issue any cleanup. No additional run is performed by this follow-up."
+  }
+}

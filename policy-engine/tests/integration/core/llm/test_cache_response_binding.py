@@ -114,3 +114,33 @@ async def test_native_http_free_reuse_refuses_missing_verification_with_markers_
     ):
         await enforcer.generate(user="original request", temperature=0.0, _prompt_tokens_estimate=1)
     assert gateway.transport.calls == 1 and middleware.budget_state.spent["run"] == 1
+
+
+@pytest.mark.parametrize("reported_cost", [None, 0, 2])
+@pytest.mark.asyncio
+async def test_native_http_cache_reported_cost_cannot_disagree_with_paid_origin(
+    tmp_path, reported_cost
+):
+    """Real receipt/content/context markers do not validate altered reported cost."""
+    gateway = _text["TextGateway"](_text["response_text"]("usage", "cost_usd", "1"))
+    _, cache, enforcer, middleware, _ = _owner["_durable_stack"](tmp_path, gateway=gateway)
+    first = await enforcer.generate(
+        user="original request", temperature=0.0, _prompt_tokens_estimate=1
+    )
+    origin = producer_settlement(first)
+    assert origin.event.amount == 1 and origin.event.cost_origin == "reported"
+    key = next(iter(cache._cache._store))
+    cached = cache._cache.get(key)
+    cached.usage.cost_usd = reported_cost
+    if reported_cost is None:
+        cached.raw["usage"].pop("cost_usd")
+    else:
+        cached.raw["usage"]["cost_usd"] = reported_cost
+    cache._cache.put(key, cached)
+    with (
+        funnel_resource_receipt_context(middleware),
+        pytest.raises(ValueError, match="cache reuse"),
+    ):
+        await enforcer.generate(user="original request", temperature=0.0, _prompt_tokens_estimate=1)
+    assert middleware.resolve_spend_safe(origin.ack.receipts[0].event_id) == origin.ack.receipts[0]
+    assert gateway.transport.calls == 1 and middleware.budget_state.spent["run"] == 1

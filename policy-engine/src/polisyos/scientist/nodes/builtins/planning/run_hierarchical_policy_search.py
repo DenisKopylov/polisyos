@@ -12,6 +12,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from contextlib import nullcontext
+from copy import deepcopy
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -25,9 +26,10 @@ from polisyos.core.components import Capability, ComponentId, ComponentKind, Com
 from polisyos.core.contracts.trinity import TrinityBundleRef
 from polisyos.core.security import tenant_scope
 from polisyos.data_forge.read_api.academic import SKGQuery
+from polisyos.ir.kernel.values import MoneyValue
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.lex.intervention_artifacts import LexPolicyBundleInput
-from polisyos.lex.interventions import HierarchicalPolicySearchPlan
+from polisyos.lex.interventions import HierarchicalPolicySearchPlan, _resolve_param_path
 from polisyos.pdc import WorldModelRecord
 from polisyos.scientist.evidence.sources import normalize_evidence_sources_config
 from polisyos.scientist.methods.search.contracts import (
@@ -509,7 +511,14 @@ class HierarchicalPolicySearchAdapter:
         policy_family: str | None,
         metadata: Mapping[str, Any] | None,
     ) -> PolicyCandidateSchema:
+        if (
+            isinstance(candidate, Mapping)
+            and "candidate_id" in candidate
+            and "trinity_bundle" in candidate
+        ):
+            candidate = PolicyCandidateSchema.model_validate(candidate)
         if isinstance(candidate, PolicyCandidateSchema):
+            candidate = _restore_policy_money_parameters(candidate)
             if policy_family is None and not metadata:
                 return candidate
             updated_metadata = {
@@ -519,10 +528,8 @@ class HierarchicalPolicySearchAdapter:
             if policy_family is not None:
                 updated_metadata["policy_family"] = policy_family
             return candidate.model_copy(update={"metadata": updated_metadata})
-        return self.build_candidate(
-            candidate,
-            policy_family=policy_family,
-            metadata=metadata,
+        return _restore_policy_money_parameters(
+            self.build_candidate(candidate, policy_family=policy_family, metadata=metadata)
         )
 
     def _run_parameterless_search(
@@ -576,6 +583,24 @@ class HierarchicalPolicySearchAdapter:
                         )
                     except (TypeError, ValueError) as exc:
                         raise ValueError("Parameterless policy evaluation is invalid") from exc
+                    if self._pareto_registry is not None:
+                        claimed_hash = evaluation.metadata.get("candidate_hash")
+                        actual_hash = structure.candidate.candidate_hash()
+                        if (
+                            evaluation.candidate_id is not None
+                            and evaluation.candidate_id != structure.candidate.candidate_id
+                        ):
+                            raise ValueError(
+                                "Parameterless evaluation candidate subject does not match"
+                            )
+                        if "candidate_hash" in evaluation.metadata and claimed_hash != actual_hash:
+                            raise ValueError(
+                                "Parameterless evaluation candidate hash does not match"
+                            )
+                        if evaluation.candidate_id is None and claimed_hash is None:
+                            raise ValueError(
+                                "Parameterless evaluation has no candidate subject binding"
+                            )
                 state.parameter_search_results[structure.structure_id] = SearchResult(
                     search_id=f"{loop_id}:{structure.structure_id}",
                     status=SearchStatus.CONVERGED,
@@ -729,7 +754,17 @@ class RunHierarchicalPolicySearchNode:
             inner candidate evaluation raises, otherwise `ok` with the champion
             Trinity ref and optional frontier report ref.
         """
-        candidate = _resolve_search_candidate(ctx, state)
+        try:
+            candidate = _resolve_search_candidate(ctx, state)
+        except _POLICY_SEARCH_VALIDATION_ERRORS as exc:
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(
+                    code=node_errors.ERROR_INVALID_STATE,
+                    message=f"Hierarchical policy candidate intake failed: {exc}",
+                ),
+            )
         if candidate is None:
             return NodeOutcome(
                 status="skip",
@@ -1146,15 +1181,115 @@ def _objective_value(
     return 0.0 if channel is None else float(channel.higher_is_better)
 
 
+def _restore_policy_money_parameters(candidate: PolicyCandidateSchema) -> PolicyCandidateSchema:
+    """Restore the declared money-parameter transport shape using its kernel DTO.
+
+    This is a bounded transport profile, not a generic ParamValue type inference
+    or a unit registry. Unrelated and non-tunable object values stay untouched.
+    """
+    original_hash = candidate.candidate_hash()
+
+    def restore_bundle(bundle: TrinityBundle) -> tuple[TrinityBundle, dict[str, Any]]:
+        policy = bundle.policy_spec
+        parameters = []
+        interventions = {item.intervention_id: item for item in policy.interventions}
+        money_by_param = {}
+        for parameter in policy.parameters:
+            default = parameter.default_value
+            declared_money = isinstance(default, MoneyValue) or (
+                isinstance(default, Mapping) and {"amount", "currency"} <= set(default)
+            )
+            if not parameter.tunable or not declared_money:
+                parameters.append(parameter)
+                continue
+            money = MoneyValue.model_validate(
+                default.model_dump(mode="python") if isinstance(default, MoneyValue) else default
+            )
+            basis = (money.currency, money.nominal_year)
+
+            def bound(value: Any, *, declared_basis: tuple[str, int | None] = basis) -> MoneyValue:
+                restored = MoneyValue.model_validate(
+                    value.model_dump(mode="python") if isinstance(value, MoneyValue) else value
+                )
+                if (restored.currency, restored.nominal_year) != declared_basis:
+                    raise ValueError(
+                        "Money parameter currency/year differs from its declared basis"
+                    )
+                return restored
+
+            values = {"default_value": money}
+            for key in ("min_value", "max_value"):
+                value = getattr(parameter, key)
+                values[key] = None if value is None else bound(value)
+            intervention = interventions[parameter.intervention_id]
+            params = deepcopy(intervention.params)
+            current, present = _resolve_param_path(params, parameter.param_path)
+            if not present:
+                raise ValueError("Money parameter has no actual intervention value")
+            restored = bound(current)
+            target = params
+            parts = parameter.param_path.removeprefix("params.").split(".")
+            for part in parts[:-1]:
+                target = target[part]
+            target[parts[-1]] = restored
+            interventions[parameter.intervention_id] = intervention.model_copy(
+                update={"params": params}
+            )
+            parameters.append(parameter.model_copy(update=values))
+            money_by_param[parameter.param_id] = money
+        restored_policy = policy.model_copy(
+            update={
+                "parameters": parameters,
+                "interventions": [
+                    interventions[item.intervention_id] for item in policy.interventions
+                ],
+            }
+        )
+        return bundle.model_copy(update={"policy_spec": restored_policy}), money_by_param
+
+    bundle, money_by_param = restore_bundle(candidate.trinity_bundle)
+    schedules = []
+    for entry in candidate.parameter_schedule:
+        money = money_by_param.get(entry.param_id)
+        if money is None:
+            schedules.append(entry)
+            continue
+        scheduled = MoneyValue.model_validate(
+            entry.scheduled_value.model_dump(mode="python")
+            if isinstance(entry.scheduled_value, MoneyValue)
+            else entry.scheduled_value
+        )
+        if (scheduled.currency, scheduled.nominal_year) != (money.currency, money.nominal_year):
+            raise ValueError("Scheduled money parameter currency/year differs from its basis")
+        schedules.append(entry.model_copy(update={"scheduled_value": scheduled}))
+    fallbacks = [
+        variant.model_copy(update={"trinity_bundle": restore_bundle(variant.trinity_bundle)[0]})
+        for variant in candidate.fallback_variants
+    ]
+    restored = candidate.model_copy(
+        update={
+            "trinity_bundle": bundle,
+            "parameter_schedule": schedules,
+            "fallback_variants": fallbacks,
+        }
+    )
+    restored = PolicyCandidateSchema.model_validate(
+        {name: getattr(restored, name) for name in PolicyCandidateSchema.model_fields}
+    )
+    if restored.candidate_hash() != original_hash:
+        raise ValueError("Money parameter transport changed the canonical candidate identity")
+    return restored
+
+
 def _coerce_policy_candidate(payload: Any) -> PolicyCandidateSchema | None:
     if payload is None:
         return None
     if isinstance(payload, PolicyCandidateSchema):
-        return payload
-    try:
-        return PolicyCandidateSchema.model_validate(payload)
-    except _POLICY_SEARCH_VALIDATION_ERRORS:
-        return None
+        return _restore_policy_money_parameters(payload)
+    # Missing is optional; a present malformed rich candidate cannot select a
+    # different source or be relabeled as no candidate.
+    candidate = PolicyCandidateSchema.model_validate(payload)
+    return _restore_policy_money_parameters(candidate)
 
 
 def _coerce_lex_bundle(payload: Any) -> LexPolicyBundleInput | None:

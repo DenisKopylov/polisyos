@@ -418,3 +418,91 @@ def test_parameterless_wrong_subject_refuses_without_registry_effect(tmp_path, s
             stage_b_evaluator=wrong_subject,
         )
     assert ParetoRegistry(registry._root).get_snapshot("wrong_subject").entries == {}
+
+
+@pytest.mark.parametrize("binding", ["id_only", "hash_only"])
+def test_parameterless_callback_accepts_one_matching_subject_binding(tmp_path, binding):
+    registry = ParetoRegistry(tmp_path / "registry")
+
+    def one_binding(payload, context):
+        result = _evaluate(payload, context)
+        if binding == "id_only":
+            result["policy_evaluation"]["metadata"].pop("candidate_hash")
+        else:
+            result["policy_evaluation"]["candidate_id"] = None
+        return result
+
+    result = module.HierarchicalPolicySearchAdapter(pareto_registry=registry).run_search(
+        _candidate(parameterless=True),
+        loop_id="one_binding",
+        search_config=_config(),
+        stage_b_evaluator=one_binding,
+    )
+    assert len(ParetoRegistry(registry._root).get_snapshot("one_binding").entries) == 1
+    assert sum(len(r.history) for r in result.state.parameter_search_results.values()) == 1
+
+
+def test_declared_money_json_transport_preserves_hash_units_and_unrelated_objects():
+    candidate = _candidate()
+    payload = candidate.model_dump(mode="json")
+    # Metadata is not a ParamValue carrier and never receives key-shape inference.
+    payload["metadata"]["object_value"] = {"amount": "object", "currency": "not_a_unit"}
+    declared = PolicyCandidateSchema.model_validate(payload)
+    restored = module._coerce_policy_candidate(payload)
+    assert restored.candidate_hash() == declared.candidate_hash()
+    assert restored.model_dump(mode="json") == declared.model_dump(mode="json")
+    parameter = restored.trinity_bundle.policy_spec.parameters[0]
+    assert isinstance(parameter.default_value, MoneyValue)
+    assert (parameter.default_value.currency, parameter.default_value.nominal_year) == ("UAH", None)
+    assert isinstance(restored.parameter_schedule[0].scheduled_value, MoneyValue)
+    coordinator = module.HierarchicalPolicySearchAdapter().validate_policy_design_api(payload)
+    spec = coordinator.build_parameter_search_spec(restored)
+    assert spec.search_space.bounds[0].lower == 500
+    assert spec.search_space.bounds[0].upper == 2000
+
+
+@pytest.mark.parametrize("carrier", ["min_value", "current", "schedule", "malformed"])
+def test_money_json_conflicts_refuse_before_native_observation(tmp_path, carrier):
+    payload = _candidate().model_dump(mode="json")
+    if carrier == "min_value":
+        payload["trinity_bundle"]["policy_spec"]["parameters"][0]["min_value"]["currency"] = "USD"
+    elif carrier == "current":
+        payload["trinity_bundle"]["policy_spec"]["interventions"][0]["params"]["amount"][
+            "nominal_year"
+        ] = 2020
+    elif carrier == "schedule":
+        payload["parameter_schedule"][0]["scheduled_value"]["currency"] = "USD"
+    else:
+        payload["trinity_bundle"]["policy_spec"]["parameters"][0]["default_value"]["unknown"] = (
+            "field"
+        )
+    calls = []
+    registry = ParetoRegistry(tmp_path / "registry")
+    with pytest.raises(ValueError):
+        module.HierarchicalPolicySearchAdapter(pareto_registry=registry).run_search(
+            payload,
+            loop_id="money_conflict",
+            search_config=_config(),
+            stage_b_evaluator=lambda payload, context: calls.append(payload),
+        )
+    assert calls == []
+    assert ParetoRegistry(registry._root).get_snapshot("money_conflict").entries == {}
+
+
+def test_actual_node_money_intake_failure_preserves_source_and_never_observes(
+    execution_context, minimal_state, monkeypatch
+):
+    state = minimal_state.model_copy(deep=True)
+    payload = _candidate().model_dump(mode="json")
+    payload["trinity_bundle"]["policy_spec"]["parameters"][0]["min_value"]["currency"] = "USD"
+    state.params["policy_candidate_schema"] = payload
+    calls = []
+    monkeypatch.setattr(
+        module, "_evaluate_candidate_payload", lambda *args, **kwargs: calls.append(kwargs)
+    )
+    outcome = module.RunHierarchicalPolicySearchNode().execute(execution_context, state)
+    assert outcome.status == "fail"
+    assert "currency/year" in outcome.error.message
+    assert outcome.state is state
+    assert outcome.state.params["policy_candidate_schema"] == payload
+    assert calls == []

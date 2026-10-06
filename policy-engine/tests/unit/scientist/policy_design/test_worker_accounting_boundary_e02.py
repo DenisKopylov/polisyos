@@ -24,8 +24,10 @@ from polisyos.scientist.methods.search.readiness import (
     DecisionReadiness,
     DecisionReadinessContract,
 )
-from polisyos.scientist.orchestration.engine import budget
+from polisyos.scientist.orchestration.engine import budget, budget_ledger, budget_middleware
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+from polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedger
+from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
 from polisyos.scientist.orchestration.llm import (
     budget_enforcer,
     factory,
@@ -58,6 +60,8 @@ def _source_origins() -> list[dict[str, str]]:
         prompt_cache,
         budget_enforcer,
         budget,
+        budget_ledger,
+        budget_middleware,
         response,
         settlement,
         traced_client,
@@ -79,7 +83,7 @@ def _source_origins() -> list[dict[str, str]]:
     return rows
 
 
-def _translator_input(state: BudgetState) -> translator.TranslatorInputBundle:
+def _translator_input(state: BudgetState | None) -> translator.TranslatorInputBundle:
     readiness = DecisionReadiness.RECOMMENDATION_READY
     return translator.TranslatorInputBundle(
         dossier=ChampionPolicyDossier(
@@ -126,12 +130,23 @@ def _translator_input(state: BudgetState) -> translator.TranslatorInputBundle:
 
 
 @pytest.mark.parametrize("worker_kind", ["adversary", "translator"])
-@pytest.mark.parametrize("cost_kind", ["missing-sdk-usage", "reported-positive"])
+@pytest.mark.parametrize(
+    "profile",
+    [
+        "configured-unknown",
+        "configured-known",
+        "raw-only",
+        "mixed",
+        "ledgerless",
+        "unbudgeted-known",
+        "active-loop-raw",
+    ],
+)
 def test_actual_worker_preserves_accounting_unknown_before_fresh_worker(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
     worker_kind: str,
-    cost_kind: str,
+    profile: str,
 ) -> None:
     origins = _source_origins()
     keys = (
@@ -140,7 +155,13 @@ def test_actual_worker_preserves_accounting_unknown_before_fresh_worker(
         else ["policy_translator", "policy_briefing"]
     )
     state = BudgetState(limits={key: BudgetLimit(key=key, max_usd=Decimal("10")) for key in keys})
-    bundle = _translator_input(state)
+    ledger_path = tmp_path / "actual-worker-budget.json"
+    configured = profile in {"configured-unknown", "configured-known", "mixed"}
+    if configured:
+        BudgetMiddleware(state, ledger=FileBudgetLedger(ledger_path))
+    raw = profile in {"raw-only", "mixed", "active-loop-raw"}
+    bundle = _translator_input(state if raw else None)
+    cost_kind = "missing-sdk-usage" if profile == "configured-unknown" else "reported-positive"
     actual_content = (
         {
             "scenarios": [
@@ -218,17 +239,33 @@ def test_actual_worker_preserves_accounting_unknown_before_fresh_worker(
         return observe
 
     async def invoke_fresh_worker() -> Any:
+        middleware = (
+            BudgetMiddleware(BudgetState(), ledger=FileBudgetLedger(ledger_path))
+            if configured
+            else BudgetMiddleware(state)
+            if profile == "ledgerless"
+            else None
+        )
         if worker_kind == "adversary":
-            return await adversary.ScenarioAdversaryWorker(
-                adversary.ScenarioAdversaryConfig(model_name="explicit-worker-oracle-model")
-            ).propose_async(
-                adversary.ScenarioAttackSurface(candidate_id="actual-worker-candidate"),
-                run_id="same-actual-worker-run",
-                budget_state=state,
+            worker = adversary.ScenarioAdversaryWorker(
+                adversary.ScenarioAdversaryConfig(model_name="explicit-worker-oracle-model"),
+                budget_middleware=middleware,
             )
-        return await translator.PolicyTranslatorWorker(
-            translator.PolicyTranslatorConfig(model_name="explicit-worker-oracle-model")
-        ).translate_async(bundle)
+            surface = adversary.ScenarioAttackSurface(candidate_id="actual-worker-candidate")
+            if profile == "active-loop-raw":
+                return worker.propose(surface, run_id="same-actual-worker-run", budget_state=state)
+            return await worker.propose_async(
+                surface,
+                run_id="same-actual-worker-run",
+                budget_state=state if raw else None,
+            )
+        worker = translator.PolicyTranslatorWorker(
+            translator.PolicyTranslatorConfig(model_name="explicit-worker-oracle-model"),
+            budget_middleware=middleware,
+        )
+        if profile == "active-loop-raw":
+            return worker.translate(bundle)
+        return await worker.translate_async(bundle)
 
     outcomes = []
     sys.settrace(observe)
@@ -258,18 +295,50 @@ def test_actual_worker_preserves_accounting_unknown_before_fresh_worker(
         "caught_worker_errors": caught_worker_errors,
         "worker_outcomes": outcomes,
         "same_budget_state": state.model_dump(mode="json"),
-        "profile": "actual production raw-BudgetState worker constructors; no durable middleware injected",
+        "profile": profile,
+        "reopened_actual_ledger": FileBudgetLedger(ledger_path).snapshot().model_dump(mode="json")
+        if configured
+        else None,
     }
     print("E02_WORKER_ACCOUNTING " + json.dumps(quantities, sort_keys=True))
-    if cost_kind == "missing-sdk-usage":
-        assert observed_errors and all(error["amount"] is None for error in observed_errors), (
+    if profile == "configured-unknown":
+        assert outcomes[0].get("exception") == "LLMAccountingError", quantities
+        assert outcomes[1].get("exception") == "LLMAccountingError", quantities
+        assert len(physical_rows) == 1, quantities
+        assert (
+            observed_errors[0]["amount"] is None and observed_errors[0]["cost_origin"] == "unknown"
+        ), quantities
+        snapshot = FileBudgetLedger(ledger_path).snapshot()
+        assert not snapshot.spend_receipts and not snapshot.state.spent, quantities
+        assert all(snapshot.state.reserved[key] > 0 for key in keys), quantities
+        assert len(snapshot.completion_obligations) == 1, quantities
+        assert next(iter(snapshot.completion_obligations.values())).phase == "cost_unknown", (
             quantities
         )
-        assert outcomes[0].get("exception") == "LLMAccountingError", quantities
-        assert len(physical_rows) == 1, quantities
+    elif profile in {"raw-only", "mixed", "ledgerless", "active-loop-raw"}:
+        assert all(
+            value.get("exception") == "PolicyWorkerAccountingAdmissionError" for value in outcomes
+        ), quantities
+        assert not physical_rows and not observed_errors, quantities
+        assert not state.spent and not state.reserved, quantities
+        if configured:
+            snapshot = FileBudgetLedger(ledger_path).snapshot()
+            assert not snapshot.spend_receipts and not snapshot.completion_obligations, quantities
     else:
         assert not observed_errors and all("exception" not in value for value in outcomes), (
             quantities
         )
         assert len(physical_rows) == 2, quantities
-        assert all(state.spent[key] == Decimal("0.04") for key in keys), quantities
+        if worker_kind == "adversary":
+            assert all(not value["value"]["fallback_used"] for value in outcomes), quantities
+        else:
+            assert all(
+                value["value"]["title"] == "Obtained physical provider brief" for value in outcomes
+            ), quantities
+        if configured:
+            snapshot = FileBudgetLedger(ledger_path).snapshot()
+            assert all(snapshot.state.spent[key] == Decimal("0.04") for key in keys), quantities
+            assert not snapshot.completion_obligations, quantities
+            assert len(snapshot.spend_receipts) == 2 * len(keys), quantities
+        else:
+            assert not state.spent and not state.reserved, quantities

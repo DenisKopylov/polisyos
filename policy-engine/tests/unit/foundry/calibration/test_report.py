@@ -82,3 +82,34 @@ def test_calibration_configuration_edge_requires_resolved_correct_kind(tmp_path)
     )
     with pytest.raises(ValueError, match="calibration_config manifest"):
         load_calibration_report(store, report)
+
+
+def test_configuration_lineage_preserves_selected_cas_profile(tmp_path):
+    store = FileSystemCAS(tmp_path)
+    config = CalibrationConfig()
+    valid_config = put_calibration_config(store, config)
+    forged_config = store.put_json(
+        config,
+        PutOptions(
+            kind="foundry.unrelated",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.CalibrationConfig", version=config.schema_version),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    assert valid_config.artifact_id == forged_config.artifact_id
+    report = put_calibration_report(
+        store,
+        CalibrationReport(total_loss=0),
+        inputs=[
+            InputRef(
+                artifact_id=forged_config.artifact_id,
+                role="calibration_config",
+                manifest_profile_sha256=forged_config.manifest_profile_sha256,
+            )
+        ],
+    )
+    # A bare content ID would select the legitimate default view and miss this substitution.
+    assert store.get_manifest(valid_config.artifact_id).kind == "foundry.calibration_config"
+    with pytest.raises(ValueError, match="calibration_config manifest"):
+        load_calibration_report(store, report)

@@ -15,6 +15,7 @@ from contextlib import AbstractContextManager, nullcontext
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from hashlib import sha256
+from numbers import Integral
 from typing import Any, Literal
 
 import jax
@@ -76,6 +77,50 @@ from polisyos.ir.kernel import (
 )
 
 
+@dataclass(frozen=True)
+class CalibrationBatchInputs:
+    """Bind ordered independent execution rows, without asserting a population law.
+
+    Each row supplies one state and scalar schedule time. Targets in this mode
+    are exact cross-sectional vectors in ``row_ids`` order, not a time series.
+    Calibrator derives a separate fixed-seed PRNG key for every row.
+    """
+
+    states: tuple[GlobalState, ...]
+    times: tuple[int, ...]
+    row_ids: tuple[str, ...]
+
+    def __post_init__(self) -> None:
+        if any(not isinstance(values, tuple) for values in (self.states, self.times, self.row_ids)):
+            raise ValueError("calibration batch axes must be immutable ordered tuples")
+        count = len(self.states)
+        if count == 0 or len(self.times) != count or len(self.row_ids) != count:
+            raise ValueError(
+                "calibration batch state/time/row identity axes must match and be nonempty"
+            )
+        if any(not isinstance(row_id, str) or not row_id.strip() for row_id in self.row_ids):
+            raise ValueError("calibration batch row IDs must be nonempty strings")
+        if len(set(self.row_ids)) != count:
+            raise ValueError("calibration batch row IDs must be unique")
+        if any(
+            isinstance(time, bool)
+            or not isinstance(time, Integral)
+            or not 0 <= time <= np.iinfo(np.int32).max
+            for time in self.times
+        ):
+            raise ValueError("calibration batch schedule times must be nonnegative int32 values")
+        if any(not isinstance(state, GlobalState) for state in self.states):
+            raise ValueError("calibration batch rows require GlobalState values")
+        first_structure = jax.tree_util.tree_structure(self.states[0])
+        first_shapes = [np.shape(value) for value in jax.tree_util.tree_leaves(self.states[0])]
+        for state in self.states[1:]:
+            if (
+                jax.tree_util.tree_structure(state) != first_structure
+                or [np.shape(value) for value in jax.tree_util.tree_leaves(state)] != first_shapes
+            ):
+                raise ValueError("calibration batch state PyTrees and leaf shapes must agree")
+
+
 @dataclass
 class CalibratorInputs:
     """Bundle the runtime contracts and callbacks required by `Calibrator.run()`.
@@ -108,6 +153,8 @@ class CalibratorInputs:
         gaussian_observation_std: Optional known observation-noise scales keyed
             by target ID. Selects the narrow independent Gaussian NLL profile;
             its declared row-law assumptions remain non-gating.
+        batch_inputs: Optional exact cross-sectional state/time/row-ID batch.
+            Each row executes one scalar schedule step with its own PRNG key.
     """
 
     config: CalibrationConfig
@@ -130,6 +177,7 @@ class CalibratorInputs:
     measurement_loss_adapter: MeasurementAwareLossAdapter | None = None
     aux_loss_components: Sequence[AuxLossComponent] | None = None
     gaussian_observation_std: Mapping[str, float] | None = None
+    batch_inputs: CalibrationBatchInputs | None = None
 
 
 @dataclass
@@ -713,6 +761,62 @@ class Calibrator:
         """
         cfg = self.inputs.config
         diagnostics: list[str] = []
+        batch = self.inputs.batch_inputs
+        stacked_state = None
+        batch_times = None
+        batch_keys = None
+        batch_context = None
+        if batch is not None:
+            row_count = len(batch.states)
+            if (
+                cfg.time_axis is not None
+                or self.inputs.controls_seq is not None
+                or self.inputs.measurement_bundle is not None
+                or self.inputs.udf_engine is not None
+                or self.inputs.target_fetcher is not None
+                or cfg.seed_strategy != "fixed"
+                or any(target.fabric_query is not None for target in cfg.targets)
+                or (cfg.steps is not None and cfg.steps != row_count)
+                or any(
+                    target.align.time_column is not None
+                    or target.align.fill_value is not None
+                    or (target.align.steps is not None and target.align.steps != row_count)
+                    for target in cfg.targets
+                )
+            ):
+                raise ValueError(
+                    "Cross-sectional calibration requires exact raw rows, fixed seed, "
+                    "and no scan controls, time alignment, fetch, or measurement bundle"
+                )
+            raw_rows = self.inputs.raw_targets or {}
+            if set(raw_rows) != {target.target_id for target in cfg.targets}:
+                raise ValueError("Calibration batch raw targets must cover exactly the target IDs")
+            for values in raw_rows.values():
+                array = np.asarray(values)
+                if array.ndim != 1 or len(array) != row_count or not np.all(np.isfinite(array)):
+                    raise ValueError("Calibration batch targets require finite exact row vectors")
+            if jax.tree_util.tree_structure(self.inputs.base_state) != jax.tree_util.tree_structure(
+                batch.states[0]
+            ) or [
+                np.shape(value) for value in jax.tree_util.tree_leaves(self.inputs.base_state)
+            ] != [np.shape(value) for value in jax.tree_util.tree_leaves(batch.states[0])]:
+                raise ValueError(
+                    "Calibration batch states must match the compiled base state shape"
+                )
+            stacked_state = jax.tree_util.tree_map(lambda *rows: jnp.stack(rows), *batch.states)
+            batch_times = jnp.asarray(batch.times, dtype=jnp.int32)
+            batch_keys = jax.vmap(
+                lambda index: jax.random.fold_in(jax.random.PRNGKey(cfg.seed), index)
+            )(jnp.arange(row_count, dtype=jnp.uint32))
+            batch_context = {
+                "axis": "cross_sectional_rows",
+                "row_ids": list(batch.row_ids),
+                "schedule_times": [int(time) for time in batch.times],
+                "state_steps": [int(np.asarray(state.step)) for state in batch.states],
+                "row_keys": np.asarray(batch_keys).tolist(),
+                "key_derivation": "jax.random.fold_in(PRNGKey(config.seed), ordered_row_index)",
+                "population_law_basis": "not_established",
+            }
         bundle = self._build_bundle()
         targets, metric_paths, path_by_target = self._target_meta()
         gaussian_std = self.inputs.gaussian_observation_std
@@ -779,7 +883,14 @@ class Calibrator:
 
         if measurement_bundle is None:
             if self.inputs.raw_targets:
-                raw_targets.update(self.inputs.raw_targets)
+                raw_targets.update(
+                    {
+                        target_id: np.asarray(values)
+                        for target_id, values in self.inputs.raw_targets.items()
+                    }
+                    if batch is not None
+                    else self.inputs.raw_targets
+                )
             if any(t.fabric_query is not None for t in targets):
                 if self.inputs.udf_engine is not None or self.inputs.target_fetcher is not None:
                     fetched = fetch_targets(
@@ -792,8 +903,19 @@ class Calibrator:
             if self.inputs.controls_seq is not None and len(self.inputs.controls_seq) != steps:
                 raise ValueError("controls_seq length must match calibration steps")
             aligned_targets, scales, time_axes = prepare_targets(
-                cfg, raw_targets=raw_targets, steps=steps, time_axis=cfg.time_axis
+                cfg,
+                raw_targets=(
+                    {target_id: np.asarray(values) for target_id, values in raw_targets.items()}
+                    if batch is not None
+                    else raw_targets
+                ),
+                steps=steps,
+                time_axis=cfg.time_axis,
             )
+            if batch is not None:
+                time_axes = {
+                    target.target_id: [float(time) for time in batch.times] for target in targets
+                }
             if not aligned_targets:
                 raise ValueError("No aligned target series available for calibration")
             missing_targets = [t.target_id for t in targets if t.target_id not in aligned_targets]
@@ -952,6 +1074,26 @@ class Calibrator:
                 key = jax.random.fold_in(key, step_idx)
             return key
 
+        def _simulate_bundle(sim_bundle: StaticBundle, step_idx: jax.Array):
+            if batch is not None:
+                from polisyos.foundry.calibration.pure_executor import run_pure_batch
+
+                return run_pure_batch(
+                    stacked_state,
+                    times=batch_times,
+                    keys=batch_keys,
+                    bundle=sim_bundle,
+                    metric_paths=metric_paths,
+                )
+            return run_pure_scan(
+                self.inputs.base_state,
+                steps=steps,
+                root_key=_root_key(step_idx),
+                bundle=sim_bundle,
+                metric_paths=metric_paths,
+                controls_seq=self.inputs.controls_seq,
+            )
+
         def _constraint_violation(value: jnp.ndarray, handle: ConstraintHandle) -> jnp.ndarray:
             threshold = handle.value
             eps = cfg.constraint_loss.epsilon
@@ -1017,6 +1159,26 @@ class Calibrator:
         identity_hash.update(self.inputs.program_graph.model_dump_json().encode())
         identity_hash.update(self.inputs.exec_plan.model_dump_json().encode())
         identity_hash.update(str(sorted((gaussian_std or {}).items())).encode())
+        for node in bundle.nodes:
+            identity_hash.update(
+                str(
+                    (
+                        node.node_id,
+                        node.mechanism_type,
+                        node.rank,
+                        node.start,
+                        node.end,
+                        node.priority,
+                        node.outputs,
+                        node.selector.model_dump_json() if node.selector is not None else None,
+                    )
+                ).encode()
+            )
+            identity_hash.update(str(jax.tree_util.tree_structure(node.mechanism)).encode())
+            for leaf in jax.tree_util.tree_leaves(node.mechanism):
+                array = np.asarray(leaf)
+                identity_hash.update(str((array.shape, array.dtype)).encode())
+                identity_hash.update(array.tobytes())
         for target_id, values in sorted(aligned_targets.items()):
             identity_hash.update(target_id.encode())
             array = np.asarray(values)
@@ -1028,6 +1190,12 @@ class Calibrator:
             identity_hash.update(array.tobytes())
         if self.inputs.controls_seq is not None:
             identity_hash.update(np.asarray(self.inputs.controls_seq).tobytes())
+        if batch is not None:
+            identity_hash.update(str(batch_context).encode())
+            for leaf in jax.tree_util.tree_leaves(stacked_state):
+                array = np.asarray(leaf)
+                identity_hash.update(str((array.shape, array.dtype)).encode())
+                identity_hash.update(array.tobytes())
         objective_identity = identity_hash.hexdigest()
 
         def _target_loss_vec(
@@ -1037,14 +1205,7 @@ class Calibrator:
             theta_groups = from_unconstrained(u, group_bijectors)
             theta = _expand_group_values(theta_groups)
             sim_bundle = apply_trainable_values(bundle, theta)
-            _, traces = run_pure_scan(
-                self.inputs.base_state,
-                steps=steps,
-                root_key=_root_key(step_idx),
-                bundle=sim_bundle,
-                metric_paths=metric_paths,
-                controls_seq=self.inputs.controls_seq,
-            )
+            _, traces = _simulate_bundle(sim_bundle, step_idx)
             return _base_vec_from_traces(traces)
 
         def _base_vec_from_traces(
@@ -1128,14 +1289,7 @@ class Calibrator:
             theta_groups = from_unconstrained(u_state, group_bijectors)
             theta = _expand_group_values(theta_groups)
             sim_bundle = apply_trainable_values(bundle, theta)
-            _, traces = run_pure_scan(
-                self.inputs.base_state,
-                steps=steps,
-                root_key=_root_key(step_idx),
-                bundle=sim_bundle,
-                metric_paths=metric_paths,
-                controls_seq=self.inputs.controls_seq,
-            )
+            _, traces = _simulate_bundle(sim_bundle, step_idx)
             base_vec = _base_vec_from_traces(traces)
             total = jnp.sum(base_vec * weights_state) if base_vec.size else jnp.array(0.0)
             constraint_penalty = _constraint_penalty(traces)
@@ -1268,14 +1422,7 @@ class Calibrator:
                 theta_groups_local = unravel_theta(flat_params)
                 theta = _expand_group_values(theta_groups_local)
                 sim_bundle = apply_trainable_values(bundle, theta)
-                _, traces_local = run_pure_scan(
-                    self.inputs.base_state,
-                    steps=steps,
-                    root_key=_root_key(jnp.array(0, dtype=jnp.int32)),
-                    bundle=sim_bundle,
-                    metric_paths=metric_paths,
-                    controls_seq=self.inputs.controls_seq,
-                )
+                _, traces_local = _simulate_bundle(sim_bundle, jnp.array(0, dtype=jnp.int32))
                 base_vec = _base_vec_from_traces(
                     traces_local,
                 )
@@ -1676,13 +1823,8 @@ class Calibrator:
                         theta_groups = unravel_theta(flat_params)
                         theta = _expand_group_values(theta_groups)
                         sim_bundle = apply_trainable_values(bundle, theta)
-                        _, traces_local = run_pure_scan(
-                            self.inputs.base_state,
-                            steps=steps,
-                            root_key=_root_key(jnp.array(0, dtype=jnp.int32)),
-                            bundle=sim_bundle,
-                            metric_paths=metric_paths,
-                            controls_seq=self.inputs.controls_seq,
+                        _, traces_local = _simulate_bundle(
+                            sim_bundle, jnp.array(0, dtype=jnp.int32)
                         )
                         base_vec = _base_vec_from_traces(
                             traces_local,
@@ -1863,6 +2005,7 @@ class Calibrator:
                 "objective_kind": objective_kind,
                 "objective_identity": objective_identity,
                 "objective_profile": objective_profile,
+                "batch_rows": batch_context,
                 "covariance_authority_basis": "not_established",
                 "curvature_diagnostic": (
                     {

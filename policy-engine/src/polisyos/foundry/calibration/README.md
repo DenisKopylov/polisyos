@@ -4,7 +4,7 @@
 targets while keeping a strict boundary between synthetic runtime dynamics and
 measurement-aware loss adaptation.
 
-- Last updated: 2026-08-28
+- Last updated: 2026-10-06
 
 Generic calibration diagnostics, recalibration helpers, and validation-report
 adapters live in the shared `polisyos.calibration` package. This package owns
@@ -36,6 +36,16 @@ the derivative dtype and spectrum. They do not produce inferential covariance.
 Negative, flat, singular, or ill-conditioned directions are preserved and never
 repaired into uncertainty. Damping remains a compatibility argument, without
 changing the covariance admission rule.
+
+`CalibratorInputs.batch_inputs` accepts a runtime-only `CalibrationBatchInputs`
+with ordered states, schedule times, and unique row IDs. Each cross-sectional row
+executes one scalar step through `run_pure_batch`; the optimizer, final projection,
+and Hessian use this same path. Row states and internal state clocks remain
+separate from schedule times. Calibrator derives a distinct key with
+`fold_in(PRNGKey(config.seed), row_index)` and persists the row context. Targets
+must be exact finite vectors in this order. Time resampling, scan controls,
+measurement bundles, and fetched targets are unsupported in this mode. A batch
+does not establish independent observations, a population law, or covariance.
 
 `CalibratorInputs.gaussian_observation_std` selects a narrow Gaussian NLL
 profile with known noise scales for every target. It requires fixed seeds,

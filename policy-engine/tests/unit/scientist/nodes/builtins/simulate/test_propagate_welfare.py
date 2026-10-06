@@ -1048,7 +1048,7 @@ def _run_b197_tied_calibrator(
                 fabric_query=None,
                 # In the complete profile, both tied graph nodes move on one
                 # coordinate and each taxes reported income 100, so dy/dr=200,
-                # H=2*w*(dy/dr)^2=400 and sigma^2=1/H=.0025. In the incomplete
+                # Known sigma=10 gives H=(dy/dr)^2/sigma^2=400 and 1/H=.0025. In the incomplete
                 # profile only A.rate is trainable while B.rate stays fixed;
                 # then dy/dr=100, H=100 and sigma^2=.01.
                 loss={"relative": False, "weight": 1.0},

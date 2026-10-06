@@ -22,8 +22,9 @@ from polisyos.foundry.calibration.calibrator import (
     _HessianReuseKey,
     _select_lower_loss_state,
 )
-from polisyos.foundry.calibration.pure_executor import TrainableHandle
+from polisyos.foundry.calibration.pure_executor import PreparedNode, TrainableHandle
 from polisyos.foundry.contracts.state import GlobalState
+from polisyos.foundry.execute.mechanisms.fiscal import IncomeTax
 from polisyos.ir.analytics.calibration import CalibrationConfig, CalibrationTarget
 
 pytestmark = pytest.mark.unit
@@ -35,9 +36,14 @@ class _FakeBundle:
     def __init__(self, theta: object = 0.0) -> None:
         self.theta = jnp.asarray(theta)
         self.nodes = [
-            SimpleNamespace(
+            PreparedNode(
                 node_id="synthetic",
-                mechanism=SimpleNamespace(),
+                mechanism_type="synthetic",
+                rank=0,
+                start=0,
+                end=0,
+                outputs=["objective"],
+                mechanism=IncomeTax(rate=0.0, n_agents=1),
             )
         ]
         self.trainables = [

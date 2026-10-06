@@ -248,7 +248,11 @@ def put_calibration_report(
             item for item in bound_inputs if item.role != "calibration_objective_profile"
         ]
         bound_inputs.append(
-            InputRef(artifact_id=profile_ref.artifact_id, role="calibration_objective_profile")
+            InputRef(
+                artifact_id=profile_ref.artifact_id,
+                role="calibration_objective_profile",
+                manifest_profile_sha256=profile_ref.manifest_profile_sha256,
+            )
         )
     options = PutOptions(
         kind="foundry.calibration_report",
@@ -298,17 +302,29 @@ def load_calibration_report(store: ArtifactStore, ref: ArtifactRef) -> Calibrati
         configuration_inputs = [x for x in manifest.inputs if x.role == "calibration_config"]
         if len(configuration_inputs) != 1:
             raise ValueError("calibration report requires one calibration_config input")
-        configuration_id = configuration_inputs[0].artifact_id
-        configuration_manifest = store.get_manifest(configuration_id)
+        configuration_input = configuration_inputs[0]
+        configuration_ref = ArtifactRef(
+            artifact_id=configuration_input.artifact_id,
+            kind="foundry.calibration_config",
+            media_type="application/json",
+            manifest_profile_sha256=configuration_input.manifest_profile_sha256,
+        )
+        try:
+            configuration_manifest = store.get_manifest(configuration_ref)
+        except ValueError as exc:
+            raise ValueError("calibration_config manifest admission failed") from exc
         configuration_schema = configuration_manifest.artifact_schema
         if (
             configuration_manifest.kind != "foundry.calibration_config"
+            or configuration_manifest.media_type != "application/json"
             or configuration_schema is None
             or configuration_schema.name != "polisyos.ir.CalibrationConfig"
         ):
             raise ValueError("calibration_config manifest kind/schema mismatch")
+        if not store.verify(configuration_ref).ok:
+            raise ValueError("calibration_config content integrity failed")
         configuration = CalibrationConfig.model_validate(
-            from_canonical_bytes(store.get_bytes(configuration_id))
+            from_canonical_bytes(store.get_bytes(configuration_ref))
         )
         if configuration.schema_version != configuration_schema.version:
             raise ValueError("calibration_config payload/schema version mismatch")
@@ -319,15 +335,26 @@ def load_calibration_report(store: ArtifactStore, ref: ArtifactRef) -> Calibrati
             ]
             if len(profile_inputs) != 1:
                 raise ValueError("calibration report objective profile input is missing")
-            profile_id = profile_inputs[0].artifact_id
-            profile_manifest = store.get_manifest(profile_id)
+            profile_input = profile_inputs[0]
+            profile_ref = ArtifactRef(
+                artifact_id=profile_input.artifact_id,
+                kind="foundry.calibration_objective_profile",
+                media_type="application/json",
+                manifest_profile_sha256=profile_input.manifest_profile_sha256,
+            )
+            try:
+                profile_manifest = store.get_manifest(profile_ref)
+            except ValueError as exc:
+                raise ValueError("calibration report objective profile binding mismatch") from exc
             if (
                 profile_manifest.kind != "foundry.calibration_objective_profile"
+                or profile_manifest.media_type != "application/json"
                 or profile_manifest.artifact_schema is None
                 or profile_manifest.artifact_schema.name
                 != "polisyos.foundry.GaussianObservationProfile"
                 or profile_manifest.artifact_schema.version != "1.0"
-                or from_canonical_bytes(store.get_bytes(profile_id)) != objective_profile
+                or not store.verify(profile_ref).ok
+                or from_canonical_bytes(store.get_bytes(profile_ref)) != objective_profile
             ):
                 raise ValueError("calibration report objective profile binding mismatch")
     return report

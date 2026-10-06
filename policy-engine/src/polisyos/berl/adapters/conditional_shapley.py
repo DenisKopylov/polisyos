@@ -1,9 +1,9 @@
-"""Law-bound conditional Shapley profiles for BERL.
+"""Law-bound conditional Shapley candidate profiles for BERL.
 
-This module implements the mathematical profiles and the typed integration boundary.
-It deliberately does not implement a population-law producer or verifier: the supplied
-resolver/verifier must re-resolve source bytes and bind their provenance before this
-adapter can emit attribution values.
+This module implements the mathematical profiles and typed integration boundaries,
+but it does not implement a population-law producer or admit source/model verifiers.
+Injected resolver and verifier protocols can support diagnostic candidates only; the
+persisted consumers keep conditional claims fail-closed until an admitted owner exists.
 """
 
 from __future__ import annotations
@@ -69,18 +69,19 @@ ConditionalJointLaw = GaussianJointLaw | WeightedFiniteSupportLaw
 
 @dataclass(frozen=True, slots=True)
 class ResolvedConditionalLaw:
-    """Law content returned by an independently admitted source owner."""
+    """Candidate law content returned by an injected resolver."""
 
     binding: ConditionalLawBinding
     law: ConditionalJointLaw
 
 
 class ConditionalLawResolver(Protocol):
-    """Resolve verified law bytes and their full source/model binding.
+    """Describe a candidate law resolver's required source/model binding.
 
     An implementation must load the referenced artifact, recompute its content digest,
     verify its producer provenance, and check the model/population/cohort/time/order/
     schema/epoch/support bindings. A caller-supplied label or covariance is not enough.
+    This package does not admit implementations, so returned records remain candidates.
     """
 
     def resolve(self, law_ref: str) -> ResolvedConditionalLaw | None: ...
@@ -88,7 +89,7 @@ class ConditionalLawResolver(Protocol):
 
 @dataclass(frozen=True, slots=True)
 class VerifiedModelIdentity:
-    """Model identity established by a model-owner verifier."""
+    """Candidate model identity response from an injected integration callback."""
 
     profile_ref: str
     content_digest: str
@@ -96,7 +97,10 @@ class VerifiedModelIdentity:
 
 
 class ConditionalModelVerifier(Protocol):
-    """Verify that a callable is the model artifact bound by the conditional law."""
+    """Describe how an integration can resolve the model bound by a conditional law.
+
+    The protocol's return value is not accepted as authority by persisted consumers.
+    """
 
     def verify_model(
         self,
@@ -109,7 +113,7 @@ class ConditionalModelVerifier(Protocol):
 
 @dataclass(frozen=True, slots=True)
 class VerifiedAffineModelProfile:
-    """Independently verified affine model representation for exact Gaussian values."""
+    """Candidate affine profile returned by an injected model-profile resolver."""
 
     profile_ref: str
     content_digest: str
@@ -122,7 +126,7 @@ class VerifiedAffineModelProfile:
 
 
 class AffineModelProfileResolver(Protocol):
-    """Resolve a verified affine profile that is content-bound to a model artifact."""
+    """Describe an integration that resolves a model-bound affine candidate profile."""
 
     def resolve_affine_profile(
         self,
@@ -136,7 +140,7 @@ class AffineModelProfileResolver(Protocol):
 
 @dataclass(frozen=True, slots=True)
 class VerifiedOutputBounds:
-    """Structurally verified output interval for one exact model artifact/profile."""
+    """Candidate structural output interval returned by an injected callback."""
 
     lower: float
     upper: float
@@ -148,7 +152,7 @@ class VerifiedOutputBounds:
 
 
 class BoundedOutputProfileVerifier(Protocol):
-    """Verify a global output bound from the model/profile source, not sample extrema."""
+    """Describe a global bound resolver; its callback claim is not admitted authority."""
 
     def verify_output_bounds(
         self,
@@ -193,12 +197,13 @@ class ConditionalShapleyResult:
 
 @dataclass(frozen=True, slots=True)
 class ConditionalSHAPAdapter:
-    """Execute conditional Shapley only over independently resolved law/model inputs.
+    """Execute diagnostic conditional Shapley candidates over injected profiles.
 
-    Gaussian laws use a verified affine profile for exact coalition expectations, or
-    a verified global output bound and fixed-N IID draws for nonlinear functions.
+    Gaussian laws use an affine-profile candidate for exact coalition expectations or
+    a bounded-profile candidate and fixed-N IID draws for nonlinear functions.
     Weighted finite-support laws use exact matching strata and weighted conditional
-    means. Missing producer/model evidence returns a typed unavailable diagnostic.
+    means. Candidate callbacks do not establish source authority; persisted consumers
+    reject conditional claims until an owner-admitted verification path exists.
     """
 
     method_id: str = "kernel_shap_conditional"
@@ -460,6 +465,9 @@ class ConditionalSHAPAdapter:
             output_range=(bounds.lower, bounds.upper),
             plan=plan,
         )
+        # No source-owned model-bound verifier is admitted in this slice. Keep the
+        # fixed-N result candidate-only even when its arithmetic target was reached.
+        precision_status = "precision_not_met"
         evidence = _conditional_evidence_payload(
             resolved.binding,
             profile_id="gaussian_bounded_hoeffding",
@@ -467,7 +475,7 @@ class ConditionalSHAPAdapter:
             model_profile_digest=bounds.content_digest,
             model_verifier_ref=bounds.verifier_ref,
             feature_order=feature_order,
-            precision_status="precision_met" if plan.precision_met else "precision_not_met",
+            precision_status=precision_status,
             draw_count_per_coalition=plan.draws_per_coalition,
             coalition_count=plan.coalition_count,
             epsilon_per_coalition=plan.epsilon_per_coalition,
@@ -489,7 +497,7 @@ class ConditionalSHAPAdapter:
                 "familywise_delta": plan.familywise_delta,
                 "achieved_shapley_error": plan.achieved_shapley_error,
                 "random_seed": plan.random_seed,
-                "precision_status": "precision_met" if plan.precision_met else "precision_not_met",
+                "precision_status": precision_status,
             },
             assumptions={
                 "feature_dependence_policy": "conditional_observational",
@@ -501,7 +509,7 @@ class ConditionalSHAPAdapter:
                     name: [interval[0], interval[1]]
                     for name, interval in interval_result.intervals.items()
                 },
-                "diagnostic": "fixed_n_hoeffding_familywise_conditional_expectations",
+                "diagnostic": "candidate_only_unadmitted_output_bound",
             },
             requested_method_id=self.method_id,
             effective_method_id=self.effective_method_id,
@@ -676,16 +684,16 @@ def finite_support_conditional_expectation(
     for row, weight in zip(law.rows, law.weights, strict=True):
         if all(row[i] == value for i, value in zip(indices, target, strict=True)) and weight > 0.0:
             matched.append((row, weight))
-    total_weight = sum(weight for _, weight in matched)
-    if total_weight <= 0.0:
+    if not matched:
         raise ValueError("conditional finite-support stratum is empty or has zero weight")
-    expectation = 0.0
-    for row, weight in matched:
+    probabilities = _normalized_finite_support_weights(tuple(weight for _, weight in matched))
+    weighted_outputs: list[float] = []
+    for (row, _), probability in zip(matched, probabilities, strict=True):
         prediction = float(model(dict(zip(feature_order, row, strict=True))))
         if not math.isfinite(prediction):
             raise ValueError("model output on finite support must be finite")
-        expectation += (weight / total_weight) * prediction
-    return expectation
+        weighted_outputs.append(probability * prediction)
+    return math.fsum(weighted_outputs)
 
 
 def finite_support_conditional_shapley(
@@ -749,6 +757,8 @@ def fixed_n_hoeffding_plan(
     coalition_count = 2**feature_count
     epsilon = target_shapley_error / 2.0
     output_width = upper - lower
+    if not math.isfinite(output_width):
+        raise ValueError("output range width must be finite")
     if output_width == 0.0:
         required_draws = 0
         draws = 0
@@ -789,6 +799,17 @@ def gaussian_bounded_conditional_shapley(
     """Estimate conditional Gaussian coalition means with frozen simultaneous bounds."""
 
     lower, upper = output_range
+    expected_plan = fixed_n_hoeffding_plan(
+        feature_count=len(feature_order),
+        output_range=output_range,
+        target_shapley_error=2.0 * plan.epsilon_per_coalition,
+        familywise_delta=plan.familywise_delta,
+        random_seed=plan.random_seed,
+        draw_cap_per_coalition=plan.draw_cap_per_coalition,
+    )
+    if plan != expected_plan:
+        raise ValueError("Hoeffding plan does not match its frozen inputs")
+    achieved_epsilon = plan.achieved_shapley_error / 2.0
     rng = np.random.default_rng(plan.random_seed)
     coalition_intervals: dict[frozenset[str], tuple[float, float]] = {}
     for size in range(len(feature_order) + 1):
@@ -817,8 +838,8 @@ def gaussian_bounded_conditional_shapley(
                     raise ValueError("model output escaped its verified structural bounds")
                 mean = sum(outputs) / len(outputs)
             coalition_intervals[coalition] = (
-                max(lower, mean - plan.epsilon_per_coalition),
-                min(upper, mean + plan.epsilon_per_coalition),
+                max(lower, mean - achieved_epsilon),
+                min(upper, mean + achieved_epsilon),
             )
 
     values: dict[str, float] = {}
@@ -912,8 +933,20 @@ def _validate_finite_support_law(
         raise ValueError("finite-support values must be finite")
     if any(not math.isfinite(weight) or weight < 0.0 for weight in law.weights):
         raise ValueError("finite-support weights must be finite and nonnegative")
-    if sum(law.weights) <= 0.0:
+    _normalized_finite_support_weights(law.weights)
+
+
+def _normalized_finite_support_weights(weights: Sequence[float]) -> tuple[float, ...]:
+    """Normalize finite nonnegative weights without overflowing their raw sum."""
+
+    scale = max(weights, default=0.0)
+    if not math.isfinite(scale) or scale <= 0.0:
         raise ValueError("finite-support weights must have positive total mass")
+    scaled = tuple(weight / scale for weight in weights)
+    total = math.fsum(scaled)
+    if not math.isfinite(total) or total <= 0.0:
+        raise ValueError("finite-support weights must have positive finite total mass")
+    return tuple(weight / total for weight in scaled)
 
 
 def _validate_law_binding(

@@ -14,6 +14,7 @@ from polisyos.berl.adapters.conditional_shapley import (
     GaussianJointLaw,
     ResolvedConditionalLaw,
     VerifiedAffineModelProfile,
+    VerifiedOutputBounds,
     WeightedFiniteSupportLaw,
     finite_support_conditional_expectation,
     finite_support_conditional_shapley,
@@ -29,6 +30,10 @@ from polisyos.berl.adapters.protocol import (
 )
 from polisyos.berl.adapters.shap_kernel import KernelSHAPAdapter
 from polisyos.berl.contracts.schema import validate_persisted_explanation_bundle
+from polisyos.berl.contracts.validation_rules import (
+    ConditionalEvidenceVerification,
+    validate_explanation_bundle,
+)
 from polisyos.berl.service import ExplanationOrchestrator, ExplanationRequest
 from polisyos.runtime.quality.explanation_reliability import _validate_bundle_record
 from polisyos.scientist.validation.phase5_preflight import _run_berl_validation
@@ -178,6 +183,30 @@ def test_weighted_finite_support_rejects_empty_exact_stratum() -> None:
         )
 
 
+def test_weighted_finite_support_stably_normalizes_overflowing_total_mass() -> None:
+    law = WeightedFiniteSupportLaw(
+        rows=((0.0, 0.0), (1.0, 1.0)),
+        weights=(1e308, 1e308),
+    )
+
+    expectation = finite_support_conditional_expectation(
+        law,
+        feature_order=FEATURES,
+        coalition=frozenset(),
+        observed={"x1": 1.0, "x2": 1.0},
+        model=lambda _: 1.0,
+    )
+    result = finite_support_conditional_shapley(
+        law,
+        feature_order=FEATURES,
+        observed={"x1": 1.0, "x2": 1.0},
+        model=lambda _: 1.0,
+    )
+
+    assert expectation == pytest.approx(1.0)
+    assert result.values == pytest.approx({"x1": 0.0, "x2": 0.0})
+
+
 def test_fixed_n_plan_freezes_familywise_union_budget_and_reports_cap_shortfall() -> None:
     exact_budget = fixed_n_hoeffding_plan(
         feature_count=2,
@@ -242,6 +271,78 @@ def test_bounded_nonlinear_conditional_result_carries_interval_and_rejects_fake_
         )
 
 
+def test_short_draw_cap_intervals_cover_independent_gaussian_quadrature_truth() -> None:
+    plan = fixed_n_hoeffding_plan(
+        feature_count=2,
+        output_range=(-1.0, 1.0),
+        target_shapley_error=0.05,
+        familywise_delta=0.05,
+        random_seed=7,
+        draw_cap_per_coalition=1,
+    )
+    result = gaussian_bounded_conditional_shapley(
+        lambda values: float(np.tanh(0.2 + values["x1"] - 0.4 * values["x2"])),
+        CORRELATED_GAUSSIAN,
+        feature_order=FEATURES,
+        observed={"x1": 1.0, "x2": 1.0},
+        output_range=(-1.0, 1.0),
+        plan=plan,
+    )
+
+    nodes, weights = np.polynomial.hermite.hermgauss(96)
+
+    def normal_expectation(mean: float, standard_deviation: float) -> float:
+        values = np.tanh(mean + standard_deviation * np.sqrt(2.0) * nodes)
+        return float(np.dot(weights, values) / np.sqrt(np.pi))
+
+    v_empty = normal_expectation(0.2, np.sqrt(0.52))
+    v_x1 = normal_expectation(0.88, 0.24)
+    v_x2 = normal_expectation(0.6, 0.6)
+    v_full = float(np.tanh(0.8))
+    truth = {
+        "x1": 0.5 * ((v_x1 - v_empty) + (v_full - v_x2)),
+        "x2": 0.5 * ((v_x2 - v_empty) + (v_full - v_x1)),
+    }
+
+    assert not plan.precision_met
+    assert plan.draws_per_coalition == 1
+    for feature, expected in truth.items():
+        lower, upper = result.intervals[feature]
+        assert lower <= expected <= upper
+
+
+def test_zero_width_bound_uses_zero_draws_without_calling_model() -> None:
+    plan = fixed_n_hoeffding_plan(
+        feature_count=2,
+        output_range=(3.0, 3.0),
+        target_shapley_error=0.05,
+        familywise_delta=0.05,
+        random_seed=7,
+        draw_cap_per_coalition=1,
+    )
+    calls = 0
+
+    def constant_model(_: dict[str, float]) -> float:
+        nonlocal calls
+        calls += 1
+        return 3.0
+
+    result = gaussian_bounded_conditional_shapley(
+        constant_model,
+        CORRELATED_GAUSSIAN,
+        feature_order=FEATURES,
+        observed={"x1": 1.0, "x2": 1.0},
+        output_range=(3.0, 3.0),
+        plan=plan,
+    )
+
+    assert plan.draws_per_coalition == 0
+    assert plan.precision_met
+    assert calls == 0
+    assert result.values == pytest.approx({"x1": 0.0, "x2": 0.0})
+    assert result.intervals == {"x1": (0.0, 0.0), "x2": (0.0, 0.0)}
+
+
 @dataclass(frozen=True)
 class _FixtureLawResolver:
     resolved: ResolvedConditionalLaw
@@ -270,6 +371,22 @@ class _FixtureAffineProfileResolver:
         ):
             return self.profile
         return None
+
+
+@dataclass(frozen=True)
+class _FixtureOutputBoundsVerifier:
+    bounds: VerifiedOutputBounds
+
+    def verify_output_bounds(
+        self,
+        model: ScalarModel,
+        *,
+        model_hash: str,
+        model_epoch: str,
+        feature_order: tuple[str, ...],
+    ) -> VerifiedOutputBounds | None:
+        del model, model_hash, model_epoch, feature_order
+        return self.bounds
 
 
 def _binding() -> ConditionalLawBinding:
@@ -357,6 +474,44 @@ def test_resolved_gaussian_profile_produces_bound_conditional_bundle_without_aut
     assert raw.assumptions["causal_claim_made"] is False
 
 
+def test_self_labeled_bound_for_unbounded_model_remains_unadmitted_candidate() -> None:
+    binding = _binding()
+    resolved = ResolvedConditionalLaw(binding=binding, law=CORRELATED_GAUSSIAN)
+    bounds = VerifiedOutputBounds(
+        lower=-1e100,
+        upper=1e100,
+        profile_ref="model-profile://echo/unbounded",
+        content_digest="sha256:echo-unbounded-profile",
+        verifier_ref="verifier://echo-bound",
+        model_hash=binding.model_hash,
+        model_epoch=binding.model_epoch,
+    )
+    adapter = ConditionalSHAPAdapter(
+        law_resolver=_FixtureLawResolver(resolved),
+        output_bounds_verifier=_FixtureOutputBoundsVerifier(bounds),
+    )
+    base_context = _conditional_context()
+    context = replace(
+        base_context,
+        params={
+            **base_context.params,
+            "conditional_shapley_tolerance": 2e100,
+            "conditional_familywise_delta": 0.05,
+            "conditional_draw_cap_per_coalition": 20,
+        },
+    )
+
+    raw = adapter.explain(
+        lambda values: values["x1"],
+        {"x1": 1.0, "x2": 1.0},
+        context,
+    )
+
+    assert raw.params["precision_status"] == "precision_not_met"
+    assert raw.conditional_evidence["precision_status"] == "precision_not_met"
+    assert raw.conditional_evidence["profile_id"] == "gaussian_bounded_hoeffding"
+
+
 def test_service_bundle_round_trips_before_both_consumers_fail_closed(
     tmp_path,
 ) -> None:
@@ -401,7 +556,7 @@ def test_service_bundle_round_trips_before_both_consumers_fail_closed(
     assert method.conditional_evidence is not None
     assert binding.law_ref in bundle.audit.artifact_refs
     assert bundle.display_policy == "diagnostic_only"
-    assert "conditional_law_verifier_unavailable" in str(bundle.analyst_warning)
+    assert "conditional_law_authority_not_admitted" in str(bundle.analyst_warning)
 
     artifact_path = tmp_path / "conditional-explanation-bundle.json"
     artifact_path.write_text(
@@ -419,9 +574,130 @@ def test_service_bundle_round_trips_before_both_consumers_fail_closed(
 
     assert persisted.methods[0].conditional_evidence is not None
     assert runtime_result["threshold_decision"]["status"] == "fail"
-    assert any("conditional_law_verifier_unavailable" in issue.message for issue in runtime_issues)
+    assert any(
+        "conditional_law_authority_not_admitted" in issue.message for issue in runtime_issues
+    )
     assert phase5_result["passed"] is False
-    assert "conditional_law_verifier_unavailable" in " ".join(phase5_result["violations"])
+    assert "conditional_law_authority_not_admitted" in " ".join(phase5_result["violations"])
+
+    # The current package has no admitted source/model verifier. A caller-provided
+    # callback that echoes the bundle's own refs and labels them "recomputed" must
+    # not promote the persisted artifact, even if the bundle's display markers claim
+    # it is bounded. Removing evidence while retaining the conditional markers must
+    # fail for the same consumers.
+    class EchoVerifier:
+        calls = 0
+
+        def verify(self, bundle, method, evidence):
+            del bundle, method
+            self.calls += 1
+            return ConditionalEvidenceVerification(
+                accepted=True,
+                predicate_basis="recomputed",
+                law_content_digest=evidence.law_content_digest,
+                model_hash=evidence.model_hash,
+                law_verifier_ref=evidence.verifier_ref,
+                model_verifier_ref=evidence.model_verifier_ref,
+            )
+
+    echo = EchoVerifier()
+    forged_display = json.loads(json.dumps(serialized))
+    forged_display["faithfulness_claim"] = "bounded"
+    forged_display["display_policy"] = "analyst_display"
+    forged_display["methods"][0]["infidelity"]["point_estimate"] = 0.0
+    forged_display["methods"][0]["infidelity"]["upper_bound"] = 0.0
+    forged_evidence = forged_display["methods"][0]["conditional_evidence"]
+    forged_evidence["law_ref"] = "law://unresolved/not-present"
+    forged_evidence["law_content_digest"] = "sha256:unresolved-law-bytes"
+    forged_evidence["model_profile_ref"] = "model-profile://unresolved/not-present"
+    forged_evidence["model_profile_digest"] = "sha256:unresolved-model-bytes"
+    forged_evidence["verifier_ref"] = "verifier://unresolved/law"
+    forged_evidence["model_verifier_ref"] = "verifier://unresolved/model"
+    forged_display["audit"]["artifact_refs"] = ["law://unresolved/not-present"]
+    forged_bundle = validate_persisted_explanation_bundle(forged_display)
+    direct_validation = validate_explanation_bundle(
+        forged_bundle,
+        conditional_evidence_verifier=echo,
+    )
+    echo_runtime, _ = _validate_bundle_record(
+        forged_display,
+        thresholds={},
+        evidence_ref="evidence://conditional-echo",
+        conditional_evidence_verifier=echo,
+    )
+    echo_phase5 = _run_berl_validation(
+        forged_display,
+        conditional_evidence_verifier=echo,
+    )
+
+    assert not direct_validation.passed
+    assert "conditional_law_authority_not_admitted" in " ".join(direct_validation.violations)
+    assert echo_runtime["threshold_decision"]["status"] == "fail"
+    assert echo_phase5["passed"] is False
+    assert echo.calls == 0
+
+    markers_only = json.loads(json.dumps(forged_display))
+    for item in markers_only["methods"]:
+        item.pop("conditional_evidence", None)
+    assert markers_only["methods"][0]["method_id"] == "kernel_shap_conditional"
+    assert markers_only["assumptions"]["feature_dependence_policy"]["primary"] == (
+        "conditional_observational"
+    )
+    marker_bundle = validate_persisted_explanation_bundle(markers_only)
+    marker_validation = validate_explanation_bundle(
+        marker_bundle,
+        conditional_evidence_verifier=echo,
+    )
+    marker_runtime, _ = _validate_bundle_record(
+        markers_only,
+        thresholds={},
+        evidence_ref="evidence://conditional-markers-only",
+        conditional_evidence_verifier=echo,
+    )
+    marker_phase5 = _run_berl_validation(
+        markers_only,
+        conditional_evidence_verifier=echo,
+    )
+
+    assert not marker_validation.passed
+    assert "conditional_law_evidence_missing" in " ".join(marker_validation.violations)
+    assert marker_runtime["threshold_decision"]["status"] == "fail"
+    assert marker_phase5["passed"] is False
+    assert echo.calls == 0
+
+
+def test_gaussian_model_without_structural_bound_stays_service_diagnostic() -> None:
+    binding = _binding()
+    resolved = ResolvedConditionalLaw(binding=binding, law=CORRELATED_GAUSSIAN)
+    request = ExplanationRequest(
+        prediction_id="prediction-unbounded-conditional",
+        row_id="row-unbounded-conditional",
+        x={"x1": 1.0, "x2": 1.0},
+        feature_names=FEATURES,
+        methods=("kernel_shap_conditional",),
+        feature_dependence_policy="conditional_observational",
+        model_hash=binding.model_hash,
+        feature_schema_version=binding.feature_schema_version,
+        conditional_law_ref=binding.law_ref,
+        population_ref=binding.population_ref,
+        cohort_ref=binding.cohort_ref,
+        observation_window_ref=binding.observation_window_ref,
+        model_epoch=binding.model_epoch,
+        random_seed=7,
+        include_redundancy=False,
+    )
+
+    bundle = ExplanationOrchestrator(
+        conditional_law_resolver=_FixtureLawResolver(resolved),
+    ).explain(lambda values: values["x1"], request)
+
+    method = bundle.methods[0]
+    assert method.scope == "diagnostic"
+    assert "no verified affine or bounded model profile" in str(method.params["diagnostic"])
+    assert method.conditional_evidence is None
+    assert method.params.get("precision_status") is None
+    assert bundle.faithfulness_claim == "unbounded"
+    assert bundle.display_policy == "diagnostic_only"
 
 
 def test_law_binding_mismatch_is_rejected_even_with_test_resolver_markers() -> None:

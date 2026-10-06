@@ -36,7 +36,7 @@ class ExplanationValidationResult:
 
 @dataclass(frozen=True, slots=True)
 class ConditionalEvidenceVerification:
-    """Consumer-side result after resolving conditional source/model evidence."""
+    """Candidate verifier response, which is not itself admitted source authority."""
 
     accepted: bool
     predicate_basis: Literal[
@@ -53,7 +53,12 @@ class ConditionalEvidenceVerification:
 
 
 class ConditionalEvidenceVerifier(Protocol):
-    """Re-resolve and content-bind the evidence behind a conditional method result."""
+    """Candidate protocol for a future owner-admitted conditional evidence verifier.
+
+    This package does not currently admit implementations of this protocol. The
+    validator therefore treats injected callback results as declarations and does not
+    use them to authorize persisted conditional attribution.
+    """
 
     def verify(
         self,
@@ -69,7 +74,13 @@ def validate_explanation_bundle(
     thresholds: ValidationThresholds | None = None,
     conditional_evidence_verifier: ConditionalEvidenceVerifier | None = None,
 ) -> ExplanationValidationResult:
-    """Validate whether a bundle may be shown as an analyst-facing explanation."""
+    """Validate whether a bundle may be shown as an analyst-facing explanation.
+
+    Conditional attribution stays diagnostic-only until a concrete source/model
+    verifier is admitted by an owner-controlled composition root. The optional
+    callback is retained as an integration seam, but its self-reported result cannot
+    establish that authority.
+    """
 
     active_thresholds = thresholds or ValidationThresholds()
     violations: list[str] = []
@@ -93,15 +104,12 @@ def validate_explanation_bundle(
         conditional_issue = _conditional_method_issue(
             bundle,
             method,
-            verifier=conditional_evidence_verifier,
         )
         if conditional_issue is not None:
             violations.append(conditional_issue)
 
     upper_bounds = tuple(
-        method.infidelity.upper_bound
-        for method in bundle.methods
-        if method.infidelity is not None
+        method.infidelity.upper_bound for method in bundle.methods if method.infidelity is not None
     )
     if upper_bounds:
         p95 = _quantile(upper_bounds, 0.95)
@@ -183,8 +191,6 @@ def summarize_explanation_response(
 def _conditional_method_issue(
     bundle: ExplanationBundle,
     method: MethodExplanation,
-    *,
-    verifier: ConditionalEvidenceVerifier | None,
 ) -> str | None:
     evidence = method.conditional_evidence
     method_claims_conditional = (
@@ -195,8 +201,7 @@ def _conditional_method_issue(
         in {"conditional", "conditional_observational"}
         or method.assumptions.get("feature_dependence_policy")
         in {"conditional", "conditional_observational"}
-        or method.assumptions.get("feature_removal")
-        in {"conditional", "conditional_observational"}
+        or method.assumptions.get("feature_removal") in {"conditional", "conditional_observational"}
     )
     if evidence is not None and not method_claims_conditional:
         return f"conditional_evidence_method_mismatch:{method.method_id}"
@@ -213,31 +218,14 @@ def _conditional_method_issue(
         return f"conditional_feature_order_mismatch:{method.method_id}"
     if evidence.law_ref not in bundle.audit.artifact_refs:
         return f"conditional_law_ref_missing_from_audit:{method.method_id}"
-    if verifier is None:
-        return f"conditional_law_verifier_unavailable:{method.method_id}"
-    try:
-        result = verifier.verify(bundle, method, evidence)
-    except Exception as exc:
-        return f"conditional_law_verification_error:{method.method_id}:{type(exc).__name__}"
-    if (
-        not result.accepted
-        or result.predicate_basis not in {"recomputed", "independently_reconciled"}
-        or result.law_content_digest != evidence.law_content_digest
-        or result.model_hash != evidence.model_hash
-        or result.law_verifier_ref != evidence.verifier_ref
-        or result.model_verifier_ref != evidence.model_verifier_ref
-    ):
-        return f"conditional_law_verification_not_admitted:{method.method_id}"
-    return None
+    return f"conditional_law_authority_not_admitted:{method.method_id}"
 
 
 def _sign_conflict_rate(bundle: ExplanationBundle) -> float:
     if bundle.disagreement is None:
         return 0.0
     features = {
-        attribution.feature
-        for method in bundle.methods
-        for attribution in method.attributions
+        attribution.feature for method in bundle.methods for attribution in method.attributions
     }
     if not features:
         return 0.0

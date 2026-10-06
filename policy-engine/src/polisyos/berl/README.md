@@ -18,9 +18,13 @@ source-law resolver and model-profile verifier. Its available math profiles are
 exact affine Gaussian conditioning, exact weighted finite-support strata, and
 fixed-N bounded nonlinear Gaussian expectations. These interfaces do not
 provide a law producer or verification authority: when one is absent, BERL
-returns a diagnostic without marginal fallback, and both persisted consumers
-require an injected content verifier before conditional output can pass. BERL
-explanations remain prediction attributions, not causal effects.
+returns a diagnostic without marginal fallback. The current slice has no admitted
+source-law, model, or output-bound authority, so conditional methods remain
+diagnostic candidates and both persisted consumers reject them even when a caller
+injects a callback that labels its own result `recomputed`. The fixed-N plan reports
+its achieved numerical interval width, but candidate output-bound declarations do
+not certify precision. BERL explanations remain prediction attributions, not causal
+effects.
 
 The package root is an experimental public facade. Treat subpackages as
 implementation detail unless they are exported from `polisyos.berl`.

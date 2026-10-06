@@ -1,0 +1,701 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "cas-current-exact-view-fixture",
+  "closure_ids": [],
+  "proposed_criterion_ids": [],
+  "bundle_ids": [
+    "CAS-02"
+  ],
+  "slice_base_sha": "f53842e1c635dc390f47073f6ad1526a3f2e12c5",
+  "implementation_commits": [
+    "7dc6de4283ebb77ace82dada7ef68f81e454d9f6",
+    "5494f7d056ddc251107f416299db76400a96efce",
+    "14e909cf4f5e97473a19745d7e34026b66ce41c2"
+  ],
+  "candidate_tree_sha": "96da5130c34dc8add6c71ade65121e831531c64d",
+  "evidence_commit": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+  "branch": "codex/e02-B-current-cas-generation",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/42",
+  "changed_paths": [
+    "policy-engine/tests/unit/core/artifacts/test_multi_tenant_shared_cas.py"
+  ],
+  "baseline_cells": [],
+  "baseline_context": "This is fresh reproduction/correction of one current consumer fixture; historical canonical cells are not evidence for this test-only correction. Prior complete28CAS-cell/all8finding custody and remaining limitations stay in cas-batch-completion.json@ce70b52f940a4e94d6e86276afe7d08a334fdd3a unchanged.",
+  "problem_and_result": "The exact-view durable owner-transaction fixture produced an unbound manifest for a scoped receiving owner, so the actual pre-stage admission refused before its intended filesystem publication fault. A real source for the same tenant plus explicit ArtifactWriteOptions.tenant_context now emits a matching manifest. The original durable-fault/pending-denial/exact-retry/byte/time/owner assertions all execute and pass.",
+  "scope": "TEST ONLY. One existing test fixture input setup plus authorized mechanical formatting of its owned test module; no production source, canonical guard, negative test, authority rule, schema, lock or A/C file changed.",
+  "checks": [
+    {
+      "name": "baseline-node",
+      "command_argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py::test_exact_view_import_uses_deny_only_owner_transaction_and_exact_retry",
+        "--basetemp",
+        "/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/raw/cas-exact-view-fixture/baseline-node-pytest",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/raw/cas-exact-view-fixture/baseline-node-cache",
+        "--junitxml=/workspace/e02-B-current-cas-generation/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/baseline-node.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "f53842e1c635dc390f47073f6ad1526a3f2e12c5",
+      "target_tree": "ce0210c7dfb97111ba17f736e63e355ce2c1b960",
+      "head_after": "f53842e1c635dc390f47073f6ad1526a3f2e12c5",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "BLIS_NUM_THREADS": null,
+        "E02_B_PROPERTY_REMOVAL": null
+      },
+      "input_closure": "Actual tracked test selectors and source at exact target commit in admitted own checkout; explicit own src:product PYTHONPATH, native pytest importlib configuration, isolated named basetemp/cache. No source/test overlay or optional-test exclusion. Complete invocation/RSS/wall and full stdout/JUnit retained. Full dynamic transitive import-read census was not measured; no P41 claim.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "actual_cases": 1,
+      "passed": 0,
+      "failed": 1,
+      "skipped": 0,
+      "wall_s": 1.3715552450012183,
+      "exact_child_maxrss_kib": 103304,
+      "metadata": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/baseline-node.json",
+        "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+        "bytes": 1605,
+        "sha256": "9b7a34a4dd9a1755158989bd84887e60963850db5e42f6ce15f94cda926197ea"
+      },
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/baseline-node.txt",
+        "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+        "bytes": 4237,
+        "sha256": "4c52019a81752d2428f7f8a3c2e4c52d8d5657c242cb26f8720b2a5d92e82fb9"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/baseline-node.xml",
+        "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+        "bytes": 4404,
+        "sha256": "43e3b6d6ba2da58b1b89241b47386033e187759a85f81a99d9415964741f553f"
+      }
+    },
+    {
+      "name": "candidate-node",
+      "command_argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py::test_exact_view_import_uses_deny_only_owner_transaction_and_exact_retry",
+        "--basetemp",
+        "/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/raw/cas-exact-view-fixture/candidate-node-pytest",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/raw/cas-exact-view-fixture/candidate-node-cache",
+        "--junitxml=/workspace/e02-B-current-cas-generation/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/candidate-node.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "7dc6de4283ebb77ace82dada7ef68f81e454d9f6",
+      "target_tree": "d990e130fbea00735ec3d14d675d09dc1333b3a5",
+      "head_after": "7dc6de4283ebb77ace82dada7ef68f81e454d9f6",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "BLIS_NUM_THREADS": null,
+        "E02_B_PROPERTY_REMOVAL": null
+      },
+      "input_closure": "Actual tracked test selectors and source at exact target commit in admitted own checkout; explicit own src:product PYTHONPATH, native pytest importlib configuration, isolated named basetemp/cache. No source/test overlay or optional-test exclusion. Complete invocation/RSS/wall and full stdout/JUnit retained. Full dynamic transitive import-read census was not measured; no P41 claim.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "actual_cases": 1,
+      "passed": 0,
+      "failed": 1,
+      "skipped": 0,
+      "wall_s": 1.4419637450046139,
+      "exact_child_maxrss_kib": 103780,
+      "metadata": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/candidate-node.json",
+        "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+        "bytes": 1608,
+        "sha256": "cca152aa438a2d3de4c7bcd641e333b66be23d25c9ac18b3ccf25633537eaa76"
+      },
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/candidate-node.txt",
+        "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+        "bytes": 4361,
+        "sha256": "144254107acd2d596870f65e7e4e7e4407ff73771f10d3c80ee008a396b87ad3"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/candidate-node.xml",
+        "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+        "bytes": 4528,
+        "sha256": "f361b19aa2715192c655000518b691de622f474354e7cdfcb5a3a7b4a90063c8"
+      }
+    },
+    {
+      "name": "candidate-whole-consumers",
+      "command_argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_import_admission_noop.py",
+        "--basetemp",
+        "/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/raw/cas-exact-view-fixture/candidate-whole-consumers-pytest",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/raw/cas-exact-view-fixture/candidate-whole-consumers-cache",
+        "--junitxml=/workspace/e02-B-current-cas-generation/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/candidate-whole-consumers.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "7dc6de4283ebb77ace82dada7ef68f81e454d9f6",
+      "target_tree": "d990e130fbea00735ec3d14d675d09dc1333b3a5",
+      "head_after": "7dc6de4283ebb77ace82dada7ef68f81e454d9f6",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "BLIS_NUM_THREADS": null,
+        "E02_B_PROPERTY_REMOVAL": null
+      },
+      "input_closure": "Actual tracked test selectors and source at exact target commit in admitted own checkout; explicit own src:product PYTHONPATH, native pytest importlib configuration, isolated named basetemp/cache. No source/test overlay or optional-test exclusion. Complete invocation/RSS/wall and full stdout/JUnit retained. Full dynamic transitive import-read census was not measured; no P41 claim.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "actual_cases": 46,
+      "passed": 45,
+      "failed": 1,
+      "skipped": 0,
+      "wall_s": 4.67918713700783,
+      "exact_child_maxrss_kib": 107120,
+      "metadata": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/candidate-whole-consumers.json",
+        "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+        "bytes": 1629,
+        "sha256": "649600bfb1e3282a130c734415dad00a078df1fe40626fb0f59cc835b30f2834"
+      },
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/candidate-whole-consumers.txt",
+        "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+        "bytes": 4372,
+        "sha256": "b030a1c10f14540b2438c359996a3af2cdcbed37ce9ce55c540dcb2793af8493"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/candidate-whole-consumers.xml",
+        "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+        "bytes": 12083,
+        "sha256": "15b0b9314845ee2ebbd65a8cc2b268ba82d7cae94ab288d8fcd93ea507c4ed8d"
+      }
+    },
+    {
+      "name": "bound-node",
+      "command_argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py::test_exact_view_import_uses_deny_only_owner_transaction_and_exact_retry",
+        "--basetemp",
+        "/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/raw/cas-exact-view-fixture/bound-node-pytest",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/raw/cas-exact-view-fixture/bound-node-cache",
+        "--junitxml=/workspace/e02-B-current-cas-generation/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/bound-node.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "5494f7d056ddc251107f416299db76400a96efce",
+      "target_tree": "6e3f8aec7e2690d23a31f4193de7dd5ff75b0a13",
+      "head_after": "5494f7d056ddc251107f416299db76400a96efce",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "BLIS_NUM_THREADS": null,
+        "E02_B_PROPERTY_REMOVAL": null
+      },
+      "input_closure": "Actual tracked test selectors and source at exact target commit in admitted own checkout; explicit own src:product PYTHONPATH, native pytest importlib configuration, isolated named basetemp/cache. No source/test overlay or optional-test exclusion. Complete invocation/RSS/wall and full stdout/JUnit retained. Full dynamic transitive import-read census was not measured; no P41 claim.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "actual_cases": 1,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "wall_s": 1.3395232540060533,
+      "exact_child_maxrss_kib": 87280,
+      "metadata": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/bound-node.json",
+        "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+        "bytes": 1595,
+        "sha256": "703491e77f8a627b9bd9fefe51300972933f33a6144f968c389d8612e2713161"
+      },
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/bound-node.txt",
+        "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+        "bytes": 80,
+        "sha256": "423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/bound-node.xml",
+        "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+        "bytes": 419,
+        "sha256": "895b804fd0fd0e03014be53af4d00cabe56a22ef191e0d78f30af49aec40d4e5"
+      }
+    },
+    {
+      "name": "bound-whole-consumers",
+      "command_argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_import_admission_noop.py",
+        "--basetemp",
+        "/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/raw/cas-exact-view-fixture/bound-whole-consumers-pytest",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/raw/cas-exact-view-fixture/bound-whole-consumers-cache",
+        "--junitxml=/workspace/e02-B-current-cas-generation/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/bound-whole-consumers.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "5494f7d056ddc251107f416299db76400a96efce",
+      "target_tree": "6e3f8aec7e2690d23a31f4193de7dd5ff75b0a13",
+      "head_after": "5494f7d056ddc251107f416299db76400a96efce",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "BLIS_NUM_THREADS": null,
+        "E02_B_PROPERTY_REMOVAL": null
+      },
+      "input_closure": "Actual tracked test selectors and source at exact target commit in admitted own checkout; explicit own src:product PYTHONPATH, native pytest importlib configuration, isolated named basetemp/cache. No source/test overlay or optional-test exclusion. Complete invocation/RSS/wall and full stdout/JUnit retained. Full dynamic transitive import-read census was not measured; no P41 claim.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "actual_cases": 46,
+      "passed": 46,
+      "failed": 0,
+      "skipped": 0,
+      "wall_s": 4.696064689007471,
+      "exact_child_maxrss_kib": 94404,
+      "metadata": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/bound-whole-consumers.json",
+        "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+        "bytes": 1617,
+        "sha256": "ae3b2eb052d777f9c6fbf7ee924b71ae95b879f4e2c14909febb5509cf543d31"
+      },
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/bound-whole-consumers.txt",
+        "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+        "bytes": 80,
+        "sha256": "2fdbfd8ca4b1f03517583a95c9d797258bdf9116d64cf90fbdaa175b61869611"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/bound-whole-consumers.xml",
+        "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+        "bytes": 7963,
+        "sha256": "7fb991984d248b7d0e8429867e93c2629a2f179d90ad72dfee36b279de5b8dfa"
+      }
+    },
+    {
+      "name": "frozen-whole-consumers",
+      "command_argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_import_admission_noop.py",
+        "--basetemp",
+        "/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/raw/cas-exact-view-fixture/frozen-whole-consumers-pytest",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/raw/cas-exact-view-fixture/frozen-whole-consumers-cache",
+        "--junitxml=/workspace/e02-B-current-cas-generation/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/frozen-whole-consumers.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "14e909cf4f5e97473a19745d7e34026b66ce41c2",
+      "target_tree": "96da5130c34dc8add6c71ade65121e831531c64d",
+      "head_after": "14e909cf4f5e97473a19745d7e34026b66ce41c2",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "BLIS_NUM_THREADS": null,
+        "E02_B_PROPERTY_REMOVAL": null
+      },
+      "input_closure": "Actual tracked test selectors and source at exact target commit in admitted own checkout; explicit own src:product PYTHONPATH, native pytest importlib configuration, isolated named basetemp/cache. No source/test overlay or optional-test exclusion. Complete invocation/RSS/wall and full stdout/JUnit retained. Full dynamic transitive import-read census was not measured; no P41 claim.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "actual_cases": 46,
+      "passed": 46,
+      "failed": 0,
+      "skipped": 0,
+      "wall_s": 4.668587013002252,
+      "exact_child_maxrss_kib": 94068,
+      "metadata": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/frozen-whole-consumers.json",
+        "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+        "bytes": 1620,
+        "sha256": "6a007ada964b637ddca88d7354e4f0e1a1f633dc857d3d45517263d9f8817d8b"
+      },
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/frozen-whole-consumers.txt",
+        "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+        "bytes": 80,
+        "sha256": "2fdbfd8ca4b1f03517583a95c9d797258bdf9116d64cf90fbdaa175b61869611"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/frozen-whole-consumers.xml",
+        "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+        "bytes": 7963,
+        "sha256": "89ecdaaba23c958e4794272b3d8c4d71c42ea23ad5111824db7b942c52ddfb43"
+      }
+    },
+    {
+      "name": "frozen-ruff",
+      "command_argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "14e909cf4f5e97473a19745d7e34026b66ce41c2",
+      "input_closure": "Complete owned changed test module and canonical Ruff loader/config; no narrower function selector.",
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/frozen-ruff.txt",
+        "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+        "bytes": 19,
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      }
+    },
+    {
+      "name": "frozen-format",
+      "command_argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "14e909cf4f5e97473a19745d7e34026b66ce41c2",
+      "input_closure": "Complete owned changed test module and canonical Ruff loader/config; no narrower function selector.",
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/frozen-format.txt",
+        "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+        "bytes": 25,
+        "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+      }
+    },
+    {
+      "name": "first-candidate-format",
+      "command_argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "7dc6de4283ebb77ace82dada7ef68f81e454d9f6",
+      "outcome": "FAIL",
+      "input_closure": "Whole owned module before authorized mechanical formatting; not waived as inherited.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/format.txt",
+        "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+        "bytes": 102,
+        "sha256": "13c3f8d006ab1bfc3a4f446316bc2a563ca0c2334837e0cc3ef7c608831f28b5"
+      }
+    }
+  ],
+  "preserved_assertions": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/assertion-preservation.json",
+    "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+    "bytes": 441,
+    "sha256": "d302b458b1e3dba9092c2aca2669b8e3ddc2b719bcb30a556beebb0683567f03"
+  },
+  "mechanical_format_proof": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/format-ast.json",
+    "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+    "bytes": 520,
+    "sha256": "5cfde0bbe5e86471021d6b5816bd1a81eaeafa2de87f24d4d60c129af90f57da"
+  },
+  "source_identities": [
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+      "source_sha": "f53842e1c635dc390f47073f6ad1526a3f2e12c5",
+      "bytes": 24572,
+      "sha256": "f574fb646019857f0df1cae71c16304a36d52d85504ff3d852a265f2d98f9fcc"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+      "source_sha": "14e909cf4f5e97473a19745d7e34026b66ce41c2",
+      "bytes": 24787,
+      "sha256": "ea350b993f693b6421ea0bab58c01e0acbf6f6a7e7c8152c7c3043d856d7f3e4"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_import_admission_noop.py",
+      "source_sha": "14e909cf4f5e97473a19745d7e34026b66ce41c2",
+      "bytes": 14387,
+      "sha256": "44b8e5d352da4ada1cc4a66b9f824776e38582d28424c408474769a6c0bb14a3"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "source_sha": "14e909cf4f5e97473a19745d7e34026b66ce41c2",
+      "bytes": 189110,
+      "sha256": "0899b70593826b18875cac273b1621ab76a5589a03b52fb8dbd9cf4926c882a9"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/write_contract.py",
+      "source_sha": "14e909cf4f5e97473a19745d7e34026b66ce41c2",
+      "bytes": 1137,
+      "sha256": "434ffb9075f9a84b14352f5626803d7be8f69e586520e844cde2632b7aa236ef"
+    },
+    {
+      "path": "policy-engine/ruff.toml",
+      "source_sha": "14e909cf4f5e97473a19745d7e34026b66ce41c2",
+      "bytes": 247,
+      "sha256": "543068227742e00057e19329f2df8ee944090f828a40b3e5da0b72f8e3b06fbd"
+    },
+    {
+      "path": "policy-engine/architecture/tooling/ruff/generated.toml",
+      "source_sha": "14e909cf4f5e97473a19745d7e34026b66ce41c2",
+      "bytes": 26782,
+      "sha256": "209e31295f4d719755669ae492b454b474f9b7371143307ddd0c7fe52723d607"
+    },
+    {
+      "path": "policy-engine/pyproject.toml",
+      "source_sha": "14e909cf4f5e97473a19745d7e34026b66ce41c2",
+      "bytes": 11007,
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+    }
+  ],
+  "source_footprint": {
+    "production_changed_paths": [],
+    "other_test_modules_changed": [],
+    "all_nonfixture_module_statements_ast": "MATCH",
+    "fixture_after_input_setup_26statements_ast": "MATCH",
+    "original_and_candidate_assert_nodes": 9,
+    "mechanical_whole_module_ast": "MATCH"
+  },
+  "environment": {
+    "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "python_version": "3.14.2",
+    "ruff_version": "0.14.10",
+    "source_locator": "Explicit admitted own src:product PYTHONPATH; venv executable locator retained without resolving its symlink into base interpreter.",
+    "sync_install": false,
+    "numeric_thread_or_process_quota": false,
+    "native_profile": "Repository pytest ini/importlib; actual process/thread/filesystem tests in whole module unchanged. Each run gets unique own basetemp/cache; metrics port0."
+  },
+  "property": {
+    "statement": "Exercise deny-only owner-transaction publication and exact retry using genuinely same-bound producer input, while retaining real foreign/unbound refusals.",
+    "runtime_path": [
+      "same-tenant FileSystemCAS source.put_bytes with explicit bound PutOptions",
+      "actual selected manifest bytes",
+      "receiving target.import_exact_view admission",
+      "durable transaction intent and injected publication boundary failure",
+      "typed pending-reader denial",
+      "same-request retry and exact blob/manifest/created_at/owner readback"
+    ],
+    "proxy_divergence": "for_tenant selects access/claim owner but does not populate absent PutOptions.tenant_context. First candidate7dc remained unbound and correctly refused; the corrected fixture emits explicit bound metadata and reaches the intended transaction fault. Merely constructing a scoped source would not establish this premise.",
+    "negative_controls": [
+      "Fresh original unbound producer actual FAIL at pre-stage guard; complete output preserved.",
+      "First for_tenant-only candidate actual FAIL at same guard; whole46 has45PASS1FAIL, preserved.",
+      "Unmodified whole test_import_admission_noop module includes real foreign/unclaimed-unbound/claimed-unbound/cell refusal before staging or claims; all34cases PASS alongside12multi-tenant cases on final source.",
+      "Unchanged fault asserts pending intent/typed artifact_transaction_pending, then exact retry and byte/time/tenant ownership."
+    ]
+  },
+  "finding_dispositions": [
+    {
+      "finding_id": "B148",
+      "disposition": "HELD/limited; existing bounded scoped recommendation and institutional owner decision unchanged. This fixture repair proves intended same-owner runtime consumer, not ratification of cross-tenant/unbound reuse."
+    }
+  ],
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "current exact-view same-owner consumer fixture corrected; final46nativePASS plus owned Ruff/formatPASS; no finding closure or whole-root verdict",
+  "limitations_and_next_owner": [
+    "Root independently fetches frozen14e source/evidence and reruns affected consumer on final combined freeze. No whole-root/source-family acceptance is inferred from this bounded46case cohort.",
+    "B148 normative owner/cross-tenant institutional law remains HELD. Existing foreign/unbound guards and passive-unscoped cache distinction unchanged. B154 signature all-confirmations A consumer_missing and other prior CAS residuals remain in canonical prior receipt.",
+    "The first failed attempts are input-premise mismatches, not product defects or waived regressions. No inherited-red/disjoint claim; no complete dynamic gate-input overlap proof was made.",
+    "Full stdout and JUnit failure bytes deliberately preserve generated trailing whitespace. Evidence-only git diff --check reports FAIL for these literal artifacts; final changed test source diff and Ruff/format are clean. No whole-branch whitespace green is claimed.",
+    "No new production-data criterion or local dataset claim; finite actual filesystem/process paths from existing native tests only."
+  ],
+  "artifacts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/assertion-preservation.json",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 441,
+      "sha256": "d302b458b1e3dba9092c2aca2669b8e3ddc2b719bcb30a556beebb0683567f03"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/baseline-node.json",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 1605,
+      "sha256": "9b7a34a4dd9a1755158989bd84887e60963850db5e42f6ce15f94cda926197ea"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/baseline-node.txt",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 4237,
+      "sha256": "4c52019a81752d2428f7f8a3c2e4c52d8d5657c242cb26f8720b2a5d92e82fb9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/baseline-node.xml",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 4404,
+      "sha256": "43e3b6d6ba2da58b1b89241b47386033e187759a85f81a99d9415964741f553f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/bound-node.json",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 1595,
+      "sha256": "703491e77f8a627b9bd9fefe51300972933f33a6144f968c389d8612e2713161"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/bound-node.txt",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 80,
+      "sha256": "423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/bound-node.xml",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 419,
+      "sha256": "895b804fd0fd0e03014be53af4d00cabe56a22ef191e0d78f30af49aec40d4e5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/bound-whole-consumers.json",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 1617,
+      "sha256": "ae3b2eb052d777f9c6fbf7ee924b71ae95b879f4e2c14909febb5509cf543d31"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/bound-whole-consumers.txt",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 80,
+      "sha256": "2fdbfd8ca4b1f03517583a95c9d797258bdf9116d64cf90fbdaa175b61869611"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/bound-whole-consumers.xml",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 7963,
+      "sha256": "7fb991984d248b7d0e8429867e93c2629a2f179d90ad72dfee36b279de5b8dfa"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/candidate-node.json",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 1608,
+      "sha256": "cca152aa438a2d3de4c7bcd641e333b66be23d25c9ac18b3ccf25633537eaa76"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/candidate-node.txt",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 4361,
+      "sha256": "144254107acd2d596870f65e7e4e7e4407ff73771f10d3c80ee008a396b87ad3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/candidate-node.xml",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 4528,
+      "sha256": "f361b19aa2715192c655000518b691de622f474354e7cdfcb5a3a7b4a90063c8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/candidate-whole-consumers.json",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 1629,
+      "sha256": "649600bfb1e3282a130c734415dad00a078df1fe40626fb0f59cc835b30f2834"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/candidate-whole-consumers.txt",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 4372,
+      "sha256": "b030a1c10f14540b2438c359996a3af2cdcbed37ce9ce55c540dcb2793af8493"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/candidate-whole-consumers.xml",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 12083,
+      "sha256": "15b0b9314845ee2ebbd65a8cc2b268ba82d7cae94ab288d8fcd93ea507c4ed8d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/format-ast.json",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 520,
+      "sha256": "5cfde0bbe5e86471021d6b5816bd1a81eaeafa2de87f24d4d60c129af90f57da"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/format.txt",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 102,
+      "sha256": "13c3f8d006ab1bfc3a4f446316bc2a563ca0c2334837e0cc3ef7c608831f28b5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/frozen-format.txt",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 25,
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/frozen-ruff.txt",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/frozen-style.json",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 940,
+      "sha256": "40982d0a93392ead020fa2f7872d3aa756a0845d4ab4147804f7cf72e0d7abf9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/frozen-whole-consumers.json",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 1620,
+      "sha256": "6a007ada964b637ddca88d7354e4f0e1a1f633dc857d3d45517263d9f8817d8b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/frozen-whole-consumers.txt",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 80,
+      "sha256": "2fdbfd8ca4b1f03517583a95c9d797258bdf9116d64cf90fbdaa175b61869611"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/frozen-whole-consumers.xml",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 7963,
+      "sha256": "89ecdaaba23c958e4794272b3d8c4d71c42ea23ad5111824db7b942c52ddfb43"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/ruff.txt",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    }
+  ]
+}

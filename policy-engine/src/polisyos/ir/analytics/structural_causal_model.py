@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Literal
@@ -11,7 +12,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.model_layer.canon import CanonSpec
-from polisyos.ir.registry.refs import StructuralCausalModelSpecRef
+from polisyos.ir.registry.refs import ArtifactRefModel, StructuralCausalModelSpecRef
 
 if TYPE_CHECKING:
     from polisyos.ir.analytics.causal_graph import CausalGraphModel
@@ -62,6 +63,83 @@ class MechanismSource(str, Enum):
     DEFAULT = "default"
 
 
+def _payload_digest(value: Any) -> str:
+    """Hash the finite JSON basis used by the selected worker protocol."""
+    return hashlib.sha256(
+        json.dumps(
+            value, sort_keys=True, separators=(",", ":"), ensure_ascii=False, allow_nan=False
+        ).encode("utf-8")
+    ).hexdigest()
+
+
+class SCMTrainingRows(BaseModel):
+    """Content-bound aligned observational rows retained for complete refits.
+
+    Hash reconciliation checks content; the parent CAS resolver establishes
+    source custody. Neither establishes the iid law or causal identification.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    rows: list[list[float]]
+    columns: list[str]
+    row_ids: list[str]
+    source_ref: ArtifactRefModel
+    source_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+    data_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+    row_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+    graph_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+    graph_payload: dict[str, Any]
+    fit_input: dict[str, Any]
+
+    @model_validator(mode="after")
+    def _validate_basis(self) -> SCMTrainingRows:
+        data = np.asarray(self.rows, dtype=float)
+        if data.ndim != 2 or len(data) < 2 or not np.isfinite(data).all():
+            raise ValueError("training rows require a finite two-dimensional matrix")
+        if data.shape[1] != len(self.columns) or len(set(self.columns)) != len(self.columns):
+            raise ValueError("training columns must uniquely identify the matrix columns")
+        expected_ids = [f"{self.source_ref.artifact_id}:{i}" for i in range(len(data))]
+        if self.row_ids != expected_ids:
+            raise ValueError("training row IDs must bind exact ordered source artifact rows")
+        if self.data_sha256 != _payload_digest({"columns": self.columns, "rows": self.rows}):
+            raise ValueError("training matrix content hash mismatch")
+        if self.row_sha256 != _payload_digest(self.row_ids):
+            raise ValueError("training row identity hash mismatch")
+        if self.graph_sha256 != _payload_digest(self.graph_payload):
+            raise ValueError("training graph content hash mismatch")
+        if (
+            self.fit_input.get("data") != self.rows
+            or self.fit_input.get("column_names") != self.columns
+        ):
+            raise ValueError(
+                "retained fit input must contain the exact training matrix and columns"
+            )
+        return self
+
+
+class SCMFitProvenance(BaseModel):
+    """Observed selected-worker identities for an actual GCM mechanism fit."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    profile: Literal["dowhy-014"] = "dowhy-014"
+    fit_function: Literal["dowhy.gcm.fit"] = "dowhy.gcm.fit"
+    python: str = Field(pattern=r"^3\.12\.\d+$")
+    versions: dict[str, str]
+    seed: int
+    request_id: str = Field(pattern=r"^[a-f0-9]{64}$")
+    request_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+    worker_code_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+    worker_lock_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+    worker_response: dict[str, Any]
+    resample_indices: list[int] | None = None
+
+    @model_validator(mode="after")
+    def _validate_backend(self) -> SCMFitProvenance:
+        if self.versions.get("dowhy") != "0.14":
+            raise ValueError("GCM fit provenance requires the selected DoWhy 0.14 profile")
+        return self
+
+
 class NodeMechanism(BaseModel):
     """Structural equation metadata for one variable in an SCM."""
 
@@ -108,10 +186,12 @@ class StructuralCausalModelSpec(BaseModel):
     graph: CausalGraphModel
     mechanisms: list[NodeMechanism] = Field(default_factory=list)
     fitted: bool = False
-    fit_method: Literal["auto", "manual", "gcm", "hybrid"] | None = None
+    fit_method: Literal["auto", "manual", "gcm", "hybrid", "native_hybrid"] | None = None
     fit_metrics: dict[str, float] = Field(default_factory=dict)
     mechanism_source_summary: dict[str, int] = Field(default_factory=dict)
     skg_snapshot_ref: str | None = None
+    training_rows: SCMTrainingRows | None = None
+    fit_provenance: SCMFitProvenance | None = None
 
     @model_validator(mode="after")
     def _validate_mechanisms_cover_graph(self) -> StructuralCausalModelSpec:
@@ -188,6 +268,36 @@ class StructuralCausalModelSpec(BaseModel):
                 or len(carrier_groups) != 1
             ):
                 raise ValueError("Observed root carriers must share provenance and alignment")
+        if self.schema_version == "1.1" and self.fit_method == "gcm":
+            if self.training_rows is None or self.fit_provenance is None:
+                raise ValueError(
+                    "selected GCM fit requires training rows and observed worker provenance"
+                )
+        if self.training_rows is not None:
+            rows = self.training_rows
+            graph_payload = {
+                "nodes": list(self.graph.nodes),
+                "edges": [[edge.src, edge.dst] for edge in self.graph.edges],
+            }
+            if rows.graph_payload != graph_payload:
+                raise ValueError("SCM graph differs from its bound training graph")
+            indices = self.fit_provenance.resample_indices if self.fit_provenance else None
+            if indices is not None and (
+                len(indices) != len(rows.rows)
+                or any(type(i) is not int or not 0 <= i < len(rows.rows) for i in indices)
+            ):
+                raise ValueError("bootstrap indices must resample the complete source row set")
+            selected = indices if indices is not None else list(range(len(rows.rows)))
+            selected_ids = [rows.row_ids[i] for i in selected]
+            for mechanism in root_carriers:
+                params = mechanism.family_params
+                if params.get("observed_row_ids") != selected_ids:
+                    raise ValueError(
+                        "observed root rows do not share the bound source row identities"
+                    )
+                col = rows.columns.index(mechanism.variable)
+                if params["observed_samples"] != [rows.rows[i][col] for i in selected]:
+                    raise ValueError("observed root values differ from their source-bound rows")
         return self
 
 
@@ -197,15 +307,18 @@ def persist_structural_causal_model_spec(
     *,
     inputs: list[InputRef] | None = None,
     schema_name: str = "ir.structural_causal_model_spec",
-    schema_version: str = "1.0",
+    schema_version: str | None = None,
 ) -> StructuralCausalModelSpecRef:
     """Persist a structural causal model spec and return its typed artifact ref."""
+    resolved_version = schema_version or scm_spec.schema_version
+    if resolved_version != scm_spec.schema_version or resolved_version not in {"1.0", "1.1"}:
+        raise ValueError("SCM payload and supported CAS schema versions must match")
     ref = put_json_artifact(
         store,
         scm_spec.model_dump(mode="json"),
         kind="ir.structural_causal_model_spec",
         schema_name=schema_name,
-        schema_version=schema_version,
+        schema_version=resolved_version,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
     )
@@ -218,6 +331,12 @@ def load_structural_causal_model_spec(
 ) -> StructuralCausalModelSpec:
     """Load structural causal model spec."""
     payload = get_json_artifact(store, ref.artifact_id)
+    manifest = store.get_manifest(ref.artifact_id)
+    schema = getattr(manifest, "artifact_schema", None)
+    if schema is None or schema.version not in {"1.0", "1.1"}:
+        raise ValueError("SCM artifact requires a supported CAS schema manifest")
+    if payload.get("schema_version", "1.0") != schema.version:
+        raise ValueError("SCM payload and CAS schema versions differ")
     return StructuralCausalModelSpec.model_validate(payload)
 
 
@@ -225,6 +344,8 @@ __all__ = [
     "MechanismFamily",
     "MechanismSource",
     "NodeMechanism",
+    "SCMFitProvenance",
+    "SCMTrainingRows",
     "StructuralCausalModelSpec",
     "load_structural_causal_model_spec",
     "persist_structural_causal_model_spec",

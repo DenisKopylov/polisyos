@@ -90,10 +90,10 @@ def test_causal_query_result_to_uncertainty_envelope_is_phase11_compatible() -> 
 
     assert envelope.source is UncertaintySource.CAUSAL
     assert envelope.propagation_method is PropagationMethod.MONTE_CARLO
-    assert envelope.interval_semantics is IntervalSemantics.CONFIDENCE_INTERVAL
-    assert envelope.distribution_family is DistributionFamily.BOOTSTRAP
+    assert envelope.interval_semantics is IntervalSemantics.HEURISTIC_RANGE
+    assert envelope.distribution_family is DistributionFamily.UNKNOWN
     assert envelope.sample_size == 200
-    assert envelope.gate_eligible is True
+    assert envelope.gate_eligible is False
 
 
 def test_causal_query_result_artifact_roundtrip(tmp_path) -> None:

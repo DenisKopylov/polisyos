@@ -1,5 +1,34 @@
 {
   "$defs": {
+    "ArtifactID": {
+      "description": "IR-local artifact ID model compatible with CAS interfaces.",
+      "title": "ArtifactID",
+      "type": "string"
+    },
+    "ArtifactRefModel": {
+      "additionalProperties": false,
+      "description": "Provide the common mapping-compatible base contract for artifact refs.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "title": "Kind",
+          "type": "string"
+        },
+        "media_type": {
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "kind",
+        "media_type"
+      ],
+      "title": "ArtifactRefModel",
+      "type": "object"
+    },
     "CausalEdge": {
       "additionalProperties": false,
       "description": "Causal edge public type.",
@@ -358,6 +387,169 @@
       ],
       "title": "PAGIdentificationPolicy",
       "type": "string"
+    },
+    "SCMFitProvenance": {
+      "additionalProperties": false,
+      "description": "Observed selected-worker identities for an actual GCM mechanism fit.",
+      "properties": {
+        "fit_function": {
+          "const": "dowhy.gcm.fit",
+          "default": "dowhy.gcm.fit",
+          "title": "Fit Function",
+          "type": "string"
+        },
+        "profile": {
+          "const": "dowhy-014",
+          "default": "dowhy-014",
+          "title": "Profile",
+          "type": "string"
+        },
+        "python": {
+          "pattern": "^3\\.12\\.\\d+$",
+          "title": "Python",
+          "type": "string"
+        },
+        "request_id": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Request Id",
+          "type": "string"
+        },
+        "request_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Request Sha256",
+          "type": "string"
+        },
+        "resample_indices": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Resample Indices"
+        },
+        "seed": {
+          "title": "Seed",
+          "type": "integer"
+        },
+        "versions": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Versions",
+          "type": "object"
+        },
+        "worker_code_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Worker Code Sha256",
+          "type": "string"
+        },
+        "worker_lock_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Worker Lock Sha256",
+          "type": "string"
+        },
+        "worker_response": {
+          "additionalProperties": true,
+          "title": "Worker Response",
+          "type": "object"
+        }
+      },
+      "required": [
+        "python",
+        "versions",
+        "seed",
+        "request_id",
+        "request_sha256",
+        "worker_code_sha256",
+        "worker_lock_sha256",
+        "worker_response"
+      ],
+      "title": "SCMFitProvenance",
+      "type": "object"
+    },
+    "SCMTrainingRows": {
+      "additionalProperties": false,
+      "description": "Content-bound aligned observational rows retained for complete refits.\n\nHash reconciliation checks content; the parent CAS resolver establishes\nsource custody. Neither establishes the iid law or causal identification.",
+      "properties": {
+        "columns": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Columns",
+          "type": "array"
+        },
+        "data_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Data Sha256",
+          "type": "string"
+        },
+        "fit_input": {
+          "additionalProperties": true,
+          "title": "Fit Input",
+          "type": "object"
+        },
+        "graph_payload": {
+          "additionalProperties": true,
+          "title": "Graph Payload",
+          "type": "object"
+        },
+        "graph_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Graph Sha256",
+          "type": "string"
+        },
+        "row_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Row Ids",
+          "type": "array"
+        },
+        "row_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Row Sha256",
+          "type": "string"
+        },
+        "rows": {
+          "items": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          "title": "Rows",
+          "type": "array"
+        },
+        "source_ref": {
+          "$ref": "#/$defs/ArtifactRefModel"
+        },
+        "source_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Source Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "rows",
+        "columns",
+        "row_ids",
+        "source_ref",
+        "source_sha256",
+        "data_sha256",
+        "row_sha256",
+        "graph_sha256",
+        "graph_payload",
+        "fit_input"
+      ],
+      "title": "SCMTrainingRows",
+      "type": "object"
     }
   },
   "additionalProperties": false,
@@ -370,7 +562,8 @@
             "auto",
             "manual",
             "gcm",
-            "hybrid"
+            "hybrid",
+            "native_hybrid"
           ],
           "type": "string"
         },
@@ -387,6 +580,17 @@
       },
       "title": "Fit Metrics",
       "type": "object"
+    },
+    "fit_provenance": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/SCMFitProvenance"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
     },
     "fitted": {
       "default": false,
@@ -426,6 +630,17 @@
       ],
       "default": null,
       "title": "Skg Snapshot Ref"
+    },
+    "training_rows": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/SCMTrainingRows"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
     }
   },
   "required": [

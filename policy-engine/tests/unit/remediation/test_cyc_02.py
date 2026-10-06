@@ -430,9 +430,13 @@ def _n5_binding_consumer_process(handoff: dict[str, Any], *, project_root: Path)
         raise AssertionError(f"wrong_runtime_source:{source_path}")
 
     store = FileSystemCAS(Path(handoff["store_root"]))
-    simulation = SimulationPortObservation.model_validate(handoff["simulation"])
     problem = DesignProblem.model_validate(handoff["problem"])
     context = CycleSubstrateContext.model_validate(handoff["context"])
+    # The transport DTO excludes its WMR. Rebind only that field from the
+    # content-bound context after CycleSubstrateContext validation succeeds.
+    simulation = SimulationPortObservation.model_validate(handoff["simulation"]).model_copy(
+        update={"world_model_record": context.world_model_record}
+    )
     atom = InterventionAtomBinding.model_validate(handoff["candidate"]["atom"])
     candidate_id = str(handoff["candidate"]["candidate_id"])
     # Deliberately omit `intervention_atoms`: absence falls back to the one

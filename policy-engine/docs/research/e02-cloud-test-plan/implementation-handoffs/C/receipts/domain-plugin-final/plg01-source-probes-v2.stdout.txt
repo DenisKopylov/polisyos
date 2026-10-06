@@ -1,0 +1,52 @@
+{
+  "result": "PASS",
+  "registered_order": [
+    "economics",
+    "ep-dependent",
+    "shared",
+    "dist-zeta"
+  ],
+  "registry_order": [
+    "economics",
+    "ep-dependent",
+    "shared",
+    "dist-zeta"
+  ],
+  "distribution_input_order": [
+    "polisyos_plugin_zeta",
+    "polisyos_plugin_beta",
+    "polisyos_plugin_alpha"
+  ],
+  "distribution_import_order": [
+    "polisyos_plugin_alpha",
+    "polisyos_plugin_beta",
+    "polisyos_plugin_zeta"
+  ],
+  "entrypoint_input_order": [
+    "zeta-good",
+    "alpha-bad"
+  ],
+  "entrypoint_load_order": [
+    "alpha-bad",
+    "zeta-good"
+  ],
+  "warning_messages": [
+    "sha1 content hashing is deprecated and must be requested explicitly; use sha256 for canonical CAS paths.",
+    "Failed to load plugin from /var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/plg01-prefix-vc3juy3b/dev/00-broken: dev-import-error",
+    "sha1 content hashing is deprecated and must be requested explicitly; use sha256 for canonical CAS paths.",
+    "Could not register shared: Plugin 'shared' already registered"
+  ],
+  "event_trace": [
+    "ep-load:alpha-bad",
+    "log:Failed to load plugin entry point 'alpha-bad':entrypoint-failure:alpha-bad",
+    "ep-load:zeta-good",
+    "dist-import:polisyos_plugin_alpha",
+    "dist-import:polisyos_plugin_beta",
+    "log:Failed to load plugin package 'polisyos_plugin_beta':distribution-import-error:beta",
+    "dist-import:polisyos_plugin_zeta",
+    "load:ep-dependent",
+    "unload:ep-dependent"
+  ],
+  "genuine_distribution_installed": false,
+  "interpretation": "Source-order, per-source error isolation, cross-source duplicate precedence, and lifecycle/dependency effects exercised with scratch fixtures; no distribution was installed."
+}

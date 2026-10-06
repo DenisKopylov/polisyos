@@ -1,0 +1,93 @@
+{
+  "result": "PASS",
+  "base_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "base_discovery_source_sha256": "c0761cc98bb5b90a8e83e7d671e95d182ec9e7a4ef3b46da2d991f4044680f86",
+  "candidate_commit": "a452011da3de26d90877ae95ab10a72cce8e0b45",
+  "candidate_discovery_blob": "387e2d4c2cfca0fc43a9a4d393a8eea5e138beca",
+  "genuine_distribution_installed": false,
+  "fake_distribution_import_order": [
+    "polisyos_plugin_alpha",
+    "polisyos_plugin_beta",
+    "polisyos_plugin_zeta"
+  ],
+  "base": {
+    "implementation": "base198",
+    "registered_order": [
+      "economics",
+      "ep-dependent",
+      "shared",
+      "dist-zeta",
+      "dev-zeta"
+    ],
+    "registry_order_after_dependent_removal": [
+      "economics",
+      "shared",
+      "dist-zeta",
+      "dev-zeta"
+    ],
+    "shared_duplicate_winner_origin": "distribution-alpha",
+    "dependency_refusal": "Cannot unregister 'economics': 'ep-dependent' depends on it",
+    "ordered_events": [
+      "ep-load:alpha-bad",
+      "log:Failed to load plugin entry point 'alpha-bad':entrypoint-failure:alpha-bad",
+      "ep-load:zeta-good",
+      "dist-import:polisyos_plugin_alpha",
+      "dist-import:polisyos_plugin_beta",
+      "log:Failed to load plugin package 'polisyos_plugin_beta':distribution-import-error:beta",
+      "dist-import:polisyos_plugin_zeta",
+      "warning:sha1 content hashing is deprecated and must be requested explicitly; use sha256 for canonical CAS paths.",
+      "warning:Failed to load plugin from /var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/plg01-base198-v1fqsbub/dev/00-broken: dev-import-error",
+      "warning:sha1 content hashing is deprecated and must be requested explicitly; use sha256 for canonical CAS paths.",
+      "warning:sha1 content hashing is deprecated and must be requested explicitly; use sha256 for canonical CAS paths.",
+      "warning:Could not register shared: Plugin 'shared' already registered",
+      "load:shared",
+      "load:ep-dependent",
+      "unload:ep-dependent"
+    ],
+    "dep_import_input_order": [
+      "polisyos_plugin_zeta",
+      "polisyos_plugin_beta",
+      "polisyos_plugin_alpha"
+    ]
+  },
+  "candidate": {
+    "implementation": "candidate",
+    "registered_order": [
+      "economics",
+      "ep-dependent",
+      "shared",
+      "dev-zeta",
+      "dist-zeta"
+    ],
+    "registry_order_after_dependent_removal": [
+      "economics",
+      "shared",
+      "dev-zeta",
+      "dist-zeta"
+    ],
+    "shared_duplicate_winner_origin": "dev",
+    "dependency_refusal": "Cannot unregister 'economics': 'ep-dependent' depends on it",
+    "ordered_events": [
+      "ep-load:alpha-bad",
+      "log:Failed to load plugin entry point 'alpha-bad':entrypoint-failure:alpha-bad",
+      "ep-load:zeta-good",
+      "warning:sha1 content hashing is deprecated and must be requested explicitly; use sha256 for canonical CAS paths.",
+      "warning:Failed to load plugin from /var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/plg01-candidate-2me2rst6/dev/00-broken: dev-import-error",
+      "warning:sha1 content hashing is deprecated and must be requested explicitly; use sha256 for canonical CAS paths.",
+      "warning:sha1 content hashing is deprecated and must be requested explicitly; use sha256 for canonical CAS paths.",
+      "dist-import:polisyos_plugin_alpha",
+      "dist-import:polisyos_plugin_beta",
+      "log:Failed to load plugin package 'polisyos_plugin_beta':distribution-import-error:beta",
+      "dist-import:polisyos_plugin_zeta",
+      "warning:Could not register shared: Plugin 'shared' already registered",
+      "load:ep-dependent",
+      "unload:ep-dependent"
+    ],
+    "dep_import_input_order": [
+      "polisyos_plugin_zeta",
+      "polisyos_plugin_beta",
+      "polisyos_plugin_alpha"
+    ]
+  },
+  "interpretation": "Identical light fixtures exercised exact-base and candidate source order/error isolation, duplicate precedence, and discovered dependency/load/unload. Prefix distribution ordering is deterministic; current intentional priority move puts declared dev roots before prefix-discovered distributions, changing the winner for a cross-source duplicate. A genuinely installed distribution was not installed or asserted."
+}

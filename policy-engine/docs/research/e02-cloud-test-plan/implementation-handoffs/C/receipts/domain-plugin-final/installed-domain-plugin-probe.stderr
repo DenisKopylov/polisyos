@@ -1,0 +1,16 @@
+Failed to load plugin entry point 'c2-invalid'
+Traceback (most recent call last):
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/plg-a452/venv-base/lib/python3.14/site-packages/polisyos/foundry/plugins/discovery.py", line 143, in _discover_entry_point_plugins
+    plugins.append(_coerce_domain_plugin(ep.load()))
+                   ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/plg-a452/venv-base/lib/python3.14/site-packages/polisyos/foundry/plugins/discovery.py", line 232, in _coerce_domain_plugin
+    raise TypeError("plugin candidate class must inherit DomainPlugin")
+TypeError: plugin candidate class must inherit DomainPlugin
+Failed to load plugin entry point 'c2-invalid'
+Traceback (most recent call last):
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/plg-a452/venv-base/lib/python3.14/site-packages/polisyos/foundry/plugins/discovery.py", line 143, in _discover_entry_point_plugins
+    plugins.append(_coerce_domain_plugin(ep.load()))
+                   ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/plg-a452/venv-base/lib/python3.14/site-packages/polisyos/foundry/plugins/discovery.py", line 232, in _coerce_domain_plugin
+    raise TypeError("plugin candidate class must inherit DomainPlugin")
+TypeError: plugin candidate class must inherit DomainPlugin

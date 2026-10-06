@@ -1,0 +1,276 @@
+{
+  "archive_suffix_counts": {
+    ".blob": 11,
+    ".cfg": 1,
+    ".cjs": 9,
+    ".css": 17,
+    ".csv": 15,
+    ".cypher": 2,
+    ".d.ts": 1,
+    ".docx": 1,
+    ".duckdb": 4,
+    ".example": 3,
+    ".fixture": 2,
+    ".html": 3,
+    ".ini": 11,
+    ".js": 4,
+    ".json": 2954,
+    ".jsonc": 1,
+    ".jsonl": 14,
+    ".lock": 1,
+    ".log": 20,
+    ".md": 2144,
+    ".mdc": 1,
+    ".mjs": 40,
+    ".patch": 2,
+    ".pkl": 2,
+    ".png": 42,
+    ".py": 6438,
+    ".pyi": 5,
+    ".rego": 23,
+    ".reproducible": 1,
+    ".retired": 1,
+    ".sh": 45,
+    ".sha256": 1,
+    ".sql": 6,
+    ".sqlite": 2,
+    ".sqlite-wal": 2,
+    ".svg": 18,
+    ".tf": 1,
+    ".tmpl": 7,
+    ".toml": 264,
+    ".tpl": 1,
+    ".ts": 518,
+    ".tsv": 6,
+    ".tsx": 720,
+    ".txt": 108,
+    ".typed": 2,
+    ".webm": 6,
+    ".whl": 1,
+    ".xml": 20,
+    ".yaml": 85,
+    ".yml": 54,
+    ".zip": 8,
+    "<no-extension>": 25
+  },
+  "byte_identity": {
+    "source_readme_denominator": 167,
+    "source_readme_exceptions_outside_package_roots": 258,
+    "wheel_exact_path_byte_matches": 3449,
+    "wheel_forced_include_byte_matches": 1,
+    "wheel_mismatches": 0,
+    "wheel_readmes": 167,
+    "wheel_readmes_missing": [],
+    "wheel_unmapped": 0
+  },
+  "candidate": {
+    "commit": "a452011da3de26d90877ae95ab10a72cce8e0b45",
+    "tree": "d35c3e132b930eb7b9512ab7314a5f94c4733d3a"
+  },
+  "denominators": {
+    "archive_files": 13673,
+    "sdist_members": 8464,
+    "wheel_payload_files": 3450
+  },
+  "entry_points": {
+    "bytes": 3447,
+    "console_scripts": [
+      "polisy",
+      "polisyos",
+      "polisyos-causal-capabilities",
+      "polisyos-foundry",
+      "polisyos-tools",
+      "ukraine-data"
+    ],
+    "groups": {
+      "console_scripts": 6,
+      "polisyos.fabric_connectors": 11,
+      "polisyos.foundry_methods": 1,
+      "polisyos.scientist_governance_passes": 22
+    },
+    "member": "policy_engine-0.1.0.dist-info/entry_points.txt",
+    "sha256": "610a7cc1b8a6cc73fdb45edc2b79ffa96af538735411fbcf7952c3656ffda835",
+    "total": 40
+  },
+  "raw_type_source_vs_wheel": {
+    ".blob": {
+      "archive": 11,
+      "sdist": 0,
+      "wheel": 0
+    },
+    ".cjs": {
+      "archive": 9,
+      "sdist": 0,
+      "wheel": 0
+    },
+    ".csv": {
+      "archive": 15,
+      "sdist": 15,
+      "wheel": 15
+    },
+    ".d.ts": {
+      "archive": 1,
+      "sdist": 0,
+      "wheel": 0
+    },
+    ".duckdb": {
+      "archive": 4,
+      "sdist": 0,
+      "wheel": 0
+    },
+    ".js": {
+      "archive": 4,
+      "sdist": 0,
+      "wheel": 0
+    },
+    ".json": {
+      "archive": 2954,
+      "sdist": 1977,
+      "wheel": 19
+    },
+    ".jsonl": {
+      "archive": 14,
+      "sdist": 12,
+      "wheel": 0
+    },
+    ".mjs": {
+      "archive": 40,
+      "sdist": 2,
+      "wheel": 1
+    },
+    ".pkl": {
+      "archive": 2,
+      "sdist": 0,
+      "wheel": 0
+    },
+    ".png": {
+      "archive": 42,
+      "sdist": 9,
+      "wheel": 0
+    },
+    ".pyi": {
+      "archive": 5,
+      "sdist": 5,
+      "wheel": 5
+    },
+    ".sqlite": {
+      "archive": 2,
+      "sdist": 2,
+      "wheel": 0
+    },
+    ".svg": {
+      "archive": 18,
+      "sdist": 0,
+      "wheel": 0
+    },
+    ".ts": {
+      "archive": 518,
+      "sdist": 12,
+      "wheel": 12
+    },
+    ".tsx": {
+      "archive": 720,
+      "sdist": 0,
+      "wheel": 0
+    },
+    ".typed": {
+      "archive": 2,
+      "sdist": 2,
+      "wheel": 2
+    }
+  },
+  "sdist_suffix_counts": {
+    ".cfg": 1,
+    ".css": 2,
+    ".csv": 15,
+    ".cypher": 2,
+    ".docx": 1,
+    ".example": 1,
+    ".html": 1,
+    ".ini": 2,
+    ".json": 1977,
+    ".jsonl": 12,
+    ".log": 20,
+    ".md": 2079,
+    ".mjs": 2,
+    ".patch": 2,
+    ".png": 9,
+    ".py": 3912,
+    ".pyi": 5,
+    ".rego": 23,
+    ".retired": 1,
+    ".sh": 42,
+    ".sha256": 1,
+    ".sql": 6,
+    ".sqlite": 2,
+    ".sqlite-wal": 2,
+    ".tf": 1,
+    ".tmpl": 7,
+    ".toml": 56,
+    ".tpl": 1,
+    ".ts": 12,
+    ".tsv": 6,
+    ".txt": 105,
+    ".typed": 2,
+    ".webm": 6,
+    ".xml": 20,
+    ".yaml": 66,
+    ".yml": 40,
+    ".zip": 7,
+    "<no-extension>": 15
+  },
+  "subtree_file_counts": {
+    "archive": {
+      "apps": 1345,
+      "atlas_ui": 80,
+      "dashboard": 1334,
+      "data": 10,
+      "packages": 109,
+      "runtime_reference_shell": 10,
+      "src_polisyos": 2909,
+      "tests": 3277,
+      "tools": 540
+    },
+    "sdist": {
+      "apps": 17,
+      "atlas_ui": 4,
+      "dashboard": 15,
+      "data": 3,
+      "packages": 7,
+      "runtime_reference_shell": 1,
+      "src_polisyos": 2909,
+      "tests": 365,
+      "tools": 540
+    },
+    "wheel": {
+      "apps": 0,
+      "atlas_ui": 0,
+      "dashboard": 0,
+      "data": 0,
+      "packages": 0,
+      "runtime_reference_shell": 0,
+      "src_polisyos": 0,
+      "tests": 0,
+      "tools": 540
+    }
+  },
+  "wheel_payload_policy": "Compare full payload to the frozen archive: only tools/, polisyos/ from src/polisyos/, and exact Hatch force-includes are allowed; UI, apps, dashboard, data, tests are audited as explicit source-excluded sets.",
+  "wheel_payload_suffix_counts": {
+    ".csv": 15,
+    ".cypher": 2,
+    ".json": 19,
+    ".md": 200,
+    ".mjs": 1,
+    ".py": 3143,
+    ".pyi": 5,
+    ".retired": 1,
+    ".sh": 27,
+    ".sql": 1,
+    ".tmpl": 7,
+    ".toml": 3,
+    ".ts": 12,
+    ".txt": 1,
+    ".typed": 2,
+    ".yaml": 11
+  }
+}

@@ -1,0 +1,1 @@
+PYTHONDONTWRITEBYTECODE=1 JAX_PLATFORMS=cpu OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-c-plugins-20261006/polisyos/policy-engine/src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python /Users/deniskopylov/polisyos/.tmp/e02-C2/raw/plugins-review/final/plg01-source-probes-v2.py

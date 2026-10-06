@@ -1,0 +1,113 @@
+{
+  "artifacts": {
+    "archive": {
+      "bytes": 459991040,
+      "path": "candidate.tar",
+      "sha256": "721e943e829766fe663f25cfbe0b9679c569592b57257c6524ab8dc58e600417"
+    },
+    "sdist": {
+      "bytes": 65180357,
+      "path": "dist/policy_engine-0.1.0.tar.gz",
+      "sha256": "9d6184af714b4f76dcccd60ebaf296b18821e317258544f8d0c3e74618481c8d"
+    },
+    "wheel": {
+      "bytes": 15020624,
+      "path": "dist/policy_engine-0.1.0-py3-none-any.whl",
+      "sha256": "c733a77464421908789648b749d22333cb9a4b966e9785e3d751f30228905f84"
+    }
+  },
+  "build": {
+    "command": "uv build --offline --python /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/buildenv/bin/python --no-build-isolation --out-dir <raw>/dist <raw>/source/policy-engine",
+    "exit_code": 0,
+    "stderr": "build.stderr",
+    "stdout": "build.stdout"
+  },
+  "candidate": {
+    "base_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "commit": "a452011da3de26d90877ae95ab10a72cce8e0b45",
+    "source": "exact git archive, verified with git get-tar-commit-id; wheel/sdist built from extracted archive",
+    "tree": "d35c3e132b930eb7b9512ab7314a5f94c4733d3a"
+  },
+  "changed_source_mapping": {
+    "all_changed_production_paths_installed_exactly": true,
+    "denominator": 10,
+    "details": "changed-source-map.json; candidate production changes cli.py, core.py, discovery.py, training_adapter.py; source companion README is installed; tests/handoff/release materials are not wheel code",
+    "sdist_identical_paths": 6,
+    "wheel_identical_paths": 5
+  },
+  "dependency_profile": {
+    "active_base_requires_dist": 34,
+    "command": "UV_PROJECT_ENVIRONMENT=<raw>/venv-base UV_CACHE_DIR=/Users/deniskopylov/.cache/uv uv sync --offline --frozen --no-dev --no-install-project --python /opt/homebrew/bin/python3.14 --project <raw>/source/policy-engine",
+    "fresh_profile_selected_extras": [],
+    "hnswlib_extra": false,
+    "installed_distribution_count_in_runtime_probe": 116,
+    "missing_or_mismatched_base": [],
+    "pyproject_and_uv_lock_same_as_base198": true,
+    "pytest": false,
+    "runtime_probe_stderr": "base-sync.stderr",
+    "runtime_probe_stdout": "base-sync.stdout",
+    "sync_exit": 0
+  },
+  "full_evidence_files": {
+    "base_sync_stderr": "base-sync.stderr",
+    "base_sync_stdout": "base-sync.stdout",
+    "build_stderr": "build.stderr",
+    "build_stdout": "build.stdout",
+    "changed_source_map": "changed-source-map.json",
+    "install_stderr": "install.stderr",
+    "install_stdout": "install.stdout",
+    "package_census": "package-census.json",
+    "payload_scope": "payload-scope.json"
+  },
+  "install": {
+    "command": "uv pip install --offline --no-deps --reinstall --python <raw>/venv-base/bin/python <raw>/dist/policy_engine-0.1.0-py3-none-any.whl",
+    "exit": 0,
+    "stderr": "install.stderr",
+    "stdout": "install.stdout"
+  },
+  "installed_runtime": {
+    "exit_code": 0,
+    "probe_command": "/tmp: <raw>/venv-base/bin/python -I <raw>/installed-domain-plugin-probe.py",
+    "probe_exit_code": 0,
+    "probe_result": "Installed plugin CLI/discovery enumerates built-in economics and isolated external DomainPlugin fixture. The registry registers and returns the fixture; its actual create_initial_state consumer yields the fixture state. Invalid entrypoint class is rejected with TypeError and absent from registry/CLI. Ten checked production/core modules are site-packages origins and byte-identical to wheel and frozen archive; candidate checkout absent from sys.path. Registry proves availability only; no admission or authority claim. Training/optimizer not run.",
+    "probe_script_sha256": "e4e96e4d7ed605c92d9ec01449ff63deddca57ec2e265ac27db0f50566912836",
+    "probe_stderr": {
+      "path": "installed-domain-plugin-probe.stderr",
+      "sha256": "5c45f8c691e7884a1e572f043c8bd543d27ed974776bc2186612724f6c1646e8"
+    },
+    "probe_stdout": {
+      "path": "installed-domain-plugin-probe.stdout",
+      "sha256": "4c59dfdbd173d4d3e0b1d46a0837e30013108a59b1d5521213f077b9b4e67e28"
+    },
+    "public_command": "/tmp: <raw>/venv-base/bin/python -I <raw>/venv-base/bin/polisy list --verbose",
+    "stderr": {
+      "path": "installed-cli.stderr",
+      "sha256": "c587e37d8534413cbcf32c2127a9cdae19800840e35b31fb243ff1192782ccb6"
+    },
+    "stdout": {
+      "path": "installed-cli.stdout",
+      "sha256": "00ea71ae03044def65f8a4555ab5ed91c6aafb4221e79b20d63d6e27119ccdd5"
+    }
+  },
+  "payload_census": {
+    "entry_points_groups": 4,
+    "entry_points_lines": 40,
+    "sdist_exact_source_files": 8463,
+    "sdist_members": 8464,
+    "sdist_mismatches": 0,
+    "sdist_readmes": 425,
+    "sdist_source_omissions": 5210,
+    "source_files": 13673,
+    "source_python": 6438,
+    "source_readme_exceptions_outside_package_roots": 258,
+    "source_readmes": 425,
+    "type_and_subtree_denominators": "payload-scope.json",
+    "wheel_exact_source_matches": 3449,
+    "wheel_forced_resource_exact_matches": 1,
+    "wheel_mismatches": 0,
+    "wheel_package_root_readmes": 167,
+    "wheel_payload_files": 3450,
+    "wheel_ui_apps_dashboard_data_tests_payload": 0,
+    "wheel_unmapped": 0
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "result": "PASS",
+  "tiers": [
+    {
+      "tier": "library_deterministic",
+      "status": "typed_refusal",
+      "code": "training_runtime_profile_unsupported"
+    },
+    {
+      "tier": "statistical",
+      "status": "typed_refusal",
+      "code": "training_runtime_profile_unsupported"
+    }
+  ],
+  "optimizer_or_cas_invoked": false
+}

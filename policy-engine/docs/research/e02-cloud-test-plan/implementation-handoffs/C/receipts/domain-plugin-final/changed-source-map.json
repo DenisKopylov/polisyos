@@ -1,0 +1,130 @@
+{
+  "candidate": {
+    "base_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "commit": "a452011da3de26d90877ae95ab10a72cce8e0b45",
+    "tree": "d35c3e132b930eb7b9512ab7314a5f94c4733d3a"
+  },
+  "changed_paths_denominator": 10,
+  "paths": [
+    {
+      "sdist_byte_identical": true,
+      "sdist_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/C/domain-plugin-training.json",
+      "sdist_sha256": "62f748a9e0d3dba302a281998eeb366fd02cc3e29f012543f4961fe98ee064d4",
+      "source_bytes": 13602,
+      "source_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/C/domain-plugin-training.json",
+      "source_sha256": "62f748a9e0d3dba302a281998eeb366fd02cc3e29f012543f4961fe98ee064d4",
+      "wheel_byte_identical": null,
+      "wheel_omission_reason": "outside installed package namespace",
+      "wheel_path": null,
+      "wheel_sha256": null
+    },
+    {
+      "sdist_byte_identical": null,
+      "sdist_path": null,
+      "sdist_sha256": null,
+      "source_bytes": 1505,
+      "source_path": "release-fragments/unreleased/2026-10-06-e02-domain-plugin-training-cli.toml",
+      "source_sha256": "ccea68d120b407049fe641ac8c5c2aa9160fe648af15901b67e54af6b4800d34",
+      "wheel_byte_identical": null,
+      "wheel_omission_reason": "outside installed package namespace",
+      "wheel_path": null,
+      "wheel_sha256": null
+    },
+    {
+      "sdist_byte_identical": true,
+      "sdist_path": "src/polisyos/foundry/plugins/README.md",
+      "sdist_sha256": "28a0856ff0b2fd86e6cea135e1bead3131c4b967091d5cffeb407957dc1959f6",
+      "source_bytes": 4741,
+      "source_path": "src/polisyos/foundry/plugins/README.md",
+      "source_sha256": "28a0856ff0b2fd86e6cea135e1bead3131c4b967091d5cffeb407957dc1959f6",
+      "wheel_byte_identical": true,
+      "wheel_omission_reason": null,
+      "wheel_path": "polisyos/foundry/plugins/README.md",
+      "wheel_sha256": "28a0856ff0b2fd86e6cea135e1bead3131c4b967091d5cffeb407957dc1959f6"
+    },
+    {
+      "sdist_byte_identical": true,
+      "sdist_path": "src/polisyos/foundry/plugins/cli.py",
+      "sdist_sha256": "2f69b5e8ccc50840f043d9648f1b367007169841c2e3f90b1e60cee435d9e058",
+      "source_bytes": 6500,
+      "source_path": "src/polisyos/foundry/plugins/cli.py",
+      "source_sha256": "2f69b5e8ccc50840f043d9648f1b367007169841c2e3f90b1e60cee435d9e058",
+      "wheel_byte_identical": true,
+      "wheel_omission_reason": null,
+      "wheel_path": "polisyos/foundry/plugins/cli.py",
+      "wheel_sha256": "2f69b5e8ccc50840f043d9648f1b367007169841c2e3f90b1e60cee435d9e058"
+    },
+    {
+      "sdist_byte_identical": true,
+      "sdist_path": "src/polisyos/foundry/plugins/core.py",
+      "sdist_sha256": "c68c96567d76405259c600fc658f0327fcedd866a3c0c83f45a6c120a0120ff2",
+      "source_bytes": 7320,
+      "source_path": "src/polisyos/foundry/plugins/core.py",
+      "source_sha256": "c68c96567d76405259c600fc658f0327fcedd866a3c0c83f45a6c120a0120ff2",
+      "wheel_byte_identical": true,
+      "wheel_omission_reason": null,
+      "wheel_path": "polisyos/foundry/plugins/core.py",
+      "wheel_sha256": "c68c96567d76405259c600fc658f0327fcedd866a3c0c83f45a6c120a0120ff2"
+    },
+    {
+      "sdist_byte_identical": true,
+      "sdist_path": "src/polisyos/foundry/plugins/discovery.py",
+      "sdist_sha256": "a8acd403a212ea72c53ead52114e24518765a6ff7cc3948a057367fe58e630e9",
+      "source_bytes": 10338,
+      "source_path": "src/polisyos/foundry/plugins/discovery.py",
+      "source_sha256": "a8acd403a212ea72c53ead52114e24518765a6ff7cc3948a057367fe58e630e9",
+      "wheel_byte_identical": true,
+      "wheel_omission_reason": null,
+      "wheel_path": "polisyos/foundry/plugins/discovery.py",
+      "wheel_sha256": "a8acd403a212ea72c53ead52114e24518765a6ff7cc3948a057367fe58e630e9"
+    },
+    {
+      "sdist_byte_identical": true,
+      "sdist_path": "src/polisyos/foundry/plugins/training_adapter.py",
+      "sdist_sha256": "73c225d0b3630c09debec91f2362fb82d13f36f26ea5692b3e439f78f33df1da",
+      "source_bytes": 27065,
+      "source_path": "src/polisyos/foundry/plugins/training_adapter.py",
+      "source_sha256": "73c225d0b3630c09debec91f2362fb82d13f36f26ea5692b3e439f78f33df1da",
+      "wheel_byte_identical": true,
+      "wheel_omission_reason": null,
+      "wheel_path": "polisyos/foundry/plugins/training_adapter.py",
+      "wheel_sha256": "73c225d0b3630c09debec91f2362fb82d13f36f26ea5692b3e439f78f33df1da"
+    },
+    {
+      "sdist_byte_identical": null,
+      "sdist_path": null,
+      "sdist_sha256": null,
+      "source_bytes": 8924,
+      "source_path": "tests/unit/foundry/plugins/test_discovery.py",
+      "source_sha256": "1eda163f9575adc11f180d3ea2f692a3a21155966dfb51c83238048f960bfa82",
+      "wheel_byte_identical": null,
+      "wheel_omission_reason": "outside installed package namespace",
+      "wheel_path": null,
+      "wheel_sha256": null
+    },
+    {
+      "sdist_byte_identical": null,
+      "sdist_path": null,
+      "sdist_sha256": null,
+      "source_bytes": 9387,
+      "source_path": "tests/unit/remediation/test_plg_02.py",
+      "source_sha256": "a0b01cd9e839694c23dc483fe9d938c45f81027bb6dff2056057b0a572f911b5",
+      "wheel_byte_identical": null,
+      "wheel_omission_reason": "outside installed package namespace",
+      "wheel_path": null,
+      "wheel_sha256": null
+    },
+    {
+      "sdist_byte_identical": null,
+      "sdist_path": null,
+      "sdist_sha256": null,
+      "source_bytes": 23154,
+      "source_path": "tests/unit/remediation/test_plg_03.py",
+      "source_sha256": "675d78bdb476b4f592298426a0866a84ffcd5824221531f36df3cffe7657338b",
+      "wheel_byte_identical": null,
+      "wheel_omission_reason": "outside installed package namespace",
+      "wheel_path": null,
+      "wheel_sha256": null
+    }
+  ]
+}

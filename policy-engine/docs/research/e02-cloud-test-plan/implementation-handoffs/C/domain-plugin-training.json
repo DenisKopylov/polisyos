@@ -2,7 +2,7 @@
   "schema": "policyos.e02.implementation_handoff.v1",
   "unit": "C",
   "slice": "domain-plugin-discovery-and-bounded-training",
-  "closure_ids": [],
+  "closure_ids": ["LA-022"],
   "bundle_ids": ["PLG-01", "PLG-02", "PLG-03"],
   "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
   "slice_base_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
@@ -73,6 +73,102 @@
       ]
     },
     {
+      "command": "Build the exact git archive for a452011da3de26d90877ae95ab10a72cce8e0b45; offline sync a fresh base environment without extras; install the built wheel without dependency changes; run isolated installed `polisy list --verbose` and installed DomainPlugin ABI probes. Exact commands and output hashes are in the tracked installed-domain-plugin-receipt.json.",
+      "target_sha": "a452011da3de26d90877ae95ab10a72cce8e0b45",
+      "target_tree_sha": "d35c3e132b930eb7b9512ab7314a5f94c4733d3a",
+      "environment": "Fresh offline Python 3.14 base profile; selected extras empty; pytest absent; candidate checkout absent from sys.path; no training/optimizer execution.",
+      "input_closure": "Frozen exact source archive from the admitted slice base. Full 10-path source-to-wheel/sdist map and complete archive/sdist/wheel payload counts are retained in the tracked receipt, changed-source-map.json, payload-scope.json, and package-census.json.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "package_scope": {
+        "changed_path_denominator": 10,
+        "all_changed_production_paths_installed_exactly": true,
+        "archive_bytes": 459991040,
+        "archive_sha256": "721e943e829766fe663f25cfbe0b9679c569592b57257c6524ab8dc58e600417",
+        "source_file_denominator": 13673,
+        "sdist_members": 8464,
+        "sdist_exact_source_files": 8463,
+        "sdist_mismatches": 0,
+        "wheel_payload_files": 3450,
+        "wheel_exact_path_byte_matches": 3449,
+        "wheel_forced_include_byte_matches": 1,
+        "wheel_mismatches": 0,
+        "wheel_unmapped": 0,
+        "optional_extras_selected": [],
+        "active_base_requires_dist": 34,
+        "installed_distribution_count_in_runtime_probe": 116,
+        "pytest_present": false,
+        "training_or_optimizer_executed": false
+      },
+      "installed_runtime": "Public CLI lists both built-in Economics and the isolated declared external plugin. The registry returns the fixture and its real create_initial_state consumer yields the fixture state. The invalid entrypoint class is rejected and absent. Ten checked production/core modules resolve from site-packages and are byte-identical to wheel and frozen archive. The tracked CLI stdout copy is lossless gzip; its decompressed SHA-256 matches the original receipt's stdout digest. Registry behavior establishes availability only, not authority or admission.",
+      "evidence": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/domain-plugin-final/installed-domain-plugin-receipt.json@334a7de0f7c29c486fb28ca78cddb9b7a4ee07319aee2d0750f630833e99daaa",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/domain-plugin-final/installed-cli.stdout.gz@3471d986c0fc71c331c425dc0c5bd05a8fe4be9f7cbbefe131bf028af17041f8",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/domain-plugin-final/changed-source-map.json@f6065214cdfbcd0f4f0dacaa9b9b45391a370f9397ca70e577d2b36a59cf0118",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/domain-plugin-final/payload-scope.json@2465350f607ff438237574fc17ae0d4354c7de17d6fd0e321198157bbfeb19b4",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/domain-plugin-final/package-census.json@d635e33190f18fb3d85a14be07d7a156c6c15da1c511ce64500854938f9ea290"
+      ]
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 JAX_PLATFORMS=cpu OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 PYTHONPATH=src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -p no:cacheprovider -o addopts='' -q -c pytest.ini tests/unit/foundry/plugins/test_discovery.py tests/unit/foundry/plugins/test_plugin_system.py tests/unit/remediation/test_plg_01.py",
+      "target_sha": "a452011da3de26d90877ae95ab10a72cce8e0b45",
+      "target_tree_sha": "d35c3e132b930eb7b9512ab7314a5f94c4733d3a",
+      "environment": "Independent full PLG discovery test process against the same candidate source; macOS, original Python 3.14 environment, CPU JAX, one-thread BLAS controls.",
+      "input_closure": "Discovery, plugin-system, and PLG-01 tests; isolated plugin fixtures only.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "pytest_elapsed_seconds": 20.27,
+      "output": "26 passed, 16 warnings in 20.27s. Full stdout is preserved losslessly as gzip (compressed SHA-256 e534bacf15c4a4c6cf05b4f53377a6a6a15bfab1ab13e29b0b1b3a29ce22b435; decompressed SHA-256 1fc6c069d149627f242fd9440039ce57551a0b23fea26f92dfadd9bbc684e140); stderr, command, and exit files are also tracked in receipts/domain-plugin-final/.",
+      "evidence": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/domain-plugin-final/plg01-light-independent-v2.stdout.txt.gz@e534bacf15c4a4c6cf05b4f53377a6a6a15bfab1ab13e29b0b1b3a29ce22b435",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/domain-plugin-final/plg01-light-independent-v2.stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/domain-plugin-final/plg01-light-independent-v2.command.txt@99537bbfc854ac4de7f1a803915e3c1574b1673fec1fd2a58775bb751e64853a",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/domain-plugin-final/plg01-light-independent-v2.exit.txt@9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      ]
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 JAX_PLATFORMS=cpu OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-c-plugins-20261006/polisyos/policy-engine/src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python /Users/deniskopylov/polisyos/.tmp/e02-C2/raw/plugins-review/final/plg01-before-after-source-probe-v3.py",
+      "target_sha": "a452011da3de26d90877ae95ab10a72cce8e0b45",
+      "target_tree_sha": "d35c3e132b930eb7b9512ab7314a5f94c4733d3a",
+      "environment": "Independent source probe compares exact base 198076863e143dea9f89f02734b13d50dae3eed5 against frozen candidate a452011da3de26d90877ae95ab10a72cce8e0b45 using equivalent scratch inputs.",
+      "input_closure": "Reversed distribution and filesystem enumeration; valid and failing entrypoints/distributions/dev plugins; duplicate precedence; dependency refusal and unload; per-source error logging and event order.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": "The candidate preserves the legacy registry/API and dependency/load/unload behavior, makes prefix-distribution ordering deterministic, and intentionally moves declared dev roots before heuristic prefix distributions. Under a cross-source duplicate, the winner therefore changes from distribution-alpha on base to dev on candidate. The probe used fake distributions; genuine installation is separately established by the installed receipt.",
+      "evidence": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/domain-plugin-final/plg01-before-after-source-probe-v3.stdout.txt@6f6ab85e5d41b8f9e1f0c7b2c7121dcb46c87f52362378a28ac819ef1344e62e",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/domain-plugin-final/plg01-before-after-source-probe-v3.py@653db4467183178ce24b03065a85bea9939f7f54dd73ec94401e8b08e07512be"
+      ]
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 JAX_PLATFORMS=cpu OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-c-plugins-20261006/polisyos/policy-engine/src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python /Users/deniskopylov/polisyos/.tmp/e02-C2/raw/plugins-review/final/plg01-source-probes-v2.py",
+      "target_sha": "a452011da3de26d90877ae95ab10a72cce8e0b45",
+      "target_tree_sha": "d35c3e132b930eb7b9512ab7314a5f94c4733d3a",
+      "environment": "Independent nonnumeric source-level probe on the frozen candidate.",
+      "input_closure": "Reversed entrypoint/distribution inputs; deterministic order; source errors, warning text and duplicate handling.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": "Entry points and prefix distributions load in sorted order; malformed source errors and duplicate registration remain visible through existing warning/log paths; source events and registry order are stable.",
+      "evidence": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/domain-plugin-final/plg01-source-probes-v2.stdout.txt@f7639a3a4337ae6e586507edc7ddc39b55cdf6e2f62b8081de69f49fe4080d59",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/domain-plugin-final/plg01-source-probes-v2.py@47ee4f427293e90cf80ae78eab832bda15431d0a2b5f702c23b111f75c469b28"
+      ]
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 JAX_PLATFORMS=cpu OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-c-plugins-20261006/polisyos/policy-engine/src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python /Users/deniskopylov/polisyos/.tmp/e02-C2/raw/plugins-review/final/plg03-tier-negative.py",
+      "target_sha": "a452011da3de26d90877ae95ab10a72cce8e0b45",
+      "target_tree_sha": "d35c3e132b930eb7b9512ab7314a5f94c4733d3a",
+      "environment": "Independent nonnumeric source-level probe on the frozen candidate.",
+      "input_closure": "Runtime profiles with LIBRARY_DETERMINISTIC and STATISTICAL tiers.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": "Both tiers are refused with training_runtime_profile_unsupported before optimizer or CAS invocation.",
+      "evidence": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/domain-plugin-final/plg03-tier-negative.stdout.txt@f14b558900b6485bcf53b88fd190022fc89c605c82211ad80504e529e13441c3",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/domain-plugin-final/plg03-tier-negative.py@44c49ad0a872250312b447dc8fc514102eb1805e0fe3ae4ff416e785260b161d"
+      ]
+    },
+    {
       "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check policy-engine/src/polisyos/foundry/plugins/core.py policy-engine/src/polisyos/foundry/plugins/discovery.py policy-engine/src/polisyos/foundry/plugins/cli.py policy-engine/src/polisyos/foundry/plugins/training_adapter.py policy-engine/tests/unit/foundry/plugins/test_discovery.py policy-engine/tests/unit/remediation/test_plg_02.py policy-engine/tests/unit/remediation/test_plg_03.py",
       "target_sha": "a452011da3de26d90877ae95ab10a72cce8e0b45",
       "target_tree_sha": "d35c3e132b930eb7b9512ab7314a5f94c4733d3a",
@@ -123,23 +219,50 @@
     "reward_characterization": "Real PolisySimulator.run(3) returns a four-state trajectory. The controlled plugin supplies per-agent rewards [2,2,2] on each of three transitions. CompositeReward.total is the mean across agents (2 per transition); summing three evaluations yields 6. SimulationResult has no reward_history field, so this records the existing trajectory/reward consumer and does not add a history DTO or assert durable historical reward storage."
   },
   "predicate_basis": "recomputed",
-  "capability_state_or_finding_state": "PLG-01/LA-022 is limited; the discovery behavior is tested, but verification_missing remains for owner-issued admission and verifier provenance. PLG-02/PLG-03 provide a bounded real Economics one-call trainer-to-tenant-CAS readback path and honest bridge_pending for unsupported profiles. LA-023 remains partial/semantic_test_missing overall; this receipt does not close either finding or ratify a broader public training promise.",
+  "capability_state_or_finding_state": "Current candidate assessment: LA-022 closed for the bounded PLG-01 discovery-migration criterion; the historical G97 ledger status remains partial. Owner-issued plugin verification/admission remains a separate open verification_missing capability and is not a closure blocker for LA-022. LA-023 is limited to the demonstrated Economics one-call trainer-to-tenant-CAS/readback path; broader public .train claims and cross-call continuation remain held/unestablished. Historical G97 ledger status remains partial.",
+  "finding_dispositions": {
+    "historical_ledger_status": {
+      "LA-022": "partial",
+      "LA-023": "partial"
+    },
+    "current_candidate_status": {
+      "LA-022": "closed",
+      "LA-023": "limited"
+    },
+    "LA-022": {
+      "status": "closed",
+      "scope": "PLG-01's bounded migration of legacy DomainPlugin discovery onto existing Core source collection while preserving the polisyos.plugins group, DomainPlugin ABI, registration, diagnostics and lifecycle behavior.",
+      "basis": "The installed-wheel probe exercises built-in Economics and a genuine isolated declared external distribution through public listing, registration, get and create_initial_state; invalid entrypoint class rejection; exact site-packages-to-wheel/archive identity for all 10 changed-path denominator entries; independent 26-test suite; exact-base before/after error, order, duplicate, dependency, load and unload probe; and source-order/error probes.",
+      "error_boundary": "discover_plugins() uses one Core BaseDiscovery collector for the ordered source adapters. Whole-source exceptions become SourceBatch.errors and are logged; existing per-entrypoint/distribution/directory failures keep their established log/warning behavior while discovery continues. The public API remains list[DomainPlugin]. The criterion requires collection/diagnostics and legacy behavior, not a new structured return DTO; no such contract is introduced.",
+      "intentional_delta": "Declared dev roots now precede heuristic prefix-discovered distributions. The before/after probe shows that an intentional cross-source duplicate winner changes from distribution-alpha on the slice base to dev on the candidate; the selected plan requires explicit declarations before prefix heuristics.",
+      "separate_residual": "The registry proves plugin availability, not owner-issued verification/admission or verifier provenance. That separate capability remains open/verification_missing and is outside LA-022's discovery-migration criterion. No authority claim is made.",
+      "historical_status_preserved": true
+    },
+    "LA-023": {
+      "status": "limited",
+      "supported_scope": "One actual Economics PolisySimulator.train call invokes the existing native actor-critic optimizer, changes the learned policy's independently recomputed same-observation action, writes to the supplied tenant CAS, and strictly reloads the persisted artifact with the runtime-observed tier. The marker-preserving optimizer-removal control keeps trained/loss/artifact/CAS/readback markers but fails the independent action oracle. Unsupported composite and unsupported tier profiles are refused with bridge_pending before optimizer/CAS.",
+      "held_or_unestablished": "The full PLG-03 contract is not closed: the separate true zero-gradient criterion, train/eval and RNG/reset/continuation criteria, typed cross-call checkpoint/resume, historical TrainingResult reader/compatibility, and public .train scope ratification remain unestablished or held. The separate identity/no-update probe is synthetic and is not claimed as a native zero-gradient optimizer run. No training-history DTO or wider trainer framework is introduced.",
+      "historical_status_preserved": true
+    },
+    "global_ledger_mutated": false,
+    "current_assessment_source": "Frozen candidate a452011da3de26d90877ae95ab10a72cce8e0b45, tree d35c3e132b930eb7b9512ab7314a5f94c4733d3a. These bounded candidate dispositions are separate from the historical G97 ledger rows; only LA-022 is marked closed for its original PLG-01 criterion here."
+  },
   "pattern_pass": {
     "ids": ["P01", "P02", "P04", "P05", "P06", "P10", "P14", "P27", "P29", "P32", "P33", "P37", "P38"],
     "existing_failure_modes": "Discovery had separate source paths and candidate validation gaps; legacy training reported rollout rewards as if they were optimizer losses and could return an unchanged policy as trained. Review also found a P38 runtime-profile proxy: the adapter hardcoded STRICT_CPU while the native helper only emitted tier-validation warnings.",
-    "target_pattern": "Reuse Core's collector and preserve the legacy DomainPlugin ABI; route only the supported Economics profile through the existing trainer; derive its tier from the existing runtime-fingerprint owner and hold missing or mismatched profiles; use typed bridge_pending for unsupported profiles; verify training with independent persisted-policy action readback and an optimizer-removal negative control.",
+    "target_pattern": "Reuse Core's collector and preserve the legacy DomainPlugin ABI; keep its list/error-log semantics without inventing a report DTO; route only the supported Economics profile through the existing trainer; derive its tier from the existing runtime-fingerprint owner and hold missing or mismatched profiles; use typed bridge_pending for unsupported profiles; verify training with independent persisted-policy action readback and an optimizer-removal negative control.",
     "missing_capability_labels": ["verification_missing", "semantic_test_missing"],
-    "acceptance_signal": "Focused discovery/plugin and PLG-03/native-trainer suites, formatter, and lint pass at the frozen source SHA; the runtime-tier/device divergence is guarded before training and the actual CPU artifact readback matches its observed profile. Independent review, named owner decisions, and missing semantic controls remain before any LA closure."
+    "acceptance_signal": "The exact frozen candidate passes independent installed-distribution/ABI and 26-test discovery evidence, before/after source/error/order/lifecycle probes, the 17-test actual CPU trainer/CAS/action and marker-removal suite, runtime-tier negatives, lint and formatting. LA-022's bounded primary criterion is closed in this candidate handoff; separate plugin authority and the wider LA-023 promise/checkpoint criteria remain explicitly open or held."
   },
   "limitations_and_next_owner": [
-    "The PLG-01 entry-point test uses a monkeypatched importlib.metadata EntryPoint and temporary modules, not a genuinely installed distribution. Prefix discovery is ordered after builtins, declared entry points, and explicit dev roots, but the full installed-package packaging/install path was not exercised.",
-    "Dependency/load/unload behavior is covered by the existing plugin-system tests, but an aggregate source/error-order acceptance across real installed distributions, entry points, and development roots is not established. LA-022 remains partial/verification_missing.",
-    "A candidate can attach an arbitrary .verified=True attribute and the registry retains the Python object. No verifier, owner-admission contract, provenance artifact, or downstream admission consumer exists in this plugin path; that flag must not be treated as verification. Named owner and typed evidence contract/consumer are missing inputs.",
+    "PLG-01 now has both its isolated-fixture source/error/order/lifecycle probes and a genuine installed-wheel external DomainPlugin check alongside built-in Economics. The installed fixture is intentionally tiny and verifies ABI availability, not arbitrary third-party ecosystem compatibility.",
+    "The one Core BaseDiscovery collector handles ordered source batches and logs whole-source errors; established per-entrypoint/package/directory exceptions remain reported through their existing logs/warnings while the public discovery API returns list[DomainPlugin]. No criterion or existing consumer establishes a structured error-report DTO requirement, so none was added.",
+    "A candidate can attach an arbitrary .verified=True attribute and the registry retains the Python object. No verifier, owner-admission contract, provenance artifact, or downstream admission consumer exists in this plugin path; that flag must not be treated as verification. This separate capability remains open/verification_missing and is not folded into the bounded LA-022 discovery closure.",
     "PLG-03's bounded actual one-call positive and optimizer-removal tests ran. The full card's separate zero-gradient control and bridge-level train/eval, RNG/reset, and cross-call continuation criteria remain unverified. No typed checkpoint profile exists for RNG state, optimizer state, domain schema, or artifact identity; do not claim cross-call resume.",
     "No supported historical TrainingResult reader/deserializer was found. Historical result provenance/compatibility is unverified rather than declared absent from all possible external callers.",
     "The reward fixture proves current live trajectory and CompositeReward evaluation semantics, but SimulationResult does not persist or expose reward_history; durable historical reward readback is not implemented by this change.",
-    "Product owner must ratify the public .train promise as Economics one-call support, typed bridge_pending for other profiles, and the checkpoint/resume boundary before LA-023 can be closed. Reviewers must independently inspect the frozen implementation; no self-review or closure-ledger update is claimed.",
-    "No pyproject/lockfile or backend service change was needed. Tests used the existing Python 3.14/JAX CPU environment. No package installation, GPU, shared database, production dataset, or full backend suite was used.",
+    "The PLG implementation received an independent frozen-source review. Product-owner ratification is still required before treating Economics-only one-call training, typed bridge_pending for other profiles, or any checkpoint/resume boundary as the full public .train promise. This handoff records a bounded candidate assessment and does not mutate the historical G97 closure ledger.",
+    "No pyproject/lockfile or backend service change was needed. A separate final check built the exact candidate archive, synced a fresh offline base profile with no extras and no pytest, installed the wheel without changing dependencies, and ran isolated public CLI/DomainPlugin ABI probes. That installation check did not train a model or execute the optimizer. The native trainer run remained CPU-only; no GPU, shared database, production dataset, or full backend suite was used.",
     "The repository pre-commit hook could not run because its configured runtime-dashboard lefthook executable is absent in this worktree. Installs were prohibited; implementation commits therefore used a one-command git -c core.hooksPath=/dev/null override after recording the failed hook condition.",
     "Runtime tier/device alignment is enforced against the existing fingerprint owner's observation before the optimizer and on strict artifact readback. Only the actual CPU profile was exercised numerically in this slice; no GPU numerical replay was run."
   ]

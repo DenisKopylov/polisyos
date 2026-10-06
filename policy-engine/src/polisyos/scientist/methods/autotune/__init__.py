@@ -1,4 +1,4 @@
-"""Stable autotune facade for search-loop contracts, persistence, and optional runtimes.
+"""Internal autotune facade for search-loop contracts, persistence, and optional runtimes.
 
 Eager exports cover the registry-facing models and CAS helpers that planners and
 promotion logic depend on directly. Runtime loaders and candidate generators are

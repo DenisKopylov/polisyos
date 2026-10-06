@@ -1,0 +1,43 @@
+type = "changed"
+summary = "Search checkpoint and Pareto profile refusals now have structured compatibility records and an explicit supported-restore or fresh-run operator recipe."
+component = "scientist-search"
+owner = "team-policyos-runtime"
+change_class = "runtime-state-format"
+surface_classification = "internal: search checkpoint and Pareto child modules"
+compatibility = "Incomplete GP/RL profiles refuse; historical finite Pareto v1 reads remain supported, while v2 unavailable indicators require consumer handling."
+migration = "Retain the immutable original and refusal; use its supported implementation/backend for exact continuation or explicitly create a fresh run and re-admit observations."
+api = "These records document existing internal format guards; they do not add a public child export or an automatic migration."
+limitations = "The recipe does not reconstruct missing fitted parameters/RNG, establish scientific source authority or prove cross-backend replay."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["docs/how-to/search-checkpoint-profile-compatibility.md"]
+runbook_docs = ["docs/how-to/search-checkpoint-profile-compatibility.md"]
+
+[[compatibility_change]]
+id = "gp-checkpoint-profile3"
+change_class = "runtime-state-format"
+impact = "breaking"
+surface = "internal: polisyos.scientist.methods.search.strategies.bayesian StrategyState"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "not_applicable: internal exact-version checkpoint profile"
+release_note = "GP profile3 refuses incomplete older corpus/model/transform/RNG state; use a supported exact continuation or an explicit fresh run."
+
+[[compatibility_change]]
+id = "rl-checkpoint-schedule-binding"
+change_class = "runtime-state-format"
+impact = "breaking"
+surface = "internal: polisyos.scientist.methods.search.strategies.rl_wrapper StrategyState"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "not_applicable: internal exact-version checkpoint profile"
+release_note = "RL restoration requires the supported linear_decay.v1 schedule and nested base state; incomplete prior wrapper state refuses."
+
+[[compatibility_change]]
+id = "pareto-nullable-indicator-assessment"
+change_class = "persisted-artifact-format"
+impact = "breaking"
+surface = "internal: autotune ParetoFront and search ParetoRegistrySnapshot profile2"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "not_applicable: internal versioned artifact profile; historical finite v1 reader retained"
+release_note = "Pareto v2 readers must preserve input assessments and distinguish unavailable null hypervolume from computed zero; unsupported versions refuse."

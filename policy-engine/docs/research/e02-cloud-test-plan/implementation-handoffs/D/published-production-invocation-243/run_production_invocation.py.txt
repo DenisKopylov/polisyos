@@ -1,0 +1,51 @@
+from __future__ import annotations
+import hashlib
+import importlib.util
+import json
+import os
+from pathlib import Path
+import resource
+import subprocess
+import sys
+import time
+import uuid
+
+ROOT = Path("/workspace/e02-D-published-root/policy-engine")
+OUTPUT = Path("/workspace/e02-D2-receipts/funnel/production-invocation-final-243")
+EXPECTED = "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3"
+BASE = "198076863e143dea9f89f02734b13d50dae3eed5"
+
+def git(*args):
+    return subprocess.check_output(["git", "-C", str(ROOT), *args], text=True).strip()
+
+assert git("rev-parse", "HEAD") == EXPECTED
+assert git("rev-parse", "HEAD^{tree}") == "f3763c0911f1f80d8c5ee049667045a594fb55c2"
+assert not git("status", "--porcelain", "--untracked-files=no")
+scratch = ROOT / "_cache" / ("e02-D-production-invocation-243-" + uuid.uuid4().hex)
+assert not scratch.exists()
+receipt = scratch / "production-invocation.json"
+assert subprocess.run(["git", "-C", str(ROOT), "check-ignore", "-q", str(receipt)]).returncode == 0
+scratch.mkdir(parents=True)
+command = [sys.executable, "-m", "polisyos.runtime.quality.production_invocation", "--base", BASE, "--receipt", str(receipt)]
+env = dict(os.environ)
+env["PYTHONPATH"] = "src:."
+origin = importlib.util.find_spec("polisyos.runtime.quality.production_invocation").origin
+assert origin == str(ROOT / "src/polisyos/runtime/quality/production_invocation.py")
+metadata = {"candidate_sha": EXPECTED, "candidate_tree": git("rev-parse", "HEAD^{tree}"), "base_sha": BASE, "cwd": str(ROOT), "command": command, "python": sys.version, "environment": {"PYTHONPATH": "src:.", "added_cpu_process_worker_limits": False}, "module_origin": origin, "output_path": str(receipt), "output_ignored_before_run": True, "tracked_worktree_clean_before_run": True, "memory_before": Path("/proc/meminfo").read_text(), "cgroup_memory_max": Path("/sys/fs/cgroup/memory.max").read_text().strip()}
+(OUTPUT / "invocation-input.json").write_text(json.dumps(metadata, indent=2) + "\n")
+start = time.monotonic()
+with (OUTPUT / "stdout-stderr.txt").open("wb") as stream:
+    result = subprocess.run(command, cwd=ROOT, env=env, stdout=stream, stderr=subprocess.STDOUT)
+metadata.update({"process_returncode": result.returncode, "wall_seconds": time.monotonic() - start, "peak_rss_kib": resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss, "tracked_worktree_clean_after_run": not git("status", "--porcelain", "--untracked-files=no"), "head_after_run": git("rev-parse", "HEAD"), "receipt_exists": receipt.exists(), "stdout_stderr_bytes": (OUTPUT / "stdout-stderr.txt").stat().st_size, "stdout_stderr_sha256": hashlib.sha256((OUTPUT / "stdout-stderr.txt").read_bytes()).hexdigest(), "memory_after": Path("/proc/meminfo").read_text()})
+if receipt.exists():
+    metadata.update({"receipt_bytes": receipt.stat().st_size, "receipt_sha256": hashlib.sha256(receipt.read_bytes()).hexdigest()})
+    try:
+        admitted = json.loads(receipt.read_text())
+        metadata["completed_receipt_summary"] = {key: admitted[key] for key in ("base", "coverage", "denominator", "runtime_invocation_established", "predicate_provenance")}
+        metadata["diagnostic_regressions"] = len(admitted["regressions"])
+        metadata["diagnostic_new_unresolved"] = len(admitted["new_unresolved_by_construction"])
+    except Exception as exc:
+        metadata["receipt_parse_error"] = type(exc).__name__ + ": " + str(exc)
+(OUTPUT / "invocation-result.json").write_text(json.dumps(metadata, indent=2) + "\n")
+print(json.dumps({key: value for key, value in metadata.items() if key not in ("memory_before", "memory_after")}, indent=2), flush=True)
+print((OUTPUT / "stdout-stderr.txt").read_text(), flush=True)

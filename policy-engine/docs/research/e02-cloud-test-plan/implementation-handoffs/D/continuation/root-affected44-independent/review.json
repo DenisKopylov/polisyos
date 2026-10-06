@@ -1,0 +1,330 @@
+{
+  "schema": "policyos.e02.independent_root_affected44_review.v1",
+  "reviewer": "D/numerical_oracle",
+  "verdict": "PASS_BOUNDED_ACTUAL44",
+  "scope": "Source-bound read-only review of one completed root-composition 44-case native consumer session, its original failed wrapper startup and lossless published evidence; no new runtime.",
+  "source": {
+    "sha": "f2d5401c9cd8a02a74579e4c47b836042a12eb99",
+    "tree": "ff727db3e7dec74b3b82e3a67b3fd013382c74bb",
+    "code_change_from_root613": "Only run_hierarchical_policy_search.py; other product bytes preserved.",
+    "node_source_test_match_f471": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+    "ledger_test_match_dee52": "dee52f69005dca0df7e3de77ce348fe8086047a5",
+    "selected_source_identities": {
+      "policy-engine/tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py": {
+        "git_blob": "f892d0e0a53f5531d998125ec7f5d13c2acd418c",
+        "sha256": "819b407f50f4c080cd6e79026f355ff277884d5a5cf6fac283c3ff4b7d080491",
+        "bytes": 25774
+      },
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger.py": {
+        "git_blob": "29d2a4a2fb972af1dac72ce568a67da966c806ea",
+        "sha256": "ee64851e54b4013110cc9c5b782c96864f25369587d31b6d82a0d1c58582fdb6",
+        "bytes": 7164
+      },
+      "policy-engine/tests/integration/scientist/methods/search/funnel/test_orchestrator.py": {
+        "git_blob": "ff54043b63bed3e21c2e4f5cf2a1a454ae72927a",
+        "sha256": "f9e107f3b496abcfcf841f1b61942f2af7a79385bbeb72c3de9212656b9081dd",
+        "bytes": 24423
+      },
+      "policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py": {
+        "git_blob": "cae57ad7bbe3f667862a185f8bcba909f3283024",
+        "sha256": "9d128909611cfa8e78f2d2d8d0e46098d95387c167d62cd360552a25ad6af3fc",
+        "bytes": 63816
+      }
+    }
+  },
+  "source_and_test_review": {
+    "node35": "Complete new test file read. Actual configured adapter, tenant scope, typed observation/subject admission, disk registry and fresh report/CAS, source denominator refusal, declared Money scalar/currency/year/hash transport and negative boundaries; evaluator measurements are explicit fixtures. Tests retain basis_limited or denominator_limited assessments and empty ranked global frontier when appointment/basis is unavailable.",
+    "ledger7": "Previously independently accepted native B1.1 single-key receipt/deduplication/conflict/fresh readback and aggregate reserve/release/unknown-publication-ACK. Attempt-owned and atomic multi-key authority remain unsupported.",
+    "native_consumers2": "Two unchanged actual adversary/translator/Foundry full-versus-split and capacity-recheck tests. Provider response fixtures establish local measured spend custody, not external invoice authority.",
+    "numerical": "No GP fit/native Torch algorithm claim. Minimal profile may use existing cold/Sobol paths; their execution does not provide GP statistical verification."
+  },
+  "actual_completed_result": {
+    "exit": 0,
+    "passed": 44,
+    "failed": 0,
+    "errors": 0,
+    "skips": 0,
+    "group_counts": {
+      "tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py": 35,
+      "tests/unit/scientist/orchestration/engine/test_budget_ledger.py": 7,
+      "tests/integration/scientist/methods/search/funnel/test_orchestrator.py": 2
+    },
+    "collected_unique": 44,
+    "deselected": 0,
+    "JUnit_count": 44,
+    "setup_call_teardown_reports": {
+      "setup_PASS": 44,
+      "call_PASS": 44,
+      "teardown_PASS": 44
+    },
+    "all_case_phases_pass": true,
+    "all_nodeid_sources_agree": true,
+    "wall_seconds": 27.450049844992463,
+    "maxrss_KiB": 578452,
+    "pytest_JUnit_seconds": 18.619,
+    "capture_root": "/tmp/e02-D-root-affected44-09a8ad37f06a4165a1ff719f1568a00a",
+    "original_manifest_status": "RUNNING is a historical launch snapshot; complete result/JUnit/session_finish establish the ended verdict."
+  },
+  "actual_environment": {
+    "executable": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "python": "3.14.7",
+    "profile_receipt": {
+      "source_sha": "6a157f301b400fe46268bcc53610359bb9ee4a71",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/minimal-runtime-profile.json",
+      "sha256": "ffaad852c0b507931a7b2337a314446712aa9feb319d8450a9046068fe98d859"
+    },
+    "distribution_count": 148,
+    "observed_backend_state": {
+      "torch": {
+        "installed_version": null,
+        "actually_loaded_in_main_process": false
+      },
+      "botorch": {
+        "installed_version": null,
+        "actually_loaded_in_main_process": false
+      },
+      "gpytorch": {
+        "installed_version": null,
+        "actually_loaded_in_main_process": false
+      },
+      "hnswlib": {
+        "installed_version": null,
+        "actually_loaded_in_main_process": false
+      },
+      "SALib": {
+        "installed_version": null,
+        "actually_loaded_in_main_process": false
+      },
+      "numpy": {
+        "installed_version": "2.3.5",
+        "actually_loaded_in_main_process": true,
+        "module_path": "/tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/numpy/__init__.py",
+        "module_version": "2.3.5",
+        "module_file_sha256": "93924ac4b793328947dfd9eb9355e54eccdfd26a92c8dd52188aed2e52c7eb38",
+        "module_file_bytes": 25919
+      },
+      "scipy": {
+        "installed_version": "1.16.3",
+        "actually_loaded_in_main_process": true,
+        "module_path": "/tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/scipy/__init__.py",
+        "module_version": "1.16.3",
+        "module_file_sha256": "a72412a5c62442876e073a01da1910c84b7214d1382380b71a873b470420dd68",
+        "module_file_bytes": 4063
+      },
+      "pytest": {
+        "installed_version": "9.0.2",
+        "actually_loaded_in_main_process": true,
+        "module_path": "/tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/pytest/__init__.py",
+        "module_version": "9.0.2",
+        "module_file_sha256": "7be7a1e2218dc59a19d1ad131e4abe21172a295087efc72898938248782e8766",
+        "module_file_bytes": 5582
+      },
+      "numpy._core._multiarray_umath:binary": {
+        "path": "/tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/numpy/_core/_multiarray_umath.cpython-314-x86_64-linux-gnu.so",
+        "bytes": 10800697,
+        "sha256": "61052ef771d926665ca135b1840662516f058d5c98843aa429ef2abdd7f46a04"
+      }
+    },
+    "loaded_backend_current_byte_checks": [
+      {
+        "backend": "numpy",
+        "path": "/tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/numpy/__init__.py",
+        "expected_sha256": "93924ac4b793328947dfd9eb9355e54eccdfd26a92c8dd52188aed2e52c7eb38",
+        "actual_sha256": "93924ac4b793328947dfd9eb9355e54eccdfd26a92c8dd52188aed2e52c7eb38",
+        "bytes": 25919,
+        "matches": true
+      },
+      {
+        "backend": "scipy",
+        "path": "/tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/scipy/__init__.py",
+        "expected_sha256": "a72412a5c62442876e073a01da1910c84b7214d1382380b71a873b470420dd68",
+        "actual_sha256": "a72412a5c62442876e073a01da1910c84b7214d1382380b71a873b470420dd68",
+        "bytes": 4063,
+        "matches": true
+      },
+      {
+        "backend": "pytest",
+        "path": "/tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/pytest/__init__.py",
+        "expected_sha256": "7be7a1e2218dc59a19d1ad131e4abe21172a295087efc72898938248782e8766",
+        "actual_sha256": "7be7a1e2218dc59a19d1ad131e4abe21172a295087efc72898938248782e8766",
+        "bytes": 5582,
+        "matches": true
+      },
+      {
+        "backend": "numpy._core._multiarray_umath:binary",
+        "path": "/tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/numpy/_core/_multiarray_umath.cpython-314-x86_64-linux-gnu.so",
+        "expected_sha256": "61052ef771d926665ca135b1840662516f058d5c98843aa429ef2abdd7f46a04",
+        "actual_sha256": "61052ef771d926665ca135b1840662516f058d5c98843aa429ef2abdd7f46a04",
+        "bytes": 10800697,
+        "matches": true
+      }
+    ],
+    "optional_numerical_verdict": "Torch/BoTorch/GPyTorch/HNSW/SALib not installed or loaded. Those numerical properties UNRUN; package import/Sobol/absence is not GP PASS."
+  },
+  "independent_frozen_Git_bindings": {
+    "method": "Git cat-file --batch full frozen blobs, raw-byte length/SHA256 and git-blob SHA1 independently compared to captured metadata; current files checked without importing product.",
+    "declared_input_count": 2760,
+    "declared_scope": "All tracked product Python; selected three test files, all conftest/tests/_helpers, named pyproject/uv.lock/pytest/quarantine files plus four external originals.",
+    "independently_reconstructed_expected_declared_count": 2760,
+    "declared_missing_extra_paths": {
+      "missing": [],
+      "extra": []
+    },
+    "captured_input_or_origin_binding_errors": [],
+    "module_records": 1335,
+    "transient_exec_records": 1335,
+    "unique_product_paths": 1335,
+    "observer_source_mismatches": [],
+    "observer_errors": [],
+    "declared_inputs_before_after_equal": {
+      "files": true,
+      "external_input_files": true,
+      "frozen_mismatches": true
+    },
+    "HEAD_tree_branch_status_equal_clean": true,
+    "external_inputs": [
+      {
+        "path": "/tmp/e02-D-broad-wave.py",
+        "bytes": 20492,
+        "sha256": "f383a1ff3bd2a22776b914e6d038d6f8883772acc78e051c27bb1db15f5a56e7",
+        "git_blob": "18bb8a8042ca864e5a7a98901eade4fa4b5d3ab6",
+        "equal_captured": true
+      },
+      {
+        "path": "/tmp/e02-D-root-affected-consumers-v2.py",
+        "bytes": 4272,
+        "sha256": "557aa43f955584ae7db584ba0acfa63bbd6b5e4831d2267fa4f5d8606a8e8338",
+        "git_blob": "144abc697cec9c2a021d67a927537b6fc719ed4b",
+        "equal_captured": true
+      },
+      {
+        "path": "/tmp/e02-D-runtime-minimal-profile-receipt.json",
+        "bytes": 217952,
+        "sha256": "8ac6a0f04c56b3d1ff0976c81aedb0b805e9a9efee486939467af01b93fd36d7",
+        "git_blob": "8c951c0b4696c6a0a6aceffc306e41b89b74ab49",
+        "equal_captured": true
+      },
+      {
+        "path": "/tmp/e02_broad_observer.py",
+        "bytes": 12753,
+        "sha256": "1beccd4a0caa7af25a68c54a85341949d809f0e75d61cdf61d5d4ffbcfc8cf81",
+        "git_blob": "435096b0e79f2fe6e2d6df3b518c245189420f0a",
+        "equal_captured": true
+      }
+    ],
+    "existing_input_helper_refs": [
+      {
+        "source_sha": "e038bca98f9e33dca33cc49221a85311a5ab5704",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-proof/broad-wave-source-helpers.py.txt",
+        "git_blob": "18bb8a8042ca864e5a7a98901eade4fa4b5d3ab6",
+        "sha256": "f383a1ff3bd2a22776b914e6d038d6f8883772acc78e051c27bb1db15f5a56e7",
+        "bytes": 20492,
+        "equals_original": true
+      },
+      {
+        "source_sha": "e038bca98f9e33dca33cc49221a85311a5ab5704",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-proof/broad-runtime-observer.py.txt",
+        "git_blob": "435096b0e79f2fe6e2d6df3b518c245189420f0a",
+        "sha256": "1beccd4a0caa7af25a68c54a85341949d809f0e75d61cdf61d5d4ffbcfc8cf81",
+        "bytes": 12753,
+        "equals_original": true
+      }
+    ]
+  },
+  "input_capture_limitations": {
+    "direct_consumed_bundle_fixture": {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/planning/test_run_hierarchical_policy_search.py",
+      "bytes": 21968,
+      "sha256": "cd8e841805394e3cf6abc0dd0dcfb7b455bee4c561919352f29587a5a5338e66",
+      "git_blob": "c1671e0ee1b0c5b597f1c1724f23c1f804afa761",
+      "equals_current_readonly_file": true,
+      "captured_individually_at_execution": false
+    },
+    "meaning": "This helper was absent from the individually captured before/after files and product-only observer. Its frozenGit/current bytes agree at review; global clean source status was captured at execution. Do not relabel that as historical individual observation.",
+    "static_dependency_candidates": 16,
+    "static_scope": "AST import closure from captured tests/conftests/_helpers finds16 possible tests.* modules outside declared snapshot, including conditional/function-local imports. No claim that all16 were loaded/consumed. All16 current files match frozenGit at review.",
+    "next_measurement": "Root GP reviewer expands final-wave hashes to all tracked test Python without changing tests. This does not retrospectively extend the 44-run snapshot."
+  },
+  "startup_V1": {
+    "exit": 1,
+    "stdout_bytes": 0,
+    "junit_exists": false,
+    "observer_exists": false,
+    "events_exist": false,
+    "input_snapshot_equal": true,
+    "head_state_equal": true,
+    "stderr": {
+      "bytes": 3879,
+      "sha256": "effa38e6c5142b514579029bf8279a055652e4d3842faec48a92aa06f2e17ed6",
+      "git_blob": "414ae3227ec4a5973a7bfd3abcdd8d999783ce26"
+    },
+    "error": "KeyError files before observer installation; no collection/test phase or numeric outcome."
+  },
+  "wrapper_V2": {
+    "original_wrapper_hashes": {
+      "v1": {
+        "bytes": 4275,
+        "sha256": "267c1ed4043a192b546045b3a800741cbfc733b2a8c60959440f40d27f44c608"
+      },
+      "v2": {
+        "bytes": 4272,
+        "sha256": "557aa43f955584ae7db584ba0acfa63bbd6b5e4831d2267fa4f5d8606a8e8338"
+      }
+    },
+    "only_expected_before_json_envelope_correction": true,
+    "meaning": "Flatten declared snapshot to top-level files and put root state under git_state; source/tests/selected cases/pytest args unchanged. Startup ERROR has no collection/call verdict and is retained, not hidden."
+  },
+  "immutable_output_transport": {
+    "payload_sha": "04218ee864ffcae2cdec19d6b22379351eceeed7",
+    "payload_tree": "571709450a2bb46ac19d85261c8d103a7b33b068",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-composed-affected44/complete-output.json.xz",
+    "bytes": 1060752,
+    "sha256": "32be0055d49cb4d63d504c668e5f8038af65f71194286acd3150ae9ec97172f8",
+    "decoded_bytes": 12340413,
+    "decoded_sha256": "e175cbaa62fe6fb094c138d97e5c7b12a4d985c324a4aa2ca1c7f874c2666fb1",
+    "members": 447,
+    "sum_original_raw_bytes": 9161971,
+    "declared_manifest_member_count": 447,
+    "declared_manifest_raw_bytes": 9161971,
+    "manifest_raw_sha256": "5f5226dde81bdef094cb9e7df596a611f00a5a5955ea5ab48b980fd72c2f0576",
+    "member_metadata_deep_equal_manifest": true,
+    "member_prefix_counts": {
+      "completed44": 438,
+      "startup-error": 7,
+      "original-inputs": 2
+    },
+    "all_local_original_files_included": true,
+    "errors": [],
+    "receipt_source_sha": "aa6c7b589c465bfe3aa5204be774195b627b72ea",
+    "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-composed-affected44.json",
+    "receipt_bytes": 17900,
+    "receipt_sha256": "b7fcb87fb8e555c6f7e96a1468d2413cd23972bc8cfd275145359d5ceffc5a13",
+    "receipt_result_deep_equal_original": true,
+    "receipt_backend_deep_equal_original": true
+  },
+  "published_root_receipt_review": "Full aa6c receipt read; its result/backend deeply equal originals and2760 caveat is correctly bounded. Full output and fixture carrier447 members/9161971raw bytes hash-match and equal every retained original; metadata deep-equals manifest. All capture files included. No duplicate existing tracked helper bodies; two previously untracked unique wrapper inputs occur once.",
+  "review_findings": [],
+  "limitations": [
+    "This actual44 is a targeted complete native consumer proof, not the complete final100 union or a full quality/closure result.",
+    "Original minimal99 collection ERROR and optional backend module SKIP=UNRUN remain separately source-qualified.",
+    "GP26 and configured current GP partial/negative proofs remain separate immutable receipts; no rerun or inheritance here.",
+    "Reported source bytes/observed modules cover the recorded main pytest process; no invented worker import attestation or arbitrary runtime file-open census.",
+    "No stronger provider invoice, producer appointment, attempt-owned release, atomic multi-key or universal scientific unit claim.",
+    "No blanket P37/source-transient preservation waiver; selected original447 files were readable and equal at review.",
+    "No extra CPU/thread/process/test-worker/time limits in inspected wrappers/pytest args; inherited host/cgroup constraints are measured, not claimed absent."
+  ],
+  "reviewer_actions": {
+    "pytest_children": 0,
+    "product_imports": 0,
+    "product_or_test_writes": 0,
+    "root_tracked_writes": 0,
+    "new_snapshots_of_product_source": 0,
+    "cleanup_actions": 0,
+    "child_agents": 0,
+    "derived_metadata_root": "/tmp/e02-oracle-root-affected44-independent-1e639304999346ed919634740f0fbbf2"
+  },
+  "formal_closed": 0,
+  "G_accepted": false,
+  "closure_ids": [],
+  "publication": "Root-authorized existing-topic Git API append, expected lease and forcefalse; local f102 remains unchanged. No native Git-hook PASS claimed."
+}

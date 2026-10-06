@@ -1,0 +1,405 @@
+{
+  "schema_version": "e02.implementation-handoff.v1",
+  "unit": "A",
+  "bundle": "REP-01",
+  "finding": "LA-033",
+  "handoff_kind": "candidate_execution_evidence",
+  "overall_disposition": {
+    "candidate_code": "test-only slice committed",
+    "finding_status": "partial; not adjudicated",
+    "source_coverage_status": "partial",
+    "source_capability_label": "verification_missing",
+    "code_acceptance_submitted": false,
+    "finding_closed": false,
+    "closure_now": "not_adjudicated",
+    "rationale": "This adds the genuine Foundry compile/execute/replay and installed-wheel ABI witnesses called for by A10. It does not complete every LA-033 acceptance item or adjudicate external caller scope."
+  },
+  "worktree": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos",
+    "branch": "codex/e02-A-replay-full",
+    "base_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "implementation_commit": "3334775bcad7045361c3c7e3395674b49fcebaab",
+    "implementation_parent": "33e9a165172052d9fd2301a0423904ceba4d17b8",
+    "implementation_commit_message": "test: verify installed replay root bindings",
+    "status_at_test_run": "wheel smoke ran immediately before the append commit on an identical test-file blob; commit 3334775bcad7045361c3c7e3395674b49fcebaab reads back the same blob; handoff evidence was untracked during source-test verification",
+    "production_paths_changed": false,
+    "v1_1_or_versioned_v2_replay_semantics_changed": false
+  },
+  "admission": {
+    "root_worktree": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos",
+    "receipts_directory": "policy-engine/_build/e02-A-full-queue/admission/replay-full",
+    "receipts": [
+      {
+        "path": "policy-engine/_build/e02-A-full-queue/admission/replay-full/create.json",
+        "sha256": "2850d6ec55935fb1d5f8bf0ebab8158832871d89f674566bd00d0f88bd985e74",
+        "status": "admitted",
+        "complete_verdict": true
+      },
+      {
+        "path": "policy-engine/_build/e02-A-full-queue/admission/replay-full/create-immediate.json",
+        "sha256": "95f2f34cfbcfd39c4c4290499d336f550fcb2cb9d8ac5b083f091b4926834885",
+        "status": "admitted",
+        "complete_verdict": true
+      },
+      {
+        "path": "policy-engine/_build/e02-A-full-queue/admission/replay-full/resume.json",
+        "sha256": "439a2a332a9aab5f3712557e4295f1a9ec3e0451770a215187d2293662f2d30c",
+        "status": "admitted",
+        "complete_verdict": true
+      }
+    ]
+  },
+  "changed_paths": [
+    {
+      "path": "policy-engine/tests/unit/remediation/test_rep_01.py",
+      "git_blob": "1a5e259a9429587f58ccfde6d03235c4e0c1f932",
+      "sha256": "477cf1a4bf9d56deb8d0dae942d7ecf34b23b9b06bcce03dd894d60ca922c42f",
+      "change": "Corrected the lazy-import probe to assert the canonical Scientist module is absent immediately after importing Runtime; updated test description."
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_rep_01_execution.py",
+      "git_blob": "adcfcf23cdc25eff583ac4777928bf39e0903067",
+      "sha256": "cb84e66f2c90af6a4de276eee4190d90db5bf6595e3c5fa7afbe111324eb9e51",
+      "change": "Added real Foundry replay and compatibility-consumer tests; the installed-wheel subprocess now checks identity and inspect.signature for every one of the ten lazy Runtime root exports against the canonical Scientist module."
+    }
+  ],
+  "authoritative_sources": [
+    {
+      "finding_and_original_criterion": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@4bdf76e99f0c26e40bc2a71e76d4940c23712260:1994-2028",
+      "card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/REP-01.md@c920525adefa6db4777d6da82632b0021513426e:11-23,58-95",
+      "A_task": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/A.md@68fcdf9337eb4b0f268d5c2c786e2900edf28a2b:151-165",
+      "coverage_row": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json@561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a:findings.LA-033",
+      "failure_repair_register": "policy-engine/docs/reference/policy-design-case-failure-patterns.md@7f4cc9ab9541a44c26e4648a2c08326e53743492:P06,P29,P38",
+      "runtime_profile_context": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/runtime-profiles.md@e939b0ef5f8ee2553648e1537268c70dc29a2b20:1-18",
+      "contributor_baseline": "policy-engine/CONTRIBUTING.md",
+      "execution_handoff": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md"
+    }
+  ],
+  "source_locations": {
+    "REP root/lazy, exact 20 ABI, CLI, dynamic inventory, benchmark, check-only, resume dry-run, RunManifest": "policy-engine/tests/unit/remediation/test_rep_01.py@1a5e259a9429587f58ccfde6d03235c4e0c1f932:80-309",
+    "income-tax Foundry input and compile": "policy-engine/tests/unit/remediation/test_rep_01_execution.py@adcfcf23cdc25eff583ac4777928bf39e0903067:63-184",
+    "real replay, fresh CAS readback, arithmetic oracle and fake/corrupt/removal controls": "policy-engine/tests/unit/remediation/test_rep_01_execution.py@adcfcf23cdc25eff583ac4777928bf39e0903067:234-324",
+    "blocked-shim CLI/benchmark consumers": "policy-engine/tests/unit/remediation/test_rep_01_execution.py@adcfcf23cdc25eff583ac4777928bf39e0903067:326-390",
+    "built-wheel smoke": "policy-engine/tests/unit/remediation/test_rep_01_execution.py@adcfcf23cdc25eff583ac4777928bf39e0903067:394-483",
+    "root lazy exports": "policy-engine/src/polisyos/runtime/__init__.py@967b92442bf6c49e0db07c2ae2a157b5248650dd:30-93",
+    "20-symbol compatibility facade": "policy-engine/src/polisyos/runtime/replay.py@9ec3225c6832d00391430468d8c0c0eb7c10b573:10-54",
+    "replay strategy and execution routing": "policy-engine/src/polisyos/scientist/replay/backend.py@97cdba8747f180ce52b10de72ee186c4169641c1:115-185,327-364",
+    "Foundry actual execution and SimulationResult persistence": "policy-engine/src/polisyos/foundry/execute/api.py@68997f94a8d6d1a9bb280ef66a88dd32db62a958:103-129,209-305",
+    "prior BIT_EXACT ID-only test seam": "policy-engine/tests/unit/scientist/replay/test_replay_backend.py@775dcb132c9444a11c6beb8060551ee651b8d8d9:140-163",
+    "BIT_EXACT ref comparison": "policy-engine/src/polisyos/scientist/replay/deterministic.py@767109737e19279cea755f7cd1f64c730838b61a:659-676",
+    "20 export/signature/enum identity contract": "policy-engine/tests/unit/scientist/replay/test_deterministic_compatibility.py@ab91dbb907fe2e209327d83509de263176d83fc8:31-62"
+  },
+  "acceptance_mapping": {
+    "proved_here": [
+      "A real, schema-valid income-tax TrinityBundle and bound input artifacts compile through the canonical Foundry compiler to persisted exec-plan and lowered-IR artifacts.",
+      "Scientist replay selects FOUNDRY, calls the real execute_foundry implementation exactly once, and persists a foundry.simulation_result plus post-execution state snapshot.",
+      "A fresh process in a distinct scratch cwd under policy-engine/_build resolves and validates the simulation result and state snapshot from CAS using the explicit leaf-source PYTHONPATH; observed income is [90, 180, 270] and government balance is 60, matching an independently calculated 10-percent tax oracle.",
+      "Absent plan ref, corrupted plan bytes, and removed-executor controls each reject replay; the failure/removal controls cannot pass from the presence of a stored result marker.",
+      "Direct Scientist/root/compatibility import identity, exact ten root names, exact twenty transitional exports, delayed CLI import, dynamic inventory, benchmark consumer, unknown-name refusal, and a fresh installed-wheel smoke with package-origin check are covered. The installed-wheel audit independently confirms identity and inspect.signature equality for all ten root exports plus all twenty shim exports."
+    ],
+    "not_established_or_still_required_for_full_LA_033": [
+      "The full bundle import/export plus actual replay/resume CLI acceptance is not established by this slice; existing REP tests cover persisted --check-only and a resume dry-run, not the complete bundle/import/export/replay/resume matrix.",
+      "No complete external caller census or zero-traffic claim is established; retain the finding's not_established boundary for unsupported external reflection/string imports.",
+      "This test run does not independently prove historical v1.1 bytes or the distinct versioned v2 identity behavior. No production serialization or compatibility bytes were changed.",
+      "The wheel smoke installs with --no-deps into a fresh Python 3.14 venv using system_site_packages=True; it proves installed package resolution and replay ABI imports, not isolated dependency resolution."
+    ],
+    "bounded_property_vs_proxy": {
+      "pattern_ids": [
+        "P29",
+        "P38"
+      ],
+      "property": "Replay executes the compiled Foundry plan and returns a persisted result whose downstream state matches the declared input and policy.",
+      "prior_proxy": "A Foundry replay test monkeypatched _execute_foundry_replay to return a stored simulation-result ref; BIT_EXACT verification only compares original and replay result IDs.",
+      "divergent_case": "A packet with no simulation_result_ref can appear successful if the executor simply returns an unrelated stored result ref; equal IDs alone do not establish execution or output correctness.",
+      "distinguishing_probe": "This test begins without simulation_result_ref, wraps and delegates to the real execute_foundry, then reads the typed result and state snapshot in a fresh process and checks the independent arithmetic oracle; the executor-removal falsifier must fail.",
+      "verification_mode": "replay_packet(..., verify=False) is deliberate: the packet contains no prior result ID. The independent fresh-process CAS readback is the semantic oracle; no claim is made that BIT_EXACT itself verifies numerical behavior."
+    }
+  },
+  "execution": {
+    "test": "tests/unit/remediation/test_rep_01_execution.py::test_replay_packet_executes_foundry_and_round_trips_real_output",
+    "marker": "integration",
+    "shell_invocation": "set -o pipefail\nenv OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 JAX_PLATFORMS=cpu PYTHONPATH='/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine' /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -c pytest.ini tests/unit/remediation/test_rep_01_execution.py::test_replay_packet_executes_foundry_and_round_trips_real_output -m integration -vv --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/replay_execution/raw/3334775bcad7045361c3c7e3395674b49fcebaab/pytest-basetemp --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/replay_execution/raw/3334775bcad7045361c3c7e3395674b49fcebaab/foundry-replay-junit.xml 2>&1 | tee /Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/replay_execution/raw/3334775bcad7045361c3c7e3395674b49fcebaab/foundry-replay.stdout.log",
+    "argv": [
+      "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-c",
+      "pytest.ini",
+      "tests/unit/remediation/test_rep_01_execution.py::test_replay_packet_executes_foundry_and_round_trips_real_output",
+      "-m",
+      "integration",
+      "-vv",
+      "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/replay_execution/raw/3334775bcad7045361c3c7e3395674b49fcebaab/pytest-basetemp",
+      "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/replay_execution/raw/3334775bcad7045361c3c7e3395674b49fcebaab/foundry-replay-junit.xml"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine",
+    "environment_capture_note": "The command pins all numerical thread/backend overrides shown below. The Foundry EnvironmentManifest records exact runtime, dependency, OS/CPU, and backend identity. Its git dirty flag was true because the handoff evidence directory was untracked at execution; git status had no tracked source/test modifications and HEAD was exactly 3334775.",
+    "environment": {
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "JAX_PLATFORMS": "cpu",
+      "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine",
+      "python": "3.14.0 from root policy-engine/.venv; no leaf environment was used",
+      "candidate_branch": "codex/e02-A-replay-full",
+      "candidate_commit": "3334775bcad7045361c3c7e3395674b49fcebaab",
+      "candidate_tracked_tree": "clean; only the handoff evidence directory was untracked at run time"
+    },
+    "result": {
+      "exit_code": 0,
+      "pytest": "1 passed in 10.16s",
+      "stdout_and_stderr_combined": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/replay-full.stdout.log",
+      "stdout_capture_path": "policy-engine/_build/e02-A-full-queue/replay_execution/raw/3334775bcad7045361c3c7e3395674b49fcebaab/foundry-replay.stdout.log",
+      "stdout_sha256": "d30ec2cf938a1ecc777c3e9b4890065027002603d744ae7049b3fb7476f4330b",
+      "junit_xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/replay-full.junit.xml",
+      "junit_capture_path": "policy-engine/_build/e02-A-full-queue/replay_execution/raw/3334775bcad7045361c3c7e3395674b49fcebaab/foundry-replay-junit.xml",
+      "junit_sha256": "b0ddf0e45004003a9e270463400f267f45764825ef056f598770b6d2b7a933ca"
+    },
+    "final_candidate_rerun": {
+      "status": "passed at exact final source HEAD",
+      "source_commit": "3334775bcad7045361c3c7e3395674b49fcebaab",
+      "source_blob": "adcfcf23cdc25eff583ac4777928bf39e0903067",
+      "pytest": "1 passed in 10.16s",
+      "stdout_sha256": "d30ec2cf938a1ecc777c3e9b4890065027002603d744ae7049b3fb7476f4330b",
+      "junit_sha256": "b0ddf0e45004003a9e270463400f267f45764825ef056f598770b6d2b7a933ca",
+      "fresh_process_readback_sha256": "1994ad9fc4f3f54730f6308f8be9796d4cfa79535946adcbc3cbf3bdab1400a2",
+      "backend_manifest_sha256": "cef27ac5da96b242beba04a3a7ee7a120b19ca12076f950bf6352c824ab86e17",
+      "dirty_tree_note": "EnvironmentManifest git.dirty=true due to the untracked handoff evidence directory. Pre-run git status showed no tracked source/test modifications; the captured commit_sha exactly matches 3334775bcad7045361c3c7e3395674b49fcebaab."
+    }
+  },
+  "fixture_and_independent_oracle": {
+    "run_id": "R_rep_01_foundry_execution",
+    "seed": 731,
+    "initial_state": {
+      "n_agents": 3,
+      "n_firms": 1,
+      "income": [
+        100,
+        200,
+        300
+      ],
+      "reported_income": [
+        100,
+        200,
+        300
+      ]
+    },
+    "policy": {
+      "mechanism": "income_tax",
+      "target": "all",
+      "rate": "0.1",
+      "start_step": 0,
+      "duration_steps": 1
+    },
+    "oracle": {
+      "tax_revenue": "0.1 * (100 + 200 + 300) = 60",
+      "post_tax_income": [
+        90,
+        180,
+        270
+      ],
+      "absolute_tolerance": 1e-05
+    },
+    "initial_packet_artifact_id": "sha256:1ef8b28cb6aca3d8ac7043066c6270e2badd7862a1ddaa19dfabd03b94d20d21",
+    "input_refs": {
+      "trinity_bundle_ref": "sha256:a6eb86ac73da5c1b64b0fc21443385a47ac3c0071c5a1f7dcbc7f32a292d260e",
+      "registry_bundle_ref": "sha256:b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20",
+      "data_snapshot_ref": "sha256:ae531a9a062fced780e437db96775c5745076802cf263b112a2c6910fd5c58f7",
+      "initial_state_snapshot_ref": "sha256:1bc47049de08c1727b07b4deb1fbd0ca792ca5d04750550aa4bcc8aded806cac",
+      "input_bindings_ref": "sha256:a72546943a931cc308434e63c3fe4b199deb6e0dbaf83076f5632d43ee487fef",
+      "exec_plan_ref": "sha256:315f116e4f3c7ab1765bb5497af32247e29fb730b384f213fada52617abd4127",
+      "lowered_ir_ref": "sha256:cbb710d805f8207a9ff3fbfc700805f52bcee2a278ecc406aff282ad9e0b7bbf"
+    },
+    "output_refs": {
+      "simulation_result_ref": "sha256:77c4f387d4334db390a5a0ccd45a7a48270b0fd47275e19f65e8f8e94974a998",
+      "post_execution_state_snapshot_ref": "sha256:43782af0ba061fcefe9d2111abb34762e7ff4064c6ec5309e158c73ad0853cfb"
+    },
+    "environment_manifest": {
+      "artifact_id": "sha256:523551b559252759b37fd0babbbefb3524e276d8d80b4846c1546ed7dc537576",
+      "payload": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/replay-full-backend-manifest.json",
+      "sha256_of_receipt": "cef27ac5da96b242beba04a3a7ee7a120b19ca12076f950bf6352c824ab86e17",
+      "actual_runtime": {
+        "python": "3.14.0",
+        "jax": "0.8.2",
+        "jaxlib": "0.8.2",
+        "numpy": "2.3.5",
+        "default_backend": "cpu",
+        "active_device": "TFRT_CPU_0",
+        "host_metadata": "Apple M2 arm64; Metal hardware was reported available but was not used",
+        "git_commit": "3334775bcad7045361c3c7e3395674b49fcebaab",
+        "git_dirty_flag": true,
+        "dirty_scope": "only the untracked handoff evidence directory; no tracked source/test modifications"
+      }
+    }
+  },
+  "independent_process_readback": {
+    "working_directory": "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/replay_execution/raw/3334775bcad7045361c3c7e3395674b49fcebaab/pytest-basetemp/test_replay_packet_executes_fo0/outside-checkout",
+    "executable": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python",
+    "origin": "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/src/polisyos/__init__.py",
+    "candidate_commit": "3334775bcad7045361c3c7e3395674b49fcebaab",
+    "readback_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/replay-full-readback.json",
+    "readback_record_sha256": "1994ad9fc4f3f54730f6308f8be9796d4cfa79535946adcbc3cbf3bdab1400a2",
+    "inventory_artifacts": 33,
+    "freshly_resolved_result_kind": "foundry.simulation_result",
+    "freshly_resolved_result_ref": "sha256:77c4f387d4334db390a5a0ccd45a7a48270b0fd47275e19f65e8f8e94974a998",
+    "freshly_resolved_income": [
+      90.0,
+      180.0,
+      270.0
+    ],
+    "freshly_resolved_government_balance": 60.0,
+    "freshly_resolved_state_snapshot_ref": "sha256:43782af0ba061fcefe9d2111abb34762e7ff4064c6ec5309e158c73ad0853cfb",
+    "location_scope": "Separate fresh process and distinct cwd under policy-engine/_build within the same git worktree; source import is explicitly pinned by PYTHONPATH to the leaf src. The wheel test separately proves fresh purelib origin."
+  },
+  "negative_controls": [
+    {
+      "probe": "well-formed absent exec-plan reference",
+      "expected": "incomplete; missing ref reported; no extra Foundry call",
+      "observed": "asserted by the passing integration test"
+    },
+    {
+      "probe": "append bytes to the real exec-plan blob",
+      "expected": "incomplete/corrupted; no extra Foundry call; original bytes restored in finally",
+      "observed": "asserted by the passing integration test"
+    },
+    {
+      "probe": "replace executor with an exception while all artifact markers remain",
+      "expected": "replay fails, result ref is absent, and error identifies removed execution",
+      "observed": "asserted by the passing integration test"
+    },
+    {
+      "probe": "block polisyos.runtime.replay during direct sibling consumer import",
+      "expected": "Runtime root, CLI, and advanced benchmark use canonical Scientist owner without loading shim",
+      "observed": "same committed test blob passed in the pre-freeze ABI selection"
+    }
+  ],
+  "supplemental_same_blob_checks": [
+    {
+      "tests": "tests/unit/remediation/test_rep_01_execution.py::test_replay_packet_executes_foundry_and_round_trips_real_output",
+      "source_commit": "3334775bcad7045361c3c7e3395674b49fcebaab",
+      "source_blob": "adcfcf23cdc25eff583ac4777928bf39e0903067",
+      "result": "1 passed in 10.16s at exact final source HEAD; actual Foundry execution, fresh-process CAS result/state readback, absent/corrupt plan controls, and executor-removal falsifier all passed.",
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/replay-full.stdout.log",
+      "stdout_sha256": "d30ec2cf938a1ecc777c3e9b4890065027002603d744ae7049b3fb7476f4330b",
+      "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/replay-full.junit.xml",
+      "junit_sha256": "b0ddf0e45004003a9e270463400f267f45764825ef056f598770b6d2b7a933ca",
+      "readback": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/replay-full-readback.json",
+      "readback_sha256": "1994ad9fc4f3f54730f6308f8be9796d4cfa79535946adcbc3cbf3bdab1400a2"
+    },
+    {
+      "tests": "tests/unit/remediation/test_rep_01.py",
+      "result": "9 passed in 150.76s before freeze; committed source blob is unchanged at HEAD 3334775."
+    },
+    {
+      "tests": "test_rep_01.py root/lazy + sibling shim-blocker + deterministic compatibility selection",
+      "result": "4 passed before freeze; source blobs unchanged at HEAD 3334775."
+    },
+    {
+      "tests": "test_deterministic_compatibility.py selected public ABI cases",
+      "result": "2 passed before freeze; source blobs unchanged at HEAD 3334775."
+    },
+    {
+      "tests": "test_built_wheel_replay_abi_imports_from_fresh_site_packages",
+      "result": "1 passed in 22.41s after the follow-up test-only change; the built wheel resolved from the fresh venv purelib, and the separate audit checked identity/signatures for all ten root exports and all twenty compatibility exports.",
+      "installed_wheel_root_identity": "Only ReplayPlan is identity-compared in the wheel subprocess; the source-level root test checks all ten.",
+      "raw_stdout_preserved": false,
+      "source_blob": "adcfcf23cdc25eff583ac4777928bf39e0903067",
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/replay-full-wheel.stdout.log",
+      "stdout_sha256": "c62970cdfed1f72058f2f90aa3fc1f3eb41a17041cf20a126442ab930840a248",
+      "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/replay-full-wheel.junit.xml",
+      "junit_sha256": "a039d1c2c8d4dc00d30fcacd9b9a388f03e1f3766993cc8e610c6604fddd590c",
+      "installed_wheel_audit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/replay-full-wheel-audit.json",
+      "installed_wheel_audit_sha256": "f45111b8cda59bc9d56532e70e7e279486b9f2015191fba8bef89d35e64759ea",
+      "installed_wheel_sha256": "fcf6fdcba77630799a2dbdacab1ac9c2ce6286605675992f0c44da74635c2231"
+    },
+    {
+      "tests": "post-commit root-venv lint/format/py_compile and four-test light selection",
+      "result": "passed before the numerical run"
+    }
+  ],
+  "pattern_pass": {
+    "relevant_ids": [
+      "P06",
+      "P29",
+      "P38"
+    ],
+    "existing_risk": "Compatibility-alias tests and result-ID comparison can pass without exercising replay execution or checking output content.",
+    "target_pattern": "Preserve the canonical Scientist owner and exact compatibility ABI while executing the real Foundry backend and recomputing output from a fresh CAS readback.",
+    "acceptance_signal": "Real executor call, content-addressed result and state snapshot, independent arithmetic oracle, absent/corrupt refs fail before execution, and removing execution makes the semantic test fail."
+  },
+  "review_and_publication": {
+    "independent_test_review": "Initial independent review validated the real Foundry path and exact-head artifacts, and identified the wheel root-export identity gap. Follow-up commit 3334775bcad7045361c3c7e3395674b49fcebaab closes that gap; the wheel run and full audit are retained, but no second independent review of the append commit is recorded yet.",
+    "topic_branch_push": "not performed; wait for root review confirmation",
+    "main_or_history_rewrite": "not performed"
+  },
+  "raw_evidence_root": [
+    "policy-engine/_build/e02-A-full-queue/replay_execution/raw/33e9a165172052d9fd2301a0423904ceba4d17b8 (prior parent-commit Foundry run; preserved)",
+    "policy-engine/_build/e02-A-full-queue/replay_execution/raw/3334775bcad7045361c3c7e3395674b49fcebaab (exact-final-HEAD Foundry run and independent CAS readback)",
+    "policy-engine/_build/e02-A-full-queue/replay_execution/raw/rep-wheel-33e9-reassert/wheel (fresh wheel build/import)"
+  ],
+  "cleanup": "CAS artifacts and deciding outputs retained under ignored _build; shared root venv and repository history were not modified.",
+  "wheel_recheck": {
+    "source_commit": "3334775bcad7045361c3c7e3395674b49fcebaab",
+    "test_blob": "adcfcf23cdc25eff583ac4777928bf39e0903067",
+    "test_sha256": "cb84e66f2c90af6a4de276eee4190d90db5bf6595e3c5fa7afbe111324eb9e51",
+    "command": "set -o pipefail\nenv OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 JAX_PLATFORMS=cpu PYTHONPATH='/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine' /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -c pytest.ini tests/unit/remediation/test_rep_01_execution.py::test_built_wheel_replay_abi_imports_from_fresh_site_packages -m integration -vv --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/replay_execution/raw/rep-wheel-33e9-reassert/wheel/pytest-basetemp --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/replay_execution/raw/rep-wheel-33e9-reassert/wheel/wheel-smoke-junit.xml 2>&1 | tee /Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/replay_execution/raw/rep-wheel-33e9-reassert/wheel/wheel-smoke.stdout.log",
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine",
+    "environment": {
+      "python": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python, CPython 3.14.0",
+      "uv": "uv 0.10.6 (Homebrew 2026-02-24)",
+      "pytest": "9.0.2",
+      "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+      "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "JAX_PLATFORMS": "cpu"
+    },
+    "result": "1 passed in 22.41s",
+    "stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/replay-full-wheel.stdout.log",
+      "sha256": "c62970cdfed1f72058f2f90aa3fc1f3eb41a17041cf20a126442ab930840a248"
+    },
+    "junit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/replay-full-wheel.junit.xml",
+      "sha256": "a039d1c2c8d4dc00d30fcacd9b9a388f03e1f3766993cc8e610c6604fddd590c"
+    },
+    "installed_wheel_audit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/replay-full-wheel-audit.json",
+      "sha256": "f45111b8cda59bc9d56532e70e7e279486b9f2015191fba8bef89d35e64759ea"
+    },
+    "installed_wheel": {
+      "filename": "policy_engine-0.1.0-py3-none-any.whl",
+      "sha256": "fcf6fdcba77630799a2dbdacab1ac9c2ce6286605675992f0c44da74635c2231",
+      "origin": "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/replay_execution/raw/rep-wheel-33e9-reassert/wheel/pytest-basetemp/test_built_wheel_replay_abi_im0/venv/lib/python3.14/site-packages/polisyos/__init__.py"
+    },
+    "checks": {
+      "lazy_root_before_canonical_import": true,
+      "root_export_name_set_exact": true,
+      "root_identity_and_signature_matches": 10,
+      "compatibility_export_name_set_exact": true,
+      "compatibility_identity_and_signature_matches": 20,
+      "package_origin_inside_fresh_venv_purelib": true
+    },
+    "raw_evidence_directory": "policy-engine/_build/e02-A-full-queue/replay_execution/raw/rep-wheel-33e9-reassert/wheel",
+    "source_commit_timing": "the wheel smoke completed immediately before commit 3334775bcad7045361c3c7e3395674b49fcebaab; git show verifies that commit contains the exact test-file blob used for the run"
+  },
+  "criterion_row_decision": {
+    "source_row": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json@561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a:findings.LA-033",
+    "historical_row_status": "partial",
+    "bounded_decision": "closed_bounded for the original first-party verification criterion exercised by A10",
+    "established": [
+      "Runtime root remains lazy and the ten exported objects bind directly to canonical Scientist definitions with signature parity.",
+      "The exact twenty-symbol transitional ABI remains available and identity-bound; runtime root and direct internal consumers work with the compatibility module import blocked.",
+      "A schema-valid income-tax program compiles through Foundry, executes through replay_packet using the actual Foundry executor, persists a typed result and state snapshot, and a separate process recomputes the declared arithmetic from CAS.",
+      "The installed wheel resolves from fresh venv purelib and the wheel audit checks the ten root and twenty compatibility bindings against Scientist by identity and signature."
+    ],
+    "separate_residuals": [
+      "Keep runtime/replay.py until the supported window and external caller scope are resolved; no external-caller absence claim is made.",
+      "The broader bundle import/export and actual CLI replay/resume matrix, root import-budget threshold, and historical v1.1-byte/versioned-v2-identity behavior remain not established by this bounded slice."
+    ],
+    "overall_finding": "The coverage row and overall LA-033 remain partial/not_adjudicated; this bounded criterion decision is not full finding closure and code acceptance was not submitted."
+  }
+}

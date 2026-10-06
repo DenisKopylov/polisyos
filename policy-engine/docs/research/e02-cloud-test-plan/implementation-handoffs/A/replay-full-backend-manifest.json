@@ -1,0 +1,135 @@
+{
+  "artifact_id": "sha256:523551b559252759b37fd0babbbefb3524e276d8d80b4846c1546ed7dc537576",
+  "manifest": {
+    "artifact_id": "sha256:523551b559252759b37fd0babbbefb3524e276d8d80b4846c1546ed7dc537576",
+    "artifact_schema": {
+      "name": "polisyos.core.artifacts.environment.EnvironmentManifest",
+      "version": "1.0"
+    },
+    "authority": null,
+    "byte_size": 1782,
+    "canon": {
+      "ensure_ascii": false,
+      "exclude_none": true,
+      "forbid_floats": true,
+      "forbid_nan_inf": true,
+      "max_depth": 128,
+      "name": "polisyos.canon.json",
+      "separators": [
+        ",",
+        ":"
+      ],
+      "sort_keys": true,
+      "version": "0.2.0"
+    },
+    "created_at": "2026-10-06T11:30:19Z",
+    "env": null,
+    "governance": null,
+    "inputs": [
+      {
+        "artifact_id": "sha256:315f116e4f3c7ab1765bb5497af32247e29fb730b384f213fada52617abd4127",
+        "role": "exec_plan"
+      }
+    ],
+    "integrity": {
+      "optional": null,
+      "sha256": "523551b559252759b37fd0babbbefb3524e276d8d80b4846c1546ed7dc537576"
+    },
+    "kind": "foundry.environment_manifest",
+    "manifest_schema_version": "v3",
+    "media_type": "application/json",
+    "producer": null,
+    "same_input_closure": null,
+    "tenant_context": null,
+    "warnings": []
+  },
+  "payload": {
+    "captured_at": {
+      "_type": "datetime",
+      "iso_utc": "2026-10-06T11:30:19.974577Z"
+    },
+    "container": {
+      "in_container": false
+    },
+    "cpu": {
+      "architecture": "arm64",
+      "core_count": 8,
+      "fingerprint": "a9b019e416945908",
+      "has_amx": false,
+      "has_avx": false,
+      "has_avx2": false,
+      "has_avx512": false,
+      "has_neon": true,
+      "model_name": "Apple M2",
+      "thread_count": 8
+    },
+    "custom_metadata": {
+      "exec_plan_id": "sha256:315f116e4f3c7ab1765bb5497af32247e29fb730b384f213fada52617abd4127",
+      "seed": 731,
+      "seed_source": "jax_prng"
+    },
+    "dependencies": {
+      "key_packages": {
+        "diffrax": "0.7.0",
+        "equinox": "0.13.2",
+        "jax": "0.8.2",
+        "jaxlib": "0.8.2",
+        "numpy": "2.3.5",
+        "optax": "0.2.6",
+        "pydantic": "2.12.5"
+      },
+      "lockfile_hash": "sha256:e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+      "lockfile_modified": {
+        "_type": "datetime",
+        "iso_utc": "2026-10-06T10:01:05.151782Z"
+      },
+      "lockfile_path": "uv.lock"
+    },
+    "expected_precision_loss": "arch_fma_variance",
+    "fingerprint": "e8832ab8dc1172f9681c397ed86fadc8",
+    "git": {
+      "branch": "codex/e02-A-replay-full",
+      "commit_sha": "3334775bcad7045361c3c7e3395674b49fcebaab",
+      "commit_short": "3334775b",
+      "dirty": true,
+      "tags": []
+    },
+    "gpu": {
+      "available": true,
+      "device_count": 1,
+      "device_names": [
+        "Apple M2"
+      ],
+      "device_uuids": [],
+      "metal_available": true,
+      "metal_device_name": "Apple M2",
+      "model_name": "Apple M2"
+    },
+    "jax": {
+      "available_backends": [
+        "cpu"
+      ],
+      "default_backend": "cpu",
+      "deterministic_ops_enabled": false,
+      "device_count": 1,
+      "jax_version": "0.8.2",
+      "jaxlib_version": "0.8.2",
+      "x64_enabled": false,
+      "xla_flags": {}
+    },
+    "os": {
+      "kernel_version": "27.0.0",
+      "release": "27.0.0",
+      "system": "Darwin",
+      "version": "Darwin Kernel Version 27.0.0: Tue Aug 11 21:02:16 PDT 2026; root:xnu-13432.1.9~1/RELEASE_ARM64_T8112"
+    },
+    "python": {
+      "compiler": "Clang 17.0.0 (clang-1700.0.13.3)",
+      "executable_hash": "b7e73dc9ef199f30",
+      "implementation": "CPython",
+      "version": "3.14.0"
+    },
+    "schema_version": "1.0",
+    "system_libraries": {}
+  }
+}

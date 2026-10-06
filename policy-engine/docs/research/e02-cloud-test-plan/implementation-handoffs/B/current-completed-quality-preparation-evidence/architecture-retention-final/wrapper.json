@@ -1,0 +1,69 @@
+{
+  "schema": "policyos.e02.completed_quality_retention_preparation.v1",
+  "target_sha": "be836dd71d7dff6dbdb070a48bf7c12c4f557df6",
+  "target_tree": "c1564e803950379723f0cba96bdbbdeafedc8d96",
+  "source_bytes": 19849,
+  "source_sha256": "bf9ef7c752df342a2e4a2a69d884a3d7b60f7e5ab5b2f34ae70f865eb9ced986",
+  "checks": [
+    {
+      "id": "ruff",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_quality.py"
+      ],
+      "cwd": "/workspace/e02-B-current-runtime/policy-engine",
+      "target_sha": "be836dd71d7dff6dbdb070a48bf7c12c4f557df6",
+      "exit_code": 0,
+      "wall_seconds": 0.04558783600805327,
+      "output_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "bytes": 19,
+      "grade": "Frozen new-source style only, no final gate"
+    },
+    {
+      "id": "format",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_quality.py"
+      ],
+      "cwd": "/workspace/e02-B-current-runtime/policy-engine",
+      "target_sha": "be836dd71d7dff6dbdb070a48bf7c12c4f557df6",
+      "exit_code": 0,
+      "wall_seconds": 0.040139072996680625,
+      "output_sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+      "bytes": 25,
+      "grade": "Frozen new-source style only, no final gate"
+    }
+  ],
+  "unmodified_seven_gate_command_branches_ast": true,
+  "unchanged_functions_ast": [
+    "git",
+    "require_source",
+    "tracked_read",
+    "tool_read",
+    "changed_python"
+  ],
+  "unchanged_literal_denominators": [
+    "PUBLISHED_BASE",
+    "GATES",
+    "MYPY_GROUPS"
+  ],
+  "new_runtime_binding": "Explicit required architecture-only existing absolute UV cache outside repository and actual production data; canonical retained flags; no query/fallback/config exclusion",
+  "parent_accepted_shared_cache_input": "/home/agent/.cache/uv observed by root-scoped pinned UV query; runtime directory marker/existence independently rebound; no offline sufficiency claim",
+  "all_eight_gates": "UNRUN",
+  "wheel_build": "UNRUN",
+  "metadata_source_guard_failure_preserved": "73 product cache query returned _cache/uv, no actual gate/helper invocation",
+  "source_status_after": "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/architecture-retention-final/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/architecture-retention/\n",
+  "limitations": [
+    "AST parity is complete over selected branches; not arbitrary import or operational gate proof",
+    "Only literal style commands rerun; original five controls and future gates not repeated",
+    "Independent EXE delta review remains separate"
+  ]
+}

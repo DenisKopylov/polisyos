@@ -39,8 +39,12 @@ from .protocol import PropagationResult
 from .sampling_admission import (
     BoundedIIDMeanCertificate,
     admit_bounded_mean_response,
+    admit_covariance_sampling_family,
+    admit_empirical_weights,
     admit_sampling_budget,
     admit_sampling_support,
+    admit_unit_uniform,
+    empirical_cdf,
     frozen_bernstein_budget,
     joint_carrier_digest,
 )
@@ -274,22 +278,13 @@ def _build_empirical_joint_spec(
             if carrier.weights is None
             else np.asarray(carrier.weights, dtype=np.float64)
         )
-        if (
-            weights.shape != (sample_count,)
-            or not np.all(np.isfinite(weights))
-            or np.any(weights < 0.0)
-        ):
-            return None, "incompatible_joint_law"
-        total = float(np.sum(weights))
-        if not math.isfinite(total) or total <= 0.0:
-            return None, "incompatible_joint_law"
-        normalized_weights.append(weights / total)
+        try:
+            normalized_weights.append(admit_empirical_weights(weights, sample_count))
+        except (ValueError, OverflowError):
+            return None, "unsupported_finite_empirical_law"
 
     probabilities = normalized_weights[0]
-    if any(
-        not np.allclose(probabilities, weights, rtol=0.0, atol=1e-12)
-        for weights in normalized_weights[1:]
-    ):
+    if any(not np.array_equal(probabilities, weights) for weights in normalized_weights[1:]):
         return None, "incompatible_joint_law"
 
     return (
@@ -365,10 +360,9 @@ def _empirical_indices_from_uniform(
     probabilities: np.ndarray,
 ) -> np.ndarray:
     """Map one QMC coordinate to aligned empirical row indices."""
-    clipped = np.clip(np.asarray(uniform_samples, dtype=np.float64), 1e-10, 1.0 - 1e-10)
-    cumulative = np.cumsum(np.asarray(probabilities, dtype=np.float64))
-    indices = np.searchsorted(cumulative, clipped, side="right")
-    return np.minimum(indices, len(probabilities) - 1)
+    uniforms = admit_unit_uniform(uniform_samples)
+    cumulative = empirical_cdf(probabilities)
+    return np.searchsorted(cumulative, uniforms, side="right")
 
 
 class MonteCarloPropagator:
@@ -413,6 +407,14 @@ class MonteCarloPropagator:
                 output_metric_ids,
                 input_param_names=param_names,
                 failure="unknown_dependency",
+            )
+        try:
+            admit_covariance_sampling_family(input_envelopes)
+        except ValueError:
+            return _unknown_joint_results(
+                output_metric_ids,
+                input_param_names=param_names,
+                failure="unsupported_joint_sampling_law",
             )
         empirical_spec, empirical_failure = _build_empirical_joint_spec(
             param_names,
@@ -1559,13 +1561,11 @@ class MonteCarloPropagator:
         """Inverse CDF transform of uniform QMC samples per envelope distribution."""
         from scipy.stats import norm as sp_norm
 
+        admit_sampling_support(input_envelopes)
+        admit_covariance_sampling_family(input_envelopes)
+        uniform_samples = admit_unit_uniform(uniform_samples)
         result: dict[str, np.ndarray] = {}
         if any("covariance_row" in input_envelopes[name].metadata for name in param_names):
-            if not all(
-                input_envelopes[name].distribution_family is DistributionFamily.NORMAL
-                for name in param_names
-            ):
-                raise ValueError("covariance alone does not define a non-Gaussian joint law")
             covariance = np.asarray(
                 build_covariance_matrix(
                     param_names,
@@ -1614,8 +1614,6 @@ class MonteCarloPropagator:
                 result[name] = empirical_spec.samples[name][shared_indices]
                 continue
             u = uniform_samples[:, dimension_names.index(name)]
-            # Clip to avoid infinities at 0 and 1
-            u = np.clip(u, 1e-10, 1.0 - 1e-10)
             env = input_envelopes[name]
             point = float(env.point_estimate)
             lo, hi = float(env.confidence_interval[0]), float(env.confidence_interval[1])
@@ -1628,7 +1626,9 @@ class MonteCarloPropagator:
                 else:
                     mean, std = fit
                 result[name] = (
-                    np.full_like(u, mean) if std == 0 else sp_norm.ppf(u, loc=mean, scale=std)
+                    np.full_like(u, mean)
+                    if std == 0
+                    else sp_norm.ppf(np.clip(u, 1e-10, 1.0 - 1e-10), loc=mean, scale=std)
                 )
             elif env.distribution_family == DistributionFamily.UNIFORM:
                 result[name] = lo + u * (hi - lo)

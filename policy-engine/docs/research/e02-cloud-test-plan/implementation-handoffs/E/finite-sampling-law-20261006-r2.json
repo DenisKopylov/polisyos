@@ -1,0 +1,460 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "E",
+  "slice": "finite-sampling-law-20261006-r2",
+  "author_role": "MC/UQP/UQS mechanism writer; independent reviewer is E root",
+  "source": {
+    "base_sha": "028829629a9c30454e44d25e7bea7be3ea05b561",
+    "base_tree": "a00c054928d7f9bafff6b46f2fb19e95697e6e9b",
+    "implementation_sha": "d69d2fad34de9923209fde3e20439e46f36f6750",
+    "implementation_tree": "e7891ec257a0487b1be5ae39adca5ea05d28f251",
+    "exact_old_counterexample_sha": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+    "exact_old_tree": "ffd0d56892f8e515838af4c5b160cb9ac6d988ed",
+    "g_audit_sha": "0346fc656a45ff2cd43d37126992d8ddbb739d10",
+    "origin_main_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "origin_main_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+    "integration_anchor": "1ddcd7b3905e52c0d19db091823a64830139fa64",
+    "anchor_ancestor_check": "PASS; explicit main fetch, read-only ancestry checks passed",
+    "publication_topic": "codex/e02-E-mc-20261006",
+    "pull_request": "https://github.com/DenisKopylov/polisyos/pull/44",
+    "diff_paths": [
+      "policy-engine/release-fragments/unreleased/2026-10-06-e02-finite-sampling-law.toml",
+      "policy-engine/src/polisyos/foundry/uncertainty/dispatcher.py",
+      "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+      "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "policy-engine/tests/unit/foundry/uncertainty/test_finite_empirical_law.py"
+    ],
+    "source_sha_equals_test_start_end": true
+  },
+  "admission": {
+    "requested_pair": {
+      "branch": "codex/e02-E-mc-20261006",
+      "absolute_worktree_root": "/workspace/e02-E-mc-20261006"
+    },
+    "mode": "resume",
+    "status": "admitted",
+    "complete_verdict": true,
+    "full_json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/finite-sampling-law-20261006-r2/admission-resume.json",
+    "sha256": "68fc21f345badda9932a91cbe1852fe47743c7ef20197a9d778be82e1a97cdfd",
+    "parent_owned_checkout": true,
+    "new_checkout_created_by_slice": false
+  },
+  "input_identity": {
+    "production_data": "not used or transferred",
+    "data_kind": "explicit synthetic finite-machine numerical fixtures",
+    "original_bundle": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UQP-02.md",
+    "properties": [
+      "B188 joint-law admission before backend selection",
+      "B192 exact represented empirical carrier atoms and shared row identity"
+    ],
+    "dyadic": {
+      "coordinate_order": [
+        "a",
+        "b"
+      ],
+      "draw_ids": [
+        "r0",
+        "r1",
+        "r2"
+      ],
+      "rows": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          4,
+          5
+        ]
+      ],
+      "weights": [
+        1,
+        1,
+        2
+      ],
+      "statistic": "y=a+b",
+      "mean_oracle": 5.25,
+      "variance_oracle": 15.1875,
+      "native_sobol": "one complete unscrambled 256-point net",
+      "actual_sample_callback_counts": [
+        64,
+        64,
+        128
+      ],
+      "nominal_callbacks": 1,
+      "sample_callbacks": 256,
+      "CAS_readback": "real FileSystemCAS persist then fresh store loader before propagation",
+      "numeric_policy": "existing DECIMAL_EXACT"
+    },
+    "near_unequal": {
+      "old_repro_weights": [
+        [
+          0.5,
+          0.5
+        ],
+        [
+          0.5000000000005,
+          0.4999999999995
+        ]
+      ],
+      "canonical_matching": "exact array equality after common float64 normalization; proportional weights may agree"
+    },
+    "tiny_categories": {
+      "positive_mass": 5e-11,
+      "positions": [
+        "first",
+        "interior",
+        "last"
+      ],
+      "boundaries": [
+        "U=0",
+        "U=nextafter(0.5,0)",
+        "U=0.5",
+        "U=nextafter(1,0)"
+      ],
+      "domain": "finite U in [0,1); U=1/negative/nonfinite refuse",
+      "native_small_category_pipeline_control": "explicitly injected synthetic uniform coordinates in each random/Sobol/Halton route; no claim of backend random-law/production sampling evidence"
+    },
+    "unsupported_joint_profile": {
+      "marginals": "two Uniform[0,1] envelopes",
+      "covariance": [
+        [
+          0.08333333333333333,
+          0
+        ],
+        [
+          0,
+          0.08333333333333333
+        ]
+      ],
+      "expected": "UNKNOWN, gate_eligible false, sampler/evaluator/nominal callbacks zero"
+    },
+    "source_overlay": {
+      "path": "/workspace/e02-E-pr38-r2-receipts/mc/exact-58e2-source/policy-engine/src",
+      "creation_argv": "git archive 58e2d97965c0826c44843a78dcb2f8698d9950a3 policy-engine/src | tar -x -C /workspace/e02-E-pr38-r2-receipts/mc/exact-58e2-source",
+      "meaning": "complete tracked source archive, not a checkout; no ignored results inputs"
+    }
+  },
+  "mechanism": {
+    "producer": "PropagationDispatcher.propagate or direct MonteCarloPropagator.propagate",
+    "common_intake": "foundry/uncertainty/sampling_admission.py::admit_empirical_weights, empirical_cdf, admit_covariance_sampling_family",
+    "transform": "monte_carlo.py::_empirical_indices_from_uniform -> np.searchsorted(side=right)",
+    "artifact": "existing persist_uncertainty_envelope/load_uncertainty_envelope and PosteriorSamplesCarrier",
+    "consumer": "real propagation reads fresh CAS reopened input law; output keeps non-gating scope",
+    "typed_refusal": "unsupported_joint_sampling_law or unsupported_finite_empirical_law UNKNOWN before nominal/sample callbacks",
+    "supported_boundary": "canonical normalized finite float64 weights with exact coordinate agreement; every positive category has a distinct representable CDF interval; declared Gaussian covariance profile preserves singular directions",
+    "facades": "No __init__ edits. Existing curated IR analytics exports used in sampling_admission; direct PosteriorSamplesCarrier type dependency held for IR owner narrow export packet."
+  },
+  "predicate_basis": {
+    "classification": "P37 recomputed finite-machine numerical property",
+    "recomputed": [
+      "normalized weight equality",
+      "positive category/CDF boundary support",
+      "shared content digest/ordered draw IDs",
+      "supported covariance Gaussian-family profile",
+      "half-open uniform coordinate domain"
+    ],
+    "consumer_asserted": [
+      "declared input mathematical profile/source owner identity; not authority evidence"
+    ],
+    "not_established": [
+      "original production source law custody",
+      "general served evaluator/model authority",
+      "v2 wire functional/law ratification"
+    ],
+    "P40": "Repeated joint-law intake/transform escape is repaired at the common random/Sobol/Halton mechanism, with a finite supported representation boundary and category-collapse falsifier. No site-specific epsilon patch."
+  },
+  "verification": {
+    "native": {
+      "source_sha_start": "d69d2fad34de9923209fde3e20439e46f36f6750",
+      "tree_start": "e7891ec257a0487b1be5ae39adca5ea05d28f251",
+      "status_start": "",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "tests/unit/foundry/uncertainty",
+        "tests/unit/remediation/test_uqp_02.py",
+        "--junitxml=/workspace/e02-E-pr38-r2-receipts/mc/native.junit.xml"
+      ],
+      "cwd": "/workspace/e02-E-mc-20261006/policy-engine",
+      "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+      "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+      "process_caps": null,
+      "wall_seconds": 22.126443904999178,
+      "max_rss_kib": 858004,
+      "exit_code": 0,
+      "source_sha_end": "d69d2fad34de9923209fde3e20439e46f36f6750",
+      "tree_end": "e7891ec257a0487b1be5ae39adca5ea05d28f251",
+      "status_end": ""
+    },
+    "native_result": {
+      "state": "PASS",
+      "cases": 274,
+      "passed": 274,
+      "failed": 0,
+      "skipped": 0,
+      "warnings": 2,
+      "warning_scope": "existing JAX clip keyword deprecation in delta tests",
+      "pytest_wall_seconds": 16.52
+    },
+    "focused_source_tests": {
+      "state": "PASS",
+      "cases": 45,
+      "source": "d69d2fad34de9923209fde3e20439e46f36f6750"
+    },
+    "ruff_check_and_format": "PASS on all four changed Python paths",
+    "old_counterexample": {
+      "exact_sha": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+      "state": "REPRODUCED",
+      "unequal_weights": "incorrectly admitted",
+      "tiny_first_and_last": "silently erased by epsilon clamp",
+      "tiny_interior_cdf_collapse": "silently mapped past positive category",
+      "unsupported_uniform_covariance": "all three methods made one nominal callback then raised ValueError"
+    },
+    "candidate_counterexample": {
+      "exact_sha": "d69d2fad34de9923209fde3e20439e46f36f6750",
+      "state": "PASS",
+      "unequal_weights": "refused before callbacks",
+      "tiny_first_interior_last": "positive CDF categories preserved; no epsilon clipping",
+      "cdf_collapse": "explicit refusal",
+      "unsupported_uniform_covariance": "all three methods UNKNOWN non-gating with zero callbacks"
+    },
+    "independent_review": {
+      "state": "pending E root receipt; author does not self-review",
+      "frozen_source_sha": "d69d2fad34de9923209fde3e20439e46f36f6750"
+    },
+    "common_expensive_wave": "E root/G runs once after integrated source freeze; not repeated by this slice",
+    "historical_transferred_reports": {
+      "grade": "navigation only; raw VM archives absent",
+      "selected_cell": "F01-P043",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "path": "policy-engine/tests/unit/remediation/test_uqp_02.py",
+      "source_report_state": "PASS18/18",
+      "source_file": "results/received/F01.txt:160",
+      "environment_and_data_identity": "not established by absent raw archive; not reused as production evidence"
+    },
+    "P41": "No inherited-red attribution claimed. Exact58 counterexamples are fresh bounded mathematical replays; historical production evidence remains not_established."
+  },
+  "upstream_ir_precision_control": {
+    "source_weights": [
+      0.5,
+      1e-20,
+      0.5
+    ],
+    "existing_exact_profile_reopened_weights": [
+      0.5,
+      1e-20,
+      0.5
+    ],
+    "default_round_12_reopened_weights": [
+      0.5,
+      0,
+      0.5
+    ],
+    "meaning": "actual producer -> serialize -> fresh CAS reader illustrates upstream rounding loss; sampling cannot restore original mass from represented zero",
+    "next_owner": "appointed canonical IR semantic/numeric policy owner",
+    "B202": "held; original-law-faithful carrier for rounded profile not_established; no IR wire changes"
+  },
+  "finding_dispositions": [
+    {
+      "finding_id": "B186",
+      "recorded_ledger_status": "partial",
+      "verdict": "limited",
+      "slice_scope": "preserved regression/boundary; no new closure claim",
+      "next_owner": "E root/G criterion review"
+    },
+    {
+      "finding_id": "B187",
+      "recorded_ledger_status": "partial",
+      "verdict": "limited",
+      "slice_scope": "preserved regression/boundary; no new closure claim",
+      "next_owner": "E root/G criterion review"
+    },
+    {
+      "finding_id": "B188",
+      "recorded_ledger_status": "partial",
+      "verdict": "limited",
+      "slice_scope": "new deciding finite-law admission/transform evidence",
+      "next_owner": "E root/G criterion review"
+    },
+    {
+      "finding_id": "B189",
+      "recorded_ledger_status": "partial",
+      "verdict": "limited",
+      "slice_scope": "preserved regression/boundary; no new closure claim",
+      "next_owner": "E root/G criterion review"
+    },
+    {
+      "finding_id": "B190",
+      "recorded_ledger_status": "partial",
+      "verdict": "limited",
+      "slice_scope": "preserved regression/boundary; no new closure claim",
+      "next_owner": "E root/G criterion review"
+    },
+    {
+      "finding_id": "B191",
+      "recorded_ledger_status": "partial",
+      "verdict": "limited",
+      "slice_scope": "preserved regression/boundary; no new closure claim",
+      "next_owner": "E root/G criterion review"
+    },
+    {
+      "finding_id": "B192",
+      "recorded_ledger_status": "partial",
+      "verdict": "limited",
+      "slice_scope": "new deciding finite-law admission/transform evidence",
+      "next_owner": "E root/G criterion review"
+    },
+    {
+      "finding_id": "B193",
+      "recorded_ledger_status": "partial",
+      "verdict": "limited",
+      "slice_scope": "preserved regression/boundary; no new closure claim",
+      "next_owner": "E root/G criterion review"
+    },
+    {
+      "finding_id": "B194",
+      "recorded_ledger_status": "held",
+      "verdict": "held",
+      "slice_scope": "preserved regression/boundary; no new closure claim",
+      "next_owner": "Scientist served simulation execution owner"
+    },
+    {
+      "finding_id": "B199",
+      "recorded_ledger_status": "partial",
+      "verdict": "limited",
+      "slice_scope": "preserved regression/boundary; no new closure claim",
+      "next_owner": "E root/G criterion review"
+    },
+    {
+      "finding_id": "B200",
+      "recorded_ledger_status": "partial",
+      "verdict": "limited",
+      "slice_scope": "preserved regression/boundary; no new closure claim",
+      "next_owner": "E root/G criterion review"
+    },
+    {
+      "finding_id": "B201",
+      "recorded_ledger_status": "held",
+      "verdict": "held",
+      "slice_scope": "preserved regression/boundary; no new closure claim",
+      "next_owner": "IR semantic owner"
+    },
+    {
+      "finding_id": "B202",
+      "recorded_ledger_status": "held",
+      "verdict": "held",
+      "slice_scope": "upstream numeric-policy loss and semantic-owner boundary",
+      "next_owner": "IR semantic owner"
+    }
+  ],
+  "limitations": [
+    "The finite CDF representation does not promise arbitrary real-weight precision or production source authority.",
+    "A positive category that collapses under normalization/CDF rounding is refused; unknown laws are not sampled as independent marginals.",
+    "Existing Gaussian inverse-normal endpoint numerical convention is unchanged; this slice removes epsilon clipping from discrete empirical and bounded uniform/triangular transforms.",
+    "Default upstream IR numeric policy can erase original small weights. The existing DECIMAL_EXACT profile preserves supplied finite values; a faithful-production-law claim requires the source/numeric-policy owner.",
+    "B194 general served evaluator route remains held; actual default Scientist proxy is not a source-bound served evaluator.",
+    "B201/B202 v2 point/interval/carrier decisions remain held; v1.1 replay semantics unchanged."
+  ],
+  "local_G_recipe": {
+    "implementation_sha": "d69d2fad34de9923209fde3e20439e46f36f6750",
+    "setup": "use admitted repo-declared lint/test/runtime/ml/analytics/sensitivity extras and actual native JAX/NumPy/SciPy; no production corpus for these mathematical fixtures",
+    "command": "cd policy-engine && PYTHONPATH=src python -m pytest -o addopts= -q tests/unit/foundry/uncertainty/test_finite_empirical_law.py tests/unit/foundry/uncertainty/test_sampling_admission.py tests/unit/remediation/test_uqp_02.py",
+    "additional_input_if_production_claim_required": "exact content-bound source-law carrier with configured numeric policy, ordered draw IDs/weights/coordinate axes and real served evaluator model/run/domain/seed references, read-only locally; owner must supply them"
+  },
+  "cleanup": {
+    "native_trash_available": false,
+    "permanent_deletions": false,
+    "candidates_after_all_deciding_outputs_saved": [
+      "/workspace/e02-E-pr38-r2-receipts/mc/exact-58e2-source",
+      "/workspace/e02-E-pr38-r2-receipts/mc/upstream-numeric-policy-cas"
+    ],
+    "preserve": [
+      "tracked source, documentation and deciding outputs",
+      "shared root backend environment while sibling tasks use it",
+      "full admission JSON",
+      "production data and unique data"
+    ]
+  },
+  "artifact_manifest": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/finite-sampling-law-20261006-r2/admission-resume.json",
+      "bytes": 123175,
+      "sha256": "68fc21f345badda9932a91cbe1852fe47743c7ef20197a9d778be82e1a97cdfd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/finite-sampling-law-20261006-r2/bounded-properties.stdout.txt",
+      "bytes": 4544,
+      "sha256": "e6fbc36f42ad25263804c07dc95fe87ced008e5d70253c1520858d7e96e1fcea"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/finite-sampling-law-20261006-r2/bounded_properties.py.txt",
+      "bytes": 3838,
+      "sha256": "eae3a5739cd521b472c8ec809f598363383132b4b3ba2bd6ccf9b4d087bbc8ff"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/finite-sampling-law-20261006-r2/candidate-d69.stdout.txt",
+      "bytes": 681,
+      "sha256": "f34f0504df1692b523730e25559c7a6a3fcd68a450b23a67de2c960e98ac964c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/finite-sampling-law-20261006-r2/environment.json",
+      "bytes": 862,
+      "sha256": "2d280d58578e61b1213b33992b16783b6c36cb550cc93cd804d6a844aaee14ad"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/finite-sampling-law-20261006-r2/frozen58.stdout.txt",
+      "bytes": 648,
+      "sha256": "a2a99b4cf4adaf88c98f08489735a8b5009f3a81e81589a87bcb9c4bc97b8339"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/finite-sampling-law-20261006-r2/native-run.json",
+      "bytes": 882,
+      "sha256": "8b08c43338c4db4b1623aa6cbb0879b70c1ffde6cc685fbd88b9721ae25d287f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/finite-sampling-law-20261006-r2/native.junit.xml",
+      "bytes": 46632,
+      "sha256": "83eddbad2e3bd58b78e18f389f3ec1337b63bc41894d9f68b14ce9f1232ae2cc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/finite-sampling-law-20261006-r2/native.stdout.txt",
+      "bytes": 1004,
+      "sha256": "ef12a5a61c15ffd110aebf42ab8bbd8936833981ab65b465645acf8db41ef071"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/finite-sampling-law-20261006-r2/native_run.py.txt",
+      "bytes": 1593,
+      "sha256": "e63177076a470483f1ed7f69af8cb466f7756bf55bef25db43f0465e545be4f3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/finite-sampling-law-20261006-r2/navigation-B188.json",
+      "bytes": 10049,
+      "sha256": "9329cd832fe1b883584d6128e8a19e016b6fbe8e7c2104b5be3f0b5eea4a9dca"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/finite-sampling-law-20261006-r2/navigation-B192.json",
+      "bytes": 10049,
+      "sha256": "895e41004f19d5ddf303d4d6c2623e17c31930e0a3fe9d97ea572581a023e342"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/finite-sampling-law-20261006-r2/reproduce.py.txt",
+      "bytes": 2955,
+      "sha256": "ba5d415616de71b0b5cb3290778cb8fe3d1023fda7a429e896cca2d5a137bbbc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/finite-sampling-law-20261006-r2/ruff.stdout.txt",
+      "bytes": 45,
+      "sha256": "4bd8248f4985e327cd636d5b563aa46d1d34db2021498c8d8b37613b35f181d1"
+    }
+  ]
+}

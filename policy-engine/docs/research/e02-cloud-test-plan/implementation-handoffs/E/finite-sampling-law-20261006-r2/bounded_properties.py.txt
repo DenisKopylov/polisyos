@@ -1,0 +1,70 @@
+"""Author boundary controls; injected coordinates are explicitly synthetic."""
+import importlib.util
+import json
+from collections import Counter
+from pathlib import Path
+
+import numpy as np
+from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.foundry.uncertainty.monte_carlo import MonteCarloPropagator
+from polisyos.ir.analytics.uncertainty import (
+    NumericPolicySpec, PosteriorSamplesCarrier, UncertaintyEnvelope,
+    persist_uncertainty_envelope, load_uncertainty_envelope,
+)
+
+test_path = Path('/workspace/e02-E-mc-20261006/policy-engine/tests/unit/foundry/uncertainty/test_finite_empirical_law.py')
+spec = importlib.util.spec_from_file_location('fixture', test_path)
+fixture = importlib.util.module_from_spec(spec); spec.loader.exec_module(fixture)
+results = {}
+cases = {
+    'first': ((5e-11, .5, .5-5e-11), [0, 2.5e-11], 0),
+    'interior': ((.5, 5e-11, .5-5e-11), [.5, .5+2.5e-11], 1),
+    'last': ((.5, .5-5e-11, 5e-11), [1-2.5e-11, np.nextafter(1.,0.)], 2),
+}
+original_random = MonteCarloPropagator._random_input_samples
+original_qmc = MonteCarloPropagator._create_qmc_sampler_state_with_seed
+for method in ['random','sobol','halton']:
+    for category,(weights,coords,index) in cases.items():
+        class Stream:
+            def uniform(self, *, size):
+                return np.resize(coords, size).astype(np.float64)
+            def random_base2(self, m):
+                return np.resize(coords, (2**m,1)).astype(np.float64)
+            def random(self, n):
+                return np.resize(coords, (n,1)).astype(np.float64)
+        def input_samples(self,rng,names,envs,count,empirical):
+            return original_random(self,Stream(),names,envs,count,empirical)
+        def sampler_state(self,n_dims,*,seed):
+            return {'sampler':Stream(),'n_dims':n_dims,'method':method}
+        MonteCarloPropagator._random_input_samples=input_samples
+        MonteCarloPropagator._create_qmc_sampler_state_with_seed=sampler_state
+        calls=[]
+        r=MonteCarloPropagator(fixture.config(method)).propagate(
+            lambda **p:calls.append((float(p['a']),float(p['b']))) or {'y':p['a']+p['b']},
+            {'a':2.25,'b':3},fixture.paired(weights,weights),['y'])[0]
+        expected=[(0.,0.),(1.,2.),(4.,5.)][index]
+        assert calls[1:]==[expected]*256
+        results[method+'/'+category]={'fixture':'synthetic injected [0,1) coordinates, not a random/QMC-law claim',
+                                    'weights':weights,'coordinates':coords,'nominal_calls':1,
+                                    'sample_callbacks':len(calls)-1,'selected_row':expected,
+                                    'gate_eligible':r.envelope.gate_eligible}
+MonteCarloPropagator._random_input_samples=original_random
+MonteCarloPropagator._create_qmc_sampler_state_with_seed=original_qmc
+
+store_path=Path('/workspace/e02-E-pr38-r2-receipts/mc/upstream-numeric-policy-cas')
+store=FileSystemCAS(store_path)
+weights=(.5,1e-20,.5)
+exact=fixture.paired(weights,weights)['a']
+rounded=UncertaintyEnvelope.model_validate({**exact.model_dump(mode='python'),'numeric_policy':NumericPolicySpec()})
+values={}
+for name,env in [('exact',exact),('rounded',rounded)]:
+    ref=persist_uncertainty_envelope(store,env)
+    reopened=load_uncertainty_envelope(FileSystemCAS(store_path),ref)
+    values[name]={'policy':env.numeric_policy.model_dump(mode='json'),
+                  'represented_weights':reopened.distribution_payload.weights,
+                  'ref':ref.model_dump(mode='json')}
+results['upstream']={'source_weights':weights,'readbacks':values,
+                     'original_law_faithful_carrier':'not_established for rounded profile; IR owner boundary'}
+assert values['exact']['represented_weights']==weights
+assert values['rounded']['represented_weights']==(.5,0,.5)
+print(json.dumps(results,indent=2,sort_keys=True))

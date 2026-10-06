@@ -24,7 +24,7 @@ from .covariance import build_covariance_matrix, has_unknown_dependency
 from .delta import DeltaMethodPropagator
 from .monte_carlo import MonteCarloPropagator
 from .protocol import PropagationResult
-from .sampling_admission import admit_sampling_support
+from .sampling_admission import admit_covariance_sampling_family, admit_sampling_support
 
 logger = get_logger(__name__)
 
@@ -65,6 +65,15 @@ class PropagationDispatcher:
                 output_metric_ids,
                 input_param_names=param_names,
                 failure="unknown_dependency",
+            )
+
+        try:
+            admit_covariance_sampling_family(input_envelopes)
+        except ValueError:
+            return _blocked_dependency_results(
+                output_metric_ids,
+                input_param_names=param_names,
+                failure="unsupported_joint_sampling_law",
             )
 
         if self._config.bounded_iid_mean is not None:

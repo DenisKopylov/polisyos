@@ -1,0 +1,33 @@
+"""Measure a frozen-source native run; no worker or CPU limits are set."""
+import json
+import os
+import platform
+import resource
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+root = Path('/workspace/e02-E-mc-20261006')
+out = Path('/workspace/e02-E-pr38-r2-receipts/mc')
+def git(*args):
+    return subprocess.check_output(['git', *args], cwd=root, text=True).strip()
+
+argv = [sys.executable, '-m', 'pytest', '-o', 'addopts=', '-q',
+        'tests/unit/foundry/uncertainty', 'tests/unit/remediation/test_uqp_02.py',
+        '--junitxml=' + str(out / 'native.junit.xml')]
+env = dict(os.environ, PYTHONPATH='src')
+receipt = {'source_sha_start':git('rev-parse','HEAD'), 'tree_start':git('rev-parse','HEAD^{tree}'),
+           'status_start':git('status','--porcelain'), 'argv':argv, 'cwd':str(root/'policy-engine'),
+           'python':sys.version, 'platform':platform.platform(), 'process_caps':None}
+start = time.monotonic()
+with (out/'native.stdout.txt').open('w') as f:
+    run = subprocess.run(argv,cwd=root/'policy-engine',env=env,stdout=f,stderr=subprocess.STDOUT)
+receipt.update({'wall_seconds':time.monotonic()-start,
+                'max_rss_kib':resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss,
+                'exit_code':run.returncode, 'source_sha_end':git('rev-parse','HEAD'),
+                'tree_end':git('rev-parse','HEAD^{tree}'), 'status_end':git('status','--porcelain')})
+(out/'native-run.json').write_text(json.dumps(receipt,indent=2)+'\n')
+print(json.dumps(receipt,indent=2))
+print((out/'native.stdout.txt').read_text())
+sys.exit(run.returncode)

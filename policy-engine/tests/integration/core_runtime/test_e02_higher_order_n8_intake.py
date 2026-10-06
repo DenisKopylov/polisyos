@@ -516,6 +516,7 @@ def test_real_n5_cubic_cas_is_recomputed_by_fresh_default_n8_consumer(
         "authority_purpose": "conditional_simulation_only",
         "unit_binding_status": "not_established",
         "time_binding_status": "not_established",
+        "sampling_uncertainty_status": "not_established",
     }
     if evidence != expected_evidence:
         failures.append(f"conditional_interaction_evidence_mismatch:{evidence}")

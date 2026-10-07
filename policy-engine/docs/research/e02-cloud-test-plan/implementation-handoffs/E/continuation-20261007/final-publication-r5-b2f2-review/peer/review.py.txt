@@ -1,0 +1,172 @@
+"""Independent immutable Git/whole selector Counter/literal+decoded custody review."""
+from collections import Counter
+import gzip
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+
+ROOT = Path('/workspace/e02-E-continuation-20261006')
+CANDIDATE = 'fe9a8c5ee73c9ae0d122fdfd0e0b736c0e938386'
+TREE = '54c07cd20f9a80a5885a786665e6668a3ffb99dc'
+BASE = 'b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641'
+BASE_TREE = '4cbbed1d9392832729cab92c6615f9a1d03a41c7'
+PREFIX = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r5-b2f2'
+STAGE = Path('/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v2')
+OUT = Path('/tmp/e02-E-r5-DOC-independent-fe9a-20261007')
+
+
+def require(value, label):
+    if not value:
+        raise ValueError(label)
+
+
+def digest(body):
+    return hashlib.sha256(body).hexdigest()
+
+
+def ref(path):
+    body = path.read_bytes()
+    return {'path': str(path), 'bytes': len(body), 'sha256': digest(body)}
+
+
+def canon(value):
+    return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(',', ':'), allow_nan=False)
+
+
+def git(*args):
+    return subprocess.run(['git', '-C', str(ROOT), *args], capture_output=True, check=True).stdout
+
+
+def guard():
+    return {'head': git('rev-parse', 'HEAD').decode().strip(), 'tree': git('rev-parse', 'HEAD^{tree}').decode().strip(),
+            'tracked_status': git('status', '--porcelain', '--untracked-files=no').decode(), 'untracked_not_whole_clean': git('status', '--porcelain', '--untracked-files=normal').decode()}
+
+
+def absolute_ref(raw):
+    candidates = [raw.get(key) for key in ('stored_at', 'path', 'source_path', 'source')]
+    path = next((p for p in candidates if isinstance(p, str) and Path(p).is_absolute()), None)
+    require(path is not None and type(raw['bytes']) is int and raw['bytes'] >= 0, 'actual_provider_complete_identity')
+    return {'path': path, 'bytes': raw['bytes'], 'sha256': raw['sha256']}
+
+
+def verify_body(body, identity):
+    require(len(body) == identity['bytes'] and digest(body) == identity['sha256'], 'whole_selected_body_identity')
+
+
+def main():
+    before = guard()
+    require(before['head'] == CANDIDATE and before['tree'] == TREE and before['tracked_status'] == '', 'immutable_DOC_current_Git_guard')
+    require(git('rev-parse', CANDIDATE + '^').decode().strip() == BASE, 'source_parent_b2')
+    require(git('rev-parse', BASE + '^{tree}').decode().strip() == BASE_TREE, 'source_b2_tree')
+    raw_manifest = (STAGE / 'manifest.json').read_bytes()
+    require(len(raw_manifest) == 1947707 and digest(raw_manifest) == '7aa3af272de3ad29bc2c1d62f69f8c24db206c7d351fbb46715b0e06e33de257', 'manifest_fixed_pin')
+    manifest = json.loads(raw_manifest)
+    handoff = json.loads((STAGE / 'implementation-handoff.json').read_bytes())
+    qualification = json.loads((STAGE / 'qualification.json').read_bytes())
+    require(manifest['publication_base'] == BASE and manifest['publication_base_tree'] == BASE_TREE, 'scientific_source_distinct_from_DOC_identity')
+    require(handoff['candidate'] == BASE and handoff['candidate_tree'] == BASE_TREE and handoff['future_own_publication_SHA'] is None, 'no_future_selfSHA')
+    changes = git('diff', '--name-status', '-z', BASE, CANDIDATE).decode().split('\0')
+    pairs = [(changes[i], changes[i + 1]) for i in range(0, len(changes) - 1, 2)]
+    require(len(pairs) == 698 and all(s == 'A' and p.startswith(PREFIX + '/') and not p.endswith('.py') for s, p in pairs), 'full698_DOC_only_Git_delta')
+    changed_paths = {p.removeprefix(PREFIX + '/') for _, p in pairs}
+    require(set(handoff['changed_footprint']) == changed_paths and len(handoff['changed_footprint']) == 698, 'handoff_complete698_footprint')
+    require(handoff['active_Python_paths'] == [], 'no_active_Python')
+    entries = []
+    for raw in git('ls-tree', '-r', '-z', CANDIDATE, '--', PREFIX).split(b'\0'):
+        if not raw:
+            continue
+        header, path = raw.split(b'\t', 1)
+        mode, kind, oid = header.decode().split(' ')
+        relative = path.decode().removeprefix(PREFIX + '/')
+        require(kind == 'blob' and mode == '100644', 'ordinary_passive_Git_blob_mode')
+        entries.append({'relative': relative, 'git_object': oid, 'mode': mode})
+    require(len(entries) == 698 and {r['relative'] for r in entries} == changed_paths, 'complete_Git_subtree_set')
+    carriers = {r['destination']: r for r in manifest['canonical_copies']}
+    require(len(carriers) == 688, 'all688_distinct_carriers')
+    metadata = {f.name for f in STAGE.iterdir() if f.is_file()}
+    require(len(metadata) == 10 and changed_paths == set(carriers) | metadata, '698_equals688plus10')
+    process = subprocess.Popen(['git', '-C', str(ROOT), 'cat-file', '--batch'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    process.stdin.write(''.join(r['git_object'] + '\n' for r in entries).encode())
+    process.stdin.close()
+    rows = []
+    for entry in entries:
+        header = process.stdout.readline().decode().strip().split(' ')
+        require(len(header) == 3 and header[0] == entry['git_object'] and header[1] == 'blob', 'Git_batch_header')
+        body = process.stdout.read(int(header[2]))
+        require(process.stdout.read(1) == b'\n', 'Git_blob_terminator')
+        relative = entry['relative']
+        stage_path = STAGE / 'payload' / relative if relative in carriers else STAGE / relative
+        require(body == stage_path.read_bytes(), 'Git_blob_equals_closed_stage')
+        require(body == (ROOT / PREFIX / relative).read_bytes(), 'Git_blob_equals_current_checkout')
+        if relative in carriers:
+            verify_body(body, carriers[relative]['stored'])
+        if relative.endswith('.json'):
+            json.loads(body)
+        rows.append({**entry, 'bytes': len(body), 'sha256': digest(body)})
+    require(process.stdout.read() == b'' and process.wait() == 0 and process.stderr.read() == b'', 'complete_closed_Git_batch')
+    total_bytes = sum(r['bytes'] for r in rows)
+    require(total_bytes == 43540949, 'all698_literal_Git_total43540949')
+    # Independent raw-provider multiset: no copier expand/carriers function is used.
+    expected = Counter()
+    providers = []
+    actual_originals = {}
+    for spec in manifest['selection_inputs']:
+        provider_path = Path(spec['path'])
+        provider_body = provider_path.read_bytes()
+        verify_body(provider_body, spec)
+        provider = json.loads(provider_body)
+        supplied = provider[spec['member_class']]
+        require(len(supplied) == spec['members'], 'whole_provider_member_denominator')
+        for raw in supplied:
+            expected[(spec['family'], spec['path'], spec['member_class'], canon(raw))] += 1
+        expected[(spec['family'], spec['path'], spec['input_kind'], canon(None))] += 1
+        providers.append({'family': spec['family'], 'selector': ref(provider_path), 'actual_members': len(supplied), 'schema': provider.get('schema')})
+    observed = Counter((r['family'], r['selection_source_path'], r['member_class'], canon(r['selected_record'])) for r in manifest['logical_sources'])
+    require(expected == observed and sum(expected.values()) == 1167 and len(providers) == 28, 'independent1167_provider_row_Counter')
+    source_rows = []
+    for row in manifest['logical_sources']:
+        stored_body = (STAGE / 'payload' / row['canonical_destination']).read_bytes()
+        verify_body(stored_body, row['stored'])
+        require(Path(row['stored']['path']).read_bytes() == stored_body, 'literal_stored_original_available')
+        if row['storage_mode'] == 'gzip_literal_archive':
+            original_body = gzip.decompress(stored_body)
+        else:
+            require(row['storage_mode'] == 'literal', 'declared_storage_mode')
+            original_body = stored_body
+        verify_body(original_body, row['original'])
+        require(Path(row['original']['path']).read_bytes() == original_body, 'whole_decoded_original_available_and_equal')
+        source_rows.append({'family': row['family'], 'storage_mode': row['storage_mode'], 'original_bytes': len(original_body), 'stored_bytes': len(stored_body)})
+    require(sum(r['original_bytes'] for r in source_rows) == manifest['original_logical_bytes'] == 173281765, 'logical_original173281765')
+    require(sum(r['stored_bytes'] for r in source_rows) == manifest['stored_logical_bytes'] == 85641576, 'logical_stored85641576')
+    require(sum(r['stored']['bytes'] for r in carriers.values()) == manifest['unique_payload_bytes'] == 41151229, 'unique41151229_payload')
+    require(manifest['deduplicated_occurrences'] == 1167 - 688 == 479, 'complete479_aliases')
+    require(sum(r['storage_mode'] == 'gzip_literal_archive' for r in source_rows) == 34, 'all34_compressed_logical_occurrences')
+    # Numeric/native/gate/finding metadata reuses prior independent deciding receipts; no backend reexecution.
+    numeric = json.loads(Path('/tmp/e02-E-final-wave-numeric-independent-b2-20261007/recomputed-wave.json').read_bytes())['claim']
+    n = qualification['native_numeric']
+    require(n == {'total': 1465, 'PASS': 1457, 'FAIL': 8, 'ERROR': 0, 'SKIP': 0, 'native_total': 1458, 'native_PASS': 1457, 'native_FAIL': 1, 'A_packet_total': 7, 'A_packet_PASS': 0, 'A_packet_FAIL': 7}, 'qualification_independent_numeric')
+    require(numeric['numeric_counts']['cases'] == n['total'] and numeric['numeric_counts']['passed'] == n['PASS'], 'reuse_closed_numeric_receipt')
+    require(set(qualification['global_gates'].values()) == {'FAIL'} and len(qualification['global_gates']) == 7, 'all7_FAIL_retained')
+    require(qualification['parent_stages']['combined'] == {'total': 39, 'PASS': 1, 'FAIL': 2, 'UNRUN': 36}, 'all39_stage_statuses_retained')
+    require(qualification['findings']['historical_ledger'] == {'partial': 49, 'held': 4, 'closed': 1} and qualification['findings']['E_bounded_original_criterion_proposals'] == {'closed': 43, 'limited': 9, 'held': 2}, 'proposal_history_separation')
+    require(qualification['findings']['formal_G_acceptance'] is False and qualification['findings']['formal_ledger_change'] is False and qualification['findings']['check_status_is_not_finding_outcome'] is True, 'no_finding_authority_promotion')
+    require(qualification['future_plan_patch_applied'] is False and qualification['draft_PR_bodies_published_by_carrier'] is False and qualification['source_native_numeric_or_global_gate_reexecuted_by_carrier'] is False, 'unapplied_future_and_no_native_execution')
+    require(qualification['source_frames']['different_algorithms_and_input_formats'] is True and qualification['source_frames']['equality_or_drift_shortcut'] is False, 'metadata_vs_raw_frame_distinction')
+    require(qualification['environment']['package_METADATA'] == 207 and qualification['environment']['protected_control_refs'] == 3 and qualification['environment']['full_binary_environment_identity'] == 'not_established', 'environment_scoped_custody')
+    enums = {'recomputed', 'independently_reconciled', 'consumer_asserted', 'institutionally_supplied', 'not_established'}
+    require(all(r['basis'] in enums and r['explanation'] for r in handoff['predicate_basis'].values()), 'all_P37_canonical_bases')
+    require(manifest['ROOT_before']['head'] == BASE and manifest['ROOT_after']['head'] == BASE and manifest['ROOT_before']['atomic'] is False and manifest['ROOT_after']['atomic'] is False, 'historical_pre_DOC_status_not_currentclaim')
+    after = guard()
+    require(before == after, 'Root_read_only_guard_unchanged')
+    return {'schema': 'policyos.e02.independent.r5.immutable_Git_custody.v1', 'scientific_source': BASE, 'scientific_tree': BASE_TREE, 'DOC_candidate': CANDIDATE, 'DOC_tree': TREE,
+            'disposition': 'GO immutable698 passive Git/stage/current bytes and independent1167 original-provider Counter; actual CLI negative/removal review separate pending',
+            'source_guard_before': before, 'source_guard_after': after, 'complete698_Git_rows': rows, 'providers': providers,
+            'counts': {'Git_paths': 698, 'Git_bytes': total_bytes, 'logical': 1167, 'carrier_files': 688, 'metadata_files': 10, 'aliases': 479, 'logical_original_bytes': 173281765, 'logical_stored_bytes': 85641576, 'unique_payload_bytes': 41151229, 'gzip_logical': 34},
+            'manifest': ref(STAGE / 'manifest.json'), 'copier': ref(STAGE / 'copy-final-publication.py.txt'), 'qualification': qualification,
+            'P37': {'immutable_Git_and_provider_Counter_and_bytes': 'recomputed', 'native_claims_and_original_criteria': 'independently_reconciled', 'G_finding_authority_and_P41': 'not_established'},
+            'limits': ['No native/source/math/type/environment/gate execution or mutation.', 'Literal provider refs are exact historical/current records, not additional scientific acceptance.', 'Scientific source b2 and later DOC fe9 identities stay distinct; new G6e metadata unmerged.', 'Current13 source role/native original reviews reused unchanged via DOC-only diff.']}
+
+
+if __name__ == '__main__':
+    print(json.dumps(main(), indent=2, sort_keys=True))

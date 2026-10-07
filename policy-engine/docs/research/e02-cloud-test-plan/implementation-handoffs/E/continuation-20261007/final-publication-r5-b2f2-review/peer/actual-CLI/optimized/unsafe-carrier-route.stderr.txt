@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v2/copy-final-publication.py.txt", line 287, in <module>
+    main()
+  File "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v2/copy-final-publication.py.txt", line 249, in main
+    counts = validate(p, manifest, args.layout)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v2/copy-final-publication.py.txt", line 224, in validate
+    payload_root = carrier_root(p, manifest, layout)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v2/copy-final-publication.py.txt", line 186, in carrier_root
+    raise ValueError('pure full carrier route preflight')
+ValueError: pure full carrier route preflight

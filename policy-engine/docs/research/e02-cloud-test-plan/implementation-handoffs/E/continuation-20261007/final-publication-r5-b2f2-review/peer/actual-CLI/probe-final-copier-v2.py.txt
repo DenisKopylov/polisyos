@@ -1,0 +1,113 @@
+import argparse
+import ast
+import copy
+import hashlib
+import importlib.machinery
+import importlib.util
+import json
+import os
+import subprocess
+import sys
+from pathlib import Path
+
+S = Path('/tmp/e02-E-final-publication-r5-b2f2-stage')
+parser=argparse.ArgumentParser()
+parser.add_argument('--stage',required=True)
+parser.add_argument('--output',required=True)
+args=parser.parse_args()
+stage, out=Path(args.stage),Path(args.output)
+if stage.parent!=S or out.parent!=S or out.exists():raise ValueError('fresh explicit custody-only scratch routes')
+out.mkdir()
+program=stage/'copy-final-publication.py.txt'
+loader=importlib.machinery.SourceFileLoader('actual_final_copier',str(program))
+spec=importlib.util.spec_from_loader(loader.name,loader);m=importlib.util.module_from_spec(spec);loader.exec_module(m)
+base=m.strict_json((stage/'manifest.json').read_bytes())
+source=program.read_bytes()
+def ref(p):
+ b=p.read_bytes();return {'path':str(p),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()}
+def prepare(name,manifest=None,overrides=None):
+ p=out/name;p.mkdir()
+ for child in stage.iterdir():
+  if child.name=='manifest.json':continue
+  (p/child.name).symlink_to(child,target_is_directory=child.is_dir())
+ (p/'manifest.json').write_text(json.dumps(base if manifest is None else manifest,indent=2)+'\n')
+ for k,v in (overrides or {}).items():
+  x=p/k
+  if x.is_symlink():x.unlink()
+  if v is not None:x.write_bytes(v)
+ return p
+rows=[]
+def run(name,p,prog=program,layout='stage',expected=1,copy_check=False):
+ dest=out/(name+'-destination')
+ argv=[sys.executable]
+ if sys.flags.optimize:argv+=['-O']
+ argv+=['-B',str(prog),'--manifest',str(p/'manifest.json'),'--layout',layout,'--destination-root',str(dest)]
+ result=subprocess.run(argv,capture_output=True)
+ (out/(name+'.stdout.txt')).write_bytes(result.stdout);(out/(name+'.stderr.txt')).write_bytes(result.stderr)
+ row={'name':name,'argv':argv,'exit_code':result.returncode,'destination_created':dest.exists(),'expected_exit':expected,'PASS':result.returncode==expected and (dest.exists() if expected==0 else not dest.exists())}
+ if copy_check and result.returncode==0:
+  target=dest/m.PREFIX
+  refs=[]
+  for r in base['canonical_copies']:
+   p=target/r['destination'];x=ref(p)
+   if (x['bytes'],x['sha256'])!=(r['stored']['bytes'],r['stored']['sha256']):raise ValueError('literal carrier readback')
+   refs.append(x)
+  for n in m.METADATA:
+   if (target/n).read_bytes()!=(stage/n).read_bytes():raise ValueError('literal companion readback')
+   refs.append(ref(target/n))
+  row['copied_files']=len(refs);row['copied_bytes']=sum(r['bytes'] for r in refs)
+  (out/(name+'-complete-readback.json')).write_text(json.dumps(refs,indent=2)+'\n')
+ rows.append(row)
+ (out/(name+'.observation.json')).write_text(json.dumps(row,indent=2)+'\n')
+ return row
+healthy=prepare('healthy-stage')
+run('healthy-stage',healthy,expected=0,copy_check=True)
+mutations={
+ 'source-zero':lambda d:d.update(publication_base='0'*40),
+ 'ROOT-after-zero':lambda d:d['ROOT_after'].update(head='0'*40),
+ 'root-execution-true':lambda d:d.update(source_native_numeric_globalgate_execution=True),
+ 'gate-PASS':lambda d:d['qualification']['global_gates'].update(architecture='PASS'),
+ 'case-PASS-bool':lambda d:d['qualification']['native_numeric'].update(PASS=True),
+ 'ledger-closed-bool':lambda d:d['qualification']['findings']['historical_ledger'].update(closed=True),
+ 'G-accepted-true':lambda d:d['qualification']['findings'].update(formal_G_acceptance=True),
+ 'UNRUN-zero':lambda d:d['qualification']['parent_stages']['CI_parity'].update(UNRUN=0),
+ 'logical-total-plus1':lambda d:d.update(logical_count=d['logical_count']+1),
+ 'payload-total-plus1':lambda d:d.update(unique_payload_files=d['unique_payload_files']+1),
+ 'mandatory-selector-omission':lambda d:d['selection_inputs'].pop(),
+ 'decoded-original-digest':lambda d:d['logical_sources'][next(i for i,r in enumerate(d['logical_sources']) if r['storage_mode']=='gzip_literal_archive')]['original'].update(sha256='0'*64),
+ 'unsafe-carrier-route':lambda d:d['canonical_copies'][0].update(destination='../unsafe.txt'),
+}
+for name,change in mutations.items():
+ d=copy.deepcopy(base);change(d);run(name,prepare(name,d))
+run('wrong-layout',prepare('wrong-layout'),layout='published')
+p=prepare('ambiguous-layout');r=base['canonical_copies'][0];x=p/r['destination'];x.parent.mkdir(parents=True,exist_ok=True);x.symlink_to(stage/'payload'/r['destination']);run('ambiguous-layout',p)
+for n in ('copy-final-publication.py.txt','supplemental-c229-functions.patch.txt','build-final-stage.py.txt','implementation-handoff.json'):
+ for kind,value in [('missing',None),('fake',b'present but fake\n')]:
+  name=kind+'-'+n.replace('.','-');run(name,prepare(name,overrides={n:value}))
+# Recompute every count/carrier/alias after a genuine original member omission.
+# Only the original raw member Counter can distinguish this counterfeit.
+d=copy.deepcopy(base)
+index=next(i for i,r in enumerate(d['logical_sources']) if r['member_class']!='selector' and r['family']=='final-three-gates-complete' and sum((x['stored']['sha256'],x['stored']['bytes'])==(r['stored']['sha256'],r['stored']['bytes']) for x in d['logical_sources'])>1)
+omitted=d['logical_sources'].pop(index)
+fields=('family','selection_source_path','member_class','original','stored','storage_mode','logical_destination','selected_record')
+observed=[{k:r[k] for k in fields} for r in d['logical_sources']]
+d['logical_sources'],d['canonical_copies']=m.carriers(observed)
+d.update(logical_count=len(observed),original_logical_bytes=sum(r['original']['bytes'] for r in observed),stored_logical_bytes=sum(r['stored']['bytes'] for r in observed),unique_payload_files=len(d['canonical_copies']),unique_payload_bytes=sum(r['stored']['bytes'] for r in d['canonical_copies']),deduplicated_occurrences=len(observed)-len(d['canonical_copies']))
+summary={k:d[k] for k in ('logical_count','original_logical_bytes','stored_logical_bytes','unique_payload_files','unique_payload_bytes','deduplicated_occurrences')}
+summary.update(metadata_files=len(m.METADATA),expected_git_paths=d['unique_payload_files']+len(m.METADATA))
+mutant_case=prepare('retotalled-genuine-member-omission',d,{'build.stdout.json':(json.dumps(summary,indent=2)+'\n').encode()})
+run('retotalled-genuine-member-omission',mutant_case)
+t=ast.parse(source.decode())
+validate=next(n for n in t.body if isinstance(n,ast.FunctionDef) and n.name=='validate')
+guards=[n for n in validate.body if isinstance(n,ast.If) and ast.unparse(n.test)=='got != want']
+if len(guards)!=1:raise ValueError('unique actual Counter predicate')
+validate.body.remove(guards[0])
+removed=ast.unparse(t)+'\n'
+mutant=out/'sole-Counter-guard-removal.py.txt';mutant.write_text(removed)
+copy_case=prepare('sole-Counter-removal',d,{'build.stdout.json':(json.dumps(summary,indent=2)+'\n').encode(),'copy-final-publication.py.txt':removed.encode()})
+divergence=run('sole-Counter-removal',copy_case,prog=mutant,expected=0)
+divergence['required_property_outcome']='FAIL: a genuine omitted member is admitted only after sole Counter guard removal'
+report={'schema':'policyos.e02.final_r5_actual_copier_controls.v1','source_candidate':m.FIXED_HEADER['publication_base'],'source_tree':m.FIXED_HEADER['publication_base_tree'],'copier':ref(program),'manifest':ref(stage/'manifest.json'),'normal_or_optimized':bool(sys.flags.optimize),'rows':rows,'actual_corrupt_refusals':sum(r['expected_exit']==1 for r in rows),'healthy_full_files':healthy and rows[0].get('copied_files'),'original_member_omitted':omitted,'Counter_guard_removed_only':True,'marker_or_payload_substitution_for_removal':False,'source_native_numeric_gate_execution':False,'ROOT_or_leaf_written':False,'all_controls_PASS':all(r['PASS'] for r in rows)}
+(out/'review.json').write_text(json.dumps(report,indent=2)+'\n')
+if not report['all_controls_PASS']:raise ValueError('actual copier controls failed')
+print(json.dumps({'outcome':'PASS metadata/literal custody controls only','report':ref(out/'review.json'),'rows':len(rows),'negative_refusals':report['actual_corrupt_refusals'],'healthy_files':report['healthy_full_files'],'Counter_removal_diverges':divergence['PASS'],'source_native_numeric_execution':False},indent=2))

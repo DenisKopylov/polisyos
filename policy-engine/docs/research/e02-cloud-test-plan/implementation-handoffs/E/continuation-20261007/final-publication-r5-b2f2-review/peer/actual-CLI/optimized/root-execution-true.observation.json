@@ -1,0 +1,19 @@
+{
+  "name": "root-execution-true",
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "-O",
+    "-B",
+    "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v2/copy-final-publication.py.txt",
+    "--manifest",
+    "/tmp/e02-E-final-publication-r5-b2f2-stage/peer-fe9-optimized/root-execution-true/manifest.json",
+    "--layout",
+    "stage",
+    "--destination-root",
+    "/tmp/e02-E-final-publication-r5-b2f2-stage/peer-fe9-optimized/root-execution-true-destination"
+  ],
+  "exit_code": 1,
+  "destination_created": false,
+  "expected_exit": 1,
+  "PASS": true
+}

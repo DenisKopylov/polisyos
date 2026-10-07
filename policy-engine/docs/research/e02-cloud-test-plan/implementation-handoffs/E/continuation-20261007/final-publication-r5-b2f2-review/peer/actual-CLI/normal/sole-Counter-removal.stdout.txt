@@ -1,0 +1,14 @@
+{
+  "logical_count": 1166,
+  "original_logical_bytes": 173281765,
+  "stored_logical_bytes": 85641576,
+  "unique_payload_files": 688,
+  "unique_payload_bytes": 41151229,
+  "deduplicated_occurrences": 478,
+  "metadata_files": 10,
+  "expected_git_paths": 698,
+  "outcome": "PASS literal DOC custody only",
+  "destination": "/tmp/e02-E-final-publication-r5-b2f2-stage/peer-fe9-normal/sole-Counter-removal-destination/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r5-b2f2",
+  "source_native_numeric_gate_execution": false,
+  "explicit_carrier_layout": "stage"
+}

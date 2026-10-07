@@ -1,0 +1,15 @@
+{
+  "schema": "policyos.e02.E.exact_DOC_admission_resume.v1",
+  "command": "E02_TOPIC_BRANCH=codex/e02-E-continuation-20261006\nE02_WORKTREE_ROOT=/workspace/e02-E-continuation-20261006\n(cd policy-engine && uv run --no-sync polisyos-tools workspace doctor --worktree-admission resume --branch \"${E02_TOPIC_BRANCH:?set actual branch}\" --path \"${E02_WORKTREE_ROOT:?set absolute worktree root}\")",
+  "cwd": "/workspace/e02-E-continuation-20261006",
+  "branch": "codex/e02-E-continuation-20261006",
+  "absolute_worktree_root": "/workspace/e02-E-continuation-20261006",
+  "HEAD": "fe9a8c5ee73c9ae0d122fdfd0e0b736c0e938386",
+  "exit_code": 0,
+  "start_utc": "2026-10-07T17:23:07.212282+00:00",
+  "end_utc": "2026-10-07T17:23:09.598229+00:00",
+  "complete_stdout_bytes": 123265,
+  "complete_stdout_sha256": "e2e07b5847527b89f9adc3e7b44fc07006f907c29028b8b4ef884a0517537bdf",
+  "complete_stdout": "workspace-resume-fe9a.full.json",
+  "stderr": "workspace-resume-fe9a.stderr.txt"
+}

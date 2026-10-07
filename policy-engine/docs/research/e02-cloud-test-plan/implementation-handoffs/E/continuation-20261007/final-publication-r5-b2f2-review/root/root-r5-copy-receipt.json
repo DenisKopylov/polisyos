@@ -1,0 +1,32 @@
+{
+  "schema": "policyos.e02.E.Root_final_passive_copy.v1",
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "source_tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "argv": [
+    "python3",
+    "-B",
+    "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v2/copy-final-publication.py.txt",
+    "--manifest",
+    "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v2/manifest.json",
+    "--layout",
+    "stage",
+    "--destination-root",
+    "/workspace/e02-E-continuation-20261006"
+  ],
+  "cwd": "/workspace/e02-E-continuation-20261006",
+  "start_utc": "2026-10-07T17:21:13.549506+00:00",
+  "end_utc": "2026-10-07T17:21:18.966425+00:00",
+  "exit_code": 0,
+  "plan_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/root-copy-plan-final.json",
+  "plan_sha256": "ac89b373640e0157b57dab7283cdb6ac278356bb6b9c458cda5fce757de553c1",
+  "expected_paths": 698,
+  "expected_bytes": 43540949,
+  "output_paths": [
+    "root-r5-copy.stdout.json",
+    "root-r5-copy.stderr.txt"
+  ],
+  "source_native_or_global_rerun": false,
+  "actual_paths": 698,
+  "actual_bytes": 43540949,
+  "literal_originals_full_footprint_match": true
+}

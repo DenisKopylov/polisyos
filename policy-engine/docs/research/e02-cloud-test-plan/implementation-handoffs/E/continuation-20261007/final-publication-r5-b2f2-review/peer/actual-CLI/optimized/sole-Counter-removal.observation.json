@@ -1,0 +1,19 @@
+{
+  "name": "sole-Counter-removal",
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "-O",
+    "-B",
+    "/tmp/e02-E-final-publication-r5-b2f2-stage/peer-fe9-optimized/sole-Counter-guard-removal.py.txt",
+    "--manifest",
+    "/tmp/e02-E-final-publication-r5-b2f2-stage/peer-fe9-optimized/sole-Counter-removal/manifest.json",
+    "--layout",
+    "stage",
+    "--destination-root",
+    "/tmp/e02-E-final-publication-r5-b2f2-stage/peer-fe9-optimized/sole-Counter-removal-destination"
+  ],
+  "exit_code": 0,
+  "destination_created": true,
+  "expected_exit": 0,
+  "PASS": true
+}

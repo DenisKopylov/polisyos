@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v2/copy-final-publication.py.txt", line 287, in <module>
+    main()
+  File "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v2/copy-final-publication.py.txt", line 249, in main
+    counts = validate(p, manifest, args.layout)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v2/copy-final-publication.py.txt", line 223, in validate
+    raise ValueError('fixed full original selector vector')
+ValueError: fixed full original selector vector

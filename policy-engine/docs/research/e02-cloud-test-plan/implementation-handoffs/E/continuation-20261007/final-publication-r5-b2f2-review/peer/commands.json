@@ -1,0 +1,88 @@
+{
+  "schema": "policyos.e02.independent.r5.commands.v1",
+  "environment": {
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41"
+  },
+  "actual_commands": [
+    {
+      "argv": [
+        "python3",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/probe-final-copier-v2.py.txt",
+        "--stage",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v2",
+        "--output",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/peer-fe9-normal"
+      ],
+      "stdout": "/tmp/e02-E-r5-DOC-independent-fe9a-20261007/controls-normal.stdout.json",
+      "stderr": "/tmp/e02-E-r5-DOC-independent-fe9a-20261007/controls-normal.stderr.txt",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/probe-final-copier-v2.py.txt",
+        "--stage",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v2",
+        "--output",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/peer-fe9-optimized"
+      ],
+      "stdout": "/tmp/e02-E-r5-DOC-independent-fe9a-20261007/controls-optimized.stdout.json",
+      "stderr": "/tmp/e02-E-r5-DOC-independent-fe9a-20261007/controls-optimized.stderr.txt",
+      "exit_code": 0
+    }
+  ],
+  "independent_read_commands": [
+    {
+      "argv": [
+        "python3",
+        "/tmp/e02-E-r5-DOC-independent-fe9a-20261007/review.py"
+      ],
+      "stdout": "/tmp/e02-E-r5-DOC-independent-fe9a-20261007/review-normal.json",
+      "stderr": "/tmp/e02-E-r5-DOC-independent-fe9a-20261007/review-normal.stderr.txt",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "/tmp/e02-E-r5-DOC-independent-fe9a-20261007/review.py"
+      ],
+      "stdout": "/tmp/e02-E-r5-DOC-independent-fe9a-20261007/review-optimized.json",
+      "stderr": "/tmp/e02-E-r5-DOC-independent-fe9a-20261007/review-optimized.stderr.txt",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "python3",
+        "/tmp/e02-E-r5-DOC-independent-fe9a-20261007/registered.py"
+      ],
+      "stdout": "/tmp/e02-E-r5-DOC-independent-fe9a-20261007/registered-normal.json",
+      "stderr": "/tmp/e02-E-r5-DOC-independent-fe9a-20261007/registered-normal.stderr.txt",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "/tmp/e02-E-r5-DOC-independent-fe9a-20261007/registered.py"
+      ],
+      "stdout": "/tmp/e02-E-r5-DOC-independent-fe9a-20261007/registered-optimized.json",
+      "stderr": "/tmp/e02-E-r5-DOC-independent-fe9a-20261007/registered-optimized.stderr.txt",
+      "exit_code": 0
+    }
+  ],
+  "close_command": {
+    "argv": [
+      "python3",
+      "/tmp/e02-E-r5-DOC-independent-fe9a-20261007/finalize.py"
+    ],
+    "stdout": "/tmp/e02-E-r5-DOC-independent-fe9a-20261007/final-GO.json",
+    "stderr": "/tmp/e02-E-r5-DOC-independent-fe9a-20261007/final-GO.stderr.txt",
+    "exit_code": 0
+  },
+  "observer_history": "Initial independent observer expected active_Python_paths integer0; actual handoff declares empty path list. Historical code/stderr/stdout retained; immutable body/claim bytes unchanged.",
+  "native_reexecution": false
+}

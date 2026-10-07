@@ -665,12 +665,11 @@ async def test_default_cycle_value_refusal_survives_persisted_run_readback(
                 min_cycles=1,
                 max_cycles=1,
             )
-
-        simulation = run.cycles[-1].simulation
-        assert simulation.status == "joint_simulated"
-        assert simulation.simulation_ref is not None
-        assert simulation.simulation_result_ref is not None
-        assert witness.store.verify(simulation.simulation_result_ref.artifact_id).ok
+            simulation = run.cycles[-1].simulation
+            assert simulation.status == "joint_simulated"
+            assert simulation.simulation_ref is not None
+            assert simulation.simulation_result_ref is not None
+            assert witness.store.verify(simulation.simulation_result_ref.artifact_id).ok
 
         expected_reason = (
             f"selected owner profile has {row_count} usable rows; at least 4 are required "

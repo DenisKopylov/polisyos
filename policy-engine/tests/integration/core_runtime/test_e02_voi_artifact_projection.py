@@ -333,21 +333,20 @@ async def test_informative_voi_candidate_core_readback_and_preview_refusal(
             fresh_service = fresh_app.state._control_service
             fresh_job = fresh_service._control_store.get_job(accepted["job_id"])
             assert fresh_job is not None and fresh_job.state == "completed"
-            core_source = fresh_service.resolve_completed_control_job_core_run_source(
-                fresh_job,
-                expected_control_run_id=str(fresh_job.run_id or ""),
-                tenant_id=TENANT_ID,
-                cell_id=CELL_ID,
-            )
-            outputs = core_source.manifest.outputs
-            assert len(outputs) == 1
-            owned_ref = outputs[0]
-            assert owned_ref.kind == "runtime.compiled_recursive_generation_cycle"
-            assert artifact_ref_identity_key(owned_ref) == artifact_ref_identity_key(
-                compiled_ref
-            )
-
             with tenant_scope(None, tenant_id=TENANT_ID, cell_id=CELL_ID):
+                core_source = fresh_service.resolve_completed_control_job_core_run_source(
+                    fresh_job,
+                    expected_control_run_id=str(fresh_job.run_id or ""),
+                    tenant_id=TENANT_ID,
+                    cell_id=CELL_ID,
+                )
+                outputs = core_source.manifest.outputs
+                assert len(outputs) == 1
+                owned_ref = outputs[0]
+                assert owned_ref.kind == "runtime.compiled_recursive_generation_cycle"
+                assert artifact_ref_identity_key(owned_ref) == artifact_ref_identity_key(
+                    compiled_ref
+                )
                 assert fresh_context.store.verify(owned_ref).ok
                 persisted_bytes = fresh_context.store.get_bytes(owned_ref)
             persisted = CompiledRecursiveGenerationCycleRun.model_validate(

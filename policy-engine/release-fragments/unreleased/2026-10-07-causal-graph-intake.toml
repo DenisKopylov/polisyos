@@ -11,7 +11,7 @@ migration = "Retain actual current source content and typed profiles; handle sta
 generated_client_compatibility = "not_required"
 migration_docs = ["docs/reference/scientist/causal-graph-intake.md"]
 runbook_docs = ["docs/reference/scientist/causal-graph-intake.md"]
-evidence = ["tests/unit/scientist/methods/causal/test_graph_intake_current_content.py", "tests/unit/scientist/methods/causal/test_reconcile_causal_graph_node.py"]
+evidence = ["tests/unit/scientist/methods/causal/test_graph_intake_current_content.py", "tests/unit/scientist/methods/causal/test_reconcile_causal_graph_node.py", "tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py", "tests/unit/foundry/methods/catalog/causal/test_discovery_reconciliation_limitations.py"]
 
 [[compatibility_change]]
 id = "causal-graph-current-content-admission"

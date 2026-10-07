@@ -1,0 +1,14 @@
+{
+  "actual_head": "f4c11a7506ae6e2c80161dc67c2458aa248164d5",
+  "tree": "1962a642c33b7350c1af641e74e720b8de9ac6ca",
+  "same_source_as_f796": "Test-only implementation; git diff f796..f4 -- policy-engine/src policy-engine/product empty.",
+  "before_after_count": 6251,
+  "before_sha256": "b7e0b516d9280005f5aefe6f70e4af45c1a9d326ef64c2131b0cd2f59bfe90e1",
+  "after_sha256": "b7e0b516d9280005f5aefe6f70e4af45c1a9d326ef64c2131b0cd2f59bfe90e1",
+  "drift": [],
+  "input_paths_derivation": "git ls-files policy-engine/src policy-engine/tests policy-engine/product policy-engine/pytest.ini policy-engine/pyproject.toml policy-engine/uv.lock at actualf4; source lists are recomputable from immutable Git and not duplicated.",
+  "runtime_origin_rows": 174,
+  "origin_hash_mismatch": [],
+  "original_inputs_before": "/tmp/e02-B-cas-b74-20261007/base-f4/inputs-before.json",
+  "original_inputs_after": "/tmp/e02-B-cas-b74-20261007/base-f4/inputs-after.json"
+}

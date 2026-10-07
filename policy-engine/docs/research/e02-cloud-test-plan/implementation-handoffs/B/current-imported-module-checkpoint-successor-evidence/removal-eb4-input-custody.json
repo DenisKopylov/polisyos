@@ -1,0 +1,31 @@
+{
+  "tag": "removal-eb4",
+  "actual_head": "1970df7b049c6f70b918d453d7051d497f73aa21",
+  "actual_tree": "2b87aedcd039624be7243988bd4a47df811b1208",
+  "tracked_input_selector": [
+    "policy-engine/src",
+    "policy-engine/tests",
+    "policy-engine/product",
+    "policy-engine/pytest.ini",
+    "policy-engine/pyproject.toml",
+    "policy-engine/uv.lock"
+  ],
+  "tracked_inputs": 6252,
+  "original_before_path": "/tmp/e02-B-cas-b74-20261007/removal-eb4/inputs-before.json",
+  "before_sha256": "53888441f8bce8081e85c931aa78059646503ecd663cf68cb9c948ed86acb2c2",
+  "original_after_path": "/tmp/e02-B-cas-b74-20261007/removal-eb4/inputs-after.json",
+  "after_sha256": "53888441f8bce8081e85c931aa78059646503ecd663cf68cb9c948ed86acb2c2",
+  "before_after_drift": [],
+  "actual_imported_origins": 174,
+  "origin_git_hash_mismatch": [],
+  "counts": {
+    "PASS": 0,
+    "FAIL": 1,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "source_identity_path": "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+  "source_identity_sha256": "a72ef4227aa04d2b6447cc553f0d9194b17a6dbc6394b2dfc0a2a442f820bc73",
+  "test_sha256": "1c22fd256f2038def925ed5467c5bc842d680bfa0669cee202a75ea881cc71f8",
+  "qualification": "Clean exact executed HEAD + complete before/after tracked input selector. Large derived input hash tables remain retained ignored; receiver can derive the full selector from immutable Git rather than use duplicated source tables. Literal input instrument and all actual imported module origins committed."
+}

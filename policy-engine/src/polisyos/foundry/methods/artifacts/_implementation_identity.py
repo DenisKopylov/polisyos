@@ -7,13 +7,15 @@ executes a helper or descriptor to discover its implementation.
 
 from __future__ import annotations
 
+import builtins
+import dis
 import inspect
 import sys
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
 from dataclasses import fields, is_dataclass
 from enum import Enum
-from types import MappingProxyType, MemberDescriptorType, ModuleType
-from typing import Any
+from types import CodeType, FunctionType, MappingProxyType, MemberDescriptorType, ModuleType
+from typing import Any, cast
 
 from polisyos.core.canon import to_canonical_bytes
 
@@ -31,6 +33,64 @@ _CLASS_STRUCTURE = frozenset(
 )
 
 
+# Namespace-producing and reflective builtins have no static selected-member
+# graph. Bind by the actual builtin object so renaming a captured alias cannot
+# turn their Python version into proof of a module's current selected content.
+_DYNAMIC_BUILTINS = frozenset(
+    {
+        builtins.__import__,
+        builtins.compile,
+        builtins.delattr,
+        builtins.dir,
+        builtins.eval,
+        builtins.exec,
+        builtins.getattr,
+        builtins.globals,
+        builtins.locals,
+        builtins.setattr,
+        builtins.vars,
+    }
+)
+_DYNAMIC_ATTRIBUTES = frozenset(
+    {
+        "__bases__",
+        "__builtins__",
+        "__closure__",
+        "__code__",
+        "__dict__",
+        "__getattr__",
+        "__getattribute__",
+        "__globals__",
+        "__mro__",
+        "__subclasses__",
+    }
+)
+
+
+def _instructions(code: CodeType) -> Iterator[dis.Instruction]:
+    """Walk the actual nested code, not only the outer function's co_names."""
+    yield from dis.get_instructions(code)
+    for constant in code.co_consts:
+        if isinstance(constant, CodeType):
+            yield from _instructions(constant)
+
+
+def _function_captures(function: FunctionType) -> dict[str, Any]:
+    captures = inspect.getclosurevars(function)
+    result = dict(captures.globals) | dict(captures.nonlocals) | dict(captures.builtins)
+    # A nested lambda/comprehension can be the only use of a global module.
+    # Resolve its references against the function's actual admitted namespace.
+    for instruction in _instructions(function.__code__):
+        if instruction.opname not in {"LOAD_GLOBAL", "LOAD_NAME"}:
+            continue
+        name = instruction.argval
+        if name in function.__globals__:
+            result[name] = function.__globals__[name]
+        elif name in cast("Any", function).__builtins__:
+            result[name] = cast("Any", function).__builtins__[name]
+    return result
+
+
 def implementation_identity_projection(
     implementation: type | Callable[..., Any], *, strict: bool = True
 ) -> dict[str, Any]:
@@ -41,14 +101,16 @@ def implementation_identity_projection(
     them. Immutable scalar/tuple/frozenset values, mapping proxies and frozen
     dataclass field values are supported; mutable captures, custom descriptors,
     callable instances and decorated functions with ``__wrapped__`` are not.
-    Imported modules and unavailable builtins use an installed distribution or
-    Python version boundary, rather than claiming their mutable module graph.
+    Captured modules require static global/nonlocal attribute selection. Their
+    selected members bind the supported graph. External callable internals and
+    unavailable builtins retain an explicit distribution/Python boundary; this
+    is not a claim about mutable internals of installed numerical libraries.
 
     ``strict=False`` records an explicit unavailable marker for legacy request
     identity. That profile does not establish complete implementation closure.
     """
     return {
-        "profile": "supported-python-code-graph-v1",
+        "profile": "supported-python-code-graph-v2",
         "implementation": _project(implementation, strict=strict, visiting=set()),
     }
 
@@ -68,6 +130,97 @@ def _version(root: str) -> str | None:
     from polisyos.foundry.methods.backends.runtime_fingerprint import capture_versions
 
     return next(iter(capture_versions(base_packages=(), runtime_stack=(root,)).values()), None)
+
+
+def _module_paths(code: CodeType, name: str) -> set[tuple[str, ...]] | None:
+    """Read static selections without evaluating module getters or imports."""
+    paths: set[tuple[str, ...]] = set()
+    instructions = list(dis.get_instructions(code))
+    for index, instruction in enumerate(instructions):
+        if instruction.opname not in {"LOAD_GLOBAL", "LOAD_DEREF", "LOAD_NAME"}:
+            continue
+        if instruction.argval != name:
+            continue
+        path = []
+        for following in instructions[index + 1 :]:
+            if following.opname != "LOAD_ATTR":
+                break
+            path.append(following.argval)
+        if not path:
+            # Passing/aliasing a module or reflecting over it has no declared
+            # static member closure. A version alone cannot admit that graph.
+            return None
+        paths.add(tuple(path))
+    for constant in code.co_consts:
+        if isinstance(constant, CodeType):
+            nested = _module_paths(constant, name)
+            if nested is None:
+                return None
+            paths.update(nested)
+    return paths
+
+
+def _external_member_boundary(value: Any) -> dict[str, Any] | None:
+    """Bind an installed callable's selection, without claiming its internals."""
+    if not (inspect.isfunction(value) or inspect.isclass(value) or callable(value)):
+        return None
+    value_type = type(value)
+    # FunctionType and ordinary type have fixed runtime identity attributes;
+    # getattr_static would return their descriptors, not the selected values.
+    if value_type is FunctionType or value_type is type:
+        module = value.__module__
+        name = value.__qualname__
+    else:
+        module = inspect.getattr_static(value, "__module__", value_type.__module__)
+        name = inspect.getattr_static(value, "__qualname__", None)
+    if not isinstance(module, str):
+        module = value_type.__module__
+    root = module.split(".")[0]
+    if root in sys.stdlib_module_names or root == "builtins":
+        return None
+    version = _version(root)
+    if version is None:
+        return None
+    if not isinstance(name, str):
+        name = inspect.getattr_static(value, "__name__", value_type.__qualname__)
+    if not isinstance(name, str):
+        name = value_type.__qualname__
+    source_value = value if inspect.isfunction(value) or type(value) is type else value_type
+    return {
+        "external_callable_boundary": {
+            "symbol": f"{module}.{name}",
+            "type": f"{value_type.__module__}.{value_type.__qualname__}",
+            "source_hash": compute_source_hash(source_value),
+            "distribution_version": version,
+            "mutable_internals": "not_bound",
+        }
+    }
+
+
+def _module_capture(
+    function: FunctionType, name: str, module: ModuleType, *, strict: bool, visiting: set[int]
+) -> Any:
+    if type(module) is not ModuleType:
+        return _unavailable(module, strict)
+    paths = _module_paths(function.__code__, name)
+    version = _version(module.__name__.split(".")[0])
+    if not paths or version is None:
+        return _unavailable(module, strict)
+    members = {}
+    for path in sorted(paths):
+        current: Any = module
+        for attribute in path:
+            if type(current) is not ModuleType or attribute not in vars(current):
+                return _unavailable(module, strict)
+            current = vars(current)[attribute]
+        try:
+            member = _project(current, strict=strict, visiting=visiting)
+        except SourceIdentityUnavailableError:
+            member = _external_member_boundary(current)
+            if member is None:
+                raise
+        members[".".join(path)] = member
+    return {"module": module.__name__, "version": version, "selected_members": members}
 
 
 def _project(value: Any, *, strict: bool, visiting: set[int]) -> Any:
@@ -109,15 +262,14 @@ def _project(value: Any, *, strict: bool, visiting: set[int]) -> Any:
             "delete": _project(value.fdel, strict=strict, visiting=visiting),
         }
     if isinstance(value, ModuleType):
-        version = _version(value.__name__.split(".")[0])
-        if version is not None:
-            return {"module": value.__name__, "version": version}
+        # A bare module has no static access context. Only _module_capture may
+        # admit its selected members; do not rescue dynamic transport by name.
         return _unavailable(value, strict)
     if is_dataclass(value) and not isinstance(value, type):
         record_type = type(value)
         if (
             type(record_type) is not type
-            or not value.__dataclass_params__.frozen
+            or not cast("Any", value).__dataclass_params__.frozen
             or record_type.__getattribute__ is not object.__getattribute__
             or any("__getattr__" in vars(base) for base in record_type.__mro__)
         ):
@@ -144,12 +296,20 @@ def _project(value: Any, *, strict: bool, visiting: set[int]) -> Any:
         if id(value) in visiting:
             return {"recursive_symbol": symbol}
         source = compute_source_hash(value)
+        if inspect.isbuiltin(value) and value in _DYNAMIC_BUILTINS:
+            return _unavailable(value, strict)
         if inspect.isbuiltin(value) or (
             source == "unavailable" and str(value.__module__) == "builtins"
         ):
             version = _version(str(value.__module__).split(".")[0])
             if version is not None:
                 return {"symbol": symbol, "distribution_version": version}
+            return _unavailable(value, strict)
+        if inspect.isfunction(value) and any(
+            instruction.opname in {"IMPORT_NAME", "IMPORT_FROM"}
+            or (instruction.opname == "LOAD_ATTR" and instruction.argval in _DYNAMIC_ATTRIBUTES)
+            for instruction in _instructions(value.__code__)
+        ):
             return _unavailable(value, strict)
         if inspect.isfunction(value) and (source == "unavailable" or "__wrapped__" in vars(value)):
             return _unavailable(value, strict)
@@ -170,12 +330,13 @@ def _project(value: Any, *, strict: bool, visiting: set[int]) -> Any:
                     if name not in _CLASS_STRUCTURE
                 }
             else:
-                captures = inspect.getclosurevars(value)
                 result["captures"] = {
-                    name: _project(item, strict=strict, visiting=visiting)
-                    for name, item in sorted(
-                        (captures.globals | captures.nonlocals | captures.builtins).items()
+                    name: (
+                        _module_capture(value, name, item, strict=strict, visiting=visiting)
+                        if isinstance(item, ModuleType)
+                        else _project(item, strict=strict, visiting=visiting)
                     )
+                    for name, item in sorted(_function_captures(value).items())
                 }
                 result["defaults"] = _project(value.__defaults__, strict=strict, visiting=visiting)
                 result["keyword_defaults"] = {

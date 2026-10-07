@@ -1,0 +1,18 @@
+{
+  "exit_code": 1,
+  "wall_s": 2.8005271639849525,
+  "rss_kib": 224164,
+  "child_pid": 706494,
+  "user_cpu_s": 2.902026,
+  "system_cpu_s": 0.279206,
+  "head_before": "1970df7b049c6f70b918d453d7051d497f73aa21",
+  "head_after": "1970df7b049c6f70b918d453d7051d497f73aa21",
+  "tree": "2b87aedcd039624be7243988bd4a47df811b1208",
+  "source_status_after": "",
+  "input_paths": 6252,
+  "input_drift": [],
+  "profile": "/tmp/e02-B-cas-b74-20261007/removal-eb4/profile.json",
+  "stdout": "/tmp/e02-B-cas-b74-20261007/removal-eb4/native.txt",
+  "stdout_bytes": 5145,
+  "stdout_sha256": "97b2402c846cca2278e2d72b1c15337e13efdb81f086b2a969470b734f2b419b"
+}

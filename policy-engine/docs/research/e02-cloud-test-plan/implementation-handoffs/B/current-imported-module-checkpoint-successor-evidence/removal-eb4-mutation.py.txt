@@ -1,0 +1,10 @@
+"""Remove only selected imported-member quantity; retain real checkpoint/CAS consumers."""
+from polisyos.foundry.methods.artifacts import _implementation_identity as owner
+_original_module_capture = owner._module_capture
+def _version_only(function, name, module, *, strict, visiting):
+    version = owner._version(module.__name__.split('.')[0])
+    if version is None:
+        return _original_module_capture(function, name, module, strict=strict, visiting=visiting)
+    return {'module': module.__name__, 'version': version}
+def pytest_configure(config):
+    owner._module_capture = _version_only

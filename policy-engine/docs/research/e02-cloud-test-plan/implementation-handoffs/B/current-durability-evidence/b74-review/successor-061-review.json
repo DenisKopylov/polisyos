@@ -1,0 +1,153 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "unit": "B",
+  "reviewer": "/root/dur_probe, different author from CMP",
+  "finding_id": "B74",
+  "target_sha": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+  "target_tree_sha": "fdc138d132c9bb0b23f79ff5f27db1cb8091bd68",
+  "slice_base_sha": "c639295e25a602869c6c28754cd43fd856aa05cf",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-foundry-checkpoint-identity.toml",
+    "policy-engine/src/polisyos/foundry/methods/artifacts/README.md",
+    "policy-engine/src/polisyos/foundry/methods/artifacts/__init__.py",
+    "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+    "policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py",
+    "policy-engine/src/polisyos/foundry/methods/components/README.md",
+    "policy-engine/tests/unit/foundry/methods/backends/test_checkpoint_identity.py"
+  ],
+  "source_identity": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-foundry-checkpoint-identity.toml",
+      "source_sha": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+      "sha256": "2eefa50c513fe3e86ca5ed76225542c05565f28890008cd8dc12cf7a4c6bab64",
+      "bytes": 2600
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/artifacts/README.md",
+      "source_sha": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+      "sha256": "109335160977de596bf6a82402f7c71bf15d0a2db866fa4ce854f5ba97fe84ac",
+      "bytes": 2378
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/artifacts/__init__.py",
+      "source_sha": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+      "sha256": "79a2f5203ae44074bc81e1fe6074adf23b1942960bbe62527b16772c1d827670",
+      "bytes": 383
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+      "source_sha": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+      "sha256": "5687fea7a29fb35a6093d2baa3f0a0c12674552dd4c29ee7867e096e19cee35d",
+      "bytes": 8535
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py",
+      "source_sha": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+      "sha256": "1e76c8b5c43136bf60f459fc41295c699ac1ff1f8640195c867b37eafc876bba",
+      "bytes": 58334
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/components/README.md",
+      "source_sha": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+      "sha256": "0dbc21a80e6ec1b7a9cde8625232b28f24726094a57bddd0984889546a950271",
+      "bytes": 7772
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+      "source_sha": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+      "sha256": "23f3a815adb38d2b18ef9f68b320300788941a45e4d32bac2e9e2cfe734d13fd",
+      "bytes": 33264
+    }
+  ],
+  "original_red_receipt": {
+    "source_commit": "3adeb4e90b803603f1e3cbcdfbfeb616ea402620",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b74-review/receipt.json",
+    "sha256": "648aed21ebac9c3de8ae7c1dde6cd0d437863053a0f19cb0e630d80169650e50",
+    "meaning": "Actualc639helperreplacementFAIL remains preserved, not overwritten by successorPASS"
+  },
+  "verdict": "PASS bounded ordinary class/helper source graph; no blocking source finding",
+  "specification_verdict": "PASS: generic ordinaryclass attributes/bases/function/static/class/property descriptors now bind actual underlying implementation and immutable captures rather than skip all callableattrs",
+  "engineering_verdict": "PASS: shared artifact owner delegates sourcehash, checkpoint typedwrapper converts unsupportedgraphrefusal before dispatch; actual sameclass helper replacement invalidates checkpoint before suffix. Supported data/module-version boundaries explicit.",
+  "checks": [
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-B-current-durability/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b74-review/probe.py",
+        "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/review-b74-061/actual-cas",
+        "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf"
+      ],
+      "cwd": "/workspace/e02-B-current-composition/policy-engine",
+      "target_sha": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+      "target_tree_sha": "fdc138d132c9bb0b23f79ff5f27db1cb8091bd68",
+      "environment": {
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-composition/policy-engine/src:/workspace/e02-B-current-composition/policy-engine",
+        "source_checkout": "/workspace/e02-B-current-composition",
+        "source_origin_assertions": "Fouroriginaldriverpaths Gitbyteasserted before import; actual sourcehelper/checkpoint source inspected at exact immutable061",
+        "no_new_checkout": true,
+        "no_source_test_edits": true,
+        "before_head": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+        "after_status": ""
+      },
+      "input_closure": "Exact unchanged4146bytecommitted0364238 driver, actual requiredtwo-nodechain/NumPydispatch/FileSystemCAS refs and immutablegenerationcheckpoint. Originalcold7, unchangedresume7 then replace sameclass statichelper with inspectable changedfunction and actualcold10. Sameinput/config/origin/dependency/cache refs, seed/state/ABI/checkpoint bytes unchanged.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "elapsed_seconds": 1.7651441097259521,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b74-review/probe-061.txt",
+        "sha256": "ba544c2857e0fb05c2e1b57bbd888e24cf27e6ff0b03487ebbdeb031aaf58d79",
+        "bytes": 3869
+      },
+      "driver": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b74-review/probe.py",
+        "sha256": "0364238f32260449173af2688099e754c5f27d0d65f1c25a6acfed1d52a2b08b",
+        "bytes": 4146
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b74-review/successor-061-wrapper.json",
+        "sha256": "80dde689c710d2c4665254ab356bf734631cfcc19b077a5c57adfc9444bde5ef",
+        "bytes": 1127
+      },
+      "deciding_behavior": {
+        "original_total": 7,
+        "unchanged_resume_total": 7,
+        "changed_cold_total": 10,
+        "changed_resume_error": "CheckpointDigestMismatchError",
+        "changed_resume_dispatches": [],
+        "original_checkpoint_unchanged": true
+      }
+    }
+  ],
+  "source_review": [
+    "Read complete7path c639→061delta, all192lines sharedhelper, checkpointwrapper+callbackbinding, eagerfacade exports, nativehelper4descriptor/metadata/unsupported/mutablenested controls and docs/release. No source/consumer authored by reviewer.",
+    "Ordinaryruntimeclass all supportedattrs/bases projected, descriptors inspected through underlyingfunctions without invocation; function capturesglobals/nonlocals/builtins/defaults/immutableattributes; supportedrecursive edge uses symbol stop. Unknowncustomdescriptors/callableinstances/wrappedfunction/mutablecaptures failstrict before dispatch.",
+    "Frozenrecords bind directly storedimmutablefields + declaredclasssource, with custom getattribute/getattr refused; no recordmethods invoked to infer authority. Importedmodules/builtins use explicitversionboundary, not complete mutablemoduleclosure.",
+    "Checkpointpersists samecanonicalrequestidentity, state/history/CASreadback/context logic unchanged from previouslyreviewedc639. Sameclasshelpercountercase now materially refuses with no suffix dispatch."
+  ],
+  "limitations": [
+    "Finite inspectableordinaryPython class/function/codegraph+JSON/nonobjectNumPycheckpoint profile only. No A servedroute/Scientist restoration/allbackend/runtimeeffect or hostilemutation claim.",
+    "Frozenrecord arbitrarymethods, dynamicreflection/imports, mutablemodulecontents and external effects are explicit finite boundaries.",
+    "No duplicatewhole119/128suite, new39native tests onlysource-reviewed; actual decidingtest is independent unchangedprobe. Author128PASS is separate evidence, not inherited as reviewerexecution.",
+    "Sharedhelper intendedforcompiler too, but this packet independently attests checkpointB74 path only, not JITactualconsumer/sourceclosure.",
+    "No finding closure; finalmergedcohort/rootGdecides."
+  ],
+  "closure_ids": [],
+  "evidence_files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b74-review/probe-061.txt",
+      "sha256": "ba544c2857e0fb05c2e1b57bbd888e24cf27e6ff0b03487ebbdeb031aaf58d79",
+      "bytes": 3869
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b74-review/successor-061-wrapper.json",
+      "sha256": "80dde689c710d2c4665254ab356bf734631cfcc19b077a5c57adfc9444bde5ef",
+      "bytes": 1127
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b74-review/probe.py",
+      "sha256": "0364238f32260449173af2688099e754c5f27d0d65f1c25a6acfed1d52a2b08b",
+      "bytes": 4146
+    }
+  ]
+}

@@ -1,0 +1,287 @@
+{
+  "schema": "policyos.e02.gate_input_observation.v1",
+  "observation_utc": "2026-10-06T12:39:45.139668+00:00",
+  "root": "/workspace/e02-B-current-coordination",
+  "source_sha": "99af508a5282854f3e609c5a94bc19ac55893dde",
+  "tree_sha": "6781c0bae95eb108bcffff382abf3a50f0bd6734",
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "config_source_bindings": [
+    {
+      "path": "AGENTS.md",
+      "source_sha": "933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+      "sha256": "35b1e1bf610b8a19b417cb35d6f0c7afca341c4c8c9bbc1574400c38f24b7d50"
+    },
+    {
+      "path": "policy-engine/CONTRIBUTING.md",
+      "source_sha": "933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+      "sha256": "1c9ea84e5fa0d8f05517287523d47d71128742ad02a5d20ce326163d21754783"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md",
+      "source_sha": "933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+      "sha256": "8519f95eb0ff2ec2c64caa4497eb58b957fe7cd47a0a6955bad98a2c20795d3b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/verification-and-closeout.md",
+      "source_sha": "933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+      "sha256": "d71d4aa68d1cb754139030367514b3662fa4c9acde54d55af66311213a3c32a1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md",
+      "source_sha": "933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+      "sha256": "0f09c4d8e28888bb1262b007b771c586e0dbb057ea24173a8e1dddbb378b97c8"
+    },
+    {
+      "path": "policy-engine/tools/devx/workspace/verify.py",
+      "source_sha": "933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+      "sha256": "864ec1e4f463b63610986cd86b93a1b61687408b84e1a9c64cd6d6a65d587207"
+    },
+    {
+      "path": "policy-engine/tools/devx/workspace/ci_parity.py",
+      "source_sha": "933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+      "sha256": "8ee3abda4668c4bbc24c58412b11eda51eaae9c046b98ad80ff5b17705e26619"
+    },
+    {
+      "path": "policy-engine/tools/devx/workspace/_common.py",
+      "source_sha": "933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+      "sha256": "fadb1e8e48587a79fdeafdf7ce23216518d4f09a06c3045b0ed1f1c0133c267a"
+    },
+    {
+      "path": "policy-engine/tools/devx/architecture/guardrails.py",
+      "source_sha": "933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+      "sha256": "65f0daa51b96910c04cd6dd69676040f9b41b1674955c66e7c479106cd9d187a"
+    },
+    {
+      "path": "policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py",
+      "source_sha": "933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+      "sha256": "210f376a6b95310fdedcbbea3917b7e0dc8a59d176d24631772522794d6877b1"
+    },
+    {
+      "path": "policy-engine/pytest.ini",
+      "source_sha": "933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+      "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+    },
+    {
+      "path": "policy-engine/pyproject.toml",
+      "source_sha": "933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+    },
+    {
+      "path": "policy-engine/uv.lock",
+      "source_sha": "933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+    },
+    {
+      "path": "policy-engine/docs/reference/quality-gates.md",
+      "source_sha": "933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+      "sha256": "b8fd86119ed42f6400548a5977a08e426346167db3ae39895028c5a898298b9d"
+    },
+    {
+      "path": "policy-engine/docs/reference/merge-governance.md",
+      "source_sha": "933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+      "sha256": "2161f1e787bb056fb5fcd929895cd49d6942ca530b11003b1d60d86a8cbe1c9f"
+    }
+  ],
+  "tracked_file_denominator": {
+    "total": 14378,
+    "suffix_counts": {
+      ".blob": 11,
+      ".cfg": 1,
+      ".cjs": 9,
+      ".css": 17,
+      ".csv": 15,
+      ".cypher": 2,
+      ".diff": 3,
+      ".docx": 1,
+      ".duckdb": 4,
+      ".example": 3,
+      ".fixture": 2,
+      ".html": 3,
+      ".ini": 11,
+      ".js": 4,
+      ".json": 3199,
+      ".jsonc": 1,
+      ".jsonl": 14,
+      ".lock": 1,
+      ".log": 46,
+      ".md": 2147,
+      ".mdc": 1,
+      ".mjs": 40,
+      ".patch": 2,
+      ".pkl": 2,
+      ".png": 42,
+      ".py": 6532,
+      ".pyi": 5,
+      ".rego": 23,
+      ".reproducible": 1,
+      ".retired": 1,
+      ".sh": 46,
+      ".sha256": 1,
+      ".sql": 6,
+      ".sqlite": 2,
+      ".sqlite-wal": 2,
+      ".svg": 18,
+      ".tf": 1,
+      ".tmpl": 7,
+      ".toml": 284,
+      ".tpl": 1,
+      ".ts": 519,
+      ".tsv": 6,
+      ".tsx": 720,
+      ".txt": 294,
+      ".typed": 2,
+      ".webm": 6,
+      ".whl": 1,
+      ".xml": 126,
+      ".yaml": 85,
+      ".yml": 71,
+      ".zip": 8,
+      "<none>": 29
+    },
+    "changed_total": 737,
+    "changed_by_declared_scope": {
+      "policy-engine/src/": 47,
+      "policy-engine/tests/": 38,
+      "policy-engine/tools/": 0,
+      "policy-engine/docs/": 632
+    },
+    "changed_python_paths": 141,
+    "qualification": "complete Git tree/change census; not a complete dynamic gate read set"
+  },
+  "historical_declared_selector_census": {
+    "input": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json@99af508a5282854f3e609c5a94bc19ac55893dde",
+    "input_sha256": "5abd40cc31570b26747c36ca2f782503e066c5df0195574452535943626b2b87",
+    "declared_unique_paths": 127,
+    "tracked_present": 85,
+    "missing_paths": [
+      "policy-engine/tests/unit/remediation/test_bkt_01.py",
+      "policy-engine/tests/unit/remediation/test_bkt_04.py",
+      "policy-engine/tests/unit/remediation/test_cal_05.py",
+      "policy-engine/tests/unit/remediation/test_ctl_01.py",
+      "policy-engine/tests/unit/remediation/test_ctl_02.py",
+      "policy-engine/tests/unit/remediation/test_ctl_03.py",
+      "policy-engine/tests/unit/remediation/test_cyc_01.py",
+      "policy-engine/tests/unit/remediation/test_cyc_03.py",
+      "policy-engine/tests/unit/remediation/test_ddm_01.py",
+      "policy-engine/tests/unit/remediation/test_ddm_02.py",
+      "policy-engine/tests/unit/remediation/test_dfi_01.py",
+      "policy-engine/tests/unit/remediation/test_dur_01.py",
+      "policy-engine/tests/unit/remediation/test_emb_01.py",
+      "policy-engine/tests/unit/remediation/test_exe_01.py",
+      "policy-engine/tests/unit/remediation/test_fed_01.py",
+      "policy-engine/tests/unit/remediation/test_fry_01.py",
+      "policy-engine/tests/unit/remediation/test_fun_01.py",
+      "policy-engine/tests/unit/remediation/test_grf_01.py",
+      "policy-engine/tests/unit/remediation/test_grf_02.py",
+      "policy-engine/tests/unit/remediation/test_hyg_02.py",
+      "policy-engine/tests/unit/remediation/test_ing_01.py",
+      "policy-engine/tests/unit/remediation/test_ing_02.py",
+      "policy-engine/tests/unit/remediation/test_ing_03.py",
+      "policy-engine/tests/unit/remediation/test_llm_02.py",
+      "policy-engine/tests/unit/remediation/test_net_01.py",
+      "policy-engine/tests/unit/remediation/test_net_02.py",
+      "policy-engine/tests/unit/remediation/test_opt_01.py",
+      "policy-engine/tests/unit/remediation/test_opt_02.py",
+      "policy-engine/tests/unit/remediation/test_opt_03.py",
+      "policy-engine/tests/unit/remediation/test_opt_04.py",
+      "policy-engine/tests/unit/remediation/test_pcl_01.py",
+      "policy-engine/tests/unit/remediation/test_req_01.py",
+      "policy-engine/tests/unit/remediation/test_run_01.py",
+      "policy-engine/tests/unit/remediation/test_run_02.py",
+      "policy-engine/tests/unit/remediation/test_scl_01.py",
+      "policy-engine/tests/unit/remediation/test_sel_01.py",
+      "policy-engine/tests/unit/remediation/test_sta_01.py",
+      "policy-engine/tests/unit/remediation/test_sta_02.py",
+      "policy-engine/tests/unit/remediation/test_stp_01.py",
+      "policy-engine/tests/unit/remediation/test_str_01.py",
+      "policy-engine/tests/unit/remediation/test_trn_01.py",
+      "policy-engine/tests/unit/remediation/test_trn_03.py"
+    ],
+    "qualification": "historical global map, not current B-only collection or criterion closure"
+  },
+  "illustrative_closeout_command_schema": {
+    "input": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json@99af508a5282854f3e609c5a94bc19ac55893dde",
+    "input_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2",
+    "bundles": 127,
+    "bundles_with_test_paths": 0,
+    "qualification": "the documented coverage.json bundle/test_paths command has no matching schema; not run as a test gate"
+  },
+  "native_trash_availability": {
+    "commands": {
+      "trash": null,
+      "trash-put": null,
+      "gio": null,
+      "kioclient5": null,
+      "kioclient": null,
+      "osascript": null
+    },
+    "directories": [
+      {
+        "path": "/home/agent/.local/share/Trash",
+        "kind": "missing"
+      },
+      {
+        "path": "/home/agent/.Trash",
+        "kind": "missing"
+      },
+      {
+        "path": "/workspace/.Trash",
+        "kind": "missing"
+      }
+    ],
+    "qualification": "bounded executable/standard-path census; no alternate API or platform fallback established"
+  },
+  "root_locator_observations": [
+    {
+      "path": "/workspace/e02-B-current-coordination/policy-engine/.venv",
+      "kind": "symlink",
+      "symlink_target": "/workspace/polisyos/policy-engine/.venv"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/policy-engine/.mypy_cache",
+      "kind": "missing"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/policy-engine/_build",
+      "kind": "missing"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/policy-engine/_cache/ruff",
+      "kind": "directory"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/policy-engine/_cache/pytest",
+      "kind": "directory"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/policy-engine/_cache/benchmarks",
+      "kind": "directory"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/policy-engine/_cache/hypothesis",
+      "kind": "directory"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/policy-engine/node_modules",
+      "kind": "directory"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/policy-engine/apps/runtime-dashboard/node_modules",
+      "kind": "directory"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw",
+      "kind": "directory"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools",
+      "kind": "directory"
+    }
+  ],
+  "execution": {
+    "gates_run": [],
+    "tests_collected": false,
+    "deletions": [],
+    "new_worktrees": []
+  }
+}

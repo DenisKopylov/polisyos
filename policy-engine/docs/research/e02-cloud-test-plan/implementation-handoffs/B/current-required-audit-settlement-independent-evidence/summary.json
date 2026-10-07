@@ -1,0 +1,83 @@
+{
+  "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+  "source_tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+  "initial_test_sha": "c1815b5fc9bea42a18297b2800bc7b8668ea202e",
+  "qualified_test_sha": "9c76d54cf10255ab5b926dfd961dcb3e07711ff4",
+  "initial_literal_native_counts": {
+    "FAIL": 4
+  },
+  "initial_property": "not_established: actual unavailable tokenizer encoding fetch before provider/audit premise. No product failure attributed.",
+  "qualified_literal_native_counts": {
+    "PASS": 2,
+    "FAIL": 2
+  },
+  "cases": [
+    {
+      "profile": "initial-not-established",
+      "case_index": 0,
+      "native_case_name": "test_protected_audit_reconciliation_precedes_next_provider[healthy-sync-invoke]",
+      "native_status": "FAIL",
+      "failure_message": "requests.exceptions.ProxyError: HTTPSConnectionPool(host='openaipublic.blob.core.windows.net', port=443): Max retries exceeded with url: /encodings/cl100k_base.tiktoken (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))",
+      "property_grade": "not_established_before_provider_admission"
+    },
+    {
+      "profile": "initial-not-established",
+      "case_index": 1,
+      "native_case_name": "test_protected_audit_reconciliation_precedes_next_provider[healthy-async-generate]",
+      "native_status": "FAIL",
+      "failure_message": "requests.exceptions.ProxyError: HTTPSConnectionPool(host='openaipublic.blob.core.windows.net', port=443): Max retries exceeded with url: /encodings/cl100k_base.tiktoken (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))",
+      "property_grade": "not_established_before_provider_admission"
+    },
+    {
+      "profile": "initial-not-established",
+      "case_index": 2,
+      "native_case_name": "test_protected_audit_reconciliation_precedes_next_provider[protected-commit-fault-sync-invoke]",
+      "native_status": "FAIL",
+      "failure_message": "requests.exceptions.ProxyError: HTTPSConnectionPool(host='openaipublic.blob.core.windows.net', port=443): Max retries exceeded with url: /encodings/cl100k_base.tiktoken (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))",
+      "property_grade": "not_established_before_provider_admission"
+    },
+    {
+      "profile": "initial-not-established",
+      "case_index": 3,
+      "native_case_name": "test_protected_audit_reconciliation_precedes_next_provider[protected-commit-fault-async-generate]",
+      "native_status": "FAIL",
+      "failure_message": "requests.exceptions.ProxyError: HTTPSConnectionPool(host='openaipublic.blob.core.windows.net', port=443): Max retries exceeded with url: /encodings/cl100k_base.tiktoken (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))",
+      "property_grade": "not_established_before_provider_admission"
+    },
+    {
+      "profile": "qualified",
+      "case_index": 0,
+      "native_case_name": "test_protected_audit_reconciliation_precedes_next_provider[healthy-sync-invoke]",
+      "native_status": "PASS",
+      "failure_message": null,
+      "property_grade": "actual_healthy_control"
+    },
+    {
+      "profile": "qualified",
+      "case_index": 1,
+      "native_case_name": "test_protected_audit_reconciliation_precedes_next_provider[healthy-async-generate]",
+      "native_status": "PASS",
+      "failure_message": null,
+      "property_grade": "actual_healthy_control"
+    },
+    {
+      "profile": "qualified",
+      "case_index": 2,
+      "native_case_name": "test_protected_audit_reconciliation_precedes_next_provider[protected-commit-fault-sync-invoke]",
+      "native_status": "FAIL",
+      "failure_message": "AssertionError: a received, known-cost provider result still lacks its mandatory protected COMMITTED audit; restoring the file alone must not admit another spend\nassert 2 == 1\n +  where 2 = len([{'max_tokens': 4, 'prompt': 'nonempty physical request'}, {'max_tokens': 4, 'prompt': 'nonempty physical request'}])",
+      "property_grade": "actual_protected_audit_failure"
+    },
+    {
+      "profile": "qualified",
+      "case_index": 3,
+      "native_case_name": "test_protected_audit_reconciliation_precedes_next_provider[protected-commit-fault-async-generate]",
+      "native_status": "FAIL",
+      "failure_message": "AssertionError: a received, known-cost provider result still lacks its mandatory protected COMMITTED audit; restoring the file alone must not admit another spend\nassert 2 == 1\n +  where 2 = len([{'max_tokens': 4, 'user': 'nonempty physical request'}, {'max_tokens': 4, 'user': 'nonempty physical request'}])",
+      "property_grade": "actual_protected_audit_failure"
+    }
+  ],
+  "finding_status": "open scoped protected-audit settlement barrier; no full B65 closure",
+  "p37_input_qualification": "Only existing request _prompt_tokens_estimate=3 input and comment added; actual provider reports same3 tokens, input stripped before provider. No source change/network fallback/source authority invented.",
+  "p38_grade": "Actual Traced→enforcer→real FileBudgetLedger+protected local audit→fresh ledger and ChainVerifier readers; physical provider request JSONL before response; not constructor/marker/exit-only."
+}

@@ -1,0 +1,40 @@
+{
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+    "tests/unit/scientist/mirror_contracts/test_budget_ledger.py",
+    "tests/unit/remediation/test_dur_02_process.py",
+    "tests/unit/remediation/test_dur_02.py",
+    "tests/unit/runtime/http/test_control_plane_store.py",
+    "tests/unit/runtime/http/test_acquisition_control_worker.py",
+    "tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py",
+    "--basetemp",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current81-dur-pytest",
+    "-o",
+    "cache_dir=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current81-dur-cache",
+    "--junitxml=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current81-dur.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+  "head": "81c3f2ac8318fcf79d7c99b21f3e51a77310c609",
+  "tree": "6506f220eb966f0a18d9039768d570b40190edab",
+  "head_after": "81c3f2ac8318fcf79d7c99b21f3e51a77310c609",
+  "wall_s": 216.59692131100746,
+  "process_rusage_maxrss_kib": 879156,
+  "exit_code": 0,
+  "output_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current81-dur.txt",
+  "output_sha256": "1948901049cbdc0660115e15441d10348458a9dad278ca6d3f5cccc80a3639cf",
+  "source_environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "LANG": "C.UTF-8",
+    "POLISYOS_METRICS_PORT": "0",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+    "E02_B_PROPERTY_REMOVAL": null
+  }
+}

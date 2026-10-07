@@ -1,0 +1,128 @@
+FFFFFFFF.FFFFFFFFFFF                                                     [100%]
+=================================== FAILURES ===================================
+_____________ test_real_full_batch_all_confirmations_are_required ______________
+tests/unit/core/artifacts/test_batch_completion_admission.py:59: in test_real_full_batch_all_confirmations_are_required
+    assert report.state == "complete" and report.admitted == report.finished == 3
+           ^^^^^^^^^^^^
+/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:1026: in __getattr__
+    raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E   AttributeError: 'BulkVerificationReport' object has no attribute 'state'
+___ test_local_corruption_preserves_full_typed_results_and_refuses_admission ___
+tests/unit/core/artifacts/test_batch_completion_admission.py:70: in test_local_corruption_preserves_full_typed_results_and_refuses_admission
+    assert report.state == "complete" and report.admitted == report.finished == 3
+           ^^^^^^^^^^^^
+/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:1026: in __getattr__
+    raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E   AttributeError: 'BulkVerificationReport' object has no attribute 'state'
+________ test_cancel_preserves_actual_finished_item_and_explicit_abort _________
+tests/unit/core/artifacts/test_batch_completion_admission.py:97: in test_cancel_preserves_actual_finished_item_and_explicit_abort
+    assert report.state == "aborted" and report.abort_reason == "cancelled"
+           ^^^^^^^^^^^^
+/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:1026: in __getattr__
+    raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E   AttributeError: 'BulkVerificationReport' object has no attribute 'state'
+_______ test_deadline_stops_lazy_inventory_before_more_real_verification _______
+tests/unit/core/artifacts/test_batch_completion_admission.py:118: in test_deadline_stops_lazy_inventory_before_more_real_verification
+    report = store.verify_all_signatures(
+E   TypeError: FileSystemCAS.verify_all_signatures() got an unexpected keyword argument 'deadline'
+_________ test_actual_import_publisher_refuses_unbound_per_item_report _________
+tests/unit/core/artifacts/test_batch_completion_admission.py:148: in test_actual_import_publisher_refuses_unbound_per_item_report
+    assert report.imported_files == 0 and report.verification_failed
+E   AssertionError: assert (4 == 0)
+E    +  where 4 = ImportReport(imported_files=4, imported_artifacts=2, total_bytes=674, source=PosixPath('/workspace/e02-B-current-cas-g...type='text/plain', manifest_profile_sha256='sha256:078f033007c51d47785d127e97e059ae29dbc0df03b8b06f257aad917ec7ccc6'))).imported_files
+___________ test_global_basis_loss_preserves_finished_row_and_aborts ___________
+tests/unit/core/artifacts/test_batch_completion_admission.py:165: in test_global_basis_loss_preserves_finished_row_and_aborts
+    assert report.state == "aborted" and report.abort_reason == "authorization_lost"
+           ^^^^^^^^^^^^
+/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:1026: in __getattr__
+    raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E   AttributeError: 'BulkVerificationReport' object has no attribute 'state'
+______________ test_cancel_interrupts_actual_default_name_census _______________
+tests/unit/core/artifacts/test_batch_completion_admission.py:186: in test_cancel_interrupts_actual_default_name_census
+    assert report.state == "aborted" and report.abort_reason == "cancelled"
+           ^^^^^^^^^^^^
+/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:1026: in __getattr__
+    raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E   AttributeError: 'BulkVerificationReport' object has no attribute 'state'
+______ test_selected_and_default_same_blob_remain_two_exact_confirmations ______
+tests/unit/core/artifacts/test_batch_completion_admission.py:203: in test_selected_and_default_same_blob_remain_two_exact_confirmations
+    assert report.state == "complete" and report.valid == report.admitted == report.finished == 2
+           ^^^^^^^^^^^^
+/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:1026: in __getattr__
+    raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E   AttributeError: 'BulkVerificationReport' object has no attribute 'state'
+____________ test_nonfinite_deadline_refuses_before_inventory[nan] _____________
+tests/unit/core/artifacts/test_batch_completion_admission.py:241: in test_nonfinite_deadline_refuses_before_inventory
+    store.verify_all_signatures(verifier, artifact_ids=source(), deadline=deadline)
+E   TypeError: FileSystemCAS.verify_all_signatures() got an unexpected keyword argument 'deadline'
+____________ test_nonfinite_deadline_refuses_before_inventory[inf] _____________
+tests/unit/core/artifacts/test_batch_completion_admission.py:241: in test_nonfinite_deadline_refuses_before_inventory
+    store.verify_all_signatures(verifier, artifact_ids=source(), deadline=deadline)
+E   TypeError: FileSystemCAS.verify_all_signatures() got an unexpected keyword argument 'deadline'
+____________ test_nonfinite_deadline_refuses_before_inventory[-inf] ____________
+tests/unit/core/artifacts/test_batch_completion_admission.py:241: in test_nonfinite_deadline_refuses_before_inventory
+    store.verify_all_signatures(verifier, artifact_ids=source(), deadline=deadline)
+E   TypeError: FileSystemCAS.verify_all_signatures() got an unexpected keyword argument 'deadline'
+________ test_real_forty_item_source_waits_for_a_bounded_pending_window ________
+tests/unit/core/artifacts/test_batch_completion_admission.py:281: in test_real_forty_item_source_waits_for_a_bounded_pending_window
+    assert fourth.wait(2)
+E   assert False
+E    +  where False = wait(2)
+E    +    where wait = <threading.Event at 0x7f1881b87d50: unset>.wait
+___________ test_late_real_signer_cannot_start_signature_publication ___________
+tests/unit/core/artifacts/test_batch_completion_admission.py:308: in test_late_real_signer_cannot_start_signature_publication
+    report = store.sign_all_artifacts(
+E   TypeError: FileSystemCAS.sign_all_artifacts() got an unexpected keyword argument 'deadline'
+_____ test_duplicate_intake_obeys_each_supplied_item_budget[cancel-verify] _____
+tests/unit/core/artifacts/test_batch_completion_admission.py:347: in test_duplicate_intake_obeys_each_supplied_item_budget
+    report = store.verify_all_signatures(verifier, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: FileSystemCAS.verify_all_signatures() got an unexpected keyword argument 'deadline'
+______ test_duplicate_intake_obeys_each_supplied_item_budget[cancel-sign] ______
+tests/unit/core/artifacts/test_batch_completion_admission.py:351: in test_duplicate_intake_obeys_each_supplied_item_budget
+    report = store.sign_all_artifacts(signer, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: FileSystemCAS.sign_all_artifacts() got an unexpected keyword argument 'deadline'
+____ test_duplicate_intake_obeys_each_supplied_item_budget[deadline-verify] ____
+tests/unit/core/artifacts/test_batch_completion_admission.py:347: in test_duplicate_intake_obeys_each_supplied_item_budget
+    report = store.verify_all_signatures(verifier, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: FileSystemCAS.verify_all_signatures() got an unexpected keyword argument 'deadline'
+_____ test_duplicate_intake_obeys_each_supplied_item_budget[deadline-sign] _____
+tests/unit/core/artifacts/test_batch_completion_admission.py:351: in test_duplicate_intake_obeys_each_supplied_item_budget
+    report = store.sign_all_artifacts(signer, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: FileSystemCAS.sign_all_artifacts() got an unexpected keyword argument 'deadline'
+________ test_infinite_duplicate_intake_returns_from_real_child[verify] ________
+tests/unit/core/artifacts/test_batch_completion_admission.py:361: in test_infinite_duplicate_intake_returns_from_real_child
+    child = subprocess.run(
+/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/subprocess.py:577: in run
+    raise CalledProcessError(retcode, process.args,
+E   subprocess.CalledProcessError: Command '['/workspace/polisyos/policy-engine/.venv/bin/python', '/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/batch-release-base-input/policy-engine/tests/unit/core/artifacts/batch_duplicate_worker.py', '/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/batch-release-base-replay-tmp/test_infinite_duplicate_intake0/child-cas', 'verify']' returned non-zero exit status 1.
+_________ test_infinite_duplicate_intake_returns_from_real_child[sign] _________
+tests/unit/core/artifacts/test_batch_completion_admission.py:361: in test_infinite_duplicate_intake_returns_from_real_child
+    child = subprocess.run(
+/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/subprocess.py:577: in run
+    raise CalledProcessError(retcode, process.args,
+E   subprocess.CalledProcessError: Command '['/workspace/polisyos/policy-engine/.venv/bin/python', '/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/batch-release-base-input/policy-engine/tests/unit/core/artifacts/batch_duplicate_worker.py', '/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/batch-release-base-replay-tmp/test_infinite_duplicate_intake1/child-cas', 'sign']' returned non-zero exit status 1.
+=========================== short test summary info ============================
+FAILED tests/unit/core/artifacts/test_batch_completion_admission.py::test_real_full_batch_all_confirmations_are_required
+FAILED tests/unit/core/artifacts/test_batch_completion_admission.py::test_local_corruption_preserves_full_typed_results_and_refuses_admission
+FAILED tests/unit/core/artifacts/test_batch_completion_admission.py::test_cancel_preserves_actual_finished_item_and_explicit_abort
+FAILED tests/unit/core/artifacts/test_batch_completion_admission.py::test_deadline_stops_lazy_inventory_before_more_real_verification
+FAILED tests/unit/core/artifacts/test_batch_completion_admission.py::test_actual_import_publisher_refuses_unbound_per_item_report
+FAILED tests/unit/core/artifacts/test_batch_completion_admission.py::test_global_basis_loss_preserves_finished_row_and_aborts
+FAILED tests/unit/core/artifacts/test_batch_completion_admission.py::test_cancel_interrupts_actual_default_name_census
+FAILED tests/unit/core/artifacts/test_batch_completion_admission.py::test_selected_and_default_same_blob_remain_two_exact_confirmations
+FAILED tests/unit/core/artifacts/test_batch_completion_admission.py::test_nonfinite_deadline_refuses_before_inventory[nan]
+FAILED tests/unit/core/artifacts/test_batch_completion_admission.py::test_nonfinite_deadline_refuses_before_inventory[inf]
+FAILED tests/unit/core/artifacts/test_batch_completion_admission.py::test_nonfinite_deadline_refuses_before_inventory[-inf]
+FAILED tests/unit/core/artifacts/test_batch_completion_admission.py::test_real_forty_item_source_waits_for_a_bounded_pending_window
+FAILED tests/unit/core/artifacts/test_batch_completion_admission.py::test_late_real_signer_cannot_start_signature_publication
+FAILED tests/unit/core/artifacts/test_batch_completion_admission.py::test_duplicate_intake_obeys_each_supplied_item_budget[cancel-verify]
+FAILED tests/unit/core/artifacts/test_batch_completion_admission.py::test_duplicate_intake_obeys_each_supplied_item_budget[cancel-sign]
+FAILED tests/unit/core/artifacts/test_batch_completion_admission.py::test_duplicate_intake_obeys_each_supplied_item_budget[deadline-verify]
+FAILED tests/unit/core/artifacts/test_batch_completion_admission.py::test_duplicate_intake_obeys_each_supplied_item_budget[deadline-sign]
+FAILED tests/unit/core/artifacts/test_batch_completion_admission.py::test_infinite_duplicate_intake_returns_from_real_child[verify]
+FAILED tests/unit/core/artifacts/test_batch_completion_admission.py::test_infinite_duplicate_intake_returns_from_real_child[sign]
+19 failed, 1 passed in 5.54s

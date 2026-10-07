@@ -1,0 +1,32 @@
+{
+  "candidate_sha": "4f71e8bbd95225c8d857b2123f7f2fe9fcc5071d",
+  "production_store_sha": "73a055e033dad61590d3ef03b9ff44aaef2c0990",
+  "ledger_api_sha": "2c52e1fe747627b227b5695e578b800cb7eade8b",
+  "owner": "local G",
+  "closure_ids": [],
+  "candidates": [
+    {
+      "id": "DUR-runtime-input-consumers",
+      "command": "PYTHONPATH=src /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q --basetemp=<fresh-isolated-local-path> --junitxml=<local-output.xml> tests/unit/runtime/http/test_human_decision_guarded_timeout.py tests/unit/runtime/http/test_runtime_step_up_authz.py tests/unit/runtime/http/test_runtime_authorization_access_audit.py tests/unit/runtime/http/test_runtime_deployment_security.py tests/unit/runtime/http/test_runtime_postgres_linearizability.py tests/unit/runtime/http/test_runtime_api_authz.py tests/unit/runtime/http/test_control_worker_custody.py tests/unit/runtime/http/test_control_worker_maintenance.py tests/unit/runtime/http/test_normative_evidence_intake.py tests/unit/runtime/http/test_normative_generation_bridge.py",
+      "cwd": "candidate checkout/policy-engine",
+      "required_input_closure": [
+        "read-only production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb with actual fetch-source law",
+        "real current intervention_knob_dictionary + lex_intervention_map + observation_to_contract_manifest loaded by tests/_helpers/controlled_candidate_profile.py:219; source/law identity pinned by local G"
+      ],
+      "cloud_counts": {
+        "PASS": 103,
+        "FAIL": 17,
+        "ERROR": 252,
+        "SKIP": 6
+      },
+      "missing_input_cases": 269,
+      "criterion": "rerun full10-file378-case consumer denominator; never replace required production/source-law inputs with invented green fixtures"
+    },
+    {
+      "id": "DUR-PostgreSQL",
+      "command": "PYTHONPATH=src POLISYOS_DS9_REQUIRE_PG=1 POLISYOS_TEST_PG_DSN='<real isolated DSN>' uv run --extra test --extra runtime --extra multi-tenant pytest -o addopts= -q tests/unit/runtime/http/test_runtime_postgres_linearizability.py --basetemp=<fresh-local-path> --junitxml=<local-output.xml>",
+      "required_input_closure": "real PostgreSQL endpoint, psycopg and per-native-case isolated random schema; six actual cases",
+      "cloud_outcome": "SKIP6; no PG proof"
+    }
+  ]
+}

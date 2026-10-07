@@ -1,0 +1,124 @@
+{
+  "created_at_utc": "2026-10-06T18:39:30.162608+00:00",
+  "original_executed_sources": [
+    {
+      "source": "/tmp/e02-B38-pg-evidence/provision.py",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/provision.source.txt",
+      "sha256": "1f44f6f8706f04408cb0019fbb734e230bcaead03688c5716cb9e1ef6490648b"
+    },
+    {
+      "source": "/tmp/e02-B38-pg-evidence/fetch_image.py",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/fetch-image.source.txt",
+      "sha256": "59a4ca56b7abd0914f5ab4f4183cf70eeceeb1e7fe03ba8a7ce50e8f3a514581"
+    },
+    {
+      "source": "/tmp/e02-B38-pg-evidence/start_native_postgres.py",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/native-start.source.txt",
+      "sha256": "e2c6f14ce8d0121757a7bcd63e230920b81b1c84cf29ae0bf7888d3cdda60706"
+    },
+    {
+      "source": "/tmp/e02-B38-pg-evidence/start_native_postgres_v2.py",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/native-start-v2.source.txt",
+      "sha256": "3c58efb3676090a48d058466ae9c10fcc31a2b7f19569e7725328d2231c41856"
+    },
+    {
+      "source": "/tmp/e02-B38-pg-evidence/run_pg_native.py",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/native-driver.source.txt",
+      "sha256": "61cc5fe130f03baf0176e780facfed568e160a30c369ee9a98713a383103de9e"
+    },
+    {
+      "source": "/tmp/e02-B38-pg-evidence/run_pg_fault_successor.py",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/native-successor-driver.source.txt",
+      "sha256": "259cdcf3b44044c6eed5338828eef71d6e46f1e3393876a6cd4843c68c6d1d60"
+    },
+    {
+      "source": "/tmp/e02-B38-pg-evidence/readback.py",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/readback.source.txt",
+      "sha256": "db37af9aa98a57e8d8333e3f3077aa63defb43b13894eb8adaf53c26393ef2a0"
+    }
+  ],
+  "source_414": "414c7ec3148a857c3a4e5554dde5d5503fec6e95",
+  "production_diff_since_143b": "",
+  "raw_preservation": [
+    {
+      "path": "/tmp/e02-B38-pg-evidence/oci/3333950675b238bd8da3dadabf5d301377545c089e7f436d18d16c97a1b7c1c8.blob",
+      "bytes": 116,
+      "sha256": "3333950675b238bd8da3dadabf5d301377545c089e7f436d18d16c97a1b7c1c8"
+    },
+    {
+      "path": "/tmp/e02-B38-pg-evidence/oci/43f9814c9a3b143548b1ebbd9d05484da68959f1b2dc5cf2228343fc7134b6fb.blob",
+      "bytes": 901408,
+      "sha256": "43f9814c9a3b143548b1ebbd9d05484da68959f1b2dc5cf2228343fc7134b6fb"
+    },
+    {
+      "path": "/tmp/e02-B38-pg-evidence/oci/4ece9a32c307dbfc879fbd2c64ff04d734f92c3cfe543fbbfcf51f559be3952f.blob",
+      "bytes": 968,
+      "sha256": "4ece9a32c307dbfc879fbd2c64ff04d734f92c3cfe543fbbfcf51f559be3952f"
+    },
+    {
+      "path": "/tmp/e02-B38-pg-evidence/oci/79bd7c99e923138f136f8009d6bffa66e21e9d4fda5c0c561b00fc9c90cfe537.blob",
+      "bytes": 8728,
+      "sha256": "79bd7c99e923138f136f8009d6bffa66e21e9d4fda5c0c561b00fc9c90cfe537"
+    },
+    {
+      "path": "/tmp/e02-B38-pg-evidence/oci/7ccdb0dcae74d20ea15876b699902cff26696bbdf9e1109c97e9f7d9505444f2.blob",
+      "bytes": 128,
+      "sha256": "7ccdb0dcae74d20ea15876b699902cff26696bbdf9e1109c97e9f7d9505444f2"
+    },
+    {
+      "path": "/tmp/e02-B38-pg-evidence/oci/93a3470d5852d77008a03e87eb60177e36b5522afb5d283d96ce6e2b0a3d481d.blob",
+      "bytes": 169,
+      "sha256": "93a3470d5852d77008a03e87eb60177e36b5522afb5d283d96ce6e2b0a3d481d"
+    },
+    {
+      "path": "/tmp/e02-B38-pg-evidence/oci/a8a481ae6efc854716b4eb46d5f3da24edfb72ba8bfca5146c92bbef4390ed35.blob",
+      "bytes": 183,
+      "sha256": "a8a481ae6efc854716b4eb46d5f3da24edfb72ba8bfca5146c92bbef4390ed35"
+    },
+    {
+      "path": "/tmp/e02-B38-pg-evidence/oci/aa90e97ee862e558111d34cfb8b2c4bec768c2b039fb791341686928560263b3.json",
+      "bytes": 2866,
+      "sha256": "aa90e97ee862e558111d34cfb8b2c4bec768c2b039fb791341686928560263b3"
+    },
+    {
+      "path": "/tmp/e02-B38-pg-evidence/oci/b0a0d9d2abf27214e4640bd5d31419c3788d19626acf51afcf85345d321935b7.blob",
+      "bytes": 6111,
+      "sha256": "b0a0d9d2abf27214e4640bd5d31419c3788d19626acf51afcf85345d321935b7"
+    },
+    {
+      "path": "/tmp/e02-B38-pg-evidence/oci/b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24.json",
+      "bytes": 10301,
+      "sha256": "b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24"
+    },
+    {
+      "path": "/tmp/e02-B38-pg-evidence/oci/e2de96513ba9eb53b431787ec8a65cdde380ac4772a3e4c4b714dcfde2a102b5.blob",
+      "bytes": 3849738,
+      "sha256": "e2de96513ba9eb53b431787ec8a65cdde380ac4772a3e4c4b714dcfde2a102b5"
+    },
+    {
+      "path": "/tmp/e02-B38-pg-evidence/oci/eb805f20f0602d17dfb400aecc1cddcf941e356b9764969284c7e15d8a0710a6.blob",
+      "bytes": 9999,
+      "sha256": "eb805f20f0602d17dfb400aecc1cddcf941e356b9764969284c7e15d8a0710a6"
+    },
+    {
+      "path": "/tmp/e02-B38-pg-evidence/oci/f3b07e8a357c707bed4f36d7e89173727f890be5fbc8e1c1eb7feb6c1d9deb38.blob",
+      "bytes": 112421988,
+      "sha256": "f3b07e8a357c707bed4f36d7e89173727f890be5fbc8e1c1eb7feb6c1d9deb38"
+    },
+    {
+      "path": "/tmp/e02-B38-pg-evidence/oci/fetch.json",
+      "bytes": 3167,
+      "sha256": "a42053b100942533a5267f9427751cbe641ad19e611cf87a934c1d95e932ed6b"
+    }
+  ],
+  "private_exclusions": [
+    "fixture-password",
+    "fixture-password-v2",
+    "postgres-dsn",
+    "native-data-v2",
+    "native-socket-v2"
+  ],
+  "image_archive": "Docker save failed before archive completed; all original compressed OCI blobs retained and verified instead",
+  "installation_exit_qualification": "Original UV installer and Docker run child exact exit were not separately captured; logs and live imported packages/server are independently measured here; no invented 125 claim.",
+  "driver_limits": "Commands are original task-local absolute paths; port/password/REPO/OUT require an owned replay fixture. No secret or immutable global environment mutation."
+}

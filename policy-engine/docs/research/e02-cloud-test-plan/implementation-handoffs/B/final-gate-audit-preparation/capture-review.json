@@ -1,0 +1,155 @@
+{
+  "schema": "policyos.e02.capture_source_independent_review.v1",
+  "mode": "READ_ONLY independent root launcher/capture measurement review; not own production acceptance",
+  "target_source_sha": "17836910dfbf83f6b54550253a298e1a1fb68b2a",
+  "target_tree_sha": "678b8933a7d38858b914fdc1df8c58b929a2acbc",
+  "reviewed_prior_launcher_sha": "b824930d0269bb6808675cf764d0394899106e4c",
+  "source_bindings": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_frozen.py",
+      "source_sha": "17836910dfbf83f6b54550253a298e1a1fb68b2a",
+      "bytes": 9337,
+      "sha256": "6533812049c947e20c5eaa0dd8baa46575acd2c38c91dd8b85ff946120c3269e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/capture_frozen.py",
+      "source_sha": "17836910dfbf83f6b54550253a298e1a1fb68b2a",
+      "bytes": 3729,
+      "sha256": "e26a065cbee683f3a19a01e0d217d299cc859dbbf2a8ad0cbb3e10c77336a1d4"
+    }
+  ],
+  "actual_control_reads": [
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/capture-custody-controls.json",
+      "bytes": 7039,
+      "sha256": "675b5c93a906f1e8325f15d4dedc950ed358c18b93eda11fdebf7b8d824197a0"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/capture-stale-input-control-launcher.txt",
+      "bytes": 631,
+      "sha256": "aedbdfb638c14b0898b11bf86d1dffd02078b331fdc9375c18ae6ed9991003cf"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/capture-stale-input-control.txt",
+      "bytes": 31,
+      "sha256": "e9ec7d59bece838b6b2d3938d2f08d792e8d5c8d37bc5198cb60cb867ace9079"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/capture-exec-failure-control.json",
+      "bytes": 1860,
+      "sha256": "d2b2619f4ba9020b85329a64ffd9576e958202ff4da64cac2eb2331e04ef5f64"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/capture-exec-failure-control.txt",
+      "bytes": 590,
+      "sha256": "3b87adcab43fdce7914191690e8387b668ceff28263742fb065676d75e5ca1fd"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/capture-gate-red-control.json",
+      "bytes": 1801,
+      "sha256": "b206d450d079bfe660b9343693582f67d44c72650a73314d56f27b3664d3c040"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/capture-gate-red-control.txt",
+      "bytes": 26,
+      "sha256": "21d0a63aff9a9bd35b6937b9195502f0c410930a73b9ea3189ad2fd2d3541839"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/capture-exec-failure-control-launcher.txt",
+      "bytes": 1860,
+      "sha256": "d2b2619f4ba9020b85329a64ffd9576e958202ff4da64cac2eb2331e04ef5f64"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/capture-gate-red-control-launcher.txt",
+      "bytes": 1801,
+      "sha256": "b206d450d079bfe660b9343693582f67d44c72650a73314d56f27b3664d3c040"
+    }
+  ],
+  "controls": [
+    {
+      "case": "stale existing log",
+      "outcome": "PASS",
+      "actual_capture_exit": 1,
+      "harness_state": "UNRUN",
+      "bytes_preserved": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/capture-stale-input-control.txt",
+        "bytes": 31,
+        "sha256": "e9ec7d59bece838b6b2d3938d2f08d792e8d5c8d37bc5198cb60cb867ace9079"
+      },
+      "observed": "Parent O_EXCL raised before fork; no terminal wrapper exists. The full traceback and prior deciding bytes are preserved."
+    },
+    {
+      "case": "missing actual executable",
+      "outcome": "PASS",
+      "actual_capture_exit": 127,
+      "harness_state": "UNRUN",
+      "observed": "CLOEXEC setup channel carries FileNotFoundError; real exec did not start; this is not product FAIL."
+    },
+    {
+      "case": "real child returns red",
+      "outcome": "PASS",
+      "actual_capture_exit": 3,
+      "harness_state": "EXECUTED",
+      "observed": "Actual26B stdout, setup_error=None, wait4 exit3; the gate result remains actual FAIL."
+    }
+  ],
+  "property": {
+    "statement": "Existing output must be refused before a child can assign it to a new command; unsuccessful executable setup remains UNRUN, separately from an executed red child.",
+    "original_source_inference": "b824 opened O_EXCL inside child; stale-output attribution could occur. This was source-only inference, not a leaf runtime reproduction.",
+    "repair": "178 acquires the exclusive log before fork and separates exec/setup failure with a CLOEXEC pipe.",
+    "bucket": "P40 SAME measurement-custody/first-resource admission class; no product finding or per-case runtime fix.",
+    "predicate_basis": "independently_reconciled (full actual control bytes/argv/source) and recomputed (Git/source identities)"
+  },
+  "source_verdict": "No blocker found in the reviewed finite capture/launcher profile; the three existing controls reconcile.",
+  "limitations": [
+    "Control subprocesses were run by root; this leaf independently read complete outputs and reconciled hashes/source, not rerun controls.",
+    "Parent pipe2/fork failure before child launch is not exercised; it yields no terminal wrapper, so later accounting must retain UNRUN. No general setup-cleanup guarantee is claimed.",
+    "Capture after-boundary checks HEAD identity only; launcher checks initial clean attached candidate. No arbitrary unnoticed working-file mutation claim.",
+    "wait4 RSS is child rusage, not an aggregate of concurrent gates; output combines stdout and stderr.",
+    "Control ambient environment is not the future gate profile. No native/canonical gate result is imported from these controls."
+  ],
+  "readiness": {
+    "driver": {
+      "path": "/workspace/e02-B-current-execution-state/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-gate-audit-preparation/audit.py",
+      "bytes": 19404,
+      "sha256": "4140d5996c7563eb3cd40d58eeed0e122d2d011b19808f1f0c1eddfe7968e7ed"
+    },
+    "selector": {
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_frozen.py@17836910dfbf83f6b54550253a298e1a1fb68b2a",
+      "prefix": "repaired-final",
+      "tags": [
+        "repaired-final-B-cohort",
+        "repaired-final-all-changed-format",
+        "repaired-final-all-changed-ruff",
+        "repaired-final-architecture",
+        "repaired-final-parity-uncapped",
+        "repaired-final-production-invocation",
+        "repaired-final-runtime-api",
+        "repaired-final-verify-uncapped"
+      ],
+      "denominator": 8
+    },
+    "outcomes": {
+      "UNRUN": 8
+    },
+    "report": {
+      "path": "/workspace/e02-B-current-execution-state/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-gate-audit-preparation/readiness-final-178.json",
+      "bytes": 10296,
+      "sha256": "bad38514db7113ffe70d94387ddc07d7e7e39ad4a7cd8544cdee009fd2063f66"
+    },
+    "qualification": "This internal reader completed at178; all future repaired gates lack terminal inputs and remain UNRUN. No final candidate was supplied or executed."
+  },
+  "duplicate_output_aliases": [
+    {
+      "original": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/capture-exec-failure-control-launcher.txt",
+      "committed_bytes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-gate-audit-preparation/capture-exec-failure-control.json",
+      "sha256": "d2b2619f4ba9020b85329a64ffd9576e958202ff4da64cac2eb2331e04ef5f64"
+    },
+    {
+      "original": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/capture-gate-red-control-launcher.txt",
+      "committed_bytes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-gate-audit-preparation/capture-gate-red-control.json",
+      "sha256": "b206d450d079bfe660b9343693582f67d44c72650a73314d56f27b3664d3c040"
+    }
+  ],
+  "closure_ids": []
+}

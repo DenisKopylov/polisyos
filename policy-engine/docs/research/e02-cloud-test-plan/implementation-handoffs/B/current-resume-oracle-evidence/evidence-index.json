@@ -1,0 +1,77 @@
+[
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-resume-oracle-evidence/native-b73-cache-custody-cohort.xml",
+    "sha256": "e8d9f49cde8c47436ba91a2f8067f601be3a2eeda97fa904d64e3180db1c1e64",
+    "bytes": 597
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-resume-oracle-evidence/native-b73-cache-custody-environment.json",
+    "sha256": "5ffa6944b3cd7f42880bd9fa98950bc744b01e033fb89a5dbc6013f5493afce8",
+    "bytes": 9887
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-resume-oracle-evidence/native-b73-cache-custody-native.txt",
+    "sha256": "99db33d5c94c6f7da021687c7391181685cc33299c5435b1c861e2db3be3ec87",
+    "bytes": 80
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-resume-oracle-evidence/native-b73-cache-custody-wrapper.json",
+    "sha256": "0a963f6065143e0f0ce675c7ca9056fe0ba213646377278cb26618466e397a72",
+    "bytes": 3105
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-resume-oracle-evidence/native-b73-frontier-negative-cohort.xml",
+    "sha256": "25123814b1eaf51c18fd58f959c1d0b9099fa3771307b7b1a8138fe6d4d21cd8",
+    "bytes": 6366
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-resume-oracle-evidence/native-b73-frontier-negative-environment.json",
+    "sha256": "5ffa6944b3cd7f42880bd9fa98950bc744b01e033fb89a5dbc6013f5493afce8",
+    "bytes": 9887
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-resume-oracle-evidence/native-b73-frontier-negative-native.txt",
+    "sha256": "13ee1a7e582a90f478e3d9166fb967f7e4733e37dee73f6b5f8d30fcb8c58d03",
+    "bytes": 6181
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-resume-oracle-evidence/native-b73-frontier-negative-wrapper.json",
+    "sha256": "a5473ffa5a3b4731f792ed7e8b5a12c505844a261961ee7f5838b849e87e6873",
+    "bytes": 2981
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-resume-oracle-evidence/native-res01-upgrade-cohort.xml",
+    "sha256": "6228768ffbe4e3f3e3c8407108008232072059549715e46a62a5f3df185f495f",
+    "bytes": 1820
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-resume-oracle-evidence/native-res01-upgrade-environment.json",
+    "sha256": "5ffa6944b3cd7f42880bd9fa98950bc744b01e033fb89a5dbc6013f5493afce8",
+    "bytes": 9887
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-resume-oracle-evidence/native-res01-upgrade-native.txt",
+    "sha256": "08faea39fd19189f6544839f505d91d76ecb1367e219f5db362cdf22916ef869",
+    "bytes": 80
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-resume-oracle-evidence/native-res01-upgrade-wrapper.json",
+    "sha256": "4a387c81f6c8cafab8e1bd70ad992da5c25db74eeaa0de6a36256601caf612e0",
+    "bytes": 2826
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-resume-oracle-evidence/read_b73_e56.json",
+    "sha256": "94fe302d5ea10994a4cd9893ff7301acc5b8b9a91e9d9a3875b328ef6de91037",
+    "bytes": 74686
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-resume-oracle-evidence/read_b73_e56.py",
+    "sha256": "3021cb2a60d9e2fa44bf62dc0f93f06d19898cec74c2b4fabd23a6a70c3f2be3",
+    "bytes": 4644
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-resume-oracle-evidence/run_native.py",
+    "sha256": "fa4f9cd526ae7ef8bc5f1336c69ddf6f3eaa2aa19c2ff444eb24eb0e34016e6a",
+    "bytes": 4192
+  }
+]

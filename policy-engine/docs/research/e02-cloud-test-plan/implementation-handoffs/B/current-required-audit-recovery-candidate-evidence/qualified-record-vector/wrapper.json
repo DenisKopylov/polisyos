@@ -1,0 +1,53 @@
+{
+  "runtime_source_sha": "a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9",
+  "runtime_source_tree": "f5fb536b70b7d8d57b19c78570b3addd798083dd",
+  "own_test_implementation_sha": "8ea92be02458941e4bf8a1d1c16f2fbeee60f26c",
+  "own_test_tree": "72530191912f996f01f484e7bbc2d87f1533bef3",
+  "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+  "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-c",
+    "\nfrom pathlib import Path\nimport hashlib, importlib, importlib.metadata, json, subprocess, sys\nROOT=Path(sys.argv[1]); OUT=Path(sys.argv[2]); TEST=Path(sys.argv[3]); SOURCE=sys.argv[4]\nmodules=['polisyos.core.llm.response','polisyos.core.llm.traced_client','polisyos.core.llm.settlement','polisyos.core.security.audit_log_adapter','polisyos.core.security.audit_protocol','polisyos.core.security.audit_sink','polisyos.core.security.audit_models','polisyos.core.security.audit_verifier','polisyos.scientist.orchestration.engine.budget','polisyos.scientist.orchestration.engine.budget_ledger','polisyos.scientist.orchestration.engine.budget_middleware','polisyos.scientist.orchestration.llm.budget_enforcer','polisyos.scientist.orchestration.llm.gateway_client']\ndef ref(path):\n raw=path.read_bytes(); rel=path.relative_to(ROOT).as_posix(); expected=subprocess.check_output(['git','show',f'{SOURCE}:{rel}'],cwd=ROOT)\n assert raw==expected, rel\n return {'path':rel,'actual_origin':str(path),'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest(),'git_blob':subprocess.check_output(['git','rev-parse',f'{SOURCE}:{rel}'],cwd=ROOT,text=True).strip(),'source_sha':SOURCE}\norigins=[]\nfor name in modules:\n m=importlib.import_module(name); row=ref(Path(m.__file__).resolve());row['module']=name;origins.append(row)\nprint('B65_EXACT_SOURCE_ORIGINS '+json.dumps(origins), flush=True)\nimport pytest\nargs=[str(TEST),'-c',str(ROOT/'policy-engine/pyproject.toml'),'--noconftest','-p','no:cacheprovider','-s','-ra',f'--basetemp={OUT}/pytest-tmp',f'--junitxml={OUT}/native.xml']\nprint('B65_NATIVE_ARGUMENTS '+json.dumps(args),flush=True)\nresult=pytest.main(args)\nall_origins=[]\nfor name,m in sorted(sys.modules.items()):\n if name=='polisyos' or name.startswith('polisyos.'):\n  f=getattr(m,'__file__',None)\n  if f:\n   path=Path(f).resolve()\n   if path.is_relative_to(ROOT/'policy-engine/src'):\n    row=ref(path);row['module']=name;all_origins.append(row)\n   else:raise AssertionError(f'foreign source module {name}: {f}')\nversions={n:importlib.metadata.version(n) for n in ['pytest','pydantic','aiohttp','ruff','numpy']}\n(OUT/'source-context.json').write_text(json.dumps({'source_sha':SOURCE,'explicit_source_origins':origins,'complete_loaded_polisyos_module_denominator':len(all_origins),'all_loaded_polisyos_origins':all_origins,'python_executable':sys.executable,'python_version':sys.version,'observed_versions':versions,'pytest_args':args,'pytest_result':int(result)},indent=2)+'\\n')\nraise SystemExit(int(result))\n",
+    "/workspace/e02-B-current-adapters",
+    "/tmp/e02-B65-recovery-a2-qualified-native",
+    "/workspace/e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py",
+    "a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9"
+  ],
+  "explicit_environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-adapters/policy-engine/src:/workspace/e02-B-current-adapters/policy-engine"
+  },
+  "profile_qualification": "One complete authorized B65 oracle file. Native pytest builtin tmp_path; literal target pyproject; --noconftest excludes source-path mutation by another worktree. Every loaded polisyos concrete module must resolve beneath the immutable target and match exact Git bytes. No local product fallback, native gate, collection-only run, test filter or source edits.",
+  "pre": {
+    "source": {
+      "head": "a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9",
+      "tree": "f5fb536b70b7d8d57b19c78570b3addd798083dd",
+      "status": ""
+    },
+    "own": {
+      "head": "8ea92be02458941e4bf8a1d1c16f2fbeee60f26c",
+      "tree": "72530191912f996f01f484e7bbc2d87f1533bef3",
+      "status": ""
+    },
+    "test_sha256": "b21c5ffbc777e708f7426674acb599f0bca9bbebea47837a95d2abaf242fe949"
+  },
+  "post": {
+    "source": {
+      "head": "a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9",
+      "tree": "f5fb536b70b7d8d57b19c78570b3addd798083dd",
+      "status": ""
+    },
+    "own": {
+      "head": "8ea92be02458941e4bf8a1d1c16f2fbeee60f26c",
+      "tree": "72530191912f996f01f484e7bbc2d87f1533bef3",
+      "status": ""
+    },
+    "test_sha256": "b21c5ffbc777e708f7426674acb599f0bca9bbebea47837a95d2abaf242fe949"
+  },
+  "source_and_test_unchanged": true,
+  "exit": 0,
+  "wall_seconds": 3.0805081949947635,
+  "maxrss_kib": 101292,
+  "stdout_sha256": "0b3bbd1f07e98e4fbbab2ea72d3fa76dcc0d3a03806b6574fece7943459f80f9",
+  "stdout_bytes": 516158
+}

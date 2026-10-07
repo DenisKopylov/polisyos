@@ -1,0 +1,29 @@
+{
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-unknown-cost-red-evidence/all-case-quantities.json",
+      "bytes": 32819,
+      "sha256": "a92141698b24a695207ee7f66b4c75ab965c401542de930c028da2f1fce1db41"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-unknown-cost-red-evidence/native.json",
+      "bytes": 4927,
+      "sha256": "4fa1a14b859d9baad597b283b007c1ec0053e98cee7ac4d84fbaff6ba2e586c8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-unknown-cost-red-evidence/native.txt",
+      "bytes": 99500,
+      "sha256": "21fad5970ce6ec686940cd991b3af355ac3dba93464d33ee83cd759af2fe06cf"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-unknown-cost-red-evidence/native.xml",
+      "bytes": 12769,
+      "sha256": "efc7904e572dde884ecee7d6c3b49711d9c1efaa8a936710127e79fc24a41ae6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-unknown-cost-red-evidence/run-native.source.txt",
+      "bytes": 3667,
+      "sha256": "75c88091125b2a0a7aee4e2d3312a7ef745bbb1af2ac50539607980f2f434b43"
+    }
+  ]
+}

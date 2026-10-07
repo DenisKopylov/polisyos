@@ -19,6 +19,7 @@ from polisyos.core.artifacts.manifest import (
     ArtifactTenantContextInfo,
     ProducerInfo,
     SchemaInfo,
+    artifact_ref_identity_key,
 )
 from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.artifacts.store import PutOptions
@@ -48,7 +49,8 @@ logger = get_logger(__name__)
 IDEMPOTENCY_CONTRACT_VERSION = "2.0"
 LEGACY_NODE_CACHE_ENTRY_SCHEMA_VERSION = "1.0"
 NODE_CACHE_ENTRY_SCHEMA_VERSION = "2.0"
-STATE_MUTATIONS_VERSION = "1.0"
+STATE_MUTATIONS_VERSION = "1.2"
+LEGACY_STATE_MUTATIONS_VERSIONS = frozenset({"1.0", "1.1"})
 REPLAY_EPOCH = "2.1"
 
 _IDEM_CANON = CanonSpec(
@@ -88,9 +90,9 @@ _DATA_PLANE_GATE_NODE_ID = "scientist.node_run_data_plane_gate@1.0.0"
 _MISSING = object()
 
 
-def _cache_ref_identity(ref: ArtifactRef) -> tuple[str, str, str]:
+def _cache_ref_identity(ref: ArtifactRef) -> tuple[str, str, str, str | None]:
     """Return the complete immutable identity used for cache-entry custody."""
-    return (str(ref.artifact_id), ref.kind, ref.media_type)
+    return artifact_ref_identity_key(ref)
 
 
 def _active_tenant_context() -> ArtifactTenantContextInfo | None:
@@ -139,6 +141,32 @@ class NodeCacheEntry(BaseModel):
     created_at: datetime = Field(default_factory=lambda: utc_now(drop_microseconds=True))
 
 
+def _legacy_scalar_mutations_replayable(
+    mutations: tuple[StateMutation, ...], producer_state: ExperimentState
+) -> bool:
+    """Retain direct primitive intents whose parent ownership was unambiguous.
+
+    Old nested journals do not prove whether their producer preserved aliases.
+    Even a non-indexed scalar path can have lost another live parent, so these
+    entries must miss rather than silently reinterpret the old algorithm.
+    """
+
+    def scalar_parent(path: str) -> bool:
+        parts = path.split(".")
+        if len(parts) == 1:
+            return True
+        return len(parts) == 2 and isinstance(getattr(producer_state, parts[0], None), dict)
+
+    return all(
+        mutation.operation in {"set", "delete"}
+        and mutation.operation_group is None
+        and mutation.target_kind in {"missing", "scalar"}
+        and scalar_parent(mutation.path)
+        and not isinstance(mutation.value, (dict, list, tuple, set))
+        for mutation in mutations
+    )
+
+
 def _cache_producer(*, output_aware: bool) -> ProducerInfo:
     return ProducerInfo(
         component="scientist.engine.idempotency",
@@ -161,6 +189,10 @@ def _journal_payload(entry: NodeCacheEntry) -> dict[str, Any]:
         payload.pop("outcome_payload", None)
     if entry.tenant_context is None:
         payload.pop("tenant_context", None)
+    if entry.state_mutations_version in LEGACY_STATE_MUTATIONS_VERSIONS:
+        for mutation in payload["state_mutations"]:
+            if mutation["operation_group"] is None:
+                mutation.pop("operation_group")
     return payload
 
 
@@ -320,7 +352,7 @@ class NodeResultCache:
         # Keep the successful verification identity separate from the key index:
         # an invalid/absent reference must remain retryable, while a verified
         # reference must not be counted as a second cache entry on every resume.
-        self._verified_entry_keys: dict[tuple[str, str, str], str] = {}
+        self._verified_entry_keys: dict[tuple[str, str, str, str | None], str] = {}
         self._lock = RLock()
 
     @property
@@ -390,10 +422,10 @@ class NodeResultCache:
     ) -> None:
         """Read back the actual immutable cache epoch, including reused CAS bytes."""
         self._check_deadline(deadline_monotonic)
-        if not self._store.verify(ref.artifact_id).ok:
+        if not self._store.verify(ref).ok:
             raise ValueError("cache_custody: artifact_integrity_failed")
         self._check_deadline(deadline_monotonic)
-        manifest = self._store.get_manifest(ref.artifact_id)
+        manifest = self._store.get_manifest(ref)
         kind = "scientist.node_cache_entry" if entry else "scientist.node_outcome"
         schema_name = (
             "NodeCacheEntry"
@@ -447,11 +479,11 @@ class NodeResultCache:
     ) -> tuple[NodeCacheEntry, NodeOutcome, bool]:
         """Decode one entry, verify its custody, and check its replay proof."""
         self._check_deadline(deadline_monotonic)
-        payload = from_canonical_bytes(self._store.get_bytes(entry_ref.artifact_id))
+        payload = from_canonical_bytes(self._store.get_bytes(entry_ref))
         self._check_deadline(deadline_monotonic)
         entry = NodeCacheEntry.model_validate(payload)
         self._check_deadline(deadline_monotonic)
-        entry_manifest = self._store.get_manifest(entry_ref.artifact_id)
+        entry_manifest = self._store.get_manifest(entry_ref)
         self._validate_entry_scope(entry, entry_manifest)
         known_schema = entry.schema_version in {
             LEGACY_NODE_CACHE_ENTRY_SCHEMA_VERSION,
@@ -465,7 +497,7 @@ class NodeResultCache:
             decoded = decode_node_outcome(entry.outcome_payload)
         elif entry.outcome_ref is not None:
             self._check_deadline(deadline_monotonic)
-            offered = from_canonical_bytes(self._store.get_bytes(entry.outcome_ref.artifact_id))
+            offered = from_canonical_bytes(self._store.get_bytes(entry.outcome_ref))
             decoded = decode_node_outcome(offered)
             if isinstance(decoded, OutputAwareNodeOutcome):
                 self._verify_output_aware_cache_artifact(
@@ -505,6 +537,7 @@ class NodeResultCache:
             entry,
             entry_manifest=entry_manifest,
             output_aware=output_aware,
+            producer_state=decoded.state,
         )
         return entry, decoded, proof_valid
 
@@ -530,6 +563,7 @@ class NodeResultCache:
         *,
         entry_manifest: Any,
         output_aware: bool,
+        producer_state: ExperimentState,
     ) -> bool:
         """Check the versioned replay contract without trusting payload shape."""
         if entry.schema_version == NODE_CACHE_ENTRY_SCHEMA_VERSION:
@@ -538,11 +572,19 @@ class NodeResultCache:
             expected_schema = _LEGACY_CACHE_ENTRY_SCHEMA
         else:
             return False
+        supported_mutations = entry.state_mutations_version == STATE_MUTATIONS_VERSION or (
+            entry.state_mutations_version in LEGACY_STATE_MUTATIONS_VERSIONS
+            and _legacy_scalar_mutations_replayable(entry.state_mutations, producer_state)
+        )
         if (
-            entry.state_mutations_version != STATE_MUTATIONS_VERSION
+            not supported_mutations
             or entry.replay_epoch != REPLAY_EPOCH
             or entry.journal_proof is None
         ):
+            return False
+        try:
+            mutation_journal_from_operations(entry.state_mutations)
+        except ValueError:
             return False
         proof = entry.journal_proof
         expected_producer = _cache_producer(output_aware=output_aware)
@@ -688,8 +730,16 @@ class NodeResultCache:
                 self.prune(self._max_entries)
             return entry_ref
 
-    def load_entry(self, entry_ref: ArtifactRef) -> bool:
+    def load_entry(
+        self,
+        entry_ref: ArtifactRef,
+        *,
+        deadline_monotonic: float | None = None,
+    ) -> bool:
+        """Verify and admit one entry within the caller's absolute read deadline."""
+        self._check_deadline(deadline_monotonic)
         with self._lock:
+            self._check_deadline(deadline_monotonic)
             ref_identity = _cache_ref_identity(entry_ref)
             verified_key = self._verified_entry_keys.get(ref_identity)
             if verified_key is not None:
@@ -700,7 +750,10 @@ class NodeResultCache:
                 # The reference is eligible for one fresh verification.
                 self._verified_entry_keys.pop(ref_identity, None)
 
-            entry, _decoded, proof_valid = self._read_entry(entry_ref)
+            entry, _decoded, proof_valid = self._read_entry(
+                entry_ref, deadline_monotonic=deadline_monotonic
+            )
+            self._check_deadline(deadline_monotonic)
             if entry.run_id != self._run_id or not proof_valid:
                 return False
 
@@ -718,6 +771,7 @@ class NodeResultCache:
                     )
                 return False
 
+            self._check_deadline(deadline_monotonic)
             self._index.set(entry.idempotency_key, entry_ref)
             self._mutation_journals[entry.idempotency_key] = mutation_journal_from_operations(
                 entry.state_mutations
@@ -727,12 +781,21 @@ class NodeResultCache:
                 self.prune(self._max_entries)
             return True
 
-    def seed_from_trace(self, trace_path: Path | None) -> int:
+    def seed_from_trace(
+        self,
+        trace_path: Path | None,
+        *,
+        deadline_monotonic: float | None = None,
+    ) -> int:
+        """Recover verified trace entries without refreshing the read deadline."""
+        self._check_deadline(deadline_monotonic)
         if trace_path is None or not trace_path.exists():
             return 0
         restored = 0
+        self._check_deadline(deadline_monotonic)
         with trace_path.open("r", encoding="utf-8") as handle:
             for line in handle:
+                self._check_deadline(deadline_monotonic)
                 raw = line.strip()
                 if not raw:
                     continue
@@ -749,6 +812,7 @@ class NodeResultCache:
                 if not isinstance(outputs, list):
                     continue
                 for item in outputs:
+                    self._check_deadline(deadline_monotonic)
                     try:
                         ref = ArtifactRef.model_validate(item)
                     except (TypeError, ValueError) as exc:
@@ -760,8 +824,10 @@ class NodeResultCache:
                     if ref.kind != "scientist.node_cache_entry":
                         continue
                     try:
-                        if self.load_entry(ref):
+                        if self.load_entry(ref, deadline_monotonic=deadline_monotonic):
                             restored += 1
+                    except TimeoutError:
+                        raise
                     except (FileNotFoundError, OSError, TypeError, ValueError) as exc:
                         logger.debug(
                             "Failed to load cache entry: %s",
@@ -770,14 +836,24 @@ class NodeResultCache:
                         continue
         return restored
 
-    def seed_from_entry_refs(self, refs: list[ArtifactRef] | tuple[ArtifactRef, ...]) -> int:
+    def seed_from_entry_refs(
+        self,
+        refs: list[ArtifactRef] | tuple[ArtifactRef, ...],
+        *,
+        deadline_monotonic: float | None = None,
+    ) -> int:
+        """Recover checkpoint refs under the same absolute admission deadline."""
+        self._check_deadline(deadline_monotonic)
         restored = 0
         for ref in refs:
+            self._check_deadline(deadline_monotonic)
             if ref.kind != "scientist.node_cache_entry":
                 continue
             try:
-                if self.load_entry(ref):
+                if self.load_entry(ref, deadline_monotonic=deadline_monotonic):
                     restored += 1
+            except TimeoutError:
+                raise
             except (FileNotFoundError, OSError, TypeError, ValueError) as exc:
                 logger.debug(
                     "Failed to seed from entry ref: %s",

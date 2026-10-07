@@ -1,0 +1,32 @@
+{
+  "schema": "policyos.e02.canonical_criterion_digest_qualification.v1",
+  "unit": "B",
+  "source_basis": {
+    "git_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+    "card_path_template": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/{bundle_id}.md",
+    "criterion_locator": "Per finding SOURCE_BEGIN/SOURCE_END block, lines and hash."
+  },
+  "digest_convention": "SHA256 of UTF-8 re.S capture group2 strictly between SOURCE_BEGIN and SOURCE_END markers, excluding both markers but retaining ALL captured whitespace/newlines; no strip(), no splitlines/join, no newline normalization. line_begin/line_end locate inclusive marker block, not the hashed byte range.",
+  "authoritative_reproduction_driver": {
+    "git_sha": "0f76c579880c5b34746da5d793cd23ef54688e0f",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-independent-evidence/denominator.py",
+    "sha256": "02bdb405015af71a7e10ade97ca3067abafd515f63f5ce04ca0660f69b350dca",
+    "logic": "re.finditer SOURCE marker regex re.S, hashlib.sha256(match[2].encode()).hexdigest(); source lines61–77"
+  },
+  "regex": "<!-- SOURCE_BEGIN (?:B|LA):([^ ]+) -->(.*?)<!-- SOURCE_END (?:B|LA):\\1 -->",
+  "example": "B87 marker locator49–62 encloses raw3321-byte capture with leadingLF and two trailingLFs. SHA9c6e17b748643693b07a5fefefd6943e2ada4415b4b29c7a3e3aaa70d3846781 is VALID; inclusive marker-range or trimmed-body hashes are distinct conventions, not this source_block_sha256.",
+  "complete_verification": {
+    "finding_rows": 60,
+    "bundle_markdown_files": 25,
+    "raw_capture_digest_matches": 60,
+    "mismatches": 0,
+    "grade": "metadata source-binding recomputation only; no product/native/gate run or new closure"
+  },
+  "current_bindings": [
+    "current-all60-independent-adjudication.json#/canonical_source_basis",
+    "current-final-open-delta-review.json#/canonical_source_basis",
+    "current-stream-cleanup-consumer-oracle.json#/finding_dispositions/0/canonical_source_basis",
+    "current-stream-cleanup-consumer-portable.json#/finding_dispositions/0/canonical_source_basis"
+  ],
+  "history": "Historical695/1015/67 source/hash/status/runtime bytes stay immutable. Current metadata adds explicit convention only; every existing digest/status is unchanged."
+}

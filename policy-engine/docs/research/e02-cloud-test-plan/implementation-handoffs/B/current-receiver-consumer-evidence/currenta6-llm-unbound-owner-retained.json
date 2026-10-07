@@ -1,0 +1,23 @@
+{
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/retain_llm_probe.py"
+  ],
+  "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+  "head": "a6a621cd908fa477b62524a86aef316db8ee6d72",
+  "tree": "093d4dc665038dca26f8ae7f56ec9d3b021b6926",
+  "head_after": "a6a621cd908fa477b62524a86aef316db8ee6d72",
+  "wall_s": 0.5799240369960899,
+  "process_rusage_maxrss_kib": 65556,
+  "exit_code": 0,
+  "output_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/currenta6-llm-unbound-owner-retained.txt",
+  "output_sha256": "861d9cf13dcfef48778002f3a0af52e67aca6d775824a44d8dffbc485c7c3a86",
+  "source_environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "LANG": "C.UTF-8",
+    "POLISYOS_METRICS_PORT": "0",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+    "E02_B_PROPERTY_REMOVAL": null
+  }
+}

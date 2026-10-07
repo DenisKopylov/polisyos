@@ -1,0 +1,64 @@
+[
+  {
+    "raw_local_path": "/tmp/e02-B-opa-latest-preparation-1db95544/latest.headers.txt",
+    "raw_bytes": 1645,
+    "raw_sha256": "c18191fa478689604df7eac07d088964120d02935b4b765ade4618efacd099f0",
+    "committed_sanitized_file": "latest.headers.txt.sanitized.txt",
+    "sanitized_bytes": 1778,
+    "sanitized_sha256": "38951a32f1344312c154db4dd3b0d8d7c791eba6aa437acb09f054ffa5e8b8f9",
+    "redacted_headers": [
+      {
+        "line": 13,
+        "header": "x-oauth-scopes"
+      },
+      {
+        "line": 15,
+        "header": "x-oauth-client-id"
+      },
+      {
+        "line": 16,
+        "header": "github-authentication-token-expiration"
+      }
+    ],
+    "qualification": "Full raw transport retained locally; signed redirect/authentication metadata not published, no changing binary/metadata/checksum/version bytes",
+    "precommit_sanitized_bytes": 1815,
+    "precommit_sanitized_sha256": "da6194b2fa46d2e0c4d9b299ee21c97841f449af6e4b0036d244be842eeccf4e",
+    "git_normalization": "Git text normalization converted sanitized HTTP CRLF to LF; raw local header bytes/hash preserved, no metadata/binary/native runtime change"
+  },
+  {
+    "raw_local_path": "/tmp/e02-B-opa-latest-preparation-1db95544/binary.headers.txt",
+    "raw_bytes": 6203,
+    "raw_sha256": "5ce520594d375b3ed4710f8de554bcaf727a2ea5b14f70958618ab20b7b42787",
+    "committed_sanitized_file": "binary.headers.txt.sanitized.txt",
+    "sanitized_bytes": 5299,
+    "sanitized_sha256": "4cb357ceab62264a2ea5564a9767bf2efadac8133c5e2a14760c9747a2c7c21c",
+    "redacted_headers": [
+      {
+        "line": 8,
+        "header": "location"
+      }
+    ],
+    "qualification": "Full raw transport retained locally; signed redirect/authentication metadata not published, no changing binary/metadata/checksum/version bytes",
+    "precommit_sanitized_bytes": 5351,
+    "precommit_sanitized_sha256": "f9983ec1693608ec76770e0e5986e7b3eaf14e5242758801bdd6b15c1701e031",
+    "git_normalization": "Git text normalization converted sanitized HTTP CRLF to LF; raw local header bytes/hash preserved, no metadata/binary/native runtime change"
+  },
+  {
+    "raw_local_path": "/tmp/e02-B-opa-latest-preparation-1db95544/checksum.headers.txt",
+    "raw_bytes": 6265,
+    "raw_sha256": "3b4bdfc91651539f6081d14d9a5edd2ecdb39aa7aaf9360dc4e25728ed59f1e7",
+    "committed_sanitized_file": "checksum.headers.txt.sanitized.txt",
+    "sanitized_bytes": 5348,
+    "sanitized_sha256": "1e8a98e58448317a68384115c18fdb84d5d1f43f8717c14d81bce7d7c694f0ae",
+    "redacted_headers": [
+      {
+        "line": 8,
+        "header": "location"
+      }
+    ],
+    "qualification": "Full raw transport retained locally; signed redirect/authentication metadata not published, no changing binary/metadata/checksum/version bytes",
+    "precommit_sanitized_bytes": 5401,
+    "precommit_sanitized_sha256": "e751911225fc09ce7e489cfe91b8cf9e05b6db254beefd7f5d0aa7cf6cecd919",
+    "git_normalization": "Git text normalization converted sanitized HTTP CRLF to LF; raw local header bytes/hash preserved, no metadata/binary/native runtime change"
+  }
+]

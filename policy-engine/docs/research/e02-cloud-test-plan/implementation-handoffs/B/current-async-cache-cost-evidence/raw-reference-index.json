@@ -1,0 +1,22 @@
+[
+  {
+    "path": "/tmp/e02-B52-cache-cost-c043/evidence/source-context.json",
+    "bytes": 585000,
+    "sha256": "cf7f284f9f8ac32f0e886688b517db535d77ebc5be8a220aef5ce895deb54791"
+  },
+  {
+    "path": "/tmp/e02-B52-cache-cost-c043/evidence/module-origins.json",
+    "bytes": 415248,
+    "sha256": "64b930f039b7c3c663d78e658739ba01024a1d401fa57132e8be59e7d1cf9c47"
+  },
+  {
+    "path": "/tmp/e02-B52-cache-cost-c043/removal/source-context.json",
+    "bytes": 585062,
+    "sha256": "deedf928cb9d081c6878efb52a9c6fbe5f7efae9c816f7c533cd43cbce60a0be"
+  },
+  {
+    "path": "/tmp/e02-B52-cache-cost-c043/removal/module-origins.json",
+    "bytes": 415248,
+    "sha256": "64b930f039b7c3c663d78e658739ba01024a1d401fa57132e8be59e7d1cf9c47"
+  }
+]

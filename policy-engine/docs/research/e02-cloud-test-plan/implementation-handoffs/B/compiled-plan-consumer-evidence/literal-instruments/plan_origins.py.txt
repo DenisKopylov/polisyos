@@ -1,0 +1,42 @@
+import hashlib
+import json
+import os
+import subprocess
+import sys
+from pathlib import Path
+
+ROOT = Path(os.environ['COMPILED_RUNTIME_ROOT'])
+REF = os.environ['COMPILED_RUNTIME_SHA']
+OUT = Path(os.environ['COMPILED_ORIGIN_OBSERVATIONS'])
+
+
+def snapshot(stage):
+    rows = []
+    for name, module in sorted(sys.modules.items()):
+        if name != 'polisyos' and not name.startswith('polisyos.'):
+            continue
+        raw = getattr(module, '__file__', None)
+        if not raw:
+            continue
+        path = Path(raw).resolve()
+        assert path.is_relative_to(ROOT / 'policy-engine/src'), (name, path)
+        relative = str(path.relative_to(ROOT))
+        actual = path.read_bytes()
+        expected = subprocess.check_output(['git', '-C', str(ROOT), 'show', REF + ':' + relative])
+        assert actual == expected, (name, relative)
+        rows.append({'module': name, 'path': relative, 'bytes': len(actual), 'sha256': hashlib.sha256(actual).hexdigest()})
+    with OUT.open('a') as output:
+        output.write(json.dumps({'stage': stage, 'source_ref': REF, 'modules': rows}, sort_keys=True) + '\n')
+
+
+def pytest_collection_finish(session):
+    snapshot('collection_finish')
+
+
+def pytest_sessionfinish(session, exitstatus):
+    snapshot('session_finish')
+
+
+def pytest_runtest_logreport(report):
+    with OUT.with_name('phases.jsonl').open('a') as output:
+        output.write(json.dumps({'nodeid': report.nodeid, 'when': report.when, 'outcome': report.outcome, 'duration': report.duration, 'longrepr': str(report.longrepr) if report.longrepr else None}, sort_keys=True) + '\n')

@@ -1,0 +1,212 @@
+{
+  "schema": "policyos.e02.final_source_custody_scope_qualification.v1",
+  "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+  "source_tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+  "source_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "whole_diff_filetype_counts": {
+    ".toml": 33,
+    ".md": 29,
+    ".json": 1436,
+    ".txt": 802,
+    ".xml": 238,
+    ".py": 269,
+    ".jsonl": 221,
+    ".lock": 171,
+    ".blob": 69,
+    ".log": 43,
+    ".diff": 12,
+    ".patch": 1,
+    ".cjs": 2,
+    ".sha256": 1,
+    ".args": 1,
+    ".pyi": 4
+  },
+  "research_filetype_counts": {
+    ".json": 1434,
+    ".txt": 802,
+    ".xml": 238,
+    ".py": 135,
+    ".md": 14,
+    ".jsonl": 221,
+    ".lock": 171,
+    ".blob": 69,
+    ".log": 43,
+    ".diff": 12,
+    ".patch": 1,
+    ".cjs": 2,
+    ".sha256": 1,
+    ".args": 1
+  },
+  "deleted_paths": [],
+  "changed_modes": [],
+  "active_current_receipt_count": 21,
+  "active_current_mandatory_field_defects": [],
+  "whole_canonical_handoff_count": 139,
+  "historical_shape_debt_receipt_count": 44,
+  "historical_shape_debt_names": [
+    "cas-batch-completion.json",
+    "cas-current-exact-view-fixture.json",
+    "cas-failed-snapshot-report-followup.json",
+    "cas-failed-snapshot-report.json",
+    "compiled-preparation-consumer-oracle.json",
+    "current-absent-reference-admission.json",
+    "current-adapters.json",
+    "current-all15-execution-state.json",
+    "current-b66-dd-semantic-followup.json",
+    "current-b66-future-native-proof-plan.json",
+    "current-batch-consumer.json",
+    "current-c1-required-gate-independent-review.json",
+    "current-cache-recovery.json",
+    "current-cas-b149-b155-adjudication.json",
+    "current-cloud-readiness.json",
+    "current-composition-final.json",
+    "current-composition-identity.json",
+    "current-composition-jit.json",
+    "current-composition-payload.json",
+    "current-composition-publication-roots.json",
+    "current-composition-publication.json",
+    "current-composition-res03.json",
+    "current-deadline-cohort-investigation.json",
+    "current-executor-format.json",
+    "current-fenced-budget-consumer.json",
+    "current-gate-execution-independent-audit.json",
+    "current-gateway-settlement-independent-review.json",
+    "current-generation-resume-consumer.json",
+    "current-independent-budget-cas.json",
+    "current-llm-composed-delta-independent-review.json",
+    "current-merged-consumer-review.json",
+    "current-native-pytest-input-admission.json",
+    "current-optional-spend-projection-boundary.json",
+    "current-pool-stream-contract.json",
+    "current-process-cache-consumer.json",
+    "current-receiver-consumer.json",
+    "current-required-resume.json",
+    "current-required-snapshot-consumer.json",
+    "current-resume-oracle.json",
+    "current-selector-map-independent-review.json",
+    "current-supervised-runtime-consumer.json",
+    "current-terminal-required-gate-independent-review.json",
+    "final-cohort-selector-independent-review.json",
+    "ruff-selector-intake.json"
+  ],
+  "literal_last_tip_footprint_projection_rows": [
+    {
+      "name": "current-canonical-selector-equivalence.json",
+      "declared_count": 3,
+      "last_tip_diff_count": 4,
+      "tree_equal": true
+    },
+    {
+      "name": "current-cloud-readiness.json",
+      "declared_count": 19,
+      "last_tip_diff_count": 737,
+      "tree_equal": true
+    },
+    {
+      "name": "current-completed-cohort-instrument.json",
+      "declared_count": 4,
+      "last_tip_diff_count": 501,
+      "tree_equal": true
+    },
+    {
+      "name": "current-completed-generated-companions.json",
+      "declared_count": 26,
+      "last_tip_diff_count": 285,
+      "tree_equal": true
+    },
+    {
+      "name": "current-composition-res03.json",
+      "declared_count": 0,
+      "last_tip_diff_count": 142,
+      "tree_equal": true
+    },
+    {
+      "name": "current-generation-resume-consumer.json",
+      "declared_count": 143,
+      "last_tip_diff_count": 266,
+      "tree_equal": false
+    },
+    {
+      "name": "current-native-pytest-input-admission.json",
+      "declared_count": 3,
+      "last_tip_diff_count": 20,
+      "tree_equal": true
+    },
+    {
+      "name": "current-process-cache-consumer.json",
+      "declared_count": 105,
+      "last_tip_diff_count": 120,
+      "tree_equal": false
+    },
+    {
+      "name": "current-required-snapshot-consumer.json",
+      "declared_count": 53,
+      "last_tip_diff_count": 360,
+      "tree_equal": false
+    }
+  ],
+  "footprint_projection_qualification": "Nine literal last-tip branch-diff discrepancies are not automatically defects: interleaved/multitip/evidence timelines need their declared exact union. Current generated companion exact4commit union26 verified separately in02a2826; no claim whole interleaved base\u2192tip is26. Other historical rows retain owner qualification.",
+  "ROOT_operational_role_qualification": {
+    "basis": "consumer_asserted session affirmation by ROOT after exact full Git headers/deltas read; not institutional grant or independent runtime proof",
+    "commit_roles": {
+      "75c4ae0a0019e75d8c30781167390409c9a9a49b": "ROOT independent test/docs session role, consumer_asserted; full Git headers and complete exact delta read; no production.py writes",
+      "59468d2245b700322a0c1a00e2dd8de5d55b64f8": "ROOT independent test/docs session role, consumer_asserted; full Git headers and complete exact delta read; no production.py writes",
+      "61528a96e81083e830107f099c97df4c96c6b48e": "ROOT independent test/docs session role, consumer_asserted; full Git headers and complete exact delta read; no production.py writes",
+      "c83a3b97bc7a33a9312c69e0547c0bb1dc883ec1": "ROOT independent test/docs session role, consumer_asserted; full Git headers and complete exact delta read; no production.py writes",
+      "9bc6ce56f18ad4f4cdab1e92b3f020f116600b64": "ROOT independent test/docs session role, consumer_asserted; full Git headers and complete exact delta read; no production.py writes",
+      "e6036b71b6d1af2f5805b50e578db6bd3384d78a": "ROOT independent test/docs session role, consumer_asserted; full Git headers and complete exact delta read; no production.py writes",
+      "5962d432ca3d9f9784205e2052bfdea4c601f9d5": "ROOT independent test/docs session role, consumer_asserted; full Git headers and complete exact delta read; no production.py writes",
+      "9826acc52c06030ac1c4f054a8516b7b3d2a7b62": "ROOT independent test/docs session role, consumer_asserted; full Git headers and complete exact delta read; no production.py writes"
+    }
+  },
+  "new_module_README_requirement": {
+    "rule": "CONTRIBUTING: a NEW module under src/polisyos updates nearest parent README; no invented rule for every existing modified module",
+    "new_modules": 4,
+    "all_four_nearest_README_changed": true,
+    "paths": [
+      "policy-engine/src/polisyos/core/artifacts/manifest_profile.py",
+      "policy-engine/src/polisyos/core/llm/settlement.py",
+      "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+      "policy-engine/src/polisyos/scientist/policy_design/_llm_accounting.py"
+    ]
+  },
+  "all32release_fragment_declared_evidence_migration_runbook_refs_exist": true,
+  "source_caps_qualification": "Complete172path literal added-line scan covers source/tests/tools/config and3live top research helpers. Six hits areCPUfixture/RLIMIT fault-oracle expressions. Historical135embedded .py witness drivers are evidence history, not active profile. No introduced production/tools/live-helper cap match; absence of a regex match is not general dynamic absence or nativeCLI equivalence proof.",
+  "explicit_evidence_graph": {
+    "objects": 968,
+    "bytes": 20061166,
+    "recursive_indices": 7,
+    "hash_or_byte_mismatches": 0,
+    "unavailable_explicit_Git_refs": 0,
+    "named_availability_only_rows": 61,
+    "boundary": "26baseline transferred-file rows lacking per-row ref +35absolute scratch/raw locators including two index raw_only source-context objects. Receiver availability and original execution input closure are not deduced. ROOT/DUR/G handles exact all60 source/env/context joins."
+  },
+  "first_parser_qualification": "Initial generic projection had104unresolved rows including41false unavailable projections because it lacked sha/receipt_sha/output_git_sha aliases and annotated @SHA parsing. Preserved original stdout/stderr. Final generic parser recognizes these declared bindings; no source/runtime defect or test failure was inferred from the first projection.",
+  "derived_tables": [
+    {
+      "ignored_locator": "/workspace/e02-B-current-cas-generation/.polisyos/source-custody-audit/final1862/derivable-path-custody.json",
+      "bytes": 1306995,
+      "sha256": "3c43705f535ba0f96bceafed1e93e648fe0b40e6c6353258810103020ff56660",
+      "receiver_availability": "not_established; rerun committed literal instrument against frozen source instead of requiring this derivable view"
+    },
+    {
+      "ignored_locator": "/workspace/e02-B-current-cas-generation/.polisyos/source-custody-audit/final1862/receipt-census.json",
+      "bytes": 530068,
+      "sha256": "3fb58e4c07785fb3ee091d96f86342e205e0b9f0cedd3cd89c1eefe715da5340",
+      "receiver_availability": "not_established; rerun committed literal instrument against frozen source instead of requiring this derivable view"
+    },
+    {
+      "ignored_locator": "/workspace/e02-B-current-cas-generation/.polisyos/source-custody-audit/final1862/derivable-nonresearch-role-custody.json",
+      "bytes": 147188,
+      "sha256": "a4edd1f8d0a862216dd43a412d1858e83568a75573d73230894aaea172c2f6ad",
+      "receiver_availability": "not_established; rerun committed literal instrument against frozen source instead of requiring this derivable view"
+    },
+    {
+      "ignored_locator": "/workspace/e02-B-current-cas-generation/.polisyos/source-custody-audit/final1862-graph-closure/derivable-object-readback.json",
+      "bytes": 518536,
+      "sha256": "20b2082dd04d67b6272f5413fee57374d176f9627abaec6e730d6c84db5d5b73",
+      "receiver_availability": "not_established; rerun committed literal instrument against frozen source instead of requiring this derivable view"
+    }
+  ],
+  "claim_grade": "Final immutable Git/source/input/evidence custody only; no native/gate execution, own CAS code acceptance, social/institutional lease attestation, red inheritance, final gate result or finding closure."
+}

@@ -1,0 +1,30 @@
+FF..F                                                                    [100%]
+=================================== FAILURES ===================================
+_ test_import_archive_binds_the_supplied_regular_path_before_streaming[regular_symlink] _
+tests/unit/core/artifacts/test_transfer_generation_publication.py:510: in test_import_archive_binds_the_supplied_regular_path_before_streaming
+    assert result["type"] == "ValueError", result
+E   AssertionError: {'message': 'nonregular input was admitted', 'substituted': False, 'type': 'published'}
+E   assert 'published' == 'ValueError'
+E     
+E     - ValueError
+E     + published
+_ test_import_archive_binds_the_supplied_regular_path_before_streaming[dangling_symlink] _
+tests/unit/core/artifacts/test_transfer_generation_publication.py:510: in test_import_archive_binds_the_supplied_regular_path_before_streaming
+    assert result["type"] == "ValueError", result
+E   AssertionError: {'message': "[Errno 2] No such file or directory: '/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-.../source-path-red-tmp/test_import_archive_binds_the_1/input.tar.gz'", 'substituted': False, 'type': 'FileNotFoundError'}
+E   assert 'FileNotFoundError' == 'ValueError'
+E     
+E     - ValueError
+E     + FileNotFoundError
+_ test_import_archive_binds_the_supplied_regular_path_before_streaming[fifo_at_open] _
+tests/unit/core/artifacts/test_transfer_generation_publication.py:508: in test_import_archive_binds_the_supplied_regular_path_before_streaming
+    assert parent.poll(2), "import opened a nonregular archive and blocked"
+E   AssertionError: import opened a nonregular archive and blocked
+E   assert False
+E    +  where False = poll(2)
+E    +    where poll = <multiprocessing.connection.Connection object at 0x7f6ba6217450>.poll
+=========================== short test summary info ============================
+FAILED tests/unit/core/artifacts/test_transfer_generation_publication.py::test_import_archive_binds_the_supplied_regular_path_before_streaming[regular_symlink]
+FAILED tests/unit/core/artifacts/test_transfer_generation_publication.py::test_import_archive_binds_the_supplied_regular_path_before_streaming[dangling_symlink]
+FAILED tests/unit/core/artifacts/test_transfer_generation_publication.py::test_import_archive_binds_the_supplied_regular_path_before_streaming[fifo_at_open]
+3 failed, 2 passed in 4.27s

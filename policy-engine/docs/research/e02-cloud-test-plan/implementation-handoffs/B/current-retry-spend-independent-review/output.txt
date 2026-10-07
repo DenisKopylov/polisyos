@@ -1,0 +1,257 @@
+{
+  "schema": "policyos.e02.independent_probe.v1",
+  "source_sha": "f04e3b80e910ad3cbbbf8262ed58bec69e3d57e8",
+  "retry_path": "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+  "retry_sha256": "dec60e1e0e36cf0483f501eab4d4b15429e204c997e88cbc23022fe3aa82a0a3",
+  "script_sha256": "8044a8d535a5fb6b0b0bbefdc2acd5d81398baf6a5917315ea35bb1e831fd380",
+  "source_mode": "Git object exec; retry-only immutable candidate, other imports own tracked source; no candidate checkout claim",
+  "environment": {
+    "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+    "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+    "POLISYOS_METRICS_PORT": "0",
+    "clock_info": "namespace(implementation='clock_gettime(CLOCK_MONOTONIC)', monotonic=True, adjustable=False, resolution=1e-09)"
+  },
+  "input_contract": "Known state-budget llm_spent_usd 5 + failed2 + success1 =8, first provider raises retryable TimeoutError on time; ordinary failed params excluded",
+  "results": [
+    {
+      "route": "sync-direct",
+      "actual_fork_capability": true,
+      "force_thread_platform_branch": false,
+      "physical_attempts": [
+        {
+          "ordinal": 1,
+          "pid": 141264,
+          "spend_before": "5",
+          "dirty_before": null,
+          "monotonic": 78101.85565941,
+          "spend_after": "7"
+        },
+        {
+          "ordinal": 2,
+          "pid": 141264,
+          "spend_before": "5",
+          "dirty_before": null,
+          "monotonic": 78101.977843225,
+          "spend_after": "6"
+        }
+      ],
+      "result_status": "ok",
+      "result_spend": "8",
+      "expected_known_spend": "8",
+      "known_failed_spend_preserved": true,
+      "ordinary_failed_write_absent": true,
+      "result_params": {
+        "success": true
+      },
+      "input_spend_after": "5",
+      "elapsed_seconds": 0.1225699210044695,
+      "on_time": true
+    },
+    {
+      "route": "sync-fork",
+      "actual_fork_capability": true,
+      "force_thread_platform_branch": false,
+      "physical_attempts": [
+        {
+          "ordinal": 1,
+          "pid": 141268,
+          "spend_before": "5",
+          "dirty_before": null,
+          "monotonic": 78102.141554354,
+          "spend_after": "7"
+        },
+        {
+          "ordinal": 2,
+          "pid": 141270,
+          "spend_before": "5",
+          "dirty_before": null,
+          "monotonic": 78102.25113906,
+          "spend_after": "6"
+        }
+      ],
+      "result_status": "ok",
+      "result_spend": "6",
+      "expected_known_spend": "8",
+      "known_failed_spend_preserved": false,
+      "ordinary_failed_write_absent": true,
+      "result_params": {
+        "success": true
+      },
+      "input_spend_after": "5",
+      "elapsed_seconds": 0.12819211999885738,
+      "on_time": true
+    },
+    {
+      "route": "sync-thread",
+      "actual_fork_capability": true,
+      "force_thread_platform_branch": true,
+      "physical_attempts": [
+        {
+          "ordinal": 1,
+          "pid": 141264,
+          "spend_before": "5",
+          "dirty_before": null,
+          "monotonic": 78102.402683821,
+          "spend_after": "7"
+        },
+        {
+          "ordinal": 2,
+          "pid": 141264,
+          "spend_before": "5",
+          "dirty_before": null,
+          "monotonic": 78102.504421781,
+          "spend_after": "6"
+        }
+      ],
+      "result_status": "ok",
+      "result_spend": "6",
+      "expected_known_spend": "8",
+      "known_failed_spend_preserved": false,
+      "ordinary_failed_write_absent": true,
+      "result_params": {
+        "success": true
+      },
+      "input_spend_after": "5",
+      "elapsed_seconds": 0.10291216798941605,
+      "on_time": true
+    },
+    {
+      "route": "async-fork",
+      "actual_fork_capability": true,
+      "force_thread_platform_branch": false,
+      "physical_attempts": [
+        {
+          "ordinal": 1,
+          "pid": 141273,
+          "spend_before": "5",
+          "dirty_before": null,
+          "monotonic": 78102.627163796,
+          "spend_after": "7"
+        },
+        {
+          "ordinal": 2,
+          "pid": 141275,
+          "spend_before": "5",
+          "dirty_before": null,
+          "monotonic": 78102.74350175,
+          "spend_after": "6"
+        }
+      ],
+      "result_status": "ok",
+      "result_spend": "6",
+      "expected_known_spend": "8",
+      "known_failed_spend_preserved": false,
+      "ordinary_failed_write_absent": true,
+      "result_params": {
+        "success": true
+      },
+      "input_spend_after": "5",
+      "elapsed_seconds": 0.13147893600398675,
+      "on_time": true
+    },
+    {
+      "route": "async-thread",
+      "actual_fork_capability": true,
+      "force_thread_platform_branch": true,
+      "physical_attempts": [
+        {
+          "ordinal": 1,
+          "pid": 141264,
+          "spend_before": "5",
+          "dirty_before": null,
+          "monotonic": 78102.889966088,
+          "spend_after": "7"
+        },
+        {
+          "ordinal": 2,
+          "pid": 141264,
+          "spend_before": "5",
+          "dirty_before": null,
+          "monotonic": 78102.992065061,
+          "spend_after": "6"
+        }
+      ],
+      "result_status": "ok",
+      "result_spend": "6",
+      "expected_known_spend": "8",
+      "known_failed_spend_preserved": false,
+      "ordinary_failed_write_absent": true,
+      "result_params": {
+        "success": true
+      },
+      "input_spend_after": "5",
+      "elapsed_seconds": 0.10354318500321824,
+      "on_time": true
+    },
+    {
+      "route": "async-provider",
+      "actual_fork_capability": true,
+      "force_thread_platform_branch": false,
+      "physical_attempts": [
+        {
+          "ordinal": 1,
+          "pid": 141264,
+          "spend_before": "5",
+          "dirty_before": null,
+          "monotonic": 78103.119170476,
+          "spend_after": "7"
+        },
+        {
+          "ordinal": 2,
+          "pid": 141264,
+          "spend_before": "5",
+          "dirty_before": null,
+          "monotonic": 78103.220352271,
+          "spend_after": "6"
+        }
+      ],
+      "result_status": "ok",
+      "result_spend": "6",
+      "expected_known_spend": "8",
+      "known_failed_spend_preserved": false,
+      "ordinary_failed_write_absent": true,
+      "result_params": {
+        "success": true
+      },
+      "input_spend_after": "5",
+      "elapsed_seconds": 0.10179190299822949,
+      "on_time": true
+    },
+    {
+      "route": "async-provider-unbounded",
+      "actual_fork_capability": true,
+      "force_thread_platform_branch": false,
+      "physical_attempts": [
+        {
+          "ordinal": 1,
+          "pid": 141264,
+          "spend_before": "5",
+          "dirty_before": null,
+          "monotonic": 78103.384304484,
+          "spend_after": "7"
+        },
+        {
+          "ordinal": 2,
+          "pid": 141264,
+          "spend_before": "5",
+          "dirty_before": null,
+          "monotonic": 78103.485782296,
+          "spend_after": "6"
+        }
+      ],
+      "result_status": "ok",
+      "result_spend": "8",
+      "expected_known_spend": "8",
+      "known_failed_spend_preserved": true,
+      "ordinary_failed_write_absent": true,
+      "result_params": {
+        "success": true
+      },
+      "input_spend_after": "5",
+      "elapsed_seconds": 0.1024390590027906,
+      "on_time": true
+    }
+  ],
+  "vendor_financial_authority_claimed": false
+}

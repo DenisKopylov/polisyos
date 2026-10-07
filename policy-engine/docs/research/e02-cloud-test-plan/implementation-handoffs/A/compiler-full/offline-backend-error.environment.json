@@ -1,0 +1,16 @@
+{
+  "head": "5650b7aed7991606d62cd8510b377698a778ce39",
+  "branch": "codex/e02-A-compiler-full",
+  "test_blob_sha1": "f69b4792064af8747114a2c7e65a39e03abfd181a63ad148fcec22dcf027b830",
+  "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -c pytest.ini tests/unit/remediation/test_req_01_installed.py::test_installed_wheel_keeps_active_compiler_and_retires_legacy_helpers -vv --basetemp=<raw>/pytest-basetemp --junitxml=<raw>/wheel-smoke-junit.xml",
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-compiler-full/polisyos/policy-engine",
+  "python": "3.14.0 (main, Oct  7 2025, 09:34:52) [Clang 17.0.0 (clang-1700.0.13.3)]",
+  "python_executable": "/opt/homebrew/opt/python@3.14/bin/python3.14",
+  "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "uv": "/opt/homebrew/bin/uv 0.10.6",
+  "uv_offline": "1 (set inside the test subprocess)",
+  "uv_python_downloads": "never (set inside the test subprocess)",
+  "pytest_pythonpath": null,
+  "root_venv_borrowed": "/Users/deniskopylov/polisyos/policy-engine/.venv",
+  "env_policy": "selected non-secret settings retained; full process environment omitted"
+}

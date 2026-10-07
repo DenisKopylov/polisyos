@@ -1,0 +1,35 @@
+{
+  "schema": "policyos.e02.evidence_index.v1",
+  "objects": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-executor-format-evidence/ast-comparison.txt",
+      "bytes": 2842,
+      "sha256": "0a5be548ae9cc8b163a789efafc8b0fd0227828b19f80f0a034eb89967eac09a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-executor-format-evidence/compare.source.txt",
+      "bytes": 2373,
+      "sha256": "947dae917fa7dfb2a08846df0b1f118896946a2d642bded85d077ec1ae133cdc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-executor-format-evidence/format-after.txt",
+      "bytes": 25,
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-executor-format-evidence/format-apply.txt",
+      "bytes": 19,
+      "sha256": "413a709001976657cb743636fd34e48fc41d8d302d665460d3f874b3313da127"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-executor-format-evidence/format-before.txt",
+      "bytes": 100,
+      "sha256": "78ddd832eff07672fef1a884efe967cb516a58a4a533376870c3e093c0ff5382"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-executor-format-evidence/ruff.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    }
+  ]
+}

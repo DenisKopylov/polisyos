@@ -1,0 +1,464 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "continuation-foreign-oracles-review-20261007",
+  "closure_ids": [],
+  "finding_ids": [
+    "B37",
+    "B65",
+    "B66"
+  ],
+  "bundle_ids": [
+    "DUR-01",
+    "LLM-01"
+  ],
+  "slice_base_sha": "7275dc9d0e8a2d1c36513925331fe3c2076156d8",
+  "implementation_commits": [
+    "f5a5bd81a2bfb014e9d26fed39401b331030be6d",
+    "cf072201bafa7367d83067503c1de7d97d95473b"
+  ],
+  "candidate_tree_sha": "5219fab0f3b9e5dacc5d2e1abd4881f37f21ec21",
+  "branch": "codex/e02-B-current-runtime",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/46",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/check-output.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/check.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-custody.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/current_cohort_inventory.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/journal/inventory.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/journal/reports.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/journal/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/journal/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/oracle.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/test_real_phase_journal.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/without-journal/inventory.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/without-journal/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/without-journal/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/review.json"
+  ],
+  "production_changed_paths": [],
+  "test_changed_paths": [],
+  "baseline_cells": [
+    {
+      "id": "F01-P026",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "state": "PASS",
+      "source_file": "received/F01.txt",
+      "source_line": "143",
+      "source_ref": "research_main",
+      "grade": "compact source_reported navigation only; raw_archive missing; no candidate semantic proof"
+    },
+    {
+      "id": "F01-P139",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/scientist/mirror_contracts/test_budget_ledger.py",
+      "state": "PASS",
+      "source_file": "received/F01.txt",
+      "source_line": "256",
+      "source_ref": "research_main",
+      "grade": "compact source_reported navigation only; raw_archive missing; no candidate semantic proof"
+    },
+    {
+      "id": "F03-P066",
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+      "state": "PASS",
+      "source_file": "received/F03.txt",
+      "source_line": "196",
+      "source_ref": "research_main",
+      "grade": "compact source_reported navigation only; raw_archive missing; no candidate semantic proof"
+    },
+    {
+      "id": "F03-P091",
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+      "state": "PASS",
+      "source_file": "received/F03.txt",
+      "source_line": "221",
+      "source_ref": "research_main",
+      "grade": "compact source_reported navigation only; raw_archive missing; no candidate semantic proof"
+    },
+    {
+      "id": "F05-P047",
+      "job": "F05",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "state": "PASS",
+      "source_file": "received/F05.txt",
+      "source_line": "457",
+      "source_ref": "e02_execution_base",
+      "grade": "compact source_reported navigation only; raw_archive missing; no candidate semantic proof"
+    },
+    {
+      "id": "F07-P027",
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "state": "PASS",
+      "source_file": "received/F07.txt",
+      "source_line": "33",
+      "source_ref": "e02_head",
+      "grade": "compact source_reported navigation only; raw_archive missing; no candidate semantic proof"
+    },
+    {
+      "id": "F07-P084",
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+      "state": "PASS",
+      "source_file": "received/F07.txt",
+      "source_line": "90",
+      "source_ref": "e02_head",
+      "grade": "compact source_reported navigation only; raw_archive missing; no candidate semantic proof"
+    },
+    {
+      "id": "F10-P031",
+      "job": "F10",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "state": "PASS",
+      "source_file": "received/F10.txt",
+      "source_line": "151",
+      "source_ref": "main",
+      "grade": "compact source_reported navigation only; raw_archive missing; no candidate semantic proof"
+    },
+    {
+      "id": "F13-P104",
+      "job": "F13",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+      "state": "PASS",
+      "source_file": "received/F13.txt",
+      "source_line": "231",
+      "source_ref": "integration_head",
+      "grade": "compact source_reported navigation only; raw_archive missing; no candidate semantic proof"
+    },
+    {
+      "id": "F15-P032",
+      "job": "F15",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "state": "PASS",
+      "source_file": "received/F15.txt",
+      "source_line": "187",
+      "source_ref": "integration_head",
+      "grade": "compact source_reported navigation only; raw_archive missing; no candidate semantic proof"
+    }
+  ],
+  "baseline_context_qualification": "All baseline cells remain compact source-reported navigation. Their source SHA/ref/environment routes belong the original source jobs, not this candidate. The author handoff and original results source cards retain those contextual pointers; no raw archive transfer is asserted.",
+  "checks": [
+    {
+      "id": "independent-data-and-source-reconciliation",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-B-runtime-continuation-20261007/check_foreign_oracles.py"
+      ],
+      "target_sha": "f4e8422232ce3b61ef28c5c1928a65df5038a3fe",
+      "environment": {
+        "review_interpreter": {
+          "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "version": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+          "platform": "Linux-6.18.44-x86_64-with-glibc2.41"
+        },
+        "cwd": "/workspace/e02-B-current-runtime",
+        "execution_kind": "stdlib JSON/XML/hash/Git data reconciliation only; no product imports, pytest, build, gate, cache or source changes",
+        "profile": {
+          "git_sha": "cf072201bafa7367d83067503c1de7d97d95473b",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/profile.json",
+          "bytes": 1454,
+          "sha256": "01da80c66d7c9dd514c2f101360b2209a0c94f07993cfc820dcf96f026d9b663",
+          "git_blob": "c6feb8c2067f068ebab425eb5571510d2985210e"
+        },
+        "actual_native_environment": "The separate author native/removal environment remains bound by bf572 author checks and e246 wrapper bytes; it is not this metadata interpreter."
+      },
+      "input_closure": {
+        "literal_review_driver": {
+          "git_sha": "cf072201bafa7367d83067503c1de7d97d95473b",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/check.source.txt",
+          "bytes": 7931,
+          "sha256": "f770570ece3e61e9ffae7ebf88f27f69f709019d9ffd61b295a294dfe4acd57c",
+          "git_blob": "a62090f6ae7c99800b1b49a8a8fd538129b36a72"
+        },
+        "source_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+        "DUR_test": {
+          "git_sha": "f4e8422232ce3b61ef28c5c1928a65df5038a3fe",
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_llm_process_recovery.py",
+          "bytes": 13157,
+          "sha256": "cfd4fcc24702ab87c8411f91dd83c5a5d520f279888559024b5325af67d912b7",
+          "git_blob": "407c58f7ac7639e9eba517347bbbfeda09b70627"
+        },
+        "DUR_author_handoff": {
+          "git_sha": "bf572fbab864ddb0f62a5151656d9c1febe29afc",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-llm-process-recovery.json",
+          "bytes": 29809,
+          "sha256": "22fbee9975f390fb5c0627fb6ed3c1d77734d3df3cf5c09dcf1f8853fb35066e",
+          "git_blob": "0afce1c1d300484196c7d28d353abb98a95795ab"
+        },
+        "DUR_full_deciding_bytes": [
+          {
+            "git_sha": "e246c3028d0ae19086db975c8a937cd411fe20ca",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-llm-process-recovery-evidence/native.txt",
+            "bytes": 151711,
+            "sha256": "30ef600084246e319ceb5e59104e75c9e618ef89abf4cbf25e099bf684ea7459",
+            "git_blob": "8848bb11a8b7af6ee5bc552b63a05f8fba2ed6ae"
+          },
+          {
+            "git_sha": "e246c3028d0ae19086db975c8a937cd411fe20ca",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-llm-process-recovery-evidence/native.xml",
+            "bytes": 628,
+            "sha256": "6237d351f6f4a037215ee9625b67e104e9bd2dd2f3084182dd14e64b4c9677c1",
+            "git_blob": "adbf40c1d6b4205c5bb7a0f61013b03847f551d7"
+          },
+          {
+            "git_sha": "e246c3028d0ae19086db975c8a937cd411fe20ca",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-llm-process-recovery-evidence/wrapper.json",
+            "bytes": 2120,
+            "sha256": "edc298534014d9221a575dfab2032e5ff386ab81902a6efb1dc3050a33e203a3",
+            "git_blob": "9fd77fd46edf1e62e9a7fc253382bf4d2b1f800d"
+          },
+          {
+            "git_sha": "e246c3028d0ae19086db975c8a937cd411fe20ca",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-llm-process-recovery-evidence/removal.txt",
+            "bytes": 33301,
+            "sha256": "bca16bdb598fff51475e64ab2795165a16468bc65a9262464d10b8c0829a52e5",
+            "git_blob": "b1148357843dcd9cd493b13c17a5c24ed2def406"
+          },
+          {
+            "git_sha": "e246c3028d0ae19086db975c8a937cd411fe20ca",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-llm-process-recovery-evidence/removal.xml",
+            "bytes": 4037,
+            "sha256": "b12da257f25ce658d4443020dccec250bcbcef2380c453acc45623e7f521181a",
+            "git_blob": "db54ae2d1e32e32c89679e83b9ec2a8e2c5ced68"
+          },
+          {
+            "git_sha": "e246c3028d0ae19086db975c8a937cd411fe20ca",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-llm-process-recovery-evidence/removal-wrapper.json",
+            "bytes": 2279,
+            "sha256": "1211a3cdfa1654e12b2d2b67fe46dcb8cf132e777d61fd1a31151289513b3839",
+            "git_blob": "80367082a7046af2da7b0d03b68935a124e9737c"
+          },
+          {
+            "git_sha": "e246c3028d0ae19086db975c8a937cd411fe20ca",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-llm-process-recovery-evidence/source-inputs.json",
+            "bytes": 3707,
+            "sha256": "9a20f3029baacaa65117a889e437e65a3e17d41321e842e61c0ef09920f904c7",
+            "git_blob": "4b392df7dc4ffe8cdeacdfa46edd080d1ac4113a"
+          }
+        ],
+        "observer_source_refs": [
+          {
+            "git_sha": "72965ae4d665db7d57ba0a2dbd7c050e5795492b",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py",
+            "bytes": 22420,
+            "sha256": "869afd5e4f6e3acdb665dec5193c936655bc6747c26e7b870dd8ee56f94bc104",
+            "git_blob": "1a470d4824e4719d31b4445eed1687cc1c8537aa"
+          },
+          {
+            "git_sha": "72965ae4d665db7d57ba0a2dbd7c050e5795492b",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-journal-probe.py",
+            "bytes": 6034,
+            "sha256": "f934af2505ca7860b6271d8bfc5c6cdd3fe7e9522c65801c1ee1556b80a9777d",
+            "git_blob": "853a20787c43d3528b7bc88b47ef13d34cbe60ee"
+          }
+        ],
+        "complete_observer_input_output_custody": {
+          "git_sha": "cf072201bafa7367d83067503c1de7d97d95473b",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-custody.json",
+          "bytes": 5026,
+          "sha256": "4cea8f57ac0e17b4984fc4c5449c16feaf295aa6f878f2b1d36b72e2b6c11dc0",
+          "git_blob": "073e63ca0ec9898544f193a4dc97c3b5d94215f5"
+        },
+        "denominator": "Three actual native case rows, one actual removal row, seven guarded production origins for each fresh process, full XML phase outcomes, and ten actual observer probe files. This is the stated explicit input set, not a universal environment read-set."
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": {
+        "git_sha": "cf072201bafa7367d83067503c1de7d97d95473b",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/check-output.txt",
+        "bytes": 2553,
+        "sha256": "0f359134fcedec0cd17a36cc76c1c08e1869d16b682faeb5479eea03bd7a2b76",
+        "git_blob": "b876867593b94c1347d4e5033757eaeda1d2fd8f"
+      },
+      "deciding_review": {
+        "git_sha": "cf072201bafa7367d83067503c1de7d97d95473b",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/review.json",
+        "bytes": 19368,
+        "sha256": "b3bff02736ecce3c4613427d372931da8a5526f3d555f2518f9f319b1a560df0",
+        "git_blob": "08f9140ae2532860c0d549d31d2f9030ca7170c0"
+      },
+      "qualification": "Data-only independent reconciliation; no native, test collection, build or gate execution by the reviewer. Author native 3 PASS / removal 1 FAIL remain literal; both observer sessions remain incomplete."
+    }
+  ],
+  "property": {
+    "statement": "An oracle must distinguish physical provider admission and retained obligations from refusal status, and preserved phase prefixes from completed session claims.",
+    "runtime_path": [
+      "Actual local provider fsyncs SDK work before response",
+      "Canonical Cache/Traced/enforcer and initialized FileBudgetLedger retain or settle the exact completion intent",
+      "Fresh process consumes persisted state before another provider operation",
+      "Native pytest logreport is flushed to an exclusive ignored journal before explicit test process death"
+    ],
+    "proxy_divergence": "Removing the admission predicate yields eventual typed refusal while SDK count grows to two and ledger bytes change. Four retained phase reports coexist with an incomplete two-case session and no terminal partition.",
+    "negative_controls": [
+      "Canonical pending-completion admission predicate removed only in child runtime: actual second provider and changed ledger bytes, literal 1 FAIL.",
+      "Identical serial explicit SIGKILL probe without journal: zero retained phase reports, no claim that the first case never executed."
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "predicate_qualification": {
+    "local_source_bytes_hashes_XML_counts_provider_and_ledger_rows": "recomputed",
+    "finite_oracle_source_verdict": "independently_reconciled",
+    "external_invoice_powerloss_and_full_B_session_completion": "not_established"
+  },
+  "capability_state_or_finding_state": "NONBLOCKING for the finite declared process and flushed-prefix properties; formal closure remains separate and closure_ids is empty.",
+  "limitations_and_next_owner": [
+    "Root/G accepts the exact author process test and reviews current code quality and formal finding criteria separately. This review does not substitute for a whole lower/upper LLM regression.",
+    "SIGKILL process interruption is not powerloss, external invoice reconciliation or proof that cancellation stopped the entered provider.",
+    "The journal is flushed, not fsynced. A last record may be partial if interrupted during writing; xdist suffix isolation was source-reviewed only.",
+    "Root keeps original incomplete session facts. The explicit two-case signal sender cannot establish the sender of a different historical interrupted B run.",
+    "G replay requires exact Git objects and explicit path-only mapping of the retained observer input directory. No runtime replay or universal dependency/resource sufficiency is asserted.",
+    "Captured Python inputs are retained as .source.txt and are not new native collection candidates. JSONL is explicitly tracked, all original bytes unchanged."
+  ],
+  "author_handoff": {
+    "git_sha": "bf572fbab864ddb0f62a5151656d9c1febe29afc",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-llm-process-recovery.json",
+    "bytes": 29809,
+    "sha256": "22fbee9975f390fb5c0627fb6ed3c1d77734d3df3cf5c09dcf1f8853fb35066e",
+    "git_blob": "0afce1c1d300484196c7d28d353abb98a95795ab"
+  },
+  "review": {
+    "git_sha": "cf072201bafa7367d83067503c1de7d97d95473b",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/review.json",
+    "bytes": 19368,
+    "sha256": "b3bff02736ecce3c4613427d372931da8a5526f3d555f2518f9f319b1a560df0",
+    "git_blob": "08f9140ae2532860c0d549d31d2f9030ca7170c0"
+  },
+  "evidence_files": [
+    {
+      "git_sha": "cf072201bafa7367d83067503c1de7d97d95473b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/README.md",
+      "bytes": 3127,
+      "sha256": "776d46e9bd24a95d3d743a060ff09aeb68c3ebfb391cb74ce8e7adb91641e4d4",
+      "git_blob": "401bfce694b1cf51931ff608aebfc86aa4c6800e"
+    },
+    {
+      "git_sha": "cf072201bafa7367d83067503c1de7d97d95473b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/check-output.txt",
+      "bytes": 2553,
+      "sha256": "0f359134fcedec0cd17a36cc76c1c08e1869d16b682faeb5479eea03bd7a2b76",
+      "git_blob": "b876867593b94c1347d4e5033757eaeda1d2fd8f"
+    },
+    {
+      "git_sha": "cf072201bafa7367d83067503c1de7d97d95473b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/check.source.txt",
+      "bytes": 7931,
+      "sha256": "f770570ece3e61e9ffae7ebf88f27f69f709019d9ffd61b295a294dfe4acd57c",
+      "git_blob": "a62090f6ae7c99800b1b49a8a8fd538129b36a72"
+    },
+    {
+      "git_sha": "cf072201bafa7367d83067503c1de7d97d95473b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/index.json",
+      "bytes": 4767,
+      "sha256": "7fb9dd9095974e85d879a733bd72c5925e31a7e41de1009be44cf4669fadec5f",
+      "git_blob": "27bbd37a85effa3ea644f42d8c0312a7c5849751"
+    },
+    {
+      "git_sha": "cf072201bafa7367d83067503c1de7d97d95473b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-custody.json",
+      "bytes": 5026,
+      "sha256": "4cea8f57ac0e17b4984fc4c5449c16feaf295aa6f878f2b1d36b72e2b6c11dc0",
+      "git_blob": "073e63ca0ec9898544f193a4dc97c3b5d94215f5"
+    },
+    {
+      "git_sha": "cf072201bafa7367d83067503c1de7d97d95473b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/current_cohort_inventory.source.txt",
+      "bytes": 22420,
+      "sha256": "869afd5e4f6e3acdb665dec5193c936655bc6747c26e7b870dd8ee56f94bc104",
+      "git_blob": "1a470d4824e4719d31b4445eed1687cc1c8537aa"
+    },
+    {
+      "git_sha": "cf072201bafa7367d83067503c1de7d97d95473b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/journal/inventory.json",
+      "bytes": 7725,
+      "sha256": "748140a60fbe78f8c6ab395530ae05227eb9149fc861da1e055b82c8ab675251",
+      "git_blob": "4e4aacf874f5021414b53fb323888ee3740cf34d"
+    },
+    {
+      "git_sha": "cf072201bafa7367d83067503c1de7d97d95473b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/journal/reports.jsonl",
+      "bytes": 3015,
+      "sha256": "56262daf90bc7a13a9de1ff7042564fc783588d7f75067ff2e898164af2bd7e2",
+      "git_blob": "a33fc16a3aca6679b141f4cb96ca3e308b4d1302"
+    },
+    {
+      "git_sha": "cf072201bafa7367d83067503c1de7d97d95473b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/journal/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "git_sha": "cf072201bafa7367d83067503c1de7d97d95473b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/journal/stdout.txt",
+      "bytes": 1094,
+      "sha256": "d700695c86bd3d2a0a9cec8b3aa5d8075942a9551eca78c3a5cd0abaa62ce52d",
+      "git_blob": "93337d4405b43d7f9fe23a07f36de96b083ea912"
+    },
+    {
+      "git_sha": "cf072201bafa7367d83067503c1de7d97d95473b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/oracle.json",
+      "bytes": 3596,
+      "sha256": "5f4caa290be5998bec369f1a0f942b0983237c4483f63378b65a12b6728fe718",
+      "git_blob": "91188ee2b179ad39be50d1322262cec552b5195b"
+    },
+    {
+      "git_sha": "cf072201bafa7367d83067503c1de7d97d95473b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/test_real_phase_journal.source.txt",
+      "bytes": 135,
+      "sha256": "fa51a8abe4f1b9ff320980fe1a32f197b1ae5609bedc49155a0fd210aa3ed5bd",
+      "git_blob": "91c349890ac4c42ea1cb8e46ee79edee80e002c2"
+    },
+    {
+      "git_sha": "cf072201bafa7367d83067503c1de7d97d95473b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/without-journal/inventory.json",
+      "bytes": 7606,
+      "sha256": "9994c04b2f709867a456b377dccd5ae172a6bd59433545fb18fa07a5147fdf3d",
+      "git_blob": "63fb898e9bcc34869b1360acf5ee5b2539356bde"
+    },
+    {
+      "git_sha": "cf072201bafa7367d83067503c1de7d97d95473b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/without-journal/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "git_sha": "cf072201bafa7367d83067503c1de7d97d95473b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/without-journal/stdout.txt",
+      "bytes": 1102,
+      "sha256": "9f7c7ba6bd9369a7d2349454f399dd7f33e4b43920bac97767b2d33f7b9dd163",
+      "git_blob": "2609f7a7c5c1b2eedb01a2a08f2f22fd108d45e8"
+    },
+    {
+      "git_sha": "cf072201bafa7367d83067503c1de7d97d95473b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/profile.json",
+      "bytes": 1454,
+      "sha256": "01da80c66d7c9dd514c2f101360b2209a0c94f07993cfc820dcf96f026d9b663",
+      "git_blob": "c6feb8c2067f068ebab425eb5571510d2985210e"
+    },
+    {
+      "git_sha": "cf072201bafa7367d83067503c1de7d97d95473b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/review.json",
+      "bytes": 19368,
+      "sha256": "b3bff02736ecce3c4613427d372931da8a5526f3d555f2518f9f319b1a560df0",
+      "git_blob": "08f9140ae2532860c0d549d31d2f9030ca7170c0"
+    }
+  ]
+}

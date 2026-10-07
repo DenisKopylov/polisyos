@@ -1,0 +1,317 @@
+{
+  "schema_version": "1.2",
+  "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+  "coordination_mode": "shared_posix_file_lock",
+  "ledger_id": "ledger:307ea7f4a8007d58",
+  "revision": 24,
+  "updated_at": "2026-10-06T20:55:27.224014Z",
+  "last_writer": {
+    "host_id": "b878f4efbdfc",
+    "writer_id": "b878f4efbdfc:477195:original-ledger.json",
+    "pid": 477195
+  },
+  "recent_mutations": [
+    {
+      "revision": 0,
+      "operation": "bootstrap",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:477195:original-ledger.json",
+        "pid": 477195
+      },
+      "committed_at": "2026-10-06T20:55:27.138410Z"
+    },
+    {
+      "revision": 1,
+      "operation": "admit_provider_intent",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:477195:original-ledger.json",
+        "pid": 477195
+      },
+      "committed_at": "2026-10-06T20:55:27.140161Z"
+    },
+    {
+      "revision": 2,
+      "operation": "retain_completion",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:477195:original-ledger.json",
+        "pid": 477195
+      },
+      "committed_at": "2026-10-06T20:55:27.141813Z"
+    },
+    {
+      "revision": 3,
+      "operation": "complete_completion",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:477195:original-ledger.json",
+        "pid": 477195
+      },
+      "committed_at": "2026-10-06T20:55:27.143706Z"
+    },
+    {
+      "revision": 4,
+      "operation": "retain_completion",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:477195:original-ledger.json",
+        "pid": 477195
+      },
+      "committed_at": "2026-10-06T20:55:27.145350Z"
+    },
+    {
+      "revision": 5,
+      "operation": "complete_completion",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:477195:original-ledger.json",
+        "pid": 477195
+      },
+      "committed_at": "2026-10-06T20:55:27.147377Z"
+    },
+    {
+      "revision": 6,
+      "operation": "transition_completion",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:477195:original-ledger.json",
+        "pid": 477195
+      },
+      "committed_at": "2026-10-06T20:55:27.149814Z"
+    },
+    {
+      "revision": 7,
+      "operation": "settle_spend",
+      "key": "run",
+      "amount": "0.02",
+      "applied_amount": "0.02",
+      "provider": "physical-test-provider",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:477195:original-ledger.json",
+        "pid": 477195
+      },
+      "committed_at": "2026-10-06T20:55:27.151261Z"
+    },
+    {
+      "revision": 8,
+      "operation": "transition_completion",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:477195:original-ledger.json",
+        "pid": 477195
+      },
+      "committed_at": "2026-10-06T20:55:27.153937Z"
+    },
+    {
+      "revision": 9,
+      "operation": "release",
+      "key": "run",
+      "amount": "0.00015000000000000001",
+      "applied_amount": "0.00015000000000000001",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:477195:original-ledger.json",
+        "pid": 477195
+      },
+      "committed_at": "2026-10-06T20:55:27.155671Z"
+    },
+    {
+      "revision": 10,
+      "operation": "retain_completion",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:477195:original-ledger.json",
+        "pid": 477195
+      },
+      "committed_at": "2026-10-06T20:55:27.157659Z"
+    },
+    {
+      "revision": 11,
+      "operation": "complete_completion",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:477195:original-ledger.json",
+        "pid": 477195
+      },
+      "committed_at": "2026-10-06T20:55:27.160473Z"
+    },
+    {
+      "revision": 12,
+      "operation": "complete_completion",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:477195:original-ledger.json",
+        "pid": 477195
+      },
+      "committed_at": "2026-10-06T20:55:27.176993Z"
+    },
+    {
+      "revision": 13,
+      "operation": "admit_provider_intent",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:477195:original-ledger.json",
+        "pid": 477195
+      },
+      "committed_at": "2026-10-06T20:55:27.181638Z"
+    },
+    {
+      "revision": 14,
+      "operation": "retain_completion",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:477195:original-ledger.json",
+        "pid": 477195
+      },
+      "committed_at": "2026-10-06T20:55:27.185016Z"
+    },
+    {
+      "revision": 15,
+      "operation": "complete_completion",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:477195:original-ledger.json",
+        "pid": 477195
+      },
+      "committed_at": "2026-10-06T20:55:27.187995Z"
+    },
+    {
+      "revision": 16,
+      "operation": "retain_completion",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:477195:original-ledger.json",
+        "pid": 477195
+      },
+      "committed_at": "2026-10-06T20:55:27.190982Z"
+    },
+    {
+      "revision": 17,
+      "operation": "complete_completion",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:477195:original-ledger.json",
+        "pid": 477195
+      },
+      "committed_at": "2026-10-06T20:55:27.194114Z"
+    },
+    {
+      "revision": 18,
+      "operation": "transition_completion",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:477195:original-ledger.json",
+        "pid": 477195
+      },
+      "committed_at": "2026-10-06T20:55:27.198375Z"
+    },
+    {
+      "revision": 19,
+      "operation": "settle_spend",
+      "key": "run",
+      "amount": "0.02",
+      "applied_amount": "0.02",
+      "provider": "physical-test-provider",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:477195:original-ledger.json",
+        "pid": 477195
+      },
+      "committed_at": "2026-10-06T20:55:27.201027Z"
+    },
+    {
+      "revision": 20,
+      "operation": "transition_completion",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:477195:original-ledger.json",
+        "pid": 477195
+      },
+      "committed_at": "2026-10-06T20:55:27.205679Z"
+    },
+    {
+      "revision": 21,
+      "operation": "release",
+      "key": "run",
+      "amount": "0.00015000000000000001",
+      "applied_amount": "0.00015000000000000001",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:477195:original-ledger.json",
+        "pid": 477195
+      },
+      "committed_at": "2026-10-06T20:55:27.208471Z"
+    },
+    {
+      "revision": 22,
+      "operation": "retain_completion",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:477195:original-ledger.json",
+        "pid": 477195
+      },
+      "committed_at": "2026-10-06T20:55:27.211687Z"
+    },
+    {
+      "revision": 23,
+      "operation": "complete_completion",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:477195:original-ledger.json",
+        "pid": 477195
+      },
+      "committed_at": "2026-10-06T20:55:27.215917Z"
+    },
+    {
+      "revision": 24,
+      "operation": "complete_completion",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:477195:original-ledger.json",
+        "pid": 477195
+      },
+      "committed_at": "2026-10-06T20:55:27.224010Z"
+    }
+  ],
+  "state": {
+    "limits": {
+      "run": {
+        "key": "run",
+        "max_usd": "10"
+      }
+    },
+    "spent": {
+      "run": "0.04"
+    },
+    "provider_spent": {
+      "physical-test-provider": "0.04"
+    },
+    "reserved": {
+      "run": "0"
+    }
+  },
+  "spend_receipts": {
+    "llm-producer:204213c00248486d9673c6f30557dbc7:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be": {
+      "event_id": "llm-producer:204213c00248486d9673c6f30557dbc7:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+      "payload_digest": "99dedd114ecaeac031d0af9336b0e459d4791ac451126bb8fbdbbc4269c85eae",
+      "key": "run",
+      "amount": "0.02",
+      "provider": "physical-test-provider",
+      "revision": 7,
+      "committed_at": "2026-10-06T20:55:27.150831Z"
+    },
+    "llm-producer:d15bd399856246ea82282ce7dda1e7bc:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be": {
+      "event_id": "llm-producer:d15bd399856246ea82282ce7dda1e7bc:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+      "payload_digest": "e0bf5aad6f0624ccd7a6a5d177d0fd829ba1fbcb7ebf5e7a465b03b97886a327",
+      "key": "run",
+      "amount": "0.02",
+      "provider": "physical-test-provider",
+      "revision": 19,
+      "committed_at": "2026-10-06T20:55:27.200285Z"
+    }
+  },
+  "completion_obligations": {}
+}

@@ -1,0 +1,12 @@
+from pathlib import Path
+import os,subprocess,shutil
+root=Path('/workspace/e02-B-current-coordination');prod=root/'policy-engine';scratch=root/'.polisyos/e02-B-current';h=prod/'docs/research/e02-cloud-test-plan/implementation-handoffs/B';raw=Path('/tmp/e02-B-successor-openapi-02ff');raw.mkdir(exist_ok=False)
+assert subprocess.check_output(['git','-C',str(root),'rev-parse','HEAD'],text=True).strip()=='02ff9d0467423a99c2b4c737329da0c629e6b869'
+assert subprocess.check_output(['git','-C',str(root),'status','--porcelain'],text=True).strip()==''
+shutil.copyfile(prod/'schemas/runtime_api_v1.openapi.json',raw/'before.json')
+env=dict(os.environ)
+for k in ['OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','NUMEXPR_NUM_THREADS','VECLIB_MAXIMUM_THREADS','BLIS_NUM_THREADS']:env.pop(k,None)
+env.update(PYTHONPATH=str(prod/'src')+':'+str(prod),UV_PROJECT_ENVIRONMENT=str(scratch/'environment'),UV_NO_SYNC='1',POLISYOS_METRICS_PORT='0',TIKTOKEN_CACHE_DIR=str(scratch/'tools/tokenizer-input/cache'))
+argv=[str(scratch/'tools/uv-0.9.21/bin/uv'),'run','--no-sync','--extra','runtime','--extra','ml','python','tools/ops_runners/runtime/export_runtime_openapi.py','--output',str(raw/'after.json'),'--scratch-root',str(raw/'runtime-cas')]
+result=subprocess.run([str(scratch/'environment/bin/python'),str(h/'final-root-evidence/capture_frozen.py'),'--repo',str(root),'--tag','successor-prefreeze-openapi-02ff','--',*argv],cwd=root,env=env)
+raise SystemExit(result.returncode)

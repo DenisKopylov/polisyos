@@ -1,0 +1,217 @@
+{
+  "mode": "immutable Git/AST metadata only; no native/product import/gate execution",
+  "reviewer": "/root/dur_probe",
+  "reviewer_head": "1eca0ade95e08330dfcd1ff35d35314e8a44d68d",
+  "reviewer_tree": "66b1dd7d56a0cf1200b8c954cb64f71d155dc033",
+  "python": {
+    "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"
+  },
+  "source": {
+    "base": "97d0684c1f2765fc67d40331a8a2602a08c1f2e0",
+    "first": "f563fde9238a08b55135f167ddf0d6fa154690c5",
+    "fix": "e69f25bf273758b10d5b205a28f9349804fdc7d1",
+    "final": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+    "tree": "8909428c4fe4a03b6d481ed5e34f942b59f07318"
+  },
+  "enumerated_changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-foundry-compiled-chain-plan.toml",
+    "policy-engine/src/polisyos/foundry/methods/artifacts/README.md",
+    "policy-engine/src/polisyos/foundry/methods/artifacts/_chain.py",
+    "policy-engine/src/polisyos/foundry/methods/artifacts/parts.py",
+    "policy-engine/src/polisyos/foundry/methods/components/README.md",
+    "policy-engine/src/polisyos/foundry/methods/components/composer.py",
+    "policy-engine/src/polisyos/foundry/methods/components/composer.pyi",
+    "policy-engine/tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py",
+    "policy-engine/tools/devx/foundry/README.md",
+    "policy-engine/tools/devx/foundry/generate_stubs.py"
+  ],
+  "successful_Git_reads": [
+    {
+      "sha": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-foundry-compiled-chain-plan.toml",
+      "bytes": 1726,
+      "sha256": "458cddbcefc91eae2c1ef7ed7eb233182ee6e967d9f1f1e023b9af45898af435"
+    },
+    {
+      "sha": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+      "path": "policy-engine/src/polisyos/foundry/methods/artifacts/README.md",
+      "bytes": 5236,
+      "sha256": "b02420a2681c335cc67a07b34ba3179f33d27a898556c46d79a94ffdc6cce73a"
+    },
+    {
+      "sha": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+      "path": "policy-engine/src/polisyos/foundry/methods/artifacts/_chain.py",
+      "bytes": 24555,
+      "sha256": "6b6a46c9a585f05fc39a62737c501cab9d0536e349867752d1e79becbc75b51c"
+    },
+    {
+      "sha": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+      "path": "policy-engine/src/polisyos/foundry/methods/artifacts/parts.py",
+      "bytes": 7030,
+      "sha256": "5e897d5bf6ca57ecda7a3fcca4c2480206a9c1fa6d889c735cbe0d9ce53c2092"
+    },
+    {
+      "sha": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+      "path": "policy-engine/src/polisyos/foundry/methods/components/README.md",
+      "bytes": 11084,
+      "sha256": "54e9916a2650c4932b63f20433bda5ea6c6cf7e095b474d01813c3adaf972d01"
+    },
+    {
+      "sha": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+      "path": "policy-engine/src/polisyos/foundry/methods/components/composer.py",
+      "bytes": 37157,
+      "sha256": "0e3baea23e3c4804668d4e1116409c1c1522f1a15e507c317389b947b31c3c68"
+    },
+    {
+      "sha": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+      "path": "policy-engine/src/polisyos/foundry/methods/components/composer.pyi",
+      "bytes": 5968,
+      "sha256": "c380973bd774965e21d516dff62233ee4af9a76423c4be9eddfb838c9a7af3ac"
+    },
+    {
+      "sha": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+      "path": "policy-engine/tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py",
+      "bytes": 10318,
+      "sha256": "07057da879f17797318fd14b7bc1f2bd3a1645d12cfa873e4ac71b1f2a149c00"
+    },
+    {
+      "sha": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+      "path": "policy-engine/tools/devx/foundry/README.md",
+      "bytes": 5167,
+      "sha256": "7713baf96eb2d6a0947beeaf04d9882fc86722381661935f18fbed328ec0db94"
+    },
+    {
+      "sha": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+      "path": "policy-engine/tools/devx/foundry/generate_stubs.py",
+      "bytes": 5299,
+      "sha256": "62bb6024d115cc253a25f6ba952cd1f4794fbccb6635dc7bdc51405ccc38890f"
+    },
+    {
+      "sha": "97d0684c1f2765fc67d40331a8a2602a08c1f2e0",
+      "path": "policy-engine/src/polisyos/foundry/methods/artifacts/_chain.py",
+      "bytes": 10455,
+      "sha256": "595618d471dae7567c0c69d1c6cc07121fa23e67c5856f619d63bed5820f62af"
+    },
+    {
+      "sha": "f563fde9238a08b55135f167ddf0d6fa154690c5",
+      "path": "policy-engine/src/polisyos/foundry/methods/artifacts/parts.py",
+      "bytes": 6724,
+      "sha256": "300ebd5f83fc1ca646ea1b31543d5806e139095994e3e83e2698b81d8d195a5f"
+    },
+    {
+      "sha": "e69f25bf273758b10d5b205a28f9349804fdc7d1",
+      "path": "policy-engine/src/polisyos/foundry/methods/artifacts/parts.py",
+      "bytes": 7030,
+      "sha256": "5e897d5bf6ca57ecda7a3fcca4c2480206a9c1fa6d889c735cbe0d9ce53c2092"
+    },
+    {
+      "sha": "f563fde9238a08b55135f167ddf0d6fa154690c5",
+      "path": "policy-engine/src/polisyos/foundry/methods/components/composer.pyi",
+      "bytes": 4922,
+      "sha256": "488789a2ba2aecad6b9ee058e68d1c4e5daf3de0ba9887e4dbc527a50a8f5d01"
+    },
+    {
+      "sha": "e69f25bf273758b10d5b205a28f9349804fdc7d1",
+      "path": "policy-engine/src/polisyos/foundry/methods/components/composer.pyi",
+      "bytes": 5968,
+      "sha256": "c380973bd774965e21d516dff62233ee4af9a76423c4be9eddfb838c9a7af3ac"
+    },
+    {
+      "sha": "e69f25bf273758b10d5b205a28f9349804fdc7d1",
+      "path": "policy-engine/src/polisyos/foundry/methods/artifacts/_chain.py",
+      "bytes": 24532,
+      "sha256": "f038be8c17c0ce2ef20fb1901b51d5c4dff9b18f3907d281dba0f472896e9e4f"
+    },
+    {
+      "sha": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+      "path": "policy-engine/src/polisyos/foundry/methods/artifacts/__init__.py",
+      "bytes": 383,
+      "sha256": "79a2f5203ae44074bc81e1fe6074adf23b1942960bbe62527b16772c1d827670"
+    },
+    {
+      "sha": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+      "path": "policy-engine/src/polisyos/foundry/methods/base.py",
+      "bytes": 74245,
+      "sha256": "ae6ab49021c3adbab8a72f39b2a7cc126d082a54d748f737e0092c64bd6720e8"
+    },
+    {
+      "sha": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+      "path": "policy-engine/src/polisyos/foundry/methods/selection/registry.py",
+      "bytes": 35936,
+      "sha256": "3250f70d07a658c9beb9b9210254d425715129a1b9eb29cdbbcdc4a208c977b9"
+    },
+    {
+      "sha": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+      "path": "policy-engine/src/polisyos/foundry/methods/components/linker.py",
+      "bytes": 25992,
+      "sha256": "10d3d0439376525a2a270068d9024bb467468e6150dae3ec64ce250f1132d670"
+    },
+    {
+      "sha": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py",
+      "bytes": 42439,
+      "sha256": "4ded29c3bb1ef77202b4a57d9595e8b4665552293e9b92321e675a52dcbee559"
+    },
+    {
+      "sha": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/async_chain_executor.py",
+      "bytes": 13846,
+      "sha256": "769060f639d99f2a04f413cfcb7b7aa3fbd0812b38cf961b2a00f31a62da95e1"
+    },
+    {
+      "sha": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "bytes": 173575,
+      "sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324"
+    },
+    {
+      "sha": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+      "path": "policy-engine/src/polisyos/core/artifacts/manifest_profile.py",
+      "bytes": 756,
+      "sha256": "aa7ee9af617c1adc338a21a5b0186d41a690e6b86f2a0810ae9b5a7ee4ff7ce5"
+    },
+    {
+      "sha": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+      "path": "policy-engine/src/polisyos/core/artifacts/manifest.py",
+      "bytes": 12758,
+      "sha256": "fb1fb68e18b80ba83ee2aa6b94a011386ede96bc75c492123bb4de3bec45639d"
+    },
+    {
+      "sha": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+      "path": "policy-engine/src/polisyos/core/canon/canon_json.py",
+      "bytes": 1882,
+      "sha256": "c5e60f4d47bc4fc5347809545609716c0ce030dfc6c3e3deee61d8ad5a086c95"
+    },
+    {
+      "sha": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+      "path": "policy-engine/src/polisyos/common/canonical.py",
+      "bytes": 10154,
+      "sha256": "89394b9a3b39c07e56cf672329176c2dda4feff8c6c375190f4065a5da123f41"
+    },
+    {
+      "sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CMP-01.md",
+      "bytes": 16623,
+      "sha256": "29a3a0775bdac83d1f1804f52673e5cc99a5602a611877b216a423f191f1472e"
+    }
+  ],
+  "failed_reads": [],
+  "metadata_outcome": "PASS",
+  "recomputed_quantities": {
+    "legacy_ChainArtifact_AST_unchanged": true,
+    "strict_loader_AST_unchanged_first_to_fix": true,
+    "selected_profile_writer_fix_bytes_equal_final": true,
+    "first_stub_insertion_field": false,
+    "fixed_and_final_stub_insertion_field": true,
+    "fix_to_final_from_chain_only_local_annotation": true,
+    "canonical_raw_capture_sha256": "10b7eabc7d65e7ee68eff8d1b3ee523ce960f00f696c34edf1aae65cdd67a8c9"
+  },
+  "unresolved_by_construction": [
+    "No runtime tests/gates are executed by this reviewer; AST comparisons do not prove execution semantics.",
+    "Only the ten-path owner delta and eleven named adjacent owner files are selected. This is not an all-repository/backend conformance verdict.",
+    "Current registry stability, caller execution inputs and permission remain explicit operational premises.",
+    "Native artifacts and execution outcomes are independently owned and must be read under their exact source/input refs before runtime acceptance."
+  ],
+  "closure_ids": []
+}

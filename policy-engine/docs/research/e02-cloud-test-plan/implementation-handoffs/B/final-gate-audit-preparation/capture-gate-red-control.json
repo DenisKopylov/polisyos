@@ -1,0 +1,34 @@
+{
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "-c",
+    "import sys; sys.stdout.write(\"actual red child executed\\n\"); raise SystemExit(3)"
+  ],
+  "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+  "head": "17836910dfbf83f6b54550253a298e1a1fb68b2a",
+  "tree": "678b8933a7d38858b914fdc1df8c58b929a2acbc",
+  "head_after": "17836910dfbf83f6b54550253a298e1a1fb68b2a",
+  "wall_s": 0.016168291011126712,
+  "process_rusage_maxrss_kib": 9892,
+  "exit_code": 3,
+  "exec_setup_error": null,
+  "harness_state": "EXECUTED",
+  "output_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/capture-gate-red-control.txt",
+  "output_sha256": "21d0a63aff9a9bd35b6937b9195502f0c410930a73b9ea3189ad2fd2d3541839",
+  "source_environment": {
+    "PYTHONPATH": null,
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "LANG": "C.UTF-8",
+    "POLISYOS_METRICS_PORT": null,
+    "TIKTOKEN_CACHE_DIR": null,
+    "E02_B_PROPERTY_REMOVAL": null,
+    "UV_PROJECT_ENVIRONMENT": null,
+    "UV_NO_SYNC": null,
+    "E02_B_COHORT_INVENTORY_PATH": null
+  },
+  "limitations": [
+    "Combined stdout/stderr; no separate stream-count claim.",
+    "Source boundary is HEAD identity; the launcher checks initial cleanliness.",
+    "RSS is wait4 child rusage, not an aggregate of independently concurrent gates."
+  ]
+}

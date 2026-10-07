@@ -1,0 +1,21 @@
+id = "2026-10-06-e02-b-foundry-checkpoint-identity"
+title = "Bind Foundry checkpoints to actual source and selected artifact views"
+type = "fixed"
+component = "foundry"
+owner = "team-policyos-foundry"
+summary = "Pin the actual registry methods for checkpoint-bound execution, bind their source and current ABI to effective execution identity, and add a strict artifact context that reconciles guarded CAS bytes, selected manifest profiles, tenant/cell, origin, configuration and declared dependency/cache refs in the same checkpoint generation."
+evidence = [
+  "tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+  "tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+  "tests/unit/foundry/methods/backends/test_checkpointing.py",
+  "tests/unit/remediation/test_res_04.py",
+]
+compatibility = "CheckpointArtifactContext is an optional internal execution keyword and requires an ArtifactStore. Older checkpoints without the new source-identity profile remain readable but cannot be resumed as an equivalent new profile. The legacy context=None profile retains request/source checks with explicit unavailable-source limitations."
+change_class = "behavior-change"
+surface_classification = "internal: polisyos.foundry.methods.backends.checkpointing"
+migration = "Recompute pre-profile checkpoints. For strict artifact identity pass artifact_store= to the executor and artifact_context= to execute; select an explicit manifest profile on every ArtifactRef. Treat CheckpointIdentityError as an unestablished or changed execution identity, not permission to bypass guarded reads."
+limitations = "The supported Python code graph binds runtime class helper descriptors, inspectable undecorated functions and immutable captures/record field values; imported module and builtin boundaries use distribution/Python versions. Unknown source, mutable captures, unsupported dynamic/wrapped descriptors and unknown declared dependency versions are refused. Frozen records are data values, not arbitrary record-method closure; dynamic reflection/imports, mutable module contents and external effects are outside this finite profile. Declared refs are lineage premises, not authority or automatic input/cache decoders. Partial graph recomputation, Scientist restoration, served generation routes and hostile environment mutation are outside this change."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/foundry/methods/components/README.md", "src/polisyos/foundry/methods/artifacts/README.md"]
+runbook_docs = []

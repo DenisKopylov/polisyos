@@ -1,0 +1,20 @@
+src/polisyos/foundry/methods/base.pyi:13: error: Detected enum "polisyos.foundry.methods.base.FidelityLevel" in a type stub with zero members. There is a chance this is due to a recent change in the semantics of enum membership. If so, use `member = value` to mark an enum member, instead of `member: type`  [misc]
+src/polisyos/foundry/methods/base.pyi:13: note: See https://typing.readthedocs.io/en/latest/spec/enums.html#defining-members
+src/polisyos/foundry/methods/base.pyi:18: error: Detected enum "polisyos.foundry.methods.base.ComplexityClass" in a type stub with zero members. There is a chance this is due to a recent change in the semantics of enum membership. If so, use `member = value` to mark an enum member, instead of `member: type`  [misc]
+src/polisyos/foundry/methods/base.pyi:18: note: See https://typing.readthedocs.io/en/latest/spec/enums.html#defining-members
+src/polisyos/foundry/methods/base.pyi:26: error: Detected enum "polisyos.foundry.methods.base.SlotType" in a type stub with zero members. There is a chance this is due to a recent change in the semantics of enum membership. If so, use `member = value` to mark an enum member, instead of `member: type`  [misc]
+src/polisyos/foundry/methods/base.pyi:26: note: See https://typing.readthedocs.io/en/latest/spec/enums.html#defining-members
+src/polisyos/foundry/methods/base.pyi:32: error: Detected enum "polisyos.foundry.methods.base.ComputeBackend" in a type stub with zero members. There is a chance this is due to a recent change in the semantics of enum membership. If so, use `member = value` to mark an enum member, instead of `member: type`  [misc]
+src/polisyos/foundry/methods/base.pyi:32: note: See https://typing.readthedocs.io/en/latest/spec/enums.html#defining-members
+src/polisyos/foundry/methods/base.pyi:38: error: Detected enum "polisyos.foundry.methods.base.MethodKind" in a type stub with zero members. There is a chance this is due to a recent change in the semantics of enum membership. If so, use `member = value` to mark an enum member, instead of `member: type`  [misc]
+src/polisyos/foundry/methods/base.pyi:38: note: See https://typing.readthedocs.io/en/latest/spec/enums.html#defining-members
+src/polisyos/foundry/methods/base.pyi:43: error: Detected enum "polisyos.foundry.methods.base.SideEffectProfile" in a type stub with zero members. There is a chance this is due to a recent change in the semantics of enum membership. If so, use `member = value` to mark an enum member, instead of `member: type`  [misc]
+src/polisyos/foundry/methods/base.pyi:43: note: See https://typing.readthedocs.io/en/latest/spec/enums.html#defining-members
+src/polisyos/foundry/methods/base.pyi:175: error: Invariant type variable "ParamsT" used in protocol where contravariant one is expected  [misc]
+src/polisyos/foundry/methods/base.pyi:207: error: Function is missing a type annotation for one or more arguments  [no-untyped-def]
+src/polisyos/foundry/methods/selection/registry.pyi:28: error: Missing type parameters for generic type "FoundryMethod"  [type-arg]
+src/polisyos/foundry/methods/selection/registry.pyi:104: error: Missing type parameters for generic type "FoundryMethod"  [type-arg]
+src/polisyos/foundry/methods/selection/registry.pyi:124: error: Missing type parameters for generic type "FoundryMethod"  [type-arg]
+src/polisyos/scientist/policy_design/adversary.py:159: error: "BenchmarkSplitManifest" has no attribute "model_dump"  [attr-defined]
+src/polisyos/scientist/policy_design/translator.py:124: error: "object" has no attribute "items"  [attr-defined]
+Found 13 errors in 4 files (checked 3 source files)

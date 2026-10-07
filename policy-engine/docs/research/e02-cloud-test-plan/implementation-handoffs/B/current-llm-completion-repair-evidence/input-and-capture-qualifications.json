@@ -1,0 +1,383 @@
+{
+  "checks": [
+    {
+      "check": "full34-31d613",
+      "target_source_sha": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a",
+      "actual_selected_inputs": [
+        {
+          "selector": "tests/unit/core/test_llm_core.py",
+          "source_ref": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a:policy-engine/tests/unit/core/test_llm_core.py",
+          "sha256": "5de4046006fb35942a30eb161d7e403d6eceee7067c22deae8bbec1972c5da5d",
+          "bytes": 1942
+        },
+        {
+          "selector": "tests/unit/remediation/test_llm_01.py",
+          "source_ref": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a:policy-engine/tests/unit/remediation/test_llm_01.py",
+          "sha256": "b247897d69ec0c990aeb94700db0d471a46890e77ea6f181190e3eaa40d7b5de",
+          "bytes": 8263
+        },
+        {
+          "selector": "tests/unit/scientist/agent/test_critic_factory.py",
+          "source_ref": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a:policy-engine/tests/unit/scientist/agent/test_critic_factory.py",
+          "sha256": "c14556a2ee22053b6685d9b409db41ca636826a0a8a5ff57ac4a1c48c1185d1d",
+          "bytes": 8756
+        },
+        {
+          "selector": "tests/unit/scientist/agent/test_drafter_constitution.py",
+          "source_ref": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a:policy-engine/tests/unit/scientist/agent/test_drafter_constitution.py",
+          "sha256": "4ef04ce6c5749171956579b004f0353d853e8b0e8cfb8b2abdac297664f05def",
+          "bytes": 1719
+        },
+        {
+          "selector": "tests/unit/scientist/agent/test_drafter_factory.py",
+          "source_ref": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a:policy-engine/tests/unit/scientist/agent/test_drafter_factory.py",
+          "sha256": "a980d32e78c13cca947a2162ad5f335c46ac679f49846277a037d586bc08dadf",
+          "bytes": 2680
+        },
+        {
+          "selector": "tests/unit/scientist/agent/test_drafter_formatting.py",
+          "source_ref": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a:policy-engine/tests/unit/scientist/agent/test_drafter_formatting.py",
+          "sha256": "c5bc08312d351dfb184611264292229631f792f42e6a47b9a71ab15d076b9f3c",
+          "bytes": 9136
+        },
+        {
+          "selector": "tests/unit/scientist/agent/test_drafter_llm.py",
+          "source_ref": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a:policy-engine/tests/unit/scientist/agent/test_drafter_llm.py",
+          "sha256": "62e29fac63c46fa9964df55813a72ea4a980ffac24d01973d2b42e68772dffc6",
+          "bytes": 4996
+        },
+        {
+          "selector": "tests/unit/scientist/agent/test_drafter_models.py",
+          "source_ref": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a:policy-engine/tests/unit/scientist/agent/test_drafter_models.py",
+          "sha256": "0352363d87414965e096d3d2ff42a06873d55331f048220dbef5a9f2547b91ab",
+          "bytes": 8150
+        },
+        {
+          "selector": "tests/unit/scientist/agent/test_drafter_parsing.py",
+          "source_ref": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a:policy-engine/tests/unit/scientist/agent/test_drafter_parsing.py",
+          "sha256": "3418b70909086c58dda8ed8082668a65e345a55632e322b7ce2f42e8bab47ccf",
+          "bytes": 9771
+        },
+        {
+          "selector": "tests/unit/scientist/agent/test_drafter_passes.py",
+          "source_ref": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a:policy-engine/tests/unit/scientist/agent/test_drafter_passes.py",
+          "sha256": "9fe8c23a811a8ecb6ed31f9e5adc8aa189543bf513f1580b14f6c1ebe77ae87e",
+          "bytes": 11611
+        },
+        {
+          "selector": "tests/unit/scientist/agent/test_response_healing.py",
+          "source_ref": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a:policy-engine/tests/unit/scientist/agent/test_response_healing.py",
+          "sha256": "d0d34fc4bb86a1c4c928e305cf27026e6a19f39784c6b37b30554b683b799ea1",
+          "bytes": 22755
+        },
+        {
+          "selector": "tests/unit/scientist/mirror_contracts/test_budget_ledger.py",
+          "source_ref": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a:policy-engine/tests/unit/scientist/mirror_contracts/test_budget_ledger.py",
+          "sha256": "27b668a1baad69ccd6ba840118a59141ff01bb1a78ef95834c87854e09ab4d82",
+          "bytes": 229
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_budget.py",
+          "source_ref": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a:policy-engine/tests/unit/scientist/orchestration/engine/test_budget.py",
+          "sha256": "fed7ad30c7621dab538ae552b5bcb557c56be2eff0b5e4cf325022dcb19690d4",
+          "bytes": 5297
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_budget_completion_obligations.py",
+          "source_ref": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a:policy-engine/tests/unit/scientist/orchestration/engine/test_budget_completion_obligations.py",
+          "sha256": "e014ebecd3342c76e4e3d529d32fe0a72a0708b49f90375e59792526a077116d",
+          "bytes": 26912
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+          "source_ref": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a:policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+          "sha256": "3a21ea963a4bc3e2fcdb3f62daf1456ae69153ef2f3d990cb7d56a7e9b48b8cc",
+          "bytes": 16904
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+          "source_ref": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a:policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+          "sha256": "2cd4013df96e19c5620ad8d05cf6d79151f0c532eb00b1d4638ea6975bec8a01",
+          "bytes": 13720
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+          "source_ref": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a:policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+          "sha256": "f9a037cc70ab8c8b8eb61a5c26c2e16809d6fc20a8b438d819d69512a77b1bbc",
+          "bytes": 17417
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py",
+          "source_ref": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a:policy-engine/tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py",
+          "sha256": "3da9f7887b520884b1d4b3a320965452f95ec1aafa519118bed5aca096811e73",
+          "bytes": 5302
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+          "source_ref": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a:policy-engine/tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+          "sha256": "8736dff32a452af960f0de1ac944106a9f7939751527a50d94e204330d0b7821",
+          "bytes": 21218
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/llm/test_builtin_profiles.py",
+          "source_ref": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a:policy-engine/tests/unit/scientist/orchestration/llm/test_builtin_profiles.py",
+          "sha256": "d917a0f037137e78202e3fe966393d7fa74873a55e9deb56046c38d9c8d4b1e1",
+          "bytes": 1945
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+          "source_ref": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a:policy-engine/tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+          "sha256": "bad07ae1d13e7df68db4fb1a4c864003d6715fec21ab07ae1ad1f4417a0a70b9",
+          "bytes": 6644
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/llm/test_factory.py",
+          "source_ref": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a:policy-engine/tests/unit/scientist/orchestration/llm/test_factory.py",
+          "sha256": "0c9582814b5e82cce3c45ad48025af72c663be2ee0759a60862b62ccf9a1c301",
+          "bytes": 9466
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/llm/test_fallback_router.py",
+          "source_ref": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a:policy-engine/tests/unit/scientist/orchestration/llm/test_fallback_router.py",
+          "sha256": "c7e6b03e654c0d695638a63427b1f37fc6265893b300fd0e4d30bd825cfaee20",
+          "bytes": 5623
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/llm/test_gateway_client_retry.py",
+          "source_ref": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a:policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_client_retry.py",
+          "sha256": "d0f8081646f625d27bd2c9eb3ea75e2a530f1c02ef3ca9dc44943bda02abe154",
+          "bytes": 25259
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/llm/test_llm_cycle_preflight.py",
+          "source_ref": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a:policy-engine/tests/unit/scientist/orchestration/llm/test_llm_cycle_preflight.py",
+          "sha256": "7a03e49b0830d0319b6a032ebc308043c037a5fc5a6cce0732adc481e79464cb",
+          "bytes": 7487
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+          "source_ref": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a:policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+          "sha256": "8e2a53ddf3245f983a8f030f4b07767d9be729d5a7e523c58a61cc3ddb1105fb",
+          "bytes": 21213
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+          "source_ref": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a:policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+          "sha256": "576f2d1328f4346de00685898aacd6c90932847110b3bda7ad47dc0b690afb2d",
+          "bytes": 48893
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/llm/test_prompt_sanitization.py",
+          "source_ref": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a:policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_sanitization.py",
+          "sha256": "733452c3d753d3f66464152c7b11628b8a57cbb2ed12387375127d50a5ca09b0",
+          "bytes": 4182
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/llm/test_protected_audit_admission_e02.py",
+          "source_ref": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a:policy-engine/tests/unit/scientist/orchestration/llm/test_protected_audit_admission_e02.py",
+          "sha256": "b2f169797b06613024bbd3665fc0c502bb82eb86eb26a9e115cf12b7982865f9",
+          "bytes": 11658
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/llm/test_provider_quality.py",
+          "source_ref": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a:policy-engine/tests/unit/scientist/orchestration/llm/test_provider_quality.py",
+          "sha256": "a55d222dfb55ed6fcb4c9c8428f7a09aabc5f9cd32119285d5dcae3881d4be17",
+          "bytes": 20935
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/llm/test_provider_verification.py",
+          "source_ref": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a:policy-engine/tests/unit/scientist/orchestration/llm/test_provider_verification.py",
+          "sha256": "23aa7cb1b143a1fcac5606d80ee99f67abbe4ef4253259dfc175baecbfe5aca9",
+          "bytes": 13993
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/llm/test_streaming.py",
+          "source_ref": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a:policy-engine/tests/unit/scientist/orchestration/llm/test_streaming.py",
+          "sha256": "1463a241bcc378be1e12415d25bd648b2e1acb9267d52fe590723e6414014c9f",
+          "bytes": 4308
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/llm/test_token_estimator.py",
+          "source_ref": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a:policy-engine/tests/unit/scientist/orchestration/llm/test_token_estimator.py",
+          "sha256": "9498c519bf18e350e3764486bf448bb0a57f91b9b1db5a312ae4247db37b9996",
+          "bytes": 3619
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+          "source_ref": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a:policy-engine/tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+          "sha256": "9b42cb92d53718bdd73e488cc425f5df5a7f332a952d1f9f7cc227a17533d8b1",
+          "bytes": 26797
+        }
+      ],
+      "scalar_test_path_field": "Checked anchor only in inherited capture template; complete executed inputs are the argv and selected catalog above, not this scalar anchor.",
+      "selector_source_sha_field": "When a2 appears in full34 catalog, it names the historical path-list basis; actual executed source/tests are31, validated separately.",
+      "native_denominator": "JUnit testcase rows for actual stated invocation, not unique full-B phase inventory; do not add separate waves as one cohort."
+    },
+    {
+      "check": "flight-defining-b138-red",
+      "target_source_sha": "b138b0d10237d4704c1cf59dec502be4b745b3a1",
+      "actual_selected_inputs": [
+        {
+          "selector": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_direct_cache_consumer_settles_actual_provider_before_reusable_emission",
+          "source_ref": "b138b0d10237d4704c1cf59dec502be4b745b3a1:policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+          "sha256": "c2a334314f09a5a409aa52e639f84791d00846933326b069cf7c6421869fbdec",
+          "bytes": 48750
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_actual_join_retires_only_undispatched_intent_after_terminal_failure",
+          "source_ref": "b138b0d10237d4704c1cf59dec502be4b745b3a1:policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+          "sha256": "c2a334314f09a5a409aa52e639f84791d00846933326b069cf7c6421869fbdec",
+          "bytes": 48750
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_lost_actual_ack_is_unknown_and_blocks_reuse_until_reconciled",
+          "source_ref": "b138b0d10237d4704c1cf59dec502be4b745b3a1:policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+          "sha256": "c2a334314f09a5a409aa52e639f84791d00846933326b069cf7c6421869fbdec",
+          "bytes": 48750
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_absent_ack_retry_requires_retained_actual_producer_and_never_reissues_provider",
+          "source_ref": "b138b0d10237d4704c1cf59dec502be4b745b3a1:policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+          "sha256": "c2a334314f09a5a409aa52e639f84791d00846933326b069cf7c6421869fbdec",
+          "bytes": 48750
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_expired_response_unknown_ack_remains_primary_and_retains_actual_event",
+          "source_ref": "b138b0d10237d4704c1cf59dec502be4b745b3a1:policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+          "sha256": "c2a334314f09a5a409aa52e639f84791d00846933326b069cf7c6421869fbdec",
+          "bytes": 48750
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_expired_suppressed_producer_settles_without_result_or_cache_and_retry_is_fresh",
+          "source_ref": "b138b0d10237d4704c1cf59dec502be4b745b3a1:policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+          "sha256": "c2a334314f09a5a409aa52e639f84791d00846933326b069cf7c6421869fbdec",
+          "bytes": 48750
+        }
+      ],
+      "scalar_test_path_field": "Checked anchor only in inherited capture template; complete executed inputs are the argv and selected catalog above, not this scalar anchor.",
+      "selector_source_sha_field": "When a2 appears in full34 catalog, it names the historical path-list basis; actual executed source/tests are31, validated separately.",
+      "native_denominator": "JUnit testcase rows for actual stated invocation, not unique full-B phase inventory; do not add separate waves as one cohort."
+    },
+    {
+      "check": "flight-removal-31d613",
+      "target_source_sha": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a",
+      "actual_selected_inputs": [
+        {
+          "selector": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_actual_join_retires_only_undispatched_intent_after_terminal_failure[known-after-expiry-False]",
+          "source_ref": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a:policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+          "sha256": "576f2d1328f4346de00685898aacd6c90932847110b3bda7ad47dc0b690afb2d",
+          "bytes": 48893
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_actual_join_retires_only_undispatched_intent_after_terminal_failure[known-after-expiry-True]",
+          "source_ref": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a:policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+          "sha256": "576f2d1328f4346de00685898aacd6c90932847110b3bda7ad47dc0b690afb2d",
+          "bytes": 48893
+        }
+      ],
+      "scalar_test_path_field": "Checked anchor only in inherited capture template; complete executed inputs are the argv and selected catalog above, not this scalar anchor.",
+      "selector_source_sha_field": "When a2 appears in full34 catalog, it names the historical path-list basis; actual executed source/tests are31, validated separately.",
+      "native_denominator": "JUnit testcase rows for actual stated invocation, not unique full-B phase inventory; do not add separate waves as one cohort."
+    },
+    {
+      "check": "audit17-source-not-established",
+      "target_source_sha": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a",
+      "actual_selected_inputs": [
+        {
+          "selector": "/workspace/e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py",
+          "foreign_ref": "8ea92be02458941e4bf8a1d1c16f2fbeee60f26c:policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py",
+          "sha256": "b21c5ffbc777e708f7426674acb599f0bca9bbebea47837a95d2abaf242fe949"
+        }
+      ],
+      "scalar_test_path_field": "Checked anchor only in inherited capture template; complete executed inputs are the argv and selected catalog above, not this scalar anchor.",
+      "selector_source_sha_field": "When a2 appears in full34 catalog, it names the historical path-list basis; actual executed source/tests are31, validated separately.",
+      "native_denominator": "JUnit testcase rows for actual stated invocation, not unique full-B phase inventory; do not add separate waves as one cohort."
+    },
+    {
+      "check": "audit17-31d613",
+      "target_source_sha": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a",
+      "actual_selected_inputs": [
+        {
+          "selector": "/workspace/e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py",
+          "foreign_ref": "8ea92be02458941e4bf8a1d1c16f2fbeee60f26c:policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py",
+          "sha256": "b21c5ffbc777e708f7426674acb599f0bca9bbebea47837a95d2abaf242fe949"
+        }
+      ],
+      "scalar_test_path_field": "Checked anchor only in inherited capture template; complete executed inputs are the argv and selected catalog above, not this scalar anchor.",
+      "selector_source_sha_field": "When a2 appears in full34 catalog, it names the historical path-list basis; actual executed source/tests are31, validated separately.",
+      "native_denominator": "JUnit testcase rows for actual stated invocation, not unique full-B phase inventory; do not add separate waves as one cohort."
+    },
+    {
+      "check": "gateway-selector-not-established",
+      "target_source_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96",
+      "actual_selected_inputs": [
+        {
+          "selector": "tests/unit/scientist/orchestration/llm/test_gateway_client.py",
+          "actual_input_state": "absent; runner exit4, native bodies UNRUN"
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+          "source_ref": "a697a8312ff00edfcc766f9906dbcd2252cfcf96:policy-engine/tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+          "sha256": "9b42cb92d53718bdd73e488cc425f5df5a7f332a952d1f9f7cc227a17533d8b1",
+          "bytes": 26797
+        }
+      ],
+      "scalar_test_path_field": "Checked anchor only in inherited capture template; complete executed inputs are the argv and selected catalog above, not this scalar anchor.",
+      "selector_source_sha_field": "When a2 appears in full34 catalog, it names the historical path-list basis; actual executed source/tests are31, validated separately.",
+      "native_denominator": "JUnit testcase rows for actual stated invocation, not unique full-B phase inventory; do not add separate waves as one cohort."
+    },
+    {
+      "check": "gateway-a697",
+      "target_source_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96",
+      "actual_selected_inputs": [
+        {
+          "selector": "tests/unit/scientist/orchestration/llm/test_gateway_client_retry.py",
+          "source_ref": "a697a8312ff00edfcc766f9906dbcd2252cfcf96:policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_client_retry.py",
+          "sha256": "d0f8081646f625d27bd2c9eb3ea75e2a530f1c02ef3ca9dc44943bda02abe154",
+          "bytes": 25259
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+          "source_ref": "a697a8312ff00edfcc766f9906dbcd2252cfcf96:policy-engine/tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+          "sha256": "9b42cb92d53718bdd73e488cc425f5df5a7f332a952d1f9f7cc227a17533d8b1",
+          "bytes": 26797
+        }
+      ],
+      "scalar_test_path_field": "Checked anchor only in inherited capture template; complete executed inputs are the argv and selected catalog above, not this scalar anchor.",
+      "selector_source_sha_field": "When a2 appears in full34 catalog, it names the historical path-list basis; actual executed source/tests are31, validated separately.",
+      "native_denominator": "JUnit testcase rows for actual stated invocation, not unique full-B phase inventory; do not add separate waves as one cohort."
+    },
+    {
+      "check": "unknown-amount-removal-a2",
+      "target_source_sha": "a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9",
+      "actual_selected_inputs": [],
+      "scalar_test_path_field": "Checked anchor only in inherited capture template; complete executed inputs are the argv and selected catalog above, not this scalar anchor.",
+      "selector_source_sha_field": "When a2 appears in full34 catalog, it names the historical path-list basis; actual executed source/tests are31, validated separately.",
+      "native_denominator": "JUnit testcase rows for actual stated invocation, not unique full-B phase inventory; do not add separate waves as one cohort."
+    },
+    {
+      "check": "audit-view-removal-a2",
+      "target_source_sha": "a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9",
+      "actual_selected_inputs": [],
+      "scalar_test_path_field": "Checked anchor only in inherited capture template; complete executed inputs are the argv and selected catalog above, not this scalar anchor.",
+      "selector_source_sha_field": "When a2 appears in full34 catalog, it names the historical path-list basis; actual executed source/tests are31, validated separately.",
+      "native_denominator": "JUnit testcase rows for actual stated invocation, not unique full-B phase inventory; do not add separate waves as one cohort."
+    }
+  ],
+  "raw_only": [
+    {
+      "path": "/dev/shm/e02-B-llm-affected-31d613/source-context.json",
+      "sha256": "cd924ee6140b2c07c31f9902c3bb468c409c72964522b2326d5fd62fadae7fa7",
+      "bytes": 483134,
+      "availability_to_G": "not_established",
+      "replay": "Exact committed driver, selector catalog, target Git source and same declared environment; source census is file-backed polisyos modules at pytest.main return, not universal imports/resources."
+    }
+  ],
+  "source_profile_limits": [
+    "Foreign conftest source injection caused first audit17 collection ERROR and failing source guard: canonical producer entry not established; no target product defect inferred. Qualified repeat uses exact independent author preimport and no-conftest profile.",
+    "Assumed missing gateway test filename caused exit4 and0case native input; actual tracked test_gateway_client_retry.py qualified before repeat.",
+    "The b1387PASS2FAIL source was correct until a sparse dictionary test expectation;31 only adds actual resolve_spend(None) and sparse committed lookup. Original red bytes remain.",
+    "Primary final source a697 differs from31 only local Gateway decoded header binding. Full34/641 and audit17/17 remain31 pinned; a697126 specifically rechecks changed Gateway+unknown-cost consumers.",
+    "Temporary memory filesystem tests actual kernel file operations and reopen/visibility, not hardware power-loss persistence, external invoices or institutional permission."
+  ]
+}

@@ -1,0 +1,176 @@
+{
+  "schema": "policyos.e02.readonly_all_old_B_raw_evidence_census.v1",
+  "timestamp_epoch": 1791311104.6467705,
+  "roots": [
+    "/workspace/e02-B-acceptance",
+    "/workspace/e02-B-adapters",
+    "/workspace/e02-B-b52-oracle",
+    "/workspace/e02-B-b52-review515",
+    "/workspace/e02-B-cas",
+    "/workspace/e02-B-cas-alias-base",
+    "/workspace/e02-B-cas-alias-fix",
+    "/workspace/e02-B-cmp-res",
+    "/workspace/e02-B-coordination",
+    "/workspace/e02-B-dur-ledger",
+    "/workspace/e02-B-exe-state",
+    "/workspace/e02-B-run",
+    "/workspace/e02-B-run-review-base",
+    "/workspace/e02-B-run-review-candidate"
+  ],
+  "argv": [
+    "rg",
+    "--files",
+    "--hidden",
+    "--no-ignore",
+    "--follow",
+    "-g",
+    "!**/.git/**",
+    "-g",
+    "!**/node_modules/**",
+    "-g",
+    "!**/.venv/**",
+    "-g",
+    "!**/environment/**",
+    "-g",
+    "!**/*cache*/**",
+    "-g",
+    "!**/*pytest*/**",
+    "-g",
+    "!**/tmp/**",
+    "-g",
+    "!**/*-tmp/**",
+    "-g",
+    "!**/*-input/**",
+    "-g",
+    "!**/fixtures/**",
+    "-g",
+    "!**/*projection*/**",
+    "/workspace/e02-B-acceptance",
+    "/workspace/e02-B-adapters",
+    "/workspace/e02-B-b52-oracle",
+    "/workspace/e02-B-b52-review515",
+    "/workspace/e02-B-cas",
+    "/workspace/e02-B-cas-alias-base",
+    "/workspace/e02-B-cas-alias-fix",
+    "/workspace/e02-B-cmp-res",
+    "/workspace/e02-B-coordination",
+    "/workspace/e02-B-dur-ledger",
+    "/workspace/e02-B-exe-state",
+    "/workspace/e02-B-run",
+    "/workspace/e02-B-run-review-base",
+    "/workspace/e02-B-run-review-candidate"
+  ],
+  "exit_code": 0,
+  "path_output": {
+    "path": "/tmp/e02-flat-evidence-independent-review/full-old-B-raw-census-all-suffixes-paths.txt",
+    "bytes": 19507667,
+    "sha256": "0aa3b8ee72bdee42822e5dbc9d813775149eea6883f8f58a6612117a31aaf662"
+  },
+  "selector": "All actual existing /workspace/e02-B-* directories except e02-B-current-*; exact raw segment, ANY filename suffix, ignored files and current aliases included. Excludes .git/node_modules/venv/environment/cache/pytest/tmp/projection/input/fixtures/testcase directories. Finite declared storage selector, not all filesystem data.",
+  "prior_selector_qualification": "Suffix-limited rg census omitted .out and aliases; corrected broad files metadata-only --follow plus lstat kind preserves those boundaries. Earlier profiles retained, no no-candidate universal claim.",
+  "threshold_bytes": 50000000,
+  "roots_denominator": {
+    "/workspace/e02-B-acceptance": {
+      "regular_raw_files": 1,
+      "alias_raw_files": 0
+    },
+    "/workspace/e02-B-adapters": {
+      "regular_raw_files": 1,
+      "alias_raw_files": 0
+    },
+    "/workspace/e02-B-b52-oracle": {
+      "regular_raw_files": 1,
+      "alias_raw_files": 0
+    },
+    "/workspace/e02-B-b52-review515": {
+      "regular_raw_files": 1,
+      "alias_raw_files": 0
+    },
+    "/workspace/e02-B-cas": {
+      "regular_raw_files": 1,
+      "alias_raw_files": 3
+    },
+    "/workspace/e02-B-cas-alias-base": {
+      "regular_raw_files": 1,
+      "alias_raw_files": 0
+    },
+    "/workspace/e02-B-cas-alias-fix": {
+      "regular_raw_files": 1,
+      "alias_raw_files": 0
+    },
+    "/workspace/e02-B-cmp-res": {
+      "regular_raw_files": 38,
+      "alias_raw_files": 2
+    },
+    "/workspace/e02-B-coordination": {
+      "regular_raw_files": 37,
+      "alias_raw_files": 1
+    },
+    "/workspace/e02-B-dur-ledger": {
+      "regular_raw_files": 15,
+      "alias_raw_files": 1
+    },
+    "/workspace/e02-B-exe-state": {
+      "regular_raw_files": 1,
+      "alias_raw_files": 0
+    },
+    "/workspace/e02-B-run": {
+      "regular_raw_files": 1,
+      "alias_raw_files": 0
+    },
+    "/workspace/e02-B-run-review-base": {
+      "regular_raw_files": 1,
+      "alias_raw_files": 0
+    },
+    "/workspace/e02-B-run-review-candidate": {
+      "regular_raw_files": 1,
+      "alias_raw_files": 0
+    }
+  },
+  "regular_raw_files_over_threshold": [],
+  "already_preserved_large_aliases": [
+    {
+      "path": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/production-invocation-final.json",
+      "target": "/tmp/braw-e02-B-old-six-invocations-20261006/x4",
+      "logical_bytes": 170856799,
+      "qualification": "already preserved original alias; no eligible regular source bytes remain here on overlay"
+    },
+    {
+      "path": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/production-invocation.json",
+      "target": "/tmp/braw-e02-B-old-six-invocations-20261006/x5",
+      "logical_bytes": 170856509,
+      "qualification": "already preserved original alias; no eligible regular source bytes remain here on overlay"
+    },
+    {
+      "path": "/workspace/e02-B-cas/policy-engine/_build/e02-cas/raw/archive-path-invocation.json",
+      "target": "/tmp/braw-e02-B-old-six-invocations-20261006/x0",
+      "logical_bytes": 170954884,
+      "qualification": "already preserved original alias; no eligible regular source bytes remain here on overlay"
+    },
+    {
+      "path": "/workspace/e02-B-cas/policy-engine/_build/e02-cas/raw/tenant-production-invocation.json",
+      "target": "/tmp/braw-e02-B-old-six-invocations-20261006/x1",
+      "logical_bytes": 170953977,
+      "qualification": "already preserved original alias; no eligible regular source bytes remain here on overlay"
+    },
+    {
+      "path": "/workspace/e02-B-cas/policy-engine/_build/e02-cas/raw/production-invocation.json",
+      "target": "/tmp/braw-e02-B-old-six-invocations-20261006/x2",
+      "logical_bytes": 170857020,
+      "qualification": "already preserved original alias; no eligible regular source bytes remain here on overlay"
+    },
+    {
+      "path": "/workspace/e02-B-coordination/.polisyos/e02-B/raw/exe-acceptance-invocation.json",
+      "target": "/tmp/braw-e02-B-old-invocation-20261006/x0",
+      "logical_bytes": 170857261,
+      "qualification": "already preserved original alias; no eligible regular source bytes remain here on overlay"
+    },
+    {
+      "path": "/workspace/e02-B-dur-ledger/policy-engine/_build/e02-B-dur-ledger/raw/production-invocation.json",
+      "target": "/tmp/braw-e02-B-old-six-invocations-20261006/x3",
+      "logical_bytes": 170858015,
+      "qualification": "already preserved original alias; no eligible regular source bytes remain here on overlay"
+    }
+  ],
+  "no_actions": "Census only. No migrate/cleanup/services/native/gates/source/tests/data copying. Repeatable dirs and used env stay in place."
+}

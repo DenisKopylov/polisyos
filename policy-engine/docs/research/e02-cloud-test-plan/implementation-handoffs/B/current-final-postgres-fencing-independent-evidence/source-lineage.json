@@ -1,0 +1,34 @@
+{
+  "metadata_slice_base": "b51d5469e20b39d0b9250bfced692f360eb93a57",
+  "runtime_target": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+  "comparisons": [
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py",
+      "final_source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "final_sha256": "45b86848e80180bd702988e9c712d2eedd9eafe4faeb315949e4f7549ec06f80",
+      "prior_native_source_commit": "414c7ec3148a857c3a4e5554dde5d5503fec6e95",
+      "prior_sha256": "45b86848e80180bd702988e9c712d2eedd9eafe4faeb315949e4f7549ec06f80",
+      "source_bytes_equal": true,
+      "qualification": "Byte comparison only; both native runs retain their own actual source tuple."
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+      "final_source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "final_sha256": "af813a2b87c0500bc2c0499813c9170a6a8033d92f860fe5556b72088e6721f6",
+      "prior_native_source_commit": "414c7ec3148a857c3a4e5554dde5d5503fec6e95",
+      "prior_sha256": "af813a2b87c0500bc2c0499813c9170a6a8033d92f860fe5556b72088e6721f6",
+      "source_bytes_equal": true,
+      "qualification": "Byte comparison only; both native runs retain their own actual source tuple."
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control_worker.py",
+      "final_source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "final_sha256": "4b319c7b70d0664c2039676dc7424f71468faa9df2b45f95c605cc38831f9b5c",
+      "prior_native_source_commit": "414c7ec3148a857c3a4e5554dde5d5503fec6e95",
+      "prior_sha256": "4b319c7b70d0664c2039676dc7424f71468faa9df2b45f95c605cc38831f9b5c",
+      "source_bytes_equal": true,
+      "qualification": "Byte comparison only; both native runs retain their own actual source tuple."
+    }
+  ],
+  "reproduction_env_boundary": "Existing root admitted read-only execution tree; no new checkout/source mutation/PG server or schema cleanup."
+}

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="19" time="0.399" timestamp="2026-10-06T10:44:50.008939+00:00" hostname="b878f4efbdfc"><testcase classname="tests.unit.foundry.methods.backends.test_checkpointing" name="test_chain_checkpoint_round_trips_numpy_sidecars_atomically" time="0.016" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpointing" name="test_chain_checkpoint_load_rejects_missing_sidecar" time="0.009" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpointing" name="test_prepublication_filesystem_fault_preserves_selected_generation[sidecar_fsync]" time="0.009" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpointing" name="test_prepublication_filesystem_fault_preserves_selected_generation[snapshot_fsync]" time="0.011" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpointing" name="test_prepublication_filesystem_fault_preserves_selected_generation[pointer_replace]" time="0.019" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpointing" name="test_generation_pointer_refuses_unbound_or_foreign_snapshot[content]" time="0.006" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpointing" name="test_generation_pointer_refuses_unbound_or_foreign_snapshot[traversal]" time="0.005" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpointing" name="test_generation_pointer_refuses_unbound_or_foreign_snapshot[symlink]" time="0.005" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpointing" name="test_generation_pointer_refuses_unbound_or_foreign_snapshot[format]" time="0.008" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpointing" name="test_generation_collision_cannot_delete_existing_generation" time="0.007" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpointing" name="test_unsupported_mapping_refuses_before_pointer_and_preserves_original[integer]" time="0.012"><failure message="Failed: DID NOT RAISE &lt;class 'polisyos.foundry.methods.backends.checkpointing.CheckpointSaveError'&gt;">tmp_path = PosixPath('/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/publication-mapping-red-0e-tmp/test_unsupported_mapping_refus0')
+unsupported = 'integer'
+
+    @pytest.mark.parametrize("unsupported", ["integer", "boolean", "null", "mixed", "reserved_tag"])
+    def test_unsupported_mapping_refuses_before_pointer_and_preserves_original(
+        tmp_path, unsupported
+    ) -&gt; None:
+        path = tmp_path / "selected.json"
+        ChainCheckpoint("mapping", [], [], {"arr": np.array([1.0])}).save(path)
+        pointer_bytes = path.read_bytes()
+        generation_root = tmp_path / f".{path.name}.generations"
+        old_generations = set(generation_root.iterdir())
+        if unsupported == "mixed":
+            nested = {1: np.array([2.0]), "1": np.array([3.0])}
+        elif unsupported == "reserved_tag":
+            nested = {"__npy_ref__": "ordinary user label", "arr": np.array([2.0])}
+        else:
+            key = {"integer": 1, "boolean": True, "null": None}[unsupported]
+            nested = {key: np.array([2.0])}
+    
+&gt;       with pytest.raises(CheckpointSaveError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'polisyos.foundry.methods.backends.checkpointing.CheckpointSaveError'&gt;
+
+tests/unit/foundry/methods/backends/test_checkpointing.py:180: Failed</failure></testcase><testcase classname="tests.unit.foundry.methods.backends.test_checkpointing" name="test_unsupported_mapping_refuses_before_pointer_and_preserves_original[boolean]" time="0.015"><failure message="Failed: DID NOT RAISE &lt;class 'polisyos.foundry.methods.backends.checkpointing.CheckpointSaveError'&gt;">tmp_path = PosixPath('/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/publication-mapping-red-0e-tmp/test_unsupported_mapping_refus1')
+unsupported = 'boolean'
+
+    @pytest.mark.parametrize("unsupported", ["integer", "boolean", "null", "mixed", "reserved_tag"])
+    def test_unsupported_mapping_refuses_before_pointer_and_preserves_original(
+        tmp_path, unsupported
+    ) -&gt; None:
+        path = tmp_path / "selected.json"
+        ChainCheckpoint("mapping", [], [], {"arr": np.array([1.0])}).save(path)
+        pointer_bytes = path.read_bytes()
+        generation_root = tmp_path / f".{path.name}.generations"
+        old_generations = set(generation_root.iterdir())
+        if unsupported == "mixed":
+            nested = {1: np.array([2.0]), "1": np.array([3.0])}
+        elif unsupported == "reserved_tag":
+            nested = {"__npy_ref__": "ordinary user label", "arr": np.array([2.0])}
+        else:
+            key = {"integer": 1, "boolean": True, "null": None}[unsupported]
+            nested = {key: np.array([2.0])}
+    
+&gt;       with pytest.raises(CheckpointSaveError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'polisyos.foundry.methods.backends.checkpointing.CheckpointSaveError'&gt;
+
+tests/unit/foundry/methods/backends/test_checkpointing.py:180: Failed</failure></testcase><testcase classname="tests.unit.foundry.methods.backends.test_checkpointing" name="test_unsupported_mapping_refuses_before_pointer_and_preserves_original[null]" time="0.012"><failure message="Failed: DID NOT RAISE &lt;class 'polisyos.foundry.methods.backends.checkpointing.CheckpointSaveError'&gt;">tmp_path = PosixPath('/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/publication-mapping-red-0e-tmp/test_unsupported_mapping_refus2')
+unsupported = 'null'
+
+    @pytest.mark.parametrize("unsupported", ["integer", "boolean", "null", "mixed", "reserved_tag"])
+    def test_unsupported_mapping_refuses_before_pointer_and_preserves_original(
+        tmp_path, unsupported
+    ) -&gt; None:
+        path = tmp_path / "selected.json"
+        ChainCheckpoint("mapping", [], [], {"arr": np.array([1.0])}).save(path)
+        pointer_bytes = path.read_bytes()
+        generation_root = tmp_path / f".{path.name}.generations"
+        old_generations = set(generation_root.iterdir())
+        if unsupported == "mixed":
+            nested = {1: np.array([2.0]), "1": np.array([3.0])}
+        elif unsupported == "reserved_tag":
+            nested = {"__npy_ref__": "ordinary user label", "arr": np.array([2.0])}
+        else:
+            key = {"integer": 1, "boolean": True, "null": None}[unsupported]
+            nested = {key: np.array([2.0])}
+    
+&gt;       with pytest.raises(CheckpointSaveError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'polisyos.foundry.methods.backends.checkpointing.CheckpointSaveError'&gt;
+
+tests/unit/foundry/methods/backends/test_checkpointing.py:180: Failed</failure></testcase><testcase classname="tests.unit.foundry.methods.backends.test_checkpointing" name="test_unsupported_mapping_refuses_before_pointer_and_preserves_original[mixed]" time="0.017" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpointing" name="test_unsupported_mapping_refuses_before_pointer_and_preserves_original[reserved_tag]" time="0.011"><failure message="Failed: DID NOT RAISE &lt;class 'polisyos.foundry.methods.backends.checkpointing.CheckpointSaveError'&gt;">tmp_path = PosixPath('/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/publication-mapping-red-0e-tmp/test_unsupported_mapping_refus4')
+unsupported = 'reserved_tag'
+
+    @pytest.mark.parametrize("unsupported", ["integer", "boolean", "null", "mixed", "reserved_tag"])
+    def test_unsupported_mapping_refuses_before_pointer_and_preserves_original(
+        tmp_path, unsupported
+    ) -&gt; None:
+        path = tmp_path / "selected.json"
+        ChainCheckpoint("mapping", [], [], {"arr": np.array([1.0])}).save(path)
+        pointer_bytes = path.read_bytes()
+        generation_root = tmp_path / f".{path.name}.generations"
+        old_generations = set(generation_root.iterdir())
+        if unsupported == "mixed":
+            nested = {1: np.array([2.0]), "1": np.array([3.0])}
+        elif unsupported == "reserved_tag":
+            nested = {"__npy_ref__": "ordinary user label", "arr": np.array([2.0])}
+        else:
+            key = {"integer": 1, "boolean": True, "null": None}[unsupported]
+            nested = {key: np.array([2.0])}
+    
+&gt;       with pytest.raises(CheckpointSaveError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'polisyos.foundry.methods.backends.checkpointing.CheckpointSaveError'&gt;
+
+tests/unit/foundry/methods/backends/test_checkpointing.py:180: Failed</failure></testcase><testcase classname="tests.unit.foundry.methods.backends.test_checkpointing" name="test_find_latest_checkpoint_skips_corrupt_latest_and_records_issue" time="0.006" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpointing" name="test_checkpoint_save_failure_is_diagnostic_and_can_fail_closed" time="0.001" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpointing" name="test_execute_rejects_legacy_checkpoint_stub_results" time="0.005" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpointing" name="test_execute_resumes_fully_bound_checkpoint_with_native_results" time="0.010" /></testsuite></testsuites>

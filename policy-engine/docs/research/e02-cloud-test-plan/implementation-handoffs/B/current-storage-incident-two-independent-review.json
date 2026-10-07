@@ -1,0 +1,216 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-storage-incident-two-independent-review",
+  "closure_ids": [],
+  "bundle_ids": [],
+  "finding_dispositions": [],
+  "slice_base_sha": "62d8d21b4506ac99b163542b8ef30a7122d7f7e8",
+  "implementation_commits": [
+    "004e146e631c2c14959b119deac1dfb9f0f0e79c",
+    "a9898c3828cea7dc706db8014aea768138f70098"
+  ],
+  "candidate_tree_sha": "18e28bb166ee9e042e42330c45337e6309806e1b",
+  "branch": "codex/e02-B-current-cas-generation",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/42",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/artifact-manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/captured-old-raw-census-profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/custody-full-stdout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/custody-ledger-inputs.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census-commands.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-0.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-1.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-10.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-11.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-12.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-2.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-3.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-4.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-5.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-6.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-7.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-8.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-9.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/literal-instruments.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/old-raw-census-full-stdout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/prior-nine-alias-state.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/review.json"
+  ],
+  "baseline_cells": [],
+  "baseline_qualification": "Storage custody metadata-only independent review; no baseline/runtime finding decision or baseline summary used as new repair evidence.",
+  "authority_purpose": "Independent custody/availability and resource-observation review only; no CAS/PG runtime finding closure",
+  "checks": [
+    {
+      "command": "python3 /tmp/e02-flat-evidence-independent-review/combined-audit.py > /tmp/e02-flat-evidence-independent-review/combined-full-stdout.json",
+      "cwd": "/workspace/e02-B-current-cas-generation",
+      "target_sha": "62d8d21b4506ac99b163542b8ef30a7122d7f7e8",
+      "target_tree_sha": "228c9aeaf1c22c989b35214f046f4c2b3993c25d",
+      "environment": {
+        "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+        "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "uid": 1000
+      },
+      "input_closure": {
+        "executed_readonly_instrument": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/literal-instruments.json",
+          "bytes": 24095,
+          "sha256": "f10ff37c1e7364c66f78bf16f4a96822773b365654795936d4a38e01c50d4ff6"
+        },
+        "exact4_original_author_custody_ledgers": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/custody-ledger-inputs.json",
+          "bytes": 26639,
+          "sha256": "f86af68862622bd9cd38ef2b955151e10c993c462238b784a8632b44dca40e85"
+        },
+        "live_byte_inputs": "All32 exact source/target filesystem paths independently streamed, listed in complete output and literal input ledgers. These1,916,417,509 raw bytes remain on VM at original aliases and /tmp targets; not committed.",
+        "qualification": "Actual executed ownHEAD62d plus untracked exact readonly audit script; immutable instrument bytes later committed ata9898c3828cea7dc706db8014aea768138f70098. This is not a product-native run at future implementation SHA."
+      },
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/custody-full-stdout.json",
+        "bytes": 21123,
+        "sha256": "d68708802e1f3af24294ac6cd3fb7c9faa3f2d86f22929cc3e9345d2e35b514c"
+      },
+      "complete_denominator": {
+        "groups": 4,
+        "ledger_rows": 64,
+        "unique_pairs": 32,
+        "unique_logical_bytes": 1916417509
+      },
+      "controls": "Both false SHA and false length declarations in memory refused with actual alias/files unchanged; metadata custody property only."
+    },
+    {
+      "command": "python3 /tmp/e02-flat-evidence-independent-review/declared-raw-census-audit.py > /tmp/e02-flat-evidence-independent-review/declared-raw-census-full-stdout.json",
+      "cwd": "/workspace/e02-B-current-cas-generation",
+      "target_sha": "62d8d21b4506ac99b163542b8ef30a7122d7f7e8",
+      "environment": "Same actual Python3 system interpreter as metadata audit; filesystem path/stat only. No product/native/gates.",
+      "input_closure": {
+        "instrument": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/literal-instruments.json",
+          "bytes": 24095,
+          "sha256": "f10ff37c1e7364c66f78bf16f4a96822773b365654795936d4a38e01c50d4ff6"
+        },
+        "captured_complete_rg_profile": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/captured-old-raw-census-profile.json",
+          "bytes": 6451,
+          "sha256": "ccf8922f57fd9390b8f33e93452d650ccb62dda70a5c7c8280e4eb0bfa5df664"
+        },
+        "ignored_complete_path_stdout": "/tmp/e02-flat-evidence-independent-review/full-old-B-raw-census-all-suffixes-paths.txt@0aa3b8ee72bdee42822e5dbc9d813775149eea6883f8f58a6612117a31aaf662 (19,507,667B); G availability not_established. Exact rg argv and roots in captured profile; rerun required if original captured bytes unavailable.",
+        "boundary": "Only14 old B roots/captured all suffixes/hidden/ignored/aliases, exact raw under .polisyos or_build, supplied exclusions; current EXE4 handled separately. New files after captured traversal unresolved."
+      },
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/old-raw-census-full-stdout.json",
+        "bytes": 8540,
+        "sha256": "8c2f60813428d125059e759216655502af427123771f123f74759082328061b2"
+      },
+      "complete_denominator": {
+        "roots": 14,
+        "selected_report_files_or_aliases": 94,
+        "regular_report_files": 87,
+        "report_aliases": 7,
+        "excluded_nonreport_raw_paths": 14,
+        "regular_reports_over_50000000_bytes": 0,
+        "preserved_report_aliases_over_50000000_bytes": 7
+      }
+    },
+    {
+      "command": "13 exact read-only commands recorded in initial-census-commands.json; complete literal stdout/stderr files beside it",
+      "cwd": "/workspace/e02-B-current-cas-generation",
+      "target_sha": "62d8d21b4506ac99b163542b8ef30a7122d7f7e8",
+      "environment": "Docker28.4 API/vfs logical inventory, uid1000 protected Docker-root physical census inaccessible, actual overlay/tmp stat context.",
+      "input_closure": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census-commands.json",
+        "bytes": 5997,
+        "sha256": "b05b36df11d4f2859d55c6ee9ec9f69e6bec3be08ddf4cf0e5da9b080045b1f0"
+      },
+      "outcome": "ERROR",
+      "output": "All13 actual outputs committed under policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/;12exit0 and protected /var/lib/docker du exit1 Permission denied retained. No8192 directory-metadata physical-total claim. This ERROR is execution visibility, not PostgreSQL product defect."
+    },
+    {
+      "command": "git show a9898c3828cea7dc706db8014aea768138f70098:<every declared artifact>; full lengths/SHA256 plus literal4 ledger bytes + actual git diff changed paths",
+      "cwd": "/workspace/e02-B-current-cas-generation",
+      "target_sha": "a9898c3828cea7dc706db8014aea768138f70098",
+      "target_tree_sha": "18e28bb166ee9e042e42330c45337e6309806e1b",
+      "environment": "Actual Git committed readback, metadata-only",
+      "input_closure": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/artifact-manifest.json",
+        "bytes": 11111,
+        "sha256": "8175c3cfac3beeae3ce199bbd0374cc916ef69eaa9c6a908a286a5196c01a500"
+      },
+      "outcome": "PASS",
+      "output": "Full21 artifact lengths/SHA256 matched committed bytes;4 literal ledgers64rows matched original bytes;22 total files including manifest;22 changed paths all own metadata directory; zero production/test changes. Initial004e manifest included ignored jsonl replica paths; append a989 repairs portable container binding without force-add or byte normalization."
+    }
+  ],
+  "property": {
+    "statement": "Current exact original aliases, regular retained target bytes and permissions are independently bound to all four root author ledgers; finite read-only resource/census limits retained.",
+    "runtime_path": [
+      "root-authored preservation filesystem path",
+      "4 exact custody ledgers",
+      "32 original-path aliases to /tmp retained regular files",
+      "independent stable opened byte streams/modes/length/SHA256",
+      "portable bounded moderate metadata receipt"
+    ],
+    "proxy_divergence": "A symlink existence or declared SHA marker can survive a changed target byte/length. Audit streams both source and target; in-memory false shared SHA or length declaration is refused although paths/marker fields remain.",
+    "negative_controls": [
+      "Changed both author SHA declarations in memory; actual files/aliases unchanged: EXPECTED_REFUSAL",
+      "Changed both author size declarations in memory; actual files/aliases unchanged: EXPECTED_REFUSAL"
+    ],
+    "qualification": "Filesystem metadata custody only; no product runtime/gate or PostgreSQL/CAS closure inferred."
+  },
+  "predicate_basis": "independently_reconciled",
+  "capability_state_or_finding_state": "Current bounded custody accepted; external deciding bytes availability and crash durability not_established. No finding closure proposed.",
+  "limitations_and_next_owner": [
+    "Only current pathname/regular-target/mode/length/SHA256 and stable opened-byte witnesses independently reconciled; past preservation copy/fsync sequence is author-observed.",
+    "Underlying filesystem and inode identities changed. No new product CAS durability, PostgreSQL defect, power-loss or multihost guarantee is established.",
+    "No explicit target-directory fsync before alias publication exists in these instruments; target-directory crash durability not established.",
+    "/tmp is volatile local storage. Availability to G outside this VM is not_established until deciding bytes are transferred or exact checks rerun.",
+    "No repeatable fixture/input-projection directories, used environment/cache, source, original evidence bytes or services mutated by this auditor; only small independent metadata written.",
+    "Committing moderate custody input ledgers/output/commands/instrument bytes gives portable bounded review facts, not external availability of1.916GB deciding raw content or19.5MB ignored census path capture.",
+    "Target-directory fsync before original alias publication absent in inspected preservation scripts. No crash/powerloss durability inference; current readback accepted.",
+    "Original inodes/filesystem placement changed; historical evidence source/time qualifications remain unchanged.",
+    "Initial13 read-only command outputs retained verbatim; Docker protected-root du exit1/permission error retained without treating8192 directory metadata as total usage.",
+    "All previous product source failures, B148HELD and B154 signature all-confirmations consumer_missing remain outside this metadata task.",
+    "Root can fetch this portable moderate independent packet and must keep retained VM raw bytes/aliases accessible for actual deciding replay.",
+    "G external byte availability remains not_established until exact raw inputs transferred or receipt-bound read-only hash audit rerun with original bytes. No current product-native/gates demanded by this custody verdict.",
+    "No deletion/prune/move/native-trash substitute/service changes authorized by this receipt."
+  ],
+  "withdrawn_directory_migration_suggestion": {
+    "historical_summary": {
+      "path": "/tmp/e02-cas-storage-census-20261006/summary.json",
+      "bytes": 6539,
+      "sha256": "4d02301b7fd07002de2447fa4c8c8945356b6a84b0f7e1f10c332e4d4919518c"
+    },
+    "status": "WITHDRAWN_NOT_AUTHORIZED",
+    "paths": [
+      "/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/admission-base-input",
+      "/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/snapshot-base-input",
+      "/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/batch-base-input",
+      "/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/batch-final-base-input",
+      "/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/batch-release-base-input",
+      "/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/batch-duplicate-base-input",
+      "/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/batch-duplicate-release-base-input"
+    ],
+    "reason": "Root restated user constraint: repeatable test dirs and used environments may move only through native Trash, unavailable. Seven input projection dirs stay in place as cleanup candidates only; historical root fixture dirs and used env/cache/dependency dirs also stay. No such move performed by auditor. Older candidate prose does not authorize a move."
+  },
+  "prior_nine_aliases_qualification": {
+    "input": "prior-nine-alias-state.json",
+    "count": 9,
+    "logical_unique_bytes_historical_root_declared": 637116324,
+    "inspection": "Existing original alias lstat/readlink/target stat snapshots only; original nine raw contents were not newly streamed in this incident audit. This is not a second full bytes verification of the historical nine."
+  },
+  "review_artifacts": {
+    "review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/review.json",
+      "bytes": 8562,
+      "sha256": "828d4cbd288b8c7d7906a9d61216973bddc9a1c734fa41db27e632cb8e80555d"
+    },
+    "artifact_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/artifact-manifest.json",
+      "bytes": 11111,
+      "sha256": "8175c3cfac3beeae3ce199bbd0374cc916ef69eaa9c6a908a286a5196c01a500"
+    }
+  },
+  "publication_qualification": "Implementation artifact read back from exact committed topic head. Final remote head/fresh fetch readback must be reported after this separate receipt commit; no claim of G external raw availability."
+}

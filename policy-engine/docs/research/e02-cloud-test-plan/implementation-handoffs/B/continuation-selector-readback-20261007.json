@@ -1,0 +1,443 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "continuation-selector-readback-20261007",
+  "closure_ids": [],
+  "bundle_ids": [],
+  "slice_base_sha": "c02d97d2b73457fbeb27b6a6c7b5b85be89ad470",
+  "implementation_commits": [
+    "c1ead59ed6b80815bf7677952af7e75d4a209ab9"
+  ],
+  "candidate_tree_sha": "81ecf8608b3e42322fa2f27ab2eb547a8a056cbd",
+  "branch": "codex/e02-B-current-runtime",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/46",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/earlier-proc-observation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/earlier-proc-observation.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/earlier-proc-observation.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/original-output.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/original-profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/qualified-output.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/qualified-profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/read-original.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/read-qualified.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/review.json"
+  ],
+  "production_changed_paths": [],
+  "test_changed_paths": [],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "id": "original-resample-premise",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-B-runtime-continuation-20261007/selector-final-readback/read.py"
+      ],
+      "target_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-runtime",
+        "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "version": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "kind": "Read-only Git/stdlib JSON/hash/actual procfs input observation; no test collection/native/gates"
+      },
+      "input_closure": {
+        "checker_source": {
+          "git_sha": "c1ead59ed6b80815bf7677952af7e75d4a209ab9",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/read-original.source.txt",
+          "git_blob": "0c92ed16bbb1198b119fea21df1674500b8e7964",
+          "bytes": 11826,
+          "sha256": "1edc5c436e544fc3c22ed60121174292f19374b2026e219e4665106aaa4ba58c"
+        },
+        "actual_profile": {
+          "git_sha": "c1ead59ed6b80815bf7677952af7e75d4a209ab9",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/original-profile.json",
+          "git_blob": "e58ffb9be11b132befc4be54bf11235b9ce7e7e6",
+          "bytes": 837,
+          "sha256": "33b57623b478918c1683a48819b469b80dcb4a037a11b25cdf844679e75861ad"
+        },
+        "complete_input_projection": {
+          "git_sha": "c1ead59ed6b80815bf7677952af7e75d4a209ab9",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/review.json",
+          "git_blob": "f89b7a6ab5e5649a6bc65608a9eefd9f9c351b60",
+          "bytes": 121510,
+          "sha256": "f665ef0de5ffcd54a9f18070d9cb7a8be85d48c6aee23c8b05234f653823fd90"
+        },
+        "prior_input_review": {
+          "git_sha": "16563fb438ee1920553bef27ede20d785ae944c5",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-input-review-20261007/review.json",
+          "git_blob": "851da0a4b70b1f9b728f37ae852bdd479d9450dd",
+          "bytes": 138858,
+          "sha256": "df17eb7e670521801190dd3e8c822a957ff522e5b36092cfaf2a84f924bfcd01"
+        },
+        "tracked_plan": {
+          "git_sha": "92601021ba17032ec15151e2e3bdbc36dfa61510",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-full-B-evidence/G-complete-union-selector-UNRUN.json",
+          "git_blob": "b0f739ccad58edfbf08806e5db09b6e8f0b375db",
+          "bytes": 17954,
+          "sha256": "5d746a788db6fff8ba0a19e8e60db9c1f41116646894a6f96982243fefdb0850"
+        },
+        "root_raw": [
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/selector-6fa9b7142ba5-final.json",
+            "bytes": 2159848,
+            "sha256": "246f5fadefe0e78e66da4fd49820d4007c3869a376f5c4e5e8cbec93925261bf",
+            "custody": "Actual ignored root raw; portable root publication not established by this leaf. Complete relevant input projection and Git source refs are retained in this review."
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/selector-6fa9b7142ba5-derived.json",
+            "bytes": 2156885,
+            "sha256": "a1828126ec4e359be05772ea6e7106f58cd5427415f395c3679ec0514dee877d",
+            "custody": "Actual ignored root raw; portable root publication not established by this leaf. Complete relevant input projection and Git source refs are retained in this review."
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/profile.json",
+            "bytes": 2383355,
+            "sha256": "75f3276dd7a45ac8980ded64debc1eca57bef5f6ff51c8b133af387b7fb45dec",
+            "custody": "Actual ignored root raw; portable root publication not established by this leaf. Complete relevant input projection and Git source refs are retained in this review."
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/whole-files.args",
+            "bytes": 15279,
+            "sha256": "52272ab63030e91325875de023291ec9dc44ec47c99125d66e4f4e995ea166ad",
+            "custody": "Actual ignored root raw; portable root publication not established by this leaf. Complete relevant input projection and Git source refs are retained in this review."
+          }
+        ],
+        "scope": "Complete260 tracked Git bodies, actual261 file argv, final/source roles and bounded input projections. Root raw2.1MB/full lineage remain root custody, not universal semantics acceptance."
+      },
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "output": {
+        "git_sha": "c1ead59ed6b80815bf7677952af7e75d4a209ab9",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/original-output.txt",
+        "git_blob": "ca37de10ec06d2ff142b561c2f422082a458615b",
+        "bytes": 411,
+        "sha256": "4e28e41ee653f3a2b5967a8ea2af3475a99ba66819b00f7f2da23f89d72d4159"
+      },
+      "qualification": "Original failure is absent active-process resample premise, not a product/native failure. Qualified checker preserves that limit and separates earlier actual tool-returned explicit0 observation from final static input retention."
+    },
+    {
+      "id": "qualified-final-input-readback",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-B-runtime-continuation-20261007/selector-final-readback/read-qualified.py"
+      ],
+      "target_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-runtime",
+        "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "version": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "kind": "Read-only Git/stdlib JSON/hash/actual input readback; no test collection/native/gates"
+      },
+      "input_closure": {
+        "checker_source": {
+          "git_sha": "c1ead59ed6b80815bf7677952af7e75d4a209ab9",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/read-qualified.source.txt",
+          "git_blob": "2965854eba0fa34774dc421dfebc1422651780e7",
+          "bytes": 12178,
+          "sha256": "02322279d2cec1813b8de4602d88f1d2bb190363d1d9085aed951c60c135de4b"
+        },
+        "actual_profile": {
+          "git_sha": "c1ead59ed6b80815bf7677952af7e75d4a209ab9",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/qualified-profile.json",
+          "git_blob": "e36c4677f9715e0904e72ecd3ec7c531da7de067",
+          "bytes": 837,
+          "sha256": "f845083344246b1efc4874913afcc163779b7bb676ed3500fef69d6c47c831e9"
+        },
+        "complete_input_projection": {
+          "git_sha": "c1ead59ed6b80815bf7677952af7e75d4a209ab9",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/review.json",
+          "git_blob": "f89b7a6ab5e5649a6bc65608a9eefd9f9c351b60",
+          "bytes": 121510,
+          "sha256": "f665ef0de5ffcd54a9f18070d9cb7a8be85d48c6aee23c8b05234f653823fd90"
+        },
+        "prior_input_review": {
+          "git_sha": "16563fb438ee1920553bef27ede20d785ae944c5",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-input-review-20261007/review.json",
+          "git_blob": "851da0a4b70b1f9b728f37ae852bdd479d9450dd",
+          "bytes": 138858,
+          "sha256": "df17eb7e670521801190dd3e8c822a957ff522e5b36092cfaf2a84f924bfcd01"
+        },
+        "tracked_plan": {
+          "git_sha": "92601021ba17032ec15151e2e3bdbc36dfa61510",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-full-B-evidence/G-complete-union-selector-UNRUN.json",
+          "git_blob": "b0f739ccad58edfbf08806e5db09b6e8f0b375db",
+          "bytes": 17954,
+          "sha256": "5d746a788db6fff8ba0a19e8e60db9c1f41116646894a6f96982243fefdb0850"
+        },
+        "root_raw": [
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/selector-6fa9b7142ba5-final.json",
+            "bytes": 2159848,
+            "sha256": "246f5fadefe0e78e66da4fd49820d4007c3869a376f5c4e5e8cbec93925261bf",
+            "custody": "Actual ignored root raw; portable root publication not established by this leaf. Complete relevant input projection and Git source refs are retained in this review."
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/selector-6fa9b7142ba5-derived.json",
+            "bytes": 2156885,
+            "sha256": "a1828126ec4e359be05772ea6e7106f58cd5427415f395c3679ec0514dee877d",
+            "custody": "Actual ignored root raw; portable root publication not established by this leaf. Complete relevant input projection and Git source refs are retained in this review."
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/profile.json",
+            "bytes": 2383355,
+            "sha256": "75f3276dd7a45ac8980ded64debc1eca57bef5f6ff51c8b133af387b7fb45dec",
+            "custody": "Actual ignored root raw; portable root publication not established by this leaf. Complete relevant input projection and Git source refs are retained in this review."
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/whole-files.args",
+            "bytes": 15279,
+            "sha256": "52272ab63030e91325875de023291ec9dc44ec47c99125d66e4f4e995ea166ad",
+            "custody": "Actual ignored root raw; portable root publication not established by this leaf. Complete relevant input projection and Git source refs are retained in this review."
+          }
+        ],
+        "scope": "Complete260 tracked Git bodies, actual261 file argv, final/source roles and bounded input projections. Root raw2.1MB/full lineage remain root custody, not universal semantics acceptance."
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": {
+        "git_sha": "c1ead59ed6b80815bf7677952af7e75d4a209ab9",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/qualified-output.txt",
+        "git_blob": "a23c10226cbcee7e90c6b7c23b317ca6b12a6393",
+        "bytes": 547,
+        "sha256": "f2ceb741be93522f53fb0801286f80c2ae0a240a2517cbc4f0e2ed1f91a9f1fe"
+      },
+      "qualification": "Original failure is absent active-process resample premise, not a product/native failure. Qualified checker preserves that limit and separates earlier actual tool-returned explicit0 observation from final static input retention."
+    },
+    {
+      "id": "earlier-actual-process-input-observation",
+      "command": [
+        "python3",
+        "-"
+      ],
+      "target_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-runtime",
+        "profile": "Read-only procfs input sample; exact sampler source and copied complete tool-returned relevant rows. Exact UTC was not captured."
+      },
+      "input_closure": {
+        "source": {
+          "git_sha": "c1ead59ed6b80815bf7677952af7e75d4a209ab9",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/earlier-proc-observation.source.txt",
+          "git_blob": "1d2ff467bed0e6ff6cbec22b7deb7e78d7f45df0",
+          "bytes": 681,
+          "sha256": "22b7be8c5d6c3f422d89e5c77cecc25e0ba82e4d429ba6229247983c7a119d19"
+        },
+        "provenance": {
+          "git_sha": "c1ead59ed6b80815bf7677952af7e75d4a209ab9",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/earlier-proc-observation.json",
+          "git_blob": "b26b339adf20c653f8ad3d287d9efa14a8c669fb",
+          "bytes": 3357,
+          "sha256": "ee1b1850818a56dd55e16ab436a4f2c52a54b212d4e0a8438827e205e0e39d7b"
+        },
+        "whole_argv_current_source": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/whole-files.args",
+          "bytes": 15279,
+          "sha256": "52272ab63030e91325875de023291ec9dc44ec47c99125d66e4f4e995ea166ad",
+          "custody": "Actual ignored root raw; portable root publication not established by this leaf. Complete relevant input projection and Git source refs are retained in this review."
+        },
+        "scope": "Only exact capture/native processes carrying this @args; only E02_REMOVE_PROTECTION was retained from environment."
+      },
+      "outcome": "PASS",
+      "output": {
+        "git_sha": "c1ead59ed6b80815bf7677952af7e75d4a209ab9",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/earlier-proc-observation.txt",
+        "git_blob": "914fddaaf44d16a7e81b5f02cbbd8ce2f6c944b3",
+        "bytes": 2289,
+        "sha256": "65cb2e34c2ef78bf9ed627c9482eb99f4c095b969fd9be036ad1fd89ff5433f8"
+      },
+      "deciding_quantities": {
+        "observed_process_instances": 2,
+        "explicit_ordinary_mode": "0"
+      },
+      "qualification": "Earlier actual observation retained from tool output; no live current PID, native outcome or universal source origin assertion."
+    },
+    {
+      "id": "implementation-diff-check",
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "c02d97d2b73457fbeb27b6a6c7b5b85be89ad470",
+        "c1ead59ed6b80815bf7677952af7e75d4a209ab9"
+      ],
+      "target_sha": "c1ead59ed6b80815bf7677952af7e75d4a209ab9",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-runtime",
+        "tool": "Git"
+      },
+      "input_closure": {
+        "full_changed_paths": [
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/README.md",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/earlier-proc-observation.json",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/earlier-proc-observation.source.txt",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/earlier-proc-observation.txt",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/index.json",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/original-output.txt",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/original-profile.json",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/qualified-output.txt",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/qualified-profile.json",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/read-original.source.txt",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/read-qualified.source.txt",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/review.json"
+        ]
+      },
+      "outcome": "PASS",
+      "output": {
+        "exit_code": 0,
+        "stdout": ""
+      }
+    }
+  ],
+  "property": {
+    "statement": "Actual frozen file-input selector and native argv must retain every prior plan consumer and new mirrored input without confusing external or installed-child roles with case outcomes.",
+    "runtime_path": [
+      "Tracked253 planned file-input union",
+      "Actual canonical derivation258 tracked files at6fa",
+      "Explicit two runner additions and exact ordinary external B93 file",
+      "Actual native @whole-files.args consumes261 whole-file inputs"
+    ],
+    "proxy_divergence": "Inherited candidate_whole_file_identities258 remains a derived subset while final tracked paths260; this review recomputes both runner identities. A later missing live process cannot invalidate the complete frozen file table or establish a product failure.",
+    "negative_controls": [
+      "Full final args exactly equals unique261 test_paths; every old252 and new6 retained plus exactly two current G dependencies.",
+      "The inherited258 inline identity table misses exactly the two explicitly appended runner paths; complete260 table is retained here.",
+      "Original later procfs resample metadata failure is retained; earlier actual tool-returned two explicit0 process-input rows are separate and cannot become a fresh/live or final native outcome.",
+      "All21 absent references,14 canonical, preserve UNRUN; installed non-test child is not directly added to root collection."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "predicate_qualification": {
+    "frozen_tracked_Git_bytes_manifest_membership_actual_file_argv": "recomputed",
+    "earlier_process_ordinary_mode": "recomputed_from_actual_tool_returned_procfs_observation_with_copied_transport_provenance",
+    "later_live_sample": "not_established_no_active_matching_process",
+    "collection_native_counts_source_semantic_acceptance_authority_and_finding_closure": "not_established_by_this_review"
+  },
+  "capability_state_or_finding_state": "NONBLOCKING_INPUT_RETENTION_READBACK_ONLY; all native/collection outcomes UNRUN_BY_REVIEWER; formal closure_ids empty.",
+  "limitations_and_next_owner": [
+    "No canonical derivation, test collection, native execution, imports, dependency/backend setup or source edits by reviewer.",
+    "Full ignored lineage149MB and final raw2.1MB are root custody; this portable packet keeps complete260 Git input refs and bounded projections, not universal lineage acceptance.",
+    "First caller union/assertion/setup failures are retained by root; current input readback does not relabel those attempts or infer final case outcomes.",
+    "Profile numeric_cap_names_absent is caller-reported. This review observes only actual E02_REMOVE_PROTECTION; no thread/process resource sufficiency claim.",
+    "Formal closure_ids remains empty.",
+    "Root owns portable full selector/profile custody and actual native phase partition; first caller union/setup errors remain literal and are not erased by this input readback.",
+    "No own B93 property/source-semantic self-review or production edit; this slice checks only reconstruction/input bindings."
+  ],
+  "review": {
+    "git_sha": "c1ead59ed6b80815bf7677952af7e75d4a209ab9",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/review.json",
+    "git_blob": "f89b7a6ab5e5649a6bc65608a9eefd9f9c351b60",
+    "bytes": 121510,
+    "sha256": "f665ef0de5ffcd54a9f18070d9cb7a8be85d48c6aee23c8b05234f653823fd90"
+  },
+  "evidence_files": [
+    {
+      "git_sha": "c1ead59ed6b80815bf7677952af7e75d4a209ab9",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/README.md",
+      "git_blob": "6c42aecfcac0f9e146c599dbb4bc9db4cb32e3a4",
+      "bytes": 3019,
+      "sha256": "94c0d72d6df24cefedb5cd8d14048a49e1610fd33b8012119faa0095ee0ad56d"
+    },
+    {
+      "git_sha": "c1ead59ed6b80815bf7677952af7e75d4a209ab9",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/earlier-proc-observation.json",
+      "git_blob": "b26b339adf20c653f8ad3d287d9efa14a8c669fb",
+      "bytes": 3357,
+      "sha256": "ee1b1850818a56dd55e16ab436a4f2c52a54b212d4e0a8438827e205e0e39d7b"
+    },
+    {
+      "git_sha": "c1ead59ed6b80815bf7677952af7e75d4a209ab9",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/earlier-proc-observation.source.txt",
+      "git_blob": "1d2ff467bed0e6ff6cbec22b7deb7e78d7f45df0",
+      "bytes": 681,
+      "sha256": "22b7be8c5d6c3f422d89e5c77cecc25e0ba82e4d429ba6229247983c7a119d19"
+    },
+    {
+      "git_sha": "c1ead59ed6b80815bf7677952af7e75d4a209ab9",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/earlier-proc-observation.txt",
+      "git_blob": "914fddaaf44d16a7e81b5f02cbbd8ce2f6c944b3",
+      "bytes": 2289,
+      "sha256": "65cb2e34c2ef78bf9ed627c9482eb99f4c095b969fd9be036ad1fd89ff5433f8"
+    },
+    {
+      "git_sha": "c1ead59ed6b80815bf7677952af7e75d4a209ab9",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/index.json",
+      "git_blob": "cb71142571e20e2e3c3cc78ae6304786623c48fc",
+      "bytes": 3177,
+      "sha256": "897b8a97ee8850bb5bf364235e74f6a2811d28dcee9778beeed442f5e65ec9d4"
+    },
+    {
+      "git_sha": "c1ead59ed6b80815bf7677952af7e75d4a209ab9",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/original-output.txt",
+      "git_blob": "ca37de10ec06d2ff142b561c2f422082a458615b",
+      "bytes": 411,
+      "sha256": "4e28e41ee653f3a2b5967a8ea2af3475a99ba66819b00f7f2da23f89d72d4159"
+    },
+    {
+      "git_sha": "c1ead59ed6b80815bf7677952af7e75d4a209ab9",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/original-profile.json",
+      "git_blob": "e58ffb9be11b132befc4be54bf11235b9ce7e7e6",
+      "bytes": 837,
+      "sha256": "33b57623b478918c1683a48819b469b80dcb4a037a11b25cdf844679e75861ad"
+    },
+    {
+      "git_sha": "c1ead59ed6b80815bf7677952af7e75d4a209ab9",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/qualified-output.txt",
+      "git_blob": "a23c10226cbcee7e90c6b7c23b317ca6b12a6393",
+      "bytes": 547,
+      "sha256": "f2ceb741be93522f53fb0801286f80c2ae0a240a2517cbc4f0e2ed1f91a9f1fe"
+    },
+    {
+      "git_sha": "c1ead59ed6b80815bf7677952af7e75d4a209ab9",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/qualified-profile.json",
+      "git_blob": "e36c4677f9715e0904e72ecd3ec7c531da7de067",
+      "bytes": 837,
+      "sha256": "f845083344246b1efc4874913afcc163779b7bb676ed3500fef69d6c47c831e9"
+    },
+    {
+      "git_sha": "c1ead59ed6b80815bf7677952af7e75d4a209ab9",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/read-original.source.txt",
+      "git_blob": "0c92ed16bbb1198b119fea21df1674500b8e7964",
+      "bytes": 11826,
+      "sha256": "1edc5c436e544fc3c22ed60121174292f19374b2026e219e4665106aaa4ba58c"
+    },
+    {
+      "git_sha": "c1ead59ed6b80815bf7677952af7e75d4a209ab9",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/read-qualified.source.txt",
+      "git_blob": "2965854eba0fa34774dc421dfebc1422651780e7",
+      "bytes": 12178,
+      "sha256": "02322279d2cec1813b8de4602d88f1d2bb190363d1d9085aed951c60c135de4b"
+    },
+    {
+      "git_sha": "c1ead59ed6b80815bf7677952af7e75d4a209ab9",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/review.json",
+      "git_blob": "f89b7a6ab5e5649a6bc65608a9eefd9f9c351b60",
+      "bytes": 121510,
+      "sha256": "f665ef0de5ffcd54a9f18070d9cb7a8be85d48c6aee23c8b05234f653823fd90"
+    }
+  ],
+  "actual_input_denominators_only": {
+    "old_tracked_plan": 252,
+    "new_continuation_mirrored": 6,
+    "additional_G_dependencies": 2,
+    "derived_tracked": 258,
+    "explicit_runner_additions": 2,
+    "final_tracked": 260,
+    "external_roles": 1,
+    "whole_file_argv": 261,
+    "native_collection_case_count_and_outcomes": "UNRUN_BY_REVIEWER"
+  },
+  "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007.json",
+  "publication_transport": {
+    "mode": "Root-authorized normal GitAPI immutable objects and topic-only fast-forward due actual overlayENOSPC; no checkout, main, force or history rewrite.",
+    "implementation_parent": "c02d97d2b73457fbeb27b6a6c7b5b85be89ad470",
+    "actual_blob_count": 12,
+    "all_blob_sha1_recomputed": true,
+    "local_checkout_head_unchanged": "c02d97d2b73457fbeb27b6a6c7b5b85be89ad470",
+    "temporary_object_directory": "/tmp/e02-B-runtime-continuation-20261007/selector-final-readback/git-api/objects",
+    "read_only_alternate_objects": "/workspace/polisyos/.git/objects",
+    "receipt_ref_publication_and_remote_readback": "Pending until separate receipt commit is created; no future SHA is referenced."
+  }
+}

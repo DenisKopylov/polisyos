@@ -1,0 +1,9 @@
+fatal: /tmp/e02-B-current-adapters-456-audit/terminal-final-root-case-partition-3cd.json: '/tmp/e02-B-current-adapters-456-audit/terminal-final-root-case-partition-3cd.json' is outside repository at '/workspace/e02-B-current-adapters'
+usage: current-cohort-result-partition.py [-h] --inventory INVENTORY
+                                          --junit JUNIT --wrapper WRAPPER
+                                          --profile PROFILE
+                                          --selectors SELECTORS
+                                          --stdout STDOUT
+                                          --source-sha SOURCE_SHA --repo REPO
+                                          --output OUTPUT
+current-cohort-result-partition.py: error: output must be inside actual Git-ignored repo storage

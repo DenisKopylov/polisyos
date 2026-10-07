@@ -1,0 +1,57 @@
+{
+  "schema": "policyos.e02.independent-check.v1",
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-s",
+    "--noconftest",
+    "/workspace/e02-B-current-durability/policy-engine/tests/integration/scientist/test_parallel_tier_compensation_oracle.py",
+    "-c",
+    "/workspace/e02-B-current-execution-state/policy-engine/pytest.ini",
+    "-o",
+    "addopts=",
+    "--basetemp",
+    "/tmp/e02-B-dur-b73-compensation-20261006-2b0e836/pytest-scratch-first",
+    "--junitxml",
+    "/tmp/e02-B-dur-b73-compensation-20261006-2b0e836/native.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+  "target_sha": "84e40e5f83054a1f1c6c60d2fbacd53fa6c71497",
+  "tree": "21ea656dcc31d414db5183d6a59b5d57deff8a40",
+  "head_after": "84e40e5f83054a1f1c6c60d2fbacd53fa6c71497",
+  "source_worktree_clean_after": true,
+  "test_input": {
+    "path": "/workspace/e02-B-current-durability/policy-engine/tests/integration/scientist/test_parallel_tier_compensation_oracle.py",
+    "git_sha": "2b0e836a095e6fe6224726f6be3fc8f8502a2352",
+    "sha256": "6e51e94a9c352d2452e2c79b5ab71001cbf98f1d78154ac8e9e759e97144f4b7",
+    "bytes": 12237
+  },
+  "environment": {
+    "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+    "E02_ORACLE_PRODUCT_ROOT": "/workspace/e02-B-current-execution-state/policy-engine",
+    "caps_absent": [
+      "OMP_NUM_THREADS",
+      "MKL_NUM_THREADS",
+      "OPENBLAS_NUM_THREADS",
+      "NUMEXPR_NUM_THREADS",
+      "VECLIB_MAXIMUM_THREADS",
+      "BLIS_NUM_THREADS"
+    ],
+    "conftest": "disabled; builtinfixtures only",
+    "fixture_mount": "actual/tmp tmpfs; no physicaldiskdurability claim"
+  },
+  "input_closure": "Real registered seed/Aok/Bfirstfail/suffix async producers, actual RunContext/defaultregistrybundle, AsyncWorkflowExecutor with actual CASCheckpointHook and typed compensation callback. fail_fast/continue realstate/frontier/CASoutput/cache readback; freshFileSystemCAS/publicresume with explicit observedtransientB nowhealthy, A/seedbody0 B1 suffix1. Isolated filesystem fixture only; no productiondataset/externalDB.",
+  "start_utc": "2026-10-06T17:45:18.296629+00:00",
+  "exit_code": 0,
+  "wall_s": 11.441840379004134,
+  "process_rusage_maxrss_kib": 720492,
+  "output_path": "/tmp/e02-B-dur-b73-compensation-20261006-2b0e836/native.txt",
+  "output_sha256": "d86c58d9378b6a5e0f94484833c8bad068d2e506df67dab594bc7869e73d8d7d",
+  "output_bytes": 4114,
+  "harness_state": "EXECUTED",
+  "storage_before": "Filesystem      Size  Used Avail Use% Mounted on\noverlay          32G   30G  569M  99% /\nnone            8.8G  664M  8.2G   8% /tmp\n",
+  "storage_after": "Filesystem      Size  Used Avail Use% Mounted on\noverlay          32G   30G  569M  99% /\nnone            8.8G  665M  8.2G   8% /tmp\n"
+}

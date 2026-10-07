@@ -1,0 +1,915 @@
+{
+  "utc": "2026-10-06T23:02:42.563991+00:00",
+  "directories": [
+    {
+      "path": "/tmp/.ruff_cache",
+      "allocated_bytes": 12288,
+      "files": 3
+    },
+    {
+      "path": "/tmp/__pycache__",
+      "allocated_bytes": 20480,
+      "files": 1
+    },
+    {
+      "path": "/tmp/braw-e02-B",
+      "allocated_bytes": 637140992,
+      "files": 10
+    },
+    {
+      "path": "/tmp/braw-e02-B-flat-20261006",
+      "allocated_bytes": 34979840,
+      "files": 22
+    },
+    {
+      "path": "/tmp/braw-e02-B-old-exe-four-invocations-20261006",
+      "allocated_bytes": 685314048,
+      "files": 5
+    },
+    {
+      "path": "/tmp/braw-e02-B-old-invocation-20261006",
+      "allocated_bytes": 170864640,
+      "files": 2
+    },
+    {
+      "path": "/tmp/braw-e02-B-old-six-invocations-20261006",
+      "allocated_bytes": 1025363968,
+      "files": 7
+    },
+    {
+      "path": "/tmp/e02-B-adapters",
+      "allocated_bytes": 303104,
+      "files": 24
+    },
+    {
+      "path": "/tmp/e02-B-architecture-cache-warm-record-1862c021df74",
+      "allocated_bytes": 1781760,
+      "files": 9
+    },
+    {
+      "path": "/tmp/e02-B-architecture-runtime-ml-cache-warm-1862c021df74",
+      "allocated_bytes": 1123561472,
+      "files": 15905
+    },
+    {
+      "path": "/tmp/e02-B-cas-final-a3-metadata-review",
+      "allocated_bytes": 49152,
+      "files": 5
+    },
+    {
+      "path": "/tmp/e02-B-cas-metadata75f",
+      "allocated_bytes": 565248,
+      "files": 19
+    },
+    {
+      "path": "/tmp/e02-B-compiled-preparation-358fee80e6e1",
+      "allocated_bytes": 122880,
+      "files": 10
+    },
+    {
+      "path": "/tmp/e02-B-compiled-preparation-39f1cfde9b22",
+      "allocated_bytes": 131072,
+      "files": 11
+    },
+    {
+      "path": "/tmp/e02-B-compiled-preparation-5b36cc53b242",
+      "allocated_bytes": 131072,
+      "files": 11
+    },
+    {
+      "path": "/tmp/e02-B-compiled-preparation-aaa4386f3960",
+      "allocated_bytes": 139264,
+      "files": 14
+    },
+    {
+      "path": "/tmp/e02-B-completed-quality-preparation-36957513",
+      "allocated_bytes": 24576,
+      "files": 5
+    },
+    {
+      "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24",
+      "allocated_bytes": 1282048,
+      "files": 49
+    },
+    {
+      "path": "/tmp/e02-B-completion-consumer-removal-a391-b2ecbf77cb67",
+      "allocated_bytes": 1081344,
+      "files": 15
+    },
+    {
+      "path": "/tmp/e02-B-completion-consumer-removal2-a391-b98c1250eb70",
+      "allocated_bytes": 1097728,
+      "files": 15
+    },
+    {
+      "path": "/tmp/e02-B-current-adapters-456-audit",
+      "allocated_bytes": 16384,
+      "files": 4
+    },
+    {
+      "path": "/tmp/e02-B-current-adapters-b50-native-a8",
+      "allocated_bytes": 28672,
+      "files": 7
+    },
+    {
+      "path": "/tmp/e02-B-current-composition-review",
+      "allocated_bytes": 12288,
+      "files": 1
+    },
+    {
+      "path": "/tmp/e02-B-current-execution-state",
+      "allocated_bytes": 18763776,
+      "files": 5662
+    },
+    {
+      "path": "/tmp/e02-B-dur-b73-compensation-20261006-2b0e836",
+      "allocated_bytes": 786432,
+      "files": 233
+    },
+    {
+      "path": "/tmp/e02-B-dur-checkpoint-removal-20261006-82c5e37",
+      "allocated_bytes": 880640,
+      "files": 244
+    },
+    {
+      "path": "/tmp/e02-B-dur-completion-baseline-navigation",
+      "allocated_bytes": 114688,
+      "files": 3
+    },
+    {
+      "path": "/tmp/e02-B-dur-completion-draft-native",
+      "allocated_bytes": 98304,
+      "files": 44
+    },
+    {
+      "path": "/tmp/e02-B-dur-completion-frozen-ack-removal-9f2a",
+      "allocated_bytes": 65536,
+      "files": 18
+    },
+    {
+      "path": "/tmp/e02-B-dur-completion-frozen-admission-removal-9f2a",
+      "allocated_bytes": 94208,
+      "files": 18
+    },
+    {
+      "path": "/tmp/e02-B-dur-completion-frozen-native-9f2a",
+      "allocated_bytes": 716800,
+      "files": 289
+    },
+    {
+      "path": "/tmp/e02-B-dur-completion-frozen-quality-9f2a",
+      "allocated_bytes": 20480,
+      "files": 4
+    },
+    {
+      "path": "/tmp/e02-B-dur-completion-process-draft-native",
+      "allocated_bytes": 204800,
+      "files": 82
+    },
+    {
+      "path": "/tmp/e02-B-dur-completion-widened-draft-native",
+      "allocated_bytes": 155648,
+      "files": 66
+    },
+    {
+      "path": "/tmp/e02-B-executor-format-exe",
+      "allocated_bytes": 159744,
+      "files": 6
+    },
+    {
+      "path": "/tmp/e02-B-la057-final-1862c021df74-run",
+      "allocated_bytes": 184918016,
+      "files": 8311
+    },
+    {
+      "path": "/tmp/e02-B-la057-final-dd9584728bd9",
+      "allocated_bytes": 184483840,
+      "files": 8307
+    },
+    {
+      "path": "/tmp/e02-B-la057-final-dd9584728bd9-driver",
+      "allocated_bytes": 28672,
+      "files": 5
+    },
+    {
+      "path": "/tmp/e02-B-la057-preparation",
+      "allocated_bytes": 32768,
+      "files": 3
+    },
+    {
+      "path": "/tmp/e02-B-llm-a2-mypy-cache",
+      "allocated_bytes": 123789312,
+      "files": 3041
+    },
+    {
+      "path": "/tmp/e02-B-llm-affected-a2-k98z3tu9",
+      "allocated_bytes": 3837952,
+      "files": 778
+    },
+    {
+      "path": "/tmp/e02-B-llm-completion-source-review-exe",
+      "allocated_bytes": 98304,
+      "files": 1
+    },
+    {
+      "path": "/tmp/e02-B-llm-composed-delta-exe",
+      "allocated_bytes": 233472,
+      "files": 2
+    },
+    {
+      "path": "/tmp/e02-B-llm-contract-review-exe",
+      "allocated_bytes": 217088,
+      "files": 7
+    },
+    {
+      "path": "/tmp/e02-B-opa-latest-preparation-1db95544",
+      "allocated_bytes": 64233472,
+      "files": 9
+    },
+    {
+      "path": "/tmp/e02-B-opa-parity-8142b14162f6",
+      "allocated_bytes": 118013952,
+      "files": 3186
+    },
+    {
+      "path": "/tmp/e02-B-quality-first-output-review-1862c021df74",
+      "allocated_bytes": 36864,
+      "files": 3
+    },
+    {
+      "path": "/tmp/e02-B-reopened-compiled-plan-31cd17fe6c7a",
+      "allocated_bytes": 348160,
+      "files": 75
+    },
+    {
+      "path": "/tmp/e02-B-reopened-compiled-plan-3849170cd3eb",
+      "allocated_bytes": 393216,
+      "files": 73
+    },
+    {
+      "path": "/tmp/e02-B-reopened-compiled-plan-61c1037763cd",
+      "allocated_bytes": 167936,
+      "files": 18
+    },
+    {
+      "path": "/tmp/e02-B-reopened-compiled-plan-a489c1a67492",
+      "allocated_bytes": 135168,
+      "files": 12
+    },
+    {
+      "path": "/tmp/e02-B-reopened-compiled-plan-b8ea465a0e86",
+      "allocated_bytes": 135168,
+      "files": 12
+    },
+    {
+      "path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41",
+      "allocated_bytes": 348160,
+      "files": 75
+    },
+    {
+      "path": "/tmp/e02-B-reopened-compiled-plan-fce1b198228c",
+      "allocated_bytes": 413696,
+      "files": 66
+    },
+    {
+      "path": "/tmp/e02-B-shared-flight-b138-independent-native",
+      "allocated_bytes": 225280,
+      "files": 36
+    },
+    {
+      "path": "/tmp/e02-B-successor-client-421",
+      "allocated_bytes": 266240,
+      "files": 3
+    },
+    {
+      "path": "/tmp/e02-B-successor-final",
+      "allocated_bytes": 2121072640,
+      "files": 182361
+    },
+    {
+      "path": "/tmp/e02-B-successor-gate-audit-exe",
+      "allocated_bytes": 1552384,
+      "files": 37
+    },
+    {
+      "path": "/tmp/e02-B-successor-openapi-02ff",
+      "allocated_bytes": 5648384,
+      "files": 9
+    },
+    {
+      "path": "/tmp/e02-B-successor-targeted-0fd",
+      "allocated_bytes": 17178624,
+      "files": 5488
+    },
+    {
+      "path": "/tmp/e02-B-worker-accounting-a697-fallback-tad1u8a9",
+      "allocated_bytes": 155648,
+      "files": 9
+    },
+    {
+      "path": "/tmp/e02-B-worker-accounting-a697-ox5n07s1",
+      "allocated_bytes": 139264,
+      "files": 9
+    },
+    {
+      "path": "/tmp/e02-B-worker-accounting-a697-tokenized-sgxx84_u",
+      "allocated_bytes": 163840,
+      "files": 13
+    },
+    {
+      "path": "/tmp/e02-B-worker-accounting-pytest-alias-custody-zm4y3jmc",
+      "allocated_bytes": 0,
+      "files": 0
+    },
+    {
+      "path": "/tmp/e02-B-worker-repair-4b368-14-493612",
+      "allocated_bytes": 233472,
+      "files": 25
+    },
+    {
+      "path": "/tmp/e02-B-worker-repair-4b368-remove-admission-493612",
+      "allocated_bytes": 126976,
+      "files": 10
+    },
+    {
+      "path": "/tmp/e02-B-worker-repair-4b368-remove-propagation-493612",
+      "allocated_bytes": 131072,
+      "files": 14
+    },
+    {
+      "path": "/tmp/e02-B-worker-repair-preparation-5902",
+      "allocated_bytes": 24576,
+      "files": 3
+    },
+    {
+      "path": "/tmp/e02-B38-pg-evidence",
+      "allocated_bytes": 491655168,
+      "files": 5725
+    },
+    {
+      "path": "/tmp/e02-B38-pg-profile",
+      "allocated_bytes": 21057536,
+      "files": 200
+    },
+    {
+      "path": "/tmp/e02-B52-cache-cost-c043",
+      "allocated_bytes": 7385088,
+      "files": 589
+    },
+    {
+      "path": "/tmp/e02-B65-admission-a2-5hfv8n35",
+      "allocated_bytes": 172032,
+      "files": 38
+    },
+    {
+      "path": "/tmp/e02-B65-detach-removal-a2-1v3u9xd3",
+      "allocated_bytes": 331776,
+      "files": 34
+    },
+    {
+      "path": "/tmp/e02-B65-protected-audit",
+      "allocated_bytes": 360448,
+      "files": 14
+    },
+    {
+      "path": "/tmp/e02-B65-protected-audit-qualified",
+      "allocated_bytes": 286720,
+      "files": 25
+    },
+    {
+      "path": "/tmp/e02-B65-recovery-a2-native",
+      "allocated_bytes": 823296,
+      "files": 71
+    },
+    {
+      "path": "/tmp/e02-B65-recovery-a2-qualified-native",
+      "allocated_bytes": 917504,
+      "files": 71
+    },
+    {
+      "path": "/tmp/e02-B65-recovery-a391-corrected-native",
+      "allocated_bytes": 610304,
+      "files": 58
+    },
+    {
+      "path": "/tmp/e02-B65-recovery-a391-native",
+      "allocated_bytes": 446464,
+      "files": 55
+    },
+    {
+      "path": "/tmp/e02-B66-flight-diagnosis-a2-b3yor0e8",
+      "allocated_bytes": 57344,
+      "files": 8
+    },
+    {
+      "path": "/tmp/e02-B66-foreign-review",
+      "allocated_bytes": 90112,
+      "files": 2
+    },
+    {
+      "path": "/tmp/e02-B66-removal-a2-bhoc31an",
+      "allocated_bytes": 655360,
+      "files": 114
+    },
+    {
+      "path": "/tmp/e02-b66-repair-a391-_ij2mt9e",
+      "allocated_bytes": 1916928,
+      "files": 351
+    },
+    {
+      "path": "/tmp/e02-b66-unknown-dd-7jdlujt1",
+      "allocated_bytes": 262144,
+      "files": 52
+    },
+    {
+      "path": "/tmp/e02-cas-duplicate-h_ba467w",
+      "allocated_bytes": 12288,
+      "files": 5
+    },
+    {
+      "path": "/tmp/e02-cas-storage-census-20261006",
+      "allocated_bytes": 126976,
+      "files": 16
+    },
+    {
+      "path": "/tmp/e02-dur-published-review",
+      "allocated_bytes": 249856,
+      "files": 7
+    },
+    {
+      "path": "/tmp/e02-executor-author-base-evidence",
+      "allocated_bytes": 12288,
+      "files": 2
+    },
+    {
+      "path": "/tmp/e02-executor-author-candidate-evidence",
+      "allocated_bytes": 12288,
+      "files": 2
+    },
+    {
+      "path": "/tmp/e02-executor-b439-evidence",
+      "allocated_bytes": 24576,
+      "files": 5
+    },
+    {
+      "path": "/tmp/e02-executor-base-evidence",
+      "allocated_bytes": 106496,
+      "files": 3
+    },
+    {
+      "path": "/tmp/e02-flat-evidence-independent-review",
+      "allocated_bytes": 28938240,
+      "files": 17
+    },
+    {
+      "path": "/tmp/e02-run-queued-4a-evidence",
+      "allocated_bytes": 12288,
+      "files": 3
+    },
+    {
+      "path": "/tmp/e02-run-queued-6c-evidence",
+      "allocated_bytes": 20480,
+      "files": 5
+    },
+    {
+      "path": "/tmp/e02-run-review-base-evidence",
+      "allocated_bytes": 352256,
+      "files": 77
+    },
+    {
+      "path": "/tmp/e02-run-review-candidate-evidence",
+      "allocated_bytes": 438272,
+      "files": 80
+    },
+    {
+      "path": "/tmp/e02-run-review-candidate-pytest",
+      "allocated_bytes": 147456,
+      "files": 40
+    },
+    {
+      "path": "/tmp/e02-stale-stubs-1tgq4tzh",
+      "allocated_bytes": 28672,
+      "files": 4
+    },
+    {
+      "path": "/tmp/e02-stale-stubs-g4jvrvg_",
+      "allocated_bytes": 16384,
+      "files": 3
+    },
+    {
+      "path": "/tmp/gh-cli-cache",
+      "allocated_bytes": 12288,
+      "files": 2
+    },
+    {
+      "path": "/tmp/gy-n11-confidence-ledger-57d520h9",
+      "allocated_bytes": 49152,
+      "files": 17
+    },
+    {
+      "path": "/tmp/gy-n11-confidence-ledger-5on_dj7f",
+      "allocated_bytes": 122880,
+      "files": 29
+    },
+    {
+      "path": "/tmp/gy-n11-confidence-ledger-h7gtb9ty",
+      "allocated_bytes": 196608,
+      "files": 51
+    },
+    {
+      "path": "/tmp/gy-n11-confidence-ledger-qhk2js4k",
+      "allocated_bytes": 196608,
+      "files": 49
+    },
+    {
+      "path": "/tmp/node-compile-cache",
+      "allocated_bytes": 27652096,
+      "files": 664
+    },
+    {
+      "path": "/tmp/playwright-artifacts-LS03nF",
+      "allocated_bytes": 0,
+      "files": 0
+    },
+    {
+      "path": "/tmp/playwright_chromiumdev_profile-0WqYr0",
+      "allocated_bytes": 0,
+      "files": 0
+    },
+    {
+      "path": "/tmp/polisyos_worker_00oem5dg",
+      "allocated_bytes": 12288,
+      "files": 6
+    },
+    {
+      "path": "/tmp/polisyos_worker_0nrxfgis",
+      "allocated_bytes": 16384,
+      "files": 6
+    },
+    {
+      "path": "/tmp/polisyos_worker_2a0pr65l",
+      "allocated_bytes": 28672,
+      "files": 10
+    },
+    {
+      "path": "/tmp/polisyos_worker_2g111fky",
+      "allocated_bytes": 28672,
+      "files": 10
+    },
+    {
+      "path": "/tmp/polisyos_worker_59c5vksf",
+      "allocated_bytes": 16384,
+      "files": 6
+    },
+    {
+      "path": "/tmp/polisyos_worker_6ya7ek7y",
+      "allocated_bytes": 28672,
+      "files": 10
+    },
+    {
+      "path": "/tmp/polisyos_worker_7gf44ayp",
+      "allocated_bytes": 16384,
+      "files": 6
+    },
+    {
+      "path": "/tmp/polisyos_worker_8yvay6fe",
+      "allocated_bytes": 16384,
+      "files": 6
+    },
+    {
+      "path": "/tmp/polisyos_worker_9bynyppq",
+      "allocated_bytes": 16384,
+      "files": 6
+    },
+    {
+      "path": "/tmp/polisyos_worker__ktl97yf",
+      "allocated_bytes": 12288,
+      "files": 6
+    },
+    {
+      "path": "/tmp/polisyos_worker_b3tj7hg7",
+      "allocated_bytes": 16384,
+      "files": 6
+    },
+    {
+      "path": "/tmp/polisyos_worker_b3wifb4l",
+      "allocated_bytes": 16384,
+      "files": 6
+    },
+    {
+      "path": "/tmp/polisyos_worker_bpu4yfc1",
+      "allocated_bytes": 12288,
+      "files": 6
+    },
+    {
+      "path": "/tmp/polisyos_worker_d5y9yv6v",
+      "allocated_bytes": 16384,
+      "files": 6
+    },
+    {
+      "path": "/tmp/polisyos_worker_dout2jit",
+      "allocated_bytes": 12288,
+      "files": 6
+    },
+    {
+      "path": "/tmp/polisyos_worker_eksmq2z6",
+      "allocated_bytes": 28672,
+      "files": 10
+    },
+    {
+      "path": "/tmp/polisyos_worker_flv3zvbm",
+      "allocated_bytes": 12288,
+      "files": 6
+    },
+    {
+      "path": "/tmp/polisyos_worker_g6rkck3t",
+      "allocated_bytes": 16384,
+      "files": 6
+    },
+    {
+      "path": "/tmp/polisyos_worker_h4o5m8dr",
+      "allocated_bytes": 16384,
+      "files": 6
+    },
+    {
+      "path": "/tmp/polisyos_worker_ha1h51me",
+      "allocated_bytes": 16384,
+      "files": 6
+    },
+    {
+      "path": "/tmp/polisyos_worker_hls3da_m",
+      "allocated_bytes": 16384,
+      "files": 6
+    },
+    {
+      "path": "/tmp/polisyos_worker_iavekjfp",
+      "allocated_bytes": 28672,
+      "files": 10
+    },
+    {
+      "path": "/tmp/polisyos_worker_j0rsxvai",
+      "allocated_bytes": 16384,
+      "files": 6
+    },
+    {
+      "path": "/tmp/polisyos_worker_jtk912c4",
+      "allocated_bytes": 16384,
+      "files": 6
+    },
+    {
+      "path": "/tmp/polisyos_worker_ko2tzlkf",
+      "allocated_bytes": 12288,
+      "files": 6
+    },
+    {
+      "path": "/tmp/polisyos_worker_kryc57fo",
+      "allocated_bytes": 16384,
+      "files": 6
+    },
+    {
+      "path": "/tmp/polisyos_worker_kyo31vmz",
+      "allocated_bytes": 12288,
+      "files": 6
+    },
+    {
+      "path": "/tmp/polisyos_worker_mn0fugkm",
+      "allocated_bytes": 12288,
+      "files": 6
+    },
+    {
+      "path": "/tmp/polisyos_worker_n1g12ssd",
+      "allocated_bytes": 28672,
+      "files": 10
+    },
+    {
+      "path": "/tmp/polisyos_worker_osdodzgb",
+      "allocated_bytes": 28672,
+      "files": 10
+    },
+    {
+      "path": "/tmp/polisyos_worker_qufl5sx2",
+      "allocated_bytes": 16384,
+      "files": 6
+    },
+    {
+      "path": "/tmp/polisyos_worker_s1phb272",
+      "allocated_bytes": 16384,
+      "files": 6
+    },
+    {
+      "path": "/tmp/polisyos_worker_t5lvnw4z",
+      "allocated_bytes": 16384,
+      "files": 6
+    },
+    {
+      "path": "/tmp/polisyos_worker_top0a_ff",
+      "allocated_bytes": 28672,
+      "files": 10
+    },
+    {
+      "path": "/tmp/polisyos_worker_uys7e9al",
+      "allocated_bytes": 28672,
+      "files": 10
+    },
+    {
+      "path": "/tmp/polisyos_worker_vpsazorz",
+      "allocated_bytes": 16384,
+      "files": 6
+    },
+    {
+      "path": "/tmp/polisyos_worker_vsqdn30m",
+      "allocated_bytes": 12288,
+      "files": 6
+    },
+    {
+      "path": "/tmp/polisyos_worker_w7h8c7tq",
+      "allocated_bytes": 28672,
+      "files": 10
+    },
+    {
+      "path": "/tmp/polisyos_worker_x7pekmhy",
+      "allocated_bytes": 12288,
+      "files": 6
+    },
+    {
+      "path": "/tmp/polisyos_worker_ylup4rm1",
+      "allocated_bytes": 16384,
+      "files": 6
+    },
+    {
+      "path": "/tmp/pytest-of-agent",
+      "allocated_bytes": 5619712,
+      "files": 1777
+    },
+    {
+      "path": "/dev/shm/e02-B-architecture-cache-warm-1862c021df74",
+      "allocated_bytes": 1644929024,
+      "files": 31359
+    },
+    {
+      "path": "/dev/shm/e02-B-cmp-b43-freeze",
+      "allocated_bytes": 214302720,
+      "files": 5900
+    },
+    {
+      "path": "/dev/shm/e02-B-cmp-stub-freshness",
+      "allocated_bytes": 323584,
+      "files": 34
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-affected-1862c021df74",
+      "allocated_bytes": 4096,
+      "files": 1
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-affected-1862c021df74-bound",
+      "allocated_bytes": 8728576,
+      "files": 1590
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-architecture-1862c021df74",
+      "allocated_bytes": 561344512,
+      "files": 17001
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-architecture-1862c021df74-cache-ready",
+      "allocated_bytes": 1649201152,
+      "files": 31364
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74",
+      "allocated_bytes": 383369216,
+      "files": 21002
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-generated-8142b14162f6",
+      "allocated_bytes": 3104768,
+      "files": 12
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-quality-1862c021df74-architecture",
+      "allocated_bytes": 0,
+      "files": 0
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-quality-1862c021df74-format",
+      "allocated_bytes": 159744,
+      "files": 39
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-quality-1862c021df74-mypy",
+      "allocated_bytes": 244805632,
+      "files": 7658
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-quality-1862c021df74-parity-uncapped",
+      "allocated_bytes": 0,
+      "files": 0
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-quality-1862c021df74-production-invocation",
+      "allocated_bytes": 0,
+      "files": 0
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-quality-1862c021df74-production-invocation-retry",
+      "allocated_bytes": 0,
+      "files": 0
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-quality-1862c021df74-ruff",
+      "allocated_bytes": 0,
+      "files": 0
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-quality-1862c021df74-runtime-api",
+      "allocated_bytes": 0,
+      "files": 0
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-quality-1862c021df74-verify-uncapped",
+      "allocated_bytes": 0,
+      "files": 0
+    },
+    {
+      "path": "/dev/shm/e02-B-crossunit-final-1862",
+      "allocated_bytes": 2113536,
+      "files": 261
+    },
+    {
+      "path": "/dev/shm/e02-B-crossunit-preparation",
+      "allocated_bytes": 20480,
+      "files": 1
+    },
+    {
+      "path": "/dev/shm/e02-B-fixture-allocation-census",
+      "allocated_bytes": 4005888,
+      "files": 11
+    },
+    {
+      "path": "/dev/shm/e02-B-flight-defining-b138",
+      "allocated_bytes": 126976,
+      "files": 30
+    },
+    {
+      "path": "/dev/shm/e02-B-flight-mypy-cache",
+      "allocated_bytes": 124194816,
+      "files": 3047
+    },
+    {
+      "path": "/dev/shm/e02-B-flight-removal-31d613",
+      "allocated_bytes": 94208,
+      "files": 13
+    },
+    {
+      "path": "/dev/shm/e02-B-flight-static-20261006",
+      "allocated_bytes": 124211200,
+      "files": 3049
+    },
+    {
+      "path": "/dev/shm/e02-B-flight-static-final-31d613",
+      "allocated_bytes": 124223488,
+      "files": 3052
+    },
+    {
+      "path": "/dev/shm/e02-B-gateway-a697",
+      "allocated_bytes": 49152,
+      "files": 7
+    },
+    {
+      "path": "/dev/shm/e02-B-gateway-a697-qualified",
+      "allocated_bytes": 1998848,
+      "files": 354
+    },
+    {
+      "path": "/dev/shm/e02-B-llm-affected-31d613",
+      "allocated_bytes": 3891200,
+      "files": 793
+    },
+    {
+      "path": "/dev/shm/e02-B-lossless-extent-custody",
+      "allocated_bytes": 802816,
+      "files": 5
+    },
+    {
+      "path": "/dev/shm/e02-B-worker-static",
+      "allocated_bytes": 244690944,
+      "files": 7668
+    },
+    {
+      "path": "/dev/shm/e02-B-workers-native-4b368",
+      "allocated_bytes": 1134592,
+      "files": 31
+    },
+    {
+      "path": "/dev/shm/e02-B65-audit17-31d613",
+      "allocated_bytes": 28672,
+      "files": 6
+    },
+    {
+      "path": "/dev/shm/e02-B65-audit17-31d613-qualified",
+      "allocated_bytes": 925696,
+      "files": 73
+    }
+  ]
+}

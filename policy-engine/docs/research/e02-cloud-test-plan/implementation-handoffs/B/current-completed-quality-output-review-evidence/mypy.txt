@@ -1,0 +1,4 @@
+src/polisyos/scientist/policy_design/adversary.py:159: error: "BenchmarkSplitManifest" has no attribute "model_dump"  [attr-defined]
+src/polisyos/scientist/policy_design/translator.py:124: error: "object" has no attribute "items"  [attr-defined]
+src/polisyos/scientist/orchestration/engine/executor.py:1807: error: Argument "errors" to "finalize" of "RunContext" has incompatible type "list[dict[str, str]] | None"; expected "list[dict[str, object]] | None"  [arg-type]
+Found 3 errors in 3 files (checked 15 source files)

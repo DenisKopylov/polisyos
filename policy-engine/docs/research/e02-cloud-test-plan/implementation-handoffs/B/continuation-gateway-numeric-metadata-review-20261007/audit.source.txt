@@ -1,0 +1,150 @@
+from pathlib import Path
+import collections
+import hashlib
+import json
+import re
+import subprocess
+import sys
+import xml.etree.ElementTree as ET
+
+ROOT = Path('/workspace/e02-B-current-runtime')
+DRAFT = Path('/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/handoff-final-draft.json')
+IMPL = '1cac85dd540c2109d2172892a95c2c0c18a17254'
+FOREIGN = '29024b9537b46376957350c9e12f648c0bfb2d63'
+FP = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent.json'
+PREFIX = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/'
+cache = {}
+checks = []
+
+def git(*args):
+    return subprocess.check_output(['git', *args], cwd=ROOT)
+
+def raw(sha, path):
+    key = sha, path
+    if key not in cache:
+        cache[key] = git('show', sha + ':' + path)
+    return cache[key]
+
+def obj(sha, path):
+    return json.loads(raw(sha, path))
+
+def check(ok, label, detail=None):
+    checks.append({'check': label, 'pass': bool(ok), 'detail': detail})
+
+def content_ref(x, where):
+    sha = x.get('git_sha') or x.get('commit') or x.get('source_sha')
+    path = x.get('path')
+    if isinstance(sha, str) and isinstance(path, str) and not path.startswith('/') and (x.get('bytes') is not None or x.get('sha256')):
+        b = raw(sha, path)
+        check(x.get('bytes') in (None, len(b)) and x.get('sha256') in (None, hashlib.sha256(b).hexdigest()), 'content-reference', {'where': where, 'sha': sha, 'path': path})
+
+def recurse(x, where):
+    if isinstance(x, dict):
+        content_ref(x, where)
+        for k, v in x.items():
+            recurse(v, where + '/' + str(k))
+    elif isinstance(x, list):
+        for i, v in enumerate(x):
+            recurse(v, where + '/' + str(i))
+
+def decoded(sha, path):
+    b = raw(sha, path)
+    if b.lstrip().startswith(b'{'):
+        x = json.loads(b)
+        if 'text' in x and 'original_sha256' in x:
+            d = x['text'].encode('utf-8')
+            check(len(d) == x['original_bytes'] and hashlib.sha256(d).hexdigest() == x['original_sha256'], 'lossless-decode', {'path': path, 'decoded_bytes': len(d)})
+            return d
+    return b
+
+def xml_counts(b):
+    cases = ET.fromstring(b).findall('.//testcase')
+    c = collections.Counter()
+    for case in cases:
+        c['ERROR' if case.find('error') is not None else 'FAIL' if case.find('failure') is not None else 'SKIP' if case.find('skipped') is not None else 'PASS'] += 1
+    return dict(c), len(cases)
+
+j = json.loads(DRAFT.read_bytes())
+check(git('rev-parse', IMPL + '^{tree}').decode().strip() == j['candidate_tree_sha'], 'candidate-tree')
+union = set()
+for sha in j['implementation_commits']:
+    union.update(git('diff', '--name-only', sha + '^', sha).decode().splitlines())
+net = git('diff', '--name-only', j['slice_base_sha'], IMPL).decode().splitlines()
+check(sorted(union) == j['changed_paths'] == j['implementation_footprint_union'], 'full-38-path-union', len(union))
+check(net == j['net_changed_paths'], 'net-path-denominator', len(net))
+check(not j['closure_ids'], 'formal-closure-empty')
+check(len(j['checks']) == 17, 'all-17-checks')
+for c in j['checks']:
+    check({'command', 'target_sha', 'environment', 'input_closure', 'outcome', 'output'} <= c.keys(), 'minimum-check-fields', c['id'])
+check({'statement', 'runtime_path', 'proxy_divergence', 'negative_controls'} <= j['property'].keys(), 'property-minimum-fields')
+recurse(j, 'draft')
+index = obj(IMPL, PREFIX + 'index.json')
+for x in index['files']:
+    b = raw(IMPL, x['path'])
+    check(len(b) == x['bytes'] and hashlib.sha256(b).hexdigest() == x['sha256'], 'own-index-payload', x['path'])
+    d = decoded(IMPL, x['path'])
+    if 'original_bytes' in x:
+        check(len(d) == x['original_bytes'] and hashlib.sha256(d).hexdigest() == x['original_sha256'], 'own-original-bytes', x['path'])
+    if x.get('original_git_ref'):
+        sha, path = x['original_git_ref'].split(':', 1)
+        check(raw(sha, path) == d, 'original-XML-Git-byte-binding', x['path'])
+check(len(index['files']) == index['payload_count'] == 33 and sum(x['bytes'] for x in index['files']) == index['stored_payload_bytes'] == 3515134, '33-payload-total')
+check(set(x['path'] for x in index['files']) | {PREFIX + 'index.json'} == {x for x in j['changed_paths'] if x.startswith(PREFIX)}, 'full-own-index-coverage')
+
+native = []
+for c in j['checks'][:5]:
+    label = c['id']
+    p = obj(IMPL, PREFIX + label + '/profile.json')
+    w = obj(IMPL, PREFIX + label + '/wrapper.json')
+    x = c['outcome_details']
+    origins = []
+    for y in p['origins']:
+        b = raw(c['target_sha'], y['relative_path'])
+        origins.append(hashlib.sha256(b).hexdigest() == y['sha256'] and y['git_byte_match'])
+    check(all(origins) and len(origins) == x['origin_count'] and x['origin_mismatch_count'] == 0, 'all-captured-origins', {'label': label, 'count': len(origins)})
+    check(w['target_sha'] == w['head_after'] == c['target_sha'] and w['target_tree'] == w['tree_after'] == git('rev-parse', c['target_sha'] + '^{tree}').decode().strip() and not w['status_before'] and not w['status_after'], 'source-before-after-clean', label)
+    check(w['actual_exit'] == x['actual_exit'] and len(p['items']) == x['collected'] and len(p['reports']) == x['phase_count'], 'native-wrapper-counts', label)
+    counts, n = xml_counts(decoded(IMPL, PREFIX + label + '/native.xml'))
+    check(counts == x['case_outcomes'] and n == x['collected'], 'native-XML-counts', {'label': label, 'counts': counts})
+    phase = dict(collections.Counter(y['when'] + ':' + y['outcome'] for y in p['reports']))
+    check(phase == x['phase_outcomes'], 'phase-denominator', label)
+    decoded_stdout = decoded(IMPL, PREFIX + label + '/native.utf8.json')
+    for fname, value in [('native.txt', decoded_stdout), ('native.xml', decoded(IMPL, PREFIX + label + '/native.xml')), ('profile.json', raw(IMPL, PREFIX + label + '/profile.json'))]:
+        z = w['outputs'][fname]
+        check(len(value) == z['bytes'] and hashlib.sha256(value).hexdigest() == z['sha256'], 'wrapper-original-output-binding', {'label': label, 'file': fname})
+    failures = [y.attrib['name'] for y in ET.fromstring(decoded(IMPL, PREFIX + label + '/native.xml')).findall('.//testcase') if y.find('failure') is not None]
+    native.append({'id': label, 'exit': x['actual_exit'], 'XML_counts': counts, 'collected': n, 'phase_count': len(p['reports']), 'origins': len(origins), 'failing_cases': failures})
+
+f = obj(FOREIGN, FP)
+recurse(f, 'foreign-author-handoff')
+fi_ref = f['source_and_evidence']['index']
+fi = obj(fi_ref['source_sha'], fi_ref['path'])
+for x in fi['artifacts']:
+    b = raw(fi_ref['source_sha'], x['path'])
+    check(len(b) == x['bytes'] and hashlib.sha256(b).hexdigest() == x['sha256'], 'foreign-all-payloads', x['path'])
+check(len(fi['artifacts']) == fi['artifact_count'] == 274 and sum(x['bytes'] for x in fi['artifacts']) == fi['payload_bytes'] == f['source_and_evidence']['payload_bytes'], '274-foreign-payload-total')
+foreign_rows = []
+for a, c in zip(f['checks'], j['checks'][9:]):
+    check(all(a[k] == c[k] for k in ['command', 'target_sha', 'environment', 'input_closure', 'outcome', 'output']), 'foreign-original-check-unchanged', c['id'])
+    if 'junit' in a:
+        x = a['junit'];counts,n = xml_counts(raw(x['source_sha'], x['path']))
+        expected = {k:v for k,v in a['counts'].items() if v}
+        check(counts == expected, 'foreign-XML-counts', {'id': c['id'], 'counts': counts})
+        foreign_rows.append({'id': c['id'], 'name': a['name'], 'XML_counts': counts, 'cases': n, 'qualification': a['qualification']})
+
+mypy = decoded(IMPL, PREFIX + 'mypy.utf8.json').decode()
+check('Found 110 errors in 31 files' in mypy and j['checks'][7]['outcome'] == 'FAIL', 'mypy-110-red-retained')
+scanner = j['checks'][8]
+check(scanner['outcome'] == 'ERROR' and scanner['outcome_details']['actual_shell_exit'] == 137 and not scanner['outcome_details']['diagnostic_receipt_exists'] and scanner['outcome_details']['resource_observation']['signalcause'] == 'not_established' and decoded(IMPL, PREFIX + 'production-invocation.utf8.json') == b'', 'scanner-killed-incomplete-retained')
+check(any('not marked inherited or waived underP41' in x for x in j['limitations_and_next_owner']), 'no-P41-waiver')
+check(any('Default' in x or 'defaultcontroller' in x or 'currentdefaultcontroller' in x for x in j['limitations_and_next_owner']), 'external-D-profile-boundary')
+published_sha = 'f0111fefcb6fa48e8ccb4aab213a14694dc206ad'
+published_path = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric.json'
+check(raw(published_sha, published_path) == DRAFT.read_bytes(), 'published-final-receipt-equals-audited-draft')
+raw_custody = json.loads(Path('/tmp/e02-B-runtime-continuation-20261007/gateway-audit/raw-custody.json').read_text())
+for item in raw_custody['files']:
+    actual = Path(item['source_path']).read_bytes()
+    check(len(actual) == item['bytes'] and hashlib.sha256(actual).hexdigest() == item['sha256'], 'actual-raw-custody', item['source_path'])
+failures = [x for x in checks if not x['pass']]
+result = {'schema':'policyos.e02.gateway_metadata_independent_audit.v1','review_kind':'Full data-only metadata/byte/XML audit; no runtime replay and no production author self-review','draft':{'path':str(DRAFT),'bytes':len(DRAFT.read_bytes()),'sha256':hashlib.sha256(DRAFT.read_bytes()).hexdigest()},'published_final_receipt':{'git_sha':published_sha,'path':published_path,'bytes':len(raw(published_sha,published_path)),'sha256':hashlib.sha256(raw(published_sha,published_path)).hexdigest()},'actual_raw_files_reconciled':len(raw_custody['files']),'implementation_sha':IMPL,'implementation_tree':j['candidate_tree_sha'],'execution_source_sha':j['source_points']['execution_source_sha'],'checks':checks,'check_count':len(checks),'mismatches':failures,'own_native_rows':native,'foreign_native_rows':foreign_rows,'own_payloads':33,'own_payload_bytes':3515134,'foreign_payloads':274,'foreign_payload_bytes':fi['payload_bytes'],'unique_git_content_reads':len(cache),'verdict':'NONBLOCKING' if not failures else 'BLOCKER','limitations':['This audit does not run native tests, quality gates or imports.','All native/quality RED and setup ERROR remain literal; no inherited/integration/formal finding closure waiver.','Constructor-bound external D pre_check composition is a finite reader profile, not default served controller acceptance.','Full file-backed module census is the declared source custody denominator, not every child/transitive/native/resource input.'],'closure_ids':[]}
+out=Path('/tmp/e02-B-runtime-continuation-20261007/gateway-audit/result.json');out.write_text(json.dumps(result,indent=2)+'\n');print(json.dumps({k:result[k] for k in ['verdict','check_count','mismatches','own_payloads','foreign_payloads','foreign_payload_bytes','unique_git_content_reads','own_native_rows','foreign_native_rows']},indent=2));assert not failures

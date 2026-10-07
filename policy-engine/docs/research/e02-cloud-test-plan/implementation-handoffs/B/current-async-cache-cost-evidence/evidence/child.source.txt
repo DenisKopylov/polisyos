@@ -1,0 +1,60 @@
+"""Run the frozen new native file and retain actual imported-source identities."""
+import hashlib
+import importlib.metadata
+import json
+import os
+import pathlib
+import subprocess
+import sys
+
+OUT = pathlib.Path('/tmp/e02-B52-cache-cost-c043/evidence')
+REPO = pathlib.Path(os.environ['E02_PRODUCT_ROOT'])
+SHA = os.environ['E02_EXPECTED_SOURCE']
+SRC = REPO / 'policy-engine/src'
+PROJECT = REPO / 'policy-engine'
+sys.path[:0] = [str(SRC), str(PROJECT)]
+TEST = 'tests/unit/scientist/orchestration/engine/test_async_cache_cost_oracle.py'
+def git(*args):
+    return subprocess.check_output(['git', *args], cwd=REPO)
+def inventory():
+    paths = git('ls-files', '--', 'policy-engine/src', 'policy-engine/pytest.ini',
+                'policy-engine/pyproject.toml', 'policy-engine/uv.lock', 'policy-engine/'+TEST).decode().splitlines()
+    rows = []
+    for name in paths:
+        actual = (REPO/name).read_bytes()
+        expected = git('show', SHA+':'+name)
+        assert actual == expected, name
+        rows.append({'path': name, 'sha256': hashlib.sha256(actual).hexdigest(), 'bytes': len(actual)})
+    return rows
+assert git('rev-parse', 'HEAD').decode().strip() == SHA
+before = inventory()
+context = {'target_sha': SHA, 'target_tree': git('rev-parse', SHA+'^{tree}').decode().strip(),
+           'python': sys.version, 'python_executable_lexical': sys.executable,
+           'distributions': {x: importlib.metadata.version(x) for x in ['pytest','pytest-asyncio','pydantic','numpy']},
+           'input_inventory': before, 'no_live_profile_sync': True}
+(OUT/'source-context.json').write_text(json.dumps(context,indent=2)+'\n')
+import pytest
+args = ['--noconftest','-p','no:cacheprovider','-s','-ra',TEST,
+        '--basetemp=/tmp/e02-B52-cache-cost-c043/fixtures', '--junitxml='+str(OUT/'native.xml')]
+print('B52_PYTEST_ARGV '+json.dumps(args), flush=True)
+code = pytest.main(args)
+after = inventory()
+assert before == after
+origins = []
+for name, module in sorted(sys.modules.items()):
+    if not name.startswith('polisyos'):
+        continue
+    filename = getattr(module,'__file__',None)
+    if filename is None:
+        continue
+    path = pathlib.Path(filename).resolve()
+    rel = path.relative_to(REPO.resolve()).as_posix()
+    data = path.read_bytes()
+    assert data == git('show', SHA+':'+rel), name
+    origins.append({'module':name,'path':str(path),'source_path':rel,'sha256':hashlib.sha256(data).hexdigest(),'bytes':len(data)})
+(OUT/'module-origins.json').write_text(json.dumps(origins,indent=2)+'\n')
+context.update({'source_equal_after':True,'all_loaded_canonical_modules_git_equal':True,
+                'loaded_canonical_count':len(origins),'source_head_after':git('rev-parse','HEAD').decode().strip(),
+                'pytest_argv':args,'pytest_return_code':code})
+(OUT/'source-context.json').write_text(json.dumps(context,indent=2)+'\n')
+sys.exit(code)

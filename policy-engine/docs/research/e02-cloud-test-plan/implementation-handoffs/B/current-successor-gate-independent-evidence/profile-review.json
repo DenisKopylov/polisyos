@@ -1,0 +1,575 @@
+{
+  "schema": "policyos.e02.independent_gate_profile_review.v1",
+  "reviewer": "EXE /root/exe_state_writer; source/evidence execution audit only, no acceptance of own production mechanism",
+  "created_utc": "2026-10-06T19:23:58.094524+00:00",
+  "target_source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+  "target_tree_sha": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+  "status": "actual_architecture_FAIL_and_direct_runtime_api_PASS_reconciled_profile_causality_not_established",
+  "predicate_basis": "independently_reconciled",
+  "per_quantity_basis": {
+    "actual_terminal_output_and_exit": "independently_reconciled",
+    "registered_recipe_and_context_difference": "recomputed",
+    "reason_for_generated_byte_difference": "not_established",
+    "full_1502_worker_mapping": "not_established",
+    "architecture_probe_generated_payload_identity": "not_established"
+  },
+  "checks": [
+    {
+      "tag": "successor-final-architecture",
+      "actual_outcome": "FAIL",
+      "target_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "target_tree_sha": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+      "head_after": "dd9584728bd96f204983615216efdbc58117e713",
+      "exit_code": 1,
+      "harness_state": "EXECUTED",
+      "wall_s": 244.11753706699528,
+      "process_rusage_maxrss_kib": 1168280,
+      "actual_full_argv_and_environment": "Complete preserved wrapper/profile refs in evidence_refs; no truncated argv predicate.",
+      "wrapper_ref": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-architecture.json",
+        "bytes": 2370,
+        "sha256": "a5992868aa96648b99c4c72b6bd5e1b3fa59dd5c1ce898b1586daefc601aa648",
+        "complete_bytes_read": true,
+        "preserved_complete_bytes": "/tmp/e02-B-successor-gate-audit-exe/profile-review-v2/successor-final-architecture.json"
+      },
+      "profile_ref": {
+        "path": "/tmp/e02-B-successor-final/raw/review/successor-final-architecture-profile.json",
+        "bytes": 2260,
+        "sha256": "e5f23de583e54ffe179eabddbda2694de5b36112b1bf2aeeb07dbba6c5423a66",
+        "complete_bytes_read": true,
+        "preserved_complete_bytes": "/tmp/e02-B-successor-gate-audit-exe/profile-review-v2/successor-final-architecture-profile.json"
+      },
+      "complete_stdout_ref": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-architecture.txt",
+        "bytes": 123875,
+        "sha256": "479a319a2882490b7a8afe0cbb1823c8bec3a5c1690fbb6d090bf2d741c97f4d",
+        "complete_bytes_read": true,
+        "preserved_complete_bytes": "/tmp/e02-B-successor-gate-audit-exe/profile-review-v2/successor-final-architecture.txt"
+      }
+    },
+    {
+      "tag": "successor-final-runtime-api",
+      "actual_outcome": "PASS",
+      "target_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "target_tree_sha": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+      "head_after": "dd9584728bd96f204983615216efdbc58117e713",
+      "exit_code": 0,
+      "harness_state": "EXECUTED",
+      "wall_s": 72.51038870099,
+      "process_rusage_maxrss_kib": 1195796,
+      "actual_full_argv_and_environment": "Complete preserved wrapper/profile refs in evidence_refs; no truncated argv predicate.",
+      "wrapper_ref": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-runtime-api.json",
+        "bytes": 2418,
+        "sha256": "84527056299644ca338c8f6e03fb39c3d21aaa8cdf38c00e8dc623bed4e20eff",
+        "complete_bytes_read": true,
+        "preserved_complete_bytes": "/tmp/e02-B-successor-gate-audit-exe/profile-review-v2/successor-final-runtime-api.json"
+      },
+      "profile_ref": {
+        "path": "/tmp/e02-B-successor-final/raw/review/successor-final-runtime-api-profile.json",
+        "bytes": 2312,
+        "sha256": "e8f7724c2597fa9c5783bd7ac619786bd0fc9ffe984401329373e971debd1463",
+        "complete_bytes_read": true,
+        "preserved_complete_bytes": "/tmp/e02-B-successor-gate-audit-exe/profile-review-v2/successor-final-runtime-api-profile.json"
+      },
+      "complete_stdout_ref": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-runtime-api.txt",
+        "bytes": 7059,
+        "sha256": "a0ee7dc4ea91da8b7d74043ca0df20ac15b33ccb673182033858ec8da572408b",
+        "complete_bytes_read": true,
+        "preserved_complete_bytes": "/tmp/e02-B-successor-gate-audit-exe/profile-review-v2/successor-final-runtime-api.txt"
+      }
+    },
+    {
+      "tag": "successor-final-all-changed-format",
+      "actual_outcome": "FAIL",
+      "target_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "target_tree_sha": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+      "head_after": "dd9584728bd96f204983615216efdbc58117e713",
+      "exit_code": 1,
+      "harness_state": "EXECUTED",
+      "wall_s": 0.19630909099942073,
+      "process_rusage_maxrss_kib": 33816,
+      "actual_full_argv_and_environment": "Complete preserved wrapper/profile refs in evidence_refs; no truncated argv predicate.",
+      "wrapper_ref": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-all-changed-format.json",
+        "bytes": 25789,
+        "sha256": "74e96794cd2ec23e82da135f7c6be598144af9651f29aa7011e18c6c734f7454",
+        "complete_bytes_read": true,
+        "preserved_complete_bytes": "/tmp/e02-B-successor-gate-audit-exe/profile-review-v2/successor-final-all-changed-format.json"
+      },
+      "profile_ref": {
+        "path": "/tmp/e02-B-successor-final/raw/review/successor-final-all-changed-format-profile.json",
+        "bytes": 80987,
+        "sha256": "524397af5b165f71f3ae51adcd030b71a31469180e66aef31e3b2d6d91f6e736",
+        "complete_bytes_read": true,
+        "preserved_complete_bytes": "/tmp/e02-B-successor-gate-audit-exe/profile-review-v2/successor-final-all-changed-format-profile.json"
+      },
+      "complete_stdout_ref": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-all-changed-format.txt",
+        "bytes": 13414,
+        "sha256": "dd14a88e7d1879b15972307ce2d814b5748c4b6a52d93c72aa4270f210b4f6da",
+        "complete_bytes_read": true,
+        "preserved_complete_bytes": "/tmp/e02-B-successor-gate-audit-exe/profile-review-v2/successor-final-all-changed-format.txt"
+      }
+    }
+  ],
+  "required_generated_freshness_denominator": [
+    "runtime-openapi-snapshot",
+    "runtime-api-client",
+    "runtime-dashboard-api-types",
+    "trust-claim-posture-register"
+  ],
+  "architecture_full_output": {
+    "bytes": 123875,
+    "lines": 2133,
+    "reported_new_deep_imports": 164,
+    "reported_generated_mismatches": [
+      "- runtime-openapi-snapshot generated output schemas/runtime_api_v1.openapi.json does not match /workspace/e02-B-current-coordination/policy-engine/schemas/runtime_api_v1.openapi.json.",
+      "- trust-claim-posture-register generated output apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json does not match /workspace/e02-B-current-coordination/policy-engine/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json."
+    ],
+    "unrun_measurements_reported": false,
+    "scope_notice": [
+      "Standalone Atlas gate: architecture/atlas_surfaces/check_status_retirement_inventory.py is not run by `uv run polisyos-tools architecture guardrails check`; run it explicitly or through architecture/atlas_surfaces/check_atlas_enforcement.py."
+    ]
+  },
+  "profile_comparison": [
+    {
+      "profile": "02ff canonical export",
+      "actual_command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "run",
+        "--no-sync",
+        "--extra",
+        "runtime",
+        "--extra",
+        "ml",
+        "python",
+        "tools/ops_runners/runtime/export_runtime_openapi.py",
+        "--output",
+        "/tmp/e02-B-successor-openapi-02ff/after.json",
+        "--scratch-root",
+        "/tmp/e02-B-successor-openapi-02ff/runtime-cas"
+      ],
+      "source_sha": "02ff9d0467423a99c2b4c737329da0c629e6b869",
+      "input_environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_B_PROPERTY_REMOVAL": null,
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+        "UV_NO_SYNC": "1",
+        "E02_B_COHORT_INVENTORY_PATH": null
+      },
+      "source_kind": "Canonical root checkout; explicit new runtime CAS scratch.",
+      "environment_kind": "Root194 UV_NO_SYNC profile; full inherited effective env not inventoried by this wrapper.",
+      "observed_output": "Retained after.json byte-identical to committed DD OpenAPI."
+    },
+    {
+      "profile": "DD direct runtime-api",
+      "actual_command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "run",
+        "--no-sync",
+        "--extra",
+        "runtime",
+        "--extra",
+        "ml",
+        "polisyos-tools",
+        "runtime",
+        "check-runtime-api-contract"
+      ],
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "input_environment": {
+        "PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools",
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+        "UV_NO_SYNC": "1",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_B_COHORT_INVENTORY_PATH": null,
+        "E02_ORACLE_PRODUCT_ROOT": "/workspace/e02-B-current-coordination/policy-engine"
+      },
+      "source_kind": "Canonical root create_runtime_api_app(enable_security_middlewares=False), default CAS.",
+      "environment_kind": "Root194 UV_NO_SYNC profile.",
+      "observed_output": "OpenAPI byte drift + hardening invariants + generated client byte drift requested; actual declared-scope PASS."
+    },
+    {
+      "profile": "DD registered architecture freshness probe",
+      "outer_command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "run",
+        "--no-sync",
+        "polisyos-tools",
+        "architecture",
+        "guardrails",
+        "check"
+      ],
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "registered_recipe_argv": [
+        "env",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "PYTHONNOUSERSITE=1",
+        "PYTHONHASHSEED=0",
+        "JAX_PLATFORMS=cpu",
+        "PYTHONPATH=src:.",
+        "uv",
+        "run",
+        "--extra",
+        "runtime",
+        "--extra",
+        "ml",
+        "python",
+        "tools/ops_runners/runtime/export_runtime_openapi.py",
+        "--output",
+        "{output_root}/schemas/runtime_api_v1.openapi.json"
+      ],
+      "source_kind": "Isolated copied product source, no Git/.venv/production_data/_build/node_modules copy, origin preflight.",
+      "environment_kind": "Private uv venv, UV_FROZEN=1, uv sync --frozen; clears inherited UV_NO_SYNC and UV_PROJECT_ENVIRONMENT. Recipe sets PYTHONHASHSEED=0/JAX_PLATFORMS=cpu/PYTHONNOUSERSITE=1/PYTHONDONTWRITEBYTECODE=1/PYTHONPATH=src:.",
+      "observed_output": "Actual output mismatch reported after successful generator/output census; full generated probe bytes, per-worker map and private environment not retained by default temporary workspace."
+    }
+  ],
+  "canonical_generation_binding": {
+    "wrapper": {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "run",
+        "--no-sync",
+        "--extra",
+        "runtime",
+        "--extra",
+        "ml",
+        "python",
+        "tools/ops_runners/runtime/export_runtime_openapi.py",
+        "--output",
+        "/tmp/e02-B-successor-openapi-02ff/after.json",
+        "--scratch-root",
+        "/tmp/e02-B-successor-openapi-02ff/runtime-cas"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "head": "02ff9d0467423a99c2b4c737329da0c629e6b869",
+      "tree": "2c50e068a79f0a57de8d4349b5ee00b5a298d821",
+      "head_after": "02ff9d0467423a99c2b4c737329da0c629e6b869",
+      "wall_s": 49.839998826006195,
+      "process_rusage_maxrss_kib": 1190576,
+      "exit_code": 0,
+      "exec_setup_error": null,
+      "harness_state": "EXECUTED",
+      "output_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-prefreeze-openapi-02ff.txt",
+      "output_sha256": "27c66961d1cdb4c268375ce0433d54d76c850202a88ce13994743b57e0e65c26",
+      "source_environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_B_PROPERTY_REMOVAL": null,
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+        "UV_NO_SYNC": "1",
+        "E02_B_COHORT_INVENTORY_PATH": null
+      },
+      "limitations": [
+        "Combined stdout/stderr; no separate stream-count claim.",
+        "Source boundary is HEAD identity; the launcher checks initial cleanliness.",
+        "RSS is wait4 child rusage, not an aggregate of independently concurrent gates."
+      ]
+    },
+    "committed_output_path": "policy-engine/schemas/runtime_api_v1.openapi.json",
+    "committed_and_02ff_output_sha256": "9c57673ed7731f7902105b089316539af9746553a6f1f4411876ca82bd6de693",
+    "bytes": 2812414,
+    "before_not_equal_after": true,
+    "02ff_to_DD_scoped_changes": [
+      "policy-engine/schemas/runtime_api_v1.openapi.json"
+    ],
+    "runtime_source_Python_and_generator_profile_config_byte_unchanged_in_declared_scope": true
+  },
+  "real_context_consumer": [
+    "app.py installs canonical runtime OpenAPI contract; check/export both call real app.openapi with sorted indent2 JSON.",
+    "openapi_contract._confidence_ledger_risk_spend_example uses actual ConfidenceLedgerRiskSpendProjectionService(root), captures strict owner-admitted DS17 packet and normalized sample times.",
+    "governed_projections._run_owner_validation launches actual worker with current sys.executable and inherited context plus real source PYTHONPATH, accepts complete dependency_bindings/aggregate consistency.",
+    "worker DependencyTracker records consulted repository file/directory/absence identities and repository-loaded modules; receipt aggregate/count and full worker receipt hash participate in public example identity.",
+    "A source Git SHA equality alone does not equate two private probe dependency maps or effective directory/import contexts."
+  ],
+  "retained_committed_DS17_validation": {
+    "bound_dependency_count": 1502,
+    "bound_dependency_aggregate_identity": "sha256:4973f2728576eba533345a6c80102b116a41975dea70eb610738e19c5ab33595",
+    "worker_validation_receipt_hash": "sha256:9f061fe032188d9975686f9360f580a5612f9938167bf0f2d841d74f816251ea",
+    "validator_id": "tools.quality.validation.check_layer3_gy_confidence_ledger:validate_payload",
+    "status": "passed",
+    "projection_hash": "sha256:27e186d158e9f6313da00f545e50f8e948b99f741c3bd392ca4cd5754aa7ff3c",
+    "full_dependency_bindings_retained_in_openapi": false
+  },
+  "causal_boundaries": [
+    "No architecture generated JSON, effective private dependency inventory, worker request/response mapping or observed origin set was retained in this default temporary probe.",
+    "Registered hashseed/JAX/private env and different CAS/source directory contexts are exact source-derived profile differences, not independently controlled causes of this mismatch.",
+    "Do not claim optional dependency, PYTHONHASHSEED, CAS side effect, or a particular 1502 path caused the observed mismatch.",
+    "Direct runtime-api PASS does not satisfy registered isolated freshness; registered mismatch FAIL is retained.",
+    "No same-command slice-base replay/zero input overlap proof; inherited P41 attribution not established."
+  ],
+  "format_actual": {
+    "outcome": "FAIL",
+    "literal_input_count": 248,
+    "would_reformat": 102,
+    "already_formatted": 146,
+    "by_scope": {
+      "research": 101,
+      "canonical_product": 1
+    },
+    "canonical_failed_paths": [
+      "src/polisyos/scientist/orchestration/engine/executor.py"
+    ],
+    "canonical_next_owner": "EXE author; root must decide after current full source freeze ends. No concurrent formatting or code mutation by this reader.",
+    "qualification": "Whole code-acceptance format gate remains actual FAIL; canonical executor.py is not research-only."
+  },
+  "registered_next_owners": [
+    {
+      "family": "runtime-openapi-snapshot",
+      "owner": "team-polisyos",
+      "approval_owner": "team-polisyos",
+      "version_owner": "team-runtime",
+      "next_property": "Bind actual retained isolated generated payload/env/origins and full owner-worker dependency map to explain finite context drift; preserve registered fail predicate. Existing retained workspace/cache CLI can preserve private source/environment/outputs but does not itself record the worker map."
+    },
+    {
+      "family": "trust-claim-posture-register",
+      "owner": "team-architecture",
+      "approval_owner": "team-architecture",
+      "next_property": "Separate actual generated trust register mismatch remains FAIL; no cause adjudicated here."
+    }
+  ],
+  "source_refs": [
+    {
+      "path": "policy-engine/architecture/generated_artifacts.toml",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "git_blob": "6621206f112833142f966ce8318f3f6b48e3e57d",
+      "bytes": 253707,
+      "sha256": "9d612433dcd7fac0f936ec5cc52d4d9416f8c84af37a8e77faac68011f445bc0",
+      "live_byte_equal": true
+    },
+    {
+      "path": "policy-engine/tools/devx/architecture/guardrails.py",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "git_blob": "6a2784631e836a35dc09e0034e02d86bf21ed14e",
+      "bytes": 103077,
+      "sha256": "65f0daa51b96910c04cd6dd69676040f9b41b1674955c66e7c479106cd9d187a",
+      "live_byte_equal": true
+    },
+    {
+      "path": "policy-engine/tools/ops_runners/runtime/export_runtime_openapi.py",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "git_blob": "04416db33c86bd5610fd33893ad6867db7a9f22f",
+      "bytes": 1793,
+      "sha256": "daeff9a91f19662a9f21788f73bd002659059f2ca3804ac03a258294185255da",
+      "live_byte_equal": true
+    },
+    {
+      "path": "policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "git_blob": "37ceb13937e36ab6c237595a74e7be70ca987c8d",
+      "bytes": 7528,
+      "sha256": "210f376a6b95310fdedcbbea3917b7e0dc8a59d176d24631772522794d6877b1",
+      "live_byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/app.py",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "git_blob": "8a4cf8347d16ee64d1923152ce074266de132dfa",
+      "bytes": 23110,
+      "sha256": "4d3ebc492b943a12b8cf339fde81f5f40c61d932a1958032e80d1d651e8bad24",
+      "live_byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/openapi_contract.py",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "git_blob": "792724c41c9787e4f573e1335103698ce69fc311",
+      "bytes": 184930,
+      "sha256": "d0223be603ecdde252a96ded5970f2fedfecf3099401a3a8608bb70fd27b1e3c",
+      "live_byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/confidence_ledger_risk_spend_projection.py",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "git_blob": "ada4d58b31b5460997fcebb1c97a4cece8b7f265",
+      "bytes": 21420,
+      "sha256": "ca826a3d68e0810d72e972a043264441511240a7bb6ef4dcd77c688c997ce1e8",
+      "live_byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/governed_projections.py",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "git_blob": "11e2b068fafa53361ba96ad847fa93da5e169b7e",
+      "bytes": 106265,
+      "sha256": "f697b9bd324cafd7d90ca0d3dd6e641d9c2db131b2a49d9d1af0ebb024e9668a",
+      "live_byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/governed_projection_validation_worker.py",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "git_blob": "ca4663b1c53fb05d966f39be2686de7112e59df3",
+      "bytes": 38045,
+      "sha256": "e913ddef94876b7a54eb524d4577c489c8ee79f3f5b87092a8232d7a33b70536",
+      "live_byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/governed_projection_dependencies.py",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "git_blob": "c02e29a3d44552ba38ded8c14530f5a798e0c40f",
+      "bytes": 7934,
+      "sha256": "fdc36162cefd57c807e70026fca9d27608ecf540930cece436dcf6a75d4dc6aa",
+      "live_byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "git_blob": "abcede045da1496a8338f8206f960b0a06155709",
+      "bytes": 77010,
+      "sha256": "7dd103dcaf4deed17d3f5612d96f3b0283991096922518cbf929bd91e3e6c520",
+      "live_byte_equal": true
+    },
+    {
+      "path": "policy-engine/pyproject.toml",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "bytes": 11007,
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "live_byte_equal": true
+    },
+    {
+      "path": "policy-engine/uv.lock",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "git_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+      "bytes": 779204,
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+      "live_byte_equal": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_successor.py",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "git_blob": "0e7b6618f2273a48cecb8000c23678e40e013540",
+      "bytes": 14010,
+      "sha256": "b92a3a98bb0ba5a0019b0f1e7812ec43767b64d4216339b3da1480e251625deb",
+      "live_byte_equal": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/capture_frozen.py",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "git_blob": "25061d0273e6a973758b3878dd34040986edc4fc",
+      "bytes": 3729,
+      "sha256": "e26a065cbee683f3a19a01e0d217d299cc859dbbf2a8ad0cbb3e10c77336a1d4",
+      "live_byte_equal": true
+    }
+  ],
+  "evidence_refs": [
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-architecture.json",
+      "bytes": 2370,
+      "sha256": "a5992868aa96648b99c4c72b6bd5e1b3fa59dd5c1ce898b1586daefc601aa648",
+      "complete_bytes_read": true,
+      "preserved_complete_bytes": "/tmp/e02-B-successor-gate-audit-exe/profile-review-v2/successor-final-architecture.json"
+    },
+    {
+      "path": "/tmp/e02-B-successor-final/raw/review/successor-final-architecture-profile.json",
+      "bytes": 2260,
+      "sha256": "e5f23de583e54ffe179eabddbda2694de5b36112b1bf2aeeb07dbba6c5423a66",
+      "complete_bytes_read": true,
+      "preserved_complete_bytes": "/tmp/e02-B-successor-gate-audit-exe/profile-review-v2/successor-final-architecture-profile.json"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-architecture.txt",
+      "bytes": 123875,
+      "sha256": "479a319a2882490b7a8afe0cbb1823c8bec3a5c1690fbb6d090bf2d741c97f4d",
+      "complete_bytes_read": true,
+      "preserved_complete_bytes": "/tmp/e02-B-successor-gate-audit-exe/profile-review-v2/successor-final-architecture.txt"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-runtime-api.json",
+      "bytes": 2418,
+      "sha256": "84527056299644ca338c8f6e03fb39c3d21aaa8cdf38c00e8dc623bed4e20eff",
+      "complete_bytes_read": true,
+      "preserved_complete_bytes": "/tmp/e02-B-successor-gate-audit-exe/profile-review-v2/successor-final-runtime-api.json"
+    },
+    {
+      "path": "/tmp/e02-B-successor-final/raw/review/successor-final-runtime-api-profile.json",
+      "bytes": 2312,
+      "sha256": "e8f7724c2597fa9c5783bd7ac619786bd0fc9ffe984401329373e971debd1463",
+      "complete_bytes_read": true,
+      "preserved_complete_bytes": "/tmp/e02-B-successor-gate-audit-exe/profile-review-v2/successor-final-runtime-api-profile.json"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-runtime-api.txt",
+      "bytes": 7059,
+      "sha256": "a0ee7dc4ea91da8b7d74043ca0df20ac15b33ccb673182033858ec8da572408b",
+      "complete_bytes_read": true,
+      "preserved_complete_bytes": "/tmp/e02-B-successor-gate-audit-exe/profile-review-v2/successor-final-runtime-api.txt"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-all-changed-format.json",
+      "bytes": 25789,
+      "sha256": "74e96794cd2ec23e82da135f7c6be598144af9651f29aa7011e18c6c734f7454",
+      "complete_bytes_read": true,
+      "preserved_complete_bytes": "/tmp/e02-B-successor-gate-audit-exe/profile-review-v2/successor-final-all-changed-format.json"
+    },
+    {
+      "path": "/tmp/e02-B-successor-final/raw/review/successor-final-all-changed-format-profile.json",
+      "bytes": 80987,
+      "sha256": "524397af5b165f71f3ae51adcd030b71a31469180e66aef31e3b2d6d91f6e736",
+      "complete_bytes_read": true,
+      "preserved_complete_bytes": "/tmp/e02-B-successor-gate-audit-exe/profile-review-v2/successor-final-all-changed-format-profile.json"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-all-changed-format.txt",
+      "bytes": 13414,
+      "sha256": "dd14a88e7d1879b15972307ce2d814b5748c4b6a52d93c72aa4270f210b4f6da",
+      "complete_bytes_read": true,
+      "preserved_complete_bytes": "/tmp/e02-B-successor-gate-audit-exe/profile-review-v2/successor-final-all-changed-format.txt"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-prefreeze-openapi-02ff.json",
+      "bytes": 2269,
+      "sha256": "8daa9f106086bc0638a9c9b3d1547b84dc281f0f4848d5c4a2f7e16a793aebbd",
+      "complete_bytes_read": true,
+      "preserved_complete_bytes": "/tmp/e02-B-successor-gate-audit-exe/profile-review-v2/successor-prefreeze-openapi-02ff.json"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-prefreeze-openapi-02ff.txt",
+      "bytes": 6800,
+      "sha256": "27c66961d1cdb4c268375ce0433d54d76c850202a88ce13994743b57e0e65c26",
+      "complete_bytes_read": true,
+      "preserved_complete_bytes": "/tmp/e02-B-successor-gate-audit-exe/profile-review-v2/successor-prefreeze-openapi-02ff.txt"
+    },
+    {
+      "path": "/tmp/e02-B-successor-openapi-02ff/after.json",
+      "bytes": 2812414,
+      "sha256": "9c57673ed7731f7902105b089316539af9746553a6f1f4411876ca82bd6de693",
+      "complete_bytes_read": true
+    },
+    {
+      "path": "/tmp/e02-B-successor-openapi-02ff/before.json",
+      "bytes": 2812414,
+      "sha256": "73d9109067c01ae2391acfb4bc3017634c96f1482f208bd47f8aa556e20c764a",
+      "complete_bytes_read": true
+    }
+  ],
+  "driver": {
+    "path": "/tmp/e02-B-successor-gate-audit-exe/profile-review.source.txt",
+    "bytes": 16542,
+    "sha256": "10d7de6f469a96b77dc87a2b6bf43d0e7e0867e59cd610c26ad952254c121f4d",
+    "command": [
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+      "/tmp/e02-B-successor-gate-audit-exe/profile-review.source.txt"
+    ],
+    "kind": "Only stdlib/Git/retained output reads; no product import, native, collection, generator/gate execution, environment sync or source mutation."
+  },
+  "root_before": {
+    "head": "dd9584728bd96f204983615216efdbc58117e713",
+    "tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+    "status": ""
+  },
+  "root_after": {
+    "head": "dd9584728bd96f204983615216efdbc58117e713",
+    "tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+    "status": ""
+  },
+  "closure_ids": []
+}

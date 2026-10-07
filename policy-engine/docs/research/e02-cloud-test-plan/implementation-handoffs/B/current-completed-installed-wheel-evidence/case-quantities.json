@@ -1,0 +1,142 @@
+{
+  "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+  "source_tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+  "phase_count": 9,
+  "phase_exit_counts": {
+    "0": 9
+  },
+  "outer_counts": {
+    "PASS": 1
+  },
+  "child_counts": {
+    "PASS": 8
+  },
+  "cases": {
+    "outer": [
+      {
+        "name": "test_installed_wheel_consumers_in_isolated_child",
+        "state": "PASS",
+        "xml_attributes": {
+          "classname": "",
+          "name": "test_installed_wheel_consumers_in_isolated_child",
+          "time": "0.790"
+        }
+      }
+    ],
+    "child": [
+      {
+        "name": "test_installed_generic_identities[direct]",
+        "state": "PASS",
+        "xml_attributes": {
+          "classname": "",
+          "name": "test_installed_generic_identities[direct]",
+          "time": "0.076"
+        }
+      },
+      {
+        "name": "test_installed_generic_identities[alias]",
+        "state": "PASS",
+        "xml_attributes": {
+          "classname": "",
+          "name": "test_installed_generic_identities[alias]",
+          "time": "0.001"
+        }
+      },
+      {
+        "name": "test_installed_generic_identities[facade]",
+        "state": "PASS",
+        "xml_attributes": {
+          "classname": "",
+          "name": "test_installed_generic_identities[facade]",
+          "time": "0.001"
+        }
+      },
+      {
+        "name": "test_installed_generic_identities[star_reflection]",
+        "state": "PASS",
+        "xml_attributes": {
+          "classname": "",
+          "name": "test_installed_generic_identities[star_reflection]",
+          "time": "0.001"
+        }
+      },
+      {
+        "name": "test_installed_direct_and_running_loop_context",
+        "state": "PASS",
+        "xml_attributes": {
+          "classname": "",
+          "name": "test_installed_direct_and_running_loop_context",
+          "time": "0.002"
+        }
+      },
+      {
+        "name": "test_installed_timeout_cleans_real_pending_tasks",
+        "state": "PASS",
+        "xml_attributes": {
+          "classname": "",
+          "name": "test_installed_timeout_cleans_real_pending_tasks",
+          "time": "0.201"
+        }
+      },
+      {
+        "name": "test_installed_cancel_reaches_awaitable_finally[False]",
+        "state": "PASS",
+        "xml_attributes": {
+          "classname": "",
+          "name": "test_installed_cancel_reaches_awaitable_finally[False]",
+          "time": "0.000"
+        }
+      },
+      {
+        "name": "test_installed_cancel_reaches_awaitable_finally[True]",
+        "state": "PASS",
+        "xml_attributes": {
+          "classname": "",
+          "name": "test_installed_cancel_reaches_awaitable_finally[True]",
+          "time": "0.001"
+        }
+      }
+    ]
+  },
+  "sum_is_not_cohort_denominator": "One outer dispatch plus8 isolated children are separate populations, never9 source-cohort items",
+  "known_source_assertions": {
+    "generic_consumers": [
+      "direct",
+      "alias",
+      "facade",
+      "star_reflection"
+    ],
+    "type_parameters": "Four distinct actual function.__type_params__, explicit annotation namespace get_type_hints identity; no module T/TypeVar",
+    "context": "Actual asserted request-A, request-B, None across running-loop bridge and run_blocking_async; scope resetNone",
+    "timeout": "Printed actual parent and child finally, abandoned real task.cancelled assertion",
+    "caller_cancellation": "Both before/inside running event loop, real finally observed after CancelledError"
+  },
+  "baseline_cells": [
+    "F01-P008",
+    "F03-P083",
+    "F05-P104",
+    "F06-P021",
+    "F09-P017",
+    "F09-P084",
+    "F10-P012",
+    "F10-P080",
+    "F15-P012",
+    "F15-P096"
+  ],
+  "baseline_grade": "source_reported_compact_text_only; candidate_routes",
+  "baseline_roles": "Ten exact source-SHA/ref/job-context/input closures are navigation, not this installed-wheel runtime evidence",
+  "canonical_criterion": {
+    "source": {
+      "source_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md",
+      "git_blob": "5ca4f7fed545c21ec7b7024e4e714f5759bf0cf4",
+      "bytes": 29421,
+      "sha256": "269282c72a89487148840df41204b4fb58cef3d8f030035be2a0e579db20b674"
+    },
+    "marker": "LA:LA-057",
+    "raw_capture_bytes": 5966,
+    "raw_capture_sha256": "2afe404aaaa4e0abb4dce006674af34f61ca3269d1e0b9e516b788bb42c8ac57",
+    "digest_convention": "Regex capture between SOURCE_BEGIN/SOURCE_END excludes markers and preserves all whitespace"
+  },
+  "closure_ids": [],
+  "actual_root_full_cohort": "UNRUN_BY_THIS_LEAF"
+}

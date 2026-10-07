@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import graphlib
 from collections.abc import Iterator, Mapping, Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from enum import Enum
 from types import MappingProxyType
 from typing import TYPE_CHECKING, Any
@@ -22,7 +22,11 @@ from uuid import UUID, uuid4
 
 from polisyos.foundry.methods.base import MethodSignature, _stable_digest
 from polisyos.foundry.methods.components.linker import LinkResult, SlotBinding, SlotLinker
-from polisyos.foundry.methods.exceptions import CyclicDependencyError, MissingRequirementError
+from polisyos.foundry.methods.exceptions import (
+    CyclicDependencyError,
+    MissingRequirementError,
+    SlotConnectionError,
+)
 from polisyos.foundry.methods.selection.registry import MethodRegistry
 
 if TYPE_CHECKING:
@@ -425,8 +429,7 @@ class FrozenCompositionDAG:
     def compute_parallel_levels(self) -> list[list[UUID]]:
         """Partition the frozen effective DAG into executable levels."""
         in_degree = {
-            node_id: len(self.predecessors.get(node_id, frozenset()))
-            for node_id in self.nodes
+            node_id: len(self.predecessors.get(node_id, frozenset())) for node_id in self.nodes
         }
         levels: list[list[UUID]] = []
         ready: list[UUID] = [node_id for node_id, degree in in_degree.items() if degree == 0]
@@ -495,6 +498,56 @@ class MethodComposer:
     def dag(self) -> CompositionDAG:
         return self._dag
 
+    @classmethod
+    def from_nodes(
+        cls,
+        nodes: Sequence[MethodNode],
+        *,
+        registry: MethodRegistry | None = None,
+        linker: SlotLinker | None = None,
+    ) -> MethodComposer:
+        """Restore concrete occurrences using the normal parameter builder.
+
+        This internal artifact-intake seam restores nodes only. Connections and
+        requirements still pass through ``connect`` and ``build``. It selects
+        the current registry implementation, not historical method code.
+        """
+        ordered = sorted(nodes, key=lambda node: node._insertion_order)
+        if len({node.id for node in ordered}) != len(ordered):
+            raise ValueError("Duplicate restored node UUID")
+        if [node._insertion_order for node in ordered] != list(range(len(ordered))):
+            raise ValueError("Restored insertion order must be complete and unique")
+        composer = cls(registry=registry, linker=linker)
+        restored_dag = CompositionDAG()
+        restored_signatures: dict[UUID, MethodSignature] = {}
+        for node in ordered:
+            if set(node.params).intersection(node.static_params):
+                raise ValueError("Restored static and dynamic parameters overlap")
+            prototype = composer.add(
+                node.method_fqn, **dict(node.static_params), **dict(node.params)
+            )
+            actual_payload = _stable_digest(
+                {"static": dict(prototype.static_params), "dynamic": dict(prototype.params)}
+            )
+            expected_payload = _stable_digest(
+                {"static": dict(node.static_params), "dynamic": dict(node.params)}
+            )
+            if (
+                prototype.method_fqn != node.method_fqn
+                or prototype.node_key != node.node_key
+                or prototype.instance_index != node.instance_index
+                or prototype.commutes_with != node.commutes_with
+                or actual_payload != expected_payload
+            ):
+                raise ValueError(f"Restored node does not match current parameter ABI: {node.id}")
+            restored = replace(prototype, id=node.id)
+            restored_dag.add_node(restored)
+            restored_signatures[node.id] = composer._signatures[prototype.id]
+        restored_dag._insertion_counter = len(ordered)
+        composer._dag = restored_dag
+        composer._signatures = restored_signatures
+        return composer
+
     def add(self, method_name: str, **params: Any) -> MethodNode:
         """Add a method instance to the composition."""
         method_class = self._registry.get(method_name)
@@ -547,7 +600,7 @@ class MethodComposer:
         target: MethodNode,
         slot_mapping: Mapping[str, str] | None = None,
     ) -> LinkResult:
-        """Connect source outputs to target inputs (data flow)."""
+        """Assemble compatible data flow; completeness belongs to the full DAG."""
         if source.id not in self._dag.nodes:
             raise KeyError(f"Source node {source.id} not in composition")
         if target.id not in self._dag.nodes:
@@ -555,11 +608,27 @@ class MethodComposer:
 
         source_sig = self._signatures[source.id]
         target_sig = self._signatures[target.id]
+        if slot_mapping is None:
+            # Automatic assembly fills only residual concrete target slots.
+            # Explicit duplicate producers still reach whole-chain validation.
+            connected = {
+                binding.target_slot
+                for link in self._dag.edges.values()
+                if link.target_id == target.id
+                for binding in link.bindings
+            }
+            target_sig = replace(
+                target_sig,
+                input_slots=frozenset(
+                    slot for slot in target_sig.input_slots if slot.name not in connected
+                ),
+            )
 
         link_result = self._linker.link(
             source_sig,
             target_sig,
             explicit_mapping=slot_mapping,
+            defer_completeness=True,
         )
 
         link_result = link_result.with_node_ids(source.id, target.id)
@@ -592,7 +661,54 @@ class MethodComposer:
                         )
                     # OFF → silent continue
                     continue
-                required_ids.update(ids)
+
+                def matching_ancestors() -> set[UUID]:
+                    pending = list(self._dag.predecessors.get(node_id, set()))
+                    seen: set[UUID] = set()
+                    while pending:
+                        ancestor = pending.pop()
+                        if ancestor in seen:
+                            continue
+                        seen.add(ancestor)
+                        pending.extend(self._dag.predecessors.get(ancestor, set()))
+                    return seen.intersection(ids) - {node_id}
+
+                explicit = set(ids).intersection(self._dag.predecessors.get(node_id, set()))
+                explicit.discard(node_id)
+                if not explicit:
+                    explicit = matching_ancestors()
+                if len(explicit) > 1:
+                    raise MissingRequirementError(
+                        sig.fqn,
+                        required_fqn,
+                        reason="ambiguous explicit predecessor occurrences: "
+                        + ", ".join(sorted(str(uid) for uid in explicit)),
+                    )
+                if explicit:
+                    required_ids.update(explicit)
+                    continue
+                earlier = [
+                    uid
+                    for uid in ids
+                    if self._dag.nodes[uid]._insertion_order
+                    < self._dag.nodes[node_id]._insertion_order
+                ]
+                if earlier:
+                    required_ids.add(
+                        max(earlier, key=lambda uid: self._dag.nodes[uid]._insertion_order)
+                    )
+                    continue
+                future = [uid for uid in ids if uid != node_id]
+                if len(future) > 1:
+                    raise MissingRequirementError(
+                        sig.fqn,
+                        required_fqn,
+                        reason="ambiguous future occurrences: "
+                        + ", ".join(sorted(str(uid) for uid in future)),
+                    )
+                # A self-requirement remains an actual cycle, not a missing
+                # dependency or an implicit exemption.
+                required_ids.update(future or [node_id])
 
             if required_ids:
                 predecessors[node_id] = required_ids
@@ -608,6 +724,24 @@ class MethodComposer:
 
         req_predecessors, req_warnings = self._requirement_edges(level=level)
         warnings.extend(req_warnings)
+
+        incoming: dict[UUID, set[str]] = {}
+        for link in self._dag.edges.values():
+            if link.target_id is not None:
+                connected = incoming.setdefault(link.target_id, set())
+                connected.update(binding.target_slot for binding in link.bindings)
+        for target_id, connected in incoming.items():
+            target_sig = self._signatures[target_id]
+            unconnected = sorted(
+                slot.name for slot in target_sig.input_slots if slot.name not in connected
+            )
+            if unconnected:
+                message = (
+                    f"Unconnected required inputs in {target_sig.fqn} ({target_id}): {unconnected}"
+                )
+                if not self._linker.config.allow_partial_links:
+                    raise SlotConnectionError(message)
+                warnings.append(message)
 
         # Validate concrete target occurrences at the composition boundary.  The
         # linker already owns this predicate; keeping the call here means both
@@ -638,13 +772,6 @@ class MethodComposer:
 
         for link_result in self._dag.edges.values():
             warnings.extend(link_result.warnings)
-            if link_result.unconnected_inputs:
-                target_label = link_result.target_fqn
-                if link_result.target_id is not None:
-                    target_label = f"{target_label} ({str(link_result.target_id)[:8]})"
-                warnings.append(
-                    f"Unconnected inputs in {target_label}: {list(link_result.unconnected_inputs)}"
-                )
 
         return warnings
 
@@ -742,9 +869,9 @@ class MethodComposer:
                     uid for uid in req_predecessors[node_id] if uid in frozen_dag.nodes
                 }
             upstream_digests = sorted(
-                frozen_dag.nodes[uid].node_key.static_params_digest
-                for uid in upstream_ids
-                if frozen_dag.nodes[uid].node_key is not None
+                key.static_params_digest
+                for key in (frozen_dag.nodes[uid].node_key for uid in upstream_ids)
+                if key is not None
             )
             combined = {
                 "static_params": dict(node.static_params),

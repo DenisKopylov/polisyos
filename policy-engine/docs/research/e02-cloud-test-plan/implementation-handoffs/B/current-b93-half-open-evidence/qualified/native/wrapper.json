@@ -1,0 +1,195 @@
+{
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "/workspace/e02-B-current-runtime/.polisyos/e02-B-current-runtime/b93-half-open/qualified/run_probe.py",
+    "--mode",
+    "native",
+    "--child"
+  ],
+  "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+  "source_before": {
+    "executed_head": "10e812a98d5f7f3997e7d0aa44de43dc90eb022c",
+    "executed_tree": "071a52554be3c0eaa67ad0e870a0d9198ec0fa61",
+    "semantic_source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+    "semantic_source_tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+    "scope": "actual loaded source bytes; metadata HEAD may advance",
+    "refs": [
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/pyproject.toml",
+        "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+        "bytes": 11007,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/pyproject.toml",
+        "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/pytest.ini",
+        "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+        "bytes": 1021,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/pytest.ini",
+        "git_blob": "f6b18091a37290d7b5c375b3aef44ffebc0a293a"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/resilience/_bounded_registry.py",
+        "sha256": "9003558130bcc2f378f22658a8ff685c4ab93766d8bc7f20de1d7bf5d5323429",
+        "bytes": 5871,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/resilience/_bounded_registry.py",
+        "git_blob": "24316603e405589fe7c13a433997fb0dd32ea7c4"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/resilience/circuit_breaker.py",
+        "sha256": "f02ff7db20a47e16f4129e38c4ba2a6f445cf98551ad935e27b178fa8cc0d6f3",
+        "bytes": 25310,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/resilience/circuit_breaker.py",
+        "git_blob": "173dc65f7a507b88cf0fa3b9a211ddace25f2fcc"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/resilience/rate_limiter.py",
+        "sha256": "2f4bd7b8f46cedacd3c26134ecc9a7b9d03dd868953b34cf306dd1702a0ec035",
+        "bytes": 18511,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/resilience/rate_limiter.py",
+        "git_blob": "a8d670610f73536e3831a65a7d091432d4bfb599"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+        "sha256": "66a7b774c2e7250d15e8dbc55b065d65f9498d11539b70c2de7090fb8ccc4c73",
+        "bytes": 29464,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+        "git_blob": "4907e921e867a383243c6380b5ca682c435fedc6"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/fabric/connectors/test_resilience_e02.py",
+        "sha256": "20d6d959e58d65e676945766f3be4ceb32c5c5bc5d134659138e55c64a813049",
+        "bytes": 6312,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/tests/unit/fabric/connectors/test_resilience_e02.py",
+        "git_blob": "76c81fa6a75eb11587b6012c7eb239cd9f6d7fd4"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/uv.lock",
+        "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+        "bytes": 779204,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/uv.lock",
+        "git_blob": "85f1fb2150a4da454fee02108565381d44f56730"
+      }
+    ]
+  },
+  "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+  "mode": "native",
+  "environment": {
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "NUMEXPR_NUM_THREADS": null,
+    "VECLIB_MAXIMUM_THREADS": null,
+    "BLIS_NUM_THREADS": null,
+    "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src",
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+    "PYTEST_ADDOPTS": null,
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "POLISYOS_METRICS_PORT": "0",
+    "E02_REMOVE_PROTECTION": "0"
+  },
+  "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+  "interpreter": "/workspace/polisyos/policy-engine/.venv/bin/python",
+  "probe_input": {
+    "path": "/workspace/e02-B-current-runtime/.polisyos/e02-B-current-runtime/b93-half-open/qualified/test_half_open_consumer.py",
+    "sha256": "b7f681d28bb02fc47479f9f3baf7384ad7a2e8a1f4e2f679f9c4641d7622499c",
+    "bytes": 8041
+  },
+  "driver_input": {
+    "path": "/workspace/e02-B-current-runtime/.polisyos/e02-B-current-runtime/b93-half-open/qualified/run_probe.py",
+    "sha256": "cbe2df29a082368961de0f97e58dc25fa138f1ad2e24a93b42d20cb7d69d6f21",
+    "bytes": 6106
+  },
+  "start_utc": "2026-10-06T23:24:20.437790+00:00",
+  "exit_code": 0,
+  "wall_seconds": 2.6924501419998705,
+  "max_rss_kib": 147224,
+  "resource_method": "direct Linux wait4 child rusage",
+  "source_after": {
+    "executed_head": "10e812a98d5f7f3997e7d0aa44de43dc90eb022c",
+    "executed_tree": "071a52554be3c0eaa67ad0e870a0d9198ec0fa61",
+    "semantic_source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+    "semantic_source_tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+    "scope": "actual loaded source bytes; metadata HEAD may advance",
+    "refs": [
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/pyproject.toml",
+        "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+        "bytes": 11007,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/pyproject.toml",
+        "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/pytest.ini",
+        "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+        "bytes": 1021,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/pytest.ini",
+        "git_blob": "f6b18091a37290d7b5c375b3aef44ffebc0a293a"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/resilience/_bounded_registry.py",
+        "sha256": "9003558130bcc2f378f22658a8ff685c4ab93766d8bc7f20de1d7bf5d5323429",
+        "bytes": 5871,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/resilience/_bounded_registry.py",
+        "git_blob": "24316603e405589fe7c13a433997fb0dd32ea7c4"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/resilience/circuit_breaker.py",
+        "sha256": "f02ff7db20a47e16f4129e38c4ba2a6f445cf98551ad935e27b178fa8cc0d6f3",
+        "bytes": 25310,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/resilience/circuit_breaker.py",
+        "git_blob": "173dc65f7a507b88cf0fa3b9a211ddace25f2fcc"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/resilience/rate_limiter.py",
+        "sha256": "2f4bd7b8f46cedacd3c26134ecc9a7b9d03dd868953b34cf306dd1702a0ec035",
+        "bytes": 18511,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/resilience/rate_limiter.py",
+        "git_blob": "a8d670610f73536e3831a65a7d091432d4bfb599"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+        "sha256": "66a7b774c2e7250d15e8dbc55b065d65f9498d11539b70c2de7090fb8ccc4c73",
+        "bytes": 29464,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+        "git_blob": "4907e921e867a383243c6380b5ca682c435fedc6"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/fabric/connectors/test_resilience_e02.py",
+        "sha256": "20d6d959e58d65e676945766f3be4ceb32c5c5bc5d134659138e55c64a813049",
+        "bytes": 6312,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/tests/unit/fabric/connectors/test_resilience_e02.py",
+        "git_blob": "76c81fa6a75eb11587b6012c7eb239cd9f6d7fd4"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/uv.lock",
+        "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+        "bytes": 779204,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/uv.lock",
+        "git_blob": "85f1fb2150a4da454fee02108565381d44f56730"
+      }
+    ]
+  },
+  "end_utc": "2026-10-06T23:24:23.173378+00:00",
+  "output": {
+    "path": "/workspace/e02-B-current-runtime/.polisyos/e02-B-current-runtime/b93-half-open/qualified/native/native.txt",
+    "sha256": "da4aacb8c268834772f59464d4b780a7824b366966c812e2c7162e7cf0c0764b",
+    "bytes": 5935
+  }
+}

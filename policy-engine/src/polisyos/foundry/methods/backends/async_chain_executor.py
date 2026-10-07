@@ -49,16 +49,12 @@ from typing import Any
 from uuid import UUID
 
 from polisyos.foundry.methods._internal.logging import get_foundry_logger
-from polisyos.foundry.methods.backends.adapters import adapt_state
 from polisyos.foundry.methods.backends.chain_executor import (
     ChainExecutionResult,
     _build_level_parallel_reproducibility_contract,
-    _build_node_param_payload,
 )
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.backends.protocol import MethodResult
-from polisyos.foundry.methods.components.io import materialize_method_input, validate_value_for_slot
-from polisyos.foundry.methods.exceptions import MethodContractError
 from polisyos.foundry.methods.selection.registry import MethodRegistry, get_registry
 
 _log = get_foundry_logger("foundry.backends.async_chain")
@@ -369,74 +365,17 @@ class AsyncChainExecutor:
         """Dispatch a single node asynchronously."""
         from polisyos.foundry.methods.backends import chain_executor as chain_exec
 
-        node = chain.get_node(node_id)
-        method_class = registry.get(node.method_fqn)
         signature = chain.get_signature(node_id)
-
-        # Reuse the sequential static -> dynamic -> override payload contract.
-        node_params = _build_node_param_payload(node, {node_id: params})
-
-        bound_inputs: dict[str, Any] = {}
-        for binding in chain.get_bindings_for_target(node_id):
-            source_node_id = binding.source_node_id
-            if source_node_id is None:
-                raise MethodContractError(
-                    signature.fqn,
-                    f"binding for target slot '{binding.target_slot}' is missing source_node_id",
-                )
-            source_outputs = slot_outputs.get(source_node_id)
-            if source_outputs is None:
-                raise MethodContractError(
-                    signature.fqn,
-                    (
-                        f"binding source node {source_node_id} for target slot "
-                        f"'{binding.target_slot}' has not produced slot outputs"
-                    ),
-                )
-            if binding.source_slot not in source_outputs:
-                raise MethodContractError(
-                    signature.fqn,
-                    (
-                        f"source slot '{binding.source_slot}' was not produced by "
-                        f"{binding.source_method}"
-                    ),
-                )
-
-            source_value = source_outputs[binding.source_slot]
-            source_backend = chain.get_signature(source_node_id).backend
-            if source_backend is not signature.backend:
-                source_value = adapt_state(
-                    source_value,
-                    source_backend=source_backend,
-                    target_backend=signature.backend,
-                )
-            source_value = chain_exec._apply_binding_adapters(
-                source_value,
-                binding=binding,
-                target_backend=signature.backend,
-                fx_rate_provider=fx_rate_provider,
-                context=state,
-            )
-
-            target_slot = signature.get_input_slot(binding.target_slot)
-            if target_slot is None:
-                raise MethodContractError(
-                    signature.fqn,
-                    f"target slot '{binding.target_slot}' is not declared by method",
-                )
-            validate_value_for_slot(
-                target_slot,
-                source_value,
-                method_fqn=signature.fqn,
-                label="input",
-            )
-            bound_inputs[binding.target_slot] = source_value
-
-        materialized_state = materialize_method_input(
-            method_class=method_class,
+        method_class, materialized_state, signature, node_params = chain_exec._collect_node_inputs(
+            chain=chain,
+            node_id=node_id,
+            reg=registry,
+            node_slot_outputs=slot_outputs,
+            fx_rate_provider=fx_rate_provider,
+            current_state=state,
             signature=signature,
-            bound_inputs=bound_inputs,
-            fallback_state=state,
+            current_context=state,
+            params_per_node={node_id: params},
         )
 
         async def _run() -> MethodResult:

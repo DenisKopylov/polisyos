@@ -1,0 +1,186 @@
+{
+  "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+  "source_tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+  "canonical_module": {
+    "path": "/workspace/e02-B-current-coordination/policy-engine/tools/devx/architecture/guardrails.py",
+    "bytes": 103077,
+    "sha256": "65f0daa51b96910c04cd6dd69676040f9b41b1674955c66e7c479106cd9d187a"
+  },
+  "copier_origin": "/workspace/e02-B-current-coordination/policy-engine/tools/devx/architecture/guardrails.py",
+  "input_refs": [
+    {
+      "path": "/workspace/e02-B-current-coordination/policy-engine/pyproject.toml",
+      "bytes": 11007,
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/policy-engine/uv.lock",
+      "bytes": 779204,
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/policy-engine/vendor/wheels/odfpy-1.4.1-py2.py3-none-any.whl",
+      "bytes": 162367,
+      "sha256": "1d1c3ea36a422d3c5cd4c2457ea0e0be59841d6c26d28bd3d5e43f060565d11b"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/policy-engine/tools/devx/architecture/guardrails.py",
+      "bytes": 103077,
+      "sha256": "65f0daa51b96910c04cd6dd69676040f9b41b1674955c66e7c479106cd9d187a"
+    }
+  ],
+  "source_copy": "/dev/shm/e02-B-architecture-cache-warm-1862c021df74/source",
+  "private_environment": "/dev/shm/e02-B-architecture-cache-warm-1862c021df74/environment",
+  "shared_cache": "/home/agent/.cache/uv",
+  "mode": "online prerequisite preparation only; deciding architecture still offline",
+  "default_profile": "exact canonical uv venv then uv sync --frozen; no extra/group selectors",
+  "locked_pillow_wheel": {
+    "url": "https://files.pythonhosted.org/packages/5c/44/c85361f65dbe00eea8576ee467c768d25129989efb76e94f205e9ca9bb46/pillow-12.3.0-cp314-cp314-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl",
+    "hash": "sha256:251bf95b67017e27b13d82f5b326234ca62d70f9cf4c2b9032de2358a3b12c7b",
+    "size": 6936962,
+    "upload-time": "2026-07-01T11:55:03.93Z"
+  },
+  "env": {
+    "UV_FROZEN": "1",
+    "UV_PROJECT": "/dev/shm/e02-B-architecture-cache-warm-1862c021df74/source",
+    "UV_PROJECT_ENVIRONMENT": "/dev/shm/e02-B-architecture-cache-warm-1862c021df74/environment",
+    "UV_CACHE_DIR": "/home/agent/.cache/uv",
+    "UV_WORKING_DIR": "/dev/shm/e02-B-architecture-cache-warm-1862c021df74/source",
+    "UV_PYTHON": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "UV_NO_ENV_FILE": "1",
+    "PYTHONPATH": "/dev/shm/e02-B-architecture-cache-warm-1862c021df74/source/src:/dev/shm/e02-B-architecture-cache-warm-1862c021df74/source",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1",
+    "PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/dev/shm/e02-B-architecture-cache-warm-1862c021df74/environment/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback"
+  },
+  "uv_offline_absent": true,
+  "inherited_environment_names": [
+    "BROWSER_MANAGEMENT_SOCKET_PATH",
+    "CAAS_DIND_STORAGE_DRIVER",
+    "CAAS_IMAGE_GIT_COMMIT_SHA",
+    "CAAS_IMAGE_VERSION",
+    "CODEX_BROWSER_DEFER_ACTIVATION",
+    "CODEX_CAAS_SESSION_ID",
+    "CODEX_CI",
+    "CODEX_ENVIRONMENT_ID",
+    "CODEX_EXEC_SERVER_PROXY_PRIVATE_IPS_VIA_UPSTREAM",
+    "CODEX_EXEC_SERVER_REMOTE_BASE_URL",
+    "CODEX_HOME",
+    "CODEX_NO_UPDATE",
+    "CODEX_PERMISSION_PROFILE",
+    "CODEX_PRIMARY_RUNTIME",
+    "CODEX_PRIMARY_RUNTIME_BUNDLE_VERSION",
+    "CODEX_PRIMARY_RUNTIME_NODE",
+    "CODEX_PRIMARY_RUNTIME_NODE_MODULES",
+    "CODEX_PRIMARY_RUNTIME_PYTHON",
+    "CODEX_PRIMARY_RUNTIME_ROOT",
+    "CODEX_PROXY_CERT",
+    "CODEX_SESSION_ID",
+    "CODEX_THREAD_ID",
+    "CODEX_VERSION",
+    "COLORTERM",
+    "DEBIAN_FRONTEND",
+    "DOCKER_IGNORE_BR_NETFILTER_ERROR",
+    "DOCKER_TLS_CERTDIR",
+    "GH_PAGER",
+    "GH_TOKEN",
+    "GIT_PAGER",
+    "GRPC_DEFAULT_SSL_ROOTS_FILE_PATH",
+    "HOME",
+    "HTTPS_PROXY",
+    "HTTP_PROXY",
+    "LANG",
+    "LC_ALL",
+    "LC_CTYPE",
+    "NETWORK",
+    "NODE_EXTRA_CA_CERTS",
+    "NODE_PATH",
+    "NO_COLOR",
+    "NO_PROXY",
+    "NPM_CONFIG_AUDIT",
+    "NPM_CONFIG_FUND",
+    "NPM_CONFIG_PREFIX",
+    "OPENAI_CLUSTER",
+    "PAGER",
+    "PATH",
+    "PLAYWRIGHT_NODEJS_PATH",
+    "PWD",
+    "PYTHONDONTWRITEBYTECODE",
+    "PYTHONNOUSERSITE",
+    "PYTHONPATH",
+    "REQUESTS_CA_BUNDLE",
+    "RUST_LOG",
+    "SHELL",
+    "SHLVL",
+    "SSL_CERT_FILE",
+    "TERM",
+    "USER",
+    "UV_CACHE_DIR",
+    "UV_FROZEN",
+    "UV_NO_ENV_FILE",
+    "UV_PROJECT",
+    "UV_PROJECT_ENVIRONMENT",
+    "UV_PYTHON",
+    "UV_WORKING_DIR",
+    "_",
+    "http_proxy",
+    "https_proxy",
+    "no_proxy"
+  ],
+  "steps": [
+    {
+      "name": "venv",
+      "argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "venv",
+        "--python",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "/dev/shm/e02-B-architecture-cache-warm-1862c021df74/environment"
+      ],
+      "cwd": "/dev/shm/e02-B-architecture-cache-warm-1862c021df74/source",
+      "exit_code": 0,
+      "wall_seconds": 0.05809462499746587,
+      "head_before": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "head_after": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "clean_after": true,
+      "stdout": {
+        "path": "/tmp/e02-B-architecture-cache-warm-record-1862c021df74/venv.txt",
+        "bytes": 318,
+        "sha256": "c3263e2c297352eae2198f03caa5b051021f0ab4375694af4d1c797611c39a0f"
+      }
+    },
+    {
+      "name": "sync",
+      "argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "sync",
+        "--frozen"
+      ],
+      "cwd": "/dev/shm/e02-B-architecture-cache-warm-1862c021df74/source",
+      "exit_code": 0,
+      "wall_seconds": 24.049018468009308,
+      "head_before": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "head_after": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "clean_after": true,
+      "stdout": {
+        "path": "/tmp/e02-B-architecture-cache-warm-record-1862c021df74/sync.txt",
+        "bytes": 5067,
+        "sha256": "e6166c3e7243c063891a3ec092b463437b60d77b51f6ec9866dfe9686daca4af"
+      }
+    }
+  ],
+  "import_origins_preflight": "PASS actual canonical isolated-origin check",
+  "cache_readiness": "default frozen sync completed; does not establish four generated-family freshness",
+  "private_observation": {
+    "argv": [
+      "/dev/shm/e02-B-architecture-cache-warm-1862c021df74/environment/bin/python",
+      "-B",
+      "-c",
+      "import importlib.metadata,json,pathlib,PIL,polisyos,tools; print(json.dumps({\"pillow_version\":PIL.__version__,\"pillow_origin\":PIL.__file__,\"polisyos_origin\":polisyos.__file__,\"tools_origin\":tools.__file__,\"installed\":[{\"name\":d.metadata[\"Name\"],\"version\":d.version} for d in sorted(importlib.metadata.distributions(),key=lambda d:d.metadata[\"Name\"].lower())]},indent=2))"
+    ],
+    "bytes": 10292,
+    "sha256": "205c86ae5b4d420a156f3faae85ced6ec83d58ba04244f20a22b54fc0e470b29"
+  },
+  "all_six_caps_absent_in_original_child": true,
+  "first_architecture_workspace_unchanged_note": "Source/environment/output path not used for restoration; no family outputs exist there."
+}

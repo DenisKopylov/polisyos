@@ -1,0 +1,144 @@
+{
+  "native": {
+    "evidence": {
+      "cases": 2,
+      "PASS": 2,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0,
+      "pytest_suite_seconds": "13.527",
+      "nodeids": [
+        "tests.unit.scientist.orchestration.engine.test_async_cache_cost_oracle::test_real_async_cache_costs_and_neighbour_waits[1024]",
+        "tests.unit.scientist.orchestration.engine.test_async_cache_cost_oracle::test_real_async_cache_costs_and_neighbour_waits[65536]"
+      ],
+      "wrapper": {
+        "command": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "-I",
+          "-B",
+          "/tmp/e02-B52-cache-cost-c043/evidence/child.source.txt"
+        ],
+        "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+        "target_sha": "c0431c5b0e8dd71f758ec956b4de271910cef19a",
+        "environment": {
+          "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+          "POLISYOS_METRICS_PORT": "0",
+          "E02_EXPECTED_SOURCE": "c0431c5b0e8dd71f758ec956b4de271910cef19a",
+          "E02_PRODUCT_ROOT": "/workspace/e02-B-current-execution-state"
+        },
+        "python_lexical": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "no_process_cpu_worker_caps": true,
+        "waited_pid": 502680,
+        "exit_code": 0,
+        "wall_seconds": 36.577239464,
+        "max_rss_kib": 664476,
+        "source_head_before": "c0431c5b0e8dd71f758ec956b4de271910cef19a",
+        "source_head_after": "c0431c5b0e8dd71f758ec956b4de271910cef19a",
+        "source_clean_after": true,
+        "stdout": {
+          "path": "/tmp/e02-B52-cache-cost-c043/evidence/native.txt",
+          "bytes": 2325,
+          "sha256": "fa50cf72fe6197b9217a675ca7effc4b6d300aa26aebdb6c0224f8fbfae98540"
+        },
+        "xml": "/tmp/e02-B52-cache-cost-c043/evidence/native.xml"
+      }
+    },
+    "removal": {
+      "cases": 1,
+      "PASS": 0,
+      "FAIL": 1,
+      "ERROR": 0,
+      "SKIP": 0,
+      "pytest_suite_seconds": "0.255",
+      "nodeids": [
+        "tests.unit.scientist.orchestration.engine.test_async_cache_cost_oracle::test_real_async_cache_costs_and_neighbour_waits[1024]"
+      ],
+      "wrapper": {
+        "command": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "-I",
+          "-B",
+          "/tmp/e02-B52-cache-cost-c043/removal/child.source.txt"
+        ],
+        "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+        "target_sha": "c0431c5b0e8dd71f758ec956b4de271910cef19a",
+        "environment": {
+          "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+          "POLISYOS_METRICS_PORT": "0",
+          "E02_EXPECTED_SOURCE": "c0431c5b0e8dd71f758ec956b4de271910cef19a",
+          "E02_PRODUCT_ROOT": "/workspace/e02-B-current-execution-state"
+        },
+        "python_lexical": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "no_process_cpu_worker_caps": true,
+        "waited_pid": 509970,
+        "exit_code": 1,
+        "wall_seconds": 28.623377421,
+        "max_rss_kib": 695560,
+        "source_head_before": "c0431c5b0e8dd71f758ec956b4de271910cef19a",
+        "source_head_after": "c0431c5b0e8dd71f758ec956b4de271910cef19a",
+        "source_clean_after": true,
+        "stdout": {
+          "path": "/tmp/e02-B52-cache-cost-c043/removal/native.txt",
+          "bytes": 8091,
+          "sha256": "4171d393d01619a863598137636de38159d951de8dcb81a369fcef68923d3ac0"
+        },
+        "xml": "/tmp/e02-B52-cache-cost-c043/removal/native.xml"
+      }
+    }
+  },
+  "measurements": [
+    {
+      "payload_bytes": 1024,
+      "cold_workflow_return_cost_ns": 46753192,
+      "warm_observations": 12,
+      "neighbour_observations": 258,
+      "neighbour_wait_p95_ns": 6488516,
+      "neighbour_wait_p99_ns": 7828224,
+      "warm_workflow_return_cost_p95_ns": 54349895,
+      "warm_workflow_return_cost_p99_ns": 54349895,
+      "serialized_cache_put_bytes": 5545,
+      "raw_individual_measurements": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/1024/individual-costs.json",
+      "qualification": "Finite 1KiB/64KiB workloads, injected12ms actual-cache-I/O delay; empirical nearest-rank statistics, no SLA or general speedup claim. Workflow hit return includes recovery/read/apply/state/report/finalize, not only disk read. CPU/GIL timing not isolated.",
+      "quantiles_independently_recomputed_by_metadata_driver": true,
+      "independent_reviewer_acceptance": false
+    },
+    {
+      "payload_bytes": 65536,
+      "cold_workflow_return_cost_ns": 53632106,
+      "warm_observations": 12,
+      "neighbour_observations": 280,
+      "neighbour_wait_p95_ns": 3594116,
+      "neighbour_wait_p99_ns": 7445936,
+      "warm_workflow_return_cost_p95_ns": 72293586,
+      "warm_workflow_return_cost_p99_ns": 72293586,
+      "serialized_cache_put_bytes": 199085,
+      "raw_individual_measurements": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/65536/individual-costs.json",
+      "qualification": "Finite 1KiB/64KiB workloads, injected12ms actual-cache-I/O delay; empirical nearest-rank statistics, no SLA or general speedup claim. Workflow hit return includes recovery/read/apply/state/report/finalize, not only disk read. CPU/GIL timing not isolated.",
+      "quantiles_independently_recomputed_by_metadata_driver": true,
+      "independent_reviewer_acceptance": false
+    }
+  ],
+  "derived_raw_pins": [
+    {
+      "path": "/tmp/e02-B52-cache-cost-c043/evidence/source-context.json",
+      "bytes": 585000,
+      "sha256": "cf7f284f9f8ac32f0e886688b517db535d77ebc5be8a220aef5ce895deb54791"
+    },
+    {
+      "path": "/tmp/e02-B52-cache-cost-c043/evidence/module-origins.json",
+      "bytes": 415248,
+      "sha256": "64b930f039b7c3c663d78e658739ba01024a1d401fa57132e8be59e7d1cf9c47"
+    },
+    {
+      "path": "/tmp/e02-B52-cache-cost-c043/removal/source-context.json",
+      "bytes": 585062,
+      "sha256": "deedf928cb9d081c6878efb52a9c6fbe5f7efae9c816f7c533cd43cbce60a0be"
+    },
+    {
+      "path": "/tmp/e02-B52-cache-cost-c043/removal/module-origins.json",
+      "bytes": 415248,
+      "sha256": "64b930f039b7c3c663d78e658739ba01024a1d401fa57132e8be59e7d1cf9c47"
+    }
+  ],
+  "qualification": "Metadata recomputation and source byte checks are not author self-review; actual native source c043, no final future-root replay asserted."
+}

@@ -1,0 +1,96 @@
+from pathlib import Path
+import hashlib
+import json
+import re
+import shutil
+import subprocess
+import xml.etree.ElementTree as ET
+
+OWN=Path('/workspace/e02-B-current-runtime')
+SOURCE='a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9'
+DEST=OWN/'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-LLM-a2-consumer-failure-review-evidence'
+DEST.mkdir(parents=True,exist_ok=False)
+
+
+def git(*args):
+ return subprocess.check_output(['git',*args],cwd=OWN)
+
+def dump(path,value):
+ (DEST/path).write_text(json.dumps(value,indent=2,ensure_ascii=False)+'\n')
+
+def ref(path):
+ raw=git('show',SOURCE+':'+path)
+ return {'commit':SOURCE,'path':path,'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest(),'git_blob':git('rev-parse',SOURCE+':'+path).decode().strip()}
+
+runs=[]
+for label,raw in [('author-whole34',Path('/tmp/e02-B-llm-affected-a2-k98z3tu9')),('author-observational-flight',Path('/tmp/e02-B66-flight-diagnosis-a2-b3yor0e8'))]:
+ out=DEST/label;out.mkdir()
+ for name in ['native.txt','native.xml','native.json','source-context.json','child.source.txt','run-native.source.txt']:
+  shutil.copyfile(raw/name,out/name)
+ if label=='author-observational-flight':
+  for path in sorted((raw/'fixtures').rglob('*')):
+   if path.is_file() and not path.is_symlink():
+    copied=out/'actual-files'/path.relative_to(raw/'fixtures');copied.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(path,copied)
+ context=json.loads((raw/'source-context.json').read_text())
+ resolved=[];source_cache={}
+ for row in context['origins']:
+  rel=Path(row['path']).relative_to('/workspace/e02-B-current-adapters').as_posix()
+  if rel not in source_cache:source_cache[rel]=ref(rel)
+  assert source_cache[rel]['sha256']==row['sha256'],(row,source_cache[rel])
+  resolved.append({'module':row['module'],'path':rel,'declared_actual_origin':row['path'],'sha256':row['sha256'],'git_blob':source_cache[rel]['git_blob'],'captured_actual_origin_basis':'author runtime complete-module guard; reviewer reconciles captured hashes to exact Git source, no new runtime or current mutable-tree-origin claim'})
+ cases=[]
+ for c in ET.parse(raw/'native.xml').getroot().iter('testcase'):
+  diagnostics=c.find('error')
+  grade='ERROR' if diagnostics is not None else 'PASS'
+  if diagnostics is None:
+   diagnostics=c.find('failure')
+   if diagnostics is not None:grade='FAIL'
+  if diagnostics is None:
+   diagnostics=c.find('skipped')
+   if diagnostics is not None:grade='SKIP'
+  cases.append({'attributes':c.attrib,'grade':grade,'diagnostic':diagnostics.text if diagnostics is not None else None})
+ counts={grade:sum(c['grade']==grade for c in cases) for grade in ['PASS','FAIL','ERROR','SKIP']}
+ assert counts==({'PASS':632,'FAIL':4,'ERROR':0,'SKIP':0} if label=='author-whole34' else {'PASS':0,'FAIL':1,'ERROR':0,'SKIP':0}),counts
+ (out/'reviewed-case-join.json').write_text(json.dumps({'cases':len(cases),'counts':counts,'nonpassed':[c for c in cases if c['grade']!='PASS'],'full_native_XML_stored':True,'reviewer_runtime':'UNRUN'},indent=2)+'\n')
+ (out/'reviewed-source-closure.json').write_text(json.dumps({'source_sha':SOURCE,'captured_origin_count':len(resolved),'unique_source_files':len(source_cache),'all_captured_hashes_match_target_Git':True,'records':resolved},indent=2)+'\n')
+ runs.append({'label':label,'counts':counts,'captured_origin_count':len(resolved),'unique_source_files':len(source_cache),'wrapper':json.loads((raw/'native.json').read_text())})
+
+paths=git('ls-tree','-r','--name-only',SOURCE,'--','policy-engine/src','policy-engine/tests').decode().splitlines()
+py=[p for p in paths if p.endswith('.py')]
+pattern=re.compile(r'^\s*class\s+\w+[^\n]*\bBudgetMiddleware\b[^\n]*:',re.M)
+matches=[]
+for path in py:
+ raw=git('show',SOURCE+':'+path).decode()
+ for match in pattern.finditer(raw):
+  matches.append({'path':path,'line':raw.count('\n',0,match.start())+1,'source_line':match.group().strip()})
+assert not matches,matches
+source_paths=['policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py','policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py','policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py','policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py','policy-engine/src/polisyos/core/llm/traced_client.py','policy-engine/src/polisyos/core/llm/settlement.py','policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py']
+ledger_path=DEST/'author-observational-flight/actual-files/test_expired_suppressed_produc0/budget.json'
+ledger=json.loads(ledger_path.read_text())
+assert ledger['state']['spent']['run']=='0.02'
+assert ledger['state']['reserved']['run']=='0.12289'
+assert len(ledger['completion_obligations'])==1
+held=next(iter(ledger['completion_obligations'].values()))
+assert held['phase']=='cost_unknown' and held['event_payload']['amount'] is None and held['event_payload']['provider']=='unknown'
+text=(DEST/'author-observational-flight/native.txt').read_text()
+results=json.loads(next(line.removeprefix('E02_ACTUAL_FLIGHT_RESULTS ') for line in text.splitlines() if line.startswith('E02_ACTUAL_FLIGHT_RESULTS ')))
+assert [r['type'] for r in results]==['TimeoutError','LLMAccountingError']
+owner=json.loads(next(line.removeprefix('E02_ACTUAL_FLIGHT_OWNER ') for line in text.splitlines() if line.startswith('E02_ACTUAL_FLIGHT_OWNER ')))
+assert owner['gateway_calls']==1 and owner['cache_size']==0
+verdict={
+ 'source_sha':SOURCE,'source_tree':'f5fb536b70b7d8d57b19c78570b3addd798083dd','reviewer_mode':'read-only source and preexisting author outputs; no pytest/native/collection/gate/probe replay',
+ 'runs':runs,'source_refs':[ref(p) for p in source_paths],
+ 'three_lost_ACK_cases':{'native_grades':'FAIL retained: two DID_NOT_RAISE and one actual expiry Timeout','property_premise':'not_established','source_trace':'test_stack creates enforcer first, then fixtures monkeypatch original passedmiddleware.settle_spend_safe. Constructor budget_enforcer L140-143 owns distinct with_completion_resolver middleware view. BudgetMiddleware L173-184 explicitly constructs a new baseview with bound ledger; _settle_event L895 uses that view. Injected originalinstance callback does not reach charged path.','compatibility_scope':'Intentional new bound-owner view is required to avoid mutating another owner; passing a middleware is not an identity-preservation promise. No actual tracked subclass/custom override is established in source+tests census. External virtual extension/subclass compatibility remains not_established, not claimed universally compatible.','next_owner':'ADAPTER test companion author: bind fault at actual owned consumer while preserving all original amount/reserve/cache/provider/event/unknownACK assertions; retain original3 literalFAIL.'},
+ 'shared_suppressed_flight_case':{'native_grade':'FAIL retained','property_premise':'actual ordinary same-scope shared flight; gate reached provider and suppressed cancellation before returned known.02 response','actual_results':results,'physical_provider_calls':owner['gateway_calls'],'actual_cache_size':owner['cache_size'],'known_spent_usd':ledger['state']['spent']['run'],'outstanding_reserved_usd':ledger['state']['reserved']['run'],'retained_false_pending':held,'classification':'actionable same physicalflight/completion identity class deeper. Owner callback settles actualphysicalevent. Follower awaits same task exception before receiving provenance/typedresponse and generic _retain_failed_attempt wrongly treats its wrapper entry as a separate unknown physicalprovider. This causes false pending durable gate and retained own reserve despite actual sharedphysicalcompletion known.','next_owner':'ADAPTER canonical cache/settlement/enforcer writer; general receiver-bound terminalflight outcome/role/request/scope/attempt proof, exact ownintent abort on joined non-dispatch, keep originalactual unknown or known settlement pending separately. No followernumeric0, timeout-string inference, new fabricated event or arbitrary receipt authority.'},
+ 'source_census':{'denominator':'All tracked Python files under policy-engine/src and policy-engine/tests at exactsourcea2 Git tree; not documentation or installed external plugins','all_tracked_paths':len(paths),'python_files':len(py),'pattern':pattern.pattern,'actual_BudgetMiddleware_subclass_matches':matches,'qualification':'Lexical class/subclass census narrows tracked extension evidence only; dynamic outside-repo composition is not proven absent.'},
+ 'basis':{'physical_observations_and_hash_ref_comparison':'recomputed','actual_runtime_origins':'author runtime guards, captured hashes independently_reconciled to exactGit by reviewer','producer_and_cache_issuer_authority':'consumer_asserted finite runtime contract; external institutional authority not_established','closure_ids':[]},
+ 'batch_controls':['Sameflight leaderknowncharge+follower actualjoined role must not create another unknownprovider or duplicatecharge.','Genuine originalprovider unknown/callbacklostACK must remain exact pending; a joined recipient must not erase the originalphysicalunknown.','Receiver bound expected actualcacheowner, request, scope, principal and attempt; wrongissuer/request/replayed outcome cannot abort anotherintent.','Success/error/caller cancellation outcome reaches ownership settlement before cache/result emission; no fresh deadline reset or arbitrary exception-name parsing.','Fault fixtures target actual owner view, all original money/call/cache/response assertions unchanged.'],
+ 'limitations':['Author whole34+one observer diagnostic were executed by author; this reviewer did not rerun runtime.','Observer constructor/gather wrappers delegate original bodies and only record returned quantities; sourceorigin file hash does not imply in-memory function bodies unwrapped. Full diagnostic driver preserved.','No outside-audit authority, billing invoice, arbitrary subclass or fullproduction dataset acceptance.','Independent17PASS receipt remains exacthistoricala2; new future source must own its own source/consumer checks.']}
+dump('review.json',verdict)
+shutil.copyfile('/tmp/e02-B65-flight-review-a2.py',DEST/'review-data.source.txt')
+entries=[]
+for path in sorted(DEST.rglob('*')):
+ if path.is_file():
+  raw=path.read_bytes();entries.append({'path':path.relative_to(OWN).as_posix(),'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest()})
+dump('index.json',{'objects_excluding_index':len(entries),'bytes_excluding_index':sum(r['bytes'] for r in entries),'entries':entries,'retention_reason':'Complete deciding authorwhole34 stdout/JUnit/wrapper/origins and actualoneflight observational driver/log/ledger; no shortened deciding data or future custody. Reviewer no native execution.'})
+print(json.dumps({'objects':len(entries)+1,'bytes_excluding_index':sum(r['bytes'] for r in entries),'source_python_denominator':len(py),'source_subclass_matches':matches,'native_whole_counts':runs[0]['counts'],'diagnostic_counts':runs[1]['counts'],'source_origins':[r['captured_origin_count'] for r in runs]},indent=2))

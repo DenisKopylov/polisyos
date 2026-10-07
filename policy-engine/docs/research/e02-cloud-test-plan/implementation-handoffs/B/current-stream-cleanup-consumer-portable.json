@@ -1,0 +1,246 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-stream-cleanup-consumer-portable",
+  "closure_ids": [],
+  "finding_ids": [
+    "B87"
+  ],
+  "bundle_ids": [
+    "NET-01"
+  ],
+  "slice_base_sha": "67c4a6f6f4e396c61d26846c51127cc4724978e1",
+  "implementation_commits": [
+    "724ed196e2058d48e7f35e8d141f72bcd631cad0"
+  ],
+  "candidate_tree_sha": "fcf1446c59dccd41f4a22ae75e0224a5e621a7cc",
+  "branch": "codex/e02-B-current-durability",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/43",
+  "changed_paths": [
+    "policy-engine/tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py"
+  ],
+  "production_changed_paths": [],
+  "baseline_cells": [
+    "F02-P004",
+    "F04-P009",
+    "F06-P010",
+    "F06-P020",
+    "F07-P008",
+    "F08-P010",
+    "F11-P015",
+    "F12-P008",
+    "F13-P010",
+    "F15-P004"
+  ],
+  "baseline_navigation": {
+    "git_sha": "99af508a5282854f3e609c5a94bc19ac55893dde",
+    "cell_finding_join": "policy-engine/docs/research/e02-cloud-test-plan/full-run/finding-routes.json (B87)",
+    "cell_source_ref_environment_input": "policy-engine/docs/research/e02-cloud-test-plan/results/{cells.tsv,events.jsonl,sources.json}",
+    "meaning": "Navigation only; source-reported baseline is not evidence for this new runtime source."
+  },
+  "initial_deciding_receipt": {
+    "git_sha": "67c4a6f6f4e396c61d26846c51127cc4724978e1",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-consumer-oracle.json",
+    "sha256": "918b905ba68920b8f84831118db799eba6c339d2ec8c704d3568293f50172638",
+    "meaning": "Initial a6+actual48e7PASS1FAIL/full3output bytes remain historical, not reruns on root205."
+  },
+  "runtime_source": {
+    "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+    "source_tree_sha": "ac45ebc869b655ad349808f262eee50041b1923c",
+    "actual_head_checkpoints": {
+      "before": {
+        "own": "724ed196e2058d48e7f35e8d141f72bcd631cad0",
+        "root": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7"
+      },
+      "after": {
+        "own": "724ed196e2058d48e7f35e8d141f72bcd631cad0",
+        "root": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7"
+      }
+    },
+    "observed_module_backings": [
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/pool.py",
+        "sha256": "0efa56aab0b99ae5213be8f5e5e44bc3f5ffb935382b878ed0858cbbaa7ece35"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+        "sha256": "aaa69447dca6eb011a21e2385abad9a91b796d0f90689d1ab7b93e88ffa9e5c3"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/data_plane/cursor_store.py",
+        "sha256": "e52018d556972e60932490fa7c7e9510ad66f2c72a694b429f4eb1e9bebc3405"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/sources/event_stream.py",
+        "sha256": "63fb6aed45dd586828adec4a8a1dd8eea8a347ff4659ad1b5a801c8bd78a2d48"
+      }
+    ],
+    "scope": "Actual root205 source includes changed acceptedCAS production; pool/stream/EventStream/cursor backings match printed4e hashes, but no all-production equivalence to4e/f131/48e is claimed. Exact full root205 source is the declared product input."
+  },
+  "observer_delta": "Only nondeciding FD observation portability: list[str]|None, None+explicitUNRUN if /proc/self/fd absent. All eight runtime ownership assertions and original failure remain unchanged. Linuxrepeat observes lists and observed status; no actual Mac execution claimed.",
+  "checks": [
+    {
+      "id": "portable-observer-root205-consumers",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-c",
+        "import hashlib,json,pathlib,pytest\nfrom polisyos.fabric.connectors import pool\nfrom polisyos.fabric.data_plane import streaming,cursor_store\nfrom polisyos.fabric.connectors.sources import event_stream\nexpected={pool: \"0efa56aab0b99ae5213be8f5e5e44bc3f5ffb935382b878ed0858cbbaa7ece35\",streaming:\"aaa69447dca6eb011a21e2385abad9a91b796d0f90689d1ab7b93e88ffa9e5c3\",cursor_store:\"e52018d556972e60932490fa7c7e9510ad66f2c72a694b429f4eb1e9bebc3405\",event_stream:\"63fb6aed45dd586828adec4a8a1dd8eea8a347ff4659ad1b5a801c8bd78a2d48\"}\nfor module,digest in expected.items():\n p=pathlib.Path(module.__file__).resolve(); actual=hashlib.sha256(p.read_bytes()).hexdigest(); print(\"B87_ACTUAL_SOURCE\",json.dumps({\"module\":module.__name__,\"origin\":str(p),\"sha256\":actual}),flush=True); assert str(p).startswith(\"/workspace/e02-B-current-coordination/policy-engine/src/\") and actual==digest\nraise SystemExit(pytest.main([\"-vv\",\"-s\",\"/workspace/e02-B-current-durability/policy-engine/tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py\",\"--basetemp=/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/b87-cleanup-portable-205/pytest\",\"-o\",\"cache_dir=/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/b87-cleanup-portable-205/cache\",\"--junitxml=/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/b87-cleanup-portable-205/native.xml\"]))"
+      ],
+      "cwd": "/workspace/e02-B-current-durability/policy-engine",
+      "target_sha": "724ed196e2058d48e7f35e8d141f72bcd631cad0",
+      "product_source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "environment": {
+        "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "python_version": "3.14.2",
+        "pytest_version": "9.0.2",
+        "dependency_profile": "Root-provided isolated actual environment; no sync/install by this slice. Declared environment/source/config/fixture closure, not complete dynamic import/resource readset.",
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache"
+      },
+      "input_closure": {
+        "product_source_ref": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+        "actual_product_checkout_ref": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+        "native_test_ref": "724ed196e2058d48e7f35e8d141f72bcd631cad0:policy-engine/tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py",
+        "pytest_config_and_conftest_ref": "724ed196e2058d48e7f35e8d141f72bcd631cad0:policy-engine/{pytest.ini,pyproject.toml,tests/conftest.py}",
+        "fixtures": "Per-case temporary real JSONL with two rows, real FileSystemCAS and CursorStore; corrupt stream_checkpoint_index.json for read refusal; actual persisted empty legacy StreamCheckpoint for fallback rewind. No production dataset, external DB, network service or added synthetic stream protocol method.",
+        "fault_profile": "ObservedFileConnector subclasses actual EventStreamConnector; delegate real connect/fetch_stream/disconnect. Fetch-entry refusal, three startup disconnect refusals, once final disconnect refusal; caller cancellation after connector poll gate entered before actual file iterator read.",
+        "observation_profile": "Constructor observer returns canonical ConnectionPool unchanged. Captures actual C-created pool solely to measure/clean test fixtures; observer close is explicitly after all production registry retry/fresh acquire measurements and cannot satisfy the property.",
+        "physical_scope": "File EventStream does not retain OS descriptors across reads. Actual ConnectionHandle disconnect confirmation and pool pending owner measured; actual /proc/self/fd JSONL counts separately reported as zero. No descriptor leak or connector-global connection quota inferred. Portable observer returns None with explicit UNRUN when /proc/self/fd is absent; Linux observation remains actual empty list/observed. FD is not a deciding assertion.",
+        "isolation": "Unique new basetemp/cache paths in exact argv. Full actual scratch retained until deciding outputs. No artificial process/worker/thread concurrency quota introduced."
+      },
+      "outcome": "FAIL",
+      "exit": 1,
+      "case_counts": {
+        "PASS": 7,
+        "FAIL": 1,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "wall_s": 2.860126202009269,
+      "max_rss_kib": 200988,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-consumer-evidence/portable-205/native.txt",
+        "sha256": "3cfe260f78516cb84932df7c7caa0ea0a7cafac534a352708d0310a30d8cfca0",
+        "bytes": 41734
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-consumer-evidence/portable-205/native.xml",
+        "sha256": "a5f9dd7ca38eaafd1a20fa5bbb7c24ce11388f0f0707e4030e20b867d1c855a1",
+        "bytes": 10736
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-consumer-evidence/portable-205/native-wrapper.json",
+        "sha256": "59e8235b8434194ec25cb1a86cb6d8f35a7c3ab6d32dd586149888a3d58cf0c2",
+        "bytes": 2989
+      },
+      "deciding_output": "Only process-disconnect-failure actual assertion FAIL. All seven healthy/error/cancel/startup-owner/direct-retry controls PASS; no XFAIL or suppressed assertion."
+    }
+  ],
+  "property": {
+    "statement": "A finished stream process must not abandon an acquired ConnectionHandle with unconfirmed disconnect and no production owner able to retry cleanup.",
+    "runtime_path": [
+      "Actual EventStreamConnector file URI connect/fetch_stream",
+      "StreamingSourceSession create/fallback subscribe/poll/rewind",
+      "process_stream_dataset real FileSystemCAS/CursorStore processing",
+      "Canonical ConnectionPool release/close_all physical disconnect confirmation",
+      "ConnectorRegistry startup owner transfer/shutdown_async retry consumer"
+    ],
+    "proxy_divergence": "Free semaphore count is insufficient: failing case has available_permits=1 and pending_permit=False in a permanently closed pool, while one actual old handle remains unconfirmed, registry retry owner count is zero and shutdown cannot retire it. Fresh new C session creates another real handle; later observer-only close completes old cleanup but cannot repair the missing production transfer.",
+    "negative_controls": [
+      "Subscribe fetch-entry fault preserves exact primary exception and cleans acquired handle.",
+      "Corrupt actual CursorStore index refuses and cleans after real session acquisition.",
+      "Actual fallback rewind fetch-entry fault cleans both release/reacquire stages.",
+      "Caller cancellation while poll gate is entered propagates CancelledError and cleans.",
+      "Three startup disconnect failures preserve primary reason+notes and registry owns retry; shutdown retires old handle.",
+      "Direct retained session second close finishes once-failed disconnect; third close is idempotent.",
+      "Final process disconnect failure is retained actual FAIL, with every retry/fresh-acquire observation printed before property assertions."
+    ],
+    "authority_purpose": "Bounded operational stream resource ownership; no institutional/data/tenant authority"
+  },
+  "predicate_basis": "independently_reconciled",
+  "capability_state_or_finding_state": "B87 OPEN: concrete final-process cleanup retry owner missing; supported startup/retry controls verified. Not an occupied-permit or OS descriptor leak claim.",
+  "finding_dispositions": [
+    {
+      "finding_id": "B87",
+      "bundle_id": "NET-01",
+      "state": "open",
+      "canonical_source_basis": {
+        "git_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "card_path_template": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/{bundle_id}.md",
+        "criterion_locator": "Marker line range locates the full SOURCE block; source_block_sha256 hashes raw UTF-8 regex capture between markers, preserving all whitespace. See current-canonical-criterion-digest-qualification.json."
+      },
+      "canonical_criterion": {
+        "line_begin": 49,
+        "line_end": 62,
+        "source_block_sha256": "9c6e17b748643693b07a5fefefd6943e2ada4415b4b29c7a3e3aaa70d3846781"
+      },
+      "deciding_check": "portable-observer-root205-consumers",
+      "actual_countercase": "Once real connector.disconnect refuses after process has released its handle to idle, pool.close_all retains pending handle but process exits without retaining that pool through registry. Registry shutdown does not observe it; only external test observer can retry.",
+      "remaining_consumer": "C/G final process cleanup must retain/transfer the actual failed pool owner for retry or finish its required cleanup before leaving; preserve primary errors/cancellation.",
+      "closure_applied": false
+    }
+  ],
+  "canonical_digest_qualification": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-canonical-criterion-digest-qualification.json",
+    "sha256": "b06de8e80a4749ab666c91e1acab08d52263b26f08e3a96173d6ec8f436e048a",
+    "bytes": 2340
+  },
+  "limitations_and_next_owner": [
+    "C alone owns streaming.py; this branch changes only the defining consumer test and receipt companions. Root/G code acceptance and final whole cohort/gates remain separate.",
+    "Current C sets closed after release/close_all and recovery setup is already inside try/finally. Historical early-closed/pre-try examples are not witnesses for current source.",
+    "Fresh session uses a new pool; it does not restore capacity of the original permanently closed pool. No global connector capacity, persistent FD, service incident, powerloss or multihost claim.",
+    "Cap1 restored-frontier budget FAIL remains a separate B→C divergence and does not establish this cleanup countercase.",
+    "Caller cancellation is injected at an entered connector polling wait before real file read; actual file read/processing is established by healthy/fresh controls. Native subscribe_stream/rewind_stream/close_stream absent on file connector and not fabricated.",
+    "Smallest required C consumer capability: keep failed final process pool/handle reachable by an explicit runtime retry owner, with actual original handle disconnect-confirmed by that owner; no source fix is claimed here.",
+    "No exactLinuxdriver/source equivalence claimed across a6→portable test724 or root48e→root205; changed observer/source inputs are explicit."
+  ],
+  "independent_review": {
+    "reviewer": "/root/run_writer",
+    "status": "Initial a6/67 source/evidence review published db78cfe7894c0f09aa0aefa223f04f7944cde151; narrow724 portable input/new205 output review requested on this immutable successor, no reviewer runtime."
+  },
+  "evidence_files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-consumer-evidence/portable-205/native.txt",
+      "sha256": "3cfe260f78516cb84932df7c7caa0ea0a7cafac534a352708d0310a30d8cfca0",
+      "bytes": 41734
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-consumer-evidence/portable-205/native.xml",
+      "sha256": "a5f9dd7ca38eaafd1a20fa5bbb7c24ce11388f0f0707e4030e20b867d1c855a1",
+      "bytes": 10736
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-consumer-evidence/portable-205/native-wrapper.json",
+      "sha256": "59e8235b8434194ec25cb1a86cb6d8f35a7c3ab6d32dd586149888a3d58cf0c2",
+      "bytes": 2989
+    }
+  ],
+  "pattern_pass": {
+    "ids": [
+      "P29",
+      "P31",
+      "P35",
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "bucket": "Same B87 cleanup ownership class, final-process consumer one level deeper; no new normative law.",
+    "criterion_vs_proxy": "Permit1 does not imply actual old handle disconnect confirmation or a reachable retry owner. Both native handle/pending ownership and current registry retry are measured.",
+    "red_provenance": "New actual runtime FAIL on named root205 source/test724; initial f131/48e FAIL remains a separately pinned historical execution. Neither inherited red nor historical source/macro PASS is asserted."
+  },
+  "local_G_candidate": {
+    "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+    "test_sha": "724ed196e2058d48e7f35e8d141f72bcd631cad0",
+    "selector": "policy-engine/tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[process-disconnect-failure]",
+    "negative_input": "Real two-row JSONL plus once-refused EventStreamConnector.disconnect; real session, pool, CAS/CursorStore and registry shutdown; old handle remains pending after final process exit.",
+    "next_owner": "C/G",
+    "fix_candidate_sha": "not_established; no streaming source edits permitted in this B leaf"
+  },
+  "cleanup_candidates": {
+    "raw_path": "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/b87-cleanup-portable-205",
+    "pytest_fixture_path": "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/b87-cleanup-portable-205/pytest",
+    "status": "Preserved until deciding output/independent intake; no permanent deletion."
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "defining.xml": {
+    "cases": 12,
+    "PASS": 11,
+    "FAIL": 1,
+    "ERROR": 0,
+    "SKIP": 0,
+    "wall_testcase_sum_s": 3.743,
+    "nonpass": [
+      {
+        "nodeid": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget::test_expired_budget_refuses_actual_cas_worker_before_artifact",
+        "outcome": "FAIL"
+      }
+    ]
+  },
+  "defining-frozen.xml": {
+    "cases": 14,
+    "PASS": 14,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0,
+    "wall_testcase_sum_s": 5.153,
+    "nonpass": []
+  },
+  "old-entered.xml": {
+    "cases": 1,
+    "PASS": 0,
+    "FAIL": 1,
+    "ERROR": 0,
+    "SKIP": 0,
+    "wall_testcase_sum_s": 1.128,
+    "nonpass": [
+      {
+        "nodeid": "tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody::test_entered_mutable_publication_is_unacknowledged_unknown_not_rollback[checkpoint]",
+        "outcome": "FAIL"
+      }
+    ]
+  },
+  "final-affected.xml": {
+    "cases": 122,
+    "PASS": 121,
+    "FAIL": 1,
+    "ERROR": 0,
+    "SKIP": 0,
+    "wall_testcase_sum_s": 84.15299999999999,
+    "nonpass": [
+      {
+        "nodeid": "tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody::test_suppressed_checkpoint_cancellation_cannot_admit_new_owner_publication",
+        "outcome": "FAIL"
+      }
+    ]
+  },
+  "cancel-final-native.xml": {
+    "cases": 40,
+    "PASS": 40,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0,
+    "wall_testcase_sum_s": 8.377,
+    "nonpass": []
+  }
+}

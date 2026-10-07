@@ -1,0 +1,85 @@
+"""Read complete retained PostgreSQL fixture tables from the actual JUnit schema set."""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import subprocess
+import sys
+import xml.etree.ElementTree as ET
+from pathlib import Path
+
+sys.path.insert(0, "/tmp/e02-B38-pg-profile")
+import psycopg
+from psycopg.conninfo import make_conninfo
+
+OUT = Path("/tmp/e02-B38-pg-evidence")
+REPO = Path("/workspace/e02-B-current-execution-state")
+XML = OUT / "native-first/native.xml"
+DSN = (OUT / "postgres-dsn").read_text()
+head = subprocess.check_output(
+    ["git", "-C", str(REPO), "rev-parse", "HEAD"], text=True
+).strip()
+xml = ET.parse(XML).getroot()
+records = []
+for case in xml.findall(".//testcase"):
+    assert not any(
+        case.find(tag) is not None for tag in ("failure", "error", "skipped")
+    )
+    props = {
+        item.attrib["name"]: item.attrib["value"]
+        for item in case.findall("properties/property")
+    }
+    schema = props["postgres_schema"]
+    scoped = make_conninfo(DSN, options="-csearch_path=" + schema)
+    with psycopg.connect(scoped) as connection:
+        identity = connection.execute(
+            "SELECT version(), current_database(), current_schema(), inet_server_port()"
+        ).fetchone()
+        names = connection.execute(
+            "SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = %s ORDER BY tablename",
+            (schema,),
+        ).fetchall()
+        tables = {}
+        for (name,) in names:
+            cursor = connection.execute(
+                psycopg.sql.SQL("SELECT * FROM {}.{}").format(
+                    psycopg.sql.Identifier(schema), psycopg.sql.Identifier(name)
+                )
+            )
+            tables[name] = {
+                "columns": [column.name for column in cursor.description],
+                "rows": sorted(cursor.fetchall(), key=repr),
+            }
+    records.append(
+        {
+            "case": case.attrib,
+            "properties": props,
+            "identity": identity,
+            "tables": tables,
+        }
+    )
+assert len(records) == 8
+result = {
+    "head": head,
+    "head_after": subprocess.check_output(
+        ["git", "-C", str(REPO), "rev-parse", "HEAD"], text=True
+    ).strip(),
+    "xml_path": str(XML),
+    "xml_sha256": hashlib.sha256(XML.read_bytes()).hexdigest(),
+    "schemas": records,
+    "scope": "Every table row in the eight actual JUnit schemas; no sequence/catalog rollback claim.",
+}
+assert result["head_after"] == head
+(OUT / "retained-tables.json").write_text(
+    json.dumps(result, indent=2, default=str) + "\n"
+)
+print(
+    json.dumps(
+        {
+            "head": head,
+            "schema_count": len(records),
+            "table_counts": [len(r["tables"]) for r in records],
+        }
+    )
+)

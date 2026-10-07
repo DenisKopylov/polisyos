@@ -1,0 +1,17 @@
+{
+  "peer": "b6c4d27a23d78feb8c081be9e9024051805a647b",
+  "before": "a7db52db1f21271b0325df6f0065c36cdd6a3d77",
+  "merge_base": "c85e5c5a87fe148cb8b69694a214e3bdd6967de2",
+  "after": "9d7b2529d5e7662323882ddb92d7429283740ee1",
+  "after_tree": "1d40f6cd78ecc7d96f69a2177a44ffa525451c8a",
+  "paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-evidence/reconcile.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-evidence/reconciliation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-handoff.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json"
+  ],
+  "non_handoff_paths": [],
+  "full_stdout": "Merge made by the 'ort' strategy.\n .../reconcile.source.txt                           |  223 ++\n .../reconciliation.json                            |   48 +\n .../B/current-all60-final-criterion-handoff.json   |  294 ++\n .../B/current-all60-final-criterion-proposal.json  | 3241 ++++++++++++++++++++\n 4 files changed, 3806 insertions(+)\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-evidence/reconcile.source.txt\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-evidence/reconciliation.json\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-handoff.json\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json\n",
+  "full_stderr": "",
+  "exit_code": 0
+}

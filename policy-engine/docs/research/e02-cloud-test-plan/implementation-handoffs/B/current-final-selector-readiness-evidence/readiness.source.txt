@@ -1,0 +1,32 @@
+import subprocess, csv, io, json, hashlib
+source_sha = "8a489d08a007fdc3dfbb85703447b3ad9f5c7a03"
+base_sha = "198076863e143dea9f89f02734b13d50dae3eed5"
+historical_sha = "dd9584728bd96f204983615216efdbc58117e713"
+prefix = "policy-engine/docs/research/e02-cloud-test-plan/"
+read = lambda path: subprocess.check_output(["git", "show", source_sha + ":" + path])
+tsv = lambda path: list(csv.DictReader(io.StringIO(read(path).decode()), delimiter="\t"))
+identity = lambda path: {"path": path, "source_sha": source_sha, "git_blob": subprocess.check_output(["git", "rev-parse", source_sha + ":" + path]).decode().strip(), "sha256": hashlib.sha256(read(path)).hexdigest(), "bytes": len(read(path))}
+bundles = [x for x in tsv(prefix + "execution-organization/bundle-owners.tsv") if x["unit"] == "B"]
+findings = [x for x in tsv(prefix + "execution-organization/finding-owners.tsv") if x["unit"] == "B"]
+coverage = json.loads(read(prefix + "closure-decisions/coverage.json"))
+ids = {x["finding_id"] for x in findings}
+bids = {x["bundle_id"] for x in bundles}
+cards = [x for x in coverage["bundles"] if x["unit"] == "B"]
+criteria = [x for x in coverage["findings"] if x.get("unit") == "B"]
+manifest_path = "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json"
+manifest = json.loads(read(manifest_path))
+manifest_bundles = [x for x in manifest["bundles"] if x["id"] in bids]
+manifest_ids = {f for x in manifest_bundles for f in [*x["findings"], *x.get("legacy_cards", [])]}
+card_ids = {f for x in cards for f in x["finding_ids"]}
+routes = [x for x in tsv(prefix + "results/routes.tsv") if x["unit"] == "B" and x["finding_id"] in ids]
+cells = {x["id"]: x for x in tsv(prefix + "results/cells.tsv")}
+missing_cells = [x["cell_id"] for x in routes if x["cell_id"] not in cells]
+tracked = set(subprocess.check_output(["git", "ls-tree", "-r", "--name-only", source_sha]).decode().splitlines())
+changed = lambda base: subprocess.check_output(["git", "diff", "--name-only", base, source_sha, "--", "policy-engine/tests"]).decode().splitlines()
+changed_python = [x for x in changed(base_sha) if x in tracked and x.endswith(".py")]
+changed_native = [x for x in changed_python if x.rsplit("/", 1)[-1].startswith("test_") or x.endswith("_test.py")]
+helpers = sorted(set(changed_python) - set(changed_native))
+new_after_historical = [x for x in changed(historical_sha) if x in tracked and x.endswith(".py")]
+canonical_card_equal = all(subprocess.check_output(["git", "show", "69780761ae091d8fcc6ab8778c7f5f7227eeef0b:" + card["criterion_card"]]) == read(card["criterion_card"]) for card in cards)
+input_paths = [prefix + "execution-organization/bundle-owners.tsv", prefix + "execution-organization/finding-owners.tsv", prefix + "results/routes.tsv", prefix + "results/cells.tsv", prefix + "closure-decisions/coverage.json", prefix + "closure-decisions/B.md", manifest_path, "policy-engine/pytest.ini", prefix + "implementation-handoffs/B/final-cohort-selector.py", prefix + "implementation-handoffs/B/final-root-evidence/pytest-cli-option-profile.json"]
+print(json.dumps({"source_sha": source_sha, "source_tree": subprocess.check_output(["git", "rev-parse", source_sha + "^{tree}"]).decode().strip(), "owners": {"bundles": len(bundles), "finding_rows": len(findings), "finding_ids": len(ids)}, "coverage": {"bundle_rows": len(cards), "finding_rows": len(criteria), "card_union_matches": card_ids == ids, "criteria_ids_match": {x["id"] for x in criteria} == ids, "manifest_with_legacy_matches": manifest_ids == ids, "bundles_match": {x["id"] for x in cards} == bids, "all25_card_bytes_equal_canonical697": canonical_card_equal}, "navigation": {"route_rows": len(routes), "route_cells": len({x["cell_id"] for x in routes}), "missing_exact_cells": missing_cells, "findings_without_routes": sorted(ids - {x["finding_id"] for x in routes}), "runtime_proof": "NOT_ESTABLISHED_BY_NAVIGATION"}, "changed_inputs": {"tracked_python_test_and_helper_paths": len(changed_python), "tracked_native_wholefiles": len(changed_native), "helpers": helpers, "new_or_changed_after_DD": new_after_historical, "B52_future_merge_path_present": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_cost_oracle.py" in tracked}, "input_identities": [identity(path) for path in input_paths], "canonical_cards": [{"bundle_id": card["id"], "identity": identity(card["criterion_card"])} for card in cards], "execution": "UNRUN; Git-only source census, no selector main derivation/pytest/collection"}, indent=2))

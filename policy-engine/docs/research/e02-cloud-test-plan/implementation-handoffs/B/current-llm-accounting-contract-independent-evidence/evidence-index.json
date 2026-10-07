@@ -1,0 +1,72 @@
+{
+  "schema": "policyos.e02.foreign_contract_review_evidence_index.v1",
+  "target_sha": "dd9584728bd96f204983615216efdbc58117e713",
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-accounting-contract-independent-evidence/review.json",
+      "observed_path": "/tmp/e02-B-llm-contract-review-exe/review.json",
+      "bytes": 70153,
+      "sha256": "94ecb4f48cd198f0e307f2823ac549876f477bef9501eeca139c544d11286b07"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-accounting-contract-independent-evidence/review.source.txt",
+      "observed_path": "/tmp/e02-B-llm-contract-review-exe/review.source.txt",
+      "bytes": 11565,
+      "sha256": "bd1e9b007dad75f61ac54bfec9a6ee7c8f4d3e5cb3033f6cda9b44c9e085e1e5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-accounting-contract-independent-evidence/b66-native.txt",
+      "observed_path": "/tmp/e02-b66-unknown-dd-7jdlujt1/native.txt",
+      "bytes": 99500,
+      "sha256": "21fad5970ce6ec686940cd991b3af355ac3dba93464d33ee83cd759af2fe06cf"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-accounting-contract-independent-evidence/b66-native.xml",
+      "observed_path": "/tmp/e02-b66-unknown-dd-7jdlujt1/native.xml",
+      "bytes": 12769,
+      "sha256": "efc7904e572dde884ecee7d6c3b49711d9c1efaa8a936710127e79fc24a41ae6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-accounting-contract-independent-evidence/b66-native.json",
+      "observed_path": "/tmp/e02-b66-unknown-dd-7jdlujt1/native.json",
+      "bytes": 4927,
+      "sha256": "4fa1a14b859d9baad597b283b007c1ec0053e98cee7ac4d84fbaff6ba2e586c8"
+    }
+  ],
+  "B65_existing_published_bindings": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/qualified/native.txt",
+      "commit": "6432daa0c17d9085b87b2117f5f24cd5251ea4fc",
+      "bytes": 78759,
+      "sha256": "2b32c24941f6e798970d2aee67b9d7bc7c012d4ccb5622738edd1710c5143e86",
+      "original_read_path": "/tmp/e02-B65-protected-audit-qualified/native.txt",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/qualified/native.xml",
+      "commit": "6432daa0c17d9085b87b2117f5f24cd5251ea4fc",
+      "bytes": 11955,
+      "sha256": "81ff734fdb7d12d3eca87e2bcc8e5fc4fa3101ab0bd7030db0f6c30a4cd38dad",
+      "original_read_path": "/tmp/e02-B65-protected-audit-qualified/native.xml",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/qualified/wrapper.json",
+      "commit": "6432daa0c17d9085b87b2117f5f24cd5251ea4fc",
+      "bytes": 4721,
+      "sha256": "180a22f615d53adf66a398b72a1274880548d10e56bd6f54d17f8ce08a393a5f",
+      "original_read_path": "/tmp/e02-B65-protected-audit-qualified/wrapper.json",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/qualified/source-context.json",
+      "commit": "6432daa0c17d9085b87b2117f5f24cd5251ea4fc",
+      "bytes": 52196,
+      "sha256": "343fd56d1465d00c6aca20ae3b33bcb495ad7c316e1c4ee7e18eb7e580c8bf1b",
+      "original_read_path": "/tmp/e02-B65-protected-audit-qualified/source-context.json",
+      "byte_equal": true
+    }
+  ],
+  "historical_baseline_navigation": "Original query full outputs retained ignored at /tmp/e02-B-llm-contract-review-exe/{B65,B66}-query.json; source cells/routes/received remain pinnedGit navigation only, not candidate runtime proof.",
+  "closure_ids": []
+}

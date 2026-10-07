@@ -1,0 +1,46 @@
+{
+  "interpreter": "/workspace/polisyos/policy-engine/.venv/bin/python",
+  "sys_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+  "sys_prefix": "/workspace/polisyos/policy-engine/.venv",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "versions": {
+    "pytest": "9.0.2",
+    "pydantic": "2.12.5",
+    "mypy": "1.19.1",
+    "ruff": "0.14.10",
+    "jax": "0.8.2",
+    "jaxlib": "0.8.2",
+    "numpy": "2.3.5"
+  },
+  "input_files": {
+    "pyproject.toml": {
+      "bytes": 11007,
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+    },
+    "uv.lock": {
+      "bytes": 779204,
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+    },
+    "pytest.ini": {
+      "bytes": 1021,
+      "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+    },
+    "src/polisyos/core/artifacts/manifest_profile.py": {
+      "bytes": 756,
+      "sha256": "aa7ee9af617c1adc338a21a5b0186d41a690e6b86f2a0810ae9b5a7ee4ff7ce5"
+    },
+    "src/polisyos/core/artifacts/manifest.py": {
+      "bytes": 12758,
+      "sha256": "fb1fb68e18b80ba83ee2aa6b94a011386ede96bc75c492123bb4de3bec45639d"
+    },
+    "src/polisyos/core/artifacts/store.py": {
+      "bytes": 173575,
+      "sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324"
+    },
+    "src/polisyos/core/canon/__init__.py": {
+      "bytes": 606,
+      "sha256": "e33a7486224d5e15cd418ac4dab69bb38ac6b1593d739a4b7ac24ea4d477dfb3"
+    }
+  },
+  "qualification": "Supporting process inventory, not native child loaded-module census. Native command/source wrappers and foreign CAS actual module census bind tests separately."
+}

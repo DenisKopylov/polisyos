@@ -1,0 +1,54 @@
+[
+  {
+    "argv": [
+      "/tmp/e02-B38-pg-evidence/oci/rootfs/lib/ld-musl-x86_64.so.1",
+      "--library-path",
+      "/tmp/e02-B38-pg-evidence/oci/rootfs/usr/local/lib:/tmp/e02-B38-pg-evidence/oci/rootfs/usr/lib:/tmp/e02-B38-pg-evidence/oci/rootfs/lib",
+      "/tmp/e02-B38-pg-evidence/oci/rootfs/usr/local/bin/postgres",
+      "--version"
+    ],
+    "exit_code": 0,
+    "stdout": "postgres (PostgreSQL) 17.11\n",
+    "stderr": "",
+    "binary_sha256": "b65c19ceb9ae7e18f6e271e08dda64557a92d5a7bf46b76257d58d8c95678555"
+  },
+  {
+    "argv": [
+      "/tmp/e02-B38-pg-evidence/oci/rootfs/lib/ld-musl-x86_64.so.1",
+      "--library-path",
+      "/tmp/e02-B38-pg-evidence/oci/rootfs/usr/local/lib:/tmp/e02-B38-pg-evidence/oci/rootfs/usr/lib:/tmp/e02-B38-pg-evidence/oci/rootfs/lib",
+      "/tmp/e02-B38-pg-evidence/oci/rootfs/usr/local/bin/initdb",
+      "--version"
+    ],
+    "exit_code": 0,
+    "stdout": "initdb (PostgreSQL) 17.11\n",
+    "stderr": "",
+    "binary_sha256": "b22657bfddfba767cca63312c2689ae6c176b04adb474eff9778ce5751b06e8a"
+  },
+  {
+    "argv": [
+      "/tmp/e02-B38-pg-evidence/oci/rootfs/lib/ld-musl-x86_64.so.1",
+      "--library-path",
+      "/tmp/e02-B38-pg-evidence/oci/rootfs/usr/local/lib:/tmp/e02-B38-pg-evidence/oci/rootfs/usr/lib:/tmp/e02-B38-pg-evidence/oci/rootfs/lib",
+      "/tmp/e02-B38-pg-evidence/oci/rootfs/usr/local/bin/pg_ctl",
+      "--version"
+    ],
+    "exit_code": 0,
+    "stdout": "pg_ctl (PostgreSQL) 17.11\n",
+    "stderr": "",
+    "binary_sha256": "4ba293ebb3106704b78f3cafc7f9417d374a1785ffc78d85e17fcf2cee339b72"
+  },
+  {
+    "argv": [
+      "/tmp/e02-B38-pg-evidence/oci/rootfs/lib/ld-musl-x86_64.so.1",
+      "--library-path",
+      "/tmp/e02-B38-pg-evidence/oci/rootfs/usr/local/lib:/tmp/e02-B38-pg-evidence/oci/rootfs/usr/lib:/tmp/e02-B38-pg-evidence/oci/rootfs/lib",
+      "/tmp/e02-B38-pg-evidence/oci/rootfs/usr/local/bin/psql",
+      "--version"
+    ],
+    "exit_code": 0,
+    "stdout": "psql (PostgreSQL) 17.11\n",
+    "stderr": "",
+    "binary_sha256": "c4e48eba81b1b9e2a8ab11347afdce0ffc9eb8df41c87e4e694dce3ab79cadb5"
+  }
+]

@@ -1,0 +1,409 @@
+ACTUAL_MODULE_BINDINGS {"budget": {"origin": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/scientist/orchestration/engine/budget.py", "sha256": "76adb290dd270a7a8ce6fb0823bf1f035c00673f3662abf7cb35ca13d8209516"}, "budget_ledger": {"origin": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py", "sha256": "312f31fd3fd6062124b3124a526e4997f6d05e3d79b9c5ce0ec968dec5a41efe"}, "budget_middleware": {"origin": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py", "sha256": "6ad7d0eddbfa7aef9f6f32de5c35505047016367a8b6aa54edbdba99eba3c0f8"}}
+IN_MEMORY_PROPERTY_REMOVAL admission-removal; typed DTOs/record identities/markers and filesystem implementation retained
+============================= test session starts ==============================
+platform linux -- Python 3.14.2, pytest-9.0.2, pluggy-1.6.0 -- /workspace/polisyos/policy-engine/.venv/bin/python
+rootdir: /dev
+configfile: null
+collecting ... collected 36 items / 30 deselected / 6 selected
+
+../../../dev::test_intent_faults_never_lose_physical_admission_uncertainty[fsync-False] <- ../workspace/e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_budget_completion_obligations.py FAILED
+../../../dev::test_intent_faults_never_lose_physical_admission_uncertainty[fsync-True] <- ../workspace/e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_budget_completion_obligations.py FAILED
+../../../dev::test_intent_faults_never_lose_physical_admission_uncertainty[replace-False] <- ../workspace/e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_budget_completion_obligations.py FAILED
+../../../dev::test_intent_faults_never_lose_physical_admission_uncertainty[replace-True] <- ../workspace/e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_budget_completion_obligations.py FAILED
+../../../dev::test_intent_faults_never_lose_physical_admission_uncertainty[directory-False] <- ../workspace/e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_budget_completion_obligations.py FAILED
+../../../dev::test_intent_faults_never_lose_physical_admission_uncertainty[directory-True] <- ../workspace/e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_budget_completion_obligations.py FAILED
+
+=================================== FAILURES ===================================
+__ test_intent_faults_never_lose_physical_admission_uncertainty[fsync-False] ___
+
+tmp_path = PosixPath('/tmp/e02-B-dur-completion-frozen-admission-removal-9f2a/fixtures/test_intent_faults_never_lose_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f64ece68d60>
+after_work = False, fault = 'fsync'
+
+    @pytest.mark.parametrize("after_work", [False, True])
+    @pytest.mark.parametrize("fault", ["fsync", "replace", "directory"])
+    def test_intent_faults_never_lose_physical_admission_uncertainty(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch, after_work: bool, fault: str
+    ) -> None:
+        import polisyos.scientist.orchestration.engine.budget_ledger as module
+    
+        path, work = tmp_path / "ledger.json", tmp_path / "provider.jsonl"
+        middleware = _middleware(path)
+        intent = _intent(middleware)
+        if after_work:
+            assert middleware.admit_provider_intent_safe(intent)
+            _physical_work(work, intent.obligation_id)
+        observed = _record(owner_epoch=intent.owner_epoch)
+        actual_fsync, actual_replace = module.os.fsync, module.os.replace
+        replaced = False
+    
+        def fsync(fd):
+            if fault == "fsync" or (fault == "directory" and replaced):
+                raise OSError("actual fsync refusal")
+            return actual_fsync(fd)
+    
+        def replace(source, target):
+            nonlocal replaced
+            if fault == "replace":
+                raise OSError("actual replacement refusal")
+            result = actual_replace(source, target)
+            replaced = True
+            return result
+    
+        with monkeypatch.context() as patch:
+            patch.setattr(module.os, "fsync", fsync)
+            patch.setattr(module.os, "replace", replace)
+    
+            def perform():
+                if after_work:
+                    middleware.transition_completion_obligation_safe(observed, intent.payload_digest)
+                elif middleware.admit_provider_intent_safe(intent):
+                    _physical_work(work, intent.obligation_id)
+    
+            with pytest.raises(BudgetLedgerCompletionOutcomeUnknownError):
+                perform()
+        assert (len(work.read_text().splitlines()) if work.exists() else 0) == int(after_work)
+        snapshot = FileBudgetLedger(path).snapshot()
+        assert not snapshot.spend_receipts and snapshot.state.limits["run"].max_usd == 10
+        if after_work or fault == "directory":
+            assert _child(path, "reserve")["exception"] == "BudgetLedgerCompletionRequiredError"
+        # A clone of this same owner cannot exploit an old in-flight disk phase.
+        sibling = middleware.with_completion_resolver(_ActualAuditResolver(tmp_path / "unused"))
+        if after_work and fault != "directory":
+            # Replaying the exact older disk record is not acknowledgment of the
+            # observed completion whose publication failed. Keep that uncertainty.
+            sibling.transition_completion_obligation_safe(intent, intent.payload_digest)
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/scientist/orchestration/engine/test_budget_completion_obligations.py:407: Failed
+___ test_intent_faults_never_lose_physical_admission_uncertainty[fsync-True] ___
+
+tmp_path = PosixPath('/tmp/e02-B-dur-completion-frozen-admission-removal-9f2a/fixtures/test_intent_faults_never_lose_1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f64ece9c050>
+after_work = True, fault = 'fsync'
+
+    @pytest.mark.parametrize("after_work", [False, True])
+    @pytest.mark.parametrize("fault", ["fsync", "replace", "directory"])
+    def test_intent_faults_never_lose_physical_admission_uncertainty(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch, after_work: bool, fault: str
+    ) -> None:
+        import polisyos.scientist.orchestration.engine.budget_ledger as module
+    
+        path, work = tmp_path / "ledger.json", tmp_path / "provider.jsonl"
+        middleware = _middleware(path)
+        intent = _intent(middleware)
+        if after_work:
+            assert middleware.admit_provider_intent_safe(intent)
+            _physical_work(work, intent.obligation_id)
+        observed = _record(owner_epoch=intent.owner_epoch)
+        actual_fsync, actual_replace = module.os.fsync, module.os.replace
+        replaced = False
+    
+        def fsync(fd):
+            if fault == "fsync" or (fault == "directory" and replaced):
+                raise OSError("actual fsync refusal")
+            return actual_fsync(fd)
+    
+        def replace(source, target):
+            nonlocal replaced
+            if fault == "replace":
+                raise OSError("actual replacement refusal")
+            result = actual_replace(source, target)
+            replaced = True
+            return result
+    
+        with monkeypatch.context() as patch:
+            patch.setattr(module.os, "fsync", fsync)
+            patch.setattr(module.os, "replace", replace)
+    
+            def perform():
+                if after_work:
+                    middleware.transition_completion_obligation_safe(observed, intent.payload_digest)
+                elif middleware.admit_provider_intent_safe(intent):
+                    _physical_work(work, intent.obligation_id)
+    
+            with pytest.raises(BudgetLedgerCompletionOutcomeUnknownError):
+                perform()
+        assert (len(work.read_text().splitlines()) if work.exists() else 0) == int(after_work)
+        snapshot = FileBudgetLedger(path).snapshot()
+        assert not snapshot.spend_receipts and snapshot.state.limits["run"].max_usd == 10
+        if after_work or fault == "directory":
+            assert _child(path, "reserve")["exception"] == "BudgetLedgerCompletionRequiredError"
+        # A clone of this same owner cannot exploit an old in-flight disk phase.
+        sibling = middleware.with_completion_resolver(_ActualAuditResolver(tmp_path / "unused"))
+        if after_work and fault != "directory":
+            # Replaying the exact older disk record is not acknowledgment of the
+            # observed completion whose publication failed. Keep that uncertainty.
+            sibling.transition_completion_obligation_safe(intent, intent.payload_digest)
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/scientist/orchestration/engine/test_budget_completion_obligations.py:407: Failed
+_ test_intent_faults_never_lose_physical_admission_uncertainty[replace-False] __
+
+tmp_path = PosixPath('/tmp/e02-B-dur-completion-frozen-admission-removal-9f2a/fixtures/test_intent_faults_never_lose_2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f64ecfa7240>
+after_work = False, fault = 'replace'
+
+    @pytest.mark.parametrize("after_work", [False, True])
+    @pytest.mark.parametrize("fault", ["fsync", "replace", "directory"])
+    def test_intent_faults_never_lose_physical_admission_uncertainty(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch, after_work: bool, fault: str
+    ) -> None:
+        import polisyos.scientist.orchestration.engine.budget_ledger as module
+    
+        path, work = tmp_path / "ledger.json", tmp_path / "provider.jsonl"
+        middleware = _middleware(path)
+        intent = _intent(middleware)
+        if after_work:
+            assert middleware.admit_provider_intent_safe(intent)
+            _physical_work(work, intent.obligation_id)
+        observed = _record(owner_epoch=intent.owner_epoch)
+        actual_fsync, actual_replace = module.os.fsync, module.os.replace
+        replaced = False
+    
+        def fsync(fd):
+            if fault == "fsync" or (fault == "directory" and replaced):
+                raise OSError("actual fsync refusal")
+            return actual_fsync(fd)
+    
+        def replace(source, target):
+            nonlocal replaced
+            if fault == "replace":
+                raise OSError("actual replacement refusal")
+            result = actual_replace(source, target)
+            replaced = True
+            return result
+    
+        with monkeypatch.context() as patch:
+            patch.setattr(module.os, "fsync", fsync)
+            patch.setattr(module.os, "replace", replace)
+    
+            def perform():
+                if after_work:
+                    middleware.transition_completion_obligation_safe(observed, intent.payload_digest)
+                elif middleware.admit_provider_intent_safe(intent):
+                    _physical_work(work, intent.obligation_id)
+    
+            with pytest.raises(BudgetLedgerCompletionOutcomeUnknownError):
+                perform()
+        assert (len(work.read_text().splitlines()) if work.exists() else 0) == int(after_work)
+        snapshot = FileBudgetLedger(path).snapshot()
+        assert not snapshot.spend_receipts and snapshot.state.limits["run"].max_usd == 10
+        if after_work or fault == "directory":
+            assert _child(path, "reserve")["exception"] == "BudgetLedgerCompletionRequiredError"
+        # A clone of this same owner cannot exploit an old in-flight disk phase.
+        sibling = middleware.with_completion_resolver(_ActualAuditResolver(tmp_path / "unused"))
+        if after_work and fault != "directory":
+            # Replaying the exact older disk record is not acknowledgment of the
+            # observed completion whose publication failed. Keep that uncertainty.
+            sibling.transition_completion_obligation_safe(intent, intent.payload_digest)
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/scientist/orchestration/engine/test_budget_completion_obligations.py:407: Failed
+__ test_intent_faults_never_lose_physical_admission_uncertainty[replace-True] __
+
+tmp_path = PosixPath('/tmp/e02-B-dur-completion-frozen-admission-removal-9f2a/fixtures/test_intent_faults_never_lose_3')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f64ecea4650>
+after_work = True, fault = 'replace'
+
+    @pytest.mark.parametrize("after_work", [False, True])
+    @pytest.mark.parametrize("fault", ["fsync", "replace", "directory"])
+    def test_intent_faults_never_lose_physical_admission_uncertainty(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch, after_work: bool, fault: str
+    ) -> None:
+        import polisyos.scientist.orchestration.engine.budget_ledger as module
+    
+        path, work = tmp_path / "ledger.json", tmp_path / "provider.jsonl"
+        middleware = _middleware(path)
+        intent = _intent(middleware)
+        if after_work:
+            assert middleware.admit_provider_intent_safe(intent)
+            _physical_work(work, intent.obligation_id)
+        observed = _record(owner_epoch=intent.owner_epoch)
+        actual_fsync, actual_replace = module.os.fsync, module.os.replace
+        replaced = False
+    
+        def fsync(fd):
+            if fault == "fsync" or (fault == "directory" and replaced):
+                raise OSError("actual fsync refusal")
+            return actual_fsync(fd)
+    
+        def replace(source, target):
+            nonlocal replaced
+            if fault == "replace":
+                raise OSError("actual replacement refusal")
+            result = actual_replace(source, target)
+            replaced = True
+            return result
+    
+        with monkeypatch.context() as patch:
+            patch.setattr(module.os, "fsync", fsync)
+            patch.setattr(module.os, "replace", replace)
+    
+            def perform():
+                if after_work:
+                    middleware.transition_completion_obligation_safe(observed, intent.payload_digest)
+                elif middleware.admit_provider_intent_safe(intent):
+                    _physical_work(work, intent.obligation_id)
+    
+            with pytest.raises(BudgetLedgerCompletionOutcomeUnknownError):
+                perform()
+        assert (len(work.read_text().splitlines()) if work.exists() else 0) == int(after_work)
+        snapshot = FileBudgetLedger(path).snapshot()
+        assert not snapshot.spend_receipts and snapshot.state.limits["run"].max_usd == 10
+        if after_work or fault == "directory":
+            assert _child(path, "reserve")["exception"] == "BudgetLedgerCompletionRequiredError"
+        # A clone of this same owner cannot exploit an old in-flight disk phase.
+        sibling = middleware.with_completion_resolver(_ActualAuditResolver(tmp_path / "unused"))
+        if after_work and fault != "directory":
+            # Replaying the exact older disk record is not acknowledgment of the
+            # observed completion whose publication failed. Keep that uncertainty.
+            sibling.transition_completion_obligation_safe(intent, intent.payload_digest)
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/scientist/orchestration/engine/test_budget_completion_obligations.py:407: Failed
+_ test_intent_faults_never_lose_physical_admission_uncertainty[directory-False] _
+
+tmp_path = PosixPath('/tmp/e02-B-dur-completion-frozen-admission-removal-9f2a/fixtures/test_intent_faults_never_lose_4')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f64ece705f0>
+after_work = False, fault = 'directory'
+
+    @pytest.mark.parametrize("after_work", [False, True])
+    @pytest.mark.parametrize("fault", ["fsync", "replace", "directory"])
+    def test_intent_faults_never_lose_physical_admission_uncertainty(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch, after_work: bool, fault: str
+    ) -> None:
+        import polisyos.scientist.orchestration.engine.budget_ledger as module
+    
+        path, work = tmp_path / "ledger.json", tmp_path / "provider.jsonl"
+        middleware = _middleware(path)
+        intent = _intent(middleware)
+        if after_work:
+            assert middleware.admit_provider_intent_safe(intent)
+            _physical_work(work, intent.obligation_id)
+        observed = _record(owner_epoch=intent.owner_epoch)
+        actual_fsync, actual_replace = module.os.fsync, module.os.replace
+        replaced = False
+    
+        def fsync(fd):
+            if fault == "fsync" or (fault == "directory" and replaced):
+                raise OSError("actual fsync refusal")
+            return actual_fsync(fd)
+    
+        def replace(source, target):
+            nonlocal replaced
+            if fault == "replace":
+                raise OSError("actual replacement refusal")
+            result = actual_replace(source, target)
+            replaced = True
+            return result
+    
+        with monkeypatch.context() as patch:
+            patch.setattr(module.os, "fsync", fsync)
+            patch.setattr(module.os, "replace", replace)
+    
+            def perform():
+                if after_work:
+                    middleware.transition_completion_obligation_safe(observed, intent.payload_digest)
+                elif middleware.admit_provider_intent_safe(intent):
+                    _physical_work(work, intent.obligation_id)
+    
+            with pytest.raises(BudgetLedgerCompletionOutcomeUnknownError):
+                perform()
+        assert (len(work.read_text().splitlines()) if work.exists() else 0) == int(after_work)
+        snapshot = FileBudgetLedger(path).snapshot()
+        assert not snapshot.spend_receipts and snapshot.state.limits["run"].max_usd == 10
+        if after_work or fault == "directory":
+            assert _child(path, "reserve")["exception"] == "BudgetLedgerCompletionRequiredError"
+        # A clone of this same owner cannot exploit an old in-flight disk phase.
+        sibling = middleware.with_completion_resolver(_ActualAuditResolver(tmp_path / "unused"))
+        if after_work and fault != "directory":
+            # Replaying the exact older disk record is not acknowledgment of the
+            # observed completion whose publication failed. Keep that uncertainty.
+            sibling.transition_completion_obligation_safe(intent, intent.payload_digest)
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/scientist/orchestration/engine/test_budget_completion_obligations.py:407: Failed
+_ test_intent_faults_never_lose_physical_admission_uncertainty[directory-True] _
+
+tmp_path = PosixPath('/tmp/e02-B-dur-completion-frozen-admission-removal-9f2a/fixtures/test_intent_faults_never_lose_5')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f64ece4af90>
+after_work = True, fault = 'directory'
+
+    @pytest.mark.parametrize("after_work", [False, True])
+    @pytest.mark.parametrize("fault", ["fsync", "replace", "directory"])
+    def test_intent_faults_never_lose_physical_admission_uncertainty(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch, after_work: bool, fault: str
+    ) -> None:
+        import polisyos.scientist.orchestration.engine.budget_ledger as module
+    
+        path, work = tmp_path / "ledger.json", tmp_path / "provider.jsonl"
+        middleware = _middleware(path)
+        intent = _intent(middleware)
+        if after_work:
+            assert middleware.admit_provider_intent_safe(intent)
+            _physical_work(work, intent.obligation_id)
+        observed = _record(owner_epoch=intent.owner_epoch)
+        actual_fsync, actual_replace = module.os.fsync, module.os.replace
+        replaced = False
+    
+        def fsync(fd):
+            if fault == "fsync" or (fault == "directory" and replaced):
+                raise OSError("actual fsync refusal")
+            return actual_fsync(fd)
+    
+        def replace(source, target):
+            nonlocal replaced
+            if fault == "replace":
+                raise OSError("actual replacement refusal")
+            result = actual_replace(source, target)
+            replaced = True
+            return result
+    
+        with monkeypatch.context() as patch:
+            patch.setattr(module.os, "fsync", fsync)
+            patch.setattr(module.os, "replace", replace)
+    
+            def perform():
+                if after_work:
+                    middleware.transition_completion_obligation_safe(observed, intent.payload_digest)
+                elif middleware.admit_provider_intent_safe(intent):
+                    _physical_work(work, intent.obligation_id)
+    
+            with pytest.raises(BudgetLedgerCompletionOutcomeUnknownError):
+                perform()
+        assert (len(work.read_text().splitlines()) if work.exists() else 0) == int(after_work)
+        snapshot = FileBudgetLedger(path).snapshot()
+        assert not snapshot.spend_receipts and snapshot.state.limits["run"].max_usd == 10
+        if after_work or fault == "directory":
+            assert _child(path, "reserve")["exception"] == "BudgetLedgerCompletionRequiredError"
+        # A clone of this same owner cannot exploit an old in-flight disk phase.
+        sibling = middleware.with_completion_resolver(_ActualAuditResolver(tmp_path / "unused"))
+        if after_work and fault != "directory":
+            # Replaying the exact older disk record is not acknowledgment of the
+            # observed completion whose publication failed. Keep that uncertainty.
+            sibling.transition_completion_obligation_safe(intent, intent.payload_digest)
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/scientist/orchestration/engine/test_budget_completion_obligations.py:407: Failed
+- generated xml file: /tmp/e02-B-dur-completion-frozen-admission-removal-9f2a/native.xml -
+=========================== short test summary info ============================
+FAILED ../../../dev::test_intent_faults_never_lose_physical_admission_uncertainty[fsync-False] - Failed: DID NOT RAISE <class 'RuntimeError'>
+FAILED ../../../dev::test_intent_faults_never_lose_physical_admission_uncertainty[fsync-True] - Failed: DID NOT RAISE <class 'RuntimeError'>
+FAILED ../../../dev::test_intent_faults_never_lose_physical_admission_uncertainty[replace-False] - Failed: DID NOT RAISE <class 'RuntimeError'>
+FAILED ../../../dev::test_intent_faults_never_lose_physical_admission_uncertainty[replace-True] - Failed: DID NOT RAISE <class 'RuntimeError'>
+FAILED ../../../dev::test_intent_faults_never_lose_physical_admission_uncertainty[directory-False] - Failed: DID NOT RAISE <class 'RuntimeError'>
+FAILED ../../../dev::test_intent_faults_never_lose_physical_admission_uncertainty[directory-True] - Failed: DID NOT RAISE <class 'RuntimeError'>
+======================= 6 failed, 30 deselected in 1.02s =======================

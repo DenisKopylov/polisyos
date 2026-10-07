@@ -1,0 +1,7 @@
+{
+  "initial_metadata_packager": "package-initial.source.txt",
+  "initial_result": "FAIL KeyError(ref) while selecting query.finding_routes ref; source and runtime unaffected; partial metadata was not used for a conclusion. Full exact failed source preserved, error observed in tool transcript, no separately captured raw stderr file.",
+  "corrected_packager": "package.source.txt",
+  "corrected_result": "PASS: source_ref comes from complete finding_basis.assigned_routes; each9cell exact receivedline checked;7fullheaders+transfer hashes match; successful metadata-only generation printed43objects1352366B.",
+  "runtime_replayed_for_this_correction": false
+}

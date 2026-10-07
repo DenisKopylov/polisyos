@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="16.118" timestamp="2026-10-06T12:13:02.939455+00:00" hostname="b878f4efbdfc"><testcase classname="tests.integration.scientist.test_checkpoint_resume" name="test_seeded_checkpoint_publication_cuts_reopen_old_or_complete_frontier" time="8.465"><failure message="AssertionError: assert ['seed', 'right'] == ['seed', 'left', 'right']&#10;  &#10;  At index 1 diff: 'right' != 'left'&#10;  Right contains one more item: 'right'&#10;  Use -v to get more diff">tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/final-b73-frontier-removal/tmp/test_seeded_checkpoint_publica0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7ff78c5de190&gt;
+
+    def test_seeded_checkpoint_publication_cuts_reopen_old_or_complete_frontier(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -&gt; None:
+        """A fresh reader follows only the atomic head's committed tier frontier."""
+        monkeypatch.setenv("POLISYOS_RUNNER_BACKEND", "local")
+        monkeypatch.setenv("POLISYOS_RUNNER_MAX_PARALLELISM", "2")
+        process_context = multiprocessing.get_context("spawn")
+        for cut in ("after_artifact_before_head", "after_head_before_history"):
+            store = FileSystemCAS(tmp_path / cut)
+            workflow = _seeded_parallel_workflow()
+            run_id = f"R_b73_seeded_publication_cut_{cut}"
+            _, bundle_ref, _ = _seed_parallel_checkpoint(store, run_id=run_id, workflow=workflow)
+            run_dir = Path(store.root) / "runs" / run_id
+            seed_head = load_checkpoint_head(run_dir)
+            assert seed_head is not None
+            seed_checkpoint = load_checkpoint(store, seed_head.checkpoint_ref)
+            seed_completed_nodes = list(seed_checkpoint.metadata.completed_nodes)
+            assert seed_completed_nodes == ["seed"]
+            expected_origin_fingerprint = compute_workflow_fingerprint(workflow)
+            expected_residual_fingerprint = compute_workflow_fingerprint(
+                _build_resume_workflow_spec(
+                    workflow,
+                    completed_nodes=seed_completed_nodes,
+                )
+            )
+            phase_queue = process_context.Queue()
+            release_event = process_context.Event()
+            writer = process_context.Process(
+                target=_b73_pause_writer_at_owner_phase,
+                args=(
+                    str(store.root),
+                    run_id,
+                    bundle_ref.model_dump(mode="json"),
+                    cut,
+                    os.environ.get("POLISYOS_B73_REMOVE_LEFT_FRONTIER") == "1"
+                    and cut == "after_artifact_before_head",
+                    phase_queue,
+                    release_event,
+                ),
+            )
+            try:
+                writer.start()
+                observed = phase_queue.get(timeout=60)
+                assert observed["phase"] == cut
+                remove_left_for_cut = (
+                    os.environ.get("POLISYOS_B73_REMOVE_LEFT_FRONTIER") == "1"
+                    and cut == "after_artifact_before_head"
+                )
+                if remove_left_for_cut:
+                    assert observed["mutation_receipt"] == {
+                        "source_sha256": (
+                            "ba199986b9ca60cd2b110af6d03ccdf679c9321426a01538ea0034e7898be66b"
+                        ),
+                        "method": "AsyncWorkflowExecutor.execute",
+                        "original_expression": "completed_nodes.extend(tier_completed)",
+                        "mutated_expression": (
+                            "completed_nodes.extend(("
+                            "b73_frontier_alias for b73_frontier_alias "
+                            "in tier_completed if b73_frontier_alias != 'left'))"
+                        ),
+                        "mutant_installed": True,
+                    }
+                else:
+                    assert observed["mutation_receipt"] is None
+                assert observed["left_calls"] == 1
+                assert observed["right_calls"] == 1
+                assert observed["final_calls"] == 0
+    
+                observed_ref = ArtifactRef.model_validate(observed["checkpoint_ref"])
+                history = load_checkpoint_history(run_dir)
+                history_refs = (
+                    []
+                    if history is None
+                    else [str(entry.checkpoint_ref.artifact_id) for entry in history.entries]
+                )
+                if cut == "after_artifact_before_head":
+                    current_head = load_checkpoint_head(run_dir)
+                    assert current_head == seed_head
+                    assert str(observed_ref.artifact_id) not in history_refs
+                    uncommitted = load_checkpoint(store, observed_ref)
+                    uncommitted_state = materialize_checkpoint_state(store, observed_ref)
+                    assert (
+                        uncommitted.metadata.completed_node_status_contract == "native_node_outcome_v1"
+                    )
+                    assert uncommitted_state["params"] == {
+                        "seed": 29,
+                        "step1": 1,
+                        "left": 1,
+                        "right": 2,
+                    }
+                    _assert_tier_cache_entries_bind_node_identity_and_content(
+                        store,
+                        run_id=run_id,
+                        workflow=workflow,
+                        completed_nodes=["seed", "left", "right"],
+                        checkpoint_state=uncommitted_state,
+                        cache_entry_refs=uncommitted.metadata.cache_entry_refs,
+                    )
+&gt;                   assert uncommitted.metadata.completed_nodes == ["seed", "left", "right"]
+E                   AssertionError: assert ['seed', 'right'] == ['seed', 'left', 'right']
+E                     
+E                     At index 1 diff: 'right' != 'left'
+E                     Right contains one more item: 'right'
+E                     Use -v to get more diff
+
+policy-engine/tests/integration/scientist/test_checkpoint_resume.py:1552: AssertionError</failure></testcase></testsuite></testsuites>

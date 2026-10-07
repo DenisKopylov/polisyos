@@ -1,0 +1,40 @@
+{
+  "target_sha": "99af508a5282854f3e609c5a94bc19ac55893dde",
+  "head_after": "99af508a5282854f3e609c5a94bc19ac55893dde",
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-c",
+    "from dataclasses import asdict; import json; from tools.devx.workspace import doctor; print(json.dumps({\"doctor_file\":doctor.__file__,\"frontend_root\":str(doctor.FRONTEND_ROOT),\"smoke\":doctor.PLAYWRIGHT_SMOKE})); result=doctor._check_playwright(); print(json.dumps(asdict(result))); raise SystemExit(0 if result.ok else 1)"
+  ],
+  "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+  "environment": {
+    "node_path": "/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin/node",
+    "node_version": "22.22.0",
+    "pnpm_version": "10.33.2",
+    "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+    "PLAYWRIGHT_BROWSERS_PATH": null,
+    "no_process_or_numeric_quota_added": true
+  },
+  "outcome": "FAIL",
+  "exit_code": 1,
+  "wall_s": 0.38467030799074564,
+  "output_path": "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/browser-readiness/doctor-playwright-before.txt",
+  "output_bytes": 1862,
+  "output_sha256": "2f26717dbc2af156559c1f49ee29feaafb0b80fc5ed0969093ed36e100a60850",
+  "identity_command": [
+    "/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin/node",
+    "-e",
+    "const fs=require('fs');const path=require('path');const crypto=require('crypto');const {createRequire}=require('module');const mod=require.resolve('playwright');const local=createRequire(mod);const core=local.resolve('playwright-core/package.json');const pkg=local.resolve('playwright/package.json');const browsers=path.join(path.dirname(core),'browsers.json');const {chromium}=require('playwright');console.log(JSON.stringify({node:process.version,execPath:process.execPath,cwd:process.cwd(),playwright_module:mod,playwright_package:pkg,playwright_version:JSON.parse(fs.readFileSync(pkg)).version,core_package:core,core_version:JSON.parse(fs.readFileSync(core)).version,browsers_json:browsers,browsers_json_sha256:crypto.createHash('sha256').update(fs.readFileSync(browsers)).digest('hex'),chromium_revisions:JSON.parse(fs.readFileSync(browsers)).browsers.filter(x=>/chromium|ffmpeg/.test(x.name)),executable:chromium.executablePath(),executable_exists:fs.existsSync(chromium.executablePath()),browser_path_env:process.env.PLAYWRIGHT_BROWSERS_PATH??null},null,2));"
+  ],
+  "identity_output": {
+    "path": "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/browser-readiness/browser-identity-before.txt",
+    "sha256": "92a8aeb3ffce4ef81cbf9d1d7c6c7f497221d5464444f9d5799df76911308af4"
+  },
+  "input_hashes": {
+    "tools/devx/workspace/doctor.py": "6d71f9367e0680b0b3799e94df7b0b6249c4ca41f669d62a6982c924dcdeb58b",
+    "tools/devx/workspace/_common.py": "fadb1e8e48587a79fdeafdf7ce23216518d4f09a06c3045b0ed1f1c0133c267a",
+    "package.json": "9b0fda729ff501b08fa5f4b1a2d783e3000425b187776b0fc6831a9e04ee070f",
+    "apps/runtime-dashboard/package.json": "e8d8ad4efe1e7e2b17cdbda770ed31157b94cdea51de2ab721ef1fabadb72f6a",
+    "pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e"
+  }
+}

@@ -1,0 +1,680 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "cas-typed-ports",
+  "closure_ids": [],
+  "proposed_criterion_ids": [],
+  "bundle_ids": [
+    "CAS-01",
+    "CAS-02",
+    "CAS-03"
+  ],
+  "owned_finding_ids": [
+    "B148",
+    "B149",
+    "B150",
+    "B151",
+    "B152",
+    "B153",
+    "B154",
+    "B155"
+  ],
+  "slice_base_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+  "slice_base_tree_sha": "d3bae9a9502b701e2ed73d9ffab07ba6a0883502",
+  "implementation_commits": [
+    "5ece606ee1c1016c1133a1e81bbf852574a64a48"
+  ],
+  "candidate_tree_sha": "ff36af874a0a08d3571a1703ce1574b8273c9cbf",
+  "evidence_commit": "be787fd402d70a3917c55e39238f400a7e104d21",
+  "branch": "codex/e02-B-current-cas-generation",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/42",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-cas-typed-ports.toml",
+    "policy-engine/src/polisyos/core/artifacts/README.md",
+    "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+    "policy-engine/src/polisyos/core/artifacts/store.py"
+  ],
+  "baseline_cells": [],
+  "baseline_context": "No historical baseline cell or prior summary establishes this typing repair. Fresh clean-base exact mypy FAIL7 is checks[0]; prior gate output d7dfc... is retained independently. Canonical semantic B148\u2013B155 baseline bindings remain in prior CAS receipts; this quality slice makes no new finding closure claim.",
+  "checks": [
+    {
+      "name": "base-mypy",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "mypy",
+        "src/polisyos/core/artifacts/_integrity_ops.py",
+        "src/polisyos/core/artifacts/store.py"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "target_tree_sha": "d3bae9a9502b701e2ed73d9ffab07ba6a0883502",
+      "source_qualification": "clean slice base",
+      "environment": {
+        "installed_distribution_census": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/environment.json@be787fd402d70a3917c55e39238f400a7e104d21",
+        "effective_execution_environment": {
+          "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+          "UV_NO_SYNC": "1",
+          "POLISYOS_METRICS_PORT": "0",
+          "E02_B_PROPERTY_REMOVAL": null
+        },
+        "numeric_caps_absent": [
+          "OMP_NUM_THREADS",
+          "OPENBLAS_NUM_THREADS",
+          "MKL_NUM_THREADS",
+          "NUMEXPR_NUM_THREADS",
+          "VECLIB_MAXIMUM_THREADS",
+          "BLIS_NUM_THREADS"
+        ]
+      },
+      "input_closure": {
+        "complete_argv_and_explicit_custody_profile": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/base-mypy.json@be787fd402d70a3917c55e39238f400a7e104d21",
+        "profile_sha256": "df1b8d9893593d0665ae118172427d8be63cadebf5b18bb38c78db9514e399db",
+        "qualification": "Profile binds explicitly captured entrypoints/source/native tests/config/lock files. Transitive imported modules, system calls and resources are not a complete runtime read-set; this is no P41 zero-input-intersection proof."
+      },
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 1.6214197840017732,
+      "maxrss_kib": 174872,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/base-mypy.txt@be787fd402d70a3917c55e39238f400a7e104d21",
+      "output_bytes": 1458,
+      "output_sha256": "d7dfc109b0553a3cf702c9eb21e71b5e895db47c78936c9a8ca2e52feb74287f",
+      "execution_instrument": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/instrument-initial.json@be787fd402d70a3917c55e39238f400a7e104d21"
+    },
+    {
+      "name": "overlay-mypy",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "mypy",
+        "src/polisyos/core/artifacts/_integrity_ops.py",
+        "src/polisyos/core/artifacts/store.py"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "target_tree_sha": "d3bae9a9502b701e2ed73d9ffab07ba6a0883502",
+      "source_qualification": "dirty precommit overlay at actual base HEAD; executed bytes pinned individually in input_closure profile",
+      "environment": {
+        "installed_distribution_census": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/environment.json@be787fd402d70a3917c55e39238f400a7e104d21",
+        "effective_execution_environment": {
+          "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+          "UV_NO_SYNC": "1",
+          "POLISYOS_METRICS_PORT": "0",
+          "E02_B_PROPERTY_REMOVAL": null
+        },
+        "numeric_caps_absent": [
+          "OMP_NUM_THREADS",
+          "OPENBLAS_NUM_THREADS",
+          "MKL_NUM_THREADS",
+          "NUMEXPR_NUM_THREADS",
+          "VECLIB_MAXIMUM_THREADS",
+          "BLIS_NUM_THREADS"
+        ]
+      },
+      "input_closure": {
+        "complete_argv_and_explicit_custody_profile": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/overlay-mypy.json@be787fd402d70a3917c55e39238f400a7e104d21",
+        "profile_sha256": "aef4319c257821413babf57908085b1945bfd1b86192ba18ea9cd19908658156",
+        "qualification": "Profile binds explicitly captured entrypoints/source/native tests/config/lock files. Transitive imported modules, system calls and resources are not a complete runtime read-set; this is no P41 zero-input-intersection proof."
+      },
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 1.2511297909950372,
+      "maxrss_kib": 168380,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/overlay-mypy.txt@be787fd402d70a3917c55e39238f400a7e104d21",
+      "output_bytes": 914,
+      "output_sha256": "5649d97c6198a5599c76d5c88df4d4d22311738d6eab29a7a0bc0fb3b912e34e",
+      "execution_instrument": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/instrument-initial.json@be787fd402d70a3917c55e39238f400a7e104d21"
+    },
+    {
+      "name": "refined-mypy",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "mypy",
+        "src/polisyos/core/artifacts/_integrity_ops.py",
+        "src/polisyos/core/artifacts/store.py"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "target_tree_sha": "d3bae9a9502b701e2ed73d9ffab07ba6a0883502",
+      "source_qualification": "dirty precommit overlay at actual base HEAD; executed bytes pinned individually in input_closure profile",
+      "environment": {
+        "installed_distribution_census": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/environment.json@be787fd402d70a3917c55e39238f400a7e104d21",
+        "effective_execution_environment": {
+          "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+          "UV_NO_SYNC": "1",
+          "POLISYOS_METRICS_PORT": "0",
+          "E02_B_PROPERTY_REMOVAL": null
+        },
+        "numeric_caps_absent": [
+          "OMP_NUM_THREADS",
+          "OPENBLAS_NUM_THREADS",
+          "MKL_NUM_THREADS",
+          "NUMEXPR_NUM_THREADS",
+          "VECLIB_MAXIMUM_THREADS",
+          "BLIS_NUM_THREADS"
+        ]
+      },
+      "input_closure": {
+        "complete_argv_and_explicit_custody_profile": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/refined-mypy.json@be787fd402d70a3917c55e39238f400a7e104d21",
+        "profile_sha256": "7edc348e75828efb5717d5393999a1d76bec5b2074ac8c05548429148ec2452e",
+        "qualification": "Profile binds explicitly captured entrypoints/source/native tests/config/lock files. Transitive imported modules, system calls and resources are not a complete runtime read-set; this is no P41 zero-input-intersection proof."
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 1.2260139720019652,
+      "maxrss_kib": 166264,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/refined-mypy.txt@be787fd402d70a3917c55e39238f400a7e104d21",
+      "output_bytes": 43,
+      "output_sha256": "f9b031e5c45aa702cd4fef028d465551cb20a2c4698e0913c7b00766b20ac4d8",
+      "execution_instrument": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/instrument-initial.json@be787fd402d70a3917c55e39238f400a7e104d21"
+    },
+    {
+      "name": "ruff",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "src/polisyos/core/artifacts/store.py",
+        "src/polisyos/core/artifacts/_transfer_ops.py"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "target_tree_sha": "d3bae9a9502b701e2ed73d9ffab07ba6a0883502",
+      "source_qualification": "dirty precommit overlay at actual base HEAD; executed bytes pinned individually in input_closure profile",
+      "environment": {
+        "installed_distribution_census": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/environment.json@be787fd402d70a3917c55e39238f400a7e104d21",
+        "effective_execution_environment": {
+          "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+          "UV_NO_SYNC": "1",
+          "POLISYOS_METRICS_PORT": "0",
+          "E02_B_PROPERTY_REMOVAL": null
+        },
+        "numeric_caps_absent": [
+          "OMP_NUM_THREADS",
+          "OPENBLAS_NUM_THREADS",
+          "MKL_NUM_THREADS",
+          "NUMEXPR_NUM_THREADS",
+          "VECLIB_MAXIMUM_THREADS",
+          "BLIS_NUM_THREADS"
+        ]
+      },
+      "input_closure": {
+        "complete_argv_and_explicit_custody_profile": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/ruff.json@be787fd402d70a3917c55e39238f400a7e104d21",
+        "profile_sha256": "c314df781cab40676907cd644667ff16e8d65cf624084107824e52b007a6c42c",
+        "qualification": "Profile binds explicitly captured entrypoints/source/native tests/config/lock files. Transitive imported modules, system calls and resources are not a complete runtime read-set; this is no P41 zero-input-intersection proof."
+      },
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 0.12783303899050225,
+      "maxrss_kib": 34368,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/ruff.txt@be787fd402d70a3917c55e39238f400a7e104d21",
+      "output_bytes": 512,
+      "output_sha256": "44bb601aface00d20336c94daf5e8afe7395f93cee61d0ab93b83c7ff8a82713",
+      "execution_instrument": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/instrument-initial.json@be787fd402d70a3917c55e39238f400a7e104d21"
+    },
+    {
+      "name": "format",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "src/polisyos/core/artifacts/store.py",
+        "src/polisyos/core/artifacts/_transfer_ops.py"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "target_tree_sha": "d3bae9a9502b701e2ed73d9ffab07ba6a0883502",
+      "source_qualification": "dirty precommit overlay at actual base HEAD; executed bytes pinned individually in input_closure profile",
+      "environment": {
+        "installed_distribution_census": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/environment.json@be787fd402d70a3917c55e39238f400a7e104d21",
+        "effective_execution_environment": {
+          "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+          "UV_NO_SYNC": "1",
+          "POLISYOS_METRICS_PORT": "0",
+          "E02_B_PROPERTY_REMOVAL": null
+        },
+        "numeric_caps_absent": [
+          "OMP_NUM_THREADS",
+          "OPENBLAS_NUM_THREADS",
+          "MKL_NUM_THREADS",
+          "NUMEXPR_NUM_THREADS",
+          "VECLIB_MAXIMUM_THREADS",
+          "BLIS_NUM_THREADS"
+        ]
+      },
+      "input_closure": {
+        "complete_argv_and_explicit_custody_profile": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/format.json@be787fd402d70a3917c55e39238f400a7e104d21",
+        "profile_sha256": "9a3750c3ab6f33fc75509f741f5b64c53392cfbe98f95b2a1b43dffcb05a68f9",
+        "qualification": "Profile binds explicitly captured entrypoints/source/native tests/config/lock files. Transitive imported modules, system calls and resources are not a complete runtime read-set; this is no P41 zero-input-intersection proof."
+      },
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 0.14075468700320926,
+      "maxrss_kib": 28912,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/format.txt@be787fd402d70a3917c55e39238f400a7e104d21",
+      "output_bytes": 107,
+      "output_sha256": "5e50b2cab4ba840e6041565f5fec19959d57430cbc44d93f3eb66d62e41dec0e",
+      "execution_instrument": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/instrument-initial.json@be787fd402d70a3917c55e39238f400a7e104d21"
+    },
+    {
+      "name": "final-mypy",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "mypy",
+        "src/polisyos/core/artifacts/_integrity_ops.py",
+        "src/polisyos/core/artifacts/store.py"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "5ece606ee1c1016c1133a1e81bbf852574a64a48",
+      "target_tree_sha": "ff36af874a0a08d3571a1703ce1574b8273c9cbf",
+      "source_qualification": "clean frozen implementation",
+      "environment": {
+        "installed_distribution_census": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/environment.json@be787fd402d70a3917c55e39238f400a7e104d21",
+        "effective_execution_environment": {
+          "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+          "UV_NO_SYNC": "1",
+          "POLISYOS_METRICS_PORT": "0",
+          "E02_B_PROPERTY_REMOVAL": null
+        },
+        "numeric_caps_absent": [
+          "OMP_NUM_THREADS",
+          "OPENBLAS_NUM_THREADS",
+          "MKL_NUM_THREADS",
+          "NUMEXPR_NUM_THREADS",
+          "VECLIB_MAXIMUM_THREADS",
+          "BLIS_NUM_THREADS"
+        ]
+      },
+      "input_closure": {
+        "complete_argv_and_explicit_custody_profile": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/final-mypy.json@be787fd402d70a3917c55e39238f400a7e104d21",
+        "profile_sha256": "e1e89ff56a88a29d38b117a380f8751a3fef5f0197a14fcf01c4da74d29391db",
+        "qualification": "Profile binds explicitly captured entrypoints/source/native tests/config/lock files. Transitive imported modules, system calls and resources are not a complete runtime read-set; this is no P41 zero-input-intersection proof."
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 1.2823001790093258,
+      "maxrss_kib": 165628,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/final-mypy.txt@be787fd402d70a3917c55e39238f400a7e104d21",
+      "output_bytes": 43,
+      "output_sha256": "f9b031e5c45aa702cd4fef028d465551cb20a2c4698e0913c7b00766b20ac4d8",
+      "execution_instrument": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/instrument-final.json@be787fd402d70a3917c55e39238f400a7e104d21"
+    },
+    {
+      "name": "final-ruff",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "src/polisyos/core/artifacts/store.py",
+        "src/polisyos/core/artifacts/_transfer_ops.py"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "5ece606ee1c1016c1133a1e81bbf852574a64a48",
+      "target_tree_sha": "ff36af874a0a08d3571a1703ce1574b8273c9cbf",
+      "source_qualification": "clean frozen implementation",
+      "environment": {
+        "installed_distribution_census": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/environment.json@be787fd402d70a3917c55e39238f400a7e104d21",
+        "effective_execution_environment": {
+          "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+          "UV_NO_SYNC": "1",
+          "POLISYOS_METRICS_PORT": "0",
+          "E02_B_PROPERTY_REMOVAL": null
+        },
+        "numeric_caps_absent": [
+          "OMP_NUM_THREADS",
+          "OPENBLAS_NUM_THREADS",
+          "MKL_NUM_THREADS",
+          "NUMEXPR_NUM_THREADS",
+          "VECLIB_MAXIMUM_THREADS",
+          "BLIS_NUM_THREADS"
+        ]
+      },
+      "input_closure": {
+        "complete_argv_and_explicit_custody_profile": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/final-ruff.json@be787fd402d70a3917c55e39238f400a7e104d21",
+        "profile_sha256": "3ce8f42902f03a700c9f93e217eb64061867a9cf35559883d51010bb1b88f578",
+        "qualification": "Profile binds explicitly captured entrypoints/source/native tests/config/lock files. Transitive imported modules, system calls and resources are not a complete runtime read-set; this is no P41 zero-input-intersection proof."
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 0.204044022000744,
+      "maxrss_kib": 34508,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/final-ruff.txt@be787fd402d70a3917c55e39238f400a7e104d21",
+      "output_bytes": 19,
+      "output_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "execution_instrument": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/instrument-final.json@be787fd402d70a3917c55e39238f400a7e104d21"
+    },
+    {
+      "name": "final-format",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "src/polisyos/core/artifacts/store.py",
+        "src/polisyos/core/artifacts/_transfer_ops.py"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "5ece606ee1c1016c1133a1e81bbf852574a64a48",
+      "target_tree_sha": "ff36af874a0a08d3571a1703ce1574b8273c9cbf",
+      "source_qualification": "clean frozen implementation",
+      "environment": {
+        "installed_distribution_census": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/environment.json@be787fd402d70a3917c55e39238f400a7e104d21",
+        "effective_execution_environment": {
+          "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+          "UV_NO_SYNC": "1",
+          "POLISYOS_METRICS_PORT": "0",
+          "E02_B_PROPERTY_REMOVAL": null
+        },
+        "numeric_caps_absent": [
+          "OMP_NUM_THREADS",
+          "OPENBLAS_NUM_THREADS",
+          "MKL_NUM_THREADS",
+          "NUMEXPR_NUM_THREADS",
+          "VECLIB_MAXIMUM_THREADS",
+          "BLIS_NUM_THREADS"
+        ]
+      },
+      "input_closure": {
+        "complete_argv_and_explicit_custody_profile": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/final-format.json@be787fd402d70a3917c55e39238f400a7e104d21",
+        "profile_sha256": "e8cf9ff41c6ce57afd7f8fb1063dd430364a263c5a24f95ee7eaec386c0df58f",
+        "qualification": "Profile binds explicitly captured entrypoints/source/native tests/config/lock files. Transitive imported modules, system calls and resources are not a complete runtime read-set; this is no P41 zero-input-intersection proof."
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 0.14746368299529422,
+      "maxrss_kib": 22100,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/final-format.txt@be787fd402d70a3917c55e39238f400a7e104d21",
+      "output_bytes": 26,
+      "output_sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+      "execution_instrument": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/instrument-final.json@be787fd402d70a3917c55e39238f400a7e104d21"
+    },
+    {
+      "name": "native",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "-vv",
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/core/artifacts/test_import_admission_noop.py",
+        "tests/unit/core/artifacts/test_transfer_generation_publication.py",
+        "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+        "tests/unit/core/artifacts/test_cas_integrity_report.py",
+        "tests/unit/core/artifacts/test_artifact_store_protocol.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "--basetemp",
+        "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/cas-typed-ports/native-pytest",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/cas-typed-ports/native-cache",
+        "--junitxml=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/cas-typed-ports/native.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "5ece606ee1c1016c1133a1e81bbf852574a64a48",
+      "target_tree_sha": "ff36af874a0a08d3571a1703ce1574b8273c9cbf",
+      "source_qualification": "clean frozen implementation",
+      "environment": {
+        "installed_distribution_census": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/environment.json@be787fd402d70a3917c55e39238f400a7e104d21",
+        "effective_execution_environment": {
+          "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+          "UV_NO_SYNC": "1",
+          "POLISYOS_METRICS_PORT": "0",
+          "E02_B_PROPERTY_REMOVAL": null
+        },
+        "numeric_caps_absent": [
+          "OMP_NUM_THREADS",
+          "OPENBLAS_NUM_THREADS",
+          "MKL_NUM_THREADS",
+          "NUMEXPR_NUM_THREADS",
+          "VECLIB_MAXIMUM_THREADS",
+          "BLIS_NUM_THREADS"
+        ]
+      },
+      "input_closure": {
+        "complete_argv_and_explicit_custody_profile": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/native.json@be787fd402d70a3917c55e39238f400a7e104d21",
+        "profile_sha256": "a059972b975cc50ce1d80d845443ed0e288f69a8096d8ab6d64901c377f31b9f",
+        "qualification": "Profile binds explicitly captured entrypoints/source/native tests/config/lock files. Transitive imported modules, system calls and resources are not a complete runtime read-set; this is no P41 zero-input-intersection proof."
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 38.413511078004376,
+      "maxrss_kib": 885524,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/native.txt@be787fd402d70a3917c55e39238f400a7e104d21",
+      "output_bytes": 16677,
+      "output_sha256": "db2f0d4a9d8f4e28f7b401d5a626ab10befcc1bdfe9a822086889fe65239828b",
+      "execution_instrument": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/instrument-final.json@be787fd402d70a3917c55e39238f400a7e104d21"
+    }
+  ],
+  "native_actual_junit": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/native.xml@be787fd402d70a3917c55e39238f400a7e104d21",
+    "testcases": 102,
+    "outcomes": {
+      "PASS": 102
+    },
+    "wholefile_paths_and_actual_cases": {
+      "tests/unit/core/artifacts/test_put_integrity_retry.py": 5,
+      "tests/unit/core/artifacts/test_import_admission_noop.py": 34,
+      "tests/unit/core/artifacts/test_transfer_generation_publication.py": 25,
+      "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py": 14,
+      "tests/unit/core/artifacts/test_cas_integrity_report.py": 1,
+      "tests/unit/core/artifacts/test_artifact_store_protocol.py": 11,
+      "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py": 12
+    },
+    "timing_role": "wrapper elapsed wall and exact pytest child wait4 maxrss; pytest case times are retained in full JUnit"
+  },
+  "admission": {
+    "mode": "resume",
+    "status": "admitted",
+    "actual_path": "/workspace/e02-B-current-cas-generation",
+    "branch": "codex/e02-B-current-cas-generation",
+    "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/resume-before.json@be787fd402d70a3917c55e39238f400a7e104d21",
+    "receipt_bytes": 135807,
+    "receipt_sha256": "ec93fa5ba05cfe53b400a87bc979a5c9218f6706ec3365d6edc806a906e02bbd",
+    "qualification": "Fresh resume check on this existing attached lane before this typing slice. Snapshot admission is not a reservation or blanket claim about other historical worktrees."
+  },
+  "property": {
+    "statement": "Express the concrete owner and immutable transfer quantities already established by runtime guards, without changing admission or publication behavior.",
+    "structural_quantity": [
+      "required=True owner resolution overload returns concrete tenant while cell remains optional",
+      "private resolved owner TypedDict used at all four existing tenant-not-None constructors and guarded consumers",
+      "nonNone prior intent is refined in the exact existing committed-state condition",
+      "blob/manifest/signature callback domain is a three-member Literal",
+      "read-only stream measurements and frozen verified receipt fields are getter-only Protocol properties"
+    ],
+    "runtime_path": [
+      "scoped put/signature/import owner resolution and existing owner guards",
+      "exact owner intent/resume and prior committed intent reconciliation",
+      "actual leased member stream and immutable receipt",
+      "archive/directory export and fresh import/inventory consumers"
+    ],
+    "proxy_divergence": "A clean typecheck alone could coexist with a relaxed owner guard or incorrect export. The 34 actual import/no-op cases retain foreign/unbound/None-cell refusal and true no-op behavior; 25 actual transfer cases retain complete old/new generation, inventory, syscall fault and special-path controls.",
+    "negative_controls": [
+      "Existing damaged duplicate/wrong-size direct put refusal and repaired retry",
+      "Existing same/different tenant/cell and unbound scoped import refusal before stage/intent",
+      "Existing streamed write/exchange/replace/fsync failure old/new complete generation controls",
+      "All 14 existing failure snapshot/capture consumers, including missing evidence and actual chronology mismatch"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "finite typing quality repaired; semantic closures not adjudicated by this slice",
+  "pattern_pass": {
+    "P40": "Same existing quantity one level deeper: Literal callbacks exposed mutable Protocol mismatch; refine the complete actual read-only stream/receipt interface rather than introducing casts or bypasses. The fourth guarded owner constructor is included in the complete owner representation.",
+    "P41": "Clean slice-base exact mypy reproduces seven errors, and changed source inputs intersect the gate. No inherited/disjoint label or waiver.",
+    "P35": "Counts derive from the complete native JUnit and complete four-path implementation Git diff; no collection/static-case count stands in for execution."
+  },
+  "independent_review": {
+    "reviewer": "/root/run_writer",
+    "state": "pending published immutable patch/output review",
+    "author_does_not_review_self": true
+  },
+  "limitations_and_next_owner": [
+    "Root owns independent acceptance and the new whole-cohort freeze after CAS/EXE repairs. This author did not execute a broad cohort or mutate root456.",
+    "B148 remains HELD: finite scoped fail-closed recommendation does not ratify cross-tenant public transfer policy. No owner/tenant/cell/wire guard is relaxed.",
+    "B154 actual A-owned all-signature-confirmations publication consumer remains consumer_missing; typed integrity/CLI consumers are a distinct mechanism.",
+    "Two A access_audit producer owner-context failures remain external to this type repair. B must not relax the CAS cell guard to hide them.",
+    "Current root456 terminal native wave is predecessor evidence once this implementation is integrated; root/G must qualify its per-case source binding.",
+    "No new mirror tests, casts, Any additions, ignore exceptions or _integrity_ops changes. Public facade and wire schemas are unchanged."
+  ],
+  "artifacts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/base-mypy.json",
+      "artifact_commit": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "bytes": 5006,
+      "sha256": "df1b8d9893593d0665ae118172427d8be63cadebf5b18bb38c78db9514e399db"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/base-mypy.txt",
+      "artifact_commit": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "bytes": 1458,
+      "sha256": "d7dfc109b0553a3cf702c9eb21e71b5e895db47c78936c9a8ca2e52feb74287f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/environment.json",
+      "artifact_commit": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "bytes": 16249,
+      "sha256": "4db93be61eb1061b34ceb5098fb4b8aaf3ee3ddfd4f8ddc9a311b3ff8ef8ecf3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/final-format.json",
+      "artifact_commit": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "bytes": 5035,
+      "sha256": "e8cf9ff41c6ce57afd7f8fb1063dd430364a263c5a24f95ee7eaec386c0df58f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/final-format.txt",
+      "artifact_commit": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "bytes": 26,
+      "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/final-mypy.json",
+      "artifact_commit": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "bytes": 5005,
+      "sha256": "e1e89ff56a88a29d38b117a380f8751a3fef5f0197a14fcf01c4da74d29391db"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/final-mypy.txt",
+      "artifact_commit": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "bytes": 43,
+      "sha256": "f9b031e5c45aa702cd4fef028d465551cb20a2c4698e0913c7b00766b20ac4d8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/final-ruff.json",
+      "artifact_commit": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "bytes": 5033,
+      "sha256": "3ce8f42902f03a700c9f93e217eb64061867a9cf35559883d51010bb1b88f578"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/final-ruff.txt",
+      "artifact_commit": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/format.json",
+      "artifact_commit": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "bytes": 5260,
+      "sha256": "9a3750c3ab6f33fc75509f741f5b64c53392cfbe98f95b2a1b43dffcb05a68f9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/format.txt",
+      "artifact_commit": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "bytes": 107,
+      "sha256": "5e50b2cab4ba840e6041565f5fec19959d57430cbc44d93f3eb66d62e41dec0e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/instrument-final.json",
+      "artifact_commit": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "bytes": 5172,
+      "sha256": "a129e96df22de35b3f29a90310e8a86504afedbedef8e5f63b658d8895100cda"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/instrument-initial.json",
+      "artifact_commit": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "bytes": 5179,
+      "sha256": "6728b4a030ee35dd68ef983324fd00ad53ba4d2da3cf7cb548ddadc890918998"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/native.json",
+      "artifact_commit": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "bytes": 5747,
+      "sha256": "a059972b975cc50ce1d80d845443ed0e288f69a8096d8ab6d64901c377f31b9f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/native.txt",
+      "artifact_commit": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "bytes": 16677,
+      "sha256": "db2f0d4a9d8f4e28f7b401d5a626ab10befcc1bdfe9a822086889fe65239828b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/native.xml",
+      "artifact_commit": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "bytes": 18283,
+      "sha256": "a999c366ab970846e1701ddfe1cfbd672cf387627cd09aef4bd84391d486d8f3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/overlay-mypy.json",
+      "artifact_commit": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "bytes": 5238,
+      "sha256": "aef4319c257821413babf57908085b1945bfd1b86192ba18ea9cd19908658156"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/overlay-mypy.txt",
+      "artifact_commit": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "bytes": 914,
+      "sha256": "5649d97c6198a5599c76d5c88df4d4d22311738d6eab29a7a0bc0fb3b912e34e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/refined-mypy.json",
+      "artifact_commit": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "bytes": 5237,
+      "sha256": "7edc348e75828efb5717d5393999a1d76bec5b2074ac8c05548429148ec2452e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/refined-mypy.txt",
+      "artifact_commit": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "bytes": 43,
+      "sha256": "f9b031e5c45aa702cd4fef028d465551cb20a2c4698e0913c7b00766b20ac4d8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/resume-before.json",
+      "artifact_commit": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "bytes": 135807,
+      "sha256": "ec93fa5ba05cfe53b400a87bc979a5c9218f6706ec3365d6edc806a906e02bbd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/ruff.json",
+      "artifact_commit": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "bytes": 5260,
+      "sha256": "c314df781cab40676907cd644667ff16e8d65cf624084107824e52b007a6c42c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/ruff.txt",
+      "artifact_commit": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "bytes": 512,
+      "sha256": "44bb601aface00d20336c94daf5e8afe7395f93cee61d0ab93b83c7ff8a82713"
+    }
+  ],
+  "artifact_denominator": {
+    "files": 23,
+    "bytes": 247310
+  },
+  "retained_inputs": "Unique deciding fixtures remain under own ignored cas-typed-ports/native-pytest; no deletion or cleanup was performed."
+}

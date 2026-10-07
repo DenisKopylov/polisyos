@@ -1,0 +1,59 @@
+{
+  "source_sha": "08b5b157564e0ff14f6a989594a1bd5efb506a88",
+  "source_tree": "4fba0214ff61a22fecf5a2416eae25779b322650",
+  "source_binding": "tracked HEAD plus exact input-closure bytes; draft status is recorded separately",
+  "driver_sha256": "fa4f9cd526ae7ef8bc5f1336c69ddf6f3eaa2aa19c2ff444eb24eb0e34016e6a",
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_native_execution_admission.py",
+    "--junitxml=/workspace/e02-B-current-execution-state/_build/current-execution-state/native-workflow-deadline-red/cohort.xml",
+    "--basetemp=/workspace/e02-B-current-execution-state/_build/current-execution-state/native-workflow-deadline-red/tmp"
+  ],
+  "cwd": "/workspace/e02-B-current-execution-state",
+  "environment": {
+    "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "POLISYOS_METRICS_PORT": "0",
+    "details": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-workflow-deadline-red/environment.json",
+    "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"
+  },
+  "input_closure": {
+    "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-workflow-deadline-red/input-closure.json",
+    "sha256": "65f488a190a28ded5681b191f300f53108d08b38ea5e8a724433d1674d672058",
+    "paths": 2733,
+    "fixture_inputs": "Exact test code, isolated basetemp/cas/run paths, no production data"
+  },
+  "start_utc": "2026-10-06T11:52:45.487408+00:00",
+  "end_utc": "2026-10-06T11:53:04.277289+00:00",
+  "wall_s": 18.694490832989686,
+  "max_rss_kib": 592548,
+  "exit": 1,
+  "source_unchanged": true,
+  "outputs": [
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-workflow-deadline-red/cohort.xml",
+      "sha256": "989562e1b60fdaf86f7b411e6ff033f1a67096c9ccca5ea018cba66bbecc312c",
+      "bytes": 30671
+    },
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-workflow-deadline-red/environment.json",
+      "sha256": "5ffa6944b3cd7f42880bd9fa98950bc744b01e033fb89a5dbc6013f5493afce8",
+      "bytes": 9887
+    },
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-workflow-deadline-red/input-closure.json",
+      "sha256": "65f488a190a28ded5681b191f300f53108d08b38ea5e8a724433d1674d672058",
+      "bytes": 519264
+    },
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-workflow-deadline-red/native.txt",
+      "sha256": "ddcddfd7d5dca7e5f522cd29987761d45d539f9137bb54a843a69d614fe99589",
+      "bytes": 27733
+    }
+  ]
+}

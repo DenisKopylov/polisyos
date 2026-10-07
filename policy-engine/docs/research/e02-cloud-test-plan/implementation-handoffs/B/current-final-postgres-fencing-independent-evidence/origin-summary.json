@@ -1,0 +1,112 @@
+{
+  "point": "after pytest.main returned, before runner finalization",
+  "boundary": "selected file-backed module families only; no universal import/resource/network/child readset claim",
+  "origin_row_count": 1819,
+  "tracked_file_origins": 1659,
+  "tracked_mismatch_count": 0,
+  "full_cloud_raw": {
+    "path": "/dev/shm/e02-B-final-pg1862-20261006/module-origins.json",
+    "bytes": 920156,
+    "sha256": "4441f2ed4af2711f6333cef8d528ad3a0ecb19578aeae445366977cae16bdc25",
+    "G_raw_availability": "not_established; exact replay of committed driver regenerates the census"
+  },
+  "selected_deciding_origins": [
+    {
+      "module": "_helpers.artifacts",
+      "path": "/workspace/e02-B-current-coordination/policy-engine/tests/_helpers/artifacts.py",
+      "sha256": "0c50d082c6861b08aa8d8d0c9f0753bac567204b6bb7fd69457be6700ec7fecf",
+      "bytes": 9046,
+      "relative_path": "policy-engine/tests/_helpers/artifacts.py",
+      "kind": "tracked_file_backend",
+      "git_blob": "7bbf2cd7ef2d8b97455788aa3560bed5cd19d664",
+      "git_bytes_match": true
+    },
+    {
+      "module": "_helpers.observability",
+      "path": "/workspace/e02-B-current-coordination/policy-engine/tests/_helpers/observability.py",
+      "sha256": "612a617513e52f310e81fc48dc930c0c6bb95ca091ab66c81779075618a48ff8",
+      "bytes": 2392,
+      "relative_path": "policy-engine/tests/_helpers/observability.py",
+      "kind": "tracked_file_backend",
+      "git_blob": "745c3fd6f8531f6f76339b153a9b6667e230ee55",
+      "git_bytes_match": true
+    },
+    {
+      "module": "_helpers.runtime_http",
+      "path": "/workspace/e02-B-current-coordination/policy-engine/tests/_helpers/runtime_http.py",
+      "sha256": "b1e9e4a3ca5ae825aaed75b814e48d2e842800aa3dd9ab21be3848f2a230a85e",
+      "bytes": 56431,
+      "relative_path": "policy-engine/tests/_helpers/runtime_http.py",
+      "kind": "tracked_file_backend",
+      "git_blob": "fcf3b172b787ac8f6e8f43ebca5ebea1babaac78",
+      "git_bytes_match": true
+    },
+    {
+      "module": "_pytest.junitxml",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/junitxml.py",
+      "sha256": "d71198950cf33bd1c7dc782167986ee130427fc57e221046e6455dc7a5b63d5a",
+      "bytes": 25522,
+      "relative_path": ".polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/junitxml.py",
+      "kind": "untracked_execution_resource"
+    },
+    {
+      "module": "polisyos.runtime.http.services.control",
+      "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/runtime/http/services/control/__init__.py",
+      "sha256": "d6474a142b132ec6e07ec482dfb42f68c21c794a19b655bf19d4ac231d7203a7",
+      "bytes": 735,
+      "relative_path": "policy-engine/src/polisyos/runtime/http/services/control/__init__.py",
+      "kind": "tracked_file_backend",
+      "git_blob": "0954e0d75c2d8a8a5c9daaaf681cea51ea3f9258",
+      "git_bytes_match": true
+    },
+    {
+      "module": "polisyos.runtime.http.services.control_plane_store",
+      "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+      "sha256": "af813a2b87c0500bc2c0499813c9170a6a8033d92f860fe5556b72088e6721f6",
+      "bytes": 209996,
+      "relative_path": "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+      "kind": "tracked_file_backend",
+      "git_blob": "e78a69642d69c21827bd73d688533ad40ca18295",
+      "git_bytes_match": true
+    },
+    {
+      "module": "polisyos.runtime.http.services.control_worker",
+      "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/runtime/http/services/control_worker.py",
+      "sha256": "4b319c7b70d0664c2039676dc7424f71468faa9df2b45f95c605cc38831f9b5c",
+      "bytes": 13613,
+      "relative_path": "policy-engine/src/polisyos/runtime/http/services/control_worker.py",
+      "kind": "tracked_file_backend",
+      "git_blob": "9584c2a30ef59cd0dbdfdad1186bc0d2c9032c6f",
+      "git_bytes_match": true
+    },
+    {
+      "module": "psycopg",
+      "path": "/tmp/e02-B38-pg-profile/psycopg/__init__.py",
+      "sha256": "5f1607a193cb63e60a0c5687209d2bd0e3029760b9559e9968f31d6b5d82c778",
+      "bytes": 3423,
+      "kind": "external_tool_resource"
+    },
+    {
+      "module": "psycopg.pq",
+      "path": "/tmp/e02-B38-pg-profile/psycopg/pq/__init__.py",
+      "sha256": "aed1fa6e92e1927eec25e997871a9a8efce5f15b067c50c70ec7c89e6a08c8d5",
+      "bytes": 3998,
+      "kind": "external_tool_resource"
+    },
+    {
+      "module": "psycopg_binary",
+      "path": "/tmp/e02-B38-pg-profile/psycopg_binary/__init__.py",
+      "sha256": "e64c70f50767f2e6c88b88a4f769b164eb23af950ed2fc2ae53e52d018425868",
+      "bytes": 402,
+      "kind": "external_tool_resource"
+    },
+    {
+      "module": "pytest",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest/__init__.py",
+      "sha256": "7be7a1e2218dc59a19d1ad131e4abe21172a295087efc72898938248782e8766",
+      "bytes": 5582,
+      "relative_path": ".polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest/__init__.py",
+      "kind": "untracked_execution_resource"
+    }
+  ]
+}

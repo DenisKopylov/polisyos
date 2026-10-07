@@ -1,0 +1,40 @@
+{
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/composition-acceptance-review/test_acceptance.py",
+    "-o",
+    "addopts=",
+    "-q",
+    "-s",
+    "--tb=short",
+    "--basetemp=/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/composition-acceptance-review/tmp-31ccd-first",
+    "--junitxml=/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/composition-acceptance-review/native-31ccd.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-durability/policy-engine",
+  "target_sha": "31ccd716859a27bcd087eec79fb64565f27b4f2b",
+  "target_tree_sha": "bf99f7f2bbc6e2accfcde66a45acef0956b2c97f",
+  "environment": {
+    "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+    "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "/workspace/e02-B-current-durability/policy-engine/src:/workspace/e02-B-current-durability/policy-engine"
+  },
+  "input_files": [
+    {
+      "path": "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/composition-acceptance-review/test_acceptance.py",
+      "sha256": "049d16aee7ad5084a2b2dd1e9c1eb63e6b5ac9aef10bc4a8952016cf9b8dc4df",
+      "bytes": 13153
+    },
+    {
+      "path": "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/composition-acceptance-review/import_worker.py",
+      "sha256": "c1f8357fe4b0fe69ae77f1bce559121876ec8eae4cd9cd3068bba21ed60ac94c",
+      "bytes": 1079
+    }
+  ],
+  "exit_code": 1,
+  "elapsed_seconds": 5.455959796905518,
+  "stdout_sha256": "0ed9738d9ac6b3c3b89fd1116f6c478a5e2b5257b126da24a6d30753ea08e4ca",
+  "stdout_bytes": 32257,
+  "after_status": ""
+}

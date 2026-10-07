@@ -1,0 +1,137 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.2, pytest-9.0.2, pluggy-1.6.0 -- /workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python
+cachedir: _cache/pytest
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/workspace/e02-B-current-cas-generation/policy-engine/_cache/hypothesis'))
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/e02-B-current-cas-generation/policy-engine
+configfile: pytest.ini
+plugins: benchmark-5.2.3, hypothesis-6.151.2, anyio-4.12.0, langsmith-0.6.0, asyncio-1.3.0, xdist-3.8.0, jaxtyping-0.3.4
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 2 items
+
+tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_public_verify_capture_remains_consumable_by_actual_owner_index[False] FAILED [ 50%]
+tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_public_verify_capture_remains_consumable_by_actual_owner_index[True] FAILED [100%]
+
+=================================== FAILURES ===================================
+__ test_public_verify_capture_remains_consumable_by_actual_owner_index[False] __
+
+tmp_path = PosixPath('/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/corrected-capture-identity-removal-pytest/test_public_verify_capture_rem0')
+damaged = False
+
+    @pytest.mark.parametrize("damaged", [False, True])
+    def test_public_verify_capture_remains_consumable_by_actual_owner_index(tmp_path, damaged):
+        store = FileSystemCAS(tmp_path / "cas", tenant_id="snapshot-owner", ownership_enforced=True)
+        ref = store.put_bytes(
+            b"original",
+            PutOptions(
+                kind="snapshot",
+                media_type="text/plain",
+                tenant_context=ArtifactTenantContextInfo(tenant_id="snapshot-owner", cell_id=None),
+            ),
+        )
+        if damaged:
+            store._paths(ref.artifact_id)[0].write_bytes(b"damaged")
+        owner = store._register_governed_public_read_owner()
+        with store._capture_public_read_set() as capture:
+            report = store.verify(ref)
+        assert report.ok is not damaged
+        assert report.actual_sha256_hex is not None
+        record_id = "gpr_" + "a" * 32
+>       recorded = store._record_governed_public_read_closure(record_id, capture, owner_token=owner)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/core/artifacts/test_verification_failure_snapshot_report.py:164: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/core/artifacts/store.py:603: in _record_governed_public_read_closure
+    return self._ownership_index._record_public_read_closure(
+src/polisyos/core/artifacts/ownership.py:1189: in _record_public_read_closure
+    normalized = _normalize_public_read_operation_refs(operation_refs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+operation_refs = [{'artifact_id': 'sha256:0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5', 'kind': 'snapshot', 'manif...d437a49677e6fcc5b4198c76575be5', 'kind': 'snapshot', 'manifest_profile_sha256': None, 'media_type': 'text/plain', ...}]
+
+    def _normalize_public_read_operation_refs(
+        operation_refs: Iterable[dict[str, Any]],
+    ) -> list[dict[str, Any]]:
+        items = list(operation_refs)
+        rows: set[tuple[str, str, str, str, str | None]] = set()
+        for row in items:
+            if not isinstance(row, dict) or set(row) != {
+                "operation",
+                "artifact_id",
+                "kind",
+                "media_type",
+                "manifest_profile_sha256",
+            }:
+                raise ValueError("public_read_closure_operation_ref_invalid")
+            operation = row["operation"]
+            if not isinstance(operation, str) or operation not in _PUBLIC_READ_OPERATIONS:
+>               raise ValueError("public_read_closure_operation_invalid")
+E               ValueError: public_read_closure_operation_invalid
+
+src/polisyos/core/artifacts/ownership.py:2216: ValueError
+__ test_public_verify_capture_remains_consumable_by_actual_owner_index[True] ___
+
+tmp_path = PosixPath('/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/corrected-capture-identity-removal-pytest/test_public_verify_capture_rem1')
+damaged = True
+
+    @pytest.mark.parametrize("damaged", [False, True])
+    def test_public_verify_capture_remains_consumable_by_actual_owner_index(tmp_path, damaged):
+        store = FileSystemCAS(tmp_path / "cas", tenant_id="snapshot-owner", ownership_enforced=True)
+        ref = store.put_bytes(
+            b"original",
+            PutOptions(
+                kind="snapshot",
+                media_type="text/plain",
+                tenant_context=ArtifactTenantContextInfo(tenant_id="snapshot-owner", cell_id=None),
+            ),
+        )
+        if damaged:
+            store._paths(ref.artifact_id)[0].write_bytes(b"damaged")
+        owner = store._register_governed_public_read_owner()
+        with store._capture_public_read_set() as capture:
+            report = store.verify(ref)
+        assert report.ok is not damaged
+        assert report.actual_sha256_hex is not None
+        record_id = "gpr_" + "a" * 32
+>       recorded = store._record_governed_public_read_closure(record_id, capture, owner_token=owner)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/core/artifacts/test_verification_failure_snapshot_report.py:164: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/core/artifacts/store.py:603: in _record_governed_public_read_closure
+    return self._ownership_index._record_public_read_closure(
+src/polisyos/core/artifacts/ownership.py:1189: in _record_public_read_closure
+    normalized = _normalize_public_read_operation_refs(operation_refs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+operation_refs = [{'artifact_id': 'sha256:0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5', 'kind': 'snapshot', 'manif...d437a49677e6fcc5b4198c76575be5', 'kind': 'snapshot', 'manifest_profile_sha256': None, 'media_type': 'text/plain', ...}]
+
+    def _normalize_public_read_operation_refs(
+        operation_refs: Iterable[dict[str, Any]],
+    ) -> list[dict[str, Any]]:
+        items = list(operation_refs)
+        rows: set[tuple[str, str, str, str, str | None]] = set()
+        for row in items:
+            if not isinstance(row, dict) or set(row) != {
+                "operation",
+                "artifact_id",
+                "kind",
+                "media_type",
+                "manifest_profile_sha256",
+            }:
+                raise ValueError("public_read_closure_operation_ref_invalid")
+            operation = row["operation"]
+            if not isinstance(operation, str) or operation not in _PUBLIC_READ_OPERATIONS:
+>               raise ValueError("public_read_closure_operation_invalid")
+E               ValueError: public_read_closure_operation_invalid
+
+src/polisyos/core/artifacts/ownership.py:2216: ValueError
+- generated xml file: /workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/corrected-capture-identity-removal.xml -
+=========================== short test summary info ============================
+FAILED tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_public_verify_capture_remains_consumable_by_actual_owner_index[False]
+FAILED tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_public_verify_capture_remains_consumable_by_actual_owner_index[True]
+============================== 2 failed in 21.60s ==============================

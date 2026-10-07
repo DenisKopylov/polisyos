@@ -1,0 +1,53 @@
+"""Actual reopened native cache consumer after the literal property removal."""
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+import sys
+
+repo=Path('/workspace/e02-B-current-execution-state')
+sha='c0431c5b0e8dd71f758ec956b4de271910cef19a'
+assert subprocess.check_output(['git','rev-parse','HEAD'],cwd=repo,text=True).strip()==sha
+sys.path[:0]=[str(repo/'policy-engine/src'),str(repo/'policy-engine')]
+from polisyos.core.artifacts import ArtifactRef, FileSystemCAS
+from polisyos.scientist.orchestration.engine.idempotency import NodeResultCache
+base=Path('/tmp/e02-B52-cache-cost-c043/removal-fixtures/test_real_async_cache_costs_an0')
+trace=[json.loads(x) for x in (base/'run/trace.jsonl').read_text().splitlines()]
+stores=[x for x in trace if x['event']=='NODE_CACHE_STORE']
+assert len(stores)==1
+ref=ArtifactRef.model_validate(stores[0]['refs']['outputs'][0])
+store=FileSystemCAS(base/'cas')
+verified=store.verify(ref)
+assert verified.ok
+wire=store.get_bytes(ref)
+entry=json.loads(wire)
+cache=NodeResultCache(store,run_id='B52-cost-1024')
+assert cache.load_entry(ref)
+outcome=cache.get(entry['idempotency_key'])
+assert outcome is not None
+expected=json.loads((base/'physical-provider.jsonl').read_text())
+assert outcome.state.params['result']==expected
+assert len(outcome.state.params['expanded'])==1024
+rows=json.loads((base/'individual-costs.json').read_text())
+sample=rows[0]['cache_io_samples'][0]
+ticks_inside=sum(sample['started_ns']<tick['resumed_ns']<sample['finished_ns'] for tick in rows[0]['neighbour_timer_samples'])
+assert sample['thread_id']==rows[0]['loop_thread_id'] and ticks_inside==0
+origins=[]
+for name,module in sorted(sys.modules.items()):
+    if name.startswith('polisyos') and getattr(module,'__file__',None):
+        p=Path(module.__file__).resolve()
+        rel=p.relative_to(repo).as_posix()
+        data=p.read_bytes()
+        assert data==subprocess.check_output(['git','show',sha+':'+rel],cwd=repo)
+        origins.append(rel)
+result={'source_sha':sha,'source_head_after':subprocess.check_output(['git','rev-parse','HEAD'],cwd=repo,text=True).strip(),
+        'loaded_module_identity_count':len(origins),'loaded_module_git_equal':True,
+        'actual_marker_count':len(stores),'actual_provider_lines':len((base/'physical-provider.jsonl').read_text().splitlines()),
+        'cache_ref':ref.model_dump(mode='json'),'native_cas_verify':{'ok':verified.ok},
+        'cache_bytes_sha256':hashlib.sha256(wire).hexdigest(),'cache_bytes':len(wire),
+        'native_reopened_load_entry':True,'native_get_state_result':outcome.state.params['result'],
+        'native_get_state_expanded_length':len(outcome.state.params['expanded']),
+        'actual_cache_io_thread_equals_loop':True,'actual_ticks_inside_cache_io':ticks_inside,
+        'cheap_store_marker_passes_while_offloop_neighbour_property_fails':True}
+Path('/tmp/e02-B52-cache-cost-c043/removal/readback.json').write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps(result,indent=2))

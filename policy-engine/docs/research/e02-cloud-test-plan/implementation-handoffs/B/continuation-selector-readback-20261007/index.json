@@ -1,0 +1,63 @@
+{
+  "schema": "policyos.e02.evidence_index.v1",
+  "payloads": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/README.md",
+      "bytes": 3019,
+      "sha256": "94c0d72d6df24cefedb5cd8d14048a49e1610fd33b8012119faa0095ee0ad56d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/earlier-proc-observation.json",
+      "bytes": 3357,
+      "sha256": "ee1b1850818a56dd55e16ab436a4f2c52a54b212d4e0a8438827e205e0e39d7b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/earlier-proc-observation.source.txt",
+      "bytes": 681,
+      "sha256": "22b7be8c5d6c3f422d89e5c77cecc25e0ba82e4d429ba6229247983c7a119d19"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/earlier-proc-observation.txt",
+      "bytes": 2289,
+      "sha256": "65cb2e34c2ef78bf9ed627c9482eb99f4c095b969fd9be036ad1fd89ff5433f8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/original-output.txt",
+      "bytes": 411,
+      "sha256": "4e28e41ee653f3a2b5967a8ea2af3475a99ba66819b00f7f2da23f89d72d4159"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/original-profile.json",
+      "bytes": 837,
+      "sha256": "33b57623b478918c1683a48819b469b80dcb4a037a11b25cdf844679e75861ad"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/qualified-output.txt",
+      "bytes": 547,
+      "sha256": "f2ceb741be93522f53fb0801286f80c2ae0a240a2517cbc4f0e2ed1f91a9f1fe"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/qualified-profile.json",
+      "bytes": 837,
+      "sha256": "f845083344246b1efc4874913afcc163779b7bb676ed3500fef69d6c47c831e9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/read-original.source.txt",
+      "bytes": 11826,
+      "sha256": "1edc5c436e544fc3c22ed60121174292f19374b2026e219e4665106aaa4ba58c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/read-qualified.source.txt",
+      "bytes": 12178,
+      "sha256": "02322279d2cec1813b8de4602d88f1d2bb190363d1d9085aed951c60c135de4b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007/review.json",
+      "bytes": 121510,
+      "sha256": "f665ef0de5ffcd54a9f18070d9cb7a8be85d48c6aee23c8b05234f653823fd90"
+    }
+  ],
+  "payload_count": 11,
+  "payload_bytes": 157492,
+  "index_self": "Additional implementation file bound by separate handoff."
+}

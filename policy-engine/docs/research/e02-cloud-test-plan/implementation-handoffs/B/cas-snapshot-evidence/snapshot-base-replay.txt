@@ -1,0 +1,53 @@
+FFF..F.F.                                                                [100%]
+=================================== FAILURES ===================================
+_______________ test_selected_verify_uses_one_manifest_snapshot ________________
+tests/unit/core/artifacts/test_verification_snapshot_report.py:45: in test_selected_verify_uses_one_manifest_snapshot
+    assert counts == {"blob": 1, "manifest": 1}
+E   AssertionError: assert {'blob': 1, 'manifest': 2} == {'blob': 1, 'manifest': 1}
+E     
+E     Omitting 1 identical items, use -vv to show
+E     Differing items:
+E     {'manifest': 2} != {'manifest': 1}
+E     Use -v to get more diff
+______ test_integrity_report_cannot_project_an_unverified_second_manifest ______
+tests/unit/core/artifacts/test_verification_snapshot_report.py:74: in test_integrity_report_cannot_project_an_unverified_second_manifest
+    assert report.canonicalization_rule_ref == "raw-bytes"
+E   AssertionError: assert 'foreign@99' == 'raw-bytes'
+E     
+E     - raw-bytes
+E     + foreign@99
+__________ test_staged_verification_cannot_mix_digest_with_later_size __________
+tests/unit/core/artifacts/test_verification_snapshot_report.py:102: in test_staged_verification_cannot_mix_digest_with_later_size
+    assert not report.ok
+E   AssertionError: assert not True
+E    +  where True = VerificationReport(ok=True, artifact_id='sha256:0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5', exp...75be5', actual_sha256_hex='0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5', byte_size=22, error=None).ok
+________ test_actual_nonregular_read_is_a_finite_child_refusal[symlink] ________
+tests/unit/core/artifacts/test_verification_snapshot_report.py:132: in test_actual_nonregular_read_is_a_finite_child_refusal
+    assert child.returncode == 0, child.stdout + child.stderr
+E   AssertionError: Traceback (most recent call last):
+E       File "/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/snapshot-base-input/policy-engine/tests/unit/core/artifacts/snapshot_special_path_worker.py", line 33, in <module>
+E         raise RuntimeError("nonregular supplied member was accepted or referent changed")
+E     RuntimeError: nonregular supplied member was accepted or referent changed
+E     
+E   assert 1 == 0
+E    +  where 1 = CompletedProcess(args=['/workspace/polisyos/policy-engine/.venv/bin/python', '/workspace/e02-B-current-cas-generation/...ember was accepted or referent changed")\nRuntimeError: nonregular supplied member was accepted or referent changed\n').returncode
+_________ test_actual_nonregular_read_is_a_finite_child_refusal[fifo] __________
+tests/unit/core/artifacts/test_verification_snapshot_report.py:126: in test_actual_nonregular_read_is_a_finite_child_refusal
+    child = subprocess.run(
+/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/subprocess.py:556: in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/subprocess.py:1220: in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/subprocess.py:2153: in _communicate
+    self._check_timeout(endtime, orig_timeout, stdout, stderr)
+/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/subprocess.py:1267: in _check_timeout
+    raise TimeoutExpired(
+E   subprocess.TimeoutExpired: Command '['/workspace/polisyos/policy-engine/.venv/bin/python', '/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/snapshot-base-input/policy-engine/tests/unit/core/artifacts/snapshot_special_path_worker.py', '/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/snapshot-base-replay-tmp/test_actual_nonregular_read_is2/cas', 'fifo']' timed out after 5 seconds
+=========================== short test summary info ============================
+FAILED tests/unit/core/artifacts/test_verification_snapshot_report.py::test_selected_verify_uses_one_manifest_snapshot
+FAILED tests/unit/core/artifacts/test_verification_snapshot_report.py::test_integrity_report_cannot_project_an_unverified_second_manifest
+FAILED tests/unit/core/artifacts/test_verification_snapshot_report.py::test_staged_verification_cannot_mix_digest_with_later_size
+FAILED tests/unit/core/artifacts/test_verification_snapshot_report.py::test_actual_nonregular_read_is_a_finite_child_refusal[symlink]
+FAILED tests/unit/core/artifacts/test_verification_snapshot_report.py::test_actual_nonregular_read_is_a_finite_child_refusal[fifo]

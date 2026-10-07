@@ -1,0 +1,1297 @@
+{
+  "schema": "policyos.e02.pytest_cli_option_profile.v1",
+  "pytest_version": "9.0.2",
+  "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+  "measurement": "Actual get_config builtin plugin registry plus installed pytest11 option registration; parser action inspection only, no config.parse, pytest.main, collection or test execution",
+  "actions": [
+    {
+      "options": [
+        "-k"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "-m"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--markers"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "-x",
+        "--exitfirst"
+      ],
+      "nargs": 0,
+      "action": "_StoreConstAction"
+    },
+    {
+      "options": [
+        "--maxfail"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--strict-config"
+      ],
+      "nargs": 0,
+      "action": "OverrideIniAction"
+    },
+    {
+      "options": [
+        "--strict-markers"
+      ],
+      "nargs": 0,
+      "action": "OverrideIniAction"
+    },
+    {
+      "options": [
+        "--strict"
+      ],
+      "nargs": 0,
+      "action": "OverrideIniAction"
+    },
+    {
+      "options": [
+        "-W",
+        "--pythonwarnings"
+      ],
+      "nargs": null,
+      "action": "_AppendAction"
+    },
+    {
+      "options": [
+        "--collectonly",
+        "--collect-only",
+        "--co"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "--pyargs"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "--ignore"
+      ],
+      "nargs": null,
+      "action": "_AppendAction"
+    },
+    {
+      "options": [
+        "--ignore-glob"
+      ],
+      "nargs": null,
+      "action": "_AppendAction"
+    },
+    {
+      "options": [
+        "--deselect"
+      ],
+      "nargs": null,
+      "action": "_AppendAction"
+    },
+    {
+      "options": [
+        "--confcutdir"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--noconftest"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "--keepduplicates",
+        "--keep-duplicates"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "--collect-in-virtualenv"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "--continue-on-collection-errors"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "--import-mode"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "-c",
+        "--config-file"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--rootdir"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--basetemp"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--durations"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--durations-min"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--fixtures",
+        "--funcargs"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "--fixtures-per-test"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "-V",
+        "--version"
+      ],
+      "nargs": 0,
+      "action": "_CountAction"
+    },
+    {
+      "options": [
+        "-h",
+        "--help"
+      ],
+      "nargs": 0,
+      "action": "HelpAction"
+    },
+    {
+      "options": [
+        "-p"
+      ],
+      "nargs": null,
+      "action": "_AppendAction"
+    },
+    {
+      "options": [
+        "--disable-plugin-autoload"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "--traceconfig",
+        "--trace-config"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "--debug"
+      ],
+      "nargs": "?",
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "-o",
+        "--override-ini"
+      ],
+      "nargs": null,
+      "action": "_AppendAction"
+    },
+    {
+      "options": [
+        "-v",
+        "--verbose"
+      ],
+      "nargs": 0,
+      "action": "_CountAction"
+    },
+    {
+      "options": [
+        "--no-header"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "--no-summary"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "--no-fold-skipped"
+      ],
+      "nargs": 0,
+      "action": "_StoreFalseAction"
+    },
+    {
+      "options": [
+        "--force-short-summary"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "-q",
+        "--quiet"
+      ],
+      "nargs": 0,
+      "action": "MoreQuietAction"
+    },
+    {
+      "options": [
+        "--verbosity"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "-r"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--disable-warnings",
+        "--disable-pytest-warnings"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "-l",
+        "--showlocals"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "--no-showlocals"
+      ],
+      "nargs": 0,
+      "action": "_StoreFalseAction"
+    },
+    {
+      "options": [
+        "--tb"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--xfail-tb"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "--show-capture"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--fulltrace",
+        "--full-trace"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "--color"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--code-highlight"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--pdb"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "--pdbcls"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--trace"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "--capture"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "-s"
+      ],
+      "nargs": 0,
+      "action": "_StoreConstAction"
+    },
+    {
+      "options": [
+        "--runxfail"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "--pastebin"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--assert"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--junitxml",
+        "--junit-xml"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--junitprefix",
+        "--junit-prefix"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--doctest-modules"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "--doctest-report"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--doctest-glob"
+      ],
+      "nargs": null,
+      "action": "_AppendAction"
+    },
+    {
+      "options": [
+        "--doctest-ignore-import-errors"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "--doctest-continue-on-failure"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "--lf",
+        "--last-failed"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "--ff",
+        "--failed-first"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "--nf",
+        "--new-first"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "--cache-show"
+      ],
+      "nargs": "?",
+      "action": "_AppendAction"
+    },
+    {
+      "options": [
+        "--cache-clear"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "--lfnf",
+        "--last-failed-no-failures"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--setuponly",
+        "--setup-only"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "--setupshow",
+        "--setup-show"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "--setupplan",
+        "--setup-plan"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "--sw",
+        "--stepwise"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "--sw-skip",
+        "--stepwise-skip"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "--sw-reset",
+        "--stepwise-reset"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "--log-level"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--log-format"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--log-date-format"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--log-cli-level"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--log-cli-format"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--log-cli-date-format"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--log-file"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--log-file-mode"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--log-file-level"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--log-file-format"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--log-file-date-format"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--log-auto-indent"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--log-disable"
+      ],
+      "nargs": null,
+      "action": "_AppendAction"
+    },
+    {
+      "options": [
+        "--benchmark-min-time"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--benchmark-max-time"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--benchmark-min-rounds"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--benchmark-timer"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--benchmark-calibration-precision"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--benchmark-warmup"
+      ],
+      "nargs": "?",
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--benchmark-warmup-iterations"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--benchmark-disable-gc"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "--benchmark-skip"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "--benchmark-disable"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "--benchmark-enable"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "--benchmark-only"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "--benchmark-save"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--benchmark-autosave"
+      ],
+      "nargs": 0,
+      "action": "_StoreConstAction"
+    },
+    {
+      "options": [
+        "--benchmark-save-data"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "--benchmark-json"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--benchmark-compare"
+      ],
+      "nargs": "?",
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--benchmark-compare-fail"
+      ],
+      "nargs": "+",
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--benchmark-cprofile"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--benchmark-cprofile-loops"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--benchmark-cprofile-top"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--benchmark-cprofile-dump"
+      ],
+      "nargs": "?",
+      "action": "_AppendAction"
+    },
+    {
+      "options": [
+        "--benchmark-storage"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--benchmark-netrc"
+      ],
+      "nargs": "?",
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--benchmark-verbose"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "--benchmark-quiet"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "--benchmark-sort"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--benchmark-group-by"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--benchmark-columns"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--benchmark-name"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--benchmark-time-unit"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--benchmark-histogram"
+      ],
+      "nargs": "?",
+      "action": "_AppendAction"
+    },
+    {
+      "options": [
+        "--hypothesis-profile"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--hypothesis-verbosity"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--hypothesis-show-statistics"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "--hypothesis-seed"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--hypothesis-explain"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "--langsmith-output"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "--asyncio-mode"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--asyncio-debug"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "-n",
+        "--numprocesses"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--maxprocesses"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--max-worker-restart"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--dist"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--loadscope-reorder"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "--no-loadscope-reorder"
+      ],
+      "nargs": 0,
+      "action": "_StoreFalseAction"
+    },
+    {
+      "options": [
+        "--tx"
+      ],
+      "nargs": null,
+      "action": "_AppendAction"
+    },
+    {
+      "options": [
+        "--px"
+      ],
+      "nargs": null,
+      "action": "_AppendAction"
+    },
+    {
+      "options": [
+        "-d"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "--rsyncdir"
+      ],
+      "nargs": null,
+      "action": "_AppendAction"
+    },
+    {
+      "options": [
+        "--rsyncignore"
+      ],
+      "nargs": null,
+      "action": "_AppendAction"
+    },
+    {
+      "options": [
+        "--testrunuid"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "--maxschedchunk"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    },
+    {
+      "options": [
+        "-f",
+        "--looponfail"
+      ],
+      "nargs": 0,
+      "action": "_StoreTrueAction"
+    },
+    {
+      "options": [
+        "--jaxtyping-packages"
+      ],
+      "nargs": null,
+      "action": "_StoreAction"
+    }
+  ],
+  "option_registration_sources": [
+    {
+      "module": "_pytest.mark",
+      "function": "pytest_addoption",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/mark/__init__.py",
+      "sha256": "dfc1fbc21da4dd264c64d6700213db1c1c693f161b9fec33995b465188a0bf37",
+      "bytes": 9870
+    },
+    {
+      "module": "_pytest.main",
+      "function": "pytest_addoption",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/main.py",
+      "sha256": "7ca2b20cc41fbfc2761bcb231eecb26967d553651035c40000f44d70e174b693",
+      "bytes": 42435
+    },
+    {
+      "module": "_pytest.runner",
+      "function": "pytest_addoption",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/runner.py",
+      "sha256": "8d784b2b3e23b05f4c4edd3f5263eb11964e86b6e16d2c814c5fcb2125dc4ea4",
+      "bytes": 19785
+    },
+    {
+      "module": "_pytest.fixtures",
+      "function": "pytest_addoption",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/fixtures.py",
+      "sha256": "eff80aa15502a5fa38b022f2dd3d3ba760efff16b9c761e7283299bbcf380de6",
+      "bytes": 78681
+    },
+    {
+      "module": "_pytest.helpconfig",
+      "function": "pytest_addoption",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/helpconfig.py",
+      "sha256": "ea2cb6d6850351119e759a41dde992cda142c5e353fc44529122192c8c4c26f5",
+      "bytes": 10019
+    },
+    {
+      "module": "_pytest.python",
+      "function": "pytest_addoption",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/python.py",
+      "sha256": "fd28318a23e7afb8cf81794ab3cb028ddb0148df80a14666cc8bc9320324561e",
+      "bytes": 68754
+    },
+    {
+      "module": "_pytest.terminal",
+      "function": "pytest_addoption",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/terminal.py",
+      "sha256": "e2fe406f930e795d09026746e8209a9a7142ac704fc0a0200af9e4f74d2104d0",
+      "bytes": 64444
+    },
+    {
+      "module": "_pytest.debugging",
+      "function": "pytest_addoption",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/debugging.py",
+      "sha256": "26457b39bef0439dd3146910d136bdea300c606b9b81d5e212cdfd4fb14fcc74",
+      "bytes": 13947
+    },
+    {
+      "module": "_pytest.capture",
+      "function": "pytest_addoption",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/capture.py",
+      "sha256": "92e96e989751747bbbce8a2c3abe257c747471ee8bb0eb616aef41cabc3cc55e",
+      "bytes": 36829
+    },
+    {
+      "module": "_pytest.skipping",
+      "function": "pytest_addoption",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/skipping.py",
+      "sha256": "5824731d5a311780f418eac9a094e7cf1fd63a82d3b0cd5e9e5498cc6ecd127c",
+      "bytes": 10810
+    },
+    {
+      "module": "_pytest.tmpdir",
+      "function": "pytest_addoption",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/tmpdir.py",
+      "sha256": "d9f10512bc4bfdc0e94bd78adfdbb32fd534903d9ca50b4f6ad474ffed031e55",
+      "bytes": 11387
+    },
+    {
+      "module": "_pytest.pastebin",
+      "function": "pytest_addoption",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/pastebin.py",
+      "sha256": "a7ddb326d48dcfdfb10c4173a90df37a662081745a0e7c43e97e08ca2b5ebdb0",
+      "bytes": 4155
+    },
+    {
+      "module": "_pytest.assertion",
+      "function": "pytest_addoption",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/assertion/__init__.py",
+      "sha256": "3a39c99b88fa5478306232af5bc77e28579f8c474e48e345178cf5d28f6bede8",
+      "bytes": 7120
+    },
+    {
+      "module": "_pytest.junitxml",
+      "function": "pytest_addoption",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/junitxml.py",
+      "sha256": "d71198950cf33bd1c7dc782167986ee130427fc57e221046e6455dc7a5b63d5a",
+      "bytes": 25522
+    },
+    {
+      "module": "_pytest.doctest",
+      "function": "pytest_addoption",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/doctest.py",
+      "sha256": "1a08dd58ec47f9f57d790a1643ba6e29e8dc15d0351cfb46f98eea6e9fb92fc7",
+      "bytes": 25478
+    },
+    {
+      "module": "_pytest.cacheprovider",
+      "function": "pytest_addoption",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/cacheprovider.py",
+      "sha256": "40229d89ea544a4b8f344c790e58484076c0e35dccc0d5257782c8a55d7a156f",
+      "bytes": 23149
+    },
+    {
+      "module": "_pytest.setuponly",
+      "function": "pytest_addoption",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/setuponly.py",
+      "sha256": "06c46b0b81110d5af8dbed86fcbd00c61354e175706ccb32e52d253af2abf300",
+      "bytes": 3167
+    },
+    {
+      "module": "_pytest.setupplan",
+      "function": "pytest_addoption",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/setupplan.py",
+      "sha256": "97ec9c14dc4364fc98e76c21e1fef26aa87367b496d628d22a740b9aacc36560",
+      "bytes": 1184
+    },
+    {
+      "module": "_pytest.stepwise",
+      "function": "pytest_addoption",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/stepwise.py",
+      "sha256": "903f350eb9e19dc94a06631f6aec1099b78c6d852fbb0d3bc395a73649887444",
+      "bytes": 7689
+    },
+    {
+      "module": "_pytest.logging",
+      "function": "pytest_addoption",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/logging.py",
+      "sha256": "4d9ebb2503ffdd896dd29d750f627af0bfe8b3d825b2e82032f79cd07963b5bf",
+      "bytes": 35234
+    },
+    {
+      "module": "_pytest.faulthandler",
+      "function": "pytest_addoption",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/faulthandler.py",
+      "sha256": "d5cec3a51b4fd3f0b7ce91544b0d41391a401bc1ac883b49f730ae59d1222dcd",
+      "bytes": 4250
+    },
+    {
+      "module": "_pytest.subtests",
+      "function": "pytest_addoption",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/subtests.py",
+      "sha256": "f8eccea44d23f7cbc358c02c23ec4c27415c61bea29cbaba60f1ffd2d132538e",
+      "bytes": 13241
+    },
+    {
+      "module": "pytest_benchmark.plugin",
+      "function": "pytest_addoption",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_benchmark/plugin.py",
+      "sha256": "c124272a36a6059278d8f4380da73f7ee06c89eeff46c2cc46c585976f81ac50",
+      "bytes": 19483
+    },
+    {
+      "module": "_hypothesis_pytestplugin",
+      "function": "pytest_addoption",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_hypothesis_pytestplugin.py",
+      "sha256": "1f9c559e3d6fa87ab223cae7a27abc50c92ab09d2e6577783023fad76796b9c2",
+      "bytes": 20408
+    },
+    {
+      "module": "anyio.pytest_plugin",
+      "function": "pytest_addoption",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/anyio/pytest_plugin.py",
+      "sha256": "de3005427d23bffa72a161361810651da8fdb2a5e3e1ef2fa1bd3f860aec5c4f",
+      "bytes": 10244
+    },
+    {
+      "module": "langsmith.pytest_plugin",
+      "function": "pytest_addoption",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/langsmith/pytest_plugin.py",
+      "sha256": "110f71808c800153ada178b1ccd964792aa8e8b1fbbc0a505dcaa2919d84c88f",
+      "bytes": 12931
+    },
+    {
+      "module": "pytest_asyncio.plugin",
+      "function": "pytest_addoption",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py",
+      "sha256": "121cb98d74596a9e5db3269a4be7131baeeeab3754b5996a9b26c228910863aa",
+      "bytes": 29856
+    },
+    {
+      "module": "xdist.plugin",
+      "function": "pytest_addoption",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/xdist/plugin.py",
+      "sha256": "62df71dfe342969ab667cb3a4f2280a93be9c11bc9a4c2d9ead271c979d2afd8",
+      "bytes": 13921
+    },
+    {
+      "module": "xdist.looponfail",
+      "function": "pytest_addoption",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/xdist/looponfail.py",
+      "sha256": "84971024df50889ecfd562daaf5f13dd64941f901f138c91611b9fa95bc65da4",
+      "bytes": 10143
+    },
+    {
+      "module": "jaxtyping._pytest_plugin",
+      "function": "pytest_addoption",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/jaxtyping/_pytest_plugin.py",
+      "sha256": "5990820261c424efc0c4e4aacc91d3b9a18a31c1446dfb75eed150c210f0e740",
+      "bytes": 2206
+    },
+    {
+      "module": "_pytest.config.argparsing",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/config/argparsing.py",
+      "sha256": "7438f0b58f6785343d435e196dd53e106c2840a645b95641d4fb34c1c960e7fa",
+      "bytes": 20439
+    },
+    {
+      "module": "argparse",
+      "path": "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/argparse.py",
+      "sha256": "7b73a121353cca465b96265ba256b7c5b92f18e3b2fb2d9a5a950e227b7fccf5",
+      "bytes": 105988
+    }
+  ],
+  "distribution_versions": {
+    "pytest-benchmark": "5.2.3",
+    "hypothesis": "6.151.2",
+    "anyio": "4.12.0",
+    "langsmith": "0.6.0",
+    "pytest-asyncio": "1.3.0",
+    "pytest-xdist": "3.8.0",
+    "jaxtyping": "0.3.4"
+  },
+  "limits": [
+    "Only named installed pytest9 contributor profile; custom repository pytest_addoption not loaded. Unknown option arity must remain unresolved, not a guessed selector.",
+    "Source options observed from actual runtime objects; does not attest product tests or case counts."
+  ]
+}

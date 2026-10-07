@@ -1,0 +1,126 @@
+...............................................................F......FF [ 92%]
+.....F                                                                   [100%]
+=================================== FAILURES ===================================
+___ test_failed_reused_directory_export_preserves_prior_complete_generation ____
+
+tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current610-cas-import-closure-pytest/test_failed_reused_directory_e0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fafd1a00a60>
+
+    def test_failed_reused_directory_export_preserves_prior_complete_generation(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """A failed replacement leaves the previously published directory intact."""
+        import polisyos.core.artifacts._transfer_ops as transfer_ops
+    
+        source = FileSystemCAS(tmp_path / "source")
+        artifact_a = source.put_bytes(PAYLOAD_A, _options())
+        artifact_b = source.put_bytes(PAYLOAD_B, _options())
+        export_root = tmp_path / "reused-export"
+    
+        source.export_subgraph([artifact_a.artifact_id], export_root, compress=False)
+        prior_members = {
+            path.relative_to(export_root): path.read_bytes()
+            for path in export_root.rglob("*")
+            if path.is_file()
+        }
+    
+        def fail_replacement_copy(*_args: object, **_kwargs: object) -> None:
+            raise OSError("injected replacement copy failure")
+    
+        monkeypatch.setattr(transfer_ops.shutil, "copy2", fail_replacement_copy)
+    
+>       with pytest.raises(OSError, match="replacement copy"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'OSError'>
+
+tests/unit/remediation/test_cas_02.py:207: Failed
+________________ test_import_enforces_existing_tenant_ownership ________________
+
+tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current610-cas-import-closure-pytest/test_import_enforces_existing_0')
+
+    def test_import_enforces_existing_tenant_ownership(tmp_path: Path) -> None:
+        """A tenant cannot import over an artifact owned by another tenant."""
+        source = FileSystemCAS(tmp_path / "source")
+        source_ref = source.put_bytes(PAYLOAD_A, _options())
+        export = source.export_subgraph(
+            [source_ref.artifact_id],
+            tmp_path / "tenant.tar.gz",
+        )
+    
+        shared_root = tmp_path / "shared"
+        tenant_a = FileSystemCAS(shared_root, tenant_id="tenant-a")
+        tenant_a.put_bytes(PAYLOAD_A, _options())
+        tenant_b = FileSystemCAS(shared_root, tenant_id="tenant-b")
+    
+>       with pytest.raises(PermissionError, match="not owned by tenant"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'PermissionError'>
+
+tests/unit/remediation/test_cas_02.py:420: Failed
+_________ test_import_rejects_a_selected_view_bound_to_another_tenant __________
+
+tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current610-cas-import-closure-pytest/test_import_rejects_a_selected0')
+
+    def test_import_rejects_a_selected_view_bound_to_another_tenant(tmp_path: Path) -> None:
+        """An archive cannot transfer authority-bound tenant metadata by byte possession."""
+        source = FileSystemCAS(tmp_path / "source", tenant_id="tenant-a")
+        source_ref = source.put_bytes(
+            PAYLOAD_A,
+            PutOptions(
+                kind="tests.cas02.tenant-bound",
+                media_type="application/octet-stream",
+                tenant_context=ArtifactTenantContextInfo(tenant_id="tenant-a"),
+            ),
+        )
+        export = source.export_subgraph(
+            [source_ref],
+            tmp_path / "tenant-bound-view.tar.gz",
+        )
+        target = FileSystemCAS(tmp_path / "target", tenant_id="tenant-b")
+    
+>       with pytest.raises(PermissionError, match="bound to a different tenant"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'PermissionError'>
+
+tests/unit/remediation/test_cas_02.py:441: Failed
+_______ test_import_rolls_back_new_generation_on_mid_publication_failure _______
+
+tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current610-cas-import-closure-pytest/test_import_rolls_back_new_gen0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fafd10ae970>
+
+    def test_import_rolls_back_new_generation_on_mid_publication_failure(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """A failed write cannot leave a partially accepted multi-artifact generation."""
+        source = FileSystemCAS(tmp_path / "source")
+        first = source.put_bytes(PAYLOAD_A, _options())
+        second = source.put_bytes(PAYLOAD_B, _options())
+        export = source.export_subgraph(
+            [first.artifact_id, second.artifact_id],
+            tmp_path / "mid-publication.tar.gz",
+        )
+        target = FileSystemCAS(tmp_path / "target")
+        original_write_once = target._files.write_once
+        writes = 0
+    
+        def fail_on_third_write(path: Path, data: bytes) -> bool:
+            nonlocal writes
+            writes += 1
+            if writes == 3:
+                raise OSError("injected mid-publication failure")
+            return original_write_once(path, data)
+    
+        monkeypatch.setattr(target._files, "write_once", fail_on_third_write)
+    
+>       with pytest.raises(OSError, match="mid-publication"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'OSError'>
+
+tests/unit/remediation/test_cas_02.py:585: Failed
+=========================== short test summary info ============================
+FAILED tests/unit/remediation/test_cas_02.py::test_failed_reused_directory_export_preserves_prior_complete_generation
+FAILED tests/unit/remediation/test_cas_02.py::test_import_enforces_existing_tenant_ownership
+FAILED tests/unit/remediation/test_cas_02.py::test_import_rejects_a_selected_view_bound_to_another_tenant
+FAILED tests/unit/remediation/test_cas_02.py::test_import_rolls_back_new_generation_on_mid_publication_failure

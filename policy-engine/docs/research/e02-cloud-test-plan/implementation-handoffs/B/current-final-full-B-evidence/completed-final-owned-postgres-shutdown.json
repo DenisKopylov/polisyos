@@ -1,0 +1,16 @@
+{
+  "schema": "policyos.e02.owned_fixture_shutdown.v1",
+  "owned_pid": 381902,
+  "uid": 1000,
+  "data_directory": "/tmp/e02-B38-pg-evidence/native-data-v2",
+  "loopback_port": 45483,
+  "identity_guards": "native-server receipt + actual postmaster.pid + actual UID and exact data/port process argv before signal",
+  "signal": "SIGTERM PostgreSQL smart graceful shutdown; no restart/kill escalation",
+  "after_process_state": "State:\tZ (zombie)",
+  "wall_s": 0.10044113600451965,
+  "postmaster_pid_file_exists": false,
+  "data_directory_preserved": true,
+  "oci_image_preserved": true,
+  "secret_file_preserved_no_values_logged": true,
+  "scope": "Actual8final PGcases/complete schema readbacks done. Only task-owned server process stopped; no database/schema/volume/image/DSN/fixture deletion, no general daemon stop or quota."
+}

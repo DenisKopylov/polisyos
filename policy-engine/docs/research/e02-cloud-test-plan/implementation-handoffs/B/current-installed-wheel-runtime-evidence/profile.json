@@ -1,0 +1,31 @@
+{
+  "source_before": {
+    "head": "dd9584728bd96f204983615216efdbc58117e713",
+    "tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+    "status": ""
+  },
+  "source_after": {
+    "head": "dd9584728bd96f204983615216efdbc58117e713",
+    "tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+    "status": ""
+  },
+  "test_path": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/common/test_async_tools_installed_wheel.py",
+  "test_sha256": "eb24cd99386a0856f5d6f7639c751bd6b019b6dfdf0be605d64caeeb64a51702",
+  "consumer_path": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py",
+  "consumer_sha256": "9c2dccab7a3d22313f96eea4131062c16d2008c7b5a9bfdf716003ac2eb86b09",
+  "wheel": "/tmp/e02-B-la057-final-dd9584728bd9/wheels/policy_engine-0.1.0-py3-none-any.whl",
+  "wheel_sha256": "78c9affc9b58f64166e2de6bc8360e30318fa30f7c66a44b863cb06447386454",
+  "input_environment": {
+    "E02_LA057_WHEEL_PATH": "/tmp/e02-B-la057-final-dd9584728bd9/wheels/policy_engine-0.1.0-py3-none-any.whl",
+    "E02_LA057_INSTALLED_SITE": "/tmp/e02-B-la057-final-dd9584728bd9/installed-env/lib/python3.14/site-packages",
+    "E02_LA057_SOURCE_ROOT": "/workspace/e02-B-current-coordination/policy-engine",
+    "E02_LA057_SOURCE_SHA": "dd9584728bd96f204983615216efdbc58117e713",
+    "E02_LA057_INSTALLED_PYTHON": "/tmp/e02-B-la057-final-dd9584728bd9/installed-env/bin/python",
+    "E02_LA057_CONSUMER_SHA256": "9c2dccab7a3d22313f96eea4131062c16d2008c7b5a9bfdf716003ac2eb86b09",
+    "E02_LA057_OUTER_TEST_SHA256": "eb24cd99386a0856f5d6f7639c751bd6b019b6dfdf0be605d64caeeb64a51702"
+  },
+  "cleanup_candidates": [
+    "/tmp/e02-B-la057-final-dd9584728bd9"
+  ],
+  "runtime_observation": "Native deciding XML/stdout, not command-exit-alone closure. Inspect actual case properties before finding adjudication."
+}

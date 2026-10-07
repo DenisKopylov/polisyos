@@ -1,0 +1,111 @@
+{
+  "utc": "2026-10-06T17:38:08.886327+00:00",
+  "retaining_published_head": "398bc63af3d37974eac121163d7ec9198058703b",
+  "candidate_source": "577521c6651bba048d6bdfdc13f36a383c8146c6",
+  "policy": "Native Trash only; never emptied; physical reclamation not claimed",
+  "preserved": "all published deciding records plus ignored originals/selected manifest and small offline build wheels/index/locks; shared Python runtime untouched",
+  "actions": [
+    {
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/1548-Acompiler-checks/candidate",
+      "source_dev_inode": [
+        16777231,
+        172517468
+      ],
+      "allocated_bytes": 76570624,
+      "state": "moved_identity_verified",
+      "lsof_returncode": 1,
+      "lsof_stdout": "",
+      "lsof_stderr": "",
+      "no_active_handles": true,
+      "native_returncode": 0,
+      "native_stdout": "moved",
+      "native_stderr": "",
+      "source_absent": true,
+      "trash_identity_matches": [
+        "/Users/deniskopylov/.Trash/candidate"
+      ]
+    },
+    {
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/1548-Acompiler-checks/prereq-overlay/cache",
+      "source_dev_inode": [
+        16777231,
+        172620926
+      ],
+      "allocated_bytes": 152576000,
+      "state": "moved_identity_verified",
+      "lsof_returncode": 1,
+      "lsof_stdout": "",
+      "lsof_stderr": "",
+      "no_active_handles": true,
+      "native_returncode": 0,
+      "native_stdout": "moved",
+      "native_stderr": "",
+      "source_absent": true,
+      "trash_identity_matches": [
+        "/Users/deniskopylov/.Trash/cache"
+      ]
+    },
+    {
+      "source": "/tmp/polisyos-e02-Acompiler-577521c6651bba048d6bdfdc13f36a383c8146c6",
+      "source_dev_inode": [
+        16777231,
+        172543416
+      ],
+      "allocated_bytes": 4096,
+      "state": "moved_identity_verified",
+      "lsof_returncode": 1,
+      "lsof_stdout": "",
+      "lsof_stderr": "",
+      "no_active_handles": true,
+      "native_returncode": 0,
+      "native_stdout": "moved",
+      "native_stderr": "",
+      "source_absent": true,
+      "trash_identity_matches": [
+        "/Users/deniskopylov/.Trash/polisyos-e02-Acompiler-577521c6651bba048d6bdfdc13f36a383c8146c6"
+      ]
+    },
+    {
+      "source": "/tmp/polisyos-e02-Acompiler-577521c6651bba048d6bdfdc13f36a383c8146c6-replay3",
+      "source_dev_inode": [
+        16777231,
+        172700561
+      ],
+      "allocated_bytes": 90546176,
+      "state": "moved_identity_verified",
+      "lsof_returncode": 1,
+      "lsof_stdout": "",
+      "lsof_stderr": "",
+      "no_active_handles": true,
+      "native_returncode": 0,
+      "native_stdout": "moved",
+      "native_stderr": "",
+      "source_absent": true,
+      "trash_identity_matches": [
+        "/Users/deniskopylov/.Trash/polisyos-e02-Acompiler-577521c6651bba048d6bdfdc13f36a383c8146c6-replay3"
+      ]
+    },
+    {
+      "source": "/tmp/polisyos-e02-Acompiler-577521c6651bba048d6bdfdc13f36a383c8146c6-replay4",
+      "source_dev_inode": [
+        16777231,
+        172709501
+      ],
+      "allocated_bytes": 90554368,
+      "state": "moved_identity_verified",
+      "lsof_returncode": 1,
+      "lsof_stdout": "",
+      "lsof_stderr": "",
+      "no_active_handles": true,
+      "native_returncode": 0,
+      "native_stdout": "moved",
+      "native_stderr": "",
+      "source_absent": true,
+      "trash_identity_matches": [
+        "/Users/deniskopylov/.Trash/polisyos-e02-Acompiler-577521c6651bba048d6bdfdc13f36a383c8146c6-replay4"
+      ]
+    }
+  ],
+  "moved_allocated_bytes": 410251264,
+  "free_bytes_after": 14604935168
+}

@@ -1,0 +1,3 @@
+{"_message_id": "event-1", "value": 1, "event_time": "2024-01-01T00:00:00+00:00"}
+{"_message_id": "event-2", "value": 2, "event_time": "2024-01-01T00:00:01+00:00"}
+{"_message_id": "event-3", "value": 3, "event_time": "2024-01-01T00:00:05+00:00"}

@@ -1,0 +1,39 @@
+{
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-lossless-fixture-extent-evidence/one-file.json",
+      "bytes": 661,
+      "sha256": "df1397527f659233af586b92a26fc8af21cca867470f368ccdb79f10278deb0d",
+      "original_path": "/dev/shm/e02-B-lossless-extent-custody/one-file.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-lossless-fixture-extent-evidence/closed-native-catalog-extents.jsonl",
+      "bytes": 643969,
+      "sha256": "00e0239d587b5485a185ad0d3700449995a6bbb943e5f8684b251171e019dec8",
+      "original_path": "/dev/shm/e02-B-lossless-extent-custody/closed-native-catalog-extents.jsonl"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-lossless-fixture-extent-evidence/result.json",
+      "bytes": 582,
+      "sha256": "b2c39a26c833083b137adb8f04f374715001ee8900d182a6e594bba737ac361d",
+      "original_path": "/dev/shm/e02-B-lossless-extent-custody/result.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-lossless-fixture-extent-evidence/additional-closed-root-catalog-extents.jsonl",
+      "bytes": 142075,
+      "sha256": "4ed064ec3092eef842ec6a7d3e2230bcd961165d8f1a8541bbdf2bcee91bc153",
+      "original_path": "/dev/shm/e02-B-lossless-extent-custody/additional-closed-root-catalog-extents.jsonl"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-lossless-fixture-extent-evidence/additional-result.json",
+      "bytes": 508,
+      "sha256": "61ab85bc6716d3b22fc5d79b24677a56cb1c1b10f84ae9e2426f9208a20b30fa",
+      "original_path": "/dev/shm/e02-B-lossless-extent-custody/additional-result.json"
+    }
+  ],
+  "complete_batch_files": 1306,
+  "batch_byte_mismatches": 0,
+  "batch_command_failures": 0,
+  "logical_data_disposition": "all retained",
+  "saved_physical_bytes_excluding_first_single_file": 7069241344
+}

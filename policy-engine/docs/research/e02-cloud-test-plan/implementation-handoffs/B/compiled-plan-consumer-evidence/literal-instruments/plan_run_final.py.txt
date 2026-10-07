@@ -1,0 +1,81 @@
+import argparse
+import hashlib
+import importlib.metadata
+import json
+import os
+import platform
+import subprocess
+import sys
+import time
+import uuid
+import xml.etree.ElementTree as ET
+from pathlib import Path
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--source-root', required=True, type=Path)
+parser.add_argument('--source-sha', required=True)
+parser.add_argument('--test-sha', required=True)
+parser.add_argument('--source-projection-sha', required=True)
+parser.add_argument('--removal', choices=('plan', 'preparation', 'seed'))
+args = parser.parse_args()
+SOURCE = args.source_root.absolute()
+TEST_ROOT = Path('/workspace/e02-B-current-cas-generation')
+HERE = Path(__file__).resolve().parent
+PYTHON = '/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python'
+OUT = Path('/tmp') / ('e02-B-reopened-compiled-plan-' + uuid.uuid4().hex[:12])
+OUT.mkdir()
+TEST = 'tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py'
+NEGATIVE = 'tests/unit/remediation/test_jit_01.py::test_chain_shape_inference_refuses_unknown_data_dependent_shape'
+
+
+def git(root, *items):
+    return subprocess.check_output(['git', '-C', str(root), *items], text=True).strip()
+
+
+def identity(root):
+    return {'head': git(root, 'rev-parse', 'HEAD'), 'tree': git(root, 'rev-parse', 'HEAD^{tree}'), 'status': git(root, 'status', '--porcelain')}
+
+
+def custody(path):
+    content = path.read_bytes()
+    return {'path': str(path), 'bytes': len(content), 'sha256': hashlib.sha256(content).hexdigest()}
+
+
+source_before, test_before = identity(SOURCE), identity(TEST_ROOT)
+projection_changed_paths = git(SOURCE, 'diff', '--name-only', args.source_projection_sha, args.source_sha, '--', 'policy-engine/src', 'policy-engine/tests', 'policy-engine/pytest.ini', 'policy-engine/pyproject.toml', 'policy-engine/uv.lock')
+assert projection_changed_paths == '', projection_changed_paths
+assert source_before['head'] == args.source_sha and source_before['status'] == '', source_before
+assert test_before['head'] == args.test_sha and test_before['status'] == '', test_before
+env = dict(os.environ)
+removed = [key for key in ('OMP_NUM_THREADS', 'OPENBLAS_NUM_THREADS', 'MKL_NUM_THREADS', 'NUMEXPR_NUM_THREADS', 'VECLIB_MAXIMUM_THREADS', 'BLIS_NUM_THREADS') if env.pop(key, None) is not None]
+env.update({'PYTHONPATH': ':'.join((str(HERE), str(SOURCE / 'policy-engine/src'), str(TEST_ROOT / 'policy-engine/src'))), 'POLISYOS_METRICS_PORT': '0', 'COMPILED_RUNTIME_ROOT': str(SOURCE), 'COMPILED_RUNTIME_SHA': args.source_sha, 'COMPILED_SOURCE_PROJECTION_SHA': args.source_projection_sha, 'COMPILED_ORIGIN_OBSERVATIONS': str(OUT / 'module-origins.jsonl')})
+plugins = ['-p', 'plan_origins_final']
+selectors = [TEST, NEGATIVE]
+instruments = [Path(__file__), HERE / 'plan_origins_final.py']
+if args.removal:
+    module = {'plan': 'removal_plan', 'preparation': 'removal_preparation', 'seed': 'removal_seed'}[args.removal]
+    plugins += ['-p', module]
+    selected = 'test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution[async]' if args.removal == 'plan' else 'test_cold_warm_preparation_preserves_independent_seeded_numerical_repetitions[True-True]'
+    selectors = [TEST + '::' + selected]
+    instruments.append(HERE / (module + '.py'))
+argv = [PYTHON, '-m', 'pytest', '-vv', *plugins, *selectors, '--basetemp', str(OUT / 'pytest'), '-o', 'cache_dir=' + str(OUT / 'cache'), '--junitxml=' + str(OUT / 'native.xml')]
+inputs = [TEST, 'tests/unit/remediation/test_jit_01.py', 'pytest.ini', 'pyproject.toml', 'uv.lock', 'tests/conftest.py', 'tests/quarantine.toml', 'tests/_helpers/artifacts.py', 'tests/_helpers/observability.py']
+profile = {'source_checkout_before': source_before, 'source_root': str(SOURCE), 'source_projection_ref': args.source_projection_sha, 'source_projection_src_test_config_diff': projection_changed_paths, 'test_checkout_before': test_before, 'test_root': str(TEST_ROOT), 'argv': argv, 'cwd': str(TEST_ROOT / 'policy-engine'), 'public_environment': {key: env[key] for key in ('PYTHONPATH', 'POLISYOS_METRICS_PORT', 'COMPILED_RUNTIME_ROOT', 'COMPILED_RUNTIME_SHA', 'COMPILED_SOURCE_PROJECTION_SHA', 'COMPILED_ORIGIN_OBSERVATIONS')}, 'numeric_thread_caps_removed': removed, 'environment': {'python_executable': PYTHON, 'python': sys.version, 'platform': platform.platform(), 'distributions': sorted((distribution.metadata['Name'], distribution.version) for distribution in importlib.metadata.distributions())}, 'input_closure': {'test_and_execution_config_files': [custody(TEST_ROOT / 'policy-engine' / relative) for relative in inputs], 'literal_instruments': [custody(path) for path in instruments], 'production_modules': 'All loaded polisyos module origins and Git bytes checked against exact immutable source at collection/session finish in module-origins.jsonl.'}, 'removal': args.removal, 'started_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())}
+(OUT / 'profile.json').write_text(json.dumps(profile, indent=2, sort_keys=True) + '\n')
+print(json.dumps({'output': str(OUT), 'argv': argv, 'source': source_before, 'tests': test_before}), flush=True)
+started = time.monotonic()
+with (OUT / 'native-stdout.txt').open('wb') as output:
+    output.write((json.dumps({'argv': argv, 'cwd': profile['cwd'], 'source': source_before, 'tests': test_before}) + '\n').encode())
+    output.flush()
+    process = subprocess.Popen(argv, cwd=profile['cwd'], env=env, stdout=output, stderr=subprocess.STDOUT)
+    pid, status, usage = os.wait4(process.pid, 0)
+    assert pid == process.pid
+    process.returncode = os.waitstatus_to_exitcode(status)
+source_after, test_after = identity(SOURCE), identity(TEST_ROOT)
+assert source_after == source_before and test_after == test_before, (source_before, source_after, test_before, test_after)
+cases = list(ET.parse(OUT / 'native.xml').getroot().iter('testcase')) if (OUT / 'native.xml').exists() else []
+counts = {'actual_cases': len(cases), 'passed': sum(not any(case.find(tag) is not None for tag in ('failure', 'error', 'skipped')) for case in cases), 'failed': sum(case.find('failure') is not None for case in cases), 'error': sum(case.find('error') is not None for case in cases), 'skipped': sum(case.find('skipped') is not None for case in cases)}
+result = {'returncode': process.returncode, 'source_checkout_before': source_before, 'source_checkout_after': source_after, 'test_checkout_before': test_before, 'test_checkout_after': test_after, 'elapsed_seconds': time.monotonic() - started, 'rusage_exact_pytest_pid': {'pid': pid, 'maxrss_kib': usage.ru_maxrss, 'user_seconds': usage.ru_utime, 'system_seconds': usage.ru_stime}, 'counts': counts, 'finished_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()), 'artifacts': [custody(path) for path in sorted(OUT.rglob('*')) if path.is_file() and not path.is_symlink()]}
+(OUT / 'result.json').write_text(json.dumps(result, indent=2, sort_keys=True) + '\n')
+print(json.dumps({'output': str(OUT), 'returncode': process.returncode, 'counts': counts, 'elapsed_seconds': result['elapsed_seconds']}), flush=True)
+sys.exit(process.returncode)

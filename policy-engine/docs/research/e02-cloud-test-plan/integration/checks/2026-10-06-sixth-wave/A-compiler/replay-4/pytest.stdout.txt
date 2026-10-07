@@ -1,0 +1,8 @@
+.                                                                        [100%]
+=============================== warnings summary ===============================
+tests/unit/remediation/test_req_01_installed.py::test_installed_wheel_keeps_active_compiler_and_retires_legacy_helpers
+  tests/unit/remediation/test_req_01_installed.py:19: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_installed_wheel_keeps_active_compiler_and_retires_legacy_helpers(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+1 passed, 1 warning in 3.17s

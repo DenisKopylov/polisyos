@@ -1,0 +1,16 @@
+browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     npx playwright install                                 ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝
+    at [eval]:3:34
+    at [eval]:5:3
+    at [eval]-wrapper:6:24 {
+  name: 'Error'
+}
+{"doctor_file": "/workspace/e02-B-current-coordination/policy-engine/tools/devx/workspace/doctor.py", "frontend_root": "/workspace/e02-B-current-coordination/policy-engine/apps/runtime-dashboard", "smoke": "const { chromium } = require(\"playwright\");\n(async () => {\n  const browser = await chromium.launch({ headless: true });\n  await browser.close();\n})().catch((error) => {\n  console.error(error);\n  process.exit(1);\n});"}
+{"name": "playwright", "ok": false, "message": "Chromium launch smoke-check failed in apps/runtime-dashboard (Command '['node', '-e', 'const { chromium } = require(\"playwright\");\\n(async () => {\\n  const browser = await chromium.launch({ headless: true });\\n  await browser.close();\\n})().catch((error) => {\\n  console.error(error);\\n  process.exit(1);\\n});']' returned non-zero exit status 1.)"}

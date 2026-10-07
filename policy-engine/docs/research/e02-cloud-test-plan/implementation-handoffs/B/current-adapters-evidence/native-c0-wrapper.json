@@ -1,0 +1,59 @@
+{
+  "schema": "e02.actual.affected-consumer.v1",
+  "target_sha": "c0c7b6f815096dc4642c093b9ef6f4bf27b649ac",
+  "target_sha_after": "c0c7b6f815096dc4642c093b9ef6f4bf27b649ac",
+  "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "tools/quality/testing/run_timed_suite.py",
+    "--lane",
+    "pytest:e02-current-adapters-c0",
+    "--capture-pytest-workload",
+    "--receipt-output",
+    "_build/e02-B-current-adapters/raw/native-c0-receipt.json",
+    "--",
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/fabric/connectors/test_resilience.py",
+    "tests/unit/fabric/connectors/test_resilience_e02.py",
+    "tests/unit/fabric/connectors/test_registry.py",
+    "tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+    "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+    "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+    "tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+    "tests/unit/scientist/orchestration/llm/test_factory.py",
+    "tests/unit/scientist/orchestration/llm/test_prompt_sanitization.py",
+    "tests/unit/core/test_llm_core.py",
+    "tests/unit/remediation/test_llm_01.py",
+    "-o",
+    "addopts=",
+    "-q",
+    "--tb=short",
+    "--junitxml=_build/e02-B-current-adapters/raw/native-c0.xml"
+  ],
+  "started_at": "2026-10-06T11:07:10.907499+00:00",
+  "wall_s": 10.964320610000868,
+  "exit_code": 0,
+  "wait4_ru_maxrss_kib": 533948,
+  "rss_scope": "OS-reported maxrss for timed wrapper and its reaped descendants; not summed simultaneous cohort RSS",
+  "driver_sha256": "ae5b9948a8a1be58db02461f7a99a4c4666270166df8253e60709218ced7d750",
+  "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+  "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+  "PYTHONPATH": "src:.",
+  "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+  "outputs": {
+    "native-c0.log": {
+      "sha256": "8b58a7f93450fc85f25f041bc93f3357565ab4c09808a67046c47ae91d30d003",
+      "bytes": 340
+    },
+    "native-c0.xml": {
+      "sha256": "e34edf86d9b0fe7fc5695dd8417618c8e6cd0347ff658f88c403a2881d0b8364",
+      "bytes": 38632
+    },
+    "native-c0-receipt.json": {
+      "sha256": "6bd2280a02a128e7f63410d31b5fda195ea52b881e242fac54377bc1a4bd7dc5",
+      "bytes": 33659
+    }
+  }
+}

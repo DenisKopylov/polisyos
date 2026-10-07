@@ -1,0 +1,63 @@
+{
+  "schema": "policyos.e02.independent_source_review.v1",
+  "unit": "B",
+  "reviewer": "/root/cas_probe",
+  "scope": "Foreign Foundry generated-stub tool, source and completed deciding evidence only. CAS author does not independently accept own CAS production code.",
+  "source_sha": "b7d966af6551fc0ff63d3a830c70fe300c320967",
+  "source_tree": "f13c9eaa85b45bf00032bf321f2ee33b3a2f8e06",
+  "slice_base_sha": "75ec14287da9e1f288de4699ff01240682bffe89",
+  "source_footprint_count": 5,
+  "source_footprint": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-foundry-stub-freshness.toml",
+    "policy-engine/src/polisyos/foundry/methods/composer.pyi",
+    "policy-engine/src/polisyos/foundry/methods/registry.pyi",
+    "policy-engine/tools/devx/foundry/README.md",
+    "policy-engine/tools/devx/foundry/generate_stubs.py"
+  ],
+  "producer_receipt": {
+    "sha": "ac341467b72c3be8a5905e223704daeafe73e3e8",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness.json",
+    "sha256": "45625bd085472eba1c63c88d7c849273b4250e2bdb60eabc67aa44d9980fcbb4"
+  },
+  "evidence_sha": "9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+  "evidence_index": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/index.json",
+    "sha256": "b0c7a9cdc779b1c9ffd81b33402d638e9772169335721cc87f98723318586f55",
+    "objects_including_index": 37,
+    "bytes_including_index": 456406,
+    "hash_mismatches": 0
+  },
+  "verdict": "NONBLOCKING within declared tooling profile",
+  "predicate_basis": "independently_reconciled",
+  "source_review": {
+    "shared_expected_bytes": "Write/check/dry-run use the identical stubgen or exact re-export recipe, private-export cleanup, scratch Ruff I sorting and formatting using repository ruff.toml, then syntax validation.",
+    "read_only_check": "Only default mode calls atomic_write_text for targets. Check compares complete bytes; missing/unreadable targets, drift, failed producer or canonicalization append failures and result in exit1. Modes are mutually exclusive.",
+    "output_contract": "Exactly four OUTPUT_MAP stubs; base/components bytes unchanged from75ec; two facade outputs differ only by intentional line-local F403 compatibility re-export comments, all four ASTs equal.",
+    "runtime_custody": "Full5468 tracked src/tests .py paths/blob set equal75ec→b7; no new runtime/test/config changes in five-path delta."
+  },
+  "actual_deciding_data": {
+    "healthy_check": "Author actual b7 clean source before/after, all four Current, exit0; complete stdout read and hashed.",
+    "stale_control": "Author actual b7 generator origin/sourcehash asserted. Copied actual four outputs; appended one comment retaining original definitions on base expected input. Actual --check reports DRIFT and exit1. Both copied input hashes and all four repository target hashes remain unchanged.",
+    "style": "Actual final author Ruff/format five-file profile exit0, full stdout and named source input hashes reconciled.",
+    "historical_errors": "All37 deciding/historical bytes preserved in peer index, including earlier foreign-old-module parser --check ERROR and wrong configuration/initial drift history. Those do not count as property proof."
+  },
+  "proxy_divergence": "File existence, valid stub syntax and all original definitions remain true in the copied stale target, while the real current generator full byte comparator refuses it. Dry-run printout alone cannot establish freshness.",
+  "limitations": [
+    "Reviewer ran Git/JSON/AST/hash metadata only; source and observed author effects are separate premises, not an independent generator replay.",
+    "Named input hashes/versions/source status are reconciled; complete transitive child import/resource/network closure is not claimed.",
+    "Missing/unreadable/producer failure branches were reviewed in source; no additional adversarial runs by reviewer.",
+    "Source-tree equality with old6d7 runtime is a custody observation, not new native/gate/scientific/source-identity authority.",
+    "ROOT owns global generated lifecycle registry/reference regeneration and final composed freeze; their readiness is outside this narrow CMP-only candidate.",
+    "No formal finding closure or semantic-owner/publication authority acceptance."
+  ],
+  "negative_controls": [
+    {
+      "actual_generator_identity_reconciled": true,
+      "all_four_original_bytes_unchanged": true,
+      "copied_input_before_after_equal": true,
+      "full_bytes_drift_refused": true
+    }
+  ],
+  "reviewer_command": "python3 .polisyos/stub-freshness-review/audit.py",
+  "reviewer_cwd": "/workspace/e02-B-current-cas-generation"
+}

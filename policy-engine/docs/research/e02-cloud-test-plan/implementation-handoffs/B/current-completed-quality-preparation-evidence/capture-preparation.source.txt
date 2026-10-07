@@ -1,0 +1,46 @@
+import ast
+import hashlib
+import json
+import os
+from pathlib import Path
+import subprocess
+import time
+
+repo = Path('/workspace/e02-B-current-runtime')
+sha = '36957513b0b2d58c3010cf3db9b268ba13881898'
+path = repo / 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_quality.py'
+output = Path('/tmp/e02-B-completed-quality-preparation-36957513')
+output.mkdir(mode=0o700)
+python = '/workspace/polisyos/policy-engine/.venv/bin/python'
+relative = path.relative_to(repo / 'policy-engine').as_posix()
+checks = [
+    ('ruff', [python, '-m', 'ruff', 'check', '--no-cache', relative], 0),
+    ('format', [python, '-m', 'ruff', 'format', '--check', relative], 0),
+    ('help', [python, '-B', str(path), '--help'], 0),
+    ('invalid-source-admission', [python, '-B', str(path), '--sha', 'bad', '--gate', 'ruff', '--scratch', str(output / 'must-not-be-created')], 1),
+]
+records = []
+for name, argv, expected in checks:
+    start = time.monotonic()
+    proc = subprocess.run(argv, cwd=repo / 'policy-engine', stdout=subprocess.PIPE, stderr=subprocess.STDOUT, env=dict(os.environ))
+    log = output / (name + '.txt')
+    with log.open('xb') as stream:
+        stream.write(proc.stdout)
+    record = {'id': name, 'command': argv, 'cwd': str(repo / 'policy-engine'), 'target_sha': sha, 'exit_code': proc.returncode, 'expected_exit_code': expected, 'wall_seconds': time.monotonic()-start, 'output_path': str(log), 'output_sha256': hashlib.sha256(proc.stdout).hexdigest(), 'output_bytes': len(proc.stdout), 'grade': 'Author preparation only; no quality gate/native/wheel executed'}
+    if proc.returncode != expected:
+        raise RuntimeError(record)
+    records.append(record)
+if (output / 'must-not-be-created').exists():
+    raise RuntimeError('Malformed source unexpectedly reached execution scratch')
+raw = path.read_bytes()
+if raw != subprocess.check_output(['/usr/bin/git', '-C', str(repo), 'show', sha+':'+path.relative_to(repo).as_posix()]):
+    raise RuntimeError('Frozen source differs')
+compile(raw, str(path), 'exec')
+tree = ast.parse(raw)
+constant = next(node.value for node in tree.body if isinstance(node, ast.Assign) and any(isinstance(target, ast.Name) and target.id == 'MYPY_GROUPS' for target in node.targets))
+groups = ast.literal_eval(constant)
+records.append({'id':'syntax-and-declared-target-census', 'target_sha': sha, 'outcome':'PASS', 'source_sha256':hashlib.sha256(raw).hexdigest(), 'source_bytes':len(raw), 'mypy_groups':groups, 'mypy_target_count':sum(map(len, groups.values())), 'grade':'Complete AST literal and syntax only; no imports or gates executed'})
+record = {'schema':'policyos.e02.author_preparation.v1', 'source_sha':sha, 'source_tree':subprocess.check_output(['/usr/bin/git','-C',str(repo),'rev-parse',sha+'^{tree}'],text=True).strip(), 'python':python, 'python_version':subprocess.check_output([python,'--version'],text=True).strip(), 'source_status_after':subprocess.check_output(['/usr/bin/git','-C',str(repo),'status','--porcelain'],text=True), 'checks':records, 'all_quality_gates':'UNRUN', 'wheel_build':'UNRUN', 'future_final_source':'not_yet_supplied', 'limitations':['No execution proves changed-file census or gate completion yet','Invalid-source negative stops before target Git read, input admission or scratch creation']}
+with (output/'wrapper.json').open('x') as stream:
+    json.dump(record,stream,indent=2);stream.write('\n')
+print(json.dumps(record,indent=2))

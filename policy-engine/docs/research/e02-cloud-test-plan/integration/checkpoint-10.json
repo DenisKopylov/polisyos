@@ -1,0 +1,69 @@
+{
+  "schema": "policyos.e02.integration_decisions.v1",
+  "date": "2026-10-06",
+  "publisher": "G",
+  "branch": "codex/e02-integration",
+  "integration_sha": "acdc3536f93f085d665a7b53460935525373d015",
+  "integration_tree": "ff7cc9e6bb2cb0d826d977e7298020ee7af6e5cc",
+  "previous_checkpoint": "checkpoint-09.json",
+  "published_continuation_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "accepted_slices": [
+    {
+      "unit": "B",
+      "slice": "bound-control-handler-transaction-publication",
+      "candidate_sha": "4f71e8bbd95225c8d857b2123f7f2fe9fcc5071d",
+      "candidate_tree": "d418a555e7883599a3c8c482f5b43a6c7b6f7a50",
+      "accepted_merge": "acdc3536f93f085d665a7b53460935525373d015",
+      "input_head": "cff9f2b684be4a7a938389caae8febd5525335a3",
+      "handoff_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability.json@cff9f2b684be4a7a938389caae8febd5525335a3",
+      "receipt": "checks/2026-10-06-third-wave/new-b38-4f71-context.json",
+      "code_decision": "GO_bounded_SQLite_bound_handler_transaction_fence",
+      "finding_closure": false,
+      "predicate_basis": "recomputed from persisted source owner/attempt/state/live lease inside the actual SQL publication transaction",
+      "G_companion_delta": "only change_class and surface_classification corrected to internal after independent contract/inventory review",
+      "limitations": [
+        "Unbound administrative store and arbitrary raw SQL outside this worker-handler profile",
+        "PostgreSQL live backend and production-data consumers unavailable/unrun",
+        "No universal authorization, external exactly-once, multi-host or physical power-loss claim"
+      ]
+    }
+  ],
+  "independent_reviewers": [
+    "risk_causal_lex",
+    "release_surface",
+    "publication_tester"
+  ],
+  "finding_closures": [],
+  "affected_consumer_receipt": "checks/2026-10-06-third-wave/checkpoint10-consumers-acdc-context.json",
+  "returned_runtime_candidate": {
+    "unit": "B",
+    "candidate_sha": "e1871506fcebc47d6572891b323ddf1f2083a3c9",
+    "tree": "edc05c3489f0e2e44c7c81ccbfb854539c9bdc50",
+    "code_decision": "HOLD_after_real_Mac_control_transport_FAIL",
+    "receipt": "checks/2026-10-06-third-wave/new-b-runtime-e187-context.json",
+    "counts": {
+      "PASS": 159,
+      "FAIL": 6,
+      "SKIP": 12,
+      "ERROR": 0
+    },
+    "P41": "not_established",
+    "next_owner": "B canonical retry writer; shared strict control translator for Linux and actual non-Linux process branch"
+  },
+  "review_queue": "reviews/2026-10-06-third-wave.md",
+  "E_resume_prompt": "../execution-prompts/continuation-2026-10-06/E-resume-after-pr38.md",
+  "E_resume_publication": "0346fc656a45ff2cd43d37126992d8ddbb739d10",
+  "freeze": "source acdc frozen only for affected 59-case check; not full E02 freeze",
+  "broad_replay": "UNRUN until shared source freeze and all independent reviews",
+  "unavailable_inputs": [
+    "Full baseline raw VM archives not transferred",
+    "Exact source/history/evaluator/issuer/signoff/ratification inputs remain owner-bound; production data stays local read-only",
+    "PostgreSQL DSN/runtime unavailable to these SQLite fixtures"
+  ],
+  "skipped_backends": [
+    "12 Linux-only subreaper/descriptor cases skipped on Mac e187",
+    "No G Torch/BoTorch/GPyTorch, native DoWhy/EconML, Ray/Temporal or external-store replay claimed"
+  ],
+  "main_publication": "future publication requires separate explicit authorization",
+  "remote_readback": "Ordinary integration push and exact head/tree/file readback follow this record commit"
+}

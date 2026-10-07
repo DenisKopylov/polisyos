@@ -1,0 +1,27 @@
+{
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "src/polisyos/scientist/orchestration/engine/async_executor.py",
+    "src/polisyos/scientist/orchestration/engine/checkpoint.py",
+    "tests/unit/scientist/orchestration/engine/test_async_executor.py",
+    "tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+    "tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py",
+    "tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py"
+  ],
+  "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+  "head": "84e40e5f83054a1f1c6c60d2fbacd53fa6c71497",
+  "exit_code": 0,
+  "output": "/tmp/e02-B-current-execution-state/checkpoint-deadline/ruff84.txt",
+  "input_closure": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-checkpoint-publication-budget.toml",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py"
+  ]
+}

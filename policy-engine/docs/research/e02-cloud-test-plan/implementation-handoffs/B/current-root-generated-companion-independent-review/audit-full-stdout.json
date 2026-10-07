@@ -1,0 +1,433 @@
+{
+  "schema": "policyos.e02.foreign_generated_companion_audit.v1",
+  "verdict": "NONBLOCKING finite source/metadata/evidence correspondence",
+  "reviewed_receipt": {
+    "commit": "3b950d63d9a1187c548a1d4f22aba1e12b4054db",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-companions.json",
+    "bytes": 25461,
+    "sha256": "3aa66e9e6110adc764e2720f84df130fa82831a43187bb691eeed4942ef7d851"
+  },
+  "reviewed_implementation_sha": "59760f76c2c087931dede4c3f6039b6154ace9c8",
+  "reviewed_implementation_tree": "c2f420b26b0695253be0caa554ab42202304e230",
+  "implementation_footprint": {
+    "exact_union_of_four_declared_commit_deltas": true,
+    "paths": 26,
+    "SELF_excluded": true,
+    "not_full_interleaved_checkout_diff": true
+  },
+  "evidence_index": {
+    "commit": "59760f76c2c087931dede4c3f6039b6154ace9c8",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/index.json",
+    "bytes": 5445,
+    "sha256": "ac21c0a1fe33412f2c84ed094e7eb4cb6a9cd5e14c0742b950c2ecc34e95f3cc"
+  },
+  "full_indexed_object_readback": {
+    "objects_excluding_index": 20,
+    "bytes_excluding_index": 43535,
+    "hash_or_byte_mismatches": 0
+  },
+  "registry": {
+    "source_sha": "b4dbcfb261f7cf46085de4063050c486cb8551ad",
+    "old_families": 110,
+    "new_families": 111,
+    "old_families_all_equal": true,
+    "added": [
+      "foundry-method-type-stubs"
+    ],
+    "critical_default_checks_unchanged": [
+      "runtime-api-client",
+      "runtime-dashboard-api-types",
+      "runtime-openapi-snapshot",
+      "trust-claim-posture-register"
+    ],
+    "new_family_exact_outputs": [
+      "src/polisyos/foundry/methods/base.pyi",
+      "src/polisyos/foundry/methods/registry.pyi",
+      "src/polisyos/foundry/methods/composer.pyi",
+      "src/polisyos/foundry/methods/components/composer.pyi"
+    ]
+  },
+  "public_sync": {
+    "source": "b4dbcfb261f7cf46085de4063050c486cb8551ad",
+    "output_commit": "9618ea5f90b7ac98b1992f5dc64646d1011fd489",
+    "stdout": {
+      "commit": "59760f76c2c087931dede4c3f6039b6154ace9c8",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/public-sync.txt",
+      "bytes": 44,
+      "sha256": "3a1c841e27e002f813b631ad3847f17a39a1b8e4dab8a007892ea06d0c5d83c8"
+    },
+    "wrapper": {
+      "commit": "59760f76c2c087931dede4c3f6039b6154ace9c8",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/public-sync.json",
+      "bytes": 975,
+      "sha256": "34a627b07ecd6ca1c23f7b07c162469614453a2b2b1e849ba47cc0623fa27bfd"
+    },
+    "actual_command": [
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+      "run",
+      "--no-sync",
+      "python",
+      "tools/devx/architecture/guardrails.py",
+      "sync",
+      "--skip-deep-import-baseline"
+    ],
+    "actual_exit": 0,
+    "identities": [
+      {
+        "path": "policy-engine/architecture/generated_artifacts.toml",
+        "source_sha": "b4dbcfb261f7cf46085de4063050c486cb8551ad",
+        "committed_output_sha": "9618ea5f90b7ac98b1992f5dc64646d1011fd489",
+        "bytes": 255402,
+        "sha256": "2a647722c8e8448fca732ff77328a9157265c86dcc80346246d578c0cfebe6fc",
+        "same_as_execution_source": true,
+        "role": "unchanged_execution_source"
+      },
+      {
+        "path": "policy-engine/docs/reference/generated-artifacts.md",
+        "source_sha": "b4dbcfb261f7cf46085de4063050c486cb8551ad",
+        "committed_output_sha": "9618ea5f90b7ac98b1992f5dc64646d1011fd489",
+        "bytes": 268710,
+        "sha256": "b4bb509a3a43304bc42b249aa0e9457090d27eb66a6df1e1b9b463cab6c86ebd",
+        "same_as_execution_source": false,
+        "role": "produced_reference_output"
+      },
+      {
+        "path": "policy-engine/architecture/public_surface/inventory.json",
+        "source_sha": "b4dbcfb261f7cf46085de4063050c486cb8551ad",
+        "committed_output_sha": "9618ea5f90b7ac98b1992f5dc64646d1011fd489",
+        "bytes": 220738,
+        "sha256": "58ec72001a9d236b4cb247a4229c64291a14f3c47429b26666cca484cb06cf0d",
+        "same_as_execution_source": true,
+        "role": "unchanged_execution_source"
+      },
+      {
+        "path": "policy-engine/docs/reference/public-surface.md",
+        "source_sha": "b4dbcfb261f7cf46085de4063050c486cb8551ad",
+        "committed_output_sha": "9618ea5f90b7ac98b1992f5dc64646d1011fd489",
+        "bytes": 152713,
+        "sha256": "3621f45572f23b6e0b5d3d1af7aefa56cfa2c3734129c814a6ac1b239520b102",
+        "same_as_execution_source": true,
+        "role": "unchanged_execution_source"
+      },
+      {
+        "path": "policy-engine/architecture/public_surface/contract.toml",
+        "source_sha": "b4dbcfb261f7cf46085de4063050c486cb8551ad",
+        "committed_output_sha": "9618ea5f90b7ac98b1992f5dc64646d1011fd489",
+        "bytes": 19715,
+        "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6",
+        "same_as_execution_source": true,
+        "role": "unchanged_execution_source"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-foundry-compiled-chain-plan.toml",
+        "source_sha": "b4dbcfb261f7cf46085de4063050c486cb8551ad",
+        "committed_output_sha": "9618ea5f90b7ac98b1992f5dc64646d1011fd489",
+        "bytes": 1725,
+        "sha256": "89e39e107fdf8cb232fbf7109c96468b212a87a3e8d80cf4ee1d514ad72850d5",
+        "same_as_execution_source": true,
+        "role": "unchanged_execution_source"
+      }
+    ]
+  },
+  "actual_six_execution_evidence_joins": [
+    {
+      "label": "stub-check",
+      "execution_source_sha": "e511ccd9b73697788a711cfdf64b562792ae2511",
+      "tree": "823d08214f6c5629059ca3b5eb134bbbe1922808",
+      "actual_command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "run",
+        "--no-sync",
+        "polisyos-tools",
+        "foundry",
+        "generate-stubs",
+        "--check"
+      ],
+      "actual_exit": 0,
+      "stdout": {
+        "commit": "59760f76c2c087931dede4c3f6039b6154ace9c8",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/stub-check.txt",
+        "bytes": 771,
+        "sha256": "34c245eaa33c9fbbaad2f56c85de149ef57baa8c22a07711684e0dd78c18b900"
+      },
+      "wrapper": {
+        "commit": "59760f76c2c087931dede4c3f6039b6154ace9c8",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/stub-check.json",
+        "bytes": 2080,
+        "sha256": "6d03298e01a54b9784a06aa58a2aa2f031c387a67406c2f864bc7a798e652637"
+      },
+      "wall_s": 3.588994849997107
+    },
+    {
+      "label": "generator-step0",
+      "execution_source_sha": "8142b14162f6417045ccbc560588da4341ac93ce",
+      "tree": "c9089aea682ca12a44633cb8e114c8d95a662780",
+      "actual_command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "run",
+        "--no-sync",
+        "--extra",
+        "runtime",
+        "--extra",
+        "ml",
+        "python",
+        "tools/ops_runners/runtime/export_runtime_openapi.py",
+        "--output",
+        "/dev/shm/e02-B-completed-generated-8142b14162f6/after.json",
+        "--scratch-root",
+        "/dev/shm/e02-B-completed-generated-8142b14162f6/runtime-cas"
+      ],
+      "actual_exit": 0,
+      "stdout": {
+        "commit": "59760f76c2c087931dede4c3f6039b6154ace9c8",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/generator-step0.txt",
+        "bytes": 6814,
+        "sha256": "7d863b87367ac61d16b2e76d72ade0f70e7831e3a7d8cbc7c387b1db2c8be928"
+      },
+      "wrapper": {
+        "commit": "59760f76c2c087931dede4c3f6039b6154ace9c8",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/generator-step0.json",
+        "bytes": 2302,
+        "sha256": "3e3030e1b1b142d5f004523c500c48bb791b6680d89456087eb01eb9c7340bc8"
+      },
+      "wall_s": 57.09763233900594
+    },
+    {
+      "label": "generator-step1",
+      "execution_source_sha": "8142b14162f6417045ccbc560588da4341ac93ce",
+      "tree": "c9089aea682ca12a44633cb8e114c8d95a662780",
+      "actual_command": [
+        "corepack",
+        "pnpm",
+        "--dir",
+        "/workspace/e02-B-current-coordination/policy-engine/packages/runtime-api-client",
+        "exec",
+        "openapi-typescript",
+        "/workspace/e02-B-current-coordination/policy-engine/schemas/runtime_api_v1.openapi.json",
+        "-o",
+        "/workspace/e02-B-current-coordination/policy-engine/packages/runtime-api-client/types.ts"
+      ],
+      "actual_exit": 0,
+      "stdout": {
+        "commit": "59760f76c2c087931dede4c3f6039b6154ace9c8",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/generator-step1.txt",
+        "bytes": 226,
+        "sha256": "9c3fa0c9159eab7bb840b84e197322dc0d424662fa36cc76f17f8517c7c83f32"
+      },
+      "wrapper": {
+        "commit": "59760f76c2c087931dede4c3f6039b6154ace9c8",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/generator-step1.json",
+        "bytes": 2403,
+        "sha256": "fc5cd10ce1162611a0a4ac4af086fe712fc040c45859524c559baaf8d3101888"
+      },
+      "wall_s": 1.8939843910047784
+    },
+    {
+      "label": "generator-step2",
+      "execution_source_sha": "8142b14162f6417045ccbc560588da4341ac93ce",
+      "tree": "c9089aea682ca12a44633cb8e114c8d95a662780",
+      "actual_command": [
+        "node",
+        "packages/runtime-api-client/scripts/normalize-recursive-openapi-types.mjs",
+        "--types",
+        "/workspace/e02-B-current-coordination/policy-engine/packages/runtime-api-client/types.ts"
+      ],
+      "actual_exit": 0,
+      "stdout": {
+        "commit": "59760f76c2c087931dede4c3f6039b6154ace9c8",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/generator-step2.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "wrapper": {
+        "commit": "59760f76c2c087931dede4c3f6039b6154ace9c8",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/generator-step2.json",
+        "bytes": 2240,
+        "sha256": "ba45951a63cee17d5a654528a6eca59924587aac62b938c86498264e3fce9f7a"
+      },
+      "wall_s": 0.6088614470063476
+    },
+    {
+      "label": "generator-step3",
+      "execution_source_sha": "8142b14162f6417045ccbc560588da4341ac93ce",
+      "tree": "c9089aea682ca12a44633cb8e114c8d95a662780",
+      "actual_command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "tools/ops_runners/runtime/generate_runtime_client.py",
+        "--openapi",
+        "/workspace/e02-B-current-coordination/policy-engine/schemas/runtime_api_v1.openapi.json",
+        "--out-ts",
+        "/dev/shm/e02-B-completed-generated-8142b14162f6/runtimeApiClient.ts",
+        "--out-js",
+        "/dev/shm/e02-B-completed-generated-8142b14162f6/runtimeApiClient.js"
+      ],
+      "actual_exit": 0,
+      "stdout": {
+        "commit": "59760f76c2c087931dede4c3f6039b6154ace9c8",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/generator-step3.txt",
+        "bytes": 136,
+        "sha256": "0817e6135832f06a03c52ee0c3171c626c319f01da7221c527a3e57b1ab26317"
+      },
+      "wrapper": {
+        "commit": "59760f76c2c087931dede4c3f6039b6154ace9c8",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/generator-step3.json",
+        "bytes": 2482,
+        "sha256": "9aa4872609c59fba65211d073fb48a3c730254d9550b6498fcd23b9b6dbca5bc"
+      },
+      "wall_s": 0.09562381899741013
+    },
+    {
+      "label": "generator-step4",
+      "execution_source_sha": "8142b14162f6417045ccbc560588da4341ac93ce",
+      "tree": "c9089aea682ca12a44633cb8e114c8d95a662780",
+      "actual_command": [
+        "node",
+        "packages/runtime-api-client/scripts/canonicalize-runtime-client.mjs",
+        "--openapi",
+        "/workspace/e02-B-current-coordination/policy-engine/schemas/runtime_api_v1.openapi.json",
+        "--client",
+        "/dev/shm/e02-B-completed-generated-8142b14162f6/runtimeApiClient.ts",
+        "--out-ts",
+        "/workspace/e02-B-current-coordination/policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "--runtime-js",
+        "/dev/shm/e02-B-completed-generated-8142b14162f6/runtimeApiClient.js",
+        "--out-js",
+        "/workspace/e02-B-current-coordination/policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.js"
+      ],
+      "actual_exit": 0,
+      "stdout": {
+        "commit": "59760f76c2c087931dede4c3f6039b6154ace9c8",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/generator-step4.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "wrapper": {
+        "commit": "59760f76c2c087931dede4c3f6039b6154ace9c8",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/generator-step4.json",
+        "bytes": 2685,
+        "sha256": "e03013731910ed8c24e853b96684ce87a45a8a5ed2215d9b5ac7e35b560cf6e3"
+      },
+      "wall_s": 0.6468076760065742
+    }
+  ],
+  "stub_reviewed_source_projection": [
+    {
+      "commit": "e511ccd9b73697788a711cfdf64b562792ae2511",
+      "path": "policy-engine/tools/devx/foundry/generate_stubs.py",
+      "bytes": 7780,
+      "sha256": "d6fa01ae4abc12f86faec0a63aaaa675e6bffaa2969e51391abbeb1693b3dabd"
+    },
+    {
+      "commit": "e511ccd9b73697788a711cfdf64b562792ae2511",
+      "path": "policy-engine/ruff.toml",
+      "bytes": 247,
+      "sha256": "543068227742e00057e19329f2df8ee944090f828a40b3e5da0b72f8e3b06fbd"
+    },
+    {
+      "commit": "e511ccd9b73697788a711cfdf64b562792ae2511",
+      "path": "policy-engine/src/polisyos/foundry/methods/base.pyi",
+      "bytes": 10329,
+      "sha256": "44ed7feb6deee222ce6ac8980cceb92c3b4cb264ccb5f6f9ee9d9ce6ed9d9cb3"
+    },
+    {
+      "commit": "e511ccd9b73697788a711cfdf64b562792ae2511",
+      "path": "policy-engine/src/polisyos/foundry/methods/registry.pyi",
+      "bytes": 117,
+      "sha256": "f8edc807f8cc38140afe51f899925dd86576d506cd1f80362cfb8b594dbf34bd"
+    },
+    {
+      "commit": "e511ccd9b73697788a711cfdf64b562792ae2511",
+      "path": "policy-engine/src/polisyos/foundry/methods/composer.pyi",
+      "bytes": 118,
+      "sha256": "f3a8a6c3055389a21652307f66be1b1d8c6db72fad25d599cac2f4aca801ef83"
+    },
+    {
+      "commit": "e511ccd9b73697788a711cfdf64b562792ae2511",
+      "path": "policy-engine/src/polisyos/foundry/methods/components/composer.pyi",
+      "bytes": 5970,
+      "sha256": "1657ceac5b499914d5f7c2b8ff0f17ad366abe19b9aac0ad474d9975433fc241"
+    }
+  ],
+  "fresh_generator_recipe": {
+    "execution_source": "8142b14162f6417045ccbc560588da4341ac93ce",
+    "canonical_script": {
+      "commit": "8142b14162f6417045ccbc560588da4341ac93ce",
+      "path": "policy-engine/packages/runtime-api-client/scripts/generate-runtime-api-client.sh",
+      "bytes": 2417,
+      "sha256": "5372d3ba1c68128e78aade1de5b5fc100a1338ea1b965b3df8d7a662ba0c0b7b"
+    },
+    "argv_recipe_source": {
+      "commit": "8142b14162f6417045ccbc560588da4341ac93ce",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion.json",
+      "bytes": 27860,
+      "sha256": "e44763629c7bbe7fc6086bf6588df6dff10441e81b9c4c3ee327414f60d477d3"
+    },
+    "literal_driver": {
+      "commit": "59760f76c2c087931dede4c3f6039b6154ace9c8",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/registered-generator-launch.source.txt",
+      "bytes": 2684,
+      "sha256": "7dd297750d40e9e8de5862bd82d6869911fbbc69d41038ef10ff9dbc13c5e32c"
+    },
+    "all_five_commands_reconciled": true,
+    "qualified_deltas": [
+      "UV --no-sync / existing isolated interpreter instead of hardcoded .venv",
+      "retained fresh scratch instead of destructive cleanup trap",
+      "produced OpenAPI output overlay used by all client steps"
+    ]
+  },
+  "OpenAPI": {
+    "old": {
+      "commit": "8142b14162f6417045ccbc560588da4341ac93ce",
+      "path": "policy-engine/schemas/runtime_api_v1.openapi.json",
+      "bytes": 2812414,
+      "sha256": "9c57673ed7731f7902105b089316539af9746553a6f1f4411876ca82bd6de693"
+    },
+    "new": {
+      "commit": "59760f76c2c087931dede4c3f6039b6154ace9c8",
+      "path": "policy-engine/schemas/runtime_api_v1.openapi.json",
+      "bytes": 2812414,
+      "sha256": "5309d53ad805a8a1cdefab108d5f8c1bc867a640ffeb03f646fe5bd6baa7d4a3"
+    },
+    "complete_recursive_scalar_deltas": 9,
+    "all_confined_to_one_existing_example": true,
+    "full_nonexample_json_equal": true,
+    "schemas": 573,
+    "paths": 111,
+    "operations": 113,
+    "replay_and_worker_reference_pins_consistent": true,
+    "cause_of_fingerprint_delta": "not_established"
+  },
+  "three_complete_client_output_objects": [
+    {
+      "commit": "59760f76c2c087931dede4c3f6039b6154ace9c8",
+      "path": "policy-engine/packages/runtime-api-client/types.ts",
+      "bytes": 951543,
+      "sha256": "5a4d52d41451aabf77939840914a9c4c0c9d80e67333333138156e790dc867a4"
+    },
+    {
+      "commit": "59760f76c2c087931dede4c3f6039b6154ace9c8",
+      "path": "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+      "bytes": 108061,
+      "sha256": "e0f56c8964c2c0902b62875fca8d5a245f1a1727a808a28ef80500aacb06c1cd"
+    },
+    {
+      "commit": "59760f76c2c087931dede4c3f6039b6154ace9c8",
+      "path": "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.js",
+      "bytes": 31276,
+      "sha256": "69a861c8e33251ca48fb87757c4d3000ef519c2bd110590c79e0b7f4dd5d5506"
+    }
+  ],
+  "mandatory_release": {
+    "commit": "59760f76c2c087931dede4c3f6039b6154ace9c8",
+    "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-openapi-example-freshness.toml",
+    "bytes": 2137,
+    "sha256": "cc9553ac959907c05c741d221c17d009f267ea235bbbd3771dd88ff7f05e7310"
+  },
+  "claim_grade": "Foreign source/evidence review only. Root command effects are already executed, independently reconciled here; reviewer did not execute generators, tests, gates, import product, or accept own CAS code. No final source/global-gate/finding closure.",
+  "limitations": [
+    "Architecture private locked/hashseed0 freshness profile and dashboard generation are not executed by this packet.",
+    "Four registered client constituents are projected transparently; the original script itself is not claimed executed.",
+    "Worker receipt payload/dependency map and normative authorization are not independently recomputed from the example.",
+    "Historical genuine stale-copy control remains prior source-bound evidence, not a fresh root counterfactual."
+  ]
+}

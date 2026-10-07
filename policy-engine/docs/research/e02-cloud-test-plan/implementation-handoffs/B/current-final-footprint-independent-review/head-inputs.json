@@ -1,0 +1,26 @@
+{
+  "runtime": {
+    "sha": "f8aa24a356e4143d975c8cb8bc40850e2df8725e",
+    "observed_local_sha": "f8aa24a356e4143d975c8cb8bc40850e2df8725e"
+  },
+  "execution-state": {
+    "sha": "9dcf877a037a9814f18ac7ddc75b992049c737b5",
+    "observed_local_sha": "9dcf877a037a9814f18ac7ddc75b992049c737b5"
+  },
+  "cas-generation": {
+    "sha": "1f330782463d6ec69befab02bd98322296a983c7",
+    "observed_local_sha": "1f330782463d6ec69befab02bd98322296a983c7"
+  },
+  "durability": {
+    "sha": "bcd29edac682b9541d84948929d5944775e16f15",
+    "observed_local_sha": "63713129022dc6c4b0103c1e77ee533b4d38a3e6"
+  },
+  "composition": {
+    "sha": "1ae9ee932fba588dbab0e175012dcfc38d41051f",
+    "observed_local_sha": "972172ac05ebaf804105d8c3fb9844d806eae4c3"
+  },
+  "adapters": {
+    "sha": "bbdbecfaec8349a9c26af6baae4b18833be2328d",
+    "observed_local_sha": "bbdbecfaec8349a9c26af6baae4b18833be2328d"
+  }
+}

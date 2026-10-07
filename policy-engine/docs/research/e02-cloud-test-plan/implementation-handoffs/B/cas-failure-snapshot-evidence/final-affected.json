@@ -1,0 +1,42 @@
+{
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "-m",
+    "pytest",
+    "-vv",
+    "tests/unit/core/phase0",
+    "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+    "tests/unit/core/artifacts/test_verification_snapshot_report.py",
+    "tests/unit/core/artifacts/test_cas_integrity_report.py",
+    "tests/unit/core/artifacts/test_storage_protocol_boundaries.py",
+    "tests/unit/core/artifacts/test_signed_evidence.py",
+    "tests/unit/core/artifacts/test_batch_completion_admission.py",
+    "tests/unit/runtime/quality/test_chronology_proof.py",
+    "--basetemp=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/final-affected-pytest",
+    "--junitxml=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/final-affected.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+  "target_sha": "643c0e06a4121d29836d7bda4626c7c60cb61797",
+  "target_tree": "61131b3ad72f643407b80b5e07c8350c741360a3",
+  "exit_code": 0,
+  "wall_s": 44.328664597996976,
+  "maxrss_kib": 908368,
+  "environment": {
+    "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+    "POLISYOS_METRICS_PORT": "0",
+    "numerical_caps": "all6absent"
+  },
+  "outputs": [
+    {
+      "path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/final-affected.txt",
+      "bytes": 37165,
+      "sha256": "4f7224e948a40af54b394cf437cc5028e1a6ec7c0fce2b0a12bafc66bf5d6c55"
+    },
+    {
+      "path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/final-affected.xml",
+      "bytes": 39622,
+      "sha256": "6755c272015681630ea57f010a138061a8b55ff42126d37663972d57bc665da1"
+    }
+  ]
+}

@@ -1,0 +1,128 @@
+{
+  "schema": "policyos.e02.independent_foreign_source_delta_review.v1",
+  "unit": "B",
+  "role": "EXE independent reviewer; ADAPTER/DUR sole source authors",
+  "target_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+  "target_tree": "da24b5d33dad29e7d23ad953e687b73d99c5265e",
+  "base_sha": "c0f31b203c44bed9390913a53ceb5aa5dccacf8b",
+  "closure_ids": [],
+  "reviewed_finding_ids": [
+    "B65",
+    "B66"
+  ],
+  "verdict": "BLOCKED: exact all-key reservation coordinate and protected-ack receipt serialization gaps witnessed by existing real consumers",
+  "prior_review": {
+    "commit": "787be3666a582673d0f74654be382ff0a4421c0d",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-source-independent-review.json",
+    "scope": "Full c0+9f source reading retained; source-only nonblocking never meant runtime acceptance"
+  },
+  "source_delta": {
+    "full_paths": 47,
+    "upper_focus_paths": 11,
+    "lower_dependency_paths": 5,
+    "wheel_evidence_metadata_paths": 31,
+    "lower_production_files_byte_equal_to": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+    "full_delta_and_source_objects": "capture-summary.json; exacttarget:path identities are recomputable with Git"
+  },
+  "positive_source_findings": [
+    "Missing/invalid token usage stays typed; safe getter removes hasattr accessor escape.",
+    "Nonempty durable run_id is checked before estimate/reservation/provider. No fabricated default scope.",
+    "Actual persisted old/new completion phase is read before exact transition expectedDigest; local intended bytes do not assert a disk ACK.",
+    "Direct cache/provider errors on generate/invoke/ainvoke retain observed event/response and owned durable pending quantity.",
+    "Traced with_model protects same client/pending state; different model refuses for required/current owner. Critique normalization uses that typed boundary instead of unwrapping.",
+    "Lower9f concurrency/epoch/uncertainty mechanism is unchanged; separate CAS consumer11PASS does not witness this protected audit path."
+  ],
+  "blockers": [
+    {
+      "id": "exact-reservation-vector",
+      "predicate_basis": "consumer_asserted",
+      "source": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+      "locators": [
+        292,
+        369,
+        383,
+        626,
+        638,
+        768,
+        775
+      ],
+      "lower_source": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py:136-145",
+      "mechanism": "EXCEEDED clears the map. RELEASED passes no reservation to _append_audit, which builds empty default _BudgetReservation(0). A new record has all budget_keys but no reserved coordinates; lower exact-key validation rejects before physical audit append. Decimal0 per declared key is a quantity, an empty vector is missing shape.",
+      "actual": "Corrected310 four healthy/fault cases: provider1, actual spent.02/reserved0/receipt1, valid protected chain RESERVED/CHECK only. Two RESERVED recovery cases complete real original act/reserve0/pendingnone, then next valid fresh-owner request fails at same vector.",
+      "not_claimed": "No claim monetary ACK became unknown; actual charge .02 remains known. COMMITTED injection not reached by these cases.",
+      "next_owner": "ADAPTER: preserve exact key coordinate quantity for every protected audit action, including zero/no-admission/after-release; do not weaken lower validator."
+    },
+    {
+      "id": "typed-receipt-projection",
+      "predicate_basis": "consumer_asserted",
+      "source": "policy-engine/src/polisyos/core/llm/settlement.py",
+      "locators": [
+        25,
+        35,
+        176,
+        193
+      ],
+      "mechanism": "LLMAuditObligation.payload_digest sends charge_ack.receipts Pydantic python projection into canonical JsonDataVisitor. BudgetSpendReceipt contains Decimal(.02), which strict general serialization rejects. Actual getter fails before resolution.",
+      "actual": "Four RELEASED/COMMITTED corrected310 cases have UnsupportedSerializationError Decimal while inspecting original obligation digest. Existing actual vector error is primary provider path, Decimal is a separate later digest bridge.",
+      "next_owner": "ADAPTER: immutable canonical JSON projection of typed receipt fields/Decimal quantities bound to original charge event/receipt identity; no general serializer relaxation or guessed zero."
+    }
+  ],
+  "existing_runtime_outputs": {
+    "reviewer_execution": "UNRUN: no product import/provider/ledger/pytest/collection/gate.",
+    "peer_original": {
+      "input_sha": "f1656b36dc438611bba0c3e14adab48c4bb47f51",
+      "actual": "13FAIL/0PASS/0ERROR/0SKIP",
+      "qualification": "RESERVED recovery had incorrect fixture AuditActor.id before correction; full literal failures retained."
+    },
+    "peer_corrected": {
+      "input_sha": "31003278961d27b84603d28c26dc38bd44f0a84d",
+      "actual": "13FAIL/0PASS/0ERROR/0SKIP",
+      "fixture_delta": "Only entry.actor.id -> entry.actor.identity; complete diff in capture-summary.json",
+      "loaded_origins": 91,
+      "explicit_origins": 13,
+      "all_actual_Git_bytes_verified": true,
+      "phase_partition": [
+        {
+          "cases": 4,
+          "property": "healthy/COMMITTED fault request",
+          "actual": "provider1 known.02ACK, two valid earlier audit entries; RELEASED record validation prevents further append"
+        },
+        {
+          "cases": 2,
+          "property": "RESERVED recovery then new owner admission",
+          "actual": "real original act resolution and immutable nested metadata pass; positive reservation\u21920/pendingnone; whole testFAIL on next valid request at RELEASED vector"
+        },
+        {
+          "cases": 4,
+          "property": "RELEASED/COMMITTED recovery",
+          "actual": "getter Decimal UnsupportedSerializationError; no completed recovery claim"
+        },
+        {
+          "cases": 3,
+          "property": "event/payload/log-owner binding refusal",
+          "actual": "failed_entry absent, injected protected act not reached; binding predicate not_established, literalFAIL retained"
+        }
+      ]
+    },
+    "fresh_snapshot_observations": "Corrected stdout12 real tagged observations parsed and byte-matched separate observations.json. Full raw originals to be transferred by RUN; no source summary substituted for their bytes."
+  },
+  "predicates": {
+    "Git source/input identity": "recomputed",
+    "source mechanism": "independently_reconciled",
+    "existing peer physical producer/ledger/audit body": "consumer_asserted",
+    "reviewer new native": "not_established",
+    "formal full criterion closure": "not_established"
+  },
+  "patterns": {
+    "P37": "Wrong-binding fault was never entered; wrong Actor.id initial fixture qualified independently.",
+    "P38": "True .02 ledger ACK cannot proxy required protected audit or digest completion.",
+    "P40": "All protected action reservation vectors and typed receipt projection are each one quantity class; no case-specific fixes.",
+    "P41": "No inherited/global-red waiver; both actual13FAIL commands remain."
+  },
+  "limitations_and_next_owner": [
+    "ADAPTER must batch source repair and repeat affected healthy/protected audit actual consumers after all currently frozen jobs are terminal. DUR lower unchanged.",
+    "RUN physical observation source A391/input310 remains exact; no successor execution is imported. CAS other11 real consumers are a different path/quantity.",
+    "External billing invoice/unknown amount resolution, arbitrary remote audit authority and crash-before-observed completion remain finite explicit boundaries.",
+    "This reviewer supplies no final per-ID disposition override, no production changes and no root final-cohort PASS."
+  ]
+}

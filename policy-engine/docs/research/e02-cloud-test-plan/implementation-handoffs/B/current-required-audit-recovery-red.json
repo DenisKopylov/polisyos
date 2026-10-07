@@ -1,0 +1,1561 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "required-audit-recovery-composed-red-independent",
+  "slice_base_sha": "87423d885455fd159d0fb9da62e48d6b52cc3a59",
+  "implementation_commits": [
+    "7e45fbc8bbdc86f0b310d9a4be57a873ed4209c3",
+    "fcaf233003a654423982c99ebeef6cb160523d92",
+    "b0ab3419eb2f165a834dc2cccb17b7538d2071aa",
+    "f1656b36dc438611bba0c3e14adab48c4bb47f51",
+    "31003278961d27b84603d28c26dc38bd44f0a84d",
+    "814f5c2212904c5550667d444cdc289f7b24d805"
+  ],
+  "candidate_tree_sha": "c05d03bb13957f6fca7b950786b81a8d6c172122",
+  "branch": "codex/e02-B-current-runtime",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/46",
+  "finding_ids": [
+    "B65"
+  ],
+  "bundle_ids": [
+    "LLM-01"
+  ],
+  "closure_ids": [],
+  "capability_state_or_finding_state": "open-scoped-real-composed-consumer-source-blockers",
+  "author_role": "Independent B65 runtime oracle author only; ADAPTER owns LLM producer/enforcer source, DUR owns durable pending API. Reviewer production changesZERO.",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_protected_audit_reconcili0/actual-provider.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_protected_audit_reconcili0/ledger.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_protected_audit_reconcili0/ledger.json.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_protected_audit_reconcili0/protected-audit.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_protected_audit_reconcili1/actual-provider.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_protected_audit_reconcili1/ledger.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_protected_audit_reconcili1/ledger.json.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_protected_audit_reconcili1/protected-audit.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_protected_audit_reconcili2/actual-provider.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_protected_audit_reconcili2/ledger.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_protected_audit_reconcili2/ledger.json.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_protected_audit_reconcili2/protected-audit.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_protected_audit_reconcili3/actual-provider.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_protected_audit_reconcili3/ledger.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_protected_audit_reconcili3/ledger.json.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_protected_audit_reconcili3/protected-audit.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_retained_protected_act_wr0/original-ledger.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_retained_protected_act_wr0/original-ledger.json.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_retained_protected_act_wr0/original-protected.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_retained_protected_act_wr0/original-provider.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_retained_protected_act_wr1/original-ledger.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_retained_protected_act_wr1/original-ledger.json.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_retained_protected_act_wr1/original-protected.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_retained_protected_act_wr1/original-provider.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_retained_protected_act_wr2/original-ledger.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_retained_protected_act_wr2/original-ledger.json.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_retained_protected_act_wr2/original-protected.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_retained_protected_act_wr2/original-provider.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl0/original-ledger.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl0/original-ledger.json.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl0/original-protected.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl0/original-provider.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl1/original-ledger.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl1/original-ledger.json.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl1/original-protected.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl1/original-provider.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl2/original-ledger.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl2/original-ledger.json.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl2/original-protected.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl2/original-provider.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl3/original-ledger.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl3/original-ledger.json.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl3/original-protected.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl3/original-provider.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl4/original-ledger.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl4/original-ledger.json.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl4/original-protected.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl4/original-provider.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl5/original-ledger.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl5/original-ledger.json.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl5/original-protected.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl5/original-provider.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/case-join.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/child.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/observations.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/source-context.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/input-actor-only-delta.diff.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/input-preparation-to-actual.diff.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_protected_audit_reconcili0/actual-provider.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_protected_audit_reconcili0/ledger.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_protected_audit_reconcili0/ledger.json.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_protected_audit_reconcili0/protected-audit.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_protected_audit_reconcili1/actual-provider.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_protected_audit_reconcili1/ledger.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_protected_audit_reconcili1/ledger.json.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_protected_audit_reconcili1/protected-audit.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_protected_audit_reconcili2/actual-provider.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_protected_audit_reconcili2/ledger.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_protected_audit_reconcili2/ledger.json.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_protected_audit_reconcili2/protected-audit.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_protected_audit_reconcili3/actual-provider.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_protected_audit_reconcili3/ledger.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_protected_audit_reconcili3/ledger.json.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_protected_audit_reconcili3/protected-audit.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_retained_protected_act_wr0/original-ledger.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_retained_protected_act_wr0/original-ledger.json.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_retained_protected_act_wr0/original-protected.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_retained_protected_act_wr0/original-provider.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_retained_protected_act_wr1/original-ledger.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_retained_protected_act_wr1/original-ledger.json.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_retained_protected_act_wr1/original-protected.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_retained_protected_act_wr1/original-provider.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_retained_protected_act_wr2/original-ledger.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_retained_protected_act_wr2/original-ledger.json.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_retained_protected_act_wr2/original-protected.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_retained_protected_act_wr2/original-provider.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_same_protected_owner_repl0/original-ledger.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_same_protected_owner_repl0/original-ledger.json.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_same_protected_owner_repl0/original-protected.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_same_protected_owner_repl1/original-ledger.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_same_protected_owner_repl1/original-ledger.json.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_same_protected_owner_repl1/original-protected.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_same_protected_owner_repl2/original-ledger.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_same_protected_owner_repl2/original-ledger.json.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_same_protected_owner_repl2/original-protected.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_same_protected_owner_repl2/original-provider.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_same_protected_owner_repl3/original-ledger.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_same_protected_owner_repl3/original-ledger.json.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_same_protected_owner_repl3/original-protected.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_same_protected_owner_repl3/original-provider.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_same_protected_owner_repl4/original-ledger.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_same_protected_owner_repl4/original-ledger.json.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_same_protected_owner_repl4/original-protected.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_same_protected_owner_repl4/original-provider.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_same_protected_owner_repl5/original-ledger.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_same_protected_owner_repl5/original-ledger.json.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_same_protected_owner_repl5/original-protected.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_same_protected_owner_repl5/original-provider.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/case-join.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/child.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/observations.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/source-context.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/package.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/run-native.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/source-input-custody.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/summary.json",
+    "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py"
+  ],
+  "test_changed_paths": [
+    "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py"
+  ],
+  "production_changed_paths": [],
+  "root_changed_paths": [],
+  "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red.json",
+  "reviewed_runtime_source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+  "reviewed_runtime_tree_sha": "da24b5d33dad29e7d23ad953e687b73d99c5265e",
+  "lower_source_dependency_sha": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+  "actual_corrected_test_input_sha": "31003278961d27b84603d28c26dc38bd44f0a84d",
+  "baseline_cells": [
+    {
+      "id": "F01-P026",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "state": "PASS",
+      "collected": "24",
+      "calls": "24",
+      "call_pass": "24",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "1.81",
+      "rss_kib": "98192",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F01.txt",
+      "source_line": "143",
+      "extra_json": "{}",
+      "exact_received_line": "F01-P026\tpolicy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py\tPASS\t24\t24\t24\t0\t0\t0\t0\t0\t0\t0\t0\t1.81\t98192\tvalid_bound",
+      "source_ref": "research_main",
+      "environment_input_closure_job": "F01"
+    },
+    {
+      "id": "F03-P066",
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+      "state": "PASS",
+      "collected": "13",
+      "calls": "13",
+      "call_pass": "13",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "1.08",
+      "rss_kib": "89096.0",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F03.txt",
+      "source_line": "196",
+      "extra_json": "{}",
+      "exact_received_line": "F03-P066\tpolicy-engine/tests/unit/scientist/orchestration/llm/test_cost_metrics.py\tPASS\t13\t13\t13\t0\t0\t0\t0\t0\t0\t0\t0\t1.08\t89096.0\tvalid_bound",
+      "source_ref": "research_main",
+      "environment_input_closure_job": "F03"
+    },
+    {
+      "id": "F03-P091",
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+      "state": "PASS",
+      "collected": "8",
+      "calls": "8",
+      "call_pass": "8",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "1.35",
+      "rss_kib": "96640.0",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F03.txt",
+      "source_line": "221",
+      "extra_json": "{}",
+      "exact_received_line": "F03-P091\tpolicy-engine/tests/unit/remediation/test_llm_01.py\tPASS\t8\t8\t8\t0\t0\t0\t0\t0\t0\t0\t0\t1.35\t96640.0\tvalid_bound",
+      "source_ref": "research_main",
+      "environment_input_closure_job": "F03"
+    },
+    {
+      "id": "F05-P047",
+      "job": "F05",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "state": "PASS",
+      "collected": "16",
+      "calls": "16",
+      "call_pass": "16",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "1.6",
+      "rss_kib": "110596",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F05.txt",
+      "source_line": "457",
+      "extra_json": "{}",
+      "exact_received_line": "F05-P047\tpolicy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py\tPASS\t16\t16\t16\t0\t0\t0\t0\t0\t0\t0\t0\t1.6\t110596\tvalid_reconciled",
+      "source_ref": "e02_execution_base",
+      "environment_input_closure_job": "F05"
+    },
+    {
+      "id": "F07-P027",
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "state": "PASS",
+      "collected": "24",
+      "calls": "24",
+      "call_pass": "24",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "1.668851613998413",
+      "rss_kib": "110980.0",
+      "receipt_status": "valid",
+      "source_file": "received/F07.txt",
+      "source_line": "33",
+      "extra_json": "{}",
+      "exact_received_line": "F07-P027\tpolicy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py\tPASS\t24\t24\t24\t0\t0\t0\t0\t0\t0\t0\t0\t1.668851613998413\t110980.0\tvalid",
+      "source_ref": "e02_head",
+      "environment_input_closure_job": "F07"
+    },
+    {
+      "id": "F07-P084",
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+      "state": "PASS",
+      "collected": "8",
+      "calls": "8",
+      "call_pass": "8",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "1.569864273071289",
+      "rss_kib": "111512.0",
+      "receipt_status": "valid",
+      "source_file": "received/F07.txt",
+      "source_line": "90",
+      "extra_json": "{}",
+      "exact_received_line": "F07-P084\tpolicy-engine/tests/unit/remediation/test_llm_01.py\tPASS\t8\t8\t8\t0\t0\t0\t0\t0\t0\t0\t0\t1.569864273071289\t111512.0\tvalid",
+      "source_ref": "e02_head",
+      "environment_input_closure_job": "F07"
+    },
+    {
+      "id": "F10-P031",
+      "job": "F10",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "state": "PASS",
+      "collected": "16",
+      "calls": "16",
+      "call_pass": "16",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "3.69",
+      "rss_kib": "120512",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F10.txt",
+      "source_line": "151",
+      "extra_json": "{}",
+      "exact_received_line": "F10-P031\tpolicy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py\tPASS\t16\t16\t16\t0\t0\t0\t0\t0\t0\t0\t0\t3.69\t120512\tvalid_reconciled",
+      "source_ref": "main",
+      "environment_input_closure_job": "F10"
+    },
+    {
+      "id": "F13-P104",
+      "job": "F13",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+      "state": "PASS",
+      "collected": "8",
+      "calls": "8",
+      "call_pass": "8",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "1.3",
+      "rss_kib": "118468",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F13.txt",
+      "source_line": "231",
+      "extra_json": "{}",
+      "exact_received_line": "F13-P104\tpolicy-engine/tests/unit/remediation/test_llm_01.py\tPASS\t8\t8\t8\t0\t0\t0\t0\t0\t0\t0\t0\t1.3\t118468\tvalid_reconciled",
+      "source_ref": "integration_head",
+      "environment_input_closure_job": "F13"
+    },
+    {
+      "id": "F15-P032",
+      "job": "F15",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "state": "PASS",
+      "collected": "24",
+      "calls": "24",
+      "call_pass": "24",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "1.53",
+      "rss_kib": "112148",
+      "receipt_status": "valid",
+      "source_file": "received/F15.txt",
+      "source_line": "187",
+      "extra_json": "{\"reason\":\"null\"}",
+      "exact_received_line": "F15-P032\tpolicy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py\tPASS\tnull\t24\t24\t24\t0\t0\t0\t0\t0\t0\t0\t0\t1.53\t112148\tvalid",
+      "source_ref": "integration_head",
+      "environment_input_closure_job": "F15"
+    }
+  ],
+  "baseline_environment_input_closure": {
+    "ref": {
+      "commit": "1f944c4324c675e7566f750b15695360c1b27c81",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/baseline-source-context.json",
+      "bytes": 755695,
+      "sha256": "729661c36beeb6532dd78de52374034baa5920b1ef5cb7cfa909318cca5a7014",
+      "git_blob": "3c780f4a92e83e623ac1d6bf84ab0e2cb8b5f07d"
+    },
+    "field": "source_job_contexts",
+    "jobs": 7,
+    "matching_cells": 9,
+    "role": "Historical file×cut PASS contexts only; raw archives missing. No baseline summary proves protected audit candidate."
+  },
+  "canonical_criterion": {
+    "commit": "dd9584728bd96f204983615216efdbc58117e713",
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "bytes": 1336380,
+    "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+    "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+    "line_start": 1669,
+    "line_end": 1688,
+    "full_card_utf8": "## B65. Ошибка вспомогательной телеметрии превращает полученный ответ в неудавшийся вызов\n\n*Восстановленный источник: Library-S02/U43. Уровень подтверждения не повышен.*\n\n**Происхождение:** C03-02. Исторический C03 альтернативной Library-ветки; не новый C05.\n\n**Приоритет:** Высокий на использующем tracing пути. **Охват:** S–M.\n\n**Наблюдение.** В generate после ответа поставщика вызывается `_record_tokens`; внутри него `metrics.record_llm_call` не ограждён как необязательная телеметрия. Исключение попадает в общую error-ветку, которая снова вызывает тот же metrics API и затем поднимает ошибку. Отдельный call_observer, напротив, уже имеет защиту try/except. Поэтому завершённая внешняя генерация способна выглядеть неудавшейся из-за отказа системы метрик. В локальной модели provider отработал один раз, но приложение получило RuntimeError; падение guarded observer не уничтожило ответ.\n\n**Почему это горлышко.** Следующий слой может повторить дорогое действие или остановить исследование, хотя содержательный результат уже получен. Это новый источник искусственных отказов, сочетающийся с B39/B40 о повторах и deadline. Частота фактических сбоев метрик в развёртывании не измерена.\n\n**Минимальное исправление.** Разделить обязательную фиксацию исполнения, расходов и защищённого аудита и необязательную экспортную телеметрию. Полученный ответ сначала привязать к реальной попытке и сохранить допустимым существующим способом. Отказ внешнего metrics sink отражать как degraded-наблюдаемость, не как несостоявшийся provider call. Критически необходимую запись расходов или допуск нельзя просто проглотить: для неё нужен надёжный путь сохранения/согласования и соответствующее ограничение дальнейшего действия.\n\n**Приёмочная проверка.** При сбое только необязательных метрик число provider-вызовов не увеличивается, результат доступен с точным diagnostic. При недоступном обязательном учёте система сохраняет различие «ответ получен, учёт требует согласования» и «вычисления не было», не разрешает бесконтрольные следующие расходы. Сбой error-метрики не маскирует исходную причину.\n\n**Граница.** Проверен порядок операций и его уменьшенная модель, не работа всего observability backend. Рекомендация не отменяет security logging, бюджетные границы, содержание источников или обязательную регистрацию актов. Успех телеметрии также не удостоверяет научную корректность ответа.\n\n**Прямые ссылки на основания:** [C03.N01](https://github.com/DenisKopylov/polisyos/blob/5fd3ebcc15637e98bbd4938de5d62ee5004504a8/policy-engine/src/polisyos/core/llm/traced_client.py) · [C03.N03](https://github.com/DenisKopylov/polisyos/blob/5fd3ebcc15637e98bbd4938de5d62ee5004504a8/policy-engine/src/polisyos/core/llm/response.py).\n\n",
+    "full_card_sha256": "f21a5d7d62b538e3466fe46778cbd8e27c2e3fa333cfb0b3a367b8fa6c731b76"
+  },
+  "predicate_basis": "consumer_asserted",
+  "prior_actual_DD_witness": {
+    "commit": "6432daa0c17d9085b87b2117f5f24cd5251ea4fc",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent.json",
+    "bytes": 68096,
+    "sha256": "1a422a6480ac2de47cc5a5513d84836263110b5e7ed11107f8533bfd72033bad",
+    "git_blob": "b27e79b45d090f9b733c8de8ab3e5b6b1e9a9c91"
+  },
+  "historical_preparation": {
+    "commit": "87423d885455fd159d0fb9da62e48d6b52cc3a59",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-preparation.json",
+    "bytes": 25260,
+    "sha256": "f95ab74208e8d0683e45c08b6308f7ac02805f82aab91aeb29debbce99480d79",
+    "git_blob": "5c4cb022e13fd10ae02cb352c92cf6a8faa5b388"
+  },
+  "property": {
+    "statement": "Known completed provider charge and required protected audit completion remain separate. Pending exact act blocks same-owner and reopened-owner admission; original constructor-trusted protected owner may verify/replay an exact definitely missing retained act through actual backend fsync and complete chain readback without provider or charge repetition.",
+    "runtime_path": [
+      "Physical typed provider writes request JSONL/fsync and returns reported.02; or RESERVED refusal happens beforeprovider.",
+      "Actual TracedLLMClient→LLMBudgetEnforcer→new initialized FileBudgetLedger completion API.",
+      "Real protected ChainedAuditLog/sink delegates unchanged append; one actual originaltarget directory refusal observes exact failed hash-bound entry.",
+      "Error metadata detached-mutation control, next public admission block, fresh FileBudgetLedger/constructor reopen block with ledger/audit bytes unchanged.",
+      "Constructor-trusted resolver verifies exact actor/owner/run/action/payload/event/knownfreshreceipt, public samepath LocalJsonlBackend.write/fsync and fresh whole ChainVerifier.",
+      "Actual reservation and obligations readback then next freshowner legitimate public call; nativeFAIL retained on source class boundaries."
+    ],
+    "proxy_divergence": "Known local.02 receipt is not protected audit completion. Neither restored path, detached caller metadata, reference string nor new act proves original exact protected entry. Both corrected RESERVED cases reallyrestore/fsync/fullverify with provider0/reserved0; this partial physical property does not convert the whole13-native failures into PASS.",
+    "negative_controls": [
+      "Original4 exact property/call function ASTs unchanged from qualifiedDD9c; candidate source rejects release audit earlier than the intended COMMITTEDfault.",
+      "Three hash-valid wrong event/payload/logowner controls remain literal nativeFAIL with targetfault/capturedentry premise not_established on a391.",
+      "Source vector/digest rejection and own originalactor.id premise failure are separate; corrected310 fixes only canonical field name.",
+      "Nested detached metadata mutation cannot change original digest/body in two physically reached RESERVEDcontrols.",
+      "Real positive sameowner exactentry recovery is definite-noappend only; ambiguous append/fsync-afterappend is excluded."
+    ]
+  },
+  "actual_counts": {
+    "first_whole13": {
+      "PASS": 0,
+      "FAIL": 13
+    },
+    "corrected_input_matched_same_source_whole13": {
+      "PASS": 0,
+      "FAIL": 13
+    },
+    "partial_RESERVED_reconciliation_observations": 2,
+    "partial_observations_native_PASS_claim": false
+  },
+  "checks": [
+    {
+      "id": "whole13-original-actor-premise",
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python /tmp/e02-B65-recovery-run.py --source-root /workspace/e02-B-current-adapters --source-sha a391e0c1f5bec81e6033675e4d48dd1cbe8e194d --input-sha f1656b36dc438611bba0c3e14adab48c4bb47f51 --output /tmp/e02-B65-recovery-a391-native",
+      "cwd": "/workspace/e02-B-current-runtime",
+      "product_cwd": "/workspace/e02-B-current-adapters/policy-engine",
+      "target_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+      "test_input_sha": "f1656b36dc438611bba0c3e14adab48c4bb47f51",
+      "environment": {
+        "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/source-context.json",
+        "bytes": 51770,
+        "sha256": "8a0f25d80ac274cb5fefaf68f9ef5eb42e7eb5fc70bc39e49b8b87c8bd37bcf7",
+        "git_blob": "da68af5cacc99424986bd03b96af75e26f14c336"
+      },
+      "input_closure": {
+        "test": {
+          "commit": "f1656b36dc438611bba0c3e14adab48c4bb47f51",
+          "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py",
+          "bytes": 25346,
+          "sha256": "d65655f0f1fea395d02342646a067f2cda71cd2b2a811f7ca60ddfb7327bfc21",
+          "git_blob": "8a19b1fe7b51a3039f720af30b3094c13c8c45d3"
+        },
+        "full_command_prepost": {
+          "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/wrapper.json",
+          "bytes": 4893,
+          "sha256": "74663230362086b3ddfacfac8b02627f03c46674f6cbb746046c43a62d9895c3",
+          "git_blob": "7134e5ceb0507a459a4bb52c7f7b5a4ab697569c"
+        },
+        "driver": {
+          "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/run-native.source.txt",
+          "bytes": 5935,
+          "sha256": "08ec2c657d8b58d4d613d3284c227c560dfa6fadcd516930c8af57774e82529f",
+          "git_blob": "b916d18ea95350b7cbe96a04695345a7db7df887"
+        },
+        "actual_child": {
+          "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/child.source.txt",
+          "bytes": 2502,
+          "sha256": "1900dea13644be7ee214891bec51e5f52b537afdee2184837c0bb80a7a837e8b",
+          "git_blob": "3c80ff3ba394c3da16cd14ac6d53bfc0d65f16d1"
+        },
+        "actual_fixture_files": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/",
+        "product_profile": "One complete authorized B65 oracle file. Native pytest builtin tmp_path; literal target pyproject; --noconftest excludes source-path mutation by another worktree. Every loaded polisyos concrete module must resolve beneath the immutable target and match exact Git bytes. No local product fallback, native gate, collection-only run, test filter or source edits.",
+        "explicit_environment": {
+          "PYTHONPATH": "/workspace/e02-B-current-adapters/policy-engine/src:/workspace/e02-B-current-adapters/policy-engine"
+        }
+      },
+      "outcome": "FAIL",
+      "exit": 1,
+      "actual_case_counts": {
+        "PASS": 0,
+        "FAIL": 13,
+        "ERROR": 0,
+        "SKIP": 0,
+        "XFAIL": 0,
+        "UNRUN": 0,
+        "unique_cases": 13
+      },
+      "deciding_output": "All13 nativeFAIL retained; context/property reach qualified per case. Corrected actor2 RESERVED physically restore exact entry/fullchain, provider0/reserve→0, but next legitimate provider source record-coordinate rejection prevents wholecase PASS. Other oldcontrols/postprovider/binding cases hit earlier source coordinate/digest or missing-fault premise.",
+      "output": {
+        "stdout": {
+          "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/native.txt",
+          "bytes": 119883,
+          "sha256": "5c88346c86498ec389eeac19bc7c1ce5e48440594aa8475efc09ec4d17ab613d",
+          "git_blob": "d8e4f86eceaf82951e8d736d1013238c0bbbd6ff"
+        },
+        "junit": {
+          "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/native.xml",
+          "bytes": 67704,
+          "sha256": "a3b3a2810001de9d85dcf3b2e4a0d06449d3f9f76ada1a5cf2b4a6a25a65809e",
+          "git_blob": "161be50375e7f03be85931972acf44b32f962eb8"
+        },
+        "case_join": {
+          "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/case-join.json",
+          "bytes": 77284,
+          "sha256": "53721652bd1c9c73e9850efdf61b8d84bcca820935f844c657b2ed0647911834",
+          "git_blob": "b4dc78373d2644336913a43c39d549079312a764"
+        },
+        "observations": {
+          "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/observations.json",
+          "bytes": 74929,
+          "sha256": "024ac9256887484915eb0c0773ec8a94519badce2e0153613173bab59696002a",
+          "git_blob": "4b9078e2d39fe41ba037c659763b768e0289fc39"
+        }
+      },
+      "wall_seconds": 2.8580502640106715,
+      "maxrss_kib": 104248,
+      "source_test_unchanged": true
+    },
+    {
+      "id": "whole13-corrected-actor-premise",
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python /tmp/e02-B65-recovery-run.py --source-root /workspace/e02-B-current-adapters --source-sha a391e0c1f5bec81e6033675e4d48dd1cbe8e194d --input-sha 31003278961d27b84603d28c26dc38bd44f0a84d --output /tmp/e02-B65-recovery-a391-corrected-native",
+      "cwd": "/workspace/e02-B-current-runtime",
+      "product_cwd": "/workspace/e02-B-current-adapters/policy-engine",
+      "target_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+      "test_input_sha": "31003278961d27b84603d28c26dc38bd44f0a84d",
+      "environment": {
+        "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/source-context.json",
+        "bytes": 51790,
+        "sha256": "48631c480744081989363f795af02254aa49f513297ff422960200ddbb2f882c",
+        "git_blob": "c9dcc34f0d98b901d86988f64b20beb93f3f946c"
+      },
+      "input_closure": {
+        "test": {
+          "commit": "31003278961d27b84603d28c26dc38bd44f0a84d",
+          "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py",
+          "bytes": 25352,
+          "sha256": "59db554912cdc450b91fa14edc7450f3de75d7e3650d3792f00bd1c413f5e273",
+          "git_blob": "22b3f59a489d9c4e994d264cfe52b76665cafa4d"
+        },
+        "full_command_prepost": {
+          "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/wrapper.json",
+          "bytes": 4903,
+          "sha256": "8ceb933f2b2f30ade6b9a2d7e182151282cd32be2567355f6afe0c282d2fa324",
+          "git_blob": "dc96663e018d821600ece38dd1ddcd449ecf5790"
+        },
+        "driver": {
+          "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/run-native.source.txt",
+          "bytes": 5935,
+          "sha256": "08ec2c657d8b58d4d613d3284c227c560dfa6fadcd516930c8af57774e82529f",
+          "git_blob": "b916d18ea95350b7cbe96a04695345a7db7df887"
+        },
+        "actual_child": {
+          "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/child.source.txt",
+          "bytes": 2502,
+          "sha256": "1900dea13644be7ee214891bec51e5f52b537afdee2184837c0bb80a7a837e8b",
+          "git_blob": "3c80ff3ba394c3da16cd14ac6d53bfc0d65f16d1"
+        },
+        "actual_fixture_files": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/",
+        "product_profile": "One complete authorized B65 oracle file. Native pytest builtin tmp_path; literal target pyproject; --noconftest excludes source-path mutation by another worktree. Every loaded polisyos concrete module must resolve beneath the immutable target and match exact Git bytes. No local product fallback, native gate, collection-only run, test filter or source edits.",
+        "explicit_environment": {
+          "PYTHONPATH": "/workspace/e02-B-current-adapters/policy-engine/src:/workspace/e02-B-current-adapters/policy-engine"
+        }
+      },
+      "outcome": "FAIL",
+      "exit": 1,
+      "actual_case_counts": {
+        "PASS": 0,
+        "FAIL": 13,
+        "ERROR": 0,
+        "SKIP": 0,
+        "XFAIL": 0,
+        "UNRUN": 0,
+        "unique_cases": 13
+      },
+      "deciding_output": "All13 nativeFAIL retained; context/property reach qualified per case. Corrected actor2 RESERVED physically restore exact entry/fullchain, provider0/reserve→0, but next legitimate provider source record-coordinate rejection prevents wholecase PASS. Other oldcontrols/postprovider/binding cases hit earlier source coordinate/digest or missing-fault premise.",
+      "output": {
+        "stdout": {
+          "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/native.txt",
+          "bytes": 146325,
+          "sha256": "ed91a9e2d2e57be7b17d9baa317fa8e22dcdf8427460e95fa8ea6eda680f2907",
+          "git_blob": "e1d3c13e64534af45c384d99b9c93740b28c6e51"
+        },
+        "junit": {
+          "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/native.xml",
+          "bytes": 82091,
+          "sha256": "22ae006772412cf93a863d31ea1f9cf40213b2adb02290522faba7ad4506d368",
+          "git_blob": "de3d2717d954f5e6cf6eb3164ce960775841a05f"
+        },
+        "case_join": {
+          "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/case-join.json",
+          "bytes": 92384,
+          "sha256": "c2fc4b5716b3838e36b2bc93f3c8137b44160e54e984b51da19bf3d06ffb885d",
+          "git_blob": "4dff0be7816ddee3a3416c2586a493d5b5851b0c"
+        },
+        "observations": {
+          "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/observations.json",
+          "bytes": 95855,
+          "sha256": "6d84b96f79a339692dd4f95c3e574d6da59865bf7e411015b3e83b2c7a518bea",
+          "git_blob": "621eb2f8d320b3fce1de70053c7ec06cb418326b"
+        }
+      },
+      "wall_seconds": 2.9429669130040566,
+      "maxrss_kib": 106124,
+      "source_test_unchanged": true
+    }
+  ],
+  "source_primary_boundary_qualification": {
+    "first_actual_RELEASED_block": "Source new generic audit record uses empty reserved_amounts vector while lower strict record requires every configured budgetkey. Actual first4 append output contains RESERVED/CHECK only. Corrected RESERVED finalnextprovider failure explicitly contains lower ValidationError exact coordinates.",
+    "separate_digest_boundary": "LLMAuditObligation.payload_digest getter on known typed charge receipt raises UnsupportedSerializationError Decimal; raw postprovider diagnostic contains actual error. Source resolution constructs digest after append if coordinate prerequisite succeeds; packet does not infer a RELEASED effect from this getter failure.",
+    "test_premise_correction": "f165 actor.id accessor unsupported. Only actor.identity field changed in310; all other input bytes and source point same. Original f165 full13FAIL remains historical.",
+    "new_positive_quantity": "Corrected RESERVEDactual2: realentrywrite/fsync, fullchaintrue, provider0, positive reservation→0 and all persisted obligations clear; later nextprovider fails sourcecoordinateclass."
+  },
+  "complete_deciding_refs": [
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_protected_audit_reconcili0/actual-provider.jsonl",
+      "bytes": 57,
+      "sha256": "9ea437b282939a3b75f47fde102c8e44673aae406216268b652313d587783ade",
+      "git_blob": "dcb563874c6e41693b721de912a0773c6841b376"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_protected_audit_reconcili0/ledger.json",
+      "bytes": 5737,
+      "sha256": "0eac7e3b65c4a05aba7d07b0494f5116075efaace2af4d1a644dbdec7968deb7",
+      "git_blob": "aaaed32a388b720c1c3a49b8b6c48c4d6f82a59e"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_protected_audit_reconcili0/ledger.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_protected_audit_reconcili0/protected-audit.jsonl",
+      "bytes": 1343,
+      "sha256": "6968b240bf3d07dba2ec9329ef76ca3d49f286cf545743c2f07662cd0ea7379a",
+      "git_blob": "2fd7f7de7596499a8dcf6972521b677529ed75a2"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_protected_audit_reconcili1/actual-provider.jsonl",
+      "bytes": 55,
+      "sha256": "d9d2f7f3b2990ebbe5279f54fe145ca6c9f54dd1665e4fab13edf96d6ca72dd0",
+      "git_blob": "b2448ec787dc475138b651ad3f2d20dc27c286be"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_protected_audit_reconcili1/ledger.json",
+      "bytes": 5737,
+      "sha256": "22dd0fba7c7bb7f185d6495e2c1c151b5b1dd9a31ef613baad7c45d4e9cc34ee",
+      "git_blob": "41514deb3cf2e00ffb1d41b3b50a40c3439fbf66"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_protected_audit_reconcili1/ledger.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_protected_audit_reconcili1/protected-audit.jsonl",
+      "bytes": 1343,
+      "sha256": "6f4788a1a43378219caaa26b310b98cb4305546ef7ae9fccff08a3b966341741",
+      "git_blob": "31aa3f9723f95934a3b22140cee8eff6680f04a9"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_protected_audit_reconcili2/actual-provider.jsonl",
+      "bytes": 57,
+      "sha256": "9ea437b282939a3b75f47fde102c8e44673aae406216268b652313d587783ade",
+      "git_blob": "dcb563874c6e41693b721de912a0773c6841b376"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_protected_audit_reconcili2/ledger.json",
+      "bytes": 5737,
+      "sha256": "b497cfaceae9ee09d425f70e58a293346caec42d8dd424cf3649bc80335393cf",
+      "git_blob": "e37f0fff4d8b5c481c1502023ba953447e6a2704"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_protected_audit_reconcili2/ledger.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_protected_audit_reconcili2/protected-audit.jsonl",
+      "bytes": 1343,
+      "sha256": "e2a69f27788dd26a08ae18d3049ff93153a221900e049d0c4457aeb8c36206ba",
+      "git_blob": "db7a03b55adb6365cd58d68f886d16351d9d2229"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_protected_audit_reconcili3/actual-provider.jsonl",
+      "bytes": 55,
+      "sha256": "d9d2f7f3b2990ebbe5279f54fe145ca6c9f54dd1665e4fab13edf96d6ca72dd0",
+      "git_blob": "b2448ec787dc475138b651ad3f2d20dc27c286be"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_protected_audit_reconcili3/ledger.json",
+      "bytes": 5737,
+      "sha256": "fb5382bbbc4c59d661783a964116e871cb8ec0c65f5e7c2bd00d1e8abefe1e36",
+      "git_blob": "3cd75f276a17ec84def1a8a9817f5c93de5cab83"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_protected_audit_reconcili3/ledger.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_protected_audit_reconcili3/protected-audit.jsonl",
+      "bytes": 1343,
+      "sha256": "f726352cf99753607b10717683cbe422cc40a6ec274e8cbbb0f9f6bfaf2df242",
+      "git_blob": "685cfc2361f9fa25f9e17542dd366d342fe52649"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_retained_protected_act_wr0/original-ledger.json",
+      "bytes": 5844,
+      "sha256": "fc5f23c892769761ec76a81893a2e2a4cc7d6a85cb496421b7332186d6871e4a",
+      "git_blob": "9619579a5d856c676ec49d1a1002ef3d52c77137"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_retained_protected_act_wr0/original-ledger.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_retained_protected_act_wr0/original-protected.jsonl",
+      "bytes": 1357,
+      "sha256": "4cd536ebee50f3f5b16651906f045734c8b1d02278843399235971ab85cfb5fd",
+      "git_blob": "6e9a768d57f1349cfa25498b6f24d0fcbc9666ef"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_retained_protected_act_wr0/original-provider.jsonl",
+      "bytes": 55,
+      "sha256": "d9d2f7f3b2990ebbe5279f54fe145ca6c9f54dd1665e4fab13edf96d6ca72dd0",
+      "git_blob": "b2448ec787dc475138b651ad3f2d20dc27c286be"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_retained_protected_act_wr1/original-ledger.json",
+      "bytes": 5844,
+      "sha256": "a18535972a5488d200773c16d106c543485bd246b3dbe8ee7d0db99b6f64c491",
+      "git_blob": "e5eb5b48329d007c61570b6adf40f556b93bcbf0"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_retained_protected_act_wr1/original-ledger.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_retained_protected_act_wr1/original-protected.jsonl",
+      "bytes": 1357,
+      "sha256": "cf119944b830c7715d22df1b9c21eb4df1a39ab106659a670df88a219fd880fc",
+      "git_blob": "7324ac3a266d47cec204626269ac06ff31cf8d1e"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_retained_protected_act_wr1/original-provider.jsonl",
+      "bytes": 55,
+      "sha256": "d9d2f7f3b2990ebbe5279f54fe145ca6c9f54dd1665e4fab13edf96d6ca72dd0",
+      "git_blob": "b2448ec787dc475138b651ad3f2d20dc27c286be"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_retained_protected_act_wr2/original-ledger.json",
+      "bytes": 5844,
+      "sha256": "9dc8c8b98fbcde402bf2e04818a013bf991f2726959284455d843752ef65e817",
+      "git_blob": "f55baac1e44c479bebf6841c0763357809a98a99"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_retained_protected_act_wr2/original-ledger.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_retained_protected_act_wr2/original-protected.jsonl",
+      "bytes": 1357,
+      "sha256": "13416dac9605bd0bd10a1b81b4d00299c023f8dff637b5950d5f11f60c974476",
+      "git_blob": "233d9b3b6433a60ae66e8b9d3cd952a743d85c32"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_retained_protected_act_wr2/original-provider.jsonl",
+      "bytes": 55,
+      "sha256": "d9d2f7f3b2990ebbe5279f54fe145ca6c9f54dd1665e4fab13edf96d6ca72dd0",
+      "git_blob": "b2448ec787dc475138b651ad3f2d20dc27c286be"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl0/original-ledger.json",
+      "bytes": 7514,
+      "sha256": "ecaa5195322a700b0bed32baa2d252db2a6bb9fbdd276d29e5718046601238bf",
+      "git_blob": "8b7e347dadee9cfa3bbc98e49c6885b2a3a0ef66"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl0/original-ledger.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl0/original-protected.jsonl",
+      "bytes": 2741,
+      "sha256": "c9925bb150707a2af4c97fed4b4bf4ab0d7b75b9c56291cee6a2565cd5c54d1f",
+      "git_blob": "de7ffac65a11339720c91b97a21d5296ae6f1d74"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl0/original-provider.jsonl",
+      "bytes": 57,
+      "sha256": "9ea437b282939a3b75f47fde102c8e44673aae406216268b652313d587783ade",
+      "git_blob": "dcb563874c6e41693b721de912a0773c6841b376"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl1/original-ledger.json",
+      "bytes": 7514,
+      "sha256": "477ebdc03c88337e1c3c9d50d951e44fce818b3dd0979e3cf480a2ecf8ab7890",
+      "git_blob": "61ae0b123278eb6ccbae1de1ad07ddbb2196d09d"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl1/original-ledger.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl1/original-protected.jsonl",
+      "bytes": 2741,
+      "sha256": "30726a62859eb88dc7db8bd696d8984f1a036d68011b186b4d389118824571c2",
+      "git_blob": "08e62a3d2dc36650ccf5f9e8f992798cfcf7dbc0"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl1/original-provider.jsonl",
+      "bytes": 55,
+      "sha256": "d9d2f7f3b2990ebbe5279f54fe145ca6c9f54dd1665e4fab13edf96d6ca72dd0",
+      "git_blob": "b2448ec787dc475138b651ad3f2d20dc27c286be"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl2/original-ledger.json",
+      "bytes": 5844,
+      "sha256": "6ec83670fc96cf7a6116ce09e5781512f9987521b9e5052089742c2be7048e50",
+      "git_blob": "96e9e4b2faf01dca7bb75d6b7a27e17f4939977f"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl2/original-ledger.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl2/original-protected.jsonl",
+      "bytes": 1357,
+      "sha256": "a253de04371ae450a9c1f4c2d6ac372300ec3219bcb83e08d71add8c6673c62b",
+      "git_blob": "646b2d3696dead9cfd0057eebd8c37852cd97301"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl2/original-provider.jsonl",
+      "bytes": 57,
+      "sha256": "9ea437b282939a3b75f47fde102c8e44673aae406216268b652313d587783ade",
+      "git_blob": "dcb563874c6e41693b721de912a0773c6841b376"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl3/original-ledger.json",
+      "bytes": 5844,
+      "sha256": "19d01b9e9162b944d3edf760d6ffeba8596de3e97018bf333a56e639086372f7",
+      "git_blob": "0f01fb188524480afb69780e5dfef2540f2f73f3"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl3/original-ledger.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl3/original-protected.jsonl",
+      "bytes": 1357,
+      "sha256": "b3b6340354000c62d53eb23e9305797f9d53311bd96307e8d71e1d0c900990c5",
+      "git_blob": "1a0bb9366c5f8f5e8ca81372d475bf6921ba9481"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl3/original-provider.jsonl",
+      "bytes": 55,
+      "sha256": "d9d2f7f3b2990ebbe5279f54fe145ca6c9f54dd1665e4fab13edf96d6ca72dd0",
+      "git_blob": "b2448ec787dc475138b651ad3f2d20dc27c286be"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl4/original-ledger.json",
+      "bytes": 5844,
+      "sha256": "1429caa1395c35e82157276b2e97c93bc8847577f00a03b8b91abcad6efa2e48",
+      "git_blob": "677e47be5524aebfdbd9034783d343e6f3b00046"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl4/original-ledger.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl4/original-protected.jsonl",
+      "bytes": 1357,
+      "sha256": "1d656f7264c517e92ac895e0b157d36a1daa6e58ec6db524b04bbde0d1a925eb",
+      "git_blob": "fa90550bf2944dec4b8e1b5910efe8958d01a8be"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl4/original-provider.jsonl",
+      "bytes": 57,
+      "sha256": "9ea437b282939a3b75f47fde102c8e44673aae406216268b652313d587783ade",
+      "git_blob": "dcb563874c6e41693b721de912a0773c6841b376"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl5/original-ledger.json",
+      "bytes": 5844,
+      "sha256": "695e6f87ba099637475e65de009ffc866a87d62a4c6efee73b082c1ae72be571",
+      "git_blob": "17c048efa06809113c95f482ea3119cccb34e6a8"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl5/original-ledger.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl5/original-protected.jsonl",
+      "bytes": 1357,
+      "sha256": "559931d276b24cda2a814889f5c5db7ccfa3e667305c6e95fcb1f2b52e9378cd",
+      "git_blob": "2b6da829f5723e3e8427607048f9300bbdeef734"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/actual-files/test_same_protected_owner_repl5/original-provider.jsonl",
+      "bytes": 55,
+      "sha256": "d9d2f7f3b2990ebbe5279f54fe145ca6c9f54dd1665e4fab13edf96d6ca72dd0",
+      "git_blob": "b2448ec787dc475138b651ad3f2d20dc27c286be"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/case-join.json",
+      "bytes": 92384,
+      "sha256": "c2fc4b5716b3838e36b2bc93f3c8137b44160e54e984b51da19bf3d06ffb885d",
+      "git_blob": "4dff0be7816ddee3a3416c2586a493d5b5851b0c"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/child.source.txt",
+      "bytes": 2502,
+      "sha256": "1900dea13644be7ee214891bec51e5f52b537afdee2184837c0bb80a7a837e8b",
+      "git_blob": "3c80ff3ba394c3da16cd14ac6d53bfc0d65f16d1"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/native.txt",
+      "bytes": 146325,
+      "sha256": "ed91a9e2d2e57be7b17d9baa317fa8e22dcdf8427460e95fa8ea6eda680f2907",
+      "git_blob": "e1d3c13e64534af45c384d99b9c93740b28c6e51"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/native.xml",
+      "bytes": 82091,
+      "sha256": "22ae006772412cf93a863d31ea1f9cf40213b2adb02290522faba7ad4506d368",
+      "git_blob": "de3d2717d954f5e6cf6eb3164ce960775841a05f"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/observations.json",
+      "bytes": 95855,
+      "sha256": "6d84b96f79a339692dd4f95c3e574d6da59865bf7e411015b3e83b2c7a518bea",
+      "git_blob": "621eb2f8d320b3fce1de70053c7ec06cb418326b"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/source-context.json",
+      "bytes": 51790,
+      "sha256": "48631c480744081989363f795af02254aa49f513297ff422960200ddbb2f882c",
+      "git_blob": "c9dcc34f0d98b901d86988f64b20beb93f3f946c"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/wrapper.json",
+      "bytes": 4903,
+      "sha256": "8ceb933f2b2f30ade6b9a2d7e182151282cd32be2567355f6afe0c282d2fa324",
+      "git_blob": "dc96663e018d821600ece38dd1ddcd449ecf5790"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/input-actor-only-delta.diff.txt",
+      "bytes": 882,
+      "sha256": "8532fc915db32697d424a516052ef48711dbff1e743b132d032f27e32e4cdfe1",
+      "git_blob": "431b804fbe43c7047d9acabce4a2a4c2e5657cda"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/input-preparation-to-actual.diff.txt",
+      "bytes": 6821,
+      "sha256": "bdc7893dae4b5a14854c39281078f463a9d3e75d5960c83a12cb55ea2ee8b7f2",
+      "git_blob": "70c2ecc73403ad01b38ad3ee9d6ae5a6fe94afc7"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_protected_audit_reconcili0/actual-provider.jsonl",
+      "bytes": 57,
+      "sha256": "9ea437b282939a3b75f47fde102c8e44673aae406216268b652313d587783ade",
+      "git_blob": "dcb563874c6e41693b721de912a0773c6841b376"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_protected_audit_reconcili0/ledger.json",
+      "bytes": 5737,
+      "sha256": "5aeed4d58971c53d3f87beaf635bca3b3ecb5d9ae6eb605a797b9d6a47150447",
+      "git_blob": "26a1c71cfa6bbb82747a1e3a2dc3ab70e7115094"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_protected_audit_reconcili0/ledger.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_protected_audit_reconcili0/protected-audit.jsonl",
+      "bytes": 1343,
+      "sha256": "e1023e3b0d2ed0809d7333844355f9972f9412fb866ef0f9d8e58a0e6a24e17f",
+      "git_blob": "ad6bcf643fea162c1d8480c1355630c67fd8fa97"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_protected_audit_reconcili1/actual-provider.jsonl",
+      "bytes": 55,
+      "sha256": "d9d2f7f3b2990ebbe5279f54fe145ca6c9f54dd1665e4fab13edf96d6ca72dd0",
+      "git_blob": "b2448ec787dc475138b651ad3f2d20dc27c286be"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_protected_audit_reconcili1/ledger.json",
+      "bytes": 5737,
+      "sha256": "348123e16043bcce70889208cec594138bf3dcb0f38d447c8db3c23a404e6ffa",
+      "git_blob": "5bb4a247a3b4123395b22541c3bcba06013c3243"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_protected_audit_reconcili1/ledger.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_protected_audit_reconcili1/protected-audit.jsonl",
+      "bytes": 1343,
+      "sha256": "5e13ab379fcdb99b3ea7b79316d0985e5c08aadadc2a1e0e1ec421557485600e",
+      "git_blob": "6360352ce1d5a9ae0a8845b957e58fbb8c637a7b"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_protected_audit_reconcili2/actual-provider.jsonl",
+      "bytes": 57,
+      "sha256": "9ea437b282939a3b75f47fde102c8e44673aae406216268b652313d587783ade",
+      "git_blob": "dcb563874c6e41693b721de912a0773c6841b376"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_protected_audit_reconcili2/ledger.json",
+      "bytes": 5737,
+      "sha256": "2977432d011c8d9a712aa7885013923ddb0fe0f8bef476ce2049824b5833c99f",
+      "git_blob": "84cb9e9c5f05711ce14f6e59a4852139b58f4227"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_protected_audit_reconcili2/ledger.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_protected_audit_reconcili2/protected-audit.jsonl",
+      "bytes": 1343,
+      "sha256": "a6094198a5028060eebda8b3dc2216eaec8b1786a74f8907572dce47964f1aec",
+      "git_blob": "9681da4529411cc6caf65048bfe9c5bf1b3f1008"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_protected_audit_reconcili3/actual-provider.jsonl",
+      "bytes": 55,
+      "sha256": "d9d2f7f3b2990ebbe5279f54fe145ca6c9f54dd1665e4fab13edf96d6ca72dd0",
+      "git_blob": "b2448ec787dc475138b651ad3f2d20dc27c286be"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_protected_audit_reconcili3/ledger.json",
+      "bytes": 5737,
+      "sha256": "190ca8f4ae5aa051b7c97955e37f1221ff052621242f1936b31556d75160701a",
+      "git_blob": "a0d991014ad6f9d80eab2b4fcc92126015f229ca"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_protected_audit_reconcili3/ledger.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_protected_audit_reconcili3/protected-audit.jsonl",
+      "bytes": 1343,
+      "sha256": "dda5c0a1f868a198427eed92a51d81f7d9b6f48ed1906f55e91680bfe1dad1d0",
+      "git_blob": "fdafd958dfe166b71c39ee46391b80e220e456d3"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_retained_protected_act_wr0/original-ledger.json",
+      "bytes": 5844,
+      "sha256": "d09034ff5e78d555ff44ab087eacc5a8476b8ce1a19913d4bea0a16c55f4968c",
+      "git_blob": "313d422a0d8948bd33ebf8cbc14956f5024c8c2b"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_retained_protected_act_wr0/original-ledger.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_retained_protected_act_wr0/original-protected.jsonl",
+      "bytes": 1357,
+      "sha256": "fc3fa9d3b288ae3c7cc071ede7da486b506e6d23deed9998a77e20a546cc05c2",
+      "git_blob": "1642c65b2278a8f1fad2f826811c26040476b429"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_retained_protected_act_wr0/original-provider.jsonl",
+      "bytes": 55,
+      "sha256": "d9d2f7f3b2990ebbe5279f54fe145ca6c9f54dd1665e4fab13edf96d6ca72dd0",
+      "git_blob": "b2448ec787dc475138b651ad3f2d20dc27c286be"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_retained_protected_act_wr1/original-ledger.json",
+      "bytes": 5844,
+      "sha256": "90223947890acf29b7b2e503ae6d0a45e15302dce9d86b8cefc5e5dc6e1eab20",
+      "git_blob": "f09aeaea40a01bb378d4682bd8f788f02ec099f0"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_retained_protected_act_wr1/original-ledger.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_retained_protected_act_wr1/original-protected.jsonl",
+      "bytes": 1357,
+      "sha256": "9a93cb72290fe2441fc7c8e392146fa2e2201b583584e89856319a1c44de030f",
+      "git_blob": "492d9bea58842293c577ee06cac4627ad50de8ff"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_retained_protected_act_wr1/original-provider.jsonl",
+      "bytes": 55,
+      "sha256": "d9d2f7f3b2990ebbe5279f54fe145ca6c9f54dd1665e4fab13edf96d6ca72dd0",
+      "git_blob": "b2448ec787dc475138b651ad3f2d20dc27c286be"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_retained_protected_act_wr2/original-ledger.json",
+      "bytes": 5844,
+      "sha256": "e475ab145c3cd9f485dfd404d60247d9f5f88a9f6d3d9ec0119653c68365e16c",
+      "git_blob": "ebb2f4f06c7adf5cf5ea3575ecf72ab27d6b6323"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_retained_protected_act_wr2/original-ledger.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_retained_protected_act_wr2/original-protected.jsonl",
+      "bytes": 1357,
+      "sha256": "483321d4295963067b402686a10f269731692f6411c5bc9582b46337a1ca4350",
+      "git_blob": "5b1bd7f351cc7b6cf9b2d232db2b9536dc85bc94"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_retained_protected_act_wr2/original-provider.jsonl",
+      "bytes": 55,
+      "sha256": "d9d2f7f3b2990ebbe5279f54fe145ca6c9f54dd1665e4fab13edf96d6ca72dd0",
+      "git_blob": "b2448ec787dc475138b651ad3f2d20dc27c286be"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_same_protected_owner_repl0/original-ledger.json",
+      "bytes": 3768,
+      "sha256": "87937a1549b87c1501e30b8e51a4385169886cfbf906ad3f7aa98f564c89d1a1",
+      "git_blob": "46415772a51f1fd67eb63cf2fa4f633e8cddf87b"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_same_protected_owner_repl0/original-ledger.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_same_protected_owner_repl0/original-protected.jsonl",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_same_protected_owner_repl1/original-ledger.json",
+      "bytes": 3768,
+      "sha256": "ddaeea52c0c4f141760821c35cf86438e502ca7ab0e0c542fc138fb4d6851fd7",
+      "git_blob": "10e6693ac7139c7e73c5dff54c15a66bd3492ed8"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_same_protected_owner_repl1/original-ledger.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_same_protected_owner_repl1/original-protected.jsonl",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_same_protected_owner_repl2/original-ledger.json",
+      "bytes": 5844,
+      "sha256": "86adb583f514805d2e729eda27f2d7494ec4a91e2fe7820efbaebfd936f2633b",
+      "git_blob": "96eb6323ad659f5496f10cdfb5ac8cafa205d1b4"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_same_protected_owner_repl2/original-ledger.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_same_protected_owner_repl2/original-protected.jsonl",
+      "bytes": 1357,
+      "sha256": "1a7a7d76e94ca70b7cd1668d42b9a4715d2794816795880b1da96c8e50aa449e",
+      "git_blob": "86fa282466018b80dd01fcd8d12461c5754f3a09"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_same_protected_owner_repl2/original-provider.jsonl",
+      "bytes": 57,
+      "sha256": "9ea437b282939a3b75f47fde102c8e44673aae406216268b652313d587783ade",
+      "git_blob": "dcb563874c6e41693b721de912a0773c6841b376"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_same_protected_owner_repl3/original-ledger.json",
+      "bytes": 5844,
+      "sha256": "957bca9329fc0cdb15b70d61f5fa404d2a372e969dde137901a2530f6c41bdfc",
+      "git_blob": "4c9d395feeb3ca12bac623284f9402eb7db9a3b8"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_same_protected_owner_repl3/original-ledger.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_same_protected_owner_repl3/original-protected.jsonl",
+      "bytes": 1357,
+      "sha256": "6561aa26e3a9764fa93cd4d75ca535423811cfdc640a2b8fb1cd74e3cc298491",
+      "git_blob": "10af0b7de65cdbe50bf1c70bd07ddd84058dd4a0"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_same_protected_owner_repl3/original-provider.jsonl",
+      "bytes": 55,
+      "sha256": "d9d2f7f3b2990ebbe5279f54fe145ca6c9f54dd1665e4fab13edf96d6ca72dd0",
+      "git_blob": "b2448ec787dc475138b651ad3f2d20dc27c286be"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_same_protected_owner_repl4/original-ledger.json",
+      "bytes": 5844,
+      "sha256": "20381ea7a757ba414ea7d02d2d1c55071e3d24da0a5b5adcaa9f315c6497cd93",
+      "git_blob": "a13eb857ec1e9bcb8ea89f794a18fb4fc78bafed"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_same_protected_owner_repl4/original-ledger.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_same_protected_owner_repl4/original-protected.jsonl",
+      "bytes": 1357,
+      "sha256": "5229e0a45a867f652d5ee5e5e6338a71476a3b62d1a6f76df1e11ce6d7338478",
+      "git_blob": "4dbad61fcaf91a31b953cb20e2aba1cc812c3b4c"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_same_protected_owner_repl4/original-provider.jsonl",
+      "bytes": 57,
+      "sha256": "9ea437b282939a3b75f47fde102c8e44673aae406216268b652313d587783ade",
+      "git_blob": "dcb563874c6e41693b721de912a0773c6841b376"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_same_protected_owner_repl5/original-ledger.json",
+      "bytes": 5844,
+      "sha256": "b520eddc1aa3e20bf6ed2bb0daeb619e4ecd4a3a0656d7da67d56c1543776211",
+      "git_blob": "93ed47396f461ef19b86cd0839e1f9b4ff3ecd13"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_same_protected_owner_repl5/original-ledger.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_same_protected_owner_repl5/original-protected.jsonl",
+      "bytes": 1357,
+      "sha256": "52a08fb206e5c0d7ec5365c3ca766c2a28f9adf9ce25a4212be55c5984e76a90",
+      "git_blob": "e2e7a03bffb2c502e13c16722c8040212cc1f9e5"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/actual-files/test_same_protected_owner_repl5/original-provider.jsonl",
+      "bytes": 55,
+      "sha256": "d9d2f7f3b2990ebbe5279f54fe145ca6c9f54dd1665e4fab13edf96d6ca72dd0",
+      "git_blob": "b2448ec787dc475138b651ad3f2d20dc27c286be"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/case-join.json",
+      "bytes": 77284,
+      "sha256": "53721652bd1c9c73e9850efdf61b8d84bcca820935f844c657b2ed0647911834",
+      "git_blob": "b4dc78373d2644336913a43c39d549079312a764"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/child.source.txt",
+      "bytes": 2502,
+      "sha256": "1900dea13644be7ee214891bec51e5f52b537afdee2184837c0bb80a7a837e8b",
+      "git_blob": "3c80ff3ba394c3da16cd14ac6d53bfc0d65f16d1"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/native.txt",
+      "bytes": 119883,
+      "sha256": "5c88346c86498ec389eeac19bc7c1ce5e48440594aa8475efc09ec4d17ab613d",
+      "git_blob": "d8e4f86eceaf82951e8d736d1013238c0bbbd6ff"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/native.xml",
+      "bytes": 67704,
+      "sha256": "a3b3a2810001de9d85dcf3b2e4a0d06449d3f9f76ada1a5cf2b4a6a25a65809e",
+      "git_blob": "161be50375e7f03be85931972acf44b32f962eb8"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/observations.json",
+      "bytes": 74929,
+      "sha256": "024ac9256887484915eb0c0773ec8a94519badce2e0153613173bab59696002a",
+      "git_blob": "4b9078e2d39fe41ba037c659763b768e0289fc39"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/source-context.json",
+      "bytes": 51770,
+      "sha256": "8a0f25d80ac274cb5fefaf68f9ef5eb42e7eb5fc70bc39e49b8b87c8bd37bcf7",
+      "git_blob": "da68af5cacc99424986bd03b96af75e26f14c336"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/wrapper.json",
+      "bytes": 4893,
+      "sha256": "74663230362086b3ddfacfac8b02627f03c46674f6cbb746046c43a62d9895c3",
+      "git_blob": "7134e5ceb0507a459a4bb52c7f7b5a4ab697569c"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/package.source.txt",
+      "bytes": 9311,
+      "sha256": "4a45a945445d3901645a9228ca706ce57a20c0070847d7ed30c9fd3f016b7ed1",
+      "git_blob": "01b927cddd82d4abed44b0c1288779fd08003ee7"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/run-native.source.txt",
+      "bytes": 5935,
+      "sha256": "08ec2c657d8b58d4d613d3284c227c560dfa6fadcd516930c8af57774e82529f",
+      "git_blob": "b916d18ea95350b7cbe96a04695345a7db7df887"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/source-input-custody.json",
+      "bytes": 2084,
+      "sha256": "b4c9eb252c7086fac3ca33f0023bb0ee3eb28b57969271410650021f17b75f60",
+      "git_blob": "84b264413fe7b555d21b26ee61f24b4487871949"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/summary.json",
+      "bytes": 35955,
+      "sha256": "26c1815b1ab90b572f50654698623bbf3518570b47728ee1f5ed42b45671d4dc",
+      "git_blob": "ca720dd1f685642a9d96f7abdfc48bfaeaf183c8"
+    },
+    {
+      "commit": "814f5c2212904c5550667d444cdc289f7b24d805",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/index.json",
+      "bytes": 41038,
+      "sha256": "7f5986ca6a71f60df8414c6fa6712614026d29304d889da2387e6ea8d2643181",
+      "git_blob": "8ab6b822cfa2ab95ab8785ed28d6d7e900e39514"
+    }
+  ],
+  "input_qualification": {
+    "original4_body_AST_equal_to_9c": {
+      "_call": true,
+      "test_protected_audit_reconciliation_precedes_next_provider": true
+    },
+    "new_fixture_empty_target": "Real empty JSONL target seeded onlynewrecoveryfixture so first RESERVEDdirectoryfault reaches canonicalappend, not test-side missingprefix rename. No fabricated entries.",
+    "future_replay_input": "Use corrected310 exact file against exact future composedsource; disclose any next inputdelta.",
+    "executed_source_custody": "Sourcecontexts identify every loaded concrete polisyos module (91 each), origin and exact Gitbytes at actuala391. This is actualexecutedsource, not final-snapshot custody or historicalbaseline evidence."
+  },
+  "limitations_and_next_owner": [
+    {
+      "finding_id": "B65",
+      "state": "open",
+      "next_owner": "ADAPTER LLM source author then root/G composed acceptance",
+      "candidate": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+      "remaining": "Repair general exact perkey reservation coordinates and typed receipt JSON digest binding, then unchangedcorrected310 wholefile consumer; retain all13literalFAIL and priorDD2PASS2FAIL/P37initial4.",
+      "replay": "Extract committed run-native.source.txt to scratch and run bothexplicit source/input args on admitted clean immutable target, candidate-only PYTHONPATH; no root/main writes."
+    },
+    "Only three targetfault actions measured here; no blanket allfiveaction runtimeclosure. No external invoices, audit providers, fsync-afterappend/powerloss, production dataset, cross-process kill/restart or arbitrary ownerauthority closure.",
+    "Freshconstructor+actualFileBudgetLedger reopen is measured durable admission discovery, not process crash survival.",
+    "Configured genuine protected local Chained audit profile only; Noop nonproduction and optional replicas/metrics are outside mandatory premise.",
+    "Original B65baseline/source/environment cells are navigation and historicalclosure refs; candidate conclusions derive only actual a391 consumer outputs."
+  ]
+}

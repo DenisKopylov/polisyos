@@ -1,0 +1,1186 @@
+{
+  "kind": "independent read-only immutable CAS typed-port patch/output audit",
+  "reviewer": "/root/run_writer",
+  "author": "/root/cas_probe",
+  "runtime_by_reviewer": false,
+  "author_base": "456f34938731b1ef11555d8333d011d3552574ec",
+  "author_base_tree": "d3bae9a9502b701e2ed73d9ffab07ba6a0883502",
+  "author_candidate": "5ece606ee1c1016c1133a1e81bbf852574a64a48",
+  "author_candidate_tree": "ff36af874a0a08d3571a1703ce1574b8273c9cbf",
+  "author_publication": "d021a262a54eae8558fb81b6ae89d02049277d2e",
+  "author_publication_tree": "0fd0fb9fcdfcdaa830738c0c4c1e278a818e43a1",
+  "author_handoff": {
+    "source_sha": "d021a262a54eae8558fb81b6ae89d02049277d2e",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports.json",
+    "git_blob": "70ba4f6070a67c7ece4d4e585ae4240965b99bc7",
+    "bytes": 39293,
+    "sha256": "4a69d450136ff08f606fb7d2648c04a62ad591c26b4c0d9a2e323d80c2eabb9d"
+  },
+  "reconciliation_command": [
+    "/usr/bin/python3",
+    "/tmp/e02-run-cas-type-review.py"
+  ],
+  "reconciliation_cwd": "/workspace/e02-B-current-runtime",
+  "reconciliation_driver_utf8": "\"\"\"Read-only CAS immutable source/evidence reconciliation; no product imports.\"\"\"\nimport collections\nimport hashlib\nimport json\nimport subprocess\nimport xml.etree.ElementTree as ET\nfrom pathlib import Path\n\nREPO = '/workspace/e02-B-current-runtime'\nBASE = '456f34938731b1ef11555d8333d011d3552574ec'\nCANDIDATE = '5ece606ee1c1016c1133a1e81bbf852574a64a48'\nPUBLICATION = 'd021a262a54eae8558fb81b6ae89d02049277d2e'\nEVIDENCE = 'be787fd402d70a3917c55e39238f400a7e104d21'\nPREFIX = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/'\nHANDOFF = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports.json'\n\n\ndef git(*args):\n    return subprocess.check_output(['/usr/bin/git', '-C', REPO, *args])\n\n\ndef blob(sha, path):\n    return git('show', sha + ':' + path)\n\n\ndef ref(sha, path):\n    data = blob(sha, path)\n    return {'source_sha': sha, 'path': path, 'git_blob': git('rev-parse', sha + ':' + path).decode().strip(), 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}\n\n\nhandoff = json.loads(blob(PUBLICATION, HANDOFF))\nartifacts = []\nerrors = []\nfor entry in handoff['artifacts']:\n    observed = ref(entry['artifact_commit'], entry['path'])\n    artifacts.append(observed)\n    if (observed['bytes'], observed['sha256']) != (entry['bytes'], entry['sha256']):\n        errors.append({'artifact': entry['path']})\nchecks = []\nfor check in handoff['checks']:\n    profile = json.loads(blob(EVIDENCE, PREFIX + check['name'] + '.json'))\n    output = blob(EVIDENCE, PREFIX + check['name'] + '.txt')\n    mismatches = []\n    for key, value in [('exit_code', check['exit_code']), ('output_bytes', len(output)), ('output_sha256', hashlib.sha256(output).hexdigest())]:\n        if profile.get(key) != value:\n            mismatches.append(key)\n    if check['source_qualification'] in ('clean frozen implementation', 'clean slice base'):\n        target = check['target_sha']\n        for entry in profile['source_and_native_input_identity']:\n            observed = ref(target, entry['path'])\n            if any(observed[key] != entry[key] for key in ['bytes', 'sha256', 'git_blob']):\n                mismatches.append(entry['path'])\n        if profile['actual_head_before'] != target or profile['actual_head_after'] != target or profile['status_before'] or profile['status_after']:\n            mismatches.append('clean-head-status')\n    checks.append({'name': check['name'], 'target_sha': check['target_sha'], 'source_qualification': check['source_qualification'], 'exit_code': check['exit_code'], 'mismatches': mismatches, 'complete_log': ref(EVIDENCE, PREFIX + check['name'] + '.txt'), 'profile': ref(EVIDENCE, PREFIX + check['name'] + '.json')})\n    if mismatches:\n        errors.append({'profile': check['name'], 'mismatches': mismatches})\nxml = ET.fromstring(blob(EVIDENCE, PREFIX + 'native.xml'))\ncases = list(xml.iter('testcase'))\nstates = collections.Counter()\ngroups = collections.Counter()\ncase_refs = []\nfor index, case in enumerate(cases):\n    state = 'ERROR' if case.find('error') is not None else 'FAIL' if case.find('failure') is not None else 'SKIP' if case.find('skipped') is not None else 'PASS'\n    states[state] += 1\n    groups[case.attrib['classname']] += 1\n    case_refs.append({'xml_case_index': index, 'classname': case.attrib['classname'], 'name': case.attrib['name'], 'state': state})\npaths = git('diff', '--name-only', BASE, CANDIDATE).decode().splitlines()\ntests = [entry for entry in handoff['checks'][-1]['command'] if entry.startswith('tests/')]\nunchanged = []\nfor path in tests:\n    path = 'policy-engine/' + path\n    entry = {'path': path, 'base_blob': git('rev-parse', BASE + ':' + path).decode().strip(), 'candidate_blob': git('rev-parse', CANDIDATE + ':' + path).decode().strip()}\n    unchanged.append(entry)\n    if entry['base_blob'] != entry['candidate_blob']:\n        errors.append({'changed_test': path})\nassert not errors, errors\nsource = Path(__file__).read_bytes()\nreport = {'kind': 'independent read-only immutable CAS typed-port patch/output audit', 'reviewer': '/root/run_writer', 'author': '/root/cas_probe', 'runtime_by_reviewer': False, 'author_base': BASE, 'author_base_tree': git('rev-parse', BASE + '^{tree}').decode().strip(), 'author_candidate': CANDIDATE, 'author_candidate_tree': git('rev-parse', CANDIDATE + '^{tree}').decode().strip(), 'author_publication': PUBLICATION, 'author_publication_tree': git('rev-parse', PUBLICATION + '^{tree}').decode().strip(), 'author_handoff': ref(PUBLICATION, HANDOFF), 'reconciliation_command': ['/usr/bin/python3', '/tmp/e02-run-cas-type-review.py'], 'reconciliation_cwd': REPO, 'reconciliation_driver_utf8': source.decode(), 'reconciliation_driver_bytes': len(source), 'reconciliation_driver_sha256': hashlib.sha256(source).hexdigest(), 'source_review_commands': ['git diff 456..5ece -- store.py _transfer_ops.py', 'git show5ece full changed guard/read-only stream/export consumer contexts', 'git show be787 complete native/base-mypy/overlay-mypy/final-mypy logs'], 'full_changed_paths': paths, 'changed_path_refs': [ref(CANDIDATE, path) for path in paths], 'all_artifact_refs': artifacts, 'artifact_denominator': {'files': len(artifacts), 'bytes': sum(entry['bytes'] for entry in artifacts)}, 'check_reconciliation': checks, 'actual_xml_outcomes': dict(states), 'actual_xml_case_count': len(cases), 'actual_xml_groups': dict(groups), 'complete_xml_case_refs': case_refs, 'native_source_and_tests_unchanged': [ref(CANDIDATE, 'policy-engine/src/polisyos/core/artifacts/_integrity_ops.py'), *unchanged], 'mismatches': errors, 'scope': 'Read-only Git/stdlib JSON/hash/XML reconciliation of complete23 artifact refs and9 captured checks; no product import, new pytest/native/collection/gates. Clean final inputs are Git-bound; dirty intermediate source overlays only retain their own observed individual hashes, not a cleanbase claim. External transitive import/resource closure not established.'}\nPath('/tmp/e02-run-cas-type-review.json').write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\\n')\nprint(json.dumps({'artifact_denominator': report['artifact_denominator'], 'xml_cases': len(cases), 'xml_outcomes': dict(states), 'check_count': len(checks), 'mismatches': errors}, indent=2))\n",
+  "reconciliation_driver_bytes": 6261,
+  "reconciliation_driver_sha256": "865165e031bbf7bdd75371ef6c68d67ac5702546723f0e4219222e4426fe1582",
+  "source_review_commands": [
+    [
+      "/usr/bin/git",
+      "diff",
+      "456f34938731b1ef11555d8333d011d3552574ec",
+      "5ece606ee1c1016c1133a1e81bbf852574a64a48",
+      "--",
+      "policy-engine/src/polisyos/core/artifacts/store.py",
+      "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py"
+    ],
+    [
+      "/usr/bin/git",
+      "show",
+      "5ece606ee1c1016c1133a1e81bbf852574a64a48:policy-engine/src/polisyos/core/artifacts/store.py"
+    ],
+    [
+      "/usr/bin/git",
+      "show",
+      "5ece606ee1c1016c1133a1e81bbf852574a64a48:policy-engine/src/polisyos/core/artifacts/_transfer_ops.py"
+    ],
+    [
+      "/usr/bin/git",
+      "show",
+      "be787fd402d70a3917c55e39238f400a7e104d21:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/native.txt"
+    ]
+  ],
+  "full_changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-cas-typed-ports.toml",
+    "policy-engine/src/polisyos/core/artifacts/README.md",
+    "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+    "policy-engine/src/polisyos/core/artifacts/store.py"
+  ],
+  "changed_path_refs": [
+    {
+      "source_sha": "5ece606ee1c1016c1133a1e81bbf852574a64a48",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-cas-typed-ports.toml",
+      "git_blob": "45b1aaadf415831e3d8e4327e057c726c6293590",
+      "bytes": 1603,
+      "sha256": "7f210b34a55e572981e21e91d0036a014e125fcce166c8c5a973594455bee79b"
+    },
+    {
+      "source_sha": "5ece606ee1c1016c1133a1e81bbf852574a64a48",
+      "path": "policy-engine/src/polisyos/core/artifacts/README.md",
+      "git_blob": "5c92c04e69c7680884509069ce6e499edc14ca44",
+      "bytes": 10282,
+      "sha256": "83795e353c185c7e512407d926c749f0652242212323c4f148d352d307244892"
+    },
+    {
+      "source_sha": "5ece606ee1c1016c1133a1e81bbf852574a64a48",
+      "path": "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+      "git_blob": "70f7a735755f56dbf2cfd7ad5e4859cd17bf91a9",
+      "bytes": 46449,
+      "sha256": "27709becae4680c5a16445a4bfea2270dc1de8a2cea93b06c30205104c9e00b7"
+    },
+    {
+      "source_sha": "5ece606ee1c1016c1133a1e81bbf852574a64a48",
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "git_blob": "02e3253de23db5d64c21b69ce4cc85daa4f0778c",
+      "bytes": 190227,
+      "sha256": "627676dcb74c442b7e3f30a64bf7b4023e4ef5f1a8f2dac1d37fdf3e69654a4f"
+    }
+  ],
+  "all_artifact_refs": [
+    {
+      "source_sha": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/base-mypy.json",
+      "git_blob": "a5fee884739f9a3c395bc4870c158cbcd68663b4",
+      "bytes": 5006,
+      "sha256": "df1b8d9893593d0665ae118172427d8be63cadebf5b18bb38c78db9514e399db"
+    },
+    {
+      "source_sha": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/base-mypy.txt",
+      "git_blob": "f0dd1ce60a1a29752b469a72a7f9a35aa782a2d8",
+      "bytes": 1458,
+      "sha256": "d7dfc109b0553a3cf702c9eb21e71b5e895db47c78936c9a8ca2e52feb74287f"
+    },
+    {
+      "source_sha": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/environment.json",
+      "git_blob": "4fe7fde1ddd4c26baa41bb52a3a9c19eaa77ca57",
+      "bytes": 16249,
+      "sha256": "4db93be61eb1061b34ceb5098fb4b8aaf3ee3ddfd4f8ddc9a311b3ff8ef8ecf3"
+    },
+    {
+      "source_sha": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/final-format.json",
+      "git_blob": "05db11bac76ed9bc8fdb6a8216fa9337da28b9c5",
+      "bytes": 5035,
+      "sha256": "e8cf9ff41c6ce57afd7f8fb1063dd430364a263c5a24f95ee7eaec386c0df58f"
+    },
+    {
+      "source_sha": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/final-format.txt",
+      "git_blob": "983e5b7d3b8260cd7b6465688368178dddd7e316",
+      "bytes": 26,
+      "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+    },
+    {
+      "source_sha": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/final-mypy.json",
+      "git_blob": "a46407c6e1e3fea3027e3b3378851672ad60633f",
+      "bytes": 5005,
+      "sha256": "e1e89ff56a88a29d38b117a380f8751a3fef5f0197a14fcf01c4da74d29391db"
+    },
+    {
+      "source_sha": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/final-mypy.txt",
+      "git_blob": "fbb7cd758cf8517329575cda94fc29173eb6db5f",
+      "bytes": 43,
+      "sha256": "f9b031e5c45aa702cd4fef028d465551cb20a2c4698e0913c7b00766b20ac4d8"
+    },
+    {
+      "source_sha": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/final-ruff.json",
+      "git_blob": "d14c648288118bee1d22bc63ee536bcd8673f67e",
+      "bytes": 5033,
+      "sha256": "3ce8f42902f03a700c9f93e217eb64061867a9cf35559883d51010bb1b88f578"
+    },
+    {
+      "source_sha": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/final-ruff.txt",
+      "git_blob": "1f5f344d054fae10f39140fb7199c99321d9190a",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "source_sha": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/format.json",
+      "git_blob": "604bb65094c5e4b9f15bcde1bcc8430b029bb847",
+      "bytes": 5260,
+      "sha256": "9a3750c3ab6f33fc75509f741f5b64c53392cfbe98f95b2a1b43dffcb05a68f9"
+    },
+    {
+      "source_sha": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/format.txt",
+      "git_blob": "838974e4b87969e4fcf6be6e329fcc6b8fe9a674",
+      "bytes": 107,
+      "sha256": "5e50b2cab4ba840e6041565f5fec19959d57430cbc44d93f3eb66d62e41dec0e"
+    },
+    {
+      "source_sha": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/instrument-final.json",
+      "git_blob": "20def8e24de9eb28248f02939edfd2d7ee4c9895",
+      "bytes": 5172,
+      "sha256": "a129e96df22de35b3f29a90310e8a86504afedbedef8e5f63b658d8895100cda"
+    },
+    {
+      "source_sha": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/instrument-initial.json",
+      "git_blob": "0b6b9625d7383aa9e1866424fdc6da4e148802f5",
+      "bytes": 5179,
+      "sha256": "6728b4a030ee35dd68ef983324fd00ad53ba4d2da3cf7cb548ddadc890918998"
+    },
+    {
+      "source_sha": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/native.json",
+      "git_blob": "77565f56532ca2debd00ecd24328065e46755bb0",
+      "bytes": 5747,
+      "sha256": "a059972b975cc50ce1d80d845443ed0e288f69a8096d8ab6d64901c377f31b9f"
+    },
+    {
+      "source_sha": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/native.txt",
+      "git_blob": "36c492868ed4b48f06b0c6f6b8174b4b2c13a6cc",
+      "bytes": 16677,
+      "sha256": "db2f0d4a9d8f4e28f7b401d5a626ab10befcc1bdfe9a822086889fe65239828b"
+    },
+    {
+      "source_sha": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/native.xml",
+      "git_blob": "05481cfd3d76a801ea182d330c04a627fe7df64f",
+      "bytes": 18283,
+      "sha256": "a999c366ab970846e1701ddfe1cfbd672cf387627cd09aef4bd84391d486d8f3"
+    },
+    {
+      "source_sha": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/overlay-mypy.json",
+      "git_blob": "e85ac7ca346c5ca3db5c58e25cf6f109c7d607a2",
+      "bytes": 5238,
+      "sha256": "aef4319c257821413babf57908085b1945bfd1b86192ba18ea9cd19908658156"
+    },
+    {
+      "source_sha": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/overlay-mypy.txt",
+      "git_blob": "b0b27cb6de432b835e9ac02d5fd11301d119154a",
+      "bytes": 914,
+      "sha256": "5649d97c6198a5599c76d5c88df4d4d22311738d6eab29a7a0bc0fb3b912e34e"
+    },
+    {
+      "source_sha": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/refined-mypy.json",
+      "git_blob": "39e827000950c1978a5b297684add2a3e5c9bac1",
+      "bytes": 5237,
+      "sha256": "7edc348e75828efb5717d5393999a1d76bec5b2074ac8c05548429148ec2452e"
+    },
+    {
+      "source_sha": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/refined-mypy.txt",
+      "git_blob": "fbb7cd758cf8517329575cda94fc29173eb6db5f",
+      "bytes": 43,
+      "sha256": "f9b031e5c45aa702cd4fef028d465551cb20a2c4698e0913c7b00766b20ac4d8"
+    },
+    {
+      "source_sha": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/resume-before.json",
+      "git_blob": "55b1f577897d4df3f6296a55c510973bbb796b2e",
+      "bytes": 135807,
+      "sha256": "ec93fa5ba05cfe53b400a87bc979a5c9218f6706ec3365d6edc806a906e02bbd"
+    },
+    {
+      "source_sha": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/ruff.json",
+      "git_blob": "ac322737201744d58aad973a7c3ee987606af0ef",
+      "bytes": 5260,
+      "sha256": "c314df781cab40676907cd644667ff16e8d65cf624084107824e52b007a6c42c"
+    },
+    {
+      "source_sha": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/ruff.txt",
+      "git_blob": "279efb6864d102b6963a6cc2c4ad125fb11783ac",
+      "bytes": 512,
+      "sha256": "44bb601aface00d20336c94daf5e8afe7395f93cee61d0ab93b83c7ff8a82713"
+    }
+  ],
+  "artifact_denominator": {
+    "files": 23,
+    "bytes": 247310
+  },
+  "check_reconciliation": [
+    {
+      "name": "base-mypy",
+      "target_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "source_qualification": "clean slice base",
+      "exit_code": 1,
+      "mismatches": [],
+      "complete_log": {
+        "source_sha": "be787fd402d70a3917c55e39238f400a7e104d21",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/base-mypy.txt",
+        "git_blob": "f0dd1ce60a1a29752b469a72a7f9a35aa782a2d8",
+        "bytes": 1458,
+        "sha256": "d7dfc109b0553a3cf702c9eb21e71b5e895db47c78936c9a8ca2e52feb74287f"
+      },
+      "profile": {
+        "source_sha": "be787fd402d70a3917c55e39238f400a7e104d21",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/base-mypy.json",
+        "git_blob": "a5fee884739f9a3c395bc4870c158cbcd68663b4",
+        "bytes": 5006,
+        "sha256": "df1b8d9893593d0665ae118172427d8be63cadebf5b18bb38c78db9514e399db"
+      }
+    },
+    {
+      "name": "overlay-mypy",
+      "target_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "source_qualification": "dirty precommit overlay at actual base HEAD; executed bytes pinned individually in input_closure profile",
+      "exit_code": 1,
+      "mismatches": [],
+      "complete_log": {
+        "source_sha": "be787fd402d70a3917c55e39238f400a7e104d21",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/overlay-mypy.txt",
+        "git_blob": "b0b27cb6de432b835e9ac02d5fd11301d119154a",
+        "bytes": 914,
+        "sha256": "5649d97c6198a5599c76d5c88df4d4d22311738d6eab29a7a0bc0fb3b912e34e"
+      },
+      "profile": {
+        "source_sha": "be787fd402d70a3917c55e39238f400a7e104d21",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/overlay-mypy.json",
+        "git_blob": "e85ac7ca346c5ca3db5c58e25cf6f109c7d607a2",
+        "bytes": 5238,
+        "sha256": "aef4319c257821413babf57908085b1945bfd1b86192ba18ea9cd19908658156"
+      }
+    },
+    {
+      "name": "refined-mypy",
+      "target_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "source_qualification": "dirty precommit overlay at actual base HEAD; executed bytes pinned individually in input_closure profile",
+      "exit_code": 0,
+      "mismatches": [],
+      "complete_log": {
+        "source_sha": "be787fd402d70a3917c55e39238f400a7e104d21",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/refined-mypy.txt",
+        "git_blob": "fbb7cd758cf8517329575cda94fc29173eb6db5f",
+        "bytes": 43,
+        "sha256": "f9b031e5c45aa702cd4fef028d465551cb20a2c4698e0913c7b00766b20ac4d8"
+      },
+      "profile": {
+        "source_sha": "be787fd402d70a3917c55e39238f400a7e104d21",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/refined-mypy.json",
+        "git_blob": "39e827000950c1978a5b297684add2a3e5c9bac1",
+        "bytes": 5237,
+        "sha256": "7edc348e75828efb5717d5393999a1d76bec5b2074ac8c05548429148ec2452e"
+      }
+    },
+    {
+      "name": "ruff",
+      "target_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "source_qualification": "dirty precommit overlay at actual base HEAD; executed bytes pinned individually in input_closure profile",
+      "exit_code": 1,
+      "mismatches": [],
+      "complete_log": {
+        "source_sha": "be787fd402d70a3917c55e39238f400a7e104d21",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/ruff.txt",
+        "git_blob": "279efb6864d102b6963a6cc2c4ad125fb11783ac",
+        "bytes": 512,
+        "sha256": "44bb601aface00d20336c94daf5e8afe7395f93cee61d0ab93b83c7ff8a82713"
+      },
+      "profile": {
+        "source_sha": "be787fd402d70a3917c55e39238f400a7e104d21",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/ruff.json",
+        "git_blob": "ac322737201744d58aad973a7c3ee987606af0ef",
+        "bytes": 5260,
+        "sha256": "c314df781cab40676907cd644667ff16e8d65cf624084107824e52b007a6c42c"
+      }
+    },
+    {
+      "name": "format",
+      "target_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "source_qualification": "dirty precommit overlay at actual base HEAD; executed bytes pinned individually in input_closure profile",
+      "exit_code": 1,
+      "mismatches": [],
+      "complete_log": {
+        "source_sha": "be787fd402d70a3917c55e39238f400a7e104d21",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/format.txt",
+        "git_blob": "838974e4b87969e4fcf6be6e329fcc6b8fe9a674",
+        "bytes": 107,
+        "sha256": "5e50b2cab4ba840e6041565f5fec19959d57430cbc44d93f3eb66d62e41dec0e"
+      },
+      "profile": {
+        "source_sha": "be787fd402d70a3917c55e39238f400a7e104d21",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/format.json",
+        "git_blob": "604bb65094c5e4b9f15bcde1bcc8430b029bb847",
+        "bytes": 5260,
+        "sha256": "9a3750c3ab6f33fc75509f741f5b64c53392cfbe98f95b2a1b43dffcb05a68f9"
+      }
+    },
+    {
+      "name": "final-mypy",
+      "target_sha": "5ece606ee1c1016c1133a1e81bbf852574a64a48",
+      "source_qualification": "clean frozen implementation",
+      "exit_code": 0,
+      "mismatches": [],
+      "complete_log": {
+        "source_sha": "be787fd402d70a3917c55e39238f400a7e104d21",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/final-mypy.txt",
+        "git_blob": "fbb7cd758cf8517329575cda94fc29173eb6db5f",
+        "bytes": 43,
+        "sha256": "f9b031e5c45aa702cd4fef028d465551cb20a2c4698e0913c7b00766b20ac4d8"
+      },
+      "profile": {
+        "source_sha": "be787fd402d70a3917c55e39238f400a7e104d21",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/final-mypy.json",
+        "git_blob": "a46407c6e1e3fea3027e3b3378851672ad60633f",
+        "bytes": 5005,
+        "sha256": "e1e89ff56a88a29d38b117a380f8751a3fef5f0197a14fcf01c4da74d29391db"
+      }
+    },
+    {
+      "name": "final-ruff",
+      "target_sha": "5ece606ee1c1016c1133a1e81bbf852574a64a48",
+      "source_qualification": "clean frozen implementation",
+      "exit_code": 0,
+      "mismatches": [],
+      "complete_log": {
+        "source_sha": "be787fd402d70a3917c55e39238f400a7e104d21",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/final-ruff.txt",
+        "git_blob": "1f5f344d054fae10f39140fb7199c99321d9190a",
+        "bytes": 19,
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      "profile": {
+        "source_sha": "be787fd402d70a3917c55e39238f400a7e104d21",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/final-ruff.json",
+        "git_blob": "d14c648288118bee1d22bc63ee536bcd8673f67e",
+        "bytes": 5033,
+        "sha256": "3ce8f42902f03a700c9f93e217eb64061867a9cf35559883d51010bb1b88f578"
+      }
+    },
+    {
+      "name": "final-format",
+      "target_sha": "5ece606ee1c1016c1133a1e81bbf852574a64a48",
+      "source_qualification": "clean frozen implementation",
+      "exit_code": 0,
+      "mismatches": [],
+      "complete_log": {
+        "source_sha": "be787fd402d70a3917c55e39238f400a7e104d21",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/final-format.txt",
+        "git_blob": "983e5b7d3b8260cd7b6465688368178dddd7e316",
+        "bytes": 26,
+        "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+      },
+      "profile": {
+        "source_sha": "be787fd402d70a3917c55e39238f400a7e104d21",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/final-format.json",
+        "git_blob": "05db11bac76ed9bc8fdb6a8216fa9337da28b9c5",
+        "bytes": 5035,
+        "sha256": "e8cf9ff41c6ce57afd7f8fb1063dd430364a263c5a24f95ee7eaec386c0df58f"
+      }
+    },
+    {
+      "name": "native",
+      "target_sha": "5ece606ee1c1016c1133a1e81bbf852574a64a48",
+      "source_qualification": "clean frozen implementation",
+      "exit_code": 0,
+      "mismatches": [],
+      "complete_log": {
+        "source_sha": "be787fd402d70a3917c55e39238f400a7e104d21",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/native.txt",
+        "git_blob": "36c492868ed4b48f06b0c6f6b8174b4b2c13a6cc",
+        "bytes": 16677,
+        "sha256": "db2f0d4a9d8f4e28f7b401d5a626ab10befcc1bdfe9a822086889fe65239828b"
+      },
+      "profile": {
+        "source_sha": "be787fd402d70a3917c55e39238f400a7e104d21",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/native.json",
+        "git_blob": "77565f56532ca2debd00ecd24328065e46755bb0",
+        "bytes": 5747,
+        "sha256": "a059972b975cc50ce1d80d845443ed0e288f69a8096d8ab6d64901c377f31b9f"
+      }
+    }
+  ],
+  "actual_xml_outcomes": {
+    "PASS": 102
+  },
+  "actual_xml_case_count": 102,
+  "actual_xml_groups": {
+    "tests.unit.core.artifacts.test_put_integrity_retry": 5,
+    "tests.unit.core.artifacts.test_import_admission_noop": 34,
+    "tests.unit.core.artifacts.test_transfer_generation_publication": 25,
+    "tests.unit.core.artifacts.test_verification_failure_snapshot_report": 14,
+    "tests.unit.core.artifacts.test_cas_integrity_report": 1,
+    "tests.unit.core.artifacts.test_artifact_store_protocol.TestArtifactStoreProtocol": 5,
+    "tests.unit.core.artifacts.test_artifact_store_protocol.TestFileSystemCASRoundTrip": 6,
+    "tests.unit.core.artifacts.test_multi_tenant_shared_cas": 12
+  },
+  "complete_xml_case_refs": [
+    {
+      "xml_case_index": 0,
+      "classname": "tests.unit.core.artifacts.test_put_integrity_retry",
+      "name": "test_duplicate_put_refuses_damage_before_exact_repair_and_reopened_retry[same_size_bytes]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 1,
+      "classname": "tests.unit.core.artifacts.test_put_integrity_retry",
+      "name": "test_duplicate_put_refuses_damage_before_exact_repair_and_reopened_retry[short_bytes]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 2,
+      "classname": "tests.unit.core.artifacts.test_put_integrity_retry",
+      "name": "test_duplicate_put_refuses_damage_before_exact_repair_and_reopened_retry[selected_manifest_size]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 3,
+      "classname": "tests.unit.core.artifacts.test_put_integrity_retry",
+      "name": "test_duplicate_put_restores_a_missing_sidecar_and_reopens_its_exact_view[default]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 4,
+      "classname": "tests.unit.core.artifacts.test_put_integrity_retry",
+      "name": "test_duplicate_put_restores_a_missing_sidecar_and_reopens_its_exact_view[selected]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 5,
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_scoped_import_refuses_before_any_stage_or_claim[unclaimed_unbound-directory]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 6,
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_scoped_import_refuses_before_any_stage_or_claim[unclaimed_unbound-archive]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 7,
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_scoped_import_refuses_before_any_stage_or_claim[unclaimed_unbound-exact]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 8,
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_scoped_import_refuses_before_any_stage_or_claim[claimed_unbound-directory]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 9,
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_scoped_import_refuses_before_any_stage_or_claim[claimed_unbound-archive]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 10,
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_scoped_import_refuses_before_any_stage_or_claim[claimed_unbound-exact]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 11,
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_scoped_import_refuses_before_any_stage_or_claim[foreign-directory]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 12,
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_scoped_import_refuses_before_any_stage_or_claim[foreign-archive]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 13,
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_scoped_import_refuses_before_any_stage_or_claim[foreign-exact]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 14,
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_scoped_import_refuses_before_any_stage_or_claim[cell-directory]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 15,
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_scoped_import_refuses_before_any_stage_or_claim[cell-archive]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 16,
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_scoped_import_refuses_before_any_stage_or_claim[cell-exact]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 17,
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_exact_same_owner_import_is_a_real_noop[None-directory]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 18,
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_exact_same_owner_import_is_a_real_noop[None-archive]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 19,
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_exact_same_owner_import_is_a_real_noop[None-exact]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 20,
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_exact_same_owner_import_is_a_real_noop[cell-a-directory]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 21,
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_exact_same_owner_import_is_a_real_noop[cell-a-archive]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 22,
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_exact_same_owner_import_is_a_real_noop[cell-a-exact]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 23,
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_claimed_view_requires_exact_metadata_and_signature[new_manifest_bytes-directory]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 24,
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_claimed_view_requires_exact_metadata_and_signature[new_manifest_bytes-archive]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 25,
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_claimed_view_requires_exact_metadata_and_signature[new_manifest_bytes-exact]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 26,
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_claimed_view_requires_exact_metadata_and_signature[omitted_signature-directory]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 27,
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_claimed_view_requires_exact_metadata_and_signature[omitted_signature-archive]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 28,
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_claimed_view_requires_exact_metadata_and_signature[omitted_signature-exact]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 29,
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_bound_unclaimed_import_recovers_exact_durable_intent[archive]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 30,
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_bound_unclaimed_import_recovers_exact_durable_intent[exact]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 31,
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_passive_unscoped_cache_is_not_scoped_admission[False]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 32,
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_passive_unscoped_cache_is_not_scoped_admission[True]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 33,
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_cell_none_is_exact_identity_not_a_query_wildcard[None-cell-a]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 34,
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_cell_none_is_exact_identity_not_a_query_wildcard[cell-a-None]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 35,
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_generic_put_refuses_explicit_bound_identity_mismatch_before_intent[context0]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 36,
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_generic_put_refuses_explicit_bound_identity_mismatch_before_intent[context1]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 37,
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_import_keeps_its_actual_artifact_lease_through_staging_and_publication",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 38,
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_mixed_package_stages_only_unclaimed_artifact_members",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 39,
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_same_destination_retains_complete_history_and_exact_new_inventory[False]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 40,
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_same_destination_retains_complete_history_and_exact_new_inventory[True]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 41,
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_streamed_write_failure_preserves_old_generation_and_no_false_inventory[False]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 42,
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_streamed_write_failure_preserves_old_generation_and_no_false_inventory[True]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 43,
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_archive_refuses_nonregular_final_path_before_staging[regular_symlink]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 44,
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_archive_refuses_nonregular_final_path_before_staging[dangling_symlink]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 45,
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_archive_refuses_nonregular_final_path_before_staging[fifo]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 46,
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_archive_refuses_nonregular_final_path_before_staging[socket]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 47,
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_archive_refuses_nonregular_final_path_before_staging[directory]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 48,
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_process_interruption_after_each_publication_syscall_leaves_a_complete_generation[False]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 49,
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_process_interruption_after_each_publication_syscall_leaves_a_complete_generation[True]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 50,
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_import_reader_remains_on_the_generation_pinned_before_concurrent_replacement[False]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 51,
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_import_reader_remains_on_the_generation_pinned_before_concurrent_replacement[True]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 52,
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_publication_syscall_failure_leaves_complete_previous_generation[False]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 53,
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_publication_syscall_failure_leaves_complete_previous_generation[True]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 54,
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_post_publication_directory_sync_failure_retains_old_and_new_readable_generations[False]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 55,
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_post_publication_directory_sync_failure_retains_old_and_new_readable_generations[True]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 56,
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_prepublication_directory_sync_refusal_keeps_the_old_package[False]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 57,
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_prepublication_directory_sync_refusal_keeps_the_old_package[True]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 58,
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_unavailable_native_exchange_refuses_before_removing_the_current_directory",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 59,
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_import_archive_binds_the_supplied_regular_path_before_streaming[regular_symlink]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 60,
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_import_archive_binds_the_supplied_regular_path_before_streaming[dangling_symlink]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 61,
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_import_archive_binds_the_supplied_regular_path_before_streaming[fifo]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 62,
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_import_archive_binds_the_supplied_regular_path_before_streaming[socket]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 63,
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_import_archive_binds_the_supplied_regular_path_before_streaming[fifo_at_open]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 64,
+      "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+      "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[corrupt-sha256 mismatch]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 65,
+      "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+      "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[same_size-sha256 mismatch]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 66,
+      "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+      "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_size-byte_size mismatch]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 67,
+      "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+      "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_profile-Selected manifest profile mismatch]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 68,
+      "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+      "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[invalid_manifest-manifest invalid:]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 69,
+      "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+      "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_integrity-manifest integrity mismatch]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 70,
+      "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+      "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_ref_type-Artifact reference type]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 71,
+      "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+      "name": "test_failed_report_cannot_reread_operator_repaired_bytes[False]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 72,
+      "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+      "name": "test_failed_report_cannot_reread_operator_repaired_bytes[True]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 73,
+      "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+      "name": "test_pre_read_failure_cannot_invent_blob_measurements",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 74,
+      "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+      "name": "test_public_verify_capture_remains_consumable_by_actual_owner_index[False]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 75,
+      "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+      "name": "test_public_verify_capture_remains_consumable_by_actual_owner_index[True]",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 76,
+      "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+      "name": "test_valid_signature_cannot_admit_a_wrong_size_selected_snapshot",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 77,
+      "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+      "name": "test_actual_chronology_reader_classifies_observed_corruption_as_rejected",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 78,
+      "classname": "tests.unit.core.artifacts.test_cas_integrity_report",
+      "name": "test_cas_integrity_report_proves_authority_dedup_tamper_and_gc",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 79,
+      "classname": "tests.unit.core.artifacts.test_artifact_store_protocol.TestArtifactStoreProtocol",
+      "name": "test_core_artifacts_facade_exports_backend_factory",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 80,
+      "classname": "tests.unit.core.artifacts.test_artifact_store_protocol.TestArtifactStoreProtocol",
+      "name": "test_filesystem_cas_satisfies_protocol",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 81,
+      "classname": "tests.unit.core.artifacts.test_artifact_store_protocol.TestArtifactStoreProtocol",
+      "name": "test_protocol_is_runtime_checkable",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 82,
+      "classname": "tests.unit.core.artifacts.test_artifact_store_protocol.TestArtifactStoreProtocol",
+      "name": "test_plain_object_does_not_satisfy",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 83,
+      "classname": "tests.unit.core.artifacts.test_artifact_store_protocol.TestArtifactStoreProtocol",
+      "name": "test_protocol_required_methods",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 84,
+      "classname": "tests.unit.core.artifacts.test_artifact_store_protocol.TestFileSystemCASRoundTrip",
+      "name": "test_put_get_bytes",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 85,
+      "classname": "tests.unit.core.artifacts.test_artifact_store_protocol.TestFileSystemCASRoundTrip",
+      "name": "test_put_get_json",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 86,
+      "classname": "tests.unit.core.artifacts.test_artifact_store_protocol.TestFileSystemCASRoundTrip",
+      "name": "test_verify",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 87,
+      "classname": "tests.unit.core.artifacts.test_artifact_store_protocol.TestFileSystemCASRoundTrip",
+      "name": "test_iter_artifact_ids",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 88,
+      "classname": "tests.unit.core.artifacts.test_artifact_store_protocol.TestFileSystemCASRoundTrip",
+      "name": "test_governed_public_read_closure_is_exact_and_does_not_override_tenant_owner",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 89,
+      "classname": "tests.unit.core.artifacts.test_artifact_store_protocol.TestFileSystemCASRoundTrip",
+      "name": "test_inventory_preserves_views_but_iter_returns_sorted_unique_blob_ids",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 90,
+      "classname": "tests.unit.core.artifacts.test_multi_tenant_shared_cas",
+      "name": "test_uncommitted_tenant_publication_is_unreadable_after_writer_interruption",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 91,
+      "classname": "tests.unit.core.artifacts.test_multi_tenant_shared_cas",
+      "name": "test_independent_cas_reader_waits_for_tenant_owner_generation",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 92,
+      "classname": "tests.unit.core.artifacts.test_multi_tenant_shared_cas",
+      "name": "test_second_process_reader_waits_on_the_canonical_root_stripe",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 93,
+      "classname": "tests.unit.core.artifacts.test_multi_tenant_shared_cas",
+      "name": "test_signature_only_pending_publication_is_denied_and_exact_retry_recovers",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 94,
+      "classname": "tests.unit.core.artifacts.test_multi_tenant_shared_cas",
+      "name": "test_nested_distinct_artifact_lease_fails_without_deadlock",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 95,
+      "classname": "tests.unit.core.artifacts.test_multi_tenant_shared_cas",
+      "name": "test_next_writer_recovers_unreferenced_private_stage_directory",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 96,
+      "classname": "tests.unit.core.artifacts.test_multi_tenant_shared_cas",
+      "name": "test_stage_recovery_never_follows_or_removes_symlink_targets",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 97,
+      "classname": "tests.unit.core.artifacts.test_multi_tenant_shared_cas",
+      "name": "test_unclaimed_candidate_put_has_and_read_still_succeed",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 98,
+      "classname": "tests.unit.core.artifacts.test_multi_tenant_shared_cas",
+      "name": "test_intent_completion_requires_each_exact_claim_in_one_owner_generation",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 99,
+      "classname": "tests.unit.core.artifacts.test_multi_tenant_shared_cas",
+      "name": "test_same_request_recovers_missing_stage_with_pinned_manifest_timestamp",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 100,
+      "classname": "tests.unit.core.artifacts.test_multi_tenant_shared_cas",
+      "name": "test_import_retry_reuses_pinned_manifest_after_transaction_stage_quarantine",
+      "state": "PASS"
+    },
+    {
+      "xml_case_index": 101,
+      "classname": "tests.unit.core.artifacts.test_multi_tenant_shared_cas",
+      "name": "test_exact_view_import_uses_deny_only_owner_transaction_and_exact_retry",
+      "state": "PASS"
+    }
+  ],
+  "native_source_and_tests_unchanged": [
+    {
+      "source_sha": "5ece606ee1c1016c1133a1e81bbf852574a64a48",
+      "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+      "git_blob": "557fbb829dec5e9f349e5de7a7d5013ca1c2a2ef",
+      "bytes": 12619,
+      "sha256": "768aa83084c85e8b501cacad1a94ece535e08b78e7070cee619c249df11cbfe4"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_put_integrity_retry.py",
+      "base_blob": "b334e3c6a9096672ace78aad280ae8e1877461aa",
+      "candidate_blob": "b334e3c6a9096672ace78aad280ae8e1877461aa"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_import_admission_noop.py",
+      "base_blob": "facd74807e31c44f95cd13a657a001da5438f8e9",
+      "candidate_blob": "facd74807e31c44f95cd13a657a001da5438f8e9"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_transfer_generation_publication.py",
+      "base_blob": "b1d912b4d742d635194a6876e3a612eb86f28205",
+      "candidate_blob": "b1d912b4d742d635194a6876e3a612eb86f28205"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+      "base_blob": "e39b376a65f7cd194b439c9695da44f3a056b5e6",
+      "candidate_blob": "e39b376a65f7cd194b439c9695da44f3a056b5e6"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_cas_integrity_report.py",
+      "base_blob": "678583397bb5375579dae6581d6ac381898d2965",
+      "candidate_blob": "678583397bb5375579dae6581d6ac381898d2965"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_artifact_store_protocol.py",
+      "base_blob": "cbd077fd37ddb1a2bf83b28b2d684614687187e0",
+      "candidate_blob": "cbd077fd37ddb1a2bf83b28b2d684614687187e0"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+      "base_blob": "052d125e2b3c17497188ee5cfe096f4d13e4b709",
+      "candidate_blob": "052d125e2b3c17497188ee5cfe096f4d13e4b709"
+    }
+  ],
+  "mismatches": [],
+  "scope": "Read-only Git/stdlib JSON/hash/XML reconciliation of complete23 artifact refs and9 captured checks; no product import, new pytest/native/collection/gates. Clean final inputs are Git-bound; dirty intermediate source overlays only retain their own observed individual hashes, not a cleanbase claim. External transitive import/resource closure not established.",
+  "reviewed_context_ranges": {
+    "store.py": [
+      [
+        934,
+        977
+      ],
+      [
+        1635,
+        1670
+      ],
+      [
+        2230,
+        2310
+      ],
+      [
+        2815,
+        2890
+      ],
+      [
+        2988,
+        3025
+      ],
+      [
+        3234,
+        3285
+      ],
+      [
+        3525,
+        3575
+      ],
+      [
+        4150,
+        4210
+      ]
+    ],
+    "_transfer_ops.py": [
+      [
+        130,
+        170
+      ],
+      [
+        680,
+        825
+      ]
+    ],
+    "actualunchangedstreamconsumer": [
+      [
+        290,
+        378
+      ]
+    ]
+  },
+  "reconciliation_output": {
+    "exit_code": 0,
+    "artifact_denominator": {
+      "files": 23,
+      "bytes": 247310
+    },
+    "xml_cases": 102,
+    "xml_outcomes": {
+      "PASS": 102
+    },
+    "check_count": 9,
+    "mismatches": []
+  }
+}

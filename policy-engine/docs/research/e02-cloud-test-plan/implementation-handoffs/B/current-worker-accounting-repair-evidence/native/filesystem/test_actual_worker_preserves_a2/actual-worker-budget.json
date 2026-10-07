@@ -1,0 +1,197 @@
+{
+  "schema_version": "1.2",
+  "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+  "coordination_mode": "shared_posix_file_lock",
+  "ledger_id": "ledger:57814c4fa245f133",
+  "revision": 12,
+  "updated_at": "2026-10-06T22:12:18.237385Z",
+  "last_writer": {
+    "host_id": "b878f4efbdfc",
+    "writer_id": "b878f4efbdfc:567265:actual-worker-budget.json",
+    "pid": 567265
+  },
+  "recent_mutations": [
+    {
+      "revision": 0,
+      "operation": "bootstrap",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:567265:actual-worker-budget.json",
+        "pid": 567265
+      },
+      "committed_at": "2026-10-06T22:12:18.149032Z"
+    },
+    {
+      "revision": 1,
+      "operation": "admit_provider_intent",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:567265:actual-worker-budget.json",
+        "pid": 567265
+      },
+      "committed_at": "2026-10-06T22:12:18.154331Z"
+    },
+    {
+      "revision": 2,
+      "operation": "transition_completion",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:567265:actual-worker-budget.json",
+        "pid": 567265
+      },
+      "committed_at": "2026-10-06T22:12:18.159663Z"
+    },
+    {
+      "revision": 3,
+      "operation": "settle_spend",
+      "key": "policy_adversary",
+      "amount": "0.02",
+      "applied_amount": "0.02",
+      "provider": "actual-sdk-boundary-fixture",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:567265:actual-worker-budget.json",
+        "pid": 567265
+      },
+      "committed_at": "2026-10-06T22:12:18.162027Z"
+    },
+    {
+      "revision": 4,
+      "operation": "transition_completion",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:567265:actual-worker-budget.json",
+        "pid": 567265
+      },
+      "committed_at": "2026-10-06T22:12:18.166391Z"
+    },
+    {
+      "revision": 5,
+      "operation": "release",
+      "key": "policy_adversary",
+      "amount": "0.037250000000000005",
+      "applied_amount": "0.037250000000000005",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:567265:actual-worker-budget.json",
+        "pid": 567265
+      },
+      "committed_at": "2026-10-06T22:12:18.169250Z"
+    },
+    {
+      "revision": 6,
+      "operation": "complete_completion",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:567265:actual-worker-budget.json",
+        "pid": 567265
+      },
+      "committed_at": "2026-10-06T22:12:18.171605Z"
+    },
+    {
+      "revision": 7,
+      "operation": "admit_provider_intent",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:567265:actual-worker-budget.json",
+        "pid": 567265
+      },
+      "committed_at": "2026-10-06T22:12:18.210638Z"
+    },
+    {
+      "revision": 8,
+      "operation": "transition_completion",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:567265:actual-worker-budget.json",
+        "pid": 567265
+      },
+      "committed_at": "2026-10-06T22:12:18.219109Z"
+    },
+    {
+      "revision": 9,
+      "operation": "settle_spend",
+      "key": "policy_adversary",
+      "amount": "0.02",
+      "applied_amount": "0.02",
+      "provider": "actual-sdk-boundary-fixture",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:567265:actual-worker-budget.json",
+        "pid": 567265
+      },
+      "committed_at": "2026-10-06T22:12:18.222800Z"
+    },
+    {
+      "revision": 10,
+      "operation": "transition_completion",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:567265:actual-worker-budget.json",
+        "pid": 567265
+      },
+      "committed_at": "2026-10-06T22:12:18.229553Z"
+    },
+    {
+      "revision": 11,
+      "operation": "release",
+      "key": "policy_adversary",
+      "amount": "0.037250000000000005",
+      "applied_amount": "0.037250000000000005",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:567265:actual-worker-budget.json",
+        "pid": 567265
+      },
+      "committed_at": "2026-10-06T22:12:18.234039Z"
+    },
+    {
+      "revision": 12,
+      "operation": "complete_completion",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:567265:actual-worker-budget.json",
+        "pid": 567265
+      },
+      "committed_at": "2026-10-06T22:12:18.237379Z"
+    }
+  ],
+  "state": {
+    "limits": {
+      "policy_adversary": {
+        "key": "policy_adversary",
+        "max_usd": "10"
+      }
+    },
+    "spent": {
+      "policy_adversary": "0.04"
+    },
+    "provider_spent": {
+      "actual-sdk-boundary-fixture": "0.04"
+    },
+    "reserved": {
+      "policy_adversary": "0"
+    }
+  },
+  "spend_receipts": {
+    "llm-producer:ddb0b5703fa8472cacbe8d6976d960dc:budget:9f4791176b02a0ba4b2dd98d01525aa62003e4e8430207b46b4cca9308308154": {
+      "event_id": "llm-producer:ddb0b5703fa8472cacbe8d6976d960dc:budget:9f4791176b02a0ba4b2dd98d01525aa62003e4e8430207b46b4cca9308308154",
+      "payload_digest": "497788645273e3d5dfcb9c0b598cdbd02d2b0451c6a3e9da57f0b0a3f407541a",
+      "key": "policy_adversary",
+      "amount": "0.02",
+      "provider": "actual-sdk-boundary-fixture",
+      "revision": 3,
+      "committed_at": "2026-10-06T22:12:18.161381Z"
+    },
+    "llm-producer:b19ac135a9dc42ee9220f4c2e07a5e3d:budget:9f4791176b02a0ba4b2dd98d01525aa62003e4e8430207b46b4cca9308308154": {
+      "event_id": "llm-producer:b19ac135a9dc42ee9220f4c2e07a5e3d:budget:9f4791176b02a0ba4b2dd98d01525aa62003e4e8430207b46b4cca9308308154",
+      "payload_digest": "d2c03ba67f0197d0a10ada3d86bb1ce79227bffb790e5f7f456301ad660c99a1",
+      "key": "policy_adversary",
+      "amount": "0.02",
+      "provider": "actual-sdk-boundary-fixture",
+      "revision": 9,
+      "committed_at": "2026-10-06T22:12:18.221707Z"
+    }
+  },
+  "completion_obligations": {}
+}

@@ -1,0 +1,16 @@
+{
+  "damage": "required-edge",
+  "ref": {
+    "artifact_id": "sha256:14f10e8a27123e793f960c3eb7d0a04366fb6772f9e340f03592491b6e5aa451",
+    "kind": "foundry.compiled_chain_plan",
+    "media_type": "application/json",
+    "manifest_profile_sha256": "sha256:cb7e78ce790596143dbd8da823dee56b00006a8623b7aa3671af59955e4e427c"
+  },
+  "wire_sha256": "14f10e8a27123e793f960c3eb7d0a04366fb6772f9e340f03592491b6e5aa451",
+  "refusal_type": "ValueError",
+  "refusal": "Compiled plan effective dependency mismatch",
+  "body_entries": {
+    "draw": 0,
+    "reduce": 0
+  }
+}

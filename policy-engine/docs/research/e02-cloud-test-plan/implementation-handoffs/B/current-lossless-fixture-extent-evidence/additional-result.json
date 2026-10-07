@@ -1,0 +1,14 @@
+{
+  "scopes": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review"
+  ],
+  "elapsed_seconds": 19.04447157299728,
+  "files": 232,
+  "logical_bytes": 1462468608,
+  "allocated_before": 1462468608,
+  "allocated_after": 206209024,
+  "failures": 0,
+  "byte_mismatches": 0,
+  "saved_physical_bytes": 1256259584,
+  "data_disposition": "Only inactive ROOT test catalog fixtures; every original byte/path/inode/size preserved; no deletion or move; no production/PG/code/env data touched."
+}

@@ -1,0 +1,263 @@
+"""Execute the unchanged final PostgreSQL wholefile; never serialize its DSN."""
+
+from __future__ import annotations
+
+import hashlib
+import importlib
+import importlib.metadata
+import json
+import os
+from pathlib import Path
+import shlex
+import subprocess
+import sys
+import time
+import traceback
+from urllib.parse import urlsplit
+
+ROOT = Path('/workspace/e02-B-current-coordination')
+EXPECTED = '1862c021df74a5c5815bc5cd21a20e61b30132b6'
+EXPECTED_TREE = 'f765043b27b96a1fbb0795aa600db9bd94df0e36'
+OUT = Path('/dev/shm/e02-B-final-pg1862-20261006')
+PYTHON = ROOT / '.polisyos/e02-B-current/environment/bin/python'
+TEST = 'policy-engine/tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py'
+DSN = Path('/tmp/e02-B38-pg-evidence/postgres-dsn')
+CAPS = ('XLA_FLAGS', 'JAX_NUM_THREADS', 'TF_NUM_INTEROP_THREADS',
+        'TF_NUM_INTRAOP_THREADS', 'NUMBA_NUM_THREADS', 'LOKY_MAX_CPU_COUNT',
+        'PYTEST_XDIST_AUTO_NUM_WORKERS')
+DECLARED = (
+    'AGENTS.md', 'policy-engine/CONTRIBUTING.md', 'policy-engine/pyproject.toml',
+    'policy-engine/pytest.ini', 'policy-engine/tests/conftest.py',
+    'policy-engine/tests/unit/runtime/conftest.py',
+    'policy-engine/tests/unit/runtime/http/conftest.py',
+    'policy-engine/tests/_helpers/runtime_http.py',
+    'policy-engine/tests/_helpers/artifacts.py',
+    'policy-engine/tests/_helpers/observability.py', TEST,
+    'policy-engine/src/polisyos/runtime/http/services/control/__init__.py',
+    'policy-engine/src/polisyos/runtime/http/services/control_plane_store.py',
+    'policy-engine/src/polisyos/runtime/http/services/control_worker.py',
+    'policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md',
+    'policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md',
+)
+
+
+def sha(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def git(*args):
+    return subprocess.check_output(['git', '-C', str(ROOT), *args])
+
+
+def write(name, value):
+    path = OUT / name
+    with path.open('x', encoding='utf-8') as stream:
+        json.dump(value, stream, indent=2, ensure_ascii=True, default=str)
+        stream.write('\n')
+
+
+def identity():
+    head = git('rev-parse', 'HEAD').decode().strip()
+    tree = git('rev-parse', 'HEAD^{tree}').decode().strip()
+    status = git('status', '--porcelain=v1').decode()
+    return {'head': head, 'tree': tree, 'tracked_status': status,
+            'matched_expected_clean': head == EXPECTED and tree == EXPECTED_TREE and not status}
+
+
+def source_pins():
+    result = []
+    for relative in DECLARED:
+        path = ROOT / relative
+        data = path.read_bytes()
+        canonical = git('show', EXPECTED + ':' + relative)
+        result.append({'path': relative, 'sha256': sha(data), 'bytes': len(data),
+                       'git_blob': git('rev-parse', EXPECTED + ':' + relative).decode().strip(),
+                       'git_bytes_match': data == canonical})
+    return result
+
+
+def module_origins():
+    rows = []
+    tracked = set(git('ls-files', '-z').decode().split('\0'))
+    batch = subprocess.Popen(['git', '-C', str(ROOT), 'cat-file', '--batch'],
+                             stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    try:
+        for name, module in sorted(tuple(sys.modules.items())):
+            if not name.startswith(('polisyos', '_helpers', 'psycopg', 'pytest', '_pytest')):
+                continue
+            filename = getattr(module, '__file__', None)
+            if not filename:
+                rows.append({'module': name, 'kind': 'no_file_origin'})
+                continue
+            path = Path(filename).resolve()
+            if not path.is_file():
+                rows.append({'module': name, 'path': str(path), 'kind': 'non_regular_origin'})
+                continue
+            data = path.read_bytes()
+            row = {'module': name, 'path': str(path), 'sha256': sha(data), 'bytes': len(data)}
+            if path.is_relative_to(ROOT):
+                relative = path.relative_to(ROOT).as_posix()
+                row['relative_path'] = relative
+                if relative in tracked:
+                    batch.stdin.write((EXPECTED + ':' + relative + '\n').encode())
+                    batch.stdin.flush()
+                    header = batch.stdout.readline().decode().strip().split()
+                    if len(header) == 3 and header[1] == 'blob':
+                        canonical = batch.stdout.read(int(header[2]))
+                        assert batch.stdout.read(1) == b'\n'
+                        row.update(kind='tracked_file_backend', git_blob=header[0],
+                                   git_bytes_match=canonical == data)
+                    else:
+                        row.update(kind='unbound_git_origin', git_bytes_match=False)
+                else:
+                    row['kind'] = 'untracked_execution_resource'
+            else:
+                row['kind'] = 'external_tool_resource'
+            rows.append(row)
+    finally:
+        batch.stdin.close()
+        batch.wait()
+    return rows
+
+
+class Observe:
+    def __init__(self):
+        self.items = []
+        self.collect = []
+        self.reports = []
+        self.exit_argument = None
+
+    def pytest_collection_modifyitems(self, session, config, items):
+        self.items = [{'nodeid': item.nodeid, 'collection_path': str(item.path),
+                       'definition_location': list(item.location)} for item in items]
+
+    def pytest_collectreport(self, report):
+        self.collect.append({'nodeid': report.nodeid, 'outcome': report.outcome,
+                             'longrepr': str(report.longrepr) if report.failed or report.skipped else None})
+
+    def pytest_runtest_logreport(self, report):
+        self.reports.append({'nodeid': report.nodeid, 'when': report.when,
+                             'outcome': report.outcome, 'duration': report.duration,
+                             'wasxfail': getattr(report, 'wasxfail', None),
+                             'properties': list(report.user_properties),
+                             'longrepr': str(report.longrepr) if report.failed or report.skipped else None})
+
+    def pytest_sessionfinish(self, session, exitstatus):
+        self.exit_argument = int(exitstatus)
+
+
+def child():
+    before = identity()
+    assert before['matched_expected_clean'], 'source custody guard before native failed'
+    pins_before = source_pins()
+    assert all(row['git_bytes_match'] for row in pins_before)
+    import psycopg
+    import psycopg.pq
+    import pytest
+    import polisyos.runtime.http.services.control
+    from polisyos.runtime.http.services import control_plane_store, control_worker
+    for module in (control_plane_store, control_worker):
+        assert Path(module.__file__).resolve().is_relative_to(ROOT / 'policy-engine/src')
+    observer = Observe()
+    args = [str(ROOT / TEST), '-vv', '-s', '--tb=short', '--import-mode=importlib',
+            '-p', 'no:cacheprovider', '--basetemp', str(OUT / 'fixtures'),
+            '--junitxml', str(OUT / 'native.xml')]
+    env = {
+        'cwd': str(ROOT / 'policy-engine'), 'python_executable': sys.executable,
+        'python_version': sys.version, 'pytest_version': pytest.__version__,
+        'pytest_origin': pytest.__file__, 'psycopg_version': psycopg.__version__,
+        'psycopg_origin': psycopg.__file__,
+        'psycopg_binary_version': importlib.metadata.version('psycopg-binary'),
+        'pq_implementation': psycopg.pq.__impl__, 'libpq_version': psycopg.pq.version(),
+        'sys_path': list(sys.path), 'quota_env_at_child_entry': {name: os.getenv(name) for name in CAPS},
+        'secret_input': {'path': str(DSN), 'mode': oct(DSN.stat().st_mode & 0o777),
+                         'bytes': DSN.stat().st_size, 'value': 'omitted; authorized private runtime input'},
+        'actual_pytest_argv': args,
+    }
+    write('environment.json', env)
+    write('source-before.json', {'identity': before, 'declared_inputs': pins_before})
+    code = int(pytest.main(args, plugins=[observer]))
+    origins = module_origins()
+    write('module-origins.json', {
+        'point': 'after pytest.main returned, before runner finalization',
+        'boundary': 'selected file-backed module families only; no universal import/resource/network/child readset claim',
+        'rows': origins,
+    })
+    after = identity()
+    pins_after = source_pins()
+    write('native-observer.json', {
+        'state': 'session_finished', 'items': observer.items,
+        'collection_reports': observer.collect, 'phase_reports': observer.reports,
+        'sessionfinish_exit_argument': observer.exit_argument, 'pytest_main_return': code,
+        'qualification': 'hook argument is not outer actual child wait status',
+    })
+    write('source-after.json', {
+        'identity': after, 'declared_inputs': pins_after,
+        'declared_bytes_stable': pins_before == pins_after,
+        'loaded_tracked_bytes_match': all(row.get('git_bytes_match', True) for row in origins),
+    })
+    assert after['matched_expected_clean'] and pins_before == pins_after
+    assert all(row.get('git_bytes_match', True) for row in origins)
+    return code
+
+
+def parent():
+    before = identity()
+    assert before['matched_expected_clean']
+    assert str(PYTHON) == sys.executable or Path(sys.executable).resolve() == PYTHON.resolve()
+    secret = DSN.read_text().strip()
+    assert secret and (DSN.stat().st_mode & 0o777) == 0o600
+    patterns = [secret.encode()]
+    parsed = urlsplit(secret)
+    if parsed.password:
+        patterns.append(parsed.password.encode())
+    for token in shlex.split(secret):
+        if token.startswith('password=') and token[9:]:
+            patterns.append(token[9:].encode())
+    env = dict(os.environ)
+    original_caps = {name: env.get(name) for name in CAPS}
+    for name in CAPS:
+        env.pop(name, None)
+    env.update(E02_B38_POSTGRES_DSN=secret, POLISYOS_TEST_PG_DSN=secret, DS9_REQUIRE_PG='1',
+               PYTHONPATH='/tmp/e02-B38-pg-profile:' + str(ROOT / 'policy-engine/src') + ':' + str(ROOT / 'policy-engine'),
+               PYTHONDONTWRITEBYTECODE='1')
+    start = time.monotonic()
+    log = OUT / 'native.txt'
+    pid = os.fork()
+    if pid == 0:
+        with log.open('xb', buffering=0) as stream:
+            os.dup2(stream.fileno(), 1)
+            os.dup2(stream.fileno(), 2)
+            os.chdir(ROOT / 'policy-engine')
+            os.execve(str(PYTHON), [str(PYTHON), str(Path(__file__).resolve()), '--child'], env)
+    waited, status, usage = os.wait4(pid, 0)
+    wall = time.monotonic() - start
+    output = log.read_bytes()
+    safe = not any(pattern in output for pattern in patterns)
+    summary = {
+        'harness_state': 'EXECUTED', 'setup_failure': None,
+        'actual_child_pid': pid, 'waited_pid': waited, 'wait_status': status,
+        'actual_exit_code': os.waitstatus_to_exitcode(status),
+        'signal': os.WTERMSIG(status) if os.WIFSIGNALED(status) else None,
+        'wall_s': wall, 'max_rss_kib': usage.ru_maxrss,
+        'user_s': usage.ru_utime, 'system_s': usage.ru_stime,
+        'source_before': before, 'source_after': identity(),
+        'original_parent_cap_env': original_caps,
+        'caps_removed_not_replaced': list(CAPS),
+        'command': [str(PYTHON), str(Path(__file__).resolve()), '--child'],
+        'native_stdout': {'path': str(log), 'bytes': len(output), 'sha256': sha(output),
+                          'secret_literal_scan_pass': safe},
+        'driver_sha256': sha(Path(__file__).read_bytes()),
+    }
+    write('wrapper.json', summary)
+    print(json.dumps({key: summary[key] for key in (
+        'harness_state', 'actual_exit_code', 'wall_s', 'max_rss_kib', 'native_stdout')}))
+    assert safe, 'private DSN literal detected; output must not be published unredacted'
+    return summary['actual_exit_code']
+
+
+if __name__ == '__main__':
+    os.umask(0o077)
+    if sys.argv[1:] == ['--child']:
+        raise SystemExit(child())
+    raise SystemExit(parent())

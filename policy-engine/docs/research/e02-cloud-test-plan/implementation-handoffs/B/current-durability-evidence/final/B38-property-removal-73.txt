@@ -1,0 +1,163 @@
+{"PYTHONPATH": "/workspace/e02-B-current-durability/policy-engine/src", "canonical_path": "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py", "execution_overlay_sha256": "2f55a8320beee351baa90aad823bf2ed8eb62b5221b6e62b5a86121e5a4929af", "input_closure": "actual admitted source checkout, own isolated SQLite/FileSystemCAS fixtures and concrete typed primary backend; no external reconciliation/idempotency authority or production data", "kind": "B38", "mode": "removal", "original_source_sha256": "af813a2b87c0500bc2c0499813c9170a6a8033d92f860fe5556b72088e6721f6", "overlay": "only bound publication admission or post-dispatch no-replay property removed; markers and all other canonical source remain", "pytest_command": ["-o", "addopts=", "-q", "/workspace/e02-B-current-durability/policy-engine/tests/unit/remediation/test_dur_02_process.py", "-k", "sibling_mutation", "--basetemp=/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/tmp/B38-property-removal-73"], "python": "/workspace/polisyos/policy-engine/.venv/bin/python", "start_utc": "2026-10-06T10:55:27.244572+00:00", "target_sha": "73a055e033dad61590d3ef03b9ff44aaef2c0990", "target_tree": "e53602b3b7ed0c638cd196f2dc019628bcbe7cd6"}
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_ test_actual_stale_bound_handler_cannot_publish_through_sibling_mutation_inlets _
+
+tmp_path = PosixPath('/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/tmp/B38-property-removal-73/test_actual_stale_bound_handle0')
+
+    def test_actual_stale_bound_handler_cannot_publish_through_sibling_mutation_inlets(
+        tmp_path: Path,
+    ) -> None:
+        database = tmp_path / "control.sqlite3"
+        store = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+        _create_control_job(store, "dur02-current-job")
+        observed = []
+    
+        def handler(job: Any) -> None:
+            with sqlite3.connect(database) as connection:
+                connection.execute(
+                    "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                    ((datetime.now(UTC) - timedelta(seconds=1)).isoformat(), job.job_id),
+                )
+            assert _worker_child(database, "takeover")["attempt"] == 2
+            admin = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+            _create_control_job(admin, "pending-child")
+            before = _database_rows(database)
+            instant = datetime.now(UTC)
+            operations = {
+                "upsert": lambda: store.upsert_progress(job_id=job.job_id, progress={"stale": True}),
+                "event": lambda: store.append_event(
+                    job_id=job.job_id, event_type="stale", payload={"stale": True}
+                ),
+                "outbox": lambda: store.enqueue_outbox_event(
+                    topic="stale", payload={"stale": True}, job_id=job.job_id
+                ),
+                "child_event": lambda: store.append_event(
+                    job_id="pending-child", event_type="stale", payload={"stale": True}
+                ),
+                "child_outbox": lambda: store.enqueue_outbox_event(
+                    topic="stale", payload={"stale": True}, job_id="pending-child"
+                ),
+                "create": lambda: _create_control_job(store, "stale-created-child"),
+                "mark_running": lambda: store.mark_running(job_id=job.job_id, worker_id="worker-A"),
+                "lease_next": lambda: store.lease_next_job(worker_id="worker-A"),
+                "scenario": lambda: store.compare_and_set_scenario_head(
+                    scenario_id="stale",
+                    baseline_run_id="run",
+                    expected_revision=0,
+                    new_revision=1,
+                    artifact_ref="sha256:" + "a" * 64,
+                    manifest_hash="b" * 64,
+                ),
+                "step_up": lambda: store.consume_step_up_assertion(
+                    assertion_id="stale-assertion", expires_at=int(instant.timestamp()) + 300
+                ),
+                "human_reservation": lambda: store.reserve_human_decision_action(
+                    tenant_id="fixture",
+                    governed_action_key="sha256:" + "a" * 64,
+                    reservation_id="stale",
+                    binding_sha256="sha256:" + "b" * 64,
+                    now=instant,
+                    lease_seconds=300,
+                    record_valid_until=instant + timedelta(hours=1),
+                ),
+                "worker_heartbeat": lambda: store.heartbeat_worker(
+                    worker_id="worker-A", state="running", lease_seconds=300
+                ),
+                "worker_release": lambda: store.release_worker(worker_id="worker-A"),
+            }
+            for name, operation in operations.items():
+                with pytest.raises(ControlJobLeaseLostError):
+                    operation()
+                assert _database_rows(database) == before, name
+                observed.append(name)
+    
+        worker = ControlWorker(store=store, handler=handler, worker_id="worker-A", lease_seconds=300)
+>       assert worker.dispatch_once()
+               ^^^^^^^^^^^^^^^^^^^^^^
+
+policy-engine/tests/unit/remediation/test_dur_02_process.py:275: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+policy-engine/src/polisyos/runtime/http/services/control_worker.py:159: in dispatch_once
+    self._run_with_lease_heartbeat(job)
+policy-engine/src/polisyos/runtime/http/services/control_worker.py:253: in _run_with_lease_heartbeat
+    self._handler(job)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+job = ControlJobRecord(job_id='dur02-current-job', kind='workflow_run', state='running', run_id='dur02-current-run', pipelin...ke_refs': [], 'producer_ref': 'runtime.control_plane_store', 'schema_version': 'policyos.evidence_spine_handoff.v1'}]})
+
+    def handler(job: Any) -> None:
+        with sqlite3.connect(database) as connection:
+            connection.execute(
+                "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                ((datetime.now(UTC) - timedelta(seconds=1)).isoformat(), job.job_id),
+            )
+        assert _worker_child(database, "takeover")["attempt"] == 2
+        admin = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+        _create_control_job(admin, "pending-child")
+        before = _database_rows(database)
+        instant = datetime.now(UTC)
+        operations = {
+            "upsert": lambda: store.upsert_progress(job_id=job.job_id, progress={"stale": True}),
+            "event": lambda: store.append_event(
+                job_id=job.job_id, event_type="stale", payload={"stale": True}
+            ),
+            "outbox": lambda: store.enqueue_outbox_event(
+                topic="stale", payload={"stale": True}, job_id=job.job_id
+            ),
+            "child_event": lambda: store.append_event(
+                job_id="pending-child", event_type="stale", payload={"stale": True}
+            ),
+            "child_outbox": lambda: store.enqueue_outbox_event(
+                topic="stale", payload={"stale": True}, job_id="pending-child"
+            ),
+            "create": lambda: _create_control_job(store, "stale-created-child"),
+            "mark_running": lambda: store.mark_running(job_id=job.job_id, worker_id="worker-A"),
+            "lease_next": lambda: store.lease_next_job(worker_id="worker-A"),
+            "scenario": lambda: store.compare_and_set_scenario_head(
+                scenario_id="stale",
+                baseline_run_id="run",
+                expected_revision=0,
+                new_revision=1,
+                artifact_ref="sha256:" + "a" * 64,
+                manifest_hash="b" * 64,
+            ),
+            "step_up": lambda: store.consume_step_up_assertion(
+                assertion_id="stale-assertion", expires_at=int(instant.timestamp()) + 300
+            ),
+            "human_reservation": lambda: store.reserve_human_decision_action(
+                tenant_id="fixture",
+                governed_action_key="sha256:" + "a" * 64,
+                reservation_id="stale",
+                binding_sha256="sha256:" + "b" * 64,
+                now=instant,
+                lease_seconds=300,
+                record_valid_until=instant + timedelta(hours=1),
+            ),
+            "worker_heartbeat": lambda: store.heartbeat_worker(
+                worker_id="worker-A", state="running", lease_seconds=300
+            ),
+            "worker_release": lambda: store.release_worker(worker_id="worker-A"),
+        }
+        for name, operation in operations.items():
+>           with pytest.raises(ControlJobLeaseLostError):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE <class 'polisyos.runtime.http.services.control_plane_store.ControlJobLeaseLostError'>
+
+policy-engine/tests/unit/remediation/test_dur_02_process.py:269: Failed
+=============================== warnings summary ===============================
+../polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; anyio
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+../polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED policy-engine/tests/unit/remediation/test_dur_02_process.py::test_actual_stale_bound_handler_cannot_publish_through_sibling_mutation_inlets
+1 failed, 19 deselected, 2 warnings in 24.81s
+{"actual_job_row": ["dur02-current-job", "running", "worker-B", 2, "{\"stale\": true}"], "database": "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/tmp/B38-property-removal-73/test_actual_stale_bound_handle0/control.sqlite3"}
+{"actual_job_row": ["pending-child", "pending", null, 0, "{\"evidence_spine_handoff_count\": 1, \"evidence_spine_handoffs\": [{\"batch_id\": null, \"bridge_authority_ref\": null, \"carrier_redaction_status\": \"pass\", \"carrier_ref\": \"control-job:pending-child:carrier\", \"concept_spine_ref\": null, \"consumer_ref\": \"runtime.control_plane_store\", \"handoff_id\": \"handoff:d1ffda6b1fa4e909cd1d6790\", \"handoff_kind\": \"nl_request_creation\", \"input_refs\": [\"control.request\"], \"integrity_status\": \"pass\", \"message_count\": 1, \"output_refs\": [\"control-job:pending-child\"], \"parent_spine_ref\": \"control-job:pending-child:carrier\", \"producer_handshake_refs\": [], \"producer_ref\": \"runtime.api.nl_request\", \"schema_version\": \"policyos.evidence_spine_handoff.v1\"}]}"], "database": "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/tmp/B38-property-removal-73/test_actual_stale_bound_handle0/control.sqlite3"}
+{"end_utc": "2026-10-06T10:55:55.705963+00:00", "grouped_B38_later_assertions": "PASS only when complete group passed; UNRUN after first failure", "pytest_exit_code": 1, "status_after": ""}

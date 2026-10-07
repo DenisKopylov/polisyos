@@ -1,0 +1,650 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-installed-wheel-runtime-independent",
+  "closure_ids": [],
+  "bundle_ids": [
+    "RUN-01"
+  ],
+  "finding_ids": [
+    "LA-057"
+  ],
+  "slice_base_sha": "bcd29edac682b9541d84948929d5944775e16f15",
+  "implementation_commits": [
+    "e22702e13bf97995f29d8d63f7ccd13f43c04a7b"
+  ],
+  "candidate_tree_sha": "7c2dbcc320f6136c727455c6429c4abd1b5e0918",
+  "branch": "codex/e02-B-current-durability",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/43",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/build-dependencies.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/build-dependencies.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/build-environment.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/build-environment.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/build-venv.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/build-venv.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/cohort-input-environment.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/consumer-dependencies.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/consumer-dependencies.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/consumer-environment.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/consumer-environment.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/evidence-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/execute.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/installed-child-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/installed-child.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/installed-child.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/installed-venv.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/installed-venv.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/launcher-input-profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/launcher-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/launcher.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/native.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/wheel-METADATA.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/wheel-build.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/wheel-build.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/wheel-install.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/wheel-install.txt"
+  ],
+  "production_and_test_changed_paths": [],
+  "runtime_source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+  "runtime_source_tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+  "test_input_sha": "02b14aa0928fa32da6b46fa5169605d59e71d9ac",
+  "baseline_cells": [],
+  "baseline_binding": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-preparation.json@d760672190fd00237d499aa6f2b62ef276ca0b5a#/baseline_cells +baseline_binding: exacttenhistoricalcells/sourceSHA/ref/jobcontext/input; navigation only, not new wheel runtime proof.",
+  "canonical_criterion": {
+    "finding_id": "LA-057",
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md",
+    "sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+    "lines": [
+      145,
+      178
+    ],
+    "raw_source_block_sha256": "2afe404aaaa4e0abb4dce006674af34f61ca3269d1e0b9e516b788bb42c8ac57",
+    "digest_convention": "Rawregex capture whitespace preserved; qualified canonical source map binds convention."
+  },
+  "checks": [
+    {
+      "id": "build-venv",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "venv",
+        "--python",
+        "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/bin/python3.14",
+        "--no-python-downloads",
+        "/tmp/e02-B-la057-final-dd9584728bd9/build-env"
+      ],
+      "target_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "test_input_sha": "02b14aa0928fa32da6b46fa5169605d59e71d9ac",
+      "environment": {
+        "full_scoped_input_profile_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/launcher-input-profile.json@e22702e13bf97995f29d8d63f7ccd13f43c04a7b",
+        "build_and_consumer_distributions_ref": [
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/build-environment.txt@e22702e13bf97995f29d8d63f7ccd13f43c04a7b",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/consumer-environment.txt@e22702e13bf97995f29d8d63f7ccd13f43c04a7b"
+        ],
+        "profile": "Explicit task-local build/installedvenvs; numeric caps removed; Python injection/config/plugin fallback prevented for native. Wheel --no-deps plus actual pytest dependency pins is a finite common bridge consumer profile."
+      },
+      "input_closure": {
+        "root_source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "root_tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+        "launcher": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-evidence/launcher.py@dd9584728bd96f204983615216efdbc58117e713",
+        "outer": "policy-engine/tests/unit/common/test_async_tools_installed_wheel.py@dd9584728bd96f204983615216efdbc58117e713",
+        "consumer": "policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py@dd9584728bd96f204983615216efdbc58117e713",
+        "artifact_and_literal_inputs": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/cohort-input-environment.json@e22702e13bf97995f29d8d63f7ccd13f43c04a7b",
+        "phase_wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/build-venv.json@e22702e13bf97995f29d8d63f7ccd13f43c04a7b"
+      },
+      "outcome": "PASS",
+      "exit": 0,
+      "wall_s": 0.3251769999915268,
+      "maxrss_kib_linux": 32400,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/build-venv.txt",
+      "output_sha256": "5205c6c365e647dd5d51df8e3bc218655c50c612beced86680157bfe98f6b61c",
+      "output_bytes": 212,
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/build-venv.json",
+        "bytes": 924,
+        "sha256": "71dd623cbaf99f44aa097151fea9cf45ef5d2db7498bc2ec58c6e8519f39b611",
+        "original_path": "/tmp/e02-B-la057-final-dd9584728bd9/build-venv.json"
+      }
+    },
+    {
+      "id": "installed-venv",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "venv",
+        "--python",
+        "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/bin/python3.14",
+        "--no-python-downloads",
+        "/tmp/e02-B-la057-final-dd9584728bd9/installed-env"
+      ],
+      "target_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "test_input_sha": "02b14aa0928fa32da6b46fa5169605d59e71d9ac",
+      "environment": {
+        "full_scoped_input_profile_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/launcher-input-profile.json@e22702e13bf97995f29d8d63f7ccd13f43c04a7b",
+        "build_and_consumer_distributions_ref": [
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/build-environment.txt@e22702e13bf97995f29d8d63f7ccd13f43c04a7b",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/consumer-environment.txt@e22702e13bf97995f29d8d63f7ccd13f43c04a7b"
+        ],
+        "profile": "Explicit task-local build/installedvenvs; numeric caps removed; Python injection/config/plugin fallback prevented for native. Wheel --no-deps plus actual pytest dependency pins is a finite common bridge consumer profile."
+      },
+      "input_closure": {
+        "root_source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "root_tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+        "launcher": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-evidence/launcher.py@dd9584728bd96f204983615216efdbc58117e713",
+        "outer": "policy-engine/tests/unit/common/test_async_tools_installed_wheel.py@dd9584728bd96f204983615216efdbc58117e713",
+        "consumer": "policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py@dd9584728bd96f204983615216efdbc58117e713",
+        "artifact_and_literal_inputs": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/cohort-input-environment.json@e22702e13bf97995f29d8d63f7ccd13f43c04a7b",
+        "phase_wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/installed-venv.json@e22702e13bf97995f29d8d63f7ccd13f43c04a7b"
+      },
+      "outcome": "PASS",
+      "exit": 0,
+      "wall_s": 0.25002719199983403,
+      "maxrss_kib_linux": 31704,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/installed-venv.txt",
+      "output_sha256": "88031c3313150199540d7e5f695abbb2896d91c384410f8741c1be1053bf7620",
+      "output_bytes": 220,
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/installed-venv.json",
+        "bytes": 933,
+        "sha256": "ee71389f4c5f6606b425c92b1010e4e701304f2b6735ced7cbb401f26d5e5909",
+        "original_path": "/tmp/e02-B-la057-final-dd9584728bd9/installed-venv.json"
+      }
+    },
+    {
+      "id": "build-dependencies",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "pip",
+        "install",
+        "--python",
+        "/tmp/e02-B-la057-final-dd9584728bd9/build-env/bin/python",
+        "hatchling==1.27.0"
+      ],
+      "target_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "test_input_sha": "02b14aa0928fa32da6b46fa5169605d59e71d9ac",
+      "environment": {
+        "full_scoped_input_profile_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/launcher-input-profile.json@e22702e13bf97995f29d8d63f7ccd13f43c04a7b",
+        "build_and_consumer_distributions_ref": [
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/build-environment.txt@e22702e13bf97995f29d8d63f7ccd13f43c04a7b",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/consumer-environment.txt@e22702e13bf97995f29d8d63f7ccd13f43c04a7b"
+        ],
+        "profile": "Explicit task-local build/installedvenvs; numeric caps removed; Python injection/config/plugin fallback prevented for native. Wheel --no-deps plus actual pytest dependency pins is a finite common bridge consumer profile."
+      },
+      "input_closure": {
+        "root_source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "root_tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+        "launcher": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-evidence/launcher.py@dd9584728bd96f204983615216efdbc58117e713",
+        "outer": "policy-engine/tests/unit/common/test_async_tools_installed_wheel.py@dd9584728bd96f204983615216efdbc58117e713",
+        "consumer": "policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py@dd9584728bd96f204983615216efdbc58117e713",
+        "artifact_and_literal_inputs": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/cohort-input-environment.json@e22702e13bf97995f29d8d63f7ccd13f43c04a7b",
+        "phase_wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/build-dependencies.json@e22702e13bf97995f29d8d63f7ccd13f43c04a7b"
+      },
+      "outcome": "PASS",
+      "exit": 0,
+      "wall_s": 3.5188378739985637,
+      "maxrss_kib_linux": 42220,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/build-dependencies.txt",
+      "output_sha256": "70f451a6a006d2e94828c32455ae42ada4f0a81635cb134af8320aecca486519",
+      "output_bytes": 244,
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/build-dependencies.json",
+        "bytes": 859,
+        "sha256": "95f720f565c78a436b59420af9489c4c35f0b6faf1f70b8ae42848a0b86d0049",
+        "original_path": "/tmp/e02-B-la057-final-dd9584728bd9/build-dependencies.json"
+      }
+    },
+    {
+      "id": "wheel-build",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "build",
+        "--wheel",
+        "--no-build-isolation",
+        "--python",
+        "/tmp/e02-B-la057-final-dd9584728bd9/build-env/bin/python",
+        "--no-python-downloads",
+        "--no-create-gitignore",
+        "--out-dir",
+        "/tmp/e02-B-la057-final-dd9584728bd9/wheels",
+        "/workspace/e02-B-current-coordination/policy-engine"
+      ],
+      "target_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "test_input_sha": "02b14aa0928fa32da6b46fa5169605d59e71d9ac",
+      "environment": {
+        "full_scoped_input_profile_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/launcher-input-profile.json@e22702e13bf97995f29d8d63f7ccd13f43c04a7b",
+        "build_and_consumer_distributions_ref": [
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/build-environment.txt@e22702e13bf97995f29d8d63f7ccd13f43c04a7b",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/consumer-environment.txt@e22702e13bf97995f29d8d63f7ccd13f43c04a7b"
+        ],
+        "profile": "Explicit task-local build/installedvenvs; numeric caps removed; Python injection/config/plugin fallback prevented for native. Wheel --no-deps plus actual pytest dependency pins is a finite common bridge consumer profile."
+      },
+      "input_closure": {
+        "root_source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "root_tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+        "launcher": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-evidence/launcher.py@dd9584728bd96f204983615216efdbc58117e713",
+        "outer": "policy-engine/tests/unit/common/test_async_tools_installed_wheel.py@dd9584728bd96f204983615216efdbc58117e713",
+        "consumer": "policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py@dd9584728bd96f204983615216efdbc58117e713",
+        "artifact_and_literal_inputs": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/cohort-input-environment.json@e22702e13bf97995f29d8d63f7ccd13f43c04a7b",
+        "phase_wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/wheel-build.json@e22702e13bf97995f29d8d63f7ccd13f43c04a7b"
+      },
+      "outcome": "PASS",
+      "exit": 0,
+      "wall_s": 3.636847576999571,
+      "maxrss_kib_linux": 37020,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/wheel-build.txt",
+      "output_sha256": "430982fdee80715cdcd8cfe97c600955d040a0744c6f540e92297d3d36287def",
+      "output_bytes": 81,
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/wheel-build.json",
+        "bytes": 1039,
+        "sha256": "203ff7dd8b9492fad13c15857ef5249798e46299f61ecab81a7727c4275bc00e",
+        "original_path": "/tmp/e02-B-la057-final-dd9584728bd9/wheel-build.json"
+      }
+    },
+    {
+      "id": "wheel-install",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "pip",
+        "install",
+        "--python",
+        "/tmp/e02-B-la057-final-dd9584728bd9/installed-env/bin/python",
+        "--no-deps",
+        "/tmp/e02-B-la057-final-dd9584728bd9/wheels/policy_engine-0.1.0-py3-none-any.whl"
+      ],
+      "target_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "test_input_sha": "02b14aa0928fa32da6b46fa5169605d59e71d9ac",
+      "environment": {
+        "full_scoped_input_profile_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/launcher-input-profile.json@e22702e13bf97995f29d8d63f7ccd13f43c04a7b",
+        "build_and_consumer_distributions_ref": [
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/build-environment.txt@e22702e13bf97995f29d8d63f7ccd13f43c04a7b",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/consumer-environment.txt@e22702e13bf97995f29d8d63f7ccd13f43c04a7b"
+        ],
+        "profile": "Explicit task-local build/installedvenvs; numeric caps removed; Python injection/config/plugin fallback prevented for native. Wheel --no-deps plus actual pytest dependency pins is a finite common bridge consumer profile."
+      },
+      "input_closure": {
+        "root_source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "root_tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+        "launcher": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-evidence/launcher.py@dd9584728bd96f204983615216efdbc58117e713",
+        "outer": "policy-engine/tests/unit/common/test_async_tools_installed_wheel.py@dd9584728bd96f204983615216efdbc58117e713",
+        "consumer": "policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py@dd9584728bd96f204983615216efdbc58117e713",
+        "artifact_and_literal_inputs": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/cohort-input-environment.json@e22702e13bf97995f29d8d63f7ccd13f43c04a7b",
+        "phase_wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/wheel-install.json@e22702e13bf97995f29d8d63f7ccd13f43c04a7b"
+      },
+      "outcome": "PASS",
+      "exit": 0,
+      "wall_s": 0.5320935729978373,
+      "maxrss_kib_linux": 47700,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/wheel-install.txt",
+      "output_sha256": "dea7129a7dc6b8d740971823e53e0945ee364a825de11025f9bae0b9ed20bb90",
+      "output_bytes": 251,
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/wheel-install.json",
+        "bytes": 937,
+        "sha256": "f4477f220f19c58bf81b6d6d2222ded091167722ab040828e3c8e0f4553d7fe0",
+        "original_path": "/tmp/e02-B-la057-final-dd9584728bd9/wheel-install.json"
+      }
+    },
+    {
+      "id": "consumer-dependencies",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "pip",
+        "install",
+        "--python",
+        "/tmp/e02-B-la057-final-dd9584728bd9/installed-env/bin/python",
+        "--no-deps",
+        "pytest==9.0.2",
+        "iniconfig==2.3.0",
+        "packaging==25.0",
+        "pluggy==1.6.0",
+        "pygments==2.19.2"
+      ],
+      "target_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "test_input_sha": "02b14aa0928fa32da6b46fa5169605d59e71d9ac",
+      "environment": {
+        "full_scoped_input_profile_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/launcher-input-profile.json@e22702e13bf97995f29d8d63f7ccd13f43c04a7b",
+        "build_and_consumer_distributions_ref": [
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/build-environment.txt@e22702e13bf97995f29d8d63f7ccd13f43c04a7b",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/consumer-environment.txt@e22702e13bf97995f29d8d63f7ccd13f43c04a7b"
+        ],
+        "profile": "Explicit task-local build/installedvenvs; numeric caps removed; Python injection/config/plugin fallback prevented for native. Wheel --no-deps plus actual pytest dependency pins is a finite common bridge consumer profile."
+      },
+      "input_closure": {
+        "root_source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "root_tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+        "launcher": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-evidence/launcher.py@dd9584728bd96f204983615216efdbc58117e713",
+        "outer": "policy-engine/tests/unit/common/test_async_tools_installed_wheel.py@dd9584728bd96f204983615216efdbc58117e713",
+        "consumer": "policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py@dd9584728bd96f204983615216efdbc58117e713",
+        "artifact_and_literal_inputs": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/cohort-input-environment.json@e22702e13bf97995f29d8d63f7ccd13f43c04a7b",
+        "phase_wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/consumer-dependencies.json@e22702e13bf97995f29d8d63f7ccd13f43c04a7b"
+      },
+      "outcome": "PASS",
+      "exit": 0,
+      "wall_s": 2.2231699140102137,
+      "maxrss_kib_linux": 43472,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/consumer-dependencies.txt",
+      "output_sha256": "5cb2da1bc97d99c31a5cba3c68ca43228b107650b685e5198e217487ef0eb777",
+      "output_bytes": 281,
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/consumer-dependencies.json",
+        "bytes": 971,
+        "sha256": "96cc80d9b994dcda6bb53cc1edd41756f48771887e10bf7eb3a64849ebcaebb4",
+        "original_path": "/tmp/e02-B-la057-final-dd9584728bd9/consumer-dependencies.json"
+      }
+    },
+    {
+      "id": "build-environment",
+      "command": [
+        "/tmp/e02-B-la057-final-dd9584728bd9/build-env/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import importlib.metadata,json,sys;print(json.dumps({'python':sys.executable,'version':sys.version,'distributions':{d.metadata['Name']:d.version for d in importlib.metadata.distributions()}},sort_keys=True))"
+      ],
+      "target_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "test_input_sha": "02b14aa0928fa32da6b46fa5169605d59e71d9ac",
+      "environment": {
+        "full_scoped_input_profile_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/launcher-input-profile.json@e22702e13bf97995f29d8d63f7ccd13f43c04a7b",
+        "build_and_consumer_distributions_ref": [
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/build-environment.txt@e22702e13bf97995f29d8d63f7ccd13f43c04a7b",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/consumer-environment.txt@e22702e13bf97995f29d8d63f7ccd13f43c04a7b"
+        ],
+        "profile": "Explicit task-local build/installedvenvs; numeric caps removed; Python injection/config/plugin fallback prevented for native. Wheel --no-deps plus actual pytest dependency pins is a finite common bridge consumer profile."
+      },
+      "input_closure": {
+        "root_source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "root_tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+        "launcher": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-evidence/launcher.py@dd9584728bd96f204983615216efdbc58117e713",
+        "outer": "policy-engine/tests/unit/common/test_async_tools_installed_wheel.py@dd9584728bd96f204983615216efdbc58117e713",
+        "consumer": "policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py@dd9584728bd96f204983615216efdbc58117e713",
+        "artifact_and_literal_inputs": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/cohort-input-environment.json@e22702e13bf97995f29d8d63f7ccd13f43c04a7b",
+        "phase_wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/build-environment.json@e22702e13bf97995f29d8d63f7ccd13f43c04a7b"
+      },
+      "outcome": "PASS",
+      "exit": 0,
+      "wall_s": 0.27856587900896557,
+      "maxrss_kib_linux": 14460,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/build-environment.txt",
+      "output_sha256": "5aa9b250d67028f69f81103e568d164b8ddb4e9a31344a3bfb36bda52846de01",
+      "output_bytes": 278,
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/build-environment.json",
+        "bytes": 945,
+        "sha256": "25b7734f8a70f9c658818b22f5d420dfc3836729cb4a7f7136f3394ade4f0cf9",
+        "original_path": "/tmp/e02-B-la057-final-dd9584728bd9/build-environment.json"
+      }
+    },
+    {
+      "id": "consumer-environment",
+      "command": [
+        "/tmp/e02-B-la057-final-dd9584728bd9/installed-env/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import importlib.metadata,json,sys;print(json.dumps({'python':sys.executable,'version':sys.version,'distributions':{d.metadata['Name']:d.version for d in importlib.metadata.distributions()}},sort_keys=True))"
+      ],
+      "target_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "test_input_sha": "02b14aa0928fa32da6b46fa5169605d59e71d9ac",
+      "environment": {
+        "full_scoped_input_profile_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/launcher-input-profile.json@e22702e13bf97995f29d8d63f7ccd13f43c04a7b",
+        "build_and_consumer_distributions_ref": [
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/build-environment.txt@e22702e13bf97995f29d8d63f7ccd13f43c04a7b",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/consumer-environment.txt@e22702e13bf97995f29d8d63f7ccd13f43c04a7b"
+        ],
+        "profile": "Explicit task-local build/installedvenvs; numeric caps removed; Python injection/config/plugin fallback prevented for native. Wheel --no-deps plus actual pytest dependency pins is a finite common bridge consumer profile."
+      },
+      "input_closure": {
+        "root_source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "root_tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+        "launcher": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-evidence/launcher.py@dd9584728bd96f204983615216efdbc58117e713",
+        "outer": "policy-engine/tests/unit/common/test_async_tools_installed_wheel.py@dd9584728bd96f204983615216efdbc58117e713",
+        "consumer": "policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py@dd9584728bd96f204983615216efdbc58117e713",
+        "artifact_and_literal_inputs": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/cohort-input-environment.json@e22702e13bf97995f29d8d63f7ccd13f43c04a7b",
+        "phase_wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/consumer-environment.json@e22702e13bf97995f29d8d63f7ccd13f43c04a7b"
+      },
+      "outcome": "PASS",
+      "exit": 0,
+      "wall_s": 0.25129286698938813,
+      "maxrss_kib_linux": 14568,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/consumer-environment.txt",
+      "output_sha256": "405967b66929faa3715dadc1694319919f1ca6741818e496e57fcda3c953a06d",
+      "output_bytes": 290,
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/consumer-environment.json",
+        "bytes": 952,
+        "sha256": "114b09c3f23f8f4025357ca21a4f4fcf127c46fd71813948e8abf629187da6c0",
+        "original_path": "/tmp/e02-B-la057-final-dd9584728bd9/consumer-environment.json"
+      }
+    },
+    {
+      "id": "native",
+      "command": [
+        "/tmp/e02-B-la057-final-dd9584728bd9/installed-env/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-q",
+        "-s",
+        "--noconftest",
+        "--import-mode=importlib",
+        "-c",
+        "/dev/null",
+        "-o",
+        "addopts=",
+        "-o",
+        "pythonpath=",
+        "-o",
+        "cache_dir=/tmp/e02-B-la057-final-dd9584728bd9/pytest-cache",
+        "--basetemp",
+        "/tmp/e02-B-la057-final-dd9584728bd9/pytest-scratch",
+        "--junitxml",
+        "/tmp/e02-B-la057-final-dd9584728bd9/native.xml",
+        "/workspace/e02-B-current-coordination/policy-engine/tests/unit/common/test_async_tools_installed_wheel.py"
+      ],
+      "target_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "test_input_sha": "02b14aa0928fa32da6b46fa5169605d59e71d9ac",
+      "environment": {
+        "full_scoped_input_profile_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/launcher-input-profile.json@e22702e13bf97995f29d8d63f7ccd13f43c04a7b",
+        "build_and_consumer_distributions_ref": [
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/build-environment.txt@e22702e13bf97995f29d8d63f7ccd13f43c04a7b",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/consumer-environment.txt@e22702e13bf97995f29d8d63f7ccd13f43c04a7b"
+        ],
+        "profile": "Explicit task-local build/installedvenvs; numeric caps removed; Python injection/config/plugin fallback prevented for native. Wheel --no-deps plus actual pytest dependency pins is a finite common bridge consumer profile."
+      },
+      "input_closure": {
+        "root_source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "root_tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+        "launcher": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-evidence/launcher.py@dd9584728bd96f204983615216efdbc58117e713",
+        "outer": "policy-engine/tests/unit/common/test_async_tools_installed_wheel.py@dd9584728bd96f204983615216efdbc58117e713",
+        "consumer": "policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py@dd9584728bd96f204983615216efdbc58117e713",
+        "artifact_and_literal_inputs": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/cohort-input-environment.json@e22702e13bf97995f29d8d63f7ccd13f43c04a7b",
+        "phase_wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/native.json@e22702e13bf97995f29d8d63f7ccd13f43c04a7b"
+      },
+      "outcome": "PASS",
+      "exit": 0,
+      "wall_s": 2.265760770998895,
+      "maxrss_kib_linux": 50012,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/native.txt",
+      "output_sha256": "881def1d8c6d59339961b79db47b7a445075e8d755b497313e5310f500c598f4",
+      "output_bytes": 4473,
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/native.json",
+        "bytes": 1226,
+        "sha256": "998b33c71b84660589f0e5e9f9971eb77e1e914c6ffbac582644c48528e71797",
+        "original_path": "/tmp/e02-B-la057-final-dd9584728bd9/native.json"
+      }
+    },
+    {
+      "id": "isolated-installed-eight-defining-consumers",
+      "command": [
+        "/tmp/e02-B-la057-final-dd9584728bd9/installed-env/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-q",
+        "-s",
+        "--noconftest",
+        "--import-mode=importlib",
+        "-c",
+        "/dev/null",
+        "-o",
+        "addopts=",
+        "-o",
+        "pythonpath=",
+        "-o",
+        "cache_dir=/tmp/e02-B-la057-final-dd9584728bd9/pytest-scratch/test_installed_wheel_consumers0/cache",
+        "--basetemp",
+        "/tmp/e02-B-la057-final-dd9584728bd9/pytest-scratch/test_installed_wheel_consumers0/child-scratch",
+        "--junitxml",
+        "/tmp/e02-B-la057-final-dd9584728bd9/pytest-scratch/test_installed_wheel_consumers0/installed-child.xml",
+        "/workspace/e02-B-current-coordination/policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py"
+      ],
+      "target_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "test_input_sha": "02b14aa0928fa32da6b46fa5169605d59e71d9ac",
+      "environment": {
+        "interpreter": "/tmp/e02-B-la057-final-dd9584728bd9/installed-env/bin/python",
+        "installed_site": "/tmp/e02-B-la057-final-dd9584728bd9/installed-env/lib/python3.14/site-packages",
+        "isolation": "Python-I-B, no sourcePYTHONPATH, pytest --noconftest/importlib/-c/dev/null/noautoload/noini injection",
+        "observed_environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/consumer-environment.txt@e22702e13bf97995f29d8d63f7ccd13f43c04a7b",
+        "origin_observation": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/installed-child.txt@e22702e13bf97995f29d8d63f7ccd13f43c04a7b"
+      },
+      "input_closure": {
+        "actual_wheel": {
+          "path": "/tmp/e02-B-la057-final-dd9584728bd9/wheels/policy_engine-0.1.0-py3-none-any.whl",
+          "bytes": 15085967,
+          "sha256": "78c9affc9b58f64166e2de6bc8360e30318fa30f7c66a44b863cb06447386454",
+          "role": "Exact real local wheel input retained with task env/cache/scratch; whole15MB recomputable build artifact not committed. Full deciding output and actual member binding retained."
+        },
+        "literal_profile": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/cohort-input-environment.json@e22702e13bf97995f29d8d63f7ccd13f43c04a7b",
+        "exact_canonical_source": "dd9584728bd96f204983615216efdbc58117e713",
+        "consumer_input": "02b14aa0928fa32da6b46fa5169605d59e71d9ac:policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py"
+      },
+      "outcome": "PASS",
+      "exit": 0,
+      "actual_case_count": 8,
+      "actual_junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/installed-child.xml",
+        "bytes": 989,
+        "sha256": "bf1678e9b1ff5ff6d11c463fba79d42ab8b68a7296f2a5aaeabeed7e72e92156",
+        "original_path": "/tmp/e02-B-la057-final-dd9584728bd9/pytest-scratch/test_installed_wheel_consumers0/installed-child.xml"
+      },
+      "wall_s": 1.21495588599646,
+      "maxrss_kib_linux": 50012,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/installed-child.txt",
+      "output_sha256": "534904b2e39dfb5df65129846e8c250686d0aea7bde64ebfaa2f7d385290d8fb",
+      "output_bytes": 1790,
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/installed-child-wrapper.json",
+        "bytes": 2976,
+        "sha256": "f6d360d7ab50c6f1585176fe98392c5aca65e860bd1efbbc8de493b4fd97c784",
+        "original_path": "/tmp/e02-B-la057-final-dd9584728bd9/pytest-scratch/test_installed_wheel_consumers0/installed-child-wrapper.json"
+      }
+    },
+    {
+      "id": "ordinary-root-cohort-outer-dispatch",
+      "command": "Root final whole native cohort with the seven exact literal profile inputs",
+      "target_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "environment": "Root194 ordinary source/native profile; future fullcohort outcome not observed by this leaf",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/cohort-input-environment.json@e22702e13bf97995f29d8d63f7ccd13f43c04a7b",
+      "outcome": "UNRUN",
+      "output": "Own isolated outer1PASS is not relabelled as ordinary root wholecohort execution. Root applies actual nativecasejoin later."
+    }
+  ],
+  "actual_counts": {
+    "isolated_outer": {
+      "PASS": 1,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0
+    },
+    "installed_child": {
+      "PASS": 8,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0
+    },
+    "scope": "Separate denominators; no nine-case native session or original common-suite count claimed. Actual child cases are complete wholefile XML.",
+    "ordinary_root_cohort": "UNRUN_BY_THIS_LEAF"
+  },
+  "actual_cases": {
+    "outer_xml_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/native.xml@e22702e13bf97995f29d8d63f7ccd13f43c04a7b",
+    "child_xml_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/installed-child.xml@e22702e13bf97995f29d8d63f7ccd13f43c04a7b"
+  },
+  "property": {
+    "statement": "An actual frozen-root wheel preserves function-local generic identities and supported exact import/reflection/type-hints/direct/loop/context/timeout/cancel consumers from an installed site without source-import fallback.",
+    "runtime_path": [
+      "Clean attached root dd958/Hatchling tracked build rules",
+      "Real built policy_engine wheel and METADATA",
+      "Task-local --no-deps wheel installation +explicit pytestpins",
+      "Actual installedsite Python-I-B",
+      "Real three module origins/bytes ==wheel members ==frozenGit/current canonical bytes",
+      "Four type identity import consumers and real sync/async/context/pendingtask cancellation bodies",
+      "Outer complete child stdout/XML/property assertions"
+    ],
+    "proxy_divergence": "Source checkout import and a green wheel build alone cannot decide installed behavior. Real installed origins/distribution/METADATA and runtime typeparam/coroutine/finally assertions all execute; no marker or constructor result substituted.",
+    "negative_controls": [
+      "Real cooperative0.2timeout runs parent and abandonedchild finally and observes cancelled task.",
+      "Real caller cancellation reaches awaitable finally before and within runningloop.",
+      "Source/profile guards reject missinginput/foreignorigin rather than fallback/skip; no separate foreignwheel injection runtime claimed."
+    ],
+    "actual_positive": "Direct/alias/facade/star_reflection each resolve four distinct function-localT/get_type_hints with ratified annotationnamespace and execute real result17. Direct7 and inside-loop contextA/B/None preserve scope. Timeout and two cancellation profiles pass."
+  },
+  "predicate_basis": "recomputed",
+  "predicate_basis_by_quantity": {
+    "actual_installed_origin_bytes_identity": "recomputed",
+    "actual_type_identity_and_bridge_outputs": "recomputed",
+    "actual_timeout_cancel_finally": "recomputed",
+    "actual_frozen_source_before_after": "recomputed",
+    "declared_expected_profile_inputs": "consumer_asserted",
+    "ordinary_root_final_casejoin": "not_established"
+  },
+  "capability_state_or_finding_state": "Installed commonbridge finiteprofile actualPASS; LA057 fullfinalclosure/rootcodeacceptance not decided",
+  "evidence_index": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/evidence-index.json",
+    "sha": "e22702e13bf97995f29d8d63f7ccd13f43c04a7b",
+    "bytes": 11440,
+    "sha256": "8775ce634bb8ca537e0d07e4234820cd9317307023e2e447968b997aac101965",
+    "deciding_files": 29,
+    "complete_moderate_bytes": 61359
+  },
+  "exact_literal_source_profiles": {
+    "launcher_full_wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/launcher-wrapper.json@e22702e13bf97995f29d8d63f7ccd13f43c04a7b",
+    "source_snapshots_every_phase": "All nine phase wrappers retained complete source.head/tree/status; launcher wholebefore/afterdd958 cleanattached.",
+    "actual_literal_cohort_inputs": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/cohort-input-environment.json",
+      "bytes": 672,
+      "sha256": "08a8d5d09ec80be66a7cbc961a993b3d426bdcf3b2c00eeeb0b3c110f83c0b4a",
+      "original_path": "/tmp/e02-B-la057-final-dd9584728bd9/cohort-input-environment.json"
+    },
+    "parent_command_input_profile": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/launcher-input-profile.json",
+      "bytes": 4074,
+      "sha256": "44421fc0c2f5b591505c10de6f52425e6a7473bcdcc7ddb1ca557e75b8e78cc7",
+      "original_path": "/tmp/e02-B-la057-final-dd9584728bd9-driver/input-profile.json"
+    },
+    "whole_launcher": "13.825022814999102s maxRSS50012KiB actualexit0; not child/pipeline timing conflated",
+    "root_producer": "common.async_tools SHAde766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564; actualinput unchanged from acceptedRUN source. No new moduleT deletion claimed."
+  },
+  "finding_dispositions": [
+    {
+      "finding_id": "LA-057",
+      "formal_closure": false,
+      "proposal": "Candidate installed-package verification gap exercised successfully; root/G must combine exact fullcriterion/import-scope/typing/common/cohort evidence.",
+      "remaining": "Ordinary root source-cohort outer dispatch and final60/requiredgates separate. No automatic localG requirement for this completed cloudwheelprofile.",
+      "next_owner": "Root actual native casejoin/criterion adjudicator; G final accepted finding/code review"
+    }
+  ],
+  "limitations_and_next_owner": [
+    "Finite supportedPython3.14 commonbridge consumer, not all package APIs/scientific optional dependencies. Wholeproject declareddeps are present in actualMETADATA but not installed for this no-deps common profile.",
+    "Whole15MB wheel, taskenv/cache/scratch and fullactualambientenv remain local immutable inputs; fullmoderate build/install/native/child/METADATA outputs and exact hashes are inGit. No credentialvalues exported. G can rebuild exactsource with documented observedbuilddeps for independent actualconsumer rerun.",
+    "Original9826 preparationUNRUN/normalprofile incompatibility remains historical; exact02b consumer AST/guards preserved. This actualresult only targetsdd958, not source0fd/originalcommon suites.",
+    "Root final ordinary source outercase can reuse exactsame7literalinputprofile; no duplicate build needed. Keep task artifacts until finalwave/decidingoutputs custody complete.",
+    "No own finding closure/globalcode acceptance/inheritedred waiver. Root/G adjudicates package proof against actualcriterion and separately retains gate outcomes.",
+    "No cleanup performed. Cleanup candidates only /tmp/e02-B-la057-final-dd9584728bd9 and its siblingdriver root after finalcustody/rootwave completes."
+  ]
+}

@@ -1,0 +1,605 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="4" time="8.102" timestamp="2026-10-06T21:55:48.941374+00:00" hostname="b878f4efbdfc"><testcase classname="" name="test_actual_worker_preserves_accounting_unknown_before_fresh_worker[missing-sdk-usage-adversary]" time="0.055"><failure message="AssertionError: {'actual_enforcer_errors': [], 'caught_worker_errors': [{'message': &quot;HTTPSConnectionPool(host='openaipublic.blob.core.windows.net', port=443): Max retries exceeded with url: /encodings/cl100k_base.tiktoken (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))&quot;, 'type': 'ProxyError'}, {'message': &quot;HTTPSConnectionPool(host='openaipublic.blob.core.windows.net', port=443): Max retries exceeded with url: /encodings/cl100k_base.tiktoken (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))&quot;, 'type': 'ProxyError'}], 'cost_kind': 'missing-sdk-usage', 'origins': [{'module': 'polisyos.scientist.policy_design.adversary', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/policy_design/adversary.py', 'sha256': 'e80592034b0dd93ae9a5fb0e1f22f5f92620f8e57059a7ce796f75b68cd759c7', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.policy_design.translator', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/policy_design/translator.py', 'sha256': 'a9cc4245e836c2276bc9d115582bd150fcff2f355158b8fde16cb6b9e7bce9a1', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.factory', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/factory.py', 'sha256': 'e7df151746213f3d7df9fda50b80a8e76f955f9444b9f627c6751fc0772cce68', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.gateway_client', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py', 'sha256': 'df2db47dfb56639242cbb14edff4740c2c177ea6400d435a89d2deafa4ee4c8c', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.prompt_cache', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py', 'sha256': 'e84db90c7c193c721602c506229cce6b7ab3d1af051e26ef032692992d66a7d5', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.budget_enforcer', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py', 'sha256': '66432ce3a2844a8e8b3dee12ada29c7cd093a6aa93065b20234498724e6db71a', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, ...], ...}&#10;assert ([])">tmp_path = PosixPath('/tmp/e02-B-worker-accounting-a697-fallback-tad1u8a9/pytest/test_actual_worker_preserves_a0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f0a9e6a2d70&gt;
+worker_kind = 'adversary', cost_kind = 'missing-sdk-usage'
+
+    @pytest.mark.parametrize("worker_kind", ["adversary", "translator"])
+    @pytest.mark.parametrize("cost_kind", ["missing-sdk-usage", "reported-positive"])
+    def test_actual_worker_preserves_accounting_unknown_before_fresh_worker(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        worker_kind: str,
+        cost_kind: str,
+    ) -&gt; None:
+        origins = _source_origins()
+        keys = (
+            ["policy_adversary"]
+            if worker_kind == "adversary"
+            else ["policy_translator", "policy_briefing"]
+        )
+        state = BudgetState(limits={key: BudgetLimit(key=key, max_usd=Decimal("10")) for key in keys})
+        bundle = _translator_input(state)
+        actual_content = (
+            {
+                "scenarios": [
+                    {
+                        "scenario_id": "obtained-scenario",
+                        "scenario_type": "shift",
+                        "rationale": "Obtained response.",
+                    }
+                ]
+            }
+            if worker_kind == "adversary"
+            else translator.DeterministicPolicyTranslator().translate(bundle).model_dump(mode="json")
+        )
+        if worker_kind == "translator":
+            actual_content["title"] = "Obtained physical provider brief"
+        physical = tmp_path / "physical-provider-work.jsonl"
+        for key, value in {
+            "POLISYOS_LLM_GATEWAY_BASE_URL": "https://worker-oracle.invalid/v1",
+            "POLISYOS_LLM_GATEWAY_API_KEY": "sk-worker-oracle-boundary-fixture",
+            "POLISYOS_LLM_SIMULATION_MODE": "false",
+            "POLISYOS_METRICS_PORT": "0",
+        }.items():
+            monkeypatch.setenv(key, value)
+    
+        async def sdk_boundary(
+            self: Any, *, endpoint: str, payload: dict[str, Any], timeout_s: float
+        ) -&gt; dict[str, Any]:
+            with physical.open("a", encoding="utf-8") as stream:
+                stream.write(
+                    json.dumps({"endpoint": endpoint, "payload": payload, "timeout_s": timeout_s})
+                    + "\n"
+                )
+                stream.flush()
+                os.fsync(stream.fileno())
+            result = {
+                "choices": [{"message": {"content": json.dumps(actual_content)}}],
+                "model": self.model,
+                "provider": "actual-sdk-boundary-fixture",
+            }
+            if cost_kind == "reported-positive":
+                result["usage"] = {
+                    "prompt_tokens": 7,
+                    "completion_tokens": 3,
+                    "total_tokens": 10,
+                    "cost_usd": 0.02,
+                }
+            return result
+    
+        monkeypatch.setattr(gateway_client.GatewayLLMClient, "_post_json", sdk_boundary)
+        observed_errors: list[dict[str, Any]] = []
+        caught_worker_errors: list[dict[str, str]] = []
+        original_trace = sys.gettrace()
+    
+        def observe(frame: Any, event: str, arg: Any) -&gt; Any:
+            if event == "exception" and frame.f_code in (
+                adversary.ScenarioAdversaryWorker.propose_async.__code__,
+                translator.PolicyTranslatorWorker.translate_async.__code__,
+            ):
+                caught_worker_errors.append({"type": type(arg[1]).__name__, "message": str(arg[1])})
+            if event == "exception" and frame.f_code is LLMBudgetEnforcer.generate.__code__:
+                error = arg[1]
+                if isinstance(error, LLMAccountingError):
+                    producer = error.event.get("producer_event")
+                    observed_errors.append(
+                        {
+                            "type": type(error).__name__,
+                            "message": str(error),
+                            "amount": str(producer.amount)
+                            if producer is not None and producer.amount is not None
+                            else None,
+                            "cost_origin": getattr(producer, "cost_origin", None),
+                            "status": error.event.get("settlement_status"),
+                        }
+                    )
+            return observe
+    
+        async def invoke_fresh_worker() -&gt; Any:
+            if worker_kind == "adversary":
+                return await adversary.ScenarioAdversaryWorker(
+                    adversary.ScenarioAdversaryConfig(model_name="explicit-worker-oracle-model")
+                ).propose_async(
+                    adversary.ScenarioAttackSurface(candidate_id="actual-worker-candidate"),
+                    run_id="same-actual-worker-run",
+                    budget_state=state,
+                )
+            return await translator.PolicyTranslatorWorker(
+                translator.PolicyTranslatorConfig(model_name="explicit-worker-oracle-model")
+            ).translate_async(bundle)
+    
+        outcomes = []
+        sys.settrace(observe)
+        try:
+            for _ in range(2):
+                try:
+                    value = asyncio.run(invoke_fresh_worker())
+                    outcomes.append(
+                        {"returned_type": type(value).__name__, "value": value.model_dump(mode="json")}
+                    )
+                except Exception as exc:
+                    outcomes.append({"exception": type(exc).__name__, "message": str(exc)})
+        finally:
+            sys.settrace(original_trace)
+        physical_rows = (
+            [json.loads(line) for line in physical.read_text().splitlines()]
+            if physical.exists()
+            else []
+        )
+        quantities = {
+            "worker": worker_kind,
+            "cost_kind": cost_kind,
+            "origins": origins,
+            "physical_calls": len(physical_rows),
+            "physical_work": physical_rows,
+            "actual_enforcer_errors": observed_errors,
+            "caught_worker_errors": caught_worker_errors,
+            "worker_outcomes": outcomes,
+            "same_budget_state": state.model_dump(mode="json"),
+            "profile": "actual production raw-BudgetState worker constructors; no durable middleware injected",
+        }
+        print("E02_WORKER_ACCOUNTING " + json.dumps(quantities, sort_keys=True))
+        if cost_kind == "missing-sdk-usage":
+&gt;           assert observed_errors and all(error["amount"] is None for error in observed_errors), (
+                quantities
+            )
+E           AssertionError: {'actual_enforcer_errors': [], 'caught_worker_errors': [{'message': "HTTPSConnectionPool(host='openaipublic.blob.core.windows.net', port=443): Max retries exceeded with url: /encodings/cl100k_base.tiktoken (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))", 'type': 'ProxyError'}, {'message': "HTTPSConnectionPool(host='openaipublic.blob.core.windows.net', port=443): Max retries exceeded with url: /encodings/cl100k_base.tiktoken (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))", 'type': 'ProxyError'}], 'cost_kind': 'missing-sdk-usage', 'origins': [{'module': 'polisyos.scientist.policy_design.adversary', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/policy_design/adversary.py', 'sha256': 'e80592034b0dd93ae9a5fb0e1f22f5f92620f8e57059a7ce796f75b68cd759c7', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.policy_design.translator', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/policy_design/translator.py', 'sha256': 'a9cc4245e836c2276bc9d115582bd150fcff2f355158b8fde16cb6b9e7bce9a1', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.factory', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/factory.py', 'sha256': 'e7df151746213f3d7df9fda50b80a8e76f955f9444b9f627c6751fc0772cce68', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.gateway_client', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py', 'sha256': 'df2db47dfb56639242cbb14edff4740c2c177ea6400d435a89d2deafa4ee4c8c', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.prompt_cache', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py', 'sha256': 'e84db90c7c193c721602c506229cce6b7ab3d1af051e26ef032692992d66a7d5', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.budget_enforcer', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py', 'sha256': '66432ce3a2844a8e8b3dee12ada29c7cd093a6aa93065b20234498724e6db71a', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, ...], ...}
+E           assert ([])
+
+tests/unit/scientist/policy_design/test_worker_accounting_boundary_e02.py:265: AssertionError</failure></testcase><testcase classname="" name="test_actual_worker_preserves_accounting_unknown_before_fresh_worker[missing-sdk-usage-translator]" time="0.066"><failure message="AssertionError: {'actual_enforcer_errors': [], 'caught_worker_errors': [{'message': &quot;HTTPSConnectionPool(host='openaipublic.blob.core.windows.net', port=443): Max retries exceeded with url: /encodings/cl100k_base.tiktoken (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))&quot;, 'type': 'ProxyError'}, {'message': &quot;HTTPSConnectionPool(host='openaipublic.blob.core.windows.net', port=443): Max retries exceeded with url: /encodings/cl100k_base.tiktoken (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))&quot;, 'type': 'ProxyError'}], 'cost_kind': 'missing-sdk-usage', 'origins': [{'module': 'polisyos.scientist.policy_design.adversary', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/policy_design/adversary.py', 'sha256': 'e80592034b0dd93ae9a5fb0e1f22f5f92620f8e57059a7ce796f75b68cd759c7', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.policy_design.translator', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/policy_design/translator.py', 'sha256': 'a9cc4245e836c2276bc9d115582bd150fcff2f355158b8fde16cb6b9e7bce9a1', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.factory', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/factory.py', 'sha256': 'e7df151746213f3d7df9fda50b80a8e76f955f9444b9f627c6751fc0772cce68', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.gateway_client', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py', 'sha256': 'df2db47dfb56639242cbb14edff4740c2c177ea6400d435a89d2deafa4ee4c8c', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.prompt_cache', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py', 'sha256': 'e84db90c7c193c721602c506229cce6b7ab3d1af051e26ef032692992d66a7d5', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.budget_enforcer', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py', 'sha256': '66432ce3a2844a8e8b3dee12ada29c7cd093a6aa93065b20234498724e6db71a', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, ...], ...}&#10;assert ([])">tmp_path = PosixPath('/tmp/e02-B-worker-accounting-a697-fallback-tad1u8a9/pytest/test_actual_worker_preserves_a1')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f0a9e6a1cd0&gt;
+worker_kind = 'translator', cost_kind = 'missing-sdk-usage'
+
+    @pytest.mark.parametrize("worker_kind", ["adversary", "translator"])
+    @pytest.mark.parametrize("cost_kind", ["missing-sdk-usage", "reported-positive"])
+    def test_actual_worker_preserves_accounting_unknown_before_fresh_worker(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        worker_kind: str,
+        cost_kind: str,
+    ) -&gt; None:
+        origins = _source_origins()
+        keys = (
+            ["policy_adversary"]
+            if worker_kind == "adversary"
+            else ["policy_translator", "policy_briefing"]
+        )
+        state = BudgetState(limits={key: BudgetLimit(key=key, max_usd=Decimal("10")) for key in keys})
+        bundle = _translator_input(state)
+        actual_content = (
+            {
+                "scenarios": [
+                    {
+                        "scenario_id": "obtained-scenario",
+                        "scenario_type": "shift",
+                        "rationale": "Obtained response.",
+                    }
+                ]
+            }
+            if worker_kind == "adversary"
+            else translator.DeterministicPolicyTranslator().translate(bundle).model_dump(mode="json")
+        )
+        if worker_kind == "translator":
+            actual_content["title"] = "Obtained physical provider brief"
+        physical = tmp_path / "physical-provider-work.jsonl"
+        for key, value in {
+            "POLISYOS_LLM_GATEWAY_BASE_URL": "https://worker-oracle.invalid/v1",
+            "POLISYOS_LLM_GATEWAY_API_KEY": "sk-worker-oracle-boundary-fixture",
+            "POLISYOS_LLM_SIMULATION_MODE": "false",
+            "POLISYOS_METRICS_PORT": "0",
+        }.items():
+            monkeypatch.setenv(key, value)
+    
+        async def sdk_boundary(
+            self: Any, *, endpoint: str, payload: dict[str, Any], timeout_s: float
+        ) -&gt; dict[str, Any]:
+            with physical.open("a", encoding="utf-8") as stream:
+                stream.write(
+                    json.dumps({"endpoint": endpoint, "payload": payload, "timeout_s": timeout_s})
+                    + "\n"
+                )
+                stream.flush()
+                os.fsync(stream.fileno())
+            result = {
+                "choices": [{"message": {"content": json.dumps(actual_content)}}],
+                "model": self.model,
+                "provider": "actual-sdk-boundary-fixture",
+            }
+            if cost_kind == "reported-positive":
+                result["usage"] = {
+                    "prompt_tokens": 7,
+                    "completion_tokens": 3,
+                    "total_tokens": 10,
+                    "cost_usd": 0.02,
+                }
+            return result
+    
+        monkeypatch.setattr(gateway_client.GatewayLLMClient, "_post_json", sdk_boundary)
+        observed_errors: list[dict[str, Any]] = []
+        caught_worker_errors: list[dict[str, str]] = []
+        original_trace = sys.gettrace()
+    
+        def observe(frame: Any, event: str, arg: Any) -&gt; Any:
+            if event == "exception" and frame.f_code in (
+                adversary.ScenarioAdversaryWorker.propose_async.__code__,
+                translator.PolicyTranslatorWorker.translate_async.__code__,
+            ):
+                caught_worker_errors.append({"type": type(arg[1]).__name__, "message": str(arg[1])})
+            if event == "exception" and frame.f_code is LLMBudgetEnforcer.generate.__code__:
+                error = arg[1]
+                if isinstance(error, LLMAccountingError):
+                    producer = error.event.get("producer_event")
+                    observed_errors.append(
+                        {
+                            "type": type(error).__name__,
+                            "message": str(error),
+                            "amount": str(producer.amount)
+                            if producer is not None and producer.amount is not None
+                            else None,
+                            "cost_origin": getattr(producer, "cost_origin", None),
+                            "status": error.event.get("settlement_status"),
+                        }
+                    )
+            return observe
+    
+        async def invoke_fresh_worker() -&gt; Any:
+            if worker_kind == "adversary":
+                return await adversary.ScenarioAdversaryWorker(
+                    adversary.ScenarioAdversaryConfig(model_name="explicit-worker-oracle-model")
+                ).propose_async(
+                    adversary.ScenarioAttackSurface(candidate_id="actual-worker-candidate"),
+                    run_id="same-actual-worker-run",
+                    budget_state=state,
+                )
+            return await translator.PolicyTranslatorWorker(
+                translator.PolicyTranslatorConfig(model_name="explicit-worker-oracle-model")
+            ).translate_async(bundle)
+    
+        outcomes = []
+        sys.settrace(observe)
+        try:
+            for _ in range(2):
+                try:
+                    value = asyncio.run(invoke_fresh_worker())
+                    outcomes.append(
+                        {"returned_type": type(value).__name__, "value": value.model_dump(mode="json")}
+                    )
+                except Exception as exc:
+                    outcomes.append({"exception": type(exc).__name__, "message": str(exc)})
+        finally:
+            sys.settrace(original_trace)
+        physical_rows = (
+            [json.loads(line) for line in physical.read_text().splitlines()]
+            if physical.exists()
+            else []
+        )
+        quantities = {
+            "worker": worker_kind,
+            "cost_kind": cost_kind,
+            "origins": origins,
+            "physical_calls": len(physical_rows),
+            "physical_work": physical_rows,
+            "actual_enforcer_errors": observed_errors,
+            "caught_worker_errors": caught_worker_errors,
+            "worker_outcomes": outcomes,
+            "same_budget_state": state.model_dump(mode="json"),
+            "profile": "actual production raw-BudgetState worker constructors; no durable middleware injected",
+        }
+        print("E02_WORKER_ACCOUNTING " + json.dumps(quantities, sort_keys=True))
+        if cost_kind == "missing-sdk-usage":
+&gt;           assert observed_errors and all(error["amount"] is None for error in observed_errors), (
+                quantities
+            )
+E           AssertionError: {'actual_enforcer_errors': [], 'caught_worker_errors': [{'message': "HTTPSConnectionPool(host='openaipublic.blob.core.windows.net', port=443): Max retries exceeded with url: /encodings/cl100k_base.tiktoken (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))", 'type': 'ProxyError'}, {'message': "HTTPSConnectionPool(host='openaipublic.blob.core.windows.net', port=443): Max retries exceeded with url: /encodings/cl100k_base.tiktoken (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))", 'type': 'ProxyError'}], 'cost_kind': 'missing-sdk-usage', 'origins': [{'module': 'polisyos.scientist.policy_design.adversary', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/policy_design/adversary.py', 'sha256': 'e80592034b0dd93ae9a5fb0e1f22f5f92620f8e57059a7ce796f75b68cd759c7', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.policy_design.translator', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/policy_design/translator.py', 'sha256': 'a9cc4245e836c2276bc9d115582bd150fcff2f355158b8fde16cb6b9e7bce9a1', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.factory', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/factory.py', 'sha256': 'e7df151746213f3d7df9fda50b80a8e76f955f9444b9f627c6751fc0772cce68', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.gateway_client', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py', 'sha256': 'df2db47dfb56639242cbb14edff4740c2c177ea6400d435a89d2deafa4ee4c8c', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.prompt_cache', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py', 'sha256': 'e84db90c7c193c721602c506229cce6b7ab3d1af051e26ef032692992d66a7d5', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.budget_enforcer', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py', 'sha256': '66432ce3a2844a8e8b3dee12ada29c7cd093a6aa93065b20234498724e6db71a', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, ...], ...}
+E           assert ([])
+
+tests/unit/scientist/policy_design/test_worker_accounting_boundary_e02.py:265: AssertionError</failure></testcase><testcase classname="" name="test_actual_worker_preserves_accounting_unknown_before_fresh_worker[reported-positive-adversary]" time="0.043"><failure message="AssertionError: {'actual_enforcer_errors': [], 'caught_worker_errors': [{'message': &quot;HTTPSConnectionPool(host='openaipublic.blob.core.windows.net', port=443): Max retries exceeded with url: /encodings/cl100k_base.tiktoken (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))&quot;, 'type': 'ProxyError'}, {'message': &quot;HTTPSConnectionPool(host='openaipublic.blob.core.windows.net', port=443): Max retries exceeded with url: /encodings/cl100k_base.tiktoken (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))&quot;, 'type': 'ProxyError'}], 'cost_kind': 'reported-positive', 'origins': [{'module': 'polisyos.scientist.policy_design.adversary', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/policy_design/adversary.py', 'sha256': 'e80592034b0dd93ae9a5fb0e1f22f5f92620f8e57059a7ce796f75b68cd759c7', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.policy_design.translator', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/policy_design/translator.py', 'sha256': 'a9cc4245e836c2276bc9d115582bd150fcff2f355158b8fde16cb6b9e7bce9a1', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.factory', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/factory.py', 'sha256': 'e7df151746213f3d7df9fda50b80a8e76f955f9444b9f627c6751fc0772cce68', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.gateway_client', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py', 'sha256': 'df2db47dfb56639242cbb14edff4740c2c177ea6400d435a89d2deafa4ee4c8c', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.prompt_cache', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py', 'sha256': 'e84db90c7c193c721602c506229cce6b7ab3d1af051e26ef032692992d66a7d5', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.budget_enforcer', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py', 'sha256': '66432ce3a2844a8e8b3dee12ada29c7cd093a6aa93065b20234498724e6db71a', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, ...], ...}&#10;assert 0 == 2&#10; +  where 0 = len([])">tmp_path = PosixPath('/tmp/e02-B-worker-accounting-a697-fallback-tad1u8a9/pytest/test_actual_worker_preserves_a2')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f0a9e1dd130&gt;
+worker_kind = 'adversary', cost_kind = 'reported-positive'
+
+    @pytest.mark.parametrize("worker_kind", ["adversary", "translator"])
+    @pytest.mark.parametrize("cost_kind", ["missing-sdk-usage", "reported-positive"])
+    def test_actual_worker_preserves_accounting_unknown_before_fresh_worker(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        worker_kind: str,
+        cost_kind: str,
+    ) -&gt; None:
+        origins = _source_origins()
+        keys = (
+            ["policy_adversary"]
+            if worker_kind == "adversary"
+            else ["policy_translator", "policy_briefing"]
+        )
+        state = BudgetState(limits={key: BudgetLimit(key=key, max_usd=Decimal("10")) for key in keys})
+        bundle = _translator_input(state)
+        actual_content = (
+            {
+                "scenarios": [
+                    {
+                        "scenario_id": "obtained-scenario",
+                        "scenario_type": "shift",
+                        "rationale": "Obtained response.",
+                    }
+                ]
+            }
+            if worker_kind == "adversary"
+            else translator.DeterministicPolicyTranslator().translate(bundle).model_dump(mode="json")
+        )
+        if worker_kind == "translator":
+            actual_content["title"] = "Obtained physical provider brief"
+        physical = tmp_path / "physical-provider-work.jsonl"
+        for key, value in {
+            "POLISYOS_LLM_GATEWAY_BASE_URL": "https://worker-oracle.invalid/v1",
+            "POLISYOS_LLM_GATEWAY_API_KEY": "sk-worker-oracle-boundary-fixture",
+            "POLISYOS_LLM_SIMULATION_MODE": "false",
+            "POLISYOS_METRICS_PORT": "0",
+        }.items():
+            monkeypatch.setenv(key, value)
+    
+        async def sdk_boundary(
+            self: Any, *, endpoint: str, payload: dict[str, Any], timeout_s: float
+        ) -&gt; dict[str, Any]:
+            with physical.open("a", encoding="utf-8") as stream:
+                stream.write(
+                    json.dumps({"endpoint": endpoint, "payload": payload, "timeout_s": timeout_s})
+                    + "\n"
+                )
+                stream.flush()
+                os.fsync(stream.fileno())
+            result = {
+                "choices": [{"message": {"content": json.dumps(actual_content)}}],
+                "model": self.model,
+                "provider": "actual-sdk-boundary-fixture",
+            }
+            if cost_kind == "reported-positive":
+                result["usage"] = {
+                    "prompt_tokens": 7,
+                    "completion_tokens": 3,
+                    "total_tokens": 10,
+                    "cost_usd": 0.02,
+                }
+            return result
+    
+        monkeypatch.setattr(gateway_client.GatewayLLMClient, "_post_json", sdk_boundary)
+        observed_errors: list[dict[str, Any]] = []
+        caught_worker_errors: list[dict[str, str]] = []
+        original_trace = sys.gettrace()
+    
+        def observe(frame: Any, event: str, arg: Any) -&gt; Any:
+            if event == "exception" and frame.f_code in (
+                adversary.ScenarioAdversaryWorker.propose_async.__code__,
+                translator.PolicyTranslatorWorker.translate_async.__code__,
+            ):
+                caught_worker_errors.append({"type": type(arg[1]).__name__, "message": str(arg[1])})
+            if event == "exception" and frame.f_code is LLMBudgetEnforcer.generate.__code__:
+                error = arg[1]
+                if isinstance(error, LLMAccountingError):
+                    producer = error.event.get("producer_event")
+                    observed_errors.append(
+                        {
+                            "type": type(error).__name__,
+                            "message": str(error),
+                            "amount": str(producer.amount)
+                            if producer is not None and producer.amount is not None
+                            else None,
+                            "cost_origin": getattr(producer, "cost_origin", None),
+                            "status": error.event.get("settlement_status"),
+                        }
+                    )
+            return observe
+    
+        async def invoke_fresh_worker() -&gt; Any:
+            if worker_kind == "adversary":
+                return await adversary.ScenarioAdversaryWorker(
+                    adversary.ScenarioAdversaryConfig(model_name="explicit-worker-oracle-model")
+                ).propose_async(
+                    adversary.ScenarioAttackSurface(candidate_id="actual-worker-candidate"),
+                    run_id="same-actual-worker-run",
+                    budget_state=state,
+                )
+            return await translator.PolicyTranslatorWorker(
+                translator.PolicyTranslatorConfig(model_name="explicit-worker-oracle-model")
+            ).translate_async(bundle)
+    
+        outcomes = []
+        sys.settrace(observe)
+        try:
+            for _ in range(2):
+                try:
+                    value = asyncio.run(invoke_fresh_worker())
+                    outcomes.append(
+                        {"returned_type": type(value).__name__, "value": value.model_dump(mode="json")}
+                    )
+                except Exception as exc:
+                    outcomes.append({"exception": type(exc).__name__, "message": str(exc)})
+        finally:
+            sys.settrace(original_trace)
+        physical_rows = (
+            [json.loads(line) for line in physical.read_text().splitlines()]
+            if physical.exists()
+            else []
+        )
+        quantities = {
+            "worker": worker_kind,
+            "cost_kind": cost_kind,
+            "origins": origins,
+            "physical_calls": len(physical_rows),
+            "physical_work": physical_rows,
+            "actual_enforcer_errors": observed_errors,
+            "caught_worker_errors": caught_worker_errors,
+            "worker_outcomes": outcomes,
+            "same_budget_state": state.model_dump(mode="json"),
+            "profile": "actual production raw-BudgetState worker constructors; no durable middleware injected",
+        }
+        print("E02_WORKER_ACCOUNTING " + json.dumps(quantities, sort_keys=True))
+        if cost_kind == "missing-sdk-usage":
+            assert observed_errors and all(error["amount"] is None for error in observed_errors), (
+                quantities
+            )
+            assert outcomes[0].get("exception") == "LLMAccountingError", quantities
+            assert len(physical_rows) == 1, quantities
+        else:
+            assert not observed_errors and all("exception" not in value for value in outcomes), (
+                quantities
+            )
+&gt;           assert len(physical_rows) == 2, quantities
+E           AssertionError: {'actual_enforcer_errors': [], 'caught_worker_errors': [{'message': "HTTPSConnectionPool(host='openaipublic.blob.core.windows.net', port=443): Max retries exceeded with url: /encodings/cl100k_base.tiktoken (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))", 'type': 'ProxyError'}, {'message': "HTTPSConnectionPool(host='openaipublic.blob.core.windows.net', port=443): Max retries exceeded with url: /encodings/cl100k_base.tiktoken (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))", 'type': 'ProxyError'}], 'cost_kind': 'reported-positive', 'origins': [{'module': 'polisyos.scientist.policy_design.adversary', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/policy_design/adversary.py', 'sha256': 'e80592034b0dd93ae9a5fb0e1f22f5f92620f8e57059a7ce796f75b68cd759c7', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.policy_design.translator', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/policy_design/translator.py', 'sha256': 'a9cc4245e836c2276bc9d115582bd150fcff2f355158b8fde16cb6b9e7bce9a1', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.factory', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/factory.py', 'sha256': 'e7df151746213f3d7df9fda50b80a8e76f955f9444b9f627c6751fc0772cce68', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.gateway_client', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py', 'sha256': 'df2db47dfb56639242cbb14edff4740c2c177ea6400d435a89d2deafa4ee4c8c', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.prompt_cache', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py', 'sha256': 'e84db90c7c193c721602c506229cce6b7ab3d1af051e26ef032692992d66a7d5', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.budget_enforcer', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py', 'sha256': '66432ce3a2844a8e8b3dee12ada29c7cd093a6aa93065b20234498724e6db71a', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, ...], ...}
+E           assert 0 == 2
+E            +  where 0 = len([])
+
+tests/unit/scientist/policy_design/test_worker_accounting_boundary_e02.py:274: AssertionError</failure></testcase><testcase classname="" name="test_actual_worker_preserves_accounting_unknown_before_fresh_worker[reported-positive-translator]" time="0.043"><failure message="AssertionError: {'actual_enforcer_errors': [], 'caught_worker_errors': [{'message': &quot;HTTPSConnectionPool(host='openaipublic.blob.core.windows.net', port=443): Max retries exceeded with url: /encodings/cl100k_base.tiktoken (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))&quot;, 'type': 'ProxyError'}, {'message': &quot;HTTPSConnectionPool(host='openaipublic.blob.core.windows.net', port=443): Max retries exceeded with url: /encodings/cl100k_base.tiktoken (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))&quot;, 'type': 'ProxyError'}], 'cost_kind': 'reported-positive', 'origins': [{'module': 'polisyos.scientist.policy_design.adversary', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/policy_design/adversary.py', 'sha256': 'e80592034b0dd93ae9a5fb0e1f22f5f92620f8e57059a7ce796f75b68cd759c7', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.policy_design.translator', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/policy_design/translator.py', 'sha256': 'a9cc4245e836c2276bc9d115582bd150fcff2f355158b8fde16cb6b9e7bce9a1', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.factory', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/factory.py', 'sha256': 'e7df151746213f3d7df9fda50b80a8e76f955f9444b9f627c6751fc0772cce68', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.gateway_client', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py', 'sha256': 'df2db47dfb56639242cbb14edff4740c2c177ea6400d435a89d2deafa4ee4c8c', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.prompt_cache', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py', 'sha256': 'e84db90c7c193c721602c506229cce6b7ab3d1af051e26ef032692992d66a7d5', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.budget_enforcer', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py', 'sha256': '66432ce3a2844a8e8b3dee12ada29c7cd093a6aa93065b20234498724e6db71a', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, ...], ...}&#10;assert 0 == 2&#10; +  where 0 = len([])">tmp_path = PosixPath('/tmp/e02-B-worker-accounting-a697-fallback-tad1u8a9/pytest/test_actual_worker_preserves_a3')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f0a9e1cacf0&gt;
+worker_kind = 'translator', cost_kind = 'reported-positive'
+
+    @pytest.mark.parametrize("worker_kind", ["adversary", "translator"])
+    @pytest.mark.parametrize("cost_kind", ["missing-sdk-usage", "reported-positive"])
+    def test_actual_worker_preserves_accounting_unknown_before_fresh_worker(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        worker_kind: str,
+        cost_kind: str,
+    ) -&gt; None:
+        origins = _source_origins()
+        keys = (
+            ["policy_adversary"]
+            if worker_kind == "adversary"
+            else ["policy_translator", "policy_briefing"]
+        )
+        state = BudgetState(limits={key: BudgetLimit(key=key, max_usd=Decimal("10")) for key in keys})
+        bundle = _translator_input(state)
+        actual_content = (
+            {
+                "scenarios": [
+                    {
+                        "scenario_id": "obtained-scenario",
+                        "scenario_type": "shift",
+                        "rationale": "Obtained response.",
+                    }
+                ]
+            }
+            if worker_kind == "adversary"
+            else translator.DeterministicPolicyTranslator().translate(bundle).model_dump(mode="json")
+        )
+        if worker_kind == "translator":
+            actual_content["title"] = "Obtained physical provider brief"
+        physical = tmp_path / "physical-provider-work.jsonl"
+        for key, value in {
+            "POLISYOS_LLM_GATEWAY_BASE_URL": "https://worker-oracle.invalid/v1",
+            "POLISYOS_LLM_GATEWAY_API_KEY": "sk-worker-oracle-boundary-fixture",
+            "POLISYOS_LLM_SIMULATION_MODE": "false",
+            "POLISYOS_METRICS_PORT": "0",
+        }.items():
+            monkeypatch.setenv(key, value)
+    
+        async def sdk_boundary(
+            self: Any, *, endpoint: str, payload: dict[str, Any], timeout_s: float
+        ) -&gt; dict[str, Any]:
+            with physical.open("a", encoding="utf-8") as stream:
+                stream.write(
+                    json.dumps({"endpoint": endpoint, "payload": payload, "timeout_s": timeout_s})
+                    + "\n"
+                )
+                stream.flush()
+                os.fsync(stream.fileno())
+            result = {
+                "choices": [{"message": {"content": json.dumps(actual_content)}}],
+                "model": self.model,
+                "provider": "actual-sdk-boundary-fixture",
+            }
+            if cost_kind == "reported-positive":
+                result["usage"] = {
+                    "prompt_tokens": 7,
+                    "completion_tokens": 3,
+                    "total_tokens": 10,
+                    "cost_usd": 0.02,
+                }
+            return result
+    
+        monkeypatch.setattr(gateway_client.GatewayLLMClient, "_post_json", sdk_boundary)
+        observed_errors: list[dict[str, Any]] = []
+        caught_worker_errors: list[dict[str, str]] = []
+        original_trace = sys.gettrace()
+    
+        def observe(frame: Any, event: str, arg: Any) -&gt; Any:
+            if event == "exception" and frame.f_code in (
+                adversary.ScenarioAdversaryWorker.propose_async.__code__,
+                translator.PolicyTranslatorWorker.translate_async.__code__,
+            ):
+                caught_worker_errors.append({"type": type(arg[1]).__name__, "message": str(arg[1])})
+            if event == "exception" and frame.f_code is LLMBudgetEnforcer.generate.__code__:
+                error = arg[1]
+                if isinstance(error, LLMAccountingError):
+                    producer = error.event.get("producer_event")
+                    observed_errors.append(
+                        {
+                            "type": type(error).__name__,
+                            "message": str(error),
+                            "amount": str(producer.amount)
+                            if producer is not None and producer.amount is not None
+                            else None,
+                            "cost_origin": getattr(producer, "cost_origin", None),
+                            "status": error.event.get("settlement_status"),
+                        }
+                    )
+            return observe
+    
+        async def invoke_fresh_worker() -&gt; Any:
+            if worker_kind == "adversary":
+                return await adversary.ScenarioAdversaryWorker(
+                    adversary.ScenarioAdversaryConfig(model_name="explicit-worker-oracle-model")
+                ).propose_async(
+                    adversary.ScenarioAttackSurface(candidate_id="actual-worker-candidate"),
+                    run_id="same-actual-worker-run",
+                    budget_state=state,
+                )
+            return await translator.PolicyTranslatorWorker(
+                translator.PolicyTranslatorConfig(model_name="explicit-worker-oracle-model")
+            ).translate_async(bundle)
+    
+        outcomes = []
+        sys.settrace(observe)
+        try:
+            for _ in range(2):
+                try:
+                    value = asyncio.run(invoke_fresh_worker())
+                    outcomes.append(
+                        {"returned_type": type(value).__name__, "value": value.model_dump(mode="json")}
+                    )
+                except Exception as exc:
+                    outcomes.append({"exception": type(exc).__name__, "message": str(exc)})
+        finally:
+            sys.settrace(original_trace)
+        physical_rows = (
+            [json.loads(line) for line in physical.read_text().splitlines()]
+            if physical.exists()
+            else []
+        )
+        quantities = {
+            "worker": worker_kind,
+            "cost_kind": cost_kind,
+            "origins": origins,
+            "physical_calls": len(physical_rows),
+            "physical_work": physical_rows,
+            "actual_enforcer_errors": observed_errors,
+            "caught_worker_errors": caught_worker_errors,
+            "worker_outcomes": outcomes,
+            "same_budget_state": state.model_dump(mode="json"),
+            "profile": "actual production raw-BudgetState worker constructors; no durable middleware injected",
+        }
+        print("E02_WORKER_ACCOUNTING " + json.dumps(quantities, sort_keys=True))
+        if cost_kind == "missing-sdk-usage":
+            assert observed_errors and all(error["amount"] is None for error in observed_errors), (
+                quantities
+            )
+            assert outcomes[0].get("exception") == "LLMAccountingError", quantities
+            assert len(physical_rows) == 1, quantities
+        else:
+            assert not observed_errors and all("exception" not in value for value in outcomes), (
+                quantities
+            )
+&gt;           assert len(physical_rows) == 2, quantities
+E           AssertionError: {'actual_enforcer_errors': [], 'caught_worker_errors': [{'message': "HTTPSConnectionPool(host='openaipublic.blob.core.windows.net', port=443): Max retries exceeded with url: /encodings/cl100k_base.tiktoken (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))", 'type': 'ProxyError'}, {'message': "HTTPSConnectionPool(host='openaipublic.blob.core.windows.net', port=443): Max retries exceeded with url: /encodings/cl100k_base.tiktoken (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))", 'type': 'ProxyError'}], 'cost_kind': 'reported-positive', 'origins': [{'module': 'polisyos.scientist.policy_design.adversary', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/policy_design/adversary.py', 'sha256': 'e80592034b0dd93ae9a5fb0e1f22f5f92620f8e57059a7ce796f75b68cd759c7', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.policy_design.translator', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/policy_design/translator.py', 'sha256': 'a9cc4245e836c2276bc9d115582bd150fcff2f355158b8fde16cb6b9e7bce9a1', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.factory', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/factory.py', 'sha256': 'e7df151746213f3d7df9fda50b80a8e76f955f9444b9f627c6751fc0772cce68', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.gateway_client', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py', 'sha256': 'df2db47dfb56639242cbb14edff4740c2c177ea6400d435a89d2deafa4ee4c8c', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.prompt_cache', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py', 'sha256': 'e84db90c7c193c721602c506229cce6b7ab3d1af051e26ef032692992d66a7d5', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, {'module': 'polisyos.scientist.orchestration.llm.budget_enforcer', 'path': '/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py', 'sha256': '66432ce3a2844a8e8b3dee12ada29c7cd093a6aa93065b20234498724e6db71a', 'source_sha': 'a697a8312ff00edfcc766f9906dbcd2252cfcf96'}, ...], ...}
+E           assert 0 == 2
+E            +  where 0 = len([])
+
+tests/unit/scientist/policy_design/test_worker_accounting_boundary_e02.py:274: AssertionError</failure></testcase></testsuite></testsuites>

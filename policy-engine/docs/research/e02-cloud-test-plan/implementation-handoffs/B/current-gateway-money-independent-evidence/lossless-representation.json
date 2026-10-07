@@ -1,0 +1,126 @@
+{
+  "schema": "policyos.e02.B.evidence_representation_review.v1",
+  "original_raw_commit": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+  "new_execution": false,
+  "source_and_tests_changed": false,
+  "raw_deciding_evidence_changed": false,
+  "represented_objects": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/native.txt",
+      "representation": "lossless_utf8_json_text",
+      "raw": {
+        "commit": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/native.txt",
+        "bytes": 459460,
+        "sha256": "0fe286e91faf755e3dbcbe99d541375f424755ac5641d1e12c74228897302690"
+      },
+      "stored": {
+        "bytes": 489472,
+        "sha256": "44efce2071cd0b35cc7514b04e1ee542d95eebc1f14ebe7b255865f61d95a963"
+      },
+      "decode": "json.loads(stored_bytes)[\"text\"].encode(\"utf-8\")",
+      "decoded_hash_verified": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/native.xml",
+      "representation": "lossless_utf8_json_text",
+      "raw": {
+        "commit": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/native.xml",
+        "bytes": 23450,
+        "sha256": "f01116f55b30dfa2011e7fa771197ed328bfed0c07ff153a61328fe3a5144bc8"
+      },
+      "stored": {
+        "bytes": 24543,
+        "sha256": "19af48575af32dd01d3c9334ef6a9888f7eb3add43a4cd9651f4f07ec8cb723b"
+      },
+      "decode": "json.loads(stored_bytes)[\"text\"].encode(\"utf-8\")",
+      "decoded_hash_verified": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/native.txt",
+      "representation": "lossless_utf8_json_text",
+      "raw": {
+        "commit": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/native.txt",
+        "bytes": 449015,
+        "sha256": "dc188b58f537b988d05ffb88714234cbc055a5e4e5f9fd3a8f74c6edea065a10"
+      },
+      "stored": {
+        "bytes": 478646,
+        "sha256": "c5fb7c7ba10eb7ec77c48ae2fd10ca6234e8bd6cbda6411d1f078e408cef7618"
+      },
+      "decode": "json.loads(stored_bytes)[\"text\"].encode(\"utf-8\")",
+      "decoded_hash_verified": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/native.xml",
+      "representation": "lossless_utf8_json_text",
+      "raw": {
+        "commit": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/native.xml",
+        "bytes": 25452,
+        "sha256": "bb61df9559a95a4db4b2f02aba69107082e7e04b33d692f8a8c0932fedb9a639"
+      },
+      "stored": {
+        "bytes": 26586,
+        "sha256": "2f667999a5924d3a669f59d5d68863f80aa7ac05969bcb8142f2dec7133b7003"
+      },
+      "decode": "json.loads(stored_bytes)[\"text\"].encode(\"utf-8\")",
+      "decoded_hash_verified": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-parent-absent/native.txt",
+      "representation": "lossless_utf8_json_text",
+      "raw": {
+        "commit": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-parent-absent/native.txt",
+        "bytes": 27614,
+        "sha256": "8059c7dbedf75a9a32d88ba46ff3f47eae314a4ca2ad33e5e0b04cd304483b87"
+      },
+      "stored": {
+        "bytes": 28640,
+        "sha256": "ff8470060b7462e40f5c8b55252cde77815c670f01ff03682511aec67a7cb4c0"
+      },
+      "decode": "json.loads(stored_bytes)[\"text\"].encode(\"utf-8\")",
+      "decoded_hash_verified": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-parent-absent/native.xml",
+      "representation": "lossless_utf8_json_text",
+      "raw": {
+        "commit": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-parent-absent/native.xml",
+        "bytes": 28983,
+        "sha256": "80cfa1da0412b6486c209d750366d6d33363adb54032d70059b09aac279e5baa"
+      },
+      "stored": {
+        "bytes": 30087,
+        "sha256": "1e12a381db696ad64ac345edb052376f119b9992e64ff029c746cacf17067cfd"
+      },
+      "decode": "json.loads(stored_bytes)[\"text\"].encode(\"utf-8\")",
+      "decoded_hash_verified": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/initial-premises/premise.txt",
+      "representation": "lossless_utf8_json_text",
+      "raw": {
+        "commit": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/initial-premises/premise.txt",
+        "bytes": 2563,
+        "sha256": "41cebdda32f8b3b456b3ca321987e11c0a0630e53a713c42c6602c9018aca213"
+      },
+      "stored": {
+        "bytes": 3059,
+        "sha256": "587e3328c01f33949ad1887464ebf74fc31b36e705456b04e9cb4b69d84148e0"
+      },
+      "decode": "json.loads(stored_bytes)[\"text\"].encode(\"utf-8\")",
+      "decoded_hash_verified": true
+    }
+  ],
+  "current_stored_payload_bytes": 9400970,
+  "prior_raw_receipt_commit": "29024b9537b46376957350c9e12f648c0bfb2d63",
+  "instruction": "Historical receipts remain bound to exact original Git source SHA, so no raw SHA is silently restamped. New current index states stored representation and explicit raw decoder. No outcome relabeling or physical fixture mutation.",
+  "original_payload_count": 274,
+  "current_manifest_payload_count": 276
+}

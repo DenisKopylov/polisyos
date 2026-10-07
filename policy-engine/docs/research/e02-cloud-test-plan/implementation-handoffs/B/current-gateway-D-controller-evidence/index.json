@@ -1,0 +1,54 @@
+{
+  "artifacts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-D-controller-evidence/probe.py.source.txt",
+      "source_absolute": "/tmp/e02-B-gateway-D-controller/probe.py",
+      "bytes": 9497,
+      "sha256": "103958a034d2014809a7da5dc36eae663813703b55d3d0cfbcbd2b5fe65c367a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-D-controller-evidence/premise-driver.source.txt",
+      "source_absolute": "/tmp/e02-B-gateway-D-controller/premise-driver.source.txt",
+      "bytes": 9356,
+      "sha256": "09ee98122fc3ff4c5042e4c177e578f39e624d3291749be041f8131ace7e1cda"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-D-controller-evidence/premise-zero.txt",
+      "source_absolute": "/tmp/e02-B-gateway-D-controller/premise-zero.txt",
+      "bytes": 234196,
+      "sha256": "6c6a3ff9d4ebf14cd53279780a0cf07fe372f385b329366a0fb6aa2354583b50"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-D-controller-evidence/wrapper.json",
+      "source_absolute": "/workspace/e02-B-current-execution-state/.polisyos/e02-B-current/raw/review/money-D-controller-290.json",
+      "bytes": 1926,
+      "sha256": "c4e2480aef505c3b427a795af2800aa19c9d4ededf13fdb76de21192682f81e3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-D-controller-evidence/native.txt",
+      "source_absolute": "/workspace/e02-B-current-execution-state/.polisyos/e02-B-current/raw/review/money-D-controller-290.txt",
+      "bytes": 3515967,
+      "sha256": "77adc565bcac2e93364610332621d4297e7f83265a8b007d22727b506635fd56"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-D-controller-evidence/summary.json",
+      "source_absolute": "/tmp/e02-B-gateway-D-controller/summary.json",
+      "bytes": 56397,
+      "sha256": "ba2fb2229c9142408596ae2f1ceeabe99e44458b49248d5d04897f9a18a21b3a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-D-controller-evidence/loaded-input-closure.json",
+      "source_absolute": "/tmp/e02-B-gateway-D-controller/loaded-input-closure.json",
+      "bytes": 598478,
+      "sha256": "e843e9323e79e0bdaa315d06ac09344fb1491e7730df4cc2e0b801441b9d5287"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-D-controller-evidence/package.py.source.txt",
+      "source_absolute": "/tmp/e02-B-gateway-D-controller/package.py",
+      "bytes": 6346,
+      "sha256": "b51ec5c3a0a768f4851f7af0b8ff863e98201860350951dc212864345a94c069"
+    }
+  ],
+  "artifact_count": 8,
+  "payload_bytes": 4432163
+}

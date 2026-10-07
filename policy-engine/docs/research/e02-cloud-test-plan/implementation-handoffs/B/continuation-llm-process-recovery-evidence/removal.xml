@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="1.899" timestamp="2026-10-07T07:36:27.549304+00:00" hostname="b878f4efbdfc"><testcase classname="" name="test_real_sdk_process_recovery_keeps_effect_accounting_and_audit_distinct[kill]" time="1.360"><failure message="assert False is True">tmp_path = PosixPath('/tmp/e02-dur-process-f4e842223-removal/test_real_sdk_process_recovery0')
+mode = 'kill'
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f99c6e99ba0&gt;
+
+    @pytest.mark.parametrize("mode", ["healthy", "cancel", "kill"])
+    def test_real_sdk_process_recovery_keeps_effect_accounting_and_audit_distinct(
+        tmp_path: Path, mode: str, monkeypatch: pytest.MonkeyPatch
+    ) -&gt; None:
+        root = Path(__file__).resolve().parents[6]
+        sha = subprocess.check_output(["git", "-C", str(root), "rev-parse", "HEAD"], text=True).strip()
+        monkeypatch.setenv("E02_DUR_PROCESS_SOURCE_ROOT", str(root))
+        monkeypatch.setenv("E02_DUR_PROCESS_SOURCE_SHA", sha)
+        with subprocess.Popen(
+            _argv(tmp_path, "healthy" if mode == "kill" else mode),
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        ) as child:
+            try:
+                effect = _read_line(child, "EFFECT ")
+                if mode == "kill":
+                    child.send_signal(signal.SIGKILL)
+                    stdout, stderr = child.communicate(timeout=20)
+                    assert child.returncode == -signal.SIGKILL
+                    settled = None
+                else:
+                    assert child.stdin is not None
+                    child.stdin.write("release\n")
+                    child.stdin.flush()
+                    stdout, stderr = child.communicate(timeout=30)
+                    assert child.returncode == 0, stderr
+                    settled = json.loads(
+                        next(
+                            line.removeprefix("RESULT ")
+                            for line in stdout.splitlines()
+                            if line.startswith("RESULT ")
+                        )
+                    )
+            finally:
+                if child.poll() is None:
+                    child.kill()
+                    child.wait()
+        completed = subprocess.run(
+            _argv(tmp_path, "fresh"), capture_output=True, text=True, timeout=30, check=False
+        )
+        assert completed.returncode == 0, completed.stderr
+        fresh = json.loads(
+            next(
+                line.removeprefix("RESULT ")
+                for line in completed.stdout.splitlines()
+                if line.startswith("RESULT ")
+            )
+        )
+        print(
+            "PROCESS_RECOVERY "
+            + json.dumps(
+                {
+                    "mode": mode,
+                    "effect": effect,
+                    "owner": settled,
+                    "owner_stdout": stdout,
+                    "owner_stderr": stderr,
+                    "fresh": fresh,
+                    "fresh_stderr": completed.stderr,
+                },
+                sort_keys=True,
+            )
+        )
+        intent = effect["snapshot"]["completion_obligations"]
+        assert len(effect["physical_requests"]) == len(intent) == 1
+        original = next(iter(intent.values()))
+        assert original["phase"] == "provider_in_flight"
+        assert Decimal(original["reserved_amounts"]["run"]) &gt; 0
+        assert effect["snapshot"]["spend_receipts"] == {}
+        assert effect["snapshot"]["state"]["spent"] == {}
+        assert fresh["other_key_reserved"] is True
+        if mode == "kill":
+            assert fresh["status"] == "refused"
+&gt;           assert fresh["refusal_bytes_unchanged"] is True
+E           assert False is True
+
+tests/unit/scientist/orchestration/engine/test_budget_llm_process_recovery.py:321: AssertionError</failure></testcase></testsuite></testsuites>

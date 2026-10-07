@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-Git-layout-controls-normal/ambiguous-published/copy-closed-controls.py.txt", line 239, in <module>
+    main()
+  File "/tmp/e02-E-Git-layout-controls-normal/ambiguous-published/copy-closed-controls.py.txt", line 201, in main
+    counts = validate(p, manifest, args.layout)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-Git-layout-controls-normal/ambiguous-published/copy-closed-controls.py.txt", line 176, in validate
+    payload_root = carrier_root(p, manifest, layout)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-Git-layout-controls-normal/ambiguous-published/copy-closed-controls.py.txt", line 141, in carrier_root
+    raise ValueError('ambiguous stage/published carrier layout')
+ValueError: ambiguous stage/published carrier layout

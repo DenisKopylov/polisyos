@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-final-moderate-publication-r4-stage/copy-closed-controls.py.txt", line 239, in <module>
+    main()
+  File "/tmp/e02-E-final-moderate-publication-r4-stage/copy-closed-controls.py.txt", line 210, in main
+    raise ValueError('complete mandatory companion bytes/hash before writes')
+ValueError: complete mandatory companion bytes/hash before writes

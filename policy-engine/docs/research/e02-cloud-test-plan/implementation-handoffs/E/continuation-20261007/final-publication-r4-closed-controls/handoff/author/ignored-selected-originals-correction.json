@@ -1,0 +1,20 @@
+{
+  "schema": "policyos.e02.literal_git_publication_admission_correction.v1",
+  "historical_incomplete_candidate": "ba5cf2f2891ca33732fbdcaacebe6af06e0bb4db",
+  "historical_git_paths": 505,
+  "physical_copier_paths": 512,
+  "missing_selected_original_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-controls/final-root-lint/exact-source/515c70d29f59f3175521642e72d04f1aaffc72d7.tsv",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-controls/final-root-lint/exact-source/78b4385b8a9a3752d84d3389c8c4a972dd65f16b.tsv",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-controls/mc-b6-gates/literal/completed-retry2-unique-native-instrumentation/timing.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-controls/mc-b6-gates/literal/failed-copy-unique-native-instrumentation/timing.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-controls/mc-b6-gates/literal/failed-retry1-copy-unique-native-instrumentation/timing.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-controls/mc-b6-gates/literal/static-invocation-retry3/passive-process-observations.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-controls/mc-b6-gates/literal/static-invocation-retry4/passive-process-observations.jsonl"
+  ],
+  "omitted_bytes": 25430,
+  "reason": "exact global .tsv/.jsonl ignore rules; literal source bytes present and unchanged",
+  "action": "ordinary append explicit only these7 moderate deciding originals",
+  "copier_or_numerical_source_changed": false,
+  "source_native_tests_repeated": false
+}

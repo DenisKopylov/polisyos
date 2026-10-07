@@ -1,0 +1,7 @@
+{
+  "outcome": "PASS DOC custody controls",
+  "mode": "optimized",
+  "healthy_files": 512,
+  "refusals": 26,
+  "effective_Counter_removal": true
+}

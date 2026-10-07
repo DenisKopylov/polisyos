@@ -1,0 +1,120 @@
+{
+  "schema": "policyos.e02.independent_closed_control_Git_custody.v1",
+  "candidate": "c229fe8c0cc31c910de2bd2dc0e84e30be87da2c",
+  "tree": "7f2589243b91633d10903ea9818c93f0757b3344",
+  "base": "5739c0fa4037ddf91fbca425e3fd3190dc7aa969",
+  "disposition": "GO_FOR_LITERAL_DOC_REPLAY_AND_CUSTODY_ONLY",
+  "Git_paths": 512,
+  "Git_bytes": 21807963,
+  "logical_members": 688,
+  "stored_carriers": 502,
+  "stored_bytes": 20491584,
+  "full_decoded_gzip_occurrences": 32,
+  "full_decoded_gzip_logical_bytes": 134001977,
+  "actual_healthy_argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-controls/copy-closed-controls.py.txt",
+    "--manifest",
+    "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-controls/manifest.json",
+    "--layout",
+    "published",
+    "--destination-root",
+    "/tmp/e02-E-closed-control-c229-independent-normal-v2-20261007/fresh-positive"
+  ],
+  "actual_healthy_exit": 0,
+  "fresh_reopened_files": 512,
+  "controls": [
+    {
+      "name": "boollogical",
+      "outcome": "PASS",
+      "actual_refusal": "recomputed typed complete denominators"
+    },
+    {
+      "name": "floatcount",
+      "outcome": "PASS",
+      "actual_refusal": "recomputed typed complete denominators"
+    },
+    {
+      "name": "closurepromotion",
+      "outcome": "PASS",
+      "actual_refusal": "typed complete source/header/scope observations"
+    },
+    {
+      "name": "sourcepromotion",
+      "outcome": "PASS",
+      "actual_refusal": "typed complete source/header/scope observations"
+    },
+    {
+      "name": "qualificationclosure",
+      "outcome": "PASS",
+      "actual_refusal": "typed lifecycle/check/finding/authority claims"
+    },
+    {
+      "name": "originalselectoromission",
+      "outcome": "PASS",
+      "actual_refusal": "fixed full original selector vector"
+    },
+    {
+      "name": "wronglayout",
+      "outcome": "PASS",
+      "actual_refusal": "ambiguous stage/published carrier layout"
+    },
+    {
+      "name": "unknownlayout",
+      "outcome": "PASS",
+      "actual_refusal": "explicit admitted carrier layout required"
+    },
+    {
+      "name": "genuine_omission_and_retotal",
+      "outcome": "PASS",
+      "actual_refusal": "exact complete original member Counter"
+    },
+    {
+      "name": "sole_member_counter_removal",
+      "outcome": "PASS",
+      "defining_property": "FAIL",
+      "actual_admitted_logical_count": 687,
+      "retained": [
+        "explicit layout",
+        "payload hash",
+        "all24original selector pins",
+        "typed complete scopes",
+        "alias routes",
+        "recomputed totals"
+      ]
+    }
+  ],
+  "source_before": {
+    "leaf": {
+      "head": "c229fe8c0cc31c910de2bd2dc0e84e30be87da2c",
+      "tree": "7f2589243b91633d10903ea9818c93f0757b3344",
+      "tracked_status": ""
+    },
+    "Root": {
+      "head": "57790f050e0e6583c5bd25d4474326ea1aece9aa",
+      "tree": "3d6bb296e96e737dcd03aa4a92f18c578deaefd8",
+      "tracked_status": ""
+    }
+  },
+  "source_after": {
+    "leaf": {
+      "head": "c229fe8c0cc31c910de2bd2dc0e84e30be87da2c",
+      "tree": "7f2589243b91633d10903ea9818c93f0757b3344",
+      "tracked_status": ""
+    },
+    "Root": {
+      "head": "57790f050e0e6583c5bd25d4474326ea1aece9aa",
+      "tree": "3d6bb296e96e737dcd03aa4a92f18c578deaefd8",
+      "tracked_status": ""
+    }
+  },
+  "source_native_numeric_execution": false,
+  "source_gate_and_finding_acceptance": false,
+  "historical_red": "/tmp/e02-E-closed-control-Git-replay-independent-20261007/receipt.json",
+  "limitations": [
+    "The old complete84153 archived copier actually failed on its Git layout; original output retained.",
+    "Initial reviewer footer used a shadowed Path as process receipt; original program/stdout/stderr and healthy replay retained as observer ERROR, not source failure.",
+    "This is byte/member/layout custody only, not new mathematical/native/global gate verification.",
+    "Source fit/composition changes and final source freeze/wave/all54 are separately pending."
+  ]
+}

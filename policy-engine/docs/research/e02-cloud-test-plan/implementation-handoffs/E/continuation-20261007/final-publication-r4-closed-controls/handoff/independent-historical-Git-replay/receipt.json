@@ -1,0 +1,36 @@
+{
+  "schema": "policyos.e02.independent_published_control_replay.v1",
+  "candidate": "84153d3bf7e08c232e400e8ad90af8b097899d33",
+  "tree": "2cd147e338e565d6c583af05ecb483519eb906e2",
+  "argv": [
+    "python3",
+    "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-controls/copy-closed-controls.py.txt",
+    "--manifest",
+    "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-controls/manifest.json",
+    "--destination-root",
+    "/tmp/e02-E-closed-control-Git-replay-independent-20261007/fresh-replay"
+  ],
+  "cwd": "/workspace/e02-E-frc-20261006",
+  "exit_code": 1,
+  "defining_replay_check": "FAIL",
+  "published_recipe_reads_payload_subdir": true,
+  "actual_payload_subdir_present": false,
+  "destination_created": false,
+  "error": "Traceback (most recent call last):\n  File \"/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-controls/copy-closed-controls.py.txt\", line 218, in <module>\n    main()\n  File \"/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-controls/copy-closed-controls.py.txt\", line 181, in main\n    counts = validate(p, manifest)\n             ^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-controls/copy-closed-controls.py.txt\", line 158, in validate\n    expected = recompute_expected(p, manifest)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-controls/copy-closed-controls.py.txt\", line 136, in recompute_expected\n    body = (p.parent / 'payload' / rel).read_bytes()\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py\", line 1019, in read_bytes\n    with self.open(mode='rb') as f:\n         ^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py\", line 1013, in open\n    return io.open(self, mode, buffering, encoding, errors, newline)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-controls/payload/terminal-backend/decode-terminal-backend-v3.py.txt'\n",
+  "files": [
+    {
+      "path": "/tmp/e02-E-closed-control-Git-replay-independent-20261007/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-closed-control-Git-replay-independent-20261007/stderr.txt",
+      "bytes": 1938,
+      "sha256": "00aa2f2c9575a7ed2f8fda40ef92e3ec218454868375aad32cbf24cd71af8033"
+    }
+  ],
+  "source_native_numeric_execution": false,
+  "scope": "Actual archived copier on complete512 published Git layout; historical505vs512 ignored-file mismatch is separate.",
+  "earlier_observer": "Initial ba5 guard detected concurrent additive84153 before native copier invocation; no actual old ba5 replay claimed.",
+  "recorded_at": "2026-10-07T15:05:02.919192+00:00"
+}

@@ -1,0 +1,631 @@
+{
+  "outcome": "PASS DOC custody controls",
+  "mode": "normal",
+  "healthy_full_files": 512,
+  "healthy_total_bytes": 21806545,
+  "negative_cases": 26,
+  "property_removal": {
+    "predicate": "exact complete original member Counter only",
+    "selector_and_payload_markers_preserved": true,
+    "removed_original_occurrence": {
+      "family": "terminal-backend",
+      "selection_source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/terminal-backend-decoder-publication-selection-v3.json",
+      "member_class": "assets",
+      "original": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/backend-decoder-controls-normal-v4.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stored": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/backend-decoder-controls-normal-v4.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "storage_mode": "literal",
+      "logical_destination": "terminal-backend/backend-decoder-controls-normal-v4.stderr.txt",
+      "selected_record": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/backend-decoder-controls-normal-v4.stderr.txt",
+        "portable_path": "backend-decoder-controls-normal-v4.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "role": "current terminal deciding observer/output"
+      },
+      "canonical_destination": "terminal-backend/actual-terminal-backend-decoded-v3.stderr.txt",
+      "deduplicated": true
+    },
+    "actual_mutant_exit_code": 0,
+    "required_membership_property": "FAIL"
+  },
+  "commands": [
+    {
+      "name": "healthy",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-final-moderate-publication-r4-stage/copy-closed-controls.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/stage/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/destinations/healthy"
+      ],
+      "exit_code": 0,
+      "destination_created": true,
+      "stdout": {
+        "bytes": 571,
+        "sha256": "c28fdeb574e707931941643a98088efe6b171ff9699b699025dacce409a099d6"
+      },
+      "stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "source-head",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-final-moderate-publication-r4-stage/copy-closed-controls.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/stage/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/destinations/source-head"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "bytes": 565,
+        "sha256": "dd0c69f21fd40b302472608b3c47a31a422d3c2f02f2d16a12ff54fbfdaf1aa7"
+      }
+    },
+    {
+      "name": "source-native-flag",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-final-moderate-publication-r4-stage/copy-closed-controls.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/stage/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/destinations/source-native-flag"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "bytes": 565,
+        "sha256": "dd0c69f21fd40b302472608b3c47a31a422d3c2f02f2d16a12ff54fbfdaf1aa7"
+      }
+    },
+    {
+      "name": "header-int-bool",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-final-moderate-publication-r4-stage/copy-closed-controls.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/stage/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/destinations/header-int-bool"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "bytes": 565,
+        "sha256": "dd0c69f21fd40b302472608b3c47a31a422d3c2f02f2d16a12ff54fbfdaf1aa7"
+      }
+    },
+    {
+      "name": "qualification-gate",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-final-moderate-publication-r4-stage/copy-closed-controls.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/stage/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/destinations/qualification-gate"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "bytes": 563,
+        "sha256": "39cc0beb640d5f2ef0d9cc79dc0dc033ea9ffdc8bf4db16d7b1b821e8d2cee39"
+      }
+    },
+    {
+      "name": "qualification-JUnit",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-final-moderate-publication-r4-stage/copy-closed-controls.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/stage/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/destinations/qualification-JUnit"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "bytes": 563,
+        "sha256": "39cc0beb640d5f2ef0d9cc79dc0dc033ea9ffdc8bf4db16d7b1b821e8d2cee39"
+      }
+    },
+    {
+      "name": "qualification-ROOT",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-final-moderate-publication-r4-stage/copy-closed-controls.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/stage/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/destinations/qualification-ROOT"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "bytes": 563,
+        "sha256": "39cc0beb640d5f2ef0d9cc79dc0dc033ea9ffdc8bf4db16d7b1b821e8d2cee39"
+      }
+    },
+    {
+      "name": "logical-count",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-final-moderate-publication-r4-stage/copy-closed-controls.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/stage/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/destinations/logical-count"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "bytes": 547,
+        "sha256": "e9527dd27a680bb60e049ed32c06cf52463efcd01c38295bbcb99cac01dde228"
+      }
+    },
+    {
+      "name": "logical-count-bool",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-final-moderate-publication-r4-stage/copy-closed-controls.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/stage/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/destinations/logical-count-bool"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "bytes": 547,
+        "sha256": "e9527dd27a680bb60e049ed32c06cf52463efcd01c38295bbcb99cac01dde228"
+      }
+    },
+    {
+      "name": "logical-bytes",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-final-moderate-publication-r4-stage/copy-closed-controls.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/stage/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/destinations/logical-bytes"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "bytes": 547,
+        "sha256": "e9527dd27a680bb60e049ed32c06cf52463efcd01c38295bbcb99cac01dde228"
+      }
+    },
+    {
+      "name": "stored-bytes",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-final-moderate-publication-r4-stage/copy-closed-controls.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/stage/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/destinations/stored-bytes"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "bytes": 547,
+        "sha256": "e9527dd27a680bb60e049ed32c06cf52463efcd01c38295bbcb99cac01dde228"
+      }
+    },
+    {
+      "name": "carrier-count",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-final-moderate-publication-r4-stage/copy-closed-controls.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/stage/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/destinations/carrier-count"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "bytes": 547,
+        "sha256": "e9527dd27a680bb60e049ed32c06cf52463efcd01c38295bbcb99cac01dde228"
+      }
+    },
+    {
+      "name": "alias-count",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-final-moderate-publication-r4-stage/copy-closed-controls.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/stage/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/destinations/alias-count"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "bytes": 547,
+        "sha256": "e9527dd27a680bb60e049ed32c06cf52463efcd01c38295bbcb99cac01dde228"
+      }
+    },
+    {
+      "name": "selector-vector",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-final-moderate-publication-r4-stage/copy-closed-controls.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/stage/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/destinations/selector-vector"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "bytes": 541,
+        "sha256": "d038e3a4ae085dfe042778a3b8ed1516e31e106ed887e05bce514946da36f9d2"
+      }
+    },
+    {
+      "name": "selector-digest",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-final-moderate-publication-r4-stage/copy-closed-controls.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/stage/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/destinations/selector-digest"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "bytes": 541,
+        "sha256": "d038e3a4ae085dfe042778a3b8ed1516e31e106ed887e05bce514946da36f9d2"
+      }
+    },
+    {
+      "name": "member-source",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-final-moderate-publication-r4-stage/copy-closed-controls.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/stage/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/destinations/member-source"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "bytes": 547,
+        "sha256": "e23b6e256421afe0c37065c088e3dde866088b435adb276fbc57e70e202c860c"
+      }
+    },
+    {
+      "name": "member-role",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-final-moderate-publication-r4-stage/copy-closed-controls.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/stage/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/destinations/member-role"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "bytes": 547,
+        "sha256": "e23b6e256421afe0c37065c088e3dde866088b435adb276fbc57e70e202c860c"
+      }
+    },
+    {
+      "name": "member-missing",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-final-moderate-publication-r4-stage/copy-closed-controls.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/stage/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/destinations/member-missing"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "bytes": 547,
+        "sha256": "e23b6e256421afe0c37065c088e3dde866088b435adb276fbc57e70e202c860c"
+      }
+    },
+    {
+      "name": "carrier-path",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-final-moderate-publication-r4-stage/copy-closed-controls.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/stage/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/destinations/carrier-path"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "bytes": 734,
+        "sha256": "a5fbca9aef3df4d1c10cd55546a9a56147b9e743f6967840ee79f7c9b0f2e835"
+      }
+    },
+    {
+      "name": "fake-copy-closed-controls-py-txt",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-final-moderate-publication-r4-stage/copy-closed-controls.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/stage/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/destinations/fake-copy-closed-controls-py-txt"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "bytes": 382,
+        "sha256": "c7dee2214079fbb3950c1458859064df798bcb71ae1cbdbc7d2dce85be432ae4"
+      }
+    },
+    {
+      "name": "fake-build-stage-py-txt",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-final-moderate-publication-r4-stage/copy-closed-controls.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/stage/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/destinations/fake-build-stage-py-txt"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "bytes": 400,
+        "sha256": "afcc25096ce6ac4ccad96fec82687a2e820807dc92487bbbdcdcd127b33a578e"
+      }
+    },
+    {
+      "name": "fake-qualification-json",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-final-moderate-publication-r4-stage/copy-closed-controls.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/stage/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/destinations/fake-qualification-json"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "bytes": 400,
+        "sha256": "afcc25096ce6ac4ccad96fec82687a2e820807dc92487bbbdcdcd127b33a578e"
+      }
+    },
+    {
+      "name": "fake-resume-admission-json",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-final-moderate-publication-r4-stage/copy-closed-controls.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/stage/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/destinations/fake-resume-admission-json"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "bytes": 400,
+        "sha256": "afcc25096ce6ac4ccad96fec82687a2e820807dc92487bbbdcdcd127b33a578e"
+      }
+    },
+    {
+      "name": "missing-copy-closed-controls-py-txt",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-final-moderate-publication-r4-stage/copy-closed-controls.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/stage/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/destinations/missing-copy-closed-controls-py-txt"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "bytes": 965,
+        "sha256": "5fe3cd42530caffad1f36e41590085cb8aea6a28b9883e2c699eba67ae647dd0"
+      }
+    },
+    {
+      "name": "missing-README-md",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-final-moderate-publication-r4-stage/copy-closed-controls.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/stage/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/destinations/missing-README-md"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "bytes": 947,
+        "sha256": "ff24f1c4ecbc8e5d1675793b9c54bc92976b344f06c9fb2bfc33c2fc27a4a6bb"
+      }
+    },
+    {
+      "name": "fake-compressed-carrier",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-final-moderate-publication-r4-stage/copy-closed-controls.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/stage/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/destinations/fake-compressed-carrier"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "bytes": 750,
+        "sha256": "f18d7fc6442d027cec5f77a5b9db061dcdba17c860625e835bd8e7238873d04f"
+      }
+    },
+    {
+      "name": "omitted-mandatory-reconciled-counts",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-final-moderate-publication-r4-stage/copy-closed-controls.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/stage/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/destinations/omitted-mandatory-reconciled-counts"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "bytes": 547,
+        "sha256": "e23b6e256421afe0c37065c088e3dde866088b435adb276fbc57e70e202c860c"
+      }
+    },
+    {
+      "name": "Counter-removal",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/removed-Counter.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/stage/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-final-moderate-controls-v3-normal/destinations/Counter-removal"
+      ],
+      "exit_code": 0,
+      "destination_created": true,
+      "stdout": {
+        "bytes": 579,
+        "sha256": "70f0d5636618184b84bd667a06cabbea5e93596166ace97e03e7002c05987a25"
+      },
+      "stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "source_native_numeric_gate_execution": false,
+  "ROOT_written": false
+}

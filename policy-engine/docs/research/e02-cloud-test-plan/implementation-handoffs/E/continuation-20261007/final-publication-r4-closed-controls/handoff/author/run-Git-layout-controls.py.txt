@@ -1,0 +1,30 @@
+import argparse, hashlib, json, shutil, subprocess, sys
+from pathlib import Path
+S=Path('/tmp/e02-E-final-moderate-publication-r4-stage');P=Path('/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-controls')
+a=argparse.ArgumentParser();a.add_argument('--mode',choices=['normal','optimized'],required=True);args=a.parse_args();R=Path('/tmp/e02-E-Git-layout-controls-'+args.mode);R.mkdir(exist_ok=False)
+python=[sys.executable]+(['-O']if args.mode=='optimized'else[]);records=[]
+def run(name,manifest,program,layout):
+ dest=R/'destinations'/name
+ argv=python+[str(program),'--manifest',str(manifest),'--destination-root',str(dest)]+([]if layout is None else['--layout',layout])
+ result=subprocess.run(argv,capture_output=True);(R/(name+'.stdout.txt')).write_bytes(result.stdout);(R/(name+'.stderr.txt')).write_bytes(result.stderr)
+ record={'case':name,'argv':argv,'exit_code':result.returncode,'destination_created':dest.exists(),'stdout_bytes':len(result.stdout),'stdout_sha256':hashlib.sha256(result.stdout).hexdigest(),'stderr_bytes':len(result.stderr),'stderr_sha256':hashlib.sha256(result.stderr).hexdigest()};records.append(record);return record,dest
+healthy,dest=run('actual-published-healthy',P/'manifest.json',P/'copy-closed-controls.py.txt','published')
+if healthy['exit_code']or not dest.exists():raise ValueError('actual Git layout healthy failed')
+leaf=next(dest.rglob('manifest.json')).parent
+source={str(p.relative_to(P)):(p.stat().st_size,hashlib.sha256(p.read_bytes()).hexdigest())for p in P.rglob('*')if p.is_file()}
+out={str(p.relative_to(leaf)):(p.stat().st_size,hashlib.sha256(p.read_bytes()).hexdigest())for p in leaf.rglob('*')if p.is_file()}
+if source!=out or len(out)!=512:raise ValueError('512 exact published readback')
+for name,manifest,program,layout in [('wrong-stage-for-Git',P/'manifest.json',P/'copy-closed-controls.py.txt','stage'),('wrong-published-for-stage',S/'manifest.json',S/'copy-closed-controls.py.txt','published'),('missing-explicit-layout',P/'manifest.json',P/'copy-closed-controls.py.txt',None),('unknown-layout',P/'manifest.json',P/'copy-closed-controls.py.txt','automatic')]:
+ result,_=run(name,manifest,program,layout)
+ if not result['exit_code']or result['destination_created']:raise ValueError('layout negative admitted '+name)
+amb=R/'ambiguous-published';shutil.copytree(P,amb)
+m=json.loads((P/'manifest.json').read_text());rel=m['canonical_copies'][0]['destination'];fake=amb/'payload'/rel;fake.parent.mkdir(parents=True);fake.write_bytes((amb/rel).read_bytes())
+result,_=run('ambiguous-layout',amb/'manifest.json',amb/'copy-closed-controls.py.txt','published')
+if not result['exit_code']or result['destination_created']:raise ValueError('ambiguous layout admitted')
+source_program=(amb/'copy-closed-controls.py.txt').read_text();mutant=source_program.replace("    if any((other / rel).exists() for rel in relatives):", "    if False and any((other / rel).exists() for rel in relatives):",1)
+if mutant==source_program:raise ValueError('single ambiguity predicate not removed')
+script=R/'removed-ambiguity.py.txt';script.write_text(mutant);(amb/'copy-closed-controls.py.txt').write_text(mutant)
+result,_=run('sole-layout-guard-removal',amb/'manifest.json',script,'published')
+if result['exit_code']or not result['destination_created']:raise ValueError('ambiguity property removal ineffective')
+review={'outcome':'PASS explicit published-layout custody controls','mode':args.mode,'published_full512_byte_readback':True,'healthy_bytes':sum(t[0]for t in out.values()),'refusals':5,'property_removal':{'predicate':'ambiguous primary/opposite layout only','markers_and_full688member_Counter_preserved':True,'actual_exit_code':0,'required_layout_admission_property':'FAIL'},'commands':records,'source_program_sha256':hashlib.sha256((P/'copy-closed-controls.py.txt').read_bytes()).hexdigest(),'source_native_numeric_gate_execution':False}
+(R/'review.json').write_text(json.dumps(review,indent=2)+'\n');print(json.dumps({key:review[key]for key in('outcome','mode','healthy_bytes','refusals')},indent=2))

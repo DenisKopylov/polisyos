@@ -1,0 +1,1203 @@
+{
+  "P40": "One chronology/materializer/model chain class repair covers coherent reorder/duplicates and unexecuted source-model substitution; carrier field presence alone is insufficient.",
+  "P41": "Original exact9c red and final0983 correction on same real native artifacts retained separately. No global architecture inheritance/PASS waiver inferred.",
+  "author_of_reviewed_slice": false,
+  "bad_source_sha": "9c51a7f7e0a7fc901a681b2fba6240b8cbcf7cef",
+  "bad_source_tree": "47ae719ab9d442ae0d875d04390e1b6c79a79e10",
+  "base_sha": "028829629a9c30454e44d25e7bea7be3ea05b561",
+  "candidate_sha": "0983d064df3c3e21f8b1accff4ee90484d78973b",
+  "candidate_tree": "438277e00ae3cdaf6c7729c509d40fa09464e88f",
+  "cleanup": {
+    "action": "no removal; retain own K3 CAS until fixed-reader rerun and root handoff; no active files deleted",
+    "candidates_after_no_active_users": [
+      "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/backtest/native_K3/cas",
+      "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/backtest/counters/cas",
+      "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/backtest/admission/hidden_future_parameter/cas",
+      "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/backtest/admission/wrong_purpose/cas",
+      "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/backtest/admission/prebound_fake/cas",
+      "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/backtest/admission/wrong_unit/cas",
+      "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/backtest/admission/missing_trinity/cas",
+      "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/backtest/admission/wrong_time/cas",
+      "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/backtest/admission/mismatched_trinity/cas",
+      "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/backtest/admission/wrong_target/cas",
+      "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/backtest/admission/future_binding/cas",
+      "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/backtest/admission/wrong_horizon/cas",
+      "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/backtest/admission/model_future_dependency/cas",
+      "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/backtest/remove_target_guard/wrong_unit/cas"
+    ],
+    "native_trash_available": false,
+    "preserve": [
+      "deciding scripts/full stdout/observations/receipt",
+      "root shared Python environment",
+      "unique native deciding refs through independent re-review"
+    ]
+  },
+  "commands": [
+    {
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/backtest/order_falsifier.fixed.py"
+      ],
+      "cwd": "/workspace/e02-E-backtest-20261006/policy-engine",
+      "env_overrides": {
+        "PYTHONPATH": "src",
+        "UV_NO_SYNC": "1"
+      },
+      "exit_code": 0,
+      "output": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/backtest/order_falsifier_fixed.stdout",
+      "result": "3 genuineK3 reads and5 typed refusals PASS",
+      "source_pin": "5ad90749c5ae745b1cb5345a5543b28dd19c2f76"
+    },
+    {
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/backtest/compiled_model_removal.py"
+      ],
+      "cwd": "/workspace/e02-E-backtest-20261006/policy-engine",
+      "env_overrides": {
+        "PYTHONPATH": "src",
+        "UV_NO_SYNC": "1"
+      },
+      "exit_code": 1,
+      "output": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/backtest/compiled_model_removal.stdout",
+      "result": "expected model-property removal negative FAIL",
+      "source_pin": "5ad90749c5ae745b1cb5345a5543b28dd19c2f76"
+    },
+    {
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/backtest/order_falsifier.final.py"
+      ],
+      "cwd": "/workspace/e02-E-backtest-20261006/policy-engine",
+      "env_overrides": {
+        "PYTHONPATH": "src",
+        "UV_NO_SYNC": "1"
+      },
+      "exit_code": 0,
+      "output": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/backtest/order_falsifier_final.stdout",
+      "result": "same3 realK3 reads and5 typed refusals PASS; Core/IR object identity PASS",
+      "source_pin": "0983d064df3c3e21f8b1accff4ee90484d78973b"
+    },
+    {
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "src/polisyos/scientist/methods/backtesting/native_replay.py",
+        "tests/unit/scientist/methods/backtesting/test_native_replay.py"
+      ],
+      "cwd": "/workspace/e02-E-backtest-20261006/policy-engine",
+      "env_overrides": {
+        "PYTHONPATH": "src",
+        "UV_NO_SYNC": "1"
+      },
+      "exit_code": 0,
+      "output": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/backtest/ruff_fixed.stdout"
+    },
+    {
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "src/polisyos/scientist/methods/backtesting/native_replay.py",
+        "tests/unit/scientist/methods/backtesting/test_native_replay.py"
+      ],
+      "cwd": "/workspace/e02-E-backtest-20261006/policy-engine",
+      "env_overrides": {
+        "PYTHONPATH": "src",
+        "UV_NO_SYNC": "1"
+      },
+      "exit_code": 0,
+      "output": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/backtest/format_fixed.stdout"
+    }
+  ],
+  "common_numeric_gate_wave": "UNRUN by reviewer; parent once after all sourceblockers/reviews/freeze.",
+  "complete_footprint": [
+    {
+      "candidate_bytes": 509,
+      "candidate_sha256": "a62fc041d4af65e039fd1111f525d059ffe20707c777fa1b9a9e8df9c6a8a453",
+      "current_bytes": 509,
+      "current_sha256": "a62fc041d4af65e039fd1111f525d059ffe20707c777fa1b9a9e8df9c6a8a453",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/backtest-curated-identity.json",
+      "same_bytes": true
+    },
+    {
+      "candidate_bytes": 1008,
+      "candidate_sha256": "36857787f9fdd66c9befedac72feb4079058fe434105c6e621b80f094cb94ea9",
+      "current_bytes": 1008,
+      "current_sha256": "36857787f9fdd66c9befedac72feb4079058fe434105c6e621b80f094cb94ea9",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/backtest-curated-native.stdout.txt",
+      "same_bytes": true
+    },
+    {
+      "candidate_bytes": 2414,
+      "candidate_sha256": "ac55135ad29dfea7084d0fd4e5c0edbe51cc5c21a827411c088a3c5ad7c9df73",
+      "current_bytes": 2414,
+      "current_sha256": "ac55135ad29dfea7084d0fd4e5c0edbe51cc5c21a827411c088a3c5ad7c9df73",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/backtest-curated-native.xml",
+      "same_bytes": true
+    },
+    {
+      "candidate_bytes": 1231,
+      "candidate_sha256": "7e1e5f3086f6a96b7571104a576f90dc76eb318a7d7a4d362813339c08c56a6e",
+      "current_bytes": 1231,
+      "current_sha256": "7e1e5f3086f6a96b7571104a576f90dc76eb318a7d7a4d362813339c08c56a6e",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/backtest-environment-corrected.json",
+      "same_bytes": true
+    },
+    {
+      "candidate_bytes": 109272,
+      "candidate_sha256": "521c823387785b4f2498ce700a917758a8713643d8bcf01c170c492b9be628c2",
+      "current_bytes": 109272,
+      "current_sha256": "521c823387785b4f2498ce700a917758a8713643d8bcf01c170c492b9be628c2",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/backtest-native-deciding-evidence.json",
+      "same_bytes": true
+    },
+    {
+      "candidate_bytes": 669,
+      "candidate_sha256": "34144cb068faf995947beae487f4c234aa1dd86b6c8e7223c88e05ed999116e0",
+      "current_bytes": 669,
+      "current_sha256": "34144cb068faf995947beae487f4c234aa1dd86b6c8e7223c88e05ed999116e0",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/backtest-native-frozen.stdout.txt",
+      "same_bytes": true
+    },
+    {
+      "candidate_bytes": 2598,
+      "candidate_sha256": "72468c8daec270e4ad668a74b9e67ed2531721060f3310ffb0a4b08e1f1a3e09",
+      "current_bytes": 2598,
+      "current_sha256": "72468c8daec270e4ad668a74b9e67ed2531721060f3310ffb0a4b08e1f1a3e09",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/backtest-native-frozen.xml",
+      "same_bytes": true
+    },
+    {
+      "candidate_bytes": 130568,
+      "candidate_sha256": "ac5f392dc38df5c55848a77aa80293fd1560eb7f6944943decf7f76bae44fe42",
+      "current_bytes": 130568,
+      "current_sha256": "ac5f392dc38df5c55848a77aa80293fd1560eb7f6944943decf7f76bae44fe42",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/backtest-old58-complete.stdout.txt",
+      "same_bytes": true
+    },
+    {
+      "candidate_bytes": 1273,
+      "candidate_sha256": "3f5f0f4648e0940f377bbf56d35fabeb725fb3071d66c1fa11a55e275689a949",
+      "current_bytes": 1273,
+      "current_sha256": "3f5f0f4648e0940f377bbf56d35fabeb725fb3071d66c1fa11a55e275689a949",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/backtest-old58-falsifier.py",
+      "same_bytes": true
+    },
+    {
+      "candidate_bytes": 197,
+      "candidate_sha256": "8947c7436cad4619ed7fd56916ac567fa59bc4c5badd375d1402986313687144",
+      "current_bytes": 197,
+      "current_sha256": "8947c7436cad4619ed7fd56916ac567fa59bc4c5badd375d1402986313687144",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/backtest-pr51-curated-readback.json",
+      "same_bytes": true
+    },
+    {
+      "candidate_bytes": 1232,
+      "candidate_sha256": "c276ca9297b7aabd1fa16bd3d3fe0462eae3fcaf77dbd5680ed48b1b5bc97528",
+      "current_bytes": 1232,
+      "current_sha256": "c276ca9297b7aabd1fa16bd3d3fe0462eae3fcaf77dbd5680ed48b1b5bc97528",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/backtest-regression-frozen.stdout.txt",
+      "same_bytes": true
+    },
+    {
+      "candidate_bytes": 17388,
+      "candidate_sha256": "2a026436782a8505b16482759f57cfbdbe0a3a08d733e445100fd27bc8093ab6",
+      "current_bytes": 17388,
+      "current_sha256": "2a026436782a8505b16482759f57cfbdbe0a3a08d733e445100fd27bc8093ab6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/backtest-regression-frozen.xml",
+      "same_bytes": true
+    },
+    {
+      "candidate_bytes": 112,
+      "candidate_sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4",
+      "current_bytes": 112,
+      "current_sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/backtest-results-import-check.stdout.txt",
+      "same_bytes": true
+    },
+    {
+      "candidate_bytes": 2349,
+      "candidate_sha256": "2fdb26e6e02095e7632f6f9ee24497efd93e047e9f4cac46c0046876b1df0389",
+      "current_bytes": 2349,
+      "current_sha256": "2fdb26e6e02095e7632f6f9ee24497efd93e047e9f4cac46c0046876b1df0389",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/copy-index.json",
+      "same_bytes": true
+    },
+    {
+      "candidate_bytes": 572,
+      "candidate_sha256": "5aa8aa868fd39cacbd9b71a9f305f3b1b1cdac682ae655e485437083dbc94f7e",
+      "current_bytes": 572,
+      "current_sha256": "5aa8aa868fd39cacbd9b71a9f305f3b1b1cdac682ae655e485437083dbc94f7e",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/measure-command.py",
+      "same_bytes": true
+    },
+    {
+      "candidate_bytes": 24122,
+      "candidate_sha256": "2a053d9216064195ea3396d5939487e94eddfce5cbbc84117a73520cd855c97c",
+      "current_bytes": 24712,
+      "current_sha256": "190e1bba64fd3b6a6498306d9dc9af1d2390ba0469103d9ec2ff35dab70ebce2",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2.json",
+      "same_bytes": false
+    },
+    {
+      "candidate_bytes": 1843,
+      "candidate_sha256": "bb2fa1003d92bb8e84bec43a91bb467dd6fd5fd115120718f986b32e58a89793",
+      "current_bytes": 1843,
+      "current_sha256": "bb2fa1003d92bb8e84bec43a91bb467dd6fd5fd115120718f986b32e58a89793",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-backtest-native-trajectory.toml",
+      "same_bytes": true
+    },
+    {
+      "candidate_bytes": 6755,
+      "candidate_sha256": "491c3faa15a7921c04e6f22848dd5d67926a14598bac7d90645cef7302248c9c",
+      "current_bytes": 6755,
+      "current_sha256": "491c3faa15a7921c04e6f22848dd5d67926a14598bac7d90645cef7302248c9c",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/README.md",
+      "same_bytes": true
+    },
+    {
+      "candidate_bytes": 26958,
+      "candidate_sha256": "c334d79aa079f0fc61fde33554e12ae24849495860a74134630fcafe360c24e9",
+      "current_bytes": 26958,
+      "current_sha256": "c334d79aa079f0fc61fde33554e12ae24849495860a74134630fcafe360c24e9",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+      "same_bytes": true
+    },
+    {
+      "candidate_bytes": 57679,
+      "candidate_sha256": "8969a05db324abd9b65d58f58333a221f171f1074b027ce3ab01eeb0399675e2",
+      "current_bytes": 57679,
+      "current_sha256": "8969a05db324abd9b65d58f58333a221f171f1074b027ce3ab01eeb0399675e2",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+      "same_bytes": true
+    },
+    {
+      "candidate_bytes": 947,
+      "candidate_sha256": "eb2212f4d43962013188d53bd2559b24c595f82c8e6b0739956a669e653673b6",
+      "current_bytes": 947,
+      "current_sha256": "eb2212f4d43962013188d53bd2559b24c595f82c8e6b0739956a669e653673b6",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/README.md",
+      "same_bytes": true
+    },
+    {
+      "candidate_bytes": 29327,
+      "candidate_sha256": "f8e601bc9a8aedd148c910712afa4658043c8e1f00178fa46c8c68bef112994b",
+      "current_bytes": 29327,
+      "current_sha256": "f8e601bc9a8aedd148c910712afa4658043c8e1f00178fa46c8c68bef112994b",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_simulation.py",
+      "same_bytes": true
+    },
+    {
+      "candidate_bytes": 17648,
+      "candidate_sha256": "f5d87f82e6008cb3956445c6ec506519091559db8d10f7f626449fdaab40bc5c",
+      "current_bytes": 17648,
+      "current_sha256": "f5d87f82e6008cb3956445c6ec506519091559db8d10f7f626449fdaab40bc5c",
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_native_replay.py",
+      "same_bytes": true
+    }
+  ],
+  "corrective_mechanism_sha": "5ad90749c5ae745b1cb5345a5543b28dd19c2f76",
+  "corrective_mechanism_tree": "6ef283517543ffa96952f00192126c62edcdf38e",
+  "decision": {
+    "bounded_code": "GO",
+    "engineering": "GO with separate canonical helper boundary admission and final common frozen gate wave",
+    "finding_closure": "B166/B169/B170 historical partial retained; individual accountable owner acceptance required",
+    "specification": "PASS for actual default native K3 bridge and repaired fresh temporal/model reader joins"
+  },
+  "environment": {
+    "CPU_caps": "none added; independent isolated processes",
+    "env_overrides": {
+      "PYTHONPATH": "src",
+      "UV_NO_SYNC": "1"
+    },
+    "packages": {
+      "jax": "0.8.2",
+      "numpy": "2.3.5",
+      "pydantic": "2.12.5",
+      "pytest": "9.0.2",
+      "scipy": "1.16.3"
+    },
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "python": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "version": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]"
+  },
+  "final_import_delta": {
+    "content": "Exactly two statements: native TrinityBundle from existing polisyos.ir root; nested orchestrator ArtifactRef from existing polisyos.core.artifacts root. No algorithms/fields/tests changed. Own canonical object identities PASS.",
+    "paths": [
+      "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+      "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py"
+    ]
+  },
+  "five_hash_valid_negatives": [
+    {
+      "accepted": false,
+      "candidate_ref": "sha256:8db9e089094608415113771d352d4e1983dcb0e7163ba8ce61dd10daae4f0715",
+      "exception": "ValueError",
+      "hash_valid": true,
+      "message": "native forecast initial binding anchor differs from first execution",
+      "name": "paired_whole_blocks_reversed",
+      "original_ref": "sha256:f8fa684b825e1646d6966702b2d9a5db67d78234f17a9df387583604b1471f4f",
+      "profile_times": [
+        "t2",
+        "t3"
+      ],
+      "request_ref": "sha256:1c1c81e11077ee2f55b87673d6f383cf48c1fe192282e17d72dd2a5080817691"
+    },
+    {
+      "accepted": false,
+      "candidate_ref": "sha256:c59cc563639fea0bec20a67b5fa1c552fb060347848d0a106b904102f4a566f6",
+      "exception": "ValueError",
+      "hash_valid": true,
+      "message": "native forecast initial binding anchor differs from first execution",
+      "name": "second_block_duplicated",
+      "original_ref": "sha256:f8fa684b825e1646d6966702b2d9a5db67d78234f17a9df387583604b1471f4f",
+      "profile_times": [
+        "t2",
+        "t3"
+      ],
+      "request_ref": "sha256:1c1c81e11077ee2f55b87673d6f383cf48c1fe192282e17d72dd2a5080817691"
+    },
+    {
+      "accepted": false,
+      "candidate_ref": "sha256:b7e4da5d99fc8451ede299a58f88c5e7ef389bb6e259134fb17fd939923748b4",
+      "exception": "ValueError",
+      "hash_valid": true,
+      "message": "native forecast initial binding anchor differs from first execution",
+      "name": "initial_binding_substituted",
+      "original_ref": "sha256:f8fa684b825e1646d6966702b2d9a5db67d78234f17a9df387583604b1471f4f",
+      "profile_times": [
+        "t2",
+        "t3"
+      ],
+      "request_ref": "sha256:1c1c81e11077ee2f55b87673d6f383cf48c1fe192282e17d72dd2a5080817691"
+    },
+    {
+      "accepted": false,
+      "actually_executed_tax_rate": ".25",
+      "candidate_ref": "sha256:7a30f373a9affe2949bddb12b3908c5dbfea6142c17d6e57cae853bdaf96a44b",
+      "declared_tax_rate": ".5",
+      "hash_valid": true,
+      "message": "native forecast executed program differs from declared Trinity",
+      "name": "unexecuted_trinity_substitution",
+      "new_trinity_ref": "sha256:f709b920cf3f15f1a0e75e6bce2dd63ca6dbf033cca992c0156dd170c888212e",
+      "old_trinity_ref": "sha256:f1aae8d2a68dd475d25f54ad5b89900bbe8b40b662317a938a5e735bba18c88d",
+      "request_ref": "sha256:919d48924bd19d78c1b1ae8c96bd7365a0bb0354e78882caaebc22c23d34009e"
+    },
+    {
+      "accepted": false,
+      "candidate_ref": "sha256:d7957976292bdf302909b8398f5662f815a636566b4598353fdcf34919bec891",
+      "exception": "ValueError",
+      "hash_valid": true,
+      "message": "native forecast chronological clock/order mismatch",
+      "name": "first_block_duplicated",
+      "original_ref": "sha256:f8fa684b825e1646d6966702b2d9a5db67d78234f17a9df387583604b1471f4f",
+      "profile_times": [
+        "t2",
+        "t3"
+      ],
+      "request_ref": "sha256:1c1c81e11077ee2f55b87673d6f383cf48c1fe192282e17d72dd2a5080817691"
+    }
+  ],
+  "full_global_architecture_guard": "UNRUN by reviewer per no-duplicate instruction; foreign helper admission remains owner responsibility.",
+  "mechanism_delta": [
+    "Resolve actual SimulationResult.exec_plan_ref \u2192 ExecPlan.program_ref \u2192 ProgramGraph.ir_ref and LoweredIR.ir_ref to exact declared Trinity/model source and registry. Same join executes before native port callback.",
+    "Anchor input_bindings_ref to first actual materializer binding and verify canonical source/registry/bound-state lineage.",
+    "Infer initial clock from the admitted bound-state snapshot; check clock at each future ordinal and post-state base_state / previous_forecast_state chain.",
+    "Keep one execution plan across the trajectory.",
+    "Normalize existing Core schema version representations1.0 and1.0.0 for real compiled producer artifacts."
+  ],
+  "mode": "read-only; no children; no source/Git/ledger writes",
+  "native_positive": {
+    "K": 3,
+    "actual_DefaultFoundryPort_calls": 6,
+    "actual_outputs": [
+      {
+        "actual_calls": [
+          {
+            "binding": "sha256:322545b95b14016124eb0bc1fbd5e019734894544be8f53991ca4e7f3453309c",
+            "exec_plan": "sha256:c39a4a3a85e1a88ddd9deea257f5024396bbbdc87f5c574d4c8b7eeaf8c8ce72",
+            "input_income": 2.0,
+            "seed": 570356716,
+            "step": 0
+          },
+          {
+            "binding": "sha256:f3d96b40cd4a2ee7d4aac05b7ce828310df79e6e8303eb9c23b9436aa305802e",
+            "exec_plan": "sha256:c39a4a3a85e1a88ddd9deea257f5024396bbbdc87f5c574d4c8b7eeaf8c8ce72",
+            "input_income": 1.5,
+            "seed": 570356716,
+            "step": 1
+          }
+        ],
+        "actual_seed": 570356716,
+        "config_ref": "sha256:874a0d8d6850e4f90ab6536ef2bec895c0bcdd1c41c21a06ccdefcc79675c086",
+        "expected_fiscal_values": [
+          1.5,
+          1.0
+        ],
+        "forecast_ref": "sha256:f8fa684b825e1646d6966702b2d9a5db67d78234f17a9df387583604b1471f4f",
+        "future_times": [
+          "t2",
+          "t3"
+        ],
+        "historical_times": [
+          "t0",
+          "t1"
+        ],
+        "masked_ref": "sha256:a63318ab872c3dfa9ccc34aa358f6f1133267a4e85ff37aa0a0cb6d6b87cdb46",
+        "name": "native_K3_replica",
+        "observed_persisted_states": [
+          1.5,
+          1.0
+        ],
+        "request_ref": "sha256:1c1c81e11077ee2f55b87673d6f383cf48c1fe192282e17d72dd2a5080817691",
+        "row_ids": [
+          "r0",
+          "r1"
+        ],
+        "run_id": "independent-native-native_K3-native_K3:replica:0",
+        "trinity_ref": "sha256:f1aae8d2a68dd475d25f54ad5b89900bbe8b40b662317a938a5e735bba18c88d"
+      },
+      {
+        "hash_valid": true,
+        "message": "native forecast values differ from recomputed state observations",
+        "name": "fabricated_scalar_values_rejected"
+      },
+      {
+        "actual_calls": [
+          {
+            "binding": "sha256:322545b95b14016124eb0bc1fbd5e019734894544be8f53991ca4e7f3453309c",
+            "exec_plan": "sha256:c39a4a3a85e1a88ddd9deea257f5024396bbbdc87f5c574d4c8b7eeaf8c8ce72",
+            "input_income": 2.0,
+            "seed": 741055479,
+            "step": 0
+          },
+          {
+            "binding": "sha256:f3d96b40cd4a2ee7d4aac05b7ce828310df79e6e8303eb9c23b9436aa305802e",
+            "exec_plan": "sha256:c39a4a3a85e1a88ddd9deea257f5024396bbbdc87f5c574d4c8b7eeaf8c8ce72",
+            "input_income": 1.5,
+            "seed": 741055479,
+            "step": 1
+          }
+        ],
+        "actual_seed": 741055479,
+        "config_ref": "sha256:f2dd103dd8288897c97646da6aeb1eafa3d82018c403fb77ecb778658446a91f",
+        "expected_fiscal_values": [
+          1.5,
+          1.0
+        ],
+        "forecast_ref": "sha256:5a43b2e69e4ee30e09bc4b4a1f848d70e5013c217a60649e6c91a9265fc20c0c",
+        "future_times": [
+          "t2",
+          "t3"
+        ],
+        "historical_times": [
+          "t0",
+          "t1"
+        ],
+        "masked_ref": "sha256:a63318ab872c3dfa9ccc34aa358f6f1133267a4e85ff37aa0a0cb6d6b87cdb46",
+        "name": "native_K3_replica",
+        "observed_persisted_states": [
+          1.5,
+          1.0
+        ],
+        "request_ref": "sha256:8363298eb88802a1a0a2ffec167213c1dd8139d88baeb8ca1c2a787ae3a40bdc",
+        "row_ids": [
+          "r0",
+          "r1"
+        ],
+        "run_id": "independent-native-native_K3-native_K3:replica:1",
+        "trinity_ref": "sha256:f1aae8d2a68dd475d25f54ad5b89900bbe8b40b662317a938a5e735bba18c88d"
+      },
+      {
+        "hash_valid": true,
+        "message": "native forecast values differ from recomputed state observations",
+        "name": "fabricated_scalar_values_rejected"
+      },
+      {
+        "actual_calls": [
+          {
+            "binding": "sha256:322545b95b14016124eb0bc1fbd5e019734894544be8f53991ca4e7f3453309c",
+            "exec_plan": "sha256:c39a4a3a85e1a88ddd9deea257f5024396bbbdc87f5c574d4c8b7eeaf8c8ce72",
+            "input_income": 2.0,
+            "seed": 2285044420,
+            "step": 0
+          },
+          {
+            "binding": "sha256:f3d96b40cd4a2ee7d4aac05b7ce828310df79e6e8303eb9c23b9436aa305802e",
+            "exec_plan": "sha256:c39a4a3a85e1a88ddd9deea257f5024396bbbdc87f5c574d4c8b7eeaf8c8ce72",
+            "input_income": 1.5,
+            "seed": 2285044420,
+            "step": 1
+          }
+        ],
+        "actual_seed": 2285044420,
+        "config_ref": "sha256:ac0c2e7b862d745adf0a0e518b2a2f790c03015e6915bc653691a297361302ab",
+        "expected_fiscal_values": [
+          1.5,
+          1.0
+        ],
+        "forecast_ref": "sha256:f94e0fdefdf9eb1db9c60d1e234c88f909cfeb057083c1ceea6728ee15a6f7ff",
+        "future_times": [
+          "t2",
+          "t3"
+        ],
+        "historical_times": [
+          "t0",
+          "t1"
+        ],
+        "masked_ref": "sha256:a63318ab872c3dfa9ccc34aa358f6f1133267a4e85ff37aa0a0cb6d6b87cdb46",
+        "name": "native_K3_replica",
+        "observed_persisted_states": [
+          1.5,
+          1.0
+        ],
+        "request_ref": "sha256:7d9b38dfc240577a9b41369c61235a959f822bac66d2b559f913c1c0659da695",
+        "row_ids": [
+          "r0",
+          "r1"
+        ],
+        "run_id": "independent-native-native_K3-native_K3:replica:2",
+        "trinity_ref": "sha256:f1aae8d2a68dd475d25f54ad5b89900bbe8b40b662317a938a5e735bba18c88d"
+      },
+      {
+        "hash_valid": true,
+        "message": "native forecast values differ from recomputed state observations",
+        "name": "fabricated_scalar_values_rejected"
+      },
+      {
+        "actual_execute_calls": 6,
+        "declared_purpose": "predictive_simulation",
+        "denominators": {
+          "attempted": 3,
+          "basis": "recomputed",
+          "completed": 3,
+          "declared_n_simulation_runs": 3,
+          "failed": 0,
+          "outcomes": [
+            "native:replica:0",
+            "native:replica:1",
+            "native:replica:2"
+          ],
+          "plan_id": "native",
+          "requested": 3,
+          "unit": "backend_replay",
+          "unobserved": 0
+        },
+        "name": "native_K3_summary",
+        "prediction_mode": "scientist",
+        "production_authority": "not_established",
+        "report_ref": "sha256:26a198e482689562bd5d98b463caa246a35fe3fff5a8caf9826bf60f989f324a",
+        "source_unchanged": true,
+        "unique_run_ids": 3,
+        "unique_seeds": 3
+      }
+    ],
+    "attempted": 3,
+    "completed": 3,
+    "distinct_actual_seeds": 3,
+    "distinct_run_ids": 3,
+    "failed": 0,
+    "fallback": false,
+    "independent_oracle": "latest prefix input income=2, reported_income=2; Decimal tax=.25*2=.5 per tick yields income 1.5 and1.0; own persisted snapshot arrays equal those values without using producer result-loop expectations",
+    "input_fixture": "existing committed test_native_replay.py _fixture, reused only as source/model/rule builder; none of its test assertions invoked; own K3 run and independent oracle",
+    "input_identity": {
+      "future_time": [
+        "t2",
+        "t3"
+      ],
+      "historical_rows": [
+        "r0",
+        "r1"
+      ],
+      "historical_time": [
+        "t0",
+        "t1"
+      ],
+      "income": [
+        1.0,
+        2.0,
+        900.0,
+        901.0
+      ],
+      "purpose": "predictive_simulation",
+      "quantity": "agents.income",
+      "seed_root": 12,
+      "unit": "usd"
+    },
+    "intervals": "none invented",
+    "path": [
+      "BacktestOrchestrator SCIENTIST native profile",
+      "prepare_native_replay masked DataSnapshot and matching derived TrinityModelSpec",
+      "public Scientist run_experiment",
+      "scientist_default workflow",
+      "BindFoundryInputs actual rules \u2192 bound GlobalState",
+      "RunSimulationNode effective requested FoundryExecConfig.seed",
+      "real configured DefaultFoundryPort.execute \u2192 native Foundry API",
+      "post-execution state snapshots",
+      "typed NativeForecastTrajectory CAS",
+      "fresh reader + public persisted BacktestReport"
+    ],
+    "production_evidence": false,
+    "requested": 3
+  },
+  "new_removal_control": {
+    "expected_outcome": "assertion FAIL; unexecuted50% Trinity substitution becomes accepted, while clock/anchor negatives still refuse.",
+    "operation": "Disable _validate_compiled_model only inside isolated immutable5ad namespace; preserve all carrier fields and genuine native refs.",
+    "output": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/backtest/compiled_model_removal.stdout",
+    "records": [
+      {
+        "accepted": false,
+        "candidate_ref": "sha256:8db9e089094608415113771d352d4e1983dcb0e7163ba8ce61dd10daae4f0715",
+        "exception": "ValueError",
+        "hash_valid": true,
+        "message": "native forecast initial binding anchor differs from first execution",
+        "name": "paired_whole_blocks_reversed",
+        "original_ref": "sha256:f8fa684b825e1646d6966702b2d9a5db67d78234f17a9df387583604b1471f4f",
+        "profile_times": [
+          "t2",
+          "t3"
+        ],
+        "request_ref": "sha256:1c1c81e11077ee2f55b87673d6f383cf48c1fe192282e17d72dd2a5080817691"
+      },
+      {
+        "accepted": false,
+        "candidate_ref": "sha256:c59cc563639fea0bec20a67b5fa1c552fb060347848d0a106b904102f4a566f6",
+        "exception": "ValueError",
+        "hash_valid": true,
+        "message": "native forecast initial binding anchor differs from first execution",
+        "name": "second_block_duplicated",
+        "original_ref": "sha256:f8fa684b825e1646d6966702b2d9a5db67d78234f17a9df387583604b1471f4f",
+        "profile_times": [
+          "t2",
+          "t3"
+        ],
+        "request_ref": "sha256:1c1c81e11077ee2f55b87673d6f383cf48c1fe192282e17d72dd2a5080817691"
+      },
+      {
+        "accepted": false,
+        "candidate_ref": "sha256:b7e4da5d99fc8451ede299a58f88c5e7ef389bb6e259134fb17fd939923748b4",
+        "exception": "ValueError",
+        "hash_valid": true,
+        "message": "native forecast initial binding anchor differs from first execution",
+        "name": "initial_binding_substituted",
+        "original_ref": "sha256:f8fa684b825e1646d6966702b2d9a5db67d78234f17a9df387583604b1471f4f",
+        "profile_times": [
+          "t2",
+          "t3"
+        ],
+        "request_ref": "sha256:1c1c81e11077ee2f55b87673d6f383cf48c1fe192282e17d72dd2a5080817691"
+      },
+      {
+        "accepted": true,
+        "actually_executed_tax_rate": ".25",
+        "candidate_ref": "sha256:7a30f373a9affe2949bddb12b3908c5dbfea6142c17d6e57cae853bdaf96a44b",
+        "declared_tax_rate": ".5",
+        "hash_valid": true,
+        "name": "unexecuted_trinity_substitution",
+        "new_trinity_ref": "sha256:f709b920cf3f15f1a0e75e6bce2dd63ca6dbf033cca992c0156dd170c888212e",
+        "old_trinity_ref": "sha256:f1aae8d2a68dd475d25f54ad5b89900bbe8b40b662317a938a5e735bba18c88d",
+        "request_ref": "sha256:919d48924bd19d78c1b1ae8c96bd7365a0bb0354e78882caaebc22c23d34009e",
+        "values": {
+          "income": [
+            1.5,
+            1.0
+          ]
+        }
+      },
+      {
+        "accepted": false,
+        "candidate_ref": "sha256:d7957976292bdf302909b8398f5662f815a636566b4598353fdcf34919bec891",
+        "exception": "ValueError",
+        "hash_valid": true,
+        "message": "native forecast chronological clock/order mismatch",
+        "name": "first_block_duplicated",
+        "original_ref": "sha256:f8fa684b825e1646d6966702b2d9a5db67d78234f17a9df387583604b1471f4f",
+        "profile_times": [
+          "t2",
+          "t3"
+        ],
+        "request_ref": "sha256:1c1c81e11077ee2f55b87673d6f383cf48c1fe192282e17d72dd2a5080817691"
+      }
+    ]
+  },
+  "next_owner": {
+    "BKT accountable owner": "Individual B166/B169/B170 acceptance against original cards; maintain historical partial until decision.",
+    "G": "Integrate source and APIowner decisions; run one common frozen gate/numerical wave; accept code separately from findings.",
+    "Scientist trust-grade owner": "Versioned purpose/profile and equivalence margin/assumptions for B172/B173.",
+    "production history/model/feature lineage owner + G local": "Minimal immutable real source/model/registry/rules/time/unit/purpose packet; exactcandidate local readonly execution/fresh readback. Synthetic cloud fixture proves generic native wiring."
+  },
+  "outputs": [
+    {
+      "bytes": 6652,
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/backtest/order_falsifier.fixed.py",
+      "sha256": "8962f6c1a943e98b1bfc3577762f79f95e1b3337b6b4322481678b01155bbe91"
+    },
+    {
+      "bytes": 3564,
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/backtest/order_falsifier_fixed.stdout",
+      "sha256": "284fd881ed375cfcedc89ea3d88f3999c0af8aaa05f609fde380cc1e00307715"
+    },
+    {
+      "bytes": 2831,
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/backtest/order-falsifiers-fixed.json",
+      "sha256": "d78ad22bbb6c50dc7ee019987bd4416d22b5433d4cbeda17f8a5572c948731e5"
+    },
+    {
+      "bytes": 6820,
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/backtest/compiled_model_removal.py",
+      "sha256": "e6019d269f9d23005bfe2e10dc4680fd26544a769e39db6574d213a1675e5a9d"
+    },
+    {
+      "bytes": 4016,
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/backtest/compiled_model_removal.stdout",
+      "sha256": "cbf9362b000782223590dc60bea4f9956b7a22a61e863bf7163e46d5f9fdf7f5"
+    },
+    {
+      "bytes": 2823,
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/backtest/order-falsifiers-removal.json",
+      "sha256": "250e0f70faa6e9a82c5a6da1769da976e6fbdbbc3f2fd1413caa5b1f02f90b0e"
+    },
+    {
+      "bytes": 7170,
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/backtest/order_falsifier.final.py",
+      "sha256": "c9310fd68e777d7d785866fec001f20bf072a6edf737255dfa4da7f07646ae26"
+    },
+    {
+      "bytes": 3640,
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/backtest/order_falsifier_final.stdout",
+      "sha256": "15746e7c1543430f221e443e8ff10ffb02830175f70471cea187b8dd28c7ad2d"
+    },
+    {
+      "bytes": 2831,
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/backtest/order-falsifiers-final.json",
+      "sha256": "d78ad22bbb6c50dc7ee019987bd4416d22b5433d4cbeda17f8a5572c948731e5"
+    },
+    {
+      "bytes": 19,
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/backtest/ruff_fixed.stdout",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "bytes": 26,
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/backtest/format_fixed.stdout",
+      "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+    },
+    {
+      "bytes": 123,
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/backtest/fresh-trust-read.json",
+      "sha256": "77517daf7d687ecccf2884cbca571fcc342c9e65e0fbfa2168a21354139b4634"
+    },
+    {
+      "bytes": 38760,
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/backtest/review-hold-9c.json",
+      "sha256": "74665ee23b4c4338cf223585c61382bb31bf4d8bd1cb035ce49f8ecc5cb6c73c"
+    }
+  ],
+  "positive_reread": {
+    "actual_existing_trajectory_values": {
+      "income": [
+        1.5,
+        1.0
+      ]
+    },
+    "fresh_report_trust": {
+      "degraded": false,
+      "degraded_reasons": [],
+      "trust_eligible": false,
+      "trust_grade": null,
+      "trust_score": null
+    },
+    "genuine_trajectories": 3,
+    "no_numerical_reexecution": "Producer values and native result law unchanged; author new affected producer K1 check attributed separately, not claimed as own runtime execution. Own6 actual native calls/3seeds/runIDs and independent fiscal/state oracle preserved.",
+    "same_own_real_K3_CAS": true,
+    "source_pins": [
+      "5ad90749c5ae745b1cb5345a5543b28dd19c2f76",
+      "0983d064df3c3e21f8b1accff4ee90484d78973b"
+    ]
+  },
+  "predicate_basis": [
+    {
+      "basis": "Exact source/Trinity/registry plus prefix rules; eleven own preflight controls had callback0. Preparation unchanged.",
+      "predicate": "historical admission"
+    },
+    {
+      "basis": "Registry slot/unit and fresh post-state arrays; own independent Decimal2-.25*2 perstep fiscal oracle, not counters/effects/CI.",
+      "predicate": "actual target"
+    },
+    {
+      "basis": "Six delegated real native calls/three actualseeds+runIDs and fresh report3/3/3/0; no independent stochastic-world claim from deterministic fixture.",
+      "predicate": "actual K"
+    },
+    {
+      "basis": "Initial materializer source/registry/state anchor, inferred actualclock, percoordinate actualstep and previous_forecast_state/base_state lineage; reversed and first/second duplicate controls refuse.",
+      "predicate": "temporal chain"
+    },
+    {
+      "basis": "Actual program AND LoweredIR identities equal request Trinity with exact model source/registry; substitution and property-removal controls distinguish the guard.",
+      "predicate": "executed model"
+    },
+    {
+      "basis": "Fresh public report trust_eligible=false, grade=null, score=null; production history and source-law authority remain not_established.",
+      "predicate": "trust"
+    }
+  ],
+  "prior_HOLD": {
+    "bytes": 38760,
+    "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/backtest/review-hold-9c.json",
+    "sha256": "74665ee23b4c4338cf223585c61382bb31bf4d8bd1cb035ce49f8ecc5cb6c73c",
+    "state": "preserved original FAIL for four valid-hash reader escapes; every old output hash verified unchanged"
+  },
+  "protocol": "e02-independent-corrective-review-v1",
+  "receipt_validator": {
+    "corrupt_hash_negative_rejected": true,
+    "new_outputs_recomputed": true,
+    "old_outputs_preserved": true
+  },
+  "remaining_boundaries": [
+    {
+      "next_result": "admit existing get_state_path/load_state_snapshot/put_state_snapshot and load_registry_bundle_content use through supported narrow facade or root export with actual owner review; no namespace aliases/architecture-waiver proof from runtime PASS",
+      "owner": "canonical Foundry execute-helper boundary and Core registry consumer owner",
+      "state": "not_established"
+    },
+    {
+      "minimal_inputs": [
+        "immutable rows/source schema+snapshot refs",
+        "matching actual TrinityModelSpec/registry+binding rules",
+        "declared temporal target/unit/reduction/history columns and purpose",
+        "actual model feature dependency inventory"
+      ],
+      "next_result": "execute exact fixed candidate on local immutable real input and fresh-read source/mask/run/config/trajectory/report; synthetic witness remains generic",
+      "owner": "G local read-only checker with actual production history/model/feature lineage owner",
+      "state": "production input unavailable in cloud"
+    },
+    {
+      "minimal_inputs": [
+        "versioned trust purpose/profile",
+        "meaningful bias margin/equivalence interval if required"
+      ],
+      "next_result": "separate individual trust/equivalence decision; this bridge does not set trust authority",
+      "owner": "Scientist trust-grade/profile owner",
+      "state": "B172/B173 partial"
+    }
+  ],
+  "reviewer": "/root/ddm_r2",
+  "source_identity": "9c,5ad,0983 immutable exact Git blobs used for independent controls. All current production/test/docs source bytes equal final0983; only author handoff JSON is being updated and appears as an exact current-publication delta in footprint.",
+  "unchanged_admission_and_counter_controls": {
+    "admission": [
+      {
+        "case": "missing_trinity",
+        "counts": {
+          "attempted": 0,
+          "basis": "recomputed",
+          "completed": 0,
+          "declared_n_simulation_runs": 1,
+          "failed": 1,
+          "outcomes": [
+            "native"
+          ],
+          "plan_id": "native",
+          "requested": 1,
+          "unit": "scenario",
+          "unobserved": 0
+        },
+        "effective": "scientist_unavailable",
+        "name": "admission_negative",
+        "reasons": [
+          "native: native_forecast_unavailable:ValueError:native replay requires exactly source, Trinity and registry inputs"
+        ],
+        "scientist_callback_count": 0
+      },
+      {
+        "case": "mismatched_trinity",
+        "counts": {
+          "attempted": 0,
+          "basis": "recomputed",
+          "completed": 0,
+          "declared_n_simulation_runs": 1,
+          "failed": 1,
+          "outcomes": [
+            "native"
+          ],
+          "plan_id": "native",
+          "requested": 1,
+          "unit": "scenario",
+          "unobserved": 0
+        },
+        "effective": "scientist_unavailable",
+        "name": "admission_negative",
+        "reasons": [
+          "native: native_forecast_unavailable:ValueError:native replay original Trinity data snapshot mismatch"
+        ],
+        "scientist_callback_count": 0
+      },
+      {
+        "case": "future_binding",
+        "counts": {
+          "attempted": 0,
+          "basis": "recomputed",
+          "completed": 0,
+          "declared_n_simulation_runs": 1,
+          "failed": 1,
+          "outcomes": [
+            "native"
+          ],
+          "plan_id": "native",
+          "requested": 1,
+          "unit": "scenario",
+          "unobserved": 0
+        },
+        "effective": "scientist_unavailable",
+        "name": "admission_negative",
+        "reasons": [
+          "native: native_forecast_unavailable:ValueError:native replay input binding is outside the admitted historical prefix"
+        ],
+        "scientist_callback_count": 0
+      },
+      {
+        "case": "wrong_target",
+        "counts": {
+          "attempted": 0,
+          "basis": "recomputed",
+          "completed": 0,
+          "declared_n_simulation_runs": 1,
+          "failed": 1,
+          "outcomes": [
+            "native"
+          ],
+          "plan_id": "native",
+          "requested": 1,
+          "unit": "scenario",
+          "unobserved": 0
+        },
+        "effective": "scientist_unavailable",
+        "name": "admission_negative",
+        "reasons": [
+          "native: native_forecast_unavailable:ValueError:native forecast target metrics differ from backtest plan"
+        ],
+        "scientist_callback_count": 0
+      },
+      {
+        "case": "wrong_unit",
+        "counts": {
+          "attempted": 0,
+          "basis": "recomputed",
+          "completed": 0,
+          "declared_n_simulation_runs": 1,
+          "failed": 1,
+          "outcomes": [
+            "native"
+          ],
+          "plan_id": "native",
+          "requested": 1,
+          "unit": "scenario",
+          "unobserved": 0
+        },
+        "effective": "scientist_unavailable",
+        "name": "admission_negative",
+        "reasons": [
+          "native: native_forecast_unavailable:ValueError:native forecast target/slot/unit mismatch: income"
+        ],
+        "scientist_callback_count": 0
+      },
+      {
+        "case": "wrong_horizon",
+        "counts": {
+          "attempted": 0,
+          "basis": "recomputed",
+          "completed": 0,
+          "declared_n_simulation_runs": 1,
+          "failed": 1,
+          "outcomes": [
+            "native"
+          ],
+          "plan_id": "native",
+          "requested": 1,
+          "unit": "scenario",
+          "unobserved": 0
+        },
+        "effective": "scientist_unavailable",
+        "name": "admission_negative",
+        "reasons": [
+          "native: native_forecast_unavailable:ValueError:native forecast horizon differs from backtest outcomes"
+        ],
+        "scientist_callback_count": 0
+      },
+      {
+        "case": "wrong_time",
+        "counts": {
+          "attempted": 0,
+          "basis": "recomputed",
+          "completed": 0,
+          "declared_n_simulation_runs": 1,
+          "failed": 1,
+          "outcomes": [
+            "native"
+          ],
+          "plan_id": "native",
+          "requested": 1,
+          "unit": "scenario",
+          "unobserved": 0
+        },
+        "effective": "scientist_unavailable",
+        "name": "admission_negative",
+        "reasons": [
+          "native: native_forecast_unavailable:ValueError:native replay future time coordinates differ from declared cutoff/horizon"
+        ],
+        "scientist_callback_count": 0
+      },
+      {
+        "case": "prebound_fake",
+        "counts": {
+          "attempted": 0,
+          "basis": "recomputed",
+          "completed": 0,
+          "declared_n_simulation_runs": 1,
+          "failed": 1,
+          "outcomes": [
+            "native"
+          ],
+          "plan_id": "native",
+          "requested": 1,
+          "unit": "scenario",
+          "unobserved": 0
+        },
+        "effective": "scientist_unavailable",
+        "name": "admission_negative",
+        "reasons": [
+          "native: native_forecast_unavailable:ValueError:native replay requires exactly source, Trinity and registry inputs"
+        ],
+        "scientist_callback_count": 0
+      },
+      {
+        "case": "hidden_future_parameter",
+        "counts": {
+          "attempted": 0,
+          "basis": "recomputed",
+          "completed": 0,
+          "declared_n_simulation_runs": 1,
+          "failed": 1,
+          "outcomes": [
+            "native"
+          ],
+          "plan_id": "native",
+          "requested": 1,
+          "unit": "scenario",
+          "unobserved": 0
+        },
+        "effective": "scientist_unavailable",
+        "name": "admission_negative",
+        "reasons": [
+          "native: native_forecast_unavailable:ValueError:native replay refuses unscoped Scientist parameters"
+        ],
+        "scientist_callback_count": 0
+      },
+      {
+        "case": "model_future_dependency",
+        "counts": {
+          "attempted": 0,
+          "basis": "recomputed",
+          "completed": 0,
+          "declared_n_simulation_runs": 1,
+          "failed": 1,
+          "outcomes": [
+            "native"
+          ],
+          "plan_id": "native",
+          "requested": 1,
+          "unit": "scenario",
+          "unobserved": 0
+        },
+        "effective": "scientist_unavailable",
+        "name": "admission_negative",
+        "reasons": [
+          "native: native_forecast_unavailable:ValueError:native replay refuses unscoped model data dependencies"
+        ],
+        "scientist_callback_count": 0
+      },
+      {
+        "case": "wrong_purpose",
+        "counts": {
+          "attempted": 0,
+          "basis": "recomputed",
+          "completed": 0,
+          "declared_n_simulation_runs": 1,
+          "failed": 1,
+          "outcomes": [
+            "native"
+          ],
+          "plan_id": "native",
+          "requested": 1,
+          "unit": "scenario",
+          "unobserved": 0
+        },
+        "effective": "scientist_unavailable",
+        "name": "admission_negative",
+        "reasons": [
+          "native: native_forecast_unavailable:ValidationError:1 validation error for NativeForecastProfile\npurpose\n  Input should be 'predictive_simulation' [type=literal_error, input_value='causal_policy', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/literal_error"
+        ],
+        "scientist_callback_count": 0
+      }
+    ],
+    "counter_spy": [
+      {
+        "actual_callbacks": 1,
+        "counts": {
+          "attempted": 1,
+          "basis": "recomputed",
+          "completed": 0,
+          "declared_n_simulation_runs": 1,
+          "failed": 1,
+          "outcomes": [
+            "native"
+          ],
+          "plan_id": "native",
+          "requested": 1,
+          "unit": "scenario",
+          "unobserved": 0
+        },
+        "name": "counter_spy_refused",
+        "native_calls_replaced": 1,
+        "reasons": [
+          "native: native_forecast_unavailable:KeyError:'backtest_native_forecast_ref'"
+        ],
+        "source": "no actual native executor call; counters cannot supply trajectory"
+      }
+    ],
+    "guard_removal": [
+      {
+        "carrier_fields_preserved": true,
+        "disabled": "registry slot/unit check",
+        "name": "property_removal"
+      },
+      {
+        "case": "wrong_unit",
+        "counts": {
+          "attempted": 1,
+          "basis": "recomputed",
+          "completed": 0,
+          "declared_n_simulation_runs": 1,
+          "failed": 1,
+          "outcomes": [
+            "native"
+          ],
+          "plan_id": "native",
+          "requested": 1,
+          "unit": "scenario",
+          "unobserved": 0
+        },
+        "effective": "scientist_unavailable",
+        "name": "admission_negative",
+        "reasons": [
+          "native: native_forecast_unavailable:KeyError:'backtest_native_forecast_ref'"
+        ],
+        "scientist_callback_count": 1
+      }
+    ],
+    "summary": "11 preflight negatives stop before Scientist callback; counter-only DefaultFoundryPort returns no successful simulation and yields unavailable, not forecast; disabling slot/unit guard with identical field carrier lets wrong unit reach callback, sensitivity control asserts FAIL"
+  }
+}

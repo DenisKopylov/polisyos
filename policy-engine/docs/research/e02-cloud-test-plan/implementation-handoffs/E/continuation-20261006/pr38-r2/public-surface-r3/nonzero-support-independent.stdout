@@ -1,0 +1,118 @@
+{
+  "property_source_sha": "5cdfe613bf91fffbd578848c9e2f8275edc21ee7",
+  "property_source_tree": "bcbc3b280756b652e8996a15570a4a9b64352839",
+  "actual_import_source_sha": "185d13cd6afb15b0c2ae8f8041e602a3cc7b08d3",
+  "before_after_equal": true,
+  "refusals": [
+    {
+      "representation": "longdouble",
+      "inlet": "weights",
+      "exception": "ValueError",
+      "warnings": 0,
+      "callback_count": 0
+    },
+    {
+      "representation": "longdouble",
+      "inlet": "CDF",
+      "exception": "ValueError",
+      "warnings": 0,
+      "callback_count": 0
+    },
+    {
+      "representation": "longdouble",
+      "inlet": "uniform",
+      "exception": "ValueError",
+      "warnings": 0,
+      "callback_count": 0
+    },
+    {
+      "representation": "longdouble",
+      "inlet": "range",
+      "exception": "ValueError",
+      "warnings": 0,
+      "callback_count": 0
+    },
+    {
+      "representation": "longdouble",
+      "inlet": "pilot",
+      "exception": "ValueError",
+      "warnings": 0,
+      "callback_count": 0
+    },
+    {
+      "representation": "Fraction",
+      "inlet": "weights",
+      "exception": "ValueError",
+      "warnings": 0,
+      "callback_count": 0
+    },
+    {
+      "representation": "Fraction",
+      "inlet": "CDF",
+      "exception": "ValueError",
+      "warnings": 0,
+      "callback_count": 0
+    },
+    {
+      "representation": "Fraction",
+      "inlet": "uniform",
+      "exception": "ValueError",
+      "warnings": 0,
+      "callback_count": 0
+    },
+    {
+      "representation": "Fraction",
+      "inlet": "range",
+      "exception": "ValueError",
+      "warnings": 0,
+      "callback_count": 0
+    },
+    {
+      "representation": "Fraction",
+      "inlet": "pilot",
+      "exception": "ValueError",
+      "warnings": 0,
+      "callback_count": 0
+    },
+    {
+      "representation": "longdouble",
+      "inlet": "weights",
+      "positive_position": 0,
+      "exception": "ValueError"
+    },
+    {
+      "representation": "longdouble",
+      "inlet": "weights",
+      "positive_position": 1,
+      "exception": "ValueError"
+    },
+    {
+      "representation": "longdouble",
+      "inlet": "weights",
+      "positive_position": 2,
+      "exception": "ValueError"
+    }
+  ],
+  "native_MC": [
+    {
+      "raw_covariance_row_kind": "array",
+      "callback_count": 0,
+      "family": "unknown",
+      "gate_eligible": false,
+      "limitations": "Independent covariance builder also refuses these row representations; this is a positive admission-order witness, not an effective guard-removal control."
+    },
+    {
+      "raw_covariance_row_kind": "list",
+      "callback_count": 0,
+      "family": "unknown",
+      "gate_eligible": false,
+      "limitations": "Independent covariance builder also refuses these row representations; this is a positive admission-order witness, not an effective guard-removal control."
+    }
+  ],
+  "pilot_oracle": {
+    "U": 0.0995612819216314,
+    "N": 408
+  },
+  "module_origin_count": 41,
+  "verdict": "GO-bounded-common-real-domain-and-nonzero-preservation"
+}

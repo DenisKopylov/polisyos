@@ -1,0 +1,20 @@
+import hashlib,io,json,os,resource,subprocess,sys,tarfile,time
+from pathlib import Path
+out=Path('/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/legacy-calibration')
+lane=Path('/workspace/e02-E-continuation-20261006');sha='902d9f6b224f0fbeec709bc3683910fa08eba4b7'
+overlay=out/'git-blob-overlay-902d';overlay.mkdir(exist_ok=True)
+paths=['policy-engine/src','policy-engine/architecture','policy-engine/pyproject.toml','policy-engine/uv.lock',
+    'policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py']
+blob=subprocess.check_output(['git','-C',str(lane),'archive',sha,*paths])
+with tarfile.open(fileobj=io.BytesIO(blob)) as tar:tar.extractall(overlay,filter='data')
+env=dict(os.environ,PYTHONPATH=str(overlay/'policy-engine/src'),UV_NO_SYNC='1')
+argv=[sys.executable,str(out/'baseline_falsifier.py')];start=time.monotonic()
+with (out/'baseline-falsifier.log').open('w') as stream:
+    p=subprocess.run(argv,cwd=overlay/'policy-engine',env=env,stdout=stream,stderr=subprocess.STDOUT)
+receipt=dict(source=sha,source_tree=subprocess.check_output(['git','-C',str(lane),'rev-parse',sha+'^{tree}'],text=True).strip(),
+    archive_sha256=hashlib.sha256(blob).hexdigest(),archive_paths=paths,argv=argv,cwd=str(overlay/'policy-engine'),
+    environment={k:env.get(k) for k in ('PYTHONPATH','UV_NO_SYNC','OMP_NUM_THREADS','XLA_FLAGS')},
+    exit_code=p.returncode,wall_seconds=time.monotonic()-start,maxrss_kib=resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss,
+    stdout_sha256=hashlib.sha256((out/'baseline-falsifier.log').read_bytes()).hexdigest())
+(out/'baseline-falsifier-receipt.json').write_text(json.dumps(receipt,indent=2))
+print(json.dumps(receipt,indent=2));print((out/'baseline-falsifier.log').read_text()[-6000:]);sys.exit(p.returncode)

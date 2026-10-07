@@ -1,0 +1,13 @@
+{
+  "disposition": "GO_bounded_source_readiness_for_distinct_corrected_freeze",
+  "candidate": "94d3e6ee67b70a5ef4f71e529275aa7db0fddcde",
+  "tree": "2220bc48d1ccfd62310de0737c3be939c06d2d2f",
+  "diff_paths": 587,
+  "operational_paths": 15,
+  "indices": 16,
+  "native_files": 122,
+  "owner_packet_files": 2,
+  "lint_paths": 314,
+  "negative_controls": 12,
+  "source_immutable": true
+}

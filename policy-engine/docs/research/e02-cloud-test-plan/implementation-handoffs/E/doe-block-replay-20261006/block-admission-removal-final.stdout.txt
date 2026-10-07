@@ -1,0 +1,79 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+______ test_sobol_refuses_broken_block_membership_or_interior_roles[rows] ______
+
+mutation = 'rows'
+
+    @pytest.mark.parametrize("mutation", ["rows", "duplicate_block", "missing_block"])
+    def test_sobol_refuses_broken_block_membership_or_interior_roles(mutation):
+        plan = _plan()
+        samples = generate_sensitivity_samples(plan)
+        outputs = samples[:, 0] + samples[:, 1]
+        block_size = 2 * plan.num_parameters + 2
+        if mutation == "rows":
+            # Paired outputs follow rows, but AB/BA roles are now wrong inside one block.
+            samples[[0, 1]] = samples[[1, 0]]
+            outputs[[0, 1]] = outputs[[1, 0]]
+        elif mutation == "duplicate_block":
+            samples[block_size : 2 * block_size] = samples[:block_size]
+            outputs[block_size : 2 * block_size] = outputs[:block_size]
+        else:
+            samples, outputs = samples[:-block_size], outputs[:-block_size]
+>       with pytest.raises(ValueError, match="canonical seeded ordered design"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/scientist/methods/doe/test_analysis_receipt.py:160: Failed
+_ test_sobol_refuses_broken_block_membership_or_interior_roles[duplicate_block] _
+
+mutation = 'duplicate_block'
+
+    @pytest.mark.parametrize("mutation", ["rows", "duplicate_block", "missing_block"])
+    def test_sobol_refuses_broken_block_membership_or_interior_roles(mutation):
+        plan = _plan()
+        samples = generate_sensitivity_samples(plan)
+        outputs = samples[:, 0] + samples[:, 1]
+        block_size = 2 * plan.num_parameters + 2
+        if mutation == "rows":
+            # Paired outputs follow rows, but AB/BA roles are now wrong inside one block.
+            samples[[0, 1]] = samples[[1, 0]]
+            outputs[[0, 1]] = outputs[[1, 0]]
+        elif mutation == "duplicate_block":
+            samples[block_size : 2 * block_size] = samples[:block_size]
+            outputs[block_size : 2 * block_size] = outputs[:block_size]
+        else:
+            samples, outputs = samples[:-block_size], outputs[:-block_size]
+>       with pytest.raises(ValueError, match="canonical seeded ordered design"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/scientist/methods/doe/test_analysis_receipt.py:160: Failed
+_ test_sobol_refuses_broken_block_membership_or_interior_roles[missing_block] __
+
+mutation = 'missing_block'
+
+    @pytest.mark.parametrize("mutation", ["rows", "duplicate_block", "missing_block"])
+    def test_sobol_refuses_broken_block_membership_or_interior_roles(mutation):
+        plan = _plan()
+        samples = generate_sensitivity_samples(plan)
+        outputs = samples[:, 0] + samples[:, 1]
+        block_size = 2 * plan.num_parameters + 2
+        if mutation == "rows":
+            # Paired outputs follow rows, but AB/BA roles are now wrong inside one block.
+            samples[[0, 1]] = samples[[1, 0]]
+            outputs[[0, 1]] = outputs[[1, 0]]
+        elif mutation == "duplicate_block":
+            samples[block_size : 2 * block_size] = samples[:block_size]
+            outputs[block_size : 2 * block_size] = outputs[:block_size]
+        else:
+            samples, outputs = samples[:-block_size], outputs[:-block_size]
+>       with pytest.raises(ValueError, match="canonical seeded ordered design"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/scientist/methods/doe/test_analysis_receipt.py:160: Failed
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/doe/test_analysis_receipt.py::test_sobol_refuses_broken_block_membership_or_interior_roles[rows]
+FAILED tests/unit/scientist/methods/doe/test_analysis_receipt.py::test_sobol_refuses_broken_block_membership_or_interior_roles[duplicate_block]
+FAILED tests/unit/scientist/methods/doe/test_analysis_receipt.py::test_sobol_refuses_broken_block_membership_or_interior_roles[missing_block]
+3 failed in 13.74s

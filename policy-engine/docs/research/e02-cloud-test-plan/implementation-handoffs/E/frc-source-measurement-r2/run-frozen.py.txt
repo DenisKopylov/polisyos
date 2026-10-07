@@ -1,0 +1,37 @@
+from pathlib import Path
+import asyncio, hashlib, importlib.metadata, json, os, platform, subprocess, sys, time
+root=Path("/workspace/e02-E-frc-20261006")
+cwd=root/"policy-engine"
+out=Path("/workspace/e02-E-pr38-r2-receipts/frc/frozen")
+out.mkdir(exist_ok=True)
+py=sys.executable
+packet="docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/"
+source_sha=subprocess.check_output(["git","rev-parse","HEAD"],cwd=root,text=True).strip()
+env=dict(os.environ,PYTHONPATH="src")
+files=["src/polisyos/calibration/__init__.py","src/polisyos/calibration/forecast_bridge.py","src/polisyos/scientist/methods/backtesting/forecast_owner.py","tests/unit/calibration/test_evidence_facades.py","tests/unit/remediation/test_frc_02_owner.py","tests/unit/scientist/methods/backtesting/test_forecast_owner.py"]
+commands={
+ "affected-native":[py,"-m","pytest","-q","--junitxml="+str(out/"affected-native.junit.xml"),files[3],files[5]],
+ "a-cas-contract":[py,"-m","pytest","-q","--junitxml="+str(out/"a-cas-contract.junit.xml"),"/workspace/e02-E-pr38-r2-receipts/frc/test_a_cas_contract.py"],
+ "a-status-reason":[py,"-m","pytest","-q","--junitxml="+str(out/"a-status-reason.junit.xml"),"/workspace/e02-E-pr38-r2-receipts/frc/test_a_status_reason.py"],
+ "property-removal":[py,packet+"measurement-property-removal.py.txt"],
+ "measurement-probe":[py,packet+"measurement-probe.py.txt","--output-root","/workspace/e02-E-pr38-r2-receipts/frc/candidate-probe-cas"],
+ "legacy-replay":[py,packet+"legacy-replay-probe.py.txt","--cas","/workspace/e02-E-pr38-r2-receipts/frc/legacy-replay-cas"],
+ "ruff":[py,"-m","ruff","check",*files],
+ "format":[py,"-m","ruff","format","--check",*files],
+ "results-importer":[py,"docs/research/e02-cloud-test-plan/results/import_results.py","--check"],
+ "a-patch-applicable":["git","-C",str(root),"apply","--check","--verbose",str(cwd/packet/"a-status-reason.patch.txt")],
+}
+async def run(name,argv):
+ start=time.time()
+ stdout=out/(name+".stdout")
+ resource=out/(name+".resource.json")
+ with stdout.open("wb") as handle:
+  proc=await asyncio.create_subprocess_exec(py,"/workspace/e02-E-pr38-r2-receipts/frc/measure-process.py",str(resource),*argv,cwd=cwd,env=env,stdout=handle,stderr=asyncio.subprocess.STDOUT)
+  code=await proc.wait()
+ return {"name":name,"argv":argv,"cwd":str(cwd),"target_sha":source_sha,"exit_code":code,"wall_seconds":round(time.time()-start,3),"stdout":stdout.name,"stdout_sha256":hashlib.sha256(stdout.read_bytes()).hexdigest(),"stdout_bytes":stdout.stat().st_size,"resource":resource.name}
+async def main():
+ checks=await asyncio.gather(*(run(name,argv) for name,argv in commands.items()))
+ environment={"interpreter":py,"python":sys.version,"platform":platform.platform(),"cpu_count":os.cpu_count(),"numerical_thread_overrides":{k:os.environ.get(k) for k in ["OMP_NUM_THREADS","OPENBLAS_NUM_THREADS","MKL_NUM_THREADS","JAX_PLATFORMS"]},"packages":{name:importlib.metadata.version(name) for name in ["numpy","scipy","jax","SALib","pydantic","pytest","ruff"]},"worktree":str(root),"source_sha":source_sha,"source_tree":subprocess.check_output(["git","rev-parse","HEAD^{tree}"],cwd=root,text=True).strip(),"file_sha256":{file:hashlib.sha256((cwd/file).read_bytes()).hexdigest() for file in files}}
+ (out/"execution.json").write_text(json.dumps({"environment":environment,"checks":checks},indent=2)+"\n")
+ print(json.dumps({row["name"]:{"exit":row["exit_code"],"wall":row["wall_seconds"]} for row in checks},indent=2))
+asyncio.run(main())

@@ -1,0 +1,1465 @@
+{
+  "schema": "policyos.e02.independent_assembly_delta_review.v1",
+  "state": "READY",
+  "reviewer": "root/backtest_r3; independent assembly joins only; own BKT/Welfare judgments attributed to existing independent DDM/CAL receipts",
+  "mode": "read-only Git/source AST/receipt reconciliation; scratch output only; no product imports, numerical tests, broad checks, environment/worktree creation or source writes",
+  "base": "c79de1a8779482cf485317039fe12e3570ae2273",
+  "base_tree": "a2c9076c618a241d7a7a02e666f8b3648c94b3cd",
+  "candidate": "d43f8d4693767637424da759ae960f7b51736449",
+  "tree": "6d38589b1b21a40ca64796cd018f766646099f7e",
+  "observed_head_start": "d43f8d4693767637424da759ae960f7b51736449",
+  "observed_head_end": "d43f8d4693767637424da759ae960f7b51736449",
+  "working_status_start": "",
+  "working_status_end": "",
+  "verdict": "GO_bounded_assembly_delta_and_source_dependency_joins",
+  "blocking_unreviewed_product_delta": [],
+  "prior_assembly": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/assembly-independent/assembly-dependency-review-c79.json",
+    "git_blob": "83ca0a0f81ae30b4d18f744d2965f7d4e5f44a1f",
+    "bytes": 51942,
+    "sha256": "3c4e7a931a9fe76129f3d783106a2092e8655af3ce49ef68c00461115e28ae97"
+  },
+  "prior_full_footprint": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/assembly-independent/full-committed-footprint.tsv",
+    "git_blob": "66c8bf34b8bd98209e83bce501c917915f626026",
+    "bytes": 131643,
+    "sha256": "7f6805a5ed0f5336552e67c95c40d35fc3fe5c77253e130d4f47394cee4c49db"
+  },
+  "prior_929_paths_reconciled": true,
+  "prior_footprint_paths_changed_again": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-06-fourth-wave-intake.md",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-reader-facade.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-ddm-source-binding.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-evidence-facades.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-finite-law-admission-facade.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-foundry-calibration-reader.toml",
+    "policy-engine/src/polisyos/scientist/methods/doe/README.md",
+    "policy-engine/src/polisyos/scientist/methods/doe/analysis.py"
+  ],
+  "delta_footprint": {
+    "paths": 181,
+    "statuses": {
+      "A": 162,
+      "M": 19
+    },
+    "categories": {
+      "indexed assembly-independent evidence": 6,
+      "indexed assembly-independent evidence; executable witness, not product caller": 2,
+      "indexed doe-budget-independent evidence": 14,
+      "indexed doe-budget-independent evidence; executable witness, not product caller": 4,
+      "indexed harness-author-v2 evidence": 23,
+      "indexed harness-author-v2 evidence; executable witness, not product caller": 3,
+      "indexed harness-independent evidence": 22,
+      "indexed harness-independent evidence; executable witness, not product caller": 4,
+      "indexed readiness-b97 evidence": 15,
+      "indexed readiness-b97 evidence; executable witness, not product caller": 1,
+      "indexed release-compatibility-author evidence": 8,
+      "indexed release-compatibility-author evidence; executable witness, not product caller": 1,
+      "indexed release-compatibility-independent evidence": 13,
+      "indexed release-compatibility-independent evidence; executable witness, not product caller": 1,
+      "reviewed primary operational harness4758": 4,
+      "DoE author bounded evidence; errors/history retained": 29,
+      "G53 integration audit/evidence only; B/E owners separate": 15,
+      "reviewed DoE70c mechanism/test/paired companion": 10,
+      "reviewed six canonical release metadata25ab": 6
+    },
+    "file": "full-c79-to-d43-footprint.tsv",
+    "sha256": "4b96a6f2b5c6e0fea9a42a9dd6bfe32bc5612c2eb8c51d4ee954954e11011be2",
+    "bytes": 55016,
+    "all_paths_assigned": true,
+    "docs_executable_witnesses_counted": 17
+  },
+  "prior_operational_joins": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-finite-sampling-law.toml",
+      "previous_owner": "MC",
+      "prior_blob": "64e4843cbff602df22d87cad76654a7dcb9217fb",
+      "final_blob": "64e4843cbff602df22d87cad76654a7dcb9217fb",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/dispatcher.py",
+      "previous_owner": "MC",
+      "prior_blob": "fff6eab6ca8c42e6c4eae9c91a6adda38bd82d31",
+      "final_blob": "fff6eab6ca8c42e6c4eae9c91a6adda38bd82d31",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+      "previous_owner": "MC",
+      "prior_blob": "7531a2ab9fd824e05f74e33f49a3d9f9386c57c9",
+      "final_blob": "7531a2ab9fd824e05f74e33f49a3d9f9386c57c9",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/uncertainty/test_finite_empirical_law.py",
+      "previous_owner": "MC",
+      "prior_blob": "64bc7fd577e919580aab990138947cd8d6b9c830",
+      "final_blob": "64bc7fd577e919580aab990138947cd8d6b9c830",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-gaussian-noise-preflight-r2.toml",
+      "previous_owner": "CAL",
+      "prior_blob": "028667a624665b21a97d4c465362087ce7528587",
+      "final_blob": "028667a624665b21a97d4c465362087ce7528587",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/README.md",
+      "previous_owner": "CAL",
+      "prior_blob": "64666489a64c671d65c0aecfd18089581bd905e0",
+      "final_blob": "64666489a64c671d65c0aecfd18089581bd905e0",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+      "previous_owner": "CAL",
+      "prior_blob": "c0811821f814a05eaa001450beee9aba3e73bb7e",
+      "final_blob": "c0811821f814a05eaa001450beee9aba3e73bb7e",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/preflight.py",
+      "previous_owner": "CAL",
+      "prior_blob": "458f6f508e11a5e297abd3cefcd255ceb91aa2c7",
+      "final_blob": "458f6f508e11a5e297abd3cefcd255ceb91aa2c7",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/calibration/test_gaussian_noise_preflight.py",
+      "previous_owner": "CAL",
+      "prior_blob": "e637c2c06523497a3992c9739c9600cb2bb3812f",
+      "final_blob": "e637c2c06523497a3992c9739c9600cb2bb3812f",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-doe-block-replay.toml",
+      "previous_owner": "DOE",
+      "prior_blob": "595c6431fa25a23437fe55aaabb91b785ca28c7c",
+      "final_blob": "595c6431fa25a23437fe55aaabb91b785ca28c7c",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/README.md",
+      "previous_owner": "DOE",
+      "prior_blob": "2e36f3eed57f5f20e6221d685b168e0819f148a5",
+      "final_blob": "d1305a7eb8d9fd94a74117d73302c392c565ae31",
+      "equal": false,
+      "basis": "independent CAL DoE70c runtime-admission GO"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+      "previous_owner": "DOE",
+      "prior_blob": "fe40ae4af8191165733294d5f227164c2d64fe5e",
+      "final_blob": "964c3c5910956a59f053fdd7b73af628a1f13e9d",
+      "equal": false,
+      "basis": "independent CAL DoE70c runtime-admission GO"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/doe/test_analysis_enhanced.py",
+      "previous_owner": "DOE",
+      "prior_blob": "af15f454e4dddac5bd51b362b1656bc97243f7a5",
+      "final_blob": "af15f454e4dddac5bd51b362b1656bc97243f7a5",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/doe/test_analysis_receipt.py",
+      "previous_owner": "DOE",
+      "prior_blob": "efe66bc736ce77927165a468fef12be63bf4e4e8",
+      "final_blob": "efe66bc736ce77927165a468fef12be63bf4e4e8",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-ddm-source-binding.toml",
+      "previous_owner": "DDM",
+      "prior_blob": "7090821f0d11bdb1252d5f3f9a995ce1ef7b25d5",
+      "final_blob": "21bd1097123237519d17ae9a0555f9c33a40dc1e",
+      "equal": false,
+      "basis": "canonical-owner release metadata25ab independent GO"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ddm/README.md",
+      "previous_owner": "DDM",
+      "prior_blob": "d523b4b733da5023e8add28885c10b8b7b4be2a5",
+      "final_blob": "d523b4b733da5023e8add28885c10b8b7b4be2a5",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ddm/integration/model_registry.py",
+      "previous_owner": "DDM",
+      "prior_blob": "2e6796867c4811868e291bc526a9c3c5999f7183",
+      "final_blob": "2e6796867c4811868e291bc526a9c3c5999f7183",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ddm/integration/model_registry_gate.md",
+      "previous_owner": "DDM",
+      "prior_blob": "1b84e782c8f889e30d7f569e437070bc2a9d7b1c",
+      "final_blob": "1b84e782c8f889e30d7f569e437070bc2a9d7b1c",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ddm/integration/model_registry_record.schema.json",
+      "previous_owner": "DDM",
+      "prior_blob": "0277bc66c1587a1ea4918de94cb79eac419d4956",
+      "final_blob": "0277bc66c1587a1ea4918de94cb79eac419d4956",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ddm/integration/model_registry_record.v1.schema.json",
+      "previous_owner": "DDM",
+      "prior_blob": "25fd9d2faad3585e2ba87c72c41f63270687d1cb",
+      "final_blob": "25fd9d2faad3585e2ba87c72c41f63270687d1cb",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/tests/unit/ddm/test_registry_schema_compatibility.py",
+      "previous_owner": "DDM",
+      "prior_blob": "570b29004553f80d63086804a8a782b9bb3d9b8b",
+      "final_blob": "570b29004553f80d63086804a8a782b9bb3d9b8b",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-pcl-configured-consumer.toml",
+      "previous_owner": "PCL",
+      "prior_blob": "36d32874fc68496d690c110ad6411e47a5ed6977",
+      "final_blob": "36d32874fc68496d690c110ad6411e47a5ed6977",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/execute/_internal/graph/__init__.py",
+      "previous_owner": "PCL",
+      "prior_blob": "8d22828e23a0a26817be0943022b5b99e7bf03a4",
+      "final_blob": "8d22828e23a0a26817be0943022b5b99e7bf03a4",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/README.md",
+      "previous_owner": "PCL",
+      "prior_blob": "9801f945bb9cf91d39f1766bb77ba6bc8597b3ec",
+      "final_blob": "9801f945bb9cf91d39f1766bb77ba6bc8597b3ec",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/numpy_runner.py",
+      "previous_owner": "PCL",
+      "prior_blob": "dc9c56e70e15b8c3b09329c0df23059a4b6501ab",
+      "final_blob": "dc9c56e70e15b8c3b09329c0df23059a4b6501ab",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+      "previous_owner": "PCL",
+      "prior_blob": "7ca3d5b6637a7677fc54a4e178262dd0fcf0e081",
+      "final_blob": "7ca3d5b6637a7677fc54a4e178262dd0fcf0e081",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/econometrics/test_advanced_persistence.py",
+      "previous_owner": "PCL",
+      "prior_blob": "81c11583e308041d9e026db275a0436a7a521eec",
+      "final_blob": "81c11583e308041d9e026db275a0436a7a521eec",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-backtest-native-trajectory.toml",
+      "previous_owner": "BKT",
+      "prior_blob": "56270953b3173a37cd77fa39b82d3420c7db7933",
+      "final_blob": "56270953b3173a37cd77fa39b82d3420c7db7933",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+      "previous_owner": "BKT",
+      "prior_blob": "c633f081a4ea6b5b242e670aca831bf46213c5bc",
+      "final_blob": "c633f081a4ea6b5b242e670aca831bf46213c5bc",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+      "previous_owner": "BKT",
+      "prior_blob": "ff4d436808dee6e56a79a15abda5c6c6cd49c444",
+      "final_blob": "ff4d436808dee6e56a79a15abda5c6c6cd49c444",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_simulation.py",
+      "previous_owner": "BKT",
+      "prior_blob": "79367fe7a9d8cc1ae0a5199318691915de113d6b",
+      "final_blob": "79367fe7a9d8cc1ae0a5199318691915de113d6b",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_native_replay.py",
+      "previous_owner": "BKT",
+      "prior_blob": "b3d55a28f1345e7d7286883345aa98bf03ac76f1",
+      "final_blob": "b3d55a28f1345e7d7286883345aa98bf03ac76f1",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/README.md",
+      "previous_owner": "BKT publication README",
+      "prior_blob": "46dca4dc8b5f9fd623b089d8f92d7db668adde57",
+      "final_blob": "46dca4dc8b5f9fd623b089d8f92d7db668adde57",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "previous_owner": "FRC",
+      "prior_blob": "b3bce8ce42df233d434196fafdca31225e949c18",
+      "final_blob": "b3bce8ce42df233d434196fafdca31225e949c18",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "previous_owner": "FRC",
+      "prior_blob": "a9c668bfde25542e1cf788230f7229d33617dc9c",
+      "final_blob": "a9c668bfde25542e1cf788230f7229d33617dc9c",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_frc_02_owner.py",
+      "previous_owner": "FRC",
+      "prior_blob": "db9cf3bf3b79473c0bbf71e2a622f8b10b044795",
+      "final_blob": "db9cf3bf3b79473c0bbf71e2a622f8b10b044795",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_forecast_owner.py",
+      "previous_owner": "FRC",
+      "prior_blob": "7f71808fa8c56e861c9ed359c22c5297d2b3613d",
+      "final_blob": "7f71808fa8c56e861c9ed359c22c5297d2b3613d",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-forecast-source-measurement.toml",
+      "previous_owner": "FRC",
+      "prior_blob": "eb1ee71487f4bfa114d499a8314dd3d256dec3a6",
+      "final_blob": "eb1ee71487f4bfa114d499a8314dd3d256dec3a6",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "previous_owner": "Welfare",
+      "prior_blob": "6d55aad4d5b25d1851fd626d863718ee7fefc9b7",
+      "final_blob": "6d55aad4d5b25d1851fd626d863718ee7fefc9b7",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py",
+      "previous_owner": "Welfare",
+      "prior_blob": "4898ce5f70c3ba917983550b218d68d0d5da49cc",
+      "final_blob": "4898ce5f70c3ba917983550b218d68d0d5da49cc",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/README.md",
+      "previous_owner": "Welfare",
+      "prior_blob": "704355fada8f62da6f71d3f2049370b5ea30b461",
+      "final_blob": "704355fada8f62da6f71d3f2049370b5ea30b461",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-welfare-empirical-law.toml",
+      "previous_owner": "Welfare",
+      "prior_blob": "0ef411ffdcd7a4e2887277d8a52728feac6432cc",
+      "final_blob": "0ef411ffdcd7a4e2887277d8a52728feac6432cc",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/README.md",
+      "previous_owner": "Legacy B197 immutable companions",
+      "prior_blob": "85c8915809fbf8734e4fff0664dfe627449f2c69",
+      "final_blob": "85c8915809fbf8734e4fff0664dfe627449f2c69",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/test_calibration_report_consumer.py",
+      "previous_owner": "Legacy B197 immutable companions",
+      "prior_blob": "7c687ca9119a7fbdce0e45ec57dfd4c61067d466",
+      "final_blob": "7c687ca9119a7fbdce0e45ec57dfd4c61067d466",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-legacy-consumer.toml",
+      "previous_owner": "Legacy B197 immutable companions",
+      "prior_blob": "93f6304146f639edfb8c6c2f0ca99489ccf6cc36",
+      "final_blob": "93f6304146f639edfb8c6c2f0ca99489ccf6cc36",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "previous_owner": "Common law guard",
+      "prior_blob": "93bd20d9482a4cdec252911a38e0c840cbc23d1a",
+      "final_blob": "93bd20d9482a4cdec252911a38e0c840cbc23d1a",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/uncertainty/test_sampling_real_domain.py",
+      "previous_owner": "Common law guard",
+      "prior_blob": "52389e9eb467d2322f60e5dde11a55abe35ec90a",
+      "final_blob": "52389e9eb467d2322f60e5dde11a55abe35ec90a",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/__init__.py",
+      "previous_owner": "Canonical routing",
+      "prior_blob": "941e326c19c3823a82756fb9053746b8aed05510",
+      "final_blob": "941e326c19c3823a82756fb9053746b8aed05510",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "previous_owner": "Canonical routing",
+      "prior_blob": "5a122baf833cf6e12c45aa5333e682ff35bfd5cf",
+      "final_blob": "5a122baf833cf6e12c45aa5333e682ff35bfd5cf",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "previous_owner": "Canonical routing",
+      "prior_blob": "d2f5007480c55186ac8293da659ebcda69b35966",
+      "final_blob": "d2f5007480c55186ac8293da659ebcda69b35966",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "previous_owner": "Canonical routing",
+      "prior_blob": "e9ee6f8cbb1b155c370f0c9d5841795f1341c1dd",
+      "final_blob": "e9ee6f8cbb1b155c370f0c9d5841795f1341c1dd",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/architecture/public_surface/inventory.json",
+      "previous_owner": "Canonical generated metadata",
+      "prior_blob": "2750df9fbf0e5b483ad7678aa59198aa1b9c2b54",
+      "final_blob": "2750df9fbf0e5b483ad7678aa59198aa1b9c2b54",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/docs/reference/public-surface.md",
+      "previous_owner": "Canonical generated metadata",
+      "prior_blob": "2f7c1139a076177051d5214031a3747bb3548a6b",
+      "final_blob": "2f7c1139a076177051d5214031a3747bb3548a6b",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+      "previous_owner": "Canonical generated metadata",
+      "prior_blob": "25cb4c4885e00fb80c8703b24febc4cea8c3cea9",
+      "final_blob": "25cb4c4885e00fb80c8703b24febc4cea8c3cea9",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-foundry-calibration-reader.toml",
+      "previous_owner": "Stable reader review flag",
+      "prior_blob": "b5758112fe0092dd66395896d63df241b5dc83df",
+      "final_blob": "fbcd5df0ea0115683da3c2216bd00e3e2274d489",
+      "equal": false,
+      "basis": "canonical-owner release metadata25ab independent GO"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-reader-facade.toml",
+      "previous_owner": "root/family documentation companion",
+      "prior_blob": "ae39421ed6d59cee375f99b81bb78bc2541d48ba",
+      "final_blob": "dd18e0111e5d19b3db6dc0044ea63f5a2e9c5abf",
+      "equal": false,
+      "basis": "canonical-owner release metadata25ab independent GO"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-current-handler-publication.toml",
+      "previous_owner": "root/family documentation companion",
+      "prior_blob": "206e3a53397eef556e878c008a63cab9a5bc3cf3",
+      "final_blob": "206e3a53397eef556e878c008a63cab9a5bc3cf3",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-evidence-facades.toml",
+      "previous_owner": "root/family documentation companion",
+      "prior_blob": "b9b1971a5c58d0bbbd77c25b114d938f1c001f95",
+      "final_blob": "398da121a350921287fe4dee0e1ad7e7226d63f2",
+      "equal": false,
+      "basis": "canonical-owner release metadata25ab independent GO"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-finite-law-admission-facade.toml",
+      "previous_owner": "root/family documentation companion",
+      "prior_blob": "befd839ed6187bf14b828b194b0ba2bcf379c85a",
+      "final_blob": "1699b60fe0ea1e65ccb814966528e2b90ba422b1",
+      "equal": false,
+      "basis": "canonical-owner release metadata25ab independent GO"
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/README.md",
+      "previous_owner": "root/family documentation companion",
+      "prior_blob": "f0fc340c5f85ac92bb1cbe178a5aa9455edb8cce",
+      "final_blob": "f0fc340c5f85ac92bb1cbe178a5aa9455edb8cce",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+      "previous_owner": "Foreign G-accepted B runtime",
+      "prior_blob": "e78a69642d69c21827bd73d688533ad40ca18295",
+      "final_blob": "e78a69642d69c21827bd73d688533ad40ca18295",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_dur_02_process.py",
+      "previous_owner": "Foreign G-accepted B runtime",
+      "prior_blob": "74c4e396a1732ccc1524a7ea47498a46ab536272",
+      "final_blob": "74c4e396a1732ccc1524a7ea47498a46ab536272",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_plane_store.py",
+      "previous_owner": "Foreign G-accepted B runtime",
+      "prior_blob": "29ffd7803891e5df9e6b2e97fc8f0776e40c4334",
+      "final_blob": "29ffd7803891e5df9e6b2e97fc8f0776e40c4334",
+      "equal": true,
+      "basis": "prior independent assembly/review retained"
+    }
+  ],
+  "prior_independent_review_joins": [
+    {
+      "family": "CAL/DDM",
+      "basis": "attributed independent receipt unchanged; no new family test/review claim",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/review.json",
+      "git_blob": "35d76948c14f5dd9210a5f4ab368ec940a94d913",
+      "bytes": 20105,
+      "sha256": "032c1beef8ba54e2042926439852a13895c83d569c41dce7f5f2064edea314ec"
+    },
+    {
+      "family": "DoE",
+      "basis": "attributed independent receipt unchanged; no new family test/review claim",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe-independent-review-f07.json",
+      "git_blob": "de0b20c230f5b87d6a3cf8982c5b3d86cf02ec5e",
+      "bytes": 16838,
+      "sha256": "5efd1bbc2f423a33918aa8c74dd905c3577ff562314ced7a93ca75cb9f467ba5"
+    },
+    {
+      "family": "MC",
+      "basis": "attributed independent receipt unchanged; no new family test/review claim",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/mc/review.json",
+      "git_blob": "185e022129f53bb7d36c6b760d4f1706321cadaf",
+      "bytes": 6948,
+      "sha256": "6addb4521bd2d637a8075d416a363e993780fdeedf8778d8e50c08cc8ac8e7e3"
+    },
+    {
+      "family": "PCL",
+      "basis": "attributed independent receipt unchanged; no new family test/review claim",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/pcl/review.json",
+      "git_blob": "6d9e615e942b1fb5d8d0128de24a3b1b8bc5a0f0",
+      "bytes": 47288,
+      "sha256": "0b9341bb2fdd27d0568b7557390dc553f65447e7127949e97c61134e5517a805"
+    },
+    {
+      "family": "BKT",
+      "basis": "attributed independent receipt unchanged; no new family test/review claim",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-chain-admission-r2-checks/independent-review-go-0983.json",
+      "git_blob": "a4abbb1069104ebbe7bee0e51c235984641348cc",
+      "bytes": 50351,
+      "sha256": "1eae3da73b365a740e90f8b565b9667d55a545726c3ed8ec441d0e8868b3a5f9"
+    },
+    {
+      "family": "FRC",
+      "basis": "attributed independent receipt unchanged; no new family test/review claim",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/frc-independent-review-8486.json",
+      "git_blob": "44c22f68b58aa585808d278880f8da825dad6c4c",
+      "bytes": 14831,
+      "sha256": "639ea31dbd960c6985e87056d360763e54d78db8f07299df7c91fdca771cd12b"
+    },
+    {
+      "family": "Welfare",
+      "basis": "attributed independent receipt unchanged; no new family test/review claim",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/welfare-independent-review-884681.json",
+      "git_blob": "2ffb97f33ffd0f1960ee301415b9e403c8513b34",
+      "bytes": 17274,
+      "sha256": "fbc90699b4135f4fb6df07e2bfdcf06e5cb163755fe97ae739b9fd52d1ec25c9"
+    },
+    {
+      "family": "Legacy B197",
+      "basis": "attributed independent receipt unchanged; no new family test/review claim",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/legacy-consumer-independent-review-1e942.json",
+      "git_blob": "b06c3beda43bb2ad85066e6910cb897efc9a81bb",
+      "bytes": 13984,
+      "sha256": "b38e81902342c3f88edfff0c319bf1938f45ce1b8354e7a7888da10378fed401"
+    },
+    {
+      "family": "Common law guard",
+      "basis": "attributed independent receipt unchanged; no new family test/review claim",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r3/review.json",
+      "git_blob": "1b7cacb1044d7512500a4810abcccab731aeaab0",
+      "bytes": 7290,
+      "sha256": "d913dba4d01866a46dc414c568128465ea3d1fce283621c766a19248ca1f45c7"
+    },
+    {
+      "family": "Canonical routing/metadata",
+      "basis": "attributed independent receipt unchanged; no new family test/review claim",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r5/review-r5.json",
+      "git_blob": "8d6ca505a68e2cf9d7281b3c93e1044275323a3c",
+      "bytes": 5732,
+      "sha256": "2b79be60d9624114937ee4436b81ae3ffd09ab9d81937339b6d016c9d3495399"
+    }
+  ],
+  "new_reviewed_source_joins": [
+    {
+      "owner": "DoE author; independent CAL reviewer",
+      "review_source": "70c4a14fc872f5ef66437d958ba63884ecdda168",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/doe-budget-independent-review-70c4.json",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-doe-runtime-plan-admission.toml",
+      "git_blob": "b361c01f5dc710aada5b67b81ee3e338b498fbe0",
+      "bytes": 1159,
+      "sha256": "c1d826699a41827b9f6070992185a33a68b5b9319cec0289e844147b1c7d4b53"
+    },
+    {
+      "owner": "DoE author; independent CAL reviewer",
+      "review_source": "70c4a14fc872f5ef66437d958ba63884ecdda168",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/doe-budget-independent-review-70c4.json",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/README.md",
+      "git_blob": "d1305a7eb8d9fd94a74117d73302c392c565ae31",
+      "bytes": 8171,
+      "sha256": "3a7772d33735eb262ed49896e3c8b36605b766a085a8d3d6824a4b8bca40e6b9"
+    },
+    {
+      "owner": "DoE author; independent CAL reviewer",
+      "review_source": "70c4a14fc872f5ef66437d958ba63884ecdda168",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/doe-budget-independent-review-70c4.json",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+      "git_blob": "d8a97a0995175a651edf81d7324ec7fea670a558",
+      "bytes": 3834,
+      "sha256": "65dc3871e65eeaab30e1210efafc8dc184450783751d4ec2c9b9c584b5b92350"
+    },
+    {
+      "owner": "DoE author; independent CAL reviewer",
+      "review_source": "70c4a14fc872f5ef66437d958ba63884ecdda168",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/doe-budget-independent-review-70c4.json",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/adaptive.py",
+      "git_blob": "b86c9df1447b8621f6f9b776eeb33ba59674d31a",
+      "bytes": 7649,
+      "sha256": "fee7bcdd5ee5d980f89437a4f252d1c7f9e378cb0a3cc40848e56d88728b73e7"
+    },
+    {
+      "owner": "DoE author; independent CAL reviewer",
+      "review_source": "70c4a14fc872f5ef66437d958ba63884ecdda168",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/doe-budget-independent-review-70c4.json",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+      "git_blob": "964c3c5910956a59f053fdd7b73af628a1f13e9d",
+      "bytes": 19431,
+      "sha256": "41ed0c540fd4b304455112261bded3797e2407bfc911d69ddf77ec152abafe60"
+    },
+    {
+      "owner": "DoE author; independent CAL reviewer",
+      "review_source": "70c4a14fc872f5ef66437d958ba63884ecdda168",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/doe-budget-independent-review-70c4.json",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "git_blob": "3596f6b96d37dd2d256b43f11c980f23279f2043",
+      "bytes": 15037,
+      "sha256": "983304e49dda38688ea1f87e44775f67129fcf9337444c8458ef95ebaf04513c"
+    },
+    {
+      "owner": "DoE author; independent CAL reviewer",
+      "review_source": "70c4a14fc872f5ef66437d958ba63884ecdda168",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/doe-budget-independent-review-70c4.json",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/multi_output.py",
+      "git_blob": "eebd843dc9be7678b1ec5fc2b5276225b2e9dd61",
+      "bytes": 9345,
+      "sha256": "cc98dd394851a25da2c7b52855b9860c780b9cb5ff7886ed8dae23191549d19f"
+    },
+    {
+      "owner": "DoE author; independent CAL reviewer",
+      "review_source": "70c4a14fc872f5ef66437d958ba63884ecdda168",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/doe-budget-independent-review-70c4.json",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+      "git_blob": "a6487dd0f7d36d7c989ae916705a4db75952dc0a",
+      "bytes": 4019,
+      "sha256": "863384fc13da74d72d9bb7b5c4285c2103b2fc7f2a3895b6b6b383324515d574"
+    },
+    {
+      "owner": "DoE author; independent CAL reviewer",
+      "review_source": "70c4a14fc872f5ef66437d958ba63884ecdda168",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/doe-budget-independent-review-70c4.json",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/stability.py",
+      "git_blob": "6d28ba31e9df39ef21be5ba2514c6116b29bed3d",
+      "bytes": 6454,
+      "sha256": "9f4c83b406703b9267973a88e1f3a9705481074e6357b01603632fe120c3cd32"
+    },
+    {
+      "owner": "DoE author; independent CAL reviewer",
+      "review_source": "70c4a14fc872f5ef66437d958ba63884ecdda168",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/doe-budget-independent-review-70c4.json",
+      "path": "policy-engine/tests/unit/scientist/methods/doe/test_plan_runtime_admission.py",
+      "git_blob": "6cdb769e374597f5fefc8c3ceeded814d611241d",
+      "bytes": 6732,
+      "sha256": "e9608408a848341413def274d255da61b1c45cebe6fce6f38facd78ec27eeaa7"
+    },
+    {
+      "owner": "canonical team-scientist/team-polisyos and team-architecture per selected row",
+      "review_source": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/release-compatibility-independent/receipt.json",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-reader-facade.toml",
+      "git_blob": "dd18e0111e5d19b3db6dc0044ea63f5a2e9c5abf",
+      "bytes": 1717,
+      "sha256": "0b456ba68cd4eeac86e31753fa3d9a787f95d6cea36d38a80b693c389fa6b09f"
+    },
+    {
+      "owner": "canonical team-scientist/team-polisyos and team-architecture per selected row",
+      "review_source": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/release-compatibility-independent/receipt.json",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-ddm-source-binding.toml",
+      "git_blob": "21bd1097123237519d17ae9a0555f9c33a40dc1e",
+      "bytes": 2796,
+      "sha256": "01fc46a6268408570a2da271534187894f94797452385b9b7bfaa1d474267b32"
+    },
+    {
+      "owner": "canonical team-scientist/team-polisyos and team-architecture per selected row",
+      "review_source": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/release-compatibility-independent/receipt.json",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-evidence-facades.toml",
+      "git_blob": "398da121a350921287fe4dee0e1ad7e7226d63f2",
+      "bytes": 1744,
+      "sha256": "0a706c0a24a48b352aa76e7a6bd93e2dc52a6b7a57c7caa77d050c9221243079"
+    },
+    {
+      "owner": "canonical team-scientist/team-polisyos and team-architecture per selected row",
+      "review_source": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/release-compatibility-independent/receipt.json",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-finite-law-admission-facade.toml",
+      "git_blob": "1699b60fe0ea1e65ccb814966528e2b90ba422b1",
+      "bytes": 1661,
+      "sha256": "2569c02d06ab24a9a6ac008640e00c9ff3015d6d9a8d6e71a65287711ca64c4b"
+    },
+    {
+      "owner": "canonical team-scientist/team-polisyos and team-architecture per selected row",
+      "review_source": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/release-compatibility-independent/receipt.json",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-foundry-calibration-reader.toml",
+      "git_blob": "fbcd5df0ea0115683da3c2216bd00e3e2274d489",
+      "bytes": 1594,
+      "sha256": "236ac0be019ec9893a7490e2d098e5065836b8c58ee26b48484c9ba431057b04"
+    },
+    {
+      "owner": "canonical team-scientist/team-polisyos and team-architecture per selected row",
+      "review_source": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/release-compatibility-independent/receipt.json",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-uncertainty-evidence-facade.toml",
+      "git_blob": "c0bba917f7e82fbfbb6d60324264e92dfd17eca4",
+      "bytes": 1764,
+      "sha256": "8234df98d06ec176e2bc992442be6e733e07605a3f91e058c9d56006cecd251b"
+    },
+    {
+      "owner": "root/FRC writers; independent DoE harness reviewer",
+      "review_source": "4758d495abb81aa51fea8e28cd071ca9ff989155",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-independent/review.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/README.md",
+      "git_blob": "61272726907b340c1d1d7a1c85c82f0c5feb3665",
+      "bytes": 4891,
+      "sha256": "e8df2499206433fc9ebd6bd3fc317a02c914f0bc18f348e9d5f15ecd786f29e9"
+    },
+    {
+      "owner": "root/FRC writers; independent DoE harness reviewer",
+      "review_source": "4758d495abb81aa51fea8e28cd071ca9ff989155",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-independent/review.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+      "git_blob": "7a3612828cd5cd4edc5a2bf48545bf64dab6b1fc",
+      "bytes": 23015,
+      "sha256": "9adde423ab2cbfc841a8a2de41fc1c03906e3429b176fa17412fd22c09c47e87"
+    },
+    {
+      "owner": "root/FRC writers; independent DoE harness reviewer",
+      "review_source": "4758d495abb81aa51fea8e28cd071ca9ff989155",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-independent/review.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+      "git_blob": "a15b26f985d1c2c3db5016367203c67b309b4323",
+      "bytes": 11192,
+      "sha256": "9d59c0e66658bae5b8ab22ae4770335462a167af6ecd640356978f8402a2fce6"
+    },
+    {
+      "owner": "root/FRC writers; independent DoE harness reviewer",
+      "review_source": "4758d495abb81aa51fea8e28cd071ca9ff989155",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-independent/review.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py",
+      "git_blob": "4a274a20b912285a2d98342d1a58e03d45dc6158",
+      "bytes": 7225,
+      "sha256": "c809e5503ba23afacb8ad0f3f4da81e7cdca0ea6184d6eb346bfc82ddeae5173"
+    },
+    {
+      "owner": "unchanged configured harness dependency",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-independent/review.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+      "git_blob": "7a3612828cd5cd4edc5a2bf48545bf64dab6b1fc",
+      "bytes": 23015,
+      "sha256": "9adde423ab2cbfc841a8a2de41fc1c03906e3429b176fa17412fd22c09c47e87"
+    },
+    {
+      "owner": "unchanged configured harness dependency",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-independent/review.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+      "git_blob": "a15b26f985d1c2c3db5016367203c67b309b4323",
+      "bytes": 11192,
+      "sha256": "9d59c0e66658bae5b8ab22ae4770335462a167af6ecd640356978f8402a2fce6"
+    },
+    {
+      "owner": "unchanged configured harness dependency",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-independent/review.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py",
+      "git_blob": "4a274a20b912285a2d98342d1a58e03d45dc6158",
+      "bytes": 7225,
+      "sha256": "c809e5503ba23afacb8ad0f3f4da81e7cdca0ea6184d6eb346bfc82ddeae5173"
+    },
+    {
+      "owner": "unchanged configured harness dependency",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-independent/review.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/README.md",
+      "git_blob": "61272726907b340c1d1d7a1c85c82f0c5feb3665",
+      "bytes": 4891,
+      "sha256": "e8df2499206433fc9ebd6bd3fc317a02c914f0bc18f348e9d5f15ecd786f29e9"
+    },
+    {
+      "owner": "unchanged configured harness dependency",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-independent/review.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/proposal.json",
+      "git_blob": "b1b77b16de95fa677d6d3aa02cdd02fe26c70906",
+      "bytes": 2477,
+      "sha256": "183a0cd6b4fc8364ae086d1a5e921a7b06b09a241a1041359be855261125cf63"
+    },
+    {
+      "owner": "unchanged configured harness dependency",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-independent/review.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/original-wave-groups.json",
+      "git_blob": "85cb24b324e971759a87b5853f3d75eb983b1a31",
+      "bytes": 9604,
+      "sha256": "a5578a4dd8bc8e622603e5b538a412594eafb507ca640518bf527d8c0c5168af"
+    },
+    {
+      "owner": "unchanged configured harness dependency",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-independent/review.json",
+      "path": "policy-engine/pytest.ini",
+      "git_blob": "f6b18091a37290d7b5c375b3aef44ffebc0a293a",
+      "bytes": 1021,
+      "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+    },
+    {
+      "owner": "unchanged configured harness dependency",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-independent/review.json",
+      "path": "policy-engine/ruff.toml",
+      "git_blob": "a0928fffdad2d96d6030fc23584801beac45b560",
+      "bytes": 247,
+      "sha256": "543068227742e00057e19329f2df8ee944090f828a40b3e5da0b72f8e3b06fbd"
+    },
+    {
+      "owner": "unchanged configured harness dependency",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-independent/review.json",
+      "path": "policy-engine/pyproject.toml",
+      "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "bytes": 11007,
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+    },
+    {
+      "owner": "unchanged configured harness dependency",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-independent/review.json",
+      "path": "policy-engine/uv.lock",
+      "git_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+      "bytes": 779204,
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+    },
+    {
+      "owner": "unchanged configured harness dependency",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-independent/review.json",
+      "path": "policy-engine/tools/devx/workspace/ci_parity.py",
+      "git_blob": "26b66d48e7ce4d28a92389842213fd51acf53f34",
+      "bytes": 11939,
+      "sha256": "8ee3abda4668c4bbc24c58412b11eda51eaae9c046b98ad80ff5b17705e26619"
+    },
+    {
+      "owner": "unchanged configured harness dependency",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-independent/review.json",
+      "path": "policy-engine/tools/devx/workspace/verify.py",
+      "git_blob": "c8c884f8edafdcf9f63d6572cb41a2929f3a64a9",
+      "bytes": 12277,
+      "sha256": "864ec1e4f463b63610986cd86b93a1b61687408b84e1a9c64cd6d6a65d587207"
+    },
+    {
+      "owner": "unchanged configured harness dependency",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-independent/review.json",
+      "path": "policy-engine/tools/devx/workspace/_common.py",
+      "git_blob": "5f99fd0e73d91ca28e3be56442679d3f7772acaa",
+      "bytes": 7324,
+      "sha256": "fadb1e8e48587a79fdeafdf7ce23216518d4f09a06c3045b0ed1f1c0133c267a"
+    },
+    {
+      "owner": "unchanged configured harness dependency",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-independent/review.json",
+      "path": "policy-engine/apps/runtime-dashboard/package.json",
+      "git_blob": "0eca7ad3345d1492d108b8847d79ea55c7719615",
+      "bytes": 11599,
+      "sha256": "e8d8ad4efe1e7e2b17cdbda770ed31157b94cdea51de2ab721ef1fabadb72f6a"
+    },
+    {
+      "owner": "unchanged configured harness dependency",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-independent/review.json",
+      "path": "policy-engine/pnpm-lock.yaml",
+      "git_blob": "095a555d9a1eb173732f409550d5a1436c3be861",
+      "bytes": 482583,
+      "sha256": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e"
+    }
+  ],
+  "portable_companion_joins": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/assembly-independent/portable-copy-index.json",
+      "git_blob": "5b27d17474585cf797595e3b11f2ccdab9f78d89",
+      "bytes": 2318,
+      "sha256": "6b20d9284822159836007149d785dc1a33d1c0c0bdf84579b811660420be7246",
+      "records": 7,
+      "all_Git_bytes_match": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/portable-copy-index.json",
+      "git_blob": "45d311bf3f7275db384135e318f9f7874f2df497",
+      "bytes": 7728,
+      "sha256": "4bb24101fdeb5cbabaa5c4074e49471a73b43f980843df7e1ce99c67e9f03c4b",
+      "records": 25,
+      "all_Git_bytes_match": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-independent/portable-copy-index.json",
+      "git_blob": "9f7d268c64342ebfd23ec53dc1b9a0e4f68183cc",
+      "bytes": 7663,
+      "sha256": "1c173e5d5e6b005ad542a2e3f9b988d1cf49e79735a7b137606d84ecf543ec05",
+      "records": 25,
+      "all_Git_bytes_match": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/readiness-b97/portable-copy-index.json",
+      "git_blob": "c7adb070f56e37ad031b3e0314e820041fc76317",
+      "bytes": 4529,
+      "sha256": "b6a69fecf4e1b05a917a3ec5787785f90788dd878a09aede719fa84ce6dfee3d",
+      "records": 15,
+      "all_Git_bytes_match": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/release-compatibility-author/portable-copy-index.json",
+      "git_blob": "94defd34ab61697001dd44c66fa3a714ac7496be",
+      "bytes": 2780,
+      "sha256": "c00601c9a7b0c5d551cbe4ebffc4e3091a956e5701872b5a22b609aa8d2223b9",
+      "records": 8,
+      "all_Git_bytes_match": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/release-compatibility-independent/portable-copy-index.json",
+      "git_blob": "1effb62833006e45240f4ae327610fe4fe38a4e7",
+      "bytes": 4402,
+      "sha256": "f11b4f82fe47804d57ca44b29179fe7d47b0c99fb00d3b2460281b1c374198e6",
+      "records": 13,
+      "all_Git_bytes_match": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/portable-copy-index.json",
+      "git_blob": "2bbc6e6a5ab5f6bb7c38b453b83417cfd88cb131",
+      "bytes": 5247,
+      "sha256": "719d5a34200d59a754cf583d8a342c3b810c640702fc157eebd408dc7a93a862",
+      "records": 17,
+      "all_Git_bytes_match": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-runtime-admission-20261006/evidence-index.json",
+      "git_blob": "3aef24aed29814beff932943ce35617cc505553d",
+      "bytes": 3750,
+      "sha256": "12b29eb1aba6b367efe6d9a7899d0b84b6039f029d346df858c0eee42d89607b",
+      "records": 27,
+      "all_Git_bytes_match": true
+    }
+  ],
+  "all_primary_review_companions_committed": true,
+  "product_delta": {
+    "full_paths": [
+      [
+        "M",
+        "policy-engine/src/polisyos/scientist/methods/doe/README.md"
+      ],
+      [
+        "M",
+        "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py"
+      ],
+      [
+        "M",
+        "policy-engine/src/polisyos/scientist/methods/doe/adaptive.py"
+      ],
+      [
+        "M",
+        "policy-engine/src/polisyos/scientist/methods/doe/analysis.py"
+      ],
+      [
+        "M",
+        "policy-engine/src/polisyos/scientist/methods/doe/designs.py"
+      ],
+      [
+        "M",
+        "policy-engine/src/polisyos/scientist/methods/doe/multi_output.py"
+      ],
+      [
+        "M",
+        "policy-engine/src/polisyos/scientist/methods/doe/sampling.py"
+      ],
+      [
+        "M",
+        "policy-engine/src/polisyos/scientist/methods/doe/stability.py"
+      ],
+      [
+        "A",
+        "policy-engine/tests/unit/scientist/methods/doe/test_plan_runtime_admission.py"
+      ]
+    ],
+    "runtime_Python_files": 7,
+    "new_native_test_files": 1,
+    "source_README": 1,
+    "new_release_companion": 1,
+    "source_all_exact70c": true,
+    "schemas_API_inventory_environment_lockfiles_unchanged": true
+  },
+  "operational_import_delta": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+      "added_AST_imports": [
+        "ImportFrom(module='designs', names=[alias(name='SensitivityPlan'), alias(name='SensitivityResult'), alias(name='_admit_sensitivity_plan')], level=1)"
+      ],
+      "removed_AST_imports": [
+        "ImportFrom(module='designs', names=[alias(name='SensitivityPlan'), alias(name='SensitivityResult')], level=1)"
+      ],
+      "owner": "same DoE package; shared private constructor-admission helper independently reviewed at70c; no foreign facade added"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/adaptive.py",
+      "added_AST_imports": [
+        "ImportFrom(module='designs', names=[alias(name='SensitivityMethod'), alias(name='SensitivityPlan'), alias(name='SensitivityResult'), alias(name='_admit_sensitivity_plan')], level=1)"
+      ],
+      "removed_AST_imports": [
+        "ImportFrom(module='designs', names=[alias(name='SensitivityMethod'), alias(name='SensitivityPlan'), alias(name='SensitivityResult')], level=1)"
+      ],
+      "owner": "same DoE package; shared private constructor-admission helper independently reviewed at70c; no foreign facade added"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+      "added_AST_imports": [
+        "ImportFrom(module='designs', names=[alias(name='_DOE_DISTRIBUTION_SCHEMA_VERSION'), alias(name='_SALIB_BACKEND_ID'), alias(name='RunFailurePolicy'), alias(name='SensitivityMethod'), alias(name='SensitivityPlan'), alias(name='SensitivityResult'), alias(name='_admit_sensitivity_plan'), alias(name='_build_salib_problem'), alias(name='_derive_backend_seed')], level=1)"
+      ],
+      "removed_AST_imports": [
+        "ImportFrom(module='designs', names=[alias(name='_DOE_DISTRIBUTION_SCHEMA_VERSION'), alias(name='_SALIB_BACKEND_ID'), alias(name='RunFailurePolicy'), alias(name='SensitivityMethod'), alias(name='SensitivityPlan'), alias(name='SensitivityResult'), alias(name='_build_salib_problem'), alias(name='_derive_backend_seed')], level=1)"
+      ],
+      "owner": "same DoE package; shared private constructor-admission helper independently reviewed at70c; no foreign facade added"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "added_AST_imports": [],
+      "removed_AST_imports": [],
+      "owner": "same DoE package; shared private constructor-admission helper independently reviewed at70c; no foreign facade added"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/multi_output.py",
+      "added_AST_imports": [
+        "ImportFrom(module='designs', names=[alias(name='SensitivityPlan'), alias(name='SensitivityResult'), alias(name='_admit_sensitivity_plan')], level=1)"
+      ],
+      "removed_AST_imports": [
+        "ImportFrom(module='designs', names=[alias(name='SensitivityPlan'), alias(name='SensitivityResult')], level=1)"
+      ],
+      "owner": "same DoE package; shared private constructor-admission helper independently reviewed at70c; no foreign facade added"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+      "added_AST_imports": [
+        "ImportFrom(module='designs', names=[alias(name='AdversarialPlan'), alias(name='AdversarialStrategy'), alias(name='SensitivityMethod'), alias(name='SensitivityPlan'), alias(name='_admit_sensitivity_plan'), alias(name='_build_salib_problem'), alias(name='_derive_backend_seed')], level=1)"
+      ],
+      "removed_AST_imports": [
+        "ImportFrom(module='designs', names=[alias(name='AdversarialPlan'), alias(name='AdversarialStrategy'), alias(name='SensitivityMethod'), alias(name='SensitivityPlan'), alias(name='_build_salib_problem'), alias(name='_derive_backend_seed')], level=1)"
+      ],
+      "owner": "same DoE package; shared private constructor-admission helper independently reviewed at70c; no foreign facade added"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/stability.py",
+      "added_AST_imports": [
+        "ImportFrom(module='designs', names=[alias(name='SensitivityMethod'), alias(name='SensitivityPlan'), alias(name='_admit_sensitivity_plan')], level=1)"
+      ],
+      "removed_AST_imports": [
+        "ImportFrom(module='designs', names=[alias(name='SensitivityMethod'), alias(name='SensitivityPlan')], level=1)"
+      ],
+      "owner": "same DoE package; shared private constructor-admission helper independently reviewed at70c; no foreign facade added"
+    }
+  ],
+  "new_DoE_judgment": {
+    "receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/doe-budget-independent-review-70c4.json",
+      "git_blob": "b50eda7fd82fa88bda6ad7bfe34357186f501a8e",
+      "bytes": 14630,
+      "sha256": "f3c1fca229ff1e2ea50acef950847188c30097754b7e3c805413b9d25a04c60b"
+    },
+    "source": "70c4a14fc872f5ef66437d958ba63884ecdda168",
+    "source_tree": "3e654b07a3228d1b3d2d0bb2a3a91ae792068090",
+    "independent_reviewer": "root/cal_uq_r3; independent from DoE author; read-only; no children",
+    "code_verdict": "GO_bounded_runtime_plan_admission",
+    "native_checks_at_original_source": {
+      "pytest": "66PASS,9warnings",
+      "warnings": "Only deliberate model_construct nested dict serializer warnings; all mutated objects re-admitted and refused before native work",
+      "mutations": [
+        "N",
+        "nested dimension list append",
+        "method",
+        "cap lowering",
+        "model_copy(update)",
+        "model_construct"
+      ],
+      "nine_boundaries_each": true,
+      "refusal_count": 54,
+      "refusal_counts": {
+        "SALib": 0,
+        "evaluator": 0,
+        "CAS_write": 0
+      },
+      "three_method_overcap_inlets": "Morris/Sobol/FAST each refuses before sample call",
+      "native_sampler_positives": [
+        "MorrisN2,k2,6rows",
+        "SobolN2,k2,12rows",
+        "FASTN65,k2,130rows"
+      ],
+      "native_denominator_oracle": "Morris N(k+1); Sobol N(2k+2); FAST Nk, independently derived from design definitions",
+      "declared_override": "allow_large_run=true N3Morris cap6 retains9rows and unchangeddeclaredcap",
+      "callback_mutation": "original N/nested specs/seed/units changes during sampler and identity regeneration do not change captured effective profile/design identity",
+      "adaptive": "Late original allow_large_run=true/cap100/N99/bounds100 is ignored; one6-row evaluator call then max_estimated_runs_exceeded at capturedcap6",
+      "analytic_native_CAS": "Morris y=x+2z gives μstar1,2/rankingz,x;12rows requested=successful; actualpersist→freshFileSystemCAS→reproduced result exact",
+      "forged_CAS_profile": "Same valid kind/schema/content integrity, n4→5 overcap12; freshreader refuses with0SALib calls",
+      "marker_preserving_removal": "All public names/constructor/schema retained. Remove only shared snapshot/re-admission at actual callers; mutatedN3 cap6 again reachesrealSALib sample inlet once."
+    },
+    "P37": {
+      "budget": "Caller-declared max_estimated_runs and explicit allow_large_run, evaluated on canonical current plan at each materialization; no automatic authority",
+      "boundary": "Unsupported/overcap before SALib/evaluator/CAS; structural serializer itself may process existing input fields",
+      "snapshot": "Native result/identity uses captured admissible operands even when original object changes during callback",
+      "authority": "population_law_status/evaluator_provenance remainnot_established; experimental independentinput law is consumer_asserted"
+    },
+    "P40": "Same-class deeper post-construction escape widened to the shared constructor predicate through every materialization inlet, including nested/copy bypass and callback mutation; one canonical mechanism rather than only visible generator wrapper.",
+    "P41": "Exact olda267 source/root loaded modules and new70c4 source/module origins/fullstdout saved; only measured bounded property outcomes reported. No global guard or unchanged full numericalwave run.",
+    "new_checks_by_this_review": false,
+    "old_unchanged_algorithm_oracle_reuse": "Earlier f07 whole-block/Morris geometry receipts retained only for unchanged portions;70c changed admission has its own CAL witness, no inherited PASS transfer."
+  },
+  "harness_judgment": {
+    "source": "4758d495abb81aa51fea8e28cd071ca9ff989155",
+    "publication": "b7c00a45ce5b86ae2e0aff6d65fe4774facec71f",
+    "receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-independent/review.json",
+      "git_blob": "86e1ce483c2938c3a629a079f119d87f805c927c",
+      "bytes": 11010,
+      "sha256": "9f3c2514c74e781f20217a65ad7e6f3cde609247750be7af8ec89afa0dea3fc2"
+    },
+    "all_source_inputs_byte_exact": true,
+    "author_copies_equal_primary_harness": true,
+    "meaning": "Scratch-admission/options/JUnit/canonical stage planning GO only; browser readiness is not browser-suite/global CI PASS; initial validator and docs-count harness errors remain indexed."
+  },
+  "canonical_metadata_judgment": {
+    "source": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+    "receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/release-compatibility-independent/receipt.json",
+      "git_blob": "35bff1960d966140107dfb430074c5d66752e231",
+      "bytes": 5441,
+      "sha256": "db079d0493228f65fd0cb8c42cbb05b04d502fe41b49f3e1749f5e83cfbffe89"
+    },
+    "six_rows_equal_reviewed_Git_and_selected_copies": true,
+    "current_exports": {
+      "polisyos.calibration": 29,
+      "polisyos.ddm": 17,
+      "polisyos.foundry.uncertainty": 20
+    },
+    "DDM_v1_v2_code_reuse": {
+      "bounded_code_verdict": "GO_bounded_mechanism",
+      "defining_source_schema_facade_tests_unchanged": true,
+      "independent_receipt": "prior-independent-DDM-code-review.json",
+      "native_tests_original": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "tests": 82
+      },
+      "new_code_review_or_test_claim": false,
+      "original_source": "4c5afb1dc10b4e3f4dbc10b50ca6066de9b08ccb",
+      "sha256": "032c1beef8ba54e2042926439852a13895c83d569c41dce7f5f2064edea314ec"
+    },
+    "owner_predicate": "Canonical owners/classification/version ownership from tracked G53/contract; nonempty owner E generic-parser PASS does not meet canonical-owner predicate.",
+    "no_new_parser_or_family_run": true
+  },
+  "G53": {
+    "sha": "53b309019913b938909d6dc0fc13f8edb409f368",
+    "delta_paths": 15,
+    "all_docs_only": true,
+    "meaning": "G audit and owner-action evidence retained as exact historical claims; no B/D/A/IR runtime implementation or E production authority imported."
+  },
+  "dependency_joins": {
+    "old_join_basis": {
+      "Welfare_3_law_helpers": "Welfare source884 imports existing admitted Foundry uncertainty aliases from same sampling_admission owner; common body5cd has separate DoE independent native review and is exact",
+      "BKT_README": "Original BKT paragraph bytes preserved as exact prefix; Welfare independently reviewed append is recorded, not claimed old byte equality",
+      "Legacy_reader": "Actual Node→Calibration→admitted Foundry uncertainty→unchanged Foundry calibration report strict reader; normalized _collect_input_envelopes AST equals1e942",
+      "canonical_counts": {
+        "Calibration": 29,
+        "Foundry_uncertainty": 20
+      },
+      "no_parallel_CAS_reader_or_sampler": "import/reexport route only",
+      "G_Runtime": "ControlPlaneStore/test/dur02 bytes exact6f ancestry; B-owned transaction mechanisms not an E numerical dependency or E-authored change",
+      "IR_Core_A_D": "all listed source/contract/guard/results/closure-decision boundaries unchanged"
+    },
+    "unchanged_BKT_Welfare": "Independent DDM0983 and CAL884 receipts/blobs unchanged; this author does not self-review these mechanisms.",
+    "new_DoE": "Single existing SensitivityPlan constructor predicate reused before every owned materializer; captured plan drives native design/identity/CAS. No public/schema/foreign owner edge introduced.",
+    "paired_metadata": "Canonical29Calibration/public_experimental team-scientist;20Foundryuncertainty/public_stable team-polisyos;version owner team-architecture. DDM17 internal unchanged; explicit persisted v1/v2 migration owned team-scientist.",
+    "default_Search": "DOE artifact-to-D DefaultSearch proposal-ranking consumer remains consumer_missing/bridge_missing; D codec/signoff cannot be supplied by E metadata.",
+    "FRC_A": "A CYC-01→FRC-01 and EMP-01→FRC-02 lifecycle/verifier/fresh served read remain A-owned; source measurements never grant causal/policy authority.",
+    "Core_IR_execute": "Unratified owner-entrypoint and wire semantic packets unchanged; no deep-edge/admission waiver inferred from reexport identity."
+  },
+  "final_static_input_denominators": {
+    "native_test_files": 121,
+    "owner_packet_files": 2,
+    "total_test_file_inputs": 123,
+    "groups": {
+      "PCL_continuous_persistence": 10,
+      "DDM_runtime_and_facade": 16,
+      "BKT_FRC_S10_and_adjacent_report_consumers": 25,
+      "CAL_and_welfare_consumer": 29,
+      "MC_joint_law_support_and_Scientist_consumer": 25,
+      "DOE_SALib_and_consumer_factory": 15,
+      "G_checkpoint10_ControlPlaneStore_companion": 1
+    },
+    "old110_paths_preserved": true,
+    "new_DoE_admission_test_in_actual_family": true,
+    "foreign_tests_outside_E_numerical_groups": [
+      {
+        "path": "policy-engine/tests/unit/common/test_async_tools.py",
+        "git_blob": "4dd24b39596e86ff2292db550958f9f7d13729ae",
+        "bytes": 15730,
+        "sha256": "d93dbdd1b577c207e89520d2bfc2385fe738953743abab40bc75c1c24bbd7ca5",
+        "equal_c79_to_d43": true,
+        "scope": "Existing planner reports foreign test outside E numerical groups; canonical global-gate coverage and foreign owner judgment remain separate."
+      },
+      {
+        "path": "policy-engine/tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "git_blob": "b334e3c6a9096672ace78aad280ae8e1877461aa",
+        "bytes": 5011,
+        "sha256": "1bb168058fbae8b00094c0cdec0f322bbfb5b9768ef4bafc0d5bc9f946327da7",
+        "equal_c79_to_d43": true,
+        "scope": "Existing planner reports foreign test outside E numerical groups; canonical global-gate coverage and foreign owner judgment remain separate."
+      },
+      {
+        "path": "policy-engine/tests/unit/lex/legal_evaluation/test_impact_diff.py",
+        "git_blob": "8c73aaa81d9d79d8ffe6fff3fba4a1244fc5fe14",
+        "bytes": 9775,
+        "sha256": "f45085e041d7f9d9040b189ed156b3420f7e7dbfa7caa43765dcb98702d0a3b7",
+        "equal_c79_to_d43": true,
+        "scope": "Existing planner reports foreign test outside E numerical groups; canonical global-gate coverage and foreign owner judgment remain separate."
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_dur_02_process.py",
+        "git_blob": "74c4e396a1732ccc1524a7ea47498a46ab536272",
+        "bytes": 27256,
+        "sha256": "35f48eb3182363408dbb02e4c57b4cdb01b37b6f6df4391f3753bdf975426b48",
+        "equal_c79_to_d43": true,
+        "scope": "Existing planner reports foreign test outside E numerical groups; canonical global-gate coverage and foreign owner judgment remain separate."
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+        "git_blob": "0d96cf6d054a24e4676352d48de8d03edea22379",
+        "bytes": 16904,
+        "sha256": "3a21ea963a4bc3e2fcdb3f62daf1456ae69153ef2f3d990cb7d56a7e9b48b8cc",
+        "equal_c79_to_d43": true,
+        "scope": "Existing planner reports foreign test outside E numerical groups; canonical global-gate coverage and foreign owner judgment remain separate."
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+        "git_blob": "912c27087d105b9c23f0d589c2ce9996815e2969",
+        "bytes": 13682,
+        "sha256": "aca02227a7c9d3a5ac6740cb9a7428785e324d97fc09d36fa036e6c8a6c965f4",
+        "equal_c79_to_d43": true,
+        "scope": "Existing planner reports foreign test outside E numerical groups; canonical global-gate coverage and foreign owner judgment remain separate."
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+        "git_blob": "ea6399f0c8de7920d18bfdfbf5882e3cdd795688",
+        "bytes": 17417,
+        "sha256": "f9a037cc70ab8c8b8eb61a5c26c2e16809d6fc20a8b438d819d69512a77b1bbc",
+        "equal_c79_to_d43": true,
+        "scope": "Existing planner reports foreign test outside E numerical groups; canonical global-gate coverage and foreign owner judgment remain separate."
+      }
+    ],
+    "required_upstream": {
+      "G_checkpoint10": {
+        "sha": "6f869f39d04deaff7eda9b9047848912605beca5",
+        "in_history": true
+      },
+      "B197_legacy_consumer": {
+        "sha": "1e942ff624ae7cb6c71227d48eef760687e17d2b",
+        "in_history": true
+      },
+      "Welfare_law_source": {
+        "sha": "884681db485b7466b183a206f83bbe0635f86ca3",
+        "in_history": true
+      }
+    },
+    "changed_python_from_original198_base": 228,
+    "changed_docs_python_from_original198_base": 123,
+    "runtime_parametrized_case_count": "UNRUN; actual JUnit only",
+    "global_outcomes": "UNRUN; no historical count/PASS transferred to finalcandidate; final planner must recompute after receipt-only freeze publication"
+  },
+  "negative_controls": [
+    {
+      "name": "same path/name retained, substitute old unguarded DoE blob",
+      "outcome": "REFUSED",
+      "scope": "static source-custody predicate; native marker-removal control is independently attributed to CAL70c"
+    },
+    {
+      "name": "retain source identity marker but remove defining SHA256 field",
+      "outcome": "REFUSED",
+      "scope": "static custody predicate"
+    },
+    {
+      "name": "present source but remove required primary review companion",
+      "removed": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/assembly-independent/assembly-dependency-review-c79.json",
+      "outcome": "REFUSED",
+      "scope": "assembly completeness predicate"
+    },
+    {
+      "name": "present source but remove required primary review companion",
+      "removed": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-independent/review.json",
+      "outcome": "REFUSED",
+      "scope": "assembly completeness predicate"
+    },
+    {
+      "name": "present source but remove required primary review companion",
+      "removed": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/doe-budget-independent-review-70c4.json",
+      "outcome": "REFUSED",
+      "scope": "assembly completeness predicate"
+    },
+    {
+      "name": "present source but remove required primary review companion",
+      "removed": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/release-compatibility-independent/receipt.json",
+      "outcome": "REFUSED",
+      "scope": "assembly completeness predicate"
+    }
+  ],
+  "initial_harness_errors": [
+    {
+      "path": "historical-harnesserror-01",
+      "meaning": "Metadata adapter initially expected a list for source_inputs but the original harness receipt stores a path-keyed dict. Initial TypeError/script/stdout/stderr retained; corrected adapter does not change any input/source/property."
+    },
+    {
+      "path": "historical-harnesserror-02",
+      "meaning": "Initial metadata assertion incorrectly required zero foreign tests outside the owned numerical classifier. Seven existing foreign paths are unchanged c79→d43 and are explicitly reconciled in final static denominators; no path/selection/source/gate predicate changed."
+    }
+  ],
+  "predicate_basis": "independently_reconciled Git blob, exact primary independent review and consumer/source/companion joins; no institutional decision supplied",
+  "finding_ledger": {
+    "ledger_results_ownership_files_unchanged": true,
+    "held": [
+      "B194",
+      "B197",
+      "B201",
+      "B202"
+    ],
+    "B198": "historic closed retained as regression; no new falsifier of closure measured here",
+    "other_statuses": "Historical partial/open retained. Code assembly GO and check PASS/FAIL/UNRUN do not close findings or replace original criterion-specific adjudication.",
+    "54_findings_22_bundles": "No collective closure vote"
+  },
+  "remaining_checks_and_owners": {
+    "E_root": "Freeze one clean exact descendant with this moderate receipt, refresh actual plan/input denominator and run one common numerical/global wave; true fail-fast successors UNRUN; no repeat unchanged family checks.",
+    "D": "DoE persisted artifact/threshold/statistic/units/denominator→DefaultSearch ranking consumer implementation/readback.",
+    "A": "Default FRC bridge/lifecycle independently recomputed verifier and fresh served status/reason checks.",
+    "IR_semantic_owner": "Ratify distinct v2 point/interval/source-law carrier choices; B201/B202 held until decisions; preserve v1.1 replay.",
+    "Calibration_runtime_owner": "B194/B197 exact served evaluator/source-law/profile/calibrator authority remains held notwithstanding generic native consumer witnesses.",
+    "Core_IR_Foundry_API_owners": "Explicit foreign canonical entrypoint admission and version rollout are owner decisions; reexports do not ratify them.",
+    "G": "Code integration acceptance and individual original-criterion closure separately; local read-only exact-production/source-law checks only when criterion requires, no generic-fixture deferral or synthetic production claim."
+  },
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "cwd": "/workspace",
+    "product_backend": "NOT_INITIALIZED; only stdlib+Git",
+    "no_caps_added": true,
+    "new_environment_or_worktree": false
+  },
+  "exact_command": {
+    "argv": [
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "/workspace/e02-E-pr38-r2-receipts/assembly-delta-final/review_assembly_delta.py",
+      "--repo",
+      "/workspace/e02-E-continuation-20261006",
+      "--output",
+      "/workspace/e02-E-pr38-r2-receipts/assembly-delta-final"
+    ],
+    "cwd": "/workspace",
+    "environment": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "UV_NO_SYNC": "1",
+      "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv"
+    }
+  },
+  "cleanup": {
+    "permanent_deletion": false,
+    "native_trash_operation": false,
+    "preserve": "all source/docs/deciding original receipts and exported evidence",
+    "new_repeatable_test_environment_candidates": [],
+    "shared_active_environment": "/workspace/e02-E-continuation-20261006/policy-engine/.venv"
+  },
+  "reviewed_at_utc": "2026-10-06T16:20:40.808028+00:00"
+}

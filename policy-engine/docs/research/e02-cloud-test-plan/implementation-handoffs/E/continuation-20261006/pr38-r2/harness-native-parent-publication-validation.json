@@ -1,0 +1,56 @@
+{
+  "schema": "e02.E.root-copy-validation.v1",
+  "git_revision": "1e1b5028274814b7c4318671588202480390a6bc",
+  "git_tree": "a4ed7ca77636c4e0165923e3d5400aea0c5068d5",
+  "validator_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/validate_review_copies.py",
+  "validator_sha256": "ecf33316c9d698d86904839d0e3dc447973a805ac5f83d746d76ea6cb4f427a2",
+  "method": "validate recomputes every local byte/size/hash and exact git show revision:path payload; corrupt first field and absent-main Git controls",
+  "outputs": [
+    {
+      "directory": "harness-native-parent-author",
+      "copies": 48,
+      "exact_Git_bytes": "PASS",
+      "negative_controls": {
+        "sha256": "REJECTED",
+        "bytes": "REJECTED",
+        "unpublished_main": "REJECTED"
+      }
+    },
+    {
+      "directory": "failed-wave-5e-independent",
+      "copies": 14,
+      "exact_Git_bytes": "PASS",
+      "negative_controls": {
+        "sha256": "REJECTED",
+        "bytes": "REJECTED",
+        "unpublished_main": "REJECTED"
+      }
+    },
+    {
+      "directory": "failed-wave-5e",
+      "copies": 49,
+      "exact_Git_bytes": "PASS",
+      "negative_controls": {
+        "sha256": "REJECTED",
+        "bytes": "REJECTED",
+        "unpublished_main": "REJECTED"
+      }
+    },
+    {
+      "directory": "failed-wave-5e-collector",
+      "copies": 16,
+      "exact_Git_bytes": "PASS",
+      "negative_controls": {
+        "sha256": "REJECTED",
+        "bytes": "REJECTED",
+        "unpublished_main": "REJECTED"
+      }
+    }
+  ],
+  "harness_independent_index": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-independent/portable-copy-index.json",
+  "review_source": "06aec834d817b1cc90d98308f0755729a4153031",
+  "review_execution_source": "1e1b5028274814b7c4318671588202480390a6bc",
+  "review_code_decision": "GO bounded native-parent mechanism only",
+  "full_numeric_check": "Not rerun yet; old failed attempt retained",
+  "closure_ratified": false
+}

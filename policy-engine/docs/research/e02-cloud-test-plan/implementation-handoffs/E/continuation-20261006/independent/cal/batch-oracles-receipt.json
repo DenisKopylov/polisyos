@@ -1,0 +1,158 @@
+{
+  "candidate": "34788febbbee4a9c45e14fd4245e719038680881",
+  "property_input_denominator": [
+    "policy-engine/src/polisyos/foundry/calibration/pure_executor.py",
+    "policy-engine/src/polisyos/foundry/contracts/state.py",
+    "policy-engine/src/polisyos/ir/kernel/merge_rules.py"
+  ],
+  "source_sha256": {
+    "policy-engine/src/polisyos/foundry/calibration/pure_executor.py": "2f47d93c96a3f7ce5f78f6c785246429d86a484ae96cecac069235e0e9e51431"
+  },
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "jax": "0.8.2",
+    "backend": "cpu",
+    "x64": false,
+    "dtype": "float32",
+    "thread_controls": {
+      "OMP_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "XLA_FLAGS": null
+    }
+  },
+  "checks": [
+    {
+      "name": "eager",
+      "outcome": "PASS",
+      "actual": [
+        [
+          -1.0
+        ],
+        [
+          2.6931471824645996
+        ],
+        [
+          0.0
+        ]
+      ],
+      "numerical_callback_inputs": [
+        [
+          2.0
+        ]
+      ]
+    },
+    {
+      "name": "jit",
+      "outcome": "PASS",
+      "actual": [
+        [
+          -1.0
+        ],
+        [
+          2.6931471824645996
+        ],
+        [
+          0.0
+        ]
+      ],
+      "numerical_callback_inputs": [
+        [
+          2.0
+        ]
+      ]
+    },
+    {
+      "name": "gradient",
+      "outcome": "PASS",
+      "actual": [
+        [
+          1.0
+        ],
+        [
+          1.5
+        ],
+        [
+          1.0
+        ]
+      ],
+      "numerical_callback_inputs": [
+        [
+          2.0
+        ]
+      ]
+    },
+    {
+      "name": "hessian",
+      "outcome": "PASS",
+      "actual": [
+        [
+          [
+            [
+              0.0
+            ],
+            [
+              0.0
+            ],
+            [
+              0.0
+            ]
+          ]
+        ],
+        [
+          [
+            [
+              0.0
+            ],
+            [
+              -0.25
+            ],
+            [
+              0.0
+            ]
+          ]
+        ],
+        [
+          [
+            [
+              0.0
+            ],
+            [
+              0.0
+            ],
+            [
+              0.0
+            ]
+          ]
+        ]
+      ],
+      "numerical_callback_inputs": [
+        [
+          2.0
+        ]
+      ]
+    },
+    {
+      "name": "active_invalid_preserves_failure",
+      "outcome": "PASS",
+      "actual": [
+        "nan",
+        "2.6931472",
+        "0.0"
+      ],
+      "numerical_callback_inputs": [
+        [
+          -1.0
+        ],
+        [
+          2.0
+        ]
+      ]
+    }
+  ],
+  "wall_seconds": 3.7006716489995597,
+  "limitations": [
+    "Distinct PRNG keys are execution identities; no IID source-law inference.",
+    "This run independently proves executor mathematics; configured Calibrator caller checked separately on final source checkpoint."
+  ]
+}

@@ -308,6 +308,109 @@ def test_legacy_predictive_spread_never_authorizes_optional_stopping():
     assert result.diagnostics["stopped_early"] is False
 
 
+@pytest.mark.parametrize("method", ["random", "sobol", "halton"])
+@pytest.mark.parametrize("maximum,replicas", [(1000, 4), (1001, 4), (1000, 3)])
+def test_explicit_computational_budget_preserves_intent_without_exceeding_maximum(
+    method, maximum, replicas
+):
+    calls = []
+    result = MonteCarloPropagator(
+        PropagationConfig(
+            mc_sampling_method=method,
+            mc_qmc_replicates=replicas,
+            compute_sensitivity=False,
+            adaptive_stopping=AdaptiveStoppingConfig(enabled=True, max_samples=maximum),
+        )
+    ).propagate(
+        lambda **p: calls.append(p["x"]) or {"y": p["x"]},
+        {"x": 0.5},
+        {"x": uniform()},
+        ["y"],
+    )[0]
+    budget = result.diagnostics["sampling_budget"]
+    effective = budget["effective_draw_count"]
+    assert budget["configured_requested_count"] == budget["declared_maximum"] == maximum
+    assert effective <= maximum
+    assert len(calls) == effective + budget["nominal_evaluator_calls"]
+    assert result.envelope.sample_size == effective
+    assert len(result.diagnostics["draw_outcome_provenance"]["draw_records"]) == effective
+    assert budget["replica_count"] == (1 if method == "random" else replicas)
+    if method != "random":
+        sizes = result.envelope.metadata["qmc_replicate_sizes"]
+        assert len(sizes) == replicas
+        assert len(set(sizes)) == 1
+        if method == "sobol":
+            assert sizes[0] & (sizes[0] - 1) == 0
+
+
+@pytest.mark.parametrize("method", ["random", "sobol", "halton"])
+@pytest.mark.parametrize("maximum,replicas", [(100, 128), (0, 4), (-1, 4)])
+def test_incompatible_computational_budget_refuses_before_callbacks(method, maximum, replicas):
+    calls = []
+    result = MonteCarloPropagator(
+        PropagationConfig(
+            mc_sampling_method=method,
+            mc_qmc_replicates=replicas,
+            compute_sensitivity=False,
+            adaptive_stopping=AdaptiveStoppingConfig(enabled=True, max_samples=maximum),
+        )
+    ).propagate(lambda **p: calls.append(p) or {"y": p["x"]}, {"x": 0.5}, {"x": uniform()}, ["y"])[
+        0
+    ]
+    assert calls == []
+    assert result.envelope.metadata["failure"] == "sampling_budget_not_admitted"
+
+
+def test_complete_sobol_net_below_declared_minimum_refuses_before_callbacks():
+    calls = []
+    result = MonteCarloPropagator(
+        PropagationConfig(
+            mc_sampling_method="sobol",
+            mc_qmc_replicates=4,
+            compute_sensitivity=False,
+            adaptive_stopping=AdaptiveStoppingConfig(
+                enabled=True, min_samples=600, max_samples=1000
+            ),
+        )
+    ).propagate(lambda **p: calls.append(p) or {"y": p["x"]}, {"x": 0.5}, {"x": uniform()}, ["y"])[
+        0
+    ]
+    assert calls == []
+    assert result.envelope.metadata["failure"] == "sampling_budget_not_admitted"
+
+
+@pytest.mark.parametrize("maximum", [200, 663, 664])
+def test_explicit_mean_budget_counts_pilot_and_main_stochastic_draws(maximum):
+    result = MonteCarloPropagator(
+        PropagationConfig(
+            bounded_iid_mean=BoundedIIDMeanPlan(metric_id="y"),
+            compute_sensitivity=False,
+            adaptive_stopping=AdaptiveStoppingConfig(enabled=True, max_samples=maximum),
+        )
+    ).propagate(BoundedIndicatorResponse("x", "y", 0.001), {"x": 0.5}, {"x": uniform()}, ["y"])[0]
+    if maximum < 664:
+        assert result.envelope.metadata["failure"] == "frozen_budget_exceeds_declared_maximum"
+        assert verify_mean_certificate(result.envelope) is None
+    else:
+        certificate = verify_mean_certificate(result.envelope)
+        assert certificate.pilot_samples == 256
+        assert certificate.main_samples == 408
+        assert result.envelope.metadata["sampling_budget"]["total_stochastic_draw_count"] == 664
+        changed = result.envelope.model_copy(
+            update={
+                "metadata": {
+                    **result.envelope.metadata,
+                    "sampling_budget": {
+                        **result.envelope.metadata["sampling_budget"],
+                        "pilot_draw_count": 0,
+                    },
+                }
+            }
+        )
+        with pytest.raises(ValueError, match="advertised"):
+            verify_mean_certificate(changed)
+
+
 def test_removal_of_range_property_keeps_markers_but_exposes_invalid_inputs(monkeypatch):
     from polisyos.foundry.uncertainty import covariance, monte_carlo
 

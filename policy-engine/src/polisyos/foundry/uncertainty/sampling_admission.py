@@ -9,6 +9,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import numbers
 from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any, Literal
@@ -16,14 +17,14 @@ from typing import Any, Literal
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.ir.analytics.uncertainty import (
+from polisyos.ir.analytics import (
     DistributionFamily,
     IntervalSemantics,
-    PosteriorSamplesCarrier,
     PropagationMethod,
     UncertaintyEnvelope,
     UncertaintySource,
 )
+from polisyos.ir.analytics.uncertainty import PosteriorSamplesCarrier
 
 
 def sampling_content_digest(value: Any) -> str:
@@ -47,13 +48,26 @@ def joint_carrier_digest(
     )
 
 
+def _real_float64(values: object) -> np.ndarray:
+    """Admit a real numeric domain before a potentially lossy dtype conversion."""
+    array = np.asarray(values)
+    if array.dtype.kind not in "biuf" and not (
+        array.dtype.kind == "O" and all(isinstance(value, numbers.Real) for value in array.flat)
+    ):
+        raise ValueError("sampling coordinates and masses require real numeric values")
+    converted = np.asarray(array, dtype=np.float64)
+    if np.any((array != 0) & (converted == 0)):
+        raise ValueError("nonzero sampling support collapses during float64 conversion")
+    return converted
+
+
 def admit_float32_range(values: object) -> np.ndarray:
     """Admit zeros and normal finite float32 values before numerical execution.
 
     The CPU JAX profile flushes subnormal operands in arithmetic, even when
     storage preserves them. A nonzero covariance must not become a null law.
     """
-    array = np.asarray(values, dtype=np.float64)
+    array = _real_float64(values)
     limits = np.finfo(np.float32)
     magnitudes = np.abs(array)
     if (
@@ -81,6 +95,123 @@ def admit_sampling_support(envelopes: Mapping[str, UncertaintyEnvelope]) -> None
             support = getattr(payload, "support", None)
             if support is not None:
                 admit_float32_range(support)
+
+
+def admit_covariance_sampling_family(envelopes: Mapping[str, UncertaintyEnvelope]) -> None:
+    """Reject covariance-only non-Gaussian laws before any producer callback.
+
+    Covariance defines this backend's joint transform only for its declared
+    Gaussian profile. It does not select a copula for arbitrary marginals.
+    """
+    if any("covariance_row" in env.metadata for env in envelopes.values()) and not all(
+        env.distribution_family is DistributionFamily.NORMAL
+        and not isinstance(env.distribution_payload, PosteriorSamplesCarrier)
+        for env in envelopes.values()
+    ):
+        raise ValueError("covariance alone does not define a supported joint sampling law")
+
+
+def empirical_cdf(probabilities: object) -> np.ndarray:
+    """Admit a finite float64 CDF without erasing any positive category.
+
+    The final boundary is exactly one. Positive categories must occupy distinct
+    representable CDF boundaries; zero-mass categories have no interval. This
+    is a finite-machine law, not a promise of arbitrary real-valued precision.
+    """
+    probabilities = _real_float64(probabilities)
+    if (
+        probabilities.ndim != 1
+        or probabilities.size == 0
+        or not np.all(np.isfinite(probabilities))
+        or np.any(probabilities < 0)
+        or not math.isclose(math.fsum(probabilities), 1.0, rel_tol=0, abs_tol=2e-15)
+    ):
+        raise ValueError("invalid canonical empirical probabilities")
+    cumulative = np.cumsum(probabilities, dtype=np.float64)
+    last_positive = np.flatnonzero(probabilities > 0)[-1]
+    cumulative[last_positive:] = 1.0
+    masses = np.diff(np.concatenate(([0.0], cumulative)))
+    if np.any(masses < 0) or not np.array_equal(masses > 0, probabilities > 0):
+        raise ValueError("positive empirical category collapses in the finite CDF")
+    return cumulative
+
+
+def admit_empirical_weights(weights: object, sample_count: int) -> np.ndarray:
+    """Canonicalize weights once; aligned carriers must agree exactly afterward."""
+    weights = _real_float64(weights)
+    if weights.shape != (sample_count,) or not np.all(np.isfinite(weights)) or np.any(weights < 0):
+        raise ValueError("invalid empirical weights")
+    total = math.fsum(weights)
+    if not math.isfinite(total) or total <= 0:
+        raise ValueError("invalid empirical weight total")
+    probabilities = weights / total
+    if not np.array_equal(probabilities > 0, weights > 0):
+        raise ValueError("positive empirical weight underflows in normalization")
+    empirical_cdf(probabilities)
+    return probabilities
+
+
+def admit_unit_uniform(values: object) -> np.ndarray:
+    """Admit the half-open domain used by random and QMC inverse transforms."""
+    array = _real_float64(values)
+    if not np.all(np.isfinite(array)) or np.any(array < 0) or np.any(array >= 1):
+        raise ValueError("uniform transform requires finite coordinates in [0, 1)")
+    return array
+
+
+@dataclass(frozen=True)
+class SamplingBudgetPlan:
+    """Freeze the computational draw plan separately from configured intent."""
+
+    configured_requested_count: int
+    effective_draw_count: int
+    declared_maximum: int | None
+    minimum_draw_count: int
+    replica_count: int
+    sampling_method: str
+
+
+def admit_sampling_budget(
+    requested: int,
+    *,
+    method: str,
+    replicas: int,
+    minimum: int,
+    declared_maximum: int | None,
+) -> SamplingBudgetPlan:
+    """Freeze equal QMC replicas/full Sobol nets without exceeding an explicit cap."""
+    if (
+        any(type(value) is not int or value <= 0 for value in [requested, replicas, minimum])
+        or method not in {"random", "sobol", "halton"}
+        or (
+            declared_maximum is not None
+            and (type(declared_maximum) is not int or declared_maximum < requested)
+        )
+    ):
+        raise ValueError("computational sampling budget is not admissible")
+    effective = requested
+    if method != "random":
+        per_replica = (
+            requested // replicas
+            if declared_maximum is not None
+            else math.ceil(requested / replicas)
+        )
+        if per_replica <= 0:
+            raise ValueError("computational sampling budget cannot fund every replica")
+        if method == "sobol":
+            exponent = (
+                per_replica.bit_length() - 1
+                if declared_maximum is not None
+                else (per_replica - 1).bit_length()
+            )
+            per_replica = 1 << exponent
+        effective = replicas * per_replica
+    if effective < minimum or (declared_maximum is not None and effective > declared_maximum):
+        raise ValueError("computational sampling budget is below the admitted minimum")
+    effective_replicas = 1 if method == "random" else replicas
+    return SamplingBudgetPlan(
+        requested, effective, declared_maximum, minimum, effective_replicas, method
+    )
 
 
 class BoundedIIDMeanPlan(BaseModel):
@@ -121,6 +252,8 @@ class BoundedIIDMeanCertificate(BaseModel):
     delta_main: float
     pilot_stream: int
     main_stream: int
+    declared_maximum: int = Field(gt=0)
+    computational_budget_scope: Literal["main_only", "pilot_and_main"]
     predicate_basis: Literal["recomputed"] = "recomputed"
     authority_scope: Literal["declared_mathematical_input_law_only"] = (
         "declared_mathematical_input_law_only"
@@ -197,7 +330,7 @@ def admit_bounded_mean_response(
 
 def frozen_bernstein_budget(pilot: object, plan: BoundedIIDMeanPlan) -> tuple[float, int]:
     """Derive the independent pilot variance upper bound and fixed main budget."""
-    values = np.asarray(pilot, dtype=np.float64)
+    values = _real_float64(pilot)
     if values.shape != (plan.pilot_samples,) or not np.all(np.isfinite(values)):
         raise ValueError("pilot is incomplete")
     if np.any(values < 0) or np.any(values > 1):
@@ -292,6 +425,20 @@ def verify_mean_certificate(envelope: UncertaintyEnvelope) -> BoundedIIDMeanCert
         "quantile_01": float(np.percentile(expected_main, 1)),
         "quantile_99": float(np.percentile(expected_main, 99)),
     }
+    expected_budget = {
+        "basis": "declared_computational_budget_only",
+        "budget_scope": certificate.computational_budget_scope,
+        "declared_maximum": certificate.declared_maximum,
+        "pilot_draw_count": plan.pilot_samples,
+        "frozen_main_draw_count": count,
+        "total_stochastic_draw_count": plan.pilot_samples + count,
+        "nominal_evaluator_calls": 0,
+    }
+    bounded_count = (
+        plan.pilot_samples + count
+        if certificate.computational_budget_scope == "pilot_and_main"
+        else count
+    )
     if (
         not isinstance(advertised_interval, (list, tuple))
         or len(advertised_interval) != 2
@@ -303,6 +450,8 @@ def verify_mean_certificate(envelope: UncertaintyEnvelope) -> BoundedIIDMeanCert
         or envelope.metadata.get("mc_n_failed") != 0
         or envelope.metadata.get("mc_seed") != certificate.mc_seed
         or envelope.metadata.get("mc_sampling_method") != "random"
+        or envelope.metadata.get("sampling_budget") != expected_budget
+        or bounded_count > certificate.declared_maximum
         or not math.isclose(
             envelope.metadata.get("mc_std", -1), float(np.std(expected_main)), abs_tol=1e-12
         )

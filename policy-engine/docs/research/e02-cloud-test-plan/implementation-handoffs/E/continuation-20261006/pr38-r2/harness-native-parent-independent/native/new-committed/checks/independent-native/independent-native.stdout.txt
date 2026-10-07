@@ -1,0 +1,2 @@
+{"independent_native_cas_readback": true, "content_sha256": "e3a6f8728b95c5e0fd3431ccab4aea96cc3a5620399f49cd935510a7e5d899ca", "module_origins": 63}
+.

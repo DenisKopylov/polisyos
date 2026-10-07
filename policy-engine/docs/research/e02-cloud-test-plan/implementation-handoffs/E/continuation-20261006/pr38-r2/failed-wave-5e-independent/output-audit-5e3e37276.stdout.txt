@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r2-receipts/common-wave-independent/audit_outputs.py", line 168, in <module>
+    if __name__=='__main__':audit()
+                            ~~~~~^^
+  File "/workspace/e02-E-pr38-r2-receipts/common-wave-independent/audit_outputs.py", line 112, in audit
+    stages[job['name']]=validate_stages(receipt,stage)
+                        ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/workspace/e02-E-pr38-r2-receipts/common-wave-independent/audit_outputs.py", line 76, in validate_stages
+    assert argv[:len(original)]==original
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

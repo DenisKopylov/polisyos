@@ -1,0 +1,12 @@
+{
+  "state": "READY",
+  "packet_root": "/workspace/e02-E-pr38-r2-receipts/welfare-covariance-facade-5e",
+  "index_sha256": "db188c6fabb217680c598d30d533ed3f0a2d5cf1d05069b0776cb940a5c6f1c2",
+  "author_receipt_sha256": "0de0a970c28dfae21687f80dbf1d845ca834f6682635154a962c213d3063109d",
+  "patch_sha256": "ed474d8a61cc5edeff3f195044cd9d095282b72d51b56e1eb0fb74e48ef572b7",
+  "files": 104,
+  "bytes": 1779539,
+  "root_mutations": 0,
+  "implementation_sha": null,
+  "independent_review": "Pending DDM; this is author packet readiness, not independent GO/global pass."
+}

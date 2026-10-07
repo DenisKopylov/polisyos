@@ -1,0 +1,94 @@
+{
+  "metadata_plan_equal_after_location_normalization": true,
+  "numeric_or_gate_execution": false,
+  "execution_output_created": false,
+  "native_test_path_count": 120,
+  "owner_packet_extra_inputs": 2,
+  "group_path_counts": {
+    "PCL_continuous_persistence": 10,
+    "DDM_runtime_and_facade": 16,
+    "BKT_FRC_S10_and_adjacent_report_consumers": 25,
+    "CAL_and_welfare_consumer": 29,
+    "MC_joint_law_support_and_Scientist_consumer": 25,
+    "DOE_SALib_and_consumer_factory": 14,
+    "G_checkpoint10_ControlPlaneStore_companion": 1
+  },
+  "jobs": [
+    {
+      "name": "pcl-continuous-persistence",
+      "kind": "numerical"
+    },
+    {
+      "name": "ddm-runtime-and-facade",
+      "kind": "numerical"
+    },
+    {
+      "name": "bkt-frc-s10-and-adjacent-report-consumers",
+      "kind": "numerical"
+    },
+    {
+      "name": "cal-and-welfare-consumer",
+      "kind": "numerical"
+    },
+    {
+      "name": "mc-joint-law-support-and-scientist-consumer",
+      "kind": "numerical"
+    },
+    {
+      "name": "doe-salib-and-consumer-factory",
+      "kind": "numerical"
+    },
+    {
+      "name": "g-checkpoint10-controlplanestore-companion",
+      "kind": "numerical"
+    },
+    {
+      "name": "results-importer",
+      "kind": "importer"
+    },
+    {
+      "name": "architecture",
+      "kind": "gate"
+    },
+    {
+      "name": "runtime-api-contract",
+      "kind": "gate"
+    },
+    {
+      "name": "static-invocation",
+      "kind": "gate"
+    },
+    {
+      "name": "ruff",
+      "kind": "gate"
+    },
+    {
+      "name": "ruff-format",
+      "kind": "gate"
+    },
+    {
+      "name": "workspace-verify",
+      "kind": "gate"
+    },
+    {
+      "name": "ci-parity",
+      "kind": "gate"
+    }
+  ],
+  "removed_inherited_caps": {},
+  "PLAYWRIGHT_BROWSERS_PATH": "/home/agent/.cache/ms-playwright",
+  "required_upstream": {
+    "G_checkpoint10": {
+      "sha": "6f869f39d04deaff7eda9b9047848912605beca5",
+      "in_candidate_history": true
+    },
+    "B197_legacy_consumer": {
+      "sha": "1e942ff624ae7cb6c71227d48eef760687e17d2b",
+      "in_candidate_history": true
+    },
+    "Welfare_law_source": {
+      "sha": "884681db485b7466b183a206f83bbe0635f86ca3",
+      "in_candidate_history": true
+    }
+  }
+}

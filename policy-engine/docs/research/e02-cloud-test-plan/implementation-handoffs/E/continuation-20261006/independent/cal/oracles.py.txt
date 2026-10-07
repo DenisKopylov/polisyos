@@ -1,0 +1,72 @@
+"""Independent numerical review of frozen E CAL source; no production mutations."""
+import dataclasses, hashlib, importlib.util, inspect, json, os, pathlib, platform, subprocess, sys, time
+import jax, jax.numpy as jnp, numpy as np
+from polisyos.foundry.calibration import hessian as hm
+from polisyos.foundry.calibration.calibrator import Calibrator
+from polisyos.foundry.calibration.measurement import CalibrationTargetBundleCompiler
+ROOT=pathlib.Path(sys.argv[1]).resolve() if len(sys.argv)>1 else pathlib.Path(subprocess.check_output(['git','rev-parse','--show-toplevel'],text=True).strip()).resolve()
+OUT=pathlib.Path(sys.argv[2]).resolve() if len(sys.argv)>2 else pathlib.Path(__file__).resolve().parent
+assert pathlib.Path(hm.__file__).resolve().is_relative_to(ROOT), 'loaded source must belong to selected repository'
+OUT.mkdir(parents=True,exist_ok=True)
+checks=[]
+def check(name, predicate, evidence):
+ ok=bool(predicate)
+ checks.append({'name':name,'outcome':'PASS' if ok else 'FAIL','evidence':evidence})
+ print(json.dumps(checks[-1],allow_nan=False))
+def load(name,path):
+ spec=importlib.util.spec_from_file_location(name,ROOT/path);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);return m
+start=time.monotonic()
+head=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
+tree=subprocess.check_output(['git','rev-parse','HEAD^{tree}'],cwd=ROOT,text=True).strip()
+assert not subprocess.check_output(['git','status','--porcelain'],cwd=ROOT,text=True), 'review requires clean frozen source'
+source_files=['policy-engine/src/polisyos/foundry/calibration/hessian.py','policy-engine/src/polisyos/foundry/calibration/calibrator.py','policy-engine/src/polisyos/foundry/calibration/pure_executor.py','policy-engine/src/polisyos/foundry/calibration/report.py','policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py']
+source_hashes={p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in source_files}
+env={'python':sys.version,'platform':platform.platform(),'jax':jax.__version__,'numpy':np.__version__,'jax_backend':jax.default_backend(),'jax_devices':[str(x) for x in jax.devices()],'x64':jax.config.x64_enabled,'thread_controls':{x:os.getenv(x) for x in ['OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','NUMEXPR_NUM_THREADS','XLA_FLAGS','JAX_PLATFORMS']},'source_origins':{'hessian':hm.__file__}}
+print(json.dumps({'environment':env}))
+opt=jnp.array([1.,2.],dtype=jnp.float32)
+f=lambda x:.5*((x[0]-1)**2/4+(x[1]-2)**2/9)
+r=hm.compute_hessian(f,opt,['a','b'],objective_kind='negative_log_likelihood')
+expected_h=np.diag([.25,1/9]);expected_cov=np.diag([4.,9.])
+check('gaussian_raw_information',np.allclose(r.hessian,expected_h,rtol=1e-6) and np.allclose(r.covariance,expected_cov,rtol=1e-6) and np.allclose(r.std,[2,3],rtol=1e-6),{'hessian':r.hessian.tolist(),'covariance':r.covariance.tolist(),'std':r.std.tolist(),'gradient':np.asarray(jax.grad(f)(opt)).tolist(),'dtype':r.derivative_dtype})
+for step in [.1,.05]:
+ # Independently calculate second differences from the declared objective values.
+ fd=np.zeros((2,2));x=np.array([1.,2.]);nll=lambda z:.5*((z[0]-1)**2/4+(z[1]-2)**2/9)
+ for i in range(2):
+  e=np.eye(2)[i]*step;fd[i,i]=(nll(x+e)-2*nll(x)+nll(x-e))/step**2
+ check('independent_central_difference_'+str(step),np.allclose(fd,r.hessian,rtol=1e-6),{'independent_fd':fd.tolist(),'step':step})
+for name,obj,point,kwargs in [('generic_same_curvature',f,opt,{}),('huber',lambda x:jnp.sum(jnp.where(jnp.abs(x)<1,.5*x*x,jnp.abs(x)-.5)),jnp.zeros(2),{}),('saddle',lambda x:x[0]**2-x[1]**2,jnp.zeros(2),{}),('flat',lambda x:jnp.array(1.),jnp.zeros(2),{}),('singular',lambda x:x[0]**2,jnp.zeros(2),{}),('ill_conditioned',lambda x:.5*(x[0]**2+1e-7*x[1]**2),jnp.zeros(2),{'condition_limit':1e5}),('nonstationary',f,jnp.zeros(2),{})]:
+ kind='generic_loss' if name in ['generic_same_curvature','huber'] else 'negative_log_likelihood'
+ rr=hm.compute_hessian(obj,point,['a','b'],objective_kind=kind,**kwargs)
+ check(name,rr.covariance is None and rr.n_repaired==0,{'raw_eigenvalues':rr.eigenvalues.tolist(),'covariance':None if rr.covariance is None else rr.covariance.tolist(),'reason':rr.covariance_unavailable_reason,'raw_rank':rr.raw_rank})
+for name,offset in [('nan',jnp.nan),('inf',jnp.inf)]:
+ obj=lambda x:.5*jnp.sum(x*x)+offset
+ rr=hm.compute_hessian(obj,jnp.zeros(2),['a','b'],objective_kind='negative_log_likelihood')
+ check('nonfinite_objective_'+name,rr.covariance is None,{'objective':str(obj(jnp.zeros(2))),'gradient':np.asarray(jax.grad(obj)(jnp.zeros(2))).tolist(),'hessian':rr.hessian.tolist(),'covariance':None if rr.covariance is None else rr.covariance.tolist(),'reason':rr.covariance_unavailable_reason})
+source=inspect.getsource(hm.compute_hessian)
+mutated=source.replace('covariance = None if reason is not None else np.linalg.inv(hessian)','covariance = np.linalg.inv(hessian)')
+ns=dict(vars(hm));exec(compile(mutated,'removed_inverse_information_admission','exec'),ns)
+mut=ns['compute_hessian'](f,opt,['a','b'])
+check('property_removal_detected',mut.covariance is not None and hm.compute_hessian(f,opt,['a','b']).covariance is None,{'markers_retained':True,'mutant_generic_covariance':mut.covariance.tolist(),'normal_generic_covariance':None})
+bt=load('cal_batch_fixture','policy-engine/tests/unit/foundry/calibration/test_calibrator_batch.py')
+measurement=load('measurement_fixture','policy-engine/tests/unit/foundry/calibration/test_measurement.py')
+inputs=bt._inputs();inputs.batch_inputs=None;inputs.raw_targets=None;inputs.parameter_loader=lambda _:{'params':{'rate':.25},'schedule':{'start_step':0,'end_step':10}}
+bundle=CalibrationTargetBundleCompiler().compile(measurement._panel());target=bundle.targets[0];tid=target.target_id
+inputs.config=inputs.config.model_copy(update={'targets':[inputs.config.targets[0].model_copy(update={'target_id':tid})]})
+fields={}
+for field in dataclasses.fields(bundle):
+ value=getattr(bundle,field.name)
+ if isinstance(value,dict):fields[field.name]={tid:value[tid]}
+fields.update(targets=(target,),observed_value={tid:jnp.array([0.,50.])},trust_weight={tid:jnp.array([1.,.1])},coverage_estimate={tid:jnp.ones(2)},censoring_mask={tid:jnp.zeros(2,dtype=bool)},lag_days_estimate={tid:jnp.zeros(2)},shock_mask={tid:jnp.zeros(2,dtype=bool)})
+bundle=dataclasses.replace(bundle,**fields);inputs.measurement_bundle=bundle
+first=Calibrator(inputs).run()
+inputs.measurement_bundle=dataclasses.replace(bundle,trust_weight={tid:jnp.array([.1,1.])})
+second=Calibrator(inputs).run()
+for label,report,weights in [('first',first,(1.,.1)),('second',second,(.1,1.))]:
+ rate=report.calibrated_params['tax.rate']; expected_loss=(weights[0]*(100*rate)**2+weights[1]*(200*rate-50)**2)/sum(weights); expected_h=2*(weights[0]*100**2+weights[1]*200**2)/sum(weights)
+ actual_h=report.execution_context['curvature_diagnostic']['raw_eigenvalues'][0]
+ check('measurement_raw_objective_oracle_'+label,np.isclose(report.total_loss,expected_loss,rtol=1e-6) and np.isclose(actual_h,expected_h,rtol=1e-6),{'rate':rate,'declared_weights':weights,'independent_loss':expected_loss,'actual_loss':report.total_loss,'independent_hessian':expected_h,'actual_hessian':actual_h})
+check('objective_identity_binds_measurement_quality',first.execution_context['objective_identity']!=second.execution_context['objective_identity'],{'first_identity':first.execution_context['objective_identity'],'second_identity':second.execution_context['objective_identity'],'first_loss':first.total_loss,'second_loss':second.total_loss,'first_hessian':first.execution_context['curvature_diagnostic'],'second_hessian':second.execution_context['curvature_diagnostic'],'input_delta':'trust_weight [1,.1] -> [.1,1]; all configured targets/model/seed/observed_values fixed'})
+assert source_hashes=={p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in source_files}, 'source changed during review'
+receipt={'candidate':head,'tree':tree,'source_sha256':source_hashes,'environment':env,'wall_seconds':time.monotonic()-start,'checks':checks}
+(OUT/('oracles-'+head[:12]+'-receipt.json')).write_text(json.dumps(receipt,indent=2,allow_nan=False)+'\n')
+print(json.dumps({'summary':{'PASS':sum(c['outcome']=='PASS' for c in checks),'FAIL':sum(c['outcome']=='FAIL' for c in checks)},'wall_seconds':receipt['wall_seconds']}))

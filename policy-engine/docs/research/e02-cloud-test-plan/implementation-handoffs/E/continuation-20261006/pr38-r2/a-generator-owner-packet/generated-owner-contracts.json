@@ -1,0 +1,210 @@
+{
+  "source": {
+    "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+    "path": "policy-engine/architecture/generated_artifacts.toml",
+    "git_blob": "6621206f112833142f966ce8318f3f6b48e3e57d",
+    "bytes": 253707,
+    "sha256": "9d612433dcd7fac0f936ec5cc52d4d9416f8c84af37a8e77faac68011f445bc0"
+  },
+  "families": [
+    {
+      "id": "abi-schema-snapshots",
+      "label": "ABI schema snapshots",
+      "owner": "team-polisyos",
+      "approval_owner": "team-polisyos",
+      "lifecycle": "generated_committed",
+      "generator": "canonical generator declared in regenerate_commands",
+      "verifier": "verifier declared by check_command, drift_gate, workflow, or manual review policy",
+      "promotion_target": "registered committed outputs listed in outputs",
+      "stale_output_behavior": "fail",
+      "source_of_truth": "src/polisyos/schemas/abi_models.py + src/polisyos/** Pydantic/Enum contracts",
+      "outputs": [
+        "schemas/snapshots/ir/",
+        "schemas/snapshots/fabric/edge_kind.schema.json",
+        "schemas/snapshots/fabric/node_kind.schema.json",
+        "schemas/snapshots/fabric/_manifest.json"
+      ],
+      "regenerate_commands": [
+        "uv run --extra ml polisyos-tools diagnostics gen-schema"
+      ],
+      "commit_policy": "committed",
+      "freshness_rule": "Regenerate and commit whenever ABI-visible IR or Fabric contracts change.",
+      "compatibility_class": "schema-openapi-abi",
+      "version_owner": "team-polisyos",
+      "deprecation_window": "2 minor releases",
+      "release_fragment_change_class": "schema-openapi-abi",
+      "compatibility_promise": "Generated ABI manifests declare owner/window metadata; breaking semantic snapshot changes require structured compatibility release fragments.",
+      "drift_gate": "automated",
+      "workflow": "../.github/workflows/abi.yml",
+      "check_cwd": ".",
+      "check_command": [
+        "uv",
+        "run",
+        "--extra",
+        "ml",
+        "polisyos-tools",
+        "diagnostics",
+        "gen-schema",
+        "--check"
+      ]
+    },
+    {
+      "id": "runtime-openapi-snapshot",
+      "label": "Runtime OpenAPI snapshot",
+      "owner": "team-polisyos",
+      "approval_owner": "team-polisyos",
+      "lifecycle": "generated_committed",
+      "generator": "canonical generator declared in regenerate_commands",
+      "verifier": "verifier declared by check_command, drift_gate, workflow, or manual review policy",
+      "promotion_target": "registered committed outputs listed in outputs",
+      "stale_output_behavior": "fail",
+      "source_of_truth": "src/polisyos/runtime/http/** FastAPI app factory and DTO contracts, including the owner-validator consulted dependency basis embedded in governed projection examples",
+      "outputs": [
+        "schemas/runtime_api_v1.openapi.json"
+      ],
+      "regenerate_commands": [
+        "PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json"
+      ],
+      "commit_policy": "committed",
+      "freshness_rule": "Regenerate and commit whenever runtime routes, request/response DTOs, OpenAPI examples, or an owner-validator consulted dependency basis changes.",
+      "compatibility_class": "schema-openapi-abi",
+      "version_owner": "team-runtime",
+      "deprecation_window": "2 minor releases",
+      "release_fragment_change_class": "schema-openapi-abi",
+      "compatibility_promise": "Runtime OpenAPI changes declare additive, compatible-breaking, or breaking behavior and generated-client impact.",
+      "drift_gate": "automated",
+      "workflow": "ops/ci/templates/workflows/arch.yml",
+      "check_cwd": ".",
+      "check_command": [
+        "uv",
+        "run",
+        "--extra",
+        "runtime",
+        "--extra",
+        "ml",
+        "python",
+        "tools/ops_runners/runtime/check_runtime_api_contract.py",
+        "--skip-client-drift"
+      ],
+      "default_freshness_check": true,
+      "output_probe_command": [
+        "env",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "PYTHONNOUSERSITE=1",
+        "PYTHONHASHSEED=0",
+        "JAX_PLATFORMS=cpu",
+        "PYTHONPATH=src:.",
+        "uv",
+        "run",
+        "--extra",
+        "runtime",
+        "--extra",
+        "ml",
+        "python",
+        "tools/ops_runners/runtime/export_runtime_openapi.py",
+        "--output",
+        "{output_root}/schemas/runtime_api_v1.openapi.json"
+      ]
+    },
+    {
+      "id": "runtime-api-client",
+      "label": "Generated runtime API client",
+      "owner": "team-polisyos",
+      "approval_owner": "team-polisyos",
+      "lifecycle": "generated_committed",
+      "generator": "canonical generator declared in regenerate_commands",
+      "verifier": "verifier declared by check_command, drift_gate, workflow, or manual review policy",
+      "promotion_target": "registered committed outputs listed in outputs",
+      "stale_output_behavior": "fail",
+      "source_of_truth": "schemas/runtime_api_v1.openapi.json",
+      "outputs": [
+        "packages/runtime-api-client/types.ts",
+        "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "packages/runtime-api-client/canonicalRuntimeApiClient.js"
+      ],
+      "regenerate_commands": [
+        "corepack pnpm --filter @polisyos/runtime-api-client run generate -- --openapi schemas/runtime_api_v1.openapi.json"
+      ],
+      "commit_policy": "committed",
+      "freshness_rule": "Regenerate and commit whenever the runtime OpenAPI snapshot changes.",
+      "compatibility_class": "js-package-api",
+      "version_owner": "team-frontend",
+      "deprecation_window": "2 minor releases",
+      "release_fragment_change_class": "js-package-api",
+      "generated_client_compatibility": "required: declare compatibility in structured release fragments whenever this generated client changes.",
+      "drift_gate": "automated",
+      "workflow": "ops/ci/templates/workflows/arch.yml",
+      "check_cwd": ".",
+      "check_command": [
+        "uv",
+        "run",
+        "--extra",
+        "runtime",
+        "--extra",
+        "ml",
+        "python",
+        "tools/ops_runners/runtime/check_runtime_api_contract.py"
+      ],
+      "default_freshness_check": true,
+      "output_probe_command": [
+        "corepack",
+        "pnpm",
+        "--filter",
+        "@polisyos/runtime-api-client",
+        "run",
+        "generate",
+        "--",
+        "--openapi",
+        "schemas/runtime_api_v1.openapi.json",
+        "--output-root",
+        "{output_root}"
+      ]
+    },
+    {
+      "id": "trust-claim-posture-register",
+      "label": "Trust claim posture register",
+      "owner": "team-architecture",
+      "approval_owner": "team-architecture",
+      "lifecycle": "generated_committed",
+      "generator": "DS11 trust claim posture compiler write mode",
+      "verifier": "DS11 trust claim posture checker and architecture guardrails",
+      "promotion_target": "static trust posture artifact consumed by the public /trust surface",
+      "stale_output_behavior": "fail",
+      "source_of_truth": "tracked posture sources, ratified identity boundary, content-bound accessibility document, and historical page-a11y receipt",
+      "outputs": [
+        "apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json"
+      ],
+      "regenerate_commands": [
+        "uv run python tools/quality/validation/check_trust_claim_posture.py --repo-root . --write --write-generated-reference"
+      ],
+      "commit_policy": "committed",
+      "freshness_rule": "Regenerate whenever an admitted posture source, rule, projection index, or historical accessibility receipt changes.",
+      "drift_gate": "automated",
+      "workflow": "tools/quality/validation/check_trust_claim_posture.py",
+      "check_cwd": ".",
+      "check_command": [
+        "uv",
+        "run",
+        "python",
+        "tools/quality/validation/check_trust_claim_posture.py",
+        "--repo-root",
+        ".",
+        "--check"
+      ],
+      "default_freshness_check": true,
+      "output_probe_command": [
+        "env",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "python",
+        "tools/quality/validation/check_trust_claim_posture.py",
+        "--repo-root",
+        ".",
+        "--write",
+        "--output-root",
+        "{output_root}"
+      ]
+    }
+  ],
+  "commands_are_declared_owner_contracts_not_executed_now": true,
+  "coordinate": "All contract commands use policy-engine as cwd; no unexpanded placeholder was executed."
+}

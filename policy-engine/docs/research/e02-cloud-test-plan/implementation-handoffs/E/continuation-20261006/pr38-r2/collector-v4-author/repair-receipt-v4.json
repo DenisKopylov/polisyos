@@ -1,0 +1,136 @@
+{
+  "schema": "policyos.e02.collector-external-freeze-role-repair.v4",
+  "scope": "Scratch-only author delta. No root/source/config/Git mutations and no numeric/native/gate tests. Independent review pending; CONTROL_COMPLETE_BOUND is protocol custody only.",
+  "historical_source_commit": "1e1b5028274814b7c4318671588202480390a6bc",
+  "preserved_v3_source": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/collect_wave_v3_final.py",
+    "bytes": 38152,
+    "sha256": "a6399cc46cbfe25b103fa210259eff2be9483f582ae7cba773632f079f7194ec"
+  },
+  "new_frozen_source": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/collect_wave_v4.py",
+    "bytes": 38197,
+    "sha256": "faecae68f9eecc741e12ae1469fcd57faad11a9facb747f2430762da1758f9fc"
+  },
+  "independent_v3_historical_packet": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v3/copy-index.json",
+    "bytes": 6060,
+    "sha256": "cf178965f2f4c7548599c49cdddfe250764a4dd2535fc253f217c523896ffc03"
+  },
+  "exact_previous_falsifier": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v3/freeze-role-probe.json",
+    "bytes": 942,
+    "sha256": "4993da33788753577de4b49d845a81496d0c5995de0a89f64fda979283a11c78"
+  },
+  "runtime_property": "Common public_evidence guard inspects full resolved source components, retaining external freeze parent role. raw/private/git-config-private components remain inadmissible before publication creation/copy even if hash and metadata are valid. Existing symlink, canonical role and exact A-module/file guards remain unchanged.",
+  "predicate_basis": "Independent DoE synthetic v3 raw/private external-freeze receipt escapes. Only full-source vs root-relative role-component predicate changed; names/fields/canonical constraints preserved.",
+  "author_controls": {
+    "synthetic_role_probe": {
+      "path": "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/freeze-role-probe.json",
+      "bytes": 1698,
+      "sha256": "f99f4edd217dc3f1bc7834a9939a269f0cdef292b8634957ee541a57b6449d9f"
+    },
+    "count": 3,
+    "negative_states": [
+      "raw: TYPED_REFUSAL with no publication creation",
+      "private: TYPED_REFUSAL with no publication creation"
+    ],
+    "positive": "standalone synthetic metadata retains CONTROL_COMPLETE_BOUND/copy",
+    "property_removal": {
+      "path": "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/role-removal-probe.json",
+      "bytes": 1061,
+      "sha256": "2a75e42dceca67c88c38163f106e3821a0986d2d6d4e13b8b53a51fd62c720ec"
+    },
+    "removal_count": 2,
+    "removal_behavior": "Replace only full absolute components with old root-relative predicate; raw/private synthetic metadata again copied and CONTROL_COMPLETE_BOUND. No actual private data touched.",
+    "actual_standalone_metadata_admission": {
+      "path": "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/actual-standalone-admission.json",
+      "bytes": 764,
+      "sha256": "606ac27249893164a2c3c2ed8ec1a812d74d3e0d61849631e9cd350b1390fdcf"
+    },
+    "source_attribution": "Freeze-role helpers adapted with attribution from independent DoE freeze_role_probe.py; author helpers syntax-only, not claimed configured lintPASS"
+  },
+  "configured_checks": [
+    {
+      "name": "collector-ruff",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/ruff",
+        "check",
+        "--config",
+        "/workspace/e02-E-continuation-20261006/policy-engine/ruff.toml",
+        "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/collect_wave_v4.py"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006",
+      "exit_code": 0,
+      "stdout": "configured-collector-ruff.stdout.txt",
+      "stderr": "configured-collector-ruff.stderr.txt",
+      "scope": "one frozen collector source"
+    },
+    {
+      "name": "collector-format",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/ruff",
+        "format",
+        "--check",
+        "--config",
+        "/workspace/e02-E-continuation-20261006/policy-engine/ruff.toml",
+        "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/collect_wave_v4.py"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006",
+      "exit_code": 0,
+      "stdout": "configured-collector-format.stdout.txt",
+      "stderr": "configured-collector-format.stderr.txt",
+      "scope": "one frozen collector source"
+    },
+    {
+      "name": "synthetic-freeze-role",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/freeze_role_probe_v4.py.txt"
+      ],
+      "cwd": "/workspace",
+      "exit_code": 0,
+      "stdout": "freeze-controls.stdout.txt",
+      "stderr": "freeze-controls.stderr.txt",
+      "scope": "three synthetic protocol-only controls"
+    },
+    {
+      "name": "role-predicate-removal",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/role_removal_probe_v4.py.txt"
+      ],
+      "cwd": "/workspace",
+      "exit_code": 0,
+      "stdout": "removal-controls.stdout.txt",
+      "stderr": "removal-controls.stderr.txt",
+      "scope": "two synthetic protocol-only removals"
+    }
+  ],
+  "environment": {
+    "python_executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "python_version": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "ruff_config": {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/ruff.toml",
+      "bytes": 247,
+      "sha256": "543068227742e00057e19329f2df8ee944090f828a40b3e5da0b72f8e3b06fbd"
+    },
+    "selected_actual_env": {
+      "UV_NO_SYNC": null,
+      "UV_PROJECT_ENVIRONMENT": null,
+      "OMP_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null
+    },
+    "no_numeric_backends_launched": true
+  },
+  "unchanged_reuse": "Independent v3 14-controls and actual5e custody review retained as historical exact a639 evidence; not repeated/relabeled as v4 independent PASS. Prior v1/v2/v3 source/index and actual5e bytes preserved.",
+  "limitations": "Strict full-path raw/private ancestor refusal is intentional; explicit external metadata roots cannot discard source role. No product/backend results derived from collector tests. No semantic/finding closure implied.",
+  "next_owner": "Independent DoE narrow delta review, then root append-only copy/commit. A/G dependency packet separately ready.",
+  "cleanup_candidates": [
+    "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/synthetic-freeze-role",
+    "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/synthetic-role-removal"
+  ],
+  "cleanup_policy": "Repeatable synthetic clones only; preserve original deciding data/source/docs. No deletion/Trash performed; no native Trash established."
+}

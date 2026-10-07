@@ -1,0 +1,594 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "E",
+  "slice": "calibration-gaussian-noise-preflight-r2-20261006",
+  "recorded_at": "2026-10-06T13:15:28.053574+00:00",
+  "finding_ids": [
+    "B195",
+    "B197",
+    "B198"
+  ],
+  "bundle_ids": [
+    "CAL-03",
+    "CAL-06"
+  ],
+  "closure_ids": [],
+  "slice_base_sha": "028829629a9c30454e44d25e7bea7be3ea05b561",
+  "slice_base_tree_sha": "a00c054928d7f9bafff6b46f2fb19e95697e6e9b",
+  "candidate_sha": "45b834534958c262a8146e6c4d847cf8d53846bc",
+  "candidate_tree_sha": "f9abc4e615bc81c8f8a8060338d35c560af71374",
+  "implementation_commits": [
+    "45b834534958c262a8146e6c4d847cf8d53846bc"
+  ],
+  "branch": "codex/e02-E-cal-20261006",
+  "worktree_root": "/workspace/e02-E-cal-20261006",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/58",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-gaussian-noise-preflight-r2.toml",
+    "policy-engine/src/polisyos/foundry/calibration/README.md",
+    "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+    "policy-engine/src/polisyos/foundry/calibration/preflight.py",
+    "policy-engine/tests/unit/foundry/calibration/test_gaussian_noise_preflight.py"
+  ],
+  "mechanism_paths": [
+    "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+    "policy-engine/src/polisyos/foundry/calibration/preflight.py"
+  ],
+  "mandatory_companions": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-gaussian-noise-preflight-r2.toml",
+    "policy-engine/src/polisyos/foundry/calibration/README.md",
+    "policy-engine/tests/unit/foundry/calibration/test_gaussian_noise_preflight.py"
+  ],
+  "source_sha256": {
+    "policy-engine/src/polisyos/foundry/calibration/calibrator.py": "6ca715f13ca9ee0cd825ebea359d4cdaca0cbe67090e930d56fb224f7dbb8aca",
+    "policy-engine/src/polisyos/foundry/calibration/preflight.py": "d6644d1c49efc82a7aaa4436b7c413251f54196867d80405a100dfa0c0203c28"
+  },
+  "source_freeze": "clean candidate45b; native probe origins pinned; post-run source files exactly equal candidate Git blobs",
+  "admission": {
+    "mode": "resume",
+    "branch": "codex/e02-E-cal-20261006",
+    "path": "/workspace/e02-E-cal-20261006",
+    "state": "admitted",
+    "full_json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-gaussian-noise-preflight-r2-20261006.resume-admission.json",
+      "sha256": "a1671455506c1987bfe3173f398c695147e9be9d0df207d3f07b329c2c7fdf29",
+      "bytes": 123184
+    },
+    "supplied_by": "E root serialized exact-pair read-only resume admission; no checkout/worktree was created by this slice"
+  },
+  "runtime_property": "Every supplied Gaussian observation-noise value is a supported finite positive real scalar excluding bool/np.bool_ and is copied to a Python float at Calibrator.run entry before parameter_loader or emitter execution. Contextual target-ID coverage is a separate later check.",
+  "caller_path": [
+    "foundry/calibration/calibrator.py::Calibrator.run",
+    "foundry/calibration/preflight.py::validate_gaussian_observation_std",
+    "foundry/calibration/calibrator.py::_build_bundle",
+    "foundry/calibration/pure_executor.py::compile_program",
+    "configured parameter_loader",
+    "IncomeTax.emit_patches"
+  ],
+  "prior_proxy_divergence": "The old finite-and-positive expression accepts True and np.bool_(True) as unit noise. Its placement after _build_bundle additionally invokes parameter_loader for zero/NaN/Inf.",
+  "predicate_basis": [
+    {
+      "predicate": "Mapping or None; supported numbers.Real excluding Python/NumPy booleans; finite positive float conversion; isolated copied mapping",
+      "basis": "recomputed",
+      "scope": "actual runtime-only scalar values; no source/row-law authority"
+    },
+    {
+      "predicate": "exact set of target IDs",
+      "basis": "recomputed",
+      "scope": "separate existing contextual target join after targets resolve; not a source-row join"
+    },
+    {
+      "predicate": "independent Gaussian source rows with known noise scales",
+      "basis": "consumer_asserted",
+      "effect": "gate_eligible remains false"
+    },
+    {
+      "predicate": "actual production noise-law fit/source rows/legacy served consumer",
+      "basis": "not_established",
+      "effect": "B197 held remains; this scalar repair cannot ratify it"
+    }
+  ],
+  "input_identity": {
+    "kind": "bounded synthetic native fixture",
+    "agent_income": 100.0,
+    "tax_rate": 0.25,
+    "schedule": [
+      0,
+      0
+    ],
+    "model_metric": "government_balance",
+    "steps": 1,
+    "optimizer_max_steps": 1,
+    "seed": 19,
+    "learning_rate": 1e-09,
+    "hessian_enabled": false,
+    "probe_observed_target": 25.0,
+    "native_test_observed_target": 20.0,
+    "positive_sigma": 2.0,
+    "analytic_test_loss": ".5*((100*.25-20)/2)**2 = 3.125",
+    "production_data_used": false
+  },
+  "environment": {
+    "devices": [
+      "TFRT_CPU_0"
+    ],
+    "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "jax": "0.8.2",
+    "jax_enable_x64": false,
+    "numpy": "2.3.5",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "thread_env": {}
+  },
+  "environment_identity": {
+    "python_executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "product_imports": "PYTHONPATH to the exact overlay/lane src; all771 loaded polisyos module origins within pinned source root",
+    "venv_owner": "E root installed repo-declared extras; reused read-only",
+    "probe_jax_enable_x64": false,
+    "targeted_pytest_jax_enable_x64": "repository calibration conftest sets JAX_ENABLE_X64=1; fixture arrays explicitly float32",
+    "thread_caps": null
+  },
+  "deciding_evidence": {
+    "frozen58-gaussian-scale.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-gaussian-noise-preflight-r2-20261006.frozen58-gaussian-scale.txt",
+      "sha256": "6ec899ccc7ff05852f997a557b70bf3b0695ed098bf59f6a2714018be9bf25c6",
+      "bytes": 3359
+    },
+    "candidate45b-gaussian-scale.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-gaussian-noise-preflight-r2-20261006.candidate45b-gaussian-scale.txt",
+      "sha256": "a0c1ae4a74863bbe6d9b365a063bcc0fc32cc00ce78e077d05a50e1ba83b36c1",
+      "bytes": 3417
+    },
+    "candidate45b-pytest.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-gaussian-noise-preflight-r2-20261006.candidate45b-pytest.txt",
+      "sha256": "8c2cb3c855ccab23f8022bf8fd34f40679975df7c9bd0c70cca62a41afad9e1a",
+      "bytes": 100
+    },
+    "candidate45b-ruff.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-gaussian-noise-preflight-r2-20261006.candidate45b-ruff.txt",
+      "sha256": "c6486b51f483249343d4a4bdb91c41be31f0bdc28887b2f4cd4800e174f8bd6b",
+      "bytes": 45
+    },
+    "probe.py": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-gaussian-noise-preflight-r2-20261006.probe.py",
+      "sha256": "7cbcfa841fef80c5e5cf9c4af68b0faaf793c30586f34c6942bd085738d35c45",
+      "bytes": 4244
+    },
+    "resume-admission.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-gaussian-noise-preflight-r2-20261006.resume-admission.json",
+      "sha256": "a1671455506c1987bfe3173f398c695147e9be9d0df207d3f07b329c2c7fdf29",
+      "bytes": 123184
+    },
+    "static-partial.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-gaussian-noise-preflight-r2-20261006.static-partial.txt",
+      "sha256": "2d1ae141522fe63446d24b222970088742543a37d662f78221aec3ad534fb0fa",
+      "bytes": 332
+    }
+  },
+  "commands": [
+    {
+      "command": "git archive 58e2d97965c0826c44843a78dcb2f8698d9950a3 policy-engine/src | tar -x -C /workspace/e02-E-pr38-r2-receipts/cal-frozen58",
+      "purpose": "isolated exact Git blob overlay, not a worktree or checkout",
+      "exit_code": 0
+    },
+    {
+      "command": "git archive 58e2d97965c0826c44843a78dcb2f8698d9950a3 policy-engine/architecture policy-engine/pyproject.toml policy-engine/uv.lock | tar -x -C /workspace/e02-E-pr38-r2-receipts/cal-frozen58",
+      "purpose": "close required tracked import-time architecture/config inputs",
+      "exit_code": 0
+    },
+    {
+      "command": "CAL_EXPECT_SOURCE_ROOT=/workspace/e02-E-pr38-r2-receipts/cal-frozen58/policy-engine/src CAL_EXPECT_SOURCE_SHA=58e2d97965c0826c44843a78dcb2f8698d9950a3 PYTHONPATH=/workspace/e02-E-pr38-r2-receipts/cal-frozen58/policy-engine/src /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python /workspace/e02-E-pr38-r2-receipts/cal-gaussian-scale-probe.py",
+      "exit_code": 0,
+      "output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-gaussian-noise-preflight-r2-20261006.frozen58-gaussian-scale.txt"
+    },
+    {
+      "command": "CAL_EXPECT_SOURCE_ROOT=/workspace/e02-E-cal-20261006/policy-engine/src CAL_EXPECT_SOURCE_SHA=45b834534958c262a8146e6c4d847cf8d53846bc PYTHONPATH=/workspace/e02-E-cal-20261006/policy-engine/src /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python /workspace/e02-E-pr38-r2-receipts/cal-gaussian-scale-probe.py",
+      "exit_code": 0,
+      "output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-gaussian-noise-preflight-r2-20261006.candidate45b-gaussian-scale.txt"
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-E-cal-20261006/policy-engine/src /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python -m pytest -o addopts='' policy-engine/tests/unit/foundry/calibration/test_gaussian_noise_preflight.py policy-engine/tests/unit/foundry/calibration/test_preflight.py -q",
+      "exit_code": 0,
+      "outcome": "37 PASS, 0 failures, 57.06s",
+      "output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-gaussian-noise-preflight-r2-20261006.candidate45b-pytest.txt"
+    },
+    {
+      "command": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/ruff check policy-engine/src/polisyos/foundry/calibration/preflight.py policy-engine/src/polisyos/foundry/calibration/calibrator.py policy-engine/tests/unit/foundry/calibration/test_gaussian_noise_preflight.py",
+      "exit_code": 0,
+      "output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-gaussian-noise-preflight-r2-20261006.candidate45b-ruff.txt"
+    },
+    {
+      "command": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/ruff format --check policy-engine/src/polisyos/foundry/calibration/preflight.py policy-engine/src/polisyos/foundry/calibration/calibrator.py policy-engine/tests/unit/foundry/calibration/test_gaussian_noise_preflight.py",
+      "exit_code": 0,
+      "output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-gaussian-noise-preflight-r2-20261006.candidate45b-ruff.txt"
+    },
+    {
+      "command": "python3 policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py --check",
+      "exit_code": 0,
+      "outcome": "tracked importer PASS before results navigation"
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    }
+  ],
+  "frozen_falsifier": {
+    "source_sha": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+    "source_tree_sha": "ffd0d56892f8e515838af4c5b160cb9ac6d988ed",
+    "outcomes": [
+      {
+        "case": "bool_true",
+        "counts": {
+          "emitter": 3,
+          "loader": 1
+        },
+        "detail": {
+          "gate_eligible": false,
+          "noise_scale": 1.0,
+          "total_loss": 0.0
+        },
+        "input_type": "bool",
+        "status": "returned_report"
+      },
+      {
+        "case": "numpy_bool_true",
+        "counts": {
+          "emitter": 3,
+          "loader": 1
+        },
+        "detail": {
+          "gate_eligible": false,
+          "noise_scale": 1.0,
+          "total_loss": 0.0
+        },
+        "input_type": "bool",
+        "status": "returned_report"
+      },
+      {
+        "case": "float_positive",
+        "counts": {
+          "emitter": 3,
+          "loader": 1
+        },
+        "detail": {
+          "gate_eligible": false,
+          "noise_scale": 2.0,
+          "total_loss": 0.0
+        },
+        "input_type": "float",
+        "status": "returned_report"
+      },
+      {
+        "case": "zero",
+        "counts": {
+          "emitter": 0,
+          "loader": 1
+        },
+        "detail": {
+          "message": "Gaussian observation standard deviations must be finite and positive"
+        },
+        "input_type": "float",
+        "status": "ValueError"
+      },
+      {
+        "case": "nan",
+        "counts": {
+          "emitter": 0,
+          "loader": 1
+        },
+        "detail": {
+          "message": "Gaussian observation standard deviations must be finite and positive"
+        },
+        "input_type": "float",
+        "status": "ValueError"
+      },
+      {
+        "case": "inf",
+        "counts": {
+          "emitter": 0,
+          "loader": 1
+        },
+        "detail": {
+          "message": "Gaussian observation standard deviations must be finite and positive"
+        },
+        "input_type": "float",
+        "status": "ValueError"
+      }
+    ],
+    "source_environment": {
+      "calibrator_source_sha256": "ecd18058f2541334469654bf109f3f09ed789330ec4d422967105c09d317e200",
+      "environment": {
+        "devices": [
+          "TFRT_CPU_0"
+        ],
+        "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "jax": "0.8.2",
+        "jax_enable_x64": false,
+        "numpy": "2.3.5",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "thread_env": {}
+      },
+      "module_count": 771,
+      "module_origins_within_pinned_source": true,
+      "source_root": "/workspace/e02-E-pr38-r2-receipts/cal-frozen58/policy-engine/src",
+      "source_sha": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+      "wall_s": 2.744149930003914
+    },
+    "bootstrap_error": {
+      "outcome": "harness import ERROR before product caller",
+      "cause": "initial blob overlay omitted required tracked architecture config",
+      "preserved_raw_output": "/workspace/e02-E-pr38-r2-receipts/cal-frozen58-gaussian-scale.txt",
+      "resolved_by": "same-source tracked architecture/pyproject/lock archive; deciding replay above"
+    }
+  },
+  "candidate_native_outcomes": [
+    {
+      "case": "bool_true",
+      "counts": {
+        "emitter": 0,
+        "loader": 0
+      },
+      "detail": {
+        "message": "Gaussian observation standard deviations must be finite positive real scalars"
+      },
+      "input_type": "bool",
+      "status": "ValueError"
+    },
+    {
+      "case": "numpy_bool_true",
+      "counts": {
+        "emitter": 0,
+        "loader": 0
+      },
+      "detail": {
+        "message": "Gaussian observation standard deviations must be finite positive real scalars"
+      },
+      "input_type": "bool",
+      "status": "ValueError"
+    },
+    {
+      "case": "float_positive",
+      "counts": {
+        "emitter": 3,
+        "loader": 1
+      },
+      "detail": {
+        "gate_eligible": false,
+        "noise_scale": 2.0,
+        "total_loss": 0.0
+      },
+      "input_type": "float",
+      "status": "returned_report"
+    },
+    {
+      "case": "zero",
+      "counts": {
+        "emitter": 0,
+        "loader": 0
+      },
+      "detail": {
+        "message": "Gaussian observation standard deviations must be finite positive real scalars"
+      },
+      "input_type": "float",
+      "status": "ValueError"
+    },
+    {
+      "case": "nan",
+      "counts": {
+        "emitter": 0,
+        "loader": 0
+      },
+      "detail": {
+        "message": "Gaussian observation standard deviations must be finite positive real scalars"
+      },
+      "input_type": "float",
+      "status": "ValueError"
+    },
+    {
+      "case": "inf",
+      "counts": {
+        "emitter": 0,
+        "loader": 0
+      },
+      "detail": {
+        "message": "Gaussian observation standard deviations must be finite positive real scalars"
+      },
+      "input_type": "float",
+      "status": "ValueError"
+    }
+  ],
+  "negative_controls": [
+    "Real Calibrator bool/np.bool_ True/False, zero/negative/NaN/Inf, complex, string, ndarray, Decimal and float-overflow inputs refuse before loader/emitter.",
+    "Malformed non-Mapping Gaussian scale collection refuses before loader/emitter.",
+    "Wrong target ID with valid sigma fails the separate contextual join; wrong target ID with bool fails the pure value guard before loader.",
+    "Parameter loader mutation of the original scale mapping to bool/NaN cannot replace the admitted isolated admitted objective copy.",
+    "Property-removal control replaces only scalar admission with dict(scales); existing Gaussian profile marker remains and real bool caller executes loader/emitter, making the no-callback oracle fail."
+  ],
+  "capability_state": {
+    "scalar_admission": "implemented_and_orchestrated in actual Calibrator.run",
+    "report_profile": "actual native report emitted, consumer_asserted/non-gating retained",
+    "persisted_report_consumer": "unchanged from frozen58 accepted scoped CAS readback evidence; no fresh CAS claim in this delta",
+    "served_surface": "surface_out_of_scope for this pure inner mechanism",
+    "independent_review": "requested from E root on exact45b; author has not reviewed own code",
+    "code_acceptance": "E/G independent review pending; no finding closure inferred"
+  },
+  "baseline_cells_navigation_only": [
+    {
+      "id": "F15-P086",
+      "job": "F15",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_cal_03.py",
+      "state": "PASS",
+      "collected": "11",
+      "calls": "11",
+      "call_pass": "11",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "8.19",
+      "rss_kib": "619124",
+      "receipt_status": "valid",
+      "source_file": "received/F15.txt",
+      "source_line": "241",
+      "extra_json": "{\"reason\":\"null\"}",
+      "source_ref": "integration_head",
+      "semantic_adequacy": "not_established",
+      "data_identity": "policy-engine/tests/unit/remediation/test_cal_03.py@0213101b6d124e6f855b1aff7c442bb0912a61c2 source-defined fixture; exact per-cell raw inputs absent",
+      "environment": {
+        "python": "3.14.2",
+        "uv": "0.9.21",
+        "node": "22.16.0",
+        "pnpm": "10.33.2",
+        "platform": "Linux Debian 13 x86_64",
+        "cpu_quota_cores": 4.0,
+        "cpuset": "0-4",
+        "memory_limit_bytes": 17179869184,
+        "numerical_threads": 1,
+        "jax_platforms": "cpu",
+        "precision": "repository default unchanged",
+        "gnu_time_package": "time 1.9-0.2 amd64; --version reports GNU Time UNKNOWN",
+        "native_property_controls": "all three absent in every observed primary child",
+        "python_profile": "single frozen selected-extras union installed before native series",
+        "node_install": "one CI=true corepack pnpm install --frozen-lockfile before native series",
+        "setup_interruption": "initial uv sync lost VM connection; exit=null, cause not_established; same frozen profile resumed before native tests",
+        "toolchain_bootstrap_initial_wall_s": null
+      },
+      "backend": {
+        "source_reported_jax_platforms": "cpu",
+        "native_property_controls": "all three absent in every observed primary child",
+        "per_cell_jax_dtype_execution": "not_established"
+      },
+      "raw_archive_transfer": "missing",
+      "role": "navigation only; not r2 evidence"
+    },
+    {
+      "id": "F15-P034",
+      "job": "F15",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/foundry/uncertainty/test_covariance.py",
+      "state": "PASS",
+      "collected": "10",
+      "calls": "10",
+      "call_pass": "10",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.22",
+      "rss_kib": "300872",
+      "receipt_status": "valid",
+      "source_file": "received/F15.txt",
+      "source_line": "189",
+      "extra_json": "{\"reason\":\"null\"}",
+      "source_ref": "integration_head",
+      "semantic_adequacy": "not_established",
+      "data_identity": "policy-engine/tests/unit/foundry/uncertainty/test_covariance.py@0213101b6d124e6f855b1aff7c442bb0912a61c2 source-defined fixture; exact per-cell raw inputs absent",
+      "environment": {
+        "python": "3.14.2",
+        "uv": "0.9.21",
+        "node": "22.16.0",
+        "pnpm": "10.33.2",
+        "platform": "Linux Debian 13 x86_64",
+        "cpu_quota_cores": 4.0,
+        "cpuset": "0-4",
+        "memory_limit_bytes": 17179869184,
+        "numerical_threads": 1,
+        "jax_platforms": "cpu",
+        "precision": "repository default unchanged",
+        "gnu_time_package": "time 1.9-0.2 amd64; --version reports GNU Time UNKNOWN",
+        "native_property_controls": "all three absent in every observed primary child",
+        "python_profile": "single frozen selected-extras union installed before native series",
+        "node_install": "one CI=true corepack pnpm install --frozen-lockfile before native series",
+        "setup_interruption": "initial uv sync lost VM connection; exit=null, cause not_established; same frozen profile resumed before native tests",
+        "toolchain_bootstrap_initial_wall_s": null
+      },
+      "backend": {
+        "source_reported_jax_platforms": "cpu",
+        "native_property_controls": "all three absent in every observed primary child",
+        "per_cell_jax_dtype_execution": "not_established"
+      },
+      "raw_archive_transfer": "missing",
+      "role": "navigation only; not r2 evidence"
+    }
+  ],
+  "ledger_status_preserved": {
+    "B195": "partial",
+    "B197": "held",
+    "B198": "closed"
+  },
+  "finding_verdict_preserved": {
+    "B195": "limited",
+    "B197": "held",
+    "B198": "closed"
+  },
+  "formal_ledger_change": false,
+  "pattern_pass": {
+    "P01/P02/P27": "canonical preflight + actual configured Calibrator caller; no parallel API",
+    "P05/P10/P14": "noise scalar typing is not source-law/regularity/authority evidence; report gate remains false",
+    "P29/P32/P33": "real emitter outputs retained; removal control keeps profile marker and breaks runtime guard",
+    "P35": "37 narrowly selected checks only; no unchanged full numerical-wave claim",
+    "P37": "basis frozen above; admitted scalar property is recomputed, Gaussian row law remains consumer_asserted",
+    "P38": "frozen58 bool-as-sigma and late-loader cases demonstrate proxy divergence",
+    "P40": "repair covers the scalar operand domain and isolates a canonical copy, rather than a bool-only patch. Contextual source-row/noise-law admission is a separate declared boundary",
+    "P41": "exact frozen58 reproduction confirmed reported scalar escape. Staged static diagnostic was stopped UNRUN and is not claimed inherited or passing"
+  },
+  "static_diagnostic": {
+    "state": "UNRUN",
+    "deciding": false,
+    "command": "PYTHONPATH=/workspace/e02-E-cal-20261006/policy-engine/src /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python -m polisyos.runtime.quality.production_invocation --base 028829629a9c30454e44d25e7bea7be3ea05b561 --receipt /workspace/e02-E-pr38-r2-receipts/cal-production-invocation.json",
+    "exit_code": 143,
+    "cause": "launched pre-source commit; tracked denominator omitted the then-untracked test. Stopped by root instruction; no admitted static receipt produced",
+    "partial_output_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-gaussian-noise-preflight-r2-20261006.static-partial.txt",
+      "sha256": "2d1ae141522fe63446d24b222970088742543a37d662f78221aec3ad534fb0fa",
+      "bytes": 332
+    },
+    "next_owner": "E root exact aggregate source freeze diagnostic"
+  },
+  "limitations_and_next_owners": [
+    {
+      "limitation": "No production history, row independence, measurement/noise-law fit or target-source contextual lineage established by numeric scalar admission",
+      "owner": "Foundry calibration/source-fit owner plus E root contextual caller writer",
+      "next_result": "content-bound actual target/source-row/noise-profile join and consumer readback using admitted input; preserve non-gating until admitted"
+    },
+    {
+      "limitation": "B197 source-law/legacy served consumer authority remains held; B198 historical closure preserved",
+      "owner": "E root, Foundry report/consumer owner and G",
+      "next_result": "individual original-criterion adjudication separate from this code delta"
+    },
+    {
+      "limitation": "No unchanged full scalar/batch/Hessian wave repeated; this delta changes input admission only",
+      "owner": "E root",
+      "next_result": "one common frozen numeric/gate wave after independent reviews"
+    }
+  ],
+  "publication": {
+    "source_push": "successful append-only own topic",
+    "source_remote_readback_sha": "45b834534958c262a8146e6c4d847cf8d53846bc",
+    "receipt_push": "pending separate receipt commit"
+  },
+  "cleanup": {
+    "native_trash": "not available in this cloud session; no permanent deletion or prune performed",
+    "candidates": [
+      "/workspace/e02-E-pr38-r2-receipts/cal-frozen58",
+      "/workspace/e02-E-cal-20261006/policy-engine/.pytest_cache",
+      "/workspace/e02-E-cal-20261006/.pytest_cache"
+    ],
+    "preserve": [
+      "all committed code/documentation/deciding outputs",
+      "/workspace/e02-E-pr38-r2-receipts unique raw logs and admission",
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv shared root environment remains in active use"
+    ]
+  },
+  "probe_timing_scope": "Probe wall_s measures after Python imports until result/metadata emission; it is not total process/import wall time. Numerical processes ran concurrently without artificial CPU/thread caps."
+}

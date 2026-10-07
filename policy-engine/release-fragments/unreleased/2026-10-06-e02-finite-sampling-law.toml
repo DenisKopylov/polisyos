@@ -1,0 +1,17 @@
+id = "2026-10-06-e02-finite-sampling-law"
+title = "Preserve admitted empirical categories and reject unsupported joint transforms before callbacks"
+type = "fixed"
+component = "foundry"
+owner = "team-foundry"
+summary = "Align empirical carriers using exact canonical finite weights, refuse positive CDF category collapse, and use half-open inverse-CDF coordinates without endpoint epsilon clipping. Covariance-only non-Gaussian sampling is refused before nominal or sample callbacks."
+evidence = ["tests/unit/foundry/uncertainty/test_finite_empirical_law.py", "tests/unit/foundry/uncertainty/test_sampling_admission.py"]
+compatibility = "Existing v1.1 envelopes and explicit numeric policies retain their wire semantics. Unsupported finite precision or joint-law profiles return non-gating UNKNOWN results. Gaussian sampling and singular null directions remain supported."
+change_class = "internal"
+surface_classification = "internal: Foundry propagation intake and random/QMC empirical transform"
+migration = "Consumers must handle typed UNKNOWN for incompatible weights, collapsed CDF categories, and unsupported covariance-only laws. No historical artifact migration."
+api = "Existing propagation result metadata; no new HTTP API or IR schema."
+limitations = "Sampling preserves the admitted finite-machine law, not original source weights erased by an upstream numeric policy. Production source authority, general served evaluator admission, and v2 law semantics still require their existing owners."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

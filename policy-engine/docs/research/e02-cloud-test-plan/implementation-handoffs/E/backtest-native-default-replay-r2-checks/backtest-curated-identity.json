@@ -1,0 +1,18 @@
+{
+  "same_canonical_object": {
+    "ArtifactRef": true,
+    "SchemaInfo": true,
+    "PutOptions": true,
+    "DataSnapshot": true,
+    "DerivedArtifact": true,
+    "ExecuteRequest": true,
+    "ExecuteResult": true,
+    "FoundryExecConfig": true,
+    "FoundryInputBindingRule": true,
+    "FoundryInputBindings": true,
+    "FoundryInputBindingsRef": true,
+    "SimulationResult": true,
+    "StateSnapshotRef": true
+  },
+  "scope": "import-only curated facade rewire; no execution algorithm/model/test changes"
+}

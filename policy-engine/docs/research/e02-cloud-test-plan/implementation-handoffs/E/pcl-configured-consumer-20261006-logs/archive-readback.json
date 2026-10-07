@@ -1,0 +1,10 @@
+{
+  "source_candidate_sha": "74b26eb067dea76d90b134641e66537759e4dc0f",
+  "restore_root": "/workspace/e02-E-pr38-r2-receipts/pcl-archive-readback-validator-final",
+  "archived_file_hashes": 42,
+  "fresh_artifacts": 12,
+  "source_rows_per_artifact": 100,
+  "oracle": "fresh restored source row vs persisted interval endpoints plus reopened report/receipt",
+  "outcome": "PASS",
+  "production_data": false
+}

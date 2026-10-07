@@ -1,0 +1,19 @@
+{
+  "state": "READY-immutable-bounded-refbinding-GO",
+  "primary": "review.json",
+  "candidate": {
+    "sha": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+    "tree": "c02e043c3e1c8222c28aa71187fa8db4e2fdeea7"
+  },
+  "root_publication_checkpoint": {
+    "sha": "9954f394b470961d9e144a557f3cefeb9e0a67b6",
+    "tree": "e923abf31637b4299ec36a467f4c6b06e26cae1c"
+  },
+  "review_primary_and_67source_copy_records": "complete current byte/hash identity independently recomputed",
+  "meaningful_corrupt_controls": 10,
+  "new_numeric_native_runtime_global_commands": 0,
+  "source_Git_config_ref_mutations": false,
+  "same_declared_4fields_only": true,
+  "finding_acceptance": false,
+  "next_owner": "Root commits final handoff/reviews append-only then binds actual final commit/tree and exact remote readback; G separate code admission/integration, accountable owners separate findingacceptance."
+}

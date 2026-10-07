@@ -1,0 +1,157 @@
+{
+  "source_sha": "f07b7d485531b96a206ae9b2aad7acf5f2755324",
+  "source_tree": "8dcd5c26a4868e1b055a54a6cd53365e9d5890f3",
+  "lane_head": "041db8182e043037ff676ac968b9f74b86a867ad",
+  "mode": "fresh",
+  "checks": [
+    {
+      "case": "fresh_consumer_canonical",
+      "outcome": "PASS",
+      "detail": {
+        "ranking": [
+          "z",
+          "x"
+        ],
+        "focus_parameters": [
+          "x",
+          "z"
+        ],
+        "exploration_factor": 1.5,
+        "method": "sobol",
+        "design_id": "15826912cccc5eb42ca1c9d2167cbc997a93f43dbe1b1b9399dd85aaa5995cfe",
+        "analysis_id": "09c7d251d698a27171502b5eded26414280501bc15c3e22853e2dc49cc19a144",
+        "analysis_ref": {
+          "artifact_id": "sha256:181c2483a9ce8028200e0cbde3c52d129d641cfec94c3832b1b7ca2294619626",
+          "kind": "doe_sensitivity_analysis",
+          "media_type": "application/json"
+        },
+        "authority_purpose": "exploratory_parameter_experiment",
+        "population_law_status": "not_established"
+      }
+    },
+    {
+      "case": "fresh_consumer_permuted",
+      "outcome": "PASS",
+      "detail": {
+        "ranking": [
+          "z",
+          "x"
+        ],
+        "focus_parameters": [
+          "x",
+          "z"
+        ],
+        "exploration_factor": 1.5,
+        "method": "sobol",
+        "design_id": "f275d4c5b0bd089fc8178f8b7958a5fc9b73238e9b31cdedf3a46d94bb2630d9",
+        "analysis_id": "28ffa60edb11ff533bbf8d8a4360deb2d1f324bc90646fce75fb99cdd1c8677b",
+        "analysis_ref": {
+          "artifact_id": "sha256:9de42af2ecc9d579a9de16b928eb01c21f4f4a91dc7f5cac424576734d1e3405",
+          "kind": "doe_sensitivity_analysis",
+          "media_type": "application/json"
+        },
+        "authority_purpose": "exploratory_parameter_experiment",
+        "population_law_status": "not_established"
+      }
+    },
+    {
+      "case": "fresh_consumer_morris",
+      "outcome": "PASS",
+      "detail": {
+        "ranking": [
+          "x",
+          "z"
+        ],
+        "focus_parameters": [
+          "x",
+          "z"
+        ],
+        "exploration_factor": 1.5,
+        "method": "morris",
+        "design_id": "439403141877567075713eedd048254ae72b3f4d361a5fac17874e48c9dcaae3",
+        "analysis_id": "9e231a9ea6b5aaa0fd8ef046c64ea5e83ce48d89e5639e9e3ebd699ea8641a4e",
+        "analysis_ref": {
+          "artifact_id": "sha256:c5cda02b3ae324711b4ac249a7e3c67f0c0a635e80fa19eba87fda20b25a10dc",
+          "kind": "doe_sensitivity_analysis",
+          "media_type": "application/json"
+        },
+        "authority_purpose": "exploratory_parameter_experiment",
+        "population_law_status": "not_established"
+      }
+    },
+    {
+      "case": "fresh_content_valid_stale_paired_order",
+      "outcome": "PASS",
+      "detail": {
+        "error_type": "ValueError",
+        "message": "Persisted DOE sensitivity result does not reproduce"
+      }
+    },
+    {
+      "case": "fresh_content_valid_misaligned_outputs",
+      "outcome": "PASS",
+      "detail": {
+        "error_type": "ValueError",
+        "message": "Persisted DOE sensitivity result does not reproduce"
+      }
+    },
+    {
+      "case": "fresh_content_valid_forged_S2",
+      "outcome": "PASS",
+      "detail": {
+        "error_type": "ValueError",
+        "message": "Persisted DOE sensitivity result does not reproduce"
+      }
+    },
+    {
+      "case": "fresh_content_valid_forged_denominator",
+      "outcome": "PASS",
+      "detail": {
+        "error_type": "ValueError",
+        "message": "Persisted DOE sensitivity result does not reproduce"
+      }
+    },
+    {
+      "case": "fresh_content_valid_wrong_kind",
+      "outcome": "PASS",
+      "detail": {
+        "error_type": "ValueError",
+        "message": "Expected a DOE sensitivity analysis artifact kind/schema"
+      }
+    },
+    {
+      "case": "fresh_content_valid_wrong_schema",
+      "outcome": "PASS",
+      "detail": {
+        "error_type": "ValueError",
+        "message": "Expected a DOE sensitivity analysis artifact kind/schema"
+      }
+    },
+    {
+      "case": "fresh_content_valid_wrong_purpose",
+      "outcome": "PASS",
+      "detail": {
+        "error_type": "ValidationError",
+        "message": "1 validation error for _AnalysisReceipt\nauthority_purpose\n  Input should be 'exploratory_parameter_experiment' [type=literal_error, input_value='causal_effect', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/literal_error"
+      }
+    }
+  ],
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "numpy": "2.3.5",
+    "SALib": "1.5.2",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "thread_caps": {},
+    "UV_NO_SYNC": "1"
+  },
+  "source_snapshot": {
+    "file_count": 2912,
+    "sha256": "5e3a2534ae2186ac577103371cf3d0c984ce7f358283674a184522bdb0ba0ef0"
+  },
+  "source_before_after_identical": true,
+  "polisyos_module_count": 837,
+  "all_polisyos_origins_pinned": true,
+  "loaded_analysis_sha256": "db87129797adc4c8c882655a95edd789b44381c47af85cff658e91e1f658e81c",
+  "post_import_wall_s": 2.7963556070026243
+}

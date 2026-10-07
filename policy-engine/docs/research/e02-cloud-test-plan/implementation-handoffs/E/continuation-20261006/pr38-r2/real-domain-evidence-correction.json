@@ -1,0 +1,47 @@
+{
+  "schema": "policyos.e02.E.real_domain_evidence_correction.v1",
+  "implementation_sha": "5cdfe613bf91fffbd578848c9e2f8275edc21ee7",
+  "implementation_tree": "bcbc3b280756b652e8996a15570a4a9b64352839",
+  "historical_receipt": "real-domain-admission.json",
+  "correction": "Original receipt retained implementation35PASS label but its inline outputs listed v2 and input-construction-error only. Exact v3 deciding outputs were already published by fd291 root-author-checks/portable-copy-index; this additive receipt makes the stage join explicit without rewriting original history.",
+  "stages": {
+    "initial_input_fixture": "24PASS/1FAIL caused by int64 fixture projecting0.5 before API; preserved harness failure",
+    "v2": "25PASS original common real-domain cases",
+    "v3": "35PASS with ten nonzero-underflow controls across five shared inlets; actual5cd deciding outputs"
+  },
+  "outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/root-author-checks/real-domain-test-v2.stdout.txt",
+      "bytes": 80,
+      "sha256": "c6ce8518a2cc113cc5560b3731e234ed6d559e746221ae903ce01599dfe7e797"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/root-author-checks/real-domain-test-v2.xml",
+      "bytes": 4488,
+      "sha256": "6cfcd4fe28330a88f6032c524b00879cf11d9b5ff5aaa7e59d793af52c25b1be"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/root-author-checks/real-domain-test-v3.stdout.txt",
+      "bytes": 80,
+      "sha256": "23814bd54c3f40e10907bbb3fbbf634b818152cf7afb3d0013ebceb07460326b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/root-author-checks/real-domain-test-v3.xml",
+      "bytes": 6202,
+      "sha256": "bcaffc548be54064704bef9562ca1f7d25d112906ba887abe45583200ac0a309"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/root-author-checks/real-domain-test-input-construction-error.stdout.txt",
+      "bytes": 1533,
+      "sha256": "422ef8ad1638118b61b09ab161ce0ab293ba35456219d2170605147e6fe59de1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/root-author-checks/real-domain-test-input-construction-error.xml",
+      "bytes": 6077,
+      "sha256": "125c839c479262f290107f7d51087d2c21317d818b38255ae7d392f6ce2f37a0"
+    }
+  ],
+  "independent_reuse": "public-surface-r3/review.json then public-surface-r5/review-r5.json; unchanged common real-domain implementation",
+  "new_tests_run": false,
+  "finding_closure": false
+}

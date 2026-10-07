@@ -1,0 +1,65 @@
+{
+  "schema": "policyos.e02.E.real_domain_admission.v1",
+  "base_sha": "7f2e8bc37f4513886b16c293e1b77667016eaa96",
+  "implementation_sha": "5cdfe613bf91fffbd578848c9e2f8275edc21ee7",
+  "implementation_tree": "bcbc3b280756b652e8996a15570a4a9b64352839",
+  "diff_paths": [
+    "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_sampling_real_domain.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-finite-law-admission-facade.toml"
+  ],
+  "property": "Real numeric domain before lossydtypeprojection at CDF/weights/U/backendrange/independentpilot common inlets; no silent complex lawprojection",
+  "P40": "Second numerical representation escape handled at common inlet; canonical finite float64 law semantics retained",
+  "author_checks": {
+    "pytest": "35PASS exact5cd source, +nonzero float128/Fraction pre-castrefusal",
+    "ruff_check": "PASS",
+    "ruff_format": "PASS",
+    "commands": [
+      "policy-engine/.venv/bin/python -m pytest -q policy-engine/tests/unit/foundry/uncertainty/test_sampling_real_domain.py --basetemp=/workspace/e02-E-pr38-r2-receipts/real-domain-test-temp-v3 --junitxml=/workspace/e02-E-pr38-r2-receipts/real-domain-test-v3.xml",
+      "policy-engine/.venv/bin/ruff check policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py policy-engine/tests/unit/foundry/uncertainty/test_sampling_real_domain.py",
+      "policy-engine/.venv/bin/ruff format --check policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py policy-engine/tests/unit/foundry/uncertainty/test_sampling_real_domain.py"
+    ],
+    "initial_harness_error": "One positive expectation cast0.5 toint64 beforecalling API;24PASS1FAIL preserved. Corrected fixture explicitly suppliesrepresentableintegercoordinates[0,0]; not productfailureornewlawapproval."
+  },
+  "outputs": [
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/real-domain-test-v2.stdout.txt",
+      "bytes": 80,
+      "sha256": "c6ce8518a2cc113cc5560b3731e234ed6d559e746221ae903ce01599dfe7e797"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/real-domain-test-v2.xml",
+      "bytes": 4488,
+      "sha256": "6cfcd4fe28330a88f6032c524b00879cf11d9b5ff5aaa7e59d793af52c25b1be"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/real-domain-test-input-construction-error.stdout.txt",
+      "bytes": 1533,
+      "sha256": "422ef8ad1638118b61b09ab161ce0ab293ba35456219d2170605147e6fe59de1"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/real-domain-test-input-construction-error.xml",
+      "bytes": 6077,
+      "sha256": "125c839c479262f290107f7d51087d2c21317d818b38255ae7d392f6ce2f37a0"
+    }
+  ],
+  "environment": {
+    "interpreter": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "python": "3.14.7",
+    "numpy": "2.3.5",
+    "sampling_profile": "canonicalfinitefloat64realnumeric",
+    "new_worker_thread_caps": false
+  },
+  "independent_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r3/review.json",
+  "finding_authority": "No source law, IRv2 or served evaluator authority; ledgerunchanged",
+  "limitations": [
+    "Nativebackend/samplerconsumerreviewseparatefromdirectpublicAPI domain",
+    "Any remaining unsupported real representation refuses according to existingfloat32range/CDFnormalizationguards"
+  ],
+  "cleanup": "Only list reusablefixture candidates; no nativeTrashestablished; no deletion",
+  "implementation_commits": [
+    "ec042402ec91fbdcb51006852e29fe67f38d9452",
+    "5cdfe613bf91fffbd578848c9e2f8275edc21ee7"
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "finiteMC": "tests/unit/foundry/uncertainty/test_finite_empirical_law.py; tests/unit/foundry/uncertainty/test_sampling_real_domain.py: exact weights/CDF/tiny/zero atoms, rowidentity, common pre-callback admission and real-domain refusal across siblings",
+  "nativeBKT": "tests/unit/scientist/methods/backtesting/test_native_replay.py: real immutable masked snapshot + matching Trinity/ModelSpec, actual effective seeds and native typed trajectory refs, backend counters refusal",
+  "PCL": "tests/unit/foundry/methods/catalog/econometrics/test_advanced_persistence.py: configured CAS through dispatcher/NumpyRunner to all3 advanced summaries and fresh pairs/count readback",
+  "FRCAPI": "test_forecast_owner.py +calibration/test_evidence_facades.py +A source-bound CAS/status packets: source schema/unit binding before ETS callback, fieldadapter with fresh refs, no verifier/causal authority",
+  "legacyB197": "tests/unit/scientist/nodes/test_calibration_report_consumer.py: native configured tied Calibrator/reportv2/fresh Node, exact CAS kind/schema/payload admission and mixed-input refusal before any callback",
+  "Welfare884": {
+    "path": "tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py",
+    "cases": 10,
+    "tests": [
+      "native_ge_preserves_empirical_atoms_failed_support_and_conditional_values",
+      "native_ge_preserves_tiny_and_zero_mass_atoms_and_complete_positive_law",
+      "native_numpy_ge_retains_representable_small_and_large_atoms[2]",
+      "native_node_keeps_empty_uncertainty_noop_and_unknown_joint_law",
+      "unsupported_law_refuses_before_native_nominal_or_draw_callbacks[4]",
+      "native_ge_receipt_binds_exact_carrier_rows_and_weights"
+    ],
+    "existing_regressions": "test_propagate_welfare.py +test_welfare_draw_outcomes.py, declared45 cases from author, actual frozen JUnit recounts; no fixed ports or shared DB"
+  },
+  "DOE": "existing analysis_enhanced/analysis_receipt modules now include real SALib interaction oracle and valid whole-block replay; locked SALib1.5.2, no replacement with shape tests",
+  "DDM": "tests/unit/ddm/test_registry_schema_compatibility.py: newproducer\u2192oldreader, oldrecord\u2192newreader, version/migration/rebind/veto; no institutional signoff inferred",
+  "GControlPlane": "tests/unit/runtime/http/test_control_plane_store.py: current affected G/B foreign accepted consumer companion;59 historical cases, actual denominator remeasured"
+}

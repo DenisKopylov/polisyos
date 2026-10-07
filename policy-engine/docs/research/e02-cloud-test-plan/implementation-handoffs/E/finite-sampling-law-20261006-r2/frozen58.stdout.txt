@@ -1,0 +1,41 @@
+{
+  "collapse": {
+    "indices": [
+      2
+    ]
+  },
+  "first": {
+    "indices": [
+      1,
+      1
+    ]
+  },
+  "halton": {
+    "callbacks": 1,
+    "exception": "covariance alone does not define a non-Gaussian joint law"
+  },
+  "interior": {
+    "indices": [
+      1,
+      1
+    ]
+  },
+  "last": {
+    "indices": [
+      0,
+      0
+    ]
+  },
+  "random": {
+    "callbacks": 1,
+    "exception": "covariance alone does not define a non-Gaussian joint law"
+  },
+  "sobol": {
+    "callbacks": 1,
+    "exception": "covariance alone does not define a non-Gaussian joint law"
+  },
+  "unequal_weights": {
+    "admitted": true,
+    "failure": null
+  }
+}

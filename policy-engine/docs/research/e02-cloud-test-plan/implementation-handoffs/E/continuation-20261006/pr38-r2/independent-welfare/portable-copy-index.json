@@ -1,0 +1,174 @@
+{
+  "records": [
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/deciding-export-receipt.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/deciding-export-receipt.json",
+      "bytes": 2962,
+      "sha256": "c9e13d577398b27a178134b5d05688c83134342bb1bc6df0c3c109d4a731aadd"
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/deciding-export.log",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/deciding-export.stdout.txt",
+      "bytes": 260,
+      "sha256": "687f9f4ab6c0f6a77c1e1cc914240109e2e7efe6135a446dd8c5cdc386142c68"
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/diagnostic-corrections-origins-artifacts.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/diagnostic-corrections-origins-artifacts.json",
+      "bytes": 1650,
+      "sha256": "f0ba6e8ff3ca9000010d3cacd8c7e01a8574c12056ce22af16c3d15097204894"
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/diagnostic-corrections-receipt.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/diagnostic-corrections-receipt.json",
+      "bytes": 3077,
+      "sha256": "5e57526694614b804cdbdfa83aac96a58a59e3c0feffc559d523ac16b37d816e"
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/diagnostic-corrections.log",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/diagnostic-corrections.stdout.txt",
+      "bytes": 113,
+      "sha256": "b9392eb81275572e8a1b985946ca71f3f67427c9e640973664f8bd8fa6e9785b"
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/export_deciding.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/export_deciding.py",
+      "bytes": 1410,
+      "sha256": "4ced6e02824132bd6fcceddee75f00fd865d25232aa3822c9bfe4046d7951655"
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/format-receipt.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/format-receipt.json",
+      "bytes": 3036,
+      "sha256": "d4704819a93d731f229dcd01c531c7bc3b2dd5dbcd03a58b1e6f9708dd91088a"
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/format.log",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/format.stdout.txt",
+      "bytes": 26,
+      "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/independent-native-origins-artifacts.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/independent-native-origins-artifacts.json",
+      "bytes": 5883,
+      "sha256": "f4b948d88276313ee0d285b83365372026165ff85e9247f329789a035769718f"
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/independent-native-receipt.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/independent-native-receipt.json",
+      "bytes": 3047,
+      "sha256": "503d4a239849f81dbe9c2bc014b6d3c247872415f6673efa69fdc1ae6ca9b2d5"
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/independent-native.log",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/independent-native.stdout.txt",
+      "bytes": 4067,
+      "sha256": "277adb41b4f8e4bcf8cc3eb5bec2f9ab1e99a40d0eb871937097fa7420d02cb0"
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/independent-old5d-native-receipt.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/independent-old5d-native-receipt.json",
+      "bytes": 2982,
+      "sha256": "172c9709b34016ab2d4462c0f7022347fc5543c20f06af35ca8ccab5da4dd36a"
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/independent-old5d-native.log",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/independent-old5d-native.stdout.txt",
+      "bytes": 3716,
+      "sha256": "62f4efabc392c616a4da1b0d063d1ed958810c8b5684c0aab462ebf1872868d8"
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/independent-old5d-receipt.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/independent-old5d-receipt.json",
+      "bytes": 2968,
+      "sha256": "9d6ba85b88e55756ffeb9b9db9aee99eb584d507f016b29f8fca93a72c24e348"
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/independent-old5d-result.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/independent-old5d-result.json",
+      "bytes": 3715,
+      "sha256": "cde753bcb839deaff80c88fdb4ed747956c5420fa609a9e3983172a31fb086e2"
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/independent-old5d-source-provenance.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/independent-old5d-source-provenance.json",
+      "bytes": 643,
+      "sha256": "82f881adae6c29b80bd1d698698ccabee064ce9668bcde3e74361eab3f0e14e6"
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/independent-old5d.log",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/independent-old5d.stdout.txt",
+      "bytes": 3122,
+      "sha256": "1cb7f007f7d15dd0932c1663b0e4198500a3fc8af597862d4a67e20fd12d8575"
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/independent_old5d.initial.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/independent_old5d.initial.py",
+      "bytes": 3314,
+      "sha256": "d29361d50e1859b02f604d09f2d3544b9aedb318902b2d45eca1bfd965bd51eb"
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/independent_old5d.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/independent_old5d.py",
+      "bytes": 3343,
+      "sha256": "e0f9348e283aa66f10897accebcbf3a1842ef176a2a76608a7a5fed93f4620b8"
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/independent_welfare_tests.initial.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/independent_welfare_tests.initial.py",
+      "bytes": 15075,
+      "sha256": "a393141b5939b957502dbffd4629847414e17e75b3742715a881813e2c977694"
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/independent_welfare_tests.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/independent_welfare_tests.py",
+      "bytes": 15595,
+      "sha256": "4d8b043cecd974837e72e9dd6272fae11599115f6bb6431e2abbfcab6f759607"
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/native-ge-deciding-artifacts.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/native-ge-deciding-artifacts.json",
+      "bytes": 156544,
+      "sha256": "27e2a7e9d65712edc915b8413ab01b706dfb63e3cb69fa6e9dc7f4a6311267cb"
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/run_review.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/run_review.py",
+      "bytes": 2465,
+      "sha256": "f06183637c5a32ba49ad52b79dbe79f1a8cedef318a1ff5560c52476727002c3"
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/style-receipt.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/style-receipt.json",
+      "bytes": 3018,
+      "sha256": "33ba88ea3636b859a3911b536e89848df6367c28a412d7134c39c804a258a4da"
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/style.log",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/style.stdout.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/targeted-siblings-receipt.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/targeted-siblings-receipt.json",
+      "bytes": 3169,
+      "sha256": "ca743536bde07f06f7cb47cc7d49ef80daf40f379a2454d6395f383dab1bc970"
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/targeted-siblings.log",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/targeted-siblings.stdout.txt",
+      "bytes": 597,
+      "sha256": "a724f99f2d06eaefcebf20c9e264f36d6544d0d87603425fada615f255202a42"
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/welfare-independent-review-884681.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/welfare-independent-review-884681.json",
+      "bytes": 17274,
+      "sha256": "fbc90699b4135f4fb6df07e2bfdcf06e5cb163755fe97ae739b9fd52d1ec25c9"
+    }
+  ],
+  "review_source": "884681db485b7466b183a206f83bbe0635f86ca3",
+  "current_claim": "IndependentboundedCODEGO; source/IR/servedauthorityandfindingclosureseparate"
+}

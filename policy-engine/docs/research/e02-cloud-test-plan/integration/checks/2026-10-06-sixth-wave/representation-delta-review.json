@@ -1,0 +1,22 @@
+{
+  "reviewer": "git_admission",
+  "decision": "PASS_lossless_representation_only",
+  "local_review_path": "policy-engine/_build/e02-g-continuation-20261006/R/1700-checkpoint11-independent-review.md",
+  "local_review_sha256": "e51806c478dd34f0bcdacba1509985ee73f56f555fd697ebe951544cc11461a2",
+  "published_capture_ref": "A-compiler/attempt-1/lossless-output-capture.json@398bc63af3d37974eac121163d7ec9198058703b",
+  "decoded_artifacts": [
+    {
+      "original_name": "pytest.stdout.txt",
+      "bytes": 3768,
+      "sha256": "7af5c28f267f778c58b1f6d4f1155526ed35062f16d63c027b29178e31e53ac9"
+    },
+    {
+      "original_name": "installed-wheel.junit.xml",
+      "bytes": 4523,
+      "sha256": "3525260daaa97d360b4f5d7af085d56f8ec1fa7b16c806ee47deaa1c0a56c4bf"
+    }
+  ],
+  "product_rerun": false,
+  "attempt1_property_state": "UNRUN",
+  "preserved_originals": "G-only _build/e02-g-continuation-20261006/raw/sixth-wave-original-display-copies and 1548-Acompiler-checks; not cloud dependencies"
+}

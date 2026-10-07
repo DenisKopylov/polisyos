@@ -46,7 +46,12 @@ from polisyos.foundry.calibration.measurement import (
     MeasurementAwareLossAdapter,
     MeasurementAwareLossConfig,
 )
-from polisyos.foundry.calibration.preflight import fetch_targets, prepare_targets, resolve_steps
+from polisyos.foundry.calibration.preflight import (
+    fetch_targets,
+    prepare_targets,
+    resolve_steps,
+    validate_gaussian_observation_std,
+)
 from polisyos.foundry.calibration.pure_executor import (
     StaticBundle,
     apply_trainable_values,
@@ -802,6 +807,7 @@ class Calibrator:
             ).run()
             ```
         """
+        gaussian_std = validate_gaussian_observation_std(self.inputs.gaussian_observation_std)
         cfg = self.inputs.config
         diagnostics: list[str] = []
         batch = self.inputs.batch_inputs
@@ -862,16 +868,11 @@ class Calibrator:
             }
         bundle = self._build_bundle()
         targets, metric_paths, path_by_target = self._target_meta()
-        gaussian_std = self.inputs.gaussian_observation_std
         objective_kind = "generic_loss"
         objective_profile = None
         if gaussian_std is not None:
             if set(gaussian_std) != {target.target_id for target in targets}:
                 raise ValueError("Gaussian noise scales must cover exactly the target IDs")
-            if any(not np.isfinite(value) or value <= 0 for value in gaussian_std.values()):
-                raise ValueError(
-                    "Gaussian observation standard deviations must be finite and positive"
-                )
             if (
                 self.inputs.measurement_bundle is not None
                 or self.inputs.aux_loss_components

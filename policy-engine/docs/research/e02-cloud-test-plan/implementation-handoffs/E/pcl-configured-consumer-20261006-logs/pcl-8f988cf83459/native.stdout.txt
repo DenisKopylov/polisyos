@@ -1,0 +1,77 @@
+........................................................................ [ 47%]
+............................F........................................... [ 95%]
+.......                                                                  [100%]
+=================================== FAILURES ===================================
+____________ test_native_graph_returns_refs_from_its_configured_cas ____________
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-163/test_native_graph_returns_refs0')
+
+    def test_native_graph_returns_refs_from_its_configured_cas(tmp_path) -> None:
+        pytest.importorskip("arch")
+        store = FileSystemCAS(tmp_path / "configured-cas")
+        MethodRegistry.get_instance().register(NonstationaryGARCHEstimator)
+        ir_ref = ArtifactRef(
+            artifact_id="sha256:" + "a" * 64,
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+        )
+        lowered = store.put_json(
+            LoweredIR(ir_ref=ir_ref, mechanisms=[], constraints=[]),
+            ArtifactWriteOptions(kind="foundry.lowered_ir", media_type="application/json"),
+        )
+        client_params = {**_params(), "artifact_store": "untrusted-client-store"}
+        node = ProgramNode(
+            node_id="calibration",
+            node_kind="method",
+            method_fqn=NonstationaryGARCHEstimator.signature.fqn,
+            method_params=client_params,
+        )
+        graph = ProgramGraph(
+            ir_ref=ir_ref,
+            lowered_ir_ref=LoweredIRRef(artifact_id=lowered.artifact_id),
+            nodes=[node],
+            entrypoints=[node.node_id],
+        )
+        graph_ref = store.put_json(
+            graph,
+            ArtifactWriteOptions(kind="foundry.program_graph", media_type="application/json"),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        plan = ExecPlan(
+            program_ref=ProgramGraphRef(artifact_id=graph_ref.artifact_id), order=[node.node_id]
+        )
+        plan_ref = store.put_json(
+            plan, ArtifactWriteOptions(kind="foundry.exec_plan", media_type="application/json")
+        )
+        state = _PanelGraphState(_panel())
+        before = copy.deepcopy(dict(state))
+        artifacts = execute_program_graph(
+            store,
+            program_ref=graph_ref,
+            exec_plan_ref=plan_ref,
+            base_state=state,
+            mechanism_registry=DEFAULT_MECHANISM_REGISTRY,
+            slot_registry=DEFAULT_SLOT_REGISTRY,
+            merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
+            seed=43,
+        )
+        assert artifacts.is_degraded is False
+        assert any(role == "calibration:calibration.overall" for role, _ in artifacts.derived_artifacts)
+        for role, ref in artifacts.derived_artifacts:
+            assert role.startswith("calibration:calibration.")
+            _assert_fresh_source_and_pairs(store, ref)
+        public_refs = _build_standard_derived_refs(artifacts)
+        assert {
+>           (item.role, item.ref.artifact_id) for item in public_refs if ":calibration." in item.role
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        } == {(role, ref.artifact_id) for role, ref in artifacts.derived_artifacts}
+E       TypeError: cannot use 'tuple' as a set element (unhashable type: 'ArtifactID')
+
+tests/unit/foundry/methods/catalog/econometrics/test_advanced_persistence.py:201: TypeError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 13:13:16 [info     ] method_registered              backend=numpy fqn=econometrics.panel.nonstationary_garch@1.0.0 lazy=False namespace=econometrics.panel override=False tags=['econometrics', 'estimation', 'garch', 'panel', 'policy-risk', 'structural-break', 'tabular', 'uncertainty'] version=1.0.0
+2026-10-06 13:13:17 [debug    ] method_dispatch_start          backend=numpy fqn=econometrics.panel.nonstationary_garch@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 13:13:18 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=748.74 fqn=econometrics.panel.nonstationary_garch@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/catalog/econometrics/test_advanced_persistence.py::test_native_graph_returns_refs_from_its_configured_cas
+1 failed, 150 passed in 82.74s (0:01:22)

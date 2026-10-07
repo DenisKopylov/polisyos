@@ -1,0 +1,66 @@
+"""Independent facade identity, native CAS/snapshot readers, and removed-export controls."""
+from pathlib import Path
+import argparse,hashlib,importlib,json,os,sys
+from datetime import UTC,datetime
+import numpy as np
+P=argparse.ArgumentParser();P.add_argument('--phase',required=True);P.add_argument('--cas-root',type=Path,required=True);P.add_argument('--mutant',choices=['snapshot-persist-noop','forecast-persist-noop']);args=P.parse_args()
+ROOT=Path(__file__).parent/'fixture-current'/'policy-engine'/'src'; paths={};properties=[]
+def module(name):
+ m=importlib.import_module(name); p=Path(m.__file__).resolve(); assert p.is_relative_to(ROOT), (name,p); paths[name]={'path':str(p),'sha256':hashlib.sha256(p.read_bytes()).hexdigest()};return m
+def prop(name,claim):properties.append({'name':name,'property':claim,'outcome':'PASS'})
+art=module('polisyos.core.artifacts'); canonical_art=module('polisyos.core.artifacts.store');man=module('polisyos.core.artifacts.manifest')
+assert art.FileSystemCAS is canonical_art.FileSystemCAS
+for n in ('ArtifactRef','SchemaInfo'):assert getattr(art,n) is getattr(man,n)
+assert art.PutOptions is canonical_art.PutOptions
+prop('existing-Core-artifact-canonical-identities','curated facade exports canonical store/ref/options/schema, no copied implementation')
+canon=module('polisyos.core.canon');codec=module('polisyos.core.canon.canon_json');assert canon.CanonSpec is codec.CanonSpec and canon.from_canonical_bytes is codec.from_canonical_bytes
+registry=module('polisyos.core.registry'); loader=module('polisyos.core.registry.loader');assert registry.load_registry_bundle_content is loader.load_registry_bundle_content
+prop('existing-Core-canon-registry-identities','canonical codec and configured registry loader identities')
+contracts=module('polisyos.core.contracts'); required=['DataSnapshot','DerivedArtifact','ExecuteRequest','ExecuteResult','FoundryExecConfig','FoundryInputBindingRule','FoundryInputBindings','FoundryInputBindingsRef','SimulationResult','StateSnapshotRef'];assert all(n in contracts.__all__ for n in required)
+ir=module('polisyos.ir');trinity=module('polisyos.ir.trinity');assert ir.TrinityBundle is trinity.TrinityBundle
+prop('existing-admitted-Core-contracts-IR-Trinity','all ten BKT contract types declared; root Trinity identity is canonical')
+store=art.FileSystemCAS(args.cas_root)
+payload={'draw_ids':['d0','d1','d2'],'rows':[[0,0],[1,2],[4,5]],'weights':[.25,.25,.5]}
+ref=store.put_json(payload,art.PutOptions(kind='e02.facade-oracle',media_type='application/json',schema=art.SchemaInfo(name='e02.FacadeOracle',version='1.0.0')),canon_spec=canon.CanonSpec(forbid_floats=False))
+fresh=art.FileSystemCAS(args.cas_root);read=canon.from_canonical_bytes(fresh.get_bytes(ref));assert read==payload
+prop('configured-Core-CAS-fresh-read','fresh store independently reopens exact artifact bytes preserving order/weights; not a new wire contract')
+analytics=module('polisyos.ir.analytics'); uncertainty=module('polisyos.ir.analytics.uncertainty'); forecast=module('polisyos.ir.analytics.forecasting_uncertainty'); execution=module('polisyos.foundry.execute')
+expected_ir=['PosteriorSamplesCarrier','load_forecasting_uncertainty_bundle','persist_forecasting_uncertainty_bundle'];expected_exec=['get_state_path','load_state_snapshot','put_state_snapshot']
+missing_ir=[n for n in expected_ir if n not in analytics.__all__];missing_exec=[n for n in expected_exec if n not in execution.__all__]
+if args.phase=='before-owner-patch':
+ assert missing_ir==expected_ir and missing_exec==expected_exec
+ print(json.dumps({'phase':args.phase,'outcome':'PASS-bounded-existing-facades','pending_IR_exports':missing_ir,'pending_execute_exports':missing_exec,'properties':properties,'module_inputs':paths,'owner_admission':'not_ratified','P41':'not_established'},indent=2));sys.exit(0)
+assert not missing_ir and not missing_exec
+executor=module('polisyos.foundry.execute.executor')
+for n in expected_ir:assert getattr(analytics,n) is getattr(uncertainty if n=='PosteriorSamplesCarrier' else forecast,n)
+for n in expected_exec:assert getattr(execution,n) is getattr(executor,n)
+prop('owner-preview-canonical-exports','three IR analytics and three Foundry execute exports resolve same canonical objects, existing modes retained')
+carrier=analytics.PosteriorSamplesCarrier(samples=(0.,1.,4.),weights=(.25,.25,.5),sample_axis='paired_draw');carrier_read=analytics.PosteriorSamplesCarrier.model_validate_json(carrier.model_dump_json());assert carrier_read==carrier
+for values in ({'samples':(0.,float('inf'))},{'samples':(0.,1.),'weights':(1.,)}):
+ try:analytics.PosteriorSamplesCarrier(**values)
+ except ValueError:pass
+ else:raise AssertionError('invalid existing carrier admitted')
+prop('existing-carrier-roundtrip-and-refusals','existing v1 carrier values/order/axis/weights survive own reader; no authority or joint v2 ratification inferred')
+from polisyos.foundry.contracts.state import GlobalState
+from polisyos.foundry.methods.exceptions import StatePathTraversalError
+import jax.numpy as jnp
+state=GlobalState.empty(3,2).replace(step=jnp.array(7,dtype=jnp.int32),tax_rate=jnp.array(.25,dtype=jnp.float32),agents=GlobalState.empty(3,2).agents.replace(income=jnp.array([2.,5.,11.],dtype=jnp.float32)))
+if args.mutant=='snapshot-persist-noop':execution.put_state_snapshot=lambda *a,**k:None
+snapshot=execution.put_state_snapshot(store,state=state,step=7);assert isinstance(snapshot,art.ArtifactRef), 'removed snapshot writer export cannot deliver persisted ref'
+reopened=execution.load_state_snapshot(art.FileSystemCAS(args.cas_root),snapshot_ref=snapshot);np.testing.assert_array_equal(execution.get_state_path(reopened,'agents.income'),np.array([2.,5.,11.]));assert int(reopened.step)==7 and float(reopened.tax_rate)==.25
+for badpath in ('agents.missing','agents..income',''):
+ try:execution.get_state_path(reopened,badpath)
+ except StatePathTraversalError:pass
+ else:raise AssertionError('invalid state path admitted')
+try:execution.load_state_snapshot(fresh,snapshot_ref=ref)
+except ValueError:pass
+else:raise AssertionError('non-snapshot generic payload admitted')
+prop('native-snapshot-fresh-consumer','public writer typed2.2 ref→fresh configured CAS→canonical GlobalState reader exact step, tax, individual income; invalid path/non-snapshot refusals')
+T=datetime(2026,10,6,12,0,tzinfo=UTC)
+bundle=forecast.ForecastingUncertaintyBundle(method_fqn='forecasting.univariate.exponential_smoothing@1.0.0',target_id='fixture-income',generated_at=T,prediction_interval=(forecast.HorizonInterval(horizon=1,point=6.,lower=4.,upper=8.,coverage_target=.9,constructor=forecast.ForecastCalibrationMethod.CONFORMAL,sample_count=3),),fan_chart=forecast.FanChartSpec(quantile_levels=(.05,.5,.95),horizons=(forecast.HorizonQuantileSet(horizon=1,quantiles={'.05':4.,'.5':6.,'.95':8.}),)),coverage_diagnostic=forecast.ForecastCoverageDiagnostic(nominal_coverage=.9,empirical_coverage_by_horizon={1:2/3},coverage_gap_by_horizon={1:2/3-.9},mean_interval_width_by_horizon={1:4.},sample_count_by_horizon={1:3},calibration_window=3,last_recalibrated_at=T),horizon_policy=forecast.HorizonPolicySpec(default_method=forecast.ForecastCalibrationMethod.CONFORMAL,rules=(),gate_eligible=False,summary='bounded export wiring only'),interval_semantics=forecast.ForecastIntervalSemantics.CONFORMALIZED_PREDICTION_INTERVAL,calibration_method=forecast.ForecastCalibrationMethod.CONFORMAL,nominal_coverage=.9,sample_size_assumption='three fixture residuals; no production assertion')
+if args.mutant=='forecast-persist-noop':analytics.persist_forecasting_uncertainty_bundle=lambda *a,**k:None
+forecast_ref=analytics.persist_forecasting_uncertainty_bundle(store,bundle);assert forecast_ref is not None, 'removed forecast writer export cannot deliver persisted ref'
+readbundle=analytics.load_forecasting_uncertainty_bundle(art.FileSystemCAS(args.cas_root),forecast_ref);assert readbundle==bundle
+assert readbundle.prediction_interval[0].horizon==1 and readbundle.prediction_interval[0].point==6. and not readbundle.horizon_policy.gate_eligible
+prop('existing-forecast-bundle-fresh-consumer','public canonical functions preserve v1 fixed fixture interval/ref through fresh store; gatefalse retained, no v2 semantics chosen')
+print(json.dumps({'phase':args.phase,'outcome':'PASS-library-preview-only','owner_admission':'not_ratified','properties':properties,'module_inputs':paths,'refs':{'generic':ref.model_dump(mode='json'),'snapshot':snapshot.model_dump(mode='json'),'forecast':forecast_ref.model_dump(mode='json')},'P41':'not_established'},indent=2))

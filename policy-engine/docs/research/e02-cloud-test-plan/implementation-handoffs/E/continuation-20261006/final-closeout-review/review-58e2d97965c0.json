@@ -1,0 +1,1018 @@
+{
+  "schema": "policyos.e02.independent_closeout_review.v1",
+  "reviewer": "cal_independent_r3",
+  "scope": "Read-only saved-check/source audit; no test, numerical, scanner, generated-artifact or workspace gate rerun; no source, shared-file, branch or checkout changes.",
+  "base": {
+    "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8"
+  },
+  "candidate": {
+    "sha": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+    "tree": "ffd0d56892f8e515838af4c5b160cb9ac6d988ed",
+    "branch": "codex/e02-E-continuation-20261006",
+    "src_tree": "b979fbe04a3370f4562c7967048409b34e3d4cb3",
+    "tests_tree": "144b18412f6bb8bec3bc3986ebf3da61313c8b38",
+    "source_test_path_denominator": 6198,
+    "source_test_framed_sha256": "9f8a51ddde321609d106d7ee7d747bde6a3182b7cc6747e1254d344e2ebd85fc"
+  },
+  "integration_acceptance": {
+    "verdict": "HOLD",
+    "reason": "Two FRC consumer failures and outstanding global gate FAILs, including E-introduced deep-import edges. Scoped mathematical/code GO from independent slices does not make repository integration green.",
+    "publication_scope": "E topic/PR for G review only; main publication denied without separate user authorization"
+  },
+  "pytest_denominator": {
+    "xml_files": 6,
+    "executions": 1125,
+    "unique_classname_name_pairs": 1125,
+    "PASS": 1123,
+    "FAIL": 2,
+    "ERROR": 0,
+    "SKIP": 0,
+    "groups": [
+      {
+        "xml": "pytest-bkt-frc-s10-and-adjacent-report-consumers.xml",
+        "test_cases": 283,
+        "PASS": 281,
+        "FAIL": 2,
+        "ERROR": 0,
+        "SKIP": 0,
+        "sha256": "efce10e32dc02c82ad5b381782011c54da6579f79e01400f24fd16acf482edfa"
+      },
+      {
+        "xml": "pytest-cal-and-welfare-consumer.xml",
+        "test_cases": 266,
+        "PASS": 266,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0,
+        "sha256": "5e64051ced78b5e07d8f5cca58a95088d0c4b7665d51c6c7cfcfc5faff7b2e7c"
+      },
+      {
+        "xml": "pytest-ddm-runtime-and-facade.xml",
+        "test_cases": 71,
+        "PASS": 71,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0,
+        "sha256": "2c4da07ba16df25e80dc245e0b768c8c74aaa77191f22f705bbd610fe0ddc818"
+      },
+      {
+        "xml": "pytest-doe-salib-and-consumer-factory.xml",
+        "test_cases": 119,
+        "PASS": 119,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0,
+        "sha256": "a44f4a2fe5efaf9648038fc4b37303d2eab6eb612b0cc00d3a21a1d87ca16c80"
+      },
+      {
+        "xml": "pytest-mc-joint-law-support-and-scientist-consumer.xml",
+        "test_cases": 297,
+        "PASS": 297,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0,
+        "sha256": "5817233f582bbb9cc6782e7a6001079e4bbb9355012ccb41e5e526dc1866ba5e"
+      },
+      {
+        "xml": "pytest-pcl-continuous-persistence.xml",
+        "test_cases": 89,
+        "PASS": 89,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0,
+        "sha256": "6f34b306d2864f99809b05c642cc8dda779ca43a7c1782b20ab6e46dd5006609"
+      }
+    ],
+    "failed_cases": [
+      {
+        "xml": "pytest-bkt-frc-s10-and-adjacent-report-consumers.xml",
+        "classname": "tests.unit.remediation.test_frc_01",
+        "name": "test_calibration_time_roles_are_preserved_from_bound_evidence",
+        "outcome": "FAILURE",
+        "message": "AttributeError: 'NoneType' object has no attribute 'prediction_time'"
+      },
+      {
+        "xml": "pytest-bkt-frc-s10-and-adjacent-report-consumers.xml",
+        "classname": "tests.unit.remediation.test_frc_01",
+        "name": "test_missing_calibration_evidence_refs_stays_typed_blocked",
+        "outcome": "FAILURE",
+        "message": "AssertionError: assert 's10://calibration/fail-closed/insufficient-history' in []\n +  where [] = ForecastSupport(schema_version='policyos.policy_design_case.layer2_s10_outcome_prediction.v1', support_id='n8.forecast...owth', 's13_accountability_closure', 's14_universality'], rule_version_ref='policyos.layer2.s10.outcome_prediction.v1').s6_limitation_refs"
+      }
+    ],
+    "no_PASS_count_closure_inference": true
+  },
+  "all_saved_check_receipts": [
+    {
+      "receipt": "architecture.json",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "command": [
+        "/workspace/.polisyos-environment/uv/bin/uv",
+        "run",
+        "--no-sync",
+        "polisyos-tools",
+        "architecture",
+        "guardrails",
+        "check"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "wall_seconds": 265.21891713142395,
+      "full_stdout": "architecture.stdout.txt",
+      "full_stdout_sha256": "6bb0ccdca1391f8aac910bfd29959eb2ceaa16971aaf263bf8a6677600b73788",
+      "P41": "not_established; no inherited-red attribution"
+    },
+    {
+      "receipt": "ci-parity-after-browser.json",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/uncapped_workspace_check.py",
+        "ci-parity",
+        "--skip-browser"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "wall_seconds": 88.50504875183105,
+      "full_stdout": "ci-parity-after-browser.stdout.txt",
+      "full_stdout_sha256": "fd909f3dda92ff5ea831eb5b8e666f58036eb0fc4f39ae5d251f30ff6f048942",
+      "P41": "not_established; no inherited-red attribution"
+    },
+    {
+      "receipt": "ci-parity.json",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/uncapped_workspace_check.py",
+        "ci-parity",
+        "--skip-browser"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "wall_seconds": 99.8750650882721,
+      "full_stdout": "ci-parity.stdout.txt",
+      "full_stdout_sha256": "e480591f6aa2268c492aa5b064760f7ee779d946fadf5d86d0d828da40bbc726",
+      "P41": "not_established; no inherited-red attribution"
+    },
+    {
+      "receipt": "production-invocation.json",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "tools/quality/validation/check_production_invocation.py",
+        "--repo-root",
+        "/workspace/e02-E-continuation-20261006/policy-engine",
+        "--base",
+        "198076863e143dea9f89f02734b13d50dae3eed5",
+        "--receipt",
+        "/workspace/e02-E-20261006-receipts/common-wave/production-invocation.raw.json"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "wall_seconds": 303.0472321510315,
+      "full_stdout": "production-invocation.stdout.txt",
+      "full_stdout_sha256": "ce3e4020e8a1e4146491f1c9faf0dbcd2b4cd4030e54cde9d61f70e6ab078abc",
+      "P41": "not_established; no inherited-red attribution"
+    },
+    {
+      "receipt": "pytest-bkt-frc-s10-and-adjacent-report-consumers.json",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp",
+        "/workspace/e02-E-20261006-receipts/common-wave/pytest-bkt-frc-s10-and-adjacent-report-consumers-temp",
+        "--junitxml",
+        "/workspace/e02-E-20261006-receipts/common-wave/pytest-bkt-frc-s10-and-adjacent-report-consumers.xml",
+        "tests/unit/foundry/analysis/test_merge_determinism.py",
+        "tests/unit/foundry/analysis/test_merge_engine_regressions.py",
+        "tests/unit/remediation/test_bkt_02.py",
+        "tests/unit/remediation/test_bkt_03.py",
+        "tests/unit/remediation/test_frc_01.py",
+        "tests/unit/remediation/test_frc_02.py",
+        "tests/unit/remediation/test_frc_02_bridge.py",
+        "tests/unit/remediation/test_frc_02_owner.py",
+        "tests/unit/remediation/test_frc_02_s10.py",
+        "tests/unit/runtime/quality/test_design_axes_outcome_prediction.py",
+        "tests/unit/scientist/governance/test_backtest_matrix.py",
+        "tests/unit/scientist/methods/backtesting/test_adversarial.py",
+        "tests/unit/scientist/methods/backtesting/test_backtesting.py",
+        "tests/unit/scientist/methods/backtesting/test_bootstrap.py",
+        "tests/unit/scientist/methods/backtesting/test_calibration_curve.py",
+        "tests/unit/scientist/methods/backtesting/test_composition_bridge.py",
+        "tests/unit/scientist/methods/backtesting/test_cv.py",
+        "tests/unit/scientist/methods/backtesting/test_distributional.py",
+        "tests/unit/scientist/methods/backtesting/test_forecast_owner.py",
+        "tests/unit/scientist/methods/backtesting/test_ipw.py",
+        "tests/unit/scientist/methods/backtesting/test_masking.py",
+        "tests/unit/scientist/methods/backtesting/test_phase_d4_challenge_suites.py",
+        "tests/unit/scientist/methods/backtesting/test_replay_admission.py",
+        "tests/unit/scientist/methods/backtesting/test_temporal.py"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "wall_seconds": 101.70806574821472,
+      "full_stdout": "pytest-bkt-frc-s10-and-adjacent-report-consumers.stdout.txt",
+      "full_stdout_sha256": "633a17dac9cd7f8947de8ea174fc87ea66a8f9330e32c6ad788e26b75702e591",
+      "P41": "not_established; no inherited-red attribution"
+    },
+    {
+      "receipt": "pytest-cal-and-welfare-consumer.json",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp",
+        "/workspace/e02-E-20261006-receipts/common-wave/pytest-cal-and-welfare-consumer-temp",
+        "--junitxml",
+        "/workspace/e02-E-20261006-receipts/common-wave/pytest-cal-and-welfare-consumer.xml",
+        "tests/unit/foundry/calibration/test_auxiliary.py",
+        "tests/unit/foundry/calibration/test_bijectors.py",
+        "tests/unit/foundry/calibration/test_calibration_robust_set_selector.py",
+        "tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+        "tests/unit/foundry/calibration/test_calibrator.py",
+        "tests/unit/foundry/calibration/test_calibrator_batch.py",
+        "tests/unit/foundry/calibration/test_calibrator_fidelity.py",
+        "tests/unit/foundry/calibration/test_calibrator_mvp.py",
+        "tests/unit/foundry/calibration/test_dp_ci.py",
+        "tests/unit/foundry/calibration/test_fabric_quality.py",
+        "tests/unit/foundry/calibration/test_hessian.py",
+        "tests/unit/foundry/calibration/test_identifiability.py",
+        "tests/unit/foundry/calibration/test_loss.py",
+        "tests/unit/foundry/calibration/test_measurement.py",
+        "tests/unit/foundry/calibration/test_multi_start.py",
+        "tests/unit/foundry/calibration/test_preflight.py",
+        "tests/unit/foundry/calibration/test_pure_executor.py",
+        "tests/unit/foundry/calibration/test_pure_executor_batch.py",
+        "tests/unit/foundry/calibration/test_pure_executor_semantics.py",
+        "tests/unit/foundry/calibration/test_report.py",
+        "tests/unit/remediation/test_cal_01.py",
+        "tests/unit/remediation/test_cal_02.py",
+        "tests/unit/remediation/test_cal_03.py",
+        "tests/unit/remediation/test_cal_04.py",
+        "tests/unit/remediation/test_cal_06.py",
+        "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "wall_seconds": 172.22362971305847,
+      "full_stdout": "pytest-cal-and-welfare-consumer.stdout.txt",
+      "full_stdout_sha256": "4d8aa480b4f52b184c66d19a2e9a01d3701a129b36dd354a559fa483956d9b06",
+      "P41": "not_established; no inherited-red attribution"
+    },
+    {
+      "receipt": "pytest-ddm-runtime-and-facade.json",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp",
+        "/workspace/e02-E-20261006-receipts/common-wave/pytest-ddm-runtime-and-facade-temp",
+        "--junitxml",
+        "/workspace/e02-E-20261006-receipts/common-wave/pytest-ddm-runtime-and-facade.xml",
+        "tests/unit/ddm/mirror_contracts/test_audit.py",
+        "tests/unit/ddm/mirror_contracts/test_calibrate.py",
+        "tests/unit/ddm/mirror_contracts/test_data_quality_monitor.py",
+        "tests/unit/ddm/mirror_contracts/test_events.py",
+        "tests/unit/ddm/mirror_contracts/test_multiple_testing.py",
+        "tests/unit/ddm/mirror_contracts/test_performance_estimator.py",
+        "tests/unit/ddm/mirror_contracts/test_realized_performance_monitor.py",
+        "tests/unit/ddm/mirror_contracts/test_track_2_2_shift_adapter.py",
+        "tests/unit/ddm/test_delayed_label_replay.py",
+        "tests/unit/ddm/test_facade.py",
+        "tests/unit/ddm/test_full_acceptance.py",
+        "tests/unit/ddm/test_readiness_mapping.py",
+        "tests/unit/ddm/test_stationary_replay.py",
+        "tests/unit/ddm/test_synthetic_drift_delay.py",
+        "tests/unit/remediation/test_ddm_02.py"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "wall_seconds": 5.1058714389801025,
+      "full_stdout": "pytest-ddm-runtime-and-facade.stdout.txt",
+      "full_stdout_sha256": "c3ae052f8ed3d5db3f62915801bc690410226cae788da874d77d4da20d01e127",
+      "P41": "not_established; no inherited-red attribution"
+    },
+    {
+      "receipt": "pytest-doe-salib-and-consumer-factory.json",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp",
+        "/workspace/e02-E-20261006-receipts/common-wave/pytest-doe-salib-and-consumer-factory-temp",
+        "--junitxml",
+        "/workspace/e02-E-20261006-receipts/common-wave/pytest-doe-salib-and-consumer-factory.xml",
+        "tests/unit/remediation/test_doe_01.py",
+        "tests/unit/remediation/test_doe_02.py",
+        "tests/unit/remediation/test_doe_03.py",
+        "tests/unit/scientist/methods/autotune/test_sensitivity_bridge.py",
+        "tests/unit/scientist/methods/doe/test_adaptive.py",
+        "tests/unit/scientist/methods/doe/test_analysis_enhanced.py",
+        "tests/unit/scientist/methods/doe/test_analysis_receipt.py",
+        "tests/unit/scientist/methods/doe/test_morris_geometry.py",
+        "tests/unit/scientist/methods/doe/test_multi_output.py",
+        "tests/unit/scientist/methods/doe/test_sampling.py",
+        "tests/unit/scientist/methods/doe/test_sensitivity_benchmark.py",
+        "tests/unit/scientist/methods/doe/test_sensitivity_plan.py",
+        "tests/unit/scientist/methods/doe/test_stability.py",
+        "tests/unit/scientist/methods/doe/test_uncertainty.py"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "wall_seconds": 37.9625678062439,
+      "full_stdout": "pytest-doe-salib-and-consumer-factory.stdout.txt",
+      "full_stdout_sha256": "c2059319db80f7dbf2ddc717acf39c81242d64bc9820a20bd0eb93373b513486",
+      "P41": "not_established; no inherited-red attribution"
+    },
+    {
+      "receipt": "pytest-mc-joint-law-support-and-scientist-consumer.json",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp",
+        "/workspace/e02-E-20261006-receipts/common-wave/pytest-mc-joint-law-support-and-scientist-consumer-temp",
+        "--junitxml",
+        "/workspace/e02-E-20261006-receipts/common-wave/pytest-mc-joint-law-support-and-scientist-consumer.xml",
+        "tests/unit/foundry/uncertainty/test_adaptive_stopping.py",
+        "tests/unit/foundry/uncertainty/test_aggregation_strategies.py",
+        "tests/unit/foundry/uncertainty/test_covariance.py",
+        "tests/unit/foundry/uncertainty/test_delta.py",
+        "tests/unit/foundry/uncertainty/test_dispatcher.py",
+        "tests/unit/foundry/uncertainty/test_dispatcher_routing.py",
+        "tests/unit/foundry/uncertainty/test_fabric_quality.py",
+        "tests/unit/foundry/uncertainty/test_monte_carlo.py",
+        "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+        "tests/unit/foundry/uncertainty/test_quasi_mc.py",
+        "tests/unit/foundry/uncertainty/test_sampling_admission.py",
+        "tests/unit/foundry/uncertainty/test_sensitivity_indices.py",
+        "tests/unit/foundry/uncertainty/test_tail_risk.py",
+        "tests/unit/foundry/uncertainty/test_uncertainty_propagation.py",
+        "tests/unit/foundry/uncertainty/test_uncertainty_protocol.py",
+        "tests/unit/ir/test_uncertainty.py",
+        "tests/unit/remediation/test_uqp_01.py",
+        "tests/unit/remediation/test_uqp_02.py",
+        "tests/unit/remediation/test_uqp_03.py",
+        "tests/unit/remediation/test_uqs_01.py",
+        "tests/unit/scientist/nodes/builtins/simulate/test_propagate_uncertainty.py",
+        "tests/unit/scientist/nodes/builtins/simulate/test_welfare_draw_outcomes.py",
+        "tests/unit/scientist/nodes/test_propagate_uncertainty_node.py"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "wall_seconds": 52.02155375480652,
+      "full_stdout": "pytest-mc-joint-law-support-and-scientist-consumer.stdout.txt",
+      "full_stdout_sha256": "d1085d08f4925e421ad0ea47e12842893daadbc5b370414796bb865f700fd5e6",
+      "P41": "not_established; no inherited-red attribution"
+    },
+    {
+      "receipt": "pytest-pcl-continuous-persistence.json",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp",
+        "/workspace/e02-E-20261006-receipts/common-wave/pytest-pcl-continuous-persistence-temp",
+        "--junitxml",
+        "/workspace/e02-E-20261006-receipts/common-wave/pytest-pcl-continuous-persistence.xml",
+        "tests/unit/calibration/test_adapters.py",
+        "tests/unit/calibration/test_continuous.py",
+        "tests/unit/calibration/test_continuous_persistence.py",
+        "tests/unit/calibration/test_curve.py",
+        "tests/unit/calibration/test_diagnostics.py",
+        "tests/unit/calibration/test_multiclass.py",
+        "tests/unit/calibration/test_recalibration.py",
+        "tests/unit/ir/analytics/test_calibration_diagnostics_report.py"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "wall_seconds": 32.29573130607605,
+      "full_stdout": "pytest-pcl-continuous-persistence.stdout.txt",
+      "full_stdout_sha256": "d7301238921bbbb0e6974692a167329a0ff6ce71c4fbe101eaf431055b7a1625",
+      "P41": "not_established; no inherited-red attribution"
+    },
+    {
+      "receipt": "ruff-format.json",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/ruff",
+        "format",
+        "--check",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-replay-admission-checks/removal_probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-batch-20261006/batch_execution_probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/run_check.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/uncapped_workspace_check.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe_ordered_20261006_removal.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe_ordered_20261006_stability_removal.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-20261006-logs/execute_checks.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-20261006-logs/property_controls.py",
+        "src/polisyos/calibration/continuous.py",
+        "src/polisyos/calibration/curve.py",
+        "src/polisyos/calibration/forecast_bridge.py",
+        "src/polisyos/ddm/integration/model_registry.py",
+        "src/polisyos/ddm/integration/monitor.py",
+        "src/polisyos/foundry/calibration/calibrator.py",
+        "src/polisyos/foundry/calibration/hessian.py",
+        "src/polisyos/foundry/calibration/identifiability.py",
+        "src/polisyos/foundry/calibration/pure_executor.py",
+        "src/polisyos/foundry/calibration/report.py",
+        "src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+        "src/polisyos/foundry/uncertainty/aggregator.py",
+        "src/polisyos/foundry/uncertainty/analytical.py",
+        "src/polisyos/foundry/uncertainty/config.py",
+        "src/polisyos/foundry/uncertainty/covariance.py",
+        "src/polisyos/foundry/uncertainty/delta.py",
+        "src/polisyos/foundry/uncertainty/dispatcher.py",
+        "src/polisyos/foundry/uncertainty/monte_carlo.py",
+        "src/polisyos/foundry/uncertainty/quasi_mc.py",
+        "src/polisyos/foundry/uncertainty/sampling_admission.py",
+        "src/polisyos/ir/analytics/calibration_diagnostics.py",
+        "src/polisyos/scientist/governance/backtest_matrix.py",
+        "src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+        "src/polisyos/scientist/methods/backtesting/bootstrap.py",
+        "src/polisyos/scientist/methods/backtesting/evaluator.py",
+        "src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+        "src/polisyos/scientist/methods/backtesting/orchestrator.py",
+        "src/polisyos/scientist/methods/backtesting/trust_scorer.py",
+        "src/polisyos/scientist/methods/doe/_receipt.py",
+        "src/polisyos/scientist/methods/doe/analysis.py",
+        "src/polisyos/scientist/methods/doe/designs.py",
+        "src/polisyos/scientist/methods/doe/sampling.py",
+        "src/polisyos/scientist/methods/doe/stability.py",
+        "src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+        "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+        "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+        "tests/unit/calibration/test_continuous.py",
+        "tests/unit/calibration/test_continuous_persistence.py",
+        "tests/unit/ddm/test_full_acceptance.py",
+        "tests/unit/foundry/calibration/test_calibrator_batch.py",
+        "tests/unit/foundry/calibration/test_calibrator_mvp.py",
+        "tests/unit/foundry/calibration/test_hessian.py",
+        "tests/unit/foundry/calibration/test_pure_executor_batch.py",
+        "tests/unit/foundry/calibration/test_report.py",
+        "tests/unit/foundry/uncertainty/test_adaptive_stopping.py",
+        "tests/unit/foundry/uncertainty/test_aggregation_strategies.py",
+        "tests/unit/foundry/uncertainty/test_delta.py",
+        "tests/unit/foundry/uncertainty/test_dispatcher.py",
+        "tests/unit/foundry/uncertainty/test_dispatcher_routing.py",
+        "tests/unit/foundry/uncertainty/test_monte_carlo.py",
+        "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+        "tests/unit/foundry/uncertainty/test_quasi_mc.py",
+        "tests/unit/foundry/uncertainty/test_sampling_admission.py",
+        "tests/unit/remediation/test_bkt_02.py",
+        "tests/unit/remediation/test_bkt_03.py",
+        "tests/unit/remediation/test_cal_04.py",
+        "tests/unit/remediation/test_ddm_02.py",
+        "tests/unit/remediation/test_doe_02.py",
+        "tests/unit/remediation/test_uqp_01.py",
+        "tests/unit/remediation/test_uqp_02.py",
+        "tests/unit/remediation/test_uqp_03.py",
+        "tests/unit/remediation/test_uqs_01.py",
+        "tests/unit/scientist/governance/test_backtest_matrix.py",
+        "tests/unit/scientist/methods/autotune/test_sensitivity_bridge.py",
+        "tests/unit/scientist/methods/backtesting/test_backtesting.py",
+        "tests/unit/scientist/methods/backtesting/test_forecast_owner.py",
+        "tests/unit/scientist/methods/backtesting/test_replay_admission.py",
+        "tests/unit/scientist/methods/doe/test_analysis_enhanced.py",
+        "tests/unit/scientist/methods/doe/test_analysis_receipt.py",
+        "tests/unit/scientist/methods/doe/test_stability.py",
+        "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py",
+        "tests/unit/scientist/nodes/builtins/simulate/test_welfare_draw_outcomes.py"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "wall_seconds": 0.5355665683746338,
+      "full_stdout": "ruff-format.stdout.txt",
+      "full_stdout_sha256": "a70f7dd4dea92217153fb5f41f49b47f586ab31ecae1d696942f53ccf1180f9e",
+      "P41": "not_established; no inherited-red attribution"
+    },
+    {
+      "receipt": "ruff.json",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/ruff",
+        "check",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-replay-admission-checks/removal_probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-batch-20261006/batch_execution_probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/run_check.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/uncapped_workspace_check.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe_ordered_20261006_removal.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe_ordered_20261006_stability_removal.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-20261006-logs/execute_checks.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-20261006-logs/property_controls.py",
+        "src/polisyos/calibration/continuous.py",
+        "src/polisyos/calibration/curve.py",
+        "src/polisyos/calibration/forecast_bridge.py",
+        "src/polisyos/ddm/integration/model_registry.py",
+        "src/polisyos/ddm/integration/monitor.py",
+        "src/polisyos/foundry/calibration/calibrator.py",
+        "src/polisyos/foundry/calibration/hessian.py",
+        "src/polisyos/foundry/calibration/identifiability.py",
+        "src/polisyos/foundry/calibration/pure_executor.py",
+        "src/polisyos/foundry/calibration/report.py",
+        "src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+        "src/polisyos/foundry/uncertainty/aggregator.py",
+        "src/polisyos/foundry/uncertainty/analytical.py",
+        "src/polisyos/foundry/uncertainty/config.py",
+        "src/polisyos/foundry/uncertainty/covariance.py",
+        "src/polisyos/foundry/uncertainty/delta.py",
+        "src/polisyos/foundry/uncertainty/dispatcher.py",
+        "src/polisyos/foundry/uncertainty/monte_carlo.py",
+        "src/polisyos/foundry/uncertainty/quasi_mc.py",
+        "src/polisyos/foundry/uncertainty/sampling_admission.py",
+        "src/polisyos/ir/analytics/calibration_diagnostics.py",
+        "src/polisyos/scientist/governance/backtest_matrix.py",
+        "src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+        "src/polisyos/scientist/methods/backtesting/bootstrap.py",
+        "src/polisyos/scientist/methods/backtesting/evaluator.py",
+        "src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+        "src/polisyos/scientist/methods/backtesting/orchestrator.py",
+        "src/polisyos/scientist/methods/backtesting/trust_scorer.py",
+        "src/polisyos/scientist/methods/doe/_receipt.py",
+        "src/polisyos/scientist/methods/doe/analysis.py",
+        "src/polisyos/scientist/methods/doe/designs.py",
+        "src/polisyos/scientist/methods/doe/sampling.py",
+        "src/polisyos/scientist/methods/doe/stability.py",
+        "src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+        "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+        "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+        "tests/unit/calibration/test_continuous.py",
+        "tests/unit/calibration/test_continuous_persistence.py",
+        "tests/unit/ddm/test_full_acceptance.py",
+        "tests/unit/foundry/calibration/test_calibrator_batch.py",
+        "tests/unit/foundry/calibration/test_calibrator_mvp.py",
+        "tests/unit/foundry/calibration/test_hessian.py",
+        "tests/unit/foundry/calibration/test_pure_executor_batch.py",
+        "tests/unit/foundry/calibration/test_report.py",
+        "tests/unit/foundry/uncertainty/test_adaptive_stopping.py",
+        "tests/unit/foundry/uncertainty/test_aggregation_strategies.py",
+        "tests/unit/foundry/uncertainty/test_delta.py",
+        "tests/unit/foundry/uncertainty/test_dispatcher.py",
+        "tests/unit/foundry/uncertainty/test_dispatcher_routing.py",
+        "tests/unit/foundry/uncertainty/test_monte_carlo.py",
+        "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+        "tests/unit/foundry/uncertainty/test_quasi_mc.py",
+        "tests/unit/foundry/uncertainty/test_sampling_admission.py",
+        "tests/unit/remediation/test_bkt_02.py",
+        "tests/unit/remediation/test_bkt_03.py",
+        "tests/unit/remediation/test_cal_04.py",
+        "tests/unit/remediation/test_ddm_02.py",
+        "tests/unit/remediation/test_doe_02.py",
+        "tests/unit/remediation/test_uqp_01.py",
+        "tests/unit/remediation/test_uqp_02.py",
+        "tests/unit/remediation/test_uqp_03.py",
+        "tests/unit/remediation/test_uqs_01.py",
+        "tests/unit/scientist/governance/test_backtest_matrix.py",
+        "tests/unit/scientist/methods/autotune/test_sensitivity_bridge.py",
+        "tests/unit/scientist/methods/backtesting/test_backtesting.py",
+        "tests/unit/scientist/methods/backtesting/test_forecast_owner.py",
+        "tests/unit/scientist/methods/backtesting/test_replay_admission.py",
+        "tests/unit/scientist/methods/doe/test_analysis_enhanced.py",
+        "tests/unit/scientist/methods/doe/test_analysis_receipt.py",
+        "tests/unit/scientist/methods/doe/test_stability.py",
+        "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py",
+        "tests/unit/scientist/nodes/builtins/simulate/test_welfare_draw_outcomes.py"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "wall_seconds": 0.5835635662078857,
+      "full_stdout": "ruff.stdout.txt",
+      "full_stdout_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "P41": "not_established; no inherited-red attribution"
+    },
+    {
+      "receipt": "runtime-api-contract.json",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "command": [
+        "/workspace/.polisyos-environment/uv/bin/uv",
+        "run",
+        "--no-sync",
+        "polisyos-tools",
+        "runtime",
+        "check-runtime-api-contract"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "wall_seconds": 115.78224039077759,
+      "full_stdout": "runtime-api-contract.stdout.txt",
+      "full_stdout_sha256": "9e85dee4e67ca93de075c29501d95f809f2e6b5ed3b17ef393abca7f1c613c90",
+      "P41": "not_established; no inherited-red attribution"
+    },
+    {
+      "receipt": "workspace-verify-after-browser.json",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/uncapped_workspace_check.py",
+        "verify",
+        "--backend-only"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "wall_seconds": 20.23590850830078,
+      "full_stdout": "workspace-verify-after-browser.stdout.txt",
+      "full_stdout_sha256": "ae5476f42180bed143dd7e2d5dc60aeb8dff3af50aac14352d11d1baa8fe3621",
+      "P41": "not_established; no inherited-red attribution"
+    },
+    {
+      "receipt": "workspace-verify.json",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/uncapped_workspace_check.py",
+        "verify",
+        "--backend-only"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "wall_seconds": 1.664919376373291,
+      "full_stdout": "workspace-verify.stdout.txt",
+      "full_stdout_sha256": "08b952e55207ee6b0cf1f109802486e7e24018e600ec3df6d32b543dfe0e587d",
+      "P41": "not_established; no inherited-red attribution"
+    }
+  ],
+  "global_failures": [
+    {
+      "gate": "architecture",
+      "outcome": "FAIL",
+      "blocker": "Deep-import baseline drift with163 current reports;35 E-changed source reports;12 newly present exact E imports, plus runtime-openapi/trust-claim-posture generated output drift.",
+      "next_owner": "E family owners for new imports + G architecture/facade owner; deliberate admission or owner-approved stable facade, not unconditional baseline sync"
+    },
+    {
+      "gate": "runtime-api-contract",
+      "outcome": "FAIL",
+      "blocker": "Committed runtime_api_v1.openapi.json differs from generated confidence-ledger-risk-spend projection dependency/hash/receipt fields (dependency_count1489 ->1492).",
+      "next_owner": "A/runtime API and confidence-ledger generated projection owner + G; account for E dependency changes before owner regeneration"
+    },
+    {
+      "gate": "production-invocation",
+      "outcome": "FAIL",
+      "blocker": "Static bounded direct-call reachability check reports11 regressions and42 new unresolved E entries; runtime invocation is explicitly not established.",
+      "next_owner": "E canonical families for real producer/caller tracing, A for generation-cycle FRC bridge, G for integration audit; diagnostic owner for indirect/registered/deferred model limits"
+    },
+    {
+      "gate": "workspace-verify-after-browser",
+      "outcome": "FAIL",
+      "blocker": "Doctor now passes after browser installation; lint_imports fails with21 unadjudicated imports. Full scan parsed2700 files; listed violating paths do not overlap E-changed paths, but complete gate inputs overlap E source and exact base replay was not performed.",
+      "next_owner": "G plus architecture import-policy and listed runtime/IR/Foundry/Scientist source owners; E owns its separate new architecture edges"
+    },
+    {
+      "gate": "ci-parity-after-browser",
+      "outcome": "FAIL",
+      "blocker": "Doctor fails schema snapshots feedback_solve_result.schema.json/_manifest.json and runtime OpenAPI freshness; subsequent CI-parity commands did not run.",
+      "next_owner": "IR FeedbackSolveResult schema snapshot owner, A/runtime API generated-contract owner and G integration; E verifies dependency effects"
+    }
+  ],
+  "architecture_E_delta": {
+    "reported_current_edge_denominator": 163,
+    "E_changed_source_reports": 35,
+    "exact_new_E_import_reports": 12,
+    "exact_new_edges": [
+      {
+        "source_module": "polisyos.calibration.continuous",
+        "target_module": "polisyos.core.artifacts",
+        "path": "policy-engine/src/polisyos/calibration/continuous.py",
+        "E_changed_path": true,
+        "exact_target_import_present_at_base": false,
+        "exact_target_import_present_at_candidate": true
+      },
+      {
+        "source_module": "polisyos.calibration.continuous",
+        "target_module": "polisyos.core.canon",
+        "path": "policy-engine/src/polisyos/calibration/continuous.py",
+        "E_changed_path": true,
+        "exact_target_import_present_at_base": false,
+        "exact_target_import_present_at_candidate": true
+      },
+      {
+        "source_module": "polisyos.calibration.forecast_bridge",
+        "target_module": "polisyos.ir.analytics.forecasting_uncertainty",
+        "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+        "E_changed_path": true,
+        "exact_target_import_present_at_base": false,
+        "exact_target_import_present_at_candidate": true
+      },
+      {
+        "source_module": "polisyos.foundry.methods.catalog.econometrics.advanced",
+        "target_module": "polisyos.core.artifacts",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+        "E_changed_path": true,
+        "exact_target_import_present_at_base": false,
+        "exact_target_import_present_at_candidate": true
+      },
+      {
+        "source_module": "polisyos.foundry.uncertainty.sampling_admission",
+        "target_module": "polisyos.ir.analytics.uncertainty",
+        "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+        "E_changed_path": true,
+        "exact_target_import_present_at_base": false,
+        "exact_target_import_present_at_candidate": true
+      },
+      {
+        "source_module": "polisyos.scientist.methods.autotune.sensitivity_bridge",
+        "target_module": "polisyos.core.artifacts",
+        "path": "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+        "E_changed_path": true,
+        "exact_target_import_present_at_base": false,
+        "exact_target_import_present_at_candidate": true
+      },
+      {
+        "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+        "target_module": "polisyos.calibration.forecast_bridge",
+        "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+        "E_changed_path": true,
+        "exact_target_import_present_at_base": false,
+        "exact_target_import_present_at_candidate": true
+      },
+      {
+        "source_module": "polisyos.scientist.methods.doe._receipt",
+        "target_module": "polisyos.core.artifacts",
+        "path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+        "E_changed_path": true,
+        "exact_target_import_present_at_base": false,
+        "exact_target_import_present_at_candidate": true
+      },
+      {
+        "source_module": "polisyos.scientist.methods.doe._receipt",
+        "target_module": "polisyos.core.canon",
+        "path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+        "E_changed_path": true,
+        "exact_target_import_present_at_base": false,
+        "exact_target_import_present_at_candidate": true
+      },
+      {
+        "source_module": "polisyos.scientist.methods.search.sensitivity_adapter",
+        "target_module": "polisyos.core.artifacts",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+        "E_changed_path": true,
+        "exact_target_import_present_at_base": false,
+        "exact_target_import_present_at_candidate": true
+      },
+      {
+        "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+        "target_module": "polisyos.foundry.uncertainty.sampling_admission",
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+        "E_changed_path": true,
+        "exact_target_import_present_at_base": false,
+        "exact_target_import_present_at_candidate": true
+      },
+      {
+        "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+        "target_module": "polisyos.foundry.uncertainty.sampling_admission",
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+        "E_changed_path": true,
+        "exact_target_import_present_at_base": false,
+        "exact_target_import_present_at_candidate": true
+      }
+    ],
+    "comparison": "AST Import/ImportFrom module sets from complete logged source paths read via git show at exact BASE and TARGET; not a gate replay.",
+    "P41_inherited_red_attribution": "not_established;12 newly introduced E exact imports preclude wholesale inherited architecture label"
+  },
+  "stopped_steps": {
+    "workspace_verify": {
+      "parent_outcome": "FAIL",
+      "doctor": "PASS after browser setup",
+      "lint_imports": "FAIL",
+      "later_backend_checks_and_pytest": "UNRUN in this workspace parent command; separate six selected pytest groups retain their own outcomes"
+    },
+    "ci_parity": {
+      "parent_outcome": "FAIL",
+      "doctor": "FAIL generated schema/OpenAPI freshness after browser setup",
+      "nested_backend_verify_runtime_http_last_mile_docs_frontend": "UNRUN in this CI parent command; doctor frontend-contract fixture PASS is a separate bounded check"
+    },
+    "initial_browser_failure": "Initial workspace/CI FAIL logs remain preserved. Browser installation resolved environment availability and enabled later checks; it does not erase prior recorded outcomes or close current failures."
+  },
+  "P41": {
+    "exact_predating_E_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "exact_gate_replay_on_base": "UNRUN by this read-only task",
+    "inherited_red": "not_established",
+    "path_disjoint_warning": "Zero intersection of listed violation paths is not zero intersection of complete gate input denominator. Source text presence comparison is not exact replay."
+  },
+  "source_invocation_limits": {
+    "reported_regressions": [
+      "polisyos.calibration.forecast_bridge.load_forecast_candidate_receipt",
+      "polisyos.ddm.integration.model_registry.build_model_registry_record",
+      "polisyos.ddm.integration.model_registry.evaluate_registry_gate",
+      "polisyos.ddm.integration.model_registry.rebind_calibration_validity",
+      "polisyos.ddm.integration.monitor.DriftAndDegradationMonitor.evaluate_window",
+      "polisyos.foundry.calibration.report.put_calibration_report",
+      "polisyos.scientist.methods.autotune.sensitivity_bridge.SensitivityBridge.analyze_search_space",
+      "polisyos.scientist.methods.backtesting.bootstrap.bootstrap_metric",
+      "polisyos.scientist.methods.backtesting.evaluator.PredictionEvaluator.evaluate",
+      "polisyos.scientist.methods.backtesting.forecast_owner.persist_forecast_owner_request",
+      "polisyos.scientist.methods.backtesting.trust_scorer.TrustScorer.compute"
+    ],
+    "reported_new_unresolved_count": 42,
+    "measured": "Static direct-call reachability from project scripts and non-test __main__ guards, stopping at deferred bodies.",
+    "unmeasured": [
+      "HTTP router dispatch",
+      "dependency injection/container dispatch",
+      "event-bus dispatch",
+      "registered callback invocation",
+      "deferred lambda/coroutine execution and generator resumption",
+      "reflection and dynamic receiver/factory resolution",
+      "runtime execution, persisted business receipts, and gate substance"
+    ],
+    "runtime_invocation_established": false,
+    "no_static_absence_promoted_to_production_absence": true
+  },
+  "finding_closure": "No committed finding status altered. B197 remains held/limited; B198 closed regression preserved. Common selected tests and code acceptance are separate from all22 bundles/54 finding verdicts retained by root.",
+  "full_output_integrity": {
+    "receipt_and_stdout_hashes": {
+      "actual-environment.json": {
+        "bytes": 2030,
+        "sha256": "0cc0264b39a8893c1c22b50c3e54273207fd68e2ab0550b7079fbd415d8a1f7b"
+      },
+      "architecture.json": {
+        "bytes": 1730,
+        "sha256": "411961e65e56c1563be08a34dfdcfc54817ee7ab5442da5cdbaa1231b51575f6"
+      },
+      "architecture.stdout.txt": {
+        "bytes": 124529,
+        "sha256": "6bb0ccdca1391f8aac910bfd29959eb2ceaa16971aaf263bf8a6677600b73788"
+      },
+      "ci-parity-after-browser.json": {
+        "bytes": 1821,
+        "sha256": "594c1bb6ef4fcc880f1f72e028bdf499b19a26aff19cb55e18d48f3ae02ce5d5"
+      },
+      "ci-parity-after-browser.stdout.txt": {
+        "bytes": 16495,
+        "sha256": "fd909f3dda92ff5ea831eb5b8e666f58036eb0fc4f39ae5d251f30ff6f048942"
+      },
+      "ci-parity.json": {
+        "bytes": 1806,
+        "sha256": "17eb8cae28fc05a1c09373e3e7dfef93a4ec8cf6357913024c93480453e4c151"
+      },
+      "ci-parity.stdout.txt": {
+        "bytes": 17833,
+        "sha256": "e480591f6aa2268c492aa5b064760f7ee779d946fadf5d86d0d828da40bbc726"
+      },
+      "frozen-candidate.json": {
+        "bytes": 41366,
+        "sha256": "317d18c85012874db76c0366175b58eb23feff9d9a55e8b8c2f0af0ccc01f766"
+      },
+      "production-invocation-output.json": {
+        "bytes": 617,
+        "sha256": "1849f8fd4b20dd39a369c7b85987d4cdd471928cc4879ae0ebb64adc9c72968d"
+      },
+      "production-invocation.json": {
+        "bytes": 1968,
+        "sha256": "f0dbb8341e807227cee85d729aecccaf8ba84963ca852eb202ac319eb1fb1c92"
+      },
+      "production-invocation.stdout.txt": {
+        "bytes": 5337,
+        "sha256": "ce3e4020e8a1e4146491f1c9faf0dbcd2b4cd4030e54cde9d61f70e6ab078abc"
+      },
+      "pytest-bkt-frc-s10-and-adjacent-report-consumers.json": {
+        "bytes": 3529,
+        "sha256": "06caf737071f8c2c0277371cf1fca0b3643e14e1e279def999e987dea41a702d"
+      },
+      "pytest-bkt-frc-s10-and-adjacent-report-consumers.stdout.txt": {
+        "bytes": 7123,
+        "sha256": "633a17dac9cd7f8947de8ea174fc87ea66a8f9330e32c6ad788e26b75702e591"
+      },
+      "pytest-cal-and-welfare-consumer.json": {
+        "bytes": 3502,
+        "sha256": "4c54933ba9a3fa7fdf30f815a6b097007283529696249107c949706648af918c"
+      },
+      "pytest-cal-and-welfare-consumer.stdout.txt": {
+        "bytes": 832,
+        "sha256": "4d8aa480b4f52b184c66d19a2e9a01d3701a129b36dd354a559fa483956d9b06"
+      },
+      "pytest-ddm-runtime-and-facade.json": {
+        "bytes": 2816,
+        "sha256": "e3e4380d835340f15883bd0ebe42a4182a2e267efc68a93d3f862646d1257778"
+      },
+      "pytest-ddm-runtime-and-facade.stdout.txt": {
+        "bytes": 579,
+        "sha256": "c3ae052f8ed3d5db3f62915801bc690410226cae788da874d77d4da20d01e127"
+      },
+      "pytest-doe-salib-and-consumer-factory.json": {
+        "bytes": 2829,
+        "sha256": "6852fcc72824d18ae54402777319d2f77ab4e77ab59f2b51f2fb760298f04b5b"
+      },
+      "pytest-doe-salib-and-consumer-factory.stdout.txt": {
+        "bytes": 1937,
+        "sha256": "c2059319db80f7dbf2ddc717acf39c81242d64bc9820a20bd0eb93373b513486"
+      },
+      "pytest-mc-joint-law-support-and-scientist-consumer.json": {
+        "bytes": 3419,
+        "sha256": "a9520d3b6184d63440a1181af050d5ea26a39d31e4275e0d17c3fa4d0447220a"
+      },
+      "pytest-mc-joint-law-support-and-scientist-consumer.stdout.txt": {
+        "bytes": 1400,
+        "sha256": "d1085d08f4925e421ad0ea47e12842893daadbc5b370414796bb865f700fd5e6"
+      },
+      "pytest-pcl-continuous-persistence.json": {
+        "bytes": 2410,
+        "sha256": "33e8d871888b21d7131c1e61ff6daeab95391a46a2ec67a75ddc39d830408aa4"
+      },
+      "pytest-pcl-continuous-persistence.stdout.txt": {
+        "bytes": 660,
+        "sha256": "d7301238921bbbb0e6974692a167329a0ff6ce71c4fbe101eaf431055b7a1625"
+      },
+      "ruff-format.json": {
+        "bytes": 6714,
+        "sha256": "d510159610783f6fdc5ca77544cf42d67708176d30e287e383bc68ca11098f98"
+      },
+      "ruff-format.stdout.txt": {
+        "bytes": 27,
+        "sha256": "a70f7dd4dea92217153fb5f41f49b47f586ab31ecae1d696942f53ccf1180f9e"
+      },
+      "ruff.json": {
+        "bytes": 6692,
+        "sha256": "1d7180a77c32ce54aca994354cfa86d8ef1e6e7168682f5d83638926dc592eb5"
+      },
+      "ruff.stdout.txt": {
+        "bytes": 19,
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      "runtime-api-contract.json": {
+        "bytes": 1735,
+        "sha256": "4f65885e349367dcb87de21793f312c3e7be56aa6facb41674d11bcfbb26f6f2"
+      },
+      "runtime-api-contract.stdout.txt": {
+        "bytes": 13051,
+        "sha256": "9e85dee4e67ca93de075c29501d95f809f2e6b5ed3b17ef393abca7f1c613c90"
+      },
+      "summary.json": {
+        "bytes": 20327,
+        "sha256": "361fbbe62b9fb0f0132bda6e47960af044f81fe34a3407e7ae9c4b6ccc97081a"
+      },
+      "workspace-verify-after-browser.json": {
+        "bytes": 1824,
+        "sha256": "285c131ce86ac8005e6844cce9b9fc7ac2429b738c88e56f4d37fc6cb2344dd0"
+      },
+      "workspace-verify-after-browser.stdout.txt": {
+        "bytes": 8952,
+        "sha256": "ae5476f42180bed143dd7e2d5dc60aeb8dff3af50aac14352d11d1baa8fe3621"
+      },
+      "workspace-verify.json": {
+        "bytes": 1810,
+        "sha256": "ecb4076e7f508949edd33c4db1f367438d628e0811c8ad86d6c4c224ad68749a"
+      },
+      "workspace-verify.stdout.txt": {
+        "bytes": 3305,
+        "sha256": "08b952e55207ee6b0cf1f109802486e7e24018e600ec3df6d32b543dfe0e587d"
+      }
+    },
+    "production_invocation": {
+      "schema": "policyos.e02.full_compressed_output.v1",
+      "raw_path": "/workspace/e02-E-20261006-receipts/common-wave/production-invocation.raw.json",
+      "raw_bytes": 171393890,
+      "raw_sha256": "69dad1e3da2e3de4a800fb5654fbfaafdb5b9209751599e1367d7005f6d721c1",
+      "compressed_path": "/workspace/e02-E-20261006-receipts/common-wave/production-invocation.raw.json.gz",
+      "compressed_bytes": 6004399,
+      "compressed_sha256": "eb6dd0f2f832a1e45145c72f5f2241fcefdcdb3e8ce7fb0de009ff8c7330584c",
+      "complete_output_preserved": true,
+      "replay": "Read with gzip.open(path, rt); no filtering of the full diagnostic receipt."
+    },
+    "gzip_inflation_sha256": "69dad1e3da2e3de4a800fb5654fbfaafdb5b9209751599e1367d7005f6d721c1",
+    "all_complete_deciding_outputs_preserved": true,
+    "no_log_or_fixture_deletions": true
+  },
+  "remaining_owner_actions": [
+    "E family architecture followup for exact12 new import edges; G architecture owner reviews chosen canonical facades/admission without silently updating global baseline.",
+    "A repairs or reconciles two exact FRC generation-cycle consumer tests on the frozen candidate, including distinct time roles and explicit blocked S6 limitation; E provides typed producer artifacts/refs and does not write A shared generation_cycle.py.",
+    "A/runtime/IR generated owners address schema/OpenAPI/trust-posture freshness after measuring exact dependency closure; no inherited-red waiver without P41 replay.",
+    "G completes parent-gate steps currently UNRUN after blocker repair on one newly admitted candidate; coordinates required local read-only production/source-law checks by per-finding criterion."
+  ],
+  "cleanup_policy": "Preserve complete deciding logs, receipts and unique outputs. Root handoff lists reconstructible pytest temp dirs and used environment/browser caches as exact Trash candidates; no permanent deletion or Trash emptying by reviewer."
+}

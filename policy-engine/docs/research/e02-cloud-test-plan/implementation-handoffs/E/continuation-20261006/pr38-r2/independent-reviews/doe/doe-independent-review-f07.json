@@ -1,0 +1,331 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "unit": "E",
+  "reviewer": "cal_uq_r3 acting as independent DoE reviewer, not f07 author",
+  "reviewed_at": "2026-10-06T13:32:38.797378+00:00",
+  "source_sha": "f07b7d485531b96a206ae9b2aad7acf5f2755324",
+  "source_tree": "8dcd5c26a4868e1b055a54a6cd53365e9d5890f3",
+  "slice_base_sha": "028829629a9c30454e44d25e7bea7be3ea05b561",
+  "lane_head": "041db8182e043037ff676ac968b9f74b86a867ad",
+  "receipt_only_delta_to_lane_head": true,
+  "code_verdict": "GO",
+  "code_verdict_scope": "Bounded canonical SALib Sobol whole-block admission, native interaction quantities, immutable ordered receipt and actual persisted sensitivity reader; default Search orchestration and evaluator provenance excluded explicitly",
+  "full_capability_verdict": "LIMITED: D default Search bridge/carrier/actual ranking-dependent proposal consumer remain missing",
+  "numeric_backend": "SALib 1.5.2 / NumPy 2.3.5 native CPU float64 samples, actual sampler/analyzer",
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "numpy": "2.3.5",
+    "SALib": "1.5.2",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "thread_caps": {},
+    "UV_NO_SYNC": "1"
+  },
+  "caps": "none artificially applied; UV_NO_SYNC=1, root existing interpreter reused read-only",
+  "source_integrity": {
+    "all_tracked_source_files_before_after_identical": 2912,
+    "source_snapshot_sha256": "5e3a2534ae2186ac577103371cf3d0c984ce7f358283674a184522bdb0ba0ef0",
+    "source_metadata_origin": "all837 loaded polisyos modules from reviewed lane in native and fresh processes",
+    "analysis_sha256": "db87129797adc4c8c882655a95edd789b44381c47af85cff658e91e1f658e81c",
+    "source_vs_candidate_git_delta": [],
+    "lane_clean": true
+  },
+  "requirements_to_evidence": [
+    {
+      "requirement": "Independent native interaction estimands",
+      "oracle": "E[Y]=3/2; Var(Y)=25/36 from moments E[X^k]=1/(k+1); Var(E[Y|X])=1/3 each; Var(2(X-.5)(Z-.5))=1/36; S1=.48, S2=.04, ST=.52",
+      "observed": {
+        "S1": {
+          "x": 0.4822708720736341,
+          "z": 0.48262772408733584
+        },
+        "S2": {
+          "x": {
+            "z": 0.038085452106164375
+          }
+        },
+        "ST": {
+          "x": 0.5199491843337259,
+          "z": 0.5232121997761711
+        },
+        "runs": 6144,
+        "dtype": "float64"
+      },
+      "tolerance": ".01 absolute per index, declared before reading numerical outputs",
+      "result": "PASS"
+    },
+    {
+      "requirement": "Complete paired block reorder preserves estimands and binds new order",
+      "oracle": "Permute each A/AB/BA/B block with exactly its paired Y; unchanged row roles preserve point variance decomposition",
+      "observed": {
+        "S1": {
+          "x": 0.48227087207363406,
+          "z": 0.4826277240873359
+        },
+        "S2": {
+          "x": {
+            "z": 0.03808545210616443
+          }
+        },
+        "ST": {
+          "x": 0.5199491843337258,
+          "z": 0.5232121997761712
+        },
+        "old_analysis_id": "09c7d251d698a27171502b5eded26414280501bc15c3e22853e2dc49cc19a144",
+        "new_analysis_id": "28ffa60edb11ff533bbf8d8a4360deb2d1f324bc90646fce75fb99cdd1c8677b"
+      },
+      "comparison_tolerance": "1e-12 absolute point-index equality; content/design/analysis IDs must differ",
+      "result": "PASS"
+    },
+    {
+      "requirement": "Multiplicity and interior role invalidity",
+      "negative_inputs": [
+        "duplicate complete block",
+        "missing complete block",
+        "inside-block row swap",
+        "wrong seed",
+        "wrong distribution"
+      ],
+      "result": "PASS: canonical seeded design rejection"
+    },
+    {
+      "requirement": "Present but fake receipt/properties",
+      "negative_inputs": [
+        "stale original receipt after paired block reorder",
+        "misaligned finite Y with original result receipt",
+        "S2=.99 with valid content hash",
+        "successful count decremented",
+        "wrong kind/schema/purpose",
+        "current analyzer version mismatch",
+        "current same-version numeric S2 mismatch"
+      ],
+      "result": "PASS: actual from_artifact/_load_analysis recomputation rejects; current analyzer change and marker-preserving interaction removal distinguished"
+    },
+    {
+      "requirement": "Real configured producer and fresh CAS consumer",
+      "observed": "SensitivityBridge executed6144 evaluator calls; exact ref equals own sampler/analyzer receipt. Separate new process resolves canonical/permuted/Morris refs through existing from_artifact, verifies single/batch IDs/purpose and refuses all7 content-valid forgeries",
+      "result": "PASS"
+    },
+    {
+      "requirement": "Morris defined full-range scale unchanged",
+      "oracle": "y=2x+3z, x[0,10], z[0,1] -> (20,3)",
+      "observed": "8 whole trajectories /24 actual runs and fresh persisted consumer; no broad Morris/PCA/coverage wave",
+      "result": "PASS within scale/whole-trajectory reuse scope"
+    },
+    {
+      "requirement": "Unknown/dependent Sobol law or missing seed",
+      "observed": "Three pre-evaluator controls, zero actual evaluator calls",
+      "result": "PASS"
+    },
+    {
+      "requirement": "Default Search consumer path",
+      "observed": "SearchLoopRunner.run selects spec.candidate_generator and passes it to SearchController then _NativeSearchServiceDriver. No bridge/from_artifact call or ranking-dependent proposal action is established. Actual PydanticMutationCodec accepts base MutationArtifact and refuses decorated _sensitivity payload with extra_forbidden",
+      "result": "RESIDUAL: precise D handoff, not complete default-consumer witness"
+    }
+  ],
+  "fresh_checks": [
+    {
+      "name": "independent native controls",
+      "count": 24,
+      "outcome": "PASS",
+      "timing": {
+        "wall_s": 13.356593497999711,
+        "user_cpu_s": 12.829226,
+        "system_cpu_s": 0.811855,
+        "rss_kib": 639564,
+        "exit_code": 0,
+        "timing_backend": "Python resource.RUSAGE_CHILDREN, Linux ru_maxrss KiB; one child"
+      }
+    },
+    {
+      "name": "new-process CAS consumer controls",
+      "count": 10,
+      "outcome": "PASS",
+      "timing": {
+        "wall_s": 17.33713928400539,
+        "user_cpu_s": 14.685855,
+        "system_cpu_s": 1.233895,
+        "rss_kib": 631120,
+        "exit_code": 0,
+        "timing_backend": "Python resource.RUSAGE_CHILDREN, Linux ru_maxrss KiB; one child"
+      }
+    },
+    {
+      "name": "targeted repository interaction/receipt selectors",
+      "count": 25,
+      "outcome": "PASS",
+      "reported_wall_s": 9.26
+    },
+    {
+      "name": "Ruff and format changed source/tests",
+      "outcome": "PASS"
+    },
+    {
+      "name": "actual default-codec and source-pair declaration boundary",
+      "outcome": "observed declared owner residual",
+      "timing": {
+        "wall_s": 11.410680710003362,
+        "user_cpu_s": 11.136848,
+        "system_cpu_s": 0.59983,
+        "rss_kib": 628256,
+        "exit_code": 0
+      }
+    }
+  ],
+  "commands": [
+    "UV_NO_SYNC=1 PYTHONPATH=/workspace/e02-E-doe-20261006/policy-engine/src /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python /workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe_independent.py",
+    "UV_NO_SYNC=1 PYTHONPATH=/workspace/e02-E-doe-20261006/policy-engine/src /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python /workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe_independent.py fresh",
+    "UV_NO_SYNC=1 PYTHONPATH=/workspace/e02-E-doe-20261006/policy-engine/src /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python -m pytest -o addopts='' -q policy-engine/tests/unit/scientist/methods/doe/test_analysis_enhanced.py::TestS2InteractionRanking policy-engine/tests/unit/scientist/methods/doe/test_analysis_receipt.py",
+    "UV_NO_SYNC=1 PYTHONPATH=/workspace/e02-E-doe-20261006/policy-engine/src /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python /workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe_consumer_boundary.py"
+  ],
+  "D_consumer_packet_read": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-block-replay-20261006/D-consumer-packet.md@041db8182e043037ff676ac968b9f74b86a867ad",
+  "D_packet_correction": {
+    "canonical_owner": "D Scientist Search/autotune",
+    "exact_paths": [
+      "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py::SearchLoopRunner.run",
+      "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py::SearchLoopRunner._evaluate_candidate",
+      "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py::PydanticMutationCodec.decode",
+      "policy-engine/src/polisyos/scientist/methods/autotune/models.py::MutationArtifact",
+      "policy-engine/src/polisyos/scientist/methods/autotune/models.py::SearchLoopSpec",
+      "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py::SensitivityAwareCandidateGenerator.generate/generate_batch"
+    ],
+    "actual_exception": {
+      "type": "ValidationError",
+      "message": "1 validation error for MutationArtifact\n_sensitivity\n  Extra inputs are not permitted [type=extra_forbidden, input_value={'ranking': ['z', 'x'], '...tus': 'not_established'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden"
+    },
+    "minimum_inputs": [
+      "admitted actual mutation/parameter coordinates and bounds/distribution/units",
+      "real evaluator and exploratory purpose",
+      "explicit independent Sobol experimental law or supported Morris plan",
+      "seed and numerical budget",
+      "configured CAS store shared with real SearchLoopRunner",
+      "owner-chosen compatible metadata/ref carrier through actual codec, persisted mutation/evaluation and reopened Search state"
+    ],
+    "minimum_next_result": "Default native SearchLoopRunner actually executes ranking-dependent proposals and persists/reopens exact analysis_ref/design_id/analysis_id through admitted codec/carrier; changed evaluator interaction changes applied recomputed sensitivity, and property removal with markers retained breaks this witness. Merely decorating candidate metadata is insufficient.",
+    "surface_state": "bridge_missing / consumer_missing for ranking-dependent default Search; current supplied-generator consumption exists but typed metadata carrier admission is missing"
+  },
+  "evaluator_provenance_boundary": {
+    "numerical_readback": "accepted supplied X/Y",
+    "evaluator_provenance": "not_established",
+    "population_law_status": "not_established",
+    "authority_purpose": "exploratory_parameter_experiment",
+    "analysis_ref": {
+      "artifact_id": "sha256:6bf9d1443ce25ac38c222171102b28e3947be8a10ce11d51af6cbb61e65a0534",
+      "kind": "doe_sensitivity_analysis",
+      "media_type": "application/json"
+    }
+  },
+  "predicate_basis": {
+    "canonical block membership/role/multiplicity": "recomputed",
+    "ordered X/Y and numerical receipt readback": "recomputed",
+    "analytic fixture ANOVA": "independently_reconciled",
+    "declared experimental product law": "consumer_asserted; exploratory scope only",
+    "population input law/evaluator-produced row pairing/default Search behavior": "not_established"
+  },
+  "P37_P38_controls": "Changing preserved hash/kind/protocol/profile markers without matching quantitative result does not pass reader. Coherent newly recomputed arbitrary X/Y receipt is explicitly not evidence of evaluator pairing; payload keeps evaluator_provenance=not_established and exploratory purpose.",
+  "P40_bucket": "Counter/estimand/receipt class is repaired at whole-block quantities. Default Search carrier + orchestration is a distinct explicit canonical-D boundary; no instance E edit attempted.",
+  "P41": "No inherited-red claim. Fresh current-source codec refusal documented as D owner residual; no exact base replay/full denominator intersection was executed for it. Harness errors below are not product failures.",
+  "harness_errors_resolved": [
+    {
+      "initial": "/usr/bin/time absent, launch exit127 before review script",
+      "resolution": "stdlib subprocess/time/resource one-child full process timing; original output preserved"
+    },
+    {
+      "initial": "boundary script used json.loads on canonical float-tag payload, yielding Pydantic float_type errors after genuine codec witness",
+      "resolution": "decode with actual from_canonical_bytes; separate resolved boundary run completed; original error log preserved"
+    }
+  ],
+  "limits": [
+    "No production data/history used or transferred",
+    "Default Search authority and evaluator pairing provenance not established",
+    "No existing broad PCA/failure-policy/bootstrap/coverage wave repeated for unchanged code",
+    "No all54 finding verdict or ledger status changed; B97–B105 historical partial remains owner-adjudicated"
+  ],
+  "assets": [
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe_independent.py",
+      "sha256": "c0ef33d37cd371022c67eedde3da06cefd47cd205990ca2469266a29835e7cbb",
+      "bytes": 13745
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe_consumer_boundary.py",
+      "sha256": "229f464ee00e0244f71aab984bc279634ce53064a6a1837483068b178dc52095",
+      "bytes": 4514
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-native.log",
+      "sha256": "6146005c11440ad6457e578cf9009b6dd3ba8a31a592b2107c3441acc48d6198",
+      "bytes": 5222
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-native-receipt.json",
+      "sha256": "70e6b13070c75e0f9a3f119ceda6bd7575f11041ca347d1cf084858296894ada",
+      "bytes": 7674
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-native-timing.json",
+      "sha256": "13793a3477bb779f8a885c81e85bfc644ab8b516c49e02dc10b0a40a75d9d65b",
+      "bytes": 216
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-fresh.log",
+      "sha256": "e0d3c5846c280bacbcc01f42befd2481b20470bdfc3b28be6045d694bdb9ca55",
+      "bytes": 3435
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-fresh-receipt.json",
+      "sha256": "e97327e4efbda3f8a3e6352e6e683c43ccf52299ba207e2fdfe5805972418f27",
+      "bytes": 5195
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-fresh-timing.json",
+      "sha256": "d5f66ae4aec983cea849566ddd4cb53c1338a68618f1e75feb4bd3350335ea3b",
+      "bytes": 215
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-targeted.log",
+      "sha256": "8344ac07aaa8316530ce9eac7e762bc7c0a88a89c23a09642b10eb07f22669b3",
+      "bytes": 99
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-ruff.log",
+      "sha256": "c6486b51f483249343d4a4bdb91c41be31f0bdc28887b2f4cd4800e174f8bd6b",
+      "bytes": 45
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe_refs.json",
+      "sha256": "130194795032f4583c9940b7e2c4b61bc52fc508396498c0ff90d05e1ef29cb5",
+      "bytes": 2264
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-consumer-boundary.log",
+      "sha256": "46931e297c5e252139fdb09beed20e3c48c64d0bc89416e9615fb1511c924bb5",
+      "bytes": 913
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-consumer-boundary-receipt.json",
+      "sha256": "c1c9356e894d997046b7c7f1667e53d82a3a4aa3b24017538c876d17da201a47",
+      "bytes": 1420
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-boundary-timing.json",
+      "sha256": "bed8835d1bf7582177365beb108803ab6d95236d9e77a25034514378abef2688",
+      "bytes": 128
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-native-timing-bootstrap-error.log",
+      "sha256": "3e737f6a9117cec194b02103b357f8668fae9adb86a8a8cd0bf25efab8948548",
+      "bytes": 60
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-consumer-boundary-harness-error.log",
+      "sha256": "b6bea8edced6e3f3eb1672611db91e4c4ce0671cb14b72750288094a05473f52",
+      "bytes": 2667
+    }
+  ],
+  "git_writes": "none; root owns committing these moderate independent outputs",
+  "cleanup_candidates": [
+    "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-native-cas"
+  ],
+  "cleanup": "native Trash absent; no permanent deletion; preserve scripts, logs, receipts and useful data"
+}

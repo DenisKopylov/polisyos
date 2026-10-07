@@ -1,0 +1,6422 @@
+{
+  "D_sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+  "E_sha": "ec042402ec91fbdcb51006852e29fe67f38d9452",
+  "G_audit_sha": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+  "composition": "Exact three D Git blobs executed in memory over unchanged E root modules, not accepted D integration/code",
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-E-backtest-20261006/policy-engine/src",
+    "SALib": "1.5.2",
+    "caps_added": false,
+    "cpu_count": 5,
+    "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "numpy": "2.3.5",
+    "python": "3.14.7",
+    "scipy": "1.16.3"
+  },
+  "kind": "bounded generic native mechanism; no production history/sampling-law admission",
+  "limitations": [
+    "No E code merged D source; overlay composition only",
+    "D missing-threshold complete/score1 escape remains D-owned",
+    "Stress report contains no persisted plan ref/threshold/metric unit/statistic version or source-law carrier",
+    "DOE sensitivity owns exploratory_parameter_experiment receipt, no automatic stress probability/threshold certificate",
+    "Blueprint regrouping denominator remains D-owned and was not dynamically executed here",
+    "Production history and population-law admissibility remain local owner checks"
+  ],
+  "missing_threshold_D_escape": {
+    "actual_rows": [
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      }
+    ],
+    "compiled_plan": {
+      "collect_top_k": 5,
+      "max_iterations": 96,
+      "parameter_specs": [
+        {
+          "baseline": null,
+          "description": "",
+          "distribution": "uniform",
+          "distribution_spec": null,
+          "lower_bound": 0.0,
+          "name": "x0",
+          "num_levels": 4,
+          "unit": "dimensionless",
+          "upper_bound": 1.0
+        },
+        {
+          "baseline": null,
+          "description": "",
+          "distribution": "uniform",
+          "distribution_spec": null,
+          "lower_bound": 0.0,
+          "name": "x1",
+          "num_levels": 4,
+          "unit": "dimensionless",
+          "upper_bound": 1.0
+        },
+        {
+          "baseline": null,
+          "description": "",
+          "distribution": "uniform",
+          "distribution_spec": null,
+          "lower_bound": 0.0,
+          "name": "x2",
+          "num_levels": 4,
+          "unit": "dimensionless",
+          "upper_bound": 1.0
+        },
+        {
+          "baseline": null,
+          "description": "",
+          "distribution": "uniform",
+          "distribution_spec": null,
+          "lower_bound": 0.0,
+          "name": "x3",
+          "num_levels": 4,
+          "unit": "dimensionless",
+          "upper_bound": 1.0
+        },
+        {
+          "baseline": null,
+          "description": "",
+          "distribution": "uniform",
+          "distribution_spec": null,
+          "lower_bound": 0.0,
+          "name": "x4",
+          "num_levels": 4,
+          "unit": "dimensionless",
+          "upper_bound": 1.0
+        },
+        {
+          "baseline": null,
+          "description": "",
+          "distribution": "uniform",
+          "distribution_spec": null,
+          "lower_bound": 0.0,
+          "name": "x5",
+          "num_levels": 4,
+          "unit": "dimensionless",
+          "upper_bound": 1.0
+        },
+        {
+          "baseline": null,
+          "description": "",
+          "distribution": "uniform",
+          "distribution_spec": null,
+          "lower_bound": 0.0,
+          "name": "x6",
+          "num_levels": 4,
+          "unit": "dimensionless",
+          "upper_bound": 1.0
+        },
+        {
+          "baseline": null,
+          "description": "",
+          "distribution": "uniform",
+          "distribution_spec": null,
+          "lower_bound": 0.0,
+          "name": "x7",
+          "num_levels": 4,
+          "unit": "dimensionless",
+          "upper_bound": 1.0
+        },
+        {
+          "baseline": null,
+          "description": "",
+          "distribution": "uniform",
+          "distribution_spec": null,
+          "lower_bound": 0.0,
+          "name": "x8",
+          "num_levels": 4,
+          "unit": "dimensionless",
+          "upper_bound": 1.0
+        },
+        {
+          "baseline": null,
+          "description": "",
+          "distribution": "uniform",
+          "distribution_spec": null,
+          "lower_bound": 0.0,
+          "name": "x9",
+          "num_levels": 4,
+          "unit": "dimensionless",
+          "upper_bound": 1.0
+        },
+        {
+          "baseline": null,
+          "description": "",
+          "distribution": "uniform",
+          "distribution_spec": null,
+          "lower_bound": 0.0,
+          "name": "x10",
+          "num_levels": 4,
+          "unit": "dimensionless",
+          "upper_bound": 1.0
+        },
+        {
+          "baseline": null,
+          "description": "",
+          "distribution": "uniform",
+          "distribution_spec": null,
+          "lower_bound": 0.0,
+          "name": "x11",
+          "num_levels": 4,
+          "unit": "dimensionless",
+          "upper_bound": 1.0
+        }
+      ],
+      "seed": null,
+      "stop_on_first_vulnerability": true,
+      "strategy": "grid_extreme",
+      "tail_percentile": 0.05,
+      "vulnerability_threshold": null
+    },
+    "fresh_report": {
+      "adversarial_plan_ref": null,
+      "cas_artifact_id": null,
+      "coverage_empirical": null,
+      "coverage_target": null,
+      "critical_count": 0,
+      "decision_packet_ref": null,
+      "fidelity_mode": "stress_preset",
+      "frontier_knee_rho": null,
+      "high_count": 0,
+      "inflation_budget": null,
+      "inflation_mean": null,
+      "medium_count": 0,
+      "metadata": {
+        "attempted": 96,
+        "completeness": true,
+        "evaluation_status": "complete",
+        "finite_evaluated": 96,
+        "invalid_evaluation_count": 0,
+        "objective_direction": "minimize",
+        "observed_vulnerability_count": 0,
+        "planned_scenarios": 96,
+        "presented_vulnerability_count": 0,
+        "score_formula": "(finite_evaluated-violated_scenarios)/finite_evaluated",
+        "score_scope": "observed_finite_scenarios",
+        "score_status": "observed",
+        "source_objective_direction": "minimize",
+        "stop_on_first_vulnerability": true,
+        "strategy": "grid_extreme",
+        "unique_vulnerability_count": 0,
+        "unknown_or_nonfinite": 0,
+        "valid_evaluation_count": 96,
+        "violated_scenarios": 0
+      },
+      "overconservatism_vulnerability": null,
+      "report_id": "stress.report.sha256_cf0ec75ed205771d19b29c27a0a457a6797971935721f628ef3b528297c0e03c",
+      "robustness_score": 1.0,
+      "schema_version": "1.0",
+      "set_adequacy_status": "complete",
+      "total_scenarios_evaluated": 96,
+      "undercoverage_vulnerability": null,
+      "vulnerabilities": [],
+      "worst_case_objective": 5.0,
+      "worst_case_parameters": {
+        "x0": 0.0,
+        "x1": 0.0,
+        "x10": 0.0,
+        "x11": 0.0,
+        "x2": 0.0,
+        "x3": 0.0,
+        "x4": 0.0,
+        "x5": 0.0,
+        "x6": 0.0,
+        "x7": 0.0,
+        "x8": 0.0,
+        "x9": 0.0
+      }
+    },
+    "grid_full_size": 4096,
+    "native_product_rows_yielded": 96,
+    "native_stage_b_calls": 96,
+    "scenario_bundle_ref": {
+      "artifact_id": "sha256:fd0cd33c65dd7209a3738578d12fb7cd7e9e95888957346b0893cd0058834086",
+      "kind": "scientist.policy_adversary_bundle",
+      "media_type": "application/json"
+    },
+    "scope": "declared bounded 96/4096 lexicographic corners; no full-space probability/robustness certificate",
+    "threshold_input": null
+  },
+  "runtime_checkout": {
+    "E_hot_path_files_match_pinned_root": true,
+    "other_root_delta_paths": [
+      "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+      "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+      "policy-engine/src/polisyos/scientist/nodes/README.md",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/README.md",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py"
+    ],
+    "sha": "2acc4c8116fdf12e3ce9ca76e203a6e4f00e90d4",
+    "tree": "ec5e9c2c57d9236f36b21b97bfe9eae48aca1121",
+    "whole_root_checkout_claim": false
+  },
+  "sensitivity": {
+    "analytic_statistic": "y=2*x+z; expected unit-coordinate Morris mu_star x=2,z=1",
+    "calls": [
+      {
+        "x": 1.0,
+        "z": 0.0
+      },
+      {
+        "x": 0.33333333333333337,
+        "z": 0.0
+      },
+      {
+        "x": 0.33333333333333337,
+        "z": 0.6666666666666666
+      },
+      {
+        "x": 0.6666666666666666,
+        "z": 0.33333333333333337
+      },
+      {
+        "x": 0.6666666666666666,
+        "z": 1.0
+      },
+      {
+        "x": 0.0,
+        "z": 1.0
+      },
+      {
+        "x": 0.0,
+        "z": 0.0
+      },
+      {
+        "x": 0.6666666666666666,
+        "z": 0.0
+      },
+      {
+        "x": 0.6666666666666666,
+        "z": 0.6666666666666666
+      },
+      {
+        "x": 0.6666666666666666,
+        "z": 0.0
+      },
+      {
+        "x": 0.0,
+        "z": 0.0
+      },
+      {
+        "x": 0.0,
+        "z": 0.6666666666666666
+      }
+    ],
+    "candidate": {
+      "_sensitivity": {
+        "analysis_id": "5f1089670aec6d9d85268100ff6349eba63a9af3979c1247d2700d7d43375198",
+        "analysis_ref": {
+          "artifact_id": "sha256:b69bdeb77f3a2db35c7f81611abd1cefceaba891fb147146b7acd2671e4d808b",
+          "kind": "doe_sensitivity_analysis",
+          "media_type": "application/json"
+        },
+        "authority_purpose": "exploratory_parameter_experiment",
+        "design_id": "fd1a6c8b89f48e32a48e3dd2c375faa1d071a71bec13621c09e782750637a184",
+        "exploration_factor": 1.5,
+        "focus_parameters": [
+          "x",
+          "z"
+        ],
+        "method": "morris",
+        "population_law_status": "not_established",
+        "ranking": [
+          "x",
+          "z"
+        ]
+      },
+      "x": 0.2,
+      "z": 0.3
+    },
+    "manifest": {
+      "artifact_id": "sha256:b69bdeb77f3a2db35c7f81611abd1cefceaba891fb147146b7acd2671e4d808b",
+      "artifact_schema": {
+        "name": "doe_sensitivity_analysis",
+        "version": "1.0"
+      },
+      "authority": null,
+      "byte_size": 4570,
+      "canon": {
+        "ensure_ascii": false,
+        "exclude_none": true,
+        "forbid_floats": false,
+        "forbid_nan_inf": true,
+        "max_depth": 128,
+        "name": "polisyos.canon.json",
+        "separators": [
+          ",",
+          ":"
+        ],
+        "sort_keys": true,
+        "version": "0.2.0"
+      },
+      "created_at": "2026-10-06T14:55:05Z",
+      "env": null,
+      "governance": null,
+      "inputs": [],
+      "integrity": {
+        "optional": null,
+        "sha256": "b69bdeb77f3a2db35c7f81611abd1cefceaba891fb147146b7acd2671e4d808b"
+      },
+      "kind": "doe_sensitivity_analysis",
+      "manifest_schema_version": "v3",
+      "media_type": "application/json",
+      "producer": null,
+      "same_input_closure": null,
+      "tenant_context": null,
+      "warnings": []
+    },
+    "oversized_pre_callback_refusal": {
+      "evaluator_calls": 0,
+      "message": "1 validation error for SensitivityPlan\n  Value error, SensitivityPlan estimated_runs exceeds max_estimated_runs. Increase max_estimated_runs or set allow_large_run=true to override. [type=value_error, input_value={'method': <SensitivityMe...max_estimated_runs': 11}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error",
+      "type": "ValidationError"
+    },
+    "payload": {
+      "authority_purpose": "exploratory_parameter_experiment",
+      "evaluator_provenance": "not_established",
+      "outputs": [
+        2.0,
+        0.6666666666666667,
+        1.3333333333333335,
+        1.6666666666666665,
+        2.333333333333333,
+        1.0,
+        0.0,
+        1.3333333333333333,
+        2.0,
+        1.3333333333333333,
+        0.0,
+        0.6666666666666666
+      ],
+      "plan": {
+        "allow_large_run": false,
+        "confidence_level": 0.95,
+        "input_law": "unknown",
+        "max_estimated_runs": 1000,
+        "max_wall_time_sec": null,
+        "method": "morris",
+        "min_success_rate": 0.9,
+        "n_trajectories": 4,
+        "parameter_specs": [
+          {
+            "baseline": null,
+            "description": "",
+            "distribution": "uniform",
+            "distribution_spec": null,
+            "lower_bound": 0.0,
+            "name": "x",
+            "num_levels": 4,
+            "unit": "dimensionless",
+            "upper_bound": 1.0
+          },
+          {
+            "baseline": null,
+            "description": "",
+            "distribution": "uniform",
+            "distribution_spec": null,
+            "lower_bound": 0.0,
+            "name": "z",
+            "num_levels": 4,
+            "unit": "dimensionless",
+            "upper_bound": 1.0
+          }
+        ],
+        "parameters": [],
+        "run_failure_policy": "fail_fast",
+        "seed": 31415,
+        "uncertainty": {
+          "enabled": false,
+          "interval_types": [
+            "marginal",
+            "simultaneous"
+          ],
+          "level": 0.95,
+          "method": "auto",
+          "n_resamples": 1999,
+          "random_seed": null,
+          "rank_uncertainty": true,
+          "simulated_rank_draws": 1999,
+          "studentized_inner_resamples": 99,
+          "top_k": [
+            1,
+            3
+          ],
+          "uncertainty_scope": "sampling_only"
+        }
+      },
+      "population_law_status": "not_established",
+      "protocol": "doe-analysis-v1",
+      "result": {
+        "failed_runs": 0,
+        "metadata": {
+          "analysis_id": "5f1089670aec6d9d85268100ff6349eba63a9af3979c1247d2700d7d43375198",
+          "analyzer": "SALib@1.5.2:morris",
+          "analyzer_seed": 3880388541,
+          "authority_purpose": "exploratory_parameter_experiment",
+          "design_id": "fd1a6c8b89f48e32a48e3dd2c375faa1d071a71bec13621c09e782750637a184",
+          "design_order_basis": "geometry_validated_provenance_not_established",
+          "distribution_mapping_fingerprint": "755c085c4c053e5b8e7a217dec6c67e6ff9737c43c7a565f1c803882f9da09cc",
+          "distribution_schema_version": "doe-distribution-v1",
+          "effective_run_count": 12,
+          "effective_trajectory_ids": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "estimated_runs": 12,
+          "failed_row_indices": [],
+          "failed_row_reasons": [],
+          "input_law": "unknown",
+          "input_law_basis": "consumer_asserted",
+          "morris_trajectory_size": 3,
+          "n_trajectories": 4,
+          "ordered_outputs_sha256": "7653561e848c20215af77d13f9541b67848f7d78f8f84a7a87e5fc31cc13615d",
+          "ordered_parameter_names": [
+            "x",
+            "z"
+          ],
+          "ordered_samples_sha256": "0ec7e3403d9f78b804de27447c606eff9024ddfd8a3141f864e97b1a041d3eb1",
+          "original_total_runs": 12,
+          "original_trajectory_ids": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "parameter_units": {
+            "x": "dimensionless",
+            "z": "dimensionless"
+          },
+          "plan_seed": 31415,
+          "point_effect_scale": "unit_coordinate_full_range",
+          "population_law_status": "not_established",
+          "run_failure_policy": "fail_fast",
+          "salib_backend": "SALib@1.5.2",
+          "uncertainty_status": "point_only_incomplete"
+        },
+        "method": "morris",
+        "mu_star": {
+          "x": 2.0,
+          "z": 1.0
+        },
+        "mu_star_conf": {
+          "x": [
+            2.7315114334557784e-16
+          ],
+          "z": [
+            1.7495675317470436e-16
+          ]
+        },
+        "parameter_names": [
+          "x",
+          "z"
+        ],
+        "ranking": [
+          "x",
+          "z"
+        ],
+        "s1": {},
+        "s1_conf": {},
+        "s2": {},
+        "schema_version": "1.0",
+        "sigma": {
+          "x": 2.5639502485114184e-16,
+          "z": 2.220446049250313e-16
+        },
+        "st": {},
+        "st_conf": {},
+        "successful_runs": 12,
+        "top_interactions": [],
+        "total_runs": 12,
+        "uncertainty": null
+      },
+      "samples": [
+        [
+          1.0,
+          0.0
+        ],
+        [
+          0.33333333333333337,
+          0.0
+        ],
+        [
+          0.33333333333333337,
+          0.6666666666666666
+        ],
+        [
+          0.6666666666666666,
+          0.33333333333333337
+        ],
+        [
+          0.6666666666666666,
+          1.0
+        ],
+        [
+          0.0,
+          1.0
+        ],
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.6666666666666666,
+          0.0
+        ],
+        [
+          0.6666666666666666,
+          0.6666666666666666
+        ],
+        [
+          0.6666666666666666,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.6666666666666666
+        ]
+      ]
+    },
+    "present_but_fake_ref": {
+      "artifact_id": "sha256:e8f15a4625427acf37896c2f2e0888746acfefe363eea4661b870ab8581293a2",
+      "kind": "doe_sensitivity_analysis",
+      "media_type": "application/json"
+    },
+    "present_but_fake_refusal": {
+      "message": "Persisted DOE sensitivity result does not reproduce",
+      "type": "ValueError"
+    },
+    "receipt_ref": {
+      "artifact_id": "sha256:b69bdeb77f3a2db35c7f81611abd1cefceaba891fb147146b7acd2671e4d808b",
+      "kind": "doe_sensitivity_analysis",
+      "media_type": "application/json"
+    },
+    "stress_actual_generator_consumer": {
+      "actual_E_decorated_generator_rows": 8,
+      "actual_stage_b_inputs": [
+        {
+          "sensitivity": null,
+          "x": 0.5156347084522415,
+          "z": 0.1526499206516998
+        },
+        {
+          "sensitivity": null,
+          "x": 0.12930696171053688,
+          "z": 0.3488312285558265
+        },
+        {
+          "sensitivity": null,
+          "x": 0.6497338308096586,
+          "z": 0.62547496907964
+        },
+        {
+          "sensitivity": null,
+          "x": 0.47801240960725705,
+          "z": 0.867326291783604
+        },
+        {
+          "sensitivity": null,
+          "x": 0.1930774967355287,
+          "z": 0.3057489404078492
+        },
+        {
+          "sensitivity": null,
+          "x": 0.18740475616301763,
+          "z": 0.049101759133924755
+        },
+        {
+          "sensitivity": null,
+          "x": 0.2788828846168783,
+          "z": 0.02613563532990253
+        },
+        {
+          "sensitivity": null,
+          "x": 0.07721150713735456,
+          "z": 0.4306003746423201
+        },
+        {
+          "sensitivity": null,
+          "x": 0.036347595288605615,
+          "z": 0.20756565891361098
+        },
+        {
+          "sensitivity": null,
+          "x": 0.37634244398722005,
+          "z": 0.707370612780041
+        },
+        {
+          "sensitivity": null,
+          "x": 0.3284304509111363,
+          "z": 0.09653168644869828
+        },
+        {
+          "sensitivity": null,
+          "x": 0.5794318938630886,
+          "z": 0.482073876232267
+        },
+        {
+          "sensitivity": null,
+          "x": 0.7765689071097538,
+          "z": 0.7684834316166028
+        },
+        {
+          "sensitivity": null,
+          "x": 0.690807137550385,
+          "z": 0.40432071811833215
+        },
+        {
+          "sensitivity": null,
+          "x": 0.11601884451829485,
+          "z": 0.7845439189802708
+        },
+        {
+          "sensitivity": null,
+          "x": 0.44159487427518035,
+          "z": 0.24758899407711038
+        },
+        {
+          "sensitivity": null,
+          "x": 0.7933334679712498,
+          "z": 0.08699532571812167
+        },
+        {
+          "sensitivity": null,
+          "x": 0.6107961944760251,
+          "z": 0.584323493479324
+        },
+        {
+          "sensitivity": null,
+          "x": 0.9894675958475105,
+          "z": 0.8756512061947621
+        },
+        {
+          "sensitivity": null,
+          "x": 0.5605775223318094,
+          "z": 0.9368052743607752
+        },
+        {
+          "sensitivity": null,
+          "x": 0.35904591982577866,
+          "z": 0.9458711008524798
+        },
+        {
+          "sensitivity": null,
+          "x": 0.2983236851648349,
+          "z": 0.9783839734267528
+        },
+        {
+          "sensitivity": null,
+          "x": 0.6842382925423326,
+          "z": 0.7464548596980156
+        },
+        {
+          "sensitivity": null,
+          "x": 0.0003860206393923177,
+          "z": 0.817271899954451
+        },
+        {
+          "sensitivity": null,
+          "x": 0.9050057168158638,
+          "z": 0.6874418469894444
+        },
+        {
+          "sensitivity": null,
+          "x": 0.4089204979861888,
+          "z": 0.2716068637673891
+        },
+        {
+          "sensitivity": null,
+          "x": 0.726714798494713,
+          "z": 0.5355221944530333
+        },
+        {
+          "sensitivity": null,
+          "x": 0.8705007438161758,
+          "z": 0.6172855198691926
+        },
+        {
+          "sensitivity": null,
+          "x": 0.9682192548789696,
+          "z": 0.5134194223309632
+        },
+        {
+          "sensitivity": null,
+          "x": 0.823375576638155,
+          "z": 0.4436409638584539
+        },
+        {
+          "sensitivity": null,
+          "x": 0.24214324318643626,
+          "z": 0.3335776640048461
+        },
+        {
+          "sensitivity": null,
+          "x": 0.9146490533991681,
+          "z": 0.1734580785050823
+        },
+        {
+          "sensitivity": {
+            "analysis_id": "5f1089670aec6d9d85268100ff6349eba63a9af3979c1247d2700d7d43375198",
+            "analysis_ref": {
+              "artifact_id": "sha256:b69bdeb77f3a2db35c7f81611abd1cefceaba891fb147146b7acd2671e4d808b",
+              "kind": "doe_sensitivity_analysis",
+              "media_type": "application/json"
+            },
+            "authority_purpose": "exploratory_parameter_experiment",
+            "design_id": "fd1a6c8b89f48e32a48e3dd2c375faa1d071a71bec13621c09e782750637a184",
+            "exploration_factor": 1.5,
+            "focus_parameters": [
+              "x",
+              "z"
+            ],
+            "method": "morris",
+            "population_law_status": "not_established",
+            "ranking": [
+              "x",
+              "z"
+            ]
+          },
+          "x": 0.2,
+          "z": 0.3
+        },
+        {
+          "sensitivity": {
+            "analysis_id": "5f1089670aec6d9d85268100ff6349eba63a9af3979c1247d2700d7d43375198",
+            "analysis_ref": {
+              "artifact_id": "sha256:b69bdeb77f3a2db35c7f81611abd1cefceaba891fb147146b7acd2671e4d808b",
+              "kind": "doe_sensitivity_analysis",
+              "media_type": "application/json"
+            },
+            "authority_purpose": "exploratory_parameter_experiment",
+            "design_id": "fd1a6c8b89f48e32a48e3dd2c375faa1d071a71bec13621c09e782750637a184",
+            "exploration_factor": 1.5,
+            "focus_parameters": [
+              "x",
+              "z"
+            ],
+            "method": "morris",
+            "population_law_status": "not_established",
+            "ranking": [
+              "x",
+              "z"
+            ]
+          },
+          "x": 0.2,
+          "z": 0.3
+        },
+        {
+          "sensitivity": {
+            "analysis_id": "5f1089670aec6d9d85268100ff6349eba63a9af3979c1247d2700d7d43375198",
+            "analysis_ref": {
+              "artifact_id": "sha256:b69bdeb77f3a2db35c7f81611abd1cefceaba891fb147146b7acd2671e4d808b",
+              "kind": "doe_sensitivity_analysis",
+              "media_type": "application/json"
+            },
+            "authority_purpose": "exploratory_parameter_experiment",
+            "design_id": "fd1a6c8b89f48e32a48e3dd2c375faa1d071a71bec13621c09e782750637a184",
+            "exploration_factor": 1.5,
+            "focus_parameters": [
+              "x",
+              "z"
+            ],
+            "method": "morris",
+            "population_law_status": "not_established",
+            "ranking": [
+              "x",
+              "z"
+            ]
+          },
+          "x": 0.2,
+          "z": 0.3
+        },
+        {
+          "sensitivity": {
+            "analysis_id": "5f1089670aec6d9d85268100ff6349eba63a9af3979c1247d2700d7d43375198",
+            "analysis_ref": {
+              "artifact_id": "sha256:b69bdeb77f3a2db35c7f81611abd1cefceaba891fb147146b7acd2671e4d808b",
+              "kind": "doe_sensitivity_analysis",
+              "media_type": "application/json"
+            },
+            "authority_purpose": "exploratory_parameter_experiment",
+            "design_id": "fd1a6c8b89f48e32a48e3dd2c375faa1d071a71bec13621c09e782750637a184",
+            "exploration_factor": 1.5,
+            "focus_parameters": [
+              "x",
+              "z"
+            ],
+            "method": "morris",
+            "population_law_status": "not_established",
+            "ranking": [
+              "x",
+              "z"
+            ]
+          },
+          "x": 0.2,
+          "z": 0.3
+        },
+        {
+          "sensitivity": {
+            "analysis_id": "5f1089670aec6d9d85268100ff6349eba63a9af3979c1247d2700d7d43375198",
+            "analysis_ref": {
+              "artifact_id": "sha256:b69bdeb77f3a2db35c7f81611abd1cefceaba891fb147146b7acd2671e4d808b",
+              "kind": "doe_sensitivity_analysis",
+              "media_type": "application/json"
+            },
+            "authority_purpose": "exploratory_parameter_experiment",
+            "design_id": "fd1a6c8b89f48e32a48e3dd2c375faa1d071a71bec13621c09e782750637a184",
+            "exploration_factor": 1.5,
+            "focus_parameters": [
+              "x",
+              "z"
+            ],
+            "method": "morris",
+            "population_law_status": "not_established",
+            "ranking": [
+              "x",
+              "z"
+            ]
+          },
+          "x": 0.2,
+          "z": 0.3
+        },
+        {
+          "sensitivity": {
+            "analysis_id": "5f1089670aec6d9d85268100ff6349eba63a9af3979c1247d2700d7d43375198",
+            "analysis_ref": {
+              "artifact_id": "sha256:b69bdeb77f3a2db35c7f81611abd1cefceaba891fb147146b7acd2671e4d808b",
+              "kind": "doe_sensitivity_analysis",
+              "media_type": "application/json"
+            },
+            "authority_purpose": "exploratory_parameter_experiment",
+            "design_id": "fd1a6c8b89f48e32a48e3dd2c375faa1d071a71bec13621c09e782750637a184",
+            "exploration_factor": 1.5,
+            "focus_parameters": [
+              "x",
+              "z"
+            ],
+            "method": "morris",
+            "population_law_status": "not_established",
+            "ranking": [
+              "x",
+              "z"
+            ]
+          },
+          "x": 0.2,
+          "z": 0.3
+        },
+        {
+          "sensitivity": {
+            "analysis_id": "5f1089670aec6d9d85268100ff6349eba63a9af3979c1247d2700d7d43375198",
+            "analysis_ref": {
+              "artifact_id": "sha256:b69bdeb77f3a2db35c7f81611abd1cefceaba891fb147146b7acd2671e4d808b",
+              "kind": "doe_sensitivity_analysis",
+              "media_type": "application/json"
+            },
+            "authority_purpose": "exploratory_parameter_experiment",
+            "design_id": "fd1a6c8b89f48e32a48e3dd2c375faa1d071a71bec13621c09e782750637a184",
+            "exploration_factor": 1.5,
+            "focus_parameters": [
+              "x",
+              "z"
+            ],
+            "method": "morris",
+            "population_law_status": "not_established",
+            "ranking": [
+              "x",
+              "z"
+            ]
+          },
+          "x": 0.2,
+          "z": 0.3
+        },
+        {
+          "sensitivity": {
+            "analysis_id": "5f1089670aec6d9d85268100ff6349eba63a9af3979c1247d2700d7d43375198",
+            "analysis_ref": {
+              "artifact_id": "sha256:b69bdeb77f3a2db35c7f81611abd1cefceaba891fb147146b7acd2671e4d808b",
+              "kind": "doe_sensitivity_analysis",
+              "media_type": "application/json"
+            },
+            "authority_purpose": "exploratory_parameter_experiment",
+            "design_id": "fd1a6c8b89f48e32a48e3dd2c375faa1d071a71bec13621c09e782750637a184",
+            "exploration_factor": 1.5,
+            "focus_parameters": [
+              "x",
+              "z"
+            ],
+            "method": "morris",
+            "population_law_status": "not_established",
+            "ranking": [
+              "x",
+              "z"
+            ]
+          },
+          "x": 0.2,
+          "z": 0.3
+        }
+      ],
+      "carrier_scope": "Existing caller accepts the explicit decorated generator; report manifest has no consumed DOE analysis input ref, no automatic production wiring is claimed",
+      "fresh_report": {
+        "adversarial_plan_ref": null,
+        "cas_artifact_id": null,
+        "coverage_empirical": null,
+        "coverage_target": null,
+        "critical_count": 0,
+        "decision_packet_ref": null,
+        "fidelity_mode": "stress_preset",
+        "frontier_knee_rho": null,
+        "high_count": 40,
+        "inflation_budget": null,
+        "inflation_mean": null,
+        "medium_count": 0,
+        "metadata": {
+          "attempted": 40,
+          "completeness": true,
+          "evaluation_status": "complete",
+          "finite_evaluated": 40,
+          "invalid_evaluation_count": 0,
+          "objective_direction": "minimize",
+          "observed_vulnerability_count": 40,
+          "planned_scenarios": 40,
+          "presented_vulnerability_count": 20,
+          "score_formula": "(finite_evaluated-violated_scenarios)/finite_evaluated",
+          "score_scope": "observed_finite_scenarios",
+          "score_status": "observed",
+          "source_objective_direction": "minimize",
+          "stop_on_first_vulnerability": false,
+          "strategy": "search_loop",
+          "unique_vulnerability_count": 33,
+          "unknown_or_nonfinite": 0,
+          "valid_evaluation_count": 40,
+          "violated_scenarios": 40
+        },
+        "overconservatism_vulnerability": null,
+        "report_id": "stress.report.sha256_1db9c3ba550591db63756bcaf9cf591de0250f17b7cadeb84db92335064e10e8",
+        "robustness_score": 0.0,
+        "schema_version": "1.0",
+        "set_adequacy_status": "complete",
+        "total_scenarios_evaluated": 40,
+        "undercoverage_vulnerability": null,
+        "vulnerabilities": [
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective -1.183919 violates threshold -10.000000 (badness -1.183919 >= -10.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": -1.1839193375561827,
+            "parameter_values": {
+              "x": 0.5156347084522415,
+              "z": 0.1526499206516998
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_0",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective -0.607445 violates threshold -10.000000 (badness -0.607445 >= -10.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": -0.6074451519769002,
+            "parameter_values": {
+              "x": 0.12930696171053688,
+              "z": 0.3488312285558265
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_1",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective -1.924943 violates threshold -10.000000 (badness -1.924943 >= -10.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": -1.9249426306989572,
+            "parameter_values": {
+              "x": 0.6497338308096586,
+              "z": 0.62547496907964
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_2",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective -1.823351 violates threshold -10.000000 (badness -1.823351 >= -10.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": -1.823351110998118,
+            "parameter_values": {
+              "x": 0.47801240960725705,
+              "z": 0.867326291783604
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_3",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective -0.691904 violates threshold -10.000000 (badness -0.691904 >= -10.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": -0.6919039338789066,
+            "parameter_values": {
+              "x": 0.1930774967355287,
+              "z": 0.3057489404078492
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_4",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective -0.423911 violates threshold -10.000000 (badness -0.423911 >= -10.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": -0.42391127145996,
+            "parameter_values": {
+              "x": 0.18740475616301763,
+              "z": 0.049101759133924755
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_5",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective -0.583901 violates threshold -10.000000 (badness -0.583901 >= -10.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": -0.5839014045636591,
+            "parameter_values": {
+              "x": 0.2788828846168783,
+              "z": 0.02613563532990253
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_6",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective -0.585023 violates threshold -10.000000 (badness -0.585023 >= -10.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": -0.5850233889170292,
+            "parameter_values": {
+              "x": 0.07721150713735456,
+              "z": 0.4306003746423201
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_7",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective -0.280261 violates threshold -10.000000 (badness -0.280261 >= -10.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": -0.2802608494908222,
+            "parameter_values": {
+              "x": 0.036347595288605615,
+              "z": 0.20756565891361098
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_8",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective -1.460056 violates threshold -10.000000 (badness -1.460056 >= -10.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": -1.460055500754481,
+            "parameter_values": {
+              "x": 0.37634244398722005,
+              "z": 0.707370612780041
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_9",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective -0.753393 violates threshold -10.000000 (badness -0.753393 >= -10.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": -0.7533925882709709,
+            "parameter_values": {
+              "x": 0.3284304509111363,
+              "z": 0.09653168644869828
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_10",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective -1.640938 violates threshold -10.000000 (badness -1.640938 >= -10.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": -1.640937663958444,
+            "parameter_values": {
+              "x": 0.5794318938630886,
+              "z": 0.482073876232267
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_11",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective -2.321621 violates threshold -10.000000 (badness -2.321621 >= -10.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": -2.3216212458361105,
+            "parameter_values": {
+              "x": 0.7765689071097538,
+              "z": 0.7684834316166028
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_12",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective -1.785935 violates threshold -10.000000 (badness -1.785935 >= -10.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": -1.7859349932191022,
+            "parameter_values": {
+              "x": 0.690807137550385,
+              "z": 0.40432071811833215
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_13",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective -1.016582 violates threshold -10.000000 (badness -1.016582 >= -10.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": -1.0165816080168604,
+            "parameter_values": {
+              "x": 0.11601884451829485,
+              "z": 0.7845439189802708
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_14",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective -1.130779 violates threshold -10.000000 (badness -1.130779 >= -10.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": -1.1307787426274711,
+            "parameter_values": {
+              "x": 0.44159487427518035,
+              "z": 0.24758899407711038
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_15",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective -1.673662 violates threshold -10.000000 (badness -1.673662 >= -10.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": -1.6736622616606214,
+            "parameter_values": {
+              "x": 0.7933334679712498,
+              "z": 0.08699532571812167
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_16",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective -1.805916 violates threshold -10.000000 (badness -1.805916 >= -10.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": -1.8059158824313741,
+            "parameter_values": {
+              "x": 0.6107961944760251,
+              "z": 0.584323493479324
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_17",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective -2.854586 violates threshold -10.000000 (badness -2.854586 >= -10.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": -2.854586397889783,
+            "parameter_values": {
+              "x": 0.9894675958475105,
+              "z": 0.8756512061947621
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_18",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective -2.057960 violates threshold -10.000000 (badness -2.057960 >= -10.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": -2.057960319024394,
+            "parameter_values": {
+              "x": 0.5605775223318094,
+              "z": 0.9368052743607752
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_19",
+            "vulnerability_type": "objective_collapse"
+          }
+        ],
+        "worst_case_objective": -0.2802608494908222,
+        "worst_case_parameters": {
+          "x": 0.036347595288605615,
+          "z": 0.20756565891361098
+        }
+      },
+      "native_LHS_rows": 32,
+      "requested": 40
+    }
+  },
+  "source": [
+    {
+      "blob": "c4803920b44c6429c2b8bb6447f3a00ef1383705",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "role": "E/root",
+      "sha": "ec042402ec91fbdcb51006852e29fe67f38d9452",
+      "sha256": "dd692e325fa59e218d06ec3dd41f2c5fd933f956b91432e2b8d243cacebed8a8"
+    },
+    {
+      "blob": "8e900abc324f80901b8b2c7a22f84563a1fac9c6",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+      "role": "E/root",
+      "sha": "ec042402ec91fbdcb51006852e29fe67f38d9452",
+      "sha256": "c27f8163d614b86bfd694560cdd7650a2736362763dfb404fb51d7d508601993"
+    },
+    {
+      "blob": "fe40ae4af8191165733294d5f227164c2d64fe5e",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+      "role": "E/root",
+      "sha": "ec042402ec91fbdcb51006852e29fe67f38d9452",
+      "sha256": "db87129797adc4c8c882655a95edd789b44381c47af85cff658e91e1f658e81c"
+    },
+    {
+      "blob": "312e1c86c0f6a9eaeec403ee91330b90edbf1bbe",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+      "role": "E/root",
+      "sha": "ec042402ec91fbdcb51006852e29fe67f38d9452",
+      "sha256": "d067cd402809c5a7dcf8d33ddda2b5414b4d67f27021751becfd99556b4e565b"
+    },
+    {
+      "blob": "d5bd7558fe70ca9925bf37e774c7cd326e00a335",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/stress_report.py",
+      "role": "E/root",
+      "sha": "ec042402ec91fbdcb51006852e29fe67f38d9452",
+      "sha256": "f6a76e683ef4fa3519d9af056e5b1466e2a26f2a8da4126d0353d9aa2b70bd17"
+    },
+    {
+      "blob": "c9f06d846f558d7ffb1db1db9013794503e430a1",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+      "role": "E/root",
+      "sha": "ec042402ec91fbdcb51006852e29fe67f38d9452",
+      "sha256": "d57967bd6f677d3613e3e1b2900d4cd1156855c774d1bd2a536778729622bafc"
+    },
+    {
+      "blob": "6ec3567995fac9550343013279d4bf12a269817a",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+      "role": "E/root",
+      "sha": "ec042402ec91fbdcb51006852e29fe67f38d9452",
+      "sha256": "c1a3b0550a853e6442c2e325d39436eabf6c266e1da6694341715295f6e1b631"
+    },
+    {
+      "blob": "6cb32e8a6bd60d2575c967eea78814903cb67d16",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "role": "E/root",
+      "sha": "ec042402ec91fbdcb51006852e29fe67f38d9452",
+      "sha256": "cfe284284adae4b6345ba01d42d2aaf2893d3a62c3ac69ab9abbebbf914acd12"
+    },
+    {
+      "blob": "8926e63c6d587778d0ba6628bd59865314292fe7",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+      "role": "D in-memory exact Git-blob overlay",
+      "sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+      "sha256": "940c84a3425e8ed1e93de2eae881100fd88a49dd978a108e5d78e5f2fa5fe17c"
+    },
+    {
+      "blob": "3dfd20ca0124186989b843afad9fc518b9c81af0",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+      "role": "D in-memory exact Git-blob overlay",
+      "sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+      "sha256": "6766a3bdf3575885e7d304d3b0064a56bc37de2268af747b743f9cfbbdc98b4b"
+    },
+    {
+      "blob": "705613d4d58e92137086b5907fab7b2b75310e8f",
+      "path": "policy-engine/src/polisyos/scientist/policy_design/adversary.py",
+      "role": "D in-memory exact Git-blob overlay",
+      "sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+      "sha256": "9f3507ce7a8c0bd75379d57814b1b17396cc160969ab699e0417db60512f36e2"
+    }
+  ],
+  "stress_artifacts": [
+    {
+      "manifest": {
+        "artifact_id": "sha256:0d8f08fd328579af6f3962f10fffd1c4befdfd64b6c9ac6062a3fcf73c612666",
+        "artifact_schema": {
+          "name": "polisyos.scientist.StressTestReport",
+          "version": "1.0"
+        },
+        "authority": null,
+        "byte_size": 1702,
+        "canon": {
+          "ensure_ascii": false,
+          "exclude_none": true,
+          "forbid_floats": false,
+          "forbid_nan_inf": true,
+          "max_depth": 128,
+          "name": "polisyos.canon.json",
+          "separators": [
+            ",",
+            ":"
+          ],
+          "sort_keys": true,
+          "version": "0.2.0"
+        },
+        "created_at": "2026-10-06T14:55:05Z",
+        "env": null,
+        "governance": null,
+        "inputs": [],
+        "integrity": {
+          "optional": null,
+          "sha256": "0d8f08fd328579af6f3962f10fffd1c4befdfd64b6c9ac6062a3fcf73c612666"
+        },
+        "kind": "scientist.stress_test_report",
+        "manifest_schema_version": "v3",
+        "media_type": "application/json",
+        "producer": null,
+        "same_input_closure": null,
+        "tenant_context": null,
+        "warnings": []
+      },
+      "payload": {
+        "adversarial_plan_ref": null,
+        "cas_artifact_id": null,
+        "coverage_empirical": null,
+        "coverage_target": null,
+        "critical_count": 0,
+        "decision_packet_ref": null,
+        "fidelity_mode": "stress_preset",
+        "frontier_knee_rho": null,
+        "high_count": 0,
+        "inflation_budget": null,
+        "inflation_mean": null,
+        "medium_count": 0,
+        "metadata": {
+          "attempted": 96,
+          "completeness": true,
+          "evaluation_status": "complete",
+          "finite_evaluated": 96,
+          "invalid_evaluation_count": 0,
+          "objective_direction": "minimize",
+          "observed_vulnerability_count": 0,
+          "planned_scenarios": 96,
+          "presented_vulnerability_count": 0,
+          "score_formula": "(finite_evaluated-violated_scenarios)/finite_evaluated",
+          "score_scope": "observed_finite_scenarios",
+          "score_status": "observed",
+          "source_objective_direction": "minimize",
+          "stop_on_first_vulnerability": true,
+          "strategy": "grid_extreme",
+          "unique_vulnerability_count": 0,
+          "unknown_or_nonfinite": 0,
+          "valid_evaluation_count": 96,
+          "violated_scenarios": 0
+        },
+        "overconservatism_vulnerability": null,
+        "report_id": "stress.report.sha256_932792cdc4ebb299406f0f62ffbb0d923a6e561ae3186059375fbfe067df1544",
+        "robustness_score": 1.0,
+        "schema_version": "1.0",
+        "set_adequacy_status": "complete",
+        "total_scenarios_evaluated": 96,
+        "undercoverage_vulnerability": null,
+        "vulnerabilities": [],
+        "worst_case_objective": -1.0,
+        "worst_case_parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      "ref": {
+        "artifact_id": "sha256:0d8f08fd328579af6f3962f10fffd1c4befdfd64b6c9ac6062a3fcf73c612666",
+        "kind": "scientist.stress_test_report",
+        "media_type": "application/json"
+      }
+    },
+    {
+      "manifest": {
+        "artifact_id": "sha256:ec277e8b089b2ad6dc19043a6b64bf192220ab3bc1cbe0e17e94650fa03e18ae",
+        "artifact_schema": {
+          "name": "polisyos.scientist.StressTestReport",
+          "version": "1.0"
+        },
+        "authority": null,
+        "byte_size": 1701,
+        "canon": {
+          "ensure_ascii": false,
+          "exclude_none": true,
+          "forbid_floats": false,
+          "forbid_nan_inf": true,
+          "max_depth": 128,
+          "name": "polisyos.canon.json",
+          "separators": [
+            ",",
+            ":"
+          ],
+          "sort_keys": true,
+          "version": "0.2.0"
+        },
+        "created_at": "2026-10-06T14:55:05Z",
+        "env": null,
+        "governance": null,
+        "inputs": [],
+        "integrity": {
+          "optional": null,
+          "sha256": "ec277e8b089b2ad6dc19043a6b64bf192220ab3bc1cbe0e17e94650fa03e18ae"
+        },
+        "kind": "scientist.stress_test_report",
+        "manifest_schema_version": "v3",
+        "media_type": "application/json",
+        "producer": null,
+        "same_input_closure": null,
+        "tenant_context": null,
+        "warnings": []
+      },
+      "payload": {
+        "adversarial_plan_ref": null,
+        "cas_artifact_id": null,
+        "coverage_empirical": null,
+        "coverage_target": null,
+        "critical_count": 0,
+        "decision_packet_ref": null,
+        "fidelity_mode": "stress_preset",
+        "frontier_knee_rho": null,
+        "high_count": 0,
+        "inflation_budget": null,
+        "inflation_mean": null,
+        "medium_count": 0,
+        "metadata": {
+          "attempted": 96,
+          "completeness": true,
+          "evaluation_status": "complete",
+          "finite_evaluated": 96,
+          "invalid_evaluation_count": 0,
+          "objective_direction": "minimize",
+          "observed_vulnerability_count": 0,
+          "planned_scenarios": 96,
+          "presented_vulnerability_count": 0,
+          "score_formula": "(finite_evaluated-violated_scenarios)/finite_evaluated",
+          "score_scope": "observed_finite_scenarios",
+          "score_status": "observed",
+          "source_objective_direction": "minimize",
+          "stop_on_first_vulnerability": true,
+          "strategy": "grid_extreme",
+          "unique_vulnerability_count": 0,
+          "unknown_or_nonfinite": 0,
+          "valid_evaluation_count": 96,
+          "violated_scenarios": 0
+        },
+        "overconservatism_vulnerability": null,
+        "report_id": "stress.report.sha256_cf0ec75ed205771d19b29c27a0a457a6797971935721f628ef3b528297c0e03c",
+        "robustness_score": 1.0,
+        "schema_version": "1.0",
+        "set_adequacy_status": "complete",
+        "total_scenarios_evaluated": 96,
+        "undercoverage_vulnerability": null,
+        "vulnerabilities": [],
+        "worst_case_objective": 5.0,
+        "worst_case_parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      "ref": {
+        "artifact_id": "sha256:ec277e8b089b2ad6dc19043a6b64bf192220ab3bc1cbe0e17e94650fa03e18ae",
+        "kind": "scientist.stress_test_report",
+        "media_type": "application/json"
+      }
+    },
+    {
+      "manifest": {
+        "artifact_id": "sha256:29d2be86653e45f8388c8475e70774098fd80df3e62cffabef8ad69f619f4af1",
+        "artifact_schema": {
+          "name": "polisyos.scientist.StressTestReport",
+          "version": "1.0"
+        },
+        "authority": null,
+        "byte_size": 1744,
+        "canon": {
+          "ensure_ascii": false,
+          "exclude_none": true,
+          "forbid_floats": false,
+          "forbid_nan_inf": true,
+          "max_depth": 128,
+          "name": "polisyos.canon.json",
+          "separators": [
+            ",",
+            ":"
+          ],
+          "sort_keys": true,
+          "version": "0.2.0"
+        },
+        "created_at": "2026-10-06T14:55:05Z",
+        "env": null,
+        "governance": null,
+        "inputs": [],
+        "integrity": {
+          "optional": null,
+          "sha256": "29d2be86653e45f8388c8475e70774098fd80df3e62cffabef8ad69f619f4af1"
+        },
+        "kind": "scientist.stress_test_report",
+        "manifest_schema_version": "v3",
+        "media_type": "application/json",
+        "producer": null,
+        "same_input_closure": null,
+        "tenant_context": null,
+        "warnings": []
+      },
+      "payload": {
+        "adversarial_plan_ref": null,
+        "cas_artifact_id": null,
+        "coverage_empirical": null,
+        "coverage_target": null,
+        "critical_count": 0,
+        "decision_packet_ref": null,
+        "fidelity_mode": "stress_preset",
+        "frontier_knee_rho": null,
+        "high_count": 10,
+        "inflation_budget": null,
+        "inflation_mean": null,
+        "medium_count": 0,
+        "metadata": {
+          "attempted": 10,
+          "completeness": true,
+          "evaluation_status": "complete",
+          "finite_evaluated": 10,
+          "invalid_evaluation_count": 0,
+          "objective_direction": "minimize",
+          "observed_vulnerability_count": 10,
+          "planned_scenarios": 10,
+          "presented_vulnerability_count": 1,
+          "score_formula": "(finite_evaluated-violated_scenarios)/finite_evaluated",
+          "score_scope": "observed_finite_scenarios",
+          "score_status": "observed",
+          "source_objective_direction": "minimize",
+          "stop_on_first_vulnerability": false,
+          "strategy": "random_tail",
+          "unique_vulnerability_count": 10,
+          "unknown_or_nonfinite": 0,
+          "valid_evaluation_count": 10,
+          "violated_scenarios": 10
+        },
+        "overconservatism_vulnerability": null,
+        "report_id": "stress.report.sha256_bf86d33c7931f1160ba3f1d5f7fb62c822fc16ac0144b55092783e0071a42456",
+        "robustness_score": 0.0,
+        "schema_version": "1.0",
+        "set_adequacy_status": "complete",
+        "total_scenarios_evaluated": 10,
+        "undercoverage_vulnerability": null,
+        "vulnerabilities": [
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective 5.000000 violates threshold 0.000000 (badness 5.000000 >= 0.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": 5.0,
+            "parameter_values": {
+              "x": 0.005760126957280315
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_0",
+            "vulnerability_type": "objective_collapse"
+          }
+        ],
+        "worst_case_objective": 5.0,
+        "worst_case_parameters": {
+          "x": 0.005760126957280315
+        }
+      },
+      "ref": {
+        "artifact_id": "sha256:29d2be86653e45f8388c8475e70774098fd80df3e62cffabef8ad69f619f4af1",
+        "kind": "scientist.stress_test_report",
+        "media_type": "application/json"
+      }
+    },
+    {
+      "manifest": {
+        "artifact_id": "sha256:9fb00f7539b73099ea64b9459a0026b28e832c1b0590e83b0a2a3bb9f587460a",
+        "artifact_schema": {
+          "name": "polisyos.scientist.StressTestReport",
+          "version": "1.0"
+        },
+        "authority": null,
+        "byte_size": 5303,
+        "canon": {
+          "ensure_ascii": false,
+          "exclude_none": true,
+          "forbid_floats": false,
+          "forbid_nan_inf": true,
+          "max_depth": 128,
+          "name": "polisyos.canon.json",
+          "separators": [
+            ",",
+            ":"
+          ],
+          "sort_keys": true,
+          "version": "0.2.0"
+        },
+        "created_at": "2026-10-06T14:55:05Z",
+        "env": null,
+        "governance": null,
+        "inputs": [],
+        "integrity": {
+          "optional": null,
+          "sha256": "9fb00f7539b73099ea64b9459a0026b28e832c1b0590e83b0a2a3bb9f587460a"
+        },
+        "kind": "scientist.stress_test_report",
+        "manifest_schema_version": "v3",
+        "media_type": "application/json",
+        "producer": null,
+        "same_input_closure": null,
+        "tenant_context": null,
+        "warnings": []
+      },
+      "payload": {
+        "adversarial_plan_ref": null,
+        "cas_artifact_id": null,
+        "coverage_empirical": null,
+        "coverage_target": null,
+        "critical_count": 0,
+        "decision_packet_ref": null,
+        "fidelity_mode": "stress_preset",
+        "frontier_knee_rho": null,
+        "high_count": 10,
+        "inflation_budget": null,
+        "inflation_mean": null,
+        "medium_count": 0,
+        "metadata": {
+          "attempted": 10,
+          "completeness": true,
+          "evaluation_status": "complete",
+          "finite_evaluated": 10,
+          "invalid_evaluation_count": 0,
+          "objective_direction": "minimize",
+          "observed_vulnerability_count": 10,
+          "planned_scenarios": 10,
+          "presented_vulnerability_count": 10,
+          "score_formula": "(finite_evaluated-violated_scenarios)/finite_evaluated",
+          "score_scope": "observed_finite_scenarios",
+          "score_status": "observed",
+          "source_objective_direction": "minimize",
+          "stop_on_first_vulnerability": false,
+          "strategy": "random_tail",
+          "unique_vulnerability_count": 10,
+          "unknown_or_nonfinite": 0,
+          "valid_evaluation_count": 10,
+          "violated_scenarios": 10
+        },
+        "overconservatism_vulnerability": null,
+        "report_id": "stress.report.sha256_a2c8de66e750ce8adcb34e62f4d60d47cf0f0cb9fd8de38e1a7d14f6b5098425",
+        "robustness_score": 0.0,
+        "schema_version": "1.0",
+        "set_adequacy_status": "complete",
+        "total_scenarios_evaluated": 10,
+        "undercoverage_vulnerability": null,
+        "vulnerabilities": [
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective 5.000000 violates threshold 0.000000 (badness 5.000000 >= 0.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": 5.0,
+            "parameter_values": {
+              "x": 0.005760126957280315
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_0",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective 5.000000 violates threshold 0.000000 (badness 5.000000 >= 0.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": 5.0,
+            "parameter_values": {
+              "x": 0.9581299656893224
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_1",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective 5.000000 violates threshold 0.000000 (badness 5.000000 >= 0.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": 5.0,
+            "parameter_values": {
+              "x": 0.04924004947257608
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_2",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective 5.000000 violates threshold 0.000000 (badness 5.000000 >= 0.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": 5.0,
+            "parameter_values": {
+              "x": 0.9877220668537663
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_3",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective 5.000000 violates threshold 0.000000 (badness 5.000000 >= 0.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": 5.0,
+            "parameter_values": {
+              "x": 0.9891983046525588
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_4",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective 5.000000 violates threshold 0.000000 (badness 5.000000 >= 0.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": 5.0,
+            "parameter_values": {
+              "x": 0.021437185385720394
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_5",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective 5.000000 violates threshold 0.000000 (badness 5.000000 >= 0.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": 5.0,
+            "parameter_values": {
+              "x": 0.008182983472155953
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_6",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective 5.000000 violates threshold 0.000000 (badness 5.000000 >= 0.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": 5.0,
+            "parameter_values": {
+              "x": 0.9889605994277122
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_7",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective 5.000000 violates threshold 0.000000 (badness 5.000000 >= 0.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": 5.0,
+            "parameter_values": {
+              "x": 0.9821050542617776
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_8",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective 5.000000 violates threshold 0.000000 (badness 5.000000 >= 0.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": 5.0,
+            "parameter_values": {
+              "x": 0.9817929804480656
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_9",
+            "vulnerability_type": "objective_collapse"
+          }
+        ],
+        "worst_case_objective": 5.0,
+        "worst_case_parameters": {
+          "x": 0.005760126957280315
+        }
+      },
+      "ref": {
+        "artifact_id": "sha256:9fb00f7539b73099ea64b9459a0026b28e832c1b0590e83b0a2a3bb9f587460a",
+        "kind": "scientist.stress_test_report",
+        "media_type": "application/json"
+      }
+    },
+    {
+      "manifest": {
+        "artifact_id": "sha256:49f28711ba63f68c5c4bc1828f12ebab9d96e7324132aac7bc311663f974729f",
+        "artifact_schema": {
+          "name": "polisyos.scientist.StressTestReport",
+          "version": "1.0"
+        },
+        "authority": null,
+        "byte_size": 10832,
+        "canon": {
+          "ensure_ascii": false,
+          "exclude_none": true,
+          "forbid_floats": false,
+          "forbid_nan_inf": true,
+          "max_depth": 128,
+          "name": "polisyos.canon.json",
+          "separators": [
+            ",",
+            ":"
+          ],
+          "sort_keys": true,
+          "version": "0.2.0"
+        },
+        "created_at": "2026-10-06T14:59:09Z",
+        "env": null,
+        "governance": null,
+        "inputs": [],
+        "integrity": {
+          "optional": null,
+          "sha256": "49f28711ba63f68c5c4bc1828f12ebab9d96e7324132aac7bc311663f974729f"
+        },
+        "kind": "scientist.stress_test_report",
+        "manifest_schema_version": "v3",
+        "media_type": "application/json",
+        "producer": null,
+        "same_input_closure": null,
+        "tenant_context": null,
+        "warnings": []
+      },
+      "payload": {
+        "adversarial_plan_ref": null,
+        "cas_artifact_id": null,
+        "coverage_empirical": null,
+        "coverage_target": null,
+        "critical_count": 0,
+        "decision_packet_ref": null,
+        "fidelity_mode": "stress_preset",
+        "frontier_knee_rho": null,
+        "high_count": 40,
+        "inflation_budget": null,
+        "inflation_mean": null,
+        "medium_count": 0,
+        "metadata": {
+          "attempted": 40,
+          "completeness": true,
+          "evaluation_status": "complete",
+          "finite_evaluated": 40,
+          "invalid_evaluation_count": 0,
+          "objective_direction": "minimize",
+          "observed_vulnerability_count": 40,
+          "planned_scenarios": 40,
+          "presented_vulnerability_count": 20,
+          "score_formula": "(finite_evaluated-violated_scenarios)/finite_evaluated",
+          "score_scope": "observed_finite_scenarios",
+          "score_status": "observed",
+          "source_objective_direction": "minimize",
+          "stop_on_first_vulnerability": false,
+          "strategy": "search_loop",
+          "unique_vulnerability_count": 33,
+          "unknown_or_nonfinite": 0,
+          "valid_evaluation_count": 40,
+          "violated_scenarios": 40
+        },
+        "overconservatism_vulnerability": null,
+        "report_id": "stress.report.sha256_1db9c3ba550591db63756bcaf9cf591de0250f17b7cadeb84db92335064e10e8",
+        "robustness_score": 0.0,
+        "schema_version": "1.0",
+        "set_adequacy_status": "complete",
+        "total_scenarios_evaluated": 40,
+        "undercoverage_vulnerability": null,
+        "vulnerabilities": [
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective -1.183919 violates threshold -10.000000 (badness -1.183919 >= -10.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": -1.1839193375561827,
+            "parameter_values": {
+              "x": 0.5156347084522415,
+              "z": 0.1526499206516998
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_0",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective -0.607445 violates threshold -10.000000 (badness -0.607445 >= -10.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": -0.6074451519769002,
+            "parameter_values": {
+              "x": 0.12930696171053688,
+              "z": 0.3488312285558265
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_1",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective -1.924943 violates threshold -10.000000 (badness -1.924943 >= -10.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": -1.9249426306989572,
+            "parameter_values": {
+              "x": 0.6497338308096586,
+              "z": 0.62547496907964
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_2",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective -1.823351 violates threshold -10.000000 (badness -1.823351 >= -10.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": -1.823351110998118,
+            "parameter_values": {
+              "x": 0.47801240960725705,
+              "z": 0.867326291783604
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_3",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective -0.691904 violates threshold -10.000000 (badness -0.691904 >= -10.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": -0.6919039338789066,
+            "parameter_values": {
+              "x": 0.1930774967355287,
+              "z": 0.3057489404078492
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_4",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective -0.423911 violates threshold -10.000000 (badness -0.423911 >= -10.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": -0.42391127145996,
+            "parameter_values": {
+              "x": 0.18740475616301763,
+              "z": 0.049101759133924755
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_5",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective -0.583901 violates threshold -10.000000 (badness -0.583901 >= -10.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": -0.5839014045636591,
+            "parameter_values": {
+              "x": 0.2788828846168783,
+              "z": 0.02613563532990253
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_6",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective -0.585023 violates threshold -10.000000 (badness -0.585023 >= -10.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": -0.5850233889170292,
+            "parameter_values": {
+              "x": 0.07721150713735456,
+              "z": 0.4306003746423201
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_7",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective -0.280261 violates threshold -10.000000 (badness -0.280261 >= -10.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": -0.2802608494908222,
+            "parameter_values": {
+              "x": 0.036347595288605615,
+              "z": 0.20756565891361098
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_8",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective -1.460056 violates threshold -10.000000 (badness -1.460056 >= -10.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": -1.460055500754481,
+            "parameter_values": {
+              "x": 0.37634244398722005,
+              "z": 0.707370612780041
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_9",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective -0.753393 violates threshold -10.000000 (badness -0.753393 >= -10.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": -0.7533925882709709,
+            "parameter_values": {
+              "x": 0.3284304509111363,
+              "z": 0.09653168644869828
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_10",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective -1.640938 violates threshold -10.000000 (badness -1.640938 >= -10.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": -1.640937663958444,
+            "parameter_values": {
+              "x": 0.5794318938630886,
+              "z": 0.482073876232267
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_11",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective -2.321621 violates threshold -10.000000 (badness -2.321621 >= -10.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": -2.3216212458361105,
+            "parameter_values": {
+              "x": 0.7765689071097538,
+              "z": 0.7684834316166028
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_12",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective -1.785935 violates threshold -10.000000 (badness -1.785935 >= -10.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": -1.7859349932191022,
+            "parameter_values": {
+              "x": 0.690807137550385,
+              "z": 0.40432071811833215
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_13",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective -1.016582 violates threshold -10.000000 (badness -1.016582 >= -10.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": -1.0165816080168604,
+            "parameter_values": {
+              "x": 0.11601884451829485,
+              "z": 0.7845439189802708
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_14",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective -1.130779 violates threshold -10.000000 (badness -1.130779 >= -10.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": -1.1307787426274711,
+            "parameter_values": {
+              "x": 0.44159487427518035,
+              "z": 0.24758899407711038
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_15",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective -1.673662 violates threshold -10.000000 (badness -1.673662 >= -10.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": -1.6736622616606214,
+            "parameter_values": {
+              "x": 0.7933334679712498,
+              "z": 0.08699532571812167
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_16",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective -1.805916 violates threshold -10.000000 (badness -1.805916 >= -10.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": -1.8059158824313741,
+            "parameter_values": {
+              "x": 0.6107961944760251,
+              "z": 0.584323493479324
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_17",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective -2.854586 violates threshold -10.000000 (badness -2.854586 >= -10.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": -2.854586397889783,
+            "parameter_values": {
+              "x": 0.9894675958475105,
+              "z": 0.8756512061947621
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_18",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective -2.057960 violates threshold -10.000000 (badness -2.057960 >= -10.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": -2.057960319024394,
+            "parameter_values": {
+              "x": 0.5605775223318094,
+              "z": 0.9368052743607752
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_19",
+            "vulnerability_type": "objective_collapse"
+          }
+        ],
+        "worst_case_objective": -0.2802608494908222,
+        "worst_case_parameters": {
+          "x": 0.036347595288605615,
+          "z": 0.20756565891361098
+        }
+      },
+      "ref": {
+        "artifact_id": "sha256:49f28711ba63f68c5c4bc1828f12ebab9d96e7324132aac7bc311663f974729f",
+        "kind": "scientist.stress_test_report",
+        "media_type": "application/json"
+      }
+    }
+  ],
+  "top_k_occurrence_invariance": [
+    {
+      "report": {
+        "adversarial_plan_ref": null,
+        "cas_artifact_id": null,
+        "coverage_empirical": null,
+        "coverage_target": null,
+        "critical_count": 0,
+        "decision_packet_ref": null,
+        "fidelity_mode": "stress_preset",
+        "frontier_knee_rho": null,
+        "high_count": 10,
+        "inflation_budget": null,
+        "inflation_mean": null,
+        "medium_count": 0,
+        "metadata": {
+          "attempted": 10,
+          "completeness": true,
+          "evaluation_status": "complete",
+          "finite_evaluated": 10,
+          "invalid_evaluation_count": 0,
+          "objective_direction": "minimize",
+          "observed_vulnerability_count": 10,
+          "planned_scenarios": 10,
+          "presented_vulnerability_count": 1,
+          "score_formula": "(finite_evaluated-violated_scenarios)/finite_evaluated",
+          "score_scope": "observed_finite_scenarios",
+          "score_status": "observed",
+          "source_objective_direction": "minimize",
+          "stop_on_first_vulnerability": false,
+          "strategy": "random_tail",
+          "unique_vulnerability_count": 10,
+          "unknown_or_nonfinite": 0,
+          "valid_evaluation_count": 10,
+          "violated_scenarios": 10
+        },
+        "overconservatism_vulnerability": null,
+        "report_id": "stress.report.sha256_bf86d33c7931f1160ba3f1d5f7fb62c822fc16ac0144b55092783e0071a42456",
+        "robustness_score": 0.0,
+        "schema_version": "1.0",
+        "set_adequacy_status": "complete",
+        "total_scenarios_evaluated": 10,
+        "undercoverage_vulnerability": null,
+        "vulnerabilities": [
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective 5.000000 violates threshold 0.000000 (badness 5.000000 >= 0.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": 5.0,
+            "parameter_values": {
+              "x": 0.005760126957280315
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_0",
+            "vulnerability_type": "objective_collapse"
+          }
+        ],
+        "worst_case_objective": 5.0,
+        "worst_case_parameters": {
+          "x": 0.005760126957280315
+        }
+      },
+      "rows": [
+        0.005760126957280315,
+        0.9581299656893224,
+        0.04924004947257608,
+        0.9877220668537663,
+        0.9891983046525588,
+        0.021437185385720394,
+        0.008182983472155953,
+        0.9889605994277122,
+        0.9821050542617776,
+        0.9817929804480656
+      ],
+      "top_k": 1
+    },
+    {
+      "report": {
+        "adversarial_plan_ref": null,
+        "cas_artifact_id": null,
+        "coverage_empirical": null,
+        "coverage_target": null,
+        "critical_count": 0,
+        "decision_packet_ref": null,
+        "fidelity_mode": "stress_preset",
+        "frontier_knee_rho": null,
+        "high_count": 10,
+        "inflation_budget": null,
+        "inflation_mean": null,
+        "medium_count": 0,
+        "metadata": {
+          "attempted": 10,
+          "completeness": true,
+          "evaluation_status": "complete",
+          "finite_evaluated": 10,
+          "invalid_evaluation_count": 0,
+          "objective_direction": "minimize",
+          "observed_vulnerability_count": 10,
+          "planned_scenarios": 10,
+          "presented_vulnerability_count": 10,
+          "score_formula": "(finite_evaluated-violated_scenarios)/finite_evaluated",
+          "score_scope": "observed_finite_scenarios",
+          "score_status": "observed",
+          "source_objective_direction": "minimize",
+          "stop_on_first_vulnerability": false,
+          "strategy": "random_tail",
+          "unique_vulnerability_count": 10,
+          "unknown_or_nonfinite": 0,
+          "valid_evaluation_count": 10,
+          "violated_scenarios": 10
+        },
+        "overconservatism_vulnerability": null,
+        "report_id": "stress.report.sha256_a2c8de66e750ce8adcb34e62f4d60d47cf0f0cb9fd8de38e1a7d14f6b5098425",
+        "robustness_score": 0.0,
+        "schema_version": "1.0",
+        "set_adequacy_status": "complete",
+        "total_scenarios_evaluated": 10,
+        "undercoverage_vulnerability": null,
+        "vulnerabilities": [
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective 5.000000 violates threshold 0.000000 (badness 5.000000 >= 0.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": 5.0,
+            "parameter_values": {
+              "x": 0.005760126957280315
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_0",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective 5.000000 violates threshold 0.000000 (badness 5.000000 >= 0.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": 5.0,
+            "parameter_values": {
+              "x": 0.9581299656893224
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_1",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective 5.000000 violates threshold 0.000000 (badness 5.000000 >= 0.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": 5.0,
+            "parameter_values": {
+              "x": 0.04924004947257608
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_2",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective 5.000000 violates threshold 0.000000 (badness 5.000000 >= 0.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": 5.0,
+            "parameter_values": {
+              "x": 0.9877220668537663
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_3",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective 5.000000 violates threshold 0.000000 (badness 5.000000 >= 0.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": 5.0,
+            "parameter_values": {
+              "x": 0.9891983046525588
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_4",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective 5.000000 violates threshold 0.000000 (badness 5.000000 >= 0.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": 5.0,
+            "parameter_values": {
+              "x": 0.021437185385720394
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_5",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective 5.000000 violates threshold 0.000000 (badness 5.000000 >= 0.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": 5.0,
+            "parameter_values": {
+              "x": 0.008182983472155953
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_6",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective 5.000000 violates threshold 0.000000 (badness 5.000000 >= 0.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": 5.0,
+            "parameter_values": {
+              "x": 0.9889605994277122
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_7",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective 5.000000 violates threshold 0.000000 (badness 5.000000 >= 0.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": 5.0,
+            "parameter_values": {
+              "x": 0.9821050542617776
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_8",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective 5.000000 violates threshold 0.000000 (badness 5.000000 >= 0.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": 5.0,
+            "parameter_values": {
+              "x": 0.9817929804480656
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_9",
+            "vulnerability_type": "objective_collapse"
+          }
+        ],
+        "worst_case_objective": 5.0,
+        "worst_case_parameters": {
+          "x": 0.005760126957280315
+        }
+      },
+      "rows": [
+        0.005760126957280315,
+        0.9581299656893224,
+        0.04924004947257608,
+        0.9877220668537663,
+        0.9891983046525588,
+        0.021437185385720394,
+        0.008182983472155953,
+        0.9889605994277122,
+        0.9821050542617776,
+        0.9817929804480656
+      ],
+      "top_k": 10
+    }
+  ],
+  "worker_positive": {
+    "actual_rows": [
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 0.0,
+          "x6": 1.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 0.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 0.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 0.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 0.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 0.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      },
+      {
+        "context": {
+          "purpose": "generic bounded mechanism fixture"
+        },
+        "parameters": {
+          "x0": 0.0,
+          "x1": 0.0,
+          "x10": 1.0,
+          "x11": 1.0,
+          "x2": 0.0,
+          "x3": 0.0,
+          "x4": 0.0,
+          "x5": 1.0,
+          "x6": 0.0,
+          "x7": 1.0,
+          "x8": 1.0,
+          "x9": 1.0
+        }
+      }
+    ],
+    "compiled_plan": {
+      "collect_top_k": 5,
+      "max_iterations": 96,
+      "parameter_specs": [
+        {
+          "baseline": null,
+          "description": "",
+          "distribution": "uniform",
+          "distribution_spec": null,
+          "lower_bound": 0.0,
+          "name": "x0",
+          "num_levels": 4,
+          "unit": "dimensionless",
+          "upper_bound": 1.0
+        },
+        {
+          "baseline": null,
+          "description": "",
+          "distribution": "uniform",
+          "distribution_spec": null,
+          "lower_bound": 0.0,
+          "name": "x1",
+          "num_levels": 4,
+          "unit": "dimensionless",
+          "upper_bound": 1.0
+        },
+        {
+          "baseline": null,
+          "description": "",
+          "distribution": "uniform",
+          "distribution_spec": null,
+          "lower_bound": 0.0,
+          "name": "x2",
+          "num_levels": 4,
+          "unit": "dimensionless",
+          "upper_bound": 1.0
+        },
+        {
+          "baseline": null,
+          "description": "",
+          "distribution": "uniform",
+          "distribution_spec": null,
+          "lower_bound": 0.0,
+          "name": "x3",
+          "num_levels": 4,
+          "unit": "dimensionless",
+          "upper_bound": 1.0
+        },
+        {
+          "baseline": null,
+          "description": "",
+          "distribution": "uniform",
+          "distribution_spec": null,
+          "lower_bound": 0.0,
+          "name": "x4",
+          "num_levels": 4,
+          "unit": "dimensionless",
+          "upper_bound": 1.0
+        },
+        {
+          "baseline": null,
+          "description": "",
+          "distribution": "uniform",
+          "distribution_spec": null,
+          "lower_bound": 0.0,
+          "name": "x5",
+          "num_levels": 4,
+          "unit": "dimensionless",
+          "upper_bound": 1.0
+        },
+        {
+          "baseline": null,
+          "description": "",
+          "distribution": "uniform",
+          "distribution_spec": null,
+          "lower_bound": 0.0,
+          "name": "x6",
+          "num_levels": 4,
+          "unit": "dimensionless",
+          "upper_bound": 1.0
+        },
+        {
+          "baseline": null,
+          "description": "",
+          "distribution": "uniform",
+          "distribution_spec": null,
+          "lower_bound": 0.0,
+          "name": "x7",
+          "num_levels": 4,
+          "unit": "dimensionless",
+          "upper_bound": 1.0
+        },
+        {
+          "baseline": null,
+          "description": "",
+          "distribution": "uniform",
+          "distribution_spec": null,
+          "lower_bound": 0.0,
+          "name": "x8",
+          "num_levels": 4,
+          "unit": "dimensionless",
+          "upper_bound": 1.0
+        },
+        {
+          "baseline": null,
+          "description": "",
+          "distribution": "uniform",
+          "distribution_spec": null,
+          "lower_bound": 0.0,
+          "name": "x9",
+          "num_levels": 4,
+          "unit": "dimensionless",
+          "upper_bound": 1.0
+        },
+        {
+          "baseline": null,
+          "description": "",
+          "distribution": "uniform",
+          "distribution_spec": null,
+          "lower_bound": 0.0,
+          "name": "x10",
+          "num_levels": 4,
+          "unit": "dimensionless",
+          "upper_bound": 1.0
+        },
+        {
+          "baseline": null,
+          "description": "",
+          "distribution": "uniform",
+          "distribution_spec": null,
+          "lower_bound": 0.0,
+          "name": "x11",
+          "num_levels": 4,
+          "unit": "dimensionless",
+          "upper_bound": 1.0
+        }
+      ],
+      "seed": null,
+      "stop_on_first_vulnerability": true,
+      "strategy": "grid_extreme",
+      "tail_percentile": 0.05,
+      "vulnerability_threshold": 0.0
+    },
+    "fresh_report": {
+      "adversarial_plan_ref": null,
+      "cas_artifact_id": null,
+      "coverage_empirical": null,
+      "coverage_target": null,
+      "critical_count": 0,
+      "decision_packet_ref": null,
+      "fidelity_mode": "stress_preset",
+      "frontier_knee_rho": null,
+      "high_count": 0,
+      "inflation_budget": null,
+      "inflation_mean": null,
+      "medium_count": 0,
+      "metadata": {
+        "attempted": 96,
+        "completeness": true,
+        "evaluation_status": "complete",
+        "finite_evaluated": 96,
+        "invalid_evaluation_count": 0,
+        "objective_direction": "minimize",
+        "observed_vulnerability_count": 0,
+        "planned_scenarios": 96,
+        "presented_vulnerability_count": 0,
+        "score_formula": "(finite_evaluated-violated_scenarios)/finite_evaluated",
+        "score_scope": "observed_finite_scenarios",
+        "score_status": "observed",
+        "source_objective_direction": "minimize",
+        "stop_on_first_vulnerability": true,
+        "strategy": "grid_extreme",
+        "unique_vulnerability_count": 0,
+        "unknown_or_nonfinite": 0,
+        "valid_evaluation_count": 96,
+        "violated_scenarios": 0
+      },
+      "overconservatism_vulnerability": null,
+      "report_id": "stress.report.sha256_932792cdc4ebb299406f0f62ffbb0d923a6e561ae3186059375fbfe067df1544",
+      "robustness_score": 1.0,
+      "schema_version": "1.0",
+      "set_adequacy_status": "complete",
+      "total_scenarios_evaluated": 96,
+      "undercoverage_vulnerability": null,
+      "vulnerabilities": [],
+      "worst_case_objective": -1.0,
+      "worst_case_parameters": {
+        "x0": 0.0,
+        "x1": 0.0,
+        "x10": 0.0,
+        "x11": 0.0,
+        "x2": 0.0,
+        "x3": 0.0,
+        "x4": 0.0,
+        "x5": 0.0,
+        "x6": 0.0,
+        "x7": 0.0,
+        "x8": 0.0,
+        "x9": 0.0
+      }
+    },
+    "grid_full_size": 4096,
+    "native_product_rows_yielded": 96,
+    "native_stage_b_calls": 96,
+    "scenario_bundle_ref": {
+      "artifact_id": "sha256:fd0cd33c65dd7209a3738578d12fb7cd7e9e95888957346b0893cd0058834086",
+      "kind": "scientist.policy_adversary_bundle",
+      "media_type": "application/json"
+    },
+    "scope": "declared bounded 96/4096 lexicographic corners; no full-space probability/robustness certificate",
+    "threshold_input": 0.0
+  }
+}

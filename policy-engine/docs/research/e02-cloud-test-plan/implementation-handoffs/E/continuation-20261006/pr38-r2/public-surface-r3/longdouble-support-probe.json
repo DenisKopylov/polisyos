@@ -1,0 +1,70 @@
+{
+  "source_sha": "ec042402ec91fbdcb51006852e29fe67f38d9452",
+  "source_sha256": "1f3f496b78324a5d90e994092140a9773bcb2463a4331e100bc5fefc8cb3ec80",
+  "longdouble_bits": 128,
+  "raw_1e-400_nonzero": true,
+  "cases": [
+    {
+      "case": "longdouble-first-weight",
+      "outcome": "admitted",
+      "output": [
+        0.0,
+        1.0
+      ],
+      "output_first_zero": true,
+      "warnings": []
+    },
+    {
+      "case": "longdouble-interior-weight",
+      "outcome": "admitted",
+      "output": [
+        0.5,
+        0.0,
+        0.5
+      ],
+      "output_first_zero": false,
+      "warnings": []
+    },
+    {
+      "case": "longdouble-first-CDF",
+      "outcome": "admitted",
+      "output": [
+        0.0,
+        1.0
+      ],
+      "output_first_zero": true,
+      "warnings": []
+    },
+    {
+      "case": "longdouble-range",
+      "outcome": "admitted",
+      "output": [
+        [
+          0.0
+        ]
+      ],
+      "output_first_zero": true,
+      "warnings": []
+    },
+    {
+      "case": "longdouble-uniform",
+      "outcome": "admitted",
+      "output": [
+        0.0
+      ],
+      "output_first_zero": true,
+      "warnings": []
+    },
+    {
+      "case": "object-Fraction-weight",
+      "outcome": "admitted",
+      "output": [
+        0.0,
+        1.0
+      ],
+      "output_first_zero": true,
+      "warnings": []
+    }
+  ],
+  "scope": "nonzero positive category/range support lost during float128/object\u2192float64 cast; no arbitrary-real exactness promised"
+}

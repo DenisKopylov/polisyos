@@ -1,0 +1,34 @@
+{
+  "schema": "e02.E.independent-final-root-narrative-index.v3",
+  "primary": "review.json",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 590,
+      "sha256": "212f91be591ced2572ccf810e32557327f142d9023bd3eba7a7557a6f80ffe4c"
+    },
+    {
+      "path": "review.json",
+      "bytes": 12914,
+      "sha256": "82ed0a0947a4d8ead99aecd932a5650686ae651d43512357f77a784eea6a0303"
+    },
+    {
+      "path": "reviewed-README.md",
+      "bytes": 8447,
+      "sha256": "92955eb85ca9234e9496e6fa7119b8831c5469f3bfb945718dfd8749e3696452"
+    },
+    {
+      "path": "reviewed-cleanup-candidates-final.json",
+      "bytes": 14705,
+      "sha256": "8d89c90a7588f55b02d9272cc4b307a06447ee1509633d6d0e8f268b957e1d0c"
+    },
+    {
+      "path": "reviewed-final-handoff-v2.json",
+      "bytes": 21233,
+      "sha256": "b8d90afb421ba1f5c277d34df30bf92dba25381cf8a275a4d12607e33f9a11ed"
+    }
+  ],
+  "file_count": 5,
+  "total_bytes": 57889,
+  "index_self_excluded": true
+}

@@ -1,0 +1,45 @@
+{
+  "schema": "e02.E.implementation-handoff.v1",
+  "base_sha": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+  "base_tree": "3b63e778d5b6d17b2e9edc3b4bf91af079b32eb0",
+  "candidate_sha": "06aec834d817b1cc90d98308f0755729a4153031",
+  "candidate_tree": "196d3cf9c7f12cdb36098fe3d08569fbcdff7e51",
+  "footprint": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py"
+  ],
+  "companions": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/portable-copy-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-independent/portable-copy-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/portable-copy-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/portable-copy-index.json"
+  ],
+  "runtime_property": "Real pytest tmp_path parent exists; each basetemp remains absent and is rechecked before launch. Admission occurs before any child process. No permanent removal.",
+  "predicate_basis": "P37 frozen: absent basetemp + exclusive fresh parent under admitted output root; P40 stale/dangling/escape refusal class; removal reopens real pytest error.",
+  "author_native_outcomes": {
+    "old_exact": "1 ERROR, callback_count=0",
+    "new": "1 PASS, callback_count=1, canonical CAS persisted and independently fresh-read",
+    "property_removal": "1 ERROR, callback_count=0"
+  },
+  "first_common_wave": {
+    "candidate": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+    "PASS": 1086,
+    "FAIL": 3,
+    "ERROR": 351,
+    "numeric_acceptance": "HOLD",
+    "all_351_error_texts": "missing temporary-parent FileNotFoundError, independently reconciled",
+    "global_gates": "7 FAIL; required stages and fail-fast UNRUN retained"
+  },
+  "environment_and_full_commands": "Bound in preserved native check receipts, author repair-receipt.json and independent failed-wave review; JAX observer is a post-command collector process.",
+  "independent_repair_review": {
+    "owner": "/root/cal_uq_r3",
+    "state": "pending native review on committed descendant with exact source06 blobs"
+  },
+  "limitations": [
+    "This is a harness repair and failed-attempt custody handoff, not finding closure.",
+    "Remaining 3 actual FAIL and global reds require exact current owner packets; no P41 inherited attribution.",
+    "Owned Welfare private-import facade fix remains under separate author/reviewer."
+  ],
+  "next_owner": "CAL independent repair witness; root batch reviewed Welfare delta, freeze a distinct source and execute one corrected common wave.",
+  "cleanup": "No deletion; exact repeatable candidates in preserved receipts; no native Trash confirmed."
+}

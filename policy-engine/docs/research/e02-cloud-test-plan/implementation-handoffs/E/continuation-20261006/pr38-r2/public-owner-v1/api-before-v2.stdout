@@ -1,0 +1,54 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/api_probe.py", line 27, in <module>
+    analytics=module('polisyos.ir.analytics'); uncertainty=module('polisyos.ir.analytics.uncertainty'); forecast=module('polisyos.ir.analytics.forecasting_uncertainty'); execution=module('polisyos.foundry.execute'); executor=module('polisyos.foundry.execute.executor')
+                                                                                                                                                                                                                                 ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/api_probe.py", line 9, in module
+    m=importlib.import_module(name); p=Path(m.__file__).resolve(); assert p.is_relative_to(ROOT), (name,p); paths[name]={'path':str(p),'sha256':hashlib.sha256(p.read_bytes()).hexdigest()};return m
+  File "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/importlib/__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1406, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/fixture-current/policy-engine/src/polisyos/foundry/execute/executor.py", line 11, in <module>
+    from ._internal.graph import (
+        execute_program_graph,
+    )
+  File "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/fixture-current/policy-engine/src/polisyos/foundry/execute/_internal/graph/__init__.py", line 40, in <module>
+    from polisyos.foundry.agent_sim.agents import AdaptiveAgentMechanism
+  File "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/fixture-current/policy-engine/src/polisyos/foundry/agent_sim/__init__.py", line 84, in <module>
+    from .government_policy import (
+    ...<4 lines>...
+    )
+  File "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/fixture-current/policy-engine/src/polisyos/foundry/agent_sim/government_policy.py", line 18, in <module>
+    from polisyos.foundry.welfare.social_weights import (
+    ...<2 lines>...
+    )
+  File "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/fixture-current/policy-engine/src/polisyos/foundry/welfare/social_weights.py", line 10, in <module>
+    from polisyos.foundry.methods.catalog.policy.welfare import (
+    ...<2 lines>...
+    )
+  File "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/fixture-current/policy-engine/src/polisyos/foundry/methods/catalog/__init__.py", line 133, in <module>
+    from polisyos.foundry.methods.catalog.dependency_authority import (
+    ...<2 lines>...
+    )
+  File "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/fixture-current/policy-engine/src/polisyos/foundry/methods/catalog/dependency_authority.py", line 7157, in <module>
+    _OWNER_ENTRYPOINT_SPECS = derive_owner_entrypoint_denominator_from_source(
+        module_file=Path(__file__),
+        protocol_concrete_pairs=_OWNER_PROTOCOL_CONCRETE_PAIRS,
+    )
+  File "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/fixture-current/policy-engine/src/polisyos/foundry/methods/catalog/dependency_authority.py", line 6119, in derive_owner_entrypoint_denominator_from_source
+    registry = load_digest_domain_registry(_DIGEST_REGISTRY_PATH)
+  File "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/fixture-current/policy-engine/src/polisyos/foundry/methods/catalog/dependency_evidence.py", line 2253, in load_digest_domain_registry
+    return decode_digest_domain_registry_toml(path.read_bytes())
+                                              ~~~~~~~~~~~~~~~^^
+  File "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py", line 777, in read_bytes
+    with self.open(mode='rb', buffering=0) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py", line 771, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/public-surface-packet/fixture-current/policy-engine/architecture/production_quality/method_catalog_dependency_digest_domains.toml'

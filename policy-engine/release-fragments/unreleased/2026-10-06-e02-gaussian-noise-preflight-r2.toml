@@ -1,0 +1,17 @@
+id = "2026-10-06-e02-gaussian-noise-preflight-r2"
+title = "Admit Gaussian noise scalars before calibration callbacks"
+type = "fixed"
+component = "foundry"
+owner = "team-foundry"
+summary = "Calibrator.run copies finite positive real observation-noise scalars before parameter loading or mechanism execution. Boolean, nonfinite and unsupported scalar values are rejected; target-ID coverage remains a contextual check."
+evidence = ["tests/unit/foundry/calibration/test_gaussian_noise_preflight.py"]
+compatibility = "Supported positive real scalars retain the configured Gaussian NLL profile. Boolean values no longer act as unit noise. Generic calibration and the consumer_asserted non-gating row-law scope remain unchanged."
+change_class = "internal"
+surface_classification = "internal: Foundry calibration"
+migration = "Callers must supply a mapping of supported finite positive real observation-noise scales. Booleans, arrays, complex values, numeric strings and Decimal are unsupported."
+api = "Existing runtime-only CalibratorInputs; no IR or wire-contract change."
+limitations = "Scalar admission does not establish target coverage, source-law independence, regularity, served consumer provenance or inferential authority."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/foundry/calibration/README.md"]
+runbook_docs = []

@@ -1,0 +1,71 @@
+{
+  "schema": "policyos.e02.independent_assembly_delta_receipt.v1",
+  "state": "READY",
+  "unit": "E",
+  "base": "c79de1a8779482cf485317039fe12e3570ae2273",
+  "candidate": "d43f8d4693767637424da759ae960f7b51736449",
+  "tree": "6d38589b1b21a40ca64796cd018f766646099f7e",
+  "verdict": "GO_bounded_assembly_delta_and_source_dependency_joins",
+  "property": "Complete c79→d43 footprint and exact prior/new source, operational dependency and primary companion joins; independently reviewed changed mechanism required",
+  "predicate_basis": "independently_reconciled Git blob, exact primary independent review and consumer/source/companion joins; no institutional decision supplied",
+  "reviewer": "root/backtest_r3; independent assembly joins only; own BKT/Welfare judgments attributed to existing independent DDM/CAL receipts",
+  "primary_review": "assembly-delta-review-d43.json",
+  "script": "review_assembly_delta.py",
+  "stdout": "review.stdout",
+  "index": "copy-index.json",
+  "exact_command": {
+    "argv": [
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "/workspace/e02-E-pr38-r2-receipts/assembly-delta-final/review_assembly_delta.py",
+      "--repo",
+      "/workspace/e02-E-continuation-20261006",
+      "--output",
+      "/workspace/e02-E-pr38-r2-receipts/assembly-delta-final"
+    ],
+    "cwd": "/workspace",
+    "environment": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "UV_NO_SYNC": "1",
+      "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv"
+    }
+  },
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "cwd": "/workspace",
+    "product_backend": "NOT_INITIALIZED; only stdlib+Git",
+    "no_caps_added": true,
+    "new_environment_or_worktree": false
+  },
+  "input": {
+    "Git": "d43f8d4693767637424da759ae960f7b51736449",
+    "base": "c79de1a8779482cf485317039fe12e3570ae2273",
+    "prior_assembly": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/assembly-independent/assembly-dependency-review-c79.json",
+    "DOE_source": "70c4a14fc872f5ef66437d958ba63884ecdda168",
+    "DOE_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/doe-budget-independent-review-70c4.json",
+    "harness_source": "4758d495abb81aa51fea8e28cd071ca9ff989155",
+    "harness_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-independent/review.json",
+    "metadata_source": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+    "metadata_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/release-compatibility-independent/receipt.json"
+  },
+  "outcome": "PASS_static_assembly_join_only",
+  "no_numeric_or_global_check_launched": true,
+  "closure_ratified": false,
+  "remaining_checks_and_owners": {
+    "E_root": "Freeze one clean exact descendant with this moderate receipt, refresh actual plan/input denominator and run one common numerical/global wave; true fail-fast successors UNRUN; no repeat unchanged family checks.",
+    "D": "DoE persisted artifact/threshold/statistic/units/denominator→DefaultSearch ranking consumer implementation/readback.",
+    "A": "Default FRC bridge/lifecycle independently recomputed verifier and fresh served status/reason checks.",
+    "IR_semantic_owner": "Ratify distinct v2 point/interval/source-law carrier choices; B201/B202 held until decisions; preserve v1.1 replay.",
+    "Calibration_runtime_owner": "B194/B197 exact served evaluator/source-law/profile/calibrator authority remains held notwithstanding generic native consumer witnesses.",
+    "Core_IR_Foundry_API_owners": "Explicit foreign canonical entrypoint admission and version rollout are owner decisions; reexports do not ratify them.",
+    "G": "Code integration acceptance and individual original-criterion closure separately; local read-only exact-production/source-law checks only when criterion requires, no generic-fixture deferral or synthetic production claim."
+  },
+  "cleanup": {
+    "permanent_deletion": false,
+    "native_trash_operation": false,
+    "preserve": "all source/docs/deciding original receipts and exported evidence",
+    "new_repeatable_test_environment_candidates": [],
+    "shared_active_environment": "/workspace/e02-E-continuation-20261006/policy-engine/.venv"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "command": [
+    "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/forecast_probe.py",
+    "native",
+    "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/forecast-native-cas",
+    "/workspace/e02-E-continuation-20261006/policy-engine/src"
+  ],
+  "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+  "pythonpath": "/workspace/e02-E-continuation-20261006/policy-engine/src",
+  "environment": {
+    "UV_NO_SYNC": "1",
+    "caps": {
+      "OMP_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null,
+      "XLA_FLAGS": null
+    },
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "packages": {
+      "numpy": "2.3.5",
+      "scipy": "1.16.3",
+      "jax": "0.8.2",
+      "jaxlib": "0.8.2",
+      "pydantic": "2.12.5",
+      "jsonschema": "4.25.1",
+      "pytest": "9.0.2"
+    }
+  },
+  "exit_code": 0,
+  "wall_s": 19.142881631851196,
+  "stdout_ref": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facade-forecast-native.stdout",
+    "bytes": 137103,
+    "sha256": "5b179c60f91b6267ad15f71012e42c2aa9ca2e4831a011b65797d9c967b1d862"
+  }
+}

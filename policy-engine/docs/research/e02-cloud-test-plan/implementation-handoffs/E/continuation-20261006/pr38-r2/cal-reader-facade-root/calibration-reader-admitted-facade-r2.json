@@ -1,0 +1,404 @@
+{
+  "baseline_cells": [],
+  "baseline_scope": "Facade route followup to already committed legacy CAL-06 reader receipt; no new historicalFxx replay/ledger finding closure claim",
+  "branch": "codex/e02-E-continuation-20261006",
+  "bundle_ids": [
+    "CAL-06"
+  ],
+  "candidate_sha": "bf3b54c3a894d2d9d9bfb0cd13edb13177405f33",
+  "candidate_tree_sha": "0a414803650c9646b597ba24c93afbea0632dcd1",
+  "capability_state_or_finding_state": {
+    "B197": {
+      "formal_closure": "owner/G adjudication unchanged",
+      "historical_ledger_status": "held",
+      "verdict": "held"
+    },
+    "B198": "closed regression status unchanged; no new falsifier/closure vote",
+    "code": "GO-bounded-canonical-routing-fix; publicationGO",
+    "mathematical_joint_fixture": "PASS for the generic 100-draw zero-contrast fixture; source-fit/evaluator authority remains not_established",
+    "producer_authority": "Content integrity and canonical API only; no causal, production or served authority"
+  },
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-reader-facade.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-foundry-calibration-reader.toml",
+    "policy-engine/src/polisyos/calibration/__init__.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+    "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+    "policy-engine/tests/unit/calibration/test_evidence_facades.py"
+  ],
+  "checks": [
+    {
+      "command": null,
+      "command_state": "Historical complete argv not recovered; do not reconstruct as executed provenance",
+      "environment": "shared runtime; complete historical argv/environment not recovered",
+      "input_closure": "Original native API and actual Node consumer fixture tests represented by XML; sourcebf3 attribution supplied by author root",
+      "name": "original-author-bf3-native",
+      "observed": {
+        "errors": 0,
+        "failures": 0,
+        "seconds": 10.911,
+        "skipped": 0,
+        "testcases": [
+          "test_foundry_report_reader_is_canonical_and_refuses_funnel_kind",
+          "test_forecast_exports_preserve_canonical_types_and_refuse_authority",
+          "test_public_sampling_entrypoint_recomputes_terminal_denominator",
+          "test_public_finite_law_admission_preserves_atoms_and_domain",
+          "test_actual_legacy_consumer_accepts_valid_canonical_report",
+          "test_legacy_node_refuses_same_bytes_wrong_cas_profile_before_dispatch[foundry.funnel_calibration_report-polisyos.foundry.CalibrationReport-2.0]",
+          "test_legacy_node_refuses_same_bytes_wrong_cas_profile_before_dispatch[foundry.calibration_report-polisyos.foundry.FunnelCalibrationReport-2.0]",
+          "test_legacy_node_refuses_same_bytes_wrong_cas_profile_before_dispatch[foundry.calibration_report-polisyos.foundry.CalibrationReport-1.0]",
+          "test_actual_tied_calibrator_v2_reaches_fresh_legacy_node",
+          "test_invalid_explicit_report_cannot_hide_behind_valid_snapshot"
+        ],
+        "tests": 10
+      },
+      "outcome": "PASS",
+      "output": [
+        "author-historical/cal-reader-admitted-facade.stdout.txt",
+        "author-historical/cal-reader-admitted-facade.xml"
+      ],
+      "target_sha": "bf3b54c3a894d2d9d9bfb0cd13edb13177405f33"
+    },
+    {
+      "backend_versions": {
+        "jax": "0.8.2",
+        "jaxlib": "0.8.2",
+        "jsonschema": "4.25.1",
+        "numpy": "2.3.5",
+        "pydantic": "2.12.5",
+        "pytest": "9.0.2",
+        "scipy": "1.16.3"
+      },
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp",
+        "/workspace/e02-E-pr38-r2-receipts/facade-author-7bc-native/pytest-temp",
+        "--junitxml",
+        "/workspace/e02-E-pr38-r2-receipts/facade-author-7bc-native/pytest.xml",
+        "tests/unit/calibration/test_evidence_facades.py",
+        "tests/unit/scientist/nodes/test_calibration_report_consumer.py"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine/src",
+        "UV_NO_SYNC": "1",
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv"
+      },
+      "exit_code": 0,
+      "input_closure": "Actual tracked two-file native API/inlet tests; configured CAS fixtures with tied nativeCalibrator report and fresh Node readback; generic mathematical fixture, sourcefit not established",
+      "name": "exact-author-7bc-native",
+      "outcome": "PASS",
+      "output": [
+        "author-7bc/receipt.json",
+        "author-7bc/stdout.txt",
+        "author-7bc/pytest.xml"
+      ],
+      "pytest_seconds": 11.462,
+      "removed_caps": {},
+      "target_sha": "7bc65f73d333bc4a526c55d8a959d2b7dea7e472",
+      "wall_seconds": 16.07083821296692,
+      "warnings": "One PytestConfigWarning: cache_dir unknown because cacheprovider explicitly disabled; 10tests passed, zero skipped/error/failure."
+    },
+    {
+      "architecture_state": "HOLD-free-E-routing-fix at historical43; kept verbatim, not retrospectively rewritten",
+      "command_provenance": "Original argv/cwd preserved in historical-r4/commands.json",
+      "environment": "Shared runtime original r3 environment preserved; exact830 imported source modules verified by independent reviewer",
+      "input_closure": "Actual tied Calibrator\u2192v2report\u2192fresh CAS\u2192PropagateUncertaintyNode.execute\u2192persisted output, A/Bsharedcoordinate contrast zero for100draws",
+      "name": "independent-r4-native-reader-and-joint-law",
+      "outcome": "PASS",
+      "output": [
+        "historical-r4/review-r4.json",
+        "historical-r4/calibration-reader-positive.stdout",
+        "historical-r4/native.stdout",
+        "historical-r4/native.xml"
+      ],
+      "target_sha": "43c443b6f1015d57cf624598531ef99c22a296e6"
+    },
+    {
+      "command_provenance": "Original exact removal argv in historical-r4/commands.json",
+      "environment": "Shared runtime, no artificial caps",
+      "expected_negative": true,
+      "input_closure": "Original canonical loader identity and exports retained; only code body replaced with raw payload parser; sameCAS bytes/profilewrongFunnelkind",
+      "name": "independent-r4-strict-reader-property-removal",
+      "observed": "dispatch1 and actualevaluator101callbacks reached; refusal predicate red while export/identity markers stay present",
+      "outcome": "FAIL",
+      "output": "historical-r4/calibration-reader-removal.stdout",
+      "target_sha": "43c443b6f1015d57cf624598531ef99c22a296e6"
+    },
+    {
+      "code_verdict": "GO-bounded-canonical-routing-fix",
+      "command": null,
+      "command_provenance": "Original full launch argv not separately recovered. Source-pinned script, complete native output and module-origin receipt retained; reproduce_command specifies the required environment and script.",
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "environment": "Shared runtime; exact793 imported module bytes bound to sourcebf3 by reviewer",
+      "input_closure": "Canonical collector exact3-source denominator; canonical reader identity across Cal/uncertainty/Node; freshrealNode _collect_input_envelopes exactA.rate; bothfacades refuse3samebyteswrongprofiles",
+      "name": "independent-r5-current-routing-and-native-inlet",
+      "outcome": "PASS",
+      "output": [
+        "independent-r5/edge-identity-review.json",
+        "independent-r5/edge-identity-review.stdout"
+      ],
+      "reproduce_command": [
+        "UV_NO_SYNC=1",
+        "REVIEW_SOURCE_SHA=bf3b54c3a894d2d9d9bfb0cd13edb13177405f33",
+        ".venv/bin/python",
+        "/workspace/e02-E-pr38-r2-receipts/public-surface-packet-r5/edge_identity_review.py"
+      ],
+      "source_before_after_equal": true,
+      "target_sha": "bf3b54c3a894d2d9d9bfb0cd13edb13177405f33"
+    },
+    {
+      "command_provenance": "Original script and complete stdout retained; exact argv not separately recorded",
+      "environment": "Static actual canonical edge collector; no source files edited",
+      "expected_negative": true,
+      "input_closure": "Replace admitted facade routing AST with old direct private report import while canonical exports/reader identity retained",
+      "name": "independent-r5-routing-property-removal",
+      "observed": "Calibration\u2192Foundry report privateedge returns despite29/20exports and canonicalidentityTrue",
+      "outcome": "FAIL",
+      "output": [
+        "independent-r5/routing_removal_control.py",
+        "independent-r5/routing-removal.stdout"
+      ],
+      "target_sha": "bf3b54c3a894d2d9d9bfb0cd13edb13177405f33"
+    },
+    {
+      "command": null,
+      "command_provenance": "Original full launch argv not separately recovered; source-pinned publication script and complete output retained. This reproduction command is not an assertion of executed argv.",
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "environment": "Read-only exactGit/nativecanonicalgenerator output byte equality",
+      "global_guard": "UNRUN by independentreviewer; not inheritedPASS",
+      "input_closure": "Exact3-path companion,29/20exports, eager facade, stableuncertainty release, generated inventory/reference bytes, five corrupt-field controls",
+      "name": "independent-r5-exact-canonical-publication",
+      "outcome": "PASS",
+      "output": [
+        "independent-r5/publication-review20.json",
+        "independent-r5/publication-review20.stdout",
+        "independent-r5/metadata20-delta.json"
+      ],
+      "publication_verdict": "GO-bounded-owned-canonical-publication",
+      "reproduce_command": [
+        "python3",
+        "/workspace/e02-E-pr38-r2-receipts/public-surface-packet-r5/publication_review20.py"
+      ],
+      "target_sha": "7dc540d08d30bad8cf23744172c253c934dfc77e"
+    },
+    {
+      "command_provenance": "Read-only Git blob comparison made during packaging; no dynamic backend rerun",
+      "environment": "No new environment/worktree/process caps",
+      "input_closure": "Six defining numerical/reader/Node paths equal43/bf3/7dc/7bc; three currentfacade/API test paths equalbf3/7dc/7bc; canonical contract+guard unchanged",
+      "name": "immutable-mathematical-reader-property-reuse",
+      "outcome": "PASS",
+      "output": "immutable-source-proof.json",
+      "target_sha": "7bc65f73d333bc4a526c55d8a959d2b7dea7e472"
+    },
+    {
+      "command": null,
+      "environment": null,
+      "input_closure": null,
+      "name": "future-common-wave",
+      "outcome": "UNRUN",
+      "output": "No future or aggregate numerical-wave result asserted by this packaging receipt",
+      "target_sha": null
+    }
+  ],
+  "cleanup": {
+    "candidates_after_decidingoutputs_saved": [
+      "/workspace/e02-E-pr38-r2-receipts/cal-reader-root-facade-temp",
+      "/workspace/e02-E-pr38-r2-receipts/cal-reader-root-facade-temp-cwd-corrected",
+      "/workspace/e02-E-pr38-r2-receipts/facade-author-7bc-native/pytest-temp",
+      "/workspace/e02-E-pr38-r2-receipts/public-surface-packet-r4/cas-reader-positive",
+      "/workspace/e02-E-pr38-r2-receipts/public-surface-packet-r4/cas-reader-removed",
+      "/workspace/e02-E-pr38-r2-receipts/public-surface-packet-r4/native-pytest-fixtures",
+      "/workspace/e02-E-pr38-r2-receipts/public-surface-packet-r5/cas-route-cold-reader"
+    ],
+    "native_trash_available": false,
+    "permanent_deletion_performed": false,
+    "shared_environment_retained": "/workspace/e02-E-continuation-20261006/policy-engine/.venv; reusedbyroot/others, noleafcleanup"
+  },
+  "closure_ids": [
+    "B197"
+  ],
+  "covariance_oracle_reuse": {
+    "Hessian": 400,
+    "authority": "Generic fixture; source fit, production history and served functional remain held",
+    "defining_property": "Var(A\u2212B)=0; 100 actual shared-coordinate contrast draws are exactly zero. The independent-marginal proxy gives .005.",
+    "field_projection": "J=[1,1]^T; all four covariance entries are .0025",
+    "group_variance": 0.0025,
+    "input": "Generic tracked tied Calibrator: Gaussian observation sigma 10, two income 100 tax derivatives, selected likelihood profile"
+  },
+  "current_bounded_author_target_sha": "7bc65f73d333bc4a526c55d8a959d2b7dea7e472",
+  "environment": {
+    "UV_NO_SYNC": "1",
+    "architecture": "x86_64",
+    "cpu_process_limits": "no artificial process/thread/CPU caps",
+    "jax_devices": [
+      "TFRT_CPU_0"
+    ],
+    "jax_enable_x64": false,
+    "live_source_sha": "c64b13aeaef11073bbdb2f9e52b30b6effae928d",
+    "packages": {
+      "jax": "0.8.2",
+      "jaxlib": "0.8.2",
+      "jsonschema": "4.25.1",
+      "numpy": "2.3.5",
+      "pydantic": "2.12.5",
+      "pytest": "9.0.2",
+      "scipy": "1.16.3"
+    },
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "property_source_sha": "5cdfe613bf91fffbd578848c9e2f8275edc21ee7",
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "python_executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python"
+  },
+  "evidence": {
+    "bytes": 284256,
+    "committed_reuse": [
+      {
+        "bytes": 200260,
+        "commit": "7bc65f73d333bc4a526c55d8a959d2b7dea7e472",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r4/calibration-reader-independent.json",
+        "role": "Full830module source origins and reader native tiedproducer\u2192CAS\u2192actualNode\u2192persistedoutput; already tracked, not duplicated in packet",
+        "sha256": "90c96bdda1be2108b8d22c2e69708f6b7a10477000afed6ca2a567f3199e2df1"
+      }
+    ],
+    "copy_index": "copy-index.json",
+    "files": 31,
+    "proposed_committed_output_root": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root-packet-bf3"
+  },
+  "historical_and_harness_preservation": {
+    "architecture_HOLD": "Explicitr4 relocationHOLD persists as historicalrecord; currentr5GO attributedonlybf3actualrouting",
+    "independent_r4_harness_errors": [
+      "historical-r4/calibration-reader-positive-initial-harness-error.stdout",
+      "historical-r4/calibration-reader-removal-initial-harness-error.stdout"
+    ],
+    "original_wrongcwd": {
+      "corrected": [
+        "author-historical/cal-reader-root-facade-cwd-corrected.stdout.txt",
+        "author-historical/cal-reader-root-facade-cwd-corrected.xml"
+      ],
+      "corrected_observed": {
+        "errors": 0,
+        "failures": 0,
+        "seconds": 15.005,
+        "skipped": 0,
+        "testcases": [
+          "test_foundry_report_reader_is_canonical_and_refuses_funnel_kind",
+          "test_forecast_exports_preserve_canonical_types_and_refuse_authority",
+          "test_public_sampling_entrypoint_recomputes_terminal_denominator",
+          "test_public_finite_law_admission_preserves_atoms_and_domain",
+          "test_actual_legacy_consumer_accepts_valid_canonical_report",
+          "test_legacy_node_refuses_same_bytes_wrong_cas_profile_before_dispatch[foundry.funnel_calibration_report-polisyos.foundry.CalibrationReport-2.0]",
+          "test_legacy_node_refuses_same_bytes_wrong_cas_profile_before_dispatch[foundry.calibration_report-polisyos.foundry.FunnelCalibrationReport-2.0]",
+          "test_legacy_node_refuses_same_bytes_wrong_cas_profile_before_dispatch[foundry.calibration_report-polisyos.foundry.CalibrationReport-1.0]",
+          "test_actual_tied_calibrator_v2_reaches_fresh_legacy_node",
+          "test_invalid_explicit_report_cannot_hide_behind_valid_snapshot"
+        ],
+        "tests": 10
+      },
+      "logs": [
+        "author-historical/cal-reader-root-facade.stdout.txt",
+        "author-historical/cal-reader-root-facade.xml"
+      ],
+      "outcome": "ERROR harness; oneFileNotFoundError inrunpy relativefixture lookup fromrepo root,9pass/1fail; fullargv/sourceexactnotrecovered"
+    },
+    "r4_publication": "Exact2c canonical publicationGO didnotratify privateedge"
+  },
+  "implementation_commits": [
+    "bf3b54c3a894d2d9d9bfb0cd13edb13177405f33"
+  ],
+  "limitations_and_next_owner": [
+    "B197 source fit, served CalibratorInputs/evaluator and production-history boundaries remain held. Report integrity does not ratify the source or noise law. The owner must supply exact admitted input/model/data refs and the applicable profile; G checks the production candidate locally and read-only.",
+    "Routing does not alter Hessian, covariance, failed-support or wire semantics. B201/B202 point/interval/source-law decisions remain with the IR owner.",
+    "This leaf performed no global architecture or numerical-family wave. Selected edge GO and the root 10-test check do not replace the frozen aggregate wave.",
+    "Foreign Core/IR/execute owner admissions remain separate. No contract, exception or baseline was changed.",
+    "Root copies the indexed moderate outputs and typed receipt, then commits on its E topic. G code acceptance and finding closure remain separate decisions."
+  ],
+  "local_G_recipe": {
+    "entrypoint": "Run the tracked facade and calibration-report consumer tests on the exact candidate. The original root-author argv is preserved in author-7bc/receipt.json; replace its workspace paths for local reproduction.",
+    "implementation_sha": "bf3b54c3a894d2d9d9bfb0cd13edb13177405f33",
+    "production_minimal_inputs": "For a production-fit claim, resolve the configured v2 CalibrationReport and its actual CalibratorInputs/config/objective-profile/source/model refs plus the declared served consumer/evaluator. Keep full history local and read-only. Independently compare projection axes, covariance and actual joint draws, then read persisted output through a fresh store.",
+    "published_metadata_sha": "7bc65f73d333bc4a526c55d8a959d2b7dea7e472",
+    "scope": "A generic fixture does not establish production quality or scientific-law authority."
+  },
+  "metadata_flag_changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-foundry-calibration-reader.toml"
+  ],
+  "metadata_flag_companion_sha": "7bc65f73d333bc4a526c55d8a959d2b7dea7e472",
+  "metadata_flag_companion_tree_sha": "2c1b3fd02d751a6a8bd3053954ace7be4fce65ad",
+  "packaging_state": "READY: parent root copies and commits; this leaf made no root/source edits or new test runs",
+  "pattern_pass": {
+    "P01/P02": "Actual native producer \u2192 report \u2192 fresh store \u2192 Node \u2192 persisted output, with a generic fixture",
+    "P05/P08/P09/P10/P14": "Foundry/Funnel identity and payload-version discriminators before callback; no fit or source authority",
+    "P27/P29/P31/P32/P33": "One canonical loader, exact selected CAS profiles and preserved joint law; no duplicate codec",
+    "P35": "Exact three-source collector denominator, 793 imported module origins at bf3, and the 100-draw denominator reused from r4",
+    "P37/P38": "Identity and export-presence proxies diverge under reader and routing property-removal controls",
+    "P40": "Historical relocation HOLD preserved; the admitted routing fix is verified without a new baseline or waiver",
+    "P41": "Historical 43/2c receipts and current bf3/7dc/7bc evidence remain separately pinned; no future or global PASS"
+  },
+  "predicate_basis": "independently_reconciled",
+  "predicate_basis_frozen_P37": [
+    "Manifest kind/schema/payload/config/objective profile admission before the real propagation callback",
+    "Same-group parameter projection preserves axes and all cross-covariances under one joint coordinate; gate remains false",
+    "The same canonical object is re-exported across existing admitted facades; the selected canonical collector observes no new private edge",
+    "Generated metadata is reconciled byte for byte under declared classification and owner boundaries"
+  ],
+  "property": {
+    "negative_controls": [
+      "Same report bytes with wrong Foundry/Funnel kind",
+      "Wrong schema name",
+      "Manifest/payload version mismatch",
+      "Invalid explicit report cannot hide behind a valid DataSnapshot",
+      "Reader admission removal reaches 101 callbacks",
+      "Routing AST removal restores the private edge",
+      "Five corrupt inventory/count/mode/README/classification controls"
+    ],
+    "proxy_divergence": "Loader identity and 29/20 export counts survive strict-reader code removal, yet the wrong Funnel profile reaches dispatch with 101 callbacks. Export identity also survives routing removal while the private cross-root edge returns. These markers establish neither source-fit authority nor architecture admission.",
+    "runtime_path": [
+      "Native Calibrator tied coordinate",
+      "Configured CAS CalibrationReport v2",
+      "Canonical report loader via Foundry uncertainty stable facade \u2192 Calibration experimental facade",
+      "PropagateUncertaintyNode._collect_input_envelopes/execute",
+      "Persisted native propagation/UncertaintyEnvelope output"
+    ],
+    "statement": "Strict Foundry report CAS admission still occurs before propagation through the canonical reader. Facade routing uses the existing admitted cross-root API and preserves the actual producer, joint-law and Node consumer behavior."
+  },
+  "proposed_committed_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-reader-admitted-facade-r2.json",
+  "publication_changed_paths": [
+    "policy-engine/architecture/public_surface/inventory.json",
+    "policy-engine/docs/reference/public-surface.md",
+    "policy-engine/src/polisyos/foundry/uncertainty/README.md"
+  ],
+  "publication_companion_sha": "7dc540d08d30bad8cf23744172c253c934dfc77e",
+  "publication_companion_tree_sha": "d423da4821085f521463d6d5d60673f163c0d47e",
+  "pull_request": null,
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "slice": "calibration-reader-admitted-facade-r2",
+  "slice_base_sha": "fd291b736cf4fb361c2ef91fe8ee82a75722f85c",
+  "slice_base_tree_sha": "041a35219fb8b77393a477d28889db541eaadeb3",
+  "source_changes": {
+    "classification": {
+      "polisyos.calibration": "public_experimental",
+      "polisyos.foundry.uncertainty": "public_stable"
+    },
+    "export_counts": {
+      "Calibration": 29,
+      "Foundry uncertainty": 20
+    },
+    "footprint": "Six implementation paths, three canonical publication paths with README overlap, and one final release-reviewed flag path. The Node, strict report reader, Calibrator, MC, common finite-law inlet and consumer tests have identical immutable Git bytes across 43/bf3/7dc/7bc. The facade API test adds object identity and export assertions.",
+    "guard": "Selected three-source canonical collector: 12 old private edges, 11 current edges. The relocated Calibration\u2192Foundry report private edge is removed; no new private edge appears in this selected denominator. Existing unrelated private edges are not waived. Contract, baseline and exception files are unchanged.",
+    "routing": "PropagateUncertaintyNode retains Calibration facade reader import; Calibration now imports canonical reader from admitted polisyos.foundry.uncertainty. Foundry same-root facade exposes original report loader object. No cloned codec or new source authority."
+  },
+  "time_roles": {
+    "receipt_time": "Original XML execution timestamps retained; they do not substitute for source/train/holdout time roles.",
+    "source_fit_times": "not_established in this generic facade fixture"
+  },
+  "unit": "E"
+}

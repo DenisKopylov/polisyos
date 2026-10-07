@@ -39,7 +39,7 @@ def test_wrong_key_comparison_does_not_qualify_for_grade_a() -> None:
     score, grade = TrustScorer().compute(scenarios=[scenario], biases=[])
 
     assert scenario.compared_count == 0
-    assert score == pytest.approx(0.0)
+    assert score is None
     assert grade != "A"
 
 
@@ -68,7 +68,7 @@ def test_zero_evidence_does_not_receive_trust_grade() -> None:
         biases=[],
     )
 
-    assert score == pytest.approx(0.0)
+    assert score is None
     assert grade != "A"
 
 
@@ -195,9 +195,7 @@ def test_micro_rmse_is_partition_invariant_and_macro_is_explicit(tmp_path) -> No
     whole_report = BacktestOrchestrator(cas_root=str(tmp_path / "whole")).run(
         [plan("whole", [0.0, 10.0, 10.0], [0.0, 0.0, 0.0])]
     )
-    partitioned_report = BacktestOrchestrator(
-        cas_root=str(tmp_path / "partitioned")
-    ).run(
+    partitioned_report = BacktestOrchestrator(cas_root=str(tmp_path / "partitioned")).run(
         [
             plan("first", [0.0], [0.0]),
             plan("second", [10.0, 10.0], [0.0, 0.0]),
@@ -208,10 +206,7 @@ def test_micro_rmse_is_partition_invariant_and_macro_is_explicit(tmp_path) -> No
     assert whole_report.overall_rmse == pytest.approx(expected_micro_rmse)
     assert partitioned_report.overall_rmse == pytest.approx(expected_micro_rmse)
     assert partitioned_report.overall_macro_rmse == pytest.approx(5.0)
-    assert (
-        partitioned_report.aggregation_policy
-        == "micro_rmse_with_explicit_equal_scenario_macro"
-    )
+    assert partitioned_report.aggregation_policy == "micro_rmse_with_explicit_equal_scenario_macro"
 
 
 def test_invalid_prediction_is_counted_and_kept_out_of_valid_denominator() -> None:
@@ -230,7 +225,7 @@ def test_invalid_prediction_is_counted_and_kept_out_of_valid_denominator() -> No
     assert scenario.rmse == pytest.approx(0.0)
 
 
-def test_complete_exact_prediction_remains_a_positive_grade_control() -> None:
+def test_complete_exact_prediction_is_descriptive_without_trust_profile() -> None:
     scenario = PredictionEvaluator().evaluate(
         scenario_id="complete-exact",
         scenario_label="complete exact prediction",
@@ -244,11 +239,11 @@ def test_complete_exact_prediction_remains_a_positive_grade_control() -> None:
     assert scenario.compared_count == 2
     assert scenario.missing_count == 0
     assert scenario.invalid_count == 0
-    assert score == pytest.approx(1.0)
-    assert grade == "A"
+    assert score is None
+    assert grade is None
 
 
-def test_coverage_score_uses_persisted_nominal_confidence_level() -> None:
+def test_nominal_confidence_preserved_without_unadmitted_trust_score() -> None:
     scenario = BacktestScenario(
         scenario_id="nominal-coverage",
         scenario_label="nominal coverage",
@@ -268,8 +263,8 @@ def test_coverage_score_uses_persisted_nominal_confidence_level() -> None:
 
     score, grade = TrustScorer().compute(scenarios=[scenario], biases=[])
 
-    assert score == pytest.approx(1.0)
-    assert grade == "A"
+    assert score is None
+    assert grade is None
 
 
 def test_omitting_difficult_prediction_cannot_improve_completeness_or_grade() -> None:
@@ -293,7 +288,7 @@ def test_omitting_difficult_prediction_cannot_improve_completeness_or_grade() ->
     assert complete.requested_count == partial.requested_count == 2
     assert complete.compared_count == 2
     assert partial.compared_count == 1
-    assert complete_grade == "A"
+    assert complete_grade is None
     assert partial_grade != "A"
 
 
@@ -368,7 +363,7 @@ def test_persisted_envelope_metadata_overrides_plan_contract(monkeypatch, tmp_pa
     monkeypatch.setattr(
         orchestrator_module,
         "run_experiment",
-        lambda _state: {
+        lambda _state, **_kwargs: {
             "artifacts_index": {
                 "metrics_ref": metrics_ref,
                 "simulation_result_ref": simulation_ref,
@@ -394,7 +389,8 @@ def test_persisted_envelope_metadata_overrides_plan_contract(monkeypatch, tmp_pa
     assert scenario.interval_type == "credible_interval"
     assert scenario.metadata["interval_metadata_source"] == "persisted_envelope"
     assert scenario.coverage_probability == pytest.approx(2 / 3)
-    assert report.trust_score == pytest.approx(0.9167)
+    assert report.trust_score is None
+    assert report.trust_grade is None
     contract = report.metadata["interval_contracts"][0]
     assert contract["nominal_confidence_level"] == pytest.approx(0.80)
     assert contract["interval_type"] == "credible_interval"
@@ -471,7 +467,7 @@ def test_invalid_persisted_interval_metadata_is_degraded_and_unscored(
     monkeypatch.setattr(
         orchestrator_module,
         "run_experiment",
-        lambda _state: {
+        lambda _state, **_kwargs: {
             "artifacts_index": {
                 "metrics_ref": metrics_ref,
                 "simulation_result_ref": simulation_ref,

@@ -1,0 +1,11 @@
+{
+  "check": "current indexed copies and summary row",
+  "outcome": "PASS",
+  "indexed_rows_recomputed": 48,
+  "negative_controls": [
+    "corrupt byte count rejected",
+    "corrupt digest rejected"
+  ],
+  "raw_stdout_unchanged": true,
+  "source_tests_rerun": false
+}

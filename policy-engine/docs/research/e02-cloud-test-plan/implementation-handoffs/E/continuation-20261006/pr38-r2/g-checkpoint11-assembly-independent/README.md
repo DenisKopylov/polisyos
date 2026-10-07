@@ -1,0 +1,19 @@
+# Independent G checkpoint11 source delta
+
+Bounded source readiness **GO** on actual candidate `a9f78817c873be5b35a08155f2593b229d9fdbb6`, tree `c02e043c3e1c8222c28aa71187fa8db4e2fdeea7`. Reuse the independent94d assembly review only for unchanged complete Git blobs. No numerical/global tests, wheel build, environment/checkout creation, source/Git/config write or child agent was performed.
+
+The complete delta has84 paths:16 c311 publication/docs companions and68 fetched-G127 postimages. The G68 delta is one A-owned installed REQ01 test plus67 docs/evidence. Production source, mathematical bodies, canonical inventory/schema and reviewed wave harness are unchanged. All68 postimages equal fetchedG127 Git bytes. The previous moderate13-file assembly packet is itself reconciled through its committed portable index.
+
+The complete amended E instruction expressly admits deterministic nominal/gradient diagnostics as a limited candidate for an unknown joint law, with zero stochastic attempts and withheld uncertainty/authority. The unchanged independent884 Welfare witness records six evaluator calls: one nominal, one gradient base, four finite differences; stochastic attempts0, unattempted128, gate eligibilityfalse. This is carried by exact source identity, not re-executed here. Individual malformed/unsupported carrier and API-specific strict pre-callback predicates retain their stronger limits. Code acceptance does not ratify noise/source law or held IR semantics.
+
+Current plan preparation selects122 native files and2 source-bound A CAS/status packets,124 total numeric file inputs. Full changed-Python lint/format scope is317 paths. Its three additions relative to94d are the published assembly helper, A's tracked census helper and `tests/unit/remediation/test_req_01_installed.py`. The installed REQ01 test is outside the declared E family classifier and seven-group numerical wave; it remains an explicit foreign changed test and is included in full lint input. Its fresh wheel/build/install behavior belongs to A/G and applicable full-umbrella selection, not a duplicate standalone launch by this reviewer.
+
+The exact committed G selector receipt, stdout/stderr and JUnit bind one passing test to A candidate `577521c6651bba048d6bdfdc13f36a383c8146c6`, not this composed E source. The3143 wheel entries and RecordingResolver fixture are bounded A-source/wheel-origin evidence. Production resolver/source admission, complete REQ01 closure and composed E/G wheel acceptance remain unmeasured. Historical UNRUN build/harness attempts are not discarded or promoted.
+
+Ten fresh pure corruption controls reject wrong/current-composed candidate attribution, false test digest, corrupt JUnit size, stale plan SHA, incorrect native count, forged executionPASS, omitted installed-test lint input, false all-callback0, stochastic attempts6 and gate eligibilitytrue. These are assembly/metadata validation controls; no new numerical result is claimed.
+
+`independent-G11-assembly-review-a9f78817.json` is primary. `complete-84-path-footprint.json` binds every changed Git blob; `prepared-plan-a9f78817.json` preserves complete command/input denominator and UNRUN state; `negative-controls.json` preserves discriminators. Full command, environment and before/after tracked/source/config digest are in the primary. `copy-index.json` binds all moderate files.
+
+Root freezes this exact clean published candidate for one corrected wave; actual outcomes need separate independent audit. Main198 and integration anchor remain ancestors. Prior5e failed attempt stays distinct. A/D/Core/IR/generator/production owner residuals and B194/B197/B201/B202 held, B198 closed regression, and historical partial/open states remain separate from sourceGO.
+
+No permanent cleanup. Native Trash is unavailable; preserve deciding files and useful source/docs. The proposed fresh planning output directory was never created.

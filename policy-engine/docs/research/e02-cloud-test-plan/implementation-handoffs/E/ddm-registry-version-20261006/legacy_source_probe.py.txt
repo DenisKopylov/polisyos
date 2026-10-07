@@ -1,0 +1,21 @@
+import hashlib, json, runpy, subprocess, sys, types
+from jsonschema import Draft202012Validator, FormatChecker
+from polisyos.ddm.integration.model_registry import ModelRegistryReadinessRecord, evaluate_registry_gate
+SOURCE="198076863e143dea9f89f02734b13d50dae3eed5"
+REL="policy-engine/src/polisyos/ddm/integration/model_registry.py"
+source=subprocess.check_output(["git","show",f"{SOURCE}:{REL}"])
+module=types.ModuleType("legacy_ddm_registry_probe")
+module.__file__=f"{REL}@{SOURCE}"
+sys.modules[module.__name__]=module
+exec(compile(source,module.__file__,"exec"),module.__dict__)
+fixture=runpy.run_path("policy-engine/tests/unit/ddm/test_full_acceptance.py")
+report,audit,budget,result=fixture["_registry_window_context"](observed_triggers=[])
+legacy=module.build_model_registry_record(readiness_event=result.readiness_event,calibration_audit=audit,metric_budget=budget,_calibration_validity_evidence=result.registry_record._calibration_validity_evidence)
+payload=legacy.model_dump(mode="json")
+schema=json.loads(subprocess.check_output(["git","show",f"{SOURCE}:policy-engine/src/polisyos/ddm/integration/model_registry_record.schema.json"]))
+Draft202012Validator(schema,format_checker=FormatChecker()).validate(payload)
+reopened=ModelRegistryReadinessRecord.model_validate_json(legacy.model_dump_json())
+assert reopened.schema_version=="1"
+assert reopened.model_dump(mode="json")==payload
+assert not evaluate_registry_gate(reopened).promotion_allowed
+print(json.dumps({"legacy_producer_source":SOURCE,"legacy_producer_sha256":hashlib.sha256(source).hexdigest(),"producer":"build_model_registry_record","input_context":"actual current bounded synthetic calibration/monitor source DTOs; no institutional authority claimed","old_strict_reader_accepts":True,"new_reader_accepts":True,"current_classification":"1","legacy_wire_round_trip_equal":True,"fresh_reopen_gate":evaluate_registry_gate(reopened).model_dump(mode="json")}))

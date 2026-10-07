@@ -58,7 +58,11 @@ measurement bundles, and fetched targets are unsupported in this mode. A batch
 does not establish independent observations, a population law, or covariance.
 
 `CalibratorInputs.gaussian_observation_std` selects a narrow Gaussian NLL
-profile with known noise scales for every target. It requires fixed seeds,
+profile with known noise scales for every target. At `Calibrator.run` entry,
+preflight copies finite positive real scalars before loading parameters or
+executing mechanisms; booleans, arrays, complex values and numeric strings are
+unsupported. Target-ID coverage is checked separately against resolved targets.
+It requires fixed seeds,
 unweighted absolute MSE target configuration, and no measurement discount,
 GradNorm, prior, constraint, or auxiliary penalty. The actual objective is the
 sum of `0.5 * ((prediction - observation) / sigma)**2`, conditional on the

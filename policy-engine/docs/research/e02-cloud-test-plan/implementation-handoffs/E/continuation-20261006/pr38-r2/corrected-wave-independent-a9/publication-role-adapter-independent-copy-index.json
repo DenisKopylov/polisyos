@@ -1,0 +1,77 @@
+{
+  "schema": "policyos.e02.moderate-copy-index.v1",
+  "files": [
+    {
+      "path": "Git-complete-denominator-predicate-removed.py.txt",
+      "bytes": 7045,
+      "sha256": "fa282d16d366a263aa2d20e8978f0c23a825bcc2bed34ac2f1b5db401affc65b"
+    },
+    {
+      "path": "READY.json",
+      "bytes": 3301,
+      "sha256": "144d6cf5450f7da0f1dd2201057cbd8f97231e5e5951ebb4f789e55f28387866"
+    },
+    {
+      "path": "canonical-public-role-predicate-removed.py.txt",
+      "bytes": 32802,
+      "sha256": "8ac496effac808bfb598f54e3131c822b0a5e884c1b0783b618fd1981f3741b8"
+    },
+    {
+      "path": "external-complete-denominator-predicate-removed.py.txt",
+      "bytes": 7031,
+      "sha256": "b2b844a6bfdc901caef6f7d1003f250dafd47b12d06b865c5a3f8411fa23b9e6"
+    },
+    {
+      "path": "format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "format.stdout",
+      "bytes": 26,
+      "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+    },
+    {
+      "path": "freeze_review.py.txt",
+      "bytes": 4492,
+      "sha256": "169602a3da3f80ce3836f4357a2937528d20671b3eaadd0e4b5332ded4e6e42c"
+    },
+    {
+      "path": "index-corrupt-field-controls.json",
+      "bytes": 307,
+      "sha256": "142c0b1a0d1e6b3fd732e95215e595e5c960450155b8723b1ee538e1b5baeeb3"
+    },
+    {
+      "path": "review.json",
+      "bytes": 12224,
+      "sha256": "c20ef95fe54162cb9f779f37cb84869816a335e009df8edc1c1fd519ca268f12"
+    },
+    {
+      "path": "review.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "review.stdout",
+      "bytes": 256,
+      "sha256": "66eb92662c9a544255b696a0461c8b4d959147b1be8170d6c2295bddc527fcbb"
+    },
+    {
+      "path": "review_adapter.py.txt",
+      "bytes": 12670,
+      "sha256": "40c91e4c7ee6479a30d2ef0ddd55e8593c1a140155ef721bac320ea58860b8a9"
+    },
+    {
+      "path": "ruff.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "ruff.stdout",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    }
+  ],
+  "file_count": 14,
+  "total_bytes": 80173
+}

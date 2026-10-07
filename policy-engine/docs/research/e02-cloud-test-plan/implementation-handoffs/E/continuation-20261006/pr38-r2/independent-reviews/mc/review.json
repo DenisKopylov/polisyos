@@ -1,0 +1,134 @@
+{
+  "schema": "policyos.e02.independent-review.v1",
+  "reviewer": "E root; not author of MC mechanism",
+  "base_sha": "028829629a9c30454e44d25e7bea7be3ea05b561",
+  "source_sha": "d69d2fad34de9923209fde3e20439e46f36f6750",
+  "source_tree": "e7891ec257a0487b1be5ae39adca5ea05d28f251",
+  "published_receipt_head": "c4e8092d52cfff633465a8de1b8c93195388d401",
+  "source_unchanged_against_git": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-finite-sampling-law.toml",
+      "git_blob": "64e4843cbff602df22d87cad76654a7dcb9217fb",
+      "sha256": "dec7fc8990cddb249eea39eea26dc7c13c980e72f1f051489ba561e612ab2dc0"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/dispatcher.py",
+      "git_blob": "fff6eab6ca8c42e6c4eae9c91a6adda38bd82d31",
+      "sha256": "6127d211f01dd89b762a49a3f537a8374131661f363ef06ce64c19285266ec4e"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+      "git_blob": "7531a2ab9fd824e05f74e33f49a3d9f9386c57c9",
+      "sha256": "bb84f24451cd90a51d59f1593f7798ad46caf1cbddb5c7b3bacd47edffd893c7"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "git_blob": "8d0430675982d654f41599a50501a7af3071298b",
+      "sha256": "de3298a83f632bea1a869ef1f21437ea00e875d16c81abb923fd5185de1ae8e4"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/uncertainty/test_finite_empirical_law.py",
+      "git_blob": "64bc7fd577e919580aab990138947cd8d6b9c830",
+      "sha256": "de4f5feed308eaf622977b78a50ad35031c594f11eeea13a1b64eee513c107a2"
+    }
+  ],
+  "code_verdict": "GO_bounded_finite_machine_law",
+  "full_capability_verdict": "limited; source law/served evaluator and IR semantics authority not established",
+  "commands": [
+    {
+      "cwd": "/workspace/e02-E-mc-20261006/policy-engine",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r2-receipts/mc-independent.py"
+      ],
+      "env": {
+        "PYTHONPATH": "/workspace/e02-E-mc-20261006/policy-engine/src"
+      },
+      "exit_code": 0
+    },
+    {
+      "cwd": "/workspace/e02-E-mc-20261006/policy-engine",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r2-receipts/mc-gaussian-independent.py"
+      ],
+      "env": {
+        "PYTHONPATH": "/workspace/e02-E-mc-20261006/policy-engine/src"
+      },
+      "exit_code": 0
+    }
+  ],
+  "runtime_property": {
+    "producer": "real MonteCarloPropagator and PropagationDispatcher",
+    "artifact": "real FileSystemCAS uncertainty envelopes, DECIMAL_EXACT existing profile, fresh loader",
+    "consumer": "persisted paired-law propagation into output samples; nominal+256 actual callback rows",
+    "independent_oracle": "Fraction masses1/4,1/4,1/2 with y0,3,9: mean21/4 variance243/16; Gaussian w.T C w=.0145; tied nullspace0",
+    "native_backend": "NumPy/SciPy/JAX CPU, random/Sobol/Halton; no artificial worker/thread/CPU caps"
+  },
+  "observations": {
+    "paired_complete_256_net_counts": [
+      64,
+      64,
+      128
+    ],
+    "mean": 5.25,
+    "variance": 15.1875,
+    "Gaussian_full_covariance_and_nullspace": "6 native positive cases,4096 draw callbacks each",
+    "unsupported_uniform_covariance": "6 typed UNKNOWN nongating cases,callback_count0",
+    "CDF_controls": "U0,nextafter1,zero mass,and boundaryside right; U1/negative/nonfinite refused",
+    "negative_control": "old epsilon clip retains fields but loses both tiny endpoint atoms; independent assertion distinguishes; author exact58 nearweights/collapse/old-digest/row-swap native controls additionally reviewed"
+  },
+  "predicate_basis": {
+    "recomputed": "common inlet checks content digest, exact canonical represented weights, rows/order, positive CDF support, Gaussian profile and half-open coordinate domain before callback",
+    "consumer_asserted": "declared mathematical family and source/profile provenance",
+    "not_established": "production source law, served evaluator authority, arbitrary-real law grid exactness, B201/B202 v2 ratification"
+  },
+  "limitations": [
+    "Finite float64 normalized represented law; category collapse typed refusal, no general copula engine",
+    "Existing rounded carrier profile may erase tiny weights at persistence; DECIMAL_EXACT positive retained without wire change",
+    "Core/IR facade owner admission and final aggregate architecture/common wave remain separate",
+    "B188/B192 historical partial retained; accountable owner accepts criterion decisions individually"
+  ],
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "packages": {
+      "numpy": "2.3.5",
+      "scipy": "1.16.3",
+      "jax": "0.8.2",
+      "jaxlib": "0.8.2",
+      "pytest": "9.0.2"
+    },
+    "artificial_caps": {}
+  },
+  "outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/mc/mc-gaussian-independent.py",
+      "bytes": 2985,
+      "sha256": "ef5c57e883b91f3397cf96f50b11db580a439ce22a919fd398e576599834f8f7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/mc/mc-gaussian-independent.stdout.txt",
+      "bytes": 2433,
+      "sha256": "20c3881cdb64681805958b2fcf6f2e0403fe0e5b07c8b04b3d11444ca9a891f0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/mc/mc-independent.initial-harness-error.stdout.txt",
+      "bytes": 1094,
+      "sha256": "5a1aea44eb0c3aa3d4b8c1fdedfe04eca1637ec0db7969144b69fee8c1dd0c55"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/mc/mc-independent.py",
+      "bytes": 3934,
+      "sha256": "9cea88d9806b77c80fbd067a763e1caaf063dd1e0510f838408c0d48a34620e1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/mc/mc-independent.resolved.stdout.txt",
+      "bytes": 391,
+      "sha256": "44f39c8290a06f24dd302772908c95f34038cab9b322a30ce77163cc129d7444"
+    }
+  ],
+  "historical_harness_error": "mc-independent.initial-harness-error.stdout.txt: missing confidence_level before execution; corrected by explicit None, original stdout retained; not numerical red",
+  "cleanup": "No native Trash; preserve deciding outputs and exact synthetic CAS fixture /workspace/e02-E-pr38-r2-receipts/e02-mc-root-i_b3c689; reusable overlay/fixture candidates listed at final, no deletion"
+}

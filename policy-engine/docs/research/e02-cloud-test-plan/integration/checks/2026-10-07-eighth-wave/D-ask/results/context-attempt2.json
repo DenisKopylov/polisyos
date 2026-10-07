@@ -1,0 +1,150 @@
+{
+  "G_git_state_after": {
+    "branch": "codex/e02-integration",
+    "head": "ff277db7798fc312654704fa51c52e00f53f10f4",
+    "porcelain": "",
+    "tree": "618e17b5da96a623d5e57f30d265e245a2b277eb"
+  },
+  "G_git_state_before": {
+    "branch": "codex/e02-integration",
+    "head": "ff277db7798fc312654704fa51c52e00f53f10f4",
+    "porcelain": "",
+    "tree": "618e17b5da96a623d5e57f30d265e245a2b277eb"
+  },
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-c",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/2034-intake/G-D-ask-checks/candidate/policy-engine/pytest.ini",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "-p",
+    "g_origin_plugin",
+    "tests/unit/scientist/methods/search/test_service_persistence.py::test_failed_ask_publication_restores_cursor_ids_and_last_acknowledged_fresh_view",
+    "--basetemp",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/2034-intake/G-D-ask-checks/results/pytest-basetemp-attempt2",
+    "--junitxml",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/2034-intake/G-D-ask-checks/results/pytest-attempt2.junit.xml"
+  ],
+  "candidate_commit": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+  "candidate_tree": "4b0b58cc1fe0d7faab3d7aec49f99519dd080459",
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/2034-intake/G-D-ask-checks/candidate/policy-engine",
+  "environment_overrides_and_relevant_values": {
+    "G_CANDIDATE_ROOT": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/2034-intake/G-D-ask-checks/candidate",
+    "G_IMPORT_ORIGINS": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/2034-intake/G-D-ask-checks/results/module-origins-attempt2.json",
+    "G_SOURCE_MANIFEST": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/2034-intake/G-D-ask-checks/source-manifest-attempt2.json",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PATH": "/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/deniskopylov/.antigravity/antigravity/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0IKaEzY:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources:/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS",
+    "PYTEST_ADDOPTS": null,
+    "PYTEST_PLUGINS": null,
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONHOME": null,
+    "PYTHONNOUSERSITE": "1",
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/2034-intake/G-D-ask-checks/candidate/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/2034-intake/G-D-ask-checks/candidate/policy-engine/tests:/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/2034-intake/G-D-ask-checks/harness",
+    "PYTHONUSERBASE": null,
+    "VECLIB_MAXIMUM_THREADS": "1",
+    "VIRTUAL_ENV": null
+  },
+  "exit_code": 0,
+  "finished_utc": "2026-10-06T20:56:45.485566+00:00",
+  "max_sampled_process_rss_kib": 602912,
+  "outputs": {
+    "junit": {
+      "bytes": 658,
+      "exists": true,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/2034-intake/G-D-ask-checks/results/pytest-attempt2.junit.xml",
+      "sha256": "b62d577e83acc0d428f255bb1e72188bf0bdc82d992e552eb9ff243c0bfb4e85"
+    },
+    "origins": {
+      "bytes": 456800,
+      "exists": true,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/2034-intake/G-D-ask-checks/results/module-origins-attempt2.json",
+      "sha256": "f2acfba71e381b5ff7b15723832e7c3f921437edd6636d5f473a843aa2744ab4"
+    },
+    "stderr": {
+      "bytes": 0,
+      "exists": true,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/2034-intake/G-D-ask-checks/results/pytest-attempt2.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stdout": {
+      "bytes": 627,
+      "exists": true,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/2034-intake/G-D-ask-checks/results/pytest-attempt2.stdout.txt",
+      "sha256": "b817ab5d3f0264104de117d586c6b8c709061a2219bf23c0252134b5a8f1d56a"
+    }
+  },
+  "package_versions": {
+    "SALib": null,
+    "botorch": null,
+    "gpytorch": null,
+    "hypothesis": "6.151.2",
+    "loguru": "0.7.3",
+    "numpy": "2.3.5",
+    "opentelemetry-api": "1.39.1",
+    "opentelemetry-sdk": "1.39.1",
+    "pydantic": "2.12.5",
+    "pytest": "9.0.2",
+    "scipy": "1.16.3",
+    "torch": null
+  },
+  "pid": 64540,
+  "resource_snapshot_after": {
+    "disk_free_bytes": 12320088064,
+    "disk_report": "/dev/disk3s5   228Gi   189Gi    11Gi    95%    4.5M  120M    4%   /System/Volumes/Data",
+    "disk_total_bytes": 245107195904,
+    "disk_used_bytes": 232787107840,
+    "memory_pressure_excerpt": "The system has 17179869184 (1048576 pages with a page size of 16384).\n\nStats: \nPages free: 34943 \nPages purgeable: 474 \nPages purged: 9225714 \n\nSwap I/O:\nSwapins: 2730931 \nSwapouts: 3580810 \n\nPage Q counts:\nPages active: 236607 \nPages inactive: 235872 \nPages speculative: 179 \nPages throttled: 0 \nPages wired down: 180845 \n\nCompressor Stats:\nPages used by compressor: 323454 \nPages decompressed: 453212686 \nPages compressed: 479310376 \n\nFile I/O:\nPageins: 135473024 \nPageouts: 103021 \n\nSystem-wide memory free percentage: 50%\n",
+    "memory_pressure_exit": 0,
+    "process_snapshot_sha256": "ba9b9da974581b134eb8404ba9d6d241c54aa7bf504f0030e8da11f0e13bd6fa"
+  },
+  "resource_snapshot_before": {
+    "disk_free_bytes": 12320874496,
+    "disk_report": "/dev/disk3s5   228Gi   189Gi    11Gi    95%    4.5M  120M    4%   /System/Volumes/Data",
+    "disk_total_bytes": 245107195904,
+    "disk_used_bytes": 232786321408,
+    "memory_pressure_excerpt": "The system has 17179869184 (1048576 pages with a page size of 16384).\n\nStats: \nPages free: 4316 \nPages purgeable: 2598 \nPages purged: 9225269 \n\nSwap I/O:\nSwapins: 2730931 \nSwapouts: 3580810 \n\nPage Q counts:\nPages active: 266426 \nPages inactive: 265927 \nPages speculative: 194 \nPages throttled: 0 \nPages wired down: 180710 \n\nCompressor Stats:\nPages used by compressor: 294327 \nPages decompressed: 453212176 \nPages compressed: 479260891 \n\nFile I/O:\nPageins: 135465192 \nPageouts: 103021 \n\nSystem-wide memory free percentage: 52%\n",
+    "memory_pressure_exit": 0,
+    "process_snapshot_sha256": "cfba23661e81eee082390d6a2068685b0f982d70c4c82750b45488fe4a8326fb"
+  },
+  "schema": "g.e02.local-focused-test-receipt.v1",
+  "selector": "tests/unit/scientist/methods/search/test_service_persistence.py::test_failed_ask_publication_restores_cursor_ids_and_last_acknowledged_fresh_view",
+  "source_manifest_path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/2034-intake/G-D-ask-checks/source-manifest-attempt2.json",
+  "source_manifest_sha256": "fada274e6b224df099a18380edbf2568f5f441a468875f8c216a9c00ea32e93e",
+  "source_verification_after": {
+    "all_expected_files_present": true,
+    "all_git_modes_and_blobs_match": true,
+    "extra": [],
+    "file_count": 2941,
+    "mismatched": [],
+    "missing": [],
+    "no_unexpected_files": true,
+    "source_manifest_sha256": "fada274e6b224df099a18380edbf2568f5f441a468875f8c216a9c00ea32e93e",
+    "total_bytes": 56200179
+  },
+  "source_verification_before": {
+    "all_expected_files_present": true,
+    "all_git_modes_and_blobs_match": true,
+    "extra": [],
+    "file_count": 2941,
+    "mismatched": [],
+    "missing": [],
+    "no_unexpected_files": true,
+    "source_manifest_sha256": "fada274e6b224df099a18380edbf2568f5f441a468875f8c216a9c00ea32e93e",
+    "total_bytes": 56200179
+  },
+  "started_utc": "2026-10-06T20:56:35.729529+00:00",
+  "timed_out": false,
+  "timeout_seconds": 180,
+  "tracked_blob_count": 2941,
+  "tracked_byte_count": 56200179,
+  "wall_seconds": 9.755843999970239
+}

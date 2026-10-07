@@ -1,0 +1,27 @@
+{
+  "source": "902d9f6b224f0fbeec709bc3683910fa08eba4b7",
+  "source_tree": "95dc868014a912a27ac6ff2787a02fa302d5a0d4",
+  "archive_sha256": "9a948d463b0539134f43f7dc92a02ba6ad764fe79b8759711809641bdac24fd8",
+  "archive_paths": [
+    "policy-engine/src",
+    "policy-engine/architecture",
+    "policy-engine/pyproject.toml",
+    "policy-engine/uv.lock",
+    "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py"
+  ],
+  "argv": [
+    "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/legacy-calibration/baseline_falsifier.py"
+  ],
+  "cwd": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/legacy-calibration/git-blob-overlay-902d/policy-engine",
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/legacy-calibration/git-blob-overlay-902d/policy-engine/src",
+    "UV_NO_SYNC": "1",
+    "OMP_NUM_THREADS": null,
+    "XLA_FLAGS": null
+  },
+  "exit_code": 0,
+  "wall_seconds": 11.64792616100749,
+  "maxrss_kib": 693368,
+  "stdout_sha256": "4185b999a687a47611e6f16371d18423dbe475992e09851cce7c6d93335b086b"
+}

@@ -1,0 +1,18 @@
+{
+  "schema": "e02.E.independent_final_review_READY.v1",
+  "state": "READY_IMMUTABLE",
+  "primary": {
+    "path": "review-final-all54-9954.json",
+    "bytes": 94391,
+    "sha256": "a24e0b788c2ef2288829c0f3ddd1c80513cb72ba63e36e33d142abce4fa48013"
+  },
+  "index": {
+    "path": "copy-index.json",
+    "bytes": 9476,
+    "sha256": "d24d07792368c0e9c96e754309aebea174b670b825bd649f85d1acc38e9c302b"
+  },
+  "disposition": "GO_bounded_metadata_criteria_custody; numerical_suiteHOLD_fourFAIL; seven_gatesFAIL; historicalfindingsunchanged",
+  "reviewed_publication": "9954f394b470961d9e144a557f3cefeb9e0a67b6",
+  "numeric_product_tests_run": false,
+  "rule": "No indexed bytes will change; root publishes exact review in separate Git checkpoint; no source/worktree/Git mutations by reviewer."
+}

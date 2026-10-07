@@ -1,0 +1,11 @@
+{
+  "schema": "policyos.e02.full_compressed_output.v1",
+  "raw_path": "/workspace/e02-E-20261006-receipts/common-wave/production-invocation.raw.json",
+  "raw_bytes": 171393890,
+  "raw_sha256": "69dad1e3da2e3de4a800fb5654fbfaafdb5b9209751599e1367d7005f6d721c1",
+  "compressed_path": "/workspace/e02-E-20261006-receipts/common-wave/production-invocation.raw.json.gz",
+  "compressed_bytes": 6004399,
+  "compressed_sha256": "eb6dd0f2f832a1e45145c72f5f2241fcefdcdb3e8ce7fb0de009ff8c7330584c",
+  "complete_output_preserved": true,
+  "replay": "Read with gzip.open(path, rt); no filtering of the full diagnostic receipt."
+}

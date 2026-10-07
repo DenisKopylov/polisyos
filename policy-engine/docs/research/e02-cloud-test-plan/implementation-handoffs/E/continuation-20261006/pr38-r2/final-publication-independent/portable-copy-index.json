@@ -1,0 +1,76 @@
+{
+  "schema": "e02.E.portable-review-copy-index.v1",
+  "source_candidate_sha": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+  "source_candidate_tree": "c02e043c3e1c8222c28aa71187fa8db4e2fdeea7",
+  "reviewed_publication_commit": "9954f394b470961d9e144a557f3cefeb9e0a67b6",
+  "source_index": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/independent-publication-delta-9954/copy-index.json",
+    "bytes": 1578,
+    "sha256": "ea743ac1290764b9631db11c5edf5b629918b0d8ea41fd4b62d78fdc9c2a303a"
+  },
+  "files": [
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-publication-delta-9954/README.md",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-publication-independent/README.md",
+      "bytes": 2169,
+      "sha256": "55977a7297131bd96c11561cf6f32f0aa948640119385f6aaf0bc69bf377ebf1"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-publication-delta-9954/READY.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-publication-independent/READY.json",
+      "bytes": 813,
+      "sha256": "3a90e61df5f6c6d812bce77c5dbd432f34eff0dad167e1f547c4206bb1115f03"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-publication-delta-9954/corrupt-controls.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-publication-independent/corrupt-controls.json",
+      "bytes": 808,
+      "sha256": "c1bdcd24f41cb22c4225feafc93a0c29132e3165936a0aff2ce0791b0d717074"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-publication-delta-9954/publication-footprint.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-publication-independent/publication-footprint.json",
+      "bytes": 109646,
+      "sha256": "b7d12878baecddf7fe854d7475928ec106ecd457929930ef35b41336af0c35e8"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-publication-delta-9954/review.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-publication-independent/review.json",
+      "bytes": 19335,
+      "sha256": "9d4de70d4d14cc4509efac6555ed5aba5c165bd227904baeca52140b2203a3d2"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-publication-delta-9954/review.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-publication-independent/review.stderr.txt",
+      "bytes": 192,
+      "sha256": "f4c8ae881b9208d52431889603d224b7e34eeaaf9dee77c7f9d0b357d05e0808"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-publication-delta-9954/review.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-publication-independent/review.stdout.txt",
+      "bytes": 722,
+      "sha256": "a58556313951de37ea7dc442d7010a7107d7d1c1e376fc7035426c7f94d3f86f"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-publication-delta-9954/review_publication.py.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-publication-independent/review_publication.py.txt",
+      "bytes": 16927,
+      "sha256": "318edce7c3fec5aeca014ad22460ecb2e026a62ff108abad0fc1e4f023417cd3"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-publication-delta-9954/verified-portable-copies.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-publication-independent/verified-portable-copies.json",
+      "bytes": 124199,
+      "sha256": "cdbc3609d812bd5550c56ee996535c632f23b14700586309eed437111ba79754"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-publication-delta-9954/copy-index.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-publication-independent/copy-index.json",
+      "bytes": 1578,
+      "sha256": "ea743ac1290764b9631db11c5edf5b629918b0d8ea41fd4b62d78fdc9c2a303a"
+    }
+  ],
+  "file_count": 10,
+  "total_bytes": 276389,
+  "rule": "Immutable originals unchanged; independent bounded review GO is separate from numerical HOLD/globalFAIL/finding owner decisions."
+}

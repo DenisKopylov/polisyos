@@ -1,0 +1,33 @@
+2026-10-06 13:37:47 [info     ] method_registered              backend=numpy fqn=forecasting.advanced.prophet@1.0.0 lazy=True namespace=forecasting.advanced override=False tags=['additive', 'advanced', 'builtin', 'domain:forecasting', 'family:forecasting', 'forecasting', 'prophet', 'time-series'] version=1.0.0
+2026-10-06 13:37:47 [info     ] method_registered              backend=numpy fqn=forecasting.decomposition.stl@1.0.0 lazy=True namespace=forecasting.decomposition override=False tags=['builtin', 'decomposition', 'domain:forecasting', 'family:forecasting', 'forecasting', 'seasonal', 'stl', 'time-series'] version=1.0.0
+2026-10-06 13:37:47 [info     ] method_registered              backend=numpy fqn=forecasting.ensemble.simple_average@1.0.0 lazy=True namespace=forecasting.ensemble override=False tags=['builtin', 'domain:forecasting', 'ensemble', 'family:forecasting', 'forecasting', 'time-series'] version=1.0.0
+2026-10-06 13:37:47 [info     ] method_registered              backend=numpy fqn=forecasting.hybrid.guarded_neural@1.0.0 lazy=True namespace=forecasting.hybrid override=False tags=['builtin', 'domain:forecasting', 'family:forecasting', 'forecasting', 'hybrid', 'neural', 'time-series', 'trust-region'] version=1.0.0
+2026-10-06 13:37:47 [info     ] method_registered              backend=numpy fqn=forecasting.multivariate.vec_forecast@1.0.0 lazy=True namespace=forecasting.multivariate override=False tags=['builtin', 'domain:forecasting', 'family:forecasting', 'forecasting', 'multivariate', 'time-series', 'var', 'vec'] version=1.0.0
+2026-10-06 13:37:47 [info     ] method_registered              backend=numpy fqn=forecasting.reconciliation.bottom_up@1.0.0 lazy=True namespace=forecasting.reconciliation override=False tags=['builtin', 'domain:forecasting', 'family:forecasting', 'forecasting', 'hierarchical', 'reconciliation', 'time-series'] version=1.0.0
+2026-10-06 13:37:47 [info     ] method_registered              backend=numpy fqn=forecasting.reconciliation.general_linear_projection@1.0.0 lazy=True namespace=forecasting.reconciliation override=False tags=['builtin', 'domain:forecasting', 'family:forecasting', 'forecasting', 'general-linear', 'grouped', 'reconciliation', 'time-series'] version=1.0.0
+2026-10-06 13:37:47 [info     ] method_registered              backend=numpy fqn=forecasting.regime_shift.hybrid@1.0.0 lazy=True namespace=forecasting.regime_shift override=False tags=['builtin', 'domain:forecasting', 'family:forecasting', 'forecasting', 'regime-switching', 'structural-breaks', 'time-series'] version=1.0.0
+2026-10-06 13:37:47 [info     ] method_registered              backend=numpy fqn=forecasting.univariate.exponential_smoothing@1.0.0 lazy=True namespace=forecasting.univariate override=False tags=['builtin', 'domain:forecasting', 'exponential-smoothing', 'family:forecasting', 'forecasting', 'time-series'] version=1.0.0
+2026-10-06 13:37:47 [info     ] method_registered              backend=numpy fqn=forecasting.univariate.theta@1.0.0 lazy=True namespace=forecasting.univariate override=False tags=['builtin', 'domain:forecasting', 'family:forecasting', 'forecasting', 'theta', 'time-series'] version=1.0.0
+2026-10-06 13:37:47 [debug    ] method_dispatch_start          backend=numpy fqn=forecasting.univariate.exponential_smoothing@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 13:37:47 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=97.21 fqn=forecasting.univariate.exponential_smoothing@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/forecast_probe.py", line 44, in <module>
+    result=owner.ForecastOwner(store,empirical_profile_ref=profile_ref).run(request)
+  File "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py", line 1208, in run
+    load_empirical_calibration_evidence(self._store, empirical_evidence_ref)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/calibration/forecast_bridge.py", line 586, in load_empirical_calibration_evidence
+    validated_ref = EmpiricalCalibrationEvidenceRef.model_validate(evidence_ref)
+  File "/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py", line 716, in model_validate
+    return cls.__pydantic_validator__.validate_python(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        obj,
+        ^^^^
+    ...<5 lines>...
+        by_name=by_name,
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+pydantic_core._pydantic_core.ValidationError: 1 validation error for EmpiricalCalibrationEvidenceRef
+  Input should be a valid dictionary or instance of EmpiricalCalibrationEvidenceRef [type=model_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.12/v/model_type

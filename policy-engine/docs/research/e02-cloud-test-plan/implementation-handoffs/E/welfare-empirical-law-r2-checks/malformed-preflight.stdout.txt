@@ -1,0 +1,47 @@
+{
+  "source_sha": "884681db485b7466b183a206f83bbe0635f86ca3",
+  "results": [
+    {
+      "outcome": "rejected_by_existing_IR_load",
+      "error_type": "TypeError",
+      "message": "float() argument must be a string or a real number, not 'dict'",
+      "wire_value": {
+        "real": 0.0,
+        "imag": 1.0
+      },
+      "callback_count": 0,
+      "source_hash_valid": true
+    },
+    {
+      "outcome": "rejected_by_existing_IR_load",
+      "error_type": "ValidationError",
+      "message": "1 validation error for UncertaintyEnvelope\n  Value error, could not convert string to float: '1+2j' [type=value_error, input_value={'composition_provenance'...', 'source': 'ensemble'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error",
+      "wire_value": "1+2j",
+      "callback_count": 0,
+      "source_hash_valid": true
+    },
+    {
+      "outcome": "fail",
+      "error": {
+        "code": "ERROR_MONTE_CARLO_NOT_CONVERGED",
+        "message": "Welfare Monte Carlo propagation did not reach the minimum valid sample budget",
+        "details": {
+          "valid_samples": 0,
+          "required": 10,
+          "draw_outcomes_ref": {
+            "artifact_id": "sha256:cce9c53cb5be8a3ba695bc3afdf881dfd745cb1875b2ed10381f45f931884b0c",
+            "kind": "foundry.welfare_draw_outcomes",
+            "media_type": "application/json"
+          },
+          "requested_draw_count": 128,
+          "attempted_draw_count": 128,
+          "failed_draw_count": 128,
+          "unattempted_draw_count": 0
+        }
+      },
+      "wire_value": true,
+      "callback_count": 129,
+      "source_hash_valid": true
+    }
+  ]
+}

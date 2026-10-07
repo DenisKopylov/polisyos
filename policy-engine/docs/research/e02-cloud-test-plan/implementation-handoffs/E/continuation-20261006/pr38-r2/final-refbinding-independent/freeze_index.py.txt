@@ -1,0 +1,38 @@
+from pathlib import Path
+import copy
+import hashlib
+import json
+import subprocess
+
+out=Path(__file__).parent
+root=Path('/workspace/e02-E-continuation-20261006')
+identity=lambda p:{'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()}
+assert not (out/'copy-index.json').exists()
+review=json.loads((out/'review.json').read_text())
+assert review['verdict']=='GO-bounded-final-refbinding-and-byte-custody'
+assert len(review['meaningful_corrupt_controls'])==10
+assert (out/'review.stderr').read_bytes()==b''
+for path,expected in json.loads((out/'input-snapshot.json').read_text()).items():assert identity(Path(path))==expected
+assert subprocess.check_output(['git','-C',str(root),'rev-parse','HEAD','HEAD^{tree}'],text=True).splitlines()==review['root_HEAD_tree_before_after']
+(out/'READY.json').write_text(json.dumps({'state':'READY-immutable-bounded-refbinding-GO','primary':'review.json','candidate':review['numerical_source'],'root_publication_checkpoint':review['all54_checkpoint'],'review_primary_and_67source_copy_records':'complete current byte/hash identity independently recomputed','meaningful_corrupt_controls':10,'new_numeric_native_runtime_global_commands':0,'source_Git_config_ref_mutations':False,'same_declared_4fields_only':True,'finding_acceptance':False,'next_owner':review['next_owner']},indent=2)+'\n')
+def validate(index):
+ if index['file_count']!=len(index['files']) or index['total_bytes']!=sum(r['bytes'] for r in index['files']):raise ValueError('denominator mismatch')
+ if len({r['path'] for r in index['files']})!=len(index['files']):raise ValueError('duplicate role')
+ for row in index['files']:
+  if Path(row['path']).name!=row['path']:raise ValueError('noncanonical role')
+  if identity(out/row['path'])!={'bytes':row['bytes'],'sha256':row['sha256']}:raise ValueError('payload bytes/hash mismatch')
+rows=[{'path':p.name,**identity(p)} for p in sorted(out.iterdir()) if p.is_file() and p.name!='copy-index.json']
+index={'schema':'policyos.e02.moderate-copy-index.v1','files':rows,'file_count':len(rows),'total_bytes':sum(r['bytes'] for r in rows)}
+validate(index)
+negatives=[]
+for label,mutate in [('hash',lambda x:x['files'][0].update(sha256='0'*64)),('size',lambda x:x['files'][0].update(bytes=x['files'][0]['bytes']+1)),('denominator',lambda x:x.update(file_count=x['file_count']+1))]:
+ wrong=copy.deepcopy(index);mutate(wrong)
+ try:validate(wrong)
+ except ValueError as error:negatives.append({'control':label,'outcome':'REFUSED','reason':str(error)})
+ else:raise AssertionError('forged index admitted')
+(out/'copy-index-corrupt-controls.json').write_text(json.dumps(negatives,indent=2)+'\n')
+rows=[{'path':p.name,**identity(p)} for p in sorted(out.iterdir()) if p.is_file() and p.name!='copy-index.json']
+index={'schema':'policyos.e02.moderate-copy-index.v1','files':rows,'file_count':len(rows),'total_bytes':sum(r['bytes'] for r in rows)}
+validate(index)
+(out/'copy-index.json').write_text(json.dumps(index,indent=2)+'\n')
+print(json.dumps({'index':str(out/'copy-index.json'),**identity(out/'copy-index.json'),'files':index['file_count'],'total_bytes':index['total_bytes'],'verdict':review['verdict']}))

@@ -1,0 +1,8 @@
+{
+  "requested": 128,
+  "successful": 92,
+  "failed": 36,
+  "conditional_mean": 2.0,
+  "unconditional_mean": null,
+  "export_count": 4
+}

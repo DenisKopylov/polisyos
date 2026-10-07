@@ -1,0 +1,128 @@
+{
+  "schema": "e02.evidence-copy-index.v1",
+  "files": [
+    {
+      "path": "README.md",
+      "size_bytes": 2431,
+      "sha256": "7f42a472827d517046ec68a042a18b49739a89953f506e7b9ff8026670a3d80f"
+    },
+    {
+      "path": "browser-capability-receipt.json",
+      "size_bytes": 1852,
+      "sha256": "622daba87a0c5601704c82fcc6e892d00464ee587643fe0dc1810f09f6de1e3d"
+    },
+    {
+      "path": "browser-capability.json",
+      "size_bytes": 791,
+      "sha256": "8f3b173bc7cb57c298b6fdb388078d88865a82dfa0c5d2a5ea020d4d63f9d89b"
+    },
+    {
+      "path": "browser-capability.stdout",
+      "size_bytes": 4221,
+      "sha256": "346bbe5e1383460e392b94dcde869484f6797d3cb074bae30a22534df0d4ee2e"
+    },
+    {
+      "path": "browser_capability.cjs",
+      "size_bytes": 1972,
+      "sha256": "60cab73a2d913ab33e412367e0df071a60d4e7746c00ca40525d5044e71a42ee"
+    },
+    {
+      "path": "configured-format.stdout",
+      "size_bytes": 26,
+      "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd"
+    },
+    {
+      "path": "configured-ruff.stdout",
+      "size_bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "denominator-correction.json",
+      "size_bytes": 15450,
+      "sha256": "8d55b0c75ec87e379dd1e8284a61971d050ce8896528a733308063eca6ca7ab0"
+    },
+    {
+      "path": "freeze-packet.stdout",
+      "size_bytes": 198,
+      "sha256": "ee8ff80b00b49c398e7121bf668a094bc954a76d97d2e5334875546d42f05e31"
+    },
+    {
+      "path": "freeze_packet.py",
+      "size_bytes": 6875,
+      "sha256": "ed61f20ff91961556259bf159dd66ae10ed28a92fccadb9905f4e07316285343"
+    },
+    {
+      "path": "harness-independent-review.json",
+      "size_bytes": 4835,
+      "sha256": "924b0e32b6901ef3d97985b7f3bc9bd58bfd6c7fe5281ff4702b058a017b9f58"
+    },
+    {
+      "path": "harness-review.stdout",
+      "size_bytes": 4835,
+      "sha256": "924b0e32b6901ef3d97985b7f3bc9bd58bfd6c7fe5281ff4702b058a017b9f58"
+    },
+    {
+      "path": "harness_review.py",
+      "size_bytes": 8549,
+      "sha256": "91d92933ae705515311e3f233fcbc160a5a37f1c1736d329b38d08f14129c067"
+    },
+    {
+      "path": "plan-snapshot.json",
+      "size_bytes": 130985,
+      "sha256": "36eab03e26458ecc11a0597b05485b1832403eae772ac97f2a67db7b11d0e080"
+    },
+    {
+      "path": "preservation-controls/dtd.xml",
+      "size_bytes": 82,
+      "sha256": "0c313bfdbdddb1902ec698d497dbecfa9b12c3a7e10e45d625be83b666f820ed"
+    },
+    {
+      "path": "preservation-controls/existing-basetemp/unique-data.txt",
+      "size_bytes": 10,
+      "sha256": "1cd263f1102656dd6b6cf1d626d1a96f9eba0406af3cb2a52560d473d4801052"
+    },
+    {
+      "path": "preservation-controls/existing-output/unique-data.txt",
+      "size_bytes": 21,
+      "sha256": "4db05f59315f1f6601784ace3bad66cd1106d4e66191a0df5a85c3408d53924d"
+    },
+    {
+      "path": "preservation-controls/four-outcomes.xml",
+      "size_bytes": 125,
+      "sha256": "14df9c1e6cb4613cc47f84517a92dea4894adb02ecca45a3fac89123df4d6ea5"
+    },
+    {
+      "path": "preservation-controls/removed-admission-wave/not-started-after-importer.json",
+      "size_bytes": 134,
+      "sha256": "b330ce4e6425cd1d40ce142c33f5fdffb5fcfdb0c3ab5538761d85c52333737e"
+    },
+    {
+      "path": "preservation-controls/removed-admission-wave/wave-started.json",
+      "size_bytes": 197,
+      "sha256": "e343abd5c27b8ad416befebcedbd1f31123d0ea32d81c7c39ed2160c6d2ff500"
+    },
+    {
+      "path": "review.json",
+      "size_bytes": 11010,
+      "sha256": "9f3c2514c74e781f20217a65ad7e6f3cde609247750be7af8ec89afa0dea3fc2"
+    },
+    {
+      "path": "validate-packet-self-index-harness-error.stdout",
+      "size_bytes": 683,
+      "sha256": "e1b34c188b2c4faed0d92087be2614c7fcb66e38ee7ffb060f5ee34c5d9fdc7f"
+    },
+    {
+      "path": "validate_packet.py",
+      "size_bytes": 4492,
+      "sha256": "887e447311c27e05b233509942d0037e40c0c84ccf1b2048542c3e1c81c3d26e"
+    },
+    {
+      "path": "validation-complete.stdout",
+      "size_bytes": 203,
+      "sha256": "a004fc5760091a35520474c610325cdb8c0f01a5805565e57261e663e2d2e2c5"
+    }
+  ],
+  "total_files": 24,
+  "total_bytes": 199996,
+  "stage": "READY immutable exact4758 independent bounded harness review; numerical and fullCI UNRUN; preserved Chromium profile/symlink fixtures excluded from moderate Git packet"
+}

@@ -124,6 +124,7 @@ class ParameterSpec(BaseModel):
     distribution_spec: DistributionSpecV1 | None = None
     baseline: float | None = None
     description: str = ""
+    unit: str = Field(default="unspecified", min_length=1)
     num_levels: int = Field(default=4, ge=2)
 
     @model_validator(mode="after")
@@ -164,6 +165,8 @@ class SensitivityPlan(BaseModel):
     n_trajectories: int = Field(default=10, ge=1)
     confidence_level: float = Field(default=0.95, gt=0.0, lt=1.0)
     seed: int | None = None
+    input_law: Literal["unknown", "independent", "dependent"] = "unknown"
+    """Declared experimental input law; not evidence about a population law."""
 
     # Guardrails for expensive batches.
     max_estimated_runs: int = Field(default=1000, ge=1)
@@ -224,6 +227,18 @@ class SensitivityPlan(BaseModel):
         return self
 
 
+def _admit_sensitivity_plan(plan: SensitivityPlan) -> SensitivityPlan:
+    """Re-admit a defensive snapshot before materializing a mutable plan.
+
+    Construction, assignment and ``model_copy(update=...)`` are separate
+    boundaries. Reconstruct from fields, including nested models, so every
+    consumer uses the existing structural and estimated-run predicate rather
+    than trusting admission of an earlier state. The caller's mutable object
+    remains unchanged and cannot change this operation's effective plan.
+    """
+    return SensitivityPlan.model_validate(plan.model_dump(mode="python"))
+
+
 def _derive_backend_seed(seed: int | None, stream: str) -> int | None:
     """Derive a stable backend seed for one logical DOE stream.
 
@@ -233,7 +248,7 @@ def _derive_backend_seed(seed: int | None, stream: str) -> int | None:
     """
     if seed is None:
         return None
-    payload = f"polisyos-doe-seed-v1:{seed}:{stream}".encode("utf-8")
+    payload = f"polisyos-doe-seed-v1:{seed}:{stream}".encode()
     digest = hashlib.blake2b(payload, digest_size=8).digest()
     return int.from_bytes(digest, byteorder="little") % (2**32)
 
@@ -247,9 +262,7 @@ def _salib_parameter_mapping(
 ) -> tuple[str, list[float]]:
     """Resolve one parameter to the pinned SALib distribution contract."""
     if not math.isfinite(parameter.lower_bound) or not math.isfinite(parameter.upper_bound):
-        raise ValueError(
-            f"parameter '{parameter.name}' requires finite physical bounds for SALib"
-        )
+        raise ValueError(f"parameter '{parameter.name}' requires finite physical bounds for SALib")
 
     lower = parameter.lower_bound
     upper = parameter.upper_bound
@@ -291,6 +304,7 @@ def _salib_parameter_mapping(
 
 def _build_salib_problem(plan: SensitivityPlan) -> tuple[dict[str, object], str]:
     """Build the canonical bounded SALib problem and its mapping fingerprint."""
+    plan = _admit_sensitivity_plan(plan)
     names = [item.name for item in plan.parameter_specs]
     bounds: list[list[float]] = []
     dists: list[str] = []

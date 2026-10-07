@@ -1,0 +1,35 @@
+"""Freeze correct current packet review separately from reusable validator HOLD."""
+from pathlib import Path
+import copy
+import hashlib
+import json
+
+OUT=Path(__file__).parent
+identity=lambda p:dict(bytes=p.stat().st_size,sha256=hashlib.sha256(p.read_bytes()).hexdigest())
+review=json.loads((OUT/'actual-packet-review.json').read_text())
+assert (OUT/'actual-packet-review.stderr').read_bytes()==b''
+assert review['actual_packet_verdict'].startswith('GO-')
+assert review['author_reusable_validator_verdict'].startswith('HOLD-')
+assert review['author_original_index']['asset_bytes']==84975
+assert identity(Path(review['author_original_index']['path']))=={k:review['author_original_index'][k] for k in ['bytes','sha256']}
+review['review_harness_history']=[{'kind':'TypeError string/list shape','scope':'Initial helper expected G-merge all_paths entries as dicts; actual schema is strings. Corrected script/set join; initial fullinputs/stderr preserved. Not product/packetFAIL.'},{'kind':'Index byte denominator label','scope':'Initial JSON shadowed index bytes with total asset bytes. Corrected indexbytes computed from original file vsassetbytes84975; initial fullinputs/JSON/stdout retained; final recomputation verified. Not author/source artifact corruption.'},{'kind':'Reviewer hardcoded indexsize assertion','scope':'Initial freeze helper guessed2415B instead of reading original index; failed before any index write. Removed guess and recomputed exact original bytes/hash; full helper/stdout history retained. Not product/source/author failure.'}]
+(OUT/'actual-packet-review.json').write_text(json.dumps(review,indent=2)+'\n')
+names=['source_candidate_probe.py.txt','source-candidate-probe.json','source-candidate-probe.stdout','source-candidate-probe.stderr','actual_packet_review.py.txt','actual_packet_review.initial.py.txt','actual_packet_review.index-identity-initial.py.txt','actual-packet-review.initial-harness-error.stderr','actual-packet-review.initial-index-identity.stdout','actual-packet-review.initial-index-identity.json','actual-packet-review.json','actual-packet-review.stdout','actual-packet-review.stderr','freeze_historical_packet.py.txt','freeze_historical_packet.initial.py.txt','freeze-packet.initial-harness-error.stderr']
+rows=[dict(path=str(OUT/name),**identity(OUT/name)) for name in names]
+index={'state':'READY','scope':'Immutable actual A/G packet boundedGO and author validator valid-bytes-wrong-candidate HOLD; followup correction separate','primary':str(OUT/'actual-packet-review.json'),'files':rows,'file_count':len(rows),'total_bytes':sum(row['bytes'] for row in rows),'index_self_excluded':True,'raw_private_production_payload_included':False}
+
+def validate(data):
+    assert data['file_count']==len(data['files'])
+    assert data['total_bytes']==sum(row['bytes'] for row in data['files'])
+    for row in data['files']:
+        assert identity(Path(row['path']))==dict(bytes=row['bytes'],sha256=row['sha256'])
+validate(index)
+for field,value in [('bytes',-1),('sha256','0'*64)]:
+    forged=copy.deepcopy(index);forged['files'][0][field]=value
+    try:
+        validate(forged)
+        raise RuntimeError('index corrupt field admitted')
+    except AssertionError:
+        pass
+(OUT/'copy-index.json').write_text(json.dumps(index,indent=2)+'\n')
+print(json.dumps({'state':'READY','files':len(rows),'asset_bytes':index['total_bytes'],'index':identity(OUT/'copy-index.json'),'primary':identity(OUT/'actual-packet-review.json'),'corrupt_fields':'bytes/hash REFUSED'}))

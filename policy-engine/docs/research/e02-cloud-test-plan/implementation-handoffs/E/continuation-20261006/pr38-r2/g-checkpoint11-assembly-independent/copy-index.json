@@ -1,0 +1,54 @@
+{
+  "schema": "e02.E.independent-G11-delta-portable-index.v1",
+  "primary": "independent-G11-assembly-review-a9f78817.json",
+  "candidate": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+  "tree": "c02e043c3e1c8222c28aa71187fa8db4e2fdeea7",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 3910,
+      "sha256": "ed222e6dd5db75b8fe8a9dfd3e3246ced8e9c5a5733e97bcbca5eed07ede4574"
+    },
+    {
+      "path": "complete-84-path-footprint.json",
+      "bytes": 30964,
+      "sha256": "c72f5f859f754ff3c7f6ecb9d72955b1c7d142eb0fd70bbdddc238f44577b3a2"
+    },
+    {
+      "path": "independent-G11-assembly-review-a9f78817.json",
+      "bytes": 11625,
+      "sha256": "16d5e11038daa41d5aa47a0a72c8c19e5460fc05bd9515d04704cf2ade4b9ebc"
+    },
+    {
+      "path": "negative-controls.json",
+      "bytes": 846,
+      "sha256": "ff81ccc1c0b24cde27b8fd53c0553339a8b5ea56ee99bf3658054b161bf73f09"
+    },
+    {
+      "path": "prepared-plan-a9f78817.json",
+      "bytes": 182642,
+      "sha256": "8b828dba3280d36db052f54848f71d528d28c2931a4a3fe9558c635877ab74f3"
+    },
+    {
+      "path": "review.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "review.stdout.txt",
+      "bytes": 934,
+      "sha256": "cfd7126f1abf5866a2f45f5236281eba6499ad17da932a75b8e3bf5660c2c504"
+    },
+    {
+      "path": "review_delta.py",
+      "bytes": 16603,
+      "sha256": "0fc7cc7ff1f543a51605faa10456e62656465d8bc29dc9328be32d6354fc0382"
+    }
+  ],
+  "file_count": 8,
+  "bytes": 247524,
+  "source_immutable": true,
+  "numerical_global_or_wheel_build_launched": false,
+  "private_config_actual_raw_copied": false,
+  "no_permanent_cleanup": true
+}

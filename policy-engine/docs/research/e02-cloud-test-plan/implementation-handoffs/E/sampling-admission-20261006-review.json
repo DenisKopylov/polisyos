@@ -1,0 +1,524 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "E",
+  "slice": "sampling-admission-20261006-review",
+  "supersedes_code_candidate_only": "sampling-admission-20261006.json",
+  "historical_receipts_preserved": true,
+  "closure_ids": [
+    "B186",
+    "B187",
+    "B188",
+    "B189",
+    "B190",
+    "B191",
+    "B192",
+    "B193",
+    "B194",
+    "B199",
+    "B200",
+    "B201",
+    "B202"
+  ],
+  "bundle_ids": [
+    "UQP-01",
+    "UQP-02",
+    "UQP-03",
+    "UQS-01"
+  ],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "slice_base_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "integration_anchor": "1ddcd7b3905e52c0d19db091823a64830139fa64",
+  "implementation_commits": [
+    "0701251c57d707f0abe0550448e036d9d3c47c7d",
+    "2ff602fd73c5c44e957ec58bcefd1aa48107e524",
+    "cb6eeb35b0296489ab5b932be4c4da879078a3a6",
+    "fe03e21cfe6fd9ed5b95a8a14a4a103f0ffadfa6",
+    "7689c880acf3b587e7e0a0ecdb92776871fac462",
+    "f7b0ade5ce9d6c7a849c2f7445d40123eb86b7a7",
+    "54089267c3ca9576c13738041e25fb597117529f",
+    "4e7e9f9a825011b8ef2091a6ff4ab3951ba04a9f"
+  ],
+  "candidate_sha": "4e7e9f9a825011b8ef2091a6ff4ab3951ba04a9f",
+  "candidate_tree_sha": "c653941cbecc4b06c5ffa62bd5e353ebaa848ef4",
+  "branch": "codex/e02-E-mc-20261006",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/44",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/sampling-admission-20261006.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/sampling-admission-20261006.native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/sampling-admission-20261006.ruff.txt",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-sampling-admission.toml",
+    "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+    "policy-engine/src/polisyos/foundry/uncertainty/aggregator.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/analytical.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/config.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/covariance.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/delta.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/dispatcher.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/quasi_mc.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_adaptive_stopping.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_aggregation_strategies.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_delta.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_dispatcher.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_dispatcher_routing.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_quasi_mc.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_sampling_admission.py",
+    "policy-engine/tests/unit/remediation/test_uqp_01.py",
+    "policy-engine/tests/unit/remediation/test_uqp_02.py",
+    "policy-engine/tests/unit/remediation/test_uqp_03.py",
+    "policy-engine/tests/unit/remediation/test_uqs_01.py"
+  ],
+  "review_delta_paths": [
+    "policy-engine/src/polisyos/foundry/uncertainty/analytical.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/covariance.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/delta.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_sampling_admission.py"
+  ],
+  "baseline_cells": [
+    {
+      "id": "F01-P027",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+      "state": "PASS",
+      "collected": "10",
+      "calls": "10",
+      "call_pass": "10",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "12.35",
+      "rss_kib": "481204",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F01.txt",
+      "source_line": "144",
+      "extra_json": "{}",
+      "evidence_grade": "transfer/navigation only; raw archive missing",
+      "environment_input_locator": "results/received/F01.txt exact job metadata block; selected test source at pinned SHA; production data absent"
+    },
+    {
+      "id": "F01-P028",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+      "state": "PASS",
+      "collected": "10",
+      "calls": "10",
+      "call_pass": "10",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "19.32",
+      "rss_kib": "675412",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F01.txt",
+      "source_line": "145",
+      "extra_json": "{}",
+      "evidence_grade": "transfer/navigation only; raw archive missing",
+      "environment_input_locator": "results/received/F01.txt exact job metadata block; selected test source at pinned SHA; production data absent"
+    },
+    {
+      "id": "F01-P043",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_uqp_02.py",
+      "state": "PASS",
+      "collected": "18",
+      "calls": "18",
+      "call_pass": "18",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "9.06",
+      "rss_kib": "473604",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F01.txt",
+      "source_line": "160",
+      "extra_json": "{}",
+      "evidence_grade": "transfer/navigation only; raw archive missing",
+      "environment_input_locator": "results/received/F01.txt exact job metadata block; selected test source at pinned SHA; production data absent"
+    },
+    {
+      "id": "F02-P131",
+      "job": "F02",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_uqp_03.py",
+      "state": "PASS",
+      "collected": "2",
+      "calls": "2",
+      "call_pass": "2",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "3.93",
+      "rss_kib": "284536",
+      "receipt_status": "reconciled",
+      "source_file": "received/F02.txt",
+      "source_line": "259",
+      "extra_json": "{}",
+      "evidence_grade": "transfer/navigation only; raw archive missing",
+      "environment_input_locator": "results/received/F02.txt exact job metadata block; selected test source at pinned SHA; production data absent"
+    },
+    {
+      "id": "F03-P028",
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo.py",
+      "state": "PASS",
+      "collected": "10",
+      "calls": "10",
+      "call_pass": "10",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "7.19",
+      "rss_kib": "446088.0",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F03.txt",
+      "source_line": "158",
+      "extra_json": "{}",
+      "evidence_grade": "transfer/navigation only; raw archive missing",
+      "environment_input_locator": "results/received/F03.txt exact job metadata block; selected test source at pinned SHA; production data absent"
+    }
+  ],
+  "baseline_scope": "navigation only; exact received source refs/environment locators are retained; raw VM replay and inherited-red P41 attribution are not established",
+  "environment": {
+    "python": "3.14.7",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "backend": "CPU JAX0.8.2/NumPy2.3.5/SciPy1.16.3",
+    "jax_enable_x64": false,
+    "pydantic": "2.12.5",
+    "pytest": "9.0.2",
+    "interpreter": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "source_origin": "/workspace/e02-E-mc-20261006/policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+    "extras": "root frozen lint/test/runtime/ml/analytics/sensitivity environment read-only; fresh source via PYTHONPATH=src",
+    "orchestrator_thread_process_caps": "none"
+  },
+  "input_identity": {
+    "classification": "tracked native analytic fixtures only; synthetic mathematical output is not production evidence",
+    "fixtures": [
+      "policy-engine/tests/unit/foundry/uncertainty/test_sampling_admission.py@4e7e9f9a825011b8ef2091a6ff4ab3951ba04a9f",
+      "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py@4e7e9f9a825011b8ef2091a6ff4ab3951ba04a9f"
+    ],
+    "laws": [
+      "declared Gaussian .0025*ones(2,2) versus independent diagonal .0025",
+      "declared Gaussian exact zero and float32 normal minimum covariance",
+      "unrepresentable overflow1e40/subnormal1e-50,1e-40,1e-38",
+      "Uniform[-1,1] with undefined negative support",
+      "canonical indicator response over Uniform[0,1], independent pilot/main streams",
+      "direct analytical supplied Gaussian covariance and tiny-scale PSD/symmetry/marginal controls1/1e-6/1e-12",
+      "declared computational maximum1000/1001 for3/4equal replicas; below-minimum/replica budget100 for128replicas",
+      "canonical mean enabled budget covers256pilot+408main=664;200/663/664boundaries"
+    ]
+  },
+  "deciding_outputs": [
+    {
+      "path": "sampling-admission-20261006-review.native.txt",
+      "sha256": "3b75d13d8d896878d031bda05fa4a6980df2d445cc936c906041fa4134d09c10",
+      "target_sha": "cb6eeb35b0296489ab5b932be4c4da879078a3a6"
+    },
+    {
+      "path": "sampling-admission-20261006-review.delta-native.txt",
+      "sha256": "863900d987404da12052a50c4760d982a2e42022ef37d0f69645fb3367573926",
+      "target_sha": "7689c880acf3b587e7e0a0ecdb92776871fac462"
+    },
+    {
+      "path": "sampling-admission-20261006-review.ruff.txt",
+      "sha256": "d18bee6261a63b6a0770809b1c0e7b884ae146d792473503e8182c244ac5bdd2",
+      "target_sha": "7689c880acf3b587e7e0a0ecdb92776871fac462"
+    },
+    {
+      "path": "sampling-admission-20261006-review.law-native.txt",
+      "sha256": "39b700990ef068999a4ea2aaa5c0a60702913da913e0c2f5d04b7ccda80dd305",
+      "target_sha": "f7b0ade5ce9d6c7a849c2f7445d40123eb86b7a7"
+    },
+    {
+      "path": "sampling-admission-20261006-review.law-ruff.txt",
+      "sha256": "fc9827f527d66ea5588eb074c4013b4bc17cf2fb896eb2580ab27a546f597231",
+      "target_sha": "f7b0ade5ce9d6c7a849c2f7445d40123eb86b7a7"
+    },
+    {
+      "path": "sampling-admission-20261006-review.budget-native.txt",
+      "sha256": "f977be61dfde62dc685897691956ca379b02041afa5988d1d6397b696295d520",
+      "target_sha": "4e7e9f9a825011b8ef2091a6ff4ab3951ba04a9f"
+    },
+    {
+      "path": "sampling-admission-20261006-review.budget-ruff.txt",
+      "sha256": "9e77667ae9ac1602a3c72d31ab08a7b7ac411483ce5fa8ef8bce8f16a6d5f0c1",
+      "target_sha": "4e7e9f9a825011b8ef2091a6ff4ab3951ba04a9f"
+    }
+  ],
+  "checks": [
+    {
+      "target_sha": "cb6eeb35b0296489ab5b932be4c4da879078a3a6",
+      "outcome": "PASS",
+      "selector": "full uncertainty+UQP/UQS remediation+Scientist consumer exact argv in review.native.txt",
+      "passed": 212,
+      "skipped": 0,
+      "warnings": 2,
+      "wall_seconds": 33.53328973099997,
+      "rss_kib": 873024,
+      "source_delta_to_final": "canonical recipe/readback, direct supplied-array law admission and computational budget planning changed; each delta independently and candidate-native checked. Statistical IID indicator law/Bernstein formula unchanged. Prior native/coverage outputs retain exact original SHAs."
+    },
+    {
+      "target_sha": "7689c880acf3b587e7e0a0ecdb92776871fac462",
+      "outcome": "PASS",
+      "selector": "sampling_admission + test_monte_carlo_b194 + Scientist node exact argv in review.delta-native.txt",
+      "passed": 103,
+      "skipped": 0,
+      "warnings": 2,
+      "wall_seconds": 14.792833587009227,
+      "rss_kib": 823360
+    },
+    {
+      "target_sha": "7689c880acf3b587e7e0a0ecdb92776871fac462",
+      "outcome": "PASS",
+      "selector": "ruff check and format --check all23 changed Python paths; exact argv in review.ruff.txt"
+    },
+    {
+      "target_sha": "f7b0ade5ce9d6c7a849c2f7445d40123eb86b7a7",
+      "outcome": "PASS",
+      "selector": "sampling_admission + covariance + delta + UQP02 + test_monte_carlo_b194 + Scientist node exact argv in review.law-native.txt",
+      "passed": 147,
+      "skipped": 0,
+      "warnings": 2,
+      "wall_seconds": 22.20700252999086,
+      "rss_kib": 850048
+    },
+    {
+      "target_sha": "f7b0ade5ce9d6c7a849c2f7445d40123eb86b7a7",
+      "outcome": "PASS",
+      "selector": "ruff check and format --check all23 changed Python paths; exact argv in review.law-ruff.txt"
+    },
+    {
+      "target_sha": "4e7e9f9a825011b8ef2091a6ff4ab3951ba04a9f",
+      "outcome": "PASS",
+      "selector": "sampling_admission + quasi_mc + adaptive_stopping + actual Scientist-CAS B194 tests; exact argv in review.budget-native.txt",
+      "passed": 145,
+      "skipped": 0,
+      "warnings": 1,
+      "wall_seconds": 15.209794708003756,
+      "rss_kib": 819296
+    },
+    {
+      "target_sha": "4e7e9f9a825011b8ef2091a6ff4ab3951ba04a9f",
+      "outcome": "PASS",
+      "selector": "ruff check and format --check all23 changed Python paths; exact argv in review.budget-ruff.txt"
+    }
+  ],
+  "property": {
+    "statement": "A declared joint law is preserved across algorithm flags; a numerical backend cannot replace nonzero support with zero or issue a complete estimator certificate for missing support. Producer and persisted consumer use the same canonical bounded recipe admission.",
+    "runtime_path": [
+      "PropagationDispatcher/DeltaMethodPropagator/AnalyticalPropagator/MonteCarloPropagator -> sampling_admission",
+      "PropagationResult -> configured PropagateUncertaintyNode -> persist_uncertainty_envelope and propagation_report in same CAS",
+      "fresh load_uncertainty_envelope -> verify_mean_certificate/reconcile_draw_outcomes -> candidate SimulationResult"
+    ],
+    "frozen_P37_basis": {
+      "range": "all admitted numerical values are zero or finite normal float32 magnitudes; subnormal operands rejected because actual JAX CPU quadratic arithmetic flushes them, not merely because of NumPy cast",
+      "law": "declared full covariance always survives false/true diagonal-optimization flags; direct contradictory analytical covariance refuses before use; singular null spaces retained Direct supplied analytical arrays use the same sorted-coordinate/dimension/marginal/PSD admission; no arbitrary prevalidated-array bypass. Numerical PSD/symmetry tolerances scale to actual covariance magnitude, marginal relative comparison has no absolute floor.",
+      "outcome": "every attempted draw index has one complete terminal output partition; failure index set equals actual failed-index set; unattempted support marks every metric incomplete",
+      "estimator": "each output in every required replica is complete before replicate estimator error/certificate admission; bounded mean certificate reconciles its full defined recipe, count, seed, moments, estimate, carrier, predictive compatibility interval and mean error interval",
+      "authority": "recomputed finite mathematical quantities only; source custody/served evaluator not established; extra display metadata carries no authority",
+      "budget": "Declared computational budget, separate from statistical theorem: an enabled explicit maximum bounds actual stochastic draws, while deterministic nominal callback is counted separately. Equal QMC replicas/full Sobol nets fit the maximum or refuse before callbacks if below minimum. Configured request, selected effective plan, minimum and actual replica counts are distinct. Enabled canonical mean cap covers independent pilot+main; default-disabled legacy cap is main-only. Pilot is always excluded from main estimate."
+    },
+    "independent_oracle": [
+      "tied Gaussian Var(a-b)=0 versus independent .005 across delta/analytical/MC and both flags",
+      "actual JAX CPU tiny boundary quadratic form retains np.finfo(float32).tiny while subnormal quantities refuse before callbacks",
+      "failed-support success-only mean about .5 stays conditional for random/Sobol/Halton without replica certificate",
+      "SciPy independent scramble replicate means define standard error separately from predictive spread",
+      "all-zero256 pilot gives U=.0995612819216314 and N408; independent streams replay pilot/main excluding pilot from estimate"
+    ],
+    "negative_controls": [
+      "keep sampler/evaluator markers but remove numerical range admission: overflow inputs reach evaluator",
+      "keep covariance data and toggle delta_use_full_covariance=False: tied joint law remains zero variance",
+      "contradict declared tied covariance by supplying diagonal analytical override: refuse",
+      "per-output missing values/exceptional support with4scrambles: conditional diagnostics, no crash/no mean certificate",
+      "append orphan failure index999999; negative index; invented code; duplicate output; missing terminal row: refuse",
+      "retain all-success attempted rows but add unattempted requested support: every metric incomplete",
+      "replace mean_error_interval with zero width, seed/count/std/method/predictive fields, carrier envelope fields: refuse on fresh readback",
+      "corrupt response discriminator, add/remove any canonical recipe field or use boolean threshold/empty name: shared producer/readback refusal",
+      "frozen main budget below legacy50 minimum still yields complete carrier; over-declared maximum emits no certificate",
+      "direct supplied[-1],[100],null override, wrong dimension, underflow and tiny-scale indefinite/asymmetric/marginal mismatch matrices refuse; valid tied arrays preserve null variance",
+      "explicit Sobol maximum1000 cannot round to1024;3/4replica plans fit cap with equal full nets/prefixes, or refuse before sampler/evaluator callbacks",
+      "below-minimum/zero/negative maximum and unfunded128replicas refuse before callbacks",
+      "enabled mean maximum200 refuses before pilot;663 refuses before main;664 admits256+408; corrupt persisted budget max/scope/count fields refuse"
+    ],
+    "P40_class_disposition": "Complete common range/law/outcome/estimator admission widened across sibling methods/readers; finite worked examples are controls for the frozen basis, not individual exception patches.",
+    "P41_disposition": "not_established for old red cells without exact replay; no inherited failure attribution or automatic historical closure"
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "bounded configured producer/artifact/consumer demonstrated; general served evaluator bridge_missing; production-law verification_missing; IRv2 ratification held",
+  "finding_closure": false,
+  "findings": [
+    {
+      "finding_id": "B186",
+      "ledger_status": "partial",
+      "verdict": "limited"
+    },
+    {
+      "finding_id": "B187",
+      "ledger_status": "partial",
+      "verdict": "limited"
+    },
+    {
+      "finding_id": "B188",
+      "ledger_status": "partial",
+      "verdict": "limited"
+    },
+    {
+      "finding_id": "B189",
+      "ledger_status": "partial",
+      "verdict": "limited"
+    },
+    {
+      "finding_id": "B190",
+      "ledger_status": "partial",
+      "verdict": "limited"
+    },
+    {
+      "finding_id": "B191",
+      "ledger_status": "partial",
+      "verdict": "limited"
+    },
+    {
+      "finding_id": "B192",
+      "ledger_status": "partial",
+      "verdict": "limited"
+    },
+    {
+      "finding_id": "B193",
+      "ledger_status": "partial",
+      "verdict": "limited"
+    },
+    {
+      "finding_id": "B194",
+      "ledger_status": "held",
+      "verdict": "limited"
+    },
+    {
+      "finding_id": "B199",
+      "ledger_status": "partial",
+      "verdict": "limited"
+    },
+    {
+      "finding_id": "B200",
+      "ledger_status": "partial",
+      "verdict": "limited"
+    },
+    {
+      "finding_id": "B201",
+      "ledger_status": "held",
+      "verdict": "held"
+    },
+    {
+      "finding_id": "B202",
+      "ledger_status": "held",
+      "verdict": "held"
+    }
+  ],
+  "independent_review": {
+    "owner": "mc_independent_r3; root commits independently authored artifacts",
+    "review_path": "implementation-handoffs/E/continuation-20261006/reviews/mc.json",
+    "artifact_directory": "implementation-handoffs/E/continuation-20261006/independent/mc/",
+    "root_commit_sha": "pending root evidence commit; no SHA invented",
+    "final_delta_state": "bounded code GO; finding closure and general served evaluator/source-law/IR authority not established",
+    "historical_numerical_scope": "Independently generated numerical/coverage/property/consumer outputs retain the exact source scopes above; no output is retagged as another candidate.",
+    "final_source_sha": "4e7e9f9a825011b8ef2091a6ff4ab3951ba04a9f",
+    "final_source_tree": "c653941cbecc4b06c5ffa62bd5e353ebaa848ef4",
+    "review_sha256": "17c3dbf8beea062f29aafa01640fc6828f43da9e88bb9743e51d85dac005cc4e",
+    "exact_source_scopes": {
+      "coverage1024replications": "cb6eeb35b0296489ab5b932be4c4da879078a3a6",
+      "law9checks": "f7b0ade5ce9d6c7a849c2f7445d40123eb86b7a7",
+      "budget_and_consumer6checks": "54089267c3ca9576c13738041e25fb597117529f",
+      "selected_random_stream_tiny_control": "4e7e9f9a825011b8ef2091a6ff4ab3951ba04a9f"
+    }
+  },
+  "semantic_owner_decisions_held": [
+    {
+      "decision": "identification set and sampling/model uncertainty separate but estimand/unit-linked",
+      "state": "requires appointed canonical IR semantic owner ratification"
+    },
+    {
+      "decision": "point and interval functionals independent; finite99zero+one100 mean1 and q05/q95[0,0] oracle",
+      "state": "held; v1.1 unchanged"
+    },
+    {
+      "decision": "distinct unique v2 schema id while v1.1 keeps original read/replay meaning",
+      "state": "held; E does not change wire schema"
+    },
+    {
+      "decision": "CAS-only v2 joint-law output recommended versus inline carrier+persisted ref",
+      "state": "held; storage choice requires appointed IR semantic owner"
+    }
+  ],
+  "limitations_and_next_owner": [
+    "B193 positive method is narrow canonical bounded indicator over exact Uniform[0,1]. Opaque callbacks, quantile/CDF/interval and anytime stopping need a separate admitted response/theorem-backed profile. E method owner extends canonical intake; no self-attested flags.",
+    "B194 historical ledger held is retained separately from technical limited verdict. General served simulation evaluator is absent: default Scientist node otherwise computes an affine sensitivity proxy. Scientist simulation/execution owner must provide source-bound evaluator/ExecPlan/model/run/seed/domain refs; E preserves/refuses outcomes. G performs exact-candidate read-only local source-law/history checks only where criterion requires.",
+    "CAL producer must emit joint_law_sha256, joint_parameter_order and ordered joint_draw_ids for paired multivariate carriers, followed by actual MC consumer recheck. Shared string ID alone is unsupported.",
+    "Conditional Gaussian aggregation arithmetic may use explicit caller-declared independence and distinct declared origins; its basis remains consumer_asserted, gates false, effective_information_count/sample_size not promoted from envelope count. Verified information-unit relationships remain an owner input.",
+    "B201/B202: keep v1.1 wire/replay; appointed IR semantic owner ratifies four finite decisions and CAS-only v2 versus inline-plus-persisted-ref. E code does not ratify semantic choices.",
+    "Transient failure classifier/retry contract is absent; this slice does not replace failed inputs with new draws. Served evaluator owner supplies independently classified same-input retry semantics if required.",
+    "Independent review and final common frozen-candidate expensive wave are E-root/G responsibilities; this focused slice does not claim broad product acceptance.",
+    "P41 inherited-red attribution is not claimed; changed paths intersect relevant selectors, so changed expectations/fixtures and actual regressions were repaired and candidate-tested.",
+    "Generic sampling_budget is explicitly certificate=false, computational_intent_display_only. It reports selected/configured computational intent; it does not verify statistical/source or product authority. Canonical bounded mean binds its defined max/scope/counts in the internal certificate and readback."
+  ],
+  "local_reproduce_recipe": {
+    "implementation_sha": "4e7e9f9a825011b8ef2091a6ff4ab3951ba04a9f",
+    "environment": "supportedPython3.14 with repo-declared lint/test/runtime/ml/analytics/sensitivity extras; run exact committed focused command",
+    "native_commands": "exact argv in committed review native/delta-native/ruff outputs",
+    "production_followup": "G mounts exact owner-admitted source law and evaluator/model/run/split/horizon/domain/time refs read-only; replay actual served evaluator intake and persisted consumer refusal with complete outcomes; use exact production cohort only if criterion depends on it; no production bytes enter cloud",
+    "required_owner_input": "Scientist execution owner provides exact served evaluator/model/run/seed/domain; source/calibration owner provides content-bound law/source/split/horizon/time refs. G mounts exact candidate/data locally read-only only where criterion requires production history. Cloud synthetic output is not a substitute."
+  },
+  "cleanup": {
+    "native_trash": "not_established; no permanent cleanup performed",
+    "exact_candidates": [
+      "/workspace/e02-E-mc-20261006/policy-engine/node_modules",
+      "/workspace/e02-E-mc-20261006/policy-engine/apps/runtime-dashboard/node_modules",
+      "/workspace/e02-E-mc-20261006/policy-engine/.pytest_cache",
+      "/workspace/e02-E-20261006-receipts/mc-independent/cas-mean-readback",
+      "/workspace/e02-E-20261006-receipts/mc-independent/cas-scientist-consumer"
+    ],
+    "disposition": "No native Trash established and no permanent cleanup performed. After deciding evidence is preserved, root/reviewer owns disposition of its listed independent synthetic CAS directories; root must move only repeatable test catalogs/environments to configured Trash and must not empty it. Shared root runtime and useful handoff drafts/outputs are preserved."
+  },
+  "admission": {
+    "exact_pair": {
+      "branch": "codex/e02-E-mc-20261006",
+      "path": "/workspace/e02-E-mc-20261006"
+    },
+    "complete_json_root_receipts": [
+      "/workspace/e02-E-20261006-receipts/mc-create.json",
+      "/workspace/e02-E-20261006-receipts/mc-resume.json"
+    ]
+  }
+}

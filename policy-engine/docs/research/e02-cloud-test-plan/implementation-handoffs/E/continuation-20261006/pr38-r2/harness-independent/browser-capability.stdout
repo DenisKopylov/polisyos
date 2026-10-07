@@ -1,0 +1,27 @@
+2026-10-06T15:33:06.177Z pw:browser <launching> /home/agent/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --enable-automation --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/workspace/e02-E-pr38-r2-receipts/independent-wave-harness/chromium-profile --remote-debugging-pipe about:blank
+2026-10-06T15:33:06.186Z pw:browser <launched> pid=160251
+2026-10-06T15:33:06.266Z pw:browser [pid=160251][err] [1006/153306.264502:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+2026-10-06T15:33:06.267Z pw:browser [pid=160251][err] [1006/153306.267160:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+2026-10-06T15:33:06.267Z pw:browser [pid=160251][err] [1006/153306.267225:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+2026-10-06T15:33:06.316Z pw:browser [pid=160251][err] [1006/153306.315361:WARNING:sandbox/policy/linux/sandbox_linux.cc:405] InitializeSandbox() called with multiple threads in process gpu-process.
+2026-10-06T15:33:06.348Z pw:browser [pid=160251][err] [1006/153306.348185:WARNING:device/bluetooth/dbus/bluez_dbus_manager.cc:209] Floss manager service not available, cannot set Floss enable/disable.
+2026-10-06T15:33:06.457Z pw:browser [pid=160251][err] [1006/153306.456923:INFO:CONSOLE:3] "--playwright--set--content--E13727F7B3B27343DC8E9B278E58AF02--1--", source:  (3)
+2026-10-06T15:33:06.493Z pw:browser [pid=160251] <gracefully close start>
+2026-10-06T15:33:06.519Z pw:browser [pid=160251] <process did exit: exitCode=0, signal=null>
+2026-10-06T15:33:06.519Z pw:browser [pid=160251] starting temporary directories cleanup
+2026-10-06T15:33:06.520Z pw:browser [pid=160251] finished temporary directories cleanup
+2026-10-06T15:33:06.520Z pw:browser [pid=160251] <gracefully close end>
+{
+  "node": "v22.23.3",
+  "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+  "browserCache": "/home/agent/.cache/ms-playwright",
+  "packagePath": "/workspace/e02-E-continuation-20261006/policy-engine/node_modules/.pnpm/playwright@1.59.1/node_modules/playwright/package.json",
+  "playwrightVersion": "1.59.1",
+  "testVersion": "1.59.1",
+  "chromiumExecutablePath": "/home/agent/.cache/ms-playwright/chromium-1217/chrome-linux64/chrome",
+  "persistentProfile": "/workspace/e02-E-pr38-r2-receipts/independent-wave-harness/chromium-profile",
+  "scope": "Browser launch/render capability only; no doctor/full-CI/browser-suite/numerical PASS inferred",
+  "browserVersion": "147.0.7727.15",
+  "actualRenderedText": "4",
+  "outcome": "PASS-browser-capability"
+}

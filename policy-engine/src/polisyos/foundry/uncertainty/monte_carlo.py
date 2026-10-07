@@ -39,7 +39,12 @@ from .protocol import PropagationResult
 from .sampling_admission import (
     BoundedIIDMeanCertificate,
     admit_bounded_mean_response,
+    admit_covariance_sampling_family,
+    admit_empirical_weights,
+    admit_sampling_budget,
     admit_sampling_support,
+    admit_unit_uniform,
+    empirical_cdf,
     frozen_bernstein_budget,
     joint_carrier_digest,
 )
@@ -273,22 +278,13 @@ def _build_empirical_joint_spec(
             if carrier.weights is None
             else np.asarray(carrier.weights, dtype=np.float64)
         )
-        if (
-            weights.shape != (sample_count,)
-            or not np.all(np.isfinite(weights))
-            or np.any(weights < 0.0)
-        ):
-            return None, "incompatible_joint_law"
-        total = float(np.sum(weights))
-        if not math.isfinite(total) or total <= 0.0:
-            return None, "incompatible_joint_law"
-        normalized_weights.append(weights / total)
+        try:
+            normalized_weights.append(admit_empirical_weights(weights, sample_count))
+        except (ValueError, OverflowError):
+            return None, "unsupported_finite_empirical_law"
 
     probabilities = normalized_weights[0]
-    if any(
-        not np.allclose(probabilities, weights, rtol=0.0, atol=1e-12)
-        for weights in normalized_weights[1:]
-    ):
+    if any(not np.array_equal(probabilities, weights) for weights in normalized_weights[1:]):
         return None, "incompatible_joint_law"
 
     return (
@@ -364,10 +360,9 @@ def _empirical_indices_from_uniform(
     probabilities: np.ndarray,
 ) -> np.ndarray:
     """Map one QMC coordinate to aligned empirical row indices."""
-    clipped = np.clip(np.asarray(uniform_samples, dtype=np.float64), 1e-10, 1.0 - 1e-10)
-    cumulative = np.cumsum(np.asarray(probabilities, dtype=np.float64))
-    indices = np.searchsorted(cumulative, clipped, side="right")
-    return np.minimum(indices, len(probabilities) - 1)
+    uniforms = admit_unit_uniform(uniform_samples)
+    cumulative = empirical_cdf(probabilities)
+    return np.searchsorted(cumulative, uniforms, side="right")
 
 
 class MonteCarloPropagator:
@@ -413,6 +408,14 @@ class MonteCarloPropagator:
                 input_param_names=param_names,
                 failure="unknown_dependency",
             )
+        try:
+            admit_covariance_sampling_family(input_envelopes)
+        except ValueError:
+            return _unknown_joint_results(
+                output_metric_ids,
+                input_param_names=param_names,
+                failure="unsupported_joint_sampling_law",
+            )
         empirical_spec, empirical_failure = _build_empirical_joint_spec(
             param_names,
             input_envelopes,
@@ -433,14 +436,35 @@ class MonteCarloPropagator:
         # Legacy adaptive settings no longer authorize optional peeking. Without
         # an admitted bounded mean target, execute the declared maximum once.
         adaptive = self._config.adaptive_stopping.model_copy(update={"enabled": False})
-        n_samples = (
+        configured_requested_count = (
             self._config.adaptive_stopping.max_samples
             if self._config.adaptive_stopping.enabled
             else self._config.mc_n_samples
         )
-        if self._config.mc_sampling_method == "sobol":
-            replicas = self._config.mc_qmc_replicates if self._config.mc_qmc_scramble else 1
-            n_samples = replicas * _next_power_of_two(math.ceil(n_samples / replicas))
+        try:
+            budget = admit_sampling_budget(
+                configured_requested_count,
+                method=self._config.mc_sampling_method,
+                replicas=(self._config.mc_qmc_replicates if self._config.mc_qmc_scramble else 1),
+                minimum=max(
+                    self._config.mc_min_valid_samples,
+                    self._config.adaptive_stopping.min_samples
+                    if self._config.adaptive_stopping.enabled
+                    else 1,
+                ),
+                declared_maximum=(
+                    self._config.adaptive_stopping.max_samples
+                    if self._config.adaptive_stopping.enabled
+                    else None
+                ),
+            )
+        except ValueError:
+            return _unknown_joint_results(
+                output_metric_ids,
+                input_param_names=param_names,
+                failure="sampling_budget_not_admitted",
+            )
+        n_samples = budget.effective_draw_count
 
         batch_size = min(self._config.mc_batch_size, n_samples)
 
@@ -516,7 +540,30 @@ class MonteCarloPropagator:
             ),
             parametric_fit_names=_parametric_fit_names(input_envelopes),
         )
-        return results
+        budget_metadata = {
+            **budget.__dict__,
+            "basis": "declared_computational_budget_only",
+            "certificate": False,
+            "authority_scope": "computational_intent_display_only",
+            "nominal_evaluator_calls": 1,
+        }
+        return [
+            PropagationResult(
+                item.metric_id,
+                item.envelope.model_copy(
+                    update={
+                        "metadata": {
+                            **item.envelope.metadata,
+                            "sampling_budget": budget_metadata,
+                        }
+                    }
+                ),
+                item.input_envelopes_used,
+                item.method_used,
+                {**item.diagnostics, "sampling_budget": budget_metadata},
+            )
+            for item in results
+        ]
 
     def _propagate_bounded_mean(
         self, simulation_fn, nominal_params, input_envelopes, output_metric_ids, empirical_spec
@@ -536,6 +583,14 @@ class MonteCarloPropagator:
                 input_param_names=names,
                 failure="bounded_iid_mean_law_not_admitted",
             )
+        explicit_budget = self._config.adaptive_stopping.enabled
+        maximum = self._config.adaptive_stopping.max_samples
+        if explicit_budget and plan.pilot_samples >= maximum:
+            return _unknown_joint_results(
+                output_metric_ids,
+                input_param_names=names,
+                failure="frozen_budget_exceeds_declared_maximum",
+            )
         # Independent child streams are selected before the pilot. Main stream
         # generation never consumes, pools, or conditionally retries pilot draws.
         children = np.random.SeedSequence(self._config.mc_seed).spawn(2)
@@ -546,7 +601,7 @@ class MonteCarloPropagator:
             dtype=np.float64,
         )
         upper, frozen_count = frozen_bernstein_budget(pilot, plan)
-        if frozen_count > self._config.adaptive_stopping.max_samples:
+        if frozen_count + (plan.pilot_samples if explicit_budget else 0) > maximum:
             return _unknown_joint_results(
                 output_metric_ids,
                 input_param_names=names,
@@ -609,6 +664,8 @@ class MonteCarloPropagator:
             delta_main=plan.delta_main,
             pilot_stream=pilot_seed,
             main_stream=main_seed,
+            declared_maximum=maximum,
+            computational_budget_scope="pilot_and_main" if explicit_budget else "main_only",
         )
         envelope = result.envelope.model_copy(
             update={
@@ -621,6 +678,15 @@ class MonteCarloPropagator:
                         max(0.0, main_mean - plan.absolute_error),
                         min(1.0, main_mean + plan.absolute_error),
                     ],
+                    "sampling_budget": {
+                        "basis": "declared_computational_budget_only",
+                        "budget_scope": "pilot_and_main" if explicit_budget else "main_only",
+                        "declared_maximum": maximum,
+                        "pilot_draw_count": plan.pilot_samples,
+                        "frozen_main_draw_count": frozen_count,
+                        "total_stochastic_draw_count": plan.pilot_samples + frozen_count,
+                        "nominal_evaluator_calls": 0,
+                    },
                 },
             }
         )
@@ -1495,13 +1561,11 @@ class MonteCarloPropagator:
         """Inverse CDF transform of uniform QMC samples per envelope distribution."""
         from scipy.stats import norm as sp_norm
 
+        admit_sampling_support(input_envelopes)
+        admit_covariance_sampling_family(input_envelopes)
+        uniform_samples = admit_unit_uniform(uniform_samples)
         result: dict[str, np.ndarray] = {}
         if any("covariance_row" in input_envelopes[name].metadata for name in param_names):
-            if not all(
-                input_envelopes[name].distribution_family is DistributionFamily.NORMAL
-                for name in param_names
-            ):
-                raise ValueError("covariance alone does not define a non-Gaussian joint law")
             covariance = np.asarray(
                 build_covariance_matrix(
                     param_names,
@@ -1550,8 +1614,6 @@ class MonteCarloPropagator:
                 result[name] = empirical_spec.samples[name][shared_indices]
                 continue
             u = uniform_samples[:, dimension_names.index(name)]
-            # Clip to avoid infinities at 0 and 1
-            u = np.clip(u, 1e-10, 1.0 - 1e-10)
             env = input_envelopes[name]
             point = float(env.point_estimate)
             lo, hi = float(env.confidence_interval[0]), float(env.confidence_interval[1])
@@ -1564,7 +1626,9 @@ class MonteCarloPropagator:
                 else:
                     mean, std = fit
                 result[name] = (
-                    np.full_like(u, mean) if std == 0 else sp_norm.ppf(u, loc=mean, scale=std)
+                    np.full_like(u, mean)
+                    if std == 0
+                    else sp_norm.ppf(np.clip(u, 1e-10, 1.0 - 1e-10), loc=mean, scale=std)
                 )
             elif env.distribution_family == DistributionFamily.UNIFORM:
                 result[name] = lo + u * (hi - lo)

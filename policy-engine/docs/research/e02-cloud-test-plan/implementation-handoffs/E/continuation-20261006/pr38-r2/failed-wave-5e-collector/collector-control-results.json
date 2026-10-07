@@ -1,0 +1,326 @@
+{
+  "scope": "Synthetic collector protocol controls only; no product test/numeric/backend/doctor/gate executed",
+  "source_reference": "d43f8d4693767637424da759ae960f7b51736449",
+  "controls": [
+    {
+      "case": "positive",
+      "state": "CONTROL_COMPLETE_BOUND",
+      "issues": [],
+      "numeric_counts": {
+        "cases": 11,
+        "passed": 10,
+        "failed": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "native_counts": {
+        "cases": 7,
+        "passed": 7,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "owner_A_counts": [
+        {
+          "cases": 2,
+          "passed": 2,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "cases": 2,
+          "passed": 1,
+          "failed": 1,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "all15_receipts": 15,
+      "private_and_large_raw_excluded": true,
+      "finding_closure": false
+    },
+    {
+      "case": "corrupt-counts",
+      "state": "CONTROL_LIMITED_INCOMPLETE_OR_INCONSISTENT",
+      "issues": [
+        {
+          "job": "pcl-continuous-persistence",
+          "reason": "JUnit receipt counts mismatch"
+        }
+      ],
+      "numeric_counts": {
+        "cases": 11,
+        "passed": 10,
+        "failed": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "native_counts": {
+        "cases": 7,
+        "passed": 7,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "owner_A_counts": [
+        {
+          "cases": 2,
+          "passed": 2,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "cases": 2,
+          "passed": 1,
+          "failed": 1,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "all15_receipts": 15,
+      "private_and_large_raw_excluded": true,
+      "finding_closure": false
+    },
+    {
+      "case": "corrupt-source",
+      "state": "CONTROL_LIMITED_INCOMPLETE_OR_INCONSISTENT",
+      "issues": [
+        {
+          "job": "pcl-continuous-persistence",
+          "reason": "binding/input drift",
+          "predicates": {
+            "candidate": false,
+            "tree": true,
+            "ending_head": true,
+            "command": true,
+            "cwd": true,
+            "source_frames_equal": true,
+            "source_immutable": true,
+            "config_stable": true,
+            "config_hashes_equal": true,
+            "declared_inputs_bound_to_candidate_git": true,
+            "tracked_path_count": true,
+            "started_after_wave_start": true
+          }
+        },
+        {
+          "reason": "completion disagrees with actual check receipts",
+          "kind": "numerical"
+        }
+      ],
+      "numeric_counts": {
+        "cases": 11,
+        "passed": 10,
+        "failed": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "native_counts": {
+        "cases": 7,
+        "passed": 7,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "owner_A_counts": [
+        {
+          "cases": 2,
+          "passed": 2,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "cases": 2,
+          "passed": 1,
+          "failed": 1,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "all15_receipts": 15,
+      "private_and_large_raw_excluded": true,
+      "finding_closure": false
+    },
+    {
+      "case": "corrupt-stdout",
+      "state": "CONTROL_LIMITED_INCOMPLETE_OR_INCONSISTENT",
+      "issues": [
+        {
+          "job": "pcl-continuous-persistence",
+          "reason": "stdout custody mismatch"
+        }
+      ],
+      "numeric_counts": {
+        "cases": 11,
+        "passed": 10,
+        "failed": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "native_counts": {
+        "cases": 7,
+        "passed": 7,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "owner_A_counts": [
+        {
+          "cases": 2,
+          "passed": 2,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "cases": 2,
+          "passed": 1,
+          "failed": 1,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "all15_receipts": 15,
+      "private_and_large_raw_excluded": true,
+      "finding_closure": false
+    },
+    {
+      "case": "missing-receipt",
+      "state": "CONTROL_LIMITED_INCOMPLETE_OR_INCONSISTENT",
+      "issues": [
+        {
+          "job": "pcl-continuous-persistence",
+          "reason": "missing runner receipt; outcome not established"
+        },
+        {
+          "reason": "completion disagrees with actual check receipts",
+          "kind": "numerical"
+        }
+      ],
+      "numeric_counts": {
+        "cases": 10,
+        "passed": 9,
+        "failed": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "native_counts": {
+        "cases": 6,
+        "passed": 6,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "owner_A_counts": [
+        {
+          "cases": 2,
+          "passed": 2,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "cases": 2,
+          "passed": 1,
+          "failed": 1,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "all15_receipts": 14,
+      "private_and_large_raw_excluded": true,
+      "finding_closure": false
+    },
+    {
+      "case": "missing-required-stage",
+      "state": "CONTROL_LIMITED_INCOMPLETE_OR_INCONSISTENT",
+      "issues": [
+        {
+          "job": "ci-parity",
+          "reason": "canonical umbrella stage denominator mismatch"
+        }
+      ],
+      "numeric_counts": {
+        "cases": 11,
+        "passed": 10,
+        "failed": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "native_counts": {
+        "cases": 7,
+        "passed": 7,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "owner_A_counts": [
+        {
+          "cases": 2,
+          "passed": 2,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "cases": 2,
+          "passed": 1,
+          "failed": 1,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "all15_receipts": 15,
+      "private_and_large_raw_excluded": true,
+      "finding_closure": false
+    },
+    {
+      "case": "corrupt-completion",
+      "state": "CONTROL_LIMITED_INCOMPLETE_OR_INCONSISTENT",
+      "issues": [
+        {
+          "reason": "completion disagrees with actual check receipts",
+          "kind": "numerical"
+        }
+      ],
+      "numeric_counts": {
+        "cases": 11,
+        "passed": 10,
+        "failed": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "native_counts": {
+        "cases": 7,
+        "passed": 7,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "owner_A_counts": [
+        {
+          "cases": 2,
+          "passed": 2,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "cases": 2,
+          "passed": 1,
+          "failed": 1,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "all15_receipts": 15,
+      "private_and_large_raw_excluded": true,
+      "finding_closure": false
+    }
+  ],
+  "all_required_controls_passed": true,
+  "all_original_fixture_bytes_preserved": true
+}

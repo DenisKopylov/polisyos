@@ -1,0 +1,52 @@
+........F........F                                                       [100%]
+=================================== FAILURES ===================================
+___ test_individual_bad_law_refuses_before_any_evaluator[mismatched_family] ____
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-215/test_individual_bad_law_refuse4')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f2a77a68050>
+defect = 'mismatched_family'
+
+    @pytest.mark.parametrize('defect',['missing_carrier','unknown_carrier','zero_mass','collapsed_mass','mismatched_family'])
+    def test_individual_bad_law_refuses_before_any_evaluator(tmp_path,monkeypatch,defect):
+        env=envelope()
+        if defect=='missing_carrier':env=env.model_copy(update={'distribution_payload':None})
+        elif defect=='unknown_carrier':env=env.model_copy(update={'distribution_payload':QuantileSummaryCarrier(quantiles={'0.5':.25})})
+        elif defect=='zero_mass':env=envelope(weights=(0.,0.))
+        elif defect=='collapsed_mass':env=envelope(weights=(1.,1e-320))
+        else:
+>           env=env.model_copy(update={'distribution_payload':ParametricFitCarrier(family=DistributionFamily.UNIFORM,support=(0.,1.))})
+                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           pydantic_core._pydantic_core.ValidationError: 1 validation error for ParametricFitCarrier
+E           parameters
+E             Field required [type=missing, input_value={'family': <DistributionF..., 'support': (0.0, 1.0)}, input_type=dict]
+E               For further information visit https://errors.pydantic.dev/2.12/v/missing
+
+../../e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/independent_welfare_tests.py:128: ValidationError
+___ test_missing_joint_law_retains_only_explicit_nominal_and_zero_stochastic ___
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-215/test_missing_joint_law_retains0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f2a77d3ac50>
+
+    def test_missing_joint_law_retains_only_explicit_nominal_and_zero_stochastic(tmp_path,monkeypatch):
+        ctx,state,ref=fixture(tmp_path/'cas')
+        state.params['welfare_config']['input_envelopes']['B']=ref.model_dump(mode='json')
+        state.params['welfare_config']['pe_sensitivity']={'response':{'B':1.}}
+        calls=[];original=node._build_simulation_fn
+        def observe(*args,**kwargs):
+            fn,*rest=original(*args,**kwargs)
+            def counted(**params):calls.append(params);return fn(**params)
+            return counted,*rest
+        monkeypatch.setattr(node,'_build_simulation_fn',observe)
+        outcome=node.PropagateWelfareNode().execute(ctx,state)
+        assert outcome.status=='ok'
+        bundle=load_welfare_bundle(FileSystemCAS(ctx.store.root),outcome.state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF])
+        receipt=node._load_welfare_draw_outcomes(FileSystemCAS(ctx.store.root),node.ArtifactRef.model_validate(bundle.diagnostics['draw_outcomes_ref']))
+>       assert calls and all(c=={'A':.25,'B':.25} for c in calls)
+E       AssertionError: assert ([{'A': 0.25, 'B': 0.25}, {'A': 0.25, 'B': 0.25}, {'A': 0.25, 'B': 0.39433756729740643}, {'A': 0.25, 'B': 0.10566243270259354}, {'A': 0.39433756729740643, 'B': 0.25}, {'A': 0.10566243270259354, 'B': 0.25}] and False)
+E        +  where False = all(<generator object test_missing_joint_law_retains_only_explicit_nominal_and_zero_stochastic.<locals>.<genexpr> at 0x7f2a7798d4e0>)
+
+../../e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/independent_welfare_tests.py:187: AssertionError
+=========================== short test summary info ============================
+FAILED ../../e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/independent_welfare_tests.py::test_individual_bad_law_refuses_before_any_evaluator[mismatched_family]
+FAILED ../../e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/independent_welfare_tests.py::test_missing_joint_law_retains_only_explicit_nominal_and_zero_stochastic
+2 failed, 16 passed in 24.98s

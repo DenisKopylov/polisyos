@@ -1,0 +1,72 @@
+{
+  "file_count": 13,
+  "total_bytes": 245740,
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 920,
+      "sha256": "216af45902bfea436255d450fce7d3bbe6841e717d55d7ea70e2e8731a104a20"
+    },
+    {
+      "path": "admission-summary.json",
+      "bytes": 639,
+      "sha256": "beffead083098d5646b97189db0ef02d707f7ab065649c8a073c9bcf14ab633a"
+    },
+    {
+      "path": "canonical-stage-inventory.json",
+      "bytes": 38057,
+      "sha256": "e2118d99cc53a51e18d223b15c6474ab34443c66647b1219413c4b0a39ee31a4"
+    },
+    {
+      "path": "environment-readiness.json",
+      "bytes": 10265,
+      "sha256": "53f33b78daf7140ee0cf2b06ecf6cb2b91eb655a87635804443bfae8c01280cf"
+    },
+    {
+      "path": "execution-scratch-absence.json",
+      "bytes": 9415,
+      "sha256": "817d621410396903f59385c2c98705e11850599e65ed14dd3c652fb0dc373f67"
+    },
+    {
+      "path": "head-readback.json",
+      "bytes": 887,
+      "sha256": "d43228d627886733efc2c681cd4910d62306c15a2648ba9dfcf8142d51c03e91"
+    },
+    {
+      "path": "inspect_readiness.py",
+      "bytes": 12781,
+      "sha256": "59f3dd5d2f7e21cb867669e316b5112ae1981ed9e93ad045a14efe0ce27259d2"
+    },
+    {
+      "path": "new-fixture-mutable-boundaries.json",
+      "bytes": 25977,
+      "sha256": "32de944dc4c2139800d3f28f4884303e4a10c2adf208651bc60ac4d38666a4e7"
+    },
+    {
+      "path": "numeric-cache-absence.json",
+      "bytes": 4189,
+      "sha256": "b2e70e24471aaabd8d0d86b08f55232a9982b0be1abaf9625bf80f0aead255c5"
+    },
+    {
+      "path": "plan-input-schema.json",
+      "bytes": 3657,
+      "sha256": "2edc91adebb4bcb23900d2aa5d81c4ece5ee6f0cd5d0adfc1381f65e606d473f"
+    },
+    {
+      "path": "planning-only/plan.json",
+      "bytes": 131653,
+      "sha256": "c205a0469c8427e2a046b04929b7a0b843241611e55771386256b1278dcadd70"
+    },
+    {
+      "path": "readiness.json",
+      "bytes": 4722,
+      "sha256": "84e55f1ed0d16621b2a0cefb625358d46699ead061248b8b3e842ff2ab6deffd"
+    },
+    {
+      "path": "shared-cache-scope.json",
+      "bytes": 2578,
+      "sha256": "a6b2a52bedf30dff208e3fdc3b84dfa28cf6dabfb3de0eabdcd789146df15977"
+    }
+  ],
+  "self_index_excluded": true
+}

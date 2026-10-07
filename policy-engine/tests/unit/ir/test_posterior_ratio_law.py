@@ -16,9 +16,12 @@ from polisyos.core import canon as core_canon
 from polisyos.foundry.calibration.uncertainty_adapter import (
     summarize_bayesian_calibration_posterior,
 )
-from polisyos.foundry.uncertainty import PropagationConfig
+from polisyos.foundry.uncertainty import (
+    PropagationConfig,
+    admit_empirical_weights,
+    empirical_cdf,
+)
 from polisyos.foundry.uncertainty.monte_carlo import MonteCarloPropagator
-from polisyos.foundry.uncertainty.sampling_admission import admit_empirical_weights, empirical_cdf
 from polisyos.ir.analytics import (
     PosteriorSummaryProfile,
     PosteriorSummaryProfileV2,

@@ -1,0 +1,112 @@
+{
+  "schema": "policyos.e02.architecture_frozen_output_review.v1",
+  "created_at": "2026-10-07T09:58:30.161026+00:00",
+  "candidate": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "comparison_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "operation": "Read-only complete stdout/receipt analysis and immutable actual import AST checks; no global gate or generator rerun",
+  "canonical_outcome": "UNRUN",
+  "wrapper_outcome_literal": "FAIL",
+  "exit_code": 2,
+  "complete_verdict": false,
+  "source_immutable": true,
+  "command_receipt": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/architecture/architecture.json",
+    "bytes": 8146,
+    "sha256": "f2fb06dd561d9cb11503d8b70903e6864fe153286725bbc8ad6087754b4786cc"
+  },
+  "complete_stdout": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/architecture/architecture.stdout.txt",
+    "bytes": 136159,
+    "sha256": "7e4b0d4c4115b56440e6498dae639fef1329b49960b38bc3371cf6e354b33682"
+  },
+  "partial_deep_imports": {
+    "edges": 151,
+    "source_paths": 79,
+    "source_root_counts": {
+      "calibration": 5,
+      "core": 2,
+      "data_forge": 10,
+      "fabric": 10,
+      "foundry": 12,
+      "ir": 3,
+      "lex": 10,
+      "pdc": 1,
+      "runtime": 50,
+      "scholar": 4,
+      "scientist": 44
+    },
+    "same_target_present_on_comparison_base": 149,
+    "new_target_vs_comparison_base": 1,
+    "source_absent_on_comparison_base": 1
+  },
+  "completed_partial_findings": [
+    "Public inventory JSON drift284\u2192287; three scoped IR root DTOs plus sort-only prior names",
+    "Public reference doc same284\u2192287 drift",
+    "Complete baseline delta reconstructed, NOT accepted or expanded",
+    "151 new-to-committed-baseline edges across79sourcepaths, NOT151newEimports",
+    "runtime-openapi-snapshot probe observed unrelated browser screenshot path changing in shared root",
+    "trust-claim-posture-register output mismatch"
+  ],
+  "required_generators": [
+    {
+      "family": "runtime-openapi-snapshot",
+      "outcome": "UNRUN",
+      "reason": "Generator exit1 caused confidence-ledger-risk-spend owner-validation subprocess timeout184seconds; runtime OpenAPI output absent",
+      "next_owner": "A/runtime governed-projection + confidence-ledger B owner via G and canonical generator owner; inspect actual owner worker/request before rerun; no timeout/authority weakening"
+    },
+    {
+      "family": "runtime-api-client",
+      "outcome": "PASS",
+      "outputs": 3,
+      "scope": "Measured freshness against committed isolated OpenAPI schema, not newly exported runtime schema"
+    },
+    {
+      "family": "runtime-dashboard-api-types",
+      "outcome": "PASS",
+      "outputs": 1,
+      "scope": "Measured freshness against committed isolated OpenAPI schema, not newly exported runtime schema"
+    },
+    {
+      "family": "trust-claim-posture-register",
+      "outcome": "FAIL",
+      "outputs": 1,
+      "next_owner": "team-architecture canonical trust-posture generator/input owners via G; recompute actual changed component denominators, no manual generated edit"
+    }
+  ],
+  "companion_next_owners": [
+    {
+      "paths": [
+        "architecture/public_surface/inventory.json",
+        "docs/reference/public-surface.md"
+      ],
+      "owner": "IR API + architecture/public inventory generator owners via G",
+      "result": "Apply existing owner-ready canonical regeneration packet on new reviewed scoped IR source, preserving all old package/ABI keys and adding only three new DTOs"
+    },
+    {
+      "paths": [
+        "architecture/baselines/imports/deep_import.json"
+      ],
+      "owner": "architecture owner + each source/target API owner",
+      "result": "Route remaining imports via admitted APIs; reconcile removed-edge baseline only under owner review, no baseline expansion waiver"
+    }
+  ],
+  "P41": "not_established for every global row; exact slice-base full canonical command/input/environment replay absent",
+  "authority_limit": "No finding closure/consumer eligibility/inference from global partial output or syntactic import presence"
+}
+{
+  "baseline_current": 3330,
+  "baseline_expected": 3448,
+  "added": 151,
+  "removed": 33,
+  "full_review": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/architecture-output-review-64d.json",
+    "bytes": 1019169,
+    "sha256": "653fc1304f15aef883e656694697433f29ae780541601efeb6957d2d0fb7bdd6"
+  },
+  "baseline_delta": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/architecture-baseline-delta.json",
+    "bytes": 52513,
+    "sha256": "cc5e461428a4abc8df98e96816c9bfc646d175d76826834527950b720aaaa27a"
+  }
+}

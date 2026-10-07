@@ -1,0 +1,11 @@
+{
+  "preflight": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/runtime-retry-preparation/fresh-shared-preflight.json",
+    "bytes": 44035,
+    "sha256": "ee0b4b84f7518aa87f476865a06a2e36a34c7eb3ceb6785153dd89d57ff734b1"
+  },
+  "same_complete_snapshot": true,
+  "interval_seconds": 58.767022132873535,
+  "storybook_paths": 45,
+  "generator_executed": false
+}

@@ -1,0 +1,15 @@
+{
+  "current_distinct_after_ci22_json": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/runtime-retry-preparation/fresh-shared-preflight-after-ci22.json",
+  "historical_stdout_source_hash_statement_retained": true,
+  "matched_files": [],
+  "no_regenerated_historical_json": true,
+  "old_bytes": 44035,
+  "old_sha256": "ee0b4b84f7518aa87f476865a06a2e36a34c7eb3ceb6785153dd89d57ff734b1",
+  "recovered": false,
+  "roots": [
+    "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E",
+    "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E",
+    "/workspace/e02-E-cal-review-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E"
+  ],
+  "scope": "fixed existing prior Git handoff publication copies only; no global scratch recovery assumption"
+}

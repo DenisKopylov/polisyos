@@ -1,0 +1,70 @@
+{
+  "schema": "policyos.e02.closed_generated_environment_cleanup_result.v1",
+  "admission": {
+    "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture/cleanup-admission.json",
+    "bytes": 11933593,
+    "sha256": "9bf8e7de76cf0cebd2df9a45d39f059191449e6b036f97c393f5cc6f02919de3"
+  },
+  "actions": [
+    {
+      "exact_deleted_path": "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/full-architecture-retained/environment",
+      "started_unix": 1791370451.4706151,
+      "ended_unix": 1791370451.6682997,
+      "filesystem_before": {
+        "observed_unix": 1791370451.4706128,
+        "total_bytes": 33770192896,
+        "free_bytes": 1842761728,
+        "available_bytes": 107999232
+      },
+      "filesystem_after": {
+        "observed_unix": 1791370451.6682918,
+        "total_bytes": 33770192896,
+        "free_bytes": 1852829696,
+        "available_bytes": 118067200
+      },
+      "observed_free_delta_bytes": 10067968,
+      "observed_available_delta_bytes": 10067968,
+      "absent_after": true,
+      "source_clone_and_outputs_preserved": true
+    },
+    {
+      "exact_deleted_path": "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/architecture-retained/environment",
+      "started_unix": 1791370451.7348273,
+      "ended_unix": 1791370451.9148104,
+      "filesystem_before": {
+        "observed_unix": 1791370451.7348244,
+        "total_bytes": 33770192896,
+        "free_bytes": 1852829696,
+        "available_bytes": 118067200
+      },
+      "filesystem_after": {
+        "observed_unix": 1791370451.9148037,
+        "total_bytes": 33770192896,
+        "free_bytes": 1862901760,
+        "available_bytes": 128139264
+      },
+      "observed_free_delta_bytes": 10072064,
+      "observed_available_delta_bytes": 10072064,
+      "absent_after": true,
+      "source_clone_and_outputs_preserved": true
+    }
+  ],
+  "filesystem_before": {
+    "observed_unix": 1791370451.1649249,
+    "total_bytes": 33770192896,
+    "free_bytes": 1842761728,
+    "available_bytes": 107999232
+  },
+  "filesystem_after": {
+    "observed_unix": 1791370451.9984336,
+    "total_bytes": 33770192896,
+    "free_bytes": 1862901760,
+    "available_bytes": 128139264
+  },
+  "observed_free_delta_bytes": 20140032,
+  "observed_available_delta_bytes": 20140032,
+  "protected_metadata_byte_identical": true,
+  "all_retained_deciding_outputs_byte_identical": true,
+  "shared_uv_cache_untouched": true,
+  "source_clones_and_git_code_docs_preserved": true
+}

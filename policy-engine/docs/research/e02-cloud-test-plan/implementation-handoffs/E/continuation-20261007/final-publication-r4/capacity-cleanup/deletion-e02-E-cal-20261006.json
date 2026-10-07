@@ -1,0 +1,22 @@
+{
+  "exact_deleted_path": "/workspace/e02-E-cal-20261006/policy-engine/.venv",
+  "kind": "unused repeatable old installed environment only",
+  "started_unix": 1791370355.5927904,
+  "ended_unix": 1791370356.0201278,
+  "absent_after": true,
+  "leaf_and_git_registration_preserved": true,
+  "filesystem_before": {
+    "observed_unix": 1791370355.592788,
+    "total_bytes": 33770192896,
+    "free_bytes": 1723916288,
+    "available_bytes": 0
+  },
+  "filesystem_after": {
+    "observed_unix": 1791370356.0201185,
+    "total_bytes": 33770192896,
+    "free_bytes": 1806159872,
+    "available_bytes": 71397376
+  },
+  "observed_free_delta_bytes": 82243584,
+  "observed_available_delta_bytes": 71397376
+}

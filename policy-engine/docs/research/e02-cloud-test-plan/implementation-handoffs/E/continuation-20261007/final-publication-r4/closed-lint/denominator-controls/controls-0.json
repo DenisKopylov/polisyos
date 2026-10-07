@@ -1,0 +1,52 @@
+{
+  "schema": "policyos.e02.lint_denominator_controls.v1",
+  "source_sha256": "17085daa5b0ec493c15f7f3583423221916539a621330e94d812ed3bb9da2a11",
+  "controls": {
+    "new_regular_python": "included",
+    "existing_regular_python": "included",
+    "deleted_python": "excluded_with_explicit_deleted_receipt",
+    "text_archive_py_txt": "non_python",
+    "absent_candidate": "refused",
+    "symlink_candidate": "refused",
+    "deleted_still_in_tree": "refused",
+    "new_live_python": "exact_candidate_hash",
+    "absent_live_candidate": "not_ready_and_not_a_command_input",
+    "divergent_live_candidate": "not_ready"
+  },
+  "source_ref_negative_controls": [
+    {
+      "value": "--output=outside",
+      "callback_count": 0,
+      "outcome": "refused"
+    },
+    {
+      "value": "HEAD",
+      "callback_count": 0,
+      "outcome": "refused"
+    },
+    {
+      "value": true,
+      "callback_count": 0,
+      "outcome": "refused"
+    },
+    {
+      "value": null,
+      "callback_count": 0,
+      "outcome": "refused"
+    },
+    {
+      "value": "000000000000000000000000000000000000000",
+      "callback_count": 0,
+      "outcome": "refused"
+    },
+    {
+      "value": "00000000000000000000000000000000000000000",
+      "callback_count": 0,
+      "outcome": "refused"
+    }
+  ],
+  "property_removal": "Actual early-continue removal refuses the healthy deleted-path fixture instead of returning the required denominator/explicit deletion receipt",
+  "normal_or_optimized": "identical always-on controls; assertions are not used",
+  "new_checkout_or_worktree_created": false,
+  "global_Ruff_or_format_executed": false
+}

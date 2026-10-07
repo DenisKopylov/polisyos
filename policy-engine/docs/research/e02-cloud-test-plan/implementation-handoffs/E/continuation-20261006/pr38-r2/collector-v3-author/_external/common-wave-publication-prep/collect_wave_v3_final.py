@@ -357,6 +357,17 @@ def collect(args: argparse.Namespace) -> dict[str, object]:
     candidate = args.candidate
     if plan["candidate_sha"] != candidate:
         raise RuntimeError("plan is not the requested exact frozen candidate")
+    for packet in plan["owner_packet_extra_inputs"]:
+        admit_source(candidate, packet["source"])
+    admitted_freeze_path = getattr(args, "freeze_receipt", None)
+    if admitted_freeze_path is not None:
+        admitted_freeze_path = public_evidence(
+            admitted_freeze_path.parent.resolve(), admitted_freeze_path
+        )
+        admitted_freeze = read_json(admitted_freeze_path)
+        admit_source(admitted_freeze["frozen_sha"])
+        for review in admitted_freeze["reviews"]:
+            admit_source(candidate, review["path"])
     tree = git_bytes(repo, "rev-parse", candidate + "^{tree}").decode().strip()
     if plan["candidate_tree_sha"] != tree:
         raise RuntimeError("candidate tree identity mismatch")

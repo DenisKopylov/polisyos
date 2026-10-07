@@ -267,6 +267,7 @@ def main() -> int:
         "XLA_FLAGS",
         "JAX_PLATFORMS",
         "JAX_ENABLE_X64",
+        "POLISYOS_METRICS_PORT",
         "POLISYOS_PYTEST_WORKERS",
         "POLISYOS_PYTEST_DIST",
         "PYTEST_ADDOPTS",

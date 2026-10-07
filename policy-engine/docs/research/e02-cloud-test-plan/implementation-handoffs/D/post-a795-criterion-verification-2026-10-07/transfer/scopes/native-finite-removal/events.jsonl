@@ -1,0 +1,5 @@
+{"utc": "2026-10-07T17:40:23.441519+00:00", "event": "collection_finish", "nodeids": ["tests/unit/scientist/agent/test_vector_generation_consumer.py::test_valid_cas_legacy_native_nonfinite_refuses_before_pointer_publication"]}
+{"utc": "2026-10-07T17:40:23.447382+00:00", "event": "report", "nodeid": "tests/unit/scientist/agent/test_vector_generation_consumer.py::test_valid_cas_legacy_native_nonfinite_refuses_before_pointer_publication", "phase": "setup", "outcome": "passed", "duration": 0.005037163005908951}
+{"utc": "2026-10-07T17:40:23.520633+00:00", "event": "report", "nodeid": "tests/unit/scientist/agent/test_vector_generation_consumer.py::test_valid_cas_legacy_native_nonfinite_refuses_before_pointer_publication", "phase": "call", "outcome": "failed", "duration": 0.040067647001706064}
+{"utc": "2026-10-07T17:40:23.521194+00:00", "event": "report", "nodeid": "tests/unit/scientist/agent/test_vector_generation_consumer.py::test_valid_cas_legacy_native_nonfinite_refuses_before_pointer_publication", "phase": "teardown", "outcome": "passed", "duration": 0.00023720200988464057}
+{"utc": "2026-10-07T17:40:23.521508+00:00", "event": "session_finish", "exitstatus": 1}

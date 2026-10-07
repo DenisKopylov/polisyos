@@ -1,0 +1,59 @@
+{
+  "review_input": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/frc-independent-review-8486.json",
+  "original_source": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+  "scope": "bounded E source-admitted NumPy ETS producer, configured CAS artifacts, neutral replay/adapter",
+  "verification": {
+    "independent_native": "20 PASS; includes13 zero-callback schema/unit/scale negatives, populated DTO property removal, false-coverage CAS receipt, native oracle and A adapter/purpose guards",
+    "corrupt_receipt": "1 PASS on fresh CAS: raw existing candidate bytes changed behind its same ref; loader refuses",
+    "repository": "32 PASS",
+    "a_actual_cas_packet": "5 PASS",
+    "a_status_reason": "2 FAIL owned by A, freshly reproduced",
+    "v1_replay": "fresh exact58e2 native v1 producer -> current8486 reader PASS; identical candidate ref and CAS bytes preserved",
+    "ruff": "PASS",
+    "format": "PASS",
+    "all_tracked_source_unchanged": true,
+    "all_loaded_polysios_origins_exact": true,
+    "source_hash": "ed8075405990aed40912eaa1f30bf4122bc20c0ac5caf6fc85c6ed839c62d4a1",
+    "source_files": 2911,
+    "origins": 1443,
+    "no_artificial_caps": true
+  },
+  "negative_controls": [
+    "13 strict pre-callback invalid schema/unit/scale/ref/profile/legacy admission fixtures",
+    "schema-valid/hash-valid false coverage5/5 on all-miss source with exact candidate edges refused on fresh reader",
+    "existing candidate byte corruption refused on fresh reader",
+    "causal/treatment/S10 evidence scope model validation refuses; no claimed authority",
+    "changed result time roles refused by fresh adapter",
+    "A missingref/wrongkind/badtime/wrongrule packet refusals"
+  ],
+  "residuals": [
+    {
+      "owner": "A",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "trigger": "calibration_status limit but empirical_evidence_ref absent",
+      "actual": "tier blocked, s6_limitation_refs empty",
+      "needed": "derive both status/reason views from explicit empirical_evidence_ref_missing; distinguish missing ref from resolved limited evidence"
+    },
+    {
+      "owner": "A",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "trigger": "native ETS observed coverage0/4, real CAS evidence resolved",
+      "actual": "record calibration_status limit; S6 reason insufficient-history",
+      "needed": "retain measured calibration_floor_not_met in the canonical failure/status projection"
+    },
+    {
+      "owner": "A",
+      "needed": "connect configured producer in default lifecycle, independently resolve/recompute source/split/rows/counts/threshold/time/purpose and verifier provenance, fresh served read, terminal causal refusal; custom gateway resolver positive is only bounded predictive wiring"
+    },
+    {
+      "owner": "G + local production source owner",
+      "needed": "read-only exact candidate check on issuer-declared production history/schema/units/split/horizon/model/rule/six actual time roles; cloud synthetic fixtures are mathematical evidence only"
+    }
+  ],
+  "finding_closure_claim": false,
+  "scope_note": "Current producer/bridge/ETS method/A consumer blobs identical to independent8486 source; retain original20+32+5bounded PASS and two A status-reason failures as historical deciding evidence. No new current numerical/backend/served run."
+}

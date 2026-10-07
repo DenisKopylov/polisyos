@@ -1,0 +1,186 @@
+[
+  {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/tmp-env/pcl-continuous-persistence",
+    "kind": "TMPDIR"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/temporary/pcl-continuous-persistence",
+    "kind": "numeric_basetemp"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/checks/pcl-continuous-persistence/cache/pytest",
+    "kind": "pytest_cache"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/checks/pcl-continuous-persistence/cache/benchmarks",
+    "kind": "benchmark_storage"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/tmp-env/ddm-runtime-and-facade",
+    "kind": "TMPDIR"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/temporary/ddm-runtime-and-facade",
+    "kind": "numeric_basetemp"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/checks/ddm-runtime-and-facade/cache/pytest",
+    "kind": "pytest_cache"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/checks/ddm-runtime-and-facade/cache/benchmarks",
+    "kind": "benchmark_storage"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/tmp-env/bkt-frc-s10-and-adjacent-report-consumers",
+    "kind": "TMPDIR"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/temporary/bkt-frc-s10-and-adjacent-report-consumers",
+    "kind": "numeric_basetemp"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/checks/bkt-frc-s10-and-adjacent-report-consumers/cache/pytest",
+    "kind": "pytest_cache"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/checks/bkt-frc-s10-and-adjacent-report-consumers/cache/benchmarks",
+    "kind": "benchmark_storage"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/tmp-env/cal-and-welfare-consumer",
+    "kind": "TMPDIR"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/temporary/cal-and-welfare-consumer",
+    "kind": "numeric_basetemp"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/checks/cal-and-welfare-consumer/cache/pytest",
+    "kind": "pytest_cache"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/checks/cal-and-welfare-consumer/cache/benchmarks",
+    "kind": "benchmark_storage"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/tmp-env/mc-joint-law-support-and-scientist-consumer",
+    "kind": "TMPDIR"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/temporary/mc-joint-law-support-and-scientist-consumer",
+    "kind": "numeric_basetemp"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/checks/mc-joint-law-support-and-scientist-consumer/cache/pytest",
+    "kind": "pytest_cache"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/checks/mc-joint-law-support-and-scientist-consumer/cache/benchmarks",
+    "kind": "benchmark_storage"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/tmp-env/doe-salib-and-consumer-factory",
+    "kind": "TMPDIR"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/temporary/doe-salib-and-consumer-factory",
+    "kind": "numeric_basetemp"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/checks/doe-salib-and-consumer-factory/cache/pytest",
+    "kind": "pytest_cache"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/checks/doe-salib-and-consumer-factory/cache/benchmarks",
+    "kind": "benchmark_storage"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/tmp-env/g-checkpoint10-controlplanestore-companion",
+    "kind": "TMPDIR"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/temporary/g-checkpoint10-controlplanestore-companion",
+    "kind": "numeric_basetemp"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/checks/g-checkpoint10-controlplanestore-companion/cache/pytest",
+    "kind": "pytest_cache"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/checks/g-checkpoint10-controlplanestore-companion/cache/benchmarks",
+    "kind": "benchmark_storage"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/tmp-env/results-importer",
+    "kind": "TMPDIR"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/cache/results-importer",
+    "kind": "RUFF_CACHE_DIR"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/tmp-env/architecture",
+    "kind": "TMPDIR"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/cache/architecture",
+    "kind": "RUFF_CACHE_DIR"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/tmp-env/runtime-api-contract",
+    "kind": "TMPDIR"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/cache/runtime-api-contract",
+    "kind": "RUFF_CACHE_DIR"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/tmp-env/static-invocation",
+    "kind": "TMPDIR"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/cache/static-invocation",
+    "kind": "RUFF_CACHE_DIR"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/tmp-env/ruff",
+    "kind": "TMPDIR"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/cache/ruff",
+    "kind": "RUFF_CACHE_DIR"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/tmp-env/ruff-format",
+    "kind": "TMPDIR"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/cache/ruff-format",
+    "kind": "RUFF_CACHE_DIR"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/tmp-env/workspace-verify",
+    "kind": "TMPDIR"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/cache/workspace-verify",
+    "kind": "RUFF_CACHE_DIR"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/tmp-env/ci-parity",
+    "kind": "TMPDIR"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/cache/ci-parity",
+    "kind": "RUFF_CACHE_DIR"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/umbrella-temp/workspace-verify",
+    "kind": "umbrella_temporary"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/umbrella-temp/ci-parity",
+    "kind": "umbrella_temporary"
+  }
+]

@@ -1,0 +1,112 @@
+{
+  "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/collect_wave_v3_final.py",
+  "source_identity": {
+    "bytes": 38152,
+    "sha256": "a6399cc46cbfe25b103fa210259eff2be9483f582ae7cba773632f079f7194ec"
+  },
+  "author_index_verified": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/collector-v3-final-author-controls/copy-index.json",
+    "identity": {
+      "bytes": 4071,
+      "sha256": "cc62d6eb0e8801e367e0354fbf0da2f6883a16d436ff74aaf3bc01af3af323c2"
+    },
+    "files": 16,
+    "bytes": 186931
+  },
+  "author_actual_nested_index_verified": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v3/copy-index.json",
+    "identity": {
+      "bytes": 17603,
+      "sha256": "d489a6fd6406427bd6745c2d335c053cbef76cc473a7464b1e44be2557e3d62f"
+    },
+    "files": 48,
+    "bytes": 6369140
+  },
+  "independent_actual_index_verified": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v3/actual-reader-publication/copy-index.json",
+    "identity": {
+      "bytes": 17603,
+      "sha256": "b54bd32721d0c8c223d327488d9d0d39de3a15bdecda789959bafd3ac9e0c018"
+    },
+    "files": 48,
+    "bytes": 6369142
+  },
+  "root_metadata_before": [
+    "cfd79255aab85544082fcf24f93db894202fbfa2",
+    "8b5fea530b22e5402f3e3bf31d0c5a54e4117be7"
+  ],
+  "root_metadata_after": [
+    "cfd79255aab85544082fcf24f93db894202fbfa2",
+    "8b5fea530b22e5402f3e3bf31d0c5a54e4117be7"
+  ],
+  "original_actual_wave_candidate": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+  "counts": {
+    "cases": 1440,
+    "passed": 1086,
+    "failed": 3,
+    "errors": 351,
+    "skipped": 0
+  },
+  "native_counts": {
+    "cases": 1433,
+    "passed": 1086,
+    "failed": 2,
+    "errors": 345,
+    "skipped": 0
+  },
+  "A_counts": [
+    {
+      "cases": 5,
+      "passed": 0,
+      "failed": 0,
+      "errors": 5,
+      "skipped": 0
+    },
+    {
+      "cases": 2,
+      "passed": 0,
+      "failed": 1,
+      "errors": 1,
+      "skipped": 0
+    }
+  ],
+  "unattributed": {
+    "cases": 0,
+    "passed": 0,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "scope": "Reader-only collection of same completed historical5e bytes, no command replay or new numeric evidence",
+  "moderate_original_source_assets": 45,
+  "raw_and_private_hash_only_records": 16,
+  "large_raw_bytes_not_copied": 171772803,
+  "stage_outcomes": {
+    "workspace-verify": {
+      "PASS": 1,
+      "FAIL": 1,
+      "UNRUN": 13
+    },
+    "ci-parity": {
+      "FAIL": 1,
+      "UNRUN": 23
+    }
+  },
+  "independent_corrupt_controls": [
+    "bytes REFUSED",
+    "sha256 REFUSED",
+    "native/A denominator forgery REFUSED"
+  ],
+  "product_native_or_gate_commands_executed": 0,
+  "cpu_caps": {
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "NUMEXPR_NUM_THREADS": null,
+    "VECLIB_MAXIMUM_THREADS": null,
+    "BLIS_NUM_THREADS": null,
+    "POLISYOS_PYTEST_WORKERS": null
+  },
+  "verdict": "GO-bounded-actual-reader-custody-and-preserved-attribution",
+  "finding_closure": false
+}

@@ -1,0 +1,308 @@
+{
+  "schema": "e02.E.independent-final-handoff-refbinding-review.v1",
+  "verdict": "GO-bounded-final-refbinding-and-byte-custody",
+  "reviewer": "/root/doe_r2",
+  "root_HEAD_tree_before_after": [
+    "9954f394b470961d9e144a557f3cefeb9e0a67b6",
+    "e923abf31637b4299ec36a467f4c6b06e26cae1c"
+  ],
+  "tracked_status_unchanged": true,
+  "numerical_source": {
+    "sha": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+    "tree": "c02e043c3e1c8222c28aa71187fa8db4e2fdeea7"
+  },
+  "evidence_checkpoint": {
+    "sha": "ddcdfd9c220ba57e37c8abf52b976a7184c384f9",
+    "tree": "1c5e1bd9ecdd619ae99ae978231aa296875bd1b1"
+  },
+  "all54_checkpoint": {
+    "sha": "9954f394b470961d9e144a557f3cefeb9e0a67b6",
+    "tree": "e923abf31637b4299ec36a467f4c6b06e26cae1c"
+  },
+  "reviewed_draft": {
+    "bytes": 21233,
+    "sha256": "b8d90afb421ba1f5c277d34df30bf92dba25381cf8a275a4d12607e33f9a11ed"
+  },
+  "final_handoff": {
+    "bytes": 22960,
+    "sha256": "b2745a726ffa29e6b56f2ec8dafa96ee8a86d0a978f96f1693e5bd78a0892bd2"
+  },
+  "final_review_refbindings": {
+    "bytes": 2233,
+    "sha256": "63dc6362551f2c3bbe389b60e73d4ef028a8d79896e5ef3708fefdeff1fba689"
+  },
+  "exact_changed_fields": [
+    "final_independent_closeout_review",
+    "final_independent_narrative_review",
+    "final_independent_publication_review",
+    "publication_state"
+  ],
+  "substantive_fields_equal_reviewed_draft": true,
+  "review_primary_refs": {
+    "final_independent_publication_review": {
+      "state": "GO_bounded_exact_bytes_Git_role_and_doc_only_delta",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-publication-independent/review.json",
+      "bytes": 19335,
+      "sha256": "9d4de70d4d14cc4509efac6555ed5aba5c165bd227904baeca52140b2203a3d2",
+      "copied_records_recomputed": 231,
+      "corrupt_controls": 9,
+      "source_changes": 0
+    },
+    "final_independent_narrative_review": {
+      "state": "GO_bounded_corrected_narrative_contract_cleanup",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-narrative-independent/review.json",
+      "bytes": 12914,
+      "sha256": "82ed0a0947a4d8ead99aecd932a5650686ae651d43512357f77a784eea6a0303",
+      "reviewed_draft_sha256": "b8d90afb421ba1f5c277d34df30bf92dba25381cf8a275a4d12607e33f9a11ed",
+      "three_metadata_clarifications": "corrected; exact rows target, DOE70c companion, configuredPCL store-only scope",
+      "finalization_scope": "Only state and independent review refbindings added to draft; substantive fields unchanged"
+    },
+    "final_independent_closeout_review": {
+      "state": "GO_bounded_criteria_metadata_custody",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review-final-all54-9954.json",
+      "bytes": 94391,
+      "sha256": "a24e0b788c2ef2288829c0f3ddd1c80513cb72ba63e36e33d142abce4fa48013",
+      "reviewed_checkpoint": "9954f394b470961d9e144a557f3cefeb9e0a67b6",
+      "independent_controls": 12,
+      "author_controls_reexecuted": 22,
+      "numerical": "HOLD4actualassertionFAIL",
+      "global": "7FAIL13+23UNRUN",
+      "finding_acceptance": false
+    }
+  },
+  "identity_refs_recomputed": [
+    {
+      "role": "all54",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/all-54-update.json",
+      "commit": "9954f394b470961d9e144a557f3cefeb9e0a67b6",
+      "bytes": 1599060,
+      "sha256": "0a3ca0f80d768e922cd25b6bd0fbd579bdf1d217948fe72632c79aafe4331b28",
+      "git_blob": "75834638f69a20cb1bd9bbd795069b2a1a897272"
+    },
+    {
+      "role": "local_G_recipes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/current-local-G-recipes.json",
+      "commit": "9954f394b470961d9e144a557f3cefeb9e0a67b6",
+      "bytes": 44496,
+      "sha256": "d58566c81f2ced49271c39068974304bd4f1140c2c191072ef3a01293c9066c1",
+      "git_blob": "ef2376dd46a325400a8a0a2e0966acb34ced54c0"
+    },
+    {
+      "role": "all54_inputs",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/input-index.json",
+      "commit": "9954f394b470961d9e144a557f3cefeb9e0a67b6",
+      "bytes": 432211,
+      "sha256": "0f6fb47dc8d914bd4206fbeda755e2cdb07ab9e8b4ee25a3cd07213305e9a032",
+      "git_blob": "0f262e6e4551e41af2706b182d1ecf90dc3cc5c4"
+    },
+    {
+      "role": "all54_manifest",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/publication-index.json",
+      "commit": "9954f394b470961d9e144a557f3cefeb9e0a67b6",
+      "bytes": 3682,
+      "sha256": "bf3f65c565a1464cd8fa793835173bec50b4813a8df7ee3915fa0716325362ad",
+      "git_blob": "2d9195398c25993a09ac7ba9af39a21bcdfc0f68"
+    },
+    {
+      "role": "all54_author_controls",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/validation-final.stdout.json",
+      "commit": "9954f394b470961d9e144a557f3cefeb9e0a67b6",
+      "bytes": 3638,
+      "sha256": "b9474c8ec7eb625fbb181579868697f243e84a439bc5be6bdbedb80ce03293a2",
+      "git_blob": "cbed8f9b36a8680fb0012c457ef1f73c973146e2"
+    },
+    {
+      "role": "actual_wave",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-a9/publication-receipt.json",
+      "commit": "ddcdfd9c220ba57e37c8abf52b976a7184c384f9",
+      "bytes": 726367,
+      "sha256": "1b690c7c02fd83846b06bc355738929cf50573fd5590ed16d45decc3e84727ca",
+      "git_blob": "f71bc031630fc0e9a886551d82d1a9beb54e7c11"
+    },
+    {
+      "role": "independent_wave",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/independent-wave-review-a9f78817c.json",
+      "commit": "ddcdfd9c220ba57e37c8abf52b976a7184c384f9",
+      "bytes": 199695,
+      "sha256": "624103ca6fb8889fcb2285fff17a499741eaa12530f7eed3703434a006ce76f9",
+      "git_blob": "24e5ad842ccaa6f3454ccc2154cd0e3a30662a4d"
+    },
+    {
+      "role": "A_actual_failures",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-current-wave-results/four-actual-A-FRC-failures.json",
+      "commit": "ddcdfd9c220ba57e37c8abf52b976a7184c384f9",
+      "bytes": 11750,
+      "sha256": "2e4fa91a8a6f855bb5b0df740f020e069fe6ccf2d0bc3afcb96edf5c95e158d6",
+      "git_blob": "66d3baad769430a3e558c113b72baeca7621740e"
+    },
+    {
+      "role": "footprint",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-source-footprint.json",
+      "commit": "ddcdfd9c220ba57e37c8abf52b976a7184c384f9",
+      "bytes": 422899,
+      "sha256": "91e0a96e14402491088f77855c47786769d91d083d8925c865638e55f4bf8269",
+      "git_blob": "13dc60b16e912aecf68fb8c06dd8708d4d883451"
+    },
+    {
+      "role": "publication_bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-publication-validation.json",
+      "commit": "9954f394b470961d9e144a557f3cefeb9e0a67b6",
+      "bytes": 5348,
+      "sha256": "914d0e7cfc6be35ee17ee2117e96b8d3b8b5b623246d04327f640d8a662e9b76",
+      "git_blob": "03fe47497f3991d1eaa2b40a563da8845b26d2f4"
+    }
+  ],
+  "portable_indices": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-publication-independent/portable-copy-index.json",
+      "bytes": 4763,
+      "sha256": "a3f076820d6f5e718d47e1496c1eb9e26d716a1194d43b96f31caff80bf26b37",
+      "records": 10,
+      "copied_bytes": 276389,
+      "source_index": {
+        "path": "/workspace/e02-E-pr38-r2-receipts/independent-publication-delta-9954/copy-index.json",
+        "bytes": 1578,
+        "sha256": "ea743ac1290764b9631db11c5edf5b629918b0d8ea41fd4b62d78fdc9c2a303a"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-narrative-independent/portable-copy-index.json",
+      "bytes": 3177,
+      "sha256": "f450d103bfebea7ccf8c9d84f65ff7eab05c66481b4ed8a4179febc62b94d4d3",
+      "records": 6,
+      "copied_bytes": 58857,
+      "source_index": {
+        "path": "/workspace/e02-E-pr38-r2-receipts/independent-final-root-narrative-a9-v3/copy-index.json",
+        "bytes": 968,
+        "sha256": "90505f22867a8de8039b7fc99ff04432bdd0ac02e67cbca4b3579cb7ee3a424b"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/portable-copy-index.json",
+      "bytes": 23275,
+      "sha256": "3527fc58995eacece111d821068d4944b1371b595780ae7d126d1702fc08a63b",
+      "records": 51,
+      "copied_bytes": 4097412,
+      "source_index": {
+        "path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/final-a9-9954/copy-index.json",
+        "bytes": 9476,
+        "sha256": "d24d07792368c0e9c96e754309aebea174b670b825bd649f85d1acc38e9c302b"
+      }
+    }
+  ],
+  "verified_copy_records": 67,
+  "verified_copy_bytes": 4432658,
+  "README": {
+    "original": {
+      "bytes": 8447,
+      "sha256": "92955eb85ca9234e9496e6fa7119b8831c5469f3bfb945718dfd8749e3696452"
+    },
+    "final": {
+      "bytes": 8787,
+      "sha256": "bf90b8d42699c9ceaa21e1ba9d353b18b5d5afca07edf45a666d4aa986d240da"
+    },
+    "delta": "One added paragraph with precisely three current independent-review links and explicit boundedGO/numericHOLD/globalFAIL scope; all remaining bytes equal"
+  },
+  "cleanup_unchanged": {
+    "bytes": 14705,
+    "sha256": "8d89c90a7588f55b02d9272cc4b307a06447ee1509633d6d0e8f268b957e1d0c"
+  },
+  "PR_description_unchanged": {
+    "bytes": 5344,
+    "sha256": "2e9955c9b10718eacf036188d88217d455890ba4daec092c828b207cdf82a15b"
+  },
+  "numeric_outcomes_reused_unchanged": {
+    "total": 1445,
+    "PASS": 1441,
+    "FAIL": 4,
+    "ERROR": 0,
+    "SKIP": 0,
+    "native": {
+      "total": 1438,
+      "PASS": 1436,
+      "FAIL": 2
+    },
+    "A_owner_packet": {
+      "total": 7,
+      "PASS": 5,
+      "FAIL": 2
+    }
+  },
+  "global_gates_reused_unchanged": {
+    "architecture": "FAIL",
+    "runtime_API": "FAIL OpenAPI1489\u21921493",
+    "static_invocation": "FAIL10regressions/89new unresolved;9238 unresolved",
+    "Ruff": "FAIL7951diagnostics/172paths/49codes/full317Pythonpaths",
+    "format": "FAIL156would-reformat/161already/full317Pythonpaths",
+    "workspace_verify": "FAIL imports21rows/17paths;13successor stagesUNRUN",
+    "CI_parity": "FAIL doctor FeedbackSolveResult/_manifest ABI/registry/OpenAPI;23successor stagesUNRUN"
+  },
+  "ledger_reused_unchanged": {
+    "partial": 49,
+    "held": 4,
+    "closed": 1
+  },
+  "B198": "Closed regression retained in reviewed draft; no new per-ID/status reclassification",
+  "meaningful_corrupt_controls": [
+    {
+      "control": "valid-existing-wrong-numerical-sha",
+      "outcome": "REFUSED",
+      "reason": "undeclared substantive field change or missing required finalization"
+    },
+    {
+      "control": "wrong-review-primary-path",
+      "outcome": "REFUSED",
+      "reason": "review path differs from canonical bound primary"
+    },
+    {
+      "control": "wrong-review-primary-hash",
+      "outcome": "REFUSED",
+      "reason": "review hash/size/state mismatch"
+    },
+    {
+      "control": "actual-four-failures-promoted-PASS",
+      "outcome": "REFUSED",
+      "reason": "undeclared substantive field change or missing required finalization"
+    },
+    {
+      "control": "global-FAIL-promoted-PASS",
+      "outcome": "REFUSED",
+      "reason": "undeclared substantive field change or missing required finalization"
+    },
+    {
+      "control": "GO-promoted-to-finding-closure",
+      "outcome": "REFUSED",
+      "reason": "review GO promoted to owner closure"
+    },
+    {
+      "control": "held-ledger-promoted-closed",
+      "outcome": "REFUSED",
+      "reason": "undeclared substantive field change or missing required finalization"
+    },
+    {
+      "control": "copied-path-escape",
+      "outcome": "REFUSED",
+      "reason": "copied path differs from canonical role"
+    },
+    {
+      "control": "copied-payload-hash",
+      "outcome": "REFUSED",
+      "reason": "actual source/copied full bytes mismatch"
+    },
+    {
+      "control": "omitted-source-copy",
+      "outcome": "REFUSED",
+      "reason": "portable complete record denominator mismatch"
+    }
+  ],
+  "P37": "Bounded reviewGO separated from frozen a9 numerical1441P4F/required7FAIL/13+23UNRUN and findingowner decisions. Source/evidence/closeout/finalpublication roles stay distinct.",
+  "scope": "Read-only byte/JSON/Git metadata proof of final refbinding and copied receipts. No source/product/runtime/native/numeric/global/wheel/cleanup commands, no ownDoE/DDMper-ID/CALcustody re-review, no repository/ref/config writes.",
+  "next_owner": "Root commits final handoff/reviews append-only then binds actual final commit/tree and exact remote readback; G separate code admission/integration, accountable owners separate findingacceptance.",
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "UV_NO_SYNC": "1",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  }
+}

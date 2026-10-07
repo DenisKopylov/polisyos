@@ -1,0 +1,14 @@
+[
+  {
+    "control": "corrupt actual primary size",
+    "outcome": "REJECTED"
+  },
+  {
+    "control": "corrupt actual primary digest",
+    "outcome": "REJECTED"
+  },
+  {
+    "control": "path escape",
+    "outcome": "REJECTED"
+  }
+]

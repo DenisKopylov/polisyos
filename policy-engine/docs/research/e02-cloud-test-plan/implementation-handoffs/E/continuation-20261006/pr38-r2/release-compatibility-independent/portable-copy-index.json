@@ -1,0 +1,74 @@
+{
+  "schema": "e02.portable-git-review-copies.v1",
+  "records": [
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/release-compatibility-independent/prior-independent-DDM-code-review.json",
+      "bytes": 20105,
+      "sha256": "032c1beef8ba54e2042926439852a13895c83d569c41dce7f5f2064edea314ec"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/release-compatibility-independent/review.json",
+      "bytes": 67877,
+      "sha256": "27d5392c649476a5bc7dfcb7d30cdf72376839a1eb2bc51476c6af63afbcef68"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/release-compatibility-independent/review.py",
+      "bytes": 16306,
+      "sha256": "b5ee7d4e55bd6522de8ecab0f846a21a49a8c8c0fc700dcec2e8196158e75970"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/release-compatibility-independent/review.stdout",
+      "bytes": 429,
+      "sha256": "e30a82bb292ed00c5eaa1eb3c04838f734264e45b4efd25d06fefaaa275b340c"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/release-compatibility-independent/root-author-parser-receipt.json",
+      "bytes": 3094,
+      "sha256": "b0e2a2d4097a5a367bb3a373684313d92b94c9e37073e4e801a978cfb2f0cacc"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/release-compatibility-independent/selected-fragments/2026-10-06-e02-calibration-reader-facade.toml",
+      "bytes": 1717,
+      "sha256": "0b456ba68cd4eeac86e31753fa3d9a787f95d6cea36d38a80b693c389fa6b09f"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/release-compatibility-independent/selected-fragments/2026-10-06-e02-ddm-source-binding.toml",
+      "bytes": 2796,
+      "sha256": "01fc46a6268408570a2da271534187894f94797452385b9b7bfaa1d474267b32"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/release-compatibility-independent/selected-fragments/2026-10-06-e02-evidence-facades.toml",
+      "bytes": 1744,
+      "sha256": "0a706c0a24a48b352aa76e7a6bd93e2dc52a6b7a57c7caa77d050c9221243079"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/release-compatibility-independent/selected-fragments/2026-10-06-e02-finite-law-admission-facade.toml",
+      "bytes": 1661,
+      "sha256": "2569c02d06ab24a9a6ac008640e00c9ff3015d6d9a8d6e71a65287711ca64c4b"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/release-compatibility-independent/selected-fragments/2026-10-06-e02-foundry-calibration-reader.toml",
+      "bytes": 1594,
+      "sha256": "236ac0be019ec9893a7490e2d098e5065836b8c58ee26b48484c9ba431057b04"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/release-compatibility-independent/selected-fragments/2026-10-06-e02-uncertainty-evidence-facade.toml",
+      "bytes": 1764,
+      "sha256": "8234df98d06ec176e2bc992442be6e733e07605a3f91e058c9d56006cecd251b"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/release-compatibility-independent/copy-index.json",
+      "bytes": 3329,
+      "sha256": "367d7a6a72d595199e0555a00e84f9a60aea6cc5c9670c3c1f32238e2ce096af"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/release-compatibility-independent/receipt.json",
+      "bytes": 5441,
+      "sha256": "db079d0493228f65fd0cb8c42cbb05b04d502fe41b49f3e1749f5e83cfbffe89"
+    }
+  ],
+  "primary_receipt_included": true,
+  "source_index_preserved": true,
+  "source_root": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent",
+  "total_bytes": 127857
+}

@@ -1,0 +1,68 @@
+"""Metadata-only owner-action binding controls; no native/numeric/gate calls."""
+from copy import deepcopy
+from hashlib import sha256
+import json
+from pathlib import Path
+import shutil
+import subprocess
+
+OUT = Path(__file__).parent
+REPO = Path('/workspace/e02-E-continuation-20261006')
+BINDING = json.loads((OUT/'source-binding-a9f78817.json').read_text())
+PACKET = json.loads((OUT/'dependency-packet-a9f78817.json').read_text())
+GIT = str(Path(shutil.which('git')).resolve())
+
+
+def validate(binding, packet):
+    if binding['selected_source_denominator'] != 29 or len(binding['source_rows']) != 29:
+        raise ValueError('source denominator mismatch')
+    for row in binding['source_rows']:
+        ref = row['current_source']
+        blob = subprocess.check_output([GIT, '-C', str(REPO), 'show', ref['commit']+':'+ref['path']])
+        if len(blob) != ref['bytes'] or sha256(blob).hexdigest() != ref['sha256']:
+            raise ValueError('source ref hash/size mismatch')
+        expected = row['failed5e_source']
+        if ref['sha256'] != expected['sha256'] or ref['git_blob'] != expected['git_blob']:
+            raise ValueError('reused source differs')
+    for ref in binding['new_owner_action_and_carried_packet_refs']:
+        blob = subprocess.check_output([GIT, '-C', str(REPO), 'show', ref['commit']+':'+ref['path']])
+        if len(blob) != ref['bytes'] or sha256(blob).hexdigest() != ref['sha256']:
+            raise ValueError('owner action/packet Git ref mismatch')
+    cases = {case['case']:case for case in packet['A_reason_scenarios']}
+    if cases['missing_ref']['expected_S6_reason'] != 's10://calibration/fail-closed/empirical_evidence_ref_missing':
+        raise ValueError('missing-ref reason misclassified')
+    if cases['resolved_limited']['expected_S6_reason'] != 's10://calibration/calibration_floor_not_met':
+        raise ValueError('resolved-limited reason lost')
+    generated = packet['generator_evidence_boundary']
+    if generated['current_generated_dependency_count'] is not None or generated['current_generator_check_state'] != 'UNRUN':
+        raise ValueError('historical generator count presented as current measurement')
+    accepted = packet['new_G_owner_result']
+    if accepted['FRC_acceptance'] or accepted['finding_closure'] or accepted['E_new_executions'] != 0:
+        raise ValueError('bounded compiler result misattributed to FRC/closure/new E run')
+    if packet['canonical_collector_readiness']['actual_wave_at_preparation'] != 'NOT_LAUNCHED':
+        raise ValueError('unlaunched corrected wave presented as measured')
+
+
+validate(BINDING, PACKET)
+rows = [{'control':'exact current source/owner packet and distinct reasons', 'outcome':'BOUND', 'product_numeric_native_gate_commands':0}]
+controls = [
+    ('present fake source digest', lambda b,p:b['source_rows'][0]['current_source'].update(sha256='0'*64)),
+    ('G owner note present with counterfeit digest', lambda b,p:b['new_owner_action_and_carried_packet_refs'][0].update(sha256='0'*64)),
+    ('missing ref generalized into measured floor failure', lambda b,p:p['A_reason_scenarios'][0].update(expected_S6_reason='s10://calibration/calibration_floor_not_met')),
+    ('resolved limited generalized into missing ref', lambda b,p:p['A_reason_scenarios'][1].update(expected_S6_reason='s10://calibration/fail-closed/empirical_evidence_ref_missing')),
+    ('historical1492 promoted to current generated measurement', lambda b,p:p['generator_evidence_boundary'].update(current_generated_dependency_count=1492,current_generator_check_state='PASS')),
+    ('installed compiler PASS promoted to FRC acceptance', lambda b,p:p['new_G_owner_result'].update(FRC_acceptance=True)),
+    ('unlaunched corrected wave marked PASS', lambda b,p:p['canonical_collector_readiness'].update(actual_wave_at_preparation='PASS')),
+]
+for label, mutation in controls:
+    b,p = deepcopy(BINDING),deepcopy(PACKET)
+    mutation(b,p)
+    try:
+        validate(b,p)
+    except ValueError as error:
+        rows.append({'control':label,'outcome':'REJECTED','reason':str(error),'product_numeric_native_gate_commands':0})
+    else:
+        raise AssertionError(label)
+result={'scope':'Author metadata-only bounded controls; not independent review or product/backend PASS','checks':rows,'current_packet_unchanged':True}
+(OUT/'binding-controls.json').write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps(result,indent=2))

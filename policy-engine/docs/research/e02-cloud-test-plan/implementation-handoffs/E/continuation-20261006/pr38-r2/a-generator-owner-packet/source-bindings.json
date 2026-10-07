@@ -1,0 +1,794 @@
+{
+  "wave": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+  "wave_tree": "3b63e778d5b6d17b2e9edc3b4bf91af079b32eb0",
+  "published_evidence": "1e1b5028274814b7c4318671588202480390a6bc",
+  "published_tree": "a4ed7ca77636c4e0165923e3d5400aea0c5068d5",
+  "observed_current_head": "eb035c0785a63c9c2a6d8991e2503a6a5117a1aa",
+  "observed_current_tree": "6b5f1bdd9292318007b529ef2310675a8ce798fd",
+  "tracked_status": "",
+  "inputs": [
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "actual_wave": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "git_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+        "bytes": 578822,
+        "sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44"
+      },
+      "observed_current": {
+        "commit": "eb035c0785a63c9c2a6d8991e2503a6a5117a1aa",
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "git_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+        "bytes": 578822,
+        "sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44"
+      },
+      "same_current_bytes_as_wave": true,
+      "previous_frozen": {
+        "commit": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "git_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+        "bytes": 578822,
+        "sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44"
+      },
+      "same_previous_bytes_as_wave": true,
+      "P41": "Blob comparison alone does not establish root cause or inherited red; full dependent inputs and exact command replay required."
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "actual_wave": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "git_blob": "85d24cf2c2233a570ccf1274c6436df7c5aaa218",
+        "bytes": 347497,
+        "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9"
+      },
+      "observed_current": {
+        "commit": "eb035c0785a63c9c2a6d8991e2503a6a5117a1aa",
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "git_blob": "85d24cf2c2233a570ccf1274c6436df7c5aaa218",
+        "bytes": 347497,
+        "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9"
+      },
+      "same_current_bytes_as_wave": true,
+      "previous_frozen": {
+        "commit": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "git_blob": "85d24cf2c2233a570ccf1274c6436df7c5aaa218",
+        "bytes": 347497,
+        "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9"
+      },
+      "same_previous_bytes_as_wave": true,
+      "P41": "Blob comparison alone does not establish root cause or inherited red; full dependent inputs and exact command replay required."
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/governed_projections.py",
+      "actual_wave": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/src/polisyos/runtime/http/services/governed_projections.py",
+        "git_blob": "11e2b068fafa53361ba96ad847fa93da5e169b7e",
+        "bytes": 106265,
+        "sha256": "f697b9bd324cafd7d90ca0d3dd6e641d9c2db131b2a49d9d1af0ebb024e9668a"
+      },
+      "observed_current": {
+        "commit": "eb035c0785a63c9c2a6d8991e2503a6a5117a1aa",
+        "path": "policy-engine/src/polisyos/runtime/http/services/governed_projections.py",
+        "git_blob": "11e2b068fafa53361ba96ad847fa93da5e169b7e",
+        "bytes": 106265,
+        "sha256": "f697b9bd324cafd7d90ca0d3dd6e641d9c2db131b2a49d9d1af0ebb024e9668a"
+      },
+      "same_current_bytes_as_wave": true,
+      "previous_frozen": {
+        "commit": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+        "path": "policy-engine/src/polisyos/runtime/http/services/governed_projections.py",
+        "git_blob": "11e2b068fafa53361ba96ad847fa93da5e169b7e",
+        "bytes": 106265,
+        "sha256": "f697b9bd324cafd7d90ca0d3dd6e641d9c2db131b2a49d9d1af0ebb024e9668a"
+      },
+      "same_previous_bytes_as_wave": true,
+      "P41": "Blob comparison alone does not establish root cause or inherited red; full dependent inputs and exact command replay required."
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/confidence_ledger_risk_spend_projection.py",
+      "actual_wave": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/src/polisyos/runtime/http/services/confidence_ledger_risk_spend_projection.py",
+        "git_blob": "ada4d58b31b5460997fcebb1c97a4cece8b7f265",
+        "bytes": 21420,
+        "sha256": "ca826a3d68e0810d72e972a043264441511240a7bb6ef4dcd77c688c997ce1e8"
+      },
+      "observed_current": {
+        "commit": "eb035c0785a63c9c2a6d8991e2503a6a5117a1aa",
+        "path": "policy-engine/src/polisyos/runtime/http/services/confidence_ledger_risk_spend_projection.py",
+        "git_blob": "ada4d58b31b5460997fcebb1c97a4cece8b7f265",
+        "bytes": 21420,
+        "sha256": "ca826a3d68e0810d72e972a043264441511240a7bb6ef4dcd77c688c997ce1e8"
+      },
+      "same_current_bytes_as_wave": true,
+      "previous_frozen": {
+        "commit": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+        "path": "policy-engine/src/polisyos/runtime/http/services/confidence_ledger_risk_spend_projection.py",
+        "git_blob": "ada4d58b31b5460997fcebb1c97a4cece8b7f265",
+        "bytes": 21420,
+        "sha256": "ca826a3d68e0810d72e972a043264441511240a7bb6ef4dcd77c688c997ce1e8"
+      },
+      "same_previous_bytes_as_wave": true,
+      "P41": "Blob comparison alone does not establish root cause or inherited red; full dependent inputs and exact command replay required."
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/governed_projection_dependencies.py",
+      "actual_wave": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/src/polisyos/runtime/http/services/governed_projection_dependencies.py",
+        "git_blob": "c02e29a3d44552ba38ded8c14530f5a798e0c40f",
+        "bytes": 7934,
+        "sha256": "fdc36162cefd57c807e70026fca9d27608ecf540930cece436dcf6a75d4dc6aa"
+      },
+      "observed_current": {
+        "commit": "eb035c0785a63c9c2a6d8991e2503a6a5117a1aa",
+        "path": "policy-engine/src/polisyos/runtime/http/services/governed_projection_dependencies.py",
+        "git_blob": "c02e29a3d44552ba38ded8c14530f5a798e0c40f",
+        "bytes": 7934,
+        "sha256": "fdc36162cefd57c807e70026fca9d27608ecf540930cece436dcf6a75d4dc6aa"
+      },
+      "same_current_bytes_as_wave": true,
+      "previous_frozen": {
+        "commit": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+        "path": "policy-engine/src/polisyos/runtime/http/services/governed_projection_dependencies.py",
+        "git_blob": "c02e29a3d44552ba38ded8c14530f5a798e0c40f",
+        "bytes": 7934,
+        "sha256": "fdc36162cefd57c807e70026fca9d27608ecf540930cece436dcf6a75d4dc6aa"
+      },
+      "same_previous_bytes_as_wave": true,
+      "P41": "Blob comparison alone does not establish root cause or inherited red; full dependent inputs and exact command replay required."
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/governed_projection_validation_worker.py",
+      "actual_wave": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/src/polisyos/runtime/http/services/governed_projection_validation_worker.py",
+        "git_blob": "ca4663b1c53fb05d966f39be2686de7112e59df3",
+        "bytes": 38045,
+        "sha256": "e913ddef94876b7a54eb524d4577c489c8ee79f3f5b87092a8232d7a33b70536"
+      },
+      "observed_current": {
+        "commit": "eb035c0785a63c9c2a6d8991e2503a6a5117a1aa",
+        "path": "policy-engine/src/polisyos/runtime/http/services/governed_projection_validation_worker.py",
+        "git_blob": "ca4663b1c53fb05d966f39be2686de7112e59df3",
+        "bytes": 38045,
+        "sha256": "e913ddef94876b7a54eb524d4577c489c8ee79f3f5b87092a8232d7a33b70536"
+      },
+      "same_current_bytes_as_wave": true,
+      "previous_frozen": {
+        "commit": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+        "path": "policy-engine/src/polisyos/runtime/http/services/governed_projection_validation_worker.py",
+        "git_blob": "ca4663b1c53fb05d966f39be2686de7112e59df3",
+        "bytes": 38045,
+        "sha256": "e913ddef94876b7a54eb524d4577c489c8ee79f3f5b87092a8232d7a33b70536"
+      },
+      "same_previous_bytes_as_wave": true,
+      "P41": "Blob comparison alone does not establish root cause or inherited red; full dependent inputs and exact command replay required."
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/design_axes/outcome_prediction.py",
+      "actual_wave": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/src/polisyos/runtime/quality/design_axes/outcome_prediction.py",
+        "git_blob": "bfad9e36e2874e8a8f65ac524060e8f072e0cdb3",
+        "bytes": 43270,
+        "sha256": "ab0c9c125124c4273ba0d696c912c7434d77e3b987480bab456dd38d753846da"
+      },
+      "observed_current": {
+        "commit": "eb035c0785a63c9c2a6d8991e2503a6a5117a1aa",
+        "path": "policy-engine/src/polisyos/runtime/quality/design_axes/outcome_prediction.py",
+        "git_blob": "bfad9e36e2874e8a8f65ac524060e8f072e0cdb3",
+        "bytes": 43270,
+        "sha256": "ab0c9c125124c4273ba0d696c912c7434d77e3b987480bab456dd38d753846da"
+      },
+      "same_current_bytes_as_wave": true,
+      "previous_frozen": {
+        "commit": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+        "path": "policy-engine/src/polisyos/runtime/quality/design_axes/outcome_prediction.py",
+        "git_blob": "bfad9e36e2874e8a8f65ac524060e8f072e0cdb3",
+        "bytes": 43270,
+        "sha256": "ab0c9c125124c4273ba0d696c912c7434d77e3b987480bab456dd38d753846da"
+      },
+      "same_previous_bytes_as_wave": true,
+      "P41": "Blob comparison alone does not establish root cause or inherited red; full dependent inputs and exact command replay required."
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "actual_wave": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+        "git_blob": "b3bce8ce42df233d434196fafdca31225e949c18",
+        "bytes": 81721,
+        "sha256": "274ebed54ea54eaa1fee1d1da0355dc7df3c0abcfd27adda1b9066e7437e43c6"
+      },
+      "observed_current": {
+        "commit": "eb035c0785a63c9c2a6d8991e2503a6a5117a1aa",
+        "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+        "git_blob": "b3bce8ce42df233d434196fafdca31225e949c18",
+        "bytes": 81721,
+        "sha256": "274ebed54ea54eaa1fee1d1da0355dc7df3c0abcfd27adda1b9066e7437e43c6"
+      },
+      "same_current_bytes_as_wave": true,
+      "previous_frozen": {
+        "commit": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+        "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+        "git_blob": "5fee62b979907b4c40ca0c238cf43d0b5ecc5c39",
+        "bytes": 75581,
+        "sha256": "173954a420aca0bbc9bad13eb4ab82eab6ff8b60ba75e540f0d245061d41ce44"
+      },
+      "same_previous_bytes_as_wave": false,
+      "P41": "Blob comparison alone does not establish root cause or inherited red; full dependent inputs and exact command replay required."
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "actual_wave": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+        "git_blob": "a9c668bfde25542e1cf788230f7229d33617dc9c",
+        "bytes": 59611,
+        "sha256": "c99a5b3402e4da8d4030976bcd961ba1a287ab86f656e1436ae8a85c012eb0b3"
+      },
+      "observed_current": {
+        "commit": "eb035c0785a63c9c2a6d8991e2503a6a5117a1aa",
+        "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+        "git_blob": "a9c668bfde25542e1cf788230f7229d33617dc9c",
+        "bytes": 59611,
+        "sha256": "c99a5b3402e4da8d4030976bcd961ba1a287ab86f656e1436ae8a85c012eb0b3"
+      },
+      "same_current_bytes_as_wave": true,
+      "previous_frozen": {
+        "commit": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+        "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+        "git_blob": "74ea1741c38c216c882c65ecc1395baf792ea5f6",
+        "bytes": 54558,
+        "sha256": "566803060a6745efb570e006b5655590eade5db3cf4a71f66c0ecd96af2cd3de"
+      },
+      "same_previous_bytes_as_wave": false,
+      "P41": "Blob comparison alone does not establish root cause or inherited red; full dependent inputs and exact command replay required."
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_forecast_owner.py",
+      "actual_wave": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_forecast_owner.py",
+        "git_blob": "7f71808fa8c56e861c9ed359c22c5297d2b3613d",
+        "bytes": 17995,
+        "sha256": "0d0127d5784ea5a265fcf20fb7a0551bc773f748f84b1e01de6c27eeb09eaef1"
+      },
+      "observed_current": {
+        "commit": "eb035c0785a63c9c2a6d8991e2503a6a5117a1aa",
+        "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_forecast_owner.py",
+        "git_blob": "7f71808fa8c56e861c9ed359c22c5297d2b3613d",
+        "bytes": 17995,
+        "sha256": "0d0127d5784ea5a265fcf20fb7a0551bc773f748f84b1e01de6c27eeb09eaef1"
+      },
+      "same_current_bytes_as_wave": true,
+      "previous_frozen": {
+        "commit": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+        "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_forecast_owner.py",
+        "git_blob": "c3e966aafcb19c8d693446ee5dd8688229f645b6",
+        "bytes": 9939,
+        "sha256": "8793dc6d146c578cb8074d5ab757fa066dfcf2800a35de0f55e718330ecf3e63"
+      },
+      "same_previous_bytes_as_wave": false,
+      "P41": "Blob comparison alone does not establish root cause or inherited red; full dependent inputs and exact command replay required."
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_frc_01.py",
+      "actual_wave": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/tests/unit/remediation/test_frc_01.py",
+        "git_blob": "10af66233d02c2d7a6a04ef163d9241a760316a8",
+        "bytes": 9736,
+        "sha256": "dda7af5b05292d1a52f591c35eb2add28e45cb6e29a0891276fa48afcc55bbd9"
+      },
+      "observed_current": {
+        "commit": "eb035c0785a63c9c2a6d8991e2503a6a5117a1aa",
+        "path": "policy-engine/tests/unit/remediation/test_frc_01.py",
+        "git_blob": "10af66233d02c2d7a6a04ef163d9241a760316a8",
+        "bytes": 9736,
+        "sha256": "dda7af5b05292d1a52f591c35eb2add28e45cb6e29a0891276fa48afcc55bbd9"
+      },
+      "same_current_bytes_as_wave": true,
+      "previous_frozen": {
+        "commit": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+        "path": "policy-engine/tests/unit/remediation/test_frc_01.py",
+        "git_blob": "10af66233d02c2d7a6a04ef163d9241a760316a8",
+        "bytes": 9736,
+        "sha256": "dda7af5b05292d1a52f591c35eb2add28e45cb6e29a0891276fa48afcc55bbd9"
+      },
+      "same_previous_bytes_as_wave": true,
+      "P41": "Blob comparison alone does not establish root cause or inherited red; full dependent inputs and exact command replay required."
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/foundry.py",
+      "actual_wave": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/src/polisyos/core/contracts/foundry.py",
+        "git_blob": "bf726135da4552663c8e15e5be9fe341c85cf539",
+        "bytes": 61265,
+        "sha256": "02a038f9e8272fe168f5c5a3d9ea46919e1f4309fa308693bb8fe63d08c0438d"
+      },
+      "observed_current": {
+        "commit": "eb035c0785a63c9c2a6d8991e2503a6a5117a1aa",
+        "path": "policy-engine/src/polisyos/core/contracts/foundry.py",
+        "git_blob": "bf726135da4552663c8e15e5be9fe341c85cf539",
+        "bytes": 61265,
+        "sha256": "02a038f9e8272fe168f5c5a3d9ea46919e1f4309fa308693bb8fe63d08c0438d"
+      },
+      "same_current_bytes_as_wave": true,
+      "previous_frozen": {
+        "commit": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+        "path": "policy-engine/src/polisyos/core/contracts/foundry.py",
+        "git_blob": "bf726135da4552663c8e15e5be9fe341c85cf539",
+        "bytes": 61265,
+        "sha256": "02a038f9e8272fe168f5c5a3d9ea46919e1f4309fa308693bb8fe63d08c0438d"
+      },
+      "same_previous_bytes_as_wave": true,
+      "P41": "Blob comparison alone does not establish root cause or inherited red; full dependent inputs and exact command replay required."
+    },
+    {
+      "path": "policy-engine/src/polisyos/schemas/abi_models.py",
+      "actual_wave": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/src/polisyos/schemas/abi_models.py",
+        "git_blob": "8aa65f3fb57aee60eecdcb8834737e4c74427bff",
+        "bytes": 27101,
+        "sha256": "651884b092b690b868c8501e7a5cc34d19f7d68cad2b65cd1180ae928b50c835"
+      },
+      "observed_current": {
+        "commit": "eb035c0785a63c9c2a6d8991e2503a6a5117a1aa",
+        "path": "policy-engine/src/polisyos/schemas/abi_models.py",
+        "git_blob": "8aa65f3fb57aee60eecdcb8834737e4c74427bff",
+        "bytes": 27101,
+        "sha256": "651884b092b690b868c8501e7a5cc34d19f7d68cad2b65cd1180ae928b50c835"
+      },
+      "same_current_bytes_as_wave": true,
+      "previous_frozen": {
+        "commit": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+        "path": "policy-engine/src/polisyos/schemas/abi_models.py",
+        "git_blob": "8aa65f3fb57aee60eecdcb8834737e4c74427bff",
+        "bytes": 27101,
+        "sha256": "651884b092b690b868c8501e7a5cc34d19f7d68cad2b65cd1180ae928b50c835"
+      },
+      "same_previous_bytes_as_wave": true,
+      "P41": "Blob comparison alone does not establish root cause or inherited red; full dependent inputs and exact command replay required."
+    },
+    {
+      "path": "policy-engine/tools/quality/diagnostics/gen_schema.py",
+      "actual_wave": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/tools/quality/diagnostics/gen_schema.py",
+        "git_blob": "b4c79ac48ca420425b91cbf4c47ac794a37eaba8",
+        "bytes": 23635,
+        "sha256": "6d1b8f48e20853415dbd9109d0b0662f3d9ca199e2d15c36292823b2e7c1d72e"
+      },
+      "observed_current": {
+        "commit": "eb035c0785a63c9c2a6d8991e2503a6a5117a1aa",
+        "path": "policy-engine/tools/quality/diagnostics/gen_schema.py",
+        "git_blob": "b4c79ac48ca420425b91cbf4c47ac794a37eaba8",
+        "bytes": 23635,
+        "sha256": "6d1b8f48e20853415dbd9109d0b0662f3d9ca199e2d15c36292823b2e7c1d72e"
+      },
+      "same_current_bytes_as_wave": true,
+      "previous_frozen": {
+        "commit": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+        "path": "policy-engine/tools/quality/diagnostics/gen_schema.py",
+        "git_blob": "b4c79ac48ca420425b91cbf4c47ac794a37eaba8",
+        "bytes": 23635,
+        "sha256": "6d1b8f48e20853415dbd9109d0b0662f3d9ca199e2d15c36292823b2e7c1d72e"
+      },
+      "same_previous_bytes_as_wave": true,
+      "P41": "Blob comparison alone does not establish root cause or inherited red; full dependent inputs and exact command replay required."
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/check_trust_claim_posture.py",
+      "actual_wave": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/tools/quality/validation/check_trust_claim_posture.py",
+        "git_blob": "10f480737d31baf3d0141bc529cb66e5ffabc2cb",
+        "bytes": 146612,
+        "sha256": "3cc47926a168f903a0dd6921eaa131b2d335ef850e8586e7cfbf2ae5837a5ac5"
+      },
+      "observed_current": {
+        "commit": "eb035c0785a63c9c2a6d8991e2503a6a5117a1aa",
+        "path": "policy-engine/tools/quality/validation/check_trust_claim_posture.py",
+        "git_blob": "10f480737d31baf3d0141bc529cb66e5ffabc2cb",
+        "bytes": 146612,
+        "sha256": "3cc47926a168f903a0dd6921eaa131b2d335ef850e8586e7cfbf2ae5837a5ac5"
+      },
+      "same_current_bytes_as_wave": true,
+      "previous_frozen": {
+        "commit": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+        "path": "policy-engine/tools/quality/validation/check_trust_claim_posture.py",
+        "git_blob": "10f480737d31baf3d0141bc529cb66e5ffabc2cb",
+        "bytes": 146612,
+        "sha256": "3cc47926a168f903a0dd6921eaa131b2d335ef850e8586e7cfbf2ae5837a5ac5"
+      },
+      "same_previous_bytes_as_wave": true,
+      "P41": "Blob comparison alone does not establish root cause or inherited red; full dependent inputs and exact command replay required."
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/trust_claim_posture_sources.py",
+      "actual_wave": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/tools/quality/validation/trust_claim_posture_sources.py",
+        "git_blob": "89ff6b82fe6097f9ed0a0fa5a6aa9c54d3b5f8be",
+        "bytes": 40006,
+        "sha256": "75ae37a1facb5dccdfd72437dea96cff26c460e5bda79186b46c3977b6fcf656"
+      },
+      "observed_current": {
+        "commit": "eb035c0785a63c9c2a6d8991e2503a6a5117a1aa",
+        "path": "policy-engine/tools/quality/validation/trust_claim_posture_sources.py",
+        "git_blob": "89ff6b82fe6097f9ed0a0fa5a6aa9c54d3b5f8be",
+        "bytes": 40006,
+        "sha256": "75ae37a1facb5dccdfd72437dea96cff26c460e5bda79186b46c3977b6fcf656"
+      },
+      "same_current_bytes_as_wave": true,
+      "previous_frozen": {
+        "commit": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+        "path": "policy-engine/tools/quality/validation/trust_claim_posture_sources.py",
+        "git_blob": "89ff6b82fe6097f9ed0a0fa5a6aa9c54d3b5f8be",
+        "bytes": 40006,
+        "sha256": "75ae37a1facb5dccdfd72437dea96cff26c460e5bda79186b46c3977b6fcf656"
+      },
+      "same_previous_bytes_as_wave": true,
+      "P41": "Blob comparison alone does not establish root cause or inherited red; full dependent inputs and exact command replay required."
+    },
+    {
+      "path": "policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py",
+      "actual_wave": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py",
+        "git_blob": "37ceb13937e36ab6c237595a74e7be70ca987c8d",
+        "bytes": 7528,
+        "sha256": "210f376a6b95310fdedcbbea3917b7e0dc8a59d176d24631772522794d6877b1"
+      },
+      "observed_current": {
+        "commit": "eb035c0785a63c9c2a6d8991e2503a6a5117a1aa",
+        "path": "policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py",
+        "git_blob": "37ceb13937e36ab6c237595a74e7be70ca987c8d",
+        "bytes": 7528,
+        "sha256": "210f376a6b95310fdedcbbea3917b7e0dc8a59d176d24631772522794d6877b1"
+      },
+      "same_current_bytes_as_wave": true,
+      "previous_frozen": {
+        "commit": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+        "path": "policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py",
+        "git_blob": "37ceb13937e36ab6c237595a74e7be70ca987c8d",
+        "bytes": 7528,
+        "sha256": "210f376a6b95310fdedcbbea3917b7e0dc8a59d176d24631772522794d6877b1"
+      },
+      "same_previous_bytes_as_wave": true,
+      "P41": "Blob comparison alone does not establish root cause or inherited red; full dependent inputs and exact command replay required."
+    },
+    {
+      "path": "policy-engine/tools/ops_runners/runtime/export_runtime_openapi.py",
+      "actual_wave": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/tools/ops_runners/runtime/export_runtime_openapi.py",
+        "git_blob": "04416db33c86bd5610fd33893ad6867db7a9f22f",
+        "bytes": 1793,
+        "sha256": "daeff9a91f19662a9f21788f73bd002659059f2ca3804ac03a258294185255da"
+      },
+      "observed_current": {
+        "commit": "eb035c0785a63c9c2a6d8991e2503a6a5117a1aa",
+        "path": "policy-engine/tools/ops_runners/runtime/export_runtime_openapi.py",
+        "git_blob": "04416db33c86bd5610fd33893ad6867db7a9f22f",
+        "bytes": 1793,
+        "sha256": "daeff9a91f19662a9f21788f73bd002659059f2ca3804ac03a258294185255da"
+      },
+      "same_current_bytes_as_wave": true,
+      "previous_frozen": {
+        "commit": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+        "path": "policy-engine/tools/ops_runners/runtime/export_runtime_openapi.py",
+        "git_blob": "04416db33c86bd5610fd33893ad6867db7a9f22f",
+        "bytes": 1793,
+        "sha256": "daeff9a91f19662a9f21788f73bd002659059f2ca3804ac03a258294185255da"
+      },
+      "same_previous_bytes_as_wave": true,
+      "P41": "Blob comparison alone does not establish root cause or inherited red; full dependent inputs and exact command replay required."
+    },
+    {
+      "path": "policy-engine/architecture/generated_artifacts.toml",
+      "actual_wave": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/architecture/generated_artifacts.toml",
+        "git_blob": "6621206f112833142f966ce8318f3f6b48e3e57d",
+        "bytes": 253707,
+        "sha256": "9d612433dcd7fac0f936ec5cc52d4d9416f8c84af37a8e77faac68011f445bc0"
+      },
+      "observed_current": {
+        "commit": "eb035c0785a63c9c2a6d8991e2503a6a5117a1aa",
+        "path": "policy-engine/architecture/generated_artifacts.toml",
+        "git_blob": "6621206f112833142f966ce8318f3f6b48e3e57d",
+        "bytes": 253707,
+        "sha256": "9d612433dcd7fac0f936ec5cc52d4d9416f8c84af37a8e77faac68011f445bc0"
+      },
+      "same_current_bytes_as_wave": true,
+      "previous_frozen": {
+        "commit": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+        "path": "policy-engine/architecture/generated_artifacts.toml",
+        "git_blob": "6621206f112833142f966ce8318f3f6b48e3e57d",
+        "bytes": 253707,
+        "sha256": "9d612433dcd7fac0f936ec5cc52d4d9416f8c84af37a8e77faac68011f445bc0"
+      },
+      "same_previous_bytes_as_wave": true,
+      "P41": "Blob comparison alone does not establish root cause or inherited red; full dependent inputs and exact command replay required."
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/check_layer3_gy_confidence_ledger.py",
+      "actual_wave": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/tools/quality/validation/check_layer3_gy_confidence_ledger.py",
+        "git_blob": "f18726c6d7896450089c0a992d6fe701d2894fd6",
+        "bytes": 197019,
+        "sha256": "14a30d4b930e78af4b59e8e56b94405fe65051ce5ad375d355ebfa91e396ecd7"
+      },
+      "observed_current": {
+        "commit": "eb035c0785a63c9c2a6d8991e2503a6a5117a1aa",
+        "path": "policy-engine/tools/quality/validation/check_layer3_gy_confidence_ledger.py",
+        "git_blob": "f18726c6d7896450089c0a992d6fe701d2894fd6",
+        "bytes": 197019,
+        "sha256": "14a30d4b930e78af4b59e8e56b94405fe65051ce5ad375d355ebfa91e396ecd7"
+      },
+      "same_current_bytes_as_wave": true,
+      "previous_frozen": {
+        "commit": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+        "path": "policy-engine/tools/quality/validation/check_layer3_gy_confidence_ledger.py",
+        "git_blob": "f18726c6d7896450089c0a992d6fe701d2894fd6",
+        "bytes": 197019,
+        "sha256": "14a30d4b930e78af4b59e8e56b94405fe65051ce5ad375d355ebfa91e396ecd7"
+      },
+      "same_previous_bytes_as_wave": true,
+      "P41": "Blob comparison alone does not establish root cause or inherited red; full dependent inputs and exact command replay required."
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json",
+      "actual_wave": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json",
+        "git_blob": "58a81301ba500bf2ff9c5aaed765a4d9365a17b3",
+        "bytes": 980647,
+        "sha256": "dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391"
+      },
+      "observed_current": {
+        "commit": "eb035c0785a63c9c2a6d8991e2503a6a5117a1aa",
+        "path": "policy-engine/architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json",
+        "git_blob": "58a81301ba500bf2ff9c5aaed765a4d9365a17b3",
+        "bytes": 980647,
+        "sha256": "dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391"
+      },
+      "same_current_bytes_as_wave": true,
+      "previous_frozen": {
+        "commit": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+        "path": "policy-engine/architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json",
+        "git_blob": "58a81301ba500bf2ff9c5aaed765a4d9365a17b3",
+        "bytes": 980647,
+        "sha256": "dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391"
+      },
+      "same_previous_bytes_as_wave": true,
+      "P41": "Blob comparison alone does not establish root cause or inherited red; full dependent inputs and exact command replay required."
+    },
+    {
+      "path": "policy-engine/schemas/runtime_api_v1.openapi.json",
+      "actual_wave": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/schemas/runtime_api_v1.openapi.json",
+        "git_blob": "f8a9dda954bc3bee4f9d4441311f2dcc9fe392e7",
+        "bytes": 2812414,
+        "sha256": "73d9109067c01ae2391acfb4bc3017634c96f1482f208bd47f8aa556e20c764a"
+      },
+      "observed_current": {
+        "commit": "eb035c0785a63c9c2a6d8991e2503a6a5117a1aa",
+        "path": "policy-engine/schemas/runtime_api_v1.openapi.json",
+        "git_blob": "f8a9dda954bc3bee4f9d4441311f2dcc9fe392e7",
+        "bytes": 2812414,
+        "sha256": "73d9109067c01ae2391acfb4bc3017634c96f1482f208bd47f8aa556e20c764a"
+      },
+      "same_current_bytes_as_wave": true,
+      "previous_frozen": {
+        "commit": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+        "path": "policy-engine/schemas/runtime_api_v1.openapi.json",
+        "git_blob": "f8a9dda954bc3bee4f9d4441311f2dcc9fe392e7",
+        "bytes": 2812414,
+        "sha256": "73d9109067c01ae2391acfb4bc3017634c96f1482f208bd47f8aa556e20c764a"
+      },
+      "same_previous_bytes_as_wave": true,
+      "P41": "Blob comparison alone does not establish root cause or inherited red; full dependent inputs and exact command replay required."
+    },
+    {
+      "path": "policy-engine/schemas/snapshots/ir/feedback_solve_result.schema.json",
+      "actual_wave": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/schemas/snapshots/ir/feedback_solve_result.schema.json",
+        "git_blob": "cea9bbf6dc36fbb3935c32cde0766560321bd821",
+        "bytes": 8853,
+        "sha256": "00d1fac4d9059783c0107cb3d39b772115bfab8847267fadafc80ca5c7d27b42"
+      },
+      "observed_current": {
+        "commit": "eb035c0785a63c9c2a6d8991e2503a6a5117a1aa",
+        "path": "policy-engine/schemas/snapshots/ir/feedback_solve_result.schema.json",
+        "git_blob": "cea9bbf6dc36fbb3935c32cde0766560321bd821",
+        "bytes": 8853,
+        "sha256": "00d1fac4d9059783c0107cb3d39b772115bfab8847267fadafc80ca5c7d27b42"
+      },
+      "same_current_bytes_as_wave": true,
+      "previous_frozen": {
+        "commit": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+        "path": "policy-engine/schemas/snapshots/ir/feedback_solve_result.schema.json",
+        "git_blob": "cea9bbf6dc36fbb3935c32cde0766560321bd821",
+        "bytes": 8853,
+        "sha256": "00d1fac4d9059783c0107cb3d39b772115bfab8847267fadafc80ca5c7d27b42"
+      },
+      "same_previous_bytes_as_wave": true,
+      "P41": "Blob comparison alone does not establish root cause or inherited red; full dependent inputs and exact command replay required."
+    },
+    {
+      "path": "policy-engine/schemas/snapshots/ir/_manifest.json",
+      "actual_wave": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/schemas/snapshots/ir/_manifest.json",
+        "git_blob": "69a0ec74a123c345d1c3248d36aab50cf50885cc",
+        "bytes": 52447,
+        "sha256": "b566b7f999f25d3aec2bb10184ed85c108ccbdfd8abad8f558259c037d9b2a27"
+      },
+      "observed_current": {
+        "commit": "eb035c0785a63c9c2a6d8991e2503a6a5117a1aa",
+        "path": "policy-engine/schemas/snapshots/ir/_manifest.json",
+        "git_blob": "69a0ec74a123c345d1c3248d36aab50cf50885cc",
+        "bytes": 52447,
+        "sha256": "b566b7f999f25d3aec2bb10184ed85c108ccbdfd8abad8f558259c037d9b2a27"
+      },
+      "same_current_bytes_as_wave": true,
+      "previous_frozen": {
+        "commit": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+        "path": "policy-engine/schemas/snapshots/ir/_manifest.json",
+        "git_blob": "69a0ec74a123c345d1c3248d36aab50cf50885cc",
+        "bytes": 52447,
+        "sha256": "b566b7f999f25d3aec2bb10184ed85c108ccbdfd8abad8f558259c037d9b2a27"
+      },
+      "same_previous_bytes_as_wave": true,
+      "P41": "Blob comparison alone does not establish root cause or inherited red; full dependent inputs and exact command replay required."
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+      "actual_wave": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+        "git_blob": "38f8b0b40ca439aa5e52cf39b3c8cda894391db6",
+        "bytes": 2365635,
+        "sha256": "0482b1acd2bd254ffb47d6907d11117eb0490a2e8434eed876879d73195d17ba"
+      },
+      "observed_current": {
+        "commit": "eb035c0785a63c9c2a6d8991e2503a6a5117a1aa",
+        "path": "policy-engine/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+        "git_blob": "38f8b0b40ca439aa5e52cf39b3c8cda894391db6",
+        "bytes": 2365635,
+        "sha256": "0482b1acd2bd254ffb47d6907d11117eb0490a2e8434eed876879d73195d17ba"
+      },
+      "same_current_bytes_as_wave": true,
+      "previous_frozen": {
+        "commit": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+        "path": "policy-engine/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+        "git_blob": "38f8b0b40ca439aa5e52cf39b3c8cda894391db6",
+        "bytes": 2365635,
+        "sha256": "0482b1acd2bd254ffb47d6907d11117eb0490a2e8434eed876879d73195d17ba"
+      },
+      "same_previous_bytes_as_wave": true,
+      "P41": "Blob comparison alone does not establish root cause or inherited red; full dependent inputs and exact command replay required."
+    },
+    {
+      "path": "policy-engine/pyproject.toml",
+      "actual_wave": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/pyproject.toml",
+        "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+        "bytes": 11007,
+        "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+      },
+      "observed_current": {
+        "commit": "eb035c0785a63c9c2a6d8991e2503a6a5117a1aa",
+        "path": "policy-engine/pyproject.toml",
+        "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+        "bytes": 11007,
+        "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+      },
+      "same_current_bytes_as_wave": true,
+      "previous_frozen": {
+        "commit": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+        "path": "policy-engine/pyproject.toml",
+        "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+        "bytes": 11007,
+        "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+      },
+      "same_previous_bytes_as_wave": true,
+      "P41": "Blob comparison alone does not establish root cause or inherited red; full dependent inputs and exact command replay required."
+    },
+    {
+      "path": "policy-engine/uv.lock",
+      "actual_wave": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/uv.lock",
+        "git_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+        "bytes": 779204,
+        "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+      },
+      "observed_current": {
+        "commit": "eb035c0785a63c9c2a6d8991e2503a6a5117a1aa",
+        "path": "policy-engine/uv.lock",
+        "git_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+        "bytes": 779204,
+        "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+      },
+      "same_current_bytes_as_wave": true,
+      "previous_frozen": {
+        "commit": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+        "path": "policy-engine/uv.lock",
+        "git_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+        "bytes": 779204,
+        "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+      },
+      "same_previous_bytes_as_wave": true,
+      "P41": "Blob comparison alone does not establish root cause or inherited red; full dependent inputs and exact command replay required."
+    },
+    {
+      "path": "AGENTS.md",
+      "actual_wave": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "AGENTS.md",
+        "git_blob": "94173d77ab34173f12883ee6575db4a461f6df98",
+        "bytes": 22656,
+        "sha256": "35b1e1bf610b8a19b417cb35d6f0c7afca341c4c8c9bbc1574400c38f24b7d50"
+      },
+      "observed_current": {
+        "commit": "eb035c0785a63c9c2a6d8991e2503a6a5117a1aa",
+        "path": "AGENTS.md",
+        "git_blob": "94173d77ab34173f12883ee6575db4a461f6df98",
+        "bytes": 22656,
+        "sha256": "35b1e1bf610b8a19b417cb35d6f0c7afca341c4c8c9bbc1574400c38f24b7d50"
+      },
+      "same_current_bytes_as_wave": true,
+      "previous_frozen": {
+        "commit": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+        "path": "AGENTS.md",
+        "git_blob": "94173d77ab34173f12883ee6575db4a461f6df98",
+        "bytes": 22656,
+        "sha256": "35b1e1bf610b8a19b417cb35d6f0c7afca341c4c8c9bbc1574400c38f24b7d50"
+      },
+      "same_previous_bytes_as_wave": true,
+      "P41": "Blob comparison alone does not establish root cause or inherited red; full dependent inputs and exact command replay required."
+    },
+    {
+      "path": "policy-engine/CONTRIBUTING.md",
+      "actual_wave": {
+        "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+        "path": "policy-engine/CONTRIBUTING.md",
+        "git_blob": "ac70f96fa6a0c0bd6b810e10f33b409dea2a78bf",
+        "bytes": 10553,
+        "sha256": "1c9ea84e5fa0d8f05517287523d47d71128742ad02a5d20ce326163d21754783"
+      },
+      "observed_current": {
+        "commit": "eb035c0785a63c9c2a6d8991e2503a6a5117a1aa",
+        "path": "policy-engine/CONTRIBUTING.md",
+        "git_blob": "ac70f96fa6a0c0bd6b810e10f33b409dea2a78bf",
+        "bytes": 10553,
+        "sha256": "1c9ea84e5fa0d8f05517287523d47d71128742ad02a5d20ce326163d21754783"
+      },
+      "same_current_bytes_as_wave": true,
+      "previous_frozen": {
+        "commit": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+        "path": "policy-engine/CONTRIBUTING.md",
+        "git_blob": "ac70f96fa6a0c0bd6b810e10f33b409dea2a78bf",
+        "bytes": 10553,
+        "sha256": "1c9ea84e5fa0d8f05517287523d47d71128742ad02a5d20ce326163d21754783"
+      },
+      "same_previous_bytes_as_wave": true,
+      "P41": "Blob comparison alone does not establish root cause or inherited red; full dependent inputs and exact command replay required."
+    }
+  ]
+}

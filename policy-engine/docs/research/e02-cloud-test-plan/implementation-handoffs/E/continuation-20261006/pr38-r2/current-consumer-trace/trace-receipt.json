@@ -1,0 +1,51 @@
+{
+  "schema": "policyos.e02.current_consumer_source_trace.v1",
+  "current_sha": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+  "current_tree": "c02e043c3e1c8222c28aa71187fa8db4e2fdeea7",
+  "mode": "Read-only Git source/evidence trace + recipe binding control; no native duplicate/backend/global tests or new code/finding judgment",
+  "source_E_checkpoint": "cfd79255aab85544082fcf24f93db894202fbfa2",
+  "mechanism_blob_join_count": 14,
+  "all14_reviewed_mechanism_blobs_exact": true,
+  "authoritative_review_inputs": [
+    {
+      "family": "BKT",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-chain-admission-r2-checks/independent-review-go-0983.json",
+      "current_git_blob": "a4abbb1069104ebbe7bee0e51c235984641348cc",
+      "sha256": "1eae3da73b365a740e90f8b565b9667d55a545726c3ed8ec441d0e8868b3a5f9",
+      "bytes": 50351,
+      "packet_copy": "authoritative-reviews/bkt.json",
+      "authority": "Existing independent review owns its original bounded judgment; this trace author does not re-review own BKT/facade code."
+    },
+    {
+      "family": "PCL",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/pcl/review.json",
+      "current_git_blob": "6d9e615e942b1fb5d8d0128de24a3b1b8bc5a0f0",
+      "sha256": "0b9341bb2fdd27d0568b7557390dc553f65447e7127949e97c61134e5517a805",
+      "bytes": 47288,
+      "packet_copy": "authoritative-reviews/pcl.json",
+      "authority": "Existing independent review owns its original bounded judgment; this trace author does not re-review own BKT/facade code."
+    },
+    {
+      "family": "FRC",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/frc-independent-review-8486.json",
+      "current_git_blob": "44c22f68b58aa585808d278880f8da825dad6c4c",
+      "sha256": "639ea31dbd960c6985e87056d360763e54d78db8f07299df7c91fdca771cd12b",
+      "bytes": 14831,
+      "packet_copy": "authoritative-reviews/frc.json",
+      "authority": "Existing independent review owns its original bounded judgment; this trace author does not re-review own BKT/facade code."
+    }
+  ],
+  "carried_source_paths": [
+    "mechanism-blob-joins.json",
+    "native-k7-carried-witness.json",
+    "pcl-carried-witness.json",
+    "frc-carried-witness.json"
+  ],
+  "consumer_and_recipe": "consumer-traces-and-local-inputs.json",
+  "local_recipe": "local-G-exact-source-recipe-supplement.json",
+  "corrupt_source_recipe_control": "recipe-binding-control.json",
+  "author_is_not_reviewer_of_own_BKT_Welfare_facade": "This task assembles source/caller/evidence joins; independent reviewers retain their original bounded verdicts. No fresh self-review.",
+  "publication": "Exact currenta9 object exists locally. E root supplies remote branch/PR publication/readback; this packet does not assume SHA fetchability before root push.",
+  "all54_use": "Supplement only BKT/PCL/FRC final consumer/recipe boundaries; final all54 owner verdicts/ledger historical partial/held/closed/open preserved. Generic native mechanism positivity is not deferred for missing production data. Production input needed only for source/history authority criterion.",
+  "remaining": "A/D served/source-input custody and issuer/profile/verifier/trust law remain distinct owner tasks; foreign public API leases/global guards and IR semantics never authorized by this trace."
+}

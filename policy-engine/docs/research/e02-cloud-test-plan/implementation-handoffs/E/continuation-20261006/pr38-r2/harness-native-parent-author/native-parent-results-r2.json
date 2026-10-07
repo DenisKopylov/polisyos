@@ -1,0 +1,69 @@
+{
+  "scope": "Actual pytest tmp_path and nativeCAS IO; no calibration/backend wave repeated",
+  "results": [
+    {
+      "case": "old-exact",
+      "scope": "bounded native harness fixture only, no full common wave/product family",
+      "source_base": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+      "harness_exit_code": 1,
+      "check_outcome": "FAIL",
+      "pytest_exit_code": 1,
+      "case_counts": {
+        "cases": 1,
+        "passed": 0,
+        "failed": 0,
+        "errors": 1,
+        "skipped": 0
+      },
+      "native_callback_count": 0,
+      "source_immutable": true,
+      "basetemp_parent_exists_after": false,
+      "stdout": "/workspace/e02-E-pr38-r2-receipts/harness-native-parent-repair-5e3e37276/native-checks-r2/old-exact/checks/native-tmp-cas/native-tmp-cas.stdout.txt",
+      "stdout_sha256": "2574661cec5679cd65184cf49b1027fb61412b80e617c2c0c09f775adad60dab",
+      "stdout_bytes": 1919
+    },
+    {
+      "case": "new-parent-admission",
+      "scope": "bounded native harness fixture only, no full common wave/product family",
+      "source_base": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+      "harness_exit_code": 0,
+      "check_outcome": "PASS",
+      "pytest_exit_code": 0,
+      "case_counts": {
+        "cases": 1,
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "native_callback_count": 1,
+      "source_immutable": true,
+      "basetemp_parent_exists_after": true,
+      "stdout": "/workspace/e02-E-pr38-r2-receipts/harness-native-parent-repair-5e3e37276/native-checks-r2/new-parent-admission/checks/native-tmp-cas/native-tmp-cas.stdout.txt",
+      "stdout_sha256": "e2a17dad9306e4081a27328783a5098ea735f518e8b37262c025b7e34549a89a",
+      "stdout_bytes": 373
+    },
+    {
+      "case": "removed-parent-property",
+      "scope": "bounded native harness fixture only, no full common wave/product family",
+      "source_base": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+      "harness_exit_code": 1,
+      "check_outcome": "FAIL",
+      "pytest_exit_code": 1,
+      "case_counts": {
+        "cases": 1,
+        "passed": 0,
+        "failed": 0,
+        "errors": 1,
+        "skipped": 0
+      },
+      "native_callback_count": 0,
+      "source_immutable": true,
+      "basetemp_parent_exists_after": false,
+      "stdout": "/workspace/e02-E-pr38-r2-receipts/harness-native-parent-repair-5e3e37276/native-checks-r2/removed-parent-property/checks/native-tmp-cas/native-tmp-cas.stdout.txt",
+      "stdout_sha256": "bca4579328d7a8f5d45599eeb7944be220f07b92a6e1ae15cd666af3bf8b0b05",
+      "stdout_bytes": 1947
+    }
+  ],
+  "all_deciding_outputs_preserved": true
+}

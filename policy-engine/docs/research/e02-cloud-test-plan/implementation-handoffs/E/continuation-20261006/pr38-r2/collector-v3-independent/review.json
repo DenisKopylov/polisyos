@@ -1,0 +1,130 @@
+{
+  "schema": "policyos.e02.independent-collector-review.v3",
+  "source": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/collect_wave_v3_final.py",
+    "bytes": 38152,
+    "sha256": "a6399cc46cbfe25b103fa210259eff2be9483f582ae7cba773632f079f7194ec"
+  },
+  "historical_v2_base": "1e1b5028274814b7c4318671588202480390a6bc",
+  "reviewer": "doe_r2, independent of FRC collector author",
+  "reusable_collector_verdict": "HOLD-explicit-external-freeze-parent-raw-private-role-escape",
+  "affected_v2_escapes": "Corrected:14 independent positives/refusals/property-removal controls passed.",
+  "new_confirmed_remaining_class_escape": {
+    "source_sha256": "a6399cc46cbfe25b103fa210259eff2be9483f582ae7cba773632f079f7194ec",
+    "scope": "Synthetic role-only probe; no actual private input touched",
+    "controls": [
+      {
+        "role": "raw",
+        "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v3/synthetic-freeze-role/raw/wave/raw/source-freeze.json",
+        "state": "CONTROL_COMPLETE_BOUND",
+        "synthetic_payload_copied": true,
+        "product_native_or_gate_commands_executed": 0
+      },
+      {
+        "role": "private",
+        "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v3/synthetic-freeze-role/private/wave/private/source-freeze.json",
+        "state": "CONTROL_COMPLETE_BOUND",
+        "synthetic_payload_copied": true,
+        "product_native_or_gate_commands_executed": 0
+      }
+    ],
+    "property": "The explicit freeze_receipt copy uses freeze.parent as admission root and discards raw/private parent role."
+  },
+  "actual_historical5e_custody_verdict": "GO-bounded-actual-reader-custody-and-preserved-attribution",
+  "actual5e_counts": {
+    "cases": 1440,
+    "passed": 1086,
+    "failed": 3,
+    "errors": 351,
+    "skipped": 0
+  },
+  "scope": "Scratch metadata reader/protocol only; no numeric/product/global gate commands. Same completed historical5e evidence, no new backend results.",
+  "input_custody": {
+    "author_index": {
+      "path": "/workspace/e02-E-pr38-r2-receipts/collector-v3-final-author-controls/copy-index.json",
+      "identity": {
+        "bytes": 4071,
+        "sha256": "cc62d6eb0e8801e367e0354fbf0da2f6883a16d436ff74aaf3bc01af3af323c2"
+      },
+      "files": 16,
+      "bytes": 186931
+    },
+    "author_actual_nested": {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v3/copy-index.json",
+      "identity": {
+        "bytes": 17603,
+        "sha256": "d489a6fd6406427bd6745c2d335c053cbef76cc473a7464b1e44be2557e3d62f"
+      },
+      "files": 48,
+      "bytes": 6369140
+    },
+    "independent_actual_nested": {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v3/actual-reader-publication/copy-index.json",
+      "identity": {
+        "bytes": 17603,
+        "sha256": "b54bd32721d0c8c223d327488d9d0d39de3a15bdecda789959bafd3ac9e0c018"
+      },
+      "files": 48,
+      "bytes": 6369142
+    },
+    "moderate_original_source_assets": 45,
+    "private_and_raw_hash_only": 16
+  },
+  "configured_Ruff_and_format": "PASS-frozen-collector-source-only; independent probes are full-input evidence, not a global lint PASS claim",
+  "commands": [
+    [
+      "python",
+      "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v3/collector_controls.py"
+    ],
+    [
+      "python",
+      "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v3/reader_custody.py"
+    ],
+    [
+      "python",
+      "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v3/freeze_role_probe.py"
+    ],
+    [
+      "ruff",
+      "check",
+      "--config",
+      "/workspace/e02-E-continuation-20261006/policy-engine/ruff.toml",
+      "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/collect_wave_v3_final.py"
+    ],
+    [
+      "ruff",
+      "format",
+      "--check",
+      "--config",
+      "/workspace/e02-E-continuation-20261006/policy-engine/ruff.toml",
+      "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/collect_wave_v3_final.py"
+    ]
+  ],
+  "environment": {
+    "python": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "version": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "UV_NO_SYNC": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "cpu_caps": {
+      "OMP_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "NUMEXPR_NUM_THREADS": null,
+      "VECLIB_MAXIMUM_THREADS": null,
+      "BLIS_NUM_THREADS": null,
+      "POLISYOS_PYTEST_WORKERS": null
+    }
+  },
+  "property_basis": "Independent actual case counts + source/name/job identities; declared planned stdout and common public payload role before copying. Integrity/hash never promotes raw/private payload.",
+  "next_owner": "FRC canonical collector author: retain raw/private parent role in explicit freeze admission; root publishes append-only after independent affected-delta GO.",
+  "finding_closure": false,
+  "limitations": [
+    "Historic COMPLETE_BOUND is custody, not successful wave or finding closure.",
+    "Full framed source mechanism review delegated to independent CAL; metadata consistency and immutable bytes alone do not prove its full property.",
+    "Post-command backend observer is not child JAX configuration evidence; P41 inherited-red remains not_established.",
+    "Real raw171772803B and15actualprivate config inputs hashed only, never printed/copied.",
+    "Synthetic raw/private marker probes contain no actual private material; original source and author fixtures were not changed.",
+    "No deletion/Trash. Exact repeatable candidates are synthetic-controls/, synthetic-freeze-role/, and actual-reader-publication/ after deciding receipts and inactive-user check; preserve unique evidence/source/docs."
+  ]
+}

@@ -1,0 +1,22 @@
+# Independent check: E/F action drafts against 1800 reports
+
+**Disposition: GO as an owner-action draft after one required Fry clarification and two small carry-forward edits.** This review compares the complete E and five F 1800 reports with `1830-E-actions.md` and `1830-F-actions.md`; no tests, refs, environments, tracked files, or source were changed.
+
+## E
+
+- The candidate pins are consistent: E `7dad1566…` / `fa0ca518…`; DoE topic `a1ef819e…` / `6a5b30aa…`, with source candidate `70c4a14f…` / `3e654b07…`. Correctly reject the older `58e2…` aggregate as current evidence because 66 source/test paths changed afterward.
+- The DoE admission is correctly bounded to a **per-design** mutable-plan/direct-cap property, with `allow_large_run` as an explicit positive control. It does not establish a global budget or close B99. Search remains `consumer_missing` / `implemented_but_not_orchestrated`, routed to D.
+- Welfare wording matches the runtime review: unsupported cross-input joint laws must not start stochastic draws or produce intervals/eligibility; a limited result is required, while deterministic nominal/gradient diagnostics may run. The guarantee is finite float64 after canonicalization, not recovered arbitrary-precision source law. No whole-node zero-callback claim.
+- Add one explicit execution caveat from `1800-SALib-prerequisite.md`: pinned SALib 1.5.2 was not found in the bounded offline cache, so a check requiring that backend remains `UNRUN`/skipped if unavailable. This does not block independent DoE admission/cap tests or imply SALib is absent elsewhere.
+- The two FRC failures and `P41 not_established` are correctly left with A; old E author-ledger outcomes (49 limited, 4 held, 1 closed) are not silently changed. The relative scratch links in the E draft should be replaced with root’s intended tracked links before wider circulation.
+
+## F
+
+- The draft correctly preserves the original 35-ID denominator and treats the 17 author-declared “closed” items as proposals pending G adjudication. Candidate transport is receipt/ancestry-based, not cumulative-topic cherry-pick; dependency and shared-owner order matches `1800-F-identity-order.md`.
+- CAU action is properly bounded to selected typed bytes through the finite DiD job/CAS-reader path. It does not claim whole EvalSafety/authority or PDC semantic-hash completion. LA-016 remains limited pending reconciliation of the source-card conflict; this continuation receipt has no closure IDs.
+- TMLE action correctly retains the ConfidencePass blocker-loss HOLD and the missing causal-ref + missing/corrupt simulation artifact negative. Separate producer/CAS and selected-node witnesses do not become a complete Runtime→Node→ConfidencePass chain.
+- Graph action matches the evidence: finite DAG + bidirected ADMG, not arbitrary PAG/CPDAG/ID completeness; B222 is saved-polynomial compatibility through real consumers, **not default nonlinear fitting or causal authority**. SCM 1.1 query remains unrun; whole generator attribution is P41 `not_established`.
+- Economics distinctions are correct: LA-004 is a two-model/profile comparison, not a Gini norm; C’s CRRA reward is not LA-035’s held legacy loss/optimizer question. The combined strict-Gini training incompatibility is a source-derived counterexample, not a runtime result; the proposed exact combined probe is the right next discriminator.
+- **Required wording correction — Fry count unit.** “With the same NaN/Inf anomaly, emit exactly one canonical warning/metric” can mean one total warning even when both NaN and Inf occur. Specify deduplication across alias views only, with an explicit count identity such as `(canonical output slot, anomaly reason)`: report/result aliases yield one flag per reason; NaN and Inf remain distinct reasons; a distinct raw sidecar keeps its own separately identified flag. Assert exact identities/counts in the real dispatcher and retain finite/empty alias control. Do not collapse unlike reasons or invent a broader output-monitor normalization policy. This is still source-analytic only; the current Fry delta changes the monitor docstring, not its body, and has no fresh G runtime witness.
+
+The drafts keep code acceptance, test execution, and formal finding closure distinct. After the Fry sentence and SALib/link notes are tightened, these are sound scoped continuation instructions; they do not themselves close any finding.

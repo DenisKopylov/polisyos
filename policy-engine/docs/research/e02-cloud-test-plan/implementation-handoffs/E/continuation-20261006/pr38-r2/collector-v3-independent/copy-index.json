@@ -1,0 +1,142 @@
+{
+  "scope": "Frozen moderate independent v3 review; reusable HOLD and historical custody GO separated",
+  "primary": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v3/review.json",
+  "files": [
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v3/collector_controls.py",
+      "bytes": 8804,
+      "sha256": "1f5f574cb9a68e781d19320dc41feb3fec5aeda1cf51b1f249778a437765d853",
+      "complete_nested_index": false
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v3/configured-source-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete_nested_index": false
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v3/configured-source-format.stdout",
+      "bytes": 25,
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+      "complete_nested_index": false
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v3/configured-source-ruff.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete_nested_index": false
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v3/configured-source-ruff.stdout",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "complete_nested_index": false
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v3/controls.json",
+      "bytes": 18451,
+      "sha256": "f7d68af3eacd506cc48d6ef8aeab7a6271c4c3eb04c5fe8c2607a9ef7599a45f",
+      "complete_nested_index": false
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v3/controls.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete_nested_index": false
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v3/controls.stdout",
+      "bytes": 18451,
+      "sha256": "f7d68af3eacd506cc48d6ef8aeab7a6271c4c3eb04c5fe8c2607a9ef7599a45f",
+      "complete_nested_index": false
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v3/counts-removed.py.txt",
+      "bytes": 32900,
+      "sha256": "2fc75e7ab9ddd1409ac6d87a7daa9e9b1a92a14e4eff5703cc328b7339d3d65d",
+      "complete_nested_index": false
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v3/freeze-role-probe.json",
+      "bytes": 942,
+      "sha256": "4993da33788753577de4b49d845a81496d0c5995de0a89f64fda979283a11c78",
+      "complete_nested_index": false
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v3/freeze-role-probe.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete_nested_index": false
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v3/freeze-role-probe.stdout",
+      "bytes": 942,
+      "sha256": "4993da33788753577de4b49d845a81496d0c5995de0a89f64fda979283a11c78",
+      "complete_nested_index": false
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v3/freeze_packet.py",
+      "bytes": 4823,
+      "sha256": "116a70cb28627590bb6ec26fde37c0b0020f3058e6c848e6af1aa6bb1db6109c",
+      "complete_nested_index": false
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v3/freeze_role_probe.py",
+      "bytes": 2669,
+      "sha256": "156f4431c9cc1d890f500004d7b4702adee02890be0a31997c0d6ed6b93fbdef",
+      "complete_nested_index": false
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v3/module-removed.py.txt",
+      "bytes": 32927,
+      "sha256": "2f52a95a3f325f5ab802f4571cdf2e39ece3c8ada9d00dba70bc46c01b707127",
+      "complete_nested_index": false
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v3/reader-custody.json",
+      "bytes": 3064,
+      "sha256": "30f889e9dc6080e6d28398a34cdd5642ec6827106104a172da66d5f6c1dab4fa",
+      "complete_nested_index": false
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v3/reader-custody.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete_nested_index": false
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v3/reader-custody.stdout",
+      "bytes": 3064,
+      "sha256": "30f889e9dc6080e6d28398a34cdd5642ec6827106104a172da66d5f6c1dab4fa",
+      "complete_nested_index": false
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v3/reader_custody.py",
+      "bytes": 6530,
+      "sha256": "4da45965eec8a82f64b007d34abd5f1dd092f18813d2983fc3de673ad97fc0b9",
+      "complete_nested_index": false
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v3/review.json",
+      "bytes": 5927,
+      "sha256": "4e49763270e7eb7109269ff9d10ce5c04b3ab59db92eb07c39dcdb46bb8b2764",
+      "complete_nested_index": false
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v3/role-removed.py.txt",
+      "bytes": 32034,
+      "sha256": "4f2dff4a91a64160dab77800a8b80c03aeda178243ed2b16472e03d172c1d123",
+      "complete_nested_index": false
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v3/actual-reader-publication/copy-index.json",
+      "bytes": 17603,
+      "sha256": "b54bd32721d0c8c223d327488d9d0d39de3a15bdecda789959bafd3ac9e0c018",
+      "complete_nested_index": true
+    }
+  ],
+  "file_count": 22,
+  "total_bytes": 189175,
+  "index_self_excluded": true,
+  "fixtures_private_raw_not_indexed": true
+}

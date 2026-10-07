@@ -1,0 +1,50 @@
+{
+  "schema": "e02.portable-evidence-copy.v1",
+  "records": [
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/release-compatibility-author/ddm/copy-index.json",
+      "bytes": 1817,
+      "sha256": "6d55d7b1a1a74244085d4df1ef5e829d6fd2d4800eeae9c21c1e441f26e87b57"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/release-compatibility-author/ddm/ddm-release-companion.patch",
+      "bytes": 3111,
+      "sha256": "78d972e269bb1faa18ac4fedf26aee892869eec520d4e9614ed2f662c98ef397"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/release-compatibility-author/ddm/ddm-source-binding.original.toml",
+      "bytes": 1667,
+      "sha256": "807fcc8d0348a1867ecd21851169113bd33f4f3971307cd4da2e06e0fae5e1d7"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/release-compatibility-author/ddm/ddm-source-binding.proposed.toml",
+      "bytes": 2796,
+      "sha256": "01fc46a6268408570a2da271534187894f94797452385b9b7bfaa1d474267b32"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/release-compatibility-author/ddm/packet.json",
+      "bytes": 8206,
+      "sha256": "b326fff8615e94c161ebc53eb29a2b57a155c821cd8b5a35fd19bbb83df253f9"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/release-compatibility-author/ddm/preparation.stdout",
+      "bytes": 8206,
+      "sha256": "b326fff8615e94c161ebc53eb29a2b57a155c821cd8b5a35fd19bbb83df253f9"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/release-compatibility-author/ddm/prepare_companion.py",
+      "bytes": 9810,
+      "sha256": "8fc452c8666548a268727f897368faf09022914f584039f96f344849a1e39107"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/release-compatibility-author/parser-receipt.json",
+      "bytes": 3094,
+      "sha256": "b0e2a2d4097a5a367bb3a373684313d92b94c9e37073e4e801a978cfb2f0cacc"
+    }
+  ],
+  "total_files": 8,
+  "total_bytes": 38707,
+  "implementation_sha": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+  "implementation_tree": "51343543823afdec2dd86f7e76e1590b1dca0a70",
+  "scope": "Six E releasecompatibilityrows authorchecks only; independentpeerreviewseparate; no code/schema/IRsemantics changes"
+}

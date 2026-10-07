@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "-c",
+    "import json,sys,platform,numpy,scipy,jax;print(json.dumps({\"python\":sys.version,\"executable\":sys.executable,\"platform\":platform.platform(),\"numpy\":{\"version\":numpy.__version__,\"origin\":numpy.__file__},\"scipy\":{\"version\":scipy.__version__,\"origin\":scipy.__file__},\"jax\":{\"version\":jax.__version__,\"origin\":jax.__file__}},indent=2))"
+  ],
+  "cwd": "/workspace/e02-E-pr38-r2-receipts/welfare-covariance-facade-5e",
+  "exit_code": 0,
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "numpy": {
+      "version": "2.3.5",
+      "origin": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/numpy/__init__.py"
+    },
+    "scipy": {
+      "version": "1.16.3",
+      "origin": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/scipy/__init__.py"
+    },
+    "jax": {
+      "version": "0.8.2",
+      "origin": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/__init__.py"
+    }
+  },
+  "scope": "Existing shared interpreter/backend package versions only; no new env/no numerical test."
+}

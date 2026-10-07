@@ -1,0 +1,35 @@
+{
+  "schema": "e02.E.corrected-wave-independent.READY.v1",
+  "status": "READY-custody-GO-numerical-HOLD-global-FAIL",
+  "candidate_sha": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+  "candidate_tree_sha": "c02e043c3e1c8222c28aa71187fa8db4e2fdeea7",
+  "primary": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/corrected-common-wave-independent/a9f78817c/independent-wave-review-a9f78817c.json",
+    "bytes": 199695,
+    "sha256": "624103ca6fb8889fcb2285fff17a499741eaa12530f7eed3703434a006ce76f9"
+  },
+  "source_freeze": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/source-freeze-a9f78817c.json",
+    "bytes": 6358,
+    "sha256": "f90129331279070984ccd9cd93da217633c9f734086c3a6213e6b4d7ca9311c4"
+  },
+  "typed_publication_carrier": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-v3.json",
+    "bytes": 7951,
+    "sha256": "c3cfeb2a9df29d1eb5f2e73da1a8eba940d1ff93569201dfb5a6fa671eae950d"
+  },
+  "actual_counts": {
+    "cases": 1445,
+    "passed": 1441,
+    "failed": 4,
+    "errors": 0,
+    "skipped": 0
+  },
+  "all_actual_receipts": 15,
+  "numeric_source_inputs": 124,
+  "changed_python_lint_paths": 317,
+  "scope": "Read-only actual source/input/receipt/fullstdout/JUnit/config hash custody and pure metadata controls. No tests, numerical/global checks, wheel builds, CAS readers, evaluator callbacks, Git/config/ref/product edits.",
+  "cleanup_candidates": [
+    "Actual common-wave temporary/ directories and repeatable synthetic metadata fixtures after deciding evidence is saved; native Trash unavailable, no deletion performed. Preserve source,docs,original/carrier,unique deciding evidence and raw/private outputs."
+  ]
+}

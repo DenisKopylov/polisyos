@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/fresh_readback.py", line 34, in <module>
+    payload=fresh.get_bytes(artifact);target=DEST/(name+'.json');target.write_bytes(payload)
+  File "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/core/artifacts/store.py", line 384, in wrapped
+    with self._coordinator.artifact_lease(aid, exclusive=False):
+         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/contextlib.py", line 141, in __enter__
+    return next(self.gen)
+  File "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/core/artifacts/ownership.py", line 239, in artifact_lease
+    existing = active.get(artifact_id.hex)
+                          ^^^^^^^^^^^^^^^
+  File "/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py", line 1026, in __getattr__
+    raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+AttributeError: 'WelfareBundleRef' object has no attribute 'hex'

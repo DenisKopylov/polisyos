@@ -1,0 +1,30 @@
+id = "2026-10-06-e02-calibration-reader-facade"
+title = "Expose the canonical Foundry calibration CAS reader through Calibration"
+type = "added"
+component = "calibration"
+owner = "team-scientist"
+summary = "The admitted Foundry uncertainty facade exports load_foundry_calibration_report; Calibration re-exports the same object and the legacy uncertainty Node uses it before dispatch."
+change_class = "python-public-api"
+surface_classification = "public_experimental"
+compatibility = "Additive reader exports in existing Calibration experimental and Foundry uncertainty stable facades; Foundry and Funnel report contracts remain distinct."
+migration = "Use polisyos.calibration.load_foundry_calibration_report for Foundry report readback."
+limitations = "Content validation does not establish source fit or served evaluator authority."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+evidence = ["tests/unit/calibration/test_evidence_facades.py", "tests/unit/scientist/nodes/test_calibration_report_consumer.py"]
+migration_docs = ["src/polisyos/calibration/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "calibration-foundry-reader-alias"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_experimental: polisyos.calibration"
+owner = "team-scientist"
+version_owner = "team-architecture"
+deprecation_window = "not_applicable"
+release_note = "Calibration re-exports the strict canonical Foundry calibration reader by identity through the admitted Foundry uncertainty facade."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/calibration/README.md"]
+runbook_docs = []

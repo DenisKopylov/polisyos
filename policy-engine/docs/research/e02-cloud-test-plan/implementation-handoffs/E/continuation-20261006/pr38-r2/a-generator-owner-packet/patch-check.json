@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "git",
+    "-C",
+    "/workspace/e02-E-continuation-20261006",
+    "apply",
+    "--check",
+    "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/a-status-reason.patch.txt"
+  ],
+  "cwd": "/workspace/e02-E-continuation-20261006",
+  "exit_code": 0,
+  "observed_source": "eb035c0785a63c9c2a6d8991e2503a6a5117a1aa",
+  "scope": "Read-only applicability, no patch/source/config/Git mutation; not behavioral PASS",
+  "patch": {
+    "commit": "1e1b5028274814b7c4318671588202480390a6bc",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/a-status-reason.patch.txt",
+    "git_blob": "3d6da36973c3cac1a941d3ac916bb4004d1d4512",
+    "bytes": 1039,
+    "sha256": "826e19c426272ded24f1223cd07060a51f226d1cf48934949c484fda6fa7c784"
+  }
+}

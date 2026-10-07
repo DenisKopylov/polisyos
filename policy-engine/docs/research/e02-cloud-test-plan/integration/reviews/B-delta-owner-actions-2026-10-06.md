@@ -1,0 +1,44 @@
+# B owner actions — current continuation
+
+Action draft from the four 1548 reviews; no new product review or tests. G is `9c989f7877bd25fea38416cbd10d4c8b2511d10e` (tree `12b0155a2166a932e243ad14117890c8f1e90005`): since `53b309019913b938909d6dc0fc13f8edb409f368`, the only accepted slice is A/`577521c66`; none of these B candidates is integrated. The exact transport snapshot is `policy-engine/_build/e02-g-continuation-20261006/post-publication-source-deltas.json` (SHA-256 `1fd15360aae3d1ac208ea6482c7491e7a6adcfc88ac39f66bec43e4fd1985eb3`): 24 external refs after enumerating 114 E02 refs. Its B rows are the input pins below. A transport head may be receipt-only; it is not automatically the tested product SHA.
+
+## B execution state and runtime
+
+- Transport refs: `current-execution-state` `5ba2411581d164d1c5051907799a3b80337ba3ca` / tree `fad23b7cf699b81816c76db6a5970f9e8a1bf3d3` (90 paths, 0 source/tests); `current-runtime` `dae863be52dc612e7ccef8b52a542159ca69e330` / tree `6bfdd861109ad189ce4ed583f52e062d0ad53c6f` (12 evidence paths, 0 source/tests). These transport advances do not change the reviewed implementation.
+- **Typed state-scope property: FAIL** on product candidate `3eb2e887e07452a316aab95b7dbe3b4f2874951d`, tree `1fa3889f9fa5d216ab54357de6a680d03c4621d4`. The actual `ArtifactRef` at `inputs.ref` can be mutated under an unrelated declared path; the base sees the mutation and the journal stays empty. Dict positive/negative controls work. Do not relabel this UNRUN because another runtime ref has a different API, or claim the later CAS patch fixed it.
+- **Non-Linux controls: six Mac FAILs remain.** Candidate `e1871506fcebc47d6572891b323ddf1f2083a3c9`, tree `edc05c3489f0e2e44c7c81ccbfb854539c9bdc50`: sync/async × `SystemExit`, `KeyboardInterrupt`, unsupported `SystemExit` return `NodeTimeoutError` after one attempt. The relevant source blobs are unchanged at `dae`; these are not Linux-only skips. Keep B runtime on HOLD.
+- Smallest B fix: widen the canonical state isolation/write-guard mechanism to mutable model leaves, including `ArtifactRef`, then exercise the real branch/cache consumer plus the two dict controls and the exact typed-reference mutation. In the supervisor, preserve typed control exceptions through the non-Linux process boundary (or explicitly enforce a narrower supported-platform contract); then run the six Mac cases and Linux control selector. Do not patch either symptom by weakening the guard or retry policy.
+
+Receipts: `policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all15-execution-state.json@5ba2411`; `.../current-deadline-cohort-investigation.json@5ba2411`; `.../current-runtime-process.json@dae863b`. The Mac matrix and typed-scope probe are separately summarized in `R/1548-B-state-runtime.md`; retain their FAIL verdicts.
+
+## B CAS failure snapshot
+
+- Transport ref `current-cas-generation`: `e8bd1cfa6c1382231c430b3a4ba6d078e10fd8a9` / tree `9984ee6e727edeeea5ee4fa969bcfec0adc55ca6` is the later receipt transport head. The actual product candidate is `4638f03a0fc308101185975b562ae7ef7a0ca0d4` / tree `4e9c65a495510758671596d3bf84a0ce236452af`.
+- The safe-read/captured-report property has a **bounded GO**: the final targeted consumer suite is 264 PASS, with property-removal controls detecting witness/capture loss. Overall static acceptance is **HOLD**: seven MyPy errors remain in `store.py`. No P41 inherited-red waiver was established. The existing same-tenant fixture does not close B148; B154 remains `consumer_missing`.
+- Smallest B action: fix the seven canonical typing issues, or provide the exact slice-base replay plus complete disjointness proof. On the resulting immutable candidate, run the affected MyPy command and the 264-case consumer target; preserve the witness-removal and capture-identity removal controls as expected-failing discriminators. Keep this CAS result separate from the `3eb` typed-reference failure unless an exact changed consumer dependency is demonstrated.
+
+Receipts: `policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failed-snapshot-report-followup.json@e8bd1c`; `.../cas-failure-capture-evidence/corrected-followup-affected.txt@e8bd1c`; the removal outputs in the same evidence directory at `e8bd1c`.
+
+## B root cohort
+
+- Current transport tips: adapters `29dbecef14f077cfc4cefffdf3bc6f29379e6ab0` / tree `01c65637362066b9525dc3bc9a6a397499ade7ac` (34 paths, no source, one test); composition `965744100e645a39f0ecc19558656aa8c0878496` (four evidence paths); coordination `b824930d0269bb6808675cf764d0394899106e4c` / tree `d1e1c68282e05ebb6b901183fef3db847f6c8e09` (130 evidence paths, no product source/tests). These refs do not alter the cohort runtime candidate.
+- The prior actual full cohort on product `4e7a4924e6466e1b4eaa39b504435a1243aeb90b` is **FAIL**: 2,253 case entries, native exit 1 (1,970 PASS, 25 call FAIL, 252 setup ERROR, 6 setup SKIP). The parser’s successful interpretation is not product PASS or closure. The raw inventory, selectors, JUnit, stdout and full partition needed to independently recompute that result are absent locally. The fresh repaired cohort remains `DRAFT_UNRUN`; its six deciding inputs, execution, parser, and gates are **UNRUN**.
+- Smallest next action: B/root fixes or makes the deadline discriminator deterministic at its intended phase; after G freezes the actual integrated source once, run the prepared fresh cohort once and transfer/hash all six inputs and complete deciding outputs. Until then preserve the old failure and missing-input limitation; do not count pre-freeze selectors as fresh execution.
+
+Receipts: `policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition.json@29dbece`; `.../current-repaired-cohort-audit-preparation.json@29dbece`. The full input gap and interpretation limits are recorded in `1548-B-cohort-evidence.md`.
+
+## B87 stream cleanup — C is the writer
+
+Transport `current-durability` is `67c4a6f6f4e396c61d26846c51127cc4724978e1` / tree `28a571faa24ea703157ca24d1e8a1cbaf54c2a69`: six changed paths, zero source, one test, five handoff/evidence. The actual test uses product checkout `48e1f7170b04f1362e9b7e1d9b74eb9763151830` and test commit `a6ddddc114e195c7f1686042cf7c63ad99b9d5af`; output is **7 PASS / 1 FAIL** at final process disconnect. It demonstrates no live owner for retrying the unconfirmed old handle; a free permit is not proof of cleanup. B87 stays **OPEN**, and current-G replay is still HOLD.
+
+B owns the finding/evidence; **C owns canonical `fabric/data_plane/streaming.py`**. C’s smallest fix is to retain/transfer a failed pool handle to a live production cleanup owner, or complete required disconnect before process exit, preserving the primary error and cancellation. B’s test is evidence, not authority to edit C’s writer. Re-run this narrow actual `process_stream_dataset` → connector/CAS/cursor → registry shutdown consumer on the frozen G source; assert the production cleanup owner resolves the old handle. Keep the 7/1 result as the counterexample until that receipt passes.
+
+Receipts: `policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-open-delta-review.json@67c4a6f`; `.../current-stream-cleanup-consumer-oracle.json@67c4a6f`; `.../current-stream-cleanup-consumer-evidence/native.txt@67c4a6f`; criterion `.../bundles/NET-01.md@6978076` (§ B87).
+
+## Status and execution order
+
+Finding outcome and check outcome are separate. No automatic finding-status change is inferred from these receipts. Preserve B87 OPEN; B148 held; B154 `consumer_missing`; B57/B58/B62/B70 LIMITED; B40/B52 and other prior partial/held rows unchanged. The CAS property GO is not overall acceptance; MyPy remains HOLD. The old cohort remains FAIL, the fresh cohort UNRUN, and Mac/typed-reference probes remain FAIL. Historical partials do not become closed from parser PASS, receipt publication, or a passing narrow selector.
+
+Fix by canonical owner and publish exact source/handoff pins first. Re-run only changed defining properties and their affected consumers: typed state + controls; Mac six + Linux control after runtime change; CAS static gate + 264 consumer suite after CAS change; B87 process cleanup consumer after C writer change. Execute the fresh aggregate B cohort once after source freeze, not after every merge. Keep production data read-only and request it only for a criterion that depends on it. No production-data portability, remote-host resume, all-platform, or all-backend claim is supported by these bounded receipts.
+
+Local `R/1548-*` and `_build` references above are G-only navigation, not cloud dependencies. Read the committed owner receipts at the exact source/transport SHA; absent local bytes remain not_established. This owner-action record adds no product run or formal finding closure.

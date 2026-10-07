@@ -1,0 +1,98 @@
+{
+  "cases": [
+    {
+      "classname": "tests.integration.core_runtime.test_e02_hard_feasibility_before_voi",
+      "error": false,
+      "failure": false,
+      "name": "test_hard_n5_feasibility_filters_before_voi_and_serves_real_owner_result",
+      "skipped": false,
+      "time": "14.263"
+    },
+    {
+      "classname": "tests.integration.core_runtime.test_e02_hard_feasibility_before_voi",
+      "error": false,
+      "failure": false,
+      "name": "test_all_hard_infeasible_candidates_block_before_n5_and_voi",
+      "skipped": false,
+      "time": "0.077"
+    },
+    {
+      "classname": "tests.integration.core_runtime.test_e02_hard_feasibility_before_voi",
+      "error": false,
+      "failure": false,
+      "name": "test_removing_candidate_filter_keeps_refusal_marker_but_selects_refused_candidate",
+      "skipped": false,
+      "time": "0.889"
+    },
+    {
+      "classname": "tests.integration.core_runtime.test_e02_hard_feasibility_before_voi",
+      "error": false,
+      "failure": false,
+      "name": "test_prepared_n5_digest_rejects_changed_atom_problem_and_profile_route",
+      "skipped": false,
+      "time": "0.820"
+    },
+    {
+      "classname": "tests.integration.core_runtime.test_e02_hard_feasibility_before_voi",
+      "error": false,
+      "failure": false,
+      "name": "test_subclass_atom_identity_is_distinct_but_preflight_refuses_it",
+      "skipped": false,
+      "time": "0.031"
+    },
+    {
+      "classname": "tests.integration.core_runtime.test_e02_hard_feasibility_before_voi",
+      "error": false,
+      "failure": false,
+      "name": "test_request_digest_refuses_unserialized_live_engine_plan_state",
+      "skipped": false,
+      "time": "1.584"
+    },
+    {
+      "classname": "tests.integration.core_runtime.test_e02_hard_feasibility_before_voi",
+      "error": false,
+      "failure": false,
+      "name": "test_injected_legacy_controller_keeps_one_argument_run_shape",
+      "skipped": false,
+      "time": "0.033"
+    },
+    {
+      "classname": "tests.integration.core_runtime.test_e02_hard_feasibility_before_voi",
+      "error": false,
+      "failure": false,
+      "name": "test_preflight_decimal_codec_rejects_nonfinite_values[NaN]",
+      "skipped": false,
+      "time": "0.000"
+    },
+    {
+      "classname": "tests.integration.core_runtime.test_e02_hard_feasibility_before_voi",
+      "error": false,
+      "failure": false,
+      "name": "test_preflight_decimal_codec_rejects_nonfinite_values[Infinity]",
+      "skipped": false,
+      "time": "0.000"
+    },
+    {
+      "classname": "tests.integration.core_runtime.test_e02_hard_feasibility_before_voi",
+      "error": false,
+      "failure": false,
+      "name": "test_preflight_decimal_codec_rejects_nonfinite_values[-Infinity]",
+      "skipped": false,
+      "time": "0.000"
+    },
+    {
+      "classname": "tests.integration.core_runtime.test_e02_hard_feasibility_before_voi",
+      "error": false,
+      "failure": false,
+      "name": "test_preflight_decimal_codec_binds_exact_value_and_separates_fake_mapping",
+      "skipped": false,
+      "time": "0.000"
+    }
+  ],
+  "errors": 0,
+  "failures": 0,
+  "root_tag": "testsuites",
+  "skipped": 0,
+  "tests": 0,
+  "time": null
+}

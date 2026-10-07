@@ -1,0 +1,69 @@
+{
+  "status": "READY-immutable-independent-metadata-review",
+  "primary": "review.json",
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "root": "/workspace/e02-E-continuation-20261006",
+  "source": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/a-generator-dependency-a9f78817-validator-v3/validate_binding_v3.py",
+    "bytes": 8016,
+    "sha256": "0183743ead5d4b27ffc6f3265334b8f1329f72c482ab3612cd37e9a7c7b07cf4"
+  },
+  "author_index": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/a-generator-dependency-a9f78817-validator-v3/copy-index.json",
+    "bytes": 2789,
+    "sha256": "06e6c7696c4262878952f7fdb712705ab11ca83892e6bc906f9a3e1f295046e7",
+    "assets": 16,
+    "asset_bytes": 53648
+  },
+  "commands": [
+    {
+      "argv": [
+        "python",
+        "review_validator.py.txt"
+      ],
+      "exit_code": 0,
+      "stdout": "review.stdout",
+      "stderr": "review.stderr"
+    },
+    {
+      "argv": [
+        "ruff",
+        "check",
+        "--no-cache",
+        "--config",
+        "/workspace/e02-E-continuation-20261006/policy-engine/ruff.toml",
+        "/workspace/e02-E-pr38-r2-receipts/a-generator-dependency-a9f78817-validator-v3/validate_binding_v3.py",
+        "/workspace/e02-E-pr38-r2-receipts/a-generator-dependency-a9f78817-validator-v3/validate_controls_v3.py"
+      ],
+      "exit_code": 0,
+      "stdout": "ruff.stdout",
+      "stderr": "ruff.stderr"
+    },
+    {
+      "argv": [
+        "ruff",
+        "format",
+        "--check",
+        "--no-cache",
+        "--config",
+        "/workspace/e02-E-continuation-20261006/policy-engine/ruff.toml",
+        "/workspace/e02-E-pr38-r2-receipts/a-generator-dependency-a9f78817-validator-v3/validate_binding_v3.py",
+        "/workspace/e02-E-pr38-r2-receipts/a-generator-dependency-a9f78817-validator-v3/validate_controls_v3.py"
+      ],
+      "exit_code": 0,
+      "stdout": "format.stdout",
+      "stderr": "format.stderr"
+    }
+  ],
+  "required_environment": {
+    "UV_NO_SYNC": "1",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "scope": "Pure metadata Git reads/predicate controls/configured two-file lint; no numeric/native/gate/wheel/production/default/HTTP acceptance",
+  "old_helper_HOLD_preserved": true,
+  "actual_author_packet_GO_reused": true,
+  "new_wave_results_read": false,
+  "next_owner": "Root publication of separate successor; CAL actual terminalwave custody; A default/verifier/HTTP status and G canonicalgenerator owners unchanged."
+}

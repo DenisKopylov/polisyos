@@ -1,0 +1,96 @@
+{
+  "schema": "policyos.e02.owned_facade_source_checkpoint_binding.v1",
+  "state": "Exact_git_byte_binding_of_reviewed_scratch_source_and_actual_native_inputs",
+  "base": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+  "base_tree": "3b63e778d5b6d17b2e9edc3b4bf91af079b32eb0",
+  "implementation_sha": "cfd79255aab85544082fcf24f93db894202fbfa2",
+  "implementation_tree": "8b5fea530b22e5402f3e3bf31d0c5a54e4117be7",
+  "implementation_parent": "eb035c0785a63c9c2a6d8991e2503a6a5117a1aa",
+  "actual_native_framing_sha": "eb035c0785a63c9c2a6d8991e2503a6a5117a1aa",
+  "actual_native_execution": "Existing17 author native tests on immutable scratch source plus5e-equivalent root inputs; this binding is static Git-byte reconciliation, not a new numerical execution on cfd.",
+  "original_author_packet_index_sha256": "db188c6fabb217680c598d30d533ed3f0a2d5cf1d05069b0776cb940a5c6f1c2",
+  "original_author_receipt_sha256": "0de0a970c28dfae21687f80dbf1d845ca834f6682635154a962c213d3063109d",
+  "original_source_patch_sha256": "ed474d8a61cc5edeff3f195044cd9d095282b72d51b56e1eb0fb74e48ef572b7",
+  "exact_source_commit_diff_path_count": 12,
+  "exact_source_commit_postimages": [
+    {
+      "path": "policy-engine/architecture/public_surface/inventory.json",
+      "git_blob": "1d0d243ada1d27ec2656c56a5976fe6d70593ffd",
+      "sha256": "63a4ed665331cb937ec4ec5968e72ba5659914c147ed23eb447f7183c5a37fd1",
+      "bytes": 222856
+    },
+    {
+      "path": "policy-engine/docs/reference/public-surface.md",
+      "git_blob": "bf18b5670034762c0b86d7bc5cc9ab192e949ddc",
+      "sha256": "99b655871e2e68c0577cd6f6e18358dfea9a5aac7e216bcbb3a6aed7d2fd56ed",
+      "bytes": 154167
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-reader-facade.toml",
+      "git_blob": "d57aba89fb4df053e0cd03c32c863a0cf9a7b426",
+      "sha256": "ed5f4cc351d274de679e9ee91c39f55438daf10b921b17c3924b480fbcc2eee5",
+      "bytes": 1914
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-welfare-covariance-facade.toml",
+      "git_blob": "56fba4ace972656f62ebc22847252846cc5b1e5f",
+      "sha256": "9fc124328372a37e28d7e413f38312e721ac0af23dfe59ac9c101eb0430ec43e",
+      "bytes": 2105
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/README.md",
+      "git_blob": "c3c315bda7fa73a72932a4fd3dcf772338a50475",
+      "sha256": "c09461f8058513803099d107beeb942407e7f349c87dac05d1a2a27e76d729de",
+      "bytes": 4536
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/__init__.py",
+      "git_blob": "cf6830efbf67557bb3530bac7d37d71b278d6c92",
+      "sha256": "42d6b4c46672c228d067b14a03f79db2b702d0325558d4cd89b615d7c025bbfc",
+      "bytes": 2217
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+      "git_blob": "091375f9c76d80e7e6385833866fe7e507446244",
+      "sha256": "653ec2ef3463e5d910725e2eb5b836e36cf415cad1a72bc9180a8982fa67eb2c",
+      "bytes": 5379
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "git_blob": "06000c239bd2ec7fd8af3abf1575ed40a598dd1a",
+      "sha256": "068f0f1bd0bc2fcbd59884331f98d3c89bb0e6e67567ff3d8949055f5a6d2fd4",
+      "bytes": 3397
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "git_blob": "638c484b28cdb8b2cdbc45e5755a9b315943abe9",
+      "sha256": "04a95dc4d969d95ec056d789057d7384bdf3cd4b1e7fd90e3e5b919f567559bd",
+      "bytes": 20616
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "git_blob": "25b30b9efa5b8672928caa9c9b2ef7bdbb5b7ce0",
+      "sha256": "8050f1a81d593d14363efaf91cf0e2088bc685a8e0e48b7c35cbd8f29c1f9def",
+      "bytes": 192619
+    },
+    {
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "git_blob": "0c393aa965fa8bcbff4f72b97ad6e4efcf8f2d4e",
+      "sha256": "b8a793867ae61d5d249d47e108fab66874951cda7644f5dd5a32b81b18de51b8",
+      "bytes": 5641
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/uncertainty/test_covariance_facade.py",
+      "git_blob": "b933b4911da23c15617fabeabbb7a3470f82d5f2",
+      "sha256": "463dc5b879e0edf4a6f898e50715b1902faadc9182550dff1786a37db427b938",
+      "bytes": 5316
+    }
+  ],
+  "actual_loaded_product_modules_joined_to_commit": 830,
+  "loaded_module_mismatches": [],
+  "loaded_join_file": "source-checkpoint-loaded-joins.tsv",
+  "loaded_join_sha256": "dbb244d9b0a9b162d23ddf4c60873055bda0ffc01e0d44de4d2625131083e87d",
+  "both_Node_non_import_AST_unchanged": true,
+  "canonical_covariance_bytes_unchanged": true,
+  "review_scope": "Author binding only; DDM independent bounded code verdict and root/G source acceptance separate. No main publication or finding ledger change."
+}

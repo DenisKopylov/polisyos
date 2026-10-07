@@ -1,0 +1,43 @@
+{
+  "manifest_schema_version": "v3",
+  "artifact_id": "sha256:e7c8fc2c5ed05a7548c426391100b64284ce6722cc5d6551fff3cee208a006c6",
+  "kind": "ir.welfare_sample_bundle",
+  "media_type": "application/json",
+  "byte_size": 8602,
+  "created_at": "2026-10-06T17:01:12Z",
+  "schema": {
+    "name": "ir.welfare_sample_bundle",
+    "version": "1.0"
+  },
+  "canon": {
+    "name": "polisyos.canon.json",
+    "version": "0.2.0",
+    "forbid_floats": false,
+    "forbid_nan_inf": true,
+    "exclude_none": true,
+    "max_depth": 128,
+    "sort_keys": true,
+    "separators": [
+      ",",
+      ":"
+    ],
+    "ensure_ascii": false
+  },
+  "inputs": [
+    {
+      "artifact_id": "sha256:11d64d61b6dd35545ca0cf499eee676b6f82685890b38b845b94dd11296ac7e7",
+      "role": "draw_outcomes"
+    }
+  ],
+  "producer": null,
+  "env": null,
+  "governance": null,
+  "tenant_context": null,
+  "same_input_closure": null,
+  "authority": null,
+  "integrity": {
+    "sha256": "e7c8fc2c5ed05a7548c426391100b64284ce6722cc5d6551fff3cee208a006c6",
+    "optional": null
+  },
+  "warnings": []
+}

@@ -1,0 +1,118 @@
+{
+  "schema": "e02.E.portable-review-copy-index.v1",
+  "source_candidate_sha": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+  "source_candidate_tree": "c02e043c3e1c8222c28aa71187fa8db4e2fdeea7",
+  "source_index": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/independent-a-generator-packet-a9/copy-index.json",
+    "bytes": 4218,
+    "sha256": "68517d50eeddf155bce231f35f76e98fd1f3b423dca133d553b130c632af4534"
+  },
+  "files": [
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-a-generator-packet-a9/source_candidate_probe.py.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-current-independent/source_candidate_probe.py.txt",
+      "bytes": 2373,
+      "sha256": "e19480bdb351b9275c549ad581baec634b89d1216204a0ef92302213f324f21d"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-a-generator-packet-a9/source-candidate-probe.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-current-independent/source-candidate-probe.json",
+      "bytes": 732,
+      "sha256": "39858dce4b010cd1998e9b3a2bc96add39948c97d7b1cdc0cb182eea398aa420"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-a-generator-packet-a9/source-candidate-probe.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-current-independent/source-candidate-probe.stdout",
+      "bytes": 732,
+      "sha256": "39858dce4b010cd1998e9b3a2bc96add39948c97d7b1cdc0cb182eea398aa420"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-a-generator-packet-a9/source-candidate-probe.stderr",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-current-independent/source-candidate-probe.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-a-generator-packet-a9/actual_packet_review.py.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-current-independent/actual_packet_review.py.txt",
+      "bytes": 12230,
+      "sha256": "41aed9839698403544652ec01c0fd59c40d5b2452e8347fbd38133229e08df60"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-a-generator-packet-a9/actual_packet_review.initial.py.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-current-independent/actual_packet_review.initial.py.txt",
+      "bytes": 12240,
+      "sha256": "02cdfc67076cf34ed632021e8807e1129404ac467fa6e24ddc08b359227b90a6"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-a-generator-packet-a9/actual_packet_review.index-identity-initial.py.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-current-independent/actual_packet_review.index-identity-initial.py.txt",
+      "bytes": 12224,
+      "sha256": "6dc7d29e4890d23f13ff9233902414b5ca83b405beabe01e5de85df535a1de88"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-a-generator-packet-a9/actual-packet-review.initial-harness-error.stderr",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-current-independent/actual-packet-review.initial-harness-error.stderr",
+      "bytes": 306,
+      "sha256": "6562eb6afc13e22a7292dce1cb2264b93ce658602343dc3ff433ac18031324ac"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-a-generator-packet-a9/actual-packet-review.initial-index-identity.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-current-independent/actual-packet-review.initial-index-identity.stdout",
+      "bytes": 2035,
+      "sha256": "0820dc41abf772136af4eb4374d8996ab9b5dd73ad0dc8624cb7eef0c4038ec5"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-a-generator-packet-a9/actual-packet-review.initial-index-identity.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-current-independent/actual-packet-review.initial-index-identity.json",
+      "bytes": 6926,
+      "sha256": "feede6c6a911570926352d36cc3ef3032f7d974cf599d6a4c32eee9622817c74"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-a-generator-packet-a9/actual-packet-review.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-current-independent/actual-packet-review.json",
+      "bytes": 7861,
+      "sha256": "631da9ac3199ef984523ccedb2f4abc839dd6870fbdf3d63aeb0ea609bb7e4d7"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-a-generator-packet-a9/actual-packet-review.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-current-independent/actual-packet-review.stdout",
+      "bytes": 2060,
+      "sha256": "514de9d2d9da64841390e6c14edc0f5a0c917bdfbd96021371217bdb28adaa9f"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-a-generator-packet-a9/actual-packet-review.stderr",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-current-independent/actual-packet-review.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-a-generator-packet-a9/freeze_historical_packet.py.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-current-independent/freeze_historical_packet.py.txt",
+      "bytes": 3503,
+      "sha256": "2d49d761eb7d5800e6b20df55c9e7365aaffc7231a99a89aec24c3aeff3adf69"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-a-generator-packet-a9/freeze_historical_packet.initial.py.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-current-independent/freeze_historical_packet.initial.py.txt",
+      "bytes": 3157,
+      "sha256": "982486005f6b35afb644068664d495831d37ff2b2b9cd1537079ae6de061533c"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-a-generator-packet-a9/freeze-packet.initial-harness-error.stderr",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-current-independent/freeze-packet.initial-harness-error.stderr",
+      "bytes": 297,
+      "sha256": "5b2bfab779f5e2f62938962d051c976d365f32dbfc9e3c90bd001679ea9a808e"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-a-generator-packet-a9/copy-index.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-current-independent/copy-index.json",
+      "bytes": 4218,
+      "sha256": "68517d50eeddf155bce231f35f76e98fd1f3b423dca133d553b130c632af4534"
+    }
+  ],
+  "file_count": 17,
+  "total_bytes": 70894,
+  "publication": "Exact moderate original bytes; source/evidence publication commits kept distinct; raw/private/production inputs not copied",
+  "finding_closure": false
+}

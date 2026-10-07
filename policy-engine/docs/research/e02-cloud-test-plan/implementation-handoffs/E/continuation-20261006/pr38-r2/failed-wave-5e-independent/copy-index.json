@@ -1,0 +1,77 @@
+{
+  "schema": "e02.E.independent-wave-portable-index.v1",
+  "candidate_sha": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+  "files": [
+    {
+      "path": "PROTOCOL.md",
+      "bytes": 4098,
+      "sha256": "dc0dbf96e885833c6ef02939ae2c48e8f7769c23fb6033010f0a0455f252000d"
+    },
+    {
+      "path": "README.md",
+      "bytes": 1946,
+      "sha256": "7a8ac5999605b0faac04c326eff37d17edf434e71f68386563c0e15bea22cd24"
+    },
+    {
+      "path": "actual-check-assets-5e3e37276.json",
+      "bytes": 9342,
+      "sha256": "4b72910b58775e8bfe7423adea300b52de61f78eedd4a1590d7566020bf4214f"
+    },
+    {
+      "path": "audit_inputs.py",
+      "bytes": 10226,
+      "sha256": "b4b8e82b1a4a2c733c55edf62bdd28f1980233ae913e2b27d5ed40e42a61f9da"
+    },
+    {
+      "path": "audit_outputs.initial.py.txt",
+      "bytes": 14579,
+      "sha256": "e4b7753d6fc187c866a2758f0391e2efa40a1135216a63f84adc94eab4a5c562"
+    },
+    {
+      "path": "audit_outputs.py",
+      "bytes": 15116,
+      "sha256": "23a48166fe5c273c2ed3f702120bb4768a84931dfdf13be80dee1a1930482436"
+    },
+    {
+      "path": "audit_quantities.py",
+      "bytes": 3781,
+      "sha256": "49c821972559d2adbeb89b43d2753876d00aaaefa4384499e82d2fb3b021cfd4"
+    },
+    {
+      "path": "independent-wave-review-5e3e37276.json",
+      "bytes": 223965,
+      "sha256": "b763ce8057efe3c6528b6e39a9085184283311fccd5bef47a0fc013d44bde810"
+    },
+    {
+      "path": "input-audit-5e3e37276.json",
+      "bytes": 31570,
+      "sha256": "6f56165e792960503880c2da2b88890706d9c891e5efdd2aa5b206f72aa1d01c"
+    },
+    {
+      "path": "input-audit-5e3e37276.stdout.txt",
+      "bytes": 521,
+      "sha256": "5edf0eab1e74ded775aeb0949e106a6c60ec55da68a29e27d824a40434b62621"
+    },
+    {
+      "path": "junit-independent-5e3e37276.json",
+      "bytes": 1160883,
+      "sha256": "dfd6233e9dc18242425c8a562519765e73ae3041eaa39eea27d83edf072f944e"
+    },
+    {
+      "path": "output-audit-5e3e37276-final.stdout.txt",
+      "bytes": 928,
+      "sha256": "db6be94314813e6fb5fdd2bbc1f20d8bacaa466ccd710fb8e2a61f89bb035cde"
+    },
+    {
+      "path": "output-audit-5e3e37276.stdout.txt",
+      "bytes": 640,
+      "sha256": "27630792ebf7e90cd212a27a60bbe1ac8cfcd007bc1174ce56e10807e5b4f23a"
+    }
+  ],
+  "file_count": 13,
+  "bytes": 1477595,
+  "private_git_config_included": false,
+  "large_static_raw_included": false,
+  "no_permanent_cleanup": true,
+  "exact_cleanup_candidates": []
+}

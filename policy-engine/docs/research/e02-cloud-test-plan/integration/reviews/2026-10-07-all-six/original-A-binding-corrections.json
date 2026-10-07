@@ -1,0 +1,132 @@
+{
+  "schema": "policyos.e02.a-original-binding-corrections.v1",
+  "purpose": "Read-only all-34 original-criterion mapping audit; no historical ledger/outcome is rewritten.",
+  "reviewed_G": "ff277db7798fc312654704fa51c52e00f53f10f4",
+  "A_delivery_sha": "579788751baefe065fd5b94c446ab665eb65861a",
+  "A_delivery_tree": "e3ff953110c39ab11635f1c2ae99454d6333865c",
+  "denominator": {
+    "bundles": 13,
+    "unique_ids": 34,
+    "source_criterion_occurrences": 35,
+    "B_r19_occurrences": 31,
+    "LA_r09_occurrences": 4,
+    "LA_046_same_source_occurrences_preserved": 2
+  },
+  "hash_verification": "All 35 source blocks were read from the immutable A delivery and SHA256 recomputed from exact source bytes at the listed line spans; each matches the committed full-queue-progress criterion_refs SHA.",
+  "outcome_preservation": "Historical source ledger status and source_closure_now are copied verbatim from the A delivery. Current local/closure proposals are never substituted for source closure.",
+  "record_scope": "Seven corrective decisions after a complete35occurrence audit; unchanged rows remain cited in original cards/coverage.",
+  "records": [
+    {
+      "id": "B05",
+      "bundle_occurrence": "CYC-02",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "source_lines": [
+        253,
+        264
+      ],
+      "source_block_sha256": "7ab0816d8b7cc9f46a900842951a67c92b12ff09362616d87afd82223bcd7970",
+      "operative_criterion": "Реальный N5 K_sim принимается адаптером как условная simulation value, но остаётся запрещённым как world evidence, эмпирический эффект или разрешение внешнего действия; N9 currentness — отдельная задача.",
+      "binding_disposition": {
+        "classification": "misbound-adjacent-gate",
+        "current_wrong_binding": "closure-decisions/A.md#task-a2 B05 и coverage.json criterion_specific_acceptance_not_executed требуют реальный N9 currentness/signed positive. Исходный B05 — K_sim через настоящий адаптер в conditional analysis, но без переноса в K_world/empirical/action authority.",
+        "correction": "N9 signed/currentness positive остаётся отдельной owner/currentness workstream; не является B05 закрывающим критерием или его обязательным input, если конкретный served candidate одновременно заявляет это отдельное свойство."
+      }
+    },
+    {
+      "id": "B11",
+      "bundle_occurrence": "CYC-04",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "source_lines": [
+        325,
+        336
+      ],
+      "source_block_sha256": "37f6f0543710b466822aa39ffeb7d3ce5b9a4b57bed99dc429087a3a61ff268c",
+      "operative_criterion": "Разрешённая информативная проверка может выполниться при низком value-proxy, если существует ограниченный research budget; настоящий exhaustion останавливает её. Эвристика не выдаётся за денежную VOI/вероятность. Конкретный B66 settlement — отдельная cross-unit интеграция.",
+      "binding_disposition": {
+        "classification": "scope-expansion-risk",
+        "current_wrong_binding": "closure-decisions/A.md#task-a4 и continuation map требуют B66 settlement, ack/readback, retry idempotency/sibling isolation как часть B11. Исходный B11 требует ограниченную информативную проверку несмотря на low value-proxy и честную границу бюджета; он не задаёт B66 schema/event contract.",
+        "correction": "Сначала проверить bounded researcher-budget criterion. B66 settlement проверять отдельным owner edge/receipt; reuse existing budget path if present and do not create a second ledger."
+      }
+    },
+    {
+      "id": "B16",
+      "bundle_occurrence": "EMP-01",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "source_lines": [
+        387,
+        398
+      ],
+      "source_block_sha256": "fddf1601c092be1f87a19a79a3f6975264850d8df9428e3f54bd3f8fe48d8706",
+      "operative_criterion": "Область задачи и семантика измерения ограничивают input set ДО sort/LIMIT/aggregation; чужие строки не вытесняют подходящие, несовместимые units не усредняются, truncation/incomplete/missing различаются. ETS/holdout не часть этого B16 критерия.",
+      "binding_disposition": {
+        "classification": "misbound-separate-finding",
+        "current_wrong_binding": "closure-decisions/A.md#task-a9 и coverage.json criterion_specific_acceptance_not_executed подменяют B16 scope-before-LIMIT/aggregation на E ETS/holdout, шестиролевую temporal profile и S10 predictive-only output.",
+        "correction": "Вернуть B16 к source/population/task scope filter before LIMIT and aggregation. Forecast/ETS/holdout is a separate A→E FRC-01/FRC-02 workstream for E LA-051, not a B16 criterion and must not block or close B16."
+      }
+    },
+    {
+      "id": "B28",
+      "bundle_occurrence": "CYC-03",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "source_lines": [
+        551,
+        564
+      ],
+      "source_block_sha256": "24bde0d2e6c00856b28cf4cc5bc1be23c22e6395760df1a5c615bc74ab99b343",
+      "operative_criterion": "Предметная candidate identity отделена от occurrence в каждой итерации; повторный candidate сохраняет обе occurrence в истории, current front однозначен, а результат новой попытки не приписывается старой. Никакая подпись/current epoch не следует из этого критерия.",
+      "binding_disposition": {
+        "classification": "misbound-adjacent-currentness",
+        "current_wrong_binding": "coverage.json criterion_specific_acceptance_not_executed says candidate ID/history row must establish signature/current epoch; owner-action matrix adds signed N9/OWR. Source B28 is candidate identity versus per-iteration occurrence identity.",
+        "correction": "Test same candidate appearing in two iterations without loss, front duplication, or result reassignment. Signature/current epoch is separate N6/N9 work only if a distinct source row requires it."
+      }
+    },
+    {
+      "id": "B30",
+      "bundle_occurrence": "CYC-05",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "source_lines": [
+        579,
+        592
+      ],
+      "source_block_sha256": "251d77ebefef25cd01ccd9bf1bcf331725906815dddf47212336198586f99104",
+      "operative_criterion": "Runtime structural scan различает недоступный source denominator, parse error и реального forbidden caller; отсутствие source/ошибка не дают пустой зелёный результат, unrelated syntax не становится ложным violation, unchanged dependency basis можно переиспользовать. Signed deployment/currentness — отдельный контракт.",
+      "binding_disposition": {
+        "classification": "misbound-adjacent-currentness",
+        "current_wrong_binding": "coverage.json criterion_specific_acceptance_not_executed says whole checkout bytes/exit code proxy for deployed executable identity; continuation owner map attaches signed N6 deployment digest/currentness. Source B30 is runtime source-tree scan false stop / empty success.",
+        "correction": "Distinguish missing source denominator, syntax/parse error, and real forbidden caller; reuse identity only when actual dependency basis is unchanged. Signed N6 release identity remains separate."
+      }
+    },
+    {
+      "id": "B31",
+      "bundle_occurrence": "EMP-01",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "source_lines": [
+        593,
+        606
+      ],
+      "source_block_sha256": "9311ba1b0fb2e6a3f180546c6118406c5781dbbfb57e27b28075b95a92fe371f",
+      "operative_criterion": "ValueOuterSet остаётся идентификационным множеством, а native statistical/model uncertainty сохраняется отдельно для того же estimand/unit; нет arbitrary proxy width и нельзя force mean into interval. E B201/B202 schema/quantile/joint-law decisions остаются отдельными IDs/owner decisions.",
+      "binding_disposition": {
+        "classification": "cross-unit-scope-boundary",
+        "current_wrong_binding": "closure-decisions/semantic-decisions.md groups B31/B201/B202 into one four-answer ratification packet and new `$id`/CAS-only choices; B201/B202 are E IDs, not additional A B31 source occurrences.",
+        "correction": "For A B31, ratify and verify only the identification-set vs statistical/model-uncertainty distinction and same-estimand/unit preservation. Keep E point/interval quantile and joint-law storage choices under E B201/B202 and the shared owner packet; no new API surface/signing workflow."
+      }
+    },
+    {
+      "id": "LA-046",
+      "bundle_occurrence": "REQ-01",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "source_lines": [
+        3034,
+        3068
+      ],
+      "source_block_sha256": "bcbccbb69a90ac55f3de6d43c9a602749b53e0c5728baa94e1417e94d1bccd38",
+      "operative_criterion": "REQ-01 occurrence: separate generic compiler from named pilot adapter; treat scenario_id as opaque, explicitly distinguish text/request and scope/date/jurisdiction; retain pilot defaults only in an explicit named profile. Negation/opaque-ID/date/jurisdiction controls decide this compiler occurrence; do not require N7 acquisition to close it.",
+      "binding_disposition": {
+        "classification": "occurrence-must-remain-distinct",
+        "current_wrong_binding": "coverage.json has one ID row with primary ACQ-01 and REQ-01 companion; A.md#task-a3 mixes both generic compiler and acquisition work under one task. That is acceptable only if both source occurrences remain explicit; a single compiler PASS cannot close ACQ and a single N7 PASS cannot close REQ.",
+        "correction": "Keep this exact same source block/hash as a distinct REQ-01 occurrence next to the ACQ-01 occurrence; no duplicate finding ID or collapsed acceptance."
+      }
+    }
+  ]
+}

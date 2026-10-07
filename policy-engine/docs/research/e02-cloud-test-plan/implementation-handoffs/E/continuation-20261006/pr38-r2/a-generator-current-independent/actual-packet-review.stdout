@@ -1,0 +1,61 @@
+{
+  "actual_packet_verdict": "GO-bounded-current-packet-source/ref/math/writer/custody",
+  "author_reusable_validator_verdict": "HOLD-valid-bytes-wrong-current-candidate-escape, separate append-only correction pending",
+  "source_pin": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+  "source_tree": "c02e043c3e1c8222c28aa71187fa8db4e2fdeea7",
+  "author_original_index": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/a-generator-dependency-a9f78817/copy-index.json",
+    "bytes": 1958,
+    "sha256": "716cfb15445b16de654f16fc8c7f860c2bbe79f0f02a099082dc514e70c3f53e",
+    "files": 10,
+    "asset_bytes": 84975
+  },
+  "independent_forged_field_controls": [
+    {
+      "control": "valid source bytes, wrong current row candidate",
+      "outcome": "REFUSED",
+      "product_native_numeric_gate_commands": 0
+    },
+    {
+      "control": "valid source bytes, wrong top current candidate",
+      "outcome": "REFUSED",
+      "product_native_numeric_gate_commands": 0
+    },
+    {
+      "control": "present source ref, counterfeit blobID",
+      "outcome": "REFUSED",
+      "product_native_numeric_gate_commands": 0
+    },
+    {
+      "control": "present Gref, counterfeit digest",
+      "outcome": "REFUSED",
+      "product_native_numeric_gate_commands": 0
+    },
+    {
+      "control": "missing-ref mislabeled measuredfloor",
+      "outcome": "REFUSED",
+      "product_native_numeric_gate_commands": 0
+    },
+    {
+      "control": "resolvedfloor mislabeled missingref",
+      "outcome": "REFUSED",
+      "product_native_numeric_gate_commands": 0
+    },
+    {
+      "control": "resolvedfloor mislabeled insufficienthistory",
+      "outcome": "REFUSED",
+      "product_native_numeric_gate_commands": 0
+    },
+    {
+      "control": "historical1493 calledcurrentcount",
+      "outcome": "REFUSED",
+      "product_native_numeric_gate_commands": 0
+    },
+    {
+      "control": "installedcompilerPASS calledFRCacceptance",
+      "outcome": "REFUSED",
+      "product_native_numeric_gate_commands": 0
+    }
+  ],
+  "runtime_numeric_gate_or_wheel_commands_executed": 0
+}

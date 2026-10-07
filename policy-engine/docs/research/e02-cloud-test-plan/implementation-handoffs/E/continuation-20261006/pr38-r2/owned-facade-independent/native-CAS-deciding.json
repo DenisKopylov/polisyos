@@ -1,0 +1,319 @@
+{
+  "schema": "policyos.e02.independent-facade-fresh-CAS-summary.v1",
+  "base_sha": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+  "patch_sha256": "ed474d8a61cc5edeff3f195044cd9d095282b72d51b56e1eb0fb74e48ef572b7",
+  "case_store": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/native-basetemp/test_native_ge_preserves_empir0",
+  "fresh_store_and_actual_reader": true,
+  "oracle": {
+    "source_atoms": [
+      0,
+      1
+    ],
+    "masses": [
+      3,
+      1
+    ],
+    "seed": 31415,
+    "N": 128,
+    "row_rule": "U<.75 ->0, otherwise1",
+    "native_welfare": "2/(1-A); A=1 singular",
+    "row_indices": [
+      0,
+      0,
+      1,
+      1,
+      0,
+      1,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      1,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      0,
+      0,
+      1,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      1,
+      0,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      1,
+      1,
+      1,
+      1,
+      0,
+      0,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      1,
+      1,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0
+    ]
+  },
+  "recomputed_counts": {
+    "requested": 128,
+    "attempted": 128,
+    "successful": 92,
+    "failed": 36,
+    "unattempted": 0
+  },
+  "failed_ids": [
+    2,
+    3,
+    5,
+    8,
+    16,
+    18,
+    21,
+    26,
+    29,
+    30,
+    37,
+    46,
+    47,
+    50,
+    53,
+    59,
+    64,
+    69,
+    70,
+    83,
+    90,
+    92,
+    94,
+    95,
+    100,
+    103,
+    104,
+    105,
+    106,
+    109,
+    110,
+    115,
+    117,
+    118,
+    120,
+    124
+  ],
+  "all_terminal_ids_preserved": true,
+  "conditional_mean": 2.0,
+  "unconditional_result": "undefined absent completion rule",
+  "credible_interval": null,
+  "robust_interval": null,
+  "support_complete": false,
+  "gate_eligible": false,
+  "source_artifact_refs": [
+    {
+      "artifact_id": "sha256:11d64d61b6dd35545ca0cf499eee676b6f82685890b38b845b94dd11296ac7e7",
+      "kind": "foundry.welfare_draw_outcomes",
+      "schema": {
+        "name": "polisyos.foundry.WelfareDrawOutcomes",
+        "version": "1.0"
+      },
+      "inputs": [
+        {
+          "artifact_id": "sha256:df386975b61e2f3c398e84cbed449e89f0a4a1e31b089cbc4b4a1503034f5102",
+          "role": "method_config"
+        },
+        {
+          "artifact_id": "sha256:ba08433809de85da5860a4c7c9cc99d31da84ab75e6423eb2aef269c132bf056",
+          "role": "empirical_law:A"
+        }
+      ],
+      "payload_bytes": 81796,
+      "payload_sha256": "11d64d61b6dd35545ca0cf499eee676b6f82685890b38b845b94dd11296ac7e7",
+      "manifest_sha256": "9e653fee4b96f06c2acdb7d6d3e431df8bb4f069378196a7551a9195ffca386f",
+      "CAS_integrity": "PASS"
+    },
+    {
+      "artifact_id": "sha256:38f67f84f4003581229dedb5d725e1716834aac200857740fcc104cb808ca12f",
+      "kind": "ir.welfare_bundle",
+      "schema": {
+        "name": "ir.welfare_bundle",
+        "version": "1.0"
+      },
+      "inputs": [
+        {
+          "artifact_id": "sha256:f100f1df9ebb175fd851ad373d144135d9ba341e887b561ed8517104bab54e81",
+          "role": "simulation_result"
+        },
+        {
+          "artifact_id": "sha256:f0e1987790c051536cc1538b46dbb7f5d8103e1b6bfdef1c2a4bd936a51efed8",
+          "role": "metrics"
+        },
+        {
+          "artifact_id": "sha256:df386975b61e2f3c398e84cbed449e89f0a4a1e31b089cbc4b4a1503034f5102",
+          "role": "method_config"
+        },
+        {
+          "artifact_id": "sha256:d6edee3d85af188f67eeef4a95b133fa4f200d13fd386359e18429fa543ffd08",
+          "role": "propagation_report"
+        },
+        {
+          "artifact_id": "sha256:e7c8fc2c5ed05a7548c426391100b64284ce6722cc5d6551fff3cee208a006c6",
+          "role": "sample_bundle"
+        },
+        {
+          "artifact_id": "sha256:a40ad3151adf479c363611f2786d822b1c0a5efb804034ee3bf1614ab8d59bad",
+          "role": "sensitivity_diagnostics"
+        }
+      ],
+      "payload_bytes": 3396,
+      "payload_sha256": "38f67f84f4003581229dedb5d725e1716834aac200857740fcc104cb808ca12f",
+      "manifest_sha256": "6051b6103808a0fc5db8e582b48de38bdfc6009505fbee5757caa512c6e9d685",
+      "CAS_integrity": "PASS"
+    },
+    {
+      "artifact_id": "sha256:ba08433809de85da5860a4c7c9cc99d31da84ab75e6423eb2aef269c132bf056",
+      "kind": "ir.uncertainty_envelope",
+      "schema": {
+        "name": "ir.uncertainty_envelope",
+        "version": "1.1"
+      },
+      "inputs": [],
+      "payload_bytes": 800,
+      "payload_sha256": "ba08433809de85da5860a4c7c9cc99d31da84ab75e6423eb2aef269c132bf056",
+      "manifest_sha256": "b09d93d3bd1baa86fc79f6db61d2e588e5b04149e987d90a233ec15e37c580d9",
+      "CAS_integrity": "PASS"
+    },
+    {
+      "artifact_id": "sha256:d6edee3d85af188f67eeef4a95b133fa4f200d13fd386359e18429fa543ffd08",
+      "kind": "foundry.welfare_propagation_report",
+      "schema": {
+        "name": "polisyos.foundry.WelfarePropagationReport",
+        "version": "1.0"
+      },
+      "inputs": [
+        {
+          "artifact_id": "sha256:e7c8fc2c5ed05a7548c426391100b64284ce6722cc5d6551fff3cee208a006c6",
+          "role": "sample_bundle"
+        },
+        {
+          "artifact_id": "sha256:11d64d61b6dd35545ca0cf499eee676b6f82685890b38b845b94dd11296ac7e7",
+          "role": "draw_outcomes"
+        }
+      ],
+      "payload_bytes": 1309,
+      "payload_sha256": "d6edee3d85af188f67eeef4a95b133fa4f200d13fd386359e18429fa543ffd08",
+      "manifest_sha256": "9a854ec7eeae28a80bc7d82f2ad534e374730fe257f7a87e873c61d3732ce24c",
+      "CAS_integrity": "PASS"
+    },
+    {
+      "artifact_id": "sha256:e7c8fc2c5ed05a7548c426391100b64284ce6722cc5d6551fff3cee208a006c6",
+      "kind": "ir.welfare_sample_bundle",
+      "schema": {
+        "name": "ir.welfare_sample_bundle",
+        "version": "1.0"
+      },
+      "inputs": [
+        {
+          "artifact_id": "sha256:11d64d61b6dd35545ca0cf499eee676b6f82685890b38b845b94dd11296ac7e7",
+          "role": "draw_outcomes"
+        }
+      ],
+      "payload_bytes": 8602,
+      "payload_sha256": "e7c8fc2c5ed05a7548c426391100b64284ce6722cc5d6551fff3cee208a006c6",
+      "manifest_sha256": "604bd3caebac1f1f9b892a3544070fc2233d2420d3c4c57c6c4fb586626eb02e",
+      "CAS_integrity": "PASS"
+    }
+  ],
+  "evidence_scope": "Fresh readback of our actual9PASS native frame; synthetic mathematical input, no production/source-law authority or finding closure"
+}

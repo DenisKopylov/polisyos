@@ -1,0 +1,53 @@
+{
+  "scope": "Author metadata-only bounded controls; not independent review or product/backend PASS",
+  "checks": [
+    {
+      "control": "exact current source/owner packet and distinct reasons",
+      "outcome": "BOUND",
+      "product_numeric_native_gate_commands": 0
+    },
+    {
+      "control": "present fake source digest",
+      "outcome": "REJECTED",
+      "reason": "source ref hash/size mismatch",
+      "product_numeric_native_gate_commands": 0
+    },
+    {
+      "control": "G owner note present with counterfeit digest",
+      "outcome": "REJECTED",
+      "reason": "owner action/packet Git ref mismatch",
+      "product_numeric_native_gate_commands": 0
+    },
+    {
+      "control": "missing ref generalized into measured floor failure",
+      "outcome": "REJECTED",
+      "reason": "missing-ref reason misclassified",
+      "product_numeric_native_gate_commands": 0
+    },
+    {
+      "control": "resolved limited generalized into missing ref",
+      "outcome": "REJECTED",
+      "reason": "resolved-limited reason lost",
+      "product_numeric_native_gate_commands": 0
+    },
+    {
+      "control": "historical1492 promoted to current generated measurement",
+      "outcome": "REJECTED",
+      "reason": "historical generator count presented as current measurement",
+      "product_numeric_native_gate_commands": 0
+    },
+    {
+      "control": "installed compiler PASS promoted to FRC acceptance",
+      "outcome": "REJECTED",
+      "reason": "bounded compiler result misattributed to FRC/closure/new E run",
+      "product_numeric_native_gate_commands": 0
+    },
+    {
+      "control": "unlaunched corrected wave marked PASS",
+      "outcome": "REJECTED",
+      "reason": "unlaunched corrected wave presented as measured",
+      "product_numeric_native_gate_commands": 0
+    }
+  ],
+  "current_packet_unchanged": true
+}

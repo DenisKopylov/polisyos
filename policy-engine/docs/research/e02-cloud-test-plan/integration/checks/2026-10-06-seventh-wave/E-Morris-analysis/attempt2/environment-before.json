@@ -1,0 +1,58 @@
+{
+  "active_matching_processes": [],
+  "candidate_source_exists": true,
+  "captured_at": "2026-10-06T19:05:22.606776+00:00",
+  "disk": {
+    "free_bytes": 13136887808,
+    "total_bytes": 245107195904,
+    "used_bytes": 231970308096
+  },
+  "git": {
+    "branch": "codex/e02-integration",
+    "head": "127dc7ab8365d29eb656fe32c0c894f6cc971286",
+    "porcelain": ""
+  },
+  "in_process_alarm_seconds": 28,
+  "inputs_bytes": 328,
+  "interpreter": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "version": "Python 3.14.3"
+  },
+  "memory_pressure": "The system has 17179869184 (1048576 pages with a page size of 16384).\nSystem-wide memory free percentage: 57%\n",
+  "overlay_exists": true,
+  "page_size_bytes": 16384,
+  "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "reported_free_pages_bytes": 1277411328,
+  "resource_limit_bytes": 402653184,
+  "sha256": {
+    "command.json": "a5aeb7a09637faf20273187b5377996cc802df5318f0f39a6b4f2706b0e4f618",
+    "inputs.json": "02e3b25797ce6f468efe1da748b5da73ef8e4f6d24846e75b1c49d459d571f8c",
+    "probe.py": "0c4373c98eaf11ccd842891d468ab23e33c0382e6f6547d5e429e009355d70d9"
+  },
+  "vm_stat": {
+    "\"Translation faults\"": "4361002145.",
+    "Anonymous pages": "361964.",
+    "Compressions": "478001386.",
+    "Decompressions": "452309563.",
+    "File-backed pages": "146420.",
+    "Mach Virtual Memory Statistics": "(page size of 16384 bytes)",
+    "Pageins": "134200600.",
+    "Pageouts": "103006.",
+    "Pages active": "241119.",
+    "Pages copy-on-write": "315192251.",
+    "Pages free": "77967.",
+    "Pages inactive": "257136.",
+    "Pages occupied by compressor": "259724.",
+    "Pages purgeable": "2384.",
+    "Pages purged": "9159386.",
+    "Pages reactivated": "189455030.",
+    "Pages speculative": "10129.",
+    "Pages stored in compressor": "475059.",
+    "Pages throttled": "0.",
+    "Pages wired down": "165825.",
+    "Pages zero filled": "1412541885.",
+    "Swapins": "2724774.",
+    "Swapouts": "3580810."
+  },
+  "wall_clock_limit_seconds": 30
+}

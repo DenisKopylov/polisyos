@@ -1,0 +1,44 @@
+[
+  {
+    "control": "fake_denominator_104",
+    "outcome": "REFUSED",
+    "reason": "Full changed Python denominator changed",
+    "native_or_gate_calls": 0
+  },
+  {
+    "control": "omit_actual_path",
+    "outcome": "REFUSED",
+    "reason": "Exact path/code/custody/usage rows changed or omitted",
+    "native_or_gate_calls": 0
+  },
+  {
+    "control": "forge_product_path",
+    "outcome": "REFUSED",
+    "reason": "Exact path/code/custody/usage rows changed or omitted",
+    "native_or_gate_calls": 0
+  },
+  {
+    "control": "rename_hiding.py.txt",
+    "outcome": "REFUSED",
+    "reason": "Exact path/code/custody/usage rows changed or omitted",
+    "native_or_gate_calls": 0
+  },
+  {
+    "control": "forge_ruff_count",
+    "outcome": "REFUSED",
+    "reason": "Diagnostic or format counts/classes differ from full stdout",
+    "native_or_gate_calls": 0
+  },
+  {
+    "control": "forge_format_already128",
+    "outcome": "REFUSED",
+    "reason": "Diagnostic or format counts/classes differ from full stdout",
+    "native_or_gate_calls": 0
+  },
+  {
+    "control": "forge_copy_source_digest",
+    "outcome": "REFUSED",
+    "reason": "Exact path/code/custody/usage rows changed or omitted",
+    "native_or_gate_calls": 0
+  }
+]

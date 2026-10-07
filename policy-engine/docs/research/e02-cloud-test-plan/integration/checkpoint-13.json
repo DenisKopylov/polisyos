@@ -1,0 +1,54 @@
+{
+  "schema": "policyos.e02.integration_decisions.v1",
+  "date": "2026-10-07",
+  "publisher": "G",
+  "branch": "codex/e02-integration",
+  "integration_sha": "ff277db7798fc312654704fa51c52e00f53f10f4",
+  "integration_tree": "618e17b5da96a623d5e57f30d265e245a2b277eb",
+  "integration_identity_role": "input source/review anchor before this documentation record; own record commit is read back after commit",
+  "previous_checkpoint": "checkpoint-12.json",
+  "accepted_slices": [],
+  "finding_closures": [],
+  "record_scope": "Completed2034bounded reviews,6stopped-owner continuation audits/prompts and9operativecriterion corrections; no source merge",
+  "six_root_inputs": "checks/2026-10-07-eighth-wave/six-root-inputs.json",
+  "reviews": "reviews/2026-10-07-all-six/README.md",
+  "prompts": "../execution-prompts/continuation-2026-10-07/README.md",
+  "fresh_G_check": {
+    "candidate_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+    "candidate_tree": "4b0b58cc1fe0d7faab3d7aec49f99519dd080459",
+    "scope": "DirectNativeSearchServiceaskrollback,newservice/CASinstancesinoneprocess",
+    "PASS": 2,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0,
+    "previous_attempt": "2setupERRORbeforeassertions;exacttrackedclosurecorrectedonsameSHA",
+    "full_outputs": "checks/2026-10-07-eighth-wave/D-ask/",
+    "independent_review": "checks/2026-10-07-eighth-wave/reviews/G-D-ask-independent.md",
+    "limitations": "ComposedSearchLoopRunnerandindependentprocessUNRUN;noLA014/015closure"
+  },
+  "accounting": "282uniqueprimaryIDs/127bundlesreconciled;ownerrecommendationsnotGclosure",
+  "current_binding_changes": [
+    "B05",
+    "B11",
+    "B16",
+    "B28",
+    "B30",
+    "B31",
+    "LA-004",
+    "LA-035",
+    "LA-046"
+  ],
+  "status_preservation": "Allhistorical/source/status/taskrefJSONfieldsunchanged;9currentscalaracceptancecorrections",
+  "broad_replay": "UNRUN untilsharedsourcefreezeandindependentreviews",
+  "unavailable_inputs": [
+    "Exactcriterion-dependent factualhistory/evaluator/current-law/data-law/admittedprofiles",
+    "Namedinstitutionalorsemanticownerinputsforactuallychangedcontracts",
+    "Historicalrawarchivesorcomputed/externalclientbasiswherecurrentreceiptstatesnot_established"
+  ],
+  "skipped_backends": [
+    "No new G GP/Torch/DoWhy/Temporal/PostgreSQL/liveKuzu run inthisrecord"
+  ],
+  "production_data": "local read-only;nottransferred",
+  "cleanup": "3completedrolloutsandusedDarchivepreflight;moveonlyafterpublishedproof/readback,Trashneverempty",
+  "main_publication": "Separatefutureexplicitauthorizationrequired"
+}

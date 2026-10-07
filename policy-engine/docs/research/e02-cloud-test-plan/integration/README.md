@@ -1,6 +1,19 @@
+Native cleanup after checkpoint13: [verified Trash receipt](checks/2026-10-07-eighth-wave/cleanup-actions.json) records three completed sessions, the used exact D archive and six redundant publication draft copies. 485736448 allocated bytes transferred; unique notes/patches, all deciding outputs/harness and Git refs preserved. Trash was not emptied; same-volume moves do not immediately reclaim space.
+
+Current continuation checkpoint: [checkpoint-13](checkpoint-13.json). [All-six audit and operative criterion corrections](reviews/2026-10-07-all-six/README.md) and [six ready prompts](../execution-prompts/continuation-2026-10-07/README.md) are published here. Fresh G direct D ask rollback:2PASS; full outputs retained. No new source merge or formal finding closure; shared freeze remains pending.
+
+Native cleanup after checkpoint12: [14 verified Trash moves](checks/2026-10-06-seventh-wave/cleanup-actions.json), 2,151,911,424 allocated bytes transferred; Git code/docs, all deciding outputs, unique A11 inputs and current sessions preserved. Trash was not emptied; this is not immediate disk-space reclamation.
+
+Current continuation checkpoint: [checkpoint-12](checkpoint-12.json). [Latest 29-tip intake, independent checks and A–F actions](reviews/2026-10-06-seventh-wave.md) records A11=11 PASS, B16=16 PASS, E77=77 PASS on their exact candidates, C dirty-status and E supplied-Morris-analysis counterexamples. [New E PR38 r2 continuation](../execution-prompts/continuation-2026-10-06/E-resume-after-pr38-r2.md) covers the full54 criteria and current gates. No source is newly merged or finding closed in this record; the common freeze remains pending.
+
 # Непрерывная интеграция E02
 
-Current continuation checkpoint: [checkpoint-10](checkpoint-10.json), with
+Prior continuation checkpoint: [checkpoint-11](checkpoint-11.json), accepting
+the bounded A installed-compiler test and evidence slice. Fresh exact-source
+check: 1 PASS; production resolver and full REQ-01 closure remain unestablished.
+[Latest A–F intake and owner actions](reviews/2026-10-06-sixth-wave.md) records
+the next 24 external ref updates and C's independent numerical falsifiers.
+[Checkpoint-10](checkpoint-10.json) retains B38, with
 [third-wave code decisions and owner actions](reviews/2026-10-06-third-wave.md).
 B38 has 40 exact-source fixture PASS and 59 composed-source consumer PASS.
 B retry e187 remains HOLD after six actual Mac control failures. No new finding closure.
@@ -162,9 +175,11 @@ checkpoints, а не дополнительный runtime replay.
 receipts, independent checks, held admissions and follow-up consumers.
 No new finding closure or future main publication is authorized.
 
-[Latest B/E delta review](reviews/2026-10-06-fifth-wave.md) records the exact
+[Earlier B/E delta review](reviews/2026-10-06-fifth-wave.md) records the exact
 14:40 intake and separate [B](reviews/B-current-owner-actions-2026-10-06.md) /
 [E](reviews/E-r2-owner-actions-2026-10-06.md) owner actions. B nested-model
 write scope, Mac control transport, B47 carrier, E Welfare assembly and DoE
 direct run-cap admission remain held or limited as specified; bounded component
 evidence does not close those findings or verify the whole assembly.
+
+The [sixth intake](reviews/2026-10-06-sixth-wave.md) supersedes the prior E assembly/inventory hold only for verified Welfare884 carriage and reconciled inventories. Calibration→Foundry direction, compatibility metadata and exact aggregate verification still require owner action.

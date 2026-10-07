@@ -1,0 +1,73 @@
+{
+  "source_base": "a2677935015e8a0e7f2dfd5412b671e13fb3175a",
+  "G_decision_sha": "53b309019913b938909d6dc0fc13f8edb409f368",
+  "actual_parser": "tools.ops_runners.release.check_compatibility_release_gates._validate_fragments",
+  "scope": "six E release companions only; not globalcompatibilityPASS, APIauthority orfindingclosure",
+  "selected_fragments": 6,
+  "structured_rows": 6,
+  "errors": [],
+  "findings": [],
+  "negative_controls": {
+    "missing_owner": [
+      {
+        "check": "fragment-compatibility",
+        "severity": "error",
+        "subject": "release-fragments/unreleased/2026-10-06-e02-finite-law-admission-facade.toml:foundry-finite-law-admission",
+        "message": "missing `owner`",
+        "detail": ""
+      }
+    ],
+    "missing_version_owner": [
+      {
+        "check": "fragment-compatibility",
+        "severity": "error",
+        "subject": "release-fragments/unreleased/2026-10-06-e02-finite-law-admission-facade.toml:foundry-finite-law-admission",
+        "message": "missing `version_owner`",
+        "detail": ""
+      }
+    ],
+    "unreviewed_inventory": [
+      {
+        "check": "public-surface-review",
+        "severity": "error",
+        "subject": "release-fragments/unreleased/2026-10-06-e02-finite-law-admission-facade.toml:foundry-finite-law-admission",
+        "message": "python public API change requires public_surface_inventory_reviewed=true",
+        "detail": ""
+      }
+    ]
+  },
+  "inputs": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-finite-law-admission-facade.toml",
+      "bytes": 1661,
+      "sha256": "2569c02d06ab24a9a6ac008640e00c9ff3015d6d9a8d6e71a65287711ca64c4b"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-evidence-facades.toml",
+      "bytes": 1744,
+      "sha256": "0a706c0a24a48b352aa76e7a6bd93e2dc52a6b7a57c7caa77d050c9221243079"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-uncertainty-evidence-facade.toml",
+      "bytes": 1764,
+      "sha256": "8234df98d06ec176e2bc992442be6e733e07605a3f91e058c9d56006cecd251b"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-reader-facade.toml",
+      "bytes": 1717,
+      "sha256": "0b456ba68cd4eeac86e31753fa3d9a787f95d6cea36d38a80b693c389fa6b09f"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-foundry-calibration-reader.toml",
+      "bytes": 1594,
+      "sha256": "236ac0be019ec9893a7490e2d098e5065836b8c58ee26b48484c9ba431057b04"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-ddm-source-binding.toml",
+      "bytes": 2796,
+      "sha256": "01fc46a6268408570a2da271534187894f94797452385b9b7bfaa1d474267b32"
+    }
+  ],
+  "split": "CombinedCalibration/Foundry note split bycanonicalsurfaceowners; top-levelowner meanssingle canonicalsurface, notEorownershipboth",
+  "classification": "five additivePythonAPI rows withownersfromG/contract;DDMdistinctv2persistedformatcompatible_with_migration/internal17-exportfacadeunchanged"
+}

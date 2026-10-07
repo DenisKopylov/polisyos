@@ -1,3 +1,5 @@
+Current criterion-scope correction: [B109/B111/B100 errata](original-criteria-errata-2026-10-06.md). B109 is fast/direct comparator acceptance; the served provider is additional capability. B111 keeps invalid-state/partial-denominator/finite-or-unavailable semantics; schema-v3 migration and finite-positive underflow are separately scoped. Historical outcomes and status counts below are retained.
+
 # D PR47: независимый разбор остановки и оставшейся работы
 
 Это исследовательская приёмка evidence и план продолжения, не приёмка D-кода в G и не closure findings. Проверен [PR47](https://github.com/DenisKopylov/polisyos/pull/47): receipt head `cae5589aa7080b628e93d594eeb4ff7c2fc2414d`, tree `352f6a29da22ab09588fba0faaad66a1ff35005d`; implementation `3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973`, tree `e674e22edb8d94d47579326135a786c832402a15`; slice base `198076863e143dea9f89f02734b13d50dae3eed5`. Base → implementation → receipt ancestry подтверждена. Контекст G — опубликованный checkpoint 10: record `6f869f39d04deaff7eda9b9047848912605beca5`, runtime source `acdc3536f93f085d665a7b53460935525373d015`. D source в G не принят.

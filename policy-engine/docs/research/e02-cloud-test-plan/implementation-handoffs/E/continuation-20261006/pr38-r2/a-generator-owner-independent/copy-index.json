@@ -1,0 +1,56 @@
+{
+  "schema": "e02.E.independent-A-G-packet-index.v1",
+  "primary": "independent-review-eb035.json",
+  "immutable_packet_context": "eb035c0785a63c9c2a6d8991e2503a6a5117a1aa",
+  "actual_source_observation": "cfd79255aab85544082fcf24f93db894202fbfa2",
+  "actual_wave": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+  "published_outputs": "1e1b5028274814b7c4318671588202480390a6bc",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 3161,
+      "sha256": "b3ef6b58fc4204dcdf650a4e20c7e3b99293a70bc3c1b17aa4f0f7d0659316a6"
+    },
+    {
+      "path": "independent-patch-check.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "independent-patch-check.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "independent-review-eb035.json",
+      "bytes": 50814,
+      "sha256": "8beddb209f4af1fd5885a015c58c2b54f6f907d3affa151d3ebb78ffd01ea69e"
+    },
+    {
+      "path": "independent-review-final.stdout.txt",
+      "bytes": 445,
+      "sha256": "3eabce01ab04535e25324e3c05a53e6a0e4d76b4b771c2626b4d66c8b6b531cb"
+    },
+    {
+      "path": "independent-review.stdout.txt",
+      "bytes": 519,
+      "sha256": "2f1ac68784431c4945c081ea6bc977d6a7c102ff247c0366a6a00dffff1acb0e"
+    },
+    {
+      "path": "review_packet.initial.py.txt",
+      "bytes": 16015,
+      "sha256": "f18f2039a0deadf68d66eccfe8fde04dca36c9274971cfa43e2926308fad0743"
+    },
+    {
+      "path": "review_packet.py",
+      "bytes": 16196,
+      "sha256": "dc4b6c08de202f7c50d0c19886f115778adc499f0f84c15ca8d5df67b5eb2d43"
+    }
+  ],
+  "file_count": 8,
+  "bytes": 87150,
+  "native_or_global_checks": 0,
+  "private_git_config_copied": false,
+  "large_raw_copied": false,
+  "no_cleanup": true
+}

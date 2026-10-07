@@ -1,0 +1,246 @@
+"""Read-only Git/content publication review; never launches product checks."""
+from __future__ import annotations
+import copy
+import hashlib
+import json
+import platform
+import subprocess
+import sys
+from pathlib import Path, PurePosixPath
+
+ROOT = Path('/workspace/e02-E-continuation-20261006')
+OUT = Path(__file__).resolve().parent
+PREFIX = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/'
+SOURCE = 'a9f78817c873be5b35a08155f2593b229d9fdbb6'
+SOURCE_TREE = 'c02e043c3e1c8222c28aa71187fa8db4e2fdeea7'
+EVIDENCE = 'ddcdfd9c220ba57e37c8abf52b976a7184c384f9'
+EVIDENCE_TREE = '1c5e1bd9ecdd619ae99ae978231aa296875bd1b1'
+HEAD = '9954f394b470961d9e144a557f3cefeb9e0a67b6'
+HEAD_TREE = 'e923abf31637b4299ec36a467f4c6b06e26cae1c'
+MAIN = '198076863e143dea9f89f02734b13d50dae3eed5'
+
+def git(*args):
+    return subprocess.check_output(['git',*args], cwd=ROOT)
+
+def parsed(path, revision=HEAD):
+    return json.loads(git('show', f'{revision}:{path}'))
+
+def content(data):
+    return {'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()}
+
+def blob_record(path, revision):
+    data = git('show',f'{revision}:{path}')
+    return {'path':path,'revision':revision,'git_blob':git('rev-parse',f'{revision}:{path}').decode().strip(),**content(data)}
+
+before = git('rev-parse','HEAD','HEAD^{tree}').decode().splitlines()
+assert before == [HEAD,HEAD_TREE] and git('status','--porcelain=v1') == b''
+for revision, tree in [(SOURCE,SOURCE_TREE),(EVIDENCE,EVIDENCE_TREE),(HEAD,HEAD_TREE)]:
+    assert git('rev-parse',f'{revision}^{{tree}}').decode().strip() == tree
+git('merge-base','--is-ancestor',SOURCE,EVIDENCE)
+git('merge-base','--is-ancestor',EVIDENCE,HEAD)
+
+def delta(start,end,expected):
+    records = []
+    for line in git('diff','--name-status',start,end).decode().splitlines():
+        status,path = line.split('\t')
+        assert status == 'A' and path.startswith(PREFIX)
+        assert not any(segment.lower() in ['raw','private','git-config-private'] for segment in PurePosixPath(path).parts)
+        assert not path.endswith('.raw.json')
+        records.append({'status':status,**blob_record(path,end)})
+    assert len(records) == expected
+    return records
+
+first = delta(SOURCE,EVIDENCE,228)
+second = delta(EVIDENCE,HEAD,20)
+indices = [r['path'] for r in first if r['path'].endswith('/portable-copy-index.json')]
+assert len(indices) == 13
+source_targets = {}
+all_copies = []
+index_results = []
+
+def validate_copy(row, revision):
+    path = row['copied_path']
+    assert type(row['bytes']) is int and row['bytes'] >= 0
+    assert isinstance(path,str) and path.startswith(PREFIX) and '..' not in PurePosixPath(path).parts
+    assert not Path(path).is_absolute() and not (ROOT/path).is_symlink()
+    assert not any(segment.lower() in ['raw','private','git-config-private'] for segment in PurePosixPath(path).parts)
+    assert not path.endswith('.raw.json')
+    actual = git('show',f'{revision}:{path}')
+    original = Path(row['source_path']).read_bytes()
+    working = (ROOT/path).read_bytes()
+    assert original == working == actual
+    assert content(actual) == {'bytes':row['bytes'],'sha256':row['sha256']}
+    return {'source_path':row['source_path'],'copied_path':path,'revision':revision,'git_blob':git('rev-parse',f'{revision}:{path}').decode().strip(),**content(actual)}
+
+def validate_index(path, revision):
+    index = parsed(path,revision)
+    rows = index['files']
+    assert len(rows) == index['file_count']
+    assert sum(r['bytes'] for r in rows) == index['total_bytes']
+    assert len({r['copied_path'] for r in rows}) == len(rows)
+    validated = [validate_copy(row,revision) for row in rows]
+    all_copies.extend(validated)
+    for row in validated:
+        source_targets.setdefault(row['source_path'],[]).append(row)
+    result = blob_record(path,revision) | {'records':len(rows),'record_bytes':index['total_bytes']}
+    index_results.append(result)
+    return result
+
+for path in indices:
+    validate_index(path,EVIDENCE)
+first_copy_count = len(all_copies)
+first_copy_bytes = sum(r['bytes'] for r in all_copies)
+assert first_copy_count == 213 and first_copy_bytes == 13321867
+final_index_path = PREFIX+'criteria-frozen-a9-v2/portable-copy-index.json'
+final_index_result = validate_index(final_index_path,HEAD)
+assert final_index_result['records'] == 18
+
+stored_path = PREFIX+'corrected-wave-publication-validation.json'
+stored = parsed(stored_path)
+assert stored['source_candidate_sha'] == SOURCE and stored['source_candidate_tree'] == SOURCE_TREE
+assert stored['evidence_commit'] == EVIDENCE and stored['evidence_tree'] == EVIDENCE_TREE
+assert stored['copy_record_count'] == first_copy_count and stored['copy_total_bytes'] == first_copy_bytes
+assert len(stored['copy_groups']) == 13
+actual_indices = {row['path']:row for row in index_results[:13]}
+assert set(actual_indices) == {row['path'] for row in stored['copy_groups']}
+for row in stored['copy_groups']:
+    actual = actual_indices[row['path']]
+    assert (row['records'],row['bytes'],row['sha256']) == (actual['records'],actual['bytes'],actual['sha256'])
+assert stored['post_freeze_delta']['paths'] == 228
+assert stored['post_freeze_delta']['product_test_schema_tool_architecture_or_canonical_harness_changes'] == 0
+
+def get(name):
+    return parsed(PREFIX+name)
+
+original_path = PREFIX+'publication-freeze-adapter-v3/original-source-freeze.json'
+carrier_path = PREFIX+'publication-freeze-adapter-v3/typed-publication-freeze.json'
+original = parsed(original_path)
+carrier = parsed(carrier_path)
+assert blob_record(original_path,EVIDENCE)['sha256'] == 'f90129331279070984ccd9cd93da217633c9f734086c3a6213e6b4d7ca9311c4'
+assert blob_record(carrier_path,EVIDENCE)['sha256'] == 'c3cfeb2a9df29d1eb5f2e73da1a8eba940d1ff93569201dfb5a6fa671eae950d'
+assert {k:v for k,v in carrier.items() if k in original and k != 'reviews'} == {k:v for k,v in original.items() if k != 'reviews'}
+assert len(original['reviews']) == 8 and len(carrier['reviews']) == 6 and len(carrier['external_content_bound_reviews']) == 2
+assert carrier['reviews'] == [r for r in original['reviews'] if not Path(r['path']).is_absolute()]
+review_bindings = []
+for record in carrier['reviews']:
+    actual = blob_record(record['path'],SOURCE)
+    assert (actual['bytes'],actual['sha256'],actual['git_blob']) == (record['bytes'],record['sha256'],record['git_blob'])
+    review_bindings.append(actual | {'role':'candidate_git'})
+external_records = [r for r in original['reviews'] if Path(r['path']).is_absolute()]
+for item, record in zip(carrier['external_content_bound_reviews'],external_records,strict=True):
+    assert item['record'] == record and item['source_sha'] == SOURCE and item['source_tree'] == SOURCE_TREE
+    copies = source_targets[record['path']]
+    assert copies and all((r['bytes'],r['sha256']) == (record['bytes'],record['sha256']) for r in copies)
+    review_bindings.append(copies[0] | {'role':'external_content_bound_independent_review'})
+adapter_path = PREFIX+'publication-freeze-adapter-independent-v3/review.json'
+adapter = parsed(adapter_path)
+assert adapter['candidate_sha'] == SOURCE and adapter['candidate_tree'] == SOURCE_TREE
+assert adapter['verdict'] == 'GO-bounded-publication-role-carrier-adapter'
+assert carrier['publication_representation']['canonical_collector_external_validation'] is False
+assert carrier['publication_representation']['new_source_freeze'] is False
+
+audit_path = PREFIX+'corrected-wave-independent-a9/independent-wave-review-a9f78817c.json'
+audit = parsed(audit_path)
+assert blob_record(audit_path,EVIDENCE)['sha256'] == '624103ca6fb8889fcb2285fff17a499741eaa12530f7eed3703434a006ce76f9'
+receipt = get('corrected-wave-a9/publication-receipt.json')
+counts = {'cases':1445,'passed':1441,'failed':4,'errors':0,'skipped':0}
+
+def validate_wave(value):
+    assert value['candidate_sha'] == SOURCE and value['candidate_tree_sha'] == SOURCE_TREE
+    assert value['numeric_counts'] == counts
+    assert value['non_numeric_outcome_counts'] == {'PASS':1,'FAIL':7}
+    assert value['collection_state'] == 'COMPLETE_BOUND'
+    assert value['finding_closure'] is False and value['doctor_is_full_ci'] is False
+    assert len(value['jobs']) == 15
+    assert value['source_freeze'] == carrier
+    for job in value['jobs']:
+        check_path = PREFIX+'corrected-wave-a9/checks/'+job['name']+'/'+job['name']+'.json'
+        actual = parsed(check_path)
+        assert (actual['candidate_sha'],actual['candidate_tree_sha']) == (SOURCE,SOURCE_TREE)
+        assert actual['outcome'] == job['outcome'] and actual['exit_code'] == job['exit_code']
+        assert actual.get('counts') == job['case_counts']
+    assert sum(j['outcome']=='FAIL' for j in value['jobs'] if j['kind']=='gate') == 7
+    return True
+
+assert validate_wave(receipt)
+assert audit['candidate_sha'] == SOURCE and audit['candidate_tree_sha'] == SOURCE_TREE
+assert audit['actual_numeric_JUnit_counts'] == counts
+final = get('criteria-frozen-a9-v2/current-wave-recomputed.json')
+assert final['source_sha'] == SOURCE and final['source_tree'] == SOURCE_TREE and final['numeric_counts'] == counts
+all54 = get('criteria-frozen-a9-v2/all-54-update.json')
+assert all54['final_frozen_source_sha'] == SOURCE and all54['final_frozen_source_tree'] == SOURCE_TREE
+checkpoint = all54['evidence_input_checkpoint']
+assert checkpoint['sha'] == EVIDENCE and checkpoint['tree'] == EVIDENCE_TREE
+assert checkpoint['copied_records'] == 213 and checkpoint['group_count'] == 13
+assert {r['path'] for r in checkpoint['root_copy_indices']} == set(actual_indices)
+for record in checkpoint['root_copy_indices']:
+    actual = actual_indices[record['path']]
+    assert (record['source_sha'],record['git_blob'],record['bytes'],record['sha256']) == (EVIDENCE,actual['git_blob'],actual['bytes'],actual['sha256'])
+assert all54['ledger_status_counts_preserved'] == {'partial':49,'held':4,'closed':1}
+assert all54['denominator'] == {'bundles':22,'findings':54,'ID_to_bundle_links':55}
+handoff = get('corrected-wave-handoff.json')
+assert handoff['candidate_sha'] == SOURCE and handoff['candidate_tree'] == SOURCE_TREE
+assert handoff['numeric'] == {'total':1445,'PASS':1441,'FAIL':4,'ERROR':0,'SKIP':0,'native':{'total':1438,'PASS':1436,'FAIL':2},'A_owner_packet':{'total':7,'PASS':5,'FAIL':2}}
+footprint = get('corrected-wave-source-footprint.json')
+assert footprint['candidate_sha'] == SOURCE
+actual_footprint = git('diff','--name-only',footprint['base_sha'],SOURCE).decode().splitlines()
+assert [r['path'] for r in footprint['paths']] == actual_footprint
+assert footprint['full_changed_path_count'] == len(actual_footprint) == 671
+
+controls = []
+def refusal(name, call):
+    try:
+        call()
+    except (AssertionError,KeyError,ValueError,OSError,subprocess.CalledProcessError):
+        controls.append({'control':name,'outcome':'REJECTED'})
+    else:
+        raise AssertionError(f'ineffective control:{name}')
+actual_row = parsed(indices[0],EVIDENCE)['files'][0]
+for name, key, value in [('copied payload hash forged','sha256','0'*64),('copied payload size forged','bytes',actual_row['bytes']+1),('relative path escape','copied_path','../outside'),('absolute path masquerading as repository ref','copied_path','/workspace/outside')]:
+    fake = copy.deepcopy(actual_row);fake[key]=value
+    refusal(name,lambda fake=fake:validate_copy(fake,EVIDENCE))
+refusal('actual unpublished origin/main evidence ref',lambda:validate_copy(actual_row,'origin/main'))
+for name, mutate in [('publication commit falsely relabeled wave source',lambda v:v.__setitem__('candidate_sha',HEAD)),('complete custody falsely promoted to all PASS',lambda v:v['numeric_counts'].__setitem__('failed',0)),('global FAIL falsely promoted to PASS',lambda v:v.__setitem__('non_numeric_outcome_counts',{'PASS':8})),('job FAIL falsely relabeled PASS',lambda v:next(j for j in v['jobs'] if j['outcome']=='FAIL').__setitem__('outcome','PASS'))]:
+    fake = copy.deepcopy(receipt);mutate(fake)
+    refusal(name,lambda fake=fake:validate_wave(fake))
+
+after = git('rev-parse','HEAD','HEAD^{tree}').decode().splitlines()
+assert after == before and git('status','--porcelain=v1') == b''
+main_actual = git('rev-parse','origin/main').decode().strip()
+assert main_actual == MAIN
+covered = {r['copied_path'] for r in all_copies[:first_copy_count]}
+unindexed = [r['path'] for r in first if r['path'] not in covered and r['path'] not in indices]
+assert len(unindexed) == 2
+review = {
+    'schema':'e02.E.independent-publication-delta-review.v1',
+    'verdict':'GO-bounded-publication-byte-ref-custody',
+    'wave_source':{'sha':SOURCE,'tree':SOURCE_TREE,'only_new_wave_claim':True},
+    'evidence_checkpoint':{'sha':EVIDENCE,'tree':EVIDENCE_TREE},
+    'closeout_checkpoint':{'sha':HEAD,'tree':HEAD_TREE},
+    'root_before_after':{'before':before,'after':after,'tracked_clean':True,'Git_config_ref_source_mutations':False},
+    'publication_delta':{'first_paths':228,'second_paths':20,'all_paths':248,'all_additions':True,'all_within_owned_evidence_prefix':True,'production_test_schema_tool_architecture_canonical_harness_changes':0,'source_math_native_review_reuse':'All non-evidence source paths byte-identical to a9; previous independent mechanism reviews reused. No own CAL mechanism review.'},
+    'first_authoritative_portable':{'indices':13,'records':213,'bytes':first_copy_bytes,'original_working_Git_byte_identity':'PASS','two_unindexed_docs':unindexed},
+    'final_all54_portable':{'indices':1,'records':18,'bytes':final_index_result['record_bytes'],'original_working_Git_byte_identity':'PASS','per_ID_review':'Not repeated; separate independent DDM criterion review remains its basis.'},
+    'index_results':index_results,
+    'stored_root_validation':blob_record(stored_path,HEAD) | {'groups_counts_bytes_digests_recomputed':'PASS'},
+    'supplementary_root_docs':{'handoff':blob_record(PREFIX+'corrected-wave-handoff.json',EVIDENCE),'frozen_source_footprint':blob_record(PREFIX+'corrected-wave-source-footprint.json',EVIDENCE),'source_only_paths_recomputed':671,'no_publication_paths_claimed_as_new_wave_source':True},
+    'source_review_roles':{'original_reviews':8,'candidate_Git':6,'external_content_bound':2,'bindings':review_bindings,'original_freeze':blob_record(original_path,EVIDENCE),'typed_carrier':blob_record(carrier_path,EVIDENCE),'independent_adapter_review':blob_record(adapter_path,EVIDENCE),'all_original_fields_records_preserved':True,'canonical_v4_external_validation':False,'initial_InputERROR128':'Preserved metadata-role input failure; no backend/source/numeric changes'},
+    'actual_outcomes':{'numeric_counts':counts,'native':{'cases':1438,'passed':1436,'failed':2},'A_packets':{'cases':7,'passed':5,'failed':2},'gate_FAIL':7,'results_importer':'PASS','workspace_UNRUN':13,'CI_UNRUN':23,'custody_collection':'COMPLETE_BOUND','numerical_suite_acceptance':'HOLD-four-actual-assertions','global_acceptance':'FAIL','finding_closure':False},
+    'actual_wave_audit':blob_record(audit_path,EVIDENCE),
+    'all54_metadata':{'denominator':all54['denominator'],'ledger_preserved':all54['ledger_status_counts_preserved'],'wave_pin':SOURCE,'publication_checkpoint_separate':True},
+    'effective_corrupt_controls':controls,
+    'main_identity':{'origin_main':main_actual,'network_fetch_launched':False},
+    'environment':{'python':sys.version,'executable':sys.executable,'platform':platform.platform(),'new_env':False},
+    'scope':'Read-only Git/content/JSON publication proof. No tests/native/numerical/global checks, wheel builds, product/CAS/evaluator callbacks, new worktrees/envs, source/Git/config/ref writes or children.',
+    'P37':'Exact source/input/output role boundaries; COMPLETE_BOUND custody is not PASS or finding closure.',
+    'P40':'Shared complete copy/byte/ref and exact wave/outcome admission; meaningful current-field corruption rejected.',
+    'P41':'No inherited-red cause waiver; actual fourth a9 assertion differs from first5e setupERROR; fullguard historical attribution not established.',
+    'remaining_owners':'A current4F/default served status seams; G integration/global/generator compatibility; D Search; IR/Core/execute unratified semantics. No authority promotion.',
+    'raw_private':'No raw171MB/private config copied; original evidence/data/source retained; no deletion.'
+}
+OUT.mkdir(parents=True,exist_ok=True)
+(OUT/'review.json').write_text(json.dumps(review,indent=2)+'\n')
+(OUT/'publication-footprint.json').write_text(json.dumps({'first':first,'second':second},indent=2)+'\n')
+(OUT/'verified-portable-copies.json').write_text(json.dumps(all_copies,indent=2)+'\n')
+(OUT/'corrupt-controls.json').write_text(json.dumps(controls,indent=2)+'\n')
+print(json.dumps({'verdict':review['verdict'],'primary':content((OUT/'review.json').read_bytes()),'indices':14,'copies':len(all_copies),'first_copy_bytes':first_copy_bytes,'final_copy_bytes':final_index_result['record_bytes'],'source_after':after,'controls':len(controls),'unindexed':unindexed},indent=2))

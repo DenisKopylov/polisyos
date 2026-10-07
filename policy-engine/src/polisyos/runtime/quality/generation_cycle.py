@@ -183,8 +183,14 @@ if TYPE_CHECKING:
         CandidateSimulationN5InputV3,
         CandidateSimulationN5InputV4,
         CandidateSimulationN5InputV5,
+        CandidateSimulationSyntheticModelDeclarationV1,
     )
-    from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
+    from polisyos.runtime.quality.cycle_substrate import (
+        ConfiguredCandidateSimulationContextAdmissionOwner,
+        CycleSubstrateContext,
+        CycleSubstrateContextArtifactOwner,
+        VerifiedNLJobScope,
+    )
     from polisyos.runtime.quality.data_forge_binding import FabricMeasurementRootPayload
     from polisyos.runtime.quality.data_state_substrate import L1VariableAvailability
     from polisyos.runtime.quality.generation_source import GenerationSourceRepository
@@ -1780,6 +1786,214 @@ class GenerationSourceCustodyLimitation(_StrictModel):
             "status": payload["status"],
             "reason_code": payload["reason_code"],
         }
+
+
+class CandidateModelRevisionReentryReceipt(_StrictModel):
+    """Bind a candidate-only model revision to both persisted N5 occurrences.
+
+    The receipt is an audit projection of resolved model inputs and executions.
+    Its self-hash is integrity, not evidence of semantic progress or authority.
+    The readback consumer reconciles the selected CAS lineage independently.
+    """
+
+    schema_version: Literal["policyos.runtime.candidate_model_revision_reentry.v1"] = (
+        "policyos.runtime.candidate_model_revision_reentry.v1"
+    )
+    authority_purpose: Literal["candidate_model_revision_only"] = (
+        "candidate_model_revision_only"
+    )
+    source_run_id: str = Field(min_length=1)
+    design_problem_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    source_cycle_index: int = Field(ge=0)
+    candidate_id: str = Field(min_length=1)
+    job_id: str = Field(min_length=1)
+    run_id: str = Field(min_length=1)
+    tenant_id: str = Field(min_length=1)
+    cell_id: str = Field(min_length=1)
+    source_n4_source_ref: CASArtifactRef
+    new_n4_source_ref: CASArtifactRef
+    source_execution_ref: CASArtifactRef
+    new_execution_ref: CASArtifactRef
+    source_model_declaration_ref: CASArtifactRef
+    new_model_declaration_ref: CASArtifactRef
+    source_ncm_ref: CASArtifactRef
+    new_ncm_ref: CASArtifactRef
+    source_context_job_ref: CASArtifactRef
+    new_context_job_ref: CASArtifactRef
+    new_cycle: GenerationCycleRecord
+    candidate_summaries: tuple[CandidateSummary, ...]
+    source_handoff_refs: tuple[str, ...] = ()
+    source_preservation_receipt: GenerationSourcePreservationReceipt | None = None
+    limitations: tuple[Literal["candidate_scenario_n5_only"], ...] = (
+        "candidate_scenario_n5_only",
+    )
+    content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @classmethod
+    def issue(cls, **payload: object) -> CandidateModelRevisionReentryReceipt:
+        """Project a model reentry already reconciled by the controller."""
+        draft = cls.model_construct(**payload, content_hash="sha256:" + "0" * 64)
+        return cls(
+            **payload,
+            content_hash=gy_content_hash(gy_artifact_self_identity_projection(draft)),
+        )
+
+    @model_validator(mode="after")
+    def _verify_bindings(self) -> CandidateModelRevisionReentryReceipt:
+        if self.content_hash != gy_content_hash(gy_artifact_self_identity_projection(self)):
+            raise ValueError("candidate_model_revision_receipt_hash_mismatch")
+        if (
+            self.new_cycle.cycle_index != self.source_cycle_index + 1
+            or self.new_cycle.design_problem_ref != self.design_problem_ref
+            or self.new_cycle.selected_candidate_ref != self.candidate_id
+            or not self.candidate_summaries
+            or any(
+                row.cycle_index != self.new_cycle.cycle_index
+                or row.candidate_id != self.candidate_id
+                for row in self.candidate_summaries
+            )
+            or self.new_cycle.value_port.value_receipt is not None
+            or self.limitations != ("candidate_scenario_n5_only",)
+        ):
+            raise ValueError("candidate_model_revision_receipt_binding_mismatch")
+        return self
+
+
+def _candidate_model_revision_selected_ref(
+    cycle: GenerationCycleRecord, key: str
+) -> CASArtifactRef:
+    payload = cycle.simulation.diagnostics.get(key)
+    if not isinstance(payload, Mapping):
+        raise GenerationCycleError("candidate_model_revision_selected_ref_missing")
+    try:
+        return CASArtifactRef.model_validate(payload)
+    except (TypeError, ValueError) as exc:
+        raise GenerationCycleError("candidate_model_revision_selected_ref_invalid") from exc
+
+
+def _candidate_model_semantic_inputs(
+    declaration: CandidateSimulationSyntheticModelDeclarationV1,
+) -> dict[str, Any]:
+    """Use the configured owner's declared model fields, excluding profile locators."""
+    from polisyos.runtime.quality.candidate_simulation import (
+        CandidateSimulationSyntheticModelDeclarationV1,
+    )
+
+    if type(declaration) is not CandidateSimulationSyntheticModelDeclarationV1:
+        raise GenerationCycleError("candidate_model_revision_declaration_untyped")
+    return declaration.model_dump(
+        mode="json",
+        exclude={
+            "profile_config_ref",
+            "profile_content_hash",
+            "profile_selection_ref",
+            "content_hash",
+        },
+    )
+
+
+def reconcile_candidate_model_revision(
+    receipt: CandidateModelRevisionReentryReceipt,
+    *,
+    artifact_store: ArtifactStore,
+) -> CandidateModelRevisionReentryReceipt:
+    """Read both persisted occurrences and recompute the new conditional value.
+
+    This reader verifies historical candidate computation. It does not check a
+    current worker lease, admit observations, or establish N9 authority.
+    """
+    from polisyos.ir.analytics.ncm import (
+        candidate_ncm_spec_from_declaration,
+        load_ncm_spec_selected_view,
+    )
+    from polisyos.runtime.quality.candidate_simulation import CandidateSimulationExecutionV5
+    from polisyos.runtime.quality.generation_source import (
+        GenerationSourceRepository,
+        N4CandidateScenarioSourceRecordV3,
+    )
+
+    receipt = CandidateModelRevisionReentryReceipt.model_validate(
+        receipt.model_dump(mode="python")
+    )
+    repository = GenerationSourceRepository(artifact_store)
+    scope = {
+        "expected_run_id": receipt.run_id,
+        "expected_job_id": receipt.job_id,
+        "expected_tenant_id": receipt.tenant_id,
+        "expected_cell_id": receipt.cell_id,
+    }
+    sources = []
+    for prefix in ("source", "new"):
+        source_ref = getattr(receipt, f"{prefix}_n4_source_ref")
+        execution_ref = getattr(receipt, f"{prefix}_execution_ref")
+        source = repository.load_candidate_scenario_source_for_n5(source_ref, **scope)
+        execution = repository.resolve_candidate_simulation_v5(ref=execution_ref, **scope)
+        if (
+            type(source) is not N4CandidateScenarioSourceRecordV3
+            or type(execution) is not CandidateSimulationExecutionV5
+            or source.stable_subject_ref != receipt.design_problem_ref
+            or source.candidate.candidate_id != receipt.candidate_id
+            or execution.original_candidate_id != receipt.candidate_id
+            or execution.n4_source_ref != source_ref
+            or execution.model_declaration_ref
+            != getattr(receipt, f"{prefix}_model_declaration_ref")
+            or execution.ncm_ref != getattr(receipt, f"{prefix}_ncm_ref")
+            or execution.context_job_ref != getattr(receipt, f"{prefix}_context_job_ref")
+        ):
+            raise GenerationCycleError("candidate_model_revision_readback_binding_mismatch")
+        declaration = source.source_record.model_declaration
+        ncm = load_ncm_spec_selected_view(
+            artifact_store,
+            execution.ncm_ref,
+            expected_tenant_id=receipt.tenant_id,
+            expected_cell_id=receipt.cell_id,
+            expected_declaration_ref=execution.model_declaration_ref,
+        )
+        if ncm.model_dump(mode="json") != candidate_ncm_spec_from_declaration(
+            declaration
+        ).model_dump(mode="json"):
+            raise GenerationCycleError("candidate_model_revision_consumed_model_mismatch")
+        if prefix == "new":
+            simulation = receipt.new_cycle.simulation
+            if (
+                execution.n5_result_ref != simulation.simulation_result_ref
+                or execution.n5_result_content_hash != simulation.simulation_ref
+                or _candidate_model_revision_selected_ref(
+                    receipt.new_cycle, "candidate_simulation_n4_source_selected_ref"
+                ) != source_ref
+                or _candidate_model_revision_selected_ref(
+                    receipt.new_cycle, "candidate_simulation_execution_selected_ref"
+                ) != execution_ref
+            ):
+                raise GenerationCycleError("candidate_model_revision_readback_binding_mismatch")
+            value = _conditional_simulation_value_observation(
+                candidate=source.candidate,
+                simulation=simulation,
+                problem=source.problem,
+                artifact_store=artifact_store,
+            )
+            if value is None or value.model_dump(mode="json", exclude={"wall_time_ms"}) != (
+                receipt.new_cycle.value_port.model_dump(mode="json", exclude={"wall_time_ms"})
+            ):
+                raise GenerationCycleError("candidate_model_revision_value_readback_mismatch")
+        else:
+            load_joint_simulation_result(
+                execution.n5_result_ref,
+                store=artifact_store,
+                expected_world_model_record_content_hash=execution.world_model_record_hash,
+                expected_receipt_payload_hash=execution.n5_result_content_hash,
+            )
+        sources.append(source)
+    old_source, new_source = sources
+    if (
+        old_source.semantic_identity_hash != new_source.semantic_identity_hash
+        or new_source.origin_source_ref
+        != (old_source.origin_source_ref or receipt.source_n4_source_ref)
+        or _candidate_model_semantic_inputs(old_source.model_declaration)
+        == _candidate_model_semantic_inputs(new_source.model_declaration)
+    ):
+        raise GenerationCycleError("candidate_model_revision_readback_basis_mismatch")
+    return receipt
 
 
 class AcquisitionOverlayReentryReceipt(_StrictModel):
@@ -6385,6 +6599,229 @@ class GenerationCycleController:
             deployment_identity_reason=identity_reason,
         )
         return run
+
+    async def reenter_after_candidate_model_revision(
+        self,
+        *,
+        original_run: GenerationCycleRun,
+        source_cycle: GenerationCycleRecord,
+        problem: DesignProblem,
+        admission_owner: ConfiguredCandidateSimulationContextAdmissionOwner,
+        context_owner: CycleSubstrateContextArtifactOwner,
+        verified_nl_job_scope: VerifiedNLJobScope,
+        budget_state: BudgetState,
+    ) -> CandidateModelRevisionReentryReceipt:
+        """Reevaluate an existing proposal against a current admitted model.
+
+        This candidate-only entry consumes the configured model owner and the
+        current job owner. It neither ratifies observations nor calls N9. A new
+        reference, timestamp or occurrence is insufficient: resolved model
+        inputs consumed by the canonical N5 producer must actually differ.
+        """
+        from polisyos.ir.analytics.ncm import (
+            candidate_ncm_spec_from_declaration,
+            load_ncm_spec_selected_view,
+        )
+        from polisyos.runtime.quality.candidate_simulation import (
+            CandidateSimulationContextHandoff,
+            CandidateSimulationContextOffer,
+            CandidateSimulationExecutionV5,
+        )
+        from polisyos.runtime.quality.cycle_substrate import (
+            ConfiguredCandidateSimulationContextAdmissionOwner,
+            CycleSubstrateContextArtifactOwner,
+            VerifiedNLJobScope,
+        )
+        from polisyos.runtime.quality.design_generation import N4CandidateScenarioProposalRun
+        from polisyos.runtime.quality.generation_source import (
+            GenerationSourceRepository,
+            N4CandidateScenarioSourceRecordV3,
+            candidate_scenario_semantic_identity_hash,
+        )
+
+        if (
+            type(admission_owner) is not ConfiguredCandidateSimulationContextAdmissionOwner
+            or type(context_owner) is not CycleSubstrateContextArtifactOwner
+            or type(verified_nl_job_scope) is not VerifiedNLJobScope
+            or not verified_nl_job_scope._was_issued_by_verified_nl_execution_owner
+            or self._artifact_store is None
+        ):
+            raise GenerationCycleError("candidate_model_revision_owner_not_established")
+        handoff = self._candidate_simulation_handoff
+        if type(handoff) is not CandidateSimulationContextHandoff:
+            raise GenerationCycleError("candidate_model_revision_handoff_missing")
+        if (
+            source_cycle not in original_run.cycles
+            or sum(row.cycle_index == source_cycle.cycle_index for row in original_run.cycles) != 1
+            or source_cycle.design_problem_ref != original_run.design_problem_ref
+            or _cycle_basis_ref(source_cycle) != _problem_ref(problem)
+        ):
+            raise GenerationCycleError("candidate_model_revision_source_binding_mismatch")
+        if (
+            self._candidate_simulation_currentness_resolver is None
+            or self._candidate_simulation_currentness_resolver() is not True
+        ):
+            raise GenerationCycleError("candidate_model_revision_worker_not_current")
+        resolved_context = context_owner.resolve_for_current_job(
+            handoff.context_job_ref,
+            problem=problem,
+            verified_nl_job_scope=verified_nl_job_scope,
+        )
+        offer = admission_owner.admit_context(
+            problem=problem,
+            job_id=handoff.job_id,
+            run_id=handoff.run_id,
+            tenant_id=handoff.tenant_id,
+            cell_id=handoff.cell_id,
+        )
+        if (
+            type(offer) is not CandidateSimulationContextOffer
+            or resolved_context.context != handoff.context
+            or offer.context != handoff.context
+            or offer.profile != handoff.profile
+            or offer.model_declaration != handoff.model_declaration
+            or offer.model_declaration_ref != handoff.model_declaration_ref
+            or offer.ncm_ref != handoff.ncm_ref
+            or self._cycle_substrate_context != handoff.context
+        ):
+            raise GenerationCycleError("candidate_model_revision_owner_binding_mismatch")
+        repository = GenerationSourceRepository(self._artifact_store)
+        scope = {
+            "expected_run_id": handoff.run_id,
+            "expected_job_id": handoff.job_id,
+            "expected_tenant_id": handoff.tenant_id,
+            "expected_cell_id": handoff.cell_id,
+        }
+        source_ref = _candidate_model_revision_selected_ref(
+            source_cycle, "candidate_simulation_n4_source_selected_ref"
+        )
+        execution_ref = _candidate_model_revision_selected_ref(
+            source_cycle, "candidate_simulation_execution_selected_ref"
+        )
+        source = repository.load_candidate_scenario_source_for_n5(source_ref, **scope)
+        execution = repository.resolve_candidate_simulation_v5(ref=execution_ref, **scope)
+        if (
+            type(source) is not N4CandidateScenarioSourceRecordV3
+            or type(execution) is not CandidateSimulationExecutionV5
+            or execution.n4_source_ref != source_ref
+            or source.candidate.candidate_id != source_cycle.selected_candidate_ref
+            or execution.original_candidate_id != source_cycle.selected_candidate_ref
+            or _candidate_content_hash(source.candidate)
+            != source_cycle.selected_candidate_content_hash
+            or execution.n5_result_ref != source_cycle.simulation.simulation_result_ref
+            or execution.n5_result_content_hash != source_cycle.simulation.simulation_ref
+            or source.stable_subject_ref != original_run.design_problem_ref
+            or source.cycle_problem_ref != _problem_ref(problem)
+            or source.profile.profile_selection_ref != handoff.profile.profile_selection_ref
+            or handoff.model_declaration_ref is None
+            or handoff.ncm_ref is None
+        ):
+            raise GenerationCycleError("candidate_model_revision_source_binding_mismatch")
+        if candidate_scenario_semantic_identity_hash(
+            stable_subject_ref=source.stable_subject_ref,
+            proposal=source.proposal,
+            candidate=source.candidate,
+            profile=handoff.profile,
+        ) != source.semantic_identity_hash:
+            raise GenerationCycleError("candidate_model_revision_candidate_changed")
+
+        declaration = repository.load_candidate_model_declaration(
+            handoff.model_declaration_ref,
+            expected_profile=handoff.profile,
+            **scope,
+        )
+        new_ncm = load_ncm_spec_selected_view(
+            self._artifact_store,
+            handoff.ncm_ref,
+            expected_tenant_id=handoff.tenant_id,
+            expected_cell_id=handoff.cell_id,
+            expected_declaration_ref=handoff.model_declaration_ref,
+        )
+        expected_ncm = candidate_ncm_spec_from_declaration(declaration)
+        if (
+            declaration != handoff.model_declaration
+            or new_ncm.model_dump(mode="json") != expected_ncm.model_dump(mode="json")
+        ):
+            raise GenerationCycleError("candidate_model_revision_consumed_model_mismatch")
+        if _candidate_model_semantic_inputs(source.source_record.model_declaration) == (
+            _candidate_model_semantic_inputs(declaration)
+        ):
+            raise GenerationCycleError("candidate_model_revision_basis_unchanged")
+
+        # Replay the exact existing N4 proposal. A fresh LLM proposal would be a
+        # different candidate and cannot witness this same-candidate revision.
+        proposal_run = N4CandidateScenarioProposalRun(
+            proposal=source.proposal,
+            l2_confidence_vintage=source.l2_confidence_vintage,
+            k_ref_limitation_code=source.k_ref_limitation_code,
+        )
+        previous_generation_port = self._generation_port
+
+        def replay_existing_proposal(
+            current_problem: DesignProblem, *, cycle_index: int
+        ) -> N4CandidateScenarioProposalRun:
+            if current_problem != problem or cycle_index != source_cycle.cycle_index + 1:
+                raise GenerationCycleError("candidate_model_revision_proposal_binding_mismatch")
+            return proposal_run
+
+        self._restore_source_run(original_run)
+        self._generation_port = replay_existing_proposal
+        try:
+            new_cycle, summaries = await self._run_cycle(
+                problem,
+                cycle_index=source_cycle.cycle_index + 1,
+                budget_state=budget_state,
+                previous_cycle=source_cycle,
+                stable_design_problem_ref=original_run.design_problem_ref,
+                candidate_scenario_origin_source_ref=source_ref,
+            )
+        finally:
+            self._generation_port = previous_generation_port
+        new_source_ref = _candidate_model_revision_selected_ref(
+            new_cycle, "candidate_simulation_n4_source_selected_ref"
+        )
+        new_execution_ref = _candidate_model_revision_selected_ref(
+            new_cycle, "candidate_simulation_execution_selected_ref"
+        )
+        new_source = repository.load_candidate_scenario_source_for_n5(new_source_ref, **scope)
+        new_execution = repository.resolve_candidate_simulation_v5(ref=new_execution_ref, **scope)
+        if (
+            type(new_source) is not N4CandidateScenarioSourceRecordV3
+            or type(new_execution) is not CandidateSimulationExecutionV5
+            or new_source.candidate.candidate_id != source.candidate.candidate_id
+            or new_source.semantic_identity_hash != source.semantic_identity_hash
+            or new_source.origin_source_ref != (source.origin_source_ref or source_ref)
+            or new_execution.n4_source_ref != new_source_ref
+            or new_execution.model_declaration_ref != handoff.model_declaration_ref
+            or new_execution.ncm_ref != handoff.ncm_ref
+            or new_execution.context_job_ref != handoff.context_job_ref
+        ):
+            raise GenerationCycleError("candidate_model_revision_result_binding_mismatch")
+        receipt = CandidateModelRevisionReentryReceipt.issue(
+            source_run_id=original_run.run_id,
+            design_problem_ref=original_run.design_problem_ref,
+            source_cycle_index=source_cycle.cycle_index,
+            candidate_id=source.candidate.candidate_id,
+            job_id=handoff.job_id,
+            run_id=handoff.run_id,
+            tenant_id=handoff.tenant_id,
+            cell_id=handoff.cell_id,
+            source_n4_source_ref=source_ref,
+            new_n4_source_ref=new_source_ref,
+            source_execution_ref=execution_ref,
+            new_execution_ref=new_execution_ref,
+            source_model_declaration_ref=execution.model_declaration_ref,
+            new_model_declaration_ref=new_execution.model_declaration_ref,
+            source_ncm_ref=execution.ncm_ref,
+            new_ncm_ref=new_execution.ncm_ref,
+            source_context_job_ref=execution.context_job_ref,
+            new_context_job_ref=new_execution.context_job_ref,
+            new_cycle=new_cycle,
+            candidate_summaries=summaries,
+            source_handoff_refs=tuple(self._source_handoff_refs),
+            source_preservation_receipt=self._source_preservation_receipt(),
+        )
+        return reconcile_candidate_model_revision(receipt, artifact_store=self._artifact_store)
 
     async def reenter_after_active_acquisition_overlay(
         self,

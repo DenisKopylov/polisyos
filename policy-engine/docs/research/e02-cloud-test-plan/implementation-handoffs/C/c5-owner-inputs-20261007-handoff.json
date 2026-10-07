@@ -1,0 +1,139 @@
+{
+  "schema": "implementation_handoff.v1",
+  "unit": "C",
+  "slice": "C5 bounded owner/input dispositions and production-pair presence",
+  "closure_ids": [],
+  "bundle_ids": [
+    "BER-01",
+    "CAN-01",
+    "CLI-01",
+    "DFI-01",
+    "DFI-02",
+    "DFI-03",
+    "DFK-01",
+    "DFK-02",
+    "EMB-01",
+    "EMB-02",
+    "EMB-03",
+    "FED-01",
+    "FED-02",
+    "HYG-02",
+    "HYG-04",
+    "ING-01",
+    "ING-02",
+    "ING-03",
+    "MIG-01",
+    "MIG-02",
+    "MIG-04",
+    "MIG-05",
+    "OBS-01",
+    "OBS-02",
+    "PLG-01",
+    "PLG-02",
+    "PLG-03",
+    "SCL-01",
+    "SCL-03",
+    "UDF-01",
+    "UDF-02",
+    "UDF-04",
+    "UDF-05"
+  ],
+  "branch": "codex/e02-C-continuation-20261006",
+  "slice_base_sha": "2535e30fbe91f119fde4579f45ba4caef7e75260",
+  "slice_base_tree_sha": "f1d31a05da4dd63ca301491342e2a481a910d3ff",
+  "implementation_commits": [
+    "cf96e97641e1c06f889cf71305879c63bfba7971",
+    "2a702c26c047ccafde68523afcd7fc356f2edfb9"
+  ],
+  "candidate_sha": "2a702c26c047ccafde68523afcd7fc356f2edfb9",
+  "candidate_tree_sha": "950e05b6cad1e5f7381627db488b1638b10eb5d6",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c5-owner-inputs/C5-owner-inputs-20261007.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c5-owner-inputs/legal-paired-input-presence.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c5-owner-inputs/legal-presence-command.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c5-owner-inputs/legal-presence.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c5-owner-inputs/legal_presence_probe.py"
+  ],
+  "changed_product_source": false,
+  "property": {
+    "statement": "All54 original findings remain represented by the exact C4 criterion carrier; the23 nonclosed current owner/input decisions are explicit and the31 finite criteria are carried at their existing bounded scope. G statuses are not changed.",
+    "C4_recommendations": {
+      "closed": 31,
+      "limited": 9,
+      "held": 14
+    },
+    "C5_root_proposals": {
+      "closed": 31,
+      "limited": 12,
+      "held": 11
+    },
+    "G_not_adjudicated": 54,
+    "source_gate_note": "This is a root research input/citation artifact, not a runtime semantic admission gate or product PASS. Canonical C54 producer/validator and independent review must bind it before final delivery."
+  },
+  "checks": [
+    {
+      "command": "python3 receipts/c5-owner-inputs/legal_presence_probe.py (absolute argv/cwd in sibling command JSON)",
+      "status": "OBSERVED",
+      "full_output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c5-owner-inputs/legal-paired-input-presence.json",
+      "scope": "Exact lstat paths only; DB present, paired selectors/aliases absent; no payload/rows/model weight read/fullDBhash."
+    },
+    {
+      "command": "git diff --check",
+      "status": "PASS",
+      "output": "empty stdout/stderr; exit0 before ordinary commit",
+      "scope": "Root input/receipt delta only"
+    },
+    {
+      "command": "read five blobs from candidate Git and compare on-disk bytes/hash",
+      "status": "PASS",
+      "scope": "Delivered input byte identity; semantic finding review is separate."
+    }
+  ],
+  "negative_control": "No new runtime property is implemented here. Exact DFK and Legal source negatives are bound through committed reviewed handoffs. Missing supplied law/rights/binder/profile/history/host remains held or limited, never a fixture-based authority substitute.",
+  "evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c5-owner-inputs/C5-owner-inputs-20261007.json",
+      "git_blob": "5549b337ecaf567c222f970977f636ed386b2aed",
+      "bytes": 42442,
+      "sha256": "95dfff35eadcd55895b643af217ddaac3a6f176038e6d1b651662c4165b4c385"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c5-owner-inputs/legal-paired-input-presence.json",
+      "git_blob": "05cac81158a8e6024bb70b94c1dd65054d2bb2a2",
+      "bytes": 2975,
+      "sha256": "20b193a6c45f59b4e27fd02d62073adad4befd94e2462b28faf6bb3ea04c1085"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c5-owner-inputs/legal-presence-command.json",
+      "git_blob": "16a085db69567f0ae0bd91e59ce205bb769e3917",
+      "bytes": 1101,
+      "sha256": "d666e77526c1a3a0908486fa30ad1bfcf2b07dbd3da0ee42b52bce3b783a5037"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c5-owner-inputs/legal-presence.stderr.txt",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c5-owner-inputs/legal_presence_probe.py",
+      "git_blob": "5629901d39c9db7afb7b69fc37de9522211fba82",
+      "bytes": 2470,
+      "sha256": "bdcf5984fb0ac7574cb293ab79a26714006f93865ea825a04808a3dadf16031e"
+    }
+  ],
+  "receipt": {
+    "owner_input_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c5-owner-inputs/C5-owner-inputs-20261007.json",
+    "owner_input_sha256": "95dfff35eadcd55895b643af217ddaac3a6f176038e6d1b651662c4165b4c385",
+    "current_DFK_handoff": "dfk-c5-lifecycle-source-handoff.json@4576f67b1ff1f8d09b6a4223779b53fff9b369ae",
+    "current_Legal_handoff": "legal-query-profile-20261007.json@51609922447716115c22287ac79c218d13cd9067",
+    "intake_handoff": "c5-intake-20261007-handoff.json@2535e30fbe91f119fde4579f45ba4caef7e75260"
+  },
+  "limitations_and_next_owner": [
+    "G independently admits exact source families and adjudicates all54 findings; C root carrier is evidence only.",
+    "Canonical C54 generator/validator owner binds all23 current decisions and all54/59 original criteria, then independent review checks the frozen cut.",
+    "Current CAN/DFK/Legal noneditable distribution checks remain UNRUN without local Hatchling backend.",
+    "Owner packets explicitly separate each missing authority/profile/history/resource input; no universal production-data/external-census prerequisite.",
+    "Production remains local/read-only; authorized criterion-specific membership/projection reads await paired generation/assets/query-provider input, not renewed reading permission."
+  ]
+}

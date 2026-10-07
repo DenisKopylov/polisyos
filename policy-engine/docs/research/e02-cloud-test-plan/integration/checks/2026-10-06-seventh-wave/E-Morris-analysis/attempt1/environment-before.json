@@ -1,0 +1,53 @@
+{
+  "active_matching_processes": [],
+  "candidate_source_exists": true,
+  "captured_at": "2026-10-06T19:02:28.531138+00:00",
+  "command_json_sha256": "16b3ba2ad0871130868834ca3eaeff572f2dcb4e46bb727502b973109d46bbbf",
+  "disk": {
+    "free_bytes": 13257687040,
+    "total_bytes": 245107195904,
+    "used_bytes": 231849508864
+  },
+  "git": {
+    "branch": "codex/e02-integration",
+    "head": "127dc7ab8365d29eb656fe32c0c894f6cc971286",
+    "porcelain": ""
+  },
+  "input_bytes": 328,
+  "interpreter": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "version": "Python 3.14.3"
+  },
+  "overlay_exists": true,
+  "page_size_bytes": 16384,
+  "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "probe_script_sha256": "9d4dced9d01390c86c98d4b38d3cbea17d7a8c0e84e70b3e5a79d7075897bbc3",
+  "process_limit_seconds": 25,
+  "reported_free_pages_bytes": 1665007616,
+  "tool_limit_seconds": 30,
+  "vm_stat": {
+    "\"Translation faults\"": "4356843235.",
+    "Anonymous pages": "319388.",
+    "Compressions": "478001386.",
+    "Decompressions": "452285035.",
+    "File-backed pages": "143653.",
+    "Mach Virtual Memory Statistics": "(page size of 16384 bytes)",
+    "Pageins": "134104946.",
+    "Pageouts": "103006.",
+    "Pages active": "231744.",
+    "Pages copy-on-write": "314584745.",
+    "Pages free": "101624.",
+    "Pages inactive": "212885.",
+    "Pages occupied by compressor": "279263.",
+    "Pages purgeable": "3222.",
+    "Pages purged": "9158070.",
+    "Pages reactivated": "189454767.",
+    "Pages speculative": "18412.",
+    "Pages stored in compressor": "499016.",
+    "Pages throttled": "0.",
+    "Pages wired down": "167972.",
+    "Pages zero filled": "1411621215.",
+    "Swapins": "2724390.",
+    "Swapouts": "3580810."
+  }
+}

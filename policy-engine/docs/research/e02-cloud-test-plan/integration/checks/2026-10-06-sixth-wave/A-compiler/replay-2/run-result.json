@@ -1,0 +1,41 @@
+{
+  "started_utc": "2026-10-06T16:28:12.056532+00:00",
+  "ended_utc": "2026-10-06T16:28:15.722779+00:00",
+  "elapsed_seconds": 3.591,
+  "returncode": -15,
+  "timed_out": false,
+  "disk_cap_exceeded": true,
+  "outcome": "UNRUN",
+  "classification": "inspect-pytest-output",
+  "max_sampled_process_tree_rss_kib": 180992,
+  "max_sampled_process_tree_rss_bytes": 185335808,
+  "initial_allocated_bytes": 78215996,
+  "max_sampled_allocated_bytes": 246914941,
+  "final_allocated_bytes": 246914941,
+  "disk_cap_bytes": 209715200,
+  "first_failure_temp_allocated_bytes": 4636,
+  "current_test_temp_allocated_bytes": 91390760,
+  "current_test_temp_logical_bytes": 82890572,
+  "wheel_artifacts": [
+    {
+      "path": "/tmp/polisyos-e02-Acompiler-577521c6651bba048d6bdfdc13f36a383c8146c6-replay/pytest-basetemp/test_installed_wheel_keeps_act0/wheelhouse/policy_engine-0.1.0-py3-none-any.whl",
+      "size_bytes": 15018577,
+      "sha256": "c1d20a264ced1691f0cdfdf89c5727bc152269a989be40ba352357d9abab8f27"
+    }
+  ],
+  "installed_wheel_package_roots": [
+    {
+      "package_root": "/private/tmp/polisyos-e02-Acompiler-577521c6651bba048d6bdfdc13f36a383c8146c6-replay/pytest-basetemp/test_installed_wheel_keeps_act0/venv/lib/python3.14/site-packages/polisyos",
+      "python_module_file_count": 2698
+    }
+  ],
+  "persisted_compiler_reports": [],
+  "junit": null,
+  "wheel_origin_property": "Exact source child probe completed if pytest PASS; it asserts all loaded polisyos modules with .py origins are beneath the installed wheel package_root and excludes candidate src/tests/architecture from sys.path.",
+  "pytest_stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/1548-Acompiler-checks/replay-2/pytest.stdout.txt",
+  "pytest_stdout_bytes": 0,
+  "pytest_stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/1548-Acompiler-checks/replay-2/pytest.stderr.txt",
+  "pytest_stderr_bytes": 0,
+  "free_disk_after_bytes": 15868166144,
+  "g_head_after": "53b309019913b938909d6dc0fc13f8edb409f368"
+}

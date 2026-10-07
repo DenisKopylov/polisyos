@@ -1,0 +1,63 @@
+{
+  "started_utc": "2026-10-06T16:28:11.917868+00:00",
+  "candidate_commit": "577521c6651bba048d6bdfdc13f36a383c8146c6",
+  "candidate_tree": "1e8820533c48ec88355f2a2fccba486f279c2a4b",
+  "g_branch": "codex/e02-integration",
+  "g_head_before": "53b309019913b938909d6dc0fc13f8edb409f368",
+  "test_path": "policy-engine/tests/unit/remediation/test_req_01_installed.py",
+  "test_git_blob": "c05a7da95fffb1e4dc2550d11f7a33dfaab8ea89",
+  "test_sha256": "f69b4792064af8747114a2c7e65a39e03abfd181a63ad148fcec22dcf027b830",
+  "selected_closure_file_count": 3463,
+  "selected_closure_bytes": 67525540,
+  "selected_closure_limit_bytes": 104857600,
+  "command": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-c",
+    "pytest.ini",
+    "--basetemp",
+    "/tmp/polisyos-e02-Acompiler-577521c6651bba048d6bdfdc13f36a383c8146c6-replay/pytest-basetemp",
+    "--junitxml",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/1548-Acompiler-checks/replay-2/installed-wheel.junit.xml",
+    "tests/unit/remediation/test_req_01_installed.py"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/1548-Acompiler-checks/candidate/policy-engine",
+  "pytest_config": "candidate exact policy-engine/pytest.ini; source test, conftest, and declared helper plugins unchanged",
+  "python": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "resolved_path": "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/bin/python3.14",
+    "version": "Python 3.14.3",
+    "pytest": "9.0.2",
+    "hypothesis": "6.151.9",
+    "loguru": "0.7.3",
+    "opentelemetry-api": "1.40.0",
+    "opentelemetry-sdk": "1.40.0"
+  },
+  "uv": {
+    "path": "/opt/homebrew/bin/uv",
+    "version": "uv 0.10.6 (Homebrew 2026-02-24)"
+  },
+  "offline_build_environment": {
+    "UV_OFFLINE": "1",
+    "UV_DEFAULT_INDEX": "file:///Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/1548-Acompiler-checks/prereq-overlay/simple/",
+    "UV_CACHE_DIR": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/1548-Acompiler-checks/prereq-overlay/cache",
+    "UV_NO_PROGRESS": "1",
+    "test_source_sets_uv_offline": "1",
+    "test_source_sets_UV_PYTHON_DOWNLOADS": "never",
+    "network": "disabled by uv --offline; default index replaced with local file index only"
+  },
+  "prewarm_lock_sha256": "f32bc32688e3fff5054a6a9e3cdff82078cfcd6e36e00fc72c2375a6a60fdf76",
+  "package_input_manifest_sha256": "032f85dbb3c2ae539a8c46b2c535c2074fa7b9113ca7a94704c0b998bcb13914",
+  "local_wheel_index_sha256": "beb711a38efb84e8e6774e6cb5c74f487bfdc51854c00b27a0f89660d92a237c",
+  "test_tmp_root": "/tmp/polisyos-e02-Acompiler-577521c6651bba048d6bdfdc13f36a383c8146c6-replay",
+  "pytest_basetemp": "/tmp/polisyos-e02-Acompiler-577521c6651bba048d6bdfdc13f36a383c8146c6-replay/pytest-basetemp",
+  "earlier_setup_failure_tmp_root": "/tmp/polisyos-e02-Acompiler-577521c6651bba048d6bdfdc13f36a383c8146c6",
+  "limits": {
+    "outer_timeout_seconds": 180,
+    "total_receipt_plus_all_dedicated_tmp_allocated_bytes": 209715200,
+    "max_additional_package_source_bytes": 31457280
+  },
+  "free_disk_before_bytes": 15966998528,
+  "initial_allocated_bytes": 78215996
+}

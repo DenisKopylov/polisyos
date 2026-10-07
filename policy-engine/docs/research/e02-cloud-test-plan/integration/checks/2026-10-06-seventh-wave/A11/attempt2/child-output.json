@@ -1,0 +1,17 @@
+{
+  "format": "lossless_utf8_deciding_streams.v1",
+  "streams": {
+    "stdout": {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/1910-A11-checks/outputs/attempt2/n8-child-stdout.jsonl",
+      "bytes": 1719,
+      "sha256": "8c794bb98dd7012906526e01ec0ec1e64bc9832376f7e2c958b6d9a8fcd9b69c",
+      "text": "{\"consumer_pid\": 78925, \"observation\": {\"acquisition_requirement\": null, \"authority_blockers\": [\"simulation_only_k_sim_not_world_evidence\"], \"calibration_receipt\": null, \"candidate_id\": \"candidate_feasible_single\", \"conditional_interaction_evidence\": {\"authority_purpose\": \"conditional_simulation_only\", \"checked_interaction_orders\": [1], \"higher_order_residuals\": {}, \"horizon_end\": 0, \"horizon_start\": 0, \"horizon_step\": 1, \"max_checked_interaction_order\": 1, \"observed_steps\": [0], \"predicate_provenance\": \"recomputed\", \"requested_steps\": [0], \"residual_scope\": \"no_higher_order\", \"sampling_uncertainty_status\": \"not_established\", \"schema_version\": \"policyos.runtime.conditional_simulation_interaction_evidence.v1\", \"time_binding_status\": \"not_established\", \"trajectory_scope_count\": 2, \"unit_binding_status\": \"not_established\"}, \"decision_grade\": \"low\", \"evaluation_mode\": \"simulate_only\", \"identification_status\": null, \"method_selection_receipt\": null, \"reason\": \"N8 consumed a content-bound numerical N5 result for simulation-only analysis; K_sim is not world evidence or promotion authority.\", \"selected_method_fqn\": null, \"status\": \"value_conditional\", \"transport_receipt\": null, \"value_data_profile_content_hash\": null, \"value_receipt\": null, \"value_ref\": \"sha256:f362939db5fefb2066b0655ea70e3969aafae083fc077fc5941d99d65fb48149\", \"wall_time_ms\": 2.86025000968948, \"world_model_record_content_hash\": \"sha256:c31b3c014f5fbb9e34fd14da1e190e98bdd6a7eabfd448bb006f34311fb96185\"}, \"runtime_source\": \"/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1910-A11-checks/checkout-retry/policy-engine/src/polisyos/runtime/quality/generation_cycle.py\"}\n"
+    },
+    "stderr": {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/1910-A11-checks/outputs/attempt2/n8-child-stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    }
+  }
+}

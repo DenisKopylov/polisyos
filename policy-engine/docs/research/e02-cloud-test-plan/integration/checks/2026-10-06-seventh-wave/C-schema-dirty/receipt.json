@@ -1,0 +1,267 @@
+{
+  "candidate": "b8d9115cdc6a55920c1e0a3cae2e5f9092010c27",
+  "tree": "467cd6f01ec204767dc60bb939955578428bf102",
+  "python": "3.14.0 (main, Oct  7 2025, 09:34:52) [Clang 17.0.0 (clang-1700.0.13.3)]",
+  "classification": "NEW_CLASS: exact Git status denominator omits ordinary modified path",
+  "property_outcome": "FAIL_REPRODUCED",
+  "cases": [
+    {
+      "name": "clean_positive",
+      "expected_complete_changed_paths": [],
+      "actual_status_paths": [],
+      "actual_selected_working_tree_changes": [],
+      "all_selected_count": 2,
+      "actual_result": "complete_for_selected_local_text_inputs",
+      "actual_returncode": 0,
+      "actual_status_command_receipt": {
+        "command": [
+          "git",
+          "status",
+          "--porcelain=v1",
+          "-z",
+          "--untracked-files=all"
+        ],
+        "returncode": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_bytes": 0,
+        "stderr_bytes": 0,
+        "prefix_command": [
+          "git",
+          "rev-parse",
+          "--show-prefix"
+        ],
+        "prefix_returncode": 0,
+        "prefix_stdout_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "prefix_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "path_prefix": ""
+      },
+      "property_holds": true,
+      "wall_seconds": 0.0631397080142051
+    },
+    {
+      "name": "two_unstaged_modifications",
+      "expected_complete_changed_paths": [
+        "a.py",
+        "b.py"
+      ],
+      "actual_status_paths": [
+        " M b.py",
+        "a.py"
+      ],
+      "actual_selected_working_tree_changes": [
+        "a.py"
+      ],
+      "all_selected_count": 2,
+      "actual_result": "complete_for_selected_local_text_inputs",
+      "actual_returncode": 0,
+      "actual_status_command_receipt": {
+        "command": [
+          "git",
+          "status",
+          "--porcelain=v1",
+          "-z",
+          "--untracked-files=all"
+        ],
+        "returncode": 0,
+        "stdout_sha256": "0bf7da81e41549f3b0aeafa82ad4f535f8be951c312f91cf54367b48fcc3bf65",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_bytes": 16,
+        "stderr_bytes": 0,
+        "prefix_command": [
+          "git",
+          "rev-parse",
+          "--show-prefix"
+        ],
+        "prefix_returncode": 0,
+        "prefix_stdout_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "prefix_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "path_prefix": ""
+      },
+      "property_holds": false,
+      "wall_seconds": 0.06733229203382507
+    },
+    {
+      "name": "two_staged_modifications",
+      "expected_complete_changed_paths": [
+        "a.py",
+        "b.py"
+      ],
+      "actual_status_paths": [
+        "M  b.py",
+        "a.py"
+      ],
+      "actual_selected_working_tree_changes": [
+        "a.py"
+      ],
+      "all_selected_count": 2,
+      "actual_result": "complete_for_selected_local_text_inputs",
+      "actual_returncode": 0,
+      "actual_status_command_receipt": {
+        "command": [
+          "git",
+          "status",
+          "--porcelain=v1",
+          "-z",
+          "--untracked-files=all"
+        ],
+        "returncode": 0,
+        "stdout_sha256": "ee0e5b589efa3b45527086f50efef080ef3dec6d3c44fc2d5d9116e41fecfd37",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_bytes": 16,
+        "stderr_bytes": 0,
+        "prefix_command": [
+          "git",
+          "rev-parse",
+          "--show-prefix"
+        ],
+        "prefix_returncode": 0,
+        "prefix_stdout_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "prefix_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "path_prefix": ""
+      },
+      "property_holds": false,
+      "wall_seconds": 0.05171987495850772
+    },
+    {
+      "name": "rename_positive",
+      "expected_complete_changed_paths": [
+        "a.py",
+        "c.py"
+      ],
+      "actual_status_paths": [
+        "a.py",
+        "c.py"
+      ],
+      "actual_selected_working_tree_changes": [
+        "c.py"
+      ],
+      "all_selected_count": 2,
+      "actual_result": "complete_for_selected_local_text_inputs",
+      "actual_returncode": 0,
+      "actual_status_command_receipt": {
+        "command": [
+          "git",
+          "status",
+          "--porcelain=v1",
+          "-z",
+          "--untracked-files=all"
+        ],
+        "returncode": 0,
+        "stdout_sha256": "c25d77c8f54907cfb86c2443ab24b585f9f9aad4e49f5291f5fee6aba1b4e0a3",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_bytes": 13,
+        "stderr_bytes": 0,
+        "prefix_command": [
+          "git",
+          "rev-parse",
+          "--show-prefix"
+        ],
+        "prefix_returncode": 0,
+        "prefix_stdout_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "prefix_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "path_prefix": ""
+      },
+      "property_holds": true,
+      "wall_seconds": 0.06178508297307417
+    }
+  ],
+  "limitation": "Exact selected tools package/helpers only; static instrument path, no API or retirement authority; fixture history append-only, G refs untouched",
+  "source_scope": {
+    "candidate": "b8d9115cdc6a55920c1e0a3cae2e5f9092010c27",
+    "selector": "Exact tool, actual tools package initializers and complete tools/lib *.py files selected by Git ls-tree; no stubs",
+    "selected_input_count": 16,
+    "all_selected_source_bytes_unchanged": true,
+    "all_loaded_tools_origins_candidate_local": true,
+    "full_local_receipt_ref": "policy-engine/_build/e02-g-continuation-20261006/R/1850-schema-dirty-probe/receipt.json@sha256:2638644fe43157c701eceb0875aeab23a247441211250db6249368a660efd142"
+  },
+  "fixture_commands": [
+    {
+      "argv": [
+        "git",
+        "init",
+        "--quiet"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1850-schema-dirty-probe/fixture",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "add",
+        "a.py",
+        "b.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1850-schema-dirty-probe/fixture",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "user.name=G fixture",
+        "-c",
+        "user.email=g-fixture@invalid",
+        "-c",
+        "commit.gpgsign=false",
+        "commit",
+        "--quiet",
+        "--no-verify",
+        "-m",
+        "baseline fixture"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1850-schema-dirty-probe/fixture",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "add",
+        "a.py",
+        "b.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1850-schema-dirty-probe/fixture",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "user.name=G fixture",
+        "-c",
+        "user.email=g-fixture@invalid",
+        "-c",
+        "commit.gpgsign=false",
+        "commit",
+        "--quiet",
+        "--no-verify",
+        "-m",
+        "record modified fixture"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1850-schema-dirty-probe/fixture",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "mv",
+        "a.py",
+        "c.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1850-schema-dirty-probe/fixture",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ]
+}

@@ -59,6 +59,7 @@ def test_same_candidate_model_revision_reenters_only_for_changed_semantics(
 
     from fastapi.testclient import TestClient
 
+    from polisyos.core.artifacts import FileSystemCAS
     from polisyos.core.artifacts.manifest import artifact_ref_identity_key
     from polisyos.core.security.tenant_context import tenant_scope
     from polisyos.data_forge.read_api import catalog as catalog_api
@@ -87,9 +88,11 @@ def test_same_candidate_model_revision_reenters_only_for_changed_semantics(
         cycle_job_profile_selection_ref,
     )
     from polisyos.runtime.quality.generation_cycle import (
+        CandidateModelRevisionReentryReceipt,
         GenerationCycleController,
         GenerationCycleError,
         JointSimulationPort,
+        reconcile_candidate_model_revision,
     )
     from polisyos.runtime.quality.generation_source import (
         GenerationSourceRepository,
@@ -490,6 +493,9 @@ def test_same_candidate_model_revision_reenters_only_for_changed_semantics(
         assert receipt.tenant_id == verified_scope.tenant_id
         assert receipt.cell_id == verified_scope.cell_id
         assert receipt.source_run_id == original_run_result.run_id
+        # The receipt binds to this in-memory run projection; canonical N6 CAS
+        # history binding is intentionally not established by this consumer.
+        assert receipt.source_history_binding == "not_established"
         assert receipt.design_problem_ref == original_run_result.design_problem_ref
         assert receipt.source_cycle_index == source_cycle.cycle_index
         assert receipt.new_cycle.cycle_index == source_cycle.cycle_index + 1
@@ -668,6 +674,75 @@ def test_same_candidate_model_revision_reenters_only_for_changed_semantics(
         assert old_effect == pytest.approx(0.5, abs=0.02)
         assert new_effect == pytest.approx(1.0, abs=0.02)
         assert new_effect != pytest.approx(old_effect, abs=0.1)
+
+        # Reconcile a serialized receipt against a new CAS handle to prove the
+        # consumer reads persisted source, execution, context, and N5 bytes.
+        fresh_store = FileSystemCAS(cas_root)
+        serialized_receipt = receipt.model_dump(mode="json")
+        rehydrated_receipt = CandidateModelRevisionReentryReceipt.model_validate(
+            serialized_receipt
+        )
+        with tenant_scope(
+            None,
+            tenant_id=verified_scope.tenant_id,
+            cell_id=verified_scope.cell_id,
+        ):
+            reconciled_receipt = reconcile_candidate_model_revision(
+                rehydrated_receipt,
+                artifact_store=fresh_store,
+            )
+        assert reconciled_receipt.model_dump(mode="json") == serialized_receipt
+        assert reconciled_receipt.source_history_binding == "not_established"
+
+        # Keep the receipt self-hash valid while forging a mutually consistent
+        # cycle/summary occurrence hash. The readback must compare it to the
+        # persisted N4 atom, rather than trusting agreement between projections.
+        forged_hash = "sha256:" + "f" * 64
+        assert forged_hash != old_source.source_record.candidate.atom.content_hash
+        assert forged_hash != new_source.source_record.candidate.atom.content_hash
+        forged_cycle = receipt.new_cycle.model_copy(
+            update={"selected_candidate_content_hash": forged_hash}
+        )
+        forged_summaries = tuple(
+            row.model_copy(
+                update={
+                    "content_hash": forged_hash,
+                    "source_content_hash": forged_hash,
+                }
+            )
+            if row.candidate_id == receipt.candidate_id
+            and row.cycle_index == receipt.new_cycle.cycle_index
+            else row
+            for row in receipt.candidate_summaries
+        )
+        assert sum(
+            row.candidate_id == receipt.candidate_id
+            and row.cycle_index == receipt.new_cycle.cycle_index
+            for row in forged_summaries
+        ) == 1
+        forged_payload = receipt.model_dump(mode="python", exclude={"content_hash"})
+        forged_payload["new_cycle"] = forged_cycle
+        forged_payload["candidate_summaries"] = forged_summaries
+        forged_receipt = CandidateModelRevisionReentryReceipt.issue(**forged_payload)
+        assert forged_receipt.content_hash != receipt.content_hash
+        serialized_forgery = CandidateModelRevisionReentryReceipt.model_validate(
+            forged_receipt.model_dump(mode="json")
+        )
+        with (
+            tenant_scope(
+                None,
+                tenant_id=verified_scope.tenant_id,
+                cell_id=verified_scope.cell_id,
+            ),
+            pytest.raises(GenerationCycleError) as occurrence_mismatch,
+        ):
+            reconcile_candidate_model_revision(
+                serialized_forgery,
+                artifact_store=fresh_store,
+            )
+        assert occurrence_mismatch.value.code == (
+            "candidate_model_revision_occurrence_hash_mismatch"
+        )
         return original_run_result
 
     monkeypatch.setattr(

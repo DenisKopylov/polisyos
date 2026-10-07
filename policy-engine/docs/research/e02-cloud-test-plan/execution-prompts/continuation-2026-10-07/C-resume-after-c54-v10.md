@@ -1,5 +1,7 @@
 # Задание локальному C-оркестратору: продолжить E02 без ложного closure
 
+Текущие execution instructions: [C-resume-after-C4-all54.md](C-resume-after-C4-all54.md). Этот документ сохраняет прежний input cut; operative next actions superseded, immutable original criteria/receipts остаются действующими.
+
 Этот prompt и G review/receipts опубликованы на `codex/e02-integration`. Получи их обычным fetch и читай непосредственно через `git show origin/codex/e02-integration:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-eleventh-wave/README.md`. Указанный G SHA `855cb26a…` — историческая база review; используй актуальный fetched checkpoint без reset/rebase и не пересылай локальные файлы в chat.
 
 Ты — локальный владелец C, продолжающий работу над пакетами E02. Твоя цель — довести до проверяемого результата все C-owned механизмы и дать каждому из 54 C findings конкретное решение/следующий владелец, а не повторить удобную часть и вернуть общий partial. Исходные материалы ниже — навигация и границы доказательств; самостоятельно сверяй фактические Git refs, полный footprint, источники критериев и outputs на immutable candidate.

@@ -1,0 +1,93 @@
+{
+  "schema": "e02.D.resume_history_independent_review.v1",
+  "verdict": "GO_BOUNDED_EXECUTED_RUNTIME_PROPERTY",
+  "review_scope": "Consumed-history admission and fresh CAS resume for the exact D candidate; not full criterion closure or G code acceptance.",
+  "identity": {
+    "reviewed_D_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+    "reviewed_D_tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+    "source_candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+    "source_tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+    "production_implementation": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+    "production_tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+    "source_candidate_descends_from_production": true,
+    "only_candidate_delta_from_production": "policy-engine/tests/unit/scientist/methods/search/test_service_persistence.py (owned fixture contract repair)",
+    "reviewed_runtime_blob_equalities": {
+      "policy-engine/src/polisyos/scientist/methods/search/service.py": "2ddf3636cc56058febebf7599fe87b5fc2d8184c",
+      "policy-engine/src/polisyos/scientist/methods/search/run_state.py": "48a9ecd17de3e9b1d1443cfa7c083df66579375d",
+      "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py": "5530df66c7faa662f7c54878c74b52c46adf0ae0",
+      "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py": "97a775859e8c91bd7713dc4604b194452a6dd83d",
+      "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py": "1557b2264d4bad56dbe425dc26f27a6253ba261b",
+      "policy-engine/tests/unit/scientist/methods/search/test_service_history_binding.py": "3e03f3298cc2a22686cb68a914ff56d8e6f568f4"
+    }
+  },
+  "original_binding": [
+    "B125@CTL-02",
+    "LA-014@SRV-01",
+    "LA-015@CTL-01 (supplier companion only)",
+    "LA-015@SRV-03"
+  ],
+  "runtime_property": "Before receiver mutation, bind the full strategy-consumed prefix and owner state to the persisted service history; restore a fresh CAS reader so the same next proposal is produced and legitimate unconsumed tail is replayed once.",
+  "receipt_scopes": [
+    {
+      "name": "new31",
+      "source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "tree": "2cd7e7058eeb0431b0571b30af3ad80b0b9a3c2668",
+      "pass": 31,
+      "fail": 0,
+      "error": 0,
+      "skip": 0,
+      "junit_sha256": "b57e4e0693631111be00278fa909f471d61dbcaeb0ecef94c74e6e6b9aa3ac18"
+    },
+    {
+      "name": "affected22",
+      "source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+      "pass": 22,
+      "fail": 0,
+      "error": 0,
+      "skip": 0,
+      "junit_sha256": "b2d270f53fcfd28de2933c23fdfb1031ce7d015392f94d9c71f81e81da88d707"
+    },
+    {
+      "name": "consumption-removal1",
+      "source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+      "expected_removal_assertion_failure": 1,
+      "junit_sha256": "fc9d5c668b913f51bd4fab89109dd91d326d16c2c1202eca160c06e109b8cff6"
+    }
+  ],
+  "counts_are_separate_scopes": true,
+  "independent_oracle": {
+    "consumed_prefix": [1, 2],
+    "unconsumed_tail": [4],
+    "expected_next": 8,
+    "law": "1 + sum([1, 2, 4])",
+    "fresh_evaluator_calls": 0
+  },
+  "negative_divergent_case": {
+    "change": "Remove only StrategyAdapter._validate_strategy_consumption while preserving CAS/schema/config/count/rows/digests/service-history/RNG gates; truncate outer consumed count, rows, and digests to one, retaining inner strategy consumed_values [1, 2].",
+    "actual_result": "Fresh restore accepts inconsistent state, skips 1, replays 2 and 4, then proposes 10 instead of 8.",
+    "interpretation": "The removal run is an expected call-phase assertion FAIL, not a current-head product failure; current owner-state validation rejects the case."
+  },
+  "predicate_assessment": {
+    "P37": {
+      "basis": "consumer_asserted",
+      "reason": "The generic service delegates hidden update-state/history relation to the exact strategy owner's validator and refuses unsupported opaque stateful owners; concrete witness is independently checked against arithmetic and next proposal."
+    },
+    "P38": {
+      "property": "Consumed history and state match before restoring the actual fresh consumer.",
+      "implementation": "Validated row/count/digest binding plus owner consumed-state validation before set_state and service-ledger mutation.",
+      "divergent_case": "Removal probe produces next=10 where independent uninterrupted law requires next=8."
+    }
+  },
+  "limitations": [
+    "This is not the entire B125 acceptance (including an exhaustive independent RNG guarantee) and does not close B125/LA-014/LA-015.",
+    "Custom owner validators are trusted contracts; arbitrary runtime replacement/monkeypatching is outside the guarantee.",
+    "Deterministic accumulator is a protocol witness, not scientific/production evaluator evidence.",
+    "NN update-owned direct warm state has no persisted Adapter resume admission; numerical GP, served/default caller, and production data criteria remain separately scoped.",
+    "Full 17,350-path input/origin table is preserved as ignored local raw data, not Git available; full-input portability and P41 remain not_established."
+  ],
+  "formal_finding_closure": false,
+  "G_acceptance": false,
+  "verification_performed_by_reviewer": "Read-only source, exact source/tree lineage, source blob identity, committed handoff, JUnit, removal output, and transport/independent review receipts. No Python tests or installs run."
+}

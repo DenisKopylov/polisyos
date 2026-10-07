@@ -1,0 +1,1806 @@
+{
+  "schema": "policyos.e02.G.D45_continuation_decisions.v1",
+  "receipt_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+  "receipt_tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+  "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "candidate_tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+  "original_denominator": {
+    "bundles": 17,
+    "unique_findings": 45,
+    "criterion_occurrences": 46,
+    "acceptance_binding_occurrences": 46,
+    "original_source_prefix198_is_not_a_count": true
+  },
+  "D_proposal_counts": {
+    "closed": 39,
+    "held": 5,
+    "limited": 1,
+    "open": 0
+  },
+  "formal_closed_new": [],
+  "source_admitted_new": [],
+  "current_missing_reported_by_D": 38,
+  "work_class_counts": {
+    "bounded_current_execution_carry": 3,
+    "limited_external_semantic_input_and_current_delta_check": 1,
+    "owner_input_required_original_positive": 5,
+    "targeted_current_candidate_verification": 37
+  },
+  "basis": "Pinned complete original46 ledger/cards/owners; independent source/receipt review. Classes are planning queues, not fresh test outcomes. Shared dependency only triggers checks on reached affected paths; no blanket tree-hash gate.",
+  "owner_packets": [
+    {
+      "packet": "tenant_split_transfer",
+      "findings": [
+        "B131"
+      ],
+      "class": "actual owner input",
+      "next": "Obtain owner-approved source/target tenant/split/subject refs, metric/unit/direction/evaluator basis, physical parameters/evaluation refs, and permitted reuse/adapter or refusal. Then run exact mechanical CAS admission and positive/refusal. Do not synthesize rights."
+    },
+    {
+      "packet": "authorized_revalidation",
+      "findings": [
+        "B137"
+      ],
+      "class": "actual owner input",
+      "next": "Obtain old/new evidence, actual grounds and occurrence time, purpose authorization, subject/input/rule binding and freshness basis. Existing TTL/read guards are not this positive."
+    },
+    {
+      "packet": "native_draw_producer",
+      "findings": [
+        "B157"
+      ],
+      "class": "producer/input absent",
+      "next": "Use real native draw producer to emit same-run L3 reduced and L4 full effective configs, actual executed draws/work/cost and candidate/input/seed provenance. Foundry20/80 receipt cannot substitute."
+    },
+    {
+      "packet": "same_scope_refinement",
+      "findings": [
+        "B161"
+      ],
+      "class": "actual owner input",
+      "next": "Obtain owner-authorized same-subject/value/input/rule/time relation, prior/later estimate refs and producer evidence; keep independent risk components. Do not invent min/last-write law."
+    },
+    {
+      "packet": "typed_write_permit",
+      "findings": [
+        "B164"
+      ],
+      "class": "actual owner bridge/input absent",
+      "next": "Bind actual issued permit to subject/purpose/input, call existing current verifier/owner API, serialize revoke-before-commit, then exercise valid write and revoked zero-effect control. Boolean marker is not positive authority."
+    },
+    {
+      "packet": "owner_declared_fiscal_profile",
+      "findings": [
+        "B108"
+      ],
+      "class": "issuer semantic input; bounded limited",
+      "next": "Get actual producer owner statement of unit/sign/alias equivalence and missing/conflict policy; keep current typed decoder numeric controls separate. No assumed legal rule."
+    },
+    {
+      "packet": "D_coordinate_volume_corrective",
+      "findings": [
+        "B110",
+        "B111"
+      ],
+      "class": "same-class bounded technical control",
+      "next": "Retain exact independent rational/tiny-positive vs empty-zero and stale/unpaired-axis controls. Re-run only current changed consumer boundary, not a new underflow-based replacement criterion."
+    },
+    {
+      "packet": "A_frontier_default_workflow",
+      "findings": [
+        "B109"
+      ],
+      "class": "separate optional G/A serving edge",
+      "next": "Do not block original B109 math/comparator. Appoint and test only if claiming the ordinary A frontier provider/denominator/bridge."
+    },
+    {
+      "packet": "served_hierarchical_context",
+      "findings": [
+        "LA-014",
+        "LA-015",
+        "B109"
+      ],
+      "class": "separate serving-scope input",
+      "next": "Current native service/factory/history proofs are bounded; an appointed deployed caller/world-model context is not established. Treat as adjacent serving input, not a fabricated original criterion."
+    },
+    {
+      "packet": "E_mutable_cardinality_cap",
+      "findings": [
+        "B106",
+        "B107",
+        "B112",
+        "B113",
+        "B127"
+      ],
+      "class": "E owner / separate DoE plan contract",
+      "next": "E must prove cap is consumed before backend materialization. Do not block D’s exact original scenarios or assert an E sampler law."
+    },
+    {
+      "packet": "ordinary_blueprint_configured_owner",
+      "findings": [
+        "B120",
+        "B158",
+        "B160",
+        "B165"
+      ],
+      "class": "current consumer seam verification",
+      "next": "Use existing configured owner and exact native full/split/recheck receipts; perform the remaining exact Node.run/fresh result check only if the changed run_state/funnel closure remains in the final frozen path. No missing factory inferred."
+    },
+    {
+      "packet": "public_typed_budget_snapshot",
+      "findings": [
+        "B118",
+        "B120",
+        "B121"
+      ],
+      "class": "bounded consumer check already present; additional public API contract",
+      "next": "Preserve typed owner snapshot/readback and explicit memory-only scope. No need to invent new schema authority or prove every policy route."
+    },
+    {
+      "packet": "B_canonical_history_compatibility",
+      "findings": [
+        "LA-014",
+        "LA-015",
+        "B120"
+      ],
+      "class": "bounded compatibility evidence",
+      "next": "Retain exact schema/unknown-ack readback refs; do not infer silent v1 migration or all readers from selected canonical tests."
+    },
+    {
+      "packet": "B_public_API_surface",
+      "findings": [
+        "B118",
+        "B120",
+        "B121",
+        "LA-014",
+        "LA-015"
+      ],
+      "class": "separate quality/surface gate",
+      "next": "Close only if claiming the global API/schema/architecture surface; its incomplete inventory does not negate verified original numeric mechanics."
+    },
+    {
+      "packet": "lossless_gateway_cost",
+      "findings": [
+        "B120"
+      ],
+      "class": "original bounded numerical boundary already has native evidence; factory source delta remains",
+      "next": "Do not require invoice truth or production route. Use native response decode→typed event→single ledger debit, exact lossless tiny-value controls and current configured result consumer. G680 factory10 is older than a795; rerun only if its changed imports remain in the final dependency chain."
+    },
+    {
+      "packet": "owned_multikey_durability",
+      "findings": [
+        "B120",
+        "B158",
+        "B159"
+      ],
+      "class": "owner profile / durability limitation",
+      "next": "Keep event ID/digest/amount/provider and actual reservation receipts; dedup/retry same event. Do not assert distributed power-loss guarantee absent exact original requirement."
+    }
+  ],
+  "rows": [
+    {
+      "id": "B106@STR-01",
+      "finding_id": "B106",
+      "bundle": "STR-01",
+      "role": "canonical_owner",
+      "D_proposal": "closed",
+      "G_formal_status": "not_adjudicated",
+      "current_verification_missing_reported_by_D": true,
+      "work_class": "targeted_current_candidate_verification",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/0"
+      },
+      "acceptance_binding": {
+        "byte_offset": 617064,
+        "bytes": 706,
+        "sha256": "1d212bb12a7346fc8c2480723fddd43da874e2e1daa2d2070a6233ab75795d43"
+      },
+      "property": "Attempted/finite/violated counts precede grouping/top-k; repeated issue occurrences remain distinct, zero/missing basis unavailable, incomplete/adaptive finite fraction conditional; all components including empty/unknown preserve completeness.",
+      "consumer": "Actual stress/challenge producers -> typed1.1 report -> ordinary blueprint _ensure/merge -> real L5 and JSON/CAS fresh reader.",
+      "discriminator": "Identical actual stream at top-k1/20 and distinct occurrence multiplicities keeps23/38; grouped issue count or zero-denominator score1 is divergent.",
+      "changed_selected_paths": [],
+      "changed_dependencies_to_trace": [
+        "policy-engine/src/polisyos/common/async_tools.py"
+      ],
+      "next_action": "Сначала сопоставить original property со всеми actual existing receipts и достигнутыми module paths. Квалифицированно перенести неизменную часть; проверить только затронутую delta/consumer часть с discriminator ниже. Current verification is missing, but selected owner source is unchanged. Preserve its exact historical deciding receipt; first test changed shared dependency once (common/async_tools) and then run only the smallest producer→consumer scenario for this row with the P38 falsifier below. Current import closure is not established, so classify any unbound dependency as not_established instead of repeating all history.",
+      "required_owner_packet": null
+    },
+    {
+      "id": "B107@STR-01",
+      "finding_id": "B107",
+      "bundle": "STR-01",
+      "role": "canonical_owner",
+      "D_proposal": "closed",
+      "G_formal_status": "not_adjudicated",
+      "current_verification_missing_reported_by_D": true,
+      "work_class": "targeted_current_candidate_verification",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/1"
+      },
+      "acceptance_binding": {
+        "byte_offset": 620436,
+        "bytes": 572,
+        "sha256": "83e4adcea92922a6991dbd16937e9dc47cca02d83f0beccf2eb7e2f43623e0a3"
+      },
+      "property": "Declared physical threshold/direction controls for maximized utility and minimized cost; actual worst-case selection follows violation relation, invalid/missing threshold refuses/unavailable.",
+      "consumer": "Real typed CompositeObjective/adversarial and E sensitivity rounds -> producer -> report -> CAS fresh reader.",
+      "discriminator": "Choosing largest raw value for every objective disagrees with cost-minimization worst violation, even when completeness markers persist.",
+      "changed_selected_paths": [],
+      "changed_dependencies_to_trace": [
+        "policy-engine/src/polisyos/common/async_tools.py"
+      ],
+      "next_action": "Сначала сопоставить original property со всеми actual existing receipts и достигнутыми module paths. Квалифицированно перенести неизменную часть; проверить только затронутую delta/consumer часть с discriminator ниже. Current verification is missing, but selected owner source is unchanged. Preserve its exact historical deciding receipt; first test changed shared dependency once (common/async_tools) and then run only the smallest producer→consumer scenario for this row with the P38 falsifier below. Current import closure is not established, so classify any unbound dependency as not_established instead of repeating all history.",
+      "required_owner_packet": null
+    },
+    {
+      "id": "B108@OPT-01",
+      "finding_id": "B108",
+      "bundle": "OPT-01",
+      "role": "canonical_owner",
+      "D_proposal": "limited",
+      "G_formal_status": "not_adjudicated",
+      "current_verification_missing_reported_by_D": true,
+      "work_class": "limited_external_semantic_input_and_current_delta_check",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/2"
+      },
+      "acceptance_binding": {
+        "byte_offset": 651124,
+        "bytes": 480,
+        "sha256": "8d4cbd469a454de4a7f4a26aa91c3fdf8aabf3b2b59bb77651b99146bcaa888c"
+      },
+      "property": "Existing four fiscalaliases rejectpresentnonzeroDecimal/text that underflowtozero, invalid/nonfinite/bool/overflow/conflicts; realcanonicaldecoder→Budget/Composite→Plateau/Target preserves unavailable and truezero/subnormal. Original explicitincompatible-unit law remains actualownerinput.",
+      "consumer": "Actual fiscal extractor/CLI and legacy controller scalar evaluation.",
+      "discriminator": "Float balance and deficit equivalence or metadata unit string does not establish issuer unit/sign law; incompatible-unit positive input remains not_established.",
+      "changed_selected_paths": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "changed_dependencies_to_trace": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "next_action": "Keep the current decoder bounded/limited; do not infer issuer unit/sign/alias semantics. D may re-run only the real fiscal producer→typed quantity consumer and preserve true-zero/subnormal/missing/invalid controls. Closure needs the actual fiscal owner profile: Actual producer/result and source refs; Owner-declared sign/unit/alias equivalence/profile; Measurement and applicable time/context basis; Real conflict/missing policy for that producer.",
+      "required_owner_packet": "owner_declared_fiscal_profile"
+    },
+    {
+      "id": "B109@OPT-01",
+      "finding_id": "B109",
+      "bundle": "OPT-01",
+      "role": "canonical_owner",
+      "D_proposal": "closed",
+      "G_formal_status": "not_adjudicated",
+      "current_verification_missing_reported_by_D": true,
+      "work_class": "targeted_current_candidate_verification",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/3"
+      },
+      "acceptance_binding": {
+        "byte_offset": 654995,
+        "bytes": 686,
+        "sha256": "784670e535c99a1baee35da6689f515779b3b616a5829ab125c608fcc4f712b3"
+      },
+      "property": "Fast normalized finite-front agrees with independent strict all-pairs dominance across1–4D, input/whole-axis permutations, every direction pattern, one/all-coordinate ties, retaining distinct equal candidate IDs; actual typed full-coordinate front CAS round-trip tested.",
+      "consumer": "ParetoPromoter.compute_front → typed ParetoFront → actual FileSystemCAS → fresh FileSystemCAS/load_model_artifact → actual ParetoPromoter.is_dominated.",
+      "discriminator": "Independent all-pairs/Fraction oracle, tied-coordinate/permuted-front control disagrees with strict-per-axis fast path; optional A provider is not this comparator predicate.",
+      "changed_selected_paths": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "changed_dependencies_to_trace": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "next_action": "Сначала сопоставить original property со всеми actual existing receipts и достигнутыми module paths. Квалифицированно перенести неизменную часть; проверить только затронутую delta/consumer часть с discriminator ниже. Current verification is missing. On exact a795/tree, execute the smallest existing test path that crosses the real owner consumer for this row after binding changed selected owner source (policy-engine/src/polisyos/scientist/methods/autotune/runtime.py) and changed imported dependencies (policy-engine/src/polisyos/common/async_tools.py; policy-engine/src/polisyos/scientist/methods/autotune/runtime.py). Assert the original runtime_property and the P38 discriminator below through the named consumer; retain stdout/JUnit and import origins. При FAIL определить первую реально расходящуюся функцию и её canonical writer; current reproduction само по себе не атрибутирует введение D. P41 остаётся not_established до exact slice-base replay и input-denominator proof. Не расширять до unrelated full-package CI.",
+      "required_owner_packet": null
+    },
+    {
+      "id": "B110@OPT-01",
+      "finding_id": "B110",
+      "bundle": "OPT-01",
+      "role": "canonical_owner",
+      "D_proposal": "closed",
+      "G_formal_status": "not_adjudicated",
+      "current_verification_missing_reported_by_D": true,
+      "work_class": "targeted_current_candidate_verification",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/4"
+      },
+      "acceptance_binding": {
+        "byte_offset": 658592,
+        "bytes": 455,
+        "sha256": "199ef2ac1ae718655b08fbb78829e6ed0768b46df5d1b99fad56aa69181c1184"
+      },
+      "property": "Full metric+split+unit+direction+definition-version identities bind raw/normalized values and reference; same-metric different-split tradeoff survives actual CAS; complete-axis permutations/display label changes preserve relation; duplicate full identity and stale schema/version/unit/direction/split identity refuse.",
+      "consumer": "ParetoPromoter.compute_front → typed ParetoFront → actual FileSystemCAS → fresh FileSystemCAS/load_model_artifact → actual ParetoPromoter.is_dominated.",
+      "discriminator": "Display label change preserves relation; different split retains separate coordinate; duplicate full identity refuses instead of dropping one labelled dimension.",
+      "changed_selected_paths": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "changed_dependencies_to_trace": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "next_action": "Сначала сопоставить original property со всеми actual existing receipts и достигнутыми module paths. Квалифицированно перенести неизменную часть; проверить только затронутую delta/consumer часть с discriminator ниже. Current verification is missing. On exact a795/tree, execute the smallest existing test path that crosses the real owner consumer for this row after binding changed selected owner source (policy-engine/src/polisyos/scientist/methods/autotune/runtime.py) and changed imported dependencies (policy-engine/src/polisyos/common/async_tools.py; policy-engine/src/polisyos/scientist/methods/autotune/runtime.py). Assert the original runtime_property and the P38 discriminator below through the named consumer; retain stdout/JUnit and import origins. При FAIL определить первую реально расходящуюся функцию и её canonical writer; current reproduction само по себе не атрибутирует введение D. P41 остаётся not_established до exact slice-base replay и input-denominator proof. Не расширять до unrelated full-package CI.",
+      "required_owner_packet": null
+    },
+    {
+      "id": "B111@OPT-01",
+      "finding_id": "B111",
+      "bundle": "OPT-01",
+      "role": "canonical_owner",
+      "D_proposal": "closed",
+      "G_formal_status": "not_adjudicated",
+      "current_verification_missing_reported_by_D": true,
+      "work_class": "targeted_current_candidate_verification",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/5"
+      },
+      "acceptance_binding": {
+        "byte_offset": 662708,
+        "bytes": 484,
+        "sha256": "4d1c7ff7de3b274c2aa4e16230b323102adacd871d551f30616d9d8f3b2eec65"
+      },
+      "property": "Fulloriginaltypedquantity/front/reference/finite/missing/nonfinite states plus actualnative missing/statusnotok→None/NaN unsatisfied/nonpromising/no best/front/champion versus genuine0/1 persistedfresh readback. Rationalpositiveunderflow is separateclass, not substitutecriterion.",
+      "consumer": "ActualParetoRegistry/CASreadback+MOBayesianOptimizer; nativeRunner→typedBenchmarkEvaluation→Objective/Controller/Service→qualifiedCASfreshreader→Champion. Exactpriormathematical/oracle outputs plusactual969native48/Champion44/fourcontrols and680fiscalinput18 current.",
+      "discriminator": "Producer assessment/available markers cannot substitute for actual quantity; typed metrics{} previously became numeric0 in native best/front/CAS. Genuine measured0 versus missing/status-error must diverge in current actual native consumer. Rational positive underflow is separate bounded class.",
+      "changed_selected_paths": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "changed_dependencies_to_trace": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "next_action": "Сначала сопоставить original property со всеми actual existing receipts и достигнутыми module paths. Квалифицированно перенести неизменную часть; проверить только затронутую delta/consumer часть с discriminator ниже. Current verification is missing. On exact a795/tree, execute the smallest existing test path that crosses the real owner consumer for this row after binding changed selected owner source (policy-engine/src/polisyos/scientist/methods/autotune/runtime.py) and changed imported dependencies (policy-engine/src/polisyos/common/async_tools.py; policy-engine/src/polisyos/scientist/methods/autotune/runtime.py). Assert the original runtime_property and the P38 discriminator below through the named consumer; retain stdout/JUnit and import origins. При FAIL определить первую реально расходящуюся функцию и её canonical writer; current reproduction само по себе не атрибутирует введение D. P41 остаётся not_established до exact slice-base replay и input-denominator proof. Не расширять до unrelated full-package CI.",
+      "required_owner_packet": null
+    },
+    {
+      "id": "B112@OPT-02",
+      "finding_id": "B112",
+      "bundle": "OPT-02",
+      "role": "canonical_owner",
+      "D_proposal": "closed",
+      "G_formal_status": "not_adjudicated",
+      "current_verification_missing_reported_by_D": true,
+      "work_class": "targeted_current_candidate_verification",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/6"
+      },
+      "acceptance_binding": {
+        "byte_offset": 666318,
+        "bytes": 541,
+        "sha256": "346a175ccdf5884dc409464a2363ff08bee370b2e406d2aa45a103abcedf7234"
+      },
+      "property": "Ordinary configured SearchController → existing configured transfer bridge → real CAS8 → first actual SingleTaskGP proposal, initial fit1. Current category/log physical coordinate codecs and absent optional stack profile separately verified. Instrumentation delegates real backend; no manual consumer repair.",
+      "consumer": "Ordinary configured SearchController → existing configured transfer bridge → real CAS8 → first actual SingleTaskGP proposal, initial fit1. Current category/log physical coordinate codecs and absent optional stack profile separately verified. Instrumentation delegates real backend; no manual consumer repair.",
+      "discriminator": "Contract-only or mock suggest can pass despite missing backend/configured-action bridge; actual supported SingleTaskGP acquisitions and minimal SKIP->UNRUN separate.",
+      "changed_selected_paths": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py"
+      ],
+      "changed_dependencies_to_trace": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py"
+      ],
+      "next_action": "Сначала сопоставить original property со всеми actual existing receipts и достигнутыми module paths. Квалифицированно перенести неизменную часть; проверить только затронутую delta/consumer часть с discriminator ниже. Current verification is missing. On exact a795/tree, execute the smallest existing test path that crosses the real owner consumer for this row after binding changed selected owner source (policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py; policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py) and changed imported dependencies (policy-engine/src/polisyos/common/async_tools.py; policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py; policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py). Assert the original runtime_property and the P38 discriminator below through the named consumer; retain stdout/JUnit and import origins. При FAIL определить первую реально расходящуюся функцию и её canonical writer; current reproduction само по себе не атрибутирует введение D. P41 остаётся not_established до exact slice-base replay и input-denominator proof. Не расширять до unrelated full-package CI.",
+      "required_owner_packet": null
+    },
+    {
+      "id": "B113@OPT-02",
+      "finding_id": "B113",
+      "bundle": "OPT-02",
+      "role": "canonical_owner",
+      "D_proposal": "closed",
+      "G_formal_status": "not_adjudicated",
+      "current_verification_missing_reported_by_D": true,
+      "work_class": "targeted_current_candidate_verification",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/7"
+      },
+      "acceptance_binding": {
+        "byte_offset": 669842,
+        "bytes": 688,
+        "sha256": "a58659486c95650eb9a6228a8df62809daede33c44d147794b7f4e78d7ed7624"
+      },
+      "property": "New min/max mixed2 SearchIteration +2 dict history → actual public BayesianCandidateGenerator.generate → native trainX/Y/full IDs/split/origin/direction → whole wrapper CAS/fresh reader restore0/next public generate no-refit; physical/category codecs and unmeasured exclusion current State142/GP43. Existing direct _fit_gp2 selectors are retained separately, not misattributed to generate.",
+      "consumer": "New min/max mixed2 SearchIteration +2 dict history → actual public BayesianCandidateGenerator.generate → native trainX/Y/full IDs/split/origin/direction → whole wrapper CAS/fresh reader restore0/next public generate no-refit; physical/category codecs and unmeasured exclusion current State142/GP43. Existing direct _fit_gp2 selectors are retained separately, not misattributed to generate.",
+      "discriminator": "Flattened short IDs, categorical coordinates or absent->0 can preserve input count while actual train_X/train_Y/full IDs are wrong; direct private fit is not public caller proof.",
+      "changed_selected_paths": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py"
+      ],
+      "changed_dependencies_to_trace": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py"
+      ],
+      "next_action": "Сначала сопоставить original property со всеми actual existing receipts и достигнутыми module paths. Квалифицированно перенести неизменную часть; проверить только затронутую delta/consumer часть с discriminator ниже. Current verification is missing. On exact a795/tree, execute the smallest existing test path that crosses the real owner consumer for this row after binding changed selected owner source (policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py; policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py) and changed imported dependencies (policy-engine/src/polisyos/common/async_tools.py; policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py; policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py). Assert the original runtime_property and the P38 discriminator below through the named consumer; retain stdout/JUnit and import origins. При FAIL определить первую реально расходящуюся функцию и её canonical writer; current reproduction само по себе не атрибутирует введение D. P41 остаётся not_established до exact slice-base replay и input-denominator proof. Не расширять до unrelated full-package CI.",
+      "required_owner_packet": null
+    },
+    {
+      "id": "B114@OPT-03",
+      "finding_id": "B114",
+      "bundle": "OPT-03",
+      "role": "canonical_owner",
+      "D_proposal": "closed",
+      "G_formal_status": "not_adjudicated",
+      "current_verification_missing_reported_by_D": true,
+      "work_class": "targeted_current_candidate_verification",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/8"
+      },
+      "acceptance_binding": {
+        "byte_offset": 673433,
+        "bytes": 506,
+        "sha256": "b2eab2dd0f76dd6fe89611272edc500c3b3d5e0ef5fa5857251aa73944c096b3"
+      },
+      "property": "Same effective10-row corpus whole versus8 warm+2 new → equal actual training/fullcov/native plan; full origin duplicate removed only for same artifact, explicit independent replicas retained. Rejected nan/hugeint/bool/missingorigin/coordinate/basis records have explicit current reasons; report removal after real warm_start retains corpus and produces3FAIL. Real configured CAS8 plus changed-ref/basis/direction/false-outcome negatives before fit.",
+      "consumer": "Same effective10-row corpus whole versus8 warm+2 new → equal actual training/fullcov/native plan; full origin duplicate removed only for same artifact, explicit independent replicas retained. Rejected nan/hugeint/bool/missingorigin/coordinate/basis records have explicit current reasons; report removal after real warm_start retains corpus and produces3FAIL. Real configured CAS8 plus changed-ref/basis/direction/false-outcome negatives before fit.",
+      "discriminator": "Warm metadata/state alone does not prove GPtraining; actual8rows exclude identicalorigin duplicate but retain same-x independentreplica2, real CAS8/7 fits and dense independent oracle.",
+      "changed_selected_paths": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py"
+      ],
+      "changed_dependencies_to_trace": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py"
+      ],
+      "next_action": "Сначала сопоставить original property со всеми actual existing receipts и достигнутыми module paths. Квалифицированно перенести неизменную часть; проверить только затронутую delta/consumer часть с discriminator ниже. Current verification is missing. On exact a795/tree, execute the smallest existing test path that crosses the real owner consumer for this row after binding changed selected owner source (policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py) and changed imported dependencies (policy-engine/src/polisyos/common/async_tools.py; policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py). Assert the original runtime_property and the P38 discriminator below through the named consumer; retain stdout/JUnit and import origins. При FAIL определить первую реально расходящуюся функцию и её canonical writer; current reproduction само по себе не атрибутирует введение D. P41 остаётся not_established до exact slice-base replay и input-denominator proof. Не расширять до unrelated full-package CI.",
+      "required_owner_packet": null
+    },
+    {
+      "id": "B115@OPT-03",
+      "finding_id": "B115",
+      "bundle": "OPT-03",
+      "role": "canonical_owner",
+      "D_proposal": "closed",
+      "G_formal_status": "not_adjudicated",
+      "current_verification_missing_reported_by_D": true,
+      "work_class": "targeted_current_candidate_verification",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/9"
+      },
+      "acceptance_binding": {
+        "byte_offset": 676923,
+        "bytes": 564,
+        "sha256": "60c5a8366edbd7193eafd15fb6c048061373a4dac4502e54b328c78b75225156"
+      },
+      "property": "Actual SingleTaskGP fitted mean/kernel/noise/transforms/modelweights/RNG/corpus restored; independent original-unit10/11-point mean/fullcov; same-basis restore/append0 MLL, initial1/due or basischange>0. Marker-preserving fitted-state mutation/removal refuses or changes numerical result. Individual observed MLL walltime plus scope RSS/wall recorded separately from numerical error, no fixture theta treated as learned parameter.",
+      "consumer": "Actual SingleTaskGP fitted mean/kernel/noise/transforms/modelweights/RNG/corpus restored; independent original-unit10/11-point mean/fullcov; same-basis restore/append0 MLL, initial1/due or basischange>0. Marker-preserving fitted-state mutation/removal refuses or changes numerical result. Individual observed MLL walltime plus scope RSS/wall recorded separately from numerical error, no fixture theta treated as learned parameter.",
+      "discriminator": "State markers or same-model posterior oracle do not prove learned restore; fixed-parameter independent NumPy fullcov, actual MLL traces initial1/resume0 and state mutation fail-or-diverge discriminate.",
+      "changed_selected_paths": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py"
+      ],
+      "changed_dependencies_to_trace": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py"
+      ],
+      "next_action": "Сначала сопоставить original property со всеми actual existing receipts и достигнутыми module paths. Квалифицированно перенести неизменную часть; проверить только затронутую delta/consumer часть с discriminator ниже. Current verification is missing. On exact a795/tree, execute the smallest existing test path that crosses the real owner consumer for this row after binding changed selected owner source (policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py) and changed imported dependencies (policy-engine/src/polisyos/common/async_tools.py; policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py). Assert the original runtime_property and the P38 discriminator below through the named consumer; retain stdout/JUnit and import origins. При FAIL определить первую реально расходящуюся функцию и её canonical writer; current reproduction само по себе не атрибутирует введение D. P41 остаётся not_established до exact slice-base replay и input-denominator proof. Не расширять до unrelated full-package CI.",
+      "required_owner_packet": null
+    },
+    {
+      "id": "B116@OPT-04",
+      "finding_id": "B116",
+      "bundle": "OPT-04",
+      "role": "canonical_owner",
+      "D_proposal": "closed",
+      "G_formal_status": "not_adjudicated",
+      "current_verification_missing_reported_by_D": true,
+      "work_class": "targeted_current_candidate_verification",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/10"
+      },
+      "acceptance_binding": {
+        "byte_offset": 680728,
+        "bytes": 486,
+        "sha256": "838816f2bb639f8c98b0972d2433933f1d8c3f39d8d14f6ee03d52f59c4004ab"
+      },
+      "property": "Actual existing evaluator→candidate/evaluation/suite persisted qualified ArtifactRefs→registry→freshprocess. All wrongpair/loop/policy/split/suite/profile inputs refuse with exact reason before pointer effect; authentic samebasis improvement/reused content/cold reader exercised.",
+      "consumer": "Actual native B manifest-qualified evaluator -> ChampionRegistry -> cold read.",
+      "discriminator": "Replay/cache labels or metadata pair permit swapped/foreign refs; actual canonical snapshot byte verification and pair/basis negatives refuse without pointer change.",
+      "changed_selected_paths": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "changed_dependencies_to_trace": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "next_action": "Сначала сопоставить original property со всеми actual existing receipts и достигнутыми module paths. Квалифицированно перенести неизменную часть; проверить только затронутую delta/consumer часть с discriminator ниже. Current verification is missing. On exact a795/tree, execute the smallest existing test path that crosses the real owner consumer for this row after binding changed selected owner source (policy-engine/src/polisyos/scientist/methods/autotune/runtime.py) and changed imported dependencies (policy-engine/src/polisyos/common/async_tools.py; policy-engine/src/polisyos/scientist/methods/autotune/runtime.py). Assert the original runtime_property and the P38 discriminator below through the named consumer; retain stdout/JUnit and import origins. При FAIL определить первую реально расходящуюся функцию и её canonical writer; current reproduction само по себе не атрибутирует введение D. P41 остаётся not_established до exact slice-base replay и input-denominator proof. Не расширять до unrelated full-package CI.",
+      "required_owner_packet": null
+    },
+    {
+      "id": "B117@OPT-04",
+      "finding_id": "B117",
+      "bundle": "OPT-04",
+      "role": "canonical_owner",
+      "D_proposal": "closed",
+      "G_formal_status": "not_adjudicated",
+      "current_verification_missing_reported_by_D": true,
+      "work_class": "targeted_current_candidate_verification",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/11"
+      },
+      "acceptance_binding": {
+        "byte_offset": 684423,
+        "bytes": 777,
+        "sha256": "9bc6c9b17b4234d10455cb41f4a8e6380c31163687291bb38242529bb954d319"
+      },
+      "property": "Current44 actual canonical under-lock predecessor reread, competing native writer stale-pair explicit refusal, os._exit before/after pointer replacement fresh coherentold/new; no actualproductionmultihost/powerloss promise.",
+      "consumer": "Actual local writers and filesystem champion pointer fresh readers.",
+      "discriminator": "Pre-lock stale improvement can overwrite current best; actual competing writers/heldlock freshprocess and before/after os._exit show protected pointer, not distributed/powerloss claim.",
+      "changed_selected_paths": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "changed_dependencies_to_trace": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "next_action": "Сначала сопоставить original property со всеми actual existing receipts и достигнутыми module paths. Квалифицированно перенести неизменную часть; проверить только затронутую delta/consumer часть с discriminator ниже. Current verification is missing. On exact a795/tree, execute the smallest existing test path that crosses the real owner consumer for this row after binding changed selected owner source (policy-engine/src/polisyos/scientist/methods/autotune/runtime.py) and changed imported dependencies (policy-engine/src/polisyos/common/async_tools.py; policy-engine/src/polisyos/scientist/methods/autotune/runtime.py). Assert the original runtime_property and the P38 discriminator below through the named consumer; retain stdout/JUnit and import origins. При FAIL определить первую реально расходящуюся функцию и её canonical writer; current reproduction само по себе не атрибутирует введение D. P41 остаётся not_established до exact slice-base replay и input-denominator proof. Не расширять до unrelated full-package CI.",
+      "required_owner_packet": null
+    },
+    {
+      "id": "B118@CTL-01",
+      "finding_id": "B118",
+      "bundle": "CTL-01",
+      "role": "canonical_owner",
+      "D_proposal": "closed",
+      "G_formal_status": "not_adjudicated",
+      "current_verification_missing_reported_by_D": true,
+      "work_class": "targeted_current_candidate_verification",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/12"
+      },
+      "acceptance_binding": {
+        "byte_offset": 715794,
+        "bytes": 671,
+        "sha256": "0b2c57a0df378303470a151c0d9ffa22e3e8eaa952e3f607113478a80e9581f0"
+      },
+      "property": "Actual two same-controller paid runs vs two fresh controls, cumulative durable2->4 event prefix, first snapshot detached, concurrent nonreentrant refusal; state-reset/sentinel removals produce actualpaid count divergence.",
+      "consumer": "Actual two same-controller paid runs vs two fresh controls, cumulative durable2->4 event prefix, first snapshot detached, concurrent nonreentrant refusal; state-reset/sentinel removals produce actualpaid count divergence.",
+      "discriminator": "New SearchID/RUNNING marker can coexist with retained prior counters/history; removal run_reset retains markers and second charged scope2vs4 distinguishes.",
+      "changed_selected_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+        "policy-engine/src/polisyos/scientist/methods/search/service.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "changed_dependencies_to_trace": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+        "policy-engine/src/polisyos/scientist/methods/search/service.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "next_action": "Сначала сопоставить original property со всеми actual existing receipts и достигнутыми module paths. Квалифицированно перенести неизменную часть; проверить только затронутую delta/consumer часть с discriminator ниже. Current verification is missing. On exact a795/tree, execute the smallest existing test path that crosses the real owner consumer for this row after binding changed selected owner source (policy-engine/src/polisyos/scientist/methods/search/run_state.py; policy-engine/src/polisyos/scientist/methods/search/service.py; policy-engine/src/polisyos/scientist/methods/autotune/runtime.py) and changed imported dependencies (policy-engine/src/polisyos/common/async_tools.py; policy-engine/src/polisyos/scientist/methods/search/run_state.py; policy-engine/src/polisyos/scientist/methods/search/service.py; policy-engine/src/polisyos/scientist/methods/autotune/runtime.py). Assert the original runtime_property and the P38 discriminator below through the named consumer; retain stdout/JUnit and import origins. При FAIL определить первую реально расходящуюся функцию и её canonical writer; current reproduction само по себе не атрибутирует введение D. P41 остаётся not_established до exact slice-base replay и input-denominator proof. Не расширять до unrelated full-package CI.",
+      "required_owner_packet": null
+    },
+    {
+      "id": "B119@CTL-01",
+      "finding_id": "B119",
+      "bundle": "CTL-01",
+      "role": "canonical_owner",
+      "D_proposal": "closed",
+      "G_formal_status": "not_adjudicated",
+      "current_verification_missing_reported_by_D": true,
+      "work_class": "targeted_current_candidate_verification",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/13"
+      },
+      "acceptance_binding": {
+        "byte_offset": 719593,
+        "bytes": 531,
+        "sha256": "2df8d82c78083a0795327b04b6d0175330efa9f45f87e41b60ae40f89c635f97"
+      },
+      "property": "Permanent/transient empty, finite exhausted/partial, actualgenerator cancellation/failure reasons and bounded cleanup/generation-attempt state in actualService41/CTL30; paid resource controls in literal two-run workflow.",
+      "consumer": "Permanent/transient empty, finite exhausted/partial, actualgenerator cancellation/failure reasons and bounded cleanup/generation-attempt state in actualService41/CTL30; paid resource controls in literal two-run workflow.",
+      "discriminator": "Generated batch length alone loses physical external paid cost and reason; real StopIteration/ValueError/CancelledError paid producers and fresh ledger discriminate.",
+      "changed_selected_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+        "policy-engine/src/polisyos/scientist/methods/search/service.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "changed_dependencies_to_trace": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+        "policy-engine/src/polisyos/scientist/methods/search/service.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "next_action": "Сначала сопоставить original property со всеми actual existing receipts и достигнутыми module paths. Квалифицированно перенести неизменную часть; проверить только затронутую delta/consumer часть с discriminator ниже. Current verification is missing. On exact a795/tree, execute the smallest existing test path that crosses the real owner consumer for this row after binding changed selected owner source (policy-engine/src/polisyos/scientist/methods/search/run_state.py; policy-engine/src/polisyos/scientist/methods/search/service.py; policy-engine/src/polisyos/scientist/methods/autotune/runtime.py) and changed imported dependencies (policy-engine/src/polisyos/common/async_tools.py; policy-engine/src/polisyos/scientist/methods/search/run_state.py; policy-engine/src/polisyos/scientist/methods/search/service.py; policy-engine/src/polisyos/scientist/methods/autotune/runtime.py). Assert the original runtime_property and the P38 discriminator below through the named consumer; retain stdout/JUnit and import origins. При FAIL определить первую реально расходящуюся функцию и её canonical writer; current reproduction само по себе не атрибутирует введение D. P41 остаётся not_established до exact slice-base replay и input-denominator proof. Не расширять до unrelated full-package CI.",
+      "required_owner_packet": null
+    },
+    {
+      "id": "B120@CTL-03",
+      "finding_id": "B120",
+      "bundle": "CTL-03",
+      "role": "canonical_owner",
+      "D_proposal": "closed",
+      "G_formal_status": "not_adjudicated",
+      "current_verification_missing_reported_by_D": true,
+      "work_class": "targeted_current_candidate_verification",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/14"
+      },
+      "acceptance_binding": {
+        "byte_offset": 723119,
+        "bytes": 465,
+        "sha256": "fc2bdc0f5a2f9ab501ed9195ce1b0116184989c4a1c66c6fd3ab34716b4fb8d6"
+      },
+      "property": "Actual native configured call → lossless canonical response-text B decoder → B1.2 idempotent persisted receipt/pending → current owner snapshot/precheck → CostBudgetStopping/controller/result/funnel → reopened ledger/CAS. Paid1 known, exact retry/cache zero new charge with current issuer/content/context/fresh paid origin; tiny ±nonzero/invalid present remain pending and never project zero. Actual public factory10 after normal import repair and physical owner-change barrier; owner-refresh removal1 leaves false old0 insteadNone and fails.",
+      "consumer": "Real GatewayLLMClient response bytes/LLMBudgetEnforcer/BudgetMiddleware/FileBudgetLedger; native worker/orchestrator and public SearchLoopRunner.create_service/resume; live state/stopping and fresh canonical snapshot/CAS report.",
+      "discriminator": "Tracecost1 or estimate is not settlement; same retained trace/typed ACK without ledger charge refuses. Response-text±1e-1000 must remain tiny unknown, not literal0; after-preflight physicalunknown then rollback must remainNone/fenced, not stale known0.",
+      "changed_selected_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "changed_dependencies_to_trace": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "next_action": "Сначала сопоставить original property со всеми actual existing receipts и достигнутыми module paths. Квалифицированно перенести неизменную часть; проверить только затронутую delta/consumer часть с discriminator ниже. Current verification is missing. On exact a795/tree, execute the smallest existing test path that crosses the real owner consumer for this row after binding changed selected owner source (policy-engine/src/polisyos/scientist/methods/search/run_state.py; policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py) and changed imported dependencies (policy-engine/src/polisyos/common/async_tools.py; policy-engine/src/polisyos/scientist/methods/search/run_state.py; policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py). Assert the original runtime_property and the P38 discriminator below through the named consumer; retain stdout/JUnit and import origins. При FAIL определить первую реально расходящуюся функцию и её canonical writer; current reproduction само по себе не атрибутирует введение D. P41 остаётся not_established до exact slice-base replay и input-denominator proof. Не расширять до unrelated full-package CI.",
+      "required_owner_packet": null
+    },
+    {
+      "id": "B121@CTL-03",
+      "finding_id": "B121",
+      "bundle": "CTL-03",
+      "role": "canonical_owner",
+      "D_proposal": "closed",
+      "G_formal_status": "not_adjudicated",
+      "current_verification_missing_reported_by_D": true,
+      "work_class": "targeted_current_candidate_verification",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/15"
+      },
+      "acceptance_binding": {
+        "byte_offset": 726866,
+        "bytes": 439,
+        "sha256": "926f2f672300e9dd03830f1677ba7354bf461218ef9c41841e1f9f6a72f30548"
+      },
+      "property": "Declared new-evaluation allowance preserved with warm history; sentinel paid but excluded best/front/training/new counts; actualpaidworker/B1.2 settlement/freshreader.",
+      "consumer": "Declared new-evaluation allowance preserved with warm history; sentinel paid but excluded best/front/training/new counts; actualpaidworker/B1.2 settlement/freshreader.",
+      "discriminator": "Counting warm rows against new allowance or unpaid sentinel can preserve stage count while wrong physical resource/usefulness; actual paid two-run and sentinel-removal controls expose.",
+      "changed_selected_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "changed_dependencies_to_trace": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "next_action": "Сначала сопоставить original property со всеми actual existing receipts и достигнутыми module paths. Квалифицированно перенести неизменную часть; проверить только затронутую delta/consumer часть с discriminator ниже. Current verification is missing. On exact a795/tree, execute the smallest existing test path that crosses the real owner consumer for this row after binding changed selected owner source (policy-engine/src/polisyos/scientist/methods/search/run_state.py; policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py) and changed imported dependencies (policy-engine/src/polisyos/common/async_tools.py; policy-engine/src/polisyos/scientist/methods/search/run_state.py; policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py). Assert the original runtime_property and the P38 discriminator below through the named consumer; retain stdout/JUnit and import origins. При FAIL определить первую реально расходящуюся функцию и её canonical writer; current reproduction само по себе не атрибутирует введение D. P41 остаётся not_established до exact slice-base replay и input-denominator proof. Не расширять до unrelated full-package CI.",
+      "required_owner_packet": null
+    },
+    {
+      "id": "B122@STP-01",
+      "finding_id": "B122",
+      "bundle": "STP-01",
+      "role": "canonical_owner",
+      "D_proposal": "closed",
+      "G_formal_status": "not_adjudicated",
+      "current_verification_missing_reported_by_D": true,
+      "work_class": "targeted_current_candidate_verification",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/16"
+      },
+      "acceptance_binding": {
+        "byte_offset": 729833,
+        "bytes": 584,
+        "sha256": "9fb880ce2c75c7770deca54b1861fb86071f57aa1e4db5e51793fcfac56b115e"
+      },
+      "property": "Signed zero/small-value plateau uses normalized direction and declared unit/profile tolerance; regression/progress differ and true stop preserves prior best.",
+      "consumer": "Actual plateau check -> native/controller stopping -> returned best; Decimal analytic oracle.",
+      "discriminator": "Absolute delta or signless relative improvement falsely declares plateau after real progress/regression; independent Decimal direction table and actual controller best readback discriminate.",
+      "changed_selected_paths": [],
+      "changed_dependencies_to_trace": [
+        "policy-engine/src/polisyos/common/async_tools.py"
+      ],
+      "next_action": "Сначала сопоставить original property со всеми actual existing receipts и достигнутыми module paths. Квалифицированно перенести неизменную часть; проверить только затронутую delta/consumer часть с discriminator ниже. Current verification is missing, but selected owner source is unchanged. Preserve its exact historical deciding receipt; first test changed shared dependency once (common/async_tools) and then run only the smallest producer→consumer scenario for this row with the P38 falsifier below. Current import closure is not established, so classify any unbound dependency as not_established instead of repeating all history.",
+      "required_owner_packet": null
+    },
+    {
+      "id": "B123@CTL-03",
+      "finding_id": "B123",
+      "bundle": "CTL-03",
+      "role": "canonical_owner",
+      "D_proposal": "closed",
+      "G_formal_status": "not_adjudicated",
+      "current_verification_missing_reported_by_D": true,
+      "work_class": "targeted_current_candidate_verification",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/17"
+      },
+      "acceptance_binding": {
+        "byte_offset": 733728,
+        "bytes": 643,
+        "sha256": "e38f999cb45a59fb619e7f89e35f20f752b4f0be6d279b6136de1f674b45befd"
+      },
+      "property": "Actual typed resolver->realObjectiveStack->best/frontier/history->actualCASpublication->freshrestore/resume; malformed-present refuses scalar fallback, absentlegacy100 and correcttyped inputs distinct. Actualremovalinvalid2FAIL/valid2PASS.",
+      "consumer": "Actual typed resolver->realObjectiveStack->best/frontier/history->actualCASpublication->freshrestore/resume; malformed-present refuses scalar fallback, absentlegacy100 and correcttyped inputs distinct. Actualremovalinvalid2FAIL/valid2PASS.",
+      "discriminator": "Scalar fallback -/100 or positive typed marker can hide invalid-present; guard removal yields actual stack/result divergence, while absent legacy100 and typed vector/bundle JSON custody positive remain.",
+      "changed_selected_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "changed_dependencies_to_trace": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "next_action": "Сначала сопоставить original property со всеми actual existing receipts и достигнутыми module paths. Квалифицированно перенести неизменную часть; проверить только затронутую delta/consumer часть с discriminator ниже. Current verification is missing. On exact a795/tree, execute the smallest existing test path that crosses the real owner consumer for this row after binding changed selected owner source (policy-engine/src/polisyos/scientist/methods/search/run_state.py; policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py) and changed imported dependencies (policy-engine/src/polisyos/common/async_tools.py; policy-engine/src/polisyos/scientist/methods/search/run_state.py; policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py). Assert the original runtime_property and the P38 discriminator below through the named consumer; retain stdout/JUnit and import origins. При FAIL определить первую реально расходящуюся функцию и её canonical writer; current reproduction само по себе не атрибутирует введение D. P41 остаётся not_established до exact slice-base replay и input-denominator proof. Не расширять до unrelated full-package CI.",
+      "required_owner_packet": null
+    },
+    {
+      "id": "B124@CTL-02",
+      "finding_id": "B124",
+      "bundle": "CTL-02",
+      "role": "canonical_owner",
+      "D_proposal": "closed",
+      "G_formal_status": "not_adjudicated",
+      "current_verification_missing_reported_by_D": false,
+      "work_class": "bounded_current_execution_carry",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/18"
+      },
+      "acceptance_binding": {
+        "byte_offset": 737560,
+        "bytes": 620,
+        "sha256": "dcfbad092c0072a6fb2c7094e9b53f0fa51977ab80a742ace74838785f9a1133"
+      },
+      "property": "Canonicalfullpayload/semanticdate/traceJSON/declaredreplica identity wiredbefore ordinaryevaluation; validreturnedhash cannotreplacecontent. Soleacknowledgedqualifiedcheckpoint binds currentevaluator/context/runID beforeask/tell/checkpoint/pendingeval, retainsfirstACKrollback, explicitnewrun only retiresbasis; sharedcanonicalhelper barrier runscope isolated.",
+      "consumer": "ActualpublicRunner.run/create_service/resume→existingTrialDeduplicator→nativeServiceask/evaluate/tell/checkpoint→realCASfreshchild/datedregistry; current40+8/4realremovals actual969, fullsourcequalified680 objective-onlydiff.",
+      "discriminator": "Dedup option/helper PASS or supplied candidate-hash marker can coexist with extra actual Jan calls/date-collapse. Actual physical trace7/currenthistory4, fresh pending reader, valid retained marker registry2 and live/initialACK scope changes discriminate.",
+      "changed_selected_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py",
+        "policy-engine/src/polisyos/scientist/methods/search/service.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "changed_dependencies_to_trace": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "currentNativeSearchService/StrategyAdapter/Bayesianwrapper/FUN sourcebranches"
+      ],
+      "next_action": "Carry the exact bounded current receipt for the executed source/cohort and scope in current_output_evidence. No broad rerun. If any listed changed import advances after a795, rerun only its affected consumer and source-removal/fresh-read discriminator; do not upgrade this row to whole deployment/global API coverage.",
+      "required_owner_packet": null
+    },
+    {
+      "id": "B125@CTL-02",
+      "finding_id": "B125",
+      "bundle": "CTL-02",
+      "role": "canonical_owner",
+      "D_proposal": "closed",
+      "G_formal_status": "not_adjudicated",
+      "current_verification_missing_reported_by_D": true,
+      "work_class": "targeted_current_candidate_verification",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/19"
+      },
+      "acceptance_binding": {
+        "byte_offset": 740880,
+        "bytes": 486,
+        "sha256": "0a36083564c7d95755126ca040b59efa5abd004855ffbaa995399a6915d6217d"
+      },
+      "property": "Complete original supported strategy inventory6 families, every supported persisted profile → fresh reader/next sequence/corruptforeign refusal/independent replica exercised in GP43/State142/MO88. Own Grid/MO ordinary serialization/corpus/profile/failure-boundary defects fixed and tested; missing optional native backend UNRUN.",
+      "consumer": "Complete original supported strategy inventory6 families, every supported persisted profile → fresh reader/next sequence/corruptforeign refusal/independent replica exercised in GP43/State142/MO88. Own Grid/MO ordinary serialization/corpus/profile/failure-boundary defects fixed and tested; missing optional native backend UNRUN.",
+      "discriminator": "In-memory get/set/state marker can omit learned model/corpus/grid cursor/RNG; actual Random/Grid/RL/Bayesian/NN/MO CAS next-sequence/dense learned-state controls and marker-preserving mutation reveal.",
+      "changed_selected_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py",
+        "policy-engine/src/polisyos/scientist/methods/search/service.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "changed_dependencies_to_trace": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py",
+        "policy-engine/src/polisyos/scientist/methods/search/service.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "next_action": "Сначала сопоставить original property со всеми actual existing receipts и достигнутыми module paths. Квалифицированно перенести неизменную часть; проверить только затронутую delta/consumer часть с discriminator ниже. Current verification is missing. On exact a795/tree, execute the smallest existing test path that crosses the real owner consumer for this row after binding changed selected owner source (policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py; policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py; policy-engine/src/polisyos/scientist/methods/search/service.py; policy-engine/src/polisyos/scientist/methods/autotune/runtime.py) and changed imported dependencies (policy-engine/src/polisyos/common/async_tools.py; policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py; policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py; policy-engine/src/polisyos/scientist/methods/search/service.py; policy-engine/src/polisyos/scientist/methods/autotune/runtime.py). Assert the original runtime_property and the P38 discriminator below through the named consumer; retain stdout/JUnit and import origins. При FAIL определить первую реально расходящуюся функцию и её canonical writer; current reproduction само по себе не атрибутирует введение D. P41 остаётся not_established до exact slice-base replay и input-denominator proof. Не расширять до unrelated full-package CI.",
+      "required_owner_packet": null
+    },
+    {
+      "id": "B126@CTL-02",
+      "finding_id": "B126",
+      "bundle": "CTL-02",
+      "role": "canonical_owner",
+      "D_proposal": "closed",
+      "G_formal_status": "not_adjudicated",
+      "current_verification_missing_reported_by_D": true,
+      "work_class": "targeted_current_candidate_verification",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/20"
+      },
+      "acceptance_binding": {
+        "byte_offset": 744753,
+        "bytes": 404,
+        "sha256": "0054a0cfb74b77d2cfa02a6671ed1ee829854b1a9cf1cbadb05537ffa85ef532"
+      },
+      "property": "Current Spacecodec12 and actual Random/RL/Base cache/codec state verify batch versus incremental Sobol at same logical index, checkpoint and reading known point, under unchanged declared algorithm-version.",
+      "consumer": "Current Spacecodec12 and actual Random/RL/Base cache/codec state verify batch versus incremental Sobol at same logical index, checkpoint and reading known point, under unchanged declared algorithm-version.",
+      "discriminator": "Cache list length/currentcursor labels are not point identity; explicit expected-index values and unchanged cached read/RNG compare distinguish preparation-order drift.",
+      "changed_selected_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py",
+        "policy-engine/src/polisyos/scientist/methods/search/service.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "changed_dependencies_to_trace": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py",
+        "policy-engine/src/polisyos/scientist/methods/search/service.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "next_action": "Сначала сопоставить original property со всеми actual existing receipts и достигнутыми module paths. Квалифицированно перенести неизменную часть; проверить только затронутую delta/consumer часть с discriminator ниже. Current verification is missing. On exact a795/tree, execute the smallest existing test path that crosses the real owner consumer for this row after binding changed selected owner source (policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py; policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py; policy-engine/src/polisyos/scientist/methods/search/service.py; policy-engine/src/polisyos/scientist/methods/autotune/runtime.py) and changed imported dependencies (policy-engine/src/polisyos/common/async_tools.py; policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py; policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py; policy-engine/src/polisyos/scientist/methods/search/service.py; policy-engine/src/polisyos/scientist/methods/autotune/runtime.py). Assert the original runtime_property and the P38 discriminator below through the named consumer; retain stdout/JUnit and import origins. При FAIL определить первую реально расходящуюся функцию и её canonical writer; current reproduction само по себе не атрибутирует введение D. P41 остаётся not_established до exact slice-base replay и input-denominator proof. Не расширять до unrelated full-package CI.",
+      "required_owner_packet": null
+    },
+    {
+      "id": "B127@OPT-02",
+      "finding_id": "B127",
+      "bundle": "OPT-02",
+      "role": "canonical_owner",
+      "D_proposal": "closed",
+      "G_formal_status": "not_adjudicated",
+      "current_verification_missing_reported_by_D": true,
+      "work_class": "targeted_current_candidate_verification",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/21"
+      },
+      "acceptance_binding": {
+        "byte_offset": 748404,
+        "bytes": 590,
+        "sha256": "0cb92c67b7ad455eb8cbb3bba8a88d7297d3ba6dd2e8ec6284edc152f670ac06"
+      },
+      "property": "Actualdeclared Gridbatch3 finite1..4 latepartiallast4/pendingfreshCASresume/finalexhaustion complements State142/effective-actions15/Adapter50 identities. Integer/category/boolcontinuous law source/test scopes separatelybound, no solehelperclosure.",
+      "consumer": "Actualdeclared Gridbatch3 finite1..4 latepartiallast4/pendingfreshCASresume/finalexhaustion complements State142/effective-actions15/Adapter50 identities. Integer/category/boolcontinuous law source/test scopes separatelybound, no solehelperclosure.",
+      "discriminator": "Distinct relaxed vectors or generated requestIDs can count same effective action twice, or lose legitimate partial-last batch; actual physical integer/category and CAS cursor4 final Grid factory evaluate1..4.",
+      "changed_selected_paths": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py"
+      ],
+      "changed_dependencies_to_trace": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py"
+      ],
+      "next_action": "Сначала сопоставить original property со всеми actual existing receipts и достигнутыми module paths. Квалифицированно перенести неизменную часть; проверить только затронутую delta/consumer часть с discriminator ниже. Current verification is missing. On exact a795/tree, execute the smallest existing test path that crosses the real owner consumer for this row after binding changed selected owner source (policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py; policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py) and changed imported dependencies (policy-engine/src/polisyos/common/async_tools.py; policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py; policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py). Assert the original runtime_property and the P38 discriminator below through the named consumer; retain stdout/JUnit and import origins. При FAIL определить первую реально расходящуюся функцию и её canonical writer; current reproduction само по себе не атрибутирует введение D. P41 остаётся not_established до exact slice-base replay и input-denominator proof. Не расширять до unrelated full-package CI.",
+      "required_owner_packet": null
+    },
+    {
+      "id": "B128@TRN-01",
+      "finding_id": "B128",
+      "bundle": "TRN-01",
+      "role": "canonical_owner",
+      "D_proposal": "closed",
+      "G_formal_status": "not_adjudicated",
+      "current_verification_missing_reported_by_D": true,
+      "work_class": "targeted_current_candidate_verification",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/22"
+      },
+      "acceptance_binding": {
+        "byte_offset": 776394,
+        "bytes": 619,
+        "sha256": "549b289852eaabc2275c031208657ce535c20cdd971105ff0e452e5f6662e5d7"
+      },
+      "property": "Real saved qualified Evaluation and run history bridge become supported warm training rows; empty incompatible input differs from filtered rejection and known malformed sources reject before eligible source.",
+      "consumer": "Actual saved CAS run -> discovery/projection -> WarmStartBridge -> native GP source corpus.",
+      "discriminator": "Bridge constructor or empty initial list may pass while real serialized snapshot decoder silently emits empty; remove actual codec rows after exact resolve => invalid/unavailable/nonempty3FAIL vs trueemptyPASS.",
+      "changed_selected_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py"
+      ],
+      "changed_dependencies_to_trace": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py"
+      ],
+      "next_action": "Сначала сопоставить original property со всеми actual existing receipts и достигнутыми module paths. Квалифицированно перенести неизменную часть; проверить только затронутую delta/consumer часть с discriminator ниже. Current verification is missing. On exact a795/tree, execute the smallest existing test path that crosses the real owner consumer for this row after binding changed selected owner source (policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py) and changed imported dependencies (policy-engine/src/polisyos/common/async_tools.py; policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py). Assert the original runtime_property and the P38 discriminator below through the named consumer; retain stdout/JUnit and import origins. При FAIL определить первую реально расходящуюся функцию и её canonical writer; current reproduction само по себе не атрибутирует введение D. P41 остаётся not_established до exact slice-base replay и input-denominator proof. Не расширять до unrelated full-package CI.",
+      "required_owner_packet": null
+    },
+    {
+      "id": "B129@TRN-02",
+      "finding_id": "B129",
+      "bundle": "TRN-02",
+      "role": "canonical_owner",
+      "D_proposal": "closed",
+      "G_formal_status": "not_adjudicated",
+      "current_verification_missing_reported_by_D": true,
+      "work_class": "targeted_current_candidate_verification",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/23"
+      },
+      "acceptance_binding": {
+        "byte_offset": 780379,
+        "bytes": 582,
+        "sha256": "88b1c5aec30b187f76018f9b7e7c7b8f7aabd54e4479465a0b39a549af27c49a"
+      },
+      "property": "Captured full catalog exact ref remains addressable beyond1000; ANN discovery is separate, all admission filters/source quota precede final top-k and bad ref cannot alias cached identity.",
+      "consumer": "Actual >1000 B FileSystemCAS/native HNSW discovery/ref lookup and barrier-captured catalog.",
+      "discriminator": "Second ANN top-k, ordinalkeys alone or nearest replacement is not exact resolution;1002 actual registered snapshots, selectedsource exactref, freshchild26reads and same-ref altered bytes refuse.",
+      "changed_selected_paths": [],
+      "changed_dependencies_to_trace": [
+        "policy-engine/src/polisyos/common/async_tools.py"
+      ],
+      "next_action": "Сначала сопоставить original property со всеми actual existing receipts и достигнутыми module paths. Квалифицированно перенести неизменную часть; проверить только затронутую delta/consumer часть с discriminator ниже. Current verification is missing, but selected owner source is unchanged. Preserve its exact historical deciding receipt; first test changed shared dependency once (common/async_tools) and then run only the smallest producer→consumer scenario for this row with the P38 falsifier below. Current import closure is not established, so classify any unbound dependency as not_established instead of repeating all history.",
+      "required_owner_packet": null
+    },
+    {
+      "id": "B130@TRN-01",
+      "finding_id": "B130",
+      "bundle": "TRN-01",
+      "role": "canonical_owner",
+      "D_proposal": "closed",
+      "G_formal_status": "not_adjudicated",
+      "current_verification_missing_reported_by_D": true,
+      "work_class": "targeted_current_candidate_verification",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/24"
+      },
+      "acceptance_binding": {
+        "byte_offset": 784342,
+        "bytes": 593,
+        "sha256": "b70b31214ee588708f1536a62ef11dd85932c5bedf2e99e7b2d6320815ecabf3"
+      },
+      "property": "Normalized minimized loss sort agrees for min/max, stable ties and per-source quota redistribution; legacy scalar codec not guessed from metric name.",
+      "consumer": "Actual warm-source candidate allocation/merge with native round-robin quotas.",
+      "discriminator": "Sort-by-raw/incorrectquota can retain counts but invertminmax or underfill; independent tie/direction/quota table and actual transferselection consumer distinguish.",
+      "changed_selected_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py"
+      ],
+      "changed_dependencies_to_trace": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py"
+      ],
+      "next_action": "Сначала сопоставить original property со всеми actual existing receipts и достигнутыми module paths. Квалифицированно перенести неизменную часть; проверить только затронутую delta/consumer часть с discriminator ниже. Current verification is missing. On exact a795/tree, execute the smallest existing test path that crosses the real owner consumer for this row after binding changed selected owner source (policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py) and changed imported dependencies (policy-engine/src/polisyos/common/async_tools.py; policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py). Assert the original runtime_property and the P38 discriminator below through the named consumer; retain stdout/JUnit and import origins. При FAIL определить первую реально расходящуюся функцию и её canonical writer; current reproduction само по себе не атрибутирует введение D. P41 остаётся not_established до exact slice-base replay и input-denominator proof. Не расширять до unrelated full-package CI.",
+      "required_owner_packet": null
+    },
+    {
+      "id": "B131@TRN-01",
+      "finding_id": "B131",
+      "bundle": "TRN-01",
+      "role": "canonical_owner",
+      "D_proposal": "held",
+      "G_formal_status": "not_adjudicated",
+      "current_verification_missing_reported_by_D": false,
+      "work_class": "owner_input_required_original_positive",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/25"
+      },
+      "acceptance_binding": {
+        "byte_offset": 788048,
+        "bytes": 691,
+        "sha256": "e6742f51f48e338f3410307c69a2e42b12c6205c34d9c8c4947e784ba842b8dd"
+      },
+      "property": "Content-bound technical numeric transfer basis enforces dimensions/units/direction/data/model/eval/split/scalar owner refs without treating metadata assertions as authority.",
+      "consumer": "Actual numeric warm-transfer admission.",
+      "discriminator": "Metadata owner/tenant labels or synthetic success do not appoint reuse rights; actual authority positive not_established despite mechanical space/conversion refusals.",
+      "changed_selected_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py"
+      ],
+      "changed_dependencies_to_trace": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "currentNativeSearchService/StrategyAdapter/Bayesianwrapper/FUN sourcebranches"
+      ],
+      "next_action": "Held: D can keep mechanical validation/refusal controls, but cannot supply the positive. Request the actual owner packet: Actual source and target tenant/split/subject refs; Specific allowed reuse/adapter decision from the real owner; Source/target data/model/evaluator/metric/unit/direction basis; Exact source physical parameter and evaluation refs; Permitted adapter/ref and bounded applicability, or explicit refusal. Once delivered, bind it to this exact consumer and run positive plus revoked/refused control.",
+      "required_owner_packet": "tenant_split_transfer"
+    },
+    {
+      "id": "B132@TRN-01",
+      "finding_id": "B132",
+      "bundle": "TRN-01",
+      "role": "canonical_owner",
+      "D_proposal": "closed",
+      "G_formal_status": "not_adjudicated",
+      "current_verification_missing_reported_by_D": true,
+      "work_class": "targeted_current_candidate_verification",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/26"
+      },
+      "acceptance_binding": {
+        "byte_offset": 791900,
+        "bytes": 482,
+        "sha256": "5833cd83c20ce8f2a897ab4c13b475daaabcfa4adec33cb2a1376fcba78c4fcb"
+      },
+      "property": "Each candidate keeps its own exact ref and real metrics, actual parameter coordinates not metric dictionary; holdout-missing/nonpromotable/placeholder rows do not fabricate target evaluation.",
+      "consumer": "Actual WarmStartBridge resolves CAS candidate/BenchmarkEvaluation lineage and both direction codecs.",
+      "discriminator": "Placeholder ref/coordinate metric or automatic old-placeholder promotion can preserve count but corrupt actual history; exact refs/content/direction/absent-holdout controls discriminate.",
+      "changed_selected_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py"
+      ],
+      "changed_dependencies_to_trace": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py"
+      ],
+      "next_action": "Сначала сопоставить original property со всеми actual existing receipts и достигнутыми module paths. Квалифицированно перенести неизменную часть; проверить только затронутую delta/consumer часть с discriminator ниже. Current verification is missing. On exact a795/tree, execute the smallest existing test path that crosses the real owner consumer for this row after binding changed selected owner source (policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py) and changed imported dependencies (policy-engine/src/polisyos/common/async_tools.py; policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py). Assert the original runtime_property and the P38 discriminator below through the named consumer; retain stdout/JUnit and import origins. При FAIL определить первую реально расходящуюся функцию и её canonical writer; current reproduction само по себе не атрибутирует введение D. P41 остаётся not_established до exact slice-base replay и input-denominator proof. Не расширять до unrelated full-package CI.",
+      "required_owner_packet": null
+    },
+    {
+      "id": "B133@TRN-02",
+      "finding_id": "B133",
+      "bundle": "TRN-02",
+      "role": "canonical_owner",
+      "D_proposal": "closed",
+      "G_formal_status": "not_adjudicated",
+      "current_verification_missing_reported_by_D": true,
+      "work_class": "targeted_current_candidate_verification",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/27"
+      },
+      "acceptance_binding": {
+        "byte_offset": 795310,
+        "bytes": 552,
+        "sha256": "48f75c8fbb72fbc3c446e8677e4976ccc20d3f3624b34260ce20e01a26b39a3d"
+      },
+      "property": "Cold/warm reads use complete qualified ArtifactRef+codec key, same subject/raw bytes, copy-return isolated from caller mutation and cache hit validates immutable bytes.",
+      "consumer": "Native FileSystemCAS fresh/warm exact readers and bounded immutable transfer caches.",
+      "discriminator": "Warm latest cache or shallow object copy may pass discovery but replayoldref drifts/mutationleaks; actual exact cold/warm/readback and same-ref tamper controls distinguish.",
+      "changed_selected_paths": [],
+      "changed_dependencies_to_trace": [
+        "policy-engine/src/polisyos/common/async_tools.py"
+      ],
+      "next_action": "Сначала сопоставить original property со всеми actual existing receipts и достигнутыми module paths. Квалифицированно перенести неизменную часть; проверить только затронутую delta/consumer часть с discriminator ниже. Current verification is missing, but selected owner source is unchanged. Preserve its exact historical deciding receipt; first test changed shared dependency once (common/async_tools) and then run only the smallest producer→consumer scenario for this row with the P38 falsifier below. Current import closure is not established, so classify any unbound dependency as not_established instead of repeating all history.",
+      "required_owner_packet": null
+    },
+    {
+      "id": "B134@TRN-02",
+      "finding_id": "B134",
+      "bundle": "TRN-02",
+      "role": "canonical_owner",
+      "D_proposal": "closed",
+      "G_formal_status": "not_adjudicated",
+      "current_verification_missing_reported_by_D": true,
+      "work_class": "targeted_current_candidate_verification",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/28"
+      },
+      "acceptance_binding": {
+        "byte_offset": 799747,
+        "bytes": 651,
+        "sha256": "36d571033f9b9e3b58f6f9f7bc93a01ed4c6e799a7791d815fa39932fd68de9d"
+      },
+      "property": "Failed native add/load/missing/corrupt bytes/capacity/shape/backend exception preserves old complete coherent generation; ordinary queries neither rebuild nor overrun capacity.",
+      "consumer": "Actual native HNSW/qualified CAS pointer publication and captured-query reader.",
+      "discriminator": "Metadata pointer/composite valid markers can hide nativeNaN/bodycorruption or torn generation; real private loaded get_items finite, held-reader barriers and actual C++load RuntimeError retain oldquery/pointer.",
+      "changed_selected_paths": [],
+      "changed_dependencies_to_trace": [
+        "policy-engine/src/polisyos/common/async_tools.py"
+      ],
+      "next_action": "Сначала сопоставить original property со всеми actual existing receipts и достигнутыми module paths. Квалифицированно перенести неизменную часть; проверить только затронутую delta/consumer часть с discriminator ниже. Current verification is missing, but selected owner source is unchanged. Preserve its exact historical deciding receipt; first test changed shared dependency once (common/async_tools) and then run only the smallest producer→consumer scenario for this row with the P38 falsifier below. Current import closure is not established, so classify any unbound dependency as not_established instead of repeating all history.",
+      "required_owner_packet": null
+    },
+    {
+      "id": "B135@TRN-03",
+      "finding_id": "B135",
+      "bundle": "TRN-03",
+      "role": "canonical_owner",
+      "D_proposal": "closed",
+      "G_formal_status": "not_adjudicated",
+      "current_verification_missing_reported_by_D": true,
+      "work_class": "targeted_current_candidate_verification",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/29"
+      },
+      "acceptance_binding": {
+        "byte_offset": 803219,
+        "bytes": 490,
+        "sha256": "01ce84941fd8680e13557f709b04c7978d7003b2c358dcc81363e2d973aaa136"
+      },
+      "property": "Nested/serialized/explicit typed context and permitted overrides resolve same effective base; malformed base reported/discarded before defaults; unknown remains isolated.",
+      "consumer": "Actual shared-context resolver and lesson-transfer query.",
+      "discriminator": "Fallbacksuccess/globalcontext label can replace invalid known subject or override silently; actual equivalent port inputs and explicit invalid/unknown controls discriminate.",
+      "changed_selected_paths": [],
+      "changed_dependencies_to_trace": [
+        "policy-engine/src/polisyos/common/async_tools.py"
+      ],
+      "next_action": "Сначала сопоставить original property со всеми actual existing receipts и достигнутыми module paths. Квалифицированно перенести неизменную часть; проверить только затронутую delta/consumer часть с discriminator ниже. Current verification is missing, but selected owner source is unchanged. Preserve its exact historical deciding receipt; first test changed shared dependency once (common/async_tools) and then run only the smallest producer→consumer scenario for this row with the P38 falsifier below. Current import closure is not established, so classify any unbound dependency as not_established instead of repeating all history.",
+      "required_owner_packet": null
+    },
+    {
+      "id": "B136@TRN-03",
+      "finding_id": "B136",
+      "bundle": "TRN-03",
+      "role": "canonical_owner",
+      "D_proposal": "closed",
+      "G_formal_status": "not_adjudicated",
+      "current_verification_missing_reported_by_D": true,
+      "work_class": "targeted_current_candidate_verification",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/30"
+      },
+      "acceptance_binding": {
+        "byte_offset": 807152,
+        "bytes": 535,
+        "sha256": "dbc583087ea526396c4d1b2b4230d2058a76565496b4bdac824060a759dee116"
+      },
+      "property": "Threshold/trust/source_run/local_transfer/partial filtering applies before final quota and before raw materialization; irrelevant/future bodies skipped.",
+      "consumer": "Actual retrieval and known boundary/as-of/native lesson transfer consumers.",
+      "discriminator": "ANN transferred hit or local miss can bypass declaredthreshold and materialize rejected evidence; actual consistentfilters/source and partial probes distinguish.",
+      "changed_selected_paths": [],
+      "changed_dependencies_to_trace": [
+        "policy-engine/src/polisyos/common/async_tools.py"
+      ],
+      "next_action": "Сначала сопоставить original property со всеми actual existing receipts и достигнутыми module paths. Квалифицированно перенести неизменную часть; проверить только затронутую delta/consumer часть с discriminator ниже. Current verification is missing, but selected owner source is unchanged. Preserve its exact historical deciding receipt; first test changed shared dependency once (common/async_tools) and then run only the smallest producer→consumer scenario for this row with the P38 falsifier below. Current import closure is not established, so classify any unbound dependency as not_established instead of repeating all history.",
+      "required_owner_packet": null
+    },
+    {
+      "id": "B137@TRN-03",
+      "finding_id": "B137",
+      "bundle": "TRN-03",
+      "role": "canonical_owner",
+      "D_proposal": "held",
+      "G_formal_status": "not_adjudicated",
+      "current_verification_missing_reported_by_D": false,
+      "work_class": "owner_input_required_original_positive",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/31"
+      },
+      "acceptance_binding": {
+        "byte_offset": 811080,
+        "bytes": 676,
+        "sha256": "a712c0b6eddcecf9e4b23c77fc2f4732fea66953462e3cb3bfcd4a6ed376be2f"
+      },
+      "property": "Retention reads cannot raise trust; confidence/as-of evidence preserved through cold/warm/restart/transfer.",
+      "consumer": "Actual lesson index/report reads and transfer evidence anchors.",
+      "discriminator": "Reads/last_accessed/TTL popularity can falselyrefreshconfidence; real future-asof/read/restart negatives establish isolation but owner-issued revalidation positive remains not_established.",
+      "changed_selected_paths": [],
+      "changed_dependencies_to_trace": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "currentNativeSearchService/StrategyAdapter/Bayesianwrapper/FUN sourcebranches"
+      ],
+      "next_action": "Held: D can keep mechanical validation/refusal controls, but cannot supply the positive. Request the actual owner packet: Prior and newly produced exact evidence refs/version; Actual new grounds and occurrence time from producer; Owner authorization for this revalidation purpose; Subject/input/rule scope tying old and new version; Declared content/confidence/freshness basis. Once delivered, bind it to this exact consumer and run positive plus revoked/refused control.",
+      "required_owner_packet": "authorized_revalidation"
+    },
+    {
+      "id": "B156@FUN-01",
+      "finding_id": "B156",
+      "bundle": "FUN-01",
+      "role": "canonical_owner",
+      "D_proposal": "closed",
+      "G_formal_status": "not_adjudicated",
+      "current_verification_missing_reported_by_D": true,
+      "work_class": "targeted_current_candidate_verification",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/32"
+      },
+      "acceptance_binding": {
+        "byte_offset": 948475,
+        "bytes": 611,
+        "sha256": "846c22dd69b5b1495efbaff0f982894e6e08b49e0c42e21e0f38b477aa243fa1"
+      },
+      "property": "Actualeffective request reuse/newversion/independent control/history scope native inputs (affected138).",
+      "consumer": "Actual response-text bytes/_post_json canonical Decimal intake -> configured Gateway/LLMBudgetEnforcer/B1.2 durable provider intent/settlement -> D native worker/funnel/result/status and fresh owner readback. Only HTTP transport controlled; provider reported amount source retained.; Actualeffective request reuse/newversion/independent control/history scope native inputs (affected138).",
+      "discriminator": "Cache class/flag or label same does not bind effective content; canonical context/content versions and physical native full/split controls discriminate.",
+      "changed_selected_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "changed_dependencies_to_trace": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "next_action": "Сначала сопоставить original property со всеми actual existing receipts и достигнутыми module paths. Квалифицированно перенести неизменную часть; проверить только затронутую delta/consumer часть с discriminator ниже. Current verification is missing. On exact a795/tree, execute the smallest existing test path that crosses the real owner consumer for this row after binding changed selected owner source (policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py) and changed imported dependencies (policy-engine/src/polisyos/common/async_tools.py; policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py). Assert the original runtime_property and the P38 discriminator below through the named consumer; retain stdout/JUnit and import origins. При FAIL определить первую реально расходящуюся функцию и её canonical writer; current reproduction само по себе не атрибутирует введение D. P41 остаётся not_established до exact slice-base replay и input-denominator proof. Не расширять до unrelated full-package CI.",
+      "required_owner_packet": null
+    },
+    {
+      "id": "B157@FUN-02",
+      "finding_id": "B157",
+      "bundle": "FUN-02",
+      "role": "canonical_owner",
+      "D_proposal": "held",
+      "G_formal_status": "not_adjudicated",
+      "current_verification_missing_reported_by_D": false,
+      "work_class": "owner_input_required_original_positive",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/33"
+      },
+      "acceptance_binding": {
+        "byte_offset": 951621,
+        "bytes": 734,
+        "sha256": "260d939d59a70f8f9acca08bc5386d4ac4e4070c4725b6287fd2c1a4d534444b"
+      },
+      "property": "Available configured Foundry20/80 draws/cost use actual producer controls, but native effective sample/draw bridge remains absent.",
+      "consumer": "Actual L3/L4 configuration and context isolation controls.",
+      "discriminator": "Foundry20/80 draws or nativelabels500/64/32 do not prove actual native sample law/work; missing real producer samples/profile remains held.",
+      "changed_selected_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "changed_dependencies_to_trace": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "currentNativeSearchService/StrategyAdapter/Bayesianwrapper/FUN sourcebranches"
+      ],
+      "next_action": "Held: D can keep mechanical validation/refusal controls, but cannot supply the positive. Request the actual owner packet: Exact candidate/input/seed/config/basis refs; Actual executed sample/draw/work count and source result ref; L3 reduced effective request, actual cheaper work/cost evidence; L4 full effective request on both paths; Unmutated caller context and exact run/evaluation/attempt scope. Once delivered, bind it to this exact consumer and run positive plus revoked/refused control.",
+      "required_owner_packet": "native_draw_producer"
+    },
+    {
+      "id": "B158@FUN-01",
+      "finding_id": "B158",
+      "bundle": "FUN-01",
+      "role": "canonical_owner",
+      "D_proposal": "closed",
+      "G_formal_status": "not_adjudicated",
+      "current_verification_missing_reported_by_D": true,
+      "work_class": "targeted_current_candidate_verification",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/34"
+      },
+      "acceptance_binding": {
+        "byte_offset": 954860,
+        "bytes": 696,
+        "sha256": "17cc0ecc4baa734906042063c70ef2cbd4394c206b868333448594ad8897fb9f"
+      },
+      "property": "Currentfull/split native physicalevents identical outputs/debits/reasons; changed prerequisites explicit remainingwork rechecks, schedulerbounds retained.",
+      "consumer": "Actual response-text bytes/_post_json canonical Decimal intake -> configured Gateway/LLMBudgetEnforcer/B1.2 durable provider intent/settlement -> D native worker/funnel/result/status and fresh owner readback. Only HTTP transport controlled; provider reported amount source retained.; Currentfull/split native physicalevents identical outputs/debits/reasons; changed prerequisites explicit remainingwork rechecks, schedulerbounds retained.",
+      "discriminator": "Scheduler stage counters or tracecost estimates can hide extra split debits; actual native provider/fullsplit receipts/freshledger and incomplete unknownACK controls discriminate.",
+      "changed_selected_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "changed_dependencies_to_trace": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "next_action": "Сначала сопоставить original property со всеми actual existing receipts и достигнутыми module paths. Квалифицированно перенести неизменную часть; проверить только затронутую delta/consumer часть с discriminator ниже. Current verification is missing. On exact a795/tree, execute the smallest existing test path that crosses the real owner consumer for this row after binding changed selected owner source (policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py) and changed imported dependencies (policy-engine/src/polisyos/common/async_tools.py; policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py). Assert the original runtime_property and the P38 discriminator below through the named consumer; retain stdout/JUnit and import origins. При FAIL определить первую реально расходящуюся функцию и её canonical writer; current reproduction само по себе не атрибутирует введение D. P41 остаётся not_established до exact slice-base replay и input-denominator proof. Не расширять до unrelated full-package CI.",
+      "required_owner_packet": null
+    },
+    {
+      "id": "B159@FUN-01",
+      "finding_id": "B159",
+      "bundle": "FUN-01",
+      "role": "canonical_owner",
+      "D_proposal": "closed",
+      "G_formal_status": "not_adjudicated",
+      "current_verification_missing_reported_by_D": true,
+      "work_class": "targeted_current_candidate_verification",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/35"
+      },
+      "acceptance_binding": {
+        "byte_offset": 958121,
+        "bytes": 765,
+        "sha256": "7c3b6b49bb03dfb2af6f56e6db82cd302fc5d9c2ae1f6e666b1ab16f11598f36"
+      },
+      "property": "No newgrounds no resource; actualowned capacityrelease/prerequisitechange resumes onlyremainingwork withlineage, permanentblockers remain.",
+      "consumer": "Actual response-text bytes/_post_json canonical Decimal intake -> configured Gateway/LLMBudgetEnforcer/B1.2 durable provider intent/settlement -> D native worker/funnel/result/status and fresh owner readback. Only HTTP transport controlled; provider reported amount source retained.; No newgrounds no resource; actualowned capacityrelease/prerequisitechange resumes onlyremainingwork withlineage, permanentblockers remain.",
+      "discriminator": "Unrelated spend/sameticket/stalebasis/newcall form cannot release blocker; actual owned reservation release plus unchanged physical lineage and refusal controls distinguish.",
+      "changed_selected_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "changed_dependencies_to_trace": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "next_action": "Сначала сопоставить original property со всеми actual existing receipts и достигнутыми module paths. Квалифицированно перенести неизменную часть; проверить только затронутую delta/consumer часть с discriminator ниже. Current verification is missing. On exact a795/tree, execute the smallest existing test path that crosses the real owner consumer for this row after binding changed selected owner source (policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py) and changed imported dependencies (policy-engine/src/polisyos/common/async_tools.py; policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py). Assert the original runtime_property and the P38 discriminator below through the named consumer; retain stdout/JUnit and import origins. При FAIL определить первую реально расходящуюся функцию и её canonical writer; current reproduction само по себе не атрибутирует введение D. P41 остаётся not_established до exact slice-base replay и input-denominator proof. Не расширять до unrelated full-package CI.",
+      "required_owner_packet": null
+    },
+    {
+      "id": "B160@FUN-02",
+      "finding_id": "B160",
+      "bundle": "FUN-02",
+      "role": "canonical_owner",
+      "D_proposal": "closed",
+      "G_formal_status": "not_adjudicated",
+      "current_verification_missing_reported_by_D": true,
+      "work_class": "targeted_current_candidate_verification",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/36"
+      },
+      "acceptance_binding": {
+        "byte_offset": 961198,
+        "bytes": 790,
+        "sha256": "7f3880ae72b62b26a91f8386be0ac3391e9188fb146b3ed1c757df1a7d2eafba"
+      },
+      "property": "Actualempty/all-unassessed no positive score vsactualcomputedzero; permittedshortstages retained.",
+      "consumer": "Actual response-text bytes/_post_json canonical Decimal intake -> configured Gateway/LLMBudgetEnforcer/B1.2 durable provider intent/settlement -> D native worker/funnel/result/status and fresh owner readback. Only HTTP transport controlled; provider reported amount source retained.; Actualempty/all-unassessed no positive score vsactualcomputedzero; permittedshortstages retained.",
+      "discriminator": "Zero aggregate/defaultscore under empty stages falselylooks success; actual emptyNone versus realzero JSONnull/readback/stageverdict compare discriminate.",
+      "changed_selected_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "changed_dependencies_to_trace": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "next_action": "Сначала сопоставить original property со всеми actual existing receipts и достигнутыми module paths. Квалифицированно перенести неизменную часть; проверить только затронутую delta/consumer часть с discriminator ниже. Current verification is missing. On exact a795/tree, execute the smallest existing test path that crosses the real owner consumer for this row after binding changed selected owner source (policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py) and changed imported dependencies (policy-engine/src/polisyos/common/async_tools.py; policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py). Assert the original runtime_property and the P38 discriminator below through the named consumer; retain stdout/JUnit and import origins. При FAIL определить первую реально расходящуюся функцию и её canonical writer; current reproduction само по себе не атрибутирует введение D. P41 остаётся not_established до exact slice-base replay и input-denominator proof. Не расширять до unrelated full-package CI.",
+      "required_owner_packet": null
+    },
+    {
+      "id": "B161@FUN-03",
+      "finding_id": "B161",
+      "bundle": "FUN-03",
+      "role": "canonical_owner",
+      "D_proposal": "held",
+      "G_formal_status": "not_adjudicated",
+      "current_verification_missing_reported_by_D": false,
+      "work_class": "owner_input_required_original_positive",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/37"
+      },
+      "acceptance_binding": {
+        "byte_offset": 964619,
+        "bytes": 752,
+        "sha256": "64bf6d3e30756d1ee3a22a8b81bc2164a41f51931333e269114da303a8fa3b78"
+      },
+      "property": "Refinement aggregates reject unsupported min/last-wins replacement and preserve independent unknown risks.",
+      "consumer": "Actual L5 tracker and reenterable consumer guards.",
+      "discriminator": "Global min/last-write or laterstage label is not refinement law; actual owner-issued relation not_established, so held rather than fabricated aggregate success.",
+      "changed_selected_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "changed_dependencies_to_trace": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "currentNativeSearchService/StrategyAdapter/Bayesianwrapper/FUN sourcebranches"
+      ],
+      "next_action": "Held: D can keep mechanical validation/refusal controls, but cannot supply the positive. Request the actual owner packet: Actual prior and later estimate refs; Same subject/value/input/rule/time comparison basis; Owner supplied permitted refinement relation/conditions; Producer evidence for later value/interval; Independent risk components that remain unaffected. Once delivered, bind it to this exact consumer and run positive plus revoked/refused control.",
+      "required_owner_packet": "same_scope_refinement"
+    },
+    {
+      "id": "B162@FUN-02",
+      "finding_id": "B162",
+      "bundle": "FUN-02",
+      "role": "canonical_owner",
+      "D_proposal": "closed",
+      "G_formal_status": "not_adjudicated",
+      "current_verification_missing_reported_by_D": true,
+      "work_class": "targeted_current_candidate_verification",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/38"
+      },
+      "acceptance_binding": {
+        "byte_offset": 967958,
+        "bytes": 612,
+        "sha256": "806665be954b1b87fb1bcc5e05e2ef2779226c0558e4fa6a30cd18a680681075"
+      },
+      "property": "Invalid/missing/genuinelyzero uncertainty distinct, finitewidth calculation andother availableoutputs retained.",
+      "consumer": "Actual response-text bytes/_post_json canonical Decimal intake -> configured Gateway/LLMBudgetEnforcer/B1.2 durable provider intent/settlement -> D native worker/funnel/result/status and fresh owner readback. Only HTTP transport controlled; provider reported amount source retained.; Invalid/missing/genuinelyzero uncertainty distinct, finitewidth calculation andother availableoutputs retained.",
+      "discriminator": "Missing width->0 can look certain and produce successfulpublication label; actual absent/malformed/zero interval and partial aggregate controls discriminate.",
+      "changed_selected_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "changed_dependencies_to_trace": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "next_action": "Сначала сопоставить original property со всеми actual existing receipts и достигнутыми module paths. Квалифицированно перенести неизменную часть; проверить только затронутую delta/consumer часть с discriminator ниже. Current verification is missing. On exact a795/tree, execute the smallest existing test path that crosses the real owner consumer for this row after binding changed selected owner source (policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py) and changed imported dependencies (policy-engine/src/polisyos/common/async_tools.py; policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py). Assert the original runtime_property and the P38 discriminator below through the named consumer; retain stdout/JUnit and import origins. При FAIL определить первую реально расходящуюся функцию и её canonical writer; current reproduction само по себе не атрибутирует введение D. P41 остаётся not_established до exact slice-base replay и input-denominator proof. Не расширять до unrelated full-package CI.",
+      "required_owner_packet": null
+    },
+    {
+      "id": "B163@FUN-03",
+      "finding_id": "B163",
+      "bundle": "FUN-03",
+      "role": "canonical_owner",
+      "D_proposal": "closed",
+      "G_formal_status": "not_adjudicated",
+      "current_verification_missing_reported_by_D": true,
+      "work_class": "targeted_current_candidate_verification",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/39"
+      },
+      "acceptance_binding": {
+        "byte_offset": 971083,
+        "bytes": 797,
+        "sha256": "000272e0d8331087a33d20ff52c4d2a8696681b0c82513a8562f372789a48e92"
+      },
+      "property": "Actualreport->snapshot->freshCAS->nativeNode/runtime tracker reuse retainsfive rows andappendsL4 sixth, emptyNone/unavailable vsnonempty aligned/opposite/observedzero, bothpublicinterfaces agree.",
+      "consumer": "RealCorrelationTracker.to_snapshot→build_calibration_report metadata+typedempty/unavailable→actualCASfreshCalibrationReport→nativeRunPolicyBlueprintRuntimeNode trackerresolver→realorchestratorsubmit/advance/L4 sixthrow with originalfivepreserved; labels-retained snapshotremoval cannotfake corpus.",
+      "discriminator": "Component tracker PASS or retained label loses native snapshot bridge; remove snapshot while metadata remains actualNode gets trackerNone, versus actual5prior+6th observation and emptyNone/observedzero controls.",
+      "changed_selected_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "changed_dependencies_to_trace": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "next_action": "Сначала сопоставить original property со всеми actual existing receipts и достигнутыми module paths. Квалифицированно перенести неизменную часть; проверить только затронутую delta/consumer часть с discriminator ниже. Current verification is missing. On exact a795/tree, execute the smallest existing test path that crosses the real owner consumer for this row after binding changed selected owner source (policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py) and changed imported dependencies (policy-engine/src/polisyos/common/async_tools.py; policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py). Assert the original runtime_property and the P38 discriminator below through the named consumer; retain stdout/JUnit and import origins. При FAIL определить первую реально расходящуюся функцию и её canonical writer; current reproduction само по себе не атрибутирует введение D. P41 остаётся not_established до exact slice-base replay и input-denominator proof. Не расширять до unrelated full-package CI.",
+      "required_owner_packet": null
+    },
+    {
+      "id": "B164@FUN-03",
+      "finding_id": "B164",
+      "bundle": "FUN-03",
+      "role": "canonical_owner",
+      "D_proposal": "held",
+      "G_formal_status": "not_adjudicated",
+      "current_verification_missing_reported_by_D": false,
+      "work_class": "owner_input_required_original_positive",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/40"
+      },
+      "acceptance_binding": {
+        "byte_offset": 974595,
+        "bytes": 813,
+        "sha256": "a367b70e08a3ff6f3515593c46fe2686a9c2f02532daf2c243f57613777b993e"
+      },
+      "property": "Boolean/retained marker/callback bypasses yield0 forbidden effects and prepared payload reading stays bounded.",
+      "consumer": "Actual generic Level6 effect denial and prepared payload reader.",
+      "discriminator": "promotion_write_allowedTrue or synthetic callback/issuer does not authority; revoke-after-preflightzeroeffects/validpersistedwrite positive requires appointedissuer/verifier absent, held not_established (bridge_missing is historical superseded label).",
+      "changed_selected_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "changed_dependencies_to_trace": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "currentNativeSearchService/StrategyAdapter/Bayesianwrapper/FUN sourcebranches"
+      ],
+      "next_action": "Held: D can keep mechanical validation/refusal controls, but cannot supply the positive. Request the actual owner packet: Actual issued permit ref and purpose/subject/input binding; Existing current verifier/owner API and source; Serialized revoke-before-commit writer protocol; Real prepared payload/ref and permitted write target; Positive current permit plus revoked/lost-permission control. Once delivered, bind it to this exact consumer and run positive plus revoked/refused control. Current label not_established по append-only clarification; bridge_missing в старых sealed текстах — историческая provenance, не доказанная authority chain.",
+      "required_owner_packet": "typed_write_permit",
+      "current_capability_label": "not_established"
+    },
+    {
+      "id": "B165@FUN-02",
+      "finding_id": "B165",
+      "bundle": "FUN-02",
+      "role": "canonical_owner",
+      "D_proposal": "closed",
+      "G_formal_status": "not_adjudicated",
+      "current_verification_missing_reported_by_D": true,
+      "work_class": "targeted_current_candidate_verification",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/41"
+      },
+      "acceptance_binding": {
+        "byte_offset": 977869,
+        "bytes": 783,
+        "sha256": "42c25e1cf8e4e9d84ab45a3cb8577b7c2d5d6791112006c30aa15b6d3ce7127e"
+      },
+      "property": "Finaldecision/scores/permissionstable whetheroptionalintermediateverdictpresent; actualnativeprojection/JSONfreshreadback consumers.",
+      "consumer": "Actual response-text bytes/_post_json canonical Decimal intake -> configured Gateway/LLMBudgetEnforcer/B1.2 durable provider intent/settlement -> D native worker/funnel/result/status and fresh owner readback. Only HTTP transport controlled; provider reported amount source retained.; Finaldecision/scores/permissionstable whetheroptionalintermediateverdictpresent; actualnativeprojection/JSONfreshreadback consumers.",
+      "discriminator": "Convenient stagefield selection can report positive final action over rejectedaggregate; actual stage/aggregate final result and missingoptionalverdict controls distinguish.",
+      "changed_selected_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "changed_dependencies_to_trace": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "next_action": "Сначала сопоставить original property со всеми actual existing receipts и достигнутыми module paths. Квалифицированно перенести неизменную часть; проверить только затронутую delta/consumer часть с discriminator ниже. Current verification is missing. On exact a795/tree, execute the smallest existing test path that crosses the real owner consumer for this row after binding changed selected owner source (policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py) and changed imported dependencies (policy-engine/src/polisyos/common/async_tools.py; policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py). Assert the original runtime_property and the P38 discriminator below through the named consumer; retain stdout/JUnit and import origins. При FAIL определить первую реально расходящуюся функцию и её canonical writer; current reproduction само по себе не атрибутирует введение D. P41 остаётся not_established до exact slice-base replay и input-denominator proof. Не расширять до unrelated full-package CI.",
+      "required_owner_packet": null
+    },
+    {
+      "id": "B41@STP-01",
+      "finding_id": "B41",
+      "bundle": "STP-01",
+      "role": "canonical_owner",
+      "D_proposal": "closed",
+      "G_formal_status": "not_adjudicated",
+      "current_verification_missing_reported_by_D": true,
+      "work_class": "targeted_current_candidate_verification",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/42"
+      },
+      "acceptance_binding": {
+        "byte_offset": 159547,
+        "bytes": 566,
+        "sha256": "4a76b7b1923f16245bdc19a10b05570aa47c2ca063e8e1a2faf3eb0112576937"
+      },
+      "property": "Missing current embedding cannot establish semantic convergence; actual fresh same-model vectors positive, incompatible dimension/version refuses.",
+      "consumer": "Actual current embedding/convergence admission controls and native stop criterion.",
+      "discriminator": "Stale previousembedding, absentprovenance marker or bool/nonfinitecurrentvector can masquerade equal;12metadata/4numeric removal FAIL versus genuinevalid currentvectors and alias profile controls distinguish; conditional deployed caller separate.",
+      "changed_selected_paths": [],
+      "changed_dependencies_to_trace": [
+        "policy-engine/src/polisyos/common/async_tools.py"
+      ],
+      "next_action": "Сначала сопоставить original property со всеми actual existing receipts и достигнутыми module paths. Квалифицированно перенести неизменную часть; проверить только затронутую delta/consumer часть с discriminator ниже. Current verification is missing, but selected owner source is unchanged. Preserve its exact historical deciding receipt; first test changed shared dependency once (common/async_tools) and then run only the smallest producer→consumer scenario for this row with the P38 falsifier below. Current import closure is not established, so classify any unbound dependency as not_established instead of repeating all history.",
+      "required_owner_packet": null
+    },
+    {
+      "id": "LA-014@SRV-01",
+      "finding_id": "LA-014",
+      "bundle": "SRV-01",
+      "role": "canonical_owner",
+      "D_proposal": "closed",
+      "G_formal_status": "not_adjudicated",
+      "current_verification_missing_reported_by_D": true,
+      "work_class": "targeted_current_candidate_verification",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/43"
+      },
+      "acceptance_binding": {
+        "byte_offset": 54712,
+        "bytes": 284,
+        "sha256": "a94d827f2038968fc442e5801bf48f5a675dcacfb375b927e2de05cc541665fd"
+      },
+      "property": "Existing contract-only import without controller; actual native and literal LegacySearchServiceAdapter ask/tell/run_search; unknown/duplicate IDs, typed projection/frontier, current persisted state/public fresh restore/resume retain original meaning. Actual Legacy alias2 now includes literal run_search with detached earlier TellResult.",
+      "consumer": "Actual legacy compatibility alias and native public Runner factory/service/driver; supported configured scalar codec state; live custom objective no-store profile separated from persisted factory.",
+      "discriminator": "Contract import/tellcount or inherited native driver alone is not literallegacyrun_search; actualb652aliasrun withdetachedpriorTellResult plus actualnative service/publicfactory/CASfresh resumes discriminate.",
+      "changed_selected_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/service.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "changed_dependencies_to_trace": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "NativeSearchService/run_state/current supportedowner attestation branches"
+      ],
+      "next_action": "Сначала сопоставить original property со всеми actual existing receipts и достигнутыми module paths. Квалифицированно перенести неизменную часть; проверить только затронутую delta/consumer часть с discriminator ниже. Current verification is missing. On exact a795/tree, execute the smallest existing test path that crosses the real owner consumer for this row after binding changed selected owner source (policy-engine/src/polisyos/scientist/methods/search/service.py; policy-engine/src/polisyos/scientist/methods/autotune/runtime.py) and changed imported dependencies (policy-engine/src/polisyos/common/async_tools.py; NativeSearchService/run_state/current supportedowner attestation branches). Assert the original runtime_property and the P38 discriminator below through the named consumer; retain stdout/JUnit and import origins. При FAIL определить первую реально расходящуюся функцию и её canonical writer; current reproduction само по себе не атрибутирует введение D. P41 остаётся not_established до exact slice-base replay и input-denominator proof. Не расширять до unrelated full-package CI.",
+      "required_owner_packet": null
+    },
+    {
+      "id": "LA-015@CTL-01",
+      "finding_id": "LA-015",
+      "bundle": "CTL-01",
+      "role": "supplier_companion_only",
+      "D_proposal": "closed",
+      "G_formal_status": "not_adjudicated",
+      "current_verification_missing_reported_by_D": false,
+      "work_class": "bounded_current_execution_carry",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/44"
+      },
+      "acceptance_binding": {
+        "byte_offset": 57790,
+        "bytes": 384,
+        "sha256": "219f17404aedddcd4196a85dc9b05d5d28403c12812d551c241e26b850d285e8"
+      },
+      "property": "Actual new/resume/stopping/warm/empty/sentinel/evaluatorfailure and equality of physical final/history/frontier in nativeService41+actualAdapter50/persistence72. CTLcompanion supplier; SRV03 canonical.",
+      "consumer": "Actual new/resume/stopping/warm/empty/sentinel/evaluatorfailure and equality of physical final/history/frontier in nativeService41+actualAdapter50/persistence72. CTLcompanion supplier; SRV03 canonical.",
+      "discriminator": "Same iterationcount/protocolpresence can hide wrong subject/oldcursor/droppedhistory; actualfactory freshCAS pending/fullhistory/cursorremoval and failure/boundedrollback controls distinguish. CTL-01 onlysuppliercompanion.",
+      "changed_selected_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+        "policy-engine/src/polisyos/scientist/methods/search/service.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "changed_dependencies_to_trace": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "currentNativeSearchService/StrategyAdapter/Bayesianwrapper/FUN sourcebranches"
+      ],
+      "next_action": "Carry the exact bounded current receipt for the executed source/cohort and scope in current_output_evidence. No broad rerun. If any listed changed import advances after a795, rerun only its affected consumer and source-removal/fresh-read discriminator; do not upgrade this row to whole deployment/global API coverage.",
+      "required_owner_packet": null
+    },
+    {
+      "id": "LA-015@SRV-03",
+      "finding_id": "LA-015",
+      "bundle": "SRV-03",
+      "role": "canonical_owner",
+      "D_proposal": "closed",
+      "G_formal_status": "not_adjudicated",
+      "current_verification_missing_reported_by_D": false,
+      "work_class": "bounded_current_execution_carry",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/45"
+      },
+      "acceptance_binding": {
+        "byte_offset": 57790,
+        "bytes": 384,
+        "sha256": "219f17404aedddcd4196a85dc9b05d5d28403c12812d551c241e26b850d285e8"
+      },
+      "property": "Actual new/resume/stopping/warm/empty/sentinel/evaluatorfailure and equality of physical final/history/frontier in nativeService41+actualAdapter50/persistence72. CTLcompanion supplier; SRV03 canonical.",
+      "consumer": "Actual new/resume/stopping/warm/empty/sentinel/evaluatorfailure and equality of physical final/history/frontier in nativeService41+actualAdapter50/persistence72. CTLcompanion supplier; SRV03 canonical.",
+      "discriminator": "Same iterationcount/protocolpresence can hide wrong subject/oldcursor/droppedhistory; actualfactory freshCAS pending/fullhistory/cursorremoval and failure/boundedrollback controls distinguish. CTL-01 onlysuppliercompanion.",
+      "changed_selected_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/service.py",
+        "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "changed_dependencies_to_trace": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "currentNativeSearchService/StrategyAdapter/Bayesianwrapper/FUN sourcebranches"
+      ],
+      "next_action": "Carry the exact bounded current receipt for the executed source/cohort and scope in current_output_evidence. No broad rerun. If any listed changed import advances after a795, rerun only its affected consumer and source-removal/fresh-read discriminator; do not upgrade this row to whole deployment/global API coverage.",
+      "required_owner_packet": null
+    }
+  ]
+}

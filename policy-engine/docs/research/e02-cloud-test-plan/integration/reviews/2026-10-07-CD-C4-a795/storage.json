@@ -1,0 +1,149 @@
+{
+  "schema": "policyos.e02.storage_candidate_audit.v1",
+  "observed_at_utc": "2026-10-07T16:55:41.758043+00:00",
+  "result": "No newly eligible native-Trash candidates remain in the bounded set. The largest completed G test-source copies and retired A/C workspaces checked here were already transferred to Trash; active registered worktrees are retained.",
+  "integration": {
+    "root": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos",
+    "branch": "codex/e02-integration",
+    "head": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+    "tracked_tree": "f79fc5304324b92aeed741d7abdd6fc6f54a130a",
+    "tracked_tree_clean": true,
+    "working_tree_status": "No tracked changes; git status showed three unrelated untracked C/D continuation documents/review directory, left untouched."
+  },
+  "disk": {
+    "available_gib_watch_state": 20.12,
+    "available_gib_df_rounded": 20,
+    "soft_floor_gib": 25,
+    "physical_recovery_attributed": false
+  },
+  "method": {
+    "scope": "Exact Git worktree registration list, named prior workspace/candidate inventories, native-trash receipts, and lstat checks on previously named roots/leaves only.",
+    "production_data_or_symlink_targets_scanned": false,
+    "global_scratch_or_home_census": false,
+    "Codex_session_or_attached-chat_census": false,
+    "process_handle_check": "No fresh lsof was run: all previously named source leaves were absent; prior trash-checkpoint12 receipt records lsof_exit=1 for each of its 12 source/test leaves. Parent should do its own immediate handle/identity check before any new move.",
+    "worktree_registration": "git worktree list --porcelain contains the main checkout, one A delivery worktree, four current C worktrees, and G only; no inactive registered A/C/G workspace is present."
+  },
+  "highest_completed_source_copies_already_in_trash": [
+    {
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/1800-Bcas-checks/checkout",
+      "allocated_bytes_at_preflight": 62795776,
+      "candidate_commit": "5ece606ee1c1016c1133a1e81bbf852574a64a48",
+      "candidate_tree": "ff36af874a0a08d3571a1703ce1574b8273c9cbf",
+      "source_identity": "All 2,924 manifested source entries matched Git; 64 extras were generated .pyc only.",
+      "remote_tracking_refs_verified_locally": [
+        "origin/codex/e02-B-current-cas-generation",
+        "origin/codex/e02-B-current-coordination"
+      ],
+      "contains_candidate": true,
+      "candidate_is_main_or_G_ancestor": false,
+      "disposition": "Already moved to native Trash and source path absent. No untracked functional code/docs; exact source can be re-extracted from either verified remote ref."
+    },
+    {
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/1910-A11-checks/checkout-retry",
+      "allocated_bytes_at_preflight": 62078976,
+      "candidate_commit": "905820ceac5860c7d1c4ebcbdde7b1265afb0b15",
+      "candidate_tree": "98405fab6c567d9fd44a5e30387c0ba32a7c7cf9",
+      "source_identity": "2,933 source entries matched Git; three zero-byte runtime root.lock files only.",
+      "remote_tracking_refs_verified_locally": [
+        "origin/codex/e02-A-full-queue"
+      ],
+      "contains_candidate": true,
+      "candidate_is_main_or_G_ancestor": false,
+      "disposition": "Already moved to native Trash and source path absent. Code is preserved by the verified A topic ref; the unique A11 deciding test/output is outside this checkout and remains protected."
+    },
+    {
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/1910-A11-checks/checkout",
+      "allocated_bytes_at_preflight": 62058496,
+      "candidate_commit": "905820ceac5860c7d1c4ebcbdde7b1265afb0b15",
+      "candidate_tree": "98405fab6c567d9fd44a5e30387c0ba32a7c7cf9",
+      "source_identity": "All 2,929 manifested source entries matched Git; no extra files.",
+      "remote_tracking_refs_verified_locally": [
+        "origin/codex/e02-A-full-queue"
+      ],
+      "contains_candidate": true,
+      "candidate_is_main_or_G_ancestor": false,
+      "disposition": "Already moved to native Trash and source path absent. The unique A11 deciding test/output remains outside this checkout."
+    }
+  ],
+  "prior_transfer_receipts": [
+    {
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/trash-checkpoint12-actions.json",
+      "actions": 14,
+      "source_or_fixture_actions": 12,
+      "all_14_state": "MOVED_VERIFIED_NATIVE_TRASH",
+      "allocated_bytes": 2151911424,
+      "note": "Includes the three source checkouts above plus exact archives/fixture leaves and two completed rollout logs; no action repeated."
+    },
+    {
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/cleanup-20261007/completed-F35-B53-source-native.json",
+      "actions": 4,
+      "all_4_state": "verified_in_native_Trash",
+      "allocated_bytes": 182996992,
+      "note": "The four F35/B53 source candidates named by parent are already moved; excluded from re-candidates."
+    }
+  ],
+  "retired_workspace_readback": {
+    "currently_registered_inactive_worktrees": 0,
+    "previously_moved_old_workspace_roots": [
+      {
+        "name": "e02-a-full-queue",
+        "prior_allocated_gib_approx": 6.905,
+        "receipt": "R/cleanup-20261007/A-fullqueue-trash-actions.json",
+        "state": "already verified in native Trash; old workspace source is not a current candidate"
+      },
+      {
+        "name": "e02-a-compiler-full",
+        "prior_allocated_gib_approx": 2.06,
+        "receipt": "R/cleanup-20261007/A-worktree-trash-actions.json",
+        "state": "already verified in native Trash; LA-033 review receipt is preserved in integration/storage docs"
+      },
+      {
+        "name": "e02-a-replay-full",
+        "prior_allocated_gib_approx": 1.38,
+        "receipt": "R/cleanup-20261007/A-worktree-trash-actions.json",
+        "state": "already verified in native Trash; exact source branch remains available"
+      }
+    ],
+    "valuable_unmerged_refs_to_keep_without_recreating_checkouts": [
+      {
+        "ref": "refs/heads/codex/e02-C-catalog",
+        "head": "dfaadaac01f21b7b3994109c3cc76d522a2a3cb3",
+        "main_ancestor": false,
+        "G_ancestor": false,
+        "prior_audit": "1945-workspace-cleanup-candidates.md",
+        "known_delta": "24-path old delta; seven committed installed-consumer receipt files absent from G and differing catalog source/tests. Keep this ref for C-owner comparison; if needed, port reviewed paths/receipt into the active C slice from Git, not by restoring the workspace."
+      },
+      {
+        "ref": "refs/heads/codex/e02-A-custody",
+        "head": "289571b0b51d8404fe44702f1345552b6b10af32",
+        "main_ancestor": false,
+        "G_ancestor": false,
+        "prior_audit": "1945-workspace-cleanup-candidates.md",
+        "known_delta": "24-path old delta including runtime/test differences and 22 assessment/deciding-evidence paths. Keep the ref; A owner should compare the runtime/test pair and disposition evidence before any port."
+      },
+      {
+        "ref": "refs/heads/codex/e02-C-hygiene",
+        "head": "b56ec6b1f802ab10d2927492bbc082f90c390139",
+        "main_ancestor": false,
+        "G_ancestor": false,
+        "prior_audit": "1945-workspace-cleanup-candidates.md",
+        "known_delta": "36-path old delta including two handoff evidence files; current independent C review leaves LA-018 held. Keep the ref and have C disposition the evidence; checkout recreation is unnecessary."
+      }
+    ],
+    "recommendation": "Do not remove these branch refs or run Git garbage collection. They preserve actual unmerged code/docs, while the old checkouts themselves are already absent."
+  },
+  "remaining_candidate_paths": [],
+  "scope_limit": "This is a bounded readback, not a claim that all of _build or the home directory has no removable material. It makes no causal claim about the free-space change.",
+  "fourth_largest_source_copy_also_already_transferred": {
+    "path": "policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source",
+    "allocated_bytes_at_preflight": 62005248,
+    "candidate_commit": "70c4a14fc872f5ef66437d958ba63884ecdda168",
+    "candidate_tree": "3e654b07a3228d1b3d2d0bb2a3a91ae792068090",
+    "remote_tracking_refs_verified_locally": [
+      "origin/codex/e02-E-continuation-20261006",
+      "origin/codex/e02-E-doe-20261006"
+    ],
+    "disposition": "Already moved per trash-checkpoint12-actions.json; exact source is recoverable from the verified E topic refs."
+  }
+}

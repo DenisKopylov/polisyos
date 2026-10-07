@@ -1,5 +1,7 @@
 Прочитай также `execution-prompts/continuation-2026-10-07/COMMON.md` из fetched G. Полные пути ниже относительно `policy-engine/docs/research/e02-cloud-test-plan/`, если не указано иначе.
 
+Текущие execution instructions: [D-resume-after-a795-all45.md](D-resume-after-a795-all45.md). Этот документ сохраняет прежний input cut; operative next actions superseded, immutable original criteria/receipts остаются действующими.
+
 B120/source-status update: this earlier 258-era prompt is superseded for latest PR68 by `D-resume-after-pr68-680.md`. B120 is the existing-owner controller/stop/result bridge; raw tiny-number decoder evidence is its upstream dependency, not the finding definition. G has10 native factory PASS at D680; universal deployed provider/invoice proof is not an original prerequisite. Preserve the other original criteria and their individual inputs.
 
 # D — продолжение E02 после публикации интеграционной базы

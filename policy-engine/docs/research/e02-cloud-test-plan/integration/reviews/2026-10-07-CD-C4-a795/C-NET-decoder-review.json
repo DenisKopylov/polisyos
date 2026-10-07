@@ -1,0 +1,70 @@
+{
+  "schema": "policyos.e02.G.C_NET_B_decoder_overlap_review.v1",
+  "review": "bounded C cleanup witness; B decoder-only test repair pending",
+  "read_only": true,
+  "pins": {
+    "C_candidate": "8580eb4a13cbd734e0a685069ea5bb16a1c5ee63",
+    "C_tree": "267fef2e1a46aee7a7b2c1f6baaa00bf66e3cbd9",
+    "C_receipt": "373c9623071f60c08f5e362e61d211829e5d8f5a",
+    "B_owner_packet": "12d77b34ea845adde0bf27a653fa70fd2ea8ad35",
+    "C_streaming_blob": "80af60d90e2eb6aeed0d335c4dbe5d80c8c24c7c",
+    "B_streaming_blob_d030_0bf": "0915a4e9bc52ed97048d7e9f135ab8d3dfccbff6",
+    "B_test_blob_d030_0bf": "7ddc6b5bbe7b09c8db0ccaecf75852d9cee252a7"
+  },
+  "c_cleanup": {
+    "candidate_focused_run": "10 passed",
+    "property": "registry retains exact prior pool/handle cleanup owner after injected sanitizer and disconnect failures; a distinct-pool fresh JSONL stream persists a row/checkpoint; registry shutdown retries and clears the old owner",
+    "primary_exception_preserved": true,
+    "negative_control": "no-op cleanup-owner retention makes the assertion fail",
+    "permit_observation": "pending_permit=false; semaphore value=1",
+    "not_established": [
+      "physical socket or FD closure: local file connector disconnect is no-op",
+      "same-pool acquire refusal or no replacement before physical cleanup",
+      "hard/global physical capacity",
+      "B87 or B89 closure"
+    ],
+    "criterion_ids": [],
+    "closure_ids": []
+  },
+  "decoder": {
+    "C_encoding": "compact JSON ordered field/value pairs",
+    "B_fixture_expectation": "legacy field:value strings",
+    "canonical_writer": "B owns test_pool_stream_budget_oracle.py::_pending_checkpoint; C owns production streaming.py",
+    "C3_composition": {
+      "source_commit": "c694daaf888657ec261988fa2066df792fd77110",
+      "source_tree": "bf1e231b53c1f68f7fce176792ea0011636a83f8",
+      "collected": 16,
+      "passed": 14,
+      "budget_selectors_failed_at_fixture_setup": 2,
+      "first_divergence": "test_pool_stream_budget_oracle.py line 96: JSON pair differs from legacy string",
+      "cap_assertions_reached": false
+    },
+    "C4_candidate_focused": {
+      "passed": 10,
+      "includes_current_C_frontier_cap_and_recovery_tests": true,
+      "B_budget_selectors_run": false
+    },
+    "B_only_d030_0bf": {
+      "source_and_test_blobs_identical_across_refs": true,
+      "same_native_receipt_blob_is_one_captured_execution": true,
+      "executed_source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "executed_source_tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+      "cap_selector": "semantic failure after poll/flush/commit under older B streaming blob 0915a4e9…",
+      "admitted_recovery_selector": "passed",
+      "transfers_to_C_blob_80af": false
+    }
+  },
+  "minimal_next_action": {
+    "owner": "B",
+    "scope": "test-only decoder in _pending_checkpoint; no production key-format change",
+    "decoder": "json.loads each persisted key and exact ordered field/value equality; malformed, reordered, or mismatched identities fail",
+    "replay": [
+      "test_restored_frontier_above_new_cap_refuses_before_consumer_effects",
+      "test_admitted_recovery_emits_two_sessions_once_with_original_lineage"
+    ],
+    "paired_source": "C streaming.py blob 80af60d90e2eb6aeed0d335c4dbe5d80c8c24c7c plus exact selected B supplier sources and B decoder test candidate",
+    "receipt": "exact source/module identities and complete deciding stdout/stderr/JUnit",
+    "no_broad_replay": true
+  },
+  "D680_boundary": "The 10-case service-owner budget factory run is a SearchLoopRunner/budget-ledger/CAS property, not a stream decoder, restored-frontier, or pool-lifecycle witness."
+}

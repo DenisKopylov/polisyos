@@ -1,5 +1,7 @@
 # D continuation after stopped PR68
 
+Текущие execution instructions: [D-resume-after-a795-all45.md](D-resume-after-a795-all45.md). Этот документ сохраняет прежний input cut; operative next actions superseded, immutable original criteria/receipts остаются действующими.
+
 Этот prompt и G review/receipts опубликованы на `codex/e02-integration`. Получи их обычным fetch и читай непосредственно через `git show origin/codex/e02-integration:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-eleventh-wave/README.md`. Указанный G SHA `855cb26a…` — историческая база review; используй актуальный fetched checkpoint без reset/rebase и не пересылай локальные файлы в chat.
 
 You are the D implementation owner/orchestrator continuing the E02 work. This prompt supersedes earlier D status summaries where they conflict with the exact identities and residuals below. Finish useful bounded source and verification work; do not turn a source review or proposal into a formal finding closure. G remains the sole publisher of `codex/e02-integration`. Do not publish to `main` without separate explicit human authorization, and do not message other chats without that authorization.

@@ -1,0 +1,52 @@
+{
+  "schema": "policyos.e02.cd_c4_a795_final_links.v1",
+  "result": "GO",
+  "g_head": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+  "g_tree": "f79fc5304324b92aeed741d7abdd6fc6f54a130a",
+  "link_sweep": {
+    "local_markdown_links_before_fix": 49,
+    "initial_missing": [
+      "integration/reviews/2026-10-07-CD-C4-a795/C54-remaining.md -> C54-remaining.json"
+    ],
+    "current_fix": "C54-remaining.md now links C54-decisions.json",
+    "fixed_target_exists": true,
+    "other_missing_or_ignored_targets": 0,
+    "json_files_parsed": 12,
+    "parse_errors": 0
+  },
+  "C54": {
+    "source_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-current-root-20261007-c4-v4.json@847929e3e0cac30fb49ff61a47ecaf46d41ac94d",
+    "findings": 54,
+    "bundles": 33,
+    "criterion_occurrences": 59,
+    "source_spans_verified": 59,
+    "row_bundle_or_digest_mismatches": 0,
+    "original_docs_commit": "198076863e143dea9f89f02734b13d50dae3eed5"
+  },
+  "D": {
+    "source_ledger_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json@617988f7cfb8e5cb74b6beba41704eb117b0e033",
+    "occurrence_rows": 46,
+    "unique_findings": 45,
+    "bundles": 17,
+    "ledger_json_pointers_verified": 46,
+    "original_source_byte_ranges_verified": 92,
+    "role_mismatches": 0,
+    "implementation": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+    "implementation_tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+    "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+    "candidate_tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+    "receipt_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+    "receipt_tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+    "only_3b31_to_a795_changed_path": "policy-engine/tests/unit/scientist/methods/search/test_service_persistence.py",
+    "archive_members": 102,
+    "candidate_a795_new31_pass": 31,
+    "candidate_a795_affected22_pass": 22,
+    "candidate_a795_removal_expected_fail": 1
+  },
+  "B53_stream_fixture_blob_match": {
+    "candidate": "0bf788ac2e57533b08be9172d64c19705a3af30d",
+    "blob": "7ddc6b5bbe7b09c8db0ccaecf75852d9cee252a7",
+    "matches_C_NET_decoder_review": true
+  },
+  "changed_only_ignored_report": true
+}

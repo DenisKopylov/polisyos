@@ -1,5 +1,7 @@
 Прочитай также `execution-prompts/continuation-2026-10-07/COMMON.md` из fetched G. Полные пути ниже относительно `policy-engine/docs/research/e02-cloud-test-plan/`, если не указано иначе.
 
+Текущие execution instructions: [C-resume-after-C4-all54.md](C-resume-after-C4-all54.md). Этот документ сохраняет прежний input cut; operative next actions superseded, immutable original criteria/receipts остаются действующими.
+
 # Продолжение локальной C работы: полный C54 backlog
 
 Ты — локальный владелец продолжения C для E02. Fetch published main, G и C topics; продолжай matching C history. Новые README/задания читай из G через fetch, не жди новой main публикации. Прочитай полностью корневой AGENTS.md, HANDOFF.md, execution-organization/README.md, closure-decisions/README.md, C.md, coverage.json, method-decisions.md, runtime-profiles.md, cross-unit-contracts.md и verification-and-closeout.md. Затем запусти results/import_results.py --check, прочитай verification.json и query.py --unit C --failures-only --limit 30. Results index служит навигацией, не подтверждает продуктовый PASS.

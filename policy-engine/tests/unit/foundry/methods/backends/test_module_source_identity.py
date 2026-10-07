@@ -130,12 +130,25 @@ class _NestedSource:
         return {"product": math._e02_b74_owner_child.multiply(state["x"])}
 
 
-@pytest.mark.parametrize("source", [_ImportedConstantSource, _NestedSource])
+class _NestedFunctionSource:
+    signature: ClassVar = _PRODUCER_SIGNATURE
+    metadata: ClassVar = _METADATA
+
+    @staticmethod
+    def pure_step(state, params):
+        def selected(value):
+            return math._e02_b74_owner_multiplier(value)
+
+        return {"product": selected(state["x"])}
+
+
+@pytest.mark.parametrize("source", [_ImportedConstantSource, _NestedSource, _NestedFunctionSource])
 def test_selected_constant_and_nested_module_are_bound_before_resume(tmp_path, monkeypatch, source):
     child = ModuleType("math.e02_child")
     child.multiply = _original_multiplier
     monkeypatch.setattr(math, "_e02_b74_owner_child", child, raising=False)
     monkeypatch.setattr(math, "_e02_b74_owner_constant", 2, raising=False)
+    monkeypatch.setattr(math, "_e02_b74_owner_multiplier", _original_multiplier, raising=False)
     chain, registry = _chain()
     registry.register(source, override=True)
     store = FileSystemCAS(tmp_path / "cas")
@@ -151,6 +164,7 @@ def test_selected_constant_and_nested_module_are_bound_before_resume(tmp_path, m
     )
     checkpoint = ChainCheckpoint.load(next((tmp_path / "checkpoints").glob("*_0000_*.json")))
     monkeypatch.setattr(math, "_e02_b74_owner_constant", 3)
+    monkeypatch.setattr(math, "_e02_b74_owner_multiplier", _replacement_multiplier)
     child.multiply = _replacement_multiplier
     assert (
         CheckpointingChainExecutor(registry=registry)
@@ -183,30 +197,86 @@ def test_unselected_module_member_does_not_invalidate_real_prefix(tmp_path, monk
     assert resumed.history_complete
 
 
-@pytest.mark.parametrize("access", ["getattr", "transport", "mutable-member"])
-def test_unsupported_module_access_refuses_before_actual_dispatch(tmp_path, monkeypatch, access):
+class _ReflectiveSource:
+    signature: ClassVar = _PRODUCER_SIGNATURE
+    metadata: ClassVar = _METADATA
+
+    @staticmethod
+    def pure_step(state, params):
+        attribute_name = "_e02_b74_owner_multiplier"
+        return {"product": getattr(math, attribute_name)(state["x"])}
+
+
+def _transported(module, value):
+    return module._e02_b74_owner_multiplier(value)
+
+
+class _TransportSource:
+    signature: ClassVar = _PRODUCER_SIGNATURE
+    metadata: ClassVar = _METADATA
+
+    @staticmethod
+    def pure_step(state, params):
+        return {"product": _transported(math, state["x"])}
+
+
+class _MutableModuleSource:
+    signature: ClassVar = _PRODUCER_SIGNATURE
+    metadata: ClassVar = _METADATA
+
+    @staticmethod
+    def pure_step(state, params):
+        return {"product": state["x"] * math._e02_b74_owner_mutable[0]}
+
+
+class _DynamicImportSource:
+    signature: ClassVar = _PRODUCER_SIGNATURE
+    metadata: ClassVar = _METADATA
+
+    @staticmethod
+    def pure_step(state, params):
+        return {"product": __import__("math")._e02_b74_owner_multiplier(state["x"])}
+
+
+class _LocalImportSource:
+    signature: ClassVar = _PRODUCER_SIGNATURE
+    metadata: ClassVar = _METADATA
+
+    @staticmethod
+    def pure_step(state, params):
+        import math as selected
+
+        return {"product": selected._e02_b74_owner_multiplier(state["x"])}
+
+
+_module_namespace = globals
+
+
+class _NamespaceSource:
+    signature: ClassVar = _PRODUCER_SIGNATURE
+    metadata: ClassVar = _METADATA
+
+    @staticmethod
+    def pure_step(state, params):
+        return {"product": _module_namespace()["math"]._e02_b74_owner_multiplier(state["x"])}
+
+
+@pytest.mark.parametrize(
+    "source",
+    [
+        _ReflectiveSource,
+        _TransportSource,
+        _MutableModuleSource,
+        _DynamicImportSource,
+        _LocalImportSource,
+        _NamespaceSource,
+    ],
+)
+def test_unsupported_module_access_refuses_before_actual_dispatch(tmp_path, monkeypatch, source):
     monkeypatch.setattr(math, "_e02_b74_owner_multiplier", _original_multiplier, raising=False)
     monkeypatch.setattr(math, "_e02_b74_owner_mutable", [2], raising=False)
-
-    def transported(module, value):
-        return module._e02_b74_owner_multiplier(value)
-
-    class Source:
-        signature: ClassVar = _PRODUCER_SIGNATURE
-        metadata: ClassVar = _METADATA
-
-        @staticmethod
-        def pure_step(state, params):
-            if access == "getattr":
-                product = getattr(math, "_e02_b74_owner_multiplier")(state["x"])
-            elif access == "transport":
-                product = transported(math, state["x"])
-            else:
-                product = state["x"] * math._e02_b74_owner_mutable[0]
-            return {"product": product}
-
     chain, registry = _chain()
-    registry.register(Source, override=True)
+    registry.register(source, override=True)
     assert (
         CheckpointingChainExecutor(registry=registry)
         .execute(chain, initial_state={"x": 3})

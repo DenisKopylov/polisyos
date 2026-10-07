@@ -34,6 +34,10 @@ same-version member replacement therefore invalidates checkpoint reuse and
 compiler specialization. Unused module members are outside the selected graph.
 Module transport/aliasing, reflection, dynamic imports, class-held modules and
 paths through non-module objects are unsupported in the strict profile.
+Nested Python code uses the same referenced-global census. Local import
+bytecodes, namespace-producing/reflective builtins (including captured aliases)
+and function/class namespace introspection refuse strict admission; a Python
+version cannot stand in for the selected graph obtained through those paths.
 
 Builtin implementations retain the Python/distribution version boundary.
 Installed external callables whose internals cannot be projected retain an
@@ -41,9 +45,8 @@ explicit opaque boundary binding their selected source/type/FQN and installed
 version. This keeps existing numerical extension/JAX callables usable, but does
 not establish their mutable internal state, transitive library code, external
 effects or arbitrary runtime hot-reload. Replacing a selected member with a
-source-readable Python helper still binds that actual helper. Unsupported
-Python functions, hostile runtime mutation, unavailable
-Python functions, wrapped functions, custom descriptors/metaclasses, callable
+source-readable Python helper still binds that actual helper. Unavailable
+Python functions, hostile runtime mutation, wrapped functions, custom descriptors/metaclasses, callable
 instances and mutable captured values do not establish strict code closure.
 Known unsupported graph values raise `SourceIdentityUnavailableError` before
 execution. The `strict=False` legacy profile records explicit unavailable

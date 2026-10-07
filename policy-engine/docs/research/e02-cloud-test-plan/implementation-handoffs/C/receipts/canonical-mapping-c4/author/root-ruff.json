@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "-m",
+    "ruff",
+    "check",
+    "policy-engine/src/polisyos/ir/artifacts/io.py",
+    "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-canon-20261006/polisyos",
+  "source_candidate": "e3cb3fafc847b94a5d4b3adc03b814b4c711920c",
+  "source_path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+  "sha256_before": "d5126942fc680556cb8ed6b9044afde88696846a6e6748de36c3859e774d35f3",
+  "sha256_after": "d5126942fc680556cb8ed6b9044afde88696846a6e6748de36c3859e774d35f3",
+  "exit_code": 0,
+  "elapsed_seconds": 0.04029816703405231,
+  "stdout": "All checks passed!\n",
+  "stderr": "",
+  "scope": "exact unchanged source bytes; documentation tip may advance; no test rerun"
+}

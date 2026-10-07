@@ -47,9 +47,11 @@ Receipt groups:
   separately reported the frozen source candidate check at `e3cb3faf` as exit
   0. A supplemental check with blank-at-end-of-line whitespace disabled is not
   a default full diff-check pass.
-- `author/` records the Ruff and release-fragment TOML command/output observed
-  during author verification. The short command wrapper did not preserve
-  separate stderr or numeric exit-code fields.
+- `author/` preserves the earlier author Ruff and release-fragment TOML
+  wrapper output, which did not preserve separate stderr or numeric exit-code
+  fields. `author/root-ruff.json` is a distinct complete Root capture of the
+  scoped Ruff check: exit 0, full stdout/stderr, and equal before/after source
+  hashes for the frozen e3 candidate. It did not rerun tests.
 - `diagnostic/production-invocation.*` holds only the compact
   production-invocation command/stdout/stderr. The 170,895,992-byte JSON
   diagnostic stays in ignored local raw storage at

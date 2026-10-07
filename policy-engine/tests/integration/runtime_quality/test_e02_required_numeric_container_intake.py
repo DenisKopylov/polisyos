@@ -12,6 +12,7 @@ from collections.abc import Callable, Mapping, Sequence
 from copy import deepcopy
 from typing import Any
 
+import numpy as np
 import pytest
 
 from polisyos.foundry.methods.catalog.causal.ncm_engine import NCMEngineMethod
@@ -283,6 +284,22 @@ def _damage_coupled_non_finite_queue(output: dict[str, Any]) -> None:
     output["result"]["queue_length_trajectory"][0] = float("nan")
 
 
+def _damage_coupled_empty_result(output: dict[str, Any]) -> None:
+    output["result"] = {}
+
+
+def _damage_coupled_malformed_result(output: dict[str, Any]) -> None:
+    output["result"] = []
+
+
+def _damage_coupled_scalar_queue(output: dict[str, Any]) -> None:
+    output["result"]["queue_length_trajectory"] = np.array(0.0)
+
+
+def _damage_coupled_matrix_queue(output: dict[str, Any]) -> None:
+    output["result"]["queue_length_trajectory"] = np.array([[0.0]])
+
+
 @pytest.mark.parametrize(
     ("mutate", "expected_code"),
     [
@@ -300,6 +317,26 @@ def _damage_coupled_non_finite_queue(output: dict[str, Any]) -> None:
             _damage_coupled_non_finite_queue,
             "coupled_queue_trajectory_non_finite",
             id="non-finite-queue-value",
+        ),
+        pytest.param(
+            _damage_coupled_empty_result,
+            "coupled_simulation_result_missing",
+            id="empty-result-package",
+        ),
+        pytest.param(
+            _damage_coupled_malformed_result,
+            "coupled_simulation_result_malformed",
+            id="malformed-result-package",
+        ),
+        pytest.param(
+            _damage_coupled_scalar_queue,
+            "coupled_queue_trajectory_non_numeric",
+            id="scalar-array-queue-container",
+        ),
+        pytest.param(
+            _damage_coupled_matrix_queue,
+            "coupled_queue_trajectory_non_numeric",
+            id="matrix-array-queue-container",
         ),
     ],
 )

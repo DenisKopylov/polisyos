@@ -2217,9 +2217,17 @@ class JointSimulationHorizonController:
             params["seed"] = int(replication_seed)
             output = method.pure_step(run_plan.coupled_state, params)
             if not isinstance(output, Mapping):
+                raise JointSimulationControllerError(
+                    "coupled_simulation_result_missing"
+                    if output is None
+                    else "coupled_simulation_result_malformed"
+                )
+            raw_result = output.get("result")
+            if raw_result is None:
                 raise JointSimulationControllerError("coupled_simulation_result_missing")
-            raw_result = output.get("result", {})
             if not isinstance(raw_result, Mapping):
+                raise JointSimulationControllerError("coupled_simulation_result_malformed")
+            if not raw_result:
                 raise JointSimulationControllerError("coupled_simulation_result_missing")
             result = {
                 **raw_result,
@@ -2938,11 +2946,17 @@ def _coupled_queue_value(result: Mapping[str, Any], index: int) -> float:
         value = result.get("initial_queue_length")
     else:
         queue = result.get("queue_length_trajectory")
-        if (
+        if queue is None:
+            value = None
+        elif (
             not isinstance(queue, Sequence | np.ndarray)
             or isinstance(queue, str | bytes | bytearray)
-            or index - 1 >= len(queue)
+            or (isinstance(queue, np.ndarray) and queue.ndim != 1)
         ):
+            raise JointSimulationControllerError(
+                "coupled_queue_trajectory_non_numeric", f"queue_length@{index}"
+            )
+        elif index - 1 >= len(queue):
             value = None
         else:
             value = queue[index - 1]
@@ -3041,23 +3055,37 @@ def _ncm_outcomes(
     selected_outcomes: Sequence[str],
     plan: EnginePlan,
 ) -> dict[str, float]:
-    payload = output.get("counterfactual_result")
-    if not isinstance(payload, Mapping):
+    if output is None:
         raise JointSimulationControllerError("ncm_world_summaries_missing")
+    if not isinstance(output, Mapping):
+        raise JointSimulationControllerError("ncm_world_summaries_malformed")
+    payload = output.get("counterfactual_result")
+    if payload is None:
+        raise JointSimulationControllerError("ncm_world_summaries_missing")
+    if not isinstance(payload, Mapping):
+        raise JointSimulationControllerError("ncm_world_summaries_malformed")
     summaries = payload.get("world_summaries")
+    if summaries is None:
+        raise JointSimulationControllerError("ncm_world_summaries_missing")
     if (
         not isinstance(summaries, Sequence)
         or isinstance(summaries, str | bytes | bytearray)
-        or not summaries
-        or not isinstance(summaries[0], Mapping)
     ):
+        raise JointSimulationControllerError("ncm_world_summaries_malformed")
+    if not summaries:
         raise JointSimulationControllerError("ncm_world_summaries_missing")
+    if not isinstance(summaries[0], Mapping):
+        raise JointSimulationControllerError("ncm_world_summaries_malformed")
     summary = summaries[0]
     outcomes: dict[str, float] = {}
     for outcome in selected_outcomes:
         engine_outcome = _engine_variable(outcome, plan)
         stats = summary.get(engine_outcome)
-        if not isinstance(stats, Mapping) or "mean" not in stats:
+        if stats is None:
+            raise JointSimulationControllerError("ncm_outcome_missing", engine_outcome)
+        if not isinstance(stats, Mapping):
+            raise JointSimulationControllerError("ncm_outcome_malformed", engine_outcome)
+        if "mean" not in stats:
             raise JointSimulationControllerError("ncm_outcome_missing", engine_outcome)
         outcomes[outcome] = _required_finite_scalar(
             stats["mean"],

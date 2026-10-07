@@ -160,14 +160,14 @@
     {
       "finding_id": "B219",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B219.json",
-      "bytes": 18795,
-      "sha256": "04006b1d8083764f2d91d88abce4144caca5d7a8a3decf2e7e12bbf11735fed3"
+      "bytes": 19781,
+      "sha256": "294e6da91ba24fc4ea0f821ecc8ddbe29917549d54473d1c0980d4eef865b7bb"
     },
     {
       "finding_id": "B220",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B220.json",
-      "bytes": 23050,
-      "sha256": "6364d8587415aad353787614f9870c7c3f920d9a6cfe786e8a27aee32a164257"
+      "bytes": 24036,
+      "sha256": "b3ffc832480aba04486d03e806ee3c03498e6a716f0e4f75c5d9882914d349f4"
     },
     {
       "finding_id": "B221",
@@ -232,14 +232,14 @@
     {
       "finding_id": "LA-004",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-004.json",
-      "bytes": 16923,
-      "sha256": "8b5a3c25ce061df1c6765159601606db2cef25e9e602dfcd671834f5ba92fb26"
+      "bytes": 18375,
+      "sha256": "2e423bee342388e40cccf45ef4693462a6d2d580a261d36eee456c680e0862a4"
     },
     {
       "finding_id": "LA-007",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-007.json",
-      "bytes": 28077,
-      "sha256": "0a274bda453ceecf5a155712379a7d19a8f8414e7fd2b81c4d2aeb49d356a442"
+      "bytes": 29063,
+      "sha256": "ef26068d5d29bc2afc8cb1797551ab2756de3c388d7b6082e42b4273037b3a23"
     },
     {
       "finding_id": "LA-016",
@@ -256,20 +256,20 @@
     {
       "finding_id": "LA-019",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-019.json",
-      "bytes": 29350,
-      "sha256": "e9d143e4b6d07df99ec30ba0f05b38186782ecf95babee6856253980066d0d32"
+      "bytes": 30336,
+      "sha256": "216500c4567a885171e2e072f960c514fe4c729a87753b8728d2e78bbc6d3f1f"
     },
     {
       "finding_id": "LA-020",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-020.json",
-      "bytes": 35105,
-      "sha256": "4c758a50bc1323fbccf85ab96bec9b8e93e69777afa922d2504ac827bddc93a7"
+      "bytes": 36091,
+      "sha256": "6ba1897af5ebe277e088394e2a9bdc17f56ebd1b6a8a127d7e8841bf6b7273cb"
     },
     {
       "finding_id": "LA-035",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-035.json",
-      "bytes": 22371,
-      "sha256": "3e121761557170130d5812a8fdfd073de93a287af045048bbdba2bc9eae69d06"
+      "bytes": 23823,
+      "sha256": "7269513ecb744b7406596e19c8aea5713b5d658174dc7668055fbb77f2bf66f4"
     },
     {
       "finding_id": "LA-037",
@@ -344,9 +344,24 @@
     "whole_custody_check": "3532stored/1938decoded records actualfullhash/byte verified in committed continuation-intake-20261007 receipt; raw archives baseline absence not converted to PASS"
   },
   "independent_original35_review": {
-    "scratch_path_at_build": "/tmp/e02-F-continuation-20261007/cau/original35-independent-review-final.json",
-    "bytes": 986045,
-    "sha256": "62a3de177f603b7daceb61d3024c21d6a5e2eb5013d92a303b38643228c4e0a5",
+    "receipt": {
+      "git_ref": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007.json",
+      "bytes": 88220,
+      "sha256": "5dac5481a7b825187f82918f54a6e438a6f8ca2a22496c9eb98b800aa8ba40cc",
+      "git_blob": "298c54a19207493d690be201b45988aece22f093",
+      "tree": "d24808dc3eeed4881256f2a70cdeb02357c425c7"
+    },
+    "packet": {
+      "git_ref": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/original35-review.json.gz",
+      "bytes": 119985,
+      "sha256": "9bdbbf870a823b798e5bdc278099dd825b4341793c63e3b4de9ab16b67c13626",
+      "git_blob": "08d459a9e753ab5cf5a032b5c948c694fd41211c",
+      "tree": "d24808dc3eeed4881256f2a70cdeb02357c425c7"
+    },
+    "decoded_bytes": 998227,
+    "decoded_sha256": "67607c87d420030944247874fdc6ac6962f6201fc982f534257529b89fa820b6",
     "not_scientific_rerun": true
   },
   "P41": {

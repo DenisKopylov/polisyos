@@ -282,6 +282,23 @@
   },
   "separate_unavailable_inputs_or_authority": "38 finite UNKNOWN/incomplete export candidates and arbitrary computed/external clients are not established supported consumers. Whole Runtime authority, distinct PDC semantic ingress and G formal finding closure remain separate unissued/unmeasured inputs.",
   "existing_author_or_reviewer_conflict": null,
+  "current_20261007_supplemental_review_refs": [
+    {
+      "git_ref": "605dadeb76499c3f6eadd95e16a8df1bbb2cb89f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007.json",
+      "bytes": 53396,
+      "sha256": "67d54b44a65b303621ccbaed4b56d34bb43a1e210556292e21614967864b89e2",
+      "git_blob": "41eb49e017d64686c2e70cfe932d66720c7d5f44"
+    },
+    {
+      "git_ref": "605dadeb76499c3f6eadd95e16a8df1bbb2cb89f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/independent-cau/independent-review.json",
+      "bytes": 9464,
+      "sha256": "2aed54bf598618110f073923d27fb2560301299db963bb2ba8460003d8b7b93b",
+      "git_blob": "9db18c93289f9f8fb0b8ca5a5b2137051cb490a1",
+      "material_role": "Complete independent final6f test-carrier review of installed8236 runtime; initial7f observer failure retained"
+    }
+  ],
   "schema": "e02.F.original-finding.v3",
   "primary_bundle": "API-01",
   "criterion_short": "Explicit actual export manifest preserving supported direct/star/private/FQN/pickle/pydoc/monkeypatch identities; incidental internal imports cannot expand API; no blanket underscore retirement.",

@@ -1174,6 +1174,23 @@
       },
       "recorded_independent_oracle_and_negative": "Fullpayload120 permutations/60unique; DiGraph substitution retains markers but edge multiset FAIL",
       "separate_unavailable_inputs_or_authority": "Live Kuzu/Rustworkx transports not run, not implied.",
+      "current_20261007_supplemental_review_refs": [
+        {
+          "git_ref": "605dadeb76499c3f6eadd95e16a8df1bbb2cb89f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007.json",
+          "bytes": 53396,
+          "sha256": "67d54b44a65b303621ccbaed4b56d34bb43a1e210556292e21614967864b89e2",
+          "git_blob": "41eb49e017d64686c2e70cfe932d66720c7d5f44"
+        },
+        {
+          "git_ref": "605dadeb76499c3f6eadd95e16a8df1bbb2cb89f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/independent-cau/independent-review.json",
+          "bytes": 9464,
+          "sha256": "2aed54bf598618110f073923d27fb2560301299db963bb2ba8460003d8b7b93b",
+          "git_blob": "9db18c93289f9f8fb0b8ca5a5b2137051cb490a1",
+          "material_role": "Complete independent final6f test-carrier review of installed8236 runtime; initial7f observer failure retained"
+        }
+      ],
       "schema": "e02.F.original-finding.v3",
       "primary_bundle": "GRF-02",
       "criterion_short": "Actual native MultiDiGraph export retains every parallel edge identity/mark/lag/evidence/payload under order changes; no live Kuzu inference.",
@@ -1245,6 +1262,23 @@
       },
       "recorded_independent_oracle_and_negative": "Native75+independent23; nested-freeze/row-alias/weakref removals each actualFAIL;518 retained19cache cases",
       "separate_unavailable_inputs_or_authority": "Live Kuzu/readiness/real causal authority remain UNRUN outside local property.",
+      "current_20261007_supplemental_review_refs": [
+        {
+          "git_ref": "605dadeb76499c3f6eadd95e16a8df1bbb2cb89f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007.json",
+          "bytes": 53396,
+          "sha256": "67d54b44a65b303621ccbaed4b56d34bb43a1e210556292e21614967864b89e2",
+          "git_blob": "41eb49e017d64686c2e70cfe932d66720c7d5f44"
+        },
+        {
+          "git_ref": "605dadeb76499c3f6eadd95e16a8df1bbb2cb89f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/independent-cau/independent-review.json",
+          "bytes": 9464,
+          "sha256": "2aed54bf598618110f073923d27fb2560301299db963bb2ba8460003d8b7b93b",
+          "git_blob": "9db18c93289f9f8fb0b8ca5a5b2137051cb490a1",
+          "material_role": "Complete independent final6f test-carrier review of installed8236 runtime; initial7f observer failure retained"
+        }
+      ],
       "schema": "e02.F.original-finding.v3",
       "primary_bundle": "GRF-02",
       "criterion_short": "Deep immutable topology/nested data and detached prepared rows; warmed model_copy/update agrees with dump/ancestors/export, old-cache weakref release preserved.",
@@ -2066,6 +2100,31 @@
       },
       "recorded_independent_oracle_and_negative": "532matchedtax/subsidy + distinctunits/means-test/laborseed; latest412 realComposite tax/labor states and zero-employment match/diverge",
       "separate_unavailable_inputs_or_authority": "No fullmodel calibration/replacement/migration or externaleconomicnorm implied.",
+      "current_20261007_supplemental_review_refs": [
+        {
+          "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007.json",
+          "bytes": 106928,
+          "sha256": "24a72061e9e4379753f349f56c110b516cef300457b94e2d6a5e066b702f760e",
+          "git_blob": "a9bee7918f8bab3a12e9b1bc8d9ddcbfb9b58e50"
+        },
+        {
+          "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/independent-review.json",
+          "bytes": 40561,
+          "sha256": "4369e1936d4a6cd83b0394f15eb667ff3c9fb061eea7186cff2b78d7b1bd50bf",
+          "git_blob": "be7bd955f215482854b2b847397eaa5ac82e2028",
+          "material_role": "Complete independent frozen193 scientific/native consumer review"
+        },
+        {
+          "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/doc-delta-review.json",
+          "bytes": 688,
+          "sha256": "3ee314c49175fa3f9afcc21acc9cc3d5765b5c2606a5c3633a57c47b1e95ab0c",
+          "git_blob": "717a372eb3d5ed962bfcde9dc106ae27cc0eff6c",
+          "material_role": "Independent nine-line doc-only append review; runtime/test bytes193 unchanged"
+        }
+      ],
       "schema": "e02.F.original-finding.v3",
       "primary_bundle": "ECO-01",
       "criterion_short": "Two distinct native/plugin economic models: state/unit/time/tax-base/RNG/budget mapping, matched regime equivalence and deliberately different regime non-equivalence, accounting and observable outputs.",
@@ -2150,6 +2209,23 @@
       },
       "recorded_independent_oracle_and_negative": "Published actual source8236 API census16819tracked/6815parsed,243literalimports;225dynamicAST candidates(155unresolved/36finite/13other/21literal); 753filename lexical matches/73ASTloader calls with4runtime computed unresolved. Computed candidates are not established clients. Final actual wheel/sdist each199PASS,5source-census deselections,0SKIP/ERROR,90LGBM feature-name warnings; eight installed marker-preserving removals actualFAIL and complete3459resource files/site postguardsPASS. Both immutable primary receipts and all115author+53independent complete bodies are Git-bound. ROOT recommendation is adopted in this exact current decision input; unresolved computed/external clients stay outside the supported manifest. Old5cd/ab56 native results remain historical.",
       "separate_unavailable_inputs_or_authority": "38 finite UNKNOWN/incomplete export candidates and arbitrary computed/external clients are not established supported consumers. Whole Runtime authority, distinct PDC semantic ingress and G formal finding closure remain separate unissued/unmeasured inputs.",
+      "current_20261007_supplemental_review_refs": [
+        {
+          "git_ref": "605dadeb76499c3f6eadd95e16a8df1bbb2cb89f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007.json",
+          "bytes": 53396,
+          "sha256": "67d54b44a65b303621ccbaed4b56d34bb43a1e210556292e21614967864b89e2",
+          "git_blob": "41eb49e017d64686c2e70cfe932d66720c7d5f44"
+        },
+        {
+          "git_ref": "605dadeb76499c3f6eadd95e16a8df1bbb2cb89f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/independent-cau/independent-review.json",
+          "bytes": 9464,
+          "sha256": "2aed54bf598618110f073923d27fb2560301299db963bb2ba8460003d8b7b93b",
+          "git_blob": "9db18c93289f9f8fb0b8ca5a5b2137051cb490a1",
+          "material_role": "Complete independent final6f test-carrier review of installed8236 runtime; initial7f observer failure retained"
+        }
+      ],
       "schema": "e02.F.original-finding.v3",
       "primary_bundle": "GRF-01",
       "criterion_short": "Absent empty id_engine.py sibling while package/API remains: actual imports/find_spec, loader/sourceinventory bounded census, installed wheel/sdist and native ID tests.",
@@ -2390,6 +2466,23 @@
       },
       "recorded_independent_oracle_and_negative": "Published actual source8236 API census16819tracked/6815parsed,243literalimports;225dynamicAST candidates(155unresolved/36finite/13other/21literal); 753filename lexical matches/73ASTloader calls with4runtime computed unresolved. Computed candidates are not established clients. Final actual wheel/sdist each199PASS,5source-census deselections,0SKIP/ERROR,90LGBM feature-name warnings; eight installed marker-preserving removals actualFAIL and complete3459resource files/site postguardsPASS. Both immutable primary receipts and all115author+53independent complete bodies are Git-bound. ROOT recommendation is adopted in this exact current decision input; unresolved computed/external clients stay outside the supported manifest. Old5cd/ab56 native results remain historical.",
       "separate_unavailable_inputs_or_authority": "38 finite UNKNOWN/incomplete export candidates and arbitrary computed/external clients are not established supported consumers. Whole Runtime authority, distinct PDC semantic ingress and G formal finding closure remain separate unissued/unmeasured inputs.",
+      "current_20261007_supplemental_review_refs": [
+        {
+          "git_ref": "605dadeb76499c3f6eadd95e16a8df1bbb2cb89f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007.json",
+          "bytes": 53396,
+          "sha256": "67d54b44a65b303621ccbaed4b56d34bb43a1e210556292e21614967864b89e2",
+          "git_blob": "41eb49e017d64686c2e70cfe932d66720c7d5f44"
+        },
+        {
+          "git_ref": "605dadeb76499c3f6eadd95e16a8df1bbb2cb89f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/independent-cau/independent-review.json",
+          "bytes": 9464,
+          "sha256": "2aed54bf598618110f073923d27fb2560301299db963bb2ba8460003d8b7b93b",
+          "git_blob": "9db18c93289f9f8fb0b8ca5a5b2137051cb490a1",
+          "material_role": "Complete independent final6f test-carrier review of installed8236 runtime; initial7f observer failure retained"
+        }
+      ],
       "schema": "e02.F.original-finding.v3",
       "primary_bundle": "GRF-01",
       "criterion_short": "Only empty causal_engine.py/interference.py siblings absent; real packages/import/find_spec/public/loader/sourceinventory supported window, wheel/sdist/native package tests preserved.",
@@ -2474,6 +2567,23 @@
       },
       "recorded_independent_oracle_and_negative": "Published actual source8236 API census16819tracked/6815parsed,243literalimports;225dynamicAST candidates(155unresolved/36finite/13other/21literal); 753filename lexical matches/73ASTloader calls with4runtime computed unresolved. Computed candidates are not established clients. Final actual wheel/sdist each199PASS,5source-census deselections,0SKIP/ERROR,90LGBM feature-name warnings; eight installed marker-preserving removals actualFAIL and complete3459resource files/site postguardsPASS. Both immutable primary receipts and all115author+53independent complete bodies are Git-bound. ROOT recommendation is adopted in this exact current decision input; unresolved computed/external clients stay outside the supported manifest. Old5cd/ab56 native results remain historical.",
       "separate_unavailable_inputs_or_authority": "38 finite UNKNOWN/incomplete export candidates and arbitrary computed/external clients are not established supported consumers. Whole Runtime authority, distinct PDC semantic ingress and G formal finding closure remain separate unissued/unmeasured inputs.",
+      "current_20261007_supplemental_review_refs": [
+        {
+          "git_ref": "605dadeb76499c3f6eadd95e16a8df1bbb2cb89f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007.json",
+          "bytes": 53396,
+          "sha256": "67d54b44a65b303621ccbaed4b56d34bb43a1e210556292e21614967864b89e2",
+          "git_blob": "41eb49e017d64686c2e70cfe932d66720c7d5f44"
+        },
+        {
+          "git_ref": "605dadeb76499c3f6eadd95e16a8df1bbb2cb89f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/independent-cau/independent-review.json",
+          "bytes": 9464,
+          "sha256": "2aed54bf598618110f073923d27fb2560301299db963bb2ba8460003d8b7b93b",
+          "git_blob": "9db18c93289f9f8fb0b8ca5a5b2137051cb490a1",
+          "material_role": "Complete independent final6f test-carrier review of installed8236 runtime; initial7f observer failure retained"
+        }
+      ],
       "schema": "e02.F.original-finding.v3",
       "primary_bundle": "API-01",
       "criterion_short": "Explicit actual export manifest preserving supported direct/star/private/FQN/pickle/pydoc/monkeypatch identities; incidental internal imports cannot expand API; no blanket underscore retirement.",
@@ -2558,6 +2668,31 @@
       },
       "recorded_independent_oracle_and_negative": "Fresh193 native28+55;32independent Fraction panels64eager/JIT and2analytic gradients PASS; exact same public/internal callable with normalization removed FAIL, actual canonical Gini admission body removed2real bridge/PPO assertionFAIL. Full9007-file source/config/FQN literal byte census and10matchingfiles independently verified; old historical formula/native guard/aliases retained. No optimizer/welfare prerequisite.",
       "separate_unavailable_inputs_or_authority": "Unchanged historical normalized baseline needs no new optimizer/normative packet. Any future changed ranking/objective requires accountable economic semantic owner/versioned intent. Actual signed Gini property is separately typed-refused before aggregate/API.",
+      "current_20261007_supplemental_review_refs": [
+        {
+          "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007.json",
+          "bytes": 106928,
+          "sha256": "24a72061e9e4379753f349f56c110b516cef300457b94e2d6a5e066b702f760e",
+          "git_blob": "a9bee7918f8bab3a12e9b1bc8d9ddcbfb9b58e50"
+        },
+        {
+          "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/independent-review.json",
+          "bytes": 40561,
+          "sha256": "4369e1936d4a6cd83b0394f15eb667ff3c9fb061eea7186cff2b78d7b1bd50bf",
+          "git_blob": "be7bd955f215482854b2b847397eaa5ac82e2028",
+          "material_role": "Complete independent frozen193 scientific/native consumer review"
+        },
+        {
+          "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/doc-delta-review.json",
+          "bytes": 688,
+          "sha256": "3ee314c49175fa3f9afcc21acc9cc3d5765b5c2606a5c3633a57c47b1e95ab0c",
+          "git_blob": "717a372eb3d5ed962bfcde9dc106ae27cc0eff6c",
+          "material_role": "Independent nine-line doc-only append review; runtime/test bytes193 unchanged"
+        }
+      ],
       "schema": "e02.F.original-finding.v3",
       "primary_bundle": "ECO-01",
       "criterion_short": "Equivalent named GlobalState normalized-income/budget baseline relocation preserving ORIGINAL formula/sign/scale/size/min_balance/breach/NaNInf, native State/guardrail/JIT-grad promised paths, caller census and import side effects. New optimizer/welfare ratification is separate.",
@@ -2739,9 +2874,24 @@
     "whole_custody_check": "3532stored/1938decoded records actualfullhash/byte verified in committed continuation-intake-20261007 receipt; raw archives baseline absence not converted to PASS"
   },
   "independent_original35_review": {
-    "scratch_path_at_build": "/tmp/e02-F-continuation-20261007/cau/original35-independent-review-final.json",
-    "bytes": 986045,
-    "sha256": "62a3de177f603b7daceb61d3024c21d6a5e2eb5013d92a303b38643228c4e0a5",
+    "receipt": {
+      "git_ref": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007.json",
+      "bytes": 88220,
+      "sha256": "5dac5481a7b825187f82918f54a6e438a6f8ca2a22496c9eb98b800aa8ba40cc",
+      "git_blob": "298c54a19207493d690be201b45988aece22f093",
+      "tree": "d24808dc3eeed4881256f2a70cdeb02357c425c7"
+    },
+    "packet": {
+      "git_ref": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/original35-review.json.gz",
+      "bytes": 119985,
+      "sha256": "9bdbbf870a823b798e5bdc278099dd825b4341793c63e3b4de9ab16b67c13626",
+      "git_blob": "08d459a9e753ab5cf5a032b5c948c694fd41211c",
+      "tree": "d24808dc3eeed4881256f2a70cdeb02357c425c7"
+    },
+    "decoded_bytes": 998227,
+    "decoded_sha256": "67607c87d420030944247874fdc6ac6962f6201fc982f534257529b89fa820b6",
     "not_scientific_rerun": true
   },
   "P41": {
@@ -2850,14 +3000,14 @@
     {
       "finding_id": "B219",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B219.json",
-      "bytes": 18795,
-      "sha256": "04006b1d8083764f2d91d88abce4144caca5d7a8a3decf2e7e12bbf11735fed3"
+      "bytes": 19781,
+      "sha256": "294e6da91ba24fc4ea0f821ecc8ddbe29917549d54473d1c0980d4eef865b7bb"
     },
     {
       "finding_id": "B220",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B220.json",
-      "bytes": 23050,
-      "sha256": "6364d8587415aad353787614f9870c7c3f920d9a6cfe786e8a27aee32a164257"
+      "bytes": 24036,
+      "sha256": "b3ffc832480aba04486d03e806ee3c03498e6a716f0e4f75c5d9882914d349f4"
     },
     {
       "finding_id": "B221",
@@ -2922,14 +3072,14 @@
     {
       "finding_id": "LA-004",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-004.json",
-      "bytes": 16923,
-      "sha256": "8b5a3c25ce061df1c6765159601606db2cef25e9e602dfcd671834f5ba92fb26"
+      "bytes": 18375,
+      "sha256": "2e423bee342388e40cccf45ef4693462a6d2d580a261d36eee456c680e0862a4"
     },
     {
       "finding_id": "LA-007",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-007.json",
-      "bytes": 28077,
-      "sha256": "0a274bda453ceecf5a155712379a7d19a8f8414e7fd2b81c4d2aeb49d356a442"
+      "bytes": 29063,
+      "sha256": "ef26068d5d29bc2afc8cb1797551ab2756de3c388d7b6082e42b4273037b3a23"
     },
     {
       "finding_id": "LA-016",
@@ -2946,20 +3096,20 @@
     {
       "finding_id": "LA-019",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-019.json",
-      "bytes": 29350,
-      "sha256": "e9d143e4b6d07df99ec30ba0f05b38186782ecf95babee6856253980066d0d32"
+      "bytes": 30336,
+      "sha256": "216500c4567a885171e2e072f960c514fe4c729a87753b8728d2e78bbc6d3f1f"
     },
     {
       "finding_id": "LA-020",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-020.json",
-      "bytes": 35105,
-      "sha256": "4c758a50bc1323fbccf85ab96bec9b8e93e69777afa922d2504ac827bddc93a7"
+      "bytes": 36091,
+      "sha256": "6ba1897af5ebe277e088394e2a9bdc17f56ebd1b6a8a127d7e8841bf6b7273cb"
     },
     {
       "finding_id": "LA-035",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-035.json",
-      "bytes": 22371,
-      "sha256": "3e121761557170130d5812a8fdfd073de93a287af045048bbdba2bc9eae69d06"
+      "bytes": 23823,
+      "sha256": "7269513ecb744b7406596e19c8aea5713b5d658174dc7668055fbb77f2bf66f4"
     },
     {
       "finding_id": "LA-037",

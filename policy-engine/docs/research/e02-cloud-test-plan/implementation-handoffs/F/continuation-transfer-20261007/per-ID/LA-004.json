@@ -134,6 +134,31 @@
   },
   "separate_unavailable_inputs_or_authority": "No fullmodel calibration/replacement/migration or externaleconomicnorm implied.",
   "existing_author_or_reviewer_conflict": null,
+  "current_20261007_supplemental_review_refs": [
+    {
+      "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007.json",
+      "bytes": 106928,
+      "sha256": "24a72061e9e4379753f349f56c110b516cef300457b94e2d6a5e066b702f760e",
+      "git_blob": "a9bee7918f8bab3a12e9b1bc8d9ddcbfb9b58e50"
+    },
+    {
+      "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/independent-review.json",
+      "bytes": 40561,
+      "sha256": "4369e1936d4a6cd83b0394f15eb667ff3c9fb061eea7186cff2b78d7b1bd50bf",
+      "git_blob": "be7bd955f215482854b2b847397eaa5ac82e2028",
+      "material_role": "Complete independent frozen193 scientific/native consumer review"
+    },
+    {
+      "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/doc-delta-review.json",
+      "bytes": 688,
+      "sha256": "3ee314c49175fa3f9afcc21acc9cc3d5765b5c2606a5c3633a57c47b1e95ab0c",
+      "git_blob": "717a372eb3d5ed962bfcde9dc106ae27cc0eff6c",
+      "material_role": "Independent nine-line doc-only append review; runtime/test bytes193 unchanged"
+    }
+  ],
   "schema": "e02.F.original-finding.v3",
   "primary_bundle": "ECO-01",
   "criterion_short": "Two distinct native/plugin economic models: state/unit/time/tax-base/RNG/budget mapping, matched regime equivalence and deliberately different regime non-equivalence, accounting and observable outputs.",

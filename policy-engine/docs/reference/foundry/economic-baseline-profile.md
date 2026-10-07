@@ -27,6 +27,15 @@ or normative welfare choice is a separate change, not a prerequisite for this
 unchanged profile. Historical receipts recording that prerequisite remain
 historical evidence and do not define the current recommendation.
 
+The original LA035 equivalent relocation is technically closed by the native
+formula, population, guard, aliases, JIT/gradient, caller census and fresh-import
+checks, with independent review. ROOT's current ledger decision and G's
+acceptance remain separate. The 2026-10-06
+`F/economics-continuation-20261006.json` receipt at Git ref `072d45a5` records the
+prior hold literally; the 2026-10-07 COMMON supersedes its optimizer/normative
+prerequisite for this unchanged relocation. A newly requested optimizer or
+policy objective remains a future objective/version follow-up.
+
 The maintained native aliases and numeric consumer tests use this exact
 profile. A complete tracked source/configuration/FQN census accompanies the
 handoff; dynamic external callers and production economic decisions are not

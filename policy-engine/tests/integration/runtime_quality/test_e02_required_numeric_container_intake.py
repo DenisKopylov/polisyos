@@ -374,3 +374,135 @@ def test_registered_coupled_direct_zero_queue_remains_numeric_zero(
     assert all(value == 0.0 for value in direct_result["queue_length_trajectory"])
     joint = result.trajectory_for("joint", ("income_subsidy", "balance_grant"))
     assert [point.outcomes["final_queue_length"] for point in joint.points] == [0.0, 0.0]
+
+
+@pytest.mark.asyncio
+async def test_malformed_owner_ncm_reason_survives_n6_cas_history(
+    tmp_path: Any,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A malformed real N5 output stays blocked through typed N6 history readback."""
+    from polisyos.core import canon
+    from polisyos.core.artifacts import ArtifactWriteOptions
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.quality.generation_cycle import (
+        CandidateGroundingObservation,
+        GenerationCycleController,
+        GenerationCycleRun,
+        JointSimulationPort,
+    )
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        _budget,
+        _GenerationResult,
+        _owner_n5_case_with_selected_ncm_ref,
+        _Ranking,
+        _runtime_ncm_fixture_store,
+    )
+
+    store, _expected_ncm, ncm_ref = _runtime_ncm_fixture_store(tmp_path)
+    problem, context, candidate = _owner_n5_case_with_selected_ncm_ref(
+        ncm_ref,
+        runtime_hints={
+            "joint_simulation_horizon": {"start": 0, "end": 0, "step": 1},
+            "joint_simulation_baseline_state": {"firm_survival": 0.0},
+        },
+    )
+    direct_outputs = _install_real_ncm_output_wrapper(
+        monkeypatch,
+        _damage_ncm_malformed_summary_container,
+    )
+
+    class _ControlledN4:
+        async def __call__(self, generated_problem: Any, *, cycle_index: int) -> Any:
+            assert generated_problem.design_problem_id == problem.design_problem_id
+            assert cycle_index == 0
+            return _GenerationResult(
+                status="generated",
+                candidates=(candidate,),
+                surrogate_rankings=(
+                    _Ranking(
+                        candidate_id=candidate.candidate_id,
+                        score=0.9,
+                        voi_estimate=4.0,
+                    ),
+                ),
+            )
+
+    def limited_candidate_grounding(
+        *,
+        candidate: Any,
+        problem: Any,
+        cycle_index: int,
+        generation_result: Any | None = None,
+    ) -> CandidateGroundingObservation:
+        del problem, cycle_index, generation_result
+        return CandidateGroundingObservation(
+            candidate_id=candidate.candidate_id,
+            status="grounding_unavailable",
+            grounding_score=0.2,
+            issue_codes=("controlled_profile_grounding_unavailable",),
+            grounding_source="grounding_unavailable",
+        )
+
+    controller = GenerationCycleController(
+        generation_port=_ControlledN4(),
+        grounding_port=limited_candidate_grounding,
+        repo_root=tmp_path,
+        cycle_substrate_context=context,
+        artifact_store=store,
+        authority_scope="contract_testing",
+    )
+    assert isinstance(controller._simulation_port, JointSimulationPort)
+    assert controller._simulation_port._artifact_store is store
+
+    try:
+        with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+            run = await controller.run(
+                problem,
+                budget_state=_budget(),
+                min_cycles=1,
+                max_cycles=1,
+            )
+            assert direct_outputs
+            direct_stats = _ncm_summary(direct_outputs[0])["firm_survival"]
+            assert isinstance(direct_stats, Mapping)
+            assert isinstance(direct_stats.get("mean"), (int, float))
+
+            cycle = run.cycles[0]
+            simulation = cycle.simulation
+            assert simulation.status == "simulation_blocked"
+            assert simulation.authority_blockers == ("ncm_world_summaries_malformed",)
+            assert simulation.diagnostics["port"] == "N5"
+            assert simulation.diagnostics["reason"] == "ncm_world_summaries_malformed"
+            assert simulation.simulation_result_ref is None
+            assert simulation.simulation_ref is None
+            assert cycle.value_port.status == "value_blocked"
+            assert cycle.value_port.value_ref is None
+
+            stored = store.put_json(
+                run.model_dump(mode="json"),
+                ArtifactWriteOptions(
+                    kind="test.generation_cycle_run",
+                    media_type="application/json",
+                ),
+                canon.CanonSpec(forbid_floats=False),
+            )
+            assert store.verify(stored.artifact_id).ok
+            fresh_payload = canon.from_canonical_bytes(
+                store.get_bytes(stored.artifact_id)
+            )
+            replayed = GenerationCycleRun.from_persisted_payload(fresh_payload)
+
+        persisted_cycle = replayed.cycles[0]
+        assert persisted_cycle.simulation.status == "simulation_blocked"
+        assert persisted_cycle.simulation.authority_blockers == (
+            "ncm_world_summaries_malformed",
+        )
+        assert persisted_cycle.simulation.diagnostics["reason"] == (
+            "ncm_world_summaries_malformed"
+        )
+        assert persisted_cycle.simulation.simulation_result_ref is None
+        assert persisted_cycle.value_port.status == "value_blocked"
+        assert persisted_cycle.value_port.value_ref is None
+    finally:
+        store.close()

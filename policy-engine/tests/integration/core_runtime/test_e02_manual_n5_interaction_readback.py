@@ -675,5 +675,5 @@ def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
             headers={"X-Tenant-ID": foreign_claims.tenant_id},
         )
         assert foreign_response.status_code == 403, foreign_response.text
-        assert foreign_response.json()["code"] == "tenant_not_found"
+        assert foreign_response.json()["code"] == "run_tenant_mismatch"
         assert len(n8_calls) == expected_n8_calls

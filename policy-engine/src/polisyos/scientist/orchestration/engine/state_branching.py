@@ -1069,9 +1069,24 @@ _TRACKED_MODEL_TYPES: dict[type[BaseModel], type[BaseModel]] = {}
 
 def _ordinary_model_type(value: BaseModel) -> type[BaseModel]:
     original = value._original_model_type if isinstance(value, _TrackedModelMixin) else type(value)
-    hooks = ("__setattr__", "__delattr__", "__getattribute__", "__deepcopy__", "model_copy")
+    hooks = (
+        "__setattr__",
+        "__delattr__",
+        "__getattribute__",
+        "__copy__",
+        "__deepcopy__",
+        "model_copy",
+        "model_construct",
+        "model_post_init",
+    )
+
+    def implementation(model: type[BaseModel], name: str) -> Any:
+        hook = getattr(model, name)
+        return getattr(hook, "__func__", hook)
+
     if any(
-        getattr(original, name) not in {getattr(BaseModel, name), getattr(RootModel, name)}
+        implementation(original, name)
+        not in {implementation(BaseModel, name), implementation(RootModel, name)}
         for name in hooks
     ):
         raise TypeError("state mutation journaling requires ordinary BaseModel mutation/copy hooks")

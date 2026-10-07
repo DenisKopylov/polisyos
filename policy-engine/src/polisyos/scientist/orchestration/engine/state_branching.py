@@ -18,6 +18,7 @@ from __future__ import annotations
 from collections.abc import Iterable, Mapping
 from copy import deepcopy
 from dataclasses import dataclass, field
+from inspect import getattr_static
 from operator import index as _index
 from typing import Any, ClassVar, Literal, Self, SupportsIndex, cast
 
@@ -1095,7 +1096,15 @@ _TRACKED_MODEL_TYPES: dict[type[BaseModel], type[BaseModel]] = {}
 
 def _ordinary_model_type(value: BaseModel) -> type[BaseModel]:
     original = value._original_model_type if isinstance(value, _TrackedModelMixin) else type(value)
+    if type(original) is not type(BaseModel):
+        raise TypeError("state mutation journaling requires the canonical BaseModel metaclass")
     hooks = (
+        "__new__",
+        "__init_subclass__",
+        "__pydantic_init_subclass__",
+        "__pydantic_on_complete__",
+        "__get_pydantic_core_schema__",
+        "__get_pydantic_json_schema__",
         "__setattr__",
         "__delattr__",
         "__getattribute__",
@@ -1107,12 +1116,16 @@ def _ordinary_model_type(value: BaseModel) -> type[BaseModel]:
     )
 
     def implementation(model: type[BaseModel], name: str) -> Any:
-        hook = getattr(model, name)
-        return getattr(hook, "__func__", hook)
+        # Compare raw MRO descriptors before binding or executing custom class
+        # hooks. Builtin class-bound methods otherwise compare their receiver.
+        hook = getattr_static(model, name)
+        return hook.__func__ if isinstance(hook, (classmethod, staticmethod)) else hook
 
     if any(
-        implementation(original, name)
-        not in {implementation(BaseModel, name), implementation(RootModel, name)}
+        not any(
+            implementation(original, name) is implementation(canonical, name)
+            for canonical in (BaseModel, RootModel)
+        )
         for name in hooks
     ):
         raise TypeError("state mutation journaling requires ordinary BaseModel mutation/copy hooks")

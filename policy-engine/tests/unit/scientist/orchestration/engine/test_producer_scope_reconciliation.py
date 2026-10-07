@@ -10,8 +10,10 @@ import json
 import logging
 from hashlib import sha256
 from pathlib import Path
+from typing import Any
 
 import pytest
+from pydantic import BaseModel, ConfigDict, ValidationError
 
 from polisyos.core.artifacts import ArtifactRef, FileSystemCAS, PutOptions
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
@@ -384,3 +386,197 @@ async def test_existing_typed_model_mutations_refuse_before_state_or_journal_cha
     assert reopened.verify(accepted).ok
     assert json.loads(reopened.get_bytes(accepted)) == {"readonly": 7}
     assert public_state.inputs["source"].model_dump(mode="json") == expected_ref
+
+
+class _BoundaryModel(BaseModel):
+    model_config = ConfigDict(extra="allow")
+    count: int = 1
+    tag: str = "producer"
+
+
+class _FrozenBoundaryModel(BaseModel):
+    model_config = ConfigDict(frozen=True)
+    count: int = 1
+    tag: str = "producer"
+
+
+class _BoundaryProducer(_ScopeProducer):
+    def __init__(self, profile: str) -> None:
+        super().__init__()
+        self.profile = profile
+
+    def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        self.calls += 1
+        self.held_state = state
+        model = state.params["owned"]
+        journal = mutation_journal_for_state(state)
+        assert journal is not None
+        before = state.model_dump(mode="json")
+        operations = list(journal.operations)
+        fields_set = set(model.model_fields_set)
+        if self.profile in {"extra", "private"}:
+            name = "extra_value" if self.profile == "extra" else "_runtime_value"
+            with pytest.raises(TypeError, match="declared model field"):
+                setattr(model, name, 99)
+            with pytest.raises(TypeError, match="declared model field"):
+                model.model_copy(update={name: 99})
+            assert state.model_dump(mode="json") == before
+            assert journal.operations == operations
+            assert model.model_fields_set == fields_set
+        elif self.profile == "frozen":
+            with pytest.raises(ValidationError, match="frozen"):
+                model.count = 99
+            copied = model.model_copy(update={"count": 5})
+            assert model.count == 1 and copied.count == 5
+            assert journal.operations == operations
+            state.params["owned"] = copied
+        else:
+            copied = model.model_copy(update={"count": 9})
+            copied.count = 10
+            assert model.count == 1 and copied.count == 10
+            assert journal.operations == operations
+            model.count = 5
+        effect = ctx.store.put_json(
+            {"count": state.params["owned"].count, "profile": self.profile},
+            PutOptions(kind="test.model_boundary", media_type="application/json"),
+        )
+        state.artifacts_index["bundle"] = effect
+        return NodeOutcome(status="ok", state=state, artifacts=[effect])
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("contour", ["sequential", "async"])
+@pytest.mark.parametrize("profile", ["extra", "private", "frozen", "detached"])
+async def test_model_boundary_reaches_real_cache_and_current_consumer(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, contour: str, profile: str
+) -> None:
+    model_type = _FrozenBoundaryModel if profile == "frozen" else _BoundaryModel
+    initial = _initial_state()
+    initial.params["owned"] = model_type(count=1)
+    before = initial.model_dump(mode="json")
+    producer = _BoundaryProducer(profile)
+    root = tmp_path / "cas"
+    outcome, _, public_state = await _run_producer(
+        root, contour, producer, monkeypatch, initial=initial
+    )
+    reopened = FileSystemCAS(root)
+    assert reopened.verify(outcome.artifacts[0]).ok
+    expected_count = 1 if profile in {"extra", "private"} else 5
+    assert json.loads(reopened.get_bytes(outcome.artifacts[0])) == {
+        "count": expected_count,
+        "profile": profile,
+    }
+    ref = NodeResultCache(reopened, initial.run_id).put(
+        _REPLAY_KEY, "scientist.scope_reconciliation@1.0.0", outcome
+    )
+    reader = NodeResultCache(FileSystemCAS(root), initial.run_id)
+    assert reader.load_entry(ref)
+    cached = reader.get(_REPLAY_KEY)
+    assert cached is not None
+    current = _initial_state()
+    current.params["owned"] = model_type(count=3, tag="consumer-neighbor")
+    merged = merge_parallel_outcomes(current, {"produce": cached}, {"produce": _WRITE_PATHS})
+    assert merged.applied
+    selected = merged.state.params["owned"]
+    # Whole-model replacement is an explicit producer operation only for the
+    # frozen copy. Field assignment preserves the actual consumer's neighbor.
+    actual_count = selected["count"] if isinstance(selected, dict) else selected.count
+    actual_tag = selected["tag"] if isinstance(selected, dict) else selected.tag
+    assert actual_count == (3 if profile in {"extra", "private"} else 5)
+    assert actual_tag == ("producer" if profile == "frozen" else "consumer-neighbor")
+    assert initial.model_dump(mode="json") == before
+    if profile == "frozen":
+        with pytest.raises(ValidationError, match="frozen"):
+            public_state.params["owned"].count = 99
+    else:
+        public_state.params["owned"].extra_value = 31
+        assert public_state.params["owned"].extra_value == 31
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("contour", ["sequential", "async"])
+@pytest.mark.parametrize(
+    "hook",
+    [
+        "__copy__",
+        "model_construct",
+        "model_post_init",
+        "__new__",
+        "__init_subclass__",
+        "__pydantic_init_subclass__",
+        "__pydantic_on_complete__",
+        "__get_pydantic_core_schema__",
+        "__get_pydantic_json_schema__",
+    ],
+)
+async def test_unsupported_model_hooks_refuse_before_real_producer_effects(
+    tmp_path: Path, contour: str, hook: str
+) -> None:
+    calls: list[str] = []
+
+    def ordinary_copy(self: BaseModel) -> BaseModel:
+        calls.append("copy")
+        return BaseModel.__copy__(self)
+
+    def ordinary_construct(cls: type[BaseModel], **values: Any) -> BaseModel:
+        calls.append("construct")
+        return BaseModel.model_construct.__func__(cls, **values)
+
+    def ordinary_post_init(self: BaseModel, context: Any) -> None:
+        calls.append("post_init")
+
+    def ordinary_new(cls: type[BaseModel], *args: Any, **kwargs: Any) -> BaseModel:
+        calls.append("new")
+        return BaseModel.__new__(cls)
+
+    def ordinary_class_hook(cls: type[BaseModel], *args: Any, **kwargs: Any) -> Any:
+        calls.append(hook)
+        if hook == "__init_subclass__":
+            return None
+        return getattr(BaseModel, hook).__func__(cls, *args, **kwargs)
+
+    implementations = {
+        "__copy__": ordinary_copy,
+        "model_construct": classmethod(ordinary_construct),
+        "model_post_init": ordinary_post_init,
+        "__new__": ordinary_new,
+        **{
+            name: classmethod(ordinary_class_hook)
+            for name in (
+                "__init_subclass__",
+                "__pydantic_init_subclass__",
+                "__pydantic_on_complete__",
+                "__get_pydantic_core_schema__",
+                "__get_pydantic_json_schema__",
+            )
+        },
+    }
+    model_type = type("UnsupportedRuntimeModel", (_BoundaryModel,), {hook: implementations[hook]})
+    initial = _initial_state()
+    initial.params["owned"] = model_type(count=1)
+    before = initial.model_dump(mode="json")
+    calls_before = list(calls)
+    root = tmp_path / "cas"
+    store = FileSystemCAS(root)
+    bundle = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(store, bundle, run_id=initial.run_id)
+    ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("model-admission"))
+    producer = _BoundaryProducer("detached")
+    registry = NodeRegistry()
+    registry.register(producer)
+    workflow = WorkflowSpec(
+        workflow_id="model_hook_admission",
+        nodes=[NodeInvocation(alias="produce", node_id=producer.spec.metadata.component_id)],
+    )
+    if contour == "sequential":
+        with pytest.raises(TypeError, match="ordinary BaseModel"):
+            WorkflowExecutor(ctx, registry).execute(workflow, initial)
+    else:
+        result = await AsyncWorkflowExecutor(ctx, registry).execute(workflow, initial)
+        assert result.report.status == "fail"
+    assert producer.calls == 0
+    assert calls == calls_before
+    assert initial.model_dump(mode="json") == before
+    fresh_events = [json.loads(line) for line in run.trace_path.read_text().splitlines()]
+    assert not any(event["event"] == "NODE_CACHE_STORE" for event in fresh_events)
+    assert not any(event["event"] == "NODE_COMPLETED" for event in fresh_events)

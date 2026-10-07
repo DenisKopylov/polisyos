@@ -472,15 +472,62 @@ class BayesianCandidateGenerator:
         self._admit_sensitivity_order()
         if self._optimizer is None:
             raise ValueError("Generator checkpoint requires a native strategy receiver")
+        native = self._optimizer.get_state()
+        if native.iteration != len(self._history_rows):
+            raise ValueError("Generator checkpoint consumed-history cursor differs from native state")
         return {
-            "schema_version": "bayesian_candidate_generator.v2",
+            "schema_version": "bayesian_candidate_generator.v3",
             "config": self._checkpoint_config(),
             "native_backend_available": self._botorch_available,
             "activity_started": self._activity_started,
             "history_digests": list(self._history_digests),
+            "consumed_history_count": native.iteration,
             "history_rows": json.loads(self._json_bytes(self._history_rows)),
-            "strategy_state": json.loads(self._optimizer.get_state().to_artifact()),
+            "strategy_state": json.loads(native.to_artifact()),
         }
+
+    def validate_checkpoint_history(
+        self, history: list[Any], state: dict[str, Any]
+    ) -> None:
+        """Bind every saved consumed row to the actual complete service history."""
+        rows = state.get("history_rows")
+        digests = state.get("history_digests")
+        count = state.get("consumed_history_count")
+        native = StrategyState.from_artifact(self._json_bytes(state.get("strategy_state")))
+        if (
+            state.get("schema_version") != "bayesian_candidate_generator.v3"
+            or type(count) is not int
+            or count < 0
+            or native.iteration != count
+            or not isinstance(rows, list)
+            or not isinstance(digests, list)
+            or len(rows) != count
+            or len(digests) != count
+            or self._optimizer is None
+        ):
+            raise ValueError("Generator checkpoint current-row coverage is incomplete")
+        current = self._history_to_evaluations(history)
+        if len(current) < len(rows):
+            raise ValueError("Generator checkpoint consumed history is incomplete")
+        for index, record in enumerate(rows):
+            evaluation = current[index]
+            if (
+                not isinstance(record, dict)
+                or set(record) != {"input_index", "evaluation"}
+                or type(record["input_index"]) is not int
+                or record["input_index"] != index
+                or self._history_row_digest(evaluation) != digests[index]
+                or (
+                    record["evaluation"] is None
+                    if evaluation.is_valid
+                    else record["evaluation"] is not None
+                )
+            ):
+                raise ValueError("Generator checkpoint consumed history differs from saved rows")
+            if evaluation.is_valid:
+                saved = self._optimizer._decode_evaluation(record["evaluation"])
+                if self._history_row_digest(saved) != digests[index]:
+                    raise ValueError("Generator checkpoint row differs from consumed history")
 
     def set_state(self, state: dict[str, Any]) -> None:
         """Validate wrapper identity before the native atomic model/RNG restore."""
@@ -491,12 +538,13 @@ class BayesianCandidateGenerator:
             "native_backend_available",
             "activity_started",
             "history_digests",
+            "consumed_history_count",
             "history_rows",
             "strategy_state",
         }
         if type(state) is not dict or set(state) != fields:
             raise ValueError("Generator checkpoint fields are incomplete or unknown")
-        if state["schema_version"] != "bayesian_candidate_generator.v2":
+        if state["schema_version"] != "bayesian_candidate_generator.v3":
             raise ValueError("Unsupported generator checkpoint schema")
         if self._json_bytes(state["config"]) != self._json_bytes(self._checkpoint_config()):
             raise ValueError("Generator checkpoint metric/split/space/configuration changed")
@@ -520,7 +568,15 @@ class BayesianCandidateGenerator:
             raise ValueError("Generator checkpoint requires a native strategy receiver")
         native = StrategyState.from_artifact(self._json_bytes(state["strategy_state"]))
         rows = state["history_rows"]
-        if not isinstance(rows, list) or len(rows) != len(digests):
+        count = state["consumed_history_count"]
+        if (
+            type(count) is not int
+            or count < 0
+            or count != native.iteration
+            or not isinstance(rows, list)
+            or len(rows) != count
+            or len(digests) != count
+        ):
             raise ValueError("Generator checkpoint current-row coverage is incomplete")
         current = []
         for index, record in enumerate(rows):

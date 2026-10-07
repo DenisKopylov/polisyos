@@ -149,6 +149,15 @@ class SensitivityAwareCandidateGenerator:
             raise ValueError("Sensitivity base generator does not support checkpoints")
         return checkpoint()
 
+    def validate_checkpoint_history(
+        self, history: list[SearchIteration], state: dict[str, Any]
+    ) -> None:
+        """Retain the base generator's complete consumed-history admission."""
+        validate = getattr(self._base, "validate_checkpoint_history", None)
+        if not callable(validate):
+            raise ValueError("Sensitivity base generator lacks checkpoint history admission")
+        validate(history, state)
+
     def set_state(self, state: dict[str, Any]) -> None:
         restore = getattr(self._base, "set_state", None)
         if not callable(restore):

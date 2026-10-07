@@ -116,6 +116,19 @@ class _BatchSupplier:
     def get_state(self) -> dict[str, Any]:
         return {"profile": "independent-empty-batch.v1", "cursor": self.cursor}
 
+    def validate_checkpoint_history(self, history: list[Any], state: dict[str, Any]) -> None:
+        # This actual producer requires its one preserved initial sentinel;
+        # before activation cursor zero also admits the untouched empty view.
+        if (
+            type(state) is not dict
+            or set(state) != {"profile", "cursor"}
+            or state["profile"] != "independent-empty-batch.v1"
+            or type(state["cursor"]) is not int
+            or state["cursor"] < 0
+            or (len(history) not in (0, 1) if state["cursor"] == 0 else len(history) != 1)
+        ):
+            raise ValueError("independent batch checkpoint corpus or cursor changed")
+
     def set_state(self, state: dict[str, Any]) -> None:
         if self.rollback_refusal is not None:
             raise self.rollback_refusal

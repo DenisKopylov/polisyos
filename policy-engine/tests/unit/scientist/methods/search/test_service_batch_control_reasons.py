@@ -64,6 +64,19 @@ class _BatchPort:
             "index": self.index,
         }
 
+    def validate_checkpoint_history(self, history, state):
+        # Only the declared steps and cursor determine the actual next batch.
+        # History captures diagnostic acknowledgement, not proposal/update state.
+        if (
+            type(state) is not dict
+            or set(state) != {"version", "steps", "index"}
+            or state["version"] != "batch-reason-fixture.v1"
+            or state["steps"] != self.steps
+            or type(state["index"]) is not int
+            or state["index"] < 0
+        ):
+            raise ValueError("batch checkpoint corpus or cursor changed")
+
     def set_state(self, state):
         if self.rollback_cause is not None:
             raise self.rollback_cause

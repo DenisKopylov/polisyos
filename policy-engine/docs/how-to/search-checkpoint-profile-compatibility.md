@@ -31,9 +31,16 @@ observations through the existing configured numerical basis or CAS admission
 reader. Treat that operation as a new run, not a continuation or a recovered RNG
 stream. Do not edit version, basis or backend markers to force restoration.
 
-The internal generator wrapper `bayesian_candidate_generator.v2` also retains
-indexed converted current-history rows and their full transfer references.
-Historical wrapper v1 lacks that custody and is refused. Configure the paired
+The internal generator wrapper `bayesian_candidate_generator.v3` retains
+indexed converted current-history rows and their full transfer references. Its
+strict consumed-history count equals the saved native optimizer iteration and
+the complete indexed row/digest counts. That iteration is the actual receiving
+converted-evaluation denominator established by ordinary native `generate` /
+`suggest`; unusable raw parameter rows skipped by conversion are outside it.
+Warm observations belong to their separate saved warm corpus: eight warm rows
+and no receiving history legitimately retain a receiving count of zero.
+Historical wrappers v1/v2 are refused by the current receiver; adding a count
+or changing version markers cannot establish the lost consumption relationship. Configure the paired
 transfer bridge and target before activity, retain the converted history prefix,
 and use its ordinary `get_state`/`set_state` boundary. A local digest or a fitted
 row ID without the matching original numeric row does not supply source custody.
@@ -196,31 +203,60 @@ an already normalized historical artifact.
 
 ## Native StrategyAdapter continuation
 
-`strategy_adapter.v1` wraps the existing `StrategyState` artifact for the
+`strategy_adapter.v2` wraps the existing `StrategyState` artifact for the
 canonical `SearchSpace`, exact `ScalarParameterCodec` and default
 `SearchIteration.objective_details` extractor. It binds codec configuration,
 strategy type/configuration, implementation content, space and the complete
-synchronized evaluation-history prefix. Each numerical strategy still owns its
-supported backend/model/RNG admission; the adapter does not create a posterior
-or replace that owner's checkpoint law.
+converted evaluation corpus actually synchronized by the adapter. A strict
+`consumed_history_count`, the saved converted rows and their digests must agree
+in full. Fresh admission recomputes every consumed row from the paired service
+history before restoring live strategy/RNG, pending candidates or run state.
+A newly told tail can remain unconsumed until the next generate; admission does
+not incorrectly require that tail to have already been applied.
 
-Fresh service restoration validates the actual persisted history prefix before
-restoring live strategy or run state. The next ordinary generate rebuilds the
-adapter cache from that prefix without repeating previously applied strategy
-updates, then applies only new evaluations. Existing scalar versus batch
-acquisition routing stays in use. The actual native factory projects the existing
-technical proposal envelope into its strict mutation codec and retains the
-proposal identity in native history/checkpoint state.
+The actual bound `BaseSearchStrategy.update` is a no-op, so Base-derived Grid,
+Random, Bayesian and MO strategies retain their existing update-free profile.
+An overridden or instance-replaced update requires its actual owner's pure
+`validate_consumed_history(rows, StrategyState)` port to verify saved
+update-owned state against the entire converted consumed corpus. The adapter
+cursor alone cannot prove an opaque strategy's effects. The existing RL wrapper
+forwards admission through its saved nested base state: a real Base no-op or
+supported owner validator remains usable. The current NN checkpoint saves warm
+observations but not its separate update-appended `_historical` corpus; NN and
+RL-with-NN are therefore live-only through this service adapter until their
+owner supplies that missing consumption contract. Their direct supported
+warm-corpus `get_state`/`set_state` profiles are unchanged by this classification.
+No new posterior, strategy or persistence registry is introduced.
 
-Custom codecs or objective callbacks, noncanonical spaces, generators without
-an underlying state API and implementations without an available source file
-remain usable by their existing live-only callers. Their adapter state discovery
-returns `None`, and persisted public resume explicitly refuses that unsupported
-profile. A module/class label or a callback digest alone does not supply the
-custom context contract. Historical adapter checkpoints with `generator_state`
-missing or null cannot be silently reconstructed; retain the artifact and use
-its recorded supported implementation, or start an explicitly new run with the
-owner-selected context and original evaluated inputs.
+The service requires an explicit complete history-admission port for persisted
+resume; absent ports refuse before live mutation. Canonical Sequence provides
+its real history-independent corpus/cursor admission, because its admitted actual
+bound generate/get_state/set_state methods do not consume history. Inherited
+validation cannot admit a subclass or instance that replaces those methods or
+adds a batch generator; changed profiles stay live-only unless their owner
+implements an explicit complete checkpoint contract. Sensitivity delegates its base's admission.
+A custom port is a trusted implementation contract whose own state/corpus
+validation must be demonstrated; the existence of a callback or a boolean does
+not establish scientific evaluator authority or generic replay equivalence.
+
+The next ordinary adapter generate rebuilds the saved complete prefix without
+repeating updates, then applies only newly told evaluations. Existing scalar
+versus batch acquisition routing stays in use. Numerical strategies retain
+their own supported backend/model/RNG admission. Custom codecs/extractors,
+noncanonical spaces, missing state APIs or implementation source files, and
+unsupported update-consumption profiles keep existing live operation with
+adapter state discovery `None`; persisted public resume explicitly refuses.
+A module/class label cannot supply a missing custom context or update contract.
+
+Historical adapter v1 and native wrapper v1/v2 checkpoints remain immutable.
+They can be inspected through their original CAS reference, but this receiver
+does not append missing rows/counts or change profile markers. For exact
+continuation use the recorded supported source/backend and original owner
+inputs; otherwise start an explicitly new run and re-admit original evaluated
+observations through the supported profile. Source-bound old service checkpoints
+also require their recorded build. No lossless automatic migration is claimed.
+The focused real factory/CAS/fresh-reader recipe is
+`tests/unit/scientist/methods/search/test_service_history_binding.py`.
 
 ## Budget admission and unavailable recorded spend
 

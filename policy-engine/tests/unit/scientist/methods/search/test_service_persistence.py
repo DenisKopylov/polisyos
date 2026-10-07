@@ -265,8 +265,14 @@ def test_wall_clock_origin_survives_pause_and_empty_generation_is_terminal(tmp_p
         def get_state(self):
             return {"version": "empty.v1"}
 
+        def validate_checkpoint_history(self, history, value):
+            # The actual producer always returns an empty batch and consumes no
+            # history. Its entire saved state is the fixed profile, not a flag.
+            if value != {"version": "empty.v1"} or history:
+                raise ValueError("empty checkpoint profile or history changed")
+
         def set_state(self, value):
-            assert value == {"version": "empty.v1"}
+            self.validate_checkpoint_history([], value)
 
     empty = _direct(store, generator=Empty())
     empty.controller._config.batch_size = 2

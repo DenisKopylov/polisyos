@@ -185,17 +185,36 @@ class SequenceCandidateGenerator:
             raise ValueError("sequence_generator_requires_nonempty_corpus")
         self._index = 0
 
-    def get_state(self) -> dict[str, Any]:
-        """Persist the real corpus and cursor, including repeated terminal proposals."""
+    def _history_independent_checkpoint_profile(self) -> bool:
+        for name in ("generate", "get_state", "set_state", "validate_checkpoint_history"):
+            method = getattr(self, name)
+            if (
+                getattr(method, "__self__", None) is not self
+                or getattr(method, "__func__", None) is not getattr(SequenceCandidateGenerator, name)
+            ):
+                return False
+        return not callable(getattr(self, "generate_batch", None))
+
+    def get_state(self) -> dict[str, Any] | None:
+        """Persist the real corpus/cursor, or expose a changed profile as live-only."""
+        if not self._history_independent_checkpoint_profile():
+            return None
         return {
             "version": "sequence-generator.v1",
             "candidates": checkpoint_json(self._candidates),
             "index": self._index,
         }
 
-    def set_state(self, state: dict[str, Any]) -> None:
-        """Admit the same corpus before changing the next-candidate cursor."""
+    def validate_checkpoint_history(
+        self, history: list[Any], state: dict[str, Any]
+    ) -> None:
+        """Admit the corpus/cursor of this history-independent scalar generator."""
+        if not self._history_independent_checkpoint_profile():
+            raise ValueError("sequence_generator_checkpoint_history_profile_unsupported")
+        del history  # The admitted actual generate() does not consume history.
         expected = self.get_state()
+        if expected is None:
+            raise ValueError("sequence_generator_checkpoint_history_profile_unsupported")
         if (
             set(state) != set(expected)
             or state["version"] != expected["version"]
@@ -204,6 +223,10 @@ class SequenceCandidateGenerator:
             or not 0 <= state["index"] <= len(self._candidates)
         ):
             raise ValueError("sequence_generator_checkpoint_mismatch")
+
+    def set_state(self, state: dict[str, Any]) -> None:
+        """Admit the same corpus before changing the next-candidate cursor."""
+        self.validate_checkpoint_history([], state)
         self._index = state["index"]
 
     def generate(

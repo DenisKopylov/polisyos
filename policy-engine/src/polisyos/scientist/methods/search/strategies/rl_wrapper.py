@@ -6,9 +6,10 @@ import math
 import random
 from collections.abc import Mapping
 from dataclasses import asdict, dataclass
-from typing import Protocol
+from typing import Any, Protocol
 
 from polisyos.scientist.methods.search.strategies.base import (
+    BaseSearchStrategy,
     SearchStrategy,
     _decode_python_random_state,
     _encode_python_random_state,
@@ -125,6 +126,33 @@ class RLStrategyWrapper:
                 "base_state": base_state.to_artifact().decode("utf-8"),
             },
         )
+
+    def validate_consumed_history(self, rows: list[dict[str, Any]], state: StrategyState) -> None:
+        """Preserve the actual nested base's update-history admission."""
+        update = self.update
+        if (
+            getattr(update, "__self__", None) is not self
+            or getattr(update, "__func__", None) is not RLStrategyWrapper.update
+            or state.iteration != len(rows)
+        ):
+            raise ValueError("strategy_adapter_checkpoint_consumption_profile_unsupported")
+        payload = state.metadata.get("base_state")
+        if not isinstance(payload, str):
+            raise ValueError("RL nested consumption state is missing")
+        nested = StrategyState.from_artifact(payload.encode("utf-8"))
+        if nested.strategy_name != state.metadata.get("base_strategy"):
+            raise ValueError("RL nested consumption strategy identity changed")
+        base_update = self._base.update
+        if (
+            isinstance(self._base, BaseSearchStrategy)
+            and getattr(base_update, "__self__", None) is self._base
+            and getattr(base_update, "__func__", None) is BaseSearchStrategy.update
+        ):
+            return
+        validate = getattr(self._base, "validate_consumed_history", None)
+        if not callable(validate):
+            raise ValueError("strategy_adapter_checkpoint_consumption_profile_unsupported")
+        validate(rows, nested)
 
     def set_state(self, state: StrategyState) -> None:
         meta = state.metadata

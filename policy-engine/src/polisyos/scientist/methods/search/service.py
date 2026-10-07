@@ -460,6 +460,9 @@ class NativeSearchService:
         get_state = getattr(generator, "get_state", None)
         set_state = getattr(generator, "set_state", None)
         state = get_state() if callable(get_state) and callable(set_state) else None
+        validate_history = getattr(generator, "validate_checkpoint_history", None)
+        if state is not None and callable(validate_history):
+            validate_history(self.controller._run_state.history, state)
         payload = SearchServiceCheckpoint(
             configuration=configuration,
             run_state=self.controller._run_state.checkpoint_state(),
@@ -555,7 +558,12 @@ class NativeSearchService:
             raise ValueError("search_resume_unsupported_diversity_profile")
         generator = self.controller._generator
         restore_generator = getattr(generator, "set_state", None)
-        if saved.generator_state is None or not callable(restore_generator):
+        validate_history = getattr(generator, "validate_checkpoint_history", None)
+        if (
+            saved.generator_state is None
+            or not callable(restore_generator)
+            or not callable(validate_history)
+        ):
             raise ValueError("search_resume_unsupported_generator_profile")
         state = SearchRunState.from_checkpoint(saved.run_state)
         if (
@@ -590,9 +598,7 @@ class NativeSearchService:
                 pending=pending,
                 acknowledged_configuration=saved.configuration,
             )
-        validate_history = getattr(generator, "validate_checkpoint_history", None)
-        if callable(validate_history):
-            validate_history(state.history, generator_state)
+        validate_history(state.history, generator_state)
         # Strategies own atomic admission of their numerical/RNG state. No run
         # ledger or candidate ownership changes precede that admission.
         restore_generator(generator_state)
@@ -816,15 +822,6 @@ class NativeSearchService:
         ):
             raise ValueError(
                 "search_resume_native_candidate_identity_projection_mismatch"
-            )
-        digests = generator_state.get("history_digests")
-        current = [
-            base._history_row_digest(evaluation)
-            for evaluation in base._history_to_evaluations(state.history)
-        ]
-        if not isinstance(digests, list) or digests != current[: len(digests)]:
-            raise ValueError(
-                "search_resume_native_candidate_identity_generator_mismatch"
             )
 
     def _deduplication_profile(self) -> dict[str, str]:

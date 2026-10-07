@@ -4195,6 +4195,245 @@ async def test_generation_cycle_serves_persisted_n5_into_default_n8_value_port(
 
 
 @pytest.mark.asyncio
+async def test_generation_cycle_persists_coupling_fallback_for_default_n8(
+    tmp_path: Path,
+) -> None:
+    """B06/B07: the real compatible fallback executes, persists, and remains K_sim at N8."""
+
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.foundry.methods.catalog.simulation.dynamics import (
+        StockFlowSystemDynamicsEstimator,
+    )
+    from polisyos.runtime.quality.generation_cycle import load_joint_simulation_result
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        intervention_atom_content_hash,
+    )
+    from polisyos.runtime.quality.joint_simulation_horizon import EnginePlan
+    from tools.quality.validation import (
+        check_layer3_gy_joint_simulation_horizon_contract as n5_contract,
+    )
+
+    store, _expected_ncm, ncm_ref = _runtime_ncm_fixture_store(tmp_path)
+    hints = {
+        "joint_simulation_horizon": {"start": 0, "end": 1, "step": 1},
+        "joint_simulation_baseline_state": {"firm_survival": 0.0},
+    }
+    problem, context, candidate = _owner_n5_case_with_selected_ncm_ref(
+        ncm_ref,
+        runtime_hints=hints,
+    )
+    request_builder = JointSimulationPort(
+        repo_root=tmp_path / "empty-repo",
+        cycle_substrate_context=context,
+        artifact_store=store,
+    )
+    with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+        owner_request = request_builder._build_joint_simulation_request(
+            candidate=candidate,
+            problem=problem,
+        )
+
+    stock_flow_plan = EnginePlan(
+        engine_kind="system_dynamics",
+        objective_ref="objective://firm_survival",
+        variable_map={
+            "agents.income": "exogenous_inflows.0",
+            "government.balance": "exogenous_inflows.1",
+            "firm_survival": "stock:0",
+        },
+        system_dynamics_state={
+            "initial_stocks": [10.0, 10.0],
+            "flow_matrix": [[0.0, 0.1], [0.1, 0.0]],
+            "exogenous_inflows": [0.0, 0.0],
+        },
+        system_dynamics_params={"dt": 1.0},
+    )
+    ordered_request = owner_request.model_copy(
+        update={
+            "coupling_graph": n5_contract._coupling_graph("shared_resource"),
+            "engine_plan": (*owner_request.engine_plan, stock_flow_plan),
+            "baseline_state": {"firm_survival": 0.0},
+        }
+    )
+    problem = problem.model_copy(
+        update={
+            "runtime_hints": {
+                **problem.runtime_hints,
+                "joint_simulation_request": ordered_request,
+            }
+        }
+    )
+    problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    rebound_atoms = []
+    for atom in candidate.intervention_atoms:
+        draft = atom.model_copy(update={"problem_frame_ref": problem_ref})
+        rebound = draft.model_copy(
+            update={"content_hash": intervention_atom_content_hash(draft)}
+        )
+        rebound_atoms.append(type(atom).model_validate(rebound.model_dump(mode="python")))
+    candidate = SimpleNamespace(
+        candidate_id=candidate.candidate_id,
+        atom=rebound_atoms[0],
+        intervention_atoms=tuple(rebound_atoms),
+    )
+    selected_hashes = tuple(context.selected_registry_entry_hashes)
+    substrate_input_hash = gy_content_hash(
+        {
+            "design_problem_ref": problem_ref,
+            "substrate_registry_content_hash": context.substrate_registry_content_hash,
+            "world_model_record_content_hash": context.world_model_record_content_hash,
+            "selected_registry_entry_hashes": selected_hashes,
+        }
+    )
+    context = build_cycle_substrate_context(
+        design_problem_ref=problem_ref,
+        domain=problem.domain,
+        substrate_registry=context.substrate_registry,
+        selected_registry_entry_hashes=selected_hashes,
+        world_model_record=context.world_model_record,
+        intervention_substrate=context.intervention_substrate,
+        candidate_levers=context.candidate_levers,
+        transport_context=context.transport_context,
+        source_pack_content_hash=context.source_pack_content_hash,
+        substrate_input_content_hash=substrate_input_hash,
+    )
+
+    class _ControlledN4:
+        async def __call__(self, generated_problem: DesignProblem, *, cycle_index: int) -> Any:
+            assert generated_problem.design_problem_id == problem.design_problem_id
+            assert cycle_index == 0
+            return _GenerationResult(
+                status="generated",
+                candidates=(candidate,),
+                surrogate_rankings=(
+                    _Ranking(candidate_id=candidate.candidate_id, score=0.9, voi_estimate=4.0),
+                ),
+            )
+
+    def limited_candidate_grounding(
+        *,
+        candidate: Any,
+        problem: DesignProblem,
+        cycle_index: int,
+        generation_result: Any | None = None,
+    ) -> CandidateGroundingObservation:
+        del problem, cycle_index, generation_result
+        return CandidateGroundingObservation(
+            candidate_id=candidate.candidate_id,
+            status="grounding_unavailable",
+            grounding_score=0.2,
+            issue_codes=("controlled_profile_grounding_unavailable",),
+            grounding_source="grounding_unavailable",
+        )
+
+    controller = GenerationCycleController(
+        generation_port=_ControlledN4(),
+        grounding_port=limited_candidate_grounding,
+        repo_root=tmp_path,
+        cycle_substrate_context=context,
+        artifact_store=store,
+        authority_scope="contract_testing",
+    )
+    assert isinstance(controller._simulation_port, JointSimulationPort)
+    assert controller._simulation_port._cycle_substrate_context is context
+    assert isinstance(
+        controller._value_port,
+        generation_cycle_module._DefaultSimulationBoundFoundryValuePort,
+    )
+
+    try:
+        with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+            run = await controller.run(
+                problem,
+                budget_state=_budget(),
+                min_cycles=1,
+                max_cycles=1,
+            )
+            cycle = run.cycles[0]
+            simulation = cycle.simulation
+            assert simulation.status == "joint_simulated"
+            assert simulation.simulation_result_ref is not None
+            assert simulation.simulation_ref is not None
+            assert store.verify(simulation.simulation_result_ref.artifact_id).ok
+            assert cycle.value_port.status == "value_conditional"
+            assert cycle.value_port.evaluation_mode == "simulate_only"
+            assert cycle.value_port.value_ref == str(simulation.simulation_result_ref.artifact_id)
+            assert "simulation_only_k_sim_not_world_evidence" in (
+                cycle.value_port.authority_blockers
+            )
+
+            persisted = load_joint_simulation_result(
+                simulation.simulation_result_ref,
+                store=store,
+                expected_world_model_record_content_hash=context.world_model_record.content_hash,
+                expected_world_model_record_ref=context.world_model_record.world_model_record_id,
+                expected_atom_ids=tuple(
+                    atom.intervention_id for atom in candidate.intervention_atoms
+                ),
+                expected_selected_outcomes=("firm_survival",),
+                expected_receipt_payload_hash=simulation.simulation_ref,
+            )
+
+        assert [
+            (item.engine_kind, item.decision, item.reason)
+            for item in persisted.engine_decisions
+        ] == [
+            (
+                "ncm_parallel_worlds",
+                "unsupported",
+                "coupling_composition_gate_unsupported",
+            ),
+            ("system_dynamics", "selected", "engine_eligibility_satisfied"),
+        ]
+        selected = persisted.engine_decisions[-1]
+        assert selected.method_fqn == "simulation.system_dynamics.stock_flow@1.0.0"
+        physical = tuple(persisted.trajectories)
+        assert physical
+        assert {trajectory.engine_kind for trajectory in physical} == {"system_dynamics"}
+        assert {trajectory.method_fqn for trajectory in physical} == {selected.method_fqn}
+        assert all(trajectory.diagnostics.get("physical_run_ref") for trajectory in physical)
+        joint = next(trajectory for trajectory in physical if trajectory.run_level == "joint")
+        assert joint.diagnostics["physical_run_ref"]
+
+        # Call the registered engine implementation directly, outside N5's
+        # selection/controller code, using the two actual do() values.
+        oracle_state = {
+            **stock_flow_plan.system_dynamics_state,
+            "exogenous_inflows": [1.0, 1.0],
+        }
+        oracle = StockFlowSystemDynamicsEstimator.pure_step(
+            oracle_state,
+            {**stock_flow_plan.system_dynamics_params, "n_steps": 1},
+        )
+        assert joint.points[-1].step == 1
+        assert joint.points[-1].outcomes["firm_survival"] == pytest.approx(
+            oracle["result"]["trajectory"][-1][0]
+        )
+
+        with (
+            tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"),
+            pytest.raises(
+                GenerationCycleError,
+                match="joint_simulation_result_atom_binding_mismatch",
+            ),
+        ):
+            load_joint_simulation_result(
+                simulation.simulation_result_ref,
+                store=store,
+                expected_world_model_record_content_hash=(
+                    context.world_model_record.content_hash
+                ),
+                expected_atom_ids=(
+                    "foreign_sibling_intervention",
+                    candidate.intervention_atoms[1].intervention_id,
+                ),
+                expected_selected_outcomes=("firm_survival",),
+            )
+    finally:
+        store.close()
+
+
+@pytest.mark.asyncio
 async def test_single_step_static_ncm_reaches_n8_with_simulate_only_intake(
     tmp_path: Path,
 ) -> None:

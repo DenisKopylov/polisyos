@@ -1,0 +1,17 @@
+id = "2026-10-07-funnel-cost-input-origins"
+title = "Preserve funnel resource input cost origins"
+type = "fixed"
+component = "scientist-search"
+owner = "team-policyos-runtime"
+summary = "Failed settlement projection keeps reported and estimated input amounts separate through the ordinary outcome JSON/CAS consumer."
+change_class = "internal"
+surface_classification = "internal: internal-only"
+evidence = ["tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py", "tests/integration/scientist/methods/search/funnel/test_pending_outcome_blueprint_projection.py"]
+compatibility = "Additive estimated input feedback fields; known estimated-only input has null reported amount and not_reported status instead of a synthetic reported zero. Actual reported zero and unknown/partial input remain distinct."
+migration = "Internal readers consume the appropriate origin component and retain null for absent evidence. Input feedback is not a durable debit receipt or provider invoice."
+api = "One existing internal failed-settlement feedback projection is extended; no new public parser, ledger schema, receipt, or authority API."
+limitations = "Controlled provider usage and cost reports do not appoint invoice truth, native estimand, refinement, or promotion authority. Ordinary retry/readback accounting remains canonical B-owned."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/scientist/methods/search/funnel/README.md"]
+runbook_docs = ["src/polisyos/scientist/methods/search/funnel/README.md"]

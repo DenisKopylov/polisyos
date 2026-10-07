@@ -503,18 +503,25 @@ class FunnelOrchestrator:
                         }
                         for value in pending
                     ]
-                    # Known reported input is distinct from settled spend;
-                    # an obtained operation with unknown amount is not zero.
+                    # Input knowledge and settlement knowledge are independent.
+                    # A known estimate cannot create a provider-reported zero;
+                    # literal zero rows still establish their own input origin.
                     reported_inputs = [
                         value.event.amount
                         for value in failures
                         if value.event.cost_origin == "reported" and value.event.amount is not None
                     ]
+                    estimated_inputs = [
+                        value.event.amount
+                        for value in failures
+                        if value.event.cost_origin == "estimated" and value.event.amount is not None
+                    ]
                     unknown_input = any(value.event.amount is None for value in failures)
                     feedback["resource_reported_input_usd"] = (
-                        str(sum(reported_inputs, Decimal(0)))
-                        if reported_inputs or not unknown_input
-                        else None
+                        str(sum(reported_inputs, Decimal(0))) if reported_inputs else None
+                    )
+                    feedback["resource_estimated_input_usd"] = (
+                        str(sum(estimated_inputs, Decimal(0))) if estimated_inputs else None
                     )
                     feedback["resource_reported_input_status"] = (
                         "partial"
@@ -522,6 +529,17 @@ class FunnelOrchestrator:
                         else "unknown"
                         if unknown_input
                         else "reported"
+                        if reported_inputs
+                        else "not_reported"
+                    )
+                    feedback["resource_estimated_input_status"] = (
+                        "partial"
+                        if unknown_input and estimated_inputs
+                        else "unknown"
+                        if unknown_input
+                        else "estimated"
+                        if estimated_inputs
+                        else "not_estimated"
                     )
                     result = replace(result, feedback=feedback)
                 if events:

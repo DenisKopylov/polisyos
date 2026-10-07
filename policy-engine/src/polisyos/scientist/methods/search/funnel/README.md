@@ -70,3 +70,14 @@ receipt readback, then shows that removing financial admission would admit the
 forbidden zero ACK. Actual physically executed unknown-cost controls retain
 pending/reserved state. A physically unentered cache-only refusal can abort its
 own intent, preserving the original paid receipt and issuing no new charge ACK.
+
+
+A failed settlement keeps reported and usage-priced estimated inputs as distinct
+feedback components. `resource_reported_input_usd` is null unless an actual
+reported row exists; a genuine reported zero remains a measured zero. The
+additive `resource_estimated_input_usd` and corresponding status preserve known
+estimates without presenting them as provider reports. Unknown amount remains
+unknown; an observed known subset alongside unknown input is partial. Pending
+producer event payloads retain each amount, origin and stable identity. The
+ordinary runtime outcome serializer and fresh JSON/CAS reader retain both
+components. These input amounts do not establish settled debit or invoice truth.

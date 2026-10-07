@@ -284,6 +284,120 @@ def _controlled_builtin_value_method_registry(
         yield registry, report
 
 
+def _bounded_n8_owner_projection(
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    candidate: object,
+    problem: DesignProblem,
+    world_record: object,
+) -> Any:
+    """Supply a bounded profile for selector tests, without source admission.
+
+    Rows and projection references are explicit fixtures. The profile-loader
+    stub exercises N8 receipt/context consumption, not C artifact resolution,
+    factual population scope, or production data authority.
+    """
+
+    from polisyos.core.artifacts.ids import ArtifactID as CoreArtifactID
+    from polisyos.core.artifacts.manifest import ArtifactRef as CoreArtifactRef
+    from polisyos.data_forge.domains.catalog.knowledge.overlay import (
+        ActivatedAcquisitionObservationProjection,
+        CanonicalAcquisitionObservation,
+        ObservationProvenanceClass,
+    )
+
+    rows = []
+    for unit_index in range(3):
+        for period_id in range(4):
+            row_fields = {
+                "unit_id": f"unit_{unit_index}",
+                "period_id": period_id,
+                "outcome_value": float(period_id + unit_index),
+                "source_row_content_hashes": (_hash("a"),),
+            }
+            rows.append(
+                ValueOwnerRow(
+                    **row_fields,
+                    row_content_hash=gy_content_hash(row_fields),
+                )
+            )
+    rows_payload = [row.model_dump(mode="json") for row in rows]
+    profile_payload = {
+        "schema_version": "policyos.runtime.value_data_profile.v1",
+        "outcome": "avg_income",
+        "rows": rows_payload,
+        "owner_row_count": len(rows_payload),
+        "unit_count": 3,
+        "period_count": 4,
+        "available_data_modalities": ["panel", "tabular"],
+        "treatment_assignment_status": "owner_assignment_unresolved",
+        "owner_access_ref": "test://synthetic-n8-owner-profile",
+        "owner_rows_content_hash": gy_content_hash(rows_payload),
+    }
+    profile = ValueDataProfile.model_validate(
+        {**profile_payload, "content_hash": gy_content_hash(profile_payload)}
+    )
+
+    receipt_ref = CoreArtifactRef(
+        artifact_id=CoreArtifactID(_hash("1")),
+        kind="epoch.activated_overlay_admission_receipt",
+        media_type="application/json",
+    )
+    passport_ref = CoreArtifactRef(
+        artifact_id=CoreArtifactID(_hash("2")),
+        kind="epoch.acquisition_passport_snapshot",
+        media_type="application/json",
+    )
+    projection = ActivatedAcquisitionObservationProjection.issue(
+        receipt_ref=receipt_ref,
+        receipt_content_sha256=_hash("3"),
+        passport_ref=passport_ref,
+        passport_content_sha256=_hash("4"),
+        variable_id="avg_income",
+        epoch_id=1,
+        passport_id="fixture-passport",
+        admission_content_sha256=_hash("5"),
+        observations=(
+            CanonicalAcquisitionObservation(
+                observation_id="fixture-active-avg-income",
+                dataset_id="fixture-acquired-avg-income",
+                raw_variable="avg_income",
+                canonical_var="avg_income",
+                country_code="AM",
+                year=2024,
+                value=1.0,
+                condition_json='{"unit":"usd"}',
+                acquisition_method="fixture",
+                source_watermark="fixture",
+                dataset_version="1",
+                observation_class=ObservationProvenanceClass.OBSERVED,
+            ),
+        ),
+    )
+
+    def load_fixture_profile(
+        _gateway: RealValueOwnerGateway,
+        *,
+        candidate: object,
+        problem: DesignProblem,
+        world_record: object,
+    ) -> ValueDataProfile:
+        assert candidate is candidate_arg
+        assert problem is problem_arg
+        assert world_record is world_arg
+        return profile
+
+    candidate_arg = candidate
+    problem_arg = problem
+    world_arg = world_record
+    monkeypatch.setattr(
+        RealValueOwnerGateway,
+        "load_value_data_profile",
+        load_fixture_profile,
+    )
+    return projection
+
+
 def _execution_ref(
     artifact_id: str,
     content_hash: str,
@@ -2823,9 +2937,21 @@ def test_value_port_selects_then_routes_missing_owner_assignment_to_acquisition(
         tmp_path,
         problem_seed=_avg_income_problem(),
     )
+    world = simulation.world_model_record
+    assert world is not None
+    projection = _bounded_n8_owner_projection(
+        monkeypatch,
+        candidate=candidate,
+        problem=problem,
+        world_record=world,
+    )
     with _controlled_builtin_value_method_registry(monkeypatch):
         observation = FoundryValuePort(
             evaluation_context=execution_context,
+            owner_gateway=RealValueOwnerGateway(
+                repo_root=Path.cwd(),
+                activated_observation_projection=projection,
+            ),
             repo_root=Path.cwd(),
             artifact_store=store,
         )(
@@ -2893,108 +3019,17 @@ def test_n8_value_port_accepts_recomputed_foundry_receipt_context(
     tmp_path: Path,
 ) -> None:
     """A bounded built-in registry supports N8 receipt recomputation, not default closure."""
-    from polisyos.core.artifacts.ids import ArtifactID as CoreArtifactID
-    from polisyos.core.artifacts.manifest import ArtifactRef as CoreArtifactRef
-    from polisyos.data_forge.domains.catalog.knowledge.overlay import (
-        ActivatedAcquisitionObservationProjection,
-        CanonicalAcquisitionObservation,
-        ObservationProvenanceClass,
-    )
-
     candidate, problem, simulation, execution_context, store = _persisted_n5_value_fixture(
         tmp_path,
         problem_seed=_avg_income_problem(),
     )
     world = simulation.world_model_record
     assert world is not None
-    rows = []
-    for unit_index in range(3):
-        for period_id in range(4):
-            row_fields = {
-                "unit_id": f"unit_{unit_index}",
-                "period_id": period_id,
-                "outcome_value": float(period_id + unit_index),
-                "source_row_content_hashes": (_hash("a"),),
-            }
-            rows.append(
-                ValueOwnerRow(
-                    **row_fields,
-                    row_content_hash=gy_content_hash(row_fields),
-                )
-            )
-    rows_payload = [row.model_dump(mode="json") for row in rows]
-    profile_payload = {
-        "schema_version": "policyos.runtime.value_data_profile.v1",
-        "outcome": "avg_income",
-        "rows": rows_payload,
-        "owner_row_count": len(rows_payload),
-        "unit_count": 3,
-        "period_count": 4,
-        "available_data_modalities": ["panel", "tabular"],
-        "treatment_assignment_status": "owner_assignment_unresolved",
-        "owner_access_ref": "test://synthetic-n8-owner-profile",
-        "owner_rows_content_hash": gy_content_hash(rows_payload),
-    }
-    profile = ValueDataProfile.model_validate(
-        {**profile_payload, "content_hash": gy_content_hash(profile_payload)}
-    )
-
-    receipt_ref = CoreArtifactRef(
-        artifact_id=CoreArtifactID(_hash("1")),
-        kind="epoch.activated_overlay_admission_receipt",
-        media_type="application/json",
-    )
-    passport_ref = CoreArtifactRef(
-        artifact_id=CoreArtifactID(_hash("2")),
-        kind="epoch.acquisition_passport_snapshot",
-        media_type="application/json",
-    )
-    projection = ActivatedAcquisitionObservationProjection.issue(
-        receipt_ref=receipt_ref,
-        receipt_content_sha256=_hash("3"),
-        passport_ref=passport_ref,
-        passport_content_sha256=_hash("4"),
-        variable_id="avg_income",
-        epoch_id=1,
-        passport_id="fixture-passport",
-        admission_content_sha256=_hash("5"),
-        observations=(
-            CanonicalAcquisitionObservation(
-                observation_id="fixture-active-avg-income",
-                dataset_id="fixture-acquired-avg-income",
-                raw_variable="avg_income",
-                canonical_var="avg_income",
-                country_code="AM",
-                year=2024,
-                value=1.0,
-                condition_json='{"unit":"usd"}',
-                acquisition_method="fixture",
-                source_watermark="fixture",
-                dataset_version="1",
-                observation_class=ObservationProvenanceClass.OBSERVED,
-            ),
-        ),
-    )
-
-    def load_fixture_profile(
-        _gateway: RealValueOwnerGateway,
-        *,
-        candidate: object,
-        problem: DesignProblem,
-        world_record: object,
-    ) -> ValueDataProfile:
-        assert candidate is candidate_arg
-        assert problem is problem_arg
-        assert world_record is world_arg
-        return profile
-
-    candidate_arg = candidate
-    problem_arg = problem
-    world_arg = world
-    monkeypatch.setattr(
-        RealValueOwnerGateway,
-        "load_value_data_profile",
-        load_fixture_profile,
+    projection = _bounded_n8_owner_projection(
+        monkeypatch,
+        candidate=candidate,
+        problem=problem,
+        world_record=world,
     )
 
     accepted_contexts: list[str] = []
@@ -3048,6 +3083,14 @@ def test_value_port_rejects_selection_receipt_replayed_from_other_owner_profile(
         tmp_path,
         problem_seed=_avg_income_problem(),
     )
+    world = simulation.world_model_record
+    assert world is not None
+    projection = _bounded_n8_owner_projection(
+        monkeypatch,
+        candidate=candidate,
+        problem=problem,
+        world_record=world,
+    )
     wrong_problem = {
         "design_problem_id": problem.design_problem_id,
         "problem_statement": problem.problem_statement,
@@ -3080,6 +3123,10 @@ def test_value_port_rejects_selection_receipt_replayed_from_other_owner_profile(
 
         observation = FoundryValuePort(
             evaluation_context=execution_context,
+            owner_gateway=RealValueOwnerGateway(
+                repo_root=Path.cwd(),
+                activated_observation_projection=projection,
+            ),
             repo_root=Path.cwd(),
             artifact_store=store,
         )(
@@ -3171,9 +3218,21 @@ def test_value_port_rejects_unowned_method_selection_receipt(
         tmp_path,
         problem_seed=_avg_income_problem(),
     )
+    world = simulation.world_model_record
+    assert world is not None
+    projection = _bounded_n8_owner_projection(
+        monkeypatch,
+        candidate=candidate,
+        problem=problem,
+        world_record=world,
+    )
     with _controlled_builtin_value_method_registry(monkeypatch):
         observation = FoundryValuePort(
             evaluation_context=execution_context,
+            owner_gateway=RealValueOwnerGateway(
+                repo_root=Path.cwd(),
+                activated_observation_projection=projection,
+            ),
             repo_root=Path.cwd(),
             artifact_store=store,
         )(
@@ -3281,6 +3340,7 @@ def test_simulate_only_n8_rejects_tampered_persisted_n5_reference_before_owner_g
 
 def test_n8_default_registry_refuses_unbound_entrypoint_closure_with_real_n5(
     tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     from polisyos.foundry.methods.selection.registry import registry_scope
 
@@ -3288,9 +3348,21 @@ def test_n8_default_registry_refuses_unbound_entrypoint_closure_with_real_n5(
         tmp_path,
         problem_seed=_avg_income_problem(),
     )
+    world = simulation.world_model_record
+    assert world is not None
+    projection = _bounded_n8_owner_projection(
+        monkeypatch,
+        candidate=candidate,
+        problem=problem,
+        world_record=world,
+    )
     with registry_scope():
         observation = FoundryValuePort(
             evaluation_context=execution_context,
+            owner_gateway=RealValueOwnerGateway(
+                repo_root=Path.cwd(),
+                activated_observation_projection=projection,
+            ),
             repo_root=Path.cwd(),
             artifact_store=store,
         )(

@@ -98,6 +98,22 @@
       "data_transfer": "No productionlaw transferred cloud",
       "unknown_input_refs": null,
       "local_command": null
+    },
+    {
+      "packet_id": "followup-A-EMP01-protected-graph-bridge",
+      "finding_ids": [],
+      "related_other_owner_bundle": "A EMP-01/B33",
+      "status": "bridge_missing",
+      "owner": "Canonical A generation-cycle/value-transport owner; F graph owner provides exact source-bound artifact contract only",
+      "needed": [
+        "Existing selected ArtifactStore/CausalGraphModelRef resolve/content-bound verifier bridge at _build_candidate_selection_diagram, tied to actual current design/world/source/transport context",
+        "Supported static profile and exact admitted identification/transport basis only where this protected consumer requires it; unsupported unresolved/temporal graph must refuse"
+      ],
+      "current_result": "Existing A helper always raises acquire_data:causal_graph_artifact_unresolved after context validation; no raw hints as topology. Two exact native refusal selectors PASS on currentF code/sourceb5; not a positive protectedconsumer witness or closure of A B33. No parallel F A-intake mechanism.",
+      "check_output": "Root committed closeout transport includes EMP01-narrow.{execution.json,stdout,stderr,xml}",
+      "data_transfer": "Production input refs/commands remain null until actual local packet",
+      "unknown_input_refs": null,
+      "local_command": null
     }
   ],
   "not_original_prerequisites": [

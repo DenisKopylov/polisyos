@@ -359,6 +359,66 @@ def test_served_candidate_value_is_recomputed_from_n5_cas_on_fresh_get(
         assert observation["evaluation_mode"] == "simulate_only"
         assert observation["predicate_basis"] == "recomputed"
         assert observation["authority_purpose"] == "conditional_simulation_only"
+        with tenant_scope(None, tenant_id=_TENANT_ID, cell_id=_CELL_ID):
+            fresh_n5_result = load_joint_simulation_result(
+                projected_result_ref,
+                store=fresh_context.store,
+                expected_world_model_record_content_hash=(
+                    owner_world_model_record.content_hash
+                ),
+                expected_atom_ids=(
+                    input_record.materialization.derived_n5_atom.intervention_id,
+                ),
+                expected_selected_outcomes=(input_record.outcome_variable,),
+            )
+        assert len(fresh_n5_result.atom_ids) == 1
+        atom_id = fresh_n5_result.atom_ids[0]
+        requested_steps = tuple(
+            range(
+                fresh_n5_result.horizon.start,
+                fresh_n5_result.horizon.end + 1,
+                fresh_n5_result.horizon.step,
+            )
+        )
+        scope_keys = tuple(
+            (trajectory.run_level, tuple(trajectory.atom_ids))
+            for trajectory in fresh_n5_result.trajectories
+        )
+        assert len(scope_keys) == len(set(scope_keys))
+        assert set(scope_keys) == {
+            ("individual", (atom_id,)),
+            ("joint", (atom_id,)),
+        }
+        assert all(
+            tuple(point.step for point in trajectory.points) == requested_steps
+            for trajectory in fresh_n5_result.trajectories
+        )
+        joint_trajectory = next(
+            trajectory
+            for trajectory in fresh_n5_result.trajectories
+            if trajectory.run_level == "joint" and trajectory.atom_ids == (atom_id,)
+        )
+        interaction_evidence = observation["conditional_interaction_evidence"]
+        assert interaction_evidence["horizon_start"] == fresh_n5_result.horizon.start
+        assert interaction_evidence["horizon_end"] == fresh_n5_result.horizon.end
+        assert interaction_evidence["horizon_step"] == fresh_n5_result.horizon.step
+        assert interaction_evidence["requested_steps"] == list(requested_steps)
+        assert interaction_evidence["observed_steps"] == [
+            point.step for point in joint_trajectory.points
+        ]
+        assert interaction_evidence["trajectory_scope_count"] == len(scope_keys)
+        assert interaction_evidence["checked_interaction_orders"] == [1]
+        assert fresh_n5_result.feedback_classification.checked_interaction_orders == (1,)
+        assert interaction_evidence["max_checked_interaction_order"] == 1
+        assert interaction_evidence["higher_order_residuals"] == {}
+        assert fresh_n5_result.higher_order_residuals == {}
+        assert fresh_n5_result.feedback_classification.higher_order_residuals == {}
+        assert interaction_evidence["residual_scope"] == "no_higher_order"
+        assert interaction_evidence["predicate_provenance"] == "recomputed"
+        assert interaction_evidence["authority_purpose"] == "conditional_simulation_only"
+        assert interaction_evidence["unit_binding_status"] == "not_established"
+        assert interaction_evidence["time_binding_status"] == "not_established"
+        assert interaction_evidence["sampling_uncertainty_status"] == "not_established"
         assert len(n8_calls) == 2
         assert len(n5_calls) == 1
         assert n9_calls == []
@@ -806,4 +866,5 @@ def test_served_candidate_value_is_recomputed_from_n5_cas_on_fresh_get(
         assert tampered_values[0]["observation"]["status"] == "value_blocked"
         assert tampered_values[0]["observation"]["value_ref"] is None
         assert tampered_values[0]["observation"]["predicate_basis"] == "not_established"
+        assert tampered_values[0]["observation"].get("conditional_interaction_evidence") is None
         assert n9_calls == []

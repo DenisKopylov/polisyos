@@ -783,6 +783,41 @@ async def test_all_hard_infeasible_candidates_block_before_n5_and_voi(
             assert cycle.voi_decision.scheduler_action == "not_run_hard_feasibility_blocked"
             assert n5_run_calls == 0
             assert validate_generation_cycle_candidate_run(run) == ()
+
+            foreign_candidate_decision = cycle.voi_decision.model_copy(
+                update={"candidate_id": "foreign-candidate"}
+            )
+            foreign_candidate_cycle = cycle.model_copy(
+                update={"voi_decision": foreign_candidate_decision}
+            )
+            foreign_candidate_run = run.model_copy(
+                update={"cycles": (foreign_candidate_cycle,)}
+            )
+            assert "voi_cycle_identity_mismatch" in {
+                str(issue.get("code"))
+                for issue in validate_generation_cycle_candidate_run(
+                    foreign_candidate_run
+                )
+            }
+
+            wrong_terminal_kind = next(
+                terminal_kind
+                for terminal_kind in run.terminal_denominator
+                if terminal_kind != cycle.terminal_kind
+            )
+            wrong_terminal_decision = cycle.voi_decision.model_copy(
+                update={"terminal_kind": wrong_terminal_kind}
+            )
+            wrong_terminal_cycle = cycle.model_copy(
+                update={"voi_decision": wrong_terminal_decision}
+            )
+            wrong_terminal_run = run.model_copy(
+                update={"cycles": (wrong_terminal_cycle,)}
+            )
+            assert "voi_cycle_identity_mismatch" in {
+                str(issue.get("code"))
+                for issue in validate_generation_cycle_candidate_run(wrong_terminal_run)
+            }
     finally:
         store.close()
 

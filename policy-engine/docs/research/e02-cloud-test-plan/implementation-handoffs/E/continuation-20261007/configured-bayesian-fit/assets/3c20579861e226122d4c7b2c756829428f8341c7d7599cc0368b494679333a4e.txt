@@ -1,0 +1,1 @@
+{"data_ref":{"artifact_id":"sha256:f5ff958086348e8a6780cce4a1daf3d2a4037c95bb6e0bb5bb2eda93ccc9e5a1","kind":"foundry.state_snapshot","media_type":"application/json"},"notes":[],"stats":{},"uncertainty_envelope_ref":{"artifact_id":"sha256:45b880d4d67d2245497de327d91062ce1c8f41928fe1943b0d6cc6f3fd57552e","kind":"ir.uncertainty_envelope","media_type":"application/json"}}

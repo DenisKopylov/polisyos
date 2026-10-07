@@ -1,0 +1,12 @@
+import json
+from polisyos.core import artifacts,canon,contracts
+from polisyos.foundry import uncertainty
+from polisyos.foundry.calibration import bayesian_fit_bridge as provider
+from polisyos.ir.registry.refs import UncertaintyEnvelopeRef as native_ref
+from polisyos.scientist.nodes.builtins.simulate import propagate_uncertainty as node
+rows=[]
+for name in ('BayesianFitBinding','PersistedBayesianFit','persist_bayesian_fit_envelopes'):
+ rows.append({'name':name,'facade':'polisyos.foundry.uncertainty','identity':getattr(uncertainty,name) is getattr(provider,name),'FQN':getattr(uncertainty,name).__module__+'.'+getattr(uncertainty,name).__qualname__})
+rows.extend([{'name':'CoreCanonSpec','identity':node.CanonSpec is canon.CanonSpec},{'name':'CoreCanonicalDecoder','identity':node.from_canonical_bytes is canon.from_canonical_bytes},{'name':'stable output ref DTO','identity':contracts.UncertaintyEnvelopeRef is native_ref,'strict_kind':contracts.UncertaintyEnvelopeRef.model_fields['kind'].annotation.__args__==('ir.uncertainty_envelope',),'strict_media':contracts.UncertaintyEnvelopeRef.model_fields['media_type'].annotation.__args__==('application/json',)}])
+if not all(x['identity'] for x in rows):raise RuntimeError('facade identity mismatch')
+print(json.dumps({'rows':rows,'scope':'actual current typed bindings only; existing CAS implementation not re-reviewed'},indent=2))

@@ -1,0 +1,1677 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "E",
+  "slice": "configured-bayesian-fit-20261007",
+  "closure_ids": [
+    "B201",
+    "B202"
+  ],
+  "related_held_id": "B197",
+  "bundle_ids": [
+    "UQS-01"
+  ],
+  "slice_base_sha": "3cc20af36297493aa8ba8fdc66f3810abadf81a2",
+  "implementation_commits": [
+    "6638e18a3295e43a89b0ae6adba32e62952154bb",
+    "9147c06c0ec72083214f5ce32206f9aa01dc3a5b",
+    "77b4d68ec37e3f34b84ce4fd1787746e3d5f5322"
+  ],
+  "candidate_sha": "77b4d68ec37e3f34b84ce4fd1787746e3d5f5322",
+  "candidate_tree_sha": "d5efa295c8af983a86a620a120ab091aae580db3",
+  "branch": "codex/e02-E-cal-20261006",
+  "pull_request": null,
+  "source_commit_first": true,
+  "handoff_commit_is_separate": true,
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-07-configured-bayesian-fit-inlet.toml",
+    "policy-engine/src/polisyos/foundry/calibration/__init__.py",
+    "policy-engine/src/polisyos/foundry/calibration/bayesian_fit_bridge.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+    "policy-engine/tests/unit/scientist/nodes/test_bayesian_fit_consumer.py"
+  ],
+  "full_ancestry_footprint": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/F-resume-after-25c-focused.md",
+      "bytes": 10070,
+      "sha256": "68a68b63bc30bb596533c2b3dbb9b92a9da1dc37981faae83a1c754c7ff455a2",
+      "git_blob": "7516ebf7570ae9dddbc9824f898e4acca5e63d1f",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/F-resume-after-offline-519e.md",
+      "bytes": 17960,
+      "sha256": "bbe3f4b62bf838bd953d6bc343e414d53f90d95e8a5c2c2965c1b5578aa9ad00",
+      "git_blob": "6d3c2a13aa305c4d17ed825a0a779cb4b54ef536",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/F.md",
+      "bytes": 20493,
+      "sha256": "4de7afd038861c398be28a6ead06f6befc32a3d26a51a623a3b005d6565e1495",
+      "git_blob": "475f330da3ca82e957244a8ccbf61ce0f9577a00",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-semantic-ratification/configured-fit-supported-profile-20261007.json",
+      "bytes": 3209,
+      "sha256": "c36cef42824d1151c5bf38e81d2e2095941e66ba5e258ae4c8d6daf31408ab8d",
+      "git_blob": "f81af9511765bdd505a65c9fdbd76b6df84bf615",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/README.md",
+      "bytes": 872,
+      "sha256": "8b13ddf031e9f47a2f63fd439be98cd0dc747789c82134c2b499c532dd10954f",
+      "git_blob": "05ff2c4a5d779dc84d828f18ca90badf9a304a8c",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/author/corrective-implementation-commit.stderr.txt",
+      "bytes": 653,
+      "sha256": "b8ab27124c28e4b8a735baf15a55f794358832ee97db687414d6a268c434ef86",
+      "git_blob": "20f2b65f06f0f40a17a667be0c79525bd0d7cdf0",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/author/corrective-implementation-commit.stdout.txt",
+      "bytes": 1511,
+      "sha256": "e7d2d2b79b366fddaeccd3e17ed417665b93ce1e62702186b21057f2983deeb2",
+      "git_blob": "b94ea40d9b483fe27bc7dfe5044e906d7170cd3d",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/author/corrective-implementation-readback.json",
+      "bytes": 6537,
+      "sha256": "c351d7d6bdfc91fb5af7937c51d3df4229f70f11ac7ed5e88e75439f383af291",
+      "git_blob": "3292585c34027db1cf544343e2fb661cbb02aaf9",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/author/implementation-commit.stderr.txt",
+      "bytes": 653,
+      "sha256": "004aa7aa3a5d97add549764bae93da3f2e007d8dd145ccae69282ce6cc81129c",
+      "git_blob": "efc2a7634fcde5e3b6428edfc1d860b637238ec1",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/author/implementation-commit.stdout.txt",
+      "bytes": 1736,
+      "sha256": "91627765cc24602cf215b44295e336bdce62e0e07f6e279cf2a86726a4b82d05",
+      "git_blob": "54fc20149762bbf15cb660f2af10452c95c8b179",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/author/implementation-fetch.stderr.txt",
+      "bytes": 131,
+      "sha256": "e9b69189319718510ee2ea81bf93d0cc032b7d5bf74f862541242eb4a8f0f068",
+      "git_blob": "2a32d4443e0a984b10d38d3331b3fd5eab30d8d2",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/author/implementation-fetch.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/author/implementation-push.stderr.txt",
+      "bytes": 126,
+      "sha256": "f4aa8f51f2f809054eb8771be0477e66d7f77c4fdc841f2128d5b641d28e1ede",
+      "git_blob": "e54a8b241dcd66a829f5aa388e013b6825669e47",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/author/implementation-push.stdout.txt",
+      "bytes": 486,
+      "sha256": "3d22a47465be290b6cf98055fd61b9834f5fa9db501ce54a8b7ea22853e4ac13",
+      "git_blob": "3b0206180a5493065a6200d2aece6a0be4cccc0c",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/author/implementation-readback.json",
+      "bytes": 3779,
+      "sha256": "357ebbb074202ed928e112dede98fd7be2273f595a3db88fc359d4e6cb7846b8",
+      "git_blob": "2c9ad26c12a2164e1d890e2b25842d18f27e61a2",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/README.md",
+      "bytes": 470,
+      "sha256": "e312102a8ecaafed1b6a4afe106762fc23c59bc62640879d13237f86134d9684",
+      "git_blob": "63ac5d17e9a4995b2754dec51f4f4d30ad8b137f",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/copy-index.json",
+      "bytes": 7788,
+      "sha256": "0676d49da392c948847a4c0aa640082f5834673ab81ac87efa95a2eaff9d6b6f",
+      "git_blob": "8b0dbeaaf53bb35b39c216516ac35aa35d08533a",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/e02-E-DoE-basis2824-independent.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/e02-E-DoE-basis2824-independent.stdout.txt",
+      "bytes": 8221,
+      "sha256": "4b105aeeeec2634409a455e9db9225c10e606020f60bde6b758d78341da6ac02",
+      "git_blob": "40fa2e206fd2902a87a776033b6d9bb9566b5d9d",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/e02-E-review-DoE-basis2824.py.txt",
+      "bytes": 5429,
+      "sha256": "1b37d4256e006f0bc4a4a19dea09558f14caa765a2a0395ff38e244de57f83c4",
+      "git_blob": "dc798177308cf02c25d8bdaa58dacfb8d2249aec",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/effective-unknown-record-removal.py.txt",
+      "bytes": 9411,
+      "sha256": "54c3a55b289210f9e1265603a52e2cd481f3835126727a49545c6df848432755",
+      "git_blob": "45d91618e4c0b7d975363d870e5285c9acf67f4e",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/healthy.json",
+      "bytes": 11169,
+      "sha256": "0bd5c3049abf201886ba6dce3a8541e3e7390856f71af906d7531975eed4e9f3",
+      "git_blob": "25e4c3d58f03e85acfbc8a28b04dbf9bc5172af1",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/immutable-validator.py.txt",
+      "bytes": 9427,
+      "sha256": "8a71c65cfdab881b3efe3dad7ecc4c0e845ff66af745f9065a0143f369f66c6e",
+      "git_blob": "7929cf514292a364ec7731e6ef0a154d873bd40e",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/normal-healthy.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/normal-healthy.stdout.txt",
+      "bytes": 4111,
+      "sha256": "3f95ac5cf2e08615686fc669bda55ca0341ff5f95ea78a72d4a0494a98ad62df",
+      "git_blob": "9bd0e39e690bf431efd6c9e335a9cd31a47de48f",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/normal-old_escape_native_PASS.stderr.txt",
+      "bytes": 1088,
+      "sha256": "bdd7f6c19c09a42aaa4245a27a3b337bcf4753b3397f377fe90ee901c5454d0f",
+      "git_blob": "4d44d7a4ccfee14a5a30c8e2a50e23c26f8ce6cd",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/normal-old_escape_native_PASS.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/old_escape_native_PASS.json",
+      "bytes": 11168,
+      "sha256": "ee7991145b90029fda45e31355f0d3ebc9fa237f08caf5dc5686579172ac3e46",
+      "git_blob": "d10d8f6c72edff085f007d6cfbb0dcf6d5b3287f",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/optimized-healthy.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/optimized-healthy.stdout.txt",
+      "bytes": 4111,
+      "sha256": "3f95ac5cf2e08615686fc669bda55ca0341ff5f95ea78a72d4a0494a98ad62df",
+      "git_blob": "9bd0e39e690bf431efd6c9e335a9cd31a47de48f",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/optimized-old_escape_native_PASS.stderr.txt",
+      "bytes": 1088,
+      "sha256": "bdd7f6c19c09a42aaa4245a27a3b337bcf4753b3397f377fe90ee901c5454d0f",
+      "git_blob": "4d44d7a4ccfee14a5a30c8e2a50e23c26f8ce6cd",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/optimized-old_escape_native_PASS.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/original-publication-selection.json",
+      "bytes": 3548,
+      "sha256": "95d287a6e1d864d78cdfef37b705d9e0fec7c091df4b13f58566cf7ab7d50fd4",
+      "git_blob": "af573ecf82779e503a81e51e12b0b685b376eb6f",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/review.json",
+      "bytes": 8221,
+      "sha256": "4b105aeeeec2634409a455e9db9225c10e606020f60bde6b758d78341da6ac02",
+      "git_blob": "40fa2e206fd2902a87a776033b6d9bb9566b5d9d",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/copy-index.json",
+      "bytes": 4969,
+      "sha256": "35bf97de3ceed2d840340eaa62b7da4b695bb71d33672c4a4f56b0cea385835e",
+      "git_blob": "2c5fa971d483733dbe78c0d5cf373b29f3d1cff4",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/implementation-handoff.json",
+      "bytes": 27856,
+      "sha256": "a3ba7873e877ba2ff25f9833f173064f37d28e91b156e178c85ea42d05b36734",
+      "git_blob": "8092c26038bda443463ab3aba29c335e1a4f69bf",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/independent/corrective-review.json",
+      "bytes": 8221,
+      "sha256": "4b105aeeeec2634409a455e9db9225c10e606020f60bde6b758d78341da6ac02",
+      "git_blob": "40fa2e206fd2902a87a776033b6d9bb9566b5d9d",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/README.md",
+      "bytes": 1309,
+      "sha256": "95ba366fe01850f98f9b3fc50b5f7a6bc3870f0eee2fae6126291b7e4fac6045",
+      "git_blob": "6bf5ab9d10749fe56ee03d8a85a4472fa90d339e",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/copy-index.json",
+      "bytes": 39860,
+      "sha256": "95a0966c8024c6f1805d7f49a64502e37904f78edce3b77557246de41fd30b52",
+      "git_blob": "cfc8aa65807bf3b171864dce668176b7ddd57e58",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/implementation-handoff.json",
+      "bytes": 10682,
+      "sha256": "d74a5844d316279a621f1fdbc8f667a69489e7452c45a66290efbecace9521f2",
+      "git_blob": "d4f8f0e554c6435a1d76415646a774c6a17b06e4",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/independent-member-index.json",
+      "bytes": 17086,
+      "sha256": "6c5b10a2e0309d728e4a2da3eb948e6ff84bca0e5e50934ff4249740a811a7f3",
+      "git_blob": "0fe85653da415e3509159b0df3847487a6712a4a",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/independent-review/observer/build_closed_review_selection.py.txt",
+      "bytes": 6340,
+      "sha256": "059a2871e3f43aad98c52b3eab4e3a983115bc8a36c9b67a63a2e722b21c6338",
+      "git_blob": "f152ee2aa54264ced34cca76815aed3263172515",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/independent-review/observer/probe_old212_whole_record_path.py.txt",
+      "bytes": 2109,
+      "sha256": "3ccef4419011ad101445781f9dd48b8ee5724e1fb9b105b2e2f6f65617dece83",
+      "git_blob": "26f06967e794f805cbf7277364a090f6bbf0173e",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/independent-review/observer/replay_old_git212.py.txt",
+      "bytes": 4593,
+      "sha256": "94c53e0222418caf0b2e18bb8dd517cb73db782074288f29f93cfa02f396506b",
+      "git_blob": "0709ae141086ae3511bfa5fe21da721b4c31b4c1",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/independent-review/observer/review_2350_candidate.py.txt",
+      "bytes": 11879,
+      "sha256": "e1279ee85c2542d80181ea8f7e1b38e4ffed772430c53377ca30c013494ac589",
+      "git_blob": "074804194b3c67dd2b24fa725d6c08ce58ed12d0",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/independent-review/outputs/current-2350-normal.stdout.txt",
+      "bytes": 821,
+      "sha256": "1f963e6ad42cd95c93ee9f4f0fb10d02832825bec93042bf1f1336edfd4415a5",
+      "git_blob": "2c5be75957abbe1254296a60efbad8cedcbbdea8",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/independent-review/outputs/final-source-GO.json",
+      "bytes": 2922,
+      "sha256": "f41521d4b5efd65c1bf74720ec5411369d1b93f9dab497ea61a916cdea8827df",
+      "git_blob": "8b68715248dbd6c2f24376d4c93eb54fe654ccd1",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/independent-review/outputs/historical-default-2350-normal.stderr.txt",
+      "bytes": 1097,
+      "sha256": "8eadea254b052275568d72bad25f50d4803e8672c4ca7a8804dcc1375fbd1df4",
+      "git_blob": "610c226fcab3a1e3edf087f605e03aadce5af0dd",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/independent-review/outputs/old212-git-replay-normal.stdout.json",
+      "bytes": 85610,
+      "sha256": "d3767f2cd6955876b03e3d94f8eccdbfe48e341052ff960fbdc183303ab92eae",
+      "git_blob": "689d9cdf20f25ad2034b521d88618602caa4be76",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/independent-review/outputs/old212-git-replay-optimized.stdout.json",
+      "bytes": 85613,
+      "sha256": "2973d84893865e9fb8161e2c65fa57abe4b5fa62362a39ea6d86713fdd715ae1",
+      "git_blob": "eecefdc27eb5690a68a0fa6c2049c6f6b7bf4a0c",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/independent-review/outputs/old212-path-admission-probe.stdout.json",
+      "bytes": 1159,
+      "sha256": "2d34cf747a0ac1a0e567be6c9e7f5cf3c6aea6edc8ce82a3cdb36a37e9ae713d",
+      "git_blob": "21945675d5011c81c66c4936aab818108cb09875",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/independent-review/outputs/old212-whole-record-path-normal.stdout.json",
+      "bytes": 2671,
+      "sha256": "8ee655e64fc0e9ae102c94d71fa1e2ebfe6e4cf39abb5959ae09b4991a325aa3",
+      "git_blob": "991afbc4642ed57f45c1057615a197b36f415987",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/independent-review/outputs/old212-whole-record-path-optimized.stdout.json",
+      "bytes": 2674,
+      "sha256": "7d693e13b3c93e2bf4ca69e98bc13066cbf13dff71503c76776828e4dc0d8ce7",
+      "git_blob": "e2fc0eed41645cd7ba08432951b0090f939e0142",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/independent-review/outputs/review-2350-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/independent-review/outputs/review-2350-normal.stdout.json",
+      "bytes": 11661,
+      "sha256": "980d917c2c27f3a71a8c99ee46ea5761d89086a92569fdcb6ab173ee7589a9f4",
+      "git_blob": "2bd250695ed3d396aefdb495528b8c2d5dade7d5",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/independent-review/outputs/review-2350-optimized.stdout.json",
+      "bytes": 11704,
+      "sha256": "f13825f75b221c31690e1a6006ce41feda42651f5dfee3817b09df10d5d6d1af",
+      "git_blob": "f1708f80236ea21b32612492d88a5037dc0f30a3",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/independent-review/outputs/source-Ruff-2350.stdout.txt",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "git_blob": "0637a088a01e8ddab3bf3fa98dbe804cbde1a0dc",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/independent-review/outputs/source-Ruff-format-2350.json",
+      "bytes": 2934,
+      "sha256": "640424e4cfd43c2b44e3fb676ddc6fad64af1b95489d1ad4a23264cf739ee395",
+      "git_blob": "729086e6aa948479a0c7ee762cc4590d4fba8c4d",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/independent-review/outputs/source-format-2350.stdout.txt",
+      "bytes": 25,
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+      "git_blob": "5e122f397b6d5d61b45621051851165eadce6a78",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/independent-review/publication-selection-2350.json",
+      "bytes": 14505,
+      "sha256": "8ffd7b4dcd5afe132087a6ecdcb405fcc525dd2cc0fa90775e56ec637e4329df",
+      "git_blob": "2fb7e95c0c8a6d7ca634dd1c6c63a2785ee435b3",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/independent-review/source/current2350-source.py.txt",
+      "bytes": 10661,
+      "sha256": "6f1e4c188a978b4da6298f3939e32ef71e9839bcf6eb77d41239b29f0ba57e3f",
+      "git_blob": "fd459340890a9173421e7281c30ba8c1c38ebc12",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/independent-review/source/old212-source.py.txt",
+      "bytes": 8355,
+      "sha256": "21224439f7bc4d91e0fe0b5e447ea166e61bebf4d3f5ecbd29c1ca0dff5c5c0d",
+      "git_blob": "d313e8b8aa8c72d2e30171ab4413c431c12ef3c8",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/append-independent-source-review.py.txt",
+      "bytes": 6237,
+      "sha256": "abce9f21228de3c2302f49809d5bf7a8597e4fa784eb834114e2c34bdffc5720",
+      "git_blob": "5e93da5ab25cb6f45117b1144220b8b0fe2b0e0b",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/baseline-driver.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/baseline-driver.stdout.json",
+      "bytes": 1531,
+      "sha256": "1300e2d5dd853ae05fb77a097db2f4d302de78411172861e8109886dbb6dea59",
+      "git_blob": "bcf8fd349ce80723d710574088792f939d57323e",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/baseline-input-frame.json",
+      "bytes": 68814,
+      "sha256": "8b76dc235d90651fdcc7cce288d4ccc464e73c8269a570a328e9f37d3e96c9fd",
+      "git_blob": "062310b1dbfe017c2d1d2faeb26e91314bee23c5",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/baseline-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/baseline-normal.stdout.json",
+      "bytes": 821,
+      "sha256": "1f963e6ad42cd95c93ee9f4f0fb10d02832825bec93042bf1f1336edfd4415a5",
+      "git_blob": "2c5be75957abbe1254296a60efbad8cedcbbdea8",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/baseline-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/baseline-optimized.stdout.json",
+      "bytes": 821,
+      "sha256": "1f963e6ad42cd95c93ee9f4f0fb10d02832825bec93042bf1f1336edfd4415a5",
+      "git_blob": "2c5be75957abbe1254296a60efbad8cedcbbdea8",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/baseline.json",
+      "bytes": 1531,
+      "sha256": "1300e2d5dd853ae05fb77a097db2f4d302de78411172861e8109886dbb6dea59",
+      "git_blob": "bcf8fd349ce80723d710574088792f939d57323e",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/baseline.py.txt",
+      "bytes": 2416,
+      "sha256": "8ae81c88da9be49187d723f4682263eb0b47ba25858bc9a3f40bb92033d44981",
+      "git_blob": "05e7bbb9063244a9f9e306bace07288fee428231",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/build-source-handoff.py.txt",
+      "bytes": 10413,
+      "sha256": "e0ca64ef858da31abef9da7a2c8b60f426c3fc533637ce1a269810f0be65e9fc",
+      "git_blob": "2513dfd9edf88643b67ed593e4d83e93a2916a0f",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/build-source-handoff.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/build-source-handoff.stdout.json",
+      "bytes": 288,
+      "sha256": "1dd963493ca3df6f25cb97f5f68c8891d724e3abe4cb109b00ea3c1f29109ce8",
+      "git_blob": "2ea8f52164c259713341fda1a806cbb16463b03f",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/current-controls-final-driver.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/current-controls-final-driver.stdout.json",
+      "bytes": 4448,
+      "sha256": "8a2169867a98ef33187aa2bcdbfdc50682ed5f83f1c3c27a934f51f537d86043",
+      "git_blob": "b7d15ba58938bf5a2762d7119182eeb4586b5852",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/current-controls.json",
+      "bytes": 4448,
+      "sha256": "8a2169867a98ef33187aa2bcdbfdc50682ed5f83f1c3c27a934f51f537d86043",
+      "git_blob": "b7d15ba58938bf5a2762d7119182eeb4586b5852",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/current-preflight-validator.py.txt",
+      "bytes": 10661,
+      "sha256": "6f1e4c188a978b4da6298f3939e32ef71e9839bcf6eb77d41239b29f0ba57e3f",
+      "git_blob": "fd459340890a9173421e7281c30ba8c1c38ebc12",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/environment-before.json",
+      "bytes": 65877,
+      "sha256": "e8325cb5eed151db76cba735c9552ad88aaeaa5e7caf57e271d18862cf412c10",
+      "git_blob": "a566a818d43a1bbf9a5e720479fe92666511938c",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/environment-location.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/environment-location.stdout.json",
+      "bytes": 250,
+      "sha256": "45af35dc559de1928dfff30e453d2047185b6ec5429270629dc65da1f9760b3d",
+      "git_blob": "dbc3b282ae2d51b6f5debaa70e7fbcb514b09c0e",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/environment-selected-variables.json",
+      "bytes": 576,
+      "sha256": "8df1b1c0e13d6559ccf3e3999f55e1e129cdc1edfeb2f7ec3102ffe9653a8802",
+      "git_blob": "3809095a6ec9387b7ff76711574b89cb1f977f4a",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/final-remote-readback.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/final-remote-readback.stdout.txt",
+      "bytes": 77,
+      "sha256": "25321f84f1585f0b0a0c63be7bbb5750495b5691d7c17f6661eaf56f88e747ce",
+      "git_blob": "b0b6bc691c30857bffc107efc4b4e5161305a1b1",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/final-tracking-readback.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/final-tracking-readback.stdout.txt",
+      "bytes": 164,
+      "sha256": "6a4acd76ca8091afe09baeb2099a80bf3b44869417628a9dad1f494def9497e8",
+      "git_blob": "4b3d0ced65b6e844130589cc28aab7f490de5147",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/format-proposal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/format-proposal.stdout.py.txt",
+      "bytes": 8570,
+      "sha256": "d6586b6385b32b9779d9eb6486940b7f970d29135e4f4bf373c179393b9af01c",
+      "git_blob": "165f7fe3d4ca0732646fac48b532fb201588695d",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/historical-empty-fixed-python312-environment.json",
+      "bytes": 345,
+      "sha256": "44e717b2fbc181d4adec21be9ec94437db66fe0225450678348fcda2ce534b22",
+      "git_blob": "32fd896077d4dfa444d1b1e80a1e41120cab9650",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/historical-first-current-control-attempt/current-controls-driver.stderr.txt",
+      "bytes": 1360,
+      "sha256": "928ed6d97f975e7f720a7daa22b39b70fd8ce5b45e48fe3e62d59736f9bb2c12",
+      "git_blob": "6e6c405329fb874e20f6ac05ab28f3a923b31109",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/historical-first-current-control-attempt/current-controls-driver.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/historical-first-current-control-attempt/run-current-controls.py.txt",
+      "bytes": 4286,
+      "sha256": "576a9988b313e7bb9877f41d2ee3493cecae50eacce9a948bba8da0b4409957c",
+      "git_blob": "3f97bf9199672725916b6b7efe40b8b74f8e9493",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/preflight-call-removed.py.txt",
+      "bytes": 10626,
+      "sha256": "1d16af00f04d700eb75cd350387b4a7fabfb1cdbc0b089f336fa05fb5f603bd6",
+      "git_blob": "d1d98d7c1f79a59b8c65a2c68b42cd0b7563b50e",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/preflight-current-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/preflight-current-normal.stdout.txt",
+      "bytes": 821,
+      "sha256": "1f963e6ad42cd95c93ee9f4f0fb10d02832825bec93042bf1f1336edfd4415a5",
+      "git_blob": "2c5be75957abbe1254296a60efbad8cedcbbdea8",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/preflight-current-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/preflight-current-optimized.stdout.txt",
+      "bytes": 821,
+      "sha256": "1f963e6ad42cd95c93ee9f4f0fb10d02832825bec93042bf1f1336edfd4415a5",
+      "git_blob": "2c5be75957abbe1254296a60efbad8cedcbbdea8",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/preflight-historical-default-normal.stderr.txt",
+      "bytes": 1097,
+      "sha256": "8eadea254b052275568d72bad25f50d4803e8672c4ca7a8804dcc1375fbd1df4",
+      "git_blob": "610c226fcab3a1e3edf087f605e03aadce5af0dd",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/preflight-historical-default-normal.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/preflight-historical-default-optimized.stderr.txt",
+      "bytes": 1097,
+      "sha256": "8eadea254b052275568d72bad25f50d4803e8672c4ca7a8804dcc1375fbd1df4",
+      "git_blob": "610c226fcab3a1e3edf087f605e03aadce5af0dd",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/preflight-historical-default-optimized.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/preflight-old-Git212-replay-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/preflight-old-Git212-replay-normal.stdout.txt",
+      "bytes": 821,
+      "sha256": "1f963e6ad42cd95c93ee9f4f0fb10d02832825bec93042bf1f1336edfd4415a5",
+      "git_blob": "2c5be75957abbe1254296a60efbad8cedcbbdea8",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/preflight-old-Git212-replay-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/preflight-old-Git212-replay-optimized.stdout.txt",
+      "bytes": 821,
+      "sha256": "1f963e6ad42cd95c93ee9f4f0fb10d02832825bec93042bf1f1336edfd4415a5",
+      "git_blob": "2c5be75957abbe1254296a60efbad8cedcbbdea8",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/prepare-source-overlay.py.txt",
+      "bytes": 5433,
+      "sha256": "962ceaad80b260d1b6305273418e1fdaab6b4998f6d4e9d48029bacb4adb94a1",
+      "git_blob": "65302381018fbc90da25aa4025fb06935294261f",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/run-current-controls.py.txt",
+      "bytes": 4540,
+      "sha256": "79fa98fb9640c100658e96f2704dd08d84771edcb01f810238fb81ee26bec204",
+      "git_blob": "3a9d552bcd6eb2f5267c357d9d9f10781e4cf309",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-commit.stderr.txt",
+      "bytes": 653,
+      "sha256": "cb15eda9ccd0dca72db862471796317794c29a8d2d18524cdc66990f460c52a4",
+      "git_blob": "84fb154dbed784042f54e829dfd74afa5f139c3d",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-commit.stdout.txt",
+      "bytes": 521,
+      "sha256": "d1d894bfd6d3714ff4b4d0fc336de0c1e214ba75bad3e246a4ae97fe51ef42d0",
+      "git_blob": "2009b6d98352c5a31c49f88c7f633e212edc020a",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-execution-manifest.json",
+      "bytes": 3685,
+      "sha256": "9c7e2bb83fdfcee94b2a6288aa5c15abc5aae04d54511652fc33596f83ffe20e",
+      "git_blob": "c6fb1ad78d2cf4c60caf3794030d769f61fa197e",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-execution-manifest.py.txt",
+      "bytes": 3005,
+      "sha256": "a2b4977b5762d4d2e15695c0cb0b03061a54f9b65709fce077ce486b57a2d6a1",
+      "git_blob": "c8b14e65e878486989894120edc15082244d4471",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-execution-manifest.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-execution-manifest.stdout.json",
+      "bytes": 3685,
+      "sha256": "9c7e2bb83fdfcee94b2a6288aa5c15abc5aae04d54511652fc33596f83ffe20e",
+      "git_blob": "c6fb1ad78d2cf4c60caf3794030d769f61fa197e",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-fetch-explicit-readback.stderr.txt",
+      "bytes": 131,
+      "sha256": "87c2b0ce5bb487121ca0c7a6d632044a9d0d6782ef68f4a0ab269657d9c00b49",
+      "git_blob": "7acb1192757ca3fa6021cd0dbdb7d3f81040737a",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-fetch-explicit-readback.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-fetch-readback.stderr.txt",
+      "bytes": 110,
+      "sha256": "dd1655b4b01c4f373ea5d8d9a1f7102356b99395e0f268dc24f61b438f8fba87",
+      "git_blob": "a4c99ec5d000d30cd136333abd034584a4eb9264",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-fetch-readback.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-format-final.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-format-final.stdout.txt",
+      "bytes": 25,
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+      "git_blob": "5e122f397b6d5d61b45621051851165eadce6a78",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-overlay-proposal.json",
+      "bytes": 954,
+      "sha256": "afacc8c6d7315895d8e1574b02ef6cea8d136ceb318ea964fd6f81b8027dae04",
+      "git_blob": "e27214485bed13c26fa4430a33367868bdd97cd6",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-preflight-controls-normal-final.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-preflight-controls-normal-final.stdout.json",
+      "bytes": 4225,
+      "sha256": "1447abf9e453c776f811428d6530b51099d3a1d6dae0e704076e6d7271c335f3",
+      "git_blob": "247b475bdf50bf84725d123002ae2333a0130050",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-preflight-controls-normal.json",
+      "bytes": 4225,
+      "sha256": "1447abf9e453c776f811428d6530b51099d3a1d6dae0e704076e6d7271c335f3",
+      "git_blob": "247b475bdf50bf84725d123002ae2333a0130050",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-preflight-controls-optimized-final.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-preflight-controls-optimized-final.stdout.json",
+      "bytes": 4270,
+      "sha256": "9983831ee4973155272e8e193419adba63963d14378897b86be3af0166d2228e",
+      "git_blob": "fbb23cebd4cc2673db2238ee946439b90801d226",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-preflight-controls-optimized.json",
+      "bytes": 4270,
+      "sha256": "9983831ee4973155272e8e193419adba63963d14378897b86be3af0166d2228e",
+      "git_blob": "fbb23cebd4cc2673db2238ee946439b90801d226",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-preflight-controls.py.txt",
+      "bytes": 7837,
+      "sha256": "faa75ad0121e5595e5d691a50df739b395bf0d00e47c61becb71ecfa8d62d341",
+      "git_blob": "2c971651f2425a01099cfc87bfdeae19d53a0a18",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-publication-receipt.json",
+      "bytes": 3022,
+      "sha256": "cc24de7217f06911d80f1599ffa323321e6e9d2d999daa20f74bd302e34a8278",
+      "git_blob": "1ca148f36777bab8855c633d1291dff257e265f6",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-publication-receipt.py.txt",
+      "bytes": 2265,
+      "sha256": "9e4f05fed255e6be576106fa92a1e353ac1d089a8f0803e3e593d02d6b55535e",
+      "git_blob": "d9538c0ca633e97520c2790e19f68f93acd38062",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-publication-receipt.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-publication-receipt.stdout.json",
+      "bytes": 3022,
+      "sha256": "cc24de7217f06911d80f1599ffa323321e6e9d2d999daa20f74bd302e34a8278",
+      "git_blob": "1ca148f36777bab8855c633d1291dff257e265f6",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-push.stderr.txt",
+      "bytes": 126,
+      "sha256": "e42d3b4f9842970006f0f4761908fd525eabe11cd0cbd78b4f97f3b05c98735a",
+      "git_blob": "2d2f49f13b6c293675bc6533595cb21fe3470cbd",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-push.stdout.txt",
+      "bytes": 486,
+      "sha256": "f4a0c7f338eb8bfb1df378b6c7083028ee7e9eb0739e351450bee69384ea5704",
+      "git_blob": "c8626d33473d1075a996476d47ee798d73a08f11",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-ruff-final.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-ruff-final.stdout.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "git_blob": "1f5f344d054fae10f39140fb7199c99321d9190a",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-ruff.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-ruff.stdout.txt",
+      "bytes": 444,
+      "sha256": "48859f210963fae1ca4dce98f521957ec336f989b5a917ba2ece344107a47817",
+      "git_blob": "75ad62de1599fd71d771ae93e48800f3d3205d1e",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/B214.md",
+      "bytes": 10002,
+      "sha256": "e69cb296a1841e91fcfa400d8f31aada70ae62001ab8cd972d684723e9f5ebca",
+      "git_blob": "6585ba108ee910b2d02d5fc608cfa40c8acff392",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/B56.md",
+      "bytes": 14805,
+      "sha256": "f65d8b03c3b4b35bf9fee8baebae8ae416b44adc072b26591fb1d77908b4963e",
+      "git_blob": "a9e0df4b312732feda52123cee7eba6978133dc5",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/GCM.md",
+      "bytes": 7789,
+      "sha256": "a8fc255ea9918704ea0c930d14860e21640b912f8b167dd85f89e921e0781522",
+      "git_blob": "e6be1c68062aa5261dc3cec5a0564cf76ced4336",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/README.md",
+      "bytes": 8339,
+      "sha256": "6caa7ea277d2ce42d7298ffdf5a516bc967d340afdcc03e128235f2994b038cb",
+      "git_blob": "9d04e7d75a29afccf54a8e343647158adb739444",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/all-35.md",
+      "bytes": 12972,
+      "sha256": "7d0340b327e212de8ec2b410b65946ddb2477e41abedbe29bf2fa3fd2e254a98",
+      "git_blob": "36b7f7fd357dfbcd1ad22222aff8223a50e36ff8",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/decisions.json",
+      "bytes": 50650,
+      "sha256": "65f69f38cb55c0767ab07f9dcb6342ff1a88fb6a8fc12775930e5d67bc288550",
+      "git_blob": "89f13df9edd91319ccadf7fdb9982ae898434e60",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/estimators.md",
+      "bytes": 9339,
+      "sha256": "d286b0d62c5f233628cb29f9d359017e07f9c8f41e2989db9ea12838db636f6c",
+      "git_blob": "71db03a4245d1776451eec2aa1846d60a6cccfaf",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/final-semantic-review.md",
+      "bytes": 4769,
+      "sha256": "a1b3f63cbb738891afeee8d99bdd33fad679dd0d8e9797ac7a1628c4d9a13960",
+      "git_blob": "45d1b55d727c9224fbfb08928abff0a859adf9db",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/migrations.md",
+      "bytes": 15679,
+      "sha256": "43f262670fb8dff467fa6a4eee361969e874247de4b85f1210980e7290ce31d8",
+      "git_blob": "924b08fa01522915c276bfc899a1b7b44fda7bdd",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/README.md",
+      "bytes": 2670,
+      "sha256": "246b329b9dbdf6ad72565dce6f3871114951048d99c9e3618be8766522bedeba",
+      "git_blob": "de7190388ea60d9f47812f2fcebd2ab9a3bd1f37",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/deciding.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/deciding.stdout.txt",
+      "bytes": 3050,
+      "sha256": "8160fecd4d7fa174c7a328b2970295a27d44c5e17ba830af72596c0417dd3197",
+      "git_blob": "8ccc89a5518a2a56776588ae1ff2ab149394b1fb",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/execution.json",
+      "bytes": 1346,
+      "sha256": "f020896b72787af5b409ca3e2e335b086b8e59fd38e70685f4502f87fd9e0d11",
+      "git_blob": "6cd212a1756dbe980fc84a295addbbfd0fd92f10",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/admg-control-request.json",
+      "bytes": 1537,
+      "sha256": "c00ee99fa7cb0cd1e9e18300aa740a29d8edfaee93c61e9f00af53339960d8ae",
+      "git_blob": "175cbc0e63279fad27955a70cd5a762f97b362bf",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/admg-control.json",
+      "bytes": 1236,
+      "sha256": "180ff927350ba499b90e712bc3cc9f4435420a70692fd3a795b9b7a6691c797f",
+      "git_blob": "d954716cf26df166f7d7c0513f1040c68adc64ea",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/dag-control-request.json",
+      "bytes": 1018,
+      "sha256": "79381e702c2893cf6d8ebedfa89c0742823a884a1782b512ae37f4f7e7a3cf78",
+      "git_blob": "3ab77beda49b4e85c3ed5d1f6076aa76c06df5ac",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/dag-control.json",
+      "bytes": 757,
+      "sha256": "1f2aad745173d5913678e20479f34f538c923bc1400c3197444fc111950e7291",
+      "git_blob": "026366f70764398f5e23c58fe90922dc895c5adc",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/mgraph-builder-arguments.json",
+      "bytes": 696,
+      "sha256": "14b9630a497d41a356b8d70dea65dec13adb6a7a50050c5415d3acba23087823",
+      "git_blob": "eee90ad9b100ea24871d316e88d7443062ccc7ed",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/mgraph-builder-unscored.json",
+      "bytes": 2116,
+      "sha256": "b0340670241b67bfef2e0d7003e7aca289b472381bac88f24653daf4b637a71b",
+      "git_blob": "ac3d8bc42810bec6fa1970b3d677876fe1eb2d58",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/mgraph-target-request.json",
+      "bytes": 2569,
+      "sha256": "e7a18e9ab89845ef412ac35bb03645ea0316ecd1064bca66187be686b4608a96",
+      "git_blob": "3d63a88c7e64c450a6777609abc772e8ee702c30",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/mgraph-target.json",
+      "bytes": 2176,
+      "sha256": "9720406aeef3dc2f352764dc7ce0fdbba6bcebceb84c85fa03ed949396e7a17c",
+      "git_blob": "0322fc12fe5b7aeaa96b6936e0d2396660aee438",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/outputs/admg-control.json",
+      "bytes": 6158,
+      "sha256": "47e47a5b9e6d81cce90c7703497993e19f92211eb2453adae1029d7d41f3c3cf",
+      "git_blob": "a0370dd74359407c87cf1d0488f663c2c5d34980",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/outputs/dag-control.json",
+      "bytes": 4784,
+      "sha256": "d3728437b52fc566b936561fc071516d4a019486869069e40c8f7711f302c883",
+      "git_blob": "ed528224866adf8c81c866b053c108bf7d0a7fa8",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/outputs/mgraph-target.json",
+      "bytes": 10617,
+      "sha256": "6e99a3f2c30986008edf901527daac3fe8d63f2ef86f170dc11d8b5775652a6e",
+      "git_blob": "2d845d7e27658dca56577d915aa2ffbb4ce32afc",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/preflight.json",
+      "bytes": 3101,
+      "sha256": "a310c269d533902f4d1135321cca5273a472080be4787db486a83740e4254f1c",
+      "git_blob": "cdffd6d0554ef2ee901efd7a777464e7b104082d",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/probe.py",
+      "bytes": 23974,
+      "sha256": "5ce7244429ec1c6cf60507f5c4ef1b3059583ea3825aaa269c00dfc7b7f21bbc",
+      "git_blob": "47e4fe4f13cd1635fd28e1b8756f7efc691970e0",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/published-files.json",
+      "bytes": 6528,
+      "sha256": "a3e84896a3fb6e924021a3914220b08e20e62bdf712723a523615f93da5568e9",
+      "git_blob": "0462ce63afeb51759ca91dd7ba42f445c2dee94a",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/receipt.json",
+      "bytes": 26957,
+      "sha256": "97cbc9aba2cd526966b12de34be1494a0477b01f1063fdc11c301d9fc2476bbc",
+      "git_blob": "871a82fb11f6ec983115c175bca89a443cf5fdbc",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/report.md",
+      "bytes": 3908,
+      "sha256": "bfacb9efca3b8963451fb8c8578af8908cc96753fdb37481b3542eb5f0f4ccd8",
+      "git_blob": "46c9292eac596963cc0658d26cde2b952364e694",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/run-native.py",
+      "bytes": 2527,
+      "sha256": "840e32d15fdb762ebf0c68f5ddc1f2a90aca635822095212e517e3c6f045e0d6",
+      "git_blob": "2b4c9f01aaf82dd083372546ad42fcb78e536642",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/unscored.execution.json",
+      "bytes": 1248,
+      "sha256": "10b18c3a2e6c675d65dee40f8f6b8857b40d777421a39ac084637b317af3f27b",
+      "git_blob": "ff889dd0584d0f0f7543aa865d969ba72848200b",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/unscored.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/unscored.stdout.txt",
+      "bytes": 2626,
+      "sha256": "94d7cc9c55b92cebc55cce0c9df1996fd0e6f8f3243bdd51814031cd4124ff7e",
+      "git_blob": "b4b41baec63402952322341996baa22cdc66f9f3",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/publication-links-review.md",
+      "bytes": 3168,
+      "sha256": "376664c433c3715064fb43f3bf376639842f6777e33733bb8308278ced45d6e0",
+      "git_blob": "10ed902d194c6153bcc392da1c526cb71e6b277a",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/storage/README.md",
+      "bytes": 862,
+      "sha256": "bf40f191a552b960c17ebd39e4334b02f056426be7b951029fd632916cf15288",
+      "git_blob": "48f7980cf08e8d1bd5ed9c60903b54a716c98a19",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/storage/completed-G-checks-F35-intents.json",
+      "bytes": 1748,
+      "sha256": "d5be7851ce5612cc57ee4d74b314de023d52d09aa6e20eec26578ed392214197",
+      "git_blob": "b2deb7f2de705522644f4f4619735738d220693b",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/storage/completed-G-checks-F35-native.json",
+      "bytes": 3022,
+      "sha256": "3dd740e35c282ee55d88c59ce159e19e7c905352b06afd38ca1a554d89610a4b",
+      "git_blob": "f2ed0a64bb7f82a4d0ea2bb822279ff1b47ca9df",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/storage/completed-G-checks-F35-preserved.json",
+      "bytes": 2695,
+      "sha256": "004687926bc4cb829a3704f264934de393322e157889346fa4adecf60e98ec92",
+      "git_blob": "4ccc8149d78156beec332901f287622aa362620d",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/F-catalog.md",
+      "bytes": 7116,
+      "sha256": "3411c3b46ed3fb85c633ad7157c730477597e27a44e4d0b5c09ad05cacaadcfd",
+      "git_blob": "6ee4e401350d51f03aedf4ef7027e642e3e1efe3",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/F-graph.md",
+      "bytes": 10217,
+      "sha256": "6bb1efa03b7bd656cedadfe2b4e9eca307c09299ab9d4c4e73757a31312f99f3",
+      "git_blob": "90e50783285c71bb97eec2232a19c1341cd4f870",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/README.md",
+      "bytes": 2318,
+      "sha256": "d217267902230ab22e1ce3d11465a335bafa1cd0620fee586fe25c7c3e25dcff",
+      "git_blob": "547e1b7fcc9980d0a4441b1231eebd3e3187f53c",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/final-publication-review.md",
+      "bytes": 4535,
+      "sha256": "8d9a209f2744ee94f91f15772d52909ab51b9678d315cd44a7b8db4c62d4f5ed",
+      "git_blob": "2325ac9b4ee39c3c4ace7c0a3d834b64a24a5331",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/owner-actions.md",
+      "bytes": 5123,
+      "sha256": "a5353aca2a203a903f0800c7bea2cedb369abe458a8e637dab1c1916016df9c4",
+      "git_blob": "18f48b68c49458b4300b0c72577e5f6533374dfc",
+      "writer_scope": "ordinary approved root/G merge companion"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-configured-bayesian-fit-inlet.toml",
+      "bytes": 2108,
+      "sha256": "6b7f1d8a7517be7f3f5abaf6dbcfd667a2cd5dac07e83c861e2c5b8eb4c45502",
+      "git_blob": "0ad890e35c34e08d1999cfa71e3ec3d6a4da3ae7",
+      "writer_scope": "E fit source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/__init__.py",
+      "bytes": 6567,
+      "sha256": "55dd769d34a2cdb4ca66a7c0d49f5a30b7c97e69ebfeaf883de006e9a7eca373",
+      "git_blob": "34b6eeb5c5a08644d26efb3c85aa0c41f4bffbc7",
+      "writer_scope": "E fit source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/bayesian_fit_bridge.py",
+      "bytes": 18180,
+      "sha256": "4e71a1bf6745108ee998226ded768b0e0c868a29d8a413b8dcac122f2744a674",
+      "git_blob": "1306214ad83d92ce5778deb7257bafcd08be7e38",
+      "writer_scope": "E fit source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "bytes": 3933,
+      "sha256": "d12e0948c1816acae51bbe5519e767622a2e6a24d907b31f04e0f7b7ca0e803e",
+      "git_blob": "f8f7d305f7a50fe533467a5134228f8613e2b6d5",
+      "writer_scope": "E fit source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "bytes": 24832,
+      "sha256": "09f3e98c821dd5aac616b0df7977e1c7019266cfd3e9a1cdd789ff653965472f",
+      "git_blob": "b2abde4969018769d81dbf41f249ca0eb82fb453",
+      "writer_scope": "E fit source"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/test_bayesian_fit_consumer.py",
+      "bytes": 34293,
+      "sha256": "a3c52aba86dcb0c219f6f47a876f90a02da460b2a346c726ca75b7ddec57594b",
+      "git_blob": "a4da5f1f87cef67afd76033d43950fb7603f7b30",
+      "writer_scope": "E fit source"
+    }
+  ],
+  "source_decisions": [
+    {
+      "sha": "a6701835f15944f860033df64fdf06c0350a972d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-semantic-ratification/composition-and-fit-admission-20261007.json"
+    },
+    {
+      "sha": "1a3bd343237e8fc28b57153e6c6eccef7f22c33c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-semantic-ratification/configured-fit-supported-profile-20261007.json"
+    }
+  ],
+  "canonical_writers": {
+    "E author": "six changed source/test/release paths listed above under parent explicit lease",
+    "Scientist compute": "actual protected MethodBackend/input materializer unchanged; float patch is owner-ready only",
+    "Core/IR": "existing facade, CAS, codec and returned-ref DTO reused; no foreign source edit",
+    "G": "canonical public/schema/generated publication and integration owner; full ancestry includes two G passive Python companions"
+  },
+  "baseline_cells": {
+    "navigation_only": true,
+    "new_candidate_pass_from_baseline": false,
+    "criterion_source": "original UQS-01 full owner/card; approved scoped E decisions above",
+    "old_exact_source_witness": "author/old-producer/receipt.json actual run_job retained corpus but old collector count0"
+  },
+  "producer_artifact_bridge_consumer": {
+    "producer": "existing configured scientist.compute.run_job \u2192 MethodBackend reference HMC/NUTS (actual native tests; NumPy)",
+    "artifacts": "separate existing scientist.method_result.bayesian.sampling/MethodResult0.1.0 and scientist.method_evidence/MethodExecutionEvidence0.1.0 in one configured CAS; retained full corpus lives in evidence.artifacts, virtual draw ref is not separate CAS",
+    "bridge": "owned persist_bayesian_fit_envelopes validates exact result/evidence/source relations, supported method/version/wholeparameter layout/byte hashes and chain-major paired corpus before any profile publication",
+    "profile": "existing approved Profile2 statistical uncertainty artifact; named point/equal-tail functions and exact finite corpus joint law; not IdentificationSet or CalibrationReport",
+    "consumer": "actual PropagateUncertaintyNode configured pair inlet, same CAS persist/fresh read, shared source draw group and raw complete256 Sobol callbacks; actual typed method-result/report refs",
+    "surface": "current native node/result artifact path only; configured production fit/noise/model source authority and served/HTTP profile consumers remain owner follow-up"
+  },
+  "checks": [
+    {
+      "command": [
+        "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-s",
+        "tests/unit/scientist/nodes/test_bayesian_fit_consumer.py",
+        "-k",
+        "output_ref",
+        "--basetemp",
+        "/tmp/e02-E-bayesian-fit-bridge-r6/returned-ref-correction-r2/normal-fixture",
+        "--junitxml",
+        "/tmp/e02-E-bayesian-fit-bridge-r6/returned-ref-correction-r2/normal.junit.xml"
+      ],
+      "cwd": "/workspace/e02-E-cal-20261006/policy-engine",
+      "target": "normal affected returned-ref class",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-E-cal-20261006/policy-engine/src",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "POLISYOS_METRICS_PORT": "0"
+      },
+      "input_identity": {
+        "fixture": "actual configured MethodBackend HMC/NUTS finite synthetic integer source; retained two chains by32 draws; bound actual CAS refs in literal receipts",
+        "source_before": {
+          "policy-engine/src/polisyos/foundry/calibration/bayesian_fit_bridge.py": "4e71a1bf6745108ee998226ded768b0e0c868a29d8a413b8dcac122f2744a674",
+          "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py": "09f3e98c821dd5aac616b0df7977e1c7019266cfd3e9a1cdd789ff653965472f",
+          "policy-engine/tests/unit/scientist/nodes/test_bayesian_fit_consumer.py": "a3c52aba86dcb0c219f6f47a876f90a02da460b2a346c726ca75b7ddec57594b"
+        },
+        "source_after": {
+          "policy-engine/src/polisyos/foundry/calibration/bayesian_fit_bridge.py": "4e71a1bf6745108ee998226ded768b0e0c868a29d8a413b8dcac122f2744a674",
+          "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py": "09f3e98c821dd5aac616b0df7977e1c7019266cfd3e9a1cdd789ff653965472f",
+          "policy-engine/tests/unit/scientist/nodes/test_bayesian_fit_consumer.py": "a3c52aba86dcb0c219f6f47a876f90a02da460b2a346c726ca75b7ddec57594b"
+        }
+      },
+      "outcome": "PASS",
+      "case_counts": {
+        "PASS": 28,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "output": {
+        "stdout": "author/returned-ref-correction-r2/normal.stdout.txt",
+        "stderr": "author/returned-ref-correction-r2/normal.stderr.txt",
+        "junit": "author/returned-ref-correction-r2/normal.junit.xml"
+      },
+      "scope": "precommit physical bytes equal immutable77 candidate; final independent source review follows"
+    },
+    {
+      "command": [
+        "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+        "-O",
+        "-m",
+        "pytest",
+        "-q",
+        "-s",
+        "tests/unit/scientist/nodes/test_bayesian_fit_consumer.py",
+        "-k",
+        "output_ref",
+        "--basetemp",
+        "/tmp/e02-E-bayesian-fit-bridge-r6/returned-ref-correction-r2/optimized-fixture",
+        "--junitxml",
+        "/tmp/e02-E-bayesian-fit-bridge-r6/returned-ref-correction-r2/optimized.junit.xml"
+      ],
+      "cwd": "/workspace/e02-E-cal-20261006/policy-engine",
+      "target": "optimized affected returned-ref class",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-E-cal-20261006/policy-engine/src",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "POLISYOS_METRICS_PORT": "0"
+      },
+      "input_identity": {
+        "fixture": "actual configured MethodBackend HMC/NUTS finite synthetic integer source; retained two chains by32 draws; bound actual CAS refs in literal receipts",
+        "source_before": {
+          "policy-engine/src/polisyos/foundry/calibration/bayesian_fit_bridge.py": "4e71a1bf6745108ee998226ded768b0e0c868a29d8a413b8dcac122f2744a674",
+          "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py": "09f3e98c821dd5aac616b0df7977e1c7019266cfd3e9a1cdd789ff653965472f",
+          "policy-engine/tests/unit/scientist/nodes/test_bayesian_fit_consumer.py": "a3c52aba86dcb0c219f6f47a876f90a02da460b2a346c726ca75b7ddec57594b"
+        },
+        "source_after": {
+          "policy-engine/src/polisyos/foundry/calibration/bayesian_fit_bridge.py": "4e71a1bf6745108ee998226ded768b0e0c868a29d8a413b8dcac122f2744a674",
+          "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py": "09f3e98c821dd5aac616b0df7977e1c7019266cfd3e9a1cdd789ff653965472f",
+          "policy-engine/tests/unit/scientist/nodes/test_bayesian_fit_consumer.py": "a3c52aba86dcb0c219f6f47a876f90a02da460b2a346c726ca75b7ddec57594b"
+        }
+      },
+      "outcome": "PASS",
+      "case_counts": {
+        "PASS": 28,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "output": {
+        "stdout": "author/returned-ref-correction-r2/optimized.stdout.txt",
+        "stderr": "author/returned-ref-correction-r2/optimized.stderr.txt",
+        "junit": "author/returned-ref-correction-r2/optimized.junit.xml"
+      },
+      "scope": "precommit physical bytes equal immutable77 candidate; final independent source review follows"
+    },
+    {
+      "command": [
+        "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/scientist/nodes/test_calibration_report_consumer.py",
+        "tests/unit/scientist/nodes/test_propagate_uncertainty_node.py",
+        "-o",
+        "cache_dir=/tmp/e02-E-bayesian-fit-bridge-r6/profile-correction/compat-cache",
+        "--basetemp",
+        "/tmp/e02-E-bayesian-fit-bridge-r6/profile-correction/compat-fixture",
+        "--junitxml",
+        "/tmp/e02-E-bayesian-fit-bridge-r6/profile-correction/compat.junit.xml"
+      ],
+      "cwd": "/workspace/e02-E-cal-20261006/policy-engine",
+      "target": "existing real calibration/uncertainty node consumers after changed output publisher",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-E-cal-20261006/policy-engine/src",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "POLISYOS_METRICS_PORT": "0"
+      },
+      "outcome": "PASS",
+      "case_counts": {
+        "PASS": 23,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "output": {
+        "receipt": "author/profile-correction/compat-receipt.json",
+        "stdout": "author/profile-correction/compat.stdout.txt",
+        "stderr": "author/profile-correction/compat.stderr.txt",
+        "junit": "author/profile-correction/compat.junit.xml"
+      },
+      "source_hash": "09f3e98c821dd5aac616b0df7977e1c7019266cfd3e9a1cdd789ff653965472f",
+      "scope": "current affected consumer observation; not unavailable historical author23 literal capture"
+    }
+  ],
+  "property": {
+    "runtime_path": "foundry/calibration/bayesian_fit_bridge.py::_admit_supported_profile +persist_bayesian_fit_envelopes; scientist/nodes/builtins/simulate/propagate_uncertainty.py::_collect_input_envelopes/_admit_output_envelope_ref",
+    "defining_property": "actual existing fit corpus preserves shared chain/draw coordinates and paired law through Profile2 CAS reopen and native consumer; output handle kind/MIME/schema/content matches the actual stored envelope before consumer/report refs publish",
+    "proxy_divergence": [
+      "old exact3cc retains native corpus but configured node admits no pair inlet; constructor/helper availability does not establish chain",
+      "6638 integrity-valid supported-version/rank/completeness mutations retained all digests and were admitted; corrected9147 shared prepublication profile refuses",
+      "9147 native output handle with forged kind/MIME was accepted although old actual IR DTO refused;77 restores literal DTO and binds stored manifest/schema/content for both unprofiled and profiled outputs",
+      "valid selected manifest profile serializes stable three old wire fields; extra-field speculation falsified, no claim old reader used selected view"
+    ],
+    "independent_oracle": [
+      "Fraction-derived mean/median/inverse-CDF/equal-tail and paired population variance from retained full64 corpus rows (independent initial/9147 receipts)",
+      "native256 unscrambled complete Sobol callbacks match actual corpus value tuple multiplicities\u00d74, repeated rejected states do not identify unique rows",
+      "named shared row IDs bind actual corpus digest:chain:draw separately from repeated value multiplicity"
+    ],
+    "negative_controls": [
+      "source/result/evidence mispair, duplicate roles, wrong seed/profile/content/parameter labels/order/digest before profile publisher callback",
+      "unknown reproducibility versions, missing/extra parameters, exact ranks/intercept2 coefficients3 sigma2 and commonpositivechain/draw dimensions before publisher",
+      "returned wrong kind/MIME/ID/view; stored wrong kind/MIME/schema/missing schema; wrong integrity-valid content; fresh output reader0 and result report not published",
+      "effective sole whole returned-ref admission removal admits wrong returned-kind/stored-schema/wrong-content while CAS and law markers remain; supports defining discriminator, not PASS count"
+    ]
+  },
+  "predicate_basis": {
+    "joint_law": "content-bound retained actual corpus, exact chain-major axis/record decoding and shared coordinate identity; covariance/marginals never reconstruct law",
+    "supported_fit": "tracked E decision binds exact existing reference contract and complete parameter profile; no posterior quality/likelihood authority inferred",
+    "output_handle": "existing Core public UncertaintyEnvelopeRef exact old literal fields + existing CoreArtifactRef selected shape then actual same-store manifest/bytes/verify/content-hash/schema",
+    "numerical_error": "predictive spread is not mean estimation error; no new fixed-N/IID certificate or mixing diagnostic inferred",
+    "gate": "gate_eligible false, scientific/source/model/noise/hyperparameter authority not_established; no producer marker confers consumer verifier authority",
+    "P41": "not_established for global red/inheritance without exact same base command/full input denominator"
+  },
+  "capability_state_or_finding_state": {
+    "historical_ledger": {
+      "partial": 49,
+      "held": 4,
+      "closed": 1
+    },
+    "B201_B202_historical": "held",
+    "current_source_scope": "limited",
+    "finding_owner_decision": "pending separate individual parent/G criterion decision; this source receipt does not relabel historical findings",
+    "B197": "held",
+    "global_required_verification": "verification_missing"
+  },
+  "public_api_and_architecture": {
+    "exports": [
+      "BayesianFitBinding",
+      "PersistedBayesianFit",
+      "persist_bayesian_fit_envelopes"
+    ],
+    "new_private_product_edges": 0,
+    "full_architecture_check": "not run for this leaf; current native collector output is scoped route observation, not global gate PASS",
+    "typecheck": "actual scoped bridge+node0 errors; no cast/type suppression/baseline change; final independent receipt separate",
+    "public_surface_owner": "G canonical generator/public/ABI must recompute integrated source; no hand-edited generated files",
+    "admitted_import_entrypoints": [
+      "polisyos.core",
+      "polisyos.core.contracts",
+      "polisyos.foundry.uncertainty",
+      "polisyos.ir.analytics"
+    ],
+    "owned_export_modules": [
+      "polisyos.foundry.calibration",
+      "polisyos.foundry.uncertainty"
+    ],
+    "Core_root_module_attributes": [
+      "artifacts",
+      "canon"
+    ],
+    "route_limit": "The calibration export module and Core root attributes are distinct from contract admitted cross-root submodule imports; direct Core.artifacts/Core.canon cross-root paths are not newly admitted."
+  },
+  "environment_and_input_identity": {
+    "source_environment": "author/source-environment-77b4-v2.json",
+    "author_python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "author_executable": "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+    "author_distribution_count": 184,
+    "all184_metadata_equal_initial6638_observation": true,
+    "observation_timing": "after closed author checks; not retrospective per-run preflight",
+    "independent_environment": "separate actual ROOT read-only environment, exact count/hashes in closed peer receipts; not conflated with author184",
+    "parallelism": "no artificial thread/CPU caps; numeric metrics exporter OS-assigned port0",
+    "synthetic_fixture": "native integer features[[-2],[0],[2],[-1],[1]], target[-1,0,1,0,0]; seed321, NumPy, warmup32,samples32,chains2,step.015,credible_mass.9, HMC8 orNUTSdepth3",
+    "production_data": "not moved or substituted; generic native fixture only"
+  },
+  "custody": {
+    "historical_author74_and23_literal_bytes": "UNAVAILABLE; captured output-root collision explicitly recorded in author/author-capture-custody-loss.json",
+    "deciding_retained_historical74": "independent-profile9147/publication-selection-9147.json and independent-review-9147.json; exact literal observer/CAS data, not recaptured/reconstructed author bytes",
+    "all_source_git_history_retained": true,
+    "observer_errors": "retained original failed native/observer/code capture stdout/stderr with distinct historical roles; no source red inferred from observer bug"
+  },
+  "limitations_and_next_owner": [
+    {
+      "owner": "Scientist compute input-materializer canonical owner via G",
+      "remaining": "real float source native materializer calls plain json.loads on canonical float tags before sampler/bridge",
+      "minimal_input": "two existing finite float arrays stored with same Core canonical CAS; no production dataset needed",
+      "next_result": "apply/review one protected-path existing canonical decoder patch in author/float-materializer-owner.patch, then actualrun_job HMC/NUTS positive plus malformed/role/view/integer retained controls",
+      "packet": "author/float-materializer-applicable-owner-packet.json",
+      "source_applied": false
+    },
+    {
+      "owner": "configured fit/model/noise/source producer owner and B197 CalibratorInputs consumer owner",
+      "remaining": "production fit source/target/noise join, model/likelihood and mixing/source-law authority; full requested hyperparameters absent from current producer evidence",
+      "minimal_input": "content-bound actual configured source roles/fit/noise/target join plus accountable model/noise declaration; optional unit/estimand bindings explicitly supplied, unknownempty remains nongating",
+      "next_result": "criterion-dependent read-only local evidence on exact integrated candidate; bridge result/evidence stays distinct from Foundry CalibrationReport/FunnelCalibrationReport"
+    },
+    {
+      "owner": "C/F actual posterior consumers, IR API and G generator/integration",
+      "remaining": "real configured downstream/public/served consumers and public projection/source intake",
+      "minimal_input": "same resolved Profile2 CAS refs and finite joint group, declared estimand/unit/purpose admission",
+      "next_result": "affected actual consumer fresh read/property negatives; source/code acceptance separate from original B201/B202 owner disposition"
+    },
+    {
+      "owner": "E root/G",
+      "remaining": "common numeric/global gate wave after all source reviews and one frozen integrated candidate",
+      "next_result": "single frozen affected-family/global wave; no leaf broad repeat or generic closure from sourcePASS"
+    }
+  ],
+  "cleanup_candidates": [
+    "closed ignored repeatable pytest fixtures/caches under /tmp/e02-E-bayesian-fit-bridge-r6 and independent scratch only after deciding receipts + zero active users; no cleanup performed here",
+    "retain unique source/result/evidence/corpus/report bytes, docs, implementation history and all saved original receipts"
+  ],
+  "independent_source_reviews": [
+    {
+      "candidate": "6638",
+      "path": "/tmp/e02-E-fit-independent-6638-20261007/independent-initial-review.json",
+      "bytes": 12792,
+      "sha256": "03e4876a03901bf49e2246a0e9f1392f32b105589abf04b87942af667b901ef9",
+      "disposition": "CHANGE_REQUIRED",
+      "scope": "actual42+Fraction oracle; coherent supportedversion/rank/completeness falsifiers",
+      "author_is_reviewer": false
+    },
+    {
+      "candidate": "9147",
+      "path": "/tmp/e02-E-fit-independent-9147-20261007/independent-review-9147.json",
+      "bytes": 8735,
+      "sha256": "3c92ed65ab785375c7d1bd91d9bdb8a60fceb5f7b54ddd88cc72374fb084b54e",
+      "disposition": "CHANGE_REQUIRED",
+      "scope": "whole supportedprofile correction sound/native74/type0; returnedkind/media regression requiring77",
+      "author_is_reviewer": false
+    },
+    {
+      "candidate": "77b4",
+      "path": "/tmp/e02-E-fit-independent-77b4-20261007/independent-review-77b4.json",
+      "bytes": 12562,
+      "sha256": "4339639c4fd7dd5abd6c3bc29784e903a57084e2447abddcd600244bd8236b6f",
+      "disposition": "GO",
+      "scope": "affected28 plus23consumers andscope2filetype0; real previouswrongreturn andselectedview controls; unchanged bridge74 qualified",
+      "author_is_reviewer": false
+    }
+  ],
+  "independent_source_disposition": "GO for source77 bounded chain/ref property; original finding disposition and integrated global gates separate",
+  "source_publication": {
+    "receipt": "author/source-publication-77b4/receipt.json",
+    "remote_exact_sha": "77b4d68ec37e3f34b84ce4fd1787746e3d5f5322",
+    "append_only": true,
+    "main_pushed": false
+  },
+  "evidence_summary_validator": {
+    "source": "validate_final_publication-v3.py.txt",
+    "scope": "read-only copy/Git/source/raw native/typed claim rederivation; no method/native rerun",
+    "controls_each_mode": 23,
+    "normal": "final-validator-v3-normal.stdout.json",
+    "optimized": "final-validator-v3-optimized.stdout.json",
+    "predicate_removal": "actual AST If.test replacement only in shared admit_summary, copied original derivation/source/byte guards unchanged",
+    "author_review_status": "author_controls_only; independent publication review pending",
+    "required_member_basis": "copy-index-pending.json exact0dab441bf2120a2fa6726cbab8c489fc21ddb84e08b17150bed6947206c3e873, complete4034Counter admitted beforeGit",
+    "physical_carrier_role": "actual UTF8=.txt, nonUTF8gzip=.bin; bytes unchanged",
+    "historical_v2": "original20controls did not detect retotalled required-peer/native-input omission; literal independent counterexamples retained separately"
+  }
+}

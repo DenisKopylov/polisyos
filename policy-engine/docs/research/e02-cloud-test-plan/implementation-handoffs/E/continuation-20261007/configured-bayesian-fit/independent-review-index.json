@@ -1,0 +1,145 @@
+{
+  "candidate": "77b4d68ec37e3f34b84ce4fd1787746e3d5f5322",
+  "source_tree": "d5efa295c8af983a86a620a120ab091aae580db3",
+  "source_review": "GO",
+  "publication_review": "GO bounded source/input/custody/typed-summary only; scientific/original finding/global gate judgments separate",
+  "files": [
+    {
+      "logical_at": "independent-publication-review-77b4-v3.json",
+      "stored_at": "independent-review/8d44f97f2717bca276f7d31a1f455fce5c215beaf8712a479ae0af2356f9701f.txt",
+      "original_path": "/tmp/e02-E-fit-publication-independent-77b4-20261007/independent-publication-review-77b4-v3.json",
+      "bytes": 7898,
+      "sha256": "8d44f97f2717bca276f7d31a1f455fce5c215beaf8712a479ae0af2356f9701f"
+    },
+    {
+      "logical_at": "finalize_publication_review.py.txt",
+      "stored_at": "independent-review/32d7e3083bc2ae1a5cbad1b0e1ac4dc0b198269b7f1eed7be29a06deb23951a4.txt",
+      "original_path": "/tmp/e02-E-fit-publication-independent-77b4-20261007/finalize_publication_review.py.txt",
+      "bytes": 5999,
+      "sha256": "32d7e3083bc2ae1a5cbad1b0e1ac4dc0b198269b7f1eed7be29a06deb23951a4"
+    },
+    {
+      "logical_at": "review_publication_v3.py.txt",
+      "stored_at": "independent-review/39cae342002f7a869959e48a70007066044411ac1fd00d1255af814993fdb88b.txt",
+      "original_path": "/tmp/e02-E-fit-publication-independent-77b4-20261007/review_publication_v3.py.txt",
+      "bytes": 6888,
+      "sha256": "39cae342002f7a869959e48a70007066044411ac1fd00d1255af814993fdb88b"
+    },
+    {
+      "logical_at": "review_publication_v3_corrected_observer.py.txt",
+      "stored_at": "independent-review/cded7f61ffae17811e047b5dd3b4d12e1144cc05c0ae1e263e9c9cc0db2dc827.txt",
+      "original_path": "/tmp/e02-E-fit-publication-independent-77b4-20261007/review_publication_v3_corrected_observer.py.txt",
+      "bytes": 6852,
+      "sha256": "cded7f61ffae17811e047b5dd3b4d12e1144cc05c0ae1e263e9c9cc0db2dc827"
+    },
+    {
+      "logical_at": "probe_publication_membership_v2.py.txt",
+      "stored_at": "independent-review/9439130337232fe7c94159c8d2f6cb320d2ca9edb11f1da972ace33e50a192f3.txt",
+      "original_path": "/tmp/e02-E-fit-publication-independent-77b4-20261007/probe_publication_membership_v2.py.txt",
+      "bytes": 2300,
+      "sha256": "9439130337232fe7c94159c8d2f6cb320d2ca9edb11f1da972ace33e50a192f3"
+    },
+    {
+      "logical_at": "validate_final_publication-v2.py.historical.txt",
+      "stored_at": "independent-review/45993f13b9092733bb8cce6939a5be349566c443554b656d2e800e0eedc1c36f.txt",
+      "original_path": "/tmp/e02-E-fit-publication-independent-77b4-20261007/validate_final_publication-v2.py.historical.txt",
+      "bytes": 13938,
+      "sha256": "45993f13b9092733bb8cce6939a5be349566c443554b656d2e800e0eedc1c36f"
+    },
+    {
+      "logical_at": "publication-descriptor-pending.json",
+      "stored_at": "independent-review/b55defa6bf5e4a36a74e207a5efb00c3bade20f83ec7239e445e0a4e42854f91.txt",
+      "original_path": "/tmp/e02-E-fit-publication-independent-77b4-20261007/publication-descriptor-pending.json",
+      "bytes": 1745,
+      "sha256": "b55defa6bf5e4a36a74e207a5efb00c3bade20f83ec7239e445e0a4e42854f91"
+    },
+    {
+      "logical_at": "publication-descriptor-v3-pending.json",
+      "stored_at": "independent-review/fd60e3d303d835e8af3caa109f2faaf2ea6143cb01c9127ba04697fe2ee955d6.txt",
+      "original_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-preparation/publication-descriptor-v3-pending.json",
+      "bytes": 2693,
+      "sha256": "fd60e3d303d835e8af3caa109f2faaf2ea6143cb01c9127ba04697fe2ee955d6"
+    },
+    {
+      "logical_at": "publication-physical-role-relocation.json",
+      "stored_at": "independent-review/8e7a7b3ef146c03ed30cc606e9947dad17697a0912272611dfc4da81594d1c53.txt",
+      "original_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-preparation/publication-physical-role-relocation.json",
+      "bytes": 3828,
+      "sha256": "8e7a7b3ef146c03ed30cc606e9947dad17697a0912272611dfc4da81594d1c53"
+    },
+    {
+      "logical_at": "publication-membership-v2-normal.stdout.json",
+      "stored_at": "independent-review/e5e155b1fbf579d503d865355815e044d6ef6d7f4f09f15fcd048ae087b48bd1.txt",
+      "original_path": "/tmp/e02-E-fit-publication-independent-77b4-20261007/publication-membership-v2-normal.stdout.json",
+      "bytes": 2100,
+      "sha256": "e5e155b1fbf579d503d865355815e044d6ef6d7f4f09f15fcd048ae087b48bd1"
+    },
+    {
+      "logical_at": "publication-membership-v2-normal.stderr.txt",
+      "stored_at": "independent-review/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.txt",
+      "original_path": "/tmp/e02-E-fit-publication-independent-77b4-20261007/publication-membership-v2-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "logical_at": "review-v3-corrected-normal.stdout.json",
+      "stored_at": "independent-review/c021ea0ee527ea8ced5c6876b0ecc391d1e56b9bedd215469a018bdc19fc1262.txt",
+      "original_path": "/tmp/e02-E-fit-publication-independent-77b4-20261007/review-v3-corrected-normal.stdout.json",
+      "bytes": 8535,
+      "sha256": "c021ea0ee527ea8ced5c6876b0ecc391d1e56b9bedd215469a018bdc19fc1262"
+    },
+    {
+      "logical_at": "review-v3-corrected-normal.stderr.txt",
+      "stored_at": "independent-review/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.txt",
+      "original_path": "/tmp/e02-E-fit-publication-independent-77b4-20261007/review-v3-corrected-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "logical_at": "publication-membership-v2-optimized.stdout.json",
+      "stored_at": "independent-review/2f06d05704137c18667bd1a7a26d196a7bb9d0fb0339adba57f4400dfed3a34b.txt",
+      "original_path": "/tmp/e02-E-fit-publication-independent-77b4-20261007/publication-membership-v2-optimized.stdout.json",
+      "bytes": 2099,
+      "sha256": "2f06d05704137c18667bd1a7a26d196a7bb9d0fb0339adba57f4400dfed3a34b"
+    },
+    {
+      "logical_at": "publication-membership-v2-optimized.stderr.txt",
+      "stored_at": "independent-review/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.txt",
+      "original_path": "/tmp/e02-E-fit-publication-independent-77b4-20261007/publication-membership-v2-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "logical_at": "review-v3-corrected-optimized.stdout.json",
+      "stored_at": "independent-review/b542f8b6928d1d25fa5aac9c6693efb75f6dfe4db68c810a96c63f21715c95de.txt",
+      "original_path": "/tmp/e02-E-fit-publication-independent-77b4-20261007/review-v3-corrected-optimized.stdout.json",
+      "bytes": 8534,
+      "sha256": "b542f8b6928d1d25fa5aac9c6693efb75f6dfe4db68c810a96c63f21715c95de"
+    },
+    {
+      "logical_at": "review-v3-corrected-optimized.stderr.txt",
+      "stored_at": "independent-review/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.txt",
+      "original_path": "/tmp/e02-E-fit-publication-independent-77b4-20261007/review-v3-corrected-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "logical_at": "review-v3-normal.stdout.json",
+      "stored_at": "independent-review/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.txt",
+      "original_path": "/tmp/e02-E-fit-publication-independent-77b4-20261007/review-v3-normal.stdout.json",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "logical_at": "review-v3-normal.stderr.txt",
+      "stored_at": "independent-review/fb2767dca08d0840d34e5e789a51dd64221cdcfffb96282a97113b4938dbde72.txt",
+      "original_path": "/tmp/e02-E-fit-publication-independent-77b4-20261007/review-v3-normal.stderr.txt",
+      "bytes": 372,
+      "sha256": "fb2767dca08d0840d34e5e789a51dd64221cdcfffb96282a97113b4938dbde72"
+    }
+  ],
+  "logical_count": 19,
+  "unique_count": 15,
+  "unique_bytes": 73781,
+  "original_selector_sha256": "75b9a96f77f478d6861935534a5964035cb00659e94096abc3714adeac135698"
+}

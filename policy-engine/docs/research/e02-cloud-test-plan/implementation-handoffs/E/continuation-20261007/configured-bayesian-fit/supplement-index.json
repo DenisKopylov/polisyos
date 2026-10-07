@@ -1,0 +1,73 @@
+{
+  "schema": "policyos.e02.literal_copy_index.v1",
+  "candidate": "77b4d68ec37e3f34b84ce4fd1787746e3d5f5322",
+  "scope": "Evidence-only correction/current controls; primary4034 required inputCounter remains fixed and separate.",
+  "files": [
+    {
+      "original_path": "/tmp/e02-E-bayesian-fit-bridge-r6/validate_final_publication-v3.py",
+      "logical_at": "validate_final_publication-v3.py.txt",
+      "stored_at": "supplement/52684bde9c9568545d12d399d82cc7c8db77b05830964b4aaa304dbfe1c12bb8.txt",
+      "bytes": 17214,
+      "sha256": "52684bde9c9568545d12d399d82cc7c8db77b05830964b4aaa304dbfe1c12bb8"
+    },
+    {
+      "original_path": "/tmp/e02-E-bayesian-fit-bridge-r6/validate_final_publication-v3-attempt1.py",
+      "logical_at": "validate_final_publication-v3-attempt1.py.txt",
+      "stored_at": "supplement/91cd9e8148a57fa86cc84a8c0670abf4bbd01d1634f2ed67194ab0582a024be6.txt",
+      "bytes": 16865,
+      "sha256": "91cd9e8148a57fa86cc84a8c0670abf4bbd01d1634f2ed67194ab0582a024be6"
+    },
+    {
+      "original_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-validator-v3-normal.stdout.json",
+      "logical_at": "final-validator-v3-normal.stdout.json",
+      "stored_at": "supplement/3a3fba1b9fd3f500f9b9c91d97c344a1e264ec5b7ece2cacd364dc5b7b8e3acc.txt",
+      "bytes": 5680,
+      "sha256": "3a3fba1b9fd3f500f9b9c91d97c344a1e264ec5b7ece2cacd364dc5b7b8e3acc"
+    },
+    {
+      "original_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-validator-v3-normal.stderr.txt",
+      "logical_at": "final-validator-v3-normal.stderr.txt",
+      "stored_at": "supplement/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-validator-v3-optimized.stdout.json",
+      "logical_at": "final-validator-v3-optimized.stdout.json",
+      "stored_at": "supplement/4fe7b4a16d67f6938acff8fe1e5bf2a7d41e405a6370ea94ff75d8c5718d8abf.txt",
+      "bytes": 5679,
+      "sha256": "4fe7b4a16d67f6938acff8fe1e5bf2a7d41e405a6370ea94ff75d8c5718d8abf"
+    },
+    {
+      "original_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-validator-v3-optimized.stderr.txt",
+      "logical_at": "final-validator-v3-optimized.stderr.txt",
+      "stored_at": "supplement/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-validator-v3-attempt1-normal.stdout.json",
+      "logical_at": "final-validator-v3-attempt1-normal.stdout.json",
+      "stored_at": "supplement/1642c1eb6f75092744ab0a183764a240a10a5e63a48933ada471e3472fcd4606.txt",
+      "bytes": 5633,
+      "sha256": "1642c1eb6f75092744ab0a183764a240a10a5e63a48933ada471e3472fcd4606"
+    },
+    {
+      "original_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-validator-v3-attempt1-normal.stderr.txt",
+      "logical_at": "final-validator-v3-attempt1-normal.stderr.txt",
+      "stored_at": "supplement/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/e02-E-bayesian-fit-bridge-r6/publication-binary-role-correction.json",
+      "logical_at": "publication-binary-role-correction.json",
+      "stored_at": "supplement/93c87a7ab66160962d46450f067f644683b193b88bb13af7c2f2e86e1d13f1d0.txt",
+      "bytes": 13109,
+      "sha256": "93c87a7ab66160962d46450f067f644683b193b88bb13af7c2f2e86e1d13f1d0"
+    }
+  ],
+  "logical_count": 9,
+  "unique_count": 7,
+  "unique_bytes": 64180
+}

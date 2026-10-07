@@ -1,0 +1,99 @@
+{
+  "probe": "old IR wrapper vs native configured Core writer; real CAS put/fresh profile reader",
+  "cases": [
+    {
+      "source_ref": "sha256:3b724572be12698efb2532e8094d58dd89fe1ecbf76f555d4d5f88862f8e3368",
+      "old_ref": {
+        "artifact_id": "sha256:3b724572be12698efb2532e8094d58dd89fe1ecbf76f555d4d5f88862f8e3368",
+        "kind": "ir.uncertainty_envelope",
+        "media_type": "application/json"
+      },
+      "new_ref": {
+        "artifact_id": "sha256:3b724572be12698efb2532e8094d58dd89fe1ecbf76f555d4d5f88862f8e3368",
+        "kind": "ir.uncertainty_envelope",
+        "media_type": "application/json"
+      },
+      "properties": {
+        "artifact_id": true,
+        "kind": true,
+        "media_type": true,
+        "selected_manifest_profile": true,
+        "schema": true,
+        "canonical_metadata": true,
+        "empty_input_defaults": true,
+        "fresh_raw_validated_envelope": true
+      }
+    },
+    {
+      "source_ref": "sha256:a9dd335ceda1dfc3f3bb2495c66465c6076388c454d37535c6a57855562e35ab",
+      "old_ref": {
+        "artifact_id": "sha256:a9dd335ceda1dfc3f3bb2495c66465c6076388c454d37535c6a57855562e35ab",
+        "kind": "ir.uncertainty_envelope",
+        "media_type": "application/json"
+      },
+      "new_ref": {
+        "artifact_id": "sha256:a9dd335ceda1dfc3f3bb2495c66465c6076388c454d37535c6a57855562e35ab",
+        "kind": "ir.uncertainty_envelope",
+        "media_type": "application/json"
+      },
+      "properties": {
+        "artifact_id": true,
+        "kind": true,
+        "media_type": true,
+        "selected_manifest_profile": true,
+        "schema": true,
+        "canonical_metadata": true,
+        "empty_input_defaults": true,
+        "fresh_raw_validated_envelope": true
+      }
+    },
+    {
+      "source_ref": "sha256:c52ffcbece053ab9a0985510173a8f100eaf1e418c48cbff5447746d5980c2b6",
+      "old_ref": {
+        "artifact_id": "sha256:c52ffcbece053ab9a0985510173a8f100eaf1e418c48cbff5447746d5980c2b6",
+        "kind": "ir.uncertainty_envelope",
+        "media_type": "application/json"
+      },
+      "new_ref": {
+        "artifact_id": "sha256:c52ffcbece053ab9a0985510173a8f100eaf1e418c48cbff5447746d5980c2b6",
+        "kind": "ir.uncertainty_envelope",
+        "media_type": "application/json"
+      },
+      "properties": {
+        "artifact_id": true,
+        "kind": true,
+        "media_type": true,
+        "selected_manifest_profile": true,
+        "schema": true,
+        "canonical_metadata": true,
+        "empty_input_defaults": true,
+        "fresh_raw_validated_envelope": true
+      }
+    },
+    {
+      "source_ref": "sha256:e27600e5a70ee032a9edaa411f435aed31bfaa167d3b8c5ecc424c68395d3998",
+      "old_ref": {
+        "artifact_id": "sha256:e27600e5a70ee032a9edaa411f435aed31bfaa167d3b8c5ecc424c68395d3998",
+        "kind": "ir.uncertainty_envelope",
+        "media_type": "application/json"
+      },
+      "new_ref": {
+        "artifact_id": "sha256:e27600e5a70ee032a9edaa411f435aed31bfaa167d3b8c5ecc424c68395d3998",
+        "kind": "ir.uncertainty_envelope",
+        "media_type": "application/json"
+      },
+      "properties": {
+        "artifact_id": true,
+        "kind": true,
+        "media_type": true,
+        "selected_manifest_profile": true,
+        "schema": true,
+        "canonical_metadata": true,
+        "empty_input_defaults": true,
+        "fresh_raw_validated_envelope": true
+      }
+    }
+  ],
+  "backend_rerun": false,
+  "full_codec_equivalence": false
+}

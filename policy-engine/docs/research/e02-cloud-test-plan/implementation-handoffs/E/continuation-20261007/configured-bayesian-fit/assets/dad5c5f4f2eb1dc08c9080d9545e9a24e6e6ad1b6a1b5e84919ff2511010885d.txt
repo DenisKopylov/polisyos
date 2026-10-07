@@ -1,0 +1,126 @@
+
+{
+    "version": "1.39.0",
+    "time": "1791386246849",
+    "generalDiagnostics": [
+        {
+            "file": "/tmp/e02-E-bayesian-fit-bridge-r6/typing-base-node.py",
+            "severity": "error",
+            "message": "Argument of type \"ArtifactStore\" cannot be assigned to parameter \"store\" of type \"ArtifactStore\" in function \"persist_uncertainty_envelope\"\n  \"ArtifactStore\" is incompatible with protocol \"ArtifactStore\"\n    \"put_json\" is an incompatible type\n      Type \"(obj: object, opts: ArtifactWriteOptions, canon_spec: CanonSpec | None = None) -> ArtifactRef\" is not assignable to type \"(obj: Any, opts: Any, canon_spec: CanonSpec | None = None) -> Any\"\n        Parameter 3: type \"CanonSpec | None\" is incompatible with type \"CanonSpec | None\"\n          Type \"polisyos.ir.model_layer.canon.CanonSpec | None\" is not assignable to type \"polisyos.core.canon.canon_json.CanonSpec | None\"",
+            "range": {
+                "start": {
+                    "line": 200,
+                    "character": 47
+                },
+                "end": {
+                    "line": 200,
+                    "character": 56
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/tmp/e02-E-bayesian-fit-bridge-r6/typing-base-node.py",
+            "severity": "error",
+            "message": "Argument of type \"UncertaintyEnvelopeRef\" cannot be assigned to parameter \"value\" of type \"ArtifactRef\" in function \"__setitem__\"\n  \"UncertaintyEnvelopeRef\" is not assignable to \"ArtifactRef\"",
+            "range": {
+                "start": {
+                    "line": 206,
+                    "character": 12
+                },
+                "end": {
+                    "line": 206,
+                    "character": 41
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/tmp/e02-E-bayesian-fit-bridge-r6/typing-base-node.py",
+            "severity": "error",
+            "message": "Argument of type \"UncertaintyEnvelopeRef\" cannot be assigned to parameter \"object\" of type \"ArtifactRef\" in function \"append\"\n  \"UncertaintyEnvelopeRef\" is not assignable to \"ArtifactRef\"",
+            "range": {
+                "start": {
+                    "line": 207,
+                    "character": 29
+                },
+                "end": {
+                    "line": 207,
+                    "character": 32
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/tmp/e02-E-bayesian-fit-bridge-r6/typing-base-node.py",
+            "severity": "error",
+            "message": "Argument of type \"str\" cannot be assigned to parameter \"artifact_id\" of type \"ArtifactID\" in function \"__init__\"\n  \"str\" is not assignable to \"ArtifactID\"",
+            "range": {
+                "start": {
+                    "line": 236,
+                    "character": 28
+                },
+                "end": {
+                    "line": 236,
+                    "character": 59
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/tmp/e02-E-bayesian-fit-bridge-r6/typing-base-node.py",
+            "severity": "error",
+            "message": "Argument of type \"str\" cannot be assigned to parameter \"artifact_id\" of type \"ArtifactID\" in function \"__init__\"\n  \"str\" is not assignable to \"ArtifactID\"",
+            "range": {
+                "start": {
+                    "line": 240,
+                    "character": 28
+                },
+                "end": {
+                    "line": 240,
+                    "character": 55
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/tmp/e02-E-bayesian-fit-bridge-r6/typing-base-node.py",
+            "severity": "error",
+            "message": "Argument of type \"str\" cannot be assigned to parameter \"artifact_id\" of type \"ArtifactID\" in function \"__init__\"\n  \"str\" is not assignable to \"ArtifactID\"",
+            "range": {
+                "start": {
+                    "line": 244,
+                    "character": 28
+                },
+                "end": {
+                    "line": 244,
+                    "character": 55
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/tmp/e02-E-bayesian-fit-bridge-r6/typing-base-node.py",
+            "severity": "error",
+            "message": "Argument of type \"str\" cannot be assigned to parameter \"artifact_id\" of type \"ArtifactID\" in function \"__init__\"\n  \"str\" is not assignable to \"ArtifactID\"",
+            "range": {
+                "start": {
+                    "line": 251,
+                    "character": 32
+                },
+                "end": {
+                    "line": 251,
+                    "character": 52
+                }
+            },
+            "rule": "reportArgumentType"
+        }
+    ],
+    "summary": {
+        "filesAnalyzed": 1,
+        "errorCount": 7,
+        "warningCount": 0,
+        "informationCount": 0,
+        "timeInSec": 2.212
+    }
+}

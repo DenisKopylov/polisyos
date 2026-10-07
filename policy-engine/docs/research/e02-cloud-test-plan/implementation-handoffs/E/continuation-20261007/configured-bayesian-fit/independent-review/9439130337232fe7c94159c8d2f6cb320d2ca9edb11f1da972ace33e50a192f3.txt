@@ -1,0 +1,17 @@
+import copy,hashlib,json,pathlib,types
+O=pathlib.Path('/tmp/e02-E-fit-independent-77b4-20261007');R=pathlib.Path('/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-preparation');REPO=pathlib.Path('/workspace/e02-E-cal-20261006');SOURCE=pathlib.Path('/tmp/e02-E-bayesian-fit-bridge-r6/validate_final_publication-v2.py')
+s=SOURCE.read_bytes();ns={'__name__':'actual_validator','__file__':str(SOURCE)};exec(compile(s,str(SOURCE),'exec'),ns)
+index=json.loads((R/'copy-index.json').read_text());h=json.loads((R/'implementation-handoff.json').read_text());summary=json.loads((R/'bounded-summary.json').read_text())
+healthy=ns['derive'](R,REPO,index=index);ns['admit_summary'](summary,healthy[0]);ns['admit_handoff'](h,healthy)
+rows=[]
+for label,stem in [('independent_source_GO','independent-final77/independent-review-77b4.json'),('independent_native_CAS',None)]:
+ selected=next(r for r in index['files'] if r['logical_at']==stem)if stem else next(r for r in index['files'] if r['logical_at'].startswith('independent-final77/pytest-base/') and r['logical_at'].endswith('.blob'))
+ mutant=copy.deepcopy(index);mutant['files']=[r for r in mutant['files'] if r['logical_at']!=selected['logical_at']];u={r['stored_at']:(r['bytes'],r['sha256'])for r in mutant['files']};mutant['logical_count']=len(mutant['files']);mutant['unique_carrier_count']=len(u);mutant['unique_bytes']=sum(x[0]for x in u.values())
+ try:
+  d=ns['derive'](R,REPO,index=mutant);ns['admit_summary'](summary,d[0]);ns['admit_handoff'](h,d);outcome='FALSE_ADMITTED'
+ except Exception as e:outcome='REFUSED';exception=type(e).__name__+':'+str(e)
+ row={'case':label,'removed_member':selected,'outcome':outcome,'original_logical_count':index['logical_count'],'retotalled_logical_count':mutant['logical_count'],'summary/source/PASS/markers_unchanged':True,'physical_all_original_files_remain':True}
+ if outcome=='REFUSED':row['exception']=exception
+ rows.append(row)
+result={'validator':{'path':str(SOURCE),'bytes':len(s),'sha256':hashlib.sha256(s).hexdigest()},'candidate':'77b4d68ec37e3f34b84ce4fd1787746e3d5f5322','scope':'actual V2 mandatory logical membership omission with retotalled self-declared denominator; no product/math/native rerun','healthy':'PASS','rows':rows,'optimization_mode':not __debug__}
+print(json.dumps(result,indent=2))

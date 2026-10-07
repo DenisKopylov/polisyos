@@ -1,0 +1,26 @@
+{
+  "candidate": "77b4d68ec37e3f34b84ce4fd1787746e3d5f5322",
+  "tree": "d5efa295c8af983a86a620a120ab091aae580db3",
+  "source_disposition": "GO bounded configured fit/corpus and native output-ref source",
+  "publication_disposition": "GO bounded literal custody/complete required Counter/typed claims",
+  "independent_reviewer": "imports_r4, not author",
+  "source_review": "independent-final77/independent-review-77b4.json exact4339639c4fd7dd5abd6c3bc29784e903a57084e2447abddcd600244bd8236b6f",
+  "publication_review": {
+    "original_path": "/tmp/e02-E-fit-publication-independent-77b4-20261007/independent-publication-review-77b4-v3.json",
+    "bytes": 7898,
+    "sha256": "8d44f97f2717bca276f7d31a1f455fce5c215beaf8712a479ae0af2356f9701f",
+    "logical_at": "independent-publication-review-77b4-v3.json",
+    "copy_index": "independent-review-index.json"
+  },
+  "current_primary_required_aliases": 4034,
+  "current_primary_selected_carriers": 923,
+  "current_primary_bytes": 13506849,
+  "current_author_v3_controls_each_mode": 23,
+  "independent_controls_each_mode": 12,
+  "historical_v2_omission_escape": "preserved in independent review literal controls; superseded by shared mandatory Counter admission, source unaffected",
+  "historical_author74_and23_literal_bytes_available": false,
+  "current_source_witness": "affected28 normal/optimized +23existing consumers +scope2filetype0 and literalindependentunchanged74qualifications; not a fresh combined102 wholebatch",
+  "original_finding_or_global_closure": false,
+  "source_changed_in_this_handoff": false,
+  "future_evidence_commit_sha": "not self-referenced"
+}

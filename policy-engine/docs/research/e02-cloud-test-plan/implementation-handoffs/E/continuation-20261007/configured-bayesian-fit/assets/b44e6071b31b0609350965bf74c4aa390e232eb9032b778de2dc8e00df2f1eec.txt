@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-bayesian-fit-bridge-r6/record_final_source_environment.py", line 15, in <module>
+    (out/'source-environment-77b4.json').write_text(json.dumps(receipt,indent=2)+'\n');print(json.dumps({'paths':len(files),'author_paths':len(author),'metadata_count':len(dists),'all184_metadata_equal':dists==old,'clean':notreceipt['status']}))
+                                                                                                                                                                                                                              ^^^^^^^^^^
+NameError: name 'notreceipt' is not defined. Did you mean: 'receipt'?

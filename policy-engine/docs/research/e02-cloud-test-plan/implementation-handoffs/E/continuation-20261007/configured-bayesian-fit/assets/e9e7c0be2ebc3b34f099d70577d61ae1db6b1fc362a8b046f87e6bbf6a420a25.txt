@@ -1,0 +1,11 @@
+import hashlib,json,os,pathlib,subprocess,time
+repo=pathlib.Path('/workspace/e02-E-cal-20261006');out=pathlib.Path('/tmp/e02-E-bayesian-fit-bridge-r6/profile-correction');out.mkdir(exist_ok=True)
+python='/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python';env=dict(os.environ,PYTHONPATH=str(repo/'policy-engine/src'),PYTHONDONTWRITEBYTECODE='1',POLISYOS_METRICS_PORT='0')
+paths=['policy-engine/src/polisyos/foundry/calibration/bayesian_fit_bridge.py','policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py','policy-engine/tests/unit/scientist/nodes/test_bayesian_fit_consumer.py']
+def snapshot():return {p:hashlib.sha256((repo/p).read_bytes()).hexdigest() for p in paths}
+pre=snapshot();results=[]
+for mode,flags in [('normal',[]),('optimized',['-O'])]:
+ argv=[python,*flags,'-m','pytest','-q','-s','tests/unit/scientist/nodes/test_bayesian_fit_consumer.py','-k','output_ref','--basetemp',str(out/(mode+'-fixture')),'--junitxml',str(out/(mode+'.junit.xml'))];start=time.time();run=subprocess.run(argv,cwd=repo/'policy-engine',env=env,capture_output=True)
+ (out/(mode+'.stdout.txt')).write_bytes(run.stdout);(out/(mode+'.stderr.txt')).write_bytes(run.stderr);results.append({'mode':mode,'argv':argv,'cwd':str(repo/'policy-engine'),'exit_code':run.returncode,'elapsed_seconds':time.time()-start,'stdout':mode+'.stdout.txt','stderr':mode+'.stderr.txt','junit':mode+'.junit.xml'})
+post=snapshot();receipt={'source_scope':'precommit returned-ref correction physical source hash-bracketed; final immutable independent review follows','head_during_check':subprocess.check_output(['git','rev-parse','HEAD'],cwd=repo,text=True).strip(),'environment_overrides':{k:env[k] for k in ('PYTHONPATH','PYTHONDONTWRITEBYTECODE','POLISYOS_METRICS_PORT')},'thread_caps':None,'before':pre,'after':post,'source_immutable':pre==post,'results':results}
+(out/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n');print(json.dumps({'exit_codes':[r['exit_code'] for r in results],'source_immutable':pre==post}))

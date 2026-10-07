@@ -1,0 +1,10 @@
+{
+  "base_source": "3cc20af36297493aa8ba8fdc66f3810abadf81a2",
+  "candidate": "6638e18a3295e43a89b0ae6adba32e62952154bb",
+  "scope": "immutable base node Git blob projected into scratch; current declared dependency source/import paths; not literal full-base environment replay",
+  "base_errors": 7,
+  "candidate_errors": 7,
+  "messages_equal": true,
+  "P41": "not_established",
+  "global_typing_pass": false
+}

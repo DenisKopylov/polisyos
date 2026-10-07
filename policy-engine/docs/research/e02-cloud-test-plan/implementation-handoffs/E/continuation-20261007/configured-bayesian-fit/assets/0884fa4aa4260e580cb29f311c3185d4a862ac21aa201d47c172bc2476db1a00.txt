@@ -1,0 +1,52 @@
+{
+  "method_result_ref": {
+    "artifact_id": "sha256:f83b653b14032b78c8829f2aa966e4b75438142337a5786912ecdb540e852b52",
+    "kind": "scientist.method_result.bayesian.sampling",
+    "media_type": "application/json"
+  },
+  "method_evidence_ref": {
+    "artifact_id": "sha256:48963871f41ff1bd930992f49af99f09e11f3a11e1ad2e5cd9a2105fdd47d083",
+    "kind": "scientist.method_evidence",
+    "media_type": "application/json"
+  },
+  "source_refs": {
+    "features": {
+      "artifact_id": "sha256:4fe6b8cc46840776a7dabd40a785fa644e1d7fd8ea4ebd296857aa0e7e60b2c2",
+      "kind": "test.bayesian_source",
+      "media_type": "application/json"
+    },
+    "target": {
+      "artifact_id": "sha256:ba3645a8e93df5ca2ec65fc1845e7f606b5ccbfac6d71de7701852a6a0e8c721",
+      "kind": "test.bayesian_source",
+      "media_type": "application/json"
+    }
+  },
+  "requested_params": {
+    "runtime_backend": "numpy",
+    "num_warmup": 32,
+    "num_samples": 32,
+    "num_chains": 2,
+    "step_size": 0.015,
+    "n_leapfrog": 8,
+    "credible_mass": 0.9
+  },
+  "old_collect_input_count": 0,
+  "result_keys": [
+    "prediction_result",
+    "result",
+    "uncertainty_envelope"
+  ],
+  "evidence_artifacts": [
+    "backend_runtime_fingerprint",
+    "bayesian_backend_health",
+    "bayesian_runtime_backend",
+    "cost_attribution",
+    "diagnostic_gates",
+    "dispatch_trace",
+    "posterior_draws",
+    "sampler_reproducibility",
+    "sampler_status",
+    "truthfulness_receipt",
+    "warmup_draws"
+  ]
+}

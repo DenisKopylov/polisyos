@@ -1,0 +1,25 @@
+{
+  "source": "6638e18a3295e43a89b0ae6adba32e62952154bb",
+  "configurations": [
+    {
+      "path": "policy-engine/ruff.toml",
+      "bytes": 247,
+      "sha256": "543068227742e00057e19329f2df8ee944090f828a40b3e5da0b72f8e3b06fbd",
+      "git_blob": "a0928fffdad2d96d6030fc23584801beac45b560"
+    },
+    {
+      "path": "policy-engine/pyproject.toml",
+      "bytes": 11007,
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c"
+    },
+    {
+      "path": "policy-engine/tests/conftest.py",
+      "bytes": 9664,
+      "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+      "git_blob": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168"
+    }
+  ],
+  "canonical_cwd": "/workspace/e02-E-cal-20261006/policy-engine",
+  "global_config_or_baseline_mutation": false
+}

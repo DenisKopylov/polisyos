@@ -1,0 +1,1 @@
+{"artifact_id":"sha256:6a758a1ab9480363d9635ee716f54a817f0063c929fc27601f438a85240f2659","byte_size":23,"created_at":"2026-10-07T15:50:14Z","inputs":[],"integrity":{"sha256":"6a758a1ab9480363d9635ee716f54a817f0063c929fc27601f438a85240f2659"},"kind":"test.bayesian_source","manifest_schema_version":"v3","media_type":"application/json","warnings":[]}

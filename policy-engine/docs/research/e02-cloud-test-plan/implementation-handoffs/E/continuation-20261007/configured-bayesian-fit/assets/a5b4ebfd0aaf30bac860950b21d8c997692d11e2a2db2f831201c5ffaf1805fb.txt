@@ -1,0 +1,282 @@
+{
+  "scope": "identical declared two-path scoped standard configuration, complete actual source/import package materialized from each immutable Git tree; missing new bridge on exact parent remains explicit; no global baseline or full CI typing claim",
+  "base": "3cc20af36297493aa8ba8fdc66f3810abadf81a2",
+  "candidate": "6638e18a3295e43a89b0ae6adba32e62952154bb",
+  "rows": [
+    {
+      "source": "3cc20af36297493aa8ba8fdc66f3810abadf81a2",
+      "tag": "base",
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/basedpyright",
+        "--project",
+        "/tmp/e02-E-fit-independent-6638-20261007/typing-base/pyright.json",
+        "--pythonpath",
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "--outputjson"
+      ],
+      "cwd": "/tmp/e02-E-fit-independent-6638-20261007/typing-base",
+      "returncode": 1,
+      "wall_seconds": 2.8117167949676514,
+      "inventory_count": 2916,
+      "summary": {
+        "filesAnalyzed": 1,
+        "errorCount": 7,
+        "warningCount": 0,
+        "informationCount": 0,
+        "timeInSec": 2.241
+      },
+      "diagnostics": [
+        {
+          "file": "/tmp/e02-E-fit-independent-6638-20261007/typing-base/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "severity": "error",
+          "message": "Argument of type \"ArtifactStore\" cannot be assigned to parameter \"store\" of type \"ArtifactStore\" in function \"persist_uncertainty_envelope\"\n\u00a0\u00a0\"ArtifactStore\" is incompatible with protocol \"ArtifactStore\"\n\u00a0\u00a0\u00a0\u00a0\"put_json\" is an incompatible type\n\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0Type \"(obj: object, opts: ArtifactWriteOptions, canon_spec: CanonSpec | None = None) -> ArtifactRef\" is not assignable to type \"(obj: Any, opts: Any, canon_spec: CanonSpec | None = None) -> Any\"\n\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0Parameter 3: type \"CanonSpec | None\" is incompatible with type \"CanonSpec | None\"\n\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0Type \"polisyos.ir.model_layer.canon.CanonSpec | None\" is not assignable to type \"polisyos.core.canon.canon_json.CanonSpec | None\"",
+          "range": {
+            "start": {
+              "line": 200,
+              "character": 47
+            },
+            "end": {
+              "line": 200,
+              "character": 56
+            }
+          },
+          "rule": "reportArgumentType"
+        },
+        {
+          "file": "/tmp/e02-E-fit-independent-6638-20261007/typing-base/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "severity": "error",
+          "message": "Argument of type \"UncertaintyEnvelopeRef\" cannot be assigned to parameter \"value\" of type \"ArtifactRef\" in function \"__setitem__\"\n\u00a0\u00a0\"UncertaintyEnvelopeRef\" is not assignable to \"ArtifactRef\"",
+          "range": {
+            "start": {
+              "line": 206,
+              "character": 12
+            },
+            "end": {
+              "line": 206,
+              "character": 41
+            }
+          },
+          "rule": "reportArgumentType"
+        },
+        {
+          "file": "/tmp/e02-E-fit-independent-6638-20261007/typing-base/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "severity": "error",
+          "message": "Argument of type \"UncertaintyEnvelopeRef\" cannot be assigned to parameter \"object\" of type \"ArtifactRef\" in function \"append\"\n\u00a0\u00a0\"UncertaintyEnvelopeRef\" is not assignable to \"ArtifactRef\"",
+          "range": {
+            "start": {
+              "line": 207,
+              "character": 29
+            },
+            "end": {
+              "line": 207,
+              "character": 32
+            }
+          },
+          "rule": "reportArgumentType"
+        },
+        {
+          "file": "/tmp/e02-E-fit-independent-6638-20261007/typing-base/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "severity": "error",
+          "message": "Argument of type \"str\" cannot be assigned to parameter \"artifact_id\" of type \"ArtifactID\" in function \"__init__\"\n\u00a0\u00a0\"str\" is not assignable to \"ArtifactID\"",
+          "range": {
+            "start": {
+              "line": 236,
+              "character": 28
+            },
+            "end": {
+              "line": 236,
+              "character": 59
+            }
+          },
+          "rule": "reportArgumentType"
+        },
+        {
+          "file": "/tmp/e02-E-fit-independent-6638-20261007/typing-base/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "severity": "error",
+          "message": "Argument of type \"str\" cannot be assigned to parameter \"artifact_id\" of type \"ArtifactID\" in function \"__init__\"\n\u00a0\u00a0\"str\" is not assignable to \"ArtifactID\"",
+          "range": {
+            "start": {
+              "line": 240,
+              "character": 28
+            },
+            "end": {
+              "line": 240,
+              "character": 55
+            }
+          },
+          "rule": "reportArgumentType"
+        },
+        {
+          "file": "/tmp/e02-E-fit-independent-6638-20261007/typing-base/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "severity": "error",
+          "message": "Argument of type \"str\" cannot be assigned to parameter \"artifact_id\" of type \"ArtifactID\" in function \"__init__\"\n\u00a0\u00a0\"str\" is not assignable to \"ArtifactID\"",
+          "range": {
+            "start": {
+              "line": 244,
+              "character": 28
+            },
+            "end": {
+              "line": 244,
+              "character": 55
+            }
+          },
+          "rule": "reportArgumentType"
+        },
+        {
+          "file": "/tmp/e02-E-fit-independent-6638-20261007/typing-base/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "severity": "error",
+          "message": "Argument of type \"str\" cannot be assigned to parameter \"artifact_id\" of type \"ArtifactID\" in function \"__init__\"\n\u00a0\u00a0\"str\" is not assignable to \"ArtifactID\"",
+          "range": {
+            "start": {
+              "line": 251,
+              "character": 32
+            },
+            "end": {
+              "line": 251,
+              "character": 52
+            }
+          },
+          "rule": "reportArgumentType"
+        }
+      ]
+    },
+    {
+      "source": "6638e18a3295e43a89b0ae6adba32e62952154bb",
+      "tag": "candidate",
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/basedpyright",
+        "--project",
+        "/tmp/e02-E-fit-independent-6638-20261007/typing-candidate/pyright.json",
+        "--pythonpath",
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "--outputjson"
+      ],
+      "cwd": "/tmp/e02-E-fit-independent-6638-20261007/typing-candidate",
+      "returncode": 1,
+      "wall_seconds": 3.5748472213745117,
+      "inventory_count": 2917,
+      "summary": {
+        "filesAnalyzed": 2,
+        "errorCount": 7,
+        "warningCount": 0,
+        "informationCount": 0,
+        "timeInSec": 3.071
+      },
+      "diagnostics": [
+        {
+          "file": "/tmp/e02-E-fit-independent-6638-20261007/typing-candidate/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "severity": "error",
+          "message": "Argument of type \"ArtifactStore\" cannot be assigned to parameter \"store\" of type \"ArtifactStore\" in function \"persist_uncertainty_envelope\"\n\u00a0\u00a0\"ArtifactStore\" is incompatible with protocol \"ArtifactStore\"\n\u00a0\u00a0\u00a0\u00a0\"put_json\" is an incompatible type\n\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0Type \"(obj: object, opts: ArtifactWriteOptions, canon_spec: CanonSpec | None = None) -> ArtifactRef\" is not assignable to type \"(obj: Any, opts: Any, canon_spec: CanonSpec | None = None) -> Any\"\n\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0Parameter 3: type \"CanonSpec | None\" is incompatible with type \"CanonSpec | None\"\n\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0Type \"polisyos.ir.model_layer.canon.CanonSpec | None\" is not assignable to type \"polisyos.core.canon.canon_json.CanonSpec | None\"",
+          "range": {
+            "start": {
+              "line": 206,
+              "character": 47
+            },
+            "end": {
+              "line": 206,
+              "character": 56
+            }
+          },
+          "rule": "reportArgumentType"
+        },
+        {
+          "file": "/tmp/e02-E-fit-independent-6638-20261007/typing-candidate/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "severity": "error",
+          "message": "Argument of type \"UncertaintyEnvelopeRef\" cannot be assigned to parameter \"value\" of type \"ArtifactRef\" in function \"__setitem__\"\n\u00a0\u00a0\"UncertaintyEnvelopeRef\" is not assignable to \"ArtifactRef\"",
+          "range": {
+            "start": {
+              "line": 212,
+              "character": 12
+            },
+            "end": {
+              "line": 212,
+              "character": 41
+            }
+          },
+          "rule": "reportArgumentType"
+        },
+        {
+          "file": "/tmp/e02-E-fit-independent-6638-20261007/typing-candidate/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "severity": "error",
+          "message": "Argument of type \"UncertaintyEnvelopeRef\" cannot be assigned to parameter \"object\" of type \"ArtifactRef\" in function \"append\"\n\u00a0\u00a0\"UncertaintyEnvelopeRef\" is not assignable to \"ArtifactRef\"",
+          "range": {
+            "start": {
+              "line": 213,
+              "character": 29
+            },
+            "end": {
+              "line": 213,
+              "character": 32
+            }
+          },
+          "rule": "reportArgumentType"
+        },
+        {
+          "file": "/tmp/e02-E-fit-independent-6638-20261007/typing-candidate/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "severity": "error",
+          "message": "Argument of type \"str\" cannot be assigned to parameter \"artifact_id\" of type \"ArtifactID\" in function \"__init__\"\n\u00a0\u00a0\"str\" is not assignable to \"ArtifactID\"",
+          "range": {
+            "start": {
+              "line": 243,
+              "character": 28
+            },
+            "end": {
+              "line": 243,
+              "character": 59
+            }
+          },
+          "rule": "reportArgumentType"
+        },
+        {
+          "file": "/tmp/e02-E-fit-independent-6638-20261007/typing-candidate/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "severity": "error",
+          "message": "Argument of type \"str\" cannot be assigned to parameter \"artifact_id\" of type \"ArtifactID\" in function \"__init__\"\n\u00a0\u00a0\"str\" is not assignable to \"ArtifactID\"",
+          "range": {
+            "start": {
+              "line": 247,
+              "character": 28
+            },
+            "end": {
+              "line": 247,
+              "character": 55
+            }
+          },
+          "rule": "reportArgumentType"
+        },
+        {
+          "file": "/tmp/e02-E-fit-independent-6638-20261007/typing-candidate/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "severity": "error",
+          "message": "Argument of type \"str\" cannot be assigned to parameter \"artifact_id\" of type \"ArtifactID\" in function \"__init__\"\n\u00a0\u00a0\"str\" is not assignable to \"ArtifactID\"",
+          "range": {
+            "start": {
+              "line": 251,
+              "character": 28
+            },
+            "end": {
+              "line": 251,
+              "character": 55
+            }
+          },
+          "rule": "reportArgumentType"
+        },
+        {
+          "file": "/tmp/e02-E-fit-independent-6638-20261007/typing-candidate/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "severity": "error",
+          "message": "Argument of type \"str\" cannot be assigned to parameter \"artifact_id\" of type \"ArtifactID\" in function \"__init__\"\n\u00a0\u00a0\"str\" is not assignable to \"ArtifactID\"",
+          "range": {
+            "start": {
+              "line": 258,
+              "character": 32
+            },
+            "end": {
+              "line": 258,
+              "character": 52
+            }
+          },
+          "rule": "reportArgumentType"
+        }
+      ]
+    }
+  ],
+  "messages_equal": true
+}

@@ -1,0 +1,20 @@
+import sys,json,pathlib
+sys.path.insert(0,'/workspace/e02-E-cal-20261006/policy-engine/src')
+from polisyos.core.artifacts import FileSystemCAS,PutOptions
+from polisyos.core.canon import CanonSpec,from_canonical_bytes
+from polisyos.scientist.compute import MethodBackend
+from polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty import _collect_input_envelopes
+from types import SimpleNamespace
+import numpy as np
+out=pathlib.Path('/tmp/e02-E-bayesian-fit-bridge-r6/old-producer');out.mkdir(exist_ok=True)
+store=FileSystemCAS(out/'cas')
+features=np.array([[-1.],[0.],[1.],[-.5],[.5]])
+target=np.array([-.2,.1,.2,-.1,0.])
+refs={name:store.put_json(data.tolist(),PutOptions(kind='test.bayesian_source',media_type='application/json'),canon_spec=CanonSpec(forbid_floats=False)) for name,data in {'features':features,'target':target}.items()}
+params={'runtime_backend':'numpy','num_warmup':32,'num_samples':32,'num_chains':2,'step_size':.015,'n_leapfrog':8,'credible_mass':.9}
+result=MethodBackend().run(cas_root=out/'cas',method_fqn='bayesian.sampling.hmc@1.0.0',method_version=None,input_state={'features':features,'target':target},method_params=params,seed=321,input_refs=refs)
+pair=result.exec_artifacts
+raw_result=from_canonical_bytes(store.get_bytes(pair.result_ref)); raw_evidence=from_canonical_bytes(store.get_bytes(pair.evidence_ref))
+(out/'result.json').write_text(json.dumps(raw_result,indent=2)+'\n');(out/'evidence.json').write_text(json.dumps(raw_evidence,indent=2)+'\n')
+record={'method_result_ref':pair.result_ref.model_dump(mode='json'),'method_evidence_ref':pair.evidence_ref.model_dump(mode='json'),'source_refs':{name:ref.model_dump(mode='json') for name,ref in refs.items()},'requested_params':params,'old_collect_input_count':len(_collect_input_envelopes(SimpleNamespace(store=store),SimpleNamespace(inputs={'bayesian_method_result_ref':pair.result_ref,'bayesian_method_evidence_ref':pair.evidence_ref},params={}))), 'result_keys':list(raw_result),'evidence_artifacts':list(raw_evidence['artifacts'])}
+(out/'receipt.json').write_text(json.dumps(record,indent=2)+'\n');print(json.dumps(record,indent=2))

@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-fit-publication-independent-77b4-20261007/review_publication_v3.py.txt", line 13, in <module>
+    if physical!=set(stored):raise RuntimeError('physical_asset_denominator_mismatch')
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: physical_asset_denominator_mismatch

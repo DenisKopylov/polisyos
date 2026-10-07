@@ -1,0 +1,75 @@
+{
+  "candidate": "77b4d68ec37e3f34b84ce4fd1787746e3d5f5322",
+  "tree": "d5efa295c8af983a86a620a120ab091aae580db3",
+  "source_disposition": "GO",
+  "publication_disposition": "pending independent V3 role/fullrequiredCounter/typedclaim review",
+  "refs": [
+    {
+      "path": "implementation-handoff.json",
+      "bytes": 100320,
+      "sha256": "ff6ddcdf4a79b492c61390e25efe38add94cf4c270a1f8bab0c75e08b01fa50b"
+    },
+    {
+      "path": "bounded-summary.json",
+      "bytes": 1573,
+      "sha256": "71e603f0673d78990c459510a33fefdaadfe5f1ea43969cf160fec25351ef21e"
+    },
+    {
+      "path": "copy-index.json",
+      "bytes": 2684584,
+      "sha256": "350fe4ab1bfddad8e9f3d1ed0781ddf61f4000990c998773e4deda13fccb97db"
+    },
+    {
+      "path": "copy-index-pending.json",
+      "bytes": 2684584,
+      "sha256": "0dab441bf2120a2fa6726cbab8c489fc21ddb84e08b17150bed6947206c3e873"
+    },
+    {
+      "path": "supplement-index.json",
+      "bytes": 3764,
+      "sha256": "5b03f1415700c0cbfaf8a40231053817046af3928857c73b6d9602008b025f34"
+    },
+    {
+      "path": "validate_final_publication-v3.py.txt",
+      "bytes": 17214,
+      "sha256": "52684bde9c9568545d12d399d82cc7c8db77b05830964b4aaa304dbfe1c12bb8"
+    },
+    {
+      "path": "public-api-claim-correction.json",
+      "bytes": 1953,
+      "sha256": "9d08ba3064463071cd82fafbb9ea8c166fef64ec5038d9e5b8e13ec0f5fac1de"
+    },
+    {
+      "path": "public-surface-contract.toml.txt",
+      "bytes": 19715,
+      "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6"
+    },
+    {
+      "path": "publication-binary-role-correction.json",
+      "bytes": 13109,
+      "sha256": "93c87a7ab66160962d46450f067f644683b193b88bb13af7c2f2e86e1d13f1d0"
+    },
+    {
+      "path": "implementation-handoff-v2-pending-historical.json",
+      "bytes": 99639,
+      "sha256": "534e6ba810e8f8a58b93fa3121c7835a90d3db5433f4e8732edb31ffcbbbd93c"
+    },
+    {
+      "path": "README.md",
+      "bytes": 1141,
+      "sha256": "5795cb0a3b8c7c5346bd981dd10fe2c3f95eec78312abb8f093e13cc40409749"
+    }
+  ],
+  "required_input_alias_count": 4034,
+  "required_unique_bytes": 13506849,
+  "required_unique_carriers": 923,
+  "current_evidence_controls_each_mode": 23,
+  "evidence_python": {
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "version": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41"
+  },
+  "source_or_environment_modified": false,
+  "prior_descriptor": "publication-descriptor-pending.json archived historical, old534e handoff mapped to implementation-handoff-v2-pending-historical.json",
+  "no_futureselfSHA": true
+}

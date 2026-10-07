@@ -1,0 +1,38 @@
+import gzip,hashlib,json,pathlib,subprocess,xml.etree.ElementTree as ET
+O=pathlib.Path('/tmp/e02-E-fit-independent-6638-20261007');R=pathlib.Path('/workspace/e02-E-cal-20261006');C='6638e18a3295e43a89b0ae6adba32e62952154bb';B='3cc20af36297493aa8ba8fdc66f3810abadf81a2'
+def sha(b):return hashlib.sha256(b).hexdigest()
+def git(*a):return subprocess.check_output(['git','-C',str(R),*a])
+probe=json.loads((O/'probe-results.json').read_text());oracle=[]
+from fractions import Fraction
+for row in probe['rows']:
+ if row['case']!='fresh_finite_pair_output':continue
+ e=row['output'];v=float(Fraction(row['variance_fraction']));native=e['metadata']['mc_std']**2
+ if not abs(native-v)<=1e-15:raise ValueError('paired finite law variance does not match native spread')
+ if not e['point_estimate']==0 or e['gate_eligible'] is not False or e['sample_size']!=256:raise ValueError('native nominal/gating/count mismatch')
+ oracle.append({'method':row['method'],'actual_rows':64,'source_pair_mean_fraction':row['mean_fraction'],'source_pair_variance_fraction':row['variance_fraction'],'native_nominal':e['point_estimate'],'native_centered_response_mean':e['metadata']['qmc_replicate_means'],'native_population_variance':native,'expected_population_variance':v,'tolerance':1e-15,'estimand':'configured native response y=(intercept-mean(intercept))-(coefficients-mean(coefficients)); diagnostic predictive spread, no MC error/certificate authority','outcome':'PASS'})
+current=git('rev-parse','HEAD').decode().strip();status=git('status','--porcelain=v1').decode();assert current==C and status==''
+foot=[]
+for line in git('diff','--name-status',B,C).decode().splitlines():
+ typ,p=line.split('\t');data=git('show',C+':'+p);foot.append({'change':typ,'path':p,'bytes':len(data),'sha256':sha(data),'blob':git('rev-parse',C+':'+p).decode().strip(),'physical_git_equal':(R/p).read_bytes()==data})
+xml=ET.parse(O/'pytest.junit.xml').getroot();suites=[xml]if xml.tag=='testsuite'else list(xml);counts={key:sum(int(s.get(key,0))for s in suites)for key in('tests','failures','errors','skipped')};assert counts==dict(tests=42,failures=0,errors=0,skipped=0)
+rows=[r for r in probe['rows']if r['case']!='fresh_finite_pair_output'];assert len(rows)==8 and all(r['outcome']=='ADMITTED'for r in rows)
+receipt={'source':C,'tree':git('rev-parse',C+'^{tree}').decode().strip(),'base':B,'status_at_close':status,'footprint':foot,'independent_native_replay':{'status':'PASS','junit':counts,'captured_command_receipt':'pytest.receipt.json'},'independent_native_fraction_oracle':oracle,'confirmed_admission_counterexamples':rows,'bounded_support_decision_required':{'supported_profile':'two actual numpy reference HMC/NUTS methods; complete intercept/sigma rank2(chain,draw), coefficients rank3(chain,draw,feature); exact existingcontract version foundry.bayesian.reference_sampler.v1, metadataFloat64layout; reader must reject unknown/incomplete rank/profile beforepublication. This is structural corpus admission, not model/noise/source truth or posterior mixing authority','producer_source_refs':[{'path':'policy-engine/src/polisyos/foundry/methods/catalog/bayesian/advanced.py','line':64,'property':'reference contract version'}, {'path':'policy-engine/src/polisyos/foundry/methods/catalog/bayesian/advanced.py','line':1576,'property':'HMC exact three parameter mappings and ranks'}, {'path':'policy-engine/src/polisyos/foundry/methods/catalog/bayesian/advanced.py','line':1777,'property':'NUTS exact three parameter mappings and ranks'}, {'path':'policy-engine/src/polisyos/foundry/methods/catalog/bayesian/protocols.py','line':1797,'property':'generic canonical byte serialization; method-specific supported corpus shape is not admitted by this generic serializer'}]},'typing':{'current_check':'FAIL','current_errors':7,'new_bridge_errors':0,'exact_base_current_messages_equal':True,'base_package_inventory':'typing-base/inventory.json','candidate_package_inventory':'typing-candidate/inventory.json','result':'type-review.json','scope':'exact immutable entire src package import inputs, identical scoped standard config; full repository typing/P41 not established','required_owned_repair':'existing configured CoreCAS PutOptions/SchemaInfo+CoreCanonSpec envelopepublisher preserving current validator/serialization/ref contract; actual ArtifactID values instead fourstr conversions; no copied codec/store/newforeignfacade'},'disposition':'CHANGE_REQUIRED','source_guard':'CLOSED; source6638 historical receipts immutable; author may append one class-wide correction','finding_verdict':'not_changed; review source/checks separately from original finding acceptance','limitations':['No production history/data/source law authority','No full posterior mixing/hyperparameter authority','No global architecture/static/API/CI claim','Original author argv only reconstructed; this independent native argv captured','Readonly ROOT207 metadata guard is 207 distributions + Python binary +pyvenv config=209 records, not complete environment binary/file checksum coverage']}
+(O/'independent-initial-review.json').write_text(json.dumps(receipt,indent=2)+'\n')
+files=[O/'independent-initial-review.json',O/'run_review.py.txt',O/'type_review.py.txt',O/'probe_fit.py.txt',O/'finalize_initial.py.txt',O/'pytest.stdout.txt',O/'pytest.stderr.txt',O/'pytest.junit.xml',O/'pytest.receipt.json',O/'environment-before.json',O/'environment-after.json',O/'probe.stdout.txt',O/'probe.stderr.txt',O/'probe-results.json',O/'type-review.json']
+for tag in('base','candidate'):
+ for n in('pyright.json','stdout.json','stderr.txt'):files.append(O/('typing-'+tag)/n)
+ # Exact whole source/import package input inventory archived; no copied product tree selected.
+ src=O/('typing-'+tag)/'inventory.json';dest=O/('typing-'+tag)/'inventory.json.gz';data=src.read_bytes();dest.write_bytes(gzip.compress(data,mtime=0));files.append(dest)
+for name in('source-before.json','source-after.json'):
+ src=O/name;dest=O/(name+'.gz');dest.write_bytes(gzip.compress(src.read_bytes(),mtime=0));files.append(dest)
+# Preserve actual CAS counterexample result/evidence/source blobs+manifests only; no test environment/raw dirs.
+for p in sorted(O.glob('counterexample-*/artifacts/sha256/*/*/*')):
+ if p.is_file():files.append(p)
+assets=[]
+for p in files:
+ d=p.read_bytes();a={'source_path':str(p),'portable_path':str(p.relative_to(O)),'bytes':len(d),'sha256':sha(d)}
+ if p.suffix=='.gz':
+  dd=gzip.decompress(d);a['decoded_bytes']=len(dd);a['decoded_sha256']=sha(dd)
+ assets.append(a)
+selection={'source':C,'tree':receipt['tree'],'disposition':'CHANGE_REQUIRED','assets':assets,'logical_count':len(assets),'bytes':sum(a['bytes']for a in assets),'all_active_observers_archived_py_txt':True,'source_guard':'CLOSED'}
+(O/'publication-selection-initial.json').write_text(json.dumps(selection,indent=2)+'\n');print(json.dumps({'receipt':str(O/'independent-initial-review.json'),'sha256':sha((O/'independent-initial-review.json').read_bytes()),'selection':str(O/'publication-selection-initial.json'),'sha256_selection':sha((O/'publication-selection-initial.json').read_bytes()),'assets':len(assets),'bytes':selection['bytes'],'disposition':'CHANGE_REQUIRED','source_guard':'CLOSED'}))

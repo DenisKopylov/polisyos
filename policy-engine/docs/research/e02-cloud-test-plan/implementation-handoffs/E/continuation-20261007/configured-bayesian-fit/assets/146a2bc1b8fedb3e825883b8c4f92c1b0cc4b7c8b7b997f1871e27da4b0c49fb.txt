@@ -1,0 +1,70 @@
+{
+  "source_scope": "precommit returned-ref correction physical source hash-bracketed; final immutable independent review follows",
+  "head_during_check": "9147c06c0ec72083214f5ce32206f9aa01dc3a5b",
+  "environment_overrides": {
+    "PYTHONPATH": "/workspace/e02-E-cal-20261006/policy-engine/src",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "POLISYOS_METRICS_PORT": "0"
+  },
+  "thread_caps": null,
+  "before": {
+    "policy-engine/src/polisyos/foundry/calibration/bayesian_fit_bridge.py": "4e71a1bf6745108ee998226ded768b0e0c868a29d8a413b8dcac122f2744a674",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py": "09f3e98c821dd5aac616b0df7977e1c7019266cfd3e9a1cdd789ff653965472f",
+    "policy-engine/tests/unit/scientist/nodes/test_bayesian_fit_consumer.py": "79dccdfee78a286c229c2ceef641b5f3e7f5d761dd60ca8ee328613ff3de4f0c"
+  },
+  "after": {
+    "policy-engine/src/polisyos/foundry/calibration/bayesian_fit_bridge.py": "4e71a1bf6745108ee998226ded768b0e0c868a29d8a413b8dcac122f2744a674",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py": "09f3e98c821dd5aac616b0df7977e1c7019266cfd3e9a1cdd789ff653965472f",
+    "policy-engine/tests/unit/scientist/nodes/test_bayesian_fit_consumer.py": "79dccdfee78a286c229c2ceef641b5f3e7f5d761dd60ca8ee328613ff3de4f0c"
+  },
+  "source_immutable": true,
+  "results": [
+    {
+      "mode": "normal",
+      "argv": [
+        "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-s",
+        "tests/unit/scientist/nodes/test_bayesian_fit_consumer.py",
+        "-k",
+        "output_ref",
+        "--basetemp",
+        "/tmp/e02-E-bayesian-fit-bridge-r6/profile-correction/normal-fixture",
+        "--junitxml",
+        "/tmp/e02-E-bayesian-fit-bridge-r6/profile-correction/normal.junit.xml"
+      ],
+      "cwd": "/workspace/e02-E-cal-20261006/policy-engine",
+      "exit_code": 1,
+      "elapsed_seconds": 31.338791608810425,
+      "stdout": "normal.stdout.txt",
+      "stderr": "normal.stderr.txt",
+      "junit": "normal.junit.xml"
+    },
+    {
+      "mode": "optimized",
+      "argv": [
+        "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+        "-O",
+        "-m",
+        "pytest",
+        "-q",
+        "-s",
+        "tests/unit/scientist/nodes/test_bayesian_fit_consumer.py",
+        "-k",
+        "output_ref",
+        "--basetemp",
+        "/tmp/e02-E-bayesian-fit-bridge-r6/profile-correction/optimized-fixture",
+        "--junitxml",
+        "/tmp/e02-E-bayesian-fit-bridge-r6/profile-correction/optimized.junit.xml"
+      ],
+      "cwd": "/workspace/e02-E-cal-20261006/policy-engine",
+      "exit_code": 1,
+      "elapsed_seconds": 35.35903215408325,
+      "stdout": "optimized.stdout.txt",
+      "stderr": "optimized.stderr.txt",
+      "junit": "optimized.junit.xml"
+    }
+  ]
+}

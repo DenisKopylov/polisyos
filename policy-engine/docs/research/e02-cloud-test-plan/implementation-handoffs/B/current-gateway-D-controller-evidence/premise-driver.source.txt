@@ -1,0 +1,173 @@
+"""Read retained real HTTP ledgers with the exact external D controller method."""
+from __future__ import annotations
+import argparse
+import hashlib
+import importlib.abc
+import importlib.util
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+from types import SimpleNamespace
+
+ROOT = Path('/workspace/e02-B-current-execution-state')
+B_SHA = '29024b9537b46376957350c9e12f648c0bfb2d63'
+D_SHA = '8f58d7349edefebbac7e7f21e6859f8daa075c1d'
+INPUT_SHA = 'b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc'
+PREFIX = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/'
+PROFILES = ['tiny-positive', 'tiny-negative', 'missing', 'null', 'integer-zero', 'decimal-zero', 'negative-integer-zero', 'negative-decimal-zero', 'ordinary-positive', 'ordinary-negative', 'boolean-true', 'boolean-false', 'nan', 'positive-infinity', 'negative-infinity']
+KNOWN = {4: '0', 5: '0', 6: '0', 7: '0', 8: '0.02'}
+
+def git_bytes(sha, path):
+    return subprocess.check_output(['git', '-C', str(ROOT), 'show', f'{sha}:{path}'])
+
+def blob(data):
+    return {'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
+
+class ExactD(importlib.abc.MetaPathFinder, importlib.abc.Loader):
+    def __init__(self):
+        self.sources = {}
+        self.rows = []
+        paths = subprocess.check_output(['git', '-C', str(ROOT), 'ls-tree', '-r', '--name-only', D_SHA, '--', 'policy-engine/src/polisyos/scientist/methods/search'], text=True).splitlines()
+        paths += ['policy-engine/src/polisyos/common/serialization.py', 'policy-engine/src/polisyos/scientist/methods/autotune/pareto.py', 'policy-engine/src/polisyos/scientist/methods/autotune/models.py']
+        for path in paths:
+            if not path.endswith('.py'):
+                continue
+            module = path.removeprefix('policy-engine/src/').removesuffix('.py').replace('/', '.')
+            package = module.endswith('.__init__')
+            module = module.removesuffix('.__init__')
+            self.sources[module] = (path, package)
+
+    def find_spec(self, fullname, path=None, target=None):
+        del path, target
+        entry = self.sources.get(fullname)
+        return importlib.util.spec_from_loader(fullname, self, is_package=entry[1]) if entry else None
+
+    def create_module(self, spec):
+        del spec
+        return None
+
+    def exec_module(self, module):
+        path, package = self.sources[module.__name__]
+        data = git_bytes(D_SHA, path)
+        module.__file__ = f'git-object:{D_SHA}:{path}'
+        if package:
+            module.__path__ = [module.__file__]
+        self.rows.append({'module': module.__name__, 'source_sha': D_SHA, 'path': path, **blob(data)})
+        # S102: exact immutable canonical Git source is hash-recorded before execution.
+        exec(compile(data, module.__file__, 'exec'), module.__dict__)  # noqa: S102
+
+
+def child(ledger_path):
+    assert subprocess.check_output(['git', '-C', str(ROOT), 'rev-parse', 'HEAD'], text=True).strip() == B_SHA
+    loader = ExactD()
+    sys.meta_path.insert(0, loader)
+    from polisyos.scientist.orchestration.engine.budget import BudgetState
+    from polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedger
+    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+    from polisyos.scientist.methods.search.controller import SearchConfig, SearchController
+    from polisyos.scientist.methods.search.objective import CompositeObjective
+    from polisyos.scientist.methods.search.stopping import CostBudgetStopping
+    before = ledger_path.read_bytes()
+    ledger = FileBudgetLedger(ledger_path, ledger_id='ledger:raw-http-money')
+    middleware = BudgetMiddleware(BudgetState(), ledger=ledger)
+    snapshot = ledger.snapshot().model_dump(mode='json')
+    def not_executed(*args, **kwargs):
+        raise AssertionError('This bounded reader probe does not run generation/evaluation')
+    criterion = CostBudgetStopping(1)
+    controller = SearchController(
+        SearchConfig(stopping=criterion, objective=CompositeObjective(), budget_middleware=middleware),
+        candidate_generator=SimpleNamespace(generate=not_executed),
+        stage_a_evaluator=not_executed, stage_b_evaluator=not_executed,
+        metrics=SimpleNamespace(),
+    )
+    controller._refresh_budget_snapshot({})
+    stopping_input = controller._stopping_state()
+    decision = criterion.check([], stopping_input)
+    admission_error = None
+    try:
+        middleware.pre_check('independent-projection-control', 'run')
+    except Exception as exc:
+        admission_error = type(exc).__name__
+    after = ledger_path.read_bytes()
+    assert before == after
+    origins = []
+    foreign = {row['module'] for row in loader.rows}
+    for name, module in sorted(sys.modules.items()):
+        path = getattr(module, '__file__', None)
+        if not name.startswith('polisyos.') or path is None or name in foreign:
+            continue
+        actual = Path(path).resolve()
+        assert actual.is_relative_to(ROOT / 'policy-engine/src'), actual
+        data = actual.read_bytes()
+        relative = str(actual.relative_to(ROOT))
+        assert data == git_bytes(B_SHA, relative), actual
+        origins.append({'module': name, 'source_sha': B_SHA, 'path': relative, **blob(data)})
+    return {
+        'pid': os.getpid(), 'ledger': snapshot, 'ledger_before': blob(before), 'ledger_after': blob(after),
+        'canonical_pre_check_error': admission_error,
+        'controller_budget_available': controller._run_state.budget_available,
+        'controller_budget_snapshot': controller._run_state.budget_snapshot,
+        'controller_budget_evidence': controller._run_state.budget_evidence,
+        'controller_stopping_state': stopping_input,
+        'stopping': {'should_stop': decision.should_stop, 'reason': decision.reason, 'details': decision.details},
+        'd_loaded_sources': loader.rows, 'b_loaded_sources': origins,
+        'generator_evaluator_calls': 0,
+        'scope': 'Actual private native D snapshot method plus actual stopping reader; not a full factory/service/served run.',
+    }
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--child', type=Path)
+    parser.add_argument('--out', type=Path)
+    args = parser.parse_args()
+    if args.child:
+        print('D_CONTROLLER_ACTUAL ' + json.dumps(child(args.child), default=str))
+        return
+    assert args.out is not None
+    args.out.mkdir(exist_ok=False)
+    observations = []
+    for i, profile in enumerate(PROFILES):
+        directory = args.out / profile
+        directory.mkdir()
+        path = PREFIX + f'test_http_money_does_not_becom{i}/budget.json'
+        data = git_bytes(INPUT_SHA, path)
+        copied = directory / 'budget.json'
+        with copied.open('xb') as stream:
+            stream.write(data)
+            stream.flush()
+            os.fsync(stream.fileno())
+        command = [sys.executable, str(Path(__file__).resolve()), '--child', str(copied)]
+        process = subprocess.run(command, capture_output=True, text=True, check=False)
+        (directory / 'stdout.txt').write_text(process.stdout)
+        (directory / 'stderr.txt').write_text(process.stderr)
+        if process.returncode:
+            raise RuntimeError(f'{profile} child failed before complete observation: {process.stderr}')
+        observed = json.loads(next(line.removeprefix('D_CONTROLLER_ACTUAL ') for line in process.stdout.splitlines() if line.startswith('D_CONTROLLER_ACTUAL ')))
+        known = i in KNOWN
+        criterion_ok = (
+            observed['controller_budget_available'] and not observed['stopping']['should_stop']
+            and observed['canonical_pre_check_error'] is None
+        ) if known else (
+            not observed['controller_budget_available'] and observed['stopping']['should_stop']
+            and observed['canonical_pre_check_error'] == 'BudgetLedgerCompletionRequiredError'
+        )
+        row = {'profile': profile, 'input_ref': {'sha': INPUT_SHA, 'path': path, **blob(data)},
+               'known_amount': KNOWN.get(i), 'command': command, 'child_exit': process.returncode,
+               'expected_unknown_is_unavailable_or_known_is_available': criterion_ok, 'actual': observed}
+        observations.append(row)
+        print('D_CONTROLLER_PROFILE ' + json.dumps(row, default=str))
+    result = {'schema': 'policyos.e02.B.external_reader_observations.v1',
+              'b_sha': B_SHA, 'd_sha': D_SHA, 'input_sha': INPUT_SHA,
+              'profile_count': len(observations), 'predicate_pass': sum(row['expected_unknown_is_unavailable_or_known_is_available'] for row in observations),
+              'predicate_fail': sum(not row['expected_unknown_is_unavailable_or_known_is_available'] for row in observations),
+              'observations': observations, 'new_provider_calls': 0,
+              'limitations': ['Bounded exact native controller component composition only; no full default factory, service, or external billing acceptance.']}
+    (args.out / 'observations.json').write_text(json.dumps(result, indent=2, default=str) + '\n')
+    print('D_CONTROLLER_COMPLETE ' + json.dumps({key: value for key, value in result.items() if key != 'observations'}))
+    raise SystemExit(bool(result['predicate_fail']))
+
+if __name__ == '__main__':
+    main()

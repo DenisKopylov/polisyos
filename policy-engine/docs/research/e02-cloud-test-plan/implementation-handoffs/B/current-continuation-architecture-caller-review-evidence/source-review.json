@@ -3,7 +3,7 @@
   "root_inspection_sha": "fae38a6b8ceceabec2967aebe02df9fdccd67509",
   "root_inspection_tree": "1dbb7308076cc28b8b40cfa17bd324954ae068b2",
   "caller_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-frozen-wave.py",
-  "caller_state": "Tracked source with architecture-only working-tree delta; not final frozen Git source.",
+  "caller_state": "Initially architecture-only working-tree delta at0b67; by source custody readback rootfae has committed the SAME exact644e source bytes. Final frozen execution candidate remains a separate ROOT declaration.",
   "caller_base_sha": "d5049566541c9972e0a6c8c2a69c696095b48cd4",
   "caller_base_sha256": "6d1722088bb4c3d63dfb6aa63d30606b2687b5dc991107c2eae5b7eaf33281a6",
   "working_source_sha256": "644e24ebc63e3aa6380983fc05e72d132a1a6e219fd21802f5671113d27ba69d",
@@ -52,7 +52,11 @@
     "Existing helper calls cache shared read-only input but filesystem/tools do not enforce immutable cache: UV may update internal metadata. Claim preserved explicit cache selection, not immutable/cache-readset snapshot.",
     "Per-source12 retainedworkspace is exclusive and rejects repeat at samepath; ROOT must preserve oldworkspace and handle later retry admission explicitly. No cleanup/deletion permission follows.",
     "Retainedsource/privateenv filesystem/cgroup resource adequacy and offline distribution sufficiency are UNRUN in this source review; no resource-cause attribution.",
-    "Actual rootworkingdelta must be committed unchanged before one exactfreeze; previouslauncherreview refers separate6d172 snapshot and is not thisfuture execution verdict."
+    "Caller bytes are now committed unchanged atfae, while final immutable wave/source admission remains separate. Prior launcherreview binds separate6d172 snapshot, not newfuture execution success."
   ],
-  "closure_ids": []
+  "closure_ids": [],
+  "initial_root_inspection_sha": "0b67f1535e53fccf71f4da2b7ca97220d11133c3",
+  "initial_root_inspection_tree": "b17501e1ab89d6d3a26e93f769e4a7e4e34b2e60",
+  "caller_committed_source_sha": "fae38a6b8ceceabec2967aebe02df9fdccd67509",
+  "caller_committed_source_tree": "1dbb7308076cc28b8b40cfa17bd324954ae068b2"
 }

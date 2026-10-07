@@ -54,3 +54,47 @@ uv run pytest tests/unit/scientist/orchestration/engine/test_condition.py tests/
 ## Last Updated
 
 - Last updated: 2026-04-17
+
+## Canonical B1.2 completion profile
+
+The ledger's current snapshot version is `1.2`. Complete valid `1.0` and `1.1`
+snapshots migrate explicitly; unknown versions, contracts and coordination modes
+are rejected. Version `1.2` requires both settlement receipts and the completion
+obligation index in the same atomic snapshot as budget state. Existing receipts
+keep their original accounting meaning: migration cannot certify a previously
+unknown provider cost. Both indexes remain retained until an owner supplies a
+retirement rule.
+
+`BudgetMiddleware.settle_spend_safe(...)` records an exact producer event under
+the ledger lock and returns its immutable `BudgetLedgerSpendReceipt`. Retrying
+the same event and payload charges once; reusing its identity with a different
+payload refuses. `resolve_spend_safe(event_id)` reads the persisted receipt after
+an uncertain acknowledgement. A missing receipt means unknown settlement;
+filesystem failure raises `BudgetLedgerSettlementOutcomeUnknownError` rather
+than reporting zero spend. This contract acknowledges local ledger accounting;
+an external provider needs its own receipt or status/idempotency contract.
+
+Before external provider work, `admit_provider_intent_safe(...)` atomically
+reserves every configured budget key and persists a `provider_in_flight` record
+under the stable ledger lock. This record describes an admitted request; it does
+not assert provider completion or a charge. The configured adapter supplies the
+actual nonempty run identity. A new process or newly constructed owner cannot
+reuse a previous owner's unresolved attempt. The same live owner may admit
+concurrent requests while it still owns their physical work.
+
+Observed unknown cost, unknown ledger acknowledgement and unfinished protected
+audit have separate completion phases. They refuse intersecting `pre_check` and
+reservation admission; unrelated keys remain independent. A failed phase write
+retains uncertainty in one shared live-owner object before releasing the lock,
+while fresh owners discover the durable original intent. Retrying an older
+record with the same ID cannot acknowledge a newer unresolved digest.
+
+`with_completion_resolver(...)` binds a trusted owner at construction. Completing
+an obligation requires its exact retained body/digest and actual per-key ledger
+receipts; protected audit also needs the bound owner's verification. A boolean,
+diagnostic reference or caller-selected epoch cannot establish completion. Abort
+is limited to the original live owner and verified work that never entered the
+provider. These are internal module contracts; they add no stable facade exports.
+They preserve
+local filesystem/process custody and do not supply external billing authority,
+automatic crash reconciliation, power-loss or multi-host guarantees.

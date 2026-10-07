@@ -75,6 +75,7 @@ def configured_workflow(
     monkeypatch,
     *,
     cost=1.0,
+    cost_lexeme=None,
     fail_after_paid=False,
     levels=(3, 4),
     default_worker_scopes=False,
@@ -112,6 +113,11 @@ def configured_workflow(
                     "usage": {"prompt_tokens": 1, "completion_tokens": 1, "cost_usd": cost},
                 }
             )
+            if cost_lexeme is not None:
+                # Preserve a real numeric token until Gateway._post_json.
+                # The ordinary native callers and all downstream parsing run.
+                assert cost is None and '"cost_usd": null' in self.body
+                self.body = self.body.replace('"cost_usd": null', f'"cost_usd": {cost_lexeme}')
 
         async def __aenter__(self):
             return self

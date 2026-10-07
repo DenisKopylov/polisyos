@@ -9,7 +9,10 @@ from contextvars import ContextVar
 from dataclasses import dataclass, replace
 from decimal import Decimal, InvalidOperation
 from math import isfinite
-from typing import Any
+from typing import Any, Literal
+
+LLMUsageStatus = Literal["known", "missing", "invalid"]
+_INVALID_FIELD = object()
 
 
 @dataclass(frozen=True)
@@ -62,6 +65,8 @@ class LLMResponseData:
     origin_cost_usd: float | None = None
     reuse_event_id: str | None = None
     cache_key: str | None = None
+    usage_status: LLMUsageStatus = "missing"
+    cost_status: LLMUsageStatus = "missing"
 
     @property
     def total_tokens(self) -> int:
@@ -101,35 +106,33 @@ def extract_llm_response_data(
     cost_usd: float | None = None
     request_id: str | None = None
 
-    try:
-        usage = getattr(response, "usage", None)
-        if isinstance(response, dict):
-            usage = response.get("usage")
-        cost_usd = _extract_cost_usd(usage=usage, payload=response)
-        provider = _as_str(getattr(response, "provider", None))
-        model = _as_str(getattr(response, "model", None))
-        request_id = _as_str(getattr(response, "request_id", None))
-        if isinstance(response, dict):
-            provider = provider or _as_str(response.get("provider"))
-            model = model or _as_str(response.get("model"))
-            request_id = request_id or _as_str(response.get("request_id"))
-        if usage is not None and not isinstance(response, dict):
-            origin_prompt_tokens = int(getattr(usage, "prompt_tokens", 0) or 0)
-            origin_completion_tokens = int(getattr(usage, "completion_tokens", 0) or 0)
-        elif isinstance(response, dict):
-            usage = response.get("usage") or {}
-            origin_prompt_tokens = int(usage.get("prompt_tokens", 0) or 0)
-            origin_completion_tokens = int(usage.get("completion_tokens", 0) or 0)
-        elif hasattr(response, "input_tokens"):
-            origin_prompt_tokens = int(getattr(response, "input_tokens", 0) or 0)
-            origin_completion_tokens = int(getattr(response, "output_tokens", 0) or 0)
-    except _InvalidLLMCostError:
-        raise
-    except Exception:
-        origin_prompt_tokens = 0
-        origin_completion_tokens = 0
-        # Usage counts are ancillary to an independently admitted paid receipt.
-        # Invalid token metadata must not turn known provider spend into absence.
+    usage = _field(response, "usage")
+    prompt_value = _field(usage, "prompt_tokens")
+    completion_value = _field(usage, "completion_tokens")
+    if usage is None:
+        prompt_value = _field(response, "input_tokens")
+        completion_value = _field(response, "output_tokens")
+    prompt_count = _usage_token(prompt_value)
+    completion_count = _usage_token(completion_value)
+    usage_status: LLMUsageStatus = "known"
+    if (prompt_value is not None and prompt_count is None) or (
+        completion_value is not None and completion_count is None
+    ):
+        usage_status = "invalid"
+    elif prompt_value is None or completion_value is None:
+        usage_status = "missing"
+    declared_usage = _field(usage, "usage_status")
+    if declared_usage in ("missing", "invalid"):
+        usage_status = declared_usage
+    origin_prompt_tokens = prompt_count or 0
+    origin_completion_tokens = completion_count or 0
+    cost_usd, cost_status = _extract_cost_data(usage=usage, payload=response)
+    declared_cost = _field(usage, "cost_status")
+    if declared_cost == "invalid":
+        cost_usd, cost_status = None, "invalid"
+    provider = _as_str(_field(response, "provider"))
+    model = _as_str(_field(response, "model"))
+    request_id = _as_str(_field(response, "request_id"))
 
     reported_cost_usd = cost_usd
     billable_prompt_tokens = 0 if cache_hit else origin_prompt_tokens
@@ -151,6 +154,8 @@ def extract_llm_response_data(
         origin_cost_usd=reported_cost_usd,
         reuse_event_id=reuse_event_id,
         cache_key=cache_key,
+        usage_status=usage_status,
+        cost_status=cost_status,
     )
 
 
@@ -247,9 +252,38 @@ def _as_float(value: Any) -> float | None:
     return parsed
 
 
+def _field(value: Any, key: str) -> Any:
+    try:
+        return value.get(key) if isinstance(value, dict) else getattr(value, key, None)
+    except Exception:
+        # An obtained response remains available; inaccessible monetary/usage
+        # evidence is invalid, rather than a missing field eligible for pricing.
+        return _INVALID_FIELD
+
+
+def _usage_token(value: Any) -> int | None:
+    if isinstance(value, bool) or not isinstance(value, (int, float, Decimal, str)):
+        return None
+    try:
+        parsed = Decimal(str(value))
+    except (ArithmeticError, TypeError, ValueError):
+        return None
+    if not parsed.is_finite() or parsed < 0 or parsed != parsed.to_integral_value():
+        return None
+    return int(parsed)
+
+
+def _extract_cost_data(*, usage: Any, payload: Any) -> tuple[float | None, LLMUsageStatus]:
+    try:
+        value = _extract_cost_usd(usage=usage, payload=payload)
+    except _InvalidLLMCostError:
+        return None, "invalid"
+    return value, "known" if value is not None else "missing"
+
+
 def _extract_cost_usd(*, usage: Any, payload: Any) -> float | None:
     def field(source: Any, name: str) -> Any:
-        return source.get(name) if isinstance(source, dict) else getattr(source, name, None)
+        return _field(source, name)
 
     sources: tuple[Any, ...] = (usage, payload)
     raw = field(payload, "raw")
@@ -263,6 +297,17 @@ def _extract_cost_usd(*, usage: Any, payload: Any) -> float | None:
     def declared_totals(group: tuple[Any, ...]) -> list[Decimal]:
         totals = []
         for source in group:
+            if isinstance(source, dict) and any(
+                name in source and source[name] is None
+                for name in (
+                    "total_cost_usd",
+                    "cost_usd",
+                    "cost",
+                    "base_cost_usd",
+                    "platform_fee_usd",
+                )
+            ):
+                raise _InvalidLLMCostError("present provider cost cannot be null")
             # Validate all declarations before selecting a basis. Each alias is
             # a USD total; base + platform fee is the existing component total.
             for name in ("total_cost_usd", "cost_usd", "cost"):

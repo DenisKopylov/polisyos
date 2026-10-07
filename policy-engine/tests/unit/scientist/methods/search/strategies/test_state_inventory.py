@@ -5,6 +5,7 @@ from __future__ import annotations
 import pytest
 
 from polisyos.core import artifacts
+from polisyos.scientist.methods.search.strategies.adapter import StrategyAdapter
 from polisyos.scientist.methods.search.strategies.errors import StrategyExhaustedError
 from polisyos.scientist.methods.search.strategies.grid import GridSearchStrategy
 from polisyos.scientist.methods.search.strategies.random import RandomSearchStrategy
@@ -187,3 +188,62 @@ def test_grid_missing_or_foreign_space_binding_refuses_before_live_mutation(tmp_
     with pytest.raises(ValueError):
         fresh.set_state(state)
     assert fresh.get_state().to_artifact() == before
+
+
+def test_public_grid_batch_retains_last_physical_point_and_fresh_cas_exhaustion(tmp_path):
+    space = SearchSpace([ParameterBounds("x", 0.0, 1.0)])
+    live = GridSearchStrategy(space, seed=19, points_per_dim=4, max_candidates=4)
+    live_adapter = StrategyAdapter(live, space)
+    first = live_adapter.generate_batch([], None, {}, batch_size=3)
+    assert [row["x"] for row in first] == [0.0, 1 / 3, 2 / 3]
+    before_last = _persist(tmp_path / "before_last", live)
+    assert before_last.metadata["cursor"] == 3
+    fresh = GridSearchStrategy(space, seed=999, points_per_dim=4, max_candidates=4)
+    fresh.set_state(before_last)
+    fresh_adapter = StrategyAdapter(fresh, space)
+    uninterrupted = live_adapter.generate_batch([], None, {}, batch_size=2)
+    resumed = fresh_adapter.generate_batch([], None, {}, batch_size=2)
+    assert [row["x"] for row in uninterrupted] == [1.0]
+    assert [row["x"] for row in resumed] == [1.0]
+    assert len({row["x"] for row in [*first, *resumed]}) == 4
+    exhausted = _persist(tmp_path / "exhausted", fresh)
+    assert exhausted.metadata["cursor"] == exhausted.metadata["grid_size"] == 4
+    final = GridSearchStrategy(space, seed=71, points_per_dim=4, max_candidates=4)
+    final.set_state(exhausted)
+    for strategy, adapter in (
+        (live, live_adapter),
+        (fresh, fresh_adapter),
+        (final, StrategyAdapter(final, space)),
+    ):
+        before = strategy.get_state().to_artifact()
+        assert adapter.generate_batch([], None, {}, batch_size=2) == []
+        assert strategy.get_state().to_artifact() == before
+        with pytest.raises(StrategyExhaustedError):
+            strategy.suggest([])
+    print(
+        "ACTUAL_PUBLIC_GRID_PARTIAL_CAS",
+        [row["x"] for row in first],
+        [row["x"] for row in resumed],
+        exhausted.metadata["cursor"],
+    )
+
+
+def test_public_grid_zero_batch_keeps_existing_noop_contract():
+    space = SearchSpace([ParameterBounds("x", 0.0, 1.0)])
+    strategy = GridSearchStrategy(space, points_per_dim=4, max_candidates=4)
+    adapter = StrategyAdapter(strategy, space)
+    before = strategy.get_state().to_artifact()
+    assert adapter.generate_batch([], None, {}, batch_size=0) == []
+    assert strategy.get_state().to_artifact() == before
+    assert strategy.suggest([]).params["x"] == 0.0
+
+
+@pytest.mark.parametrize("count", [True, False, 2.5, "2", -1, None])
+def test_public_grid_malformed_batch_count_refuses_before_live_state_change(count):
+    space = SearchSpace([ParameterBounds("x", 0.0, 1.0)])
+    strategy = GridSearchStrategy(space, points_per_dim=4, max_candidates=4)
+    adapter = StrategyAdapter(strategy, space)
+    before = strategy.get_state().to_artifact()
+    with pytest.raises(ValueError):
+        adapter.generate_batch([], None, {}, batch_size=count)
+    assert strategy.get_state().to_artifact() == before

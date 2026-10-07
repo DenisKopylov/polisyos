@@ -76,7 +76,9 @@ def _actual_unit_principal():
 
 
 def _make_response(content: str = "cached") -> GatewayLLMResponse:
-    return GatewayLLMResponse(content=content, usage=GatewayUsage(), raw={})
+    # This healthy cache fixture reports a known free completion. Default
+    # telemetry zeros without monetary/usage evidence represent an unknown cost.
+    return GatewayLLMResponse(content=content, usage=GatewayUsage(cost_usd=0.0), raw={})
 
 
 class _FakeLLMClient:

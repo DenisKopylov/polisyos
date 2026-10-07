@@ -21,6 +21,7 @@ from polisyos.core.llm.settlement import (
     LLMSettlementAck,
     producer_settlement,
 )
+from polisyos.core.llm.traced_client import LLMAccountingError, TracedLLMClient
 from polisyos.scientist.methods.search.funnel import types as funnel_types
 from polisyos.scientist.methods.search.funnel.level3_medium import Level3MediumFidelity
 from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOrchestrator
@@ -296,3 +297,79 @@ def test_missing_paid_origin_readback_cannot_admit_free_reuse(tmp_path, monkeypa
     assert outcome.provider_spend_usd == 1
     assert snapshot.state.spent["run"] == 1 and len(snapshot.spend_receipts) == 1
     assert tuple(snapshot.spend_receipts.values()) == producer_settlement(returned[0]).ack.receipts
+
+
+@pytest.mark.parametrize("remove_readback", [False, True])
+def test_standalone_configured_enforcer_binds_native_cache_to_fresh_paid_receipt(
+    tmp_path, monkeypatch, remove_readback
+):
+    path = tmp_path / "budget.json"
+    state = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("5"))})
+    owner = BudgetMiddleware(state, ledger=FileBudgetLedger(path))
+
+    def after_paid(owner, response):
+        if remove_readback:
+            monkeypatch.setattr(owner, "resolve_spend_safe", lambda event_id: None)
+
+    evaluate, calls, returned = _configured_cached_calls(monkeypatch, after_paid=after_paid)
+    # No external funnel receipt context: the ordinary enforcer supplies its
+    # configured owner's existing exact readback port for native cache intake.
+    if remove_readback:
+        with pytest.raises(LLMAccountingError):
+            evaluate(owner)
+    else:
+        evaluate(owner)
+    snapshot = FileBudgetLedger(path).snapshot()
+    assert len(calls) == 1 and len(snapshot.spend_receipts) == 1
+    original = producer_settlement(returned[0])
+    assert original.event.kind == "provider" and original.event.amount == 1
+    assert tuple(snapshot.spend_receipts.values()) == original.ack.receipts
+    assert snapshot.state.spent == {"run": Decimal("1")}
+    if not remove_readback:
+        reused = producer_settlement(returned[1])
+        assert reused.event.kind == "reuse" and reused.event.amount == 0
+        assert reused.event.origin_event_id == original.event.event_id
+        assert snapshot.state.reserved["run"] == 0 and snapshot.completion_obligations == {}
+    else:
+        assert len(returned) == 1
+
+
+def test_supported_invoke_adapter_runs_native_response_decoder_and_reopens_paid_receipt(tmp_path):
+    from pathlib import Path
+    from runpy import run_path
+
+    root = Path(__file__).resolve().parents[6]
+    text = run_path(str(root / "tests/integration/core/llm/test_gateway_response_text_cost.py"))
+
+    class NativeInvokeHTTP(text["TextGateway"]):
+        # Supported invoke SDK shape; Gateway's default factory exposes
+        # generate only. The actual _post_json and decoder remain unchanged.
+        def invoke(self, prompt, **kwargs):
+            return asyncio.run(self.generate(user=prompt, **kwargs))
+
+    gateway = NativeInvokeHTTP(text["response_text"]("usage", "cost_usd", "1"))
+    path = tmp_path / "budget.json"
+    state = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("5"))})
+    owner = BudgetMiddleware(state, ledger=FileBudgetLedger(path))
+    enforcer = LLMBudgetEnforcer(
+        client=TracedLLMClient(gateway, model_name="test-model"),
+        budget_state=state,
+        budget_middleware=owner,
+        budget_keys=["run"],
+        model_name="test-model",
+        run_id="invoke-run",
+    )
+    response = enforcer.invoke("actual request", max_tokens=1, _prompt_tokens_estimate=1)
+    settlement = producer_settlement(response)
+    snapshot = FileBudgetLedger(path).snapshot()
+    assert gateway.transport.calls == 1 and gateway.normalized_response.usage.cost_usd == 1
+    assert settlement.event.kind == "provider" and settlement.event.amount == 1
+    assert snapshot.state.spent == {"run": Decimal("1")}
+    assert snapshot.state.reserved["run"] == 0 and snapshot.completion_obligations == {}
+    assert tuple(snapshot.spend_receipts.values()) == settlement.ack.receipts
+    assert (
+        BudgetMiddleware(BudgetState(), ledger=FileBudgetLedger(path)).resolve_spend_safe(
+            settlement.ack.receipts[0].event_id
+        )
+        == settlement.ack.receipts[0]
+    )

@@ -54,6 +54,19 @@ class GridSearchStrategy(BaseSearchStrategy):
             source_strategy="grid",
         )
 
+    def suggest_batch(
+        self,
+        evaluations: list[Evaluation],
+        batch_size: int,
+    ) -> list[PolicyCandidate]:
+        """Return the remaining finite subjects without discarding a short batch."""
+        if type(batch_size) is not int or batch_size < 0:
+            raise ValueError("grid_batch_size_requires_nonnegative_integer")
+        remaining = len(self._grid_params) - self._cursor
+        if remaining <= 0:
+            return []
+        return super().suggest_batch(evaluations, min(batch_size, remaining))
+
     def get_state(self) -> StrategyState:
         state = super().get_state()
         state.metadata = {

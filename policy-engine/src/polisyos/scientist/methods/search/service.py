@@ -949,12 +949,16 @@ class NativeSearchService:
         return result
 
     def _stopping_reason(self, context: dict[str, Any]) -> str | None:
-        self.controller._refresh_budget_snapshot(context)
+        admission_error = self.controller._refresh_budget_snapshot(context)
         stop_check = self.controller._config.stopping.check(
             [self.controller._to_history_dict(item) for item in self.controller._history],
             self.controller._stopping_state(),
         )
-        return stop_check.reason if stop_check.should_stop else None
+        if stop_check.should_stop:
+            return stop_check.reason
+        if admission_error is not None:
+            return f"budget_owner_admission_refused:{type(admission_error).__name__}"
+        return None
 
     def _prepare_batch(
         self,

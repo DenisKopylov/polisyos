@@ -14,9 +14,9 @@ or freely constructed committed ACK cannot create free accounting.
 New reuse without the live receiver proof refuses. Existing native callers still
 observe returned responses before payload parsing. Receipts and the current
 producer IDs are operational evidence, not external invoice or promotion
-permission authority. This uses the B1.1 ledger profile on the exact D source;
-B1.2 adoption and an ordinary production blueprint resource producer remain
-separate owner contracts.
+permission authority. The durable profile consumes canonical B1.2 intent,
+settlement and completion receipts. An appointed production blueprint resource
+producer remains a separate deployment input.
 
 Checks: `tests/integration/scientist/methods/search/funnel/test_cache_settlement_binding.py`
 uses the real env-backed gateway factory, native response-text decoder, cache and
@@ -36,3 +36,26 @@ null and unassessed in JSON/CAS and display `n/a`/`GAP` in Markdown. An observed
 zero correlation remains a numerical zero and keeps its actual verdict. This
 transports supplied state; it does not appoint evidence, tenant scope or promotion
 authority.
+
+
+The native configured policy worker factory composes the supplied initialized B
+middleware and actual run identity before calling the provider. Intersecting
+unresolved completion refuses next work through the existing owner admission API.
+A response obtained with invalid or nonrepresentable monetary evidence retains
+`amount=None`; funnel feedback serializes that amount as JSON null with unknown
+reported-input status. It cannot become a settled zero or an estimated charge.
+Unknown settlement ACK with a known amount stays distinct; exact fresh receipt
+readback confirms local debit without completing any pending owner obligation.
+
+The ordinary enforcer supplies the same read-only exact receipt resolver for
+standalone native cache consumption. A missing paid-origin receipt refuses reuse;
+no cache marker grants a charge or permission. The gateway's configured factory
+supports `generate`; a supplied invoke SDK adapter can use the enforcer's existing
+invoke port, without implying native gateway cache support for that port.
+
+Response-text tests retain actual tiny numeric tokens until the B-owned decoder,
+then check canonical pending obligations and fresh ledger/CAS readers. Explicit
+provider null is invalid-present; omitted cost can be priced only from supported
+validated observed usage. Real literal zero keeps its known zero receipt. The
+native configured caller tests control HTTP bytes, not an invoice, native raw
+sample law, authorized estimate refinement or promotion permit authority.

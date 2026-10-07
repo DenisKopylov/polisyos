@@ -34,7 +34,7 @@ def test_actual_estimated_and_mixed_replay_projects_only_fresh_local_events(
     budget = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal(5))})
     owner = BudgetMiddleware(budget, ledger=FileBudgetLedger(path))
     gateways, enforcers = [], []
-    for cost in ["null"] if profile == "estimated" else ["1", "null"]:
+    for cost in [None] if profile == "estimated" else ["1", None]:
         gateway = _text["TextGateway"](
             _text["response_text"]("usage", "cost_usd", cost), model="gpt-3.5-turbo"
         )

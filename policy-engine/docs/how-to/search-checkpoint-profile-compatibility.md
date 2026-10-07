@@ -93,6 +93,14 @@ Boolean, fractional, string, negative, missing and out-of-range cursors refuse;
 changed grid density or cutoff refuses instead of silently selecting a different
 next subject. Grid admission completes before Base RNG or iteration changes.
 
+A Grid batch request returns the actual remaining subjects when fewer than the
+requested count remain, then returns an empty batch at exhaustion. It does not
+advance and discard the last subject by asking past the finite grid. A zero
+integer count retains the existing empty/no-advance behavior; Boolean, negative,
+fractional, string and missing counts refuse. Scalar exhaustion continues to
+raise `StrategyExhaustedError`; other strategies and scalar acquisition routing
+keep their existing policies.
+
 Historical unversioned Grid checkpoints lack the cutoff/profile binding. They
 are refused by this receiver. Retain the original artifact and use its recorded
 implementation for exact continuation, or start an explicitly new grid run with
@@ -167,6 +175,76 @@ CAS/fresh reader, eight distinct synthetic utility/cost measurements, independen
 NumPy mean and full covariance for both fitted components, restored next EHVI,
 fit cadence and marker-preserving corruption controls. These are bounded
 numerical fixtures, not production evaluation history or source/tenant authority.
+
+## Persisted JSON numeric tokens
+
+Native service checkpoints and nested `strategy_state.v2` artifacts share one
+internal JSON float-token admission rule. Actual `0`, `0.0` and `-0.0` retain
+zero; representable finite floats retain their ordinary float values. A nonzero
+wire token such as `1e-1000` or `-1e-1000` refuses before conversion can make it
+zero. Overflow, nonfinite JSON constants and exponents outside the supported
+Decimal token range produce a controlled `ValueError` before live restoration.
+Integer and Boolean tokens retain their types for the existing schema validators.
+
+The generic JSON/LLM parsers keep their own contracts; this rule is limited to
+persisted search checkpoints. No state markers, inner JSON strings or schema
+labels authorize normalization of an unsupported value. Keep original bytes and
+refusal output; this receiver does not repair or manufacture the lost lexeme of
+an already normalized historical artifact.
+
+## Native StrategyAdapter continuation
+
+`strategy_adapter.v1` wraps the existing `StrategyState` artifact for the
+canonical `SearchSpace`, exact `ScalarParameterCodec` and default
+`SearchIteration.objective_details` extractor. It binds codec configuration,
+strategy type/configuration, implementation content, space and the complete
+synchronized evaluation-history prefix. Each numerical strategy still owns its
+supported backend/model/RNG admission; the adapter does not create a posterior
+or replace that owner's checkpoint law.
+
+Fresh service restoration validates the actual persisted history prefix before
+restoring live strategy or run state. The next ordinary generate rebuilds the
+adapter cache from that prefix without repeating previously applied strategy
+updates, then applies only new evaluations. Existing scalar versus batch
+acquisition routing stays in use. The actual native factory projects the existing
+technical proposal envelope into its strict mutation codec and retains the
+proposal identity in native history/checkpoint state.
+
+Custom codecs or objective callbacks, noncanonical spaces, generators without
+an underlying state API and implementations without an available source file
+remain usable by their existing live-only callers. Their adapter state discovery
+returns `None`, and persisted public resume explicitly refuses that unsupported
+profile. A module/class label or a callback digest alone does not supply the
+custom context contract. Historical adapter checkpoints with `generator_state`
+missing or null cannot be silently reconstructed; retain the artifact and use
+its recorded supported implementation, or start an explicitly new run with the
+owner-selected context and original evaluated inputs.
+
+## Budget admission and unavailable recorded spend
+
+A configured search budget owner admits the declared budget key through its
+existing `pre_check` API before proposal or recorded-state consumption. Pending
+canonical settlement and owner failures remain unavailable and produce no next
+proposal. Known exhaustion retains the owner's known recorded spend. A successful
+admission of an initialized owner with no events retains genuine recorded zero.
+A trace cost or estimate does not substitute for the owner's durable transition.
+
+The run-owned unavailable amount is `budget_spent=None`, with an empty budget
+snapshot, `budget_available=false` and an explicit unavailable reason. New owner
+evidence may carry `admission` as exactly `admitted`, `exhausted` or `unavailable`.
+An unavailable admission cannot carry a numeric amount, snapshot, provider
+aggregate or claimed spend-key presence. Existing finite recorded checkpoints
+without this additive evidence field remain readable; malformed-present evidence
+and contradictory zero/available markers refuse on fresh checkpoint readback.
+
+Older strict readers may reject nullable spend or the new evidence field. Retain
+the original artifact and use its recorded reader/build and matching canonical
+budget owner, or start an explicitly new run after resolving the actual owner
+obligation. Do not change `None` to zero, drop admission evidence or edit build
+markers to force continuation. B owns the ledger schema/version and any ledger
+migration. D does not assign a second ledger schema. Admission and snapshot are
+separate existing owner calls; their local fence does not promise an atomic
+concurrent read pair or distributed settlement.
 
 ## Operator checks
 

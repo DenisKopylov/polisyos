@@ -55,7 +55,7 @@ class SearchRunState:
     empty_generation_attempts: int = 0
     evaluation_iterations: int = 0
     training_evaluations: int = 0
-    budget_spent: float = 0.0
+    budget_spent: float | None = 0.0
     budget_available: bool = False
     budget_snapshot: dict[str, float] = field(default_factory=dict)
     budget_snapshot_source: str = "unavailable"
@@ -261,8 +261,16 @@ class SearchRunState:
         _validate_dataclass(result)
         from polisyos.scientist.methods.search.stopping import _nonnegative_cost
 
-        if _nonnegative_cost(result.budget_spent) is None:
+        if result.budget_spent is not None and _nonnegative_cost(result.budget_spent) is None:
             raise ValueError("invalid recorded budget spend")
+        if result.budget_spent is None and (
+            result.budget_available
+            or result.budget_snapshot
+            or not result.budget_evidence
+            or not isinstance(result.budget_evidence.get("unavailable_reason"), str)
+            or not result.budget_evidence["unavailable_reason"].strip()
+        ):
+            raise ValueError("unavailable recorded budget lacks an empty unavailable profile")
         if any(_nonnegative_cost(value) is None for value in result.budget_snapshot.values()):
             raise ValueError("invalid recorded budget snapshot")
         evidence = result.budget_evidence
@@ -274,7 +282,12 @@ class SearchRunState:
                 "recorded_by_provider",
                 "unavailable_reason",
             }
-            optional = {"canonical_contract", "coordination_mode", "recorded_spend_key_present"}
+            optional = {
+                "canonical_contract",
+                "coordination_mode",
+                "recorded_spend_key_present",
+                "admission",
+            }
             if not required <= evidence.keys() or evidence.keys() - required - optional:
                 raise ValueError("invalid recorded budget evidence fields")
             if evidence["source"] not in (
@@ -289,6 +302,29 @@ class SearchRunState:
                 )
             ):
                 raise ValueError("unsupported recorded budget evidence authority")
+            if "admission" in evidence:
+                admission = evidence["admission"]
+                if (
+                    type(admission) is not str
+                    or admission not in {"admitted", "exhausted", "unavailable"}
+                    or evidence["source"] != "configured_owner_recorded_state"
+                ):
+                    raise ValueError("invalid recorded budget admission")
+                if admission == "unavailable" and (
+                    result.budget_available
+                    or result.budget_snapshot
+                    or result.budget_spent is not None
+                    or evidence["recorded_by_provider"] is not None
+                    or "recorded_spend_key_present" in evidence
+                    or not isinstance(evidence["unavailable_reason"], str)
+                    or not evidence["unavailable_reason"].strip()
+                ):
+                    raise ValueError("unavailable owner admission contradicts recorded budget")
+                if admission != "unavailable" and (
+                    result.budget_spent is None
+                    and evidence["unavailable_reason"] != "budget_not_requested"
+                ):
+                    raise ValueError("admitted owner lacks recorded spend")
             for key in ("canonical_contract", "coordination_mode", "unavailable_reason"):
                 if (
                     key in evidence

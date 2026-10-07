@@ -642,15 +642,19 @@ class SearchController:
         state.update(self._run_state.budget_snapshot)
         return state
 
-    def _refresh_budget_snapshot(self, context: dict[str, Any]) -> None:
+    def _refresh_budget_snapshot(self, context: dict[str, Any]) -> Exception | None:
         """Capture one detached snapshot from the declared budget owner.
 
         The controller never forwards the mutable evaluator context directly to
         stopping criteria.  Only keys explicitly requested by the criterion are
         copied into the run-owned snapshot, so both stopping checkpoints and the
         final report observe the same owner contract without creating a ledger.
+        A configured owner must admit the declared key before recorded state is
+        consumed. Pending/failed admission remains unavailable; its original
+        typed error is returned to the proposal boundary rather than priced zero.
         """
         required_keys = self._config.stopping.state_keys()
+        admission_error: Exception | None = None
         snapshot: dict[str, float] = {}
         owner = self._config.budget_middleware
         source = "legacy_context" if required_keys else "unavailable"
@@ -670,11 +674,33 @@ class SearchController:
             if identity is not None:
                 self._run_state.budget_ledger_id = identity[0]
                 evidence.update(canonical_contract=identity[1], coordination_mode=identity[2])
+            from polisyos.scientist.orchestration.engine.budget import BudgetExhaustedError
+
             try:
-                accounting = owner.budget_state.model_copy(deep=True)
-            except (OSError, ValueError, RuntimeError) as exc:
-                evidence["unavailable_reason"] = f"owner_state_unavailable:{type(exc).__name__}"
+                pre_check = getattr(owner, "pre_check", None)
+                if not callable(pre_check):
+                    raise ValueError("budget_owner_admission_contract_missing")
+                pre_check("search.controller", budget_key=self._config.budget_key)
+            except BudgetExhaustedError as exc:
+                # Exhaustion is known accounting, unlike an unresolved charge.
+                admission_error = exc
+                evidence["admission"] = "exhausted"
+            except Exception as exc:
+                admission_error = exc
+                evidence["admission"] = "unavailable"
+                evidence["unavailable_reason"] = f"owner_admission_unavailable:{type(exc).__name__}"
             else:
+                evidence["admission"] = "admitted"
+
+            accounting = None
+            if evidence["admission"] != "unavailable":
+                try:
+                    accounting = owner.budget_state.model_copy(deep=True)
+                except Exception as exc:
+                    admission_error = exc
+                    evidence["admission"] = "unavailable"
+                    evidence["unavailable_reason"] = f"owner_state_unavailable:{type(exc).__name__}"
+            if accounting is not None:
                 evidence["recorded_spend_key_present"] = self._config.budget_key in accounting.spent
                 providers = {
                     key: _nonnegative_cost(value)
@@ -689,7 +715,17 @@ class SearchController:
                     if value is not None:
                         snapshot[self._config.budget_cost_key] = value
                     else:
+                        admission_error = ValueError("budget_recorded_cost_invalid")
+                        evidence["admission"] = "unavailable"
                         evidence["unavailable_reason"] = "recorded_cost_invalid"
+                        evidence["recorded_by_provider"] = None
+                        evidence.pop("recorded_spend_key_present", None)
+                if required_keys and not snapshot and evidence["unavailable_reason"] is None:
+                    admission_error = ValueError("budget_owner_requested_cost_key_unavailable")
+                    evidence["admission"] = "unavailable"
+                    evidence["unavailable_reason"] = "configured_owner_cost_key_unavailable"
+                    evidence["recorded_by_provider"] = None
+                    evidence.pop("recorded_spend_key_present", None)
         for key in required_keys:
             if owner is not None:
                 continue
@@ -709,7 +745,8 @@ class SearchController:
         elif snapshot:
             self._run_state.budget_spent = next(iter(snapshot.values()))
         else:
-            self._run_state.budget_spent = 0.0
+            self._run_state.budget_spent = None
+        return admission_error
 
     def _budget_owner_identity(self) -> tuple[str, str, str] | None:
         """Use the public owner identity; in-memory accounting has no durable identity."""
@@ -734,6 +771,9 @@ class SearchController:
         initial_candidate: dict[str, Any] | None,
         context: dict[str, Any],
     ) -> list[dict[str, Any]]:
+        admission_error = self._refresh_budget_snapshot(context)
+        if admission_error is not None:
+            raise admission_error
         if iteration == 0 and initial_candidate is not None:
             return [initial_candidate]
 

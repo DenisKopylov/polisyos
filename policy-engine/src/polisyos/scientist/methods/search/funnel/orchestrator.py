@@ -492,22 +492,36 @@ class FunnelOrchestrator:
                     feedback["resource_unknown_ack_readback_ids"] = readback
                     feedback["resource_settlement_pending"] = [
                         {
-                            "event": {**asdict(value.event), "amount": str(value.event.amount)},
+                            "event": {
+                                **asdict(value.event),
+                                "amount": None
+                                if value.event.amount is None
+                                else str(value.event.amount),
+                            },
                             "payload_digest": value.event.payload_digest,
                             "budget_keys": list(value.budget_keys),
                         }
                         for value in pending
                     ]
-                    # This is observed provider input, distinct from settled spend.
-                    feedback["resource_reported_input_usd"] = str(
-                        sum(
-                            (
-                                value.event.amount
-                                for value in failures
-                                if value.event.cost_origin == "reported"
-                            ),
-                            Decimal(0),
-                        )
+                    # Known reported input is distinct from settled spend;
+                    # an obtained operation with unknown amount is not zero.
+                    reported_inputs = [
+                        value.event.amount
+                        for value in failures
+                        if value.event.cost_origin == "reported" and value.event.amount is not None
+                    ]
+                    unknown_input = any(value.event.amount is None for value in failures)
+                    feedback["resource_reported_input_usd"] = (
+                        str(sum(reported_inputs, Decimal(0)))
+                        if reported_inputs or not unknown_input
+                        else None
+                    )
+                    feedback["resource_reported_input_status"] = (
+                        "partial"
+                        if unknown_input and reported_inputs
+                        else "unknown"
+                        if unknown_input
+                        else "reported"
                     )
                     result = replace(result, feedback=feedback)
                 if events:
@@ -1037,7 +1051,11 @@ class FunnelOrchestrator:
         """Read actual local receipts after an unknown ACK; never retry or release."""
         from polisyos.scientist.orchestration.engine.budget_ledger import BudgetLedgerSpendReceipt
 
-        if not failure.budget_keys or self._budget_middleware is None:
+        if (
+            not failure.budget_keys
+            or self._budget_middleware is None
+            or failure.event.amount is None
+        ):
             return False
         event = failure.event
         for key in failure.budget_keys:

@@ -49,6 +49,7 @@ def _mock_response(prompt_tokens: int = 100, completion_tokens: int = 50) -> Gat
             prompt_tokens=prompt_tokens,
             completion_tokens=completion_tokens,
             cost_usd=None,
+            usage_status="known",
         ),
     )
 

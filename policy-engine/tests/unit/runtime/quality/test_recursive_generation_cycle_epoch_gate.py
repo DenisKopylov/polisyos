@@ -1314,6 +1314,7 @@ def _assert_constructor_contract(
             "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
         )
     }
+    # Cover the contract-testing fallback, injected batch port, and identity-bound canonical N9.
     expected_promotion_calls = {
         (
             "polisyos.runtime.quality.generation_cycle",
@@ -1326,6 +1327,12 @@ def _assert_constructor_contract(
             "src/polisyos/runtime/quality/generation_cycle.py",
             "GenerationCycleController._promote_completed_generation",
             frozenset({"admitted_batch", "problem"}),
+        ),
+        (
+            "polisyos.runtime.quality.generation_cycle",
+            "src/polisyos/runtime/quality/generation_cycle.py",
+            "GenerationCycleController._promote_completed_generation",
+            frozenset({"admitted_batch", "problem", "deployment_identity"}),
         ),
     }
     assert len(promotion_calls) == len(expected_promotion_calls)
@@ -2724,6 +2731,29 @@ def unreviewed_bridge():
     )
     with pytest.raises(AssertionError):
         _assert_constructor_contract(tuple(constructors), shaped_production_port, tuple(ambiguous))
+    duplicate_port_source = """
+class GenerationCycleController:
+    def _promote_completed_generation(self):
+        return self._promotion_port(admitted_batch=batch, problem=problem)
+"""
+    _, duplicate_port_calls, duplicate_port_ambiguity = _scan_python_source(
+        source=duplicate_port_source,
+        module="polisyos.runtime.quality.generation_cycle",
+        source_path="src/polisyos/runtime/quality/generation_cycle.py",
+    )
+    assert duplicate_port_ambiguity == ()
+    assert len(duplicate_port_calls) == 1
+    assert duplicate_port_calls[0] == next(
+        row
+        for row in promotion_calls
+        if row.keyword_names == frozenset({"admitted_batch", "problem"})
+    )
+    with pytest.raises(AssertionError):
+        _assert_constructor_contract(
+            tuple(constructors),
+            (*promotion_calls, *duplicate_port_calls),
+            tuple(ambiguous),
+        )
 
 
 def test_task_44_public_export_denominator_is_exact() -> None:

@@ -44,6 +44,8 @@ from polisyos.foundry.uncertainty import (
 )
 from polisyos.foundry.uncertainty import extract_std as _extract_typed_std
 from polisyos.foundry.uncertainty.config import PropagationConfig
+from polisyos.ir.analytics import load_posterior_summary_envelope as load_uncertainty_envelope
+from polisyos.ir.analytics import posterior_nominal_mean, validate_raw_posterior_summary_envelope
 from polisyos.ir.analytics.dependence_structure import (
     DependenceStructure,
     load_dependence_structure,
@@ -54,7 +56,6 @@ from polisyos.ir.analytics.uncertainty import (
     ParametricFitCarrier,
     PosteriorSamplesCarrier,
     UncertaintyEnvelope,
-    load_uncertainty_envelope,
     persist_uncertainty_envelope,
 )
 from polisyos.ir.analytics.welfare import (
@@ -1140,6 +1141,9 @@ def _collect_input_envelopes(
                     ref=ref,
                 )
                 continue
+            # A declared new profile cannot fall through legacy coercion or
+            # the optional-envelope error handler into a nominal fallback.
+            validate_raw_posterior_summary_envelope(value, parameter_name=name)
             try:
                 admit_envelope(
                     name,
@@ -1835,8 +1839,8 @@ def _build_simulation_fn(
         for param_name in context.pe_sensitivity.get(label, {}):
             if param_name in available_envelopes.envelopes:
                 used_envelopes[param_name] = available_envelopes.envelopes[param_name]
-                nominal_params[param_name] = float(
-                    available_envelopes.envelopes[param_name].point_estimate
+                nominal_params[param_name] = posterior_nominal_mean(
+                    available_envelopes.envelopes[param_name], parameter_name=param_name
                 )
                 if param_name in available_envelopes.refs:
                     pe_refs[param_name] = available_envelopes.refs[param_name]
@@ -1846,7 +1850,7 @@ def _build_simulation_fn(
         if env is None:
             continue
         used_envelopes[param_name] = env
-        nominal_params[param_name] = float(env.point_estimate)
+        nominal_params[param_name] = posterior_nominal_mean(env, parameter_name=param_name)
 
     for param_name, ref in list(pe_refs.items()):
         if param_name not in used_envelopes:
@@ -1891,9 +1895,9 @@ def _build_simulation_fn(
                 env = used_envelopes.get(param_name)
                 if env is None:
                     continue
-                baseline = float(env.point_estimate)
-                current = float(params.get(param_name, float(env.point_estimate)))
-                denom = max(abs(float(env.point_estimate)), 1.0)
+                baseline = nominal_params[param_name]
+                current = float(params.get(param_name, baseline))
+                denom = max(abs(baseline), 1.0)
                 delta += float(coef) * ((current - baseline) / denom)
             response[idx] = float(base_response[idx]) * (1.0 + delta)
 
@@ -1909,7 +1913,7 @@ def _build_simulation_fn(
                 env = used_envelopes.get(param_name)
                 if env is None:
                     continue
-                current_value = float(params.get(param_name, float(env.point_estimate)))
+                current_value = float(params.get(param_name, nominal_params[param_name]))
                 current_multiplier[row_idx, col_idx] = current_value
             total = current_multiplier @ response
         else:
@@ -1918,7 +1922,7 @@ def _build_simulation_fn(
                 env = used_envelopes.get(param_name)
                 if env is None:
                     continue
-                current_value = float(params.get(param_name, float(env.point_estimate)))
+                current_value = float(params.get(param_name, nominal_params[param_name]))
                 current_coefficients[row_idx, col_idx] = current_value
             identity = np.eye(current_coefficients.shape[0], dtype=np.float64)
             multiplier = np.linalg.inv(identity - current_coefficients)

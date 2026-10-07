@@ -185,6 +185,40 @@ IR_NAMING_CONVENTIONS: dict[str, str] = {
 }
 
 ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
+    "load_posterior_summary_envelope": (
+        "polisyos.ir.analytics.posterior_summary",
+        "load_posterior_summary_envelope",
+    ),
+    "validate_raw_posterior_summary_envelope": (
+        "polisyos.ir.analytics.posterior_summary",
+        "validate_raw_posterior_summary_envelope",
+    ),
+    "PosteriorSamplesCarrier": ("polisyos.ir.analytics.uncertainty", "PosteriorSamplesCarrier"),
+    "PosteriorParameterBinding": (
+        "polisyos.ir.analytics.posterior_summary",
+        "PosteriorParameterBinding",
+    ),
+    "PosteriorSummaryContext": (
+        "polisyos.ir.analytics.posterior_summary",
+        "PosteriorSummaryContext",
+    ),
+    "PosteriorSummaryProfile": (
+        "polisyos.ir.analytics.posterior_summary",
+        "PosteriorSummaryProfile",
+    ),
+    "posterior_nominal_mean": ("polisyos.ir.analytics.posterior_summary", "posterior_nominal_mean"),
+    "posterior_carrier_content_hash": (
+        "polisyos.ir.analytics.posterior_summary",
+        "posterior_carrier_content_hash",
+    ),
+    "posterior_summary_functionals": (
+        "polisyos.ir.analytics.posterior_summary",
+        "posterior_summary_functionals",
+    ),
+    "read_posterior_summary_profile": (
+        "polisyos.ir.analytics.posterior_summary",
+        "read_posterior_summary_profile",
+    ),
     "AccessTier": ("polisyos.ir.analytics.data_views", "AccessTier"),
     "AdmittedClaimAdjudicationBatch": (
         "polisyos.ir.analytics.literature",

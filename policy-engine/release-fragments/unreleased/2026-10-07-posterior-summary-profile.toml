@@ -1,0 +1,15 @@
+id = "2026-10-07-posterior-summary-profile"
+title = "Preserve Bayesian posterior functionals and paired draws"
+type = "fixed"
+component = "ir-foundry-calibration"
+owner = "E-scoped-B201-B202"
+summary = "Bayesian calibration summaries retain exact paired posterior draws, explicitly label median and equal-tail quantiles, preserve the independent mean, and verify it on fresh E consumer reads."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.ir; scoped posterior profile additions"
+compatibility = "Existing v1.1 envelope validator, inline carrier and persisted replay are unchanged. New summaries use a distinct metadata profile $id and remain gate_eligible=false; unprofiled legacy points retain their existing meaning."
+migration = "Profile-aware readers select the recomputed posterior mean explicitly. Old readers receive a labelled contained median and an exact inline law, without new law-dependent authority. Malformed or unknown declared profiles refuse."
+api = "New scoped IR analytics profile/context and named-functional readers. The profile $id is urn:policyos:ir:bayesian-posterior-summary-profile:1; envelope wire remains1.1."
+limitations = "Finite-machine empirical corpus only; no posterior mixing, effective sample size, likelihood, production-history, causal or institutional authority is established. Welfare keeps its existing multivariate empirical-law refusal."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+evidence = ["tests/unit/ir/test_posterior_summary.py", "tests/unit/scientist/nodes/test_propagate_uncertainty_node.py", "tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py"]

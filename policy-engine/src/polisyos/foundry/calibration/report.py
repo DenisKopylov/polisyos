@@ -20,6 +20,7 @@ from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.contracts.uncertainty import UncertaintyEnvelopeRef
 from polisyos.foundry.calibration.identifiability import IdentifiabilityReport
+from polisyos.ir.analytics import validate_raw_posterior_summary_envelope
 from polisyos.ir.analytics.calibration import CalibrationConfig
 from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope
 
@@ -295,7 +296,12 @@ def load_calibration_report(store: ArtifactStore, ref: ArtifactRef) -> Calibrati
         raise ValueError("calibration report manifest kind/schema mismatch")
     if not store.verify(exact_ref).ok:
         raise ValueError("calibration report content integrity failed")
-    report = CalibrationReport.model_validate(from_canonical_bytes(store.get_bytes(exact_ref)))
+    raw = from_canonical_bytes(store.get_bytes(exact_ref))
+    raw_envelopes = raw.get("uncertainty_envelopes") if isinstance(raw, dict) else None
+    if isinstance(raw_envelopes, dict):
+        for name, envelope in raw_envelopes.items():
+            validate_raw_posterior_summary_envelope(envelope, parameter_name=name)
+    report = CalibrationReport.model_validate(raw)
     if report.schema_version != schema.version:
         raise ValueError("calibration report payload/schema version mismatch")
     if report.schema_version != "1.0":

@@ -129,6 +129,36 @@ def _read_json(
     return raw, manifest
 
 
+def _admit_supported_profile(payload: dict[str, Any], repro: Any) -> None:
+    """Admit the complete existing NumPy reference-sampler profile as a unit."""
+    parameters = payload.get("parameters")
+    ranks = {"intercept": 2, "coefficients": 3, "sigma": 2}
+    envelope = repro.get("determinism_envelope") if isinstance(repro, dict) else None
+    if (
+        not isinstance(repro, dict)
+        or repro.get("contract_version") != "foundry.bayesian.reference_sampler.v1"
+        or not isinstance(envelope, dict)
+        or envelope.get("contract_version") != "foundry.bayesian.reference_sampler.v1"
+        or not isinstance(parameters, dict)
+        or set(parameters) != set(ranks)
+    ):
+        raise ValueError("Bayesian fit supported reference profile is invalid")
+    common_rows: tuple[int, int] | None = None
+    for name, rank in ranks.items():
+        record = parameters[name]
+        shape = record.get("shape") if isinstance(record, dict) else None
+        if (
+            not isinstance(shape, list)
+            or len(shape) != rank
+            or any(type(dim) is not int or dim <= 0 for dim in shape)
+        ):
+            raise ValueError("Bayesian fit supported reference profile is invalid")
+        rows = (shape[0], shape[1])
+        if common_rows is not None and rows != common_rows:
+            raise ValueError("Bayesian fit supported reference profile is invalid")
+        common_rows = rows
+
+
 def _admit_corpus(
     result: dict[str, Any], evidence: dict[str, Any], binding: BayesianFitBinding
 ) -> tuple[dict[str, np.ndarray], list[str], str, float]:
@@ -146,6 +176,7 @@ def _admit_corpus(
     )
     virtual_ref = f"artifact://foundry/bayesian/posterior/{digest}"
     repro = posterior.get("reproducibility")
+    _admit_supported_profile(payload, repro)
     execution_repro = evidence.get("reproducibility")
     if (
         payload.get("schema") != "foundry.bayesian.draws.v1"

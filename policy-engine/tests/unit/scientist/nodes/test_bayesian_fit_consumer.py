@@ -150,6 +150,50 @@ def _rebind_corpus(result, evidence):
     evidence["artifacts"]["sampler_reproducibility"] = copy.deepcopy(repro)
 
 
+def _mutate_supported_profile(result, evidence, case):
+    """Change a profile property while retaining complete content/source binding."""
+    payload = evidence["artifacts"]["posterior_draws"]["payload"]
+    parameters = payload["parameters"]
+    repro = result["result"]["reproducibility"]
+    if case == "rank4_coefficients":
+        parameters["coefficients"]["shape"].append(1)
+    elif case == "rank3_intercept":
+        parameters["intercept"]["shape"].append(1)
+    elif case == "rank3_sigma":
+        parameters["sigma"]["shape"].append(1)
+    elif case.startswith("missing_parameter_"):
+        name = case.removeprefix("missing_parameter_")
+        del parameters[name]
+        del result["result"]["posterior_means"][name]
+    elif case == "extra_parameter":
+        parameters["extra_parameter"] = copy.deepcopy(parameters["sigma"])
+        result["result"]["posterior_means"]["extra_parameter"] = 0.0
+    else:
+        outer = case in {"unsupported_versions", "unsupported_top_version", "missing_top_version"}
+        inner = case in {
+            "unsupported_versions",
+            "unsupported_inner_version",
+            "missing_inner_version",
+        }
+        if outer:
+            if case == "missing_top_version":
+                del repro["contract_version"]
+            else:
+                repro["contract_version"] = "unsupported.v99"
+        if inner:
+            if case == "missing_inner_version":
+                del repro["determinism_envelope"]["contract_version"]
+            else:
+                repro["determinism_envelope"]["contract_version"] = "unsupported.v99"
+            repro["envelope_id"] = content_hash(
+                to_canonical_bytes(repro["determinism_envelope"], CanonSpec(forbid_floats=False)),
+                prefix=True,
+            )
+        if not outer and not inner:
+            raise ValueError("unsupported control case")
+    _rebind_corpus(result, evidence)
+
+
 def _node_fixture(store, result_ref, evidence_ref, binding):
     bundle = build_default_registry_bundle(store).bundle_ref
     ctx = ExecutionContext(
@@ -347,12 +391,40 @@ def test_real_configured_backend_corpus_persists_and_fresh_node_consumes(real_fi
         "source_view",
         "requested_prior",
         "mixed_group",
+        "rank4_coefficients",
+        "rank3_intercept",
+        "rank3_sigma",
+        "missing_parameter_sigma",
+        "missing_parameter_intercept",
+        "missing_parameter_coefficients",
+        "extra_parameter",
+        "unsupported_versions",
+        "unsupported_top_version",
+        "unsupported_inner_version",
+        "missing_top_version",
+        "missing_inner_version",
     ],
 )
 def test_adversarial_fit_refuses_before_publication_or_evaluator(
     tmp_path, real_fit, monkeypatch, case
 ):
     def mutate(result, evidence):
+        if case in {
+            "rank4_coefficients",
+            "rank3_intercept",
+            "rank3_sigma",
+            "missing_parameter_sigma",
+            "missing_parameter_intercept",
+            "missing_parameter_coefficients",
+            "extra_parameter",
+            "unsupported_versions",
+            "unsupported_top_version",
+            "unsupported_inner_version",
+            "missing_top_version",
+            "missing_inner_version",
+        }:
+            _mutate_supported_profile(result, evidence, case)
+            return
         payload = evidence["artifacts"]["posterior_draws"]["payload"]
         record = payload["parameters"]["coefficients"]
         if case == "axes":
@@ -537,6 +609,51 @@ def test_whole_relationship_admission_removal_is_detected(tmp_path, real_fit, mo
                 "wrong_pair_admitted": True,
                 "node_status": outcome.status,
                 "defining_refusal_property": "FAIL",
+            }
+        )
+    )
+
+
+@pytest.mark.parametrize(
+    "case",
+    ["rank4_coefficients", "unsupported_versions", "missing_parameter_sigma", "extra_parameter"],
+)
+def test_supported_profile_admission_removal_is_detected(tmp_path, real_fit, monkeypatch, case):
+    bridge = inspect.getmodule(persist_bayesian_fit_envelopes)
+    assert bridge is not None
+    store, r, e, binding = _copy_pair(
+        tmp_path,
+        real_fit,
+        lambda result, evidence: _mutate_supported_profile(result, evidence, case),
+    )
+    tree = ast.parse(inspect.getsource(bridge._admit_corpus))
+    function = tree.body[0]
+    calls = [
+        part
+        for part in function.body
+        if isinstance(part, ast.Expr)
+        and isinstance(part.value, ast.Call)
+        and isinstance(part.value.func, ast.Name)
+        and part.value.func.id == "_admit_supported_profile"
+    ]
+    assert len(calls) == 1
+    function.body.remove(calls[0])
+    namespace = dict(vars(bridge))
+    exec(  # noqa: S102 — compile the inspected local profile-admission removal only.
+        compile(ast.fix_missing_locations(tree), "supported-profile-admission-removed", "exec"),
+        namespace,
+    )
+    monkeypatch.setattr(bridge, "_admit_corpus", namespace["_admit_corpus"])
+    ctx, state = _node_fixture(store, r, e, binding)
+    outcome = node.PropagateUncertaintyNode().execute(ctx, state)
+    assert outcome.status == "ok"
+    print(
+        json.dumps(
+            {
+                "case": case,
+                "control": "remove_supported_profile_admission",
+                "defining_refusal_property": "FAIL",
+                "node_status": outcome.status,
             }
         )
     )

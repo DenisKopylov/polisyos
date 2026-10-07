@@ -27,12 +27,12 @@ from polisyos.foundry.uncertainty import (
 from polisyos.foundry.uncertainty.config import PropagationConfig
 from polisyos.foundry.uncertainty.dispatcher import PropagationDispatcher
 from polisyos.foundry.uncertainty.protocol import PropagationResult
-from polisyos.ir.analytics import admit_posterior_summary_profiles, posterior_nominal_mean
-from polisyos.ir.analytics import load_posterior_summary_envelope as load_uncertainty_envelope
-from polisyos.ir.analytics.uncertainty import (
+from polisyos.ir.analytics import (
     UncertaintyEnvelope,
-    persist_uncertainty_envelope,
+    admit_posterior_summary_profiles,
+    posterior_nominal_mean,
 )
+from polisyos.ir.analytics import load_posterior_summary_envelope as load_uncertainty_envelope
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_PROPAGATION_REPORT_REF,
     ARTIFACT_SIMULATION_RESULT_REF,
@@ -204,7 +204,15 @@ class PropagateUncertaintyNode:
         envelope_refs: dict[str, ArtifactRef] = {}
         artifacts: list[ArtifactRef] = []
         for item in results:
-            ref = persist_uncertainty_envelope(ctx.store, item.envelope)
+            ref = ctx.store.put_json(
+                item.envelope.model_dump(mode="python", round_trip=True),
+                PutOptions(
+                    kind="ir.uncertainty_envelope",
+                    media_type="application/json",
+                    schema=SchemaInfo(name="ir.uncertainty_envelope", version="1.1"),
+                ),
+                canon_spec=CanonSpec(forbid_floats=False),
+            )
             persisted_envelope = load_uncertainty_envelope(ctx.store, ref)
             verify_mean_certificate(persisted_envelope)
             if item.diagnostics.get("output_coverage_complete") is False:
@@ -241,22 +249,22 @@ class PropagateUncertaintyNode:
         )
         update_inputs = [
             InputRef(
-                artifact_id=str(sim_result_ref.artifact_id),
+                artifact_id=sim_result_ref.artifact_id,
                 role="base_simulation_result",
             ),
             InputRef(
-                artifact_id=str(report_ref.artifact_id),
+                artifact_id=report_ref.artifact_id,
                 role="propagation_report",
             ),
             InputRef(
-                artifact_id=str(config_ref.artifact_id),
+                artifact_id=config_ref.artifact_id,
                 role="propagation_config",
             ),
         ]
         for metric_id, ref in envelope_refs.items():
             update_inputs.append(
                 InputRef(
-                    artifact_id=str(ref.artifact_id),
+                    artifact_id=ref.artifact_id,
                     role=f"metric_envelope.{metric_id}",
                 )
             )

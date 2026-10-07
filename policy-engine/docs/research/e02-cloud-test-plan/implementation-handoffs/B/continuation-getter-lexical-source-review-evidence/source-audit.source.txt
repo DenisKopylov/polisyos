@@ -1,0 +1,107 @@
+"""Inspect immutable foreign getter source custody; execute no candidate code."""
+from pathlib import Path
+import ast
+import hashlib
+import json
+import os
+import subprocess
+import sys
+
+ROOT = Path('/workspace/e02-B-current-cas-generation')
+REFS = ['0903e31d1b9090560280c2e15aea0575da97ec20',
+        '5cd7d962f2bf87bc872e01365778858adf52ba9f',
+        '7c05686dbd8427fa2e8bf217827046acef097058']
+AUTHORED_BASE = 'e82ac5834ee481051f905edfe0bd68ba19dcc6ad'
+PATHS = ['policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py',
+         'policy-engine/src/polisyos/foundry/methods/artifacts/README.md',
+         'policy-engine/release-fragments/unreleased/2026-10-07-foundry-imported-module-identity.toml',
+         'policy-engine/tests/unit/foundry/methods/backends/test_module_source_identity.py']
+env = os.environ.copy()
+env['GIT_ALTERNATE_OBJECT_DIRECTORIES'] = '/tmp/e02-B-jit-data-getattr-20261007/git-objects:/tmp/e02-dur-getter-oracle-8aa69009572b/git-objects:/workspace/polisyos/.git/objects'
+def git(*args):
+    return subprocess.check_output(['git', *args], cwd=ROOT, env=env)
+def row(sha, path, data):
+    return {'source_sha': sha, 'source_tree': git('rev-parse', sha+'^{tree}').decode().strip(),
+            'path': path, 'git_blob': git('rev-parse', sha+':'+path).decode().strip(),
+            'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
+def functions(data):
+    return {n.name: ast.dump(n, include_attributes=False) for n in ast.parse(data).body
+            if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))}
+before = {'sha': git('rev-parse', 'HEAD').decode().strip(), 'status': git('status','--porcelain=v1').decode()}
+sources = {}
+inputs = []
+for sha in REFS:
+    for path in PATHS:
+        data = git('show', sha+':'+path)
+        sources[sha,path] = data
+        inputs.append(row(sha,path,data))
+guards = ['_instructions', '_function_captures', '_module_paths', '_module_capture',
+          '_external_member_boundary', '_unavailable', '_version', 'implementation_identity_projection']
+old = functions(sources[REFS[0],PATHS[0]])
+new = functions(sources[REFS[-1],PATHS[0]])
+equal = {n: old[n] == new[n] for n in guards}
+errors = []
+if not all(equal.values()):
+    errors.append('unexpected prior guard AST change')
+branch_paths = git('diff','--name-only',AUTHORED_BASE,REFS[-1]).decode().splitlines()
+full_paths = git('diff','--name-only',AUTHORED_BASE,REFS[-1],'--',*PATHS).decode().splitlines()
+if set(full_paths) != set(PATHS):
+    errors.append({'owned_source_projection_mismatch': sorted(set(full_paths)^set(PATHS))})
+non_source_paths = [p for p in branch_paths if p not in PATHS]
+if any(not p.startswith('policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/') for p in non_source_paths):
+    errors.append('unexpected nonresearch path in authored ancestry')
+delta_paths = git('diff','--name-only',REFS[1],REFS[2]).decode().splitlines()
+if set(delta_paths) != {PATHS[0],PATHS[1],PATHS[3]}:
+    errors.append({'final_delta_mismatch': delta_paths})
+source = sources[REFS[-1],PATHS[0]].decode()
+test = sources[REFS[-1],PATHS[3]].decode()
+docs = sources[REFS[-1],PATHS[1]].decode()
+release = sources[REFS[-1],PATHS[2]].decode()
+premises = [
+    'return {**captures.builtins, **captures.globals, **captures.nonlocals}',
+    'root_bindings = _root_function_captures(function)',
+    'symbol.is_parameter()', 'symbol.is_local()', 'symbol.is_assigned()',
+    'symbol.is_imported()', 'symbol.is_global() or symbol.is_free()',
+    'captures.get(identifier, missing) is not value',
+    'scope.get_type() == symtable.SymbolTableType.FUNCTION',
+    'if item is builtins.getattr or name in root_getters',
+]
+for p in premises:
+    if p not in source:
+        errors.append('missing source premise: '+p)
+for p in ['_ShadowedSelectorSource', '_ShadowedIteratorSource', '_closure_collision_source("other")',
+          '_getter_collision_source(getattr)', 'reader = abs',
+          'with pytest.raises(CheckpointIdentityError):', 'assert observed["actual_effects"] == []']:
+    if p not in test:
+        errors.append('missing real checkpoint negative input: '+p)
+for p in ['actual root bindings and recursive', 'B74 is therefore LIMITED.', 'runtime targets, descriptors']:
+    if p not in docs:
+        errors.append('missing source companion boundary: '+p)
+for p in ['B74 remains LIMITED', 'no target type or descriptor authority']:
+    if p not in release:
+        errors.append('missing release boundary: '+p)
+after = {'sha': git('rev-parse','HEAD').decode().strip(), 'status': git('status','--porcelain=v1').decode()}
+if before != after:
+    errors.append('read-only attached checkout changed')
+result = {
+    'schema':'policyos.e02.foreign_source_custody.v1',
+    'source_sha':REFS[-1], 'source_tree':git('rev-parse',REFS[-1]+'^{tree}').decode().strip(),
+    'reviewed_comparison_refs':REFS, 'authored_slice_base_sha':AUTHORED_BASE,
+    'source_inputs':inputs, 'full_owned_source_delta_paths':full_paths, 'whole_branch_changed_path_count':len(branch_paths), 'additional_research_evidence_path_count':len(non_source_paths), 'projection_qualification':'Four owned mechanism/test/companion paths only; intervening published evidence docs are counted separately, not asserted absent.',
+    'final_narrow_delta_paths':delta_paths, 'prior_guard_function_ast_equal':equal,
+    'root_getter_premises':premises,
+    'predicate_basis':'independently_reconciled',
+    'verdict':'NONBLOCKING within declared ordinary-function finite getter family',
+    'scope_limits':['No candidate imports, native, gate, cleanup, helper execution or source mutation.',
+                    'Actual root getter alias, selector and iterator must have admissible lexical global/free binding and agree by object identity with flattened captures.',
+                    'The unchanged whole recursive capture algorithm is not accepted as universal lexical/source closure.',
+                    'Runtime target types, descriptors, returned contexts and installed numerical mutable internals remain unproved; B74 frame counterexample remains LIMITED.',
+                    'Prior0903 review is historical finite scope, not acceptance of the later demonstrated scalar/iterator/nonlocal/builtin-alias inlet gaps.',
+                    'Whole root6fa native/gate failures remain separate; no P41 inherited exemption or finding closure.'],
+    'actual_checkout_before':before,'actual_checkout_after':after,
+    'metadata_interpreter':sys.executable, 'git_environment':{'GIT_ALTERNATE_OBJECT_DIRECTORIES':env['GIT_ALTERNATE_OBJECT_DIRECTORIES']},
+    'audit_errors':errors,
+}
+Path(sys.argv[1]).write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
+print(json.dumps({k:result[k] for k in ['source_sha','source_tree','final_narrow_delta_paths','prior_guard_function_ast_equal','verdict','audit_errors']},ensure_ascii=False,indent=2))
+raise SystemExit(bool(errors))

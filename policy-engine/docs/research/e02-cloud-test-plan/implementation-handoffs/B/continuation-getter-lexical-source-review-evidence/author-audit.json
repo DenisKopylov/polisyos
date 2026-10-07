@@ -1,0 +1,367 @@
+{
+  "schema": "policyos.e02.foreign_owner_output_custody.v1",
+  "source_sha": "7c05686dbd8427fa2e8bf217827046acef097058",
+  "source_tree": "1c705c31775935039c2823b0c70f9f1f090f1411",
+  "immutable_author_evidence": {
+    "git_sha": "db1e001c095e48370a34901555ec991b47c3e0ca",
+    "tree": "b80c92da03068875ed3a6a5913a5630e39b5d70c",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-jit-data-field-identity-evidence/root-binding-index.json",
+    "bytes": 18542,
+    "sha256": "4e6679bfbea306a58f8d29400927b9349a23d1a3239ca85fae41ee01c0bf8000"
+  },
+  "owner_payload_count": 94,
+  "owner_payload_bytes": 760092,
+  "actual_final_native": {
+    "namespace": "terminal-native",
+    "actual_source": {
+      "sha": "7c05686dbd8427fa2e8bf217827046acef097058",
+      "tree": "1c705c31775935039c2823b0c70f9f1f090f1411",
+      "status": ""
+    },
+    "counts": {
+      "PASS": 127,
+      "FAIL": 1
+    },
+    "cases": 128,
+    "origin_count": 168,
+    "stdout": {
+      "bytes": 22315,
+      "sha256": "fe1bb9c35649c5aaac34004d4d14b627f04fb8ae80efb597671b37e1d03f8279"
+    },
+    "exit_code": 1,
+    "cases_of_scope": [
+      {
+        "classname": "tests.unit.remediation.test_jit_01",
+        "name": "test_dynamic_defaults_bind_per_handle_without_rebuilding_kernel",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.remediation.test_jit_01",
+        "name": "test_native_jax_dynamic_defaults_rebind_without_recompile",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.remediation.test_jit_01",
+        "name": "test_single_flight_publishes_before_followers_are_notified",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.remediation.test_jit_01",
+        "name": "test_single_flight_is_shared_by_compiler_instances",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.remediation.test_jit_01",
+        "name": "test_single_flight_follower_honors_deadline_and_cancellation",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.remediation.test_jit_01",
+        "name": "test_single_flight_retries_when_invalidation_wins_result_delivery",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.remediation.test_jit_01",
+        "name": "test_single_flight_error_releases_all_followers",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.remediation.test_jit_01",
+        "name": "test_chain_shape_inference_uses_declared_shapes_without_pure_step",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.remediation.test_jit_01",
+        "name": "test_chain_shape_inference_refuses_unknown_data_dependent_shape",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.backends.test_module_source_identity",
+        "name": "test_recursive_global_capture_cannot_authorize_other_root_bindings[_ShadowedSelectorSource]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.backends.test_module_source_identity",
+        "name": "test_recursive_global_capture_cannot_authorize_other_root_bindings[_ShadowedIteratorSource]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.backends.test_module_source_identity",
+        "name": "test_recursive_global_capture_cannot_authorize_other_root_bindings[ClosureCollisionSource]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.backends.test_module_source_identity",
+        "name": "test_recursive_global_capture_cannot_authorize_other_root_bindings[GetterCollisionSource]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.backends.test_module_source_identity",
+        "name": "test_returned_frame_namespace_refuses_before_replacement_effect",
+        "outcome": "FAIL"
+      }
+    ]
+  },
+  "actual_final_removal": {
+    "namespace": "terminal-removal",
+    "actual_source": {
+      "sha": "7c05686dbd8427fa2e8bf217827046acef097058",
+      "tree": "1c705c31775935039c2823b0c70f9f1f090f1411",
+      "status": ""
+    },
+    "counts": {
+      "FAIL": 1
+    },
+    "cases": 1,
+    "origin_count": 166,
+    "stdout": {
+      "bytes": 5198,
+      "sha256": "47527108a2751d593d178a92b9032954f7fd761802c814b15f075d41aa25185f"
+    },
+    "exit_code": 1,
+    "cases_of_scope": [
+      {
+        "classname": "tests.unit.foundry.methods.backends.test_module_source_identity",
+        "name": "test_finite_aliased_data_getter_keeps_real_numeric_warm_handles[True]",
+        "outcome": "FAIL"
+      }
+    ]
+  },
+  "original_lexical_red": {
+    "namespace": "lexical-binding-red",
+    "actual_source": {
+      "sha": "8c8e7a360eb08c0f91e0c2ca824562a562251800",
+      "tree": "2e9299452311e0325db80dcd149cfafdc48f0c51",
+      "status": ""
+    },
+    "counts": {
+      "FAIL": 3
+    },
+    "cases": 3,
+    "origin_count": 166,
+    "stdout": {
+      "bytes": 7594,
+      "sha256": "08f1ccf4ae9f2653a2561a67e1d029662656721a0aecdf5e1b0d0ca189935575"
+    },
+    "exit_code": 1,
+    "cases_of_scope": [
+      {
+        "classname": "tests.unit.foundry.methods.backends.test_module_source_identity",
+        "name": "test_recursive_global_capture_cannot_authorize_other_root_bindings[_ShadowedSelectorSource]",
+        "outcome": "FAIL"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.backends.test_module_source_identity",
+        "name": "test_recursive_global_capture_cannot_authorize_other_root_bindings[_ShadowedIteratorSource]",
+        "outcome": "FAIL"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.backends.test_module_source_identity",
+        "name": "test_recursive_global_capture_cannot_authorize_other_root_bindings[ClosureCollisionSource]",
+        "outcome": "FAIL"
+      }
+    ]
+  },
+  "original_actual_getter_entry_red": {
+    "namespace": "getter-entry-red",
+    "actual_source": {
+      "sha": "515669fd11f0a96f866cb5c0dc5306c6aa39c962",
+      "tree": "c76c9177078fd3035764cc6432a968ffbf51ef1a",
+      "status": ""
+    },
+    "counts": {
+      "FAIL": 1
+    },
+    "cases": 1,
+    "origin_count": 166,
+    "stdout": {
+      "bytes": 3767,
+      "sha256": "5ab08b284ccb82991e6bd553a38b66ce9c5e00aa3f680d9c51ab028caf5bd436"
+    },
+    "exit_code": 1,
+    "cases_of_scope": [
+      {
+        "classname": "tests.unit.foundry.methods.backends.test_module_source_identity",
+        "name": "test_recursive_global_capture_cannot_authorize_other_root_bindings[GetterCollisionSource]",
+        "outcome": "FAIL"
+      }
+    ]
+  },
+  "red_actual_production_byte_projection": {
+    "8c8e7a360eb08c0f91e0c2ca824562a562251800": "0903e31d1b9090560280c2e15aea0575da97ec20",
+    "515669fd11f0a96f866cb5c0dc5306c6aa39c962": "5cd7d962f2bf87bc872e01365778858adf52ba9f"
+  },
+  "retained_measurements": {
+    "lexical-binding-red": [
+      {
+        "path": "lexical-binding-red/fixtures/test_recursive_global_capture_0/measurement.json",
+        "measurement": {
+          "refusal": null,
+          "error": "TypeError",
+          "message": "attribute name must be string, not 'dict'",
+          "actual_effects": [
+            "body"
+          ]
+        }
+      },
+      {
+        "path": "lexical-binding-red/fixtures/test_recursive_global_capture_1/measurement.json",
+        "measurement": {
+          "refusal": null,
+          "actual_effects": [
+            "body"
+          ]
+        }
+      },
+      {
+        "path": "lexical-binding-red/fixtures/test_recursive_global_capture_2/measurement.json",
+        "measurement": {
+          "refusal": null,
+          "actual_effects": [
+            "body"
+          ]
+        }
+      }
+    ],
+    "getter-entry-red": [
+      {
+        "path": "getter-entry-red/fixtures/test_recursive_global_capture_0/measurement.json",
+        "measurement": {
+          "refusal": null,
+          "error": "TypeError",
+          "message": "attribute name must be string, not 'dict'",
+          "actual_effects": [
+            "body"
+          ]
+        }
+      }
+    ],
+    "terminal-native": [
+      {
+        "path": "terminal-native/fixtures/test_recursive_global_capture_0/measurement.json",
+        "measurement": {
+          "refusal": "CheckpointIdentityError",
+          "error": "CheckpointIdentityError",
+          "message": "Strict checkpoint source identity is unavailable for builtin_function_or_method",
+          "actual_effects": []
+        }
+      },
+      {
+        "path": "terminal-native/fixtures/test_recursive_global_capture_1/measurement.json",
+        "measurement": {
+          "refusal": "CheckpointIdentityError",
+          "error": "CheckpointIdentityError",
+          "message": "Strict checkpoint source identity is unavailable for builtin_function_or_method",
+          "actual_effects": []
+        }
+      },
+      {
+        "path": "terminal-native/fixtures/test_recursive_global_capture_2/measurement.json",
+        "measurement": {
+          "refusal": "CheckpointIdentityError",
+          "error": "CheckpointIdentityError",
+          "message": "Strict checkpoint source identity is unavailable for builtin_function_or_method",
+          "actual_effects": []
+        }
+      },
+      {
+        "path": "terminal-native/fixtures/test_recursive_global_capture_3/measurement.json",
+        "measurement": {
+          "refusal": "CheckpointIdentityError",
+          "error": "CheckpointIdentityError",
+          "message": "Strict checkpoint source identity is unavailable for builtin_function_or_method",
+          "actual_effects": []
+        }
+      },
+      {
+        "path": "terminal-native/fixtures/test_returned_frame_namespace_0/measurement.json",
+        "measurement": {
+          "original": 7,
+          "unchanged_resume": 7,
+          "before_effects": [
+            "original",
+            "original"
+          ],
+          "refusal": null,
+          "changed_resume": 107,
+          "history_complete": true,
+          "pointer_unchanged": true,
+          "actual_effects": [
+            "original",
+            "original",
+            "replacement"
+          ]
+        }
+      }
+    ]
+  },
+  "actual_final_style_type": {
+    "ruff": {
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+        "tests/unit/foundry/methods/backends/test_module_source_identity.py"
+      ],
+      "cwd": "/workspace/e02-B-current-composition/policy-engine",
+      "actual_exit_code": 0,
+      "output": {
+        "bytes": 19,
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      }
+    },
+    "format": {
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--no-cache",
+        "--check",
+        "src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+        "tests/unit/foundry/methods/backends/test_module_source_identity.py"
+      ],
+      "cwd": "/workspace/e02-B-current-composition/policy-engine",
+      "actual_exit_code": 0,
+      "output": {
+        "bytes": 26,
+        "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+      }
+    },
+    "mypy": {
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "mypy",
+        "--follow-imports=normal",
+        "--cache-dir",
+        "/tmp/e02-B-jit-data-getattr-20261007/mypy-warm-cache",
+        "src/polisyos/foundry/methods/artifacts/_implementation_identity.py"
+      ],
+      "cwd": "/workspace/e02-B-current-composition/policy-engine",
+      "actual_exit_code": 0,
+      "output": {
+        "bytes": 42,
+        "sha256": "5d4b6d285b77932e3d08212c3b4974d0a803f98ec60408ac6ccf6a063fa6c19e"
+      }
+    }
+  },
+  "reviewer_runtime": "UNRUN",
+  "predicate_basis": "independently_reconciled",
+  "per_premise_basis": {
+    "Git_payload_hashes_lossless_XML_source_origins_fields": "independently_reconciled",
+    "native_physical_effect_and_before_body_refusal": "consumer_asserted by exact actual author fixtures"
+  },
+  "qualifications": [
+    "No owner native stdout copied; exact94 deciding payloads remain at immutable peer Git refs.",
+    "Removal disables the permitted getter admission, causing a genuine supported compiler consumer to refuse. It is a positive-admission discriminator, not a claim that a removed rejection guard allowed a second physical call.",
+    "The four old lexical body effects and four final typed-refusal/empty-effect controls decide the lexical rejection inlet class.",
+    "Single actual frame107/history-complete/pointer-unchanged failure is preserved; B74 LIMITED and closure_ids[].",
+    "168 owner final local origins and166 removal origins differ from independent DUR152; no denominators transplanted.",
+    "Whole6fa source/native/gate failures and P41 not_established remain separate; no wholeB acceptance."
+  ],
+  "audit_errors": []
+}

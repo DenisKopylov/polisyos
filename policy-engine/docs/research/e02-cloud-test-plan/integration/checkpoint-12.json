@@ -1,0 +1,73 @@
+{
+  "schema": "policyos.e02.integration_decisions.v1",
+  "date": "2026-10-06",
+  "publisher": "G",
+  "branch": "codex/e02-integration",
+  "integration_sha": "127dc7ab8365d29eb656fe32c0c894f6cc971286",
+  "integration_tree": "759daf4ccbd6e72230de8bda36e1522ffa8fe3e4",
+  "previous_checkpoint": "checkpoint-11.json",
+  "accepted_slices": [],
+  "finding_closures": [],
+  "record_scope": "29-tip intake, later E r2 and A attached full-delivery reviews/continuation; no source merge",
+  "fresh_checks": {
+    "A11": {
+      "PASS": 11,
+      "candidate": "905820ceac5860c7d1c4ebcbdde7b1265afb0b15"
+    },
+    "B16": {
+      "PASS": 16,
+      "candidate": "5ece606ee1c1016c1133a1e81bbf852574a64a48"
+    },
+    "E77": {
+      "PASS": 77,
+      "candidate": "70c4a14fc872f5ef66437d958ba63884ecdda168"
+    },
+    "C_schema_dirty": "FAIL_REPRODUCED 2 negatives, clean/rename positives; C fix pending",
+    "E_Morris_supplied_analysis": "FAIL_REPRODUCED bounded actual-input count mismatch; planned-generation PASS preserved"
+  },
+  "review_queue": "reviews/2026-10-06-seventh-wave.md",
+  "E_r2": {
+    "head": "e9cb425e4dfe888720f93eb84f1667f24a8a92c4",
+    "numerical_source": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+    "PASS": 1441,
+    "FAIL": 4,
+    "ERROR": 0,
+    "SKIP": 0,
+    "global_gates": "7FAIL",
+    "workspace_successors": "13UNRUN",
+    "CI_successors": "23UNRUN",
+    "ledger": "49partial4heldB198closed owner-issued historical statuses; noGclosure"
+  },
+  "broad_replay": "UNRUN until shared source freeze",
+  "unavailable_inputs": [
+    "Criterion-specific factual history/source law/fit/evaluator/feed/signoff inputs",
+    "IR semantic owner appointment and tracked four-decision ratification",
+    "Full historical raw VM custody and external/dynamic client retirement denominator"
+  ],
+  "skipped_backends": [
+    "No new G Torch/BoTorch/GPyTorch, DoWhy/EconML, Ray/Temporal, PostgreSQL or liveKuzu run claimed"
+  ],
+  "main_publication": "Separate future user authorization required",
+  "remote_readback": "Ordinary integration push and full head/tree/file readback follow this record commit",
+  "planning_validation": {
+    "bundles": 127,
+    "findings": 282,
+    "source_block_occurrences": 291,
+    "count_preserving_controls_rejected": 4,
+    "outcome": "PASS bookkeeping only; no semantic proof"
+  },
+  "A_delivery": {
+    "head": "579788751baefe065fd5b94c446ab665eb65861a",
+    "runtime_source": "ffd6ccda2ee00189d38d0d601b1cb9cc5c6f30da",
+    "frozen_consumer": "6f1e5e7aa62b1f050030aafb0a321bf1628bbb6f",
+    "source_reported_independently_reconciled": {
+      "PASS": 217,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0,
+      "original_SIM_CYC_identities": 106
+    },
+    "gates": "Ruff receipt scripts and format FAIL; trust projection HOLD; full actual-base/final architecture UNRUN",
+    "local_outcomes": "2boundedclosed27limited4open1held; noGclosure"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/core/artifacts/test_verification_snapshot_report.py",
+    "tests/unit/core/artifacts/test_cas_integrity_report.py",
+    "tests/unit/remediation/test_cas_03.py",
+    "tests/unit/remediation/test_cas_02.py",
+    "tests/unit/core/artifacts/test_import_admission_noop.py",
+    "tests/unit/core/artifacts/test_put_integrity_retry.py",
+    "tests/unit/core/artifacts/test_put_consumer_oracle.py",
+    "--basetemp",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/currentf0-cas-snapshot-pytest",
+    "-o",
+    "cache_dir=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/currentf0-cas-snapshot-cache",
+    "--junitxml=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/currentf0-cas-snapshot.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+  "head": "f0c0492b4fd8ac6cddcbbe228598a11cd8810664",
+  "tree": "0dc6511f2f2c33f82529e349d11f9891035b5888",
+  "head_after": "f0c0492b4fd8ac6cddcbbe228598a11cd8810664",
+  "wall_s": 36.07849116199941,
+  "process_rusage_maxrss_kib": 786900,
+  "exit_code": 0,
+  "output_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/currentf0-cas-snapshot.txt",
+  "output_sha256": "e35c4fb0464f9c25fb1600faa381b8d99b1dfac2853362d44748385704772fe8",
+  "source_environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "LANG": "C.UTF-8",
+    "POLISYOS_METRICS_PORT": "0",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+    "E02_B_PROPERTY_REMOVAL": null
+  }
+}

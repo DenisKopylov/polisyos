@@ -1,0 +1,27 @@
+{
+  "target_sha": "73a055e033dad61590d3ef03b9ff44aaef2c0990",
+  "failing_case_count": 20,
+  "selectors": [
+    "tests.unit.runtime.http.test_control_plane_store::test_completed_proof_publication_preserves_progress_and_journals_exact_attempt[False]",
+    "tests.unit.runtime.http.test_control_plane_store::test_completed_proof_publication_preserves_progress_and_journals_exact_attempt[True]",
+    "tests.unit.runtime.http.test_control_plane_store::test_completed_proof_publication_refuses_foreign_or_replaced_attempt[completion_owner-False]",
+    "tests.unit.runtime.http.test_control_plane_store::test_completed_proof_publication_refuses_foreign_or_replaced_attempt[completion_owner-True]",
+    "tests.unit.runtime.http.test_control_plane_store::test_completed_proof_publication_refuses_foreign_or_replaced_attempt[attempt-False]",
+    "tests.unit.runtime.http.test_control_plane_store::test_completed_proof_publication_refuses_foreign_or_replaced_attempt[attempt-True]",
+    "tests.unit.runtime.http.test_control_plane_store::test_completed_proof_publication_refuses_foreign_or_replaced_attempt[restarted-False]",
+    "tests.unit.runtime.http.test_control_plane_store::test_completed_proof_publication_refuses_foreign_or_replaced_attempt[restarted-True]",
+    "tests.unit.runtime.http.test_control_plane_store::test_completed_proof_publication_refuses_foreign_or_replaced_attempt[lease_owner-False]",
+    "tests.unit.runtime.http.test_control_plane_store::test_completed_proof_publication_refuses_foreign_or_replaced_attempt[lease_owner-True]",
+    "tests.unit.runtime.http.test_control_plane_store::test_completed_proof_publication_refuses_foreign_or_replaced_attempt[lease_expiry-False]",
+    "tests.unit.runtime.http.test_control_plane_store::test_completed_proof_publication_refuses_foreign_or_replaced_attempt[lease_expiry-True]",
+    "tests.unit.runtime.http.test_control_plane_store::test_completed_proof_publication_refuses_foreign_or_replaced_attempt[proof_basis-False]",
+    "tests.unit.runtime.http.test_control_plane_store::test_completed_proof_publication_refuses_foreign_or_replaced_attempt[proof_basis-True]",
+    "tests.unit.runtime.http.test_control_plane_store::test_completed_proof_publication_refuses_foreign_or_replaced_attempt[proof_basis_primitive_type-False]",
+    "tests.unit.runtime.http.test_control_plane_store::test_completed_proof_publication_refuses_foreign_or_replaced_attempt[proof_basis_primitive_type-True]",
+    "tests.unit.runtime.http.test_control_plane_store::test_completed_proof_publication_refuses_foreign_or_replaced_attempt[proof_basis_key_presence-False]",
+    "tests.unit.runtime.http.test_control_plane_store::test_completed_proof_publication_refuses_foreign_or_replaced_attempt[proof_basis_key_presence-True]",
+    "tests.unit.runtime.http.test_control_plane_store::test_completed_proof_publication_refuses_foreign_or_replaced_attempt[history-False]",
+    "tests.unit.runtime.http.test_control_plane_store::test_completed_proof_publication_refuses_foreign_or_replaced_attempt[history-True]"
+  ],
+  "cause": "Fixture injected sibling/admin mutation through same completed bound handler instance. Production refusal occurs before proof consumer; separate actual unbound store provides external fixture mutation without weakening original assertions."
+}

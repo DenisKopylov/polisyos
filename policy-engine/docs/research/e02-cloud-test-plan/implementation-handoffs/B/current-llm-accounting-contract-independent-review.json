@@ -1,0 +1,518 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-llm-accounting-contract-independent-review",
+  "closure_ids": [],
+  "bundle_ids": [
+    "LLM-01"
+  ],
+  "slice_base_sha": "a9c2367a4bc046c4a8c01b945da0acd6f02f30cf",
+  "implementation_commits": [
+    "84663e50d1311bc118afece7c3e8aa67688c4c96"
+  ],
+  "candidate_sha": "84663e50d1311bc118afece7c3e8aa67688c4c96",
+  "candidate_tree_sha": "38237c2f357884aa4de53ef47d5a8e7da9ae9ad0",
+  "branch": "codex/e02-B-current-execution-state",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/54",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-accounting-contract-independent-evidence/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-accounting-contract-independent-evidence/b66-native.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-accounting-contract-independent-evidence/b66-native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-accounting-contract-independent-evidence/b66-native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-accounting-contract-independent-evidence/evidence-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-accounting-contract-independent-evidence/forward-qualification.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-accounting-contract-independent-evidence/review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-accounting-contract-independent-evidence/review.source.txt"
+  ],
+  "source_changed_paths": [],
+  "baseline_cells": [
+    {
+      "id": "F01-P026",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "state": "PASS",
+      "collected": "24",
+      "calls": "24",
+      "call_pass": "24",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "1.81",
+      "rss_kib": "98192",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F01.txt",
+      "source_line": "143",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F03-P066",
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+      "state": "PASS",
+      "collected": "13",
+      "calls": "13",
+      "call_pass": "13",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "1.08",
+      "rss_kib": "89096.0",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F03.txt",
+      "source_line": "196",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F03-P091",
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+      "state": "PASS",
+      "collected": "8",
+      "calls": "8",
+      "call_pass": "8",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "1.35",
+      "rss_kib": "96640.0",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F03.txt",
+      "source_line": "221",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F05-P047",
+      "job": "F05",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "state": "PASS",
+      "collected": "16",
+      "calls": "16",
+      "call_pass": "16",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "1.6",
+      "rss_kib": "110596",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F05.txt",
+      "source_line": "457",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F07-P027",
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "state": "PASS",
+      "collected": "24",
+      "calls": "24",
+      "call_pass": "24",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "1.668851613998413",
+      "rss_kib": "110980.0",
+      "receipt_status": "valid",
+      "source_file": "received/F07.txt",
+      "source_line": "33",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F07-P084",
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+      "state": "PASS",
+      "collected": "8",
+      "calls": "8",
+      "call_pass": "8",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "1.569864273071289",
+      "rss_kib": "111512.0",
+      "receipt_status": "valid",
+      "source_file": "received/F07.txt",
+      "source_line": "90",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F10-P031",
+      "job": "F10",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "state": "PASS",
+      "collected": "16",
+      "calls": "16",
+      "call_pass": "16",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "3.69",
+      "rss_kib": "120512",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F10.txt",
+      "source_line": "151",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F13-P104",
+      "job": "F13",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+      "state": "PASS",
+      "collected": "8",
+      "calls": "8",
+      "call_pass": "8",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "1.3",
+      "rss_kib": "118468",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F13.txt",
+      "source_line": "231",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F15-P032",
+      "job": "F15",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "state": "PASS",
+      "collected": "24",
+      "calls": "24",
+      "call_pass": "24",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "1.53",
+      "rss_kib": "112148",
+      "receipt_status": "valid",
+      "source_file": "received/F15.txt",
+      "source_line": "187",
+      "extra_json": "{\"reason\":\"null\"}"
+    }
+  ],
+  "baseline_qualification": "Historical exact cells/source SHA/job/received locators are source-reported navigation only. They are not DD or future repair runtime evidence. Full query raw remains ignored and canonical cells/routes/received pinned source are reconstructible.",
+  "checks": [
+    {
+      "finding_id": "B65",
+      "executed_by": "RUN independent oracle owner",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-c",
+        "\nfrom pathlib import Path\nimport hashlib, importlib, importlib.metadata, json, subprocess, sys\nROOT=Path(sys.argv[1]); OUT=Path(sys.argv[2]); TEST=Path(sys.argv[3]); SOURCE=sys.argv[4]\nmodules=['polisyos.core.llm.response','polisyos.core.llm.traced_client','polisyos.core.llm.settlement','polisyos.core.security.audit_log_adapter','polisyos.core.security.audit_protocol','polisyos.core.security.audit_sink','polisyos.core.security.audit_models','polisyos.core.security.audit_verifier','polisyos.scientist.orchestration.engine.budget','polisyos.scientist.orchestration.engine.budget_ledger','polisyos.scientist.orchestration.engine.budget_middleware','polisyos.scientist.orchestration.llm.budget_enforcer','polisyos.scientist.orchestration.llm.gateway_client']\ndef ref(path):\n raw=path.read_bytes(); rel=path.relative_to(ROOT).as_posix(); expected=subprocess.check_output(['git','show',f'{SOURCE}:{rel}'],cwd=ROOT)\n assert raw==expected, rel\n return {'path':rel,'actual_origin':str(path),'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest(),'git_blob':subprocess.check_output(['git','rev-parse',f'{SOURCE}:{rel}'],cwd=ROOT,text=True).strip(),'source_sha':SOURCE}\norigins=[]\nfor name in modules:\n m=importlib.import_module(name); row=ref(Path(m.__file__).resolve());row['module']=name;origins.append(row)\nprint('B65_EXACT_SOURCE_ORIGINS '+json.dumps(origins), flush=True)\nimport pytest\nargs=[str(TEST),'-c',str(ROOT/'policy-engine/pyproject.toml'),'--noconftest','-p','no:cacheprovider','-s','-ra',f'--basetemp={OUT}/pytest-tmp',f'--junitxml={OUT}/native.xml']\nprint('B65_NATIVE_ARGUMENTS '+json.dumps(args),flush=True)\nresult=pytest.main(args)\nall_origins=[]\nfor name,m in sorted(sys.modules.items()):\n if name=='polisyos' or name.startswith('polisyos.'):\n  f=getattr(m,'__file__',None)\n  if f:\n   path=Path(f).resolve()\n   if path.is_relative_to(ROOT/'policy-engine/src'):\n    row=ref(path);row['module']=name;all_origins.append(row)\n   else:raise AssertionError(f'foreign source module {name}: {f}')\nversions={n:importlib.metadata.version(n) for n in ['pytest','pydantic','aiohttp','ruff','numpy']}\n(OUT/'source-context.json').write_text(json.dumps({'source_sha':SOURCE,'explicit_source_origins':origins,'complete_loaded_polisyos_module_denominator':len(all_origins),'all_loaded_polisyos_origins':all_origins,'python_executable':sys.executable,'python_version':sys.version,'observed_versions':versions,'pytest_args':args,'pytest_result':int(result)},indent=2)+'\\n')\nraise SystemExit(int(result))\n",
+        "/workspace/e02-B-current-coordination",
+        "/tmp/e02-B65-protected-audit-qualified",
+        "/workspace/e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py",
+        "dd9584728bd96f204983615216efdbc58117e713"
+      ],
+      "target_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine"
+      },
+      "input_closure": {
+        "oracle_test_sha": "9c76d54cf10255ab5b926dfd961dcb3e07711ff4",
+        "oracle_test_path": "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py",
+        "full_source_origin_and_input_bindings": {
+          "report": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-accounting-contract-independent-evidence/review.json",
+            "commit": "84663e50d1311bc118afece7c3e8aa67688c4c96",
+            "bytes": 70153,
+            "sha256": "94ecb4f48cd198f0e307f2823ac549876f477bef9501eeca139c544d11286b07"
+          },
+          "field": "actual_native_inputs.B65"
+        },
+        "canonical_source_refs": {
+          "report": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-accounting-contract-independent-evidence/review.json",
+            "commit": "84663e50d1311bc118afece7c3e8aa67688c4c96",
+            "bytes": 70153,
+            "sha256": "94ecb4f48cd198f0e307f2823ac549876f477bef9501eeca139c544d11286b07"
+          },
+          "field": "source_refs"
+        },
+        "initial_bad_premise": "c181 tokenizer admission beforeprovider/audit was not established"
+      },
+      "outcome": "FAIL",
+      "actual_exit_code": 1,
+      "actual_cases": 4,
+      "case_outcomes": {
+        "PASS": 2,
+        "FAIL": 2
+      },
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/qualified/native.txt",
+          "commit": "6432daa0c17d9085b87b2117f5f24cd5251ea4fc",
+          "bytes": 78759,
+          "sha256": "2b32c24941f6e798970d2aee67b9d7bc7c012d4ccb5622738edd1710c5143e86",
+          "original_read_path": "/tmp/e02-B65-protected-audit-qualified/native.txt",
+          "byte_equal": true
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/qualified/native.xml",
+          "commit": "6432daa0c17d9085b87b2117f5f24cd5251ea4fc",
+          "bytes": 11955,
+          "sha256": "81ff734fdb7d12d3eca87e2bcc8e5fc4fa3101ab0bd7030db0f6c30a4cd38dad",
+          "original_read_path": "/tmp/e02-B65-protected-audit-qualified/native.xml",
+          "byte_equal": true
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/qualified/wrapper.json",
+          "commit": "6432daa0c17d9085b87b2117f5f24cd5251ea4fc",
+          "bytes": 4721,
+          "sha256": "180a22f615d53adf66a398b72a1274880548d10e56bd6f54d17f8ce08a393a5f",
+          "original_read_path": "/tmp/e02-B65-protected-audit-qualified/wrapper.json",
+          "byte_equal": true
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/qualified/source-context.json",
+          "commit": "6432daa0c17d9085b87b2117f5f24cd5251ea4fc",
+          "bytes": 52196,
+          "sha256": "343fd56d1465d00c6aca20ae3b33bcb495ad7c316e1c4ee7e18eb7e580c8bf1b",
+          "original_read_path": "/tmp/e02-B65-protected-audit-qualified/source-context.json",
+          "byte_equal": true
+        }
+      ],
+      "reviewer_runtime": "UNRUN; no native/gate/collection/provider replay by EXE reviewer"
+    },
+    {
+      "finding_id": "B66",
+      "executed_by": "ADAPTER oracle owner; EXE reviewer only inspected full original output/source",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "/workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+        "--noconftest",
+        "-c",
+        "/dev/null",
+        "--import-mode=importlib",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "-s",
+        "--tb=short",
+        "--basetemp",
+        "/tmp/e02-b66-unknown-dd-7jdlujt1/fixtures",
+        "--junitxml",
+        "/tmp/e02-b66-unknown-dd-7jdlujt1/native.xml"
+      ],
+      "target_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "E02_B66_TARGET_ROOT": "/workspace/e02-B-current-coordination",
+        "E02_B66_TARGET_SHA": "dd9584728bd96f204983615216efdbc58117e713",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+      },
+      "input_closure": {
+        "oracle_test_sha": "882b543ed7e9127abd777753811ff7a3a9c0857c",
+        "oracle_test_path": "policy-engine/tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+        "full_source_origin_and_input_bindings": {
+          "report": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-accounting-contract-independent-evidence/review.json",
+            "commit": "84663e50d1311bc118afece7c3e8aa67688c4c96",
+            "bytes": 70153,
+            "sha256": "94ecb4f48cd198f0e307f2823ac549876f477bef9501eeca139c544d11286b07"
+          },
+          "field": "actual_native_inputs.B66"
+        },
+        "canonical_source_refs": {
+          "report": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-accounting-contract-independent-evidence/review.json",
+            "commit": "84663e50d1311bc118afece7c3e8aa67688c4c96",
+            "bytes": 70153,
+            "sha256": "94ecb4f48cd198f0e307f2823ac549876f477bef9501eeca139c544d11286b07"
+          },
+          "field": "source_refs"
+        },
+        "initial_bad_premise": null
+      },
+      "outcome": "FAIL",
+      "actual_exit_code": 1,
+      "actual_cases": 16,
+      "case_outcomes": {
+        "FAIL": 8,
+        "PASS": 8
+      },
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-accounting-contract-independent-evidence/b66-native.txt",
+          "commit": "84663e50d1311bc118afece7c3e8aa67688c4c96",
+          "bytes": 99500,
+          "sha256": "21fad5970ce6ec686940cd991b3af355ac3dba93464d33ee83cd759af2fe06cf"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-accounting-contract-independent-evidence/b66-native.xml",
+          "commit": "84663e50d1311bc118afece7c3e8aa67688c4c96",
+          "bytes": 12769,
+          "sha256": "efc7904e572dde884ecee7d6c3b49711d9c1efaa8a936710127e79fc24a41ae6"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-accounting-contract-independent-evidence/b66-native.json",
+          "commit": "84663e50d1311bc118afece7c3e8aa67688c4c96",
+          "bytes": 4927,
+          "sha256": "4fa1a14b859d9baad597b283b007c1ec0053e98cee7ac4d84fbaff6ba2e586c8"
+        }
+      ],
+      "reviewer_runtime": "UNRUN; no native/gate/collection/provider replay by EXE reviewer"
+    }
+  ],
+  "property": {
+    "statement": "Keep actual cost knowledge, durable monetary acknowledgment and required protected audit as independently bound completion phases; uncertainty cannot become zero or a permission for further physical provider work.",
+    "runtime_path": [
+      "actual supported factory/provider/cache/tracer response normalization",
+      "producer-owned completion callback",
+      "LLMBudgetEnforcer real budget middleware/FileBudgetLedger spend receipts",
+      "mandatory real ChainedAuditLog/local filesystem append",
+      "fresh ledger/audit-chain consumer and next actual provider admission"
+    ],
+    "proxy_divergence": "Default numeric usage0/rawNone is not observed zero-cost provider work; an exact FileBudgetLedger ACK0 can still be for a fabricated estimate. A valid known .02 monetary receipt does not prove mandatory protected audit appended; current DD admits a secondprovider/.04 despite definite local COMMITTED append refusal.",
+    "negative_controls": [
+      "Actual DD B66 six successful unknown-profile cases and two None-response cases, caller cancellation independently varied; all eight violate unknown-zero admission.",
+      "Actual DD B66 eight known reported/priced/free controls PASS; legitimate reported0 is preserved.",
+      "Actual DD B65 sync/async healthy2PASS and definite local IsDirectory protectedCOMMITTED2FAIL; original tokenizer-unreachable4FAIL excluded only as explicitly not-established property input.",
+      "Future repaired ledger/adapter source, recovery and admission oracles: UNRUN/not_established from this review."
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "per_premise_basis": {
+    "canonical_DD_source_and_criterion_read": "recomputed",
+    "existing_actual_native_stdout_XML_and_custody_bindings": "independently_reconciled",
+    "full_deployed_constructor_wiring": "not_established",
+    "external_vendor_invoice_or_billing_authority": "not_established",
+    "future_widened_source_and_behavior": "not_established",
+    "inherited_P41_attribution": "not_established"
+  },
+  "capability_state_or_finding_state": "Actual scoped DD B65/B66 mechanism gaps independently reconciled; proposed widened owner contract awaits frozen source and genuine controls. No closure or repaired implementation acceptance.",
+  "finding_dispositions": [
+    {
+      "finding_id": "B65",
+      "state": "open",
+      "criterion_binding": "B_r19_original.md lines1669-1688 mandatory persistence/reconciliation and next-action restriction",
+      "measured_property": "True known .02 monetary ACK retained but mandatory protected local COMMITTED append definitely refused; second physical provider/.04 admitted before recovery.",
+      "evidence": {
+        "report": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-accounting-contract-independent-evidence/review.json",
+          "commit": "84663e50d1311bc118afece7c3e8aa67688c4c96",
+          "bytes": 70153,
+          "sha256": "94ecb4f48cd198f0e307f2823ac549876f477bef9501eeca139c544d11286b07"
+        },
+        "field": "B65_actual_observations",
+        "native_check": "B65",
+        "published_oracle_packet_sha": "6432daa0c17d9085b87b2117f5f24cd5251ea4fc"
+      },
+      "residual": "DUR/ADAPTER frozen phase-intent/admission/audit-resolver class repair and independent actual proof pending. Known monetary truth must not be invalidated by missing audit."
+    },
+    {
+      "finding_id": "B66",
+      "state": "open",
+      "criterion_binding": "B_r19_original.md lines1689-1708 missing raw does not prove zero network cost",
+      "measured_property": "Real completed unknown-usage provider response creates a numeric estimated0 receipt and cache publication, instead of preserving unknown cost and pending budget obligation.",
+      "evidence": {
+        "report": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-accounting-contract-independent-evidence/review.json",
+          "commit": "84663e50d1311bc118afece7c3e8aa67688c4c96",
+          "bytes": 70153,
+          "sha256": "94ecb4f48cd198f0e307f2823ac549876f477bef9501eeca139c544d11286b07"
+        },
+        "field": "B66_actual_observations",
+        "native_check": "B66"
+      },
+      "residual": "Typed usage/cost knowledge + pre-provider durable identity/all-key reserve + blocked unknown completion across cancellation/reopen/shared-owner pending; no invented cost evidence."
+    }
+  ],
+  "limitations_and_next_owner": [
+    {
+      "boundary": "Frozen repair source",
+      "next_owner": "ADAPTER sole LLM writer and DUR sole ledger/middleware writer",
+      "action": "One widened custody quantity; exact source verdict waits immutable full delta/dependency. Uncommitted WIP feedback is not acceptance."
+    },
+    {
+      "boundary": "Durable unknown and shared live-owner admission",
+      "next_owner": "DUR/ADAPTER",
+      "action": "Pre-provider atomic intent/reserve; preserve original completion identity and shared uncertainty before error return, including same epoch bound view and fork/reopen custody. Lost phase write cannot restore admission from old provider_in_flight record."
+    },
+    {
+      "boundary": "Required audit reconciliation",
+      "next_owner": "configured trusted protected-audit owner + RUN independent oracle",
+      "action": "Bind exact event/run/action/payload/receipt/log-owner. Definite noappend can replay the retained same act in measured profile; ambiguous fsync cannot justify blind append. No duplicate billing or provider reissue."
+    },
+    {
+      "boundary": "Deployment/financial institution",
+      "next_owner": "B root/G",
+      "action": "This finite synthetic provider/real ledger/local audit composition does not establish actual vendor invoice amounts, external financial authority, remote replicas or deployed mandatory constructor wiring."
+    },
+    {
+      "boundary": "New candidate proof",
+      "next_owner": "B root/G",
+      "action": "DD observations cannot be labeled PASS for future repairs; preserve original FAIL inputs/outputs and no P41 waiver."
+    }
+  ],
+  "evidence_index": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-accounting-contract-independent-evidence/evidence-index.json",
+    "commit": "84663e50d1311bc118afece7c3e8aa67688c4c96",
+    "bytes": 4027,
+    "sha256": "818e6f59b73045a34ed87762c642c9db129743f9c3a283ed4c79079b342fc0ed"
+  },
+  "forward_design_qualification": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-accounting-contract-independent-evidence/forward-qualification.json",
+    "commit": "84663e50d1311bc118afece7c3e8aa67688c4c96",
+    "bytes": 5597,
+    "sha256": "d8f034206e0e64ace82b90a7751b6213038fcd417245a6d8f74d2703e455f6c8"
+  },
+  "source_production_delta": "ZERO_DIFF",
+  "reviewer_native_or_gate_execution": "UNRUN",
+  "publication_qualification": "Canonical packet will be normal-pushed to own existing topic and exact read back; no remote future-SHA claim in this handoff."
+}

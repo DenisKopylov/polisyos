@@ -1,0 +1,15 @@
+usage: run_completed_quality.py [-h] --sha SHA
+                                --gate {ruff,format,mypy,architecture,runtime-api,production-invocation,verify-uncapped,parity-uncapped}
+                                --scratch SCRATCH
+
+Capture one complete quality gate on the clean, explicitly frozen B root. The
+internal E02 root caller supplies --sha and --gate after final freeze. This
+instrument does not derive native selectors or turn process exit into finding
+closure. All changed Python and stub inputs use the published main
+denominator.
+
+options:
+  -h, --help            show this help message and exit
+  --sha SHA
+  --gate {ruff,format,mypy,architecture,runtime-api,production-invocation,verify-uncapped,parity-uncapped}
+  --scratch SCRATCH

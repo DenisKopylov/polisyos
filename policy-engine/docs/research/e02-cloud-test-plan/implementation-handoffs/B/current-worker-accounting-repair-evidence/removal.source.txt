@@ -1,0 +1,62 @@
+import ast
+import hashlib
+import json
+import os
+from pathlib import Path
+
+from polisyos.scientist.policy_design import _llm_accounting, adversary, translator
+
+mode = os.environ['E02_WORKER_REMOVAL']
+mutations = []
+if mode == 'durable_admission':
+    replacement = '''def worker_budget_state(*, budget_state, budget_middleware):
+    return budget_state if budget_state is not None else (
+        budget_middleware.budget_state if budget_middleware is not None else None
+    )
+'''
+    namespace = {}
+    exec(compile(replacement, '<declared-remove-durable-admission>', 'exec'), namespace)
+    for module in (adversary, translator):
+        module.worker_budget_state = namespace['worker_budget_state']
+    mutations.append({'removed_property': 'raw/initialized-owner admission',
+                      'replacement_source': replacement,
+                      'replacement_sha256': hashlib.sha256(replacement.encode()).hexdigest(),
+                      'canonical_helper_path': _llm_accounting.__file__})
+    selection = 'raw-only'
+elif mode == 'accounting_error_propagation':
+    for module, class_name, method_name in (
+        (adversary, 'ScenarioAdversaryWorker', 'propose_async'),
+        (translator, 'PolicyTranslatorWorker', 'translate_async'),
+    ):
+        original = Path(module.__file__).read_bytes()
+        tree = ast.parse(original)
+        removed = []
+        for node in tree.body:
+            if isinstance(node, ast.ClassDef) and node.name == class_name:
+                for method in node.body:
+                    if isinstance(method, ast.AsyncFunctionDef) and method.name == method_name:
+                        for statement in ast.walk(method):
+                            if isinstance(statement, ast.Try):
+                                for handler in list(statement.handlers):
+                                    if isinstance(handler.type, ast.Name) and handler.type.id == 'LLMAccountingError':
+                                        removed.append(ast.unparse(handler))
+                                        statement.handlers.remove(handler)
+        assert len(removed) == 1
+        exec(compile(tree, module.__file__, 'exec'), module.__dict__)
+        mutations.append({'removed_property': 'propagate obtained-but-unaccounted response',
+                          'canonical_module': module.__name__, 'canonical_path': module.__file__,
+                          'source_sha256': hashlib.sha256(original).hexdigest(),
+                          'removed_handler': removed[0],
+                          'mutation': 'delete one LLMAccountingError handler; retain generic fallback and markers'})
+    selection = 'configured-unknown'
+else:
+    raise ValueError(mode)
+print('E02_DECLARED_REMOVAL ' + json.dumps({'mode': mode, 'mutations': mutations}, sort_keys=True), flush=True)
+import pytest
+raise SystemExit(pytest.main([
+    '-vv', '-s', '--noconftest', '-c', os.environ['E02_WORKER_PYTEST_CONFIG'],
+    os.environ['E02_WORKER_TEST_PATH'], '-k', selection,
+    '--basetemp', os.environ['E02_WORKER_BASETEMP'],
+    '-o', 'cache_dir=' + os.environ['E02_WORKER_CACHE'],
+    '--junitxml=' + os.environ['E02_WORKER_XML'],
+]))

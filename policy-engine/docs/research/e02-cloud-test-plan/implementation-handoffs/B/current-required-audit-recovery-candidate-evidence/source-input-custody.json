@@ -1,0 +1,26 @@
+{
+  "runtime_source_sha": "a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9",
+  "runtime_source_tree": "f5fb536b70b7d8d57b19c78570b3addd798083dd",
+  "all_runs": {
+    "record-vector-premise": {
+      "input_sha": "682174fc76ec6911dd758c807551c8b9ff4013ec",
+      "input_tree": "ee0cad36b78207adfdde4d2073a27b503acb2c94",
+      "test_sha256": "f88405b7f736cff92049a2c81f007387674f01b35d40a2e2bfc2a21d76d9f0df",
+      "source_context": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-candidate-evidence/record-vector-premise/source-context.json",
+      "wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-candidate-evidence/record-vector-premise/wrapper.json"
+    },
+    "qualified-record-vector": {
+      "input_sha": "8ea92be02458941e4bf8a1d1c16f2fbeee60f26c",
+      "input_tree": "72530191912f996f01f484e7bbc2d87f1533bef3",
+      "test_sha256": "b21c5ffbc777e708f7426674acb599f0bca9bbebea47837a95d2abaf242fe949",
+      "source_context": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-candidate-evidence/qualified-record-vector/source-context.json",
+      "wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-candidate-evidence/qualified-record-vector/wrapper.json"
+    }
+  },
+  "source_ownership": "LLM production exclusively ADAPTER, durable completion exclusivelyDUR; RUN changes sole test and moderate docs/evidence. Actual samechild complete concrete polisyos module origins and byte/hash/blob identities guard all executed imports; no local product fallback.",
+  "original13_red_receipt": {
+    "commit": "9b4167a1d481aa06b49794f01896df954917a4a8",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red.json"
+  },
+  "test_delta": "New4cases and live-vs-historical reserve predicates disclosed. Whole file not claimed byte-identical to old13; original4 test/call function AST remains exact9c."
+}

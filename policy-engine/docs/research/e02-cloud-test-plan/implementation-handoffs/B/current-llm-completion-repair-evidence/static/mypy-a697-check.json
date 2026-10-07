@@ -1,0 +1,33 @@
+{
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "-m",
+    "mypy",
+    "--follow-imports=silent",
+    "--ignore-missing-imports",
+    "--cache-dir",
+    "/dev/shm/e02-B-flight-static-final-31d613/mypy-cache",
+    "src/polisyos/core/llm/response.py",
+    "src/polisyos/core/llm/settlement.py",
+    "src/polisyos/core/llm/traced_client.py",
+    "src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+    "src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+    "src/polisyos/scientist/orchestration/llm/gateway_client.py"
+  ],
+  "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+  "target_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96",
+  "environment": {
+    "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "cache_dir": "/dev/shm/e02-B-flight-static-final-31d613/mypy-cache"
+  },
+  "actual_exit": 0,
+  "wall_seconds": 0.712157,
+  "max_rss_kib": null,
+  "resource_limit": "RSS not recorded in direct exec tool call; wall is tool execution wall, not wait4 child measurement",
+  "output": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/static/mypy-a697.txt",
+    "sha256": "ab35ee42183d4d6d3ba483825ab037d18a5a15622d03be01d82220b1564851ff",
+    "bytes": 43
+  },
+  "meaning": "Same six canonical source files, narrow actual nullable-header local binding; no annotation bypass/global missing-import policy change. Prior31 error retained."
+}

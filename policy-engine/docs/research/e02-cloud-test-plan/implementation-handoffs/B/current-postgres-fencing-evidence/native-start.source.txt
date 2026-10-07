@@ -1,0 +1,34 @@
+from pathlib import Path
+import os, json, secrets, subprocess, socket, time, hashlib
+OUT=Path('/tmp/e02-B38-pg-evidence');ROOT=OUT/'oci/rootfs';BIN=ROOT/'usr/local/bin';LOADER=ROOT/'lib/ld-musl-x86_64.so.1'
+LIBS=':'.join(str(ROOT/p) for p in ['usr/local/lib','usr/lib','lib'])
+original=BIN/'postgres';real=BIN/'postgres.real';original.rename(real)
+original.write_text('#!/bin/sh\nexec '+str(LOADER)+' --library-path '+LIBS+' '+str(real)+' "$@"\n');original.chmod(0o755)
+password=secrets.token_urlsafe(32);passfile=OUT/'fixture-password';passfile.write_text(password+'\n');passfile.chmod(0o600)
+DATA=OUT/'native-data';SOCKET=OUT/'native-socket';SOCKET.mkdir(mode=0o700)
+commands=[]
+def record(argv,label):
+ t=time.monotonic();r=subprocess.run(argv,capture_output=True);(OUT/(label+'.txt')).write_bytes(r.stdout+r.stderr)
+ meta={'argv':argv,'exit_code':r.returncode,'wall_seconds':time.monotonic()-t,'output':str(OUT/(label+'.txt'))};commands.append(meta)
+ (OUT/'native-provision.json').write_text(json.dumps({'commands':commands,'uid':os.getuid(),'postgres_original_sha256':hashlib.file_digest(real.open('rb'),'sha256').hexdigest(),'wrapper_sha256':hashlib.file_digest(original.open('rb'),'sha256').hexdigest()},indent=2)+'\n');return r
+argv=[str(LOADER),'--library-path',LIBS,str(BIN/'initdb'),'-D',str(DATA),'-L',str(ROOT/'usr/local/share/postgresql'),'--locale=C','--encoding=UTF8','--username=e02_b38','--auth=scram-sha-256','--pwfile='+str(passfile)]
+r=record(argv,'native-initdb');assert r.returncode==0,(OUT/'native-initdb.txt').read_text()
+s=socket.socket();s.bind(('127.0.0.1',0));port=s.getsockname()[1];s.close()
+argv=[str(original),'-D',str(DATA),'-h','127.0.0.1','-p',str(port),'-k',str(SOCKET),'-c','dynamic_library_path='+str(ROOT/'usr/local/lib/postgresql')]
+log=(OUT/'native-server.txt').open('xb');proc=subprocess.Popen(argv,stdout=log,stderr=subprocess.STDOUT,start_new_session=True);log.close()
+meta={'argv':argv,'pid':proc.pid,'port':port,'host':'127.0.0.1','database':'postgres','user':'e02_b38','password':'redacted','data_directory':str(DATA),'socket_directory':str(SOCKET),'uid':os.getuid(),'policy':'no CPU/worker/thread quota; native musl image binaries, task-local process'}
+(OUT/'native-server.json').write_text(json.dumps(meta,indent=2)+'\n')
+import sys
+sys.path.insert(0,'/tmp/e02-B38-pg-profile');import psycopg
+from psycopg.conninfo import make_conninfo
+dsn=make_conninfo(host='127.0.0.1',port=port,dbname='postgres',user='e02_b38',password=password)
+for attempt in range(200):
+ if proc.poll() is not None:raise RuntimeError('server exited: '+(OUT/'native-server.txt').read_text())
+ try:
+  with psycopg.connect(dsn,connect_timeout=1) as c:identity=c.execute('SELECT version(),pg_backend_pid(),current_database(),current_user,inet_server_port()').fetchone()
+  break
+ except psycopg.OperationalError:time.sleep(.05)
+else:raise RuntimeError('readiness not established')
+private=OUT/'postgres-dsn';private.write_text(dsn);private.chmod(0o600)
+meta.update(readiness='READY',actual_sql_identity=identity,driver_version=psycopg.__version__,driver_origin=psycopg.__file__,dsn_secret_file=str(private))
+(OUT/'native-server.json').write_text(json.dumps(meta,indent=2)+'\n');print(json.dumps(meta))

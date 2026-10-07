@@ -1,0 +1,31 @@
+2026-10-06 12:14:57 [info     ] method_registered              backend=jax fqn=tests.e02_jit_real.scale@1.0.0 lazy=False namespace=tests.e02_jit_real override=False tags=['test'] version=1.0.0
+2026-10-06 12:14:57 [info     ] method_registered              backend=jax fqn=tests.e02_jit_real.scale@1.0.0 lazy=False namespace=tests.e02_jit_real override=True tags=['test'] version=1.0.0
+2026-10-06 12:14:57 [info     ] method_registered              backend=jax fqn=tests.e02_jit_real.scale@1.0.0 lazy=False namespace=tests.e02_jit_real override=False tags=['test'] version=1.0.0
+{
+  "input_script_sha256": "007ccf806eba130cb9d0f8a18c3236db3bc81a6f782ccbf408e73f823e28f0b9",
+  "compiler_source_module": "/workspace/e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/compiler/__init__.py",
+  "compiler_source_sha256": "0d44e8e789c34c37160e6d4de77fbc1f3b0daae5e6f0381a20ef16211e573029",
+  "results": [
+    {
+      "name": "same-FQN-source-replacement",
+      "result": {
+        "old": 20.0,
+        "old_handle_after": 20.0,
+        "new_warm": 30.0,
+        "new_cold": 30.0,
+        "same_kernel": false,
+        "property_pass": true
+      }
+    },
+    {
+      "name": "miss-before-new-flight-claim",
+      "result": {
+        "actual_builds": 1,
+        "first_value": 20.0,
+        "second_value": 20.0,
+        "same_kernel": true,
+        "property_pass": true
+      }
+    }
+  ]
+}

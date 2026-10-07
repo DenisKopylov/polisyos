@@ -1,0 +1,2 @@
+Would reformat: tests/unit/core/artifacts/test_multi_tenant_shared_cas.py
+1 file would be reformatted

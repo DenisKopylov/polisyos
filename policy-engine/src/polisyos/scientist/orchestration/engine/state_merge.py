@@ -85,6 +85,7 @@ class _StagedWrite:
     ordinal: int | None = None
     expected_target_presence: StateMutationTargetPresence | None = None
     expected_target_kind: StateMutationTargetKind | None = None
+    operation_group: int | None = None
 
 
 @dataclass(frozen=True)
@@ -149,7 +150,22 @@ def merge_parallel_outcomes(
         base_state,
         write_paths=(write.path for write in accepted),
     ).state
+    applied_targets: set[tuple[str, int, int, str | None]] = set()
     for write in sorted(accepted, key=_write_order_key):
+        if write.operation_group is not None:
+            target = _get_path(
+                merged,
+                write.parts[:-1]
+                if write.operation in {"set", "delete", "replace"}
+                else write.parts,
+            )
+            target_key = (
+                write.parts[-1] if write.operation in {"set", "delete", "replace"} else None
+            )
+            group_target = (write.alias, write.operation_group, id(target), target_key)
+            if group_target in applied_targets:
+                continue
+            applied_targets.add(group_target)
         _apply_staged_write(merged, write)
 
     return MergeResult(
@@ -294,6 +310,7 @@ def _writes_from_mutations(
                 ordinal=ordinal,
                 expected_target_presence=mutation.target_presence,
                 expected_target_kind=mutation.target_kind,
+                operation_group=mutation.operation_group,
             )
         )
     return staged
@@ -488,8 +505,7 @@ def _validate_target_precondition(root: ExperimentState, write: _StagedWrite) ->
     if actual_kind != write.expected_target_kind:
         raise StateReplayIncompatible(
             write.path,
-            f"operation target kind changed from {write.expected_target_kind!r} "
-            f"to {actual_kind!r}",
+            f"operation target kind changed from {write.expected_target_kind!r} to {actual_kind!r}",
         )
 
 

@@ -1,0 +1,41 @@
+import json, os
+from pathlib import Path
+
+MUTATION = '''
+from polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedger
+from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+from polisyos.scientist.orchestration.llm.budget_enforcer import LLMBudgetEnforcer
+_original_exit = ns['_PublicationFault'].__exit__
+_original_precheck = LLMBudgetEnforcer._pre_check
+_original_list = BudgetMiddleware.list_completion_obligations_safe
+_original_runtime = FileBudgetLedger._assert_runtime_admission
+_original_intersection = FileBudgetLedger._intersecting_completions
+def _ignore_pending(self, keys):
+    _original_list(self, keys)
+    return ()
+def _readmit_only(self, *args, **kwargs):
+    BudgetMiddleware.list_completion_obligations_safe = _ignore_pending
+    FileBudgetLedger._assert_runtime_admission = lambda self, keys: None
+    FileBudgetLedger._intersecting_completions = staticmethod(lambda snapshot, keys, owner_epoch=None: ())
+    try:
+        return _original_precheck(self, *args, **kwargs)
+    finally:
+        BudgetMiddleware.list_completion_obligations_safe = _original_list
+        FileBudgetLedger._assert_runtime_admission = _original_runtime
+        FileBudgetLedger._intersecting_completions = staticmethod(_original_intersection)
+def _after_original_fault(self, *args):
+    _original_exit(self, *args)
+    if self.operation == 'transition_completion':
+        assert self.seen, 'Removal must follow the actual first post-effect publication fault'
+        LLMBudgetEnforcer._pre_check = _readmit_only
+ns['_PublicationFault'].__exit__ = _after_original_fault
+'''
+
+def pytest_collection_modifyitems(session, config, items):
+    assert len(items)==1
+    target=items[0].module
+    original=target._CHILD
+    prefix="import runpy,sys; ns=runpy.run_path(sys.argv[1],run_name='completion_consumer_driver'); "
+    assert original.startswith(prefix)
+    target._CHILD=prefix+'exec('+repr(MUTATION)+"); ns['_driver'](sys.argv[2:])"
+    Path(os.environ['COMPLETION_ORIGIN_OBSERVATIONS']).with_name('removal-admission.json').write_text(json.dumps({'original_child':original,'mutation':MUTATION,'mutated_child':target._CHILD,'selector':items[0].nodeid,'canonical_source_files_mutated':False,'activation':'after observed original staged transition fault; admission-only interval'},indent=2)+'\n')

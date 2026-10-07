@@ -12,7 +12,7 @@ from __future__ import annotations
 import ast
 import inspect
 import subprocess
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -79,7 +79,8 @@ def _hash_file(path: Path) -> str | None:
 
 def _safe_run(cmd: Sequence[str]) -> str | None:
     try:
-        result = subprocess.run(
+        # Private callers supply fixed Git subcommands and path operands without a shell.
+        result = subprocess.run(  # noqa: S603
             list(cmd),
             stdout=subprocess.PIPE,
             stderr=subprocess.DEVNULL,
@@ -115,7 +116,7 @@ def _git_blob_hash(root: Path, relpath: str) -> str | None:
     return parts[2]
 
 
-def _resolve_module_file(cls: type) -> Path | None:
+def _resolve_module_file(cls: type | Callable[..., Any]) -> Path | None:
     try:
         file_path = inspect.getsourcefile(cls) or inspect.getfile(cls)
     except (TypeError, OSError):
@@ -154,15 +155,15 @@ def _normalized_source_hash(source: str) -> str | None:
 
 
 def compute_source_hash(
-    cls: type,
+    cls: type | Callable[..., Any],
     *,
     fallback_value: str = SOURCE_UNAVAILABLE,
 ) -> str:
     """
-    Compute SHA256 hash of a class's source code.
+    Compute SHA256 hash of a class or callable's source code.
 
     Args:
-        cls: The class to hash
+        cls: The class or callable to hash
         fallback_value: Value to return if source unavailable
 
     Returns:
@@ -208,11 +209,11 @@ class SourceFingerprint:
 
 
 def compute_source_fingerprint(
-    cls: type,
+    cls: type | Callable[..., Any],
     *,
     fallback_value: str = SOURCE_UNAVAILABLE,
 ) -> SourceFingerprint:
-    """Compute source fingerprint with file and git context when available."""
+    """Compute class or callable source fingerprint with file and git context."""
     source_hash = fallback_value
     normalized_hash: str | None = None
 

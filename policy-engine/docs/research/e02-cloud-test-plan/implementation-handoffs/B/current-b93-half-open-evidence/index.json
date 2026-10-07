@@ -1,0 +1,173 @@
+{
+  "schema": "policyos.e02.evidence_index.v1",
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/baseline-context.json",
+      "sha256": "db96d63c43be5de838c5aa331a526c0f49b617e2693b38fb5b087914f69fe752",
+      "bytes": 42862
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/baseline-query.json",
+      "sha256": "4b5daf011b448d786005bc12e7e054e73f8cb4565de132139ef8259295208b93",
+      "bytes": 44706
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/criterion-qualification.json",
+      "sha256": "c7b80a6ad88fbc203e7e08d0260f794e19f26597b9f58c0770c6f0083be06866",
+      "bytes": 2469
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/native/native.txt",
+      "sha256": "e631d11dd301fd1c94e35cc7ffd0424247e8193e7f2bf1b9c35c2b0af5955e26",
+      "bytes": 5935
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/native/native.xml",
+      "sha256": "5889705232f89a9066ab40eb7e6e6aaa8d2f7b14c64b73b60ecf12e4864fb463",
+      "bytes": 595
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/native/source-context.json",
+      "sha256": "a73066fc08f52214171def3f21857c055a06fc614d1ed5f5fbf322044c20a09a",
+      "bytes": 111096
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/native/test_actual_half_open_provider0/physical-provider.jsonl.source.txt",
+      "sha256": "b4067228a5b0ed0243ac7b4baa2c52c176a615c95591c125f62c36d40f2248ea",
+      "bytes": 173
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/native/test_actual_half_open_provider1/physical-provider.jsonl.source.txt",
+      "sha256": "b4067228a5b0ed0243ac7b4baa2c52c176a615c95591c125f62c36d40f2248ea",
+      "bytes": 173
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/native/test_actual_half_open_provider2/physical-provider.jsonl.source.txt",
+      "sha256": "6d0eb0a331d3563dcc27ac35b0bd8450f0ebeaae30d9c520024b9a5313193aa2",
+      "bytes": 228
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/native/wrapper.json",
+      "sha256": "9c7882fe0ea09d2fc07b771fb19f28f70793d1bd67e7073f1333972b8df8b386",
+      "bytes": 9900
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/remove/native.txt",
+      "sha256": "12c16d8153400baf4427480c65d9091bf57cfb5f7dbc926f010f50241373159d",
+      "bytes": 12328
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/remove/native.xml",
+      "sha256": "3547055289da086dd68969dadda8b8541b1268ac75842105fddc22c500d9dbb8",
+      "bytes": 12478
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/remove/source-context.json",
+      "sha256": "fd821aca14f9ae2b83a23f6894d34104cab9c0579e757722de89cef3a09a7c1d",
+      "bytes": 111096
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/remove/test_actual_half_open_provider0/physical-provider.jsonl.source.txt",
+      "sha256": "2715b733c579d3867aefc975f6f3b120656dbb47892b6b42ab7d7edb53700f75",
+      "bytes": 99
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/remove/wrapper.json",
+      "sha256": "c29f11d70b695505d716fb22ac109587581150402db58fca5d16907a8d5162f3",
+      "bytes": 9900
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/run_probe.py.source.txt",
+      "sha256": "56dbb21f1eed6fa4a61cf9e6f69d31ae84e2e33f0f16894b6a4f7c6c409d9693",
+      "bytes": 6126
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/test_half_open_consumer.py.source.txt",
+      "sha256": "d2144e5330993c7f1c99a0365ddb8da7e35591bd25fb7ae85c15c91e1344fd0e",
+      "bytes": 8064
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/native/native.txt",
+      "sha256": "da4aacb8c268834772f59464d4b780a7824b366966c812e2c7162e7cf0c0764b",
+      "bytes": 5935
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/native/native.xml",
+      "sha256": "6ca023ec7ac70efff1c6d5d3f0378546f63cc003f76c3757cbe535d2ccee5353",
+      "bytes": 595
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/native/source-context.json",
+      "sha256": "4e60b15981589bee817a766f2afcb78838b195ced678c86e9fd87d8d73784cb1",
+      "bytes": 111116
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/native/test_actual_half_open_provider0/physical-provider.jsonl.source.txt",
+      "sha256": "b4067228a5b0ed0243ac7b4baa2c52c176a615c95591c125f62c36d40f2248ea",
+      "bytes": 173
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/native/test_actual_half_open_provider1/physical-provider.jsonl.source.txt",
+      "sha256": "b4067228a5b0ed0243ac7b4baa2c52c176a615c95591c125f62c36d40f2248ea",
+      "bytes": 173
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/native/test_actual_half_open_provider2/physical-provider.jsonl.source.txt",
+      "sha256": "6d0eb0a331d3563dcc27ac35b0bd8450f0ebeaae30d9c520024b9a5313193aa2",
+      "bytes": 228
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/native/wrapper.json",
+      "sha256": "b671f0d4a8c5c543e70241237b1cd8ee54ac13c414a876265fe3c418bf6f4c06",
+      "bytes": 9940
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/remove/native.txt",
+      "sha256": "dc2de91004a721de22d46e0ac0c9d282a147229e339093b11db7cde48bebf680",
+      "bytes": 17706
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/remove/native.xml",
+      "sha256": "0972a4122b94bfa91ff491cc1e714178928cd8ca395fca88665109d1106e0431",
+      "bytes": 15568
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/remove/source-context.json",
+      "sha256": "6c010b5b8feb6e657032fff4ba354b18b8f745f83963a2da711fc6f791d78a9c",
+      "bytes": 111116
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/remove/test_actual_half_open_provider0/physical-provider.jsonl.source.txt",
+      "sha256": "855a24e41efbd32717e52b6b89800e8be08ea948cfa43a8d80968053e9ee0a05",
+      "bytes": 293
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/remove/wrapper.json",
+      "sha256": "b8dc999611e9980ef02088e4b525124bd78ff4287731571a8718fbdfe1db4c80",
+      "bytes": 9941
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/review.json",
+      "sha256": "7b403b4dcf7e52236e2724202d40fd971a14d6133896d787f1ba81b8fc435c26",
+      "bytes": 23972
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/run_probe.py.source.txt",
+      "sha256": "cbe2df29a082368961de0f97e58dc25fa138f1ad2e24a93b42d20cb7d69d6f21",
+      "bytes": 6106
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/test_half_open_consumer.py.source.txt",
+      "sha256": "b7f681d28bb02fc47479f9f3baf7384ad7a2e8a1f4e2f679f9c4641d7622499c",
+      "bytes": 8041
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/tool-profile.json",
+      "sha256": "6745826553ded273034d407001724495c34da4e61fd0d96e41a8f4a5a91c09cb",
+      "bytes": 1078
+    }
+  ],
+  "payload_count": 33,
+  "payload_bytes": 700209,
+  "physical_capture_suffix": "Original physical-provider.jsonl bytes retained under documentary .source.txt suffix; ordinary .jsonl files ignored by repository. Raw execution artifacts stay at original ignored paths."
+}

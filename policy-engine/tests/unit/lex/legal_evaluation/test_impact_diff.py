@@ -98,6 +98,55 @@ def test_identical_policy_has_no_compliance_transition(tmp_path: Path) -> None:
     assert persisted.affected_kpis == []
 
 
+@pytest.mark.parametrize("passes", [("legal", "legal"), ("legal", "safety", "legal", "safety")])
+def test_duplicate_pass_plan_preserves_single_execution_report(
+    tmp_path: Path, passes: tuple[str, ...]
+) -> None:
+    """Duplicate plan entries cannot manufacture additional compliance blockers."""
+    cas = FileSystemCAS(tmp_path / "cas")
+    canonical = tuple(dict.fromkeys(passes))
+    old_pack, new_pack = _pack("pack.old", 1), _pack("pack.new", 3)
+    expected = NormImpactAnalyzer(cas, passes=canonical, legal_backend="expr_ast").analyze(
+        old_pack, new_pack, context={"income": 2}
+    )
+    actual = NormImpactAnalyzer(cas, passes=passes, legal_backend="expr_ast").analyze(
+        old_pack, new_pack, context={"income": 2}
+    )
+    persisted = _read_report(FileSystemCAS(tmp_path / "cas"), actual)
+    assert persisted.new_blockers == 1
+    assert persisted.passes_executed == list(canonical)
+    assert persisted.metadata["new_issues_total"] == expected.metadata["new_issues_total"]
+    assert persisted.compliance_deltas == expected.compliance_deltas
+    assert persisted.report_id == expected.report_id
+    assert persisted.norm_diff_ref == expected.norm_diff_ref
+    assert actual.cas_artifact_id == expected.cas_artifact_id
+
+
+def test_cli_duplicate_pass_plan_is_canonical_after_persistence(tmp_path: Path, capsys) -> None:
+    """The actual CLI consumer uses the admitted unique pass sequence."""
+    paths = [tmp_path / "old.json", tmp_path / "new.json"]
+    for path, pack in zip(paths, [_pack("pack.old", 1), _pack("pack.new", 3)], strict=True):
+        path.write_text(pack.model_dump_json(), encoding="utf-8")
+    code = main(
+        [
+            "lex",
+            "impact",
+            *(str(p) for p in paths),
+            "--passes",
+            "legal,legal,safety,legal,safety",
+            "--format",
+            "json",
+            "--cas-root",
+            str(tmp_path / "cas"),
+        ]
+    )
+    assert code == 0
+    report = NormImpactReport.model_validate(json.loads(capsys.readouterr().out))
+    persisted = _read_report(FileSystemCAS(tmp_path / "cas"), report)
+    assert persisted.passes_executed == ["legal", "safety"]
+    assert persisted.schema_version == "1.0"
+
+
 def test_explicit_empty_pass_plan_is_preserved(tmp_path: Path) -> None:
     """An empty API plan performs a norm comparison without silently adding checks."""
     cas = FileSystemCAS(tmp_path / "cas")

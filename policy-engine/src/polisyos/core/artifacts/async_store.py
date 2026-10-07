@@ -29,10 +29,15 @@ def is_async_artifact_store(store: object) -> TypeGuard[AsyncArtifactStore]:
 
 @dataclass(frozen=True, slots=True)
 class AsyncArtifactStoreAdapter:
-    """Wrap a sync ``ArtifactStore`` with shared-executor async methods."""
+    """Wrap a sync store; explicit ``unbounded`` skips the helper default cap.
+
+    Omitted or ``None`` timeout retains the shared helper default. A finite
+    timeout combined with ``unbounded=True`` is rejected before backend admission.
+    """
 
     store: ArtifactStore
     timeout_seconds: float | None = None
+    unbounded: bool = False
 
     async def has(self, artifact_id: ArtifactID | ArtifactRef) -> bool:
         return cast(
@@ -41,6 +46,7 @@ class AsyncArtifactStoreAdapter:
                 self.store.has,
                 artifact_id,
                 timeout_seconds=self.timeout_seconds,
+                unbounded=self.unbounded,
             ),
         )
 
@@ -51,6 +57,7 @@ class AsyncArtifactStoreAdapter:
                 self.store.get_bytes,
                 artifact_id,
                 timeout_seconds=self.timeout_seconds,
+                unbounded=self.unbounded,
             ),
         )
 
@@ -59,6 +66,7 @@ class AsyncArtifactStoreAdapter:
             self.store.get_manifest,
             artifact_id,
             timeout_seconds=self.timeout_seconds,
+            unbounded=self.unbounded,
         )
 
     async def put_bytes(
@@ -71,6 +79,7 @@ class AsyncArtifactStoreAdapter:
             data,
             opts,
             timeout_seconds=self.timeout_seconds,
+            unbounded=self.unbounded,
         )
 
     async def put_json(
@@ -85,6 +94,7 @@ class AsyncArtifactStoreAdapter:
             opts,
             canon_spec=canon_spec,
             timeout_seconds=self.timeout_seconds,
+            unbounded=self.unbounded,
         )
 
     async def verify(self, artifact_id: ArtifactID | ArtifactRef) -> VerificationReport:
@@ -92,6 +102,7 @@ class AsyncArtifactStoreAdapter:
             self.store.verify,
             artifact_id,
             timeout_seconds=self.timeout_seconds,
+            unbounded=self.unbounded,
         )
 
     async def iter_artifact_ids(self) -> list[ArtifactID]:
@@ -100,6 +111,7 @@ class AsyncArtifactStoreAdapter:
             await run_blocking_async(
                 self.store.iter_artifact_ids,
                 timeout_seconds=self.timeout_seconds,
+                unbounded=self.unbounded,
             ),
         )
 
@@ -111,10 +123,15 @@ class AsyncArtifactStoreAdapter:
 
 @dataclass(frozen=True, slots=True)
 class AsyncFileSystemArtifactStore:
-    """First-class async facade for filesystem-backed CAS hot paths."""
+    """Async filesystem facade with the shared adapter timeout policy.
+
+    ``unbounded=True`` delegates time ownership to the caller rather than
+    inheriting the helper default; a finite timeout cannot also be unbounded.
+    """
 
     store: ArtifactStore
     timeout_seconds: float | None = None
+    unbounded: bool = False
 
     async def has(self, artifact_id: ArtifactID | ArtifactRef) -> bool:
         return cast(
@@ -123,6 +140,7 @@ class AsyncFileSystemArtifactStore:
                 self.store.has,
                 artifact_id,
                 timeout_seconds=self.timeout_seconds,
+                unbounded=self.unbounded,
             ),
         )
 
@@ -133,6 +151,7 @@ class AsyncFileSystemArtifactStore:
                 self.store.get_bytes,
                 artifact_id,
                 timeout_seconds=self.timeout_seconds,
+                unbounded=self.unbounded,
             ),
         )
 
@@ -141,6 +160,7 @@ class AsyncFileSystemArtifactStore:
             self.store.get_manifest,
             artifact_id,
             timeout_seconds=self.timeout_seconds,
+            unbounded=self.unbounded,
         )
 
     async def put_bytes(
@@ -153,6 +173,7 @@ class AsyncFileSystemArtifactStore:
             data,
             opts,
             timeout_seconds=self.timeout_seconds,
+            unbounded=self.unbounded,
         )
 
     async def put_json(
@@ -167,6 +188,7 @@ class AsyncFileSystemArtifactStore:
             opts,
             canon_spec=canon_spec,
             timeout_seconds=self.timeout_seconds,
+            unbounded=self.unbounded,
         )
 
     async def verify(self, artifact_id: ArtifactID | ArtifactRef) -> VerificationReport:
@@ -174,6 +196,7 @@ class AsyncFileSystemArtifactStore:
             self.store.verify,
             artifact_id,
             timeout_seconds=self.timeout_seconds,
+            unbounded=self.unbounded,
         )
 
     async def iter_artifact_ids(self) -> list[ArtifactID]:
@@ -182,6 +205,7 @@ class AsyncFileSystemArtifactStore:
             await run_blocking_async(
                 self.store.iter_artifact_ids,
                 timeout_seconds=self.timeout_seconds,
+                unbounded=self.unbounded,
             ),
         )
 
@@ -195,13 +219,19 @@ def ensure_async_artifact_store(
     store: ArtifactStore | AsyncArtifactStore,
     *,
     timeout_seconds: float | None = None,
+    unbounded: bool = False,
 ) -> AsyncArtifactStore:
-    """Return an async CAS contract, preserving native async stores when already available."""
+    """Adapt a sync store using caller timeout policy; preserve native async stores.
+
+    ``unbounded`` is additive and defaults to the existing helper timeout.
+    A native async store retains its own policy rather than being rewrapped.
+    """
     if is_async_artifact_store(store):
         return store
     return AsyncArtifactStoreAdapter(
         cast("ArtifactStore", store),
         timeout_seconds=timeout_seconds,
+        unbounded=unbounded,
     )
 
 

@@ -1,0 +1,31 @@
+[
+  {
+    "command": [
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py"
+    ],
+    "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+    "exit_code": 1,
+    "wall_s": 0.043874359005712904,
+    "output_path": "/tmp/e02-B38-pg-evidence/ruff.txt",
+    "output_sha256": "18599a13d64dbf0e5ecb0393c3b24ddfbb5cef7c077fd88990e7e35f5f3d8298"
+  },
+  {
+    "command": [
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+      "-m",
+      "ruff",
+      "format",
+      "--check",
+      "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py"
+    ],
+    "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+    "exit_code": 1,
+    "wall_s": 0.0389769290050026,
+    "output_path": "/tmp/e02-B38-pg-evidence/format.txt",
+    "output_sha256": "c8f1dae77430f3f9a814247546620c52c2ab58fdf8cccf2adba16814c7e5a8b8"
+  }
+]

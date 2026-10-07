@@ -1,0 +1,24 @@
+{
+  "target_sha": "d2b8873c13ab6d1a4b2f3fc519cfcd7d494f3f7d",
+  "outcome": "UNRUN",
+  "phase": "input-closure preflight before pytest collection",
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "_build/current-execution-state/run_native.py",
+    "native-expired-cache-companion",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_native_execution_admission.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+    "policy-engine/tests/unit/scientist/tools/test_resolve_parameters_node.py"
+  ],
+  "input_closure": {
+    "missing_input": "policy-engine/tests/unit/scientist/tools/test_resolve_parameters_node.py",
+    "state": "not_established before pytest; actual tracked path methods/causal used in corrected attempt"
+  },
+  "environment": {
+    "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "POLISYOS_METRICS_PORT": "0"
+  },
+  "correction": "native-expired-cache-companion-corrected"
+}

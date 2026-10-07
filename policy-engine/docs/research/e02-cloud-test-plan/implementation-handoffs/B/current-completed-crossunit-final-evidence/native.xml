@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="10" time="3.303" timestamp="2026-10-06T23:00:43.589394+00:00" hostname="b878f4efbdfc"><testcase classname="tests.unit.fabric.data_plane.test_pool_stream_budget_oracle" name="test_restored_frontier_above_new_cap_refuses_before_consumer_effects" time="0.286"><failure message="AssertionError: [&quot;acquire&quot;, &quot;release&quot;, &quot;acquire&quot;, &quot;poll&quot;, &quot;poll&quot;, &quot;poll&quot;, &quot;commit&quot;, &quot;poll&quot;, &quot;flush&quot;, &quot;commit&quot;, &quot;release&quot;]&#10;assert not {'flush', 'commit', 'poll'}&#10; +  where {'flush', 'commit', 'poll'} = &lt;built-in method intersection of set object at 0x7f8fefa2b760&gt;(['acquire', 'release', 'acquire', 'poll', 'poll', 'poll', 'commit', 'poll', 'flush', 'commit', 'release'])&#10; +    where &lt;built-in method intersection of set object at 0x7f8fefa2b760&gt; = {'commit', 'flush', 'poll'}.intersection">tmp_path = PosixPath('/dev/shm/e02-B-crossunit-final-1862/actual-iacgffbo/pytest/test_restored_frontier_above_n0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f8fefb24050&gt;
+
+    @pytest.mark.asyncio
+    async def test_restored_frontier_above_new_cap_refuses_before_consumer_effects(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -&gt; None:
+        registry, store, checkpoint = await _pending_checkpoint(tmp_path, monkeypatch)
+        events: list[str] = []
+        acquisitions: list[tuple[int, str]] = []
+        releases: list[tuple[int, str]] = []
+        acquire = ConnectionPool.acquire_with_connector
+        release = ConnectionPool.release
+        poll = streaming.StreamingSourceSession.poll
+        flush = streaming.StreamWindowAccumulator.flush_with_refs
+        commit = streaming._commit_stream_frontier
+    
+        async def observed_acquire(pool):
+            result = await acquire(pool)
+            events.append("acquire")
+            acquisitions.append((id(pool), result[1].session_id))
+            return result
+    
+        async def observed_release(pool, handle):
+            result = await release(pool, handle)
+            releases.append((id(pool), handle.session_id))
+            events.append("release")
+            return result
+    
+        async def observed_poll(session):
+            events.append("poll")
+            return await poll(session)
+    
+        def observed_flush(accumulator):
+            events.append("flush")
+            return flush(accumulator)
+    
+        async def observed_commit(**kwargs):
+            events.append("commit")
+            return await commit(**kwargs)
+    
+        monkeypatch.setattr(ConnectionPool, "acquire_with_connector", observed_acquire)
+        monkeypatch.setattr(ConnectionPool, "release", observed_release)
+        monkeypatch.setattr(streaming.StreamingSourceSession, "poll", observed_poll)
+        monkeypatch.setattr(streaming.StreamWindowAccumulator, "flush_with_refs", observed_flush)
+        monkeypatch.setattr(streaming, "_commit_stream_frontier", observed_commit)
+        reopened = FileSystemCAS(store.root)
+        failure = None
+        try:
+            await streaming.process_stream_dataset(
+                connector_id="stream.jsonl",
+                dataset_id="budget-oracle",
+                store=reopened,
+                cursor_store=CursorStore(reopened),
+                sanitize_rows=_rows,
+                runtime_options=_options(1),
+                registry=registry,
+            )
+        except (RuntimeError, ValueError) as exc:
+            failure = exc
+&gt;       assert not {"poll", "flush", "commit"}.intersection(events), json.dumps(events)
+E       AssertionError: ["acquire", "release", "acquire", "poll", "poll", "poll", "commit", "poll", "flush", "commit", "release"]
+E       assert not {'flush', 'commit', 'poll'}
+E        +  where {'flush', 'commit', 'poll'} = &lt;built-in method intersection of set object at 0x7f8fefa2b760&gt;(['acquire', 'release', 'acquire', 'poll', 'poll', 'poll', 'commit', 'poll', 'flush', 'commit', 'release'])
+E        +    where &lt;built-in method intersection of set object at 0x7f8fefa2b760&gt; = {'commit', 'flush', 'poll'}.intersection
+
+tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py:168: AssertionError</failure></testcase><testcase classname="tests.unit.fabric.data_plane.test_pool_stream_budget_oracle" name="test_admitted_recovery_emits_two_sessions_once_with_original_lineage" time="0.270" /><testcase classname="tests.unit.fabric.data_plane.test_stream_pool_cleanup_oracle" name="test_process_file_stream_cleanup_ownership[healthy]" time="0.076" /><testcase classname="tests.unit.fabric.data_plane.test_stream_pool_cleanup_oracle" name="test_process_file_stream_cleanup_ownership[subscribe-failure]" time="0.029" /><testcase classname="tests.unit.fabric.data_plane.test_stream_pool_cleanup_oracle" name="test_process_file_stream_cleanup_ownership[checkpoint-read-failure]" time="0.030" /><testcase classname="tests.unit.fabric.data_plane.test_stream_pool_cleanup_oracle" name="test_process_file_stream_cleanup_ownership[rewind-failure]" time="0.034" /><testcase classname="tests.unit.fabric.data_plane.test_stream_pool_cleanup_oracle" name="test_process_file_stream_cleanup_ownership[caller-cancel]" time="0.029" /><testcase classname="tests.unit.fabric.data_plane.test_stream_pool_cleanup_oracle" name="test_process_file_stream_cleanup_ownership[startup-owner-retry]" time="0.028" /><testcase classname="tests.unit.fabric.data_plane.test_stream_pool_cleanup_oracle" name="test_process_file_stream_cleanup_ownership[process-disconnect-failure]" time="0.075"><failure message="AssertionError: {'after_fresh': {'actual_handles_without_disconnect_confirmation': ['2c2c3313-cde4-4bd6-abaf-887996061b3c'], 'available_permits': 1, 'confirmed_disconnects': ['6c4b1967-4089-480e-ae66-6975d3727c30'], 'disconnect_calls': ['2c2c3313-cde4-4bd6-abaf-887996061b3c', '6c4b1967-4089-480e-ae66-6975d3727c30'], ...}, 'after_registry_retry': {'actual_handles_without_disconnect_confirmation': ['2c2c3313-cde4-4bd6-abaf-887996061b3c'], 'available_permits': 1, 'confirmed_disconnects': [], 'disconnect_calls': ['2c2c3313-cde4-4bd6-abaf-887996061b3c'], ...}, 'before_retry': {'actual_handles_without_disconnect_confirmation': ['2c2c3313-cde4-4bd6-abaf-887996061b3c'], 'available_permits': 1, 'confirmed_disconnects': [], 'disconnect_calls': ['2c2c3313-cde4-4bd6-abaf-887996061b3c'], ...}, 'during_fresh': {'actual_handles_without_disconnect_confirmation': ['2c2c3313-cde4-4bd6-abaf-887996061b3c', '6c4b1967-4089-480e-ae66-6975d3727c30'], 'available_permits': 1, 'confirmed_disconnects': [], 'disconnect_calls': ['2c2c3313-cde4-4bd6-abaf-887996061b3c'], ...}, ...}&#10;assert {'2c2c3313-cde4-4bd6-abaf-887996061b3c': {'pending_permit': False, 'closed': False, 'task_done': None}} == {}&#10;  &#10;  Left contains 1 more item:&#10;  {'2c2c3313-cde4-4bd6-abaf-887996061b3c': {'closed': False,&#10;                                            'pending_permit': False,&#10;                                            'task_done': None}}&#10;  &#10;  Full diff:&#10;  - {}&#10;  + {&#10;  +     '2c2c3313-cde4-4bd6-abaf-887996061b3c': {&#10;  +         'closed': False,&#10;  +         'pending_permit': False,&#10;  +         'task_done': None,&#10;  +     },&#10;  + }">tmp_path = PosixPath('/dev/shm/e02-B-crossunit-final-1862/actual-iacgffbo/pytest/test_process_file_stream_clean6')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f8fefacacb0&gt;
+stage = 'process-disconnect-failure'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "stage",
+        [
+            "healthy",
+            "subscribe-failure",
+            "checkpoint-read-failure",
+            "rewind-failure",
+            "caller-cancel",
+            "startup-owner-retry",
+            "process-disconnect-failure",
+        ],
+    )
+    async def test_process_file_stream_cleanup_ownership(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch, stage: str
+    ) -&gt; None:
+        """A finished process consumer must clean or transfer its acquired handle."""
+        path = tmp_path / "events.jsonl"
+        path.write_text('{"_message_id":"m1","value":1}\n{"_message_id":"m2","value":2}\n')
+        connector = ObservedFileConnector(stage)
+        config = ConnectionConfig(url=path.as_uri(), max_connections=1)
+        ConnectorRegistry.reset_instance()
+        registry = ConnectorRegistry.get_instance(bootstrap=False)
+        registry.register(EventStreamConnector, config=config, factory=lambda: connector)
+        captured: list[ConnectionPool[Any]] = []
+        real_pool = ConnectionPool
+    
+        def observe_real_pool(*args: Any, **kwargs: Any) -&gt; ConnectionPool[Any]:
+            pool = real_pool(*args, **kwargs)
+            captured.append(pool)
+            return pool
+    
+        # Observation only: create still receives the canonical production pool.
+        monkeypatch.setattr(streaming_module, "ConnectionPool", observe_real_pool)
+        store = FileSystemCAS(tmp_path / "cas")
+        cursors = CursorStore(store)
+        if stage == "checkpoint-read-failure":
+            cursors._stream_index_path.write_text("{broken-json")
+        if stage == "rewind-failure":
+            cursors.save_stream_checkpoint(
+                StreamCheckpoint(
+                    checkpoint_id="stream.jsonl:events:default:0",
+                    stream_id="stream.jsonl:events:default",
+                    connector_id="stream.jsonl",
+                    dataset_id="events",
+                    offset=0,
+                    created_at=datetime.now(UTC),
+                )
+            )
+    
+        task = asyncio.create_task(
+            process_stream_dataset(
+                connector_id="stream.jsonl",
+                dataset_id="events",
+                store=store,
+                cursor_store=cursors,
+                sanitize_rows=_valid_rows,
+                registry=registry,
+            )
+        )
+        if stage == "caller-cancel":
+            await asyncio.wait_for(connector.poll_entered.wait(), 2)
+            task.cancel()
+        caught: BaseException | None = None
+        result = None
+        try:
+            result = await task
+        except BaseException as exc:
+            caught = exc
+    
+        assert len(captured) == 1  # Actual C-created pool, not a substitute.
+        pool = captured[0]
+        before_retry = _snapshot(pool, connector, registry, path)
+        same_pool_acquire: str
+        try:
+            handle = await pool.acquire()
+        except PoolClosedError:
+            same_pool_acquire = "PoolClosedError"
+        else:
+            same_pool_acquire = "acquired"
+            await pool.release(handle)
+    
+        # Real registry retry establishes whether a production owner can finish it.
+        await registry.shutdown_async()
+        after_registry_retry = _snapshot(pool, connector, registry, path)
+        connector.stage = "healthy"
+        fresh = await StreamingSourceSession.create(
+            connector_id="stream.jsonl",
+            dataset_id="fresh",
+            registry=registry,
+        )
+        fresh_chunk = await fresh.poll()
+        during_fresh = _snapshot(pool, connector, registry, path)
+        await fresh.close()
+        after_fresh = _snapshot(pool, connector, registry, path)
+        # Test observer cleanup is outside the measured production retry. It cannot
+        # rescue the assertion or establish an owner for the finished consumer.
+        await pool.close_all()
+        final = _snapshot(pool, connector, registry, path)
+        observation = {
+            "stage": stage,
+            "primary_exception_type": type(caught).__name__ if caught else None,
+            "primary_exception_is_injected": caught is connector.primary_fault,
+            "primary_notes": getattr(caught, "__notes__", []),
+            "before_retry": before_retry,
+            "same_pool_acquire": same_pool_acquire,
+            "after_registry_retry": after_registry_retry,
+            "during_fresh": during_fresh,
+            "after_fresh": after_fresh,
+            "observer_final_cleanup": final,
+            "fresh_real_file_rows": fresh_chunk.row_count if fresh_chunk else None,
+            "initial_rows": result.rows_emitted if result else None,
+        }
+        print("STREAM_CLEANUP_OBSERVATION " + json.dumps(observation, default=str, sort_keys=True))
+        ConnectorRegistry.reset_instance()
+    
+        assert fresh_chunk is not None and fresh_chunk.row_count == 2
+        assert final["pending_cleanup"] == {} and final["available_permits"] == 1
+        assert final["actual_handles_without_disconnect_confirmation"] == []
+        if stage == "healthy":
+            assert caught is None and result is not None and result.rows_emitted == 2
+        elif stage == "checkpoint-read-failure":
+            assert isinstance(caught, CursorStoreError)
+        elif stage == "caller-cancel":
+            assert isinstance(caught, asyncio.CancelledError)
+        elif stage != "process-disconnect-failure":
+            assert caught is connector.primary_fault
+        else:
+            assert isinstance(caught, RuntimeError)
+        # No local observer may supply the absent production retry authority.
+&gt;       assert after_registry_retry["pending_cleanup"] == {}, observation
+E       AssertionError: {'after_fresh': {'actual_handles_without_disconnect_confirmation': ['2c2c3313-cde4-4bd6-abaf-887996061b3c'], 'available_permits': 1, 'confirmed_disconnects': ['6c4b1967-4089-480e-ae66-6975d3727c30'], 'disconnect_calls': ['2c2c3313-cde4-4bd6-abaf-887996061b3c', '6c4b1967-4089-480e-ae66-6975d3727c30'], ...}, 'after_registry_retry': {'actual_handles_without_disconnect_confirmation': ['2c2c3313-cde4-4bd6-abaf-887996061b3c'], 'available_permits': 1, 'confirmed_disconnects': [], 'disconnect_calls': ['2c2c3313-cde4-4bd6-abaf-887996061b3c'], ...}, 'before_retry': {'actual_handles_without_disconnect_confirmation': ['2c2c3313-cde4-4bd6-abaf-887996061b3c'], 'available_permits': 1, 'confirmed_disconnects': [], 'disconnect_calls': ['2c2c3313-cde4-4bd6-abaf-887996061b3c'], ...}, 'during_fresh': {'actual_handles_without_disconnect_confirmation': ['2c2c3313-cde4-4bd6-abaf-887996061b3c', '6c4b1967-4089-480e-ae66-6975d3727c30'], 'available_permits': 1, 'confirmed_disconnects': [], 'disconnect_calls': ['2c2c3313-cde4-4bd6-abaf-887996061b3c'], ...}, ...}
+E       assert {'2c2c3313-cde4-4bd6-abaf-887996061b3c': {'pending_permit': False, 'closed': False, 'task_done': None}} == {}
+E         
+E         Left contains 1 more item:
+E         {'2c2c3313-cde4-4bd6-abaf-887996061b3c': {'closed': False,
+E                                                   'pending_permit': False,
+E                                                   'task_done': None}}
+E         
+E         Full diff:
+E         - {}
+E         + {
+E         +     '2c2c3313-cde4-4bd6-abaf-887996061b3c': {
+E         +         'closed': False,
+E         +         'pending_permit': False,
+E         +         'task_done': None,
+E         +     },
+E         + }
+
+tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py:271: AssertionError</failure></testcase><testcase classname="tests.unit.fabric.data_plane.test_stream_pool_cleanup_oracle" name="test_direct_file_session_second_close_finishes_pending_cleanup" time="0.024" /></testsuite></testsuites>

@@ -1,0 +1,1528 @@
+.FFFFF.F.FFFFF.FFFFFF..F                                                 [100%]
+=================================== FAILURES ===================================
+_ test_completed_failed_spend_settles_without_ordinary_branch[False-sync-fork] _
+
+route = 'sync-fork', terminal = False
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-206/test_completed_failed_spend_se1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7ff258313e10>
+
+    @pytest.mark.parametrize("route", _SPEND_ROUTES)
+    @pytest.mark.parametrize("terminal", [False, True])
+    def test_completed_failed_spend_settles_without_ordinary_branch(
+        route, terminal, tmp_path, monkeypatch
+    ):
+        from decimal import Decimal
+    
+        from polisyos.core.artifacts.store import FileSystemCAS
+        from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+        from polisyos.core.registry import build_default_registry_bundle
+        from polisyos.scientist.orchestration.engine.context import ExecutionContext
+        from polisyos.scientist.orchestration.engine.protocol import NodeSpec
+    
+        if "fork" in route and not retry_module._can_use_forked_timeout_worker():
+            pytest.skip("actual fork consumer required")
+        effects = tmp_path / "attempts.jsonl"
+        store = FileSystemCAS(tmp_path / "cas")
+        bundle = build_default_registry_bundle(store)
+        run = RunContext.start(store=store, registry_bundle=bundle.bundle_ref, run_id="R_spend")
+        context = ExecutionContext(store=store, run=run, logger=MagicMock())
+        initial = ExperimentState(run_id="R_spend", budgets={"llm_spent_usd": Decimal(5)})
+    
+        class Provider:
+            spec = NodeSpec(
+                metadata=ComponentMetadata(
+                    component_id=ComponentId.parse("scientist.known_spend@1.0.0"),
+                    kind=ComponentKind.SCIENTIST_NODE,
+                    abi_targets={"world_abi": "1.x"},
+                    display_name="known spend",
+                    description="Real completed failure settlement",
+                    capabilities=Capability.SCIENTIST_NODE,
+                ),
+                state_reads=["budgets", "params"],
+                state_writes=["budgets", "params"],
+            )
+    
+            def execute(self, passed_ctx, passed_state):
+                ordinal = len(effects.read_text().splitlines()) + 1 if effects.exists() else 1
+                before = passed_state.budgets["llm_spent_usd"]
+                passed_state.budgets["llm_spent_usd"] += Decimal(2 if ordinal == 1 else 1)
+                with effects.open("a") as stream:
+                    stream.write(
+                        json.dumps(
+                            {
+                                "ordinal": ordinal,
+                                "pid": os.getpid(),
+                                "before": str(before),
+                                "dirty_before": passed_state.params.get("failed_dirty"),
+                            }
+                        )
+                        + "\n"
+                    )
+                if ordinal == 1 or terminal:
+                    passed_state.params["failed_dirty"] = "must not publish"
+                    raise TimeoutError("completed provider error with known spend")
+                passed_state.params["success"] = True
+                return _ok_outcome(passed_state)
+    
+        class AsyncProvider(Provider):
+            async def execute_async(self, passed_ctx, passed_state):
+                await asyncio.sleep(0)
+                return self.execute(passed_ctx, passed_state)
+    
+        if "thread" in route:
+            monkeypatch.setattr(retry_module, "_can_use_forked_timeout_worker", lambda: False)
+        node = AsyncProvider() if "provider" in route else Provider()
+        finite = route not in {"sync-direct", "async-provider-unbounded", "async-sync-unbounded"}
+        kwargs = dict(
+            retry_policy=RetryPolicy(max_retries=1, backoff_base_s=0.1, jitter="none"),
+            timeout_s=2.0 if finite else None,
+            deadline_monotonic=_time.monotonic() + 2 if finite else None,
+            alias=route,
+        )
+    
+        def invoke():
+            if route.startswith("sync-"):
+                return execute_with_retry_sync(node, context, initial, **kwargs)
+            return asyncio.run(execute_with_retry_async(node, context, initial, **kwargs))
+    
+        if terminal:
+            with pytest.raises(RetryExhaustedError) as caught:
+                invoke()
+            settled = initial
+            if "fork" not in route:
+                assert isinstance(caught.value.__cause__, TimeoutError)
+        else:
+            settled = invoke().state
+            assert settled.params == {"success": True}
+            assert initial.budgets["llm_spent_usd"] == Decimal(5)
+        attempts = [json.loads(line) for line in effects.read_text().splitlines()]
+        assert [entry["ordinal"] for entry in attempts] == [1, 2]
+        assert [entry["before"] for entry in attempts] == ["5", "5"]
+        assert [entry["dirty_before"] for entry in attempts] == [None, None]
+>       assert settled.budgets["llm_spent_usd"] == Decimal(8)
+E       AssertionError: assert Decimal('6') == Decimal('8')
+E        +  where Decimal('8') = <class 'decimal.Decimal'>(8)
+
+tests/unit/scientist/orchestration/engine/test_retry.py:2036: AssertionError
+_ test_completed_failed_spend_settles_without_ordinary_branch[False-sync-thread] _
+
+route = 'sync-thread', terminal = False
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-206/test_completed_failed_spend_se2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7ff257a04b90>
+
+    @pytest.mark.parametrize("route", _SPEND_ROUTES)
+    @pytest.mark.parametrize("terminal", [False, True])
+    def test_completed_failed_spend_settles_without_ordinary_branch(
+        route, terminal, tmp_path, monkeypatch
+    ):
+        from decimal import Decimal
+    
+        from polisyos.core.artifacts.store import FileSystemCAS
+        from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+        from polisyos.core.registry import build_default_registry_bundle
+        from polisyos.scientist.orchestration.engine.context import ExecutionContext
+        from polisyos.scientist.orchestration.engine.protocol import NodeSpec
+    
+        if "fork" in route and not retry_module._can_use_forked_timeout_worker():
+            pytest.skip("actual fork consumer required")
+        effects = tmp_path / "attempts.jsonl"
+        store = FileSystemCAS(tmp_path / "cas")
+        bundle = build_default_registry_bundle(store)
+        run = RunContext.start(store=store, registry_bundle=bundle.bundle_ref, run_id="R_spend")
+        context = ExecutionContext(store=store, run=run, logger=MagicMock())
+        initial = ExperimentState(run_id="R_spend", budgets={"llm_spent_usd": Decimal(5)})
+    
+        class Provider:
+            spec = NodeSpec(
+                metadata=ComponentMetadata(
+                    component_id=ComponentId.parse("scientist.known_spend@1.0.0"),
+                    kind=ComponentKind.SCIENTIST_NODE,
+                    abi_targets={"world_abi": "1.x"},
+                    display_name="known spend",
+                    description="Real completed failure settlement",
+                    capabilities=Capability.SCIENTIST_NODE,
+                ),
+                state_reads=["budgets", "params"],
+                state_writes=["budgets", "params"],
+            )
+    
+            def execute(self, passed_ctx, passed_state):
+                ordinal = len(effects.read_text().splitlines()) + 1 if effects.exists() else 1
+                before = passed_state.budgets["llm_spent_usd"]
+                passed_state.budgets["llm_spent_usd"] += Decimal(2 if ordinal == 1 else 1)
+                with effects.open("a") as stream:
+                    stream.write(
+                        json.dumps(
+                            {
+                                "ordinal": ordinal,
+                                "pid": os.getpid(),
+                                "before": str(before),
+                                "dirty_before": passed_state.params.get("failed_dirty"),
+                            }
+                        )
+                        + "\n"
+                    )
+                if ordinal == 1 or terminal:
+                    passed_state.params["failed_dirty"] = "must not publish"
+                    raise TimeoutError("completed provider error with known spend")
+                passed_state.params["success"] = True
+                return _ok_outcome(passed_state)
+    
+        class AsyncProvider(Provider):
+            async def execute_async(self, passed_ctx, passed_state):
+                await asyncio.sleep(0)
+                return self.execute(passed_ctx, passed_state)
+    
+        if "thread" in route:
+            monkeypatch.setattr(retry_module, "_can_use_forked_timeout_worker", lambda: False)
+        node = AsyncProvider() if "provider" in route else Provider()
+        finite = route not in {"sync-direct", "async-provider-unbounded", "async-sync-unbounded"}
+        kwargs = dict(
+            retry_policy=RetryPolicy(max_retries=1, backoff_base_s=0.1, jitter="none"),
+            timeout_s=2.0 if finite else None,
+            deadline_monotonic=_time.monotonic() + 2 if finite else None,
+            alias=route,
+        )
+    
+        def invoke():
+            if route.startswith("sync-"):
+                return execute_with_retry_sync(node, context, initial, **kwargs)
+            return asyncio.run(execute_with_retry_async(node, context, initial, **kwargs))
+    
+        if terminal:
+            with pytest.raises(RetryExhaustedError) as caught:
+                invoke()
+            settled = initial
+            if "fork" not in route:
+                assert isinstance(caught.value.__cause__, TimeoutError)
+        else:
+            settled = invoke().state
+            assert settled.params == {"success": True}
+            assert initial.budgets["llm_spent_usd"] == Decimal(5)
+        attempts = [json.loads(line) for line in effects.read_text().splitlines()]
+        assert [entry["ordinal"] for entry in attempts] == [1, 2]
+        assert [entry["before"] for entry in attempts] == ["5", "5"]
+        assert [entry["dirty_before"] for entry in attempts] == [None, None]
+>       assert settled.budgets["llm_spent_usd"] == Decimal(8)
+E       AssertionError: assert Decimal('6') == Decimal('8')
+E        +  where Decimal('8') = <class 'decimal.Decimal'>(8)
+
+tests/unit/scientist/orchestration/engine/test_retry.py:2036: AssertionError
+_ test_completed_failed_spend_settles_without_ordinary_branch[False-async-fork] _
+
+route = 'async-fork', terminal = False
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-206/test_completed_failed_spend_se3')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7ff2579d6690>
+
+    @pytest.mark.parametrize("route", _SPEND_ROUTES)
+    @pytest.mark.parametrize("terminal", [False, True])
+    def test_completed_failed_spend_settles_without_ordinary_branch(
+        route, terminal, tmp_path, monkeypatch
+    ):
+        from decimal import Decimal
+    
+        from polisyos.core.artifacts.store import FileSystemCAS
+        from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+        from polisyos.core.registry import build_default_registry_bundle
+        from polisyos.scientist.orchestration.engine.context import ExecutionContext
+        from polisyos.scientist.orchestration.engine.protocol import NodeSpec
+    
+        if "fork" in route and not retry_module._can_use_forked_timeout_worker():
+            pytest.skip("actual fork consumer required")
+        effects = tmp_path / "attempts.jsonl"
+        store = FileSystemCAS(tmp_path / "cas")
+        bundle = build_default_registry_bundle(store)
+        run = RunContext.start(store=store, registry_bundle=bundle.bundle_ref, run_id="R_spend")
+        context = ExecutionContext(store=store, run=run, logger=MagicMock())
+        initial = ExperimentState(run_id="R_spend", budgets={"llm_spent_usd": Decimal(5)})
+    
+        class Provider:
+            spec = NodeSpec(
+                metadata=ComponentMetadata(
+                    component_id=ComponentId.parse("scientist.known_spend@1.0.0"),
+                    kind=ComponentKind.SCIENTIST_NODE,
+                    abi_targets={"world_abi": "1.x"},
+                    display_name="known spend",
+                    description="Real completed failure settlement",
+                    capabilities=Capability.SCIENTIST_NODE,
+                ),
+                state_reads=["budgets", "params"],
+                state_writes=["budgets", "params"],
+            )
+    
+            def execute(self, passed_ctx, passed_state):
+                ordinal = len(effects.read_text().splitlines()) + 1 if effects.exists() else 1
+                before = passed_state.budgets["llm_spent_usd"]
+                passed_state.budgets["llm_spent_usd"] += Decimal(2 if ordinal == 1 else 1)
+                with effects.open("a") as stream:
+                    stream.write(
+                        json.dumps(
+                            {
+                                "ordinal": ordinal,
+                                "pid": os.getpid(),
+                                "before": str(before),
+                                "dirty_before": passed_state.params.get("failed_dirty"),
+                            }
+                        )
+                        + "\n"
+                    )
+                if ordinal == 1 or terminal:
+                    passed_state.params["failed_dirty"] = "must not publish"
+                    raise TimeoutError("completed provider error with known spend")
+                passed_state.params["success"] = True
+                return _ok_outcome(passed_state)
+    
+        class AsyncProvider(Provider):
+            async def execute_async(self, passed_ctx, passed_state):
+                await asyncio.sleep(0)
+                return self.execute(passed_ctx, passed_state)
+    
+        if "thread" in route:
+            monkeypatch.setattr(retry_module, "_can_use_forked_timeout_worker", lambda: False)
+        node = AsyncProvider() if "provider" in route else Provider()
+        finite = route not in {"sync-direct", "async-provider-unbounded", "async-sync-unbounded"}
+        kwargs = dict(
+            retry_policy=RetryPolicy(max_retries=1, backoff_base_s=0.1, jitter="none"),
+            timeout_s=2.0 if finite else None,
+            deadline_monotonic=_time.monotonic() + 2 if finite else None,
+            alias=route,
+        )
+    
+        def invoke():
+            if route.startswith("sync-"):
+                return execute_with_retry_sync(node, context, initial, **kwargs)
+            return asyncio.run(execute_with_retry_async(node, context, initial, **kwargs))
+    
+        if terminal:
+            with pytest.raises(RetryExhaustedError) as caught:
+                invoke()
+            settled = initial
+            if "fork" not in route:
+                assert isinstance(caught.value.__cause__, TimeoutError)
+        else:
+            settled = invoke().state
+            assert settled.params == {"success": True}
+            assert initial.budgets["llm_spent_usd"] == Decimal(5)
+        attempts = [json.loads(line) for line in effects.read_text().splitlines()]
+        assert [entry["ordinal"] for entry in attempts] == [1, 2]
+        assert [entry["before"] for entry in attempts] == ["5", "5"]
+        assert [entry["dirty_before"] for entry in attempts] == [None, None]
+>       assert settled.budgets["llm_spent_usd"] == Decimal(8)
+E       AssertionError: assert Decimal('6') == Decimal('8')
+E        +  where Decimal('8') = <class 'decimal.Decimal'>(8)
+
+tests/unit/scientist/orchestration/engine/test_retry.py:2036: AssertionError
+_ test_completed_failed_spend_settles_without_ordinary_branch[False-async-thread] _
+
+route = 'async-thread', terminal = False
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-206/test_completed_failed_spend_se4')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7ff2579d6f10>
+
+    @pytest.mark.parametrize("route", _SPEND_ROUTES)
+    @pytest.mark.parametrize("terminal", [False, True])
+    def test_completed_failed_spend_settles_without_ordinary_branch(
+        route, terminal, tmp_path, monkeypatch
+    ):
+        from decimal import Decimal
+    
+        from polisyos.core.artifacts.store import FileSystemCAS
+        from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+        from polisyos.core.registry import build_default_registry_bundle
+        from polisyos.scientist.orchestration.engine.context import ExecutionContext
+        from polisyos.scientist.orchestration.engine.protocol import NodeSpec
+    
+        if "fork" in route and not retry_module._can_use_forked_timeout_worker():
+            pytest.skip("actual fork consumer required")
+        effects = tmp_path / "attempts.jsonl"
+        store = FileSystemCAS(tmp_path / "cas")
+        bundle = build_default_registry_bundle(store)
+        run = RunContext.start(store=store, registry_bundle=bundle.bundle_ref, run_id="R_spend")
+        context = ExecutionContext(store=store, run=run, logger=MagicMock())
+        initial = ExperimentState(run_id="R_spend", budgets={"llm_spent_usd": Decimal(5)})
+    
+        class Provider:
+            spec = NodeSpec(
+                metadata=ComponentMetadata(
+                    component_id=ComponentId.parse("scientist.known_spend@1.0.0"),
+                    kind=ComponentKind.SCIENTIST_NODE,
+                    abi_targets={"world_abi": "1.x"},
+                    display_name="known spend",
+                    description="Real completed failure settlement",
+                    capabilities=Capability.SCIENTIST_NODE,
+                ),
+                state_reads=["budgets", "params"],
+                state_writes=["budgets", "params"],
+            )
+    
+            def execute(self, passed_ctx, passed_state):
+                ordinal = len(effects.read_text().splitlines()) + 1 if effects.exists() else 1
+                before = passed_state.budgets["llm_spent_usd"]
+                passed_state.budgets["llm_spent_usd"] += Decimal(2 if ordinal == 1 else 1)
+                with effects.open("a") as stream:
+                    stream.write(
+                        json.dumps(
+                            {
+                                "ordinal": ordinal,
+                                "pid": os.getpid(),
+                                "before": str(before),
+                                "dirty_before": passed_state.params.get("failed_dirty"),
+                            }
+                        )
+                        + "\n"
+                    )
+                if ordinal == 1 or terminal:
+                    passed_state.params["failed_dirty"] = "must not publish"
+                    raise TimeoutError("completed provider error with known spend")
+                passed_state.params["success"] = True
+                return _ok_outcome(passed_state)
+    
+        class AsyncProvider(Provider):
+            async def execute_async(self, passed_ctx, passed_state):
+                await asyncio.sleep(0)
+                return self.execute(passed_ctx, passed_state)
+    
+        if "thread" in route:
+            monkeypatch.setattr(retry_module, "_can_use_forked_timeout_worker", lambda: False)
+        node = AsyncProvider() if "provider" in route else Provider()
+        finite = route not in {"sync-direct", "async-provider-unbounded", "async-sync-unbounded"}
+        kwargs = dict(
+            retry_policy=RetryPolicy(max_retries=1, backoff_base_s=0.1, jitter="none"),
+            timeout_s=2.0 if finite else None,
+            deadline_monotonic=_time.monotonic() + 2 if finite else None,
+            alias=route,
+        )
+    
+        def invoke():
+            if route.startswith("sync-"):
+                return execute_with_retry_sync(node, context, initial, **kwargs)
+            return asyncio.run(execute_with_retry_async(node, context, initial, **kwargs))
+    
+        if terminal:
+            with pytest.raises(RetryExhaustedError) as caught:
+                invoke()
+            settled = initial
+            if "fork" not in route:
+                assert isinstance(caught.value.__cause__, TimeoutError)
+        else:
+            settled = invoke().state
+            assert settled.params == {"success": True}
+            assert initial.budgets["llm_spent_usd"] == Decimal(5)
+        attempts = [json.loads(line) for line in effects.read_text().splitlines()]
+        assert [entry["ordinal"] for entry in attempts] == [1, 2]
+        assert [entry["before"] for entry in attempts] == ["5", "5"]
+        assert [entry["dirty_before"] for entry in attempts] == [None, None]
+>       assert settled.budgets["llm_spent_usd"] == Decimal(8)
+E       AssertionError: assert Decimal('6') == Decimal('8')
+E        +  where Decimal('8') = <class 'decimal.Decimal'>(8)
+
+tests/unit/scientist/orchestration/engine/test_retry.py:2036: AssertionError
+_ test_completed_failed_spend_settles_without_ordinary_branch[False-async-provider] _
+
+route = 'async-provider', terminal = False
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-206/test_completed_failed_spend_se5')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7ff25787de50>
+
+    @pytest.mark.parametrize("route", _SPEND_ROUTES)
+    @pytest.mark.parametrize("terminal", [False, True])
+    def test_completed_failed_spend_settles_without_ordinary_branch(
+        route, terminal, tmp_path, monkeypatch
+    ):
+        from decimal import Decimal
+    
+        from polisyos.core.artifacts.store import FileSystemCAS
+        from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+        from polisyos.core.registry import build_default_registry_bundle
+        from polisyos.scientist.orchestration.engine.context import ExecutionContext
+        from polisyos.scientist.orchestration.engine.protocol import NodeSpec
+    
+        if "fork" in route and not retry_module._can_use_forked_timeout_worker():
+            pytest.skip("actual fork consumer required")
+        effects = tmp_path / "attempts.jsonl"
+        store = FileSystemCAS(tmp_path / "cas")
+        bundle = build_default_registry_bundle(store)
+        run = RunContext.start(store=store, registry_bundle=bundle.bundle_ref, run_id="R_spend")
+        context = ExecutionContext(store=store, run=run, logger=MagicMock())
+        initial = ExperimentState(run_id="R_spend", budgets={"llm_spent_usd": Decimal(5)})
+    
+        class Provider:
+            spec = NodeSpec(
+                metadata=ComponentMetadata(
+                    component_id=ComponentId.parse("scientist.known_spend@1.0.0"),
+                    kind=ComponentKind.SCIENTIST_NODE,
+                    abi_targets={"world_abi": "1.x"},
+                    display_name="known spend",
+                    description="Real completed failure settlement",
+                    capabilities=Capability.SCIENTIST_NODE,
+                ),
+                state_reads=["budgets", "params"],
+                state_writes=["budgets", "params"],
+            )
+    
+            def execute(self, passed_ctx, passed_state):
+                ordinal = len(effects.read_text().splitlines()) + 1 if effects.exists() else 1
+                before = passed_state.budgets["llm_spent_usd"]
+                passed_state.budgets["llm_spent_usd"] += Decimal(2 if ordinal == 1 else 1)
+                with effects.open("a") as stream:
+                    stream.write(
+                        json.dumps(
+                            {
+                                "ordinal": ordinal,
+                                "pid": os.getpid(),
+                                "before": str(before),
+                                "dirty_before": passed_state.params.get("failed_dirty"),
+                            }
+                        )
+                        + "\n"
+                    )
+                if ordinal == 1 or terminal:
+                    passed_state.params["failed_dirty"] = "must not publish"
+                    raise TimeoutError("completed provider error with known spend")
+                passed_state.params["success"] = True
+                return _ok_outcome(passed_state)
+    
+        class AsyncProvider(Provider):
+            async def execute_async(self, passed_ctx, passed_state):
+                await asyncio.sleep(0)
+                return self.execute(passed_ctx, passed_state)
+    
+        if "thread" in route:
+            monkeypatch.setattr(retry_module, "_can_use_forked_timeout_worker", lambda: False)
+        node = AsyncProvider() if "provider" in route else Provider()
+        finite = route not in {"sync-direct", "async-provider-unbounded", "async-sync-unbounded"}
+        kwargs = dict(
+            retry_policy=RetryPolicy(max_retries=1, backoff_base_s=0.1, jitter="none"),
+            timeout_s=2.0 if finite else None,
+            deadline_monotonic=_time.monotonic() + 2 if finite else None,
+            alias=route,
+        )
+    
+        def invoke():
+            if route.startswith("sync-"):
+                return execute_with_retry_sync(node, context, initial, **kwargs)
+            return asyncio.run(execute_with_retry_async(node, context, initial, **kwargs))
+    
+        if terminal:
+            with pytest.raises(RetryExhaustedError) as caught:
+                invoke()
+            settled = initial
+            if "fork" not in route:
+                assert isinstance(caught.value.__cause__, TimeoutError)
+        else:
+            settled = invoke().state
+            assert settled.params == {"success": True}
+            assert initial.budgets["llm_spent_usd"] == Decimal(5)
+        attempts = [json.loads(line) for line in effects.read_text().splitlines()]
+        assert [entry["ordinal"] for entry in attempts] == [1, 2]
+        assert [entry["before"] for entry in attempts] == ["5", "5"]
+        assert [entry["dirty_before"] for entry in attempts] == [None, None]
+>       assert settled.budgets["llm_spent_usd"] == Decimal(8)
+E       AssertionError: assert Decimal('6') == Decimal('8')
+E        +  where Decimal('8') = <class 'decimal.Decimal'>(8)
+
+tests/unit/scientist/orchestration/engine/test_retry.py:2036: AssertionError
+_ test_completed_failed_spend_settles_without_ordinary_branch[False-async-sync-unbounded] _
+
+route = 'async-sync-unbounded', terminal = False
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-206/test_completed_failed_spend_se7')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7ff2578e4b90>
+
+    @pytest.mark.parametrize("route", _SPEND_ROUTES)
+    @pytest.mark.parametrize("terminal", [False, True])
+    def test_completed_failed_spend_settles_without_ordinary_branch(
+        route, terminal, tmp_path, monkeypatch
+    ):
+        from decimal import Decimal
+    
+        from polisyos.core.artifacts.store import FileSystemCAS
+        from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+        from polisyos.core.registry import build_default_registry_bundle
+        from polisyos.scientist.orchestration.engine.context import ExecutionContext
+        from polisyos.scientist.orchestration.engine.protocol import NodeSpec
+    
+        if "fork" in route and not retry_module._can_use_forked_timeout_worker():
+            pytest.skip("actual fork consumer required")
+        effects = tmp_path / "attempts.jsonl"
+        store = FileSystemCAS(tmp_path / "cas")
+        bundle = build_default_registry_bundle(store)
+        run = RunContext.start(store=store, registry_bundle=bundle.bundle_ref, run_id="R_spend")
+        context = ExecutionContext(store=store, run=run, logger=MagicMock())
+        initial = ExperimentState(run_id="R_spend", budgets={"llm_spent_usd": Decimal(5)})
+    
+        class Provider:
+            spec = NodeSpec(
+                metadata=ComponentMetadata(
+                    component_id=ComponentId.parse("scientist.known_spend@1.0.0"),
+                    kind=ComponentKind.SCIENTIST_NODE,
+                    abi_targets={"world_abi": "1.x"},
+                    display_name="known spend",
+                    description="Real completed failure settlement",
+                    capabilities=Capability.SCIENTIST_NODE,
+                ),
+                state_reads=["budgets", "params"],
+                state_writes=["budgets", "params"],
+            )
+    
+            def execute(self, passed_ctx, passed_state):
+                ordinal = len(effects.read_text().splitlines()) + 1 if effects.exists() else 1
+                before = passed_state.budgets["llm_spent_usd"]
+                passed_state.budgets["llm_spent_usd"] += Decimal(2 if ordinal == 1 else 1)
+                with effects.open("a") as stream:
+                    stream.write(
+                        json.dumps(
+                            {
+                                "ordinal": ordinal,
+                                "pid": os.getpid(),
+                                "before": str(before),
+                                "dirty_before": passed_state.params.get("failed_dirty"),
+                            }
+                        )
+                        + "\n"
+                    )
+                if ordinal == 1 or terminal:
+                    passed_state.params["failed_dirty"] = "must not publish"
+                    raise TimeoutError("completed provider error with known spend")
+                passed_state.params["success"] = True
+                return _ok_outcome(passed_state)
+    
+        class AsyncProvider(Provider):
+            async def execute_async(self, passed_ctx, passed_state):
+                await asyncio.sleep(0)
+                return self.execute(passed_ctx, passed_state)
+    
+        if "thread" in route:
+            monkeypatch.setattr(retry_module, "_can_use_forked_timeout_worker", lambda: False)
+        node = AsyncProvider() if "provider" in route else Provider()
+        finite = route not in {"sync-direct", "async-provider-unbounded", "async-sync-unbounded"}
+        kwargs = dict(
+            retry_policy=RetryPolicy(max_retries=1, backoff_base_s=0.1, jitter="none"),
+            timeout_s=2.0 if finite else None,
+            deadline_monotonic=_time.monotonic() + 2 if finite else None,
+            alias=route,
+        )
+    
+        def invoke():
+            if route.startswith("sync-"):
+                return execute_with_retry_sync(node, context, initial, **kwargs)
+            return asyncio.run(execute_with_retry_async(node, context, initial, **kwargs))
+    
+        if terminal:
+            with pytest.raises(RetryExhaustedError) as caught:
+                invoke()
+            settled = initial
+            if "fork" not in route:
+                assert isinstance(caught.value.__cause__, TimeoutError)
+        else:
+            settled = invoke().state
+            assert settled.params == {"success": True}
+            assert initial.budgets["llm_spent_usd"] == Decimal(5)
+        attempts = [json.loads(line) for line in effects.read_text().splitlines()]
+        assert [entry["ordinal"] for entry in attempts] == [1, 2]
+        assert [entry["before"] for entry in attempts] == ["5", "5"]
+        assert [entry["dirty_before"] for entry in attempts] == [None, None]
+>       assert settled.budgets["llm_spent_usd"] == Decimal(8)
+E       AssertionError: assert Decimal('6') == Decimal('8')
+E        +  where Decimal('8') = <class 'decimal.Decimal'>(8)
+
+tests/unit/scientist/orchestration/engine/test_retry.py:2036: AssertionError
+_ test_completed_failed_spend_settles_without_ordinary_branch[True-sync-fork] __
+
+route = 'sync-fork', terminal = True
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-206/test_completed_failed_spend_se9')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7ff2578f98d0>
+
+    @pytest.mark.parametrize("route", _SPEND_ROUTES)
+    @pytest.mark.parametrize("terminal", [False, True])
+    def test_completed_failed_spend_settles_without_ordinary_branch(
+        route, terminal, tmp_path, monkeypatch
+    ):
+        from decimal import Decimal
+    
+        from polisyos.core.artifacts.store import FileSystemCAS
+        from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+        from polisyos.core.registry import build_default_registry_bundle
+        from polisyos.scientist.orchestration.engine.context import ExecutionContext
+        from polisyos.scientist.orchestration.engine.protocol import NodeSpec
+    
+        if "fork" in route and not retry_module._can_use_forked_timeout_worker():
+            pytest.skip("actual fork consumer required")
+        effects = tmp_path / "attempts.jsonl"
+        store = FileSystemCAS(tmp_path / "cas")
+        bundle = build_default_registry_bundle(store)
+        run = RunContext.start(store=store, registry_bundle=bundle.bundle_ref, run_id="R_spend")
+        context = ExecutionContext(store=store, run=run, logger=MagicMock())
+        initial = ExperimentState(run_id="R_spend", budgets={"llm_spent_usd": Decimal(5)})
+    
+        class Provider:
+            spec = NodeSpec(
+                metadata=ComponentMetadata(
+                    component_id=ComponentId.parse("scientist.known_spend@1.0.0"),
+                    kind=ComponentKind.SCIENTIST_NODE,
+                    abi_targets={"world_abi": "1.x"},
+                    display_name="known spend",
+                    description="Real completed failure settlement",
+                    capabilities=Capability.SCIENTIST_NODE,
+                ),
+                state_reads=["budgets", "params"],
+                state_writes=["budgets", "params"],
+            )
+    
+            def execute(self, passed_ctx, passed_state):
+                ordinal = len(effects.read_text().splitlines()) + 1 if effects.exists() else 1
+                before = passed_state.budgets["llm_spent_usd"]
+                passed_state.budgets["llm_spent_usd"] += Decimal(2 if ordinal == 1 else 1)
+                with effects.open("a") as stream:
+                    stream.write(
+                        json.dumps(
+                            {
+                                "ordinal": ordinal,
+                                "pid": os.getpid(),
+                                "before": str(before),
+                                "dirty_before": passed_state.params.get("failed_dirty"),
+                            }
+                        )
+                        + "\n"
+                    )
+                if ordinal == 1 or terminal:
+                    passed_state.params["failed_dirty"] = "must not publish"
+                    raise TimeoutError("completed provider error with known spend")
+                passed_state.params["success"] = True
+                return _ok_outcome(passed_state)
+    
+        class AsyncProvider(Provider):
+            async def execute_async(self, passed_ctx, passed_state):
+                await asyncio.sleep(0)
+                return self.execute(passed_ctx, passed_state)
+    
+        if "thread" in route:
+            monkeypatch.setattr(retry_module, "_can_use_forked_timeout_worker", lambda: False)
+        node = AsyncProvider() if "provider" in route else Provider()
+        finite = route not in {"sync-direct", "async-provider-unbounded", "async-sync-unbounded"}
+        kwargs = dict(
+            retry_policy=RetryPolicy(max_retries=1, backoff_base_s=0.1, jitter="none"),
+            timeout_s=2.0 if finite else None,
+            deadline_monotonic=_time.monotonic() + 2 if finite else None,
+            alias=route,
+        )
+    
+        def invoke():
+            if route.startswith("sync-"):
+                return execute_with_retry_sync(node, context, initial, **kwargs)
+            return asyncio.run(execute_with_retry_async(node, context, initial, **kwargs))
+    
+        if terminal:
+            with pytest.raises(RetryExhaustedError) as caught:
+                invoke()
+            settled = initial
+            if "fork" not in route:
+                assert isinstance(caught.value.__cause__, TimeoutError)
+        else:
+            settled = invoke().state
+            assert settled.params == {"success": True}
+            assert initial.budgets["llm_spent_usd"] == Decimal(5)
+        attempts = [json.loads(line) for line in effects.read_text().splitlines()]
+        assert [entry["ordinal"] for entry in attempts] == [1, 2]
+        assert [entry["before"] for entry in attempts] == ["5", "5"]
+        assert [entry["dirty_before"] for entry in attempts] == [None, None]
+>       assert settled.budgets["llm_spent_usd"] == Decimal(8)
+E       AssertionError: assert Decimal('5') == Decimal('8')
+E        +  where Decimal('8') = <class 'decimal.Decimal'>(8)
+
+tests/unit/scientist/orchestration/engine/test_retry.py:2036: AssertionError
+_ test_completed_failed_spend_settles_without_ordinary_branch[True-sync-thread] _
+
+route = 'sync-thread', terminal = True
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-206/test_completed_failed_spend_se10')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7ff2578f9e10>
+
+    @pytest.mark.parametrize("route", _SPEND_ROUTES)
+    @pytest.mark.parametrize("terminal", [False, True])
+    def test_completed_failed_spend_settles_without_ordinary_branch(
+        route, terminal, tmp_path, monkeypatch
+    ):
+        from decimal import Decimal
+    
+        from polisyos.core.artifacts.store import FileSystemCAS
+        from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+        from polisyos.core.registry import build_default_registry_bundle
+        from polisyos.scientist.orchestration.engine.context import ExecutionContext
+        from polisyos.scientist.orchestration.engine.protocol import NodeSpec
+    
+        if "fork" in route and not retry_module._can_use_forked_timeout_worker():
+            pytest.skip("actual fork consumer required")
+        effects = tmp_path / "attempts.jsonl"
+        store = FileSystemCAS(tmp_path / "cas")
+        bundle = build_default_registry_bundle(store)
+        run = RunContext.start(store=store, registry_bundle=bundle.bundle_ref, run_id="R_spend")
+        context = ExecutionContext(store=store, run=run, logger=MagicMock())
+        initial = ExperimentState(run_id="R_spend", budgets={"llm_spent_usd": Decimal(5)})
+    
+        class Provider:
+            spec = NodeSpec(
+                metadata=ComponentMetadata(
+                    component_id=ComponentId.parse("scientist.known_spend@1.0.0"),
+                    kind=ComponentKind.SCIENTIST_NODE,
+                    abi_targets={"world_abi": "1.x"},
+                    display_name="known spend",
+                    description="Real completed failure settlement",
+                    capabilities=Capability.SCIENTIST_NODE,
+                ),
+                state_reads=["budgets", "params"],
+                state_writes=["budgets", "params"],
+            )
+    
+            def execute(self, passed_ctx, passed_state):
+                ordinal = len(effects.read_text().splitlines()) + 1 if effects.exists() else 1
+                before = passed_state.budgets["llm_spent_usd"]
+                passed_state.budgets["llm_spent_usd"] += Decimal(2 if ordinal == 1 else 1)
+                with effects.open("a") as stream:
+                    stream.write(
+                        json.dumps(
+                            {
+                                "ordinal": ordinal,
+                                "pid": os.getpid(),
+                                "before": str(before),
+                                "dirty_before": passed_state.params.get("failed_dirty"),
+                            }
+                        )
+                        + "\n"
+                    )
+                if ordinal == 1 or terminal:
+                    passed_state.params["failed_dirty"] = "must not publish"
+                    raise TimeoutError("completed provider error with known spend")
+                passed_state.params["success"] = True
+                return _ok_outcome(passed_state)
+    
+        class AsyncProvider(Provider):
+            async def execute_async(self, passed_ctx, passed_state):
+                await asyncio.sleep(0)
+                return self.execute(passed_ctx, passed_state)
+    
+        if "thread" in route:
+            monkeypatch.setattr(retry_module, "_can_use_forked_timeout_worker", lambda: False)
+        node = AsyncProvider() if "provider" in route else Provider()
+        finite = route not in {"sync-direct", "async-provider-unbounded", "async-sync-unbounded"}
+        kwargs = dict(
+            retry_policy=RetryPolicy(max_retries=1, backoff_base_s=0.1, jitter="none"),
+            timeout_s=2.0 if finite else None,
+            deadline_monotonic=_time.monotonic() + 2 if finite else None,
+            alias=route,
+        )
+    
+        def invoke():
+            if route.startswith("sync-"):
+                return execute_with_retry_sync(node, context, initial, **kwargs)
+            return asyncio.run(execute_with_retry_async(node, context, initial, **kwargs))
+    
+        if terminal:
+            with pytest.raises(RetryExhaustedError) as caught:
+                invoke()
+            settled = initial
+            if "fork" not in route:
+                assert isinstance(caught.value.__cause__, TimeoutError)
+        else:
+            settled = invoke().state
+            assert settled.params == {"success": True}
+            assert initial.budgets["llm_spent_usd"] == Decimal(5)
+        attempts = [json.loads(line) for line in effects.read_text().splitlines()]
+        assert [entry["ordinal"] for entry in attempts] == [1, 2]
+        assert [entry["before"] for entry in attempts] == ["5", "5"]
+        assert [entry["dirty_before"] for entry in attempts] == [None, None]
+>       assert settled.budgets["llm_spent_usd"] == Decimal(8)
+E       AssertionError: assert Decimal('5') == Decimal('8')
+E        +  where Decimal('8') = <class 'decimal.Decimal'>(8)
+
+tests/unit/scientist/orchestration/engine/test_retry.py:2036: AssertionError
+_ test_completed_failed_spend_settles_without_ordinary_branch[True-async-fork] _
+
+route = 'async-fork', terminal = True
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-206/test_completed_failed_spend_se11')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7ff25793b6c0>
+
+    @pytest.mark.parametrize("route", _SPEND_ROUTES)
+    @pytest.mark.parametrize("terminal", [False, True])
+    def test_completed_failed_spend_settles_without_ordinary_branch(
+        route, terminal, tmp_path, monkeypatch
+    ):
+        from decimal import Decimal
+    
+        from polisyos.core.artifacts.store import FileSystemCAS
+        from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+        from polisyos.core.registry import build_default_registry_bundle
+        from polisyos.scientist.orchestration.engine.context import ExecutionContext
+        from polisyos.scientist.orchestration.engine.protocol import NodeSpec
+    
+        if "fork" in route and not retry_module._can_use_forked_timeout_worker():
+            pytest.skip("actual fork consumer required")
+        effects = tmp_path / "attempts.jsonl"
+        store = FileSystemCAS(tmp_path / "cas")
+        bundle = build_default_registry_bundle(store)
+        run = RunContext.start(store=store, registry_bundle=bundle.bundle_ref, run_id="R_spend")
+        context = ExecutionContext(store=store, run=run, logger=MagicMock())
+        initial = ExperimentState(run_id="R_spend", budgets={"llm_spent_usd": Decimal(5)})
+    
+        class Provider:
+            spec = NodeSpec(
+                metadata=ComponentMetadata(
+                    component_id=ComponentId.parse("scientist.known_spend@1.0.0"),
+                    kind=ComponentKind.SCIENTIST_NODE,
+                    abi_targets={"world_abi": "1.x"},
+                    display_name="known spend",
+                    description="Real completed failure settlement",
+                    capabilities=Capability.SCIENTIST_NODE,
+                ),
+                state_reads=["budgets", "params"],
+                state_writes=["budgets", "params"],
+            )
+    
+            def execute(self, passed_ctx, passed_state):
+                ordinal = len(effects.read_text().splitlines()) + 1 if effects.exists() else 1
+                before = passed_state.budgets["llm_spent_usd"]
+                passed_state.budgets["llm_spent_usd"] += Decimal(2 if ordinal == 1 else 1)
+                with effects.open("a") as stream:
+                    stream.write(
+                        json.dumps(
+                            {
+                                "ordinal": ordinal,
+                                "pid": os.getpid(),
+                                "before": str(before),
+                                "dirty_before": passed_state.params.get("failed_dirty"),
+                            }
+                        )
+                        + "\n"
+                    )
+                if ordinal == 1 or terminal:
+                    passed_state.params["failed_dirty"] = "must not publish"
+                    raise TimeoutError("completed provider error with known spend")
+                passed_state.params["success"] = True
+                return _ok_outcome(passed_state)
+    
+        class AsyncProvider(Provider):
+            async def execute_async(self, passed_ctx, passed_state):
+                await asyncio.sleep(0)
+                return self.execute(passed_ctx, passed_state)
+    
+        if "thread" in route:
+            monkeypatch.setattr(retry_module, "_can_use_forked_timeout_worker", lambda: False)
+        node = AsyncProvider() if "provider" in route else Provider()
+        finite = route not in {"sync-direct", "async-provider-unbounded", "async-sync-unbounded"}
+        kwargs = dict(
+            retry_policy=RetryPolicy(max_retries=1, backoff_base_s=0.1, jitter="none"),
+            timeout_s=2.0 if finite else None,
+            deadline_monotonic=_time.monotonic() + 2 if finite else None,
+            alias=route,
+        )
+    
+        def invoke():
+            if route.startswith("sync-"):
+                return execute_with_retry_sync(node, context, initial, **kwargs)
+            return asyncio.run(execute_with_retry_async(node, context, initial, **kwargs))
+    
+        if terminal:
+            with pytest.raises(RetryExhaustedError) as caught:
+                invoke()
+            settled = initial
+            if "fork" not in route:
+                assert isinstance(caught.value.__cause__, TimeoutError)
+        else:
+            settled = invoke().state
+            assert settled.params == {"success": True}
+            assert initial.budgets["llm_spent_usd"] == Decimal(5)
+        attempts = [json.loads(line) for line in effects.read_text().splitlines()]
+        assert [entry["ordinal"] for entry in attempts] == [1, 2]
+        assert [entry["before"] for entry in attempts] == ["5", "5"]
+        assert [entry["dirty_before"] for entry in attempts] == [None, None]
+>       assert settled.budgets["llm_spent_usd"] == Decimal(8)
+E       AssertionError: assert Decimal('5') == Decimal('8')
+E        +  where Decimal('8') = <class 'decimal.Decimal'>(8)
+
+tests/unit/scientist/orchestration/engine/test_retry.py:2036: AssertionError
+_ test_completed_failed_spend_settles_without_ordinary_branch[True-async-thread] _
+
+route = 'async-thread', terminal = True
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-206/test_completed_failed_spend_se12')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7ff257ac7050>
+
+    @pytest.mark.parametrize("route", _SPEND_ROUTES)
+    @pytest.mark.parametrize("terminal", [False, True])
+    def test_completed_failed_spend_settles_without_ordinary_branch(
+        route, terminal, tmp_path, monkeypatch
+    ):
+        from decimal import Decimal
+    
+        from polisyos.core.artifacts.store import FileSystemCAS
+        from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+        from polisyos.core.registry import build_default_registry_bundle
+        from polisyos.scientist.orchestration.engine.context import ExecutionContext
+        from polisyos.scientist.orchestration.engine.protocol import NodeSpec
+    
+        if "fork" in route and not retry_module._can_use_forked_timeout_worker():
+            pytest.skip("actual fork consumer required")
+        effects = tmp_path / "attempts.jsonl"
+        store = FileSystemCAS(tmp_path / "cas")
+        bundle = build_default_registry_bundle(store)
+        run = RunContext.start(store=store, registry_bundle=bundle.bundle_ref, run_id="R_spend")
+        context = ExecutionContext(store=store, run=run, logger=MagicMock())
+        initial = ExperimentState(run_id="R_spend", budgets={"llm_spent_usd": Decimal(5)})
+    
+        class Provider:
+            spec = NodeSpec(
+                metadata=ComponentMetadata(
+                    component_id=ComponentId.parse("scientist.known_spend@1.0.0"),
+                    kind=ComponentKind.SCIENTIST_NODE,
+                    abi_targets={"world_abi": "1.x"},
+                    display_name="known spend",
+                    description="Real completed failure settlement",
+                    capabilities=Capability.SCIENTIST_NODE,
+                ),
+                state_reads=["budgets", "params"],
+                state_writes=["budgets", "params"],
+            )
+    
+            def execute(self, passed_ctx, passed_state):
+                ordinal = len(effects.read_text().splitlines()) + 1 if effects.exists() else 1
+                before = passed_state.budgets["llm_spent_usd"]
+                passed_state.budgets["llm_spent_usd"] += Decimal(2 if ordinal == 1 else 1)
+                with effects.open("a") as stream:
+                    stream.write(
+                        json.dumps(
+                            {
+                                "ordinal": ordinal,
+                                "pid": os.getpid(),
+                                "before": str(before),
+                                "dirty_before": passed_state.params.get("failed_dirty"),
+                            }
+                        )
+                        + "\n"
+                    )
+                if ordinal == 1 or terminal:
+                    passed_state.params["failed_dirty"] = "must not publish"
+                    raise TimeoutError("completed provider error with known spend")
+                passed_state.params["success"] = True
+                return _ok_outcome(passed_state)
+    
+        class AsyncProvider(Provider):
+            async def execute_async(self, passed_ctx, passed_state):
+                await asyncio.sleep(0)
+                return self.execute(passed_ctx, passed_state)
+    
+        if "thread" in route:
+            monkeypatch.setattr(retry_module, "_can_use_forked_timeout_worker", lambda: False)
+        node = AsyncProvider() if "provider" in route else Provider()
+        finite = route not in {"sync-direct", "async-provider-unbounded", "async-sync-unbounded"}
+        kwargs = dict(
+            retry_policy=RetryPolicy(max_retries=1, backoff_base_s=0.1, jitter="none"),
+            timeout_s=2.0 if finite else None,
+            deadline_monotonic=_time.monotonic() + 2 if finite else None,
+            alias=route,
+        )
+    
+        def invoke():
+            if route.startswith("sync-"):
+                return execute_with_retry_sync(node, context, initial, **kwargs)
+            return asyncio.run(execute_with_retry_async(node, context, initial, **kwargs))
+    
+        if terminal:
+            with pytest.raises(RetryExhaustedError) as caught:
+                invoke()
+            settled = initial
+            if "fork" not in route:
+                assert isinstance(caught.value.__cause__, TimeoutError)
+        else:
+            settled = invoke().state
+            assert settled.params == {"success": True}
+            assert initial.budgets["llm_spent_usd"] == Decimal(5)
+        attempts = [json.loads(line) for line in effects.read_text().splitlines()]
+        assert [entry["ordinal"] for entry in attempts] == [1, 2]
+        assert [entry["before"] for entry in attempts] == ["5", "5"]
+        assert [entry["dirty_before"] for entry in attempts] == [None, None]
+>       assert settled.budgets["llm_spent_usd"] == Decimal(8)
+E       AssertionError: assert Decimal('5') == Decimal('8')
+E        +  where Decimal('8') = <class 'decimal.Decimal'>(8)
+
+tests/unit/scientist/orchestration/engine/test_retry.py:2036: AssertionError
+_ test_completed_failed_spend_settles_without_ordinary_branch[True-async-provider] _
+
+route = 'async-provider', terminal = True
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-206/test_completed_failed_spend_se13')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7ff257ac7350>
+
+    @pytest.mark.parametrize("route", _SPEND_ROUTES)
+    @pytest.mark.parametrize("terminal", [False, True])
+    def test_completed_failed_spend_settles_without_ordinary_branch(
+        route, terminal, tmp_path, monkeypatch
+    ):
+        from decimal import Decimal
+    
+        from polisyos.core.artifacts.store import FileSystemCAS
+        from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+        from polisyos.core.registry import build_default_registry_bundle
+        from polisyos.scientist.orchestration.engine.context import ExecutionContext
+        from polisyos.scientist.orchestration.engine.protocol import NodeSpec
+    
+        if "fork" in route and not retry_module._can_use_forked_timeout_worker():
+            pytest.skip("actual fork consumer required")
+        effects = tmp_path / "attempts.jsonl"
+        store = FileSystemCAS(tmp_path / "cas")
+        bundle = build_default_registry_bundle(store)
+        run = RunContext.start(store=store, registry_bundle=bundle.bundle_ref, run_id="R_spend")
+        context = ExecutionContext(store=store, run=run, logger=MagicMock())
+        initial = ExperimentState(run_id="R_spend", budgets={"llm_spent_usd": Decimal(5)})
+    
+        class Provider:
+            spec = NodeSpec(
+                metadata=ComponentMetadata(
+                    component_id=ComponentId.parse("scientist.known_spend@1.0.0"),
+                    kind=ComponentKind.SCIENTIST_NODE,
+                    abi_targets={"world_abi": "1.x"},
+                    display_name="known spend",
+                    description="Real completed failure settlement",
+                    capabilities=Capability.SCIENTIST_NODE,
+                ),
+                state_reads=["budgets", "params"],
+                state_writes=["budgets", "params"],
+            )
+    
+            def execute(self, passed_ctx, passed_state):
+                ordinal = len(effects.read_text().splitlines()) + 1 if effects.exists() else 1
+                before = passed_state.budgets["llm_spent_usd"]
+                passed_state.budgets["llm_spent_usd"] += Decimal(2 if ordinal == 1 else 1)
+                with effects.open("a") as stream:
+                    stream.write(
+                        json.dumps(
+                            {
+                                "ordinal": ordinal,
+                                "pid": os.getpid(),
+                                "before": str(before),
+                                "dirty_before": passed_state.params.get("failed_dirty"),
+                            }
+                        )
+                        + "\n"
+                    )
+                if ordinal == 1 or terminal:
+                    passed_state.params["failed_dirty"] = "must not publish"
+                    raise TimeoutError("completed provider error with known spend")
+                passed_state.params["success"] = True
+                return _ok_outcome(passed_state)
+    
+        class AsyncProvider(Provider):
+            async def execute_async(self, passed_ctx, passed_state):
+                await asyncio.sleep(0)
+                return self.execute(passed_ctx, passed_state)
+    
+        if "thread" in route:
+            monkeypatch.setattr(retry_module, "_can_use_forked_timeout_worker", lambda: False)
+        node = AsyncProvider() if "provider" in route else Provider()
+        finite = route not in {"sync-direct", "async-provider-unbounded", "async-sync-unbounded"}
+        kwargs = dict(
+            retry_policy=RetryPolicy(max_retries=1, backoff_base_s=0.1, jitter="none"),
+            timeout_s=2.0 if finite else None,
+            deadline_monotonic=_time.monotonic() + 2 if finite else None,
+            alias=route,
+        )
+    
+        def invoke():
+            if route.startswith("sync-"):
+                return execute_with_retry_sync(node, context, initial, **kwargs)
+            return asyncio.run(execute_with_retry_async(node, context, initial, **kwargs))
+    
+        if terminal:
+            with pytest.raises(RetryExhaustedError) as caught:
+                invoke()
+            settled = initial
+            if "fork" not in route:
+                assert isinstance(caught.value.__cause__, TimeoutError)
+        else:
+            settled = invoke().state
+            assert settled.params == {"success": True}
+            assert initial.budgets["llm_spent_usd"] == Decimal(5)
+        attempts = [json.loads(line) for line in effects.read_text().splitlines()]
+        assert [entry["ordinal"] for entry in attempts] == [1, 2]
+        assert [entry["before"] for entry in attempts] == ["5", "5"]
+        assert [entry["dirty_before"] for entry in attempts] == [None, None]
+>       assert settled.budgets["llm_spent_usd"] == Decimal(8)
+E       AssertionError: assert Decimal('5') == Decimal('8')
+E        +  where Decimal('8') = <class 'decimal.Decimal'>(8)
+
+tests/unit/scientist/orchestration/engine/test_retry.py:2036: AssertionError
+_ test_completed_failed_spend_settles_without_ordinary_branch[True-async-sync-unbounded] _
+
+route = 'async-sync-unbounded', terminal = True
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-206/test_completed_failed_spend_se15')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7ff257624470>
+
+    @pytest.mark.parametrize("route", _SPEND_ROUTES)
+    @pytest.mark.parametrize("terminal", [False, True])
+    def test_completed_failed_spend_settles_without_ordinary_branch(
+        route, terminal, tmp_path, monkeypatch
+    ):
+        from decimal import Decimal
+    
+        from polisyos.core.artifacts.store import FileSystemCAS
+        from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+        from polisyos.core.registry import build_default_registry_bundle
+        from polisyos.scientist.orchestration.engine.context import ExecutionContext
+        from polisyos.scientist.orchestration.engine.protocol import NodeSpec
+    
+        if "fork" in route and not retry_module._can_use_forked_timeout_worker():
+            pytest.skip("actual fork consumer required")
+        effects = tmp_path / "attempts.jsonl"
+        store = FileSystemCAS(tmp_path / "cas")
+        bundle = build_default_registry_bundle(store)
+        run = RunContext.start(store=store, registry_bundle=bundle.bundle_ref, run_id="R_spend")
+        context = ExecutionContext(store=store, run=run, logger=MagicMock())
+        initial = ExperimentState(run_id="R_spend", budgets={"llm_spent_usd": Decimal(5)})
+    
+        class Provider:
+            spec = NodeSpec(
+                metadata=ComponentMetadata(
+                    component_id=ComponentId.parse("scientist.known_spend@1.0.0"),
+                    kind=ComponentKind.SCIENTIST_NODE,
+                    abi_targets={"world_abi": "1.x"},
+                    display_name="known spend",
+                    description="Real completed failure settlement",
+                    capabilities=Capability.SCIENTIST_NODE,
+                ),
+                state_reads=["budgets", "params"],
+                state_writes=["budgets", "params"],
+            )
+    
+            def execute(self, passed_ctx, passed_state):
+                ordinal = len(effects.read_text().splitlines()) + 1 if effects.exists() else 1
+                before = passed_state.budgets["llm_spent_usd"]
+                passed_state.budgets["llm_spent_usd"] += Decimal(2 if ordinal == 1 else 1)
+                with effects.open("a") as stream:
+                    stream.write(
+                        json.dumps(
+                            {
+                                "ordinal": ordinal,
+                                "pid": os.getpid(),
+                                "before": str(before),
+                                "dirty_before": passed_state.params.get("failed_dirty"),
+                            }
+                        )
+                        + "\n"
+                    )
+                if ordinal == 1 or terminal:
+                    passed_state.params["failed_dirty"] = "must not publish"
+                    raise TimeoutError("completed provider error with known spend")
+                passed_state.params["success"] = True
+                return _ok_outcome(passed_state)
+    
+        class AsyncProvider(Provider):
+            async def execute_async(self, passed_ctx, passed_state):
+                await asyncio.sleep(0)
+                return self.execute(passed_ctx, passed_state)
+    
+        if "thread" in route:
+            monkeypatch.setattr(retry_module, "_can_use_forked_timeout_worker", lambda: False)
+        node = AsyncProvider() if "provider" in route else Provider()
+        finite = route not in {"sync-direct", "async-provider-unbounded", "async-sync-unbounded"}
+        kwargs = dict(
+            retry_policy=RetryPolicy(max_retries=1, backoff_base_s=0.1, jitter="none"),
+            timeout_s=2.0 if finite else None,
+            deadline_monotonic=_time.monotonic() + 2 if finite else None,
+            alias=route,
+        )
+    
+        def invoke():
+            if route.startswith("sync-"):
+                return execute_with_retry_sync(node, context, initial, **kwargs)
+            return asyncio.run(execute_with_retry_async(node, context, initial, **kwargs))
+    
+        if terminal:
+            with pytest.raises(RetryExhaustedError) as caught:
+                invoke()
+            settled = initial
+            if "fork" not in route:
+                assert isinstance(caught.value.__cause__, TimeoutError)
+        else:
+            settled = invoke().state
+            assert settled.params == {"success": True}
+            assert initial.budgets["llm_spent_usd"] == Decimal(5)
+        attempts = [json.loads(line) for line in effects.read_text().splitlines()]
+        assert [entry["ordinal"] for entry in attempts] == [1, 2]
+        assert [entry["before"] for entry in attempts] == ["5", "5"]
+        assert [entry["dirty_before"] for entry in attempts] == [None, None]
+>       assert settled.budgets["llm_spent_usd"] == Decimal(8)
+E       AssertionError: assert Decimal('5') == Decimal('8')
+E        +  where Decimal('8') = <class 'decimal.Decimal'>(8)
+
+tests/unit/scientist/orchestration/engine/test_retry.py:2036: AssertionError
+____ test_real_framed_failed_spend_wire_rejects_corrupt_projection[version] ____
+
+corruption = 'version'
+
+    @pytest.mark.parametrize("corruption", ["version", "hash", "identity", "negative", "other-budget"])
+    def test_real_framed_failed_spend_wire_rejects_corrupt_projection(corruption):
+        import base64
+        from decimal import Decimal
+    
+        from polisyos.scientist.orchestration.engine.runner.serialization import (
+            DeserializationError,
+            serialize_state_safe,
+        )
+    
+        budgets = {"llm_spent_usd": Decimal(2)}
+        run_id = "R_spend"
+        if corruption == "identity":
+            run_id = "R_other"
+        elif corruption == "negative":
+            budgets["llm_spent_usd"] = Decimal(-2)
+        elif corruption == "other-budget":
+            budgets = {"unrelated_budget": Decimal(2)}
+        wire, _ = serialize_state_safe(ExperimentState(run_id=run_id, budgets=budgets))
+        if corruption == "version":
+            wire = b"\x02" + wire[1:]
+        elif corruption == "hash":
+            wire = wire[:-1] + bytes([wire[-1] ^ 1])
+        payload = {
+            "message": "provider error",
+            "category": "transient",
+            "code": "node.exception",
+            "known_spend_state_v1": base64.b64encode(wire).decode("ascii"),
+        }
+        channel = retry_module._WorkerResultChannel(mp.get_context("fork"))
+        try:
+            channel.put(("error", payload))
+            status, received = channel.get(timeout=0.1)
+            assert status == "error"
+            rejection = DeserializationError if corruption in {"version", "hash"} else ValueError
+            with pytest.raises(rejection):
+>               retry_module._worker_node_error(received, expected_run_id="R_spend")
+E               TypeError: _worker_node_error() got an unexpected keyword argument 'expected_run_id'
+
+tests/unit/scientist/orchestration/engine/test_retry.py:2093: TypeError
+_____ test_real_framed_failed_spend_wire_rejects_corrupt_projection[hash] ______
+
+corruption = 'hash'
+
+    @pytest.mark.parametrize("corruption", ["version", "hash", "identity", "negative", "other-budget"])
+    def test_real_framed_failed_spend_wire_rejects_corrupt_projection(corruption):
+        import base64
+        from decimal import Decimal
+    
+        from polisyos.scientist.orchestration.engine.runner.serialization import (
+            DeserializationError,
+            serialize_state_safe,
+        )
+    
+        budgets = {"llm_spent_usd": Decimal(2)}
+        run_id = "R_spend"
+        if corruption == "identity":
+            run_id = "R_other"
+        elif corruption == "negative":
+            budgets["llm_spent_usd"] = Decimal(-2)
+        elif corruption == "other-budget":
+            budgets = {"unrelated_budget": Decimal(2)}
+        wire, _ = serialize_state_safe(ExperimentState(run_id=run_id, budgets=budgets))
+        if corruption == "version":
+            wire = b"\x02" + wire[1:]
+        elif corruption == "hash":
+            wire = wire[:-1] + bytes([wire[-1] ^ 1])
+        payload = {
+            "message": "provider error",
+            "category": "transient",
+            "code": "node.exception",
+            "known_spend_state_v1": base64.b64encode(wire).decode("ascii"),
+        }
+        channel = retry_module._WorkerResultChannel(mp.get_context("fork"))
+        try:
+            channel.put(("error", payload))
+            status, received = channel.get(timeout=0.1)
+            assert status == "error"
+            rejection = DeserializationError if corruption in {"version", "hash"} else ValueError
+            with pytest.raises(rejection):
+>               retry_module._worker_node_error(received, expected_run_id="R_spend")
+E               TypeError: _worker_node_error() got an unexpected keyword argument 'expected_run_id'
+
+tests/unit/scientist/orchestration/engine/test_retry.py:2093: TypeError
+___ test_real_framed_failed_spend_wire_rejects_corrupt_projection[identity] ____
+
+corruption = 'identity'
+
+    @pytest.mark.parametrize("corruption", ["version", "hash", "identity", "negative", "other-budget"])
+    def test_real_framed_failed_spend_wire_rejects_corrupt_projection(corruption):
+        import base64
+        from decimal import Decimal
+    
+        from polisyos.scientist.orchestration.engine.runner.serialization import (
+            DeserializationError,
+            serialize_state_safe,
+        )
+    
+        budgets = {"llm_spent_usd": Decimal(2)}
+        run_id = "R_spend"
+        if corruption == "identity":
+            run_id = "R_other"
+        elif corruption == "negative":
+            budgets["llm_spent_usd"] = Decimal(-2)
+        elif corruption == "other-budget":
+            budgets = {"unrelated_budget": Decimal(2)}
+        wire, _ = serialize_state_safe(ExperimentState(run_id=run_id, budgets=budgets))
+        if corruption == "version":
+            wire = b"\x02" + wire[1:]
+        elif corruption == "hash":
+            wire = wire[:-1] + bytes([wire[-1] ^ 1])
+        payload = {
+            "message": "provider error",
+            "category": "transient",
+            "code": "node.exception",
+            "known_spend_state_v1": base64.b64encode(wire).decode("ascii"),
+        }
+        channel = retry_module._WorkerResultChannel(mp.get_context("fork"))
+        try:
+            channel.put(("error", payload))
+            status, received = channel.get(timeout=0.1)
+            assert status == "error"
+            rejection = DeserializationError if corruption in {"version", "hash"} else ValueError
+            with pytest.raises(rejection):
+>               retry_module._worker_node_error(received, expected_run_id="R_spend")
+E               TypeError: _worker_node_error() got an unexpected keyword argument 'expected_run_id'
+
+tests/unit/scientist/orchestration/engine/test_retry.py:2093: TypeError
+___ test_real_framed_failed_spend_wire_rejects_corrupt_projection[negative] ____
+
+corruption = 'negative'
+
+    @pytest.mark.parametrize("corruption", ["version", "hash", "identity", "negative", "other-budget"])
+    def test_real_framed_failed_spend_wire_rejects_corrupt_projection(corruption):
+        import base64
+        from decimal import Decimal
+    
+        from polisyos.scientist.orchestration.engine.runner.serialization import (
+            DeserializationError,
+            serialize_state_safe,
+        )
+    
+        budgets = {"llm_spent_usd": Decimal(2)}
+        run_id = "R_spend"
+        if corruption == "identity":
+            run_id = "R_other"
+        elif corruption == "negative":
+            budgets["llm_spent_usd"] = Decimal(-2)
+        elif corruption == "other-budget":
+            budgets = {"unrelated_budget": Decimal(2)}
+        wire, _ = serialize_state_safe(ExperimentState(run_id=run_id, budgets=budgets))
+        if corruption == "version":
+            wire = b"\x02" + wire[1:]
+        elif corruption == "hash":
+            wire = wire[:-1] + bytes([wire[-1] ^ 1])
+        payload = {
+            "message": "provider error",
+            "category": "transient",
+            "code": "node.exception",
+            "known_spend_state_v1": base64.b64encode(wire).decode("ascii"),
+        }
+        channel = retry_module._WorkerResultChannel(mp.get_context("fork"))
+        try:
+            channel.put(("error", payload))
+            status, received = channel.get(timeout=0.1)
+            assert status == "error"
+            rejection = DeserializationError if corruption in {"version", "hash"} else ValueError
+            with pytest.raises(rejection):
+>               retry_module._worker_node_error(received, expected_run_id="R_spend")
+E               TypeError: _worker_node_error() got an unexpected keyword argument 'expected_run_id'
+
+tests/unit/scientist/orchestration/engine/test_retry.py:2093: TypeError
+_ test_real_framed_failed_spend_wire_rejects_corrupt_projection[other-budget] __
+
+corruption = 'other-budget'
+
+    @pytest.mark.parametrize("corruption", ["version", "hash", "identity", "negative", "other-budget"])
+    def test_real_framed_failed_spend_wire_rejects_corrupt_projection(corruption):
+        import base64
+        from decimal import Decimal
+    
+        from polisyos.scientist.orchestration.engine.runner.serialization import (
+            DeserializationError,
+            serialize_state_safe,
+        )
+    
+        budgets = {"llm_spent_usd": Decimal(2)}
+        run_id = "R_spend"
+        if corruption == "identity":
+            run_id = "R_other"
+        elif corruption == "negative":
+            budgets["llm_spent_usd"] = Decimal(-2)
+        elif corruption == "other-budget":
+            budgets = {"unrelated_budget": Decimal(2)}
+        wire, _ = serialize_state_safe(ExperimentState(run_id=run_id, budgets=budgets))
+        if corruption == "version":
+            wire = b"\x02" + wire[1:]
+        elif corruption == "hash":
+            wire = wire[:-1] + bytes([wire[-1] ^ 1])
+        payload = {
+            "message": "provider error",
+            "category": "transient",
+            "code": "node.exception",
+            "known_spend_state_v1": base64.b64encode(wire).decode("ascii"),
+        }
+        channel = retry_module._WorkerResultChannel(mp.get_context("fork"))
+        try:
+            channel.put(("error", payload))
+            status, received = channel.get(timeout=0.1)
+            assert status == "error"
+            rejection = DeserializationError if corruption in {"version", "hash"} else ValueError
+            with pytest.raises(rejection):
+>               retry_module._worker_node_error(received, expected_run_id="R_spend")
+E               TypeError: _worker_node_error() got an unexpected keyword argument 'expected_run_id'
+
+tests/unit/scientist/orchestration/engine/test_retry.py:2093: TypeError
+____ test_unbounded_sync_fast_path_preserves_original_error_and_known_spend ____
+
+ctx = <MagicMock id='140678828536704'>
+
+    @pytest.mark.asyncio
+    async def test_unbounded_sync_fast_path_preserves_original_error_and_known_spend(ctx):
+        from decimal import Decimal
+    
+        initial = ExperimentState(run_id="R_fast_spend", budgets={"llm_spent_usd": Decimal(5)})
+        original = TimeoutError("known provider failure")
+    
+        class Node:
+            def execute(self, passed_ctx, passed_state):
+                passed_state.budgets["llm_spent_usd"] += Decimal(2)
+                passed_state.params["failed_dirty"] = True
+                raise original
+    
+        with pytest.raises(TimeoutError) as caught:
+            await execute_with_retry_async(
+                Node(), ctx, initial, retry_policy=RetryPolicy(), timeout_s=None, alias="fast-spend"
+            )
+        assert caught.value is original
+>       assert initial.budgets["llm_spent_usd"] == Decimal(7)
+E       AssertionError: assert Decimal('5') == Decimal('7')
+E        +  where Decimal('7') = <class 'decimal.Decimal'>(7)
+
+tests/unit/scientist/orchestration/engine/test_retry.py:2173: AssertionError
+=============================== warnings summary ===============================
+tests/unit/scientist/orchestration/engine/test_retry.py::test_completed_failed_spend_settles_without_ordinary_branch[False-async-fork]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_completed_failed_spend_settles_without_ordinary_branch[False-async-fork]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_completed_failed_spend_settles_without_ordinary_branch[True-sync-fork]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_completed_failed_spend_settles_without_ordinary_branch[True-sync-fork]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_completed_failed_spend_settles_without_ordinary_branch[True-async-fork]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_completed_failed_spend_settles_without_ordinary_branch[True-async-fork]
+  /workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/popen_fork.py:70: DeprecationWarning: This process (pid=156329) is multi-threaded, use of fork() may lead to deadlocks in the child.
+    self.pid = os.fork()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/orchestration/engine/test_retry.py::test_completed_failed_spend_settles_without_ordinary_branch[False-sync-fork]
+FAILED tests/unit/scientist/orchestration/engine/test_retry.py::test_completed_failed_spend_settles_without_ordinary_branch[False-sync-thread]
+FAILED tests/unit/scientist/orchestration/engine/test_retry.py::test_completed_failed_spend_settles_without_ordinary_branch[False-async-fork]
+FAILED tests/unit/scientist/orchestration/engine/test_retry.py::test_completed_failed_spend_settles_without_ordinary_branch[False-async-thread]
+FAILED tests/unit/scientist/orchestration/engine/test_retry.py::test_completed_failed_spend_settles_without_ordinary_branch[False-async-provider]
+FAILED tests/unit/scientist/orchestration/engine/test_retry.py::test_completed_failed_spend_settles_without_ordinary_branch[False-async-sync-unbounded]
+FAILED tests/unit/scientist/orchestration/engine/test_retry.py::test_completed_failed_spend_settles_without_ordinary_branch[True-sync-fork]
+FAILED tests/unit/scientist/orchestration/engine/test_retry.py::test_completed_failed_spend_settles_without_ordinary_branch[True-sync-thread]
+FAILED tests/unit/scientist/orchestration/engine/test_retry.py::test_completed_failed_spend_settles_without_ordinary_branch[True-async-fork]
+FAILED tests/unit/scientist/orchestration/engine/test_retry.py::test_completed_failed_spend_settles_without_ordinary_branch[True-async-thread]
+FAILED tests/unit/scientist/orchestration/engine/test_retry.py::test_completed_failed_spend_settles_without_ordinary_branch[True-async-provider]
+FAILED tests/unit/scientist/orchestration/engine/test_retry.py::test_completed_failed_spend_settles_without_ordinary_branch[True-async-sync-unbounded]
+FAILED tests/unit/scientist/orchestration/engine/test_retry.py::test_real_framed_failed_spend_wire_rejects_corrupt_projection[version]
+FAILED tests/unit/scientist/orchestration/engine/test_retry.py::test_real_framed_failed_spend_wire_rejects_corrupt_projection[hash]
+FAILED tests/unit/scientist/orchestration/engine/test_retry.py::test_real_framed_failed_spend_wire_rejects_corrupt_projection[identity]
+FAILED tests/unit/scientist/orchestration/engine/test_retry.py::test_real_framed_failed_spend_wire_rejects_corrupt_projection[negative]
+FAILED tests/unit/scientist/orchestration/engine/test_retry.py::test_real_framed_failed_spend_wire_rejects_corrupt_projection[other-budget]
+FAILED tests/unit/scientist/orchestration/engine/test_retry.py::test_unbounded_sync_fast_path_preserves_original_error_and_known_spend
+18 failed, 6 passed, 124 deselected, 6 warnings in 3.50s

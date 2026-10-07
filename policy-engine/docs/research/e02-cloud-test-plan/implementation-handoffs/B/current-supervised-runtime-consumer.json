@@ -1,0 +1,225 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-supervised-runtime-consumer",
+  "closure_ids": [],
+  "bundle_ids": [
+    "RUN-01",
+    "RUN-02",
+    "RUN-03",
+    "NET-01",
+    "NET-02",
+    "LLM-01",
+    "LLM-02",
+    "WIRE-01"
+  ],
+  "slice_base_sha": "8378511fef9001a56a916b97e430580363f5c07c",
+  "slice_base_tree_sha": "719c530d087c20798dca0bfad7e7eb20c3141922",
+  "implementation_commits": [
+    "46a0bcd1ac035503ae8dec8b6df5dd4fcf794849",
+    "e1871506fcebc47d6572891b323ddf1f2083a3c9",
+    "3543f89a3a247bf01294d98e5dfa0f36cfefd958"
+  ],
+  "candidate_sha": "933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+  "candidate_tree_sha": "d6d049c59286c09a1eafc0285bc8c33887987bfe",
+  "branch": "codex/e02-B-current-coordination",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/55",
+  "owner": "B root independent runtime consumer; RUN and adapters canonical writers; G integration",
+  "diff_footprint": {
+    "command": [
+      "git",
+      "diff",
+      "--name-status",
+      "8378511fe",
+      "933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022"
+    ],
+    "full_output": "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b74-review/probe-061.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b74-review/successor-061-review.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b74-review/successor-061-wrapper.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/context-consumer.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/context-consumer.py\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/control-native.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/control-native.xml\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/deadline-base-native.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/deadline-base-native.xml\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/deadline-base-receipt.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/deadline-candidate-native.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/deadline-candidate-native.xml\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/deadline-candidate-receipt.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/deadline-full-native.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/deadline-full-native.xml\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/deadline-removal-native.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/deadline-removal-native.xml\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/deadline-removal-receipt.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/environment.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/mypy.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/replay.py\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/ruff.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/spend-base-native.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/spend-base-native.xml\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/spend-base-receipt.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/spend-candidate-native.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/spend-candidate-native.xml\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/spend-candidate-receipt.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/spend-full-native.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/spend-full-native.xml\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/spend-history-native.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/spend-history-native.xml\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/spend-replay.py\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/spend-strict-native.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/spend-strict-native.xml\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/typevar-census.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/typevar-census.py\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry.json\nA\tpolicy-engine/release-fragments/unreleased/e02-current-runtime-deadline.toml\nA\tpolicy-engine/release-fragments/unreleased/e02-current-runtime-spend.toml\nM\tpolicy-engine/src/polisyos/scientist/orchestration/engine/retry.py\nM\tpolicy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py\nM\tpolicy-engine/tests/unit/scientist/orchestration/engine/test_retry.py\n"
+  },
+  "baseline_navigation": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry.json",
+      "sha256": "19278186cea6dc6ab85d597fea0b808efa388e83de451c23857115437857f03b",
+      "bytes": 99561
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters.json",
+      "sha256": "2440c2e26e89ac355412ce7d4632fd041a7369591d60882eb97384fe0218ba35",
+      "bytes": 248984
+    }
+  ],
+  "checks": [
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/fabric/test_concurrency_bounded_runtime_phase2.py",
+        "tests/unit/fabric/connectors/test_pool_e02.py",
+        "tests/unit/fabric/connectors/test_resilience.py",
+        "tests/unit/fabric/connectors/test_resilience_e02.py",
+        "tests/unit/fabric/connectors/test_registry.py",
+        "tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+        "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+        "tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+        "tests/unit/scientist/orchestration/llm/test_factory.py",
+        "tests/unit/scientist/orchestration/llm/test_prompt_sanitization.py",
+        "tests/unit/core/test_llm_core.py",
+        "tests/unit/remediation/test_llm_01.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+        "-o",
+        "addopts=",
+        "-q",
+        "--tb=short",
+        "--junitxml=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current933-adapters-full15.xml",
+        "--basetemp=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current933-adapters-pytest"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "target_sha": "933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+      "target_tree_sha": "d6d049c59286c09a1eafc0285bc8c33887987bfe",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_B_PROPERTY_REMOVAL": null
+      },
+      "python": "CPython3.14.2 pytest9.0.2 Linux6.18.44",
+      "outcome": "PASS",
+      "counts": {
+        "tests": 353,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 353
+      },
+      "wall_s": 17.107621394010494,
+      "process_rusage_maxrss_kib": 643452,
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-supervised-runtime-consumer-evidence/current933-adapters-full15.json",
+          "sha256": "a76dc4c71eafd4322a6c7762f4688c8b96eeef026c5425e7bc85db78fee6e142",
+          "bytes": 2707
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-supervised-runtime-consumer-evidence/current933-adapters-full15.txt",
+          "sha256": "59abafe822538195a0e38f4e01317c90df77ee9582d4645f4e4e37d413430f3d",
+          "bytes": 1158
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-supervised-runtime-consumer-evidence/current933-adapters-full15.xml",
+          "sha256": "5eef4d4c46d6c847bf3d23bd7d14a100245a69e31f2effacf8f436b10ce5e78a",
+          "bytes": 57583
+        }
+      ]
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "--tb=short",
+        "tests/unit/common/test_async_tools.py",
+        "tests/unit/scientist/orchestration/engine/test_retry.py",
+        "tests/unit/remediation/test_run_03.py",
+        "--junitxml=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current933-runtime-consumer.xml",
+        "--basetemp=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current933-runtime-pytest"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "target_sha": "933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+      "target_tree_sha": "d6d049c59286c09a1eafc0285bc8c33887987bfe",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_B_PROPERTY_REMOVAL": null
+      },
+      "python": "CPython3.14.2 pytest9.0.2 Linux6.18.44",
+      "outcome": "PASS",
+      "counts": {
+        "tests": 177,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 177
+      },
+      "wall_s": 23.566093011002522,
+      "process_rusage_maxrss_kib": 135696,
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-supervised-runtime-consumer-evidence/current933-runtime-consumer.json",
+          "sha256": "d8d65571435400aee680d452cabce5308b9031b5ca1744a847c3ecc0436c2121",
+          "bytes": 1917
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-supervised-runtime-consumer-evidence/current933-runtime-consumer.txt",
+          "sha256": "523e4dafff8a7f99f407b3a6dd48f4022354d41f80af28c02de8e490f5eee0f0",
+          "bytes": 760
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-supervised-runtime-consumer-evidence/current933-runtime-consumer.xml",
+          "sha256": "3198937bd922942fa08de2c1d719c885f8f9215acfc94812126db358c170bd70",
+          "bytes": 28803
+        }
+      ]
+    }
+  ],
+  "evidence_companions": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-supervised-runtime-consumer-evidence/current933-adapters-full15.json",
+      "sha256": "a76dc4c71eafd4322a6c7762f4688c8b96eeef026c5425e7bc85db78fee6e142",
+      "bytes": 2707
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-supervised-runtime-consumer-evidence/current933-adapters-full15.txt",
+      "sha256": "59abafe822538195a0e38f4e01317c90df77ee9582d4645f4e4e37d413430f3d",
+      "bytes": 1158
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-supervised-runtime-consumer-evidence/current933-adapters-full15.xml",
+      "sha256": "5eef4d4c46d6c847bf3d23bd7d14a100245a69e31f2effacf8f436b10ce5e78a",
+      "bytes": 57583
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-supervised-runtime-consumer-evidence/current933-runtime-consumer.json",
+      "sha256": "d8d65571435400aee680d452cabce5308b9031b5ca1744a847c3ecc0436c2121",
+      "bytes": 1917
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-supervised-runtime-consumer-evidence/current933-runtime-consumer.txt",
+      "sha256": "523e4dafff8a7f99f407b3a6dd48f4022354d41f80af28c02de8e490f5eee0f0",
+      "bytes": 760
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-supervised-runtime-consumer-evidence/current933-runtime-consumer.xml",
+      "sha256": "3198937bd922942fa08de2c1d719c885f8f9215acfc94812126db358c170bd70",
+      "bytes": 28803
+    }
+  ],
+  "input_closure": "Exact tracked source/test cut933 and own absolute PYTHONPATH; full15 adapter selectors from native-0f committed argv; three full RUN test files. Real worker supervisor/attempt/parent typed wire with live OS ancestry before reap; real CAS/ledger/event effects. Unique basetemp per parallel command, OS-assigned metrics port0, genuine retained tokenizer bytes/cache provenance; no production catalog or remote backend. No cloud worker/process quotas. Shared read-only source remained unchanged during both commands.",
+  "independent_oracle": "Actual OS PID\u2192PPid chain connects distinct framed attempt to outer worker through accepted supervisor, complete typed result/Decimal transport, and exactly one persisted file effect; retry completed-known-spend assertions consume live run-state/JSONL/dead-letter CAS. Full pending/cancellation/admission barriers in native common/RUN tests.",
+  "property_removal_control": "RUN current-runtime-retry receipt binds actual failed-spend/deadline guard removals, and current-runtime receipt binds admission/physical-slot removal tests; these fresh unaffected controls are separate from full current933 replay. Originala6 full15 result351PASS2FAIL is retained in current-receiver-consumer, with direct PPid proxy documented; no inherited-red waiver.",
+  "P37_predicate_basis": {
+    "real_process_ownership": "independently_reconciled using live kernel ancestry",
+    "wire_decimal_and_result": "recomputed by strict typed consumer decode and actual persisted effect",
+    "known_failed_spend": "recomputed from completed attempt state plus consumer ledger/event projections",
+    "complete_B_finding_closure": "not_established: full cohort/current all60 closeout still pending"
+  },
+  "P38_divergence": "Direct attempt.PPid==outerworker.PID fails with correct ownership when a real supervisor is inserted. Live ancestry and actual effect/typed result observe the required property. For completed failed attempts, successful-only state merge previously lost known positive spend; true provider2+successful1 over original5 must produce8 while failed ordinary parameters remain private.",
+  "P40_class_disposition": "Widened process-boundary ownership and completed-known-spend transport are canonical class fixes. This replay does not claim external idempotency/reconciliation, institutional cache authority, or mutable checkpoint rollback.",
+  "finding_closure": "No new finding closure from this slice. Code/affected consumer acceptance passes530cases; root final60 current dispositions after final cohort are authoritative. B87 current C cap1 countercase remains FAIL; B67 institutional contract absent; EXE cancellation successor pending.",
+  "residuals": [
+    "CPython fork deprecation warnings: runtime43, worker wire2; complete logs retained",
+    "Linux process ancestry actually executed; macOS ps fallback not executed",
+    "full frozen B cohort and repository gates not yet run"
+  ],
+  "handoff_to_G": "Fetch this topic/PR55; implementation SHA933/tree recorded above, distinct future receipt commit. Preserve original failures; acceptance does not authorize main publication.",
+  "cleanup": "Native Trash absent; actual scratch paths remain retained. Exact reusable cleanup candidates will be listed in final closeout; no permanent deletion/prune."
+}

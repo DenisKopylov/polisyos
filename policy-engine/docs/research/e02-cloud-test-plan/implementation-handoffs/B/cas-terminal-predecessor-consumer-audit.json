@@ -1,0 +1,305 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "cas-terminal-predecessor-consumer-audit",
+  "closure_ids": [],
+  "proposed_criterion_ids": [],
+  "bundle_ids": [
+    "CAS-01",
+    "CAS-02",
+    "CAS-03"
+  ],
+  "owned_finding_ids": [
+    "B148",
+    "B149",
+    "B150",
+    "B151",
+    "B152",
+    "B153",
+    "B154",
+    "B155"
+  ],
+  "slice_base_sha": "d021a262a54eae8558fb81b6ae89d02049277d2e",
+  "implementation_commits": [
+    "6b53509c9e6a074abbf91cf1160b6fadf49d6987"
+  ],
+  "candidate_tree_sha": "dd9be3fceb7c51e1473740e3c63df81c49f46cbf",
+  "branch": "codex/e02-B-current-cas-generation",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/42",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-terminal-predecessor-evidence/case-join.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-terminal-predecessor-evidence/instrument.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-terminal-predecessor-evidence/retained-epoch-generation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-terminal-predecessor-evidence/retained-epoch-index.json"
+  ],
+  "baseline_cells": [],
+  "baseline_context": "This audit consumes actual completed root456 execution, not historical baseline summaries/cells. Historical findings remain context; no closure is decided by this data audit.",
+  "execution_source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+  "execution_source_tree": "d3bae9a9502b701e2ed73d9ffab07ba6a0883502",
+  "audit_current_successor_source_sha": "5ece606ee1c1016c1133a1e81bbf852574a64a48",
+  "audit_source_qualification": "456 is predecessor execution. Seven unchanged test files and independent102-case typing batch do not promote all456 outcomes to the successor. Final root/G full-cohort source is a future separately frozen candidate.",
+  "checks": [
+    {
+      "command": [
+        "python3",
+        "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/terminal-cas-consumers/reconcile.py"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation",
+      "target_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "environment": "stdlib reader only; no product import or pytest/gate invocation",
+      "input_closure": [
+        {
+          "role": "wrapper",
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort.json",
+          "bytes": 2977,
+          "sha256": "5d1bb970219aed1ab7119e9141a08548d07fbad505f7ff54583edbb6490e5349"
+        },
+        {
+          "role": "xml",
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort.xml",
+          "bytes": 3583926,
+          "sha256": "f1ddd4788163d030277242ac7233312da78a68f6aaee27a511b0b3cb7f2cef5b"
+        },
+        {
+          "role": "stdout",
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort.txt",
+          "bytes": 3611397,
+          "sha256": "675ebace8ab28945f3b97f4fb37374f1ae3832f15e0475cad58e392fed54abf5"
+        },
+        {
+          "role": "inventory",
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-inventory.json",
+          "bytes": 20097609,
+          "sha256": "9d8ab52071bb88523755aa80c55a954223ceca47e693a1626dca2b2750b0faa4"
+        },
+        {
+          "role": "profile",
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-profile.json",
+          "bytes": 18280,
+          "sha256": "31a9a4d2953c5206d2cbca516164d6a1f66ad8bc67385246e325e66feea39dba"
+        },
+        {
+          "role": "selector",
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/terminal-final-selector.json",
+          "bytes": 669809,
+          "sha256": "dd66cd003b0bc7b2c98c78d96e47a901109c2dd2b09635231c86f58dd7b3d34c"
+        },
+        {
+          "role": "args",
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort.args",
+          "bytes": 12893,
+          "sha256": "24708e41b0b03b0282012fca607814dfd4b52c70c4335896b277f486d49e04e4"
+        }
+      ],
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-terminal-predecessor-evidence/case-join.json@6b53509c9e6a074abbf91cf1160b6fadf49d6987",
+      "qualification": "Initial selected-consumer join; complete initial output remains ignored by path/hash in literal instrument. Actual native execution belongs to root456."
+    },
+    {
+      "command": [
+        "python3",
+        "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/terminal-cas-consumers/compact_join.py"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation",
+      "target_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "environment": "stdlib reader only; no product import or pytest/gate invocation",
+      "input_closure": {
+        "exact_seven_original_input_refs": "checks[0].input_closure",
+        "retained_existing_epoch_fixture": "case-join.json.retained_epoch_ownership_fixture",
+        "typed_batch_test_bytes": "Git456 vs Git5ece, with declared invocation from native.json@be787fd402d70a3917c55e39238f400a7e104d21"
+      },
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-terminal-predecessor-evidence/case-join.json@6b53509c9e6a074abbf91cf1160b6fadf49d6987",
+      "qualification": "Final complete3578 XML/phase1:1 join. All85 failed call rows and full1314 error distribution computed; no cases omitted after the initial metadata parser error."
+    }
+  ],
+  "complete_observed_root_run": {
+    "whole_files": 229,
+    "actual_collected_items": 3578,
+    "inventory_case_outcomes": {
+      "PASS": 2177,
+      "FAIL": 85,
+      "ERROR": 1314,
+      "SKIP": 2
+    },
+    "junit_record_count_including_collection_reports": 3578,
+    "wrapper_exit_code": 1,
+    "wall_s": 2686.7558818729885,
+    "rss_kib": 1817684,
+    "collection_failed": 0,
+    "collection_skipped": 0,
+    "actual_deselected_items": 0,
+    "ini_addopts": [
+      "-ra",
+      "-q",
+      "--import-mode=importlib",
+      "--strict-markers",
+      "--benchmark-storage=file://./_cache/benchmarks"
+    ]
+  },
+  "consumer_denominator": {
+    "whole_files": 48,
+    "file_types": {
+      ".py": 48
+    },
+    "actual_cases": 501,
+    "outcomes": {
+      "PASS": 431,
+      "ERROR": 70
+    },
+    "phase0_whole_files": 25,
+    "phase0_actual_passed_cases": 172,
+    "all_per_file_and_critical_case_detail": "case-join.json",
+    "native_failures": "All85 call failures and all1314 error observations in case-join.json; count agreement with root is reported separately from source/semantic acceptance."
+  },
+  "metadata_instrument_intake_correction": {
+    "initial_outcome": "ERROR",
+    "exact_original_instrument": "instrument.json.preserved_initial_instrument_error",
+    "first_error": "compact_join.py line54 assert matches: AssertionError",
+    "four_literal_parameter_delimiter_nodeids": [
+      "tests/unit/runtime/http/test_control_api.py::TestDecisionValidity::test_invalidation_domains_update_lifecycle_status[data_snapshot-data::msme-panel::2026-data_invalidation-stale-refresh_decision]",
+      "tests/unit/runtime/http/test_control_api.py::TestDecisionValidity::test_invalidation_domains_update_lifecycle_status[quality_report-metric::msme_survival_rate-metric_invalidation-review_required-human_review]",
+      "tests/unit/runtime/http/test_control_api.py::TestDecisionValidity::test_invalidation_domains_update_lifecycle_status[econometric_evidence-model::survival-effect-v2-model_invalidation-superseded-review_superseded]",
+      "tests/unit/runtime/http/test_control_api.py::TestDecisionValidity::test_invalidation_domains_update_lifecycle_status[normative_arbitration-conflict::eligibility-budget-2026-conflict_invalidation-review_required-human_review]"
+    ],
+    "correction": "Split the parameter suffix at the first bracket before parsing :: hierarchy; retain literal parameter suffix in the native XML key. The complete3578 join reconciles every node with recorded phases and XML.",
+    "no_native_rerun": true,
+    "no_case_exclusion": true
+  },
+  "property": {
+    "statement": "Reconcile actual recorded consumer execution and typed failures from a fully pinned predecessor run, while distinguishing setup refusal from entered consumer behavior.",
+    "runtime_path": [
+      "root456 actual pytest case",
+      "retained native phase/XML/stdout",
+      "read-only exact-node and source-bound case reconciliation",
+      "root/G bounded source/finding adjudication"
+    ],
+    "proxy_divergence": "The two original access_audit targets have failed setup and no call phase; their ERROR cannot prove or refute the intended cell-owner consumer property. Conversely two human_decision_service sibling call failures expose actual producer cell=None versus active cell-a at the preserved CAS guard. Aggregate2177PASS cannot conceal these boundaries.",
+    "negative_controls": [
+      "Complete all85 failed call rows retained with actual exception/message diagnostic hashes",
+      "Complete1314 error buckets distinguish explicitENOSPC1 from928 numbered-dir admission errors,344 catalog and41 intervention prerequisite setup errors",
+      "Four literal :: parameter IDs caused initial metadata refusal; generic parsing correction reconciles all3578 with no exclusions",
+      "Retained exact epoch ownership generation proves selected-view-only claim, explaining default-ref read refusal without weakening owner guards"
+    ]
+  },
+  "native_critical_results": {
+    "B152": "All14 failure-snapshot/capture cases PASS, including actual chronology rejected corruption; no aggregate substitutes for their recorded call phases.",
+    "B151": "All5 direct put/damage/repair/sidecar cases and2 independent fresh OS-process reopen consumers PASS. No new consumer was executed by this audit.",
+    "B150": "All4 distinct-clock write-through exact selected metadata consumers PASS.",
+    "B153": "Four actual writer/exception/bounded-stripe/collision controls plus leased import publication case PASS.",
+    "public_read_capture": "Actual governed exact read-closure case PASS; two report capture persist/reload cases PASS. This does not add an all-signature publisher."
+  },
+  "source_refs": [
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 189537,
+      "sha256": "bc8697dbe65fff1c2180dfb1eff1e7d4beea662f406dc332c974b448c71b4187",
+      "role": "B owner/snapshot/selected-ref refusal guard"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/ownership.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 98037,
+      "sha256": "79216c9596812628119769a4dcdb9520c04dd097df5501e1b878e5270fd98b9a",
+      "role": "B default owner vs exact selected view"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/human_decisions.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 213617,
+      "sha256": "e4268af75a8012f1dbcd7f5c5f1f85d3c9e9c6005f7050b986c8807ebb75d251",
+      "role": "A human exposure authority producer"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/artifacts.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 44264,
+      "sha256": "60b02af0967cfc5d37055dde69748089a401ce339863810eed511f177be109eb",
+      "role": "A authority writer and tenant context projection"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 347497,
+      "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9",
+      "role": "A sink canonical writer, protected A file"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/access_audit.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 43011,
+      "sha256": "36045312577e30399fa53078f9e100c04dd6e549c10d65cf7b736abeb3803be5",
+      "role": "A exposure event producer"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/epoch_transition_verification.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 18432,
+      "sha256": "81f3fe6aebfc6032dabe9e838f9a5bdc8286ec92c077b332194016f3b27c6e00",
+      "role": "A exact provenance ref producer/consumer"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 42587,
+      "sha256": "ba5781f542b3cfb2477158a5d09205f6b559d96dd27c1ed9235912955689b710",
+      "role": "C catalog source input identity prerequisite"
+    }
+  ],
+  "A_consumer_boundaries": {
+    "original_two_access_audit_targets": "Both setupERROR on numbered-dir creation in456; original4e actual Manifest-is-bound-to-different-cell FAIL is preserved separately, not relabeled inherited/flaky.",
+    "new_two_human_exposure_targets": "Both actual callFAIL: human_decisions._persist_exposure_session supplies authority_fields.cell_id=None; A authority writer emits bound manifest tenant-a/cellNone while active store owner is tenant-a/cell-a. Exact decoded native traces are committed. A/G owns correct owner-context producer/consumer semantics; B must retain refusal.",
+    "epoch_startup_provenance": "Actual callFAIL drops verifier ArtifactRef selector via artifact_id then requests default manifest. Retained generation owns only profile01b538 plus blob reader. ownership._record_matches_owner explicitly excludes view rows. A/G must preserve exact-ref consumer binding or determine legitimate default owner acquisition; this audit does not invent that rule."
+  },
+  "independent_source_review_context": {
+    "typing_reviewer": "a243edc5ba1ef850ddc4e79657be4c66277728a6",
+    "typing_review_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cas-typed-ports-independent-review/review.json",
+    "typing_review_bytes": 22870,
+    "typing_review_sha256": "5999b691c499984f452d29cfea81ea413b83c431a183ef7e9bb073ecfe42764d",
+    "typing_review_runtime_executed": false,
+    "B152_source_reviewer": "965744100e645a39f0ecc19558656aa8c0878496/current-cas-failure-snapshot-successor-review.json",
+    "qualification": "These independent reviews are distinct from this author consumer-data audit and from root whole-cohort execution."
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "completed predecessor consumer data audit; source closure not adjudicated",
+  "limitations_and_next_owner": [
+    "B148 HELD and B154 A all-confirmations signature publisher consumer_missing remain unchanged. Source/consumer review is separate from aggregate runtime counts.",
+    "Root/G owns successor freeze and full native rerun after CAS typing/EXE budget/generated companion integration; this audit executes no gate or product.",
+    "No P41 inheritance/disjoint waiver: source/test input denominator intersects B/A/C changes; all original FAIL/ERROR bytes remain.",
+    "All67 catalog call failures plus344 catalog setup errors report a missing or unreadable actual catalog source. Do not relabel them ENOSPC. Literal native trace points to production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb. Production dataset remains local; if required, G reruns the exact final candidate with that read-only input closure.",
+    "Native raw stdout3.6MB/XML3.5MB/inventory20.1MB remain ignored on root VM with exact hashes and verified inventory alias. External availability of these full deciding bytes is not_established unless root/G transfers them; committed finite ownership traces and fixture JSON remain inspectable. No unavailable raw summary is promoted to finding closure.",
+    "The finish-time observer backing-file snapshot is not an exhaustive transient import/child/resource read-set.",
+    "No source/test edits, new worktrees, process quota, reruns, or fixture/env cleanup were performed for this audit. New final successor uses independently admitted root execution and distinct scratch."
+  ],
+  "artifacts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-terminal-predecessor-evidence/case-join.json",
+      "commit": "6b53509c9e6a074abbf91cf1160b6fadf49d6987",
+      "bytes": 188401,
+      "sha256": "2f24b58c4391302644ac5261fe96e3d5494985a8810c2fd5f4c7674c1652e4c2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-terminal-predecessor-evidence/instrument.json",
+      "commit": "6b53509c9e6a074abbf91cf1160b6fadf49d6987",
+      "bytes": 31879,
+      "sha256": "681dcd7e98951499cc51cdfb814aabb272b473942fb7e85829e1dc56ddcad3af"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-terminal-predecessor-evidence/retained-epoch-generation.json",
+      "commit": "6b53509c9e6a074abbf91cf1160b6fadf49d6987",
+      "bytes": 2206,
+      "sha256": "8e6e1ef0650510039f78a884ccd459503b8ce83ce31c60d4933ca9564adf3959"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-terminal-predecessor-evidence/retained-epoch-index.json",
+      "commit": "6b53509c9e6a074abbf91cf1160b6fadf49d6987",
+      "bytes": 203,
+      "sha256": "86e18be166cb70d03106a1977f97838b68e50cc1f04dc50d218cc595241c2670"
+    }
+  ],
+  "artifact_denominator": {
+    "files": 4,
+    "bytes": 222689
+  }
+}

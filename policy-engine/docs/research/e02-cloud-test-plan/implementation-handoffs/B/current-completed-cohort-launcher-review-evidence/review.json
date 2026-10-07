@@ -1,0 +1,205 @@
+{
+  "schema": "policyos.e02.independent_source_review.v1",
+  "reviewer": "B EXE; foreign root-authored launcher, no own mechanism acceptance",
+  "target_sha": "4703d19296998d93bac94bfcafc0934a37901126",
+  "target_tree": "9b24f0f90ef3de157f81ae2e4f847ca1339ea4a2",
+  "verdict": "NONBLOCKING_IN_DECLARED_ROOT_FLOW_WITH_REQUIRED_INDEPENDENT_FINAL_SELECTOR_RECONCILIATION",
+  "predicate_basis": "independently_reconciled",
+  "closure_ids": [],
+  "source_scope": "Complete170-line new launcher and stock input/capture/inventory contracts; real supported wheel and PostgreSQL consumers read as needed. No instrument imported or launched; no native/collection/gates.",
+  "source_inputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_cohort.py",
+      "source_sha": "4703d19296998d93bac94bfcafc0934a37901126",
+      "bytes": 6709,
+      "sha256": "7fa5eadfa31bf2187e9a52188e2c299ce24e3b3e2bcc4ad8900453e38cf09288",
+      "git_blob": "58572b058b9a9327937ae755e632d3e15271b04e",
+      "AST_parse": "PASS",
+      "parent_byte_equal": "NEW_FILE"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_successor.py",
+      "source_sha": "4703d19296998d93bac94bfcafc0934a37901126",
+      "bytes": 14010,
+      "sha256": "b92a3a98bb0ba5a0019b0f1e7812ec43767b64d4216339b3da1480e251625deb",
+      "git_blob": "0e7b6618f2273a48cecb8000c23678e40e013540",
+      "AST_parse": "PASS",
+      "parent_byte_equal": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/capture_frozen.py",
+      "source_sha": "4703d19296998d93bac94bfcafc0934a37901126",
+      "bytes": 3729,
+      "sha256": "e26a065cbee683f3a19a01e0d217d299cc859dbbf2a8ad0cbb3e10c77336a1d4",
+      "git_blob": "25061d0273e6a973758b3878dd34040986edc4fc",
+      "AST_parse": "PASS",
+      "parent_byte_equal": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py",
+      "source_sha": "4703d19296998d93bac94bfcafc0934a37901126",
+      "bytes": 20488,
+      "sha256": "2766137b6322946a1e4a6f05717708636148391622e37106e66e6d9634e0f802",
+      "git_blob": "1359fec9c8f652a76ad9129636b5fb90aef45417",
+      "AST_parse": "PASS",
+      "parent_byte_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/common/test_async_tools_installed_wheel.py",
+      "source_sha": "4703d19296998d93bac94bfcafc0934a37901126",
+      "bytes": 4870,
+      "sha256": "eb24cd99386a0856f5d6f7639c751bd6b019b6dfdf0be605d64caeeb64a51702",
+      "git_blob": "7c8835f08c9d837e10af0274b3cf306b58acde94",
+      "AST_parse": "PASS",
+      "parent_byte_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py",
+      "source_sha": "4703d19296998d93bac94bfcafc0934a37901126",
+      "bytes": 9973,
+      "sha256": "9c2dccab7a3d22313f96eea4131062c16d2008c7b5a9bfdf716003ac2eb86b09",
+      "git_blob": "a6c8303367b5caeca25629df9ba1eca714e31cd9",
+      "AST_parse": "PASS",
+      "parent_byte_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py",
+      "source_sha": "4703d19296998d93bac94bfcafc0934a37901126",
+      "bytes": 16407,
+      "sha256": "45b86848e80180bd702988e9c712d2eedd9eafe4faeb315949e4f7549ec06f80",
+      "git_blob": "0993916d9cc5b7db21170147af8c3c3a5614fac2",
+      "AST_parse": "PASS",
+      "parent_byte_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_postgres_linearizability.py",
+      "source_sha": "4703d19296998d93bac94bfcafc0934a37901126",
+      "bytes": 17894,
+      "sha256": "2a96232af95ccc1068d79c860b142cb72bd956ecf6f7de79ad451558ede8bbfa",
+      "git_blob": "f43d9cc1d434698e9950e2ca7fd760ebe1dcbbfa",
+      "AST_parse": "PASS",
+      "parent_byte_equal": true
+    }
+  ],
+  "source_diff_paths": [
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_cohort.py"
+  ],
+  "observations": [
+    {
+      "property": "Exact declared source admission",
+      "basis": "independently_reconciled",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_cohort.py",
+      "lines": [
+        38,
+        40,
+        42,
+        48,
+        50
+      ],
+      "finding": "HEAD must equal supplied SHA, lane must be attached canonical B branch, checkout clean; selector SHA and tree must equal same immutable source. Any accepted SHA is the actual40hex HEAD, not a floating ref."
+    },
+    {
+      "property": "Unfiltered wholefile execution and no cloud quota",
+      "basis": "independently_reconciled",
+      "lines": [
+        52,
+        53,
+        67,
+        68,
+        92,
+        100,
+        108
+      ],
+      "finding": "Unique count reconciles selector list; every path is written to one new argsfile and passed to pytest unchanged, with no -k/-m/worker/process/thread/CPU limit. Six ambient numeric BLAS/thread cap settings are removed, recorded by names only. -vv/continue-on-collection-errors preserve observed failures and collection errors; they do not fabricate PASS."
+    },
+    {
+      "property": "Supported wheel input admission and real installed package consumer",
+      "basis": "independently_reconciled",
+      "lines": [
+        58,
+        63,
+        65,
+        89,
+        90
+      ],
+      "finding": "Imports stock run_successor without its main and binds actual targetSHA. Exactly7 nonempty values required; exactsourceSHA/root and current outer/child test bytes checked. Actual absolute wheel/site/interpreter paths required; wheelprofile/wheel bytes hash captured. Outer preserves lexicalvenv interpreter and dispatches -I/no PYTHONPATH child; child validates threeactual wheel-installed/sourceGit member identities and metadata. Oneouter and8children remain separate measureddenominators, not9 cohortcases.",
+      "limit": "This source read does not establish future wheel-built/source/installed runtime identity; actual preparedprofile and child outputs are needed."
+    },
+    {
+      "property": "Explicit real PostgreSQL profile without secret disclosure",
+      "basis": "independently_reconciled",
+      "lines": [
+        90,
+        124
+      ],
+      "finding": "Stock admission requires owner-only nonempty DSN file + actual driverroot/psycopg directory; prepends task-only driver path, sets both E02_B38_POSTGRES_DSN/POLISYOS_TEST_PG_DSN and DS9 requirePG1. Private DSN values are not included in publicprofile. Existing DS9 missingdriver/connection becomesfailure, notsilentSKIP; B38 requiresactual fixturedriver/provider assertions.",
+      "limit": "Declared driver3.3.2 text is a pinned preparationprofile; directory existence alone is not runtime distribution/server version or readiness proof. Newprofile/backend runtime remains UNRUN."
+    },
+    {
+      "property": "Fresh output custody preserves prior DD/successor attempts",
+      "basis": "independently_reconciled",
+      "lines": [
+        44,
+        91,
+        94,
+        95,
+        97,
+        151,
+        155
+      ],
+      "finding": "Unused absolute scratch mkdir0700 owns argsfile/new pytest/cache/XML. Fixed completed-final-B-cohort namespace differs from DD successor-final; inventory refuses existing file orsymlink; profile uses openx. Stock capture opens logO_EXCL parent-beforefork, refuses oldwrapper, setupCLOEXEC pipe classifies execsetup UNRUN vs trueexec; wait4 retainsfullcombinedstdout/exit/RSS and sourceHEADbefore/after; wrapperopenx. No oldfixture/log cleanup oroverwrite path is present.",
+      "limit": "Fixed completed-final namespace admits one attempt; anyrepeat requires explicitlynew instrument namespace and preservation, notoverwrite. CaptureRSS is onechild rusage, notconcurrentaggregate."
+    },
+    {
+      "property": "Native observer identity and bounded module provenance",
+      "basis": "independently_reconciled",
+      "lines": [
+        55,
+        56,
+        142,
+        143,
+        144
+      ],
+      "finding": "Ignored observer bytes mustequal tracked current inventory beforelaunch. Observer recordscollection beforeexecution +allsetup/call/teardown outcomes and sourceGit/file-origin bytes atfinish. Profile explicitly says hook-time modules only, notfullimport readset/children/transient modules. Partial/abrupt inventory cannot be called completedcohort."
+    },
+    {
+      "property": "Full selector completeness premise",
+      "basis": "not_established",
+      "lines": [
+        46,
+        48,
+        50,
+        52,
+        53,
+        122,
+        123,
+        125,
+        126
+      ],
+      "finding": "Local selector gate checks SHA/tree and unique self-reported count. It does not recompute all60/25 route/card/lineage closure or independently bind reviewedexpectedselector hash. A reduced test_paths list withsameSHA/tree andmatchingcount would pass those localguards. Root alreadyassigned independent exact derivedselector bytes/hash/fullscope review beforelaunch; thatreview is the realcomplete-input premise.",
+      "required_next_action": "After final mergedsource freeze, inspect actualnewselector fullinputidentities/test_paths/count/hash and canonical/changedconsumer basis; freezeadmission asindependently_reconciled. Do notpromote8a/DD counts orfieldchecks into completecriterion basis."
+    }
+  ],
+  "finite_boundaries": [
+    "Initial cleanHEAD and captureHEADbefore/after are sourcecustody, notproving no transientuncommitted orloader substitution duringnative; observer truthfullymeasures final backingbytes andunresolvedchildren/resourceboundaries.",
+    "Launcher copies ambientenv exceptdeclared6caps; actualpytestopts/config/plugin/selection outcomes mustbe reconciled fromfullactualinventory/stdout/profile. No universalambientenv equivalence isclaimed.",
+    "Newnamespace freshscratch is reversible fixtureisolation, notcompute quota. Backend/wheelinput availability/versions/runtimeeffects are NOT_ESTABLISHED by source review.",
+    "All futurecollection/native/gates andper-findingcriterion closure remain UNRUN; this review doesnot turn sourceinstrument into runtimePASS."
+  ],
+  "runtime_execution": "UNRUN",
+  "environment": {
+    "cwd": "/workspace/e02-B-current-execution-state",
+    "python_executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "python_version": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "git_version": "git version 2.52.0",
+    "dependencies": "stdlibAST/JSON/hashlib andGit only, no instrument import/livepytest/backendconnect"
+  },
+  "literal_census_command": [
+    "python3",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-cohort-launcher-review-evidence/source-census.source.txt"
+  ],
+  "literal_census_outcome": "EXECUTED_GIT_ONLY_READS_EXIT0_AST_PARSE; nativeUNRUN",
+  "no_own_source_tests_config_writes": true,
+  "root_verdict_notification": "Source admission qualification sentroot beforepublication; noauthor/runtimeclaim accepted asreviewer-native proof."
+}

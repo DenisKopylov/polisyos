@@ -1,0 +1,117 @@
+{
+  "schema": "policyos.e02.evidence_index.v1",
+  "runtime_target": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/baseline-navigation.json",
+      "sha256": "0c6e298131912dd82b0e92077be07ee5394221178b44a1b2e66a8ae0c9ca5031",
+      "bytes": 27758
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/capture_pg.source.txt",
+      "sha256": "6e551e8ed672105dad8344ccd2e740898f55aa3b468fbd6a85846182b63b35dd",
+      "bytes": 11893
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/criterion-DUR-02.source.md.json",
+      "sha256": "4fdb386f6125dff75fe92d390212f2ea29c286b46ffec45982dbe57c812b45f6",
+      "bytes": 36185,
+      "encoding": "lossless_utf8_json_string",
+      "raw_sha256": "7fa202cb245c67f765b9fbbc10f4c29e78f5e5b3872591f98ee964ee3f222652",
+      "raw_bytes": 14763,
+      "original_git_source": {
+        "commit": "a557eb0a5d60b480c5d8506f648c20263e8eb898",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/criterion-DUR-02.source.md"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/deciding-reconciliation.json",
+      "sha256": "1af8bd6fe9341a11fff9a1ac318b62b82708113c366dd71c2686a3ec2844e82b",
+      "bytes": 25746
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/derive_pg.source.txt",
+      "sha256": "a60d584e0434d6b9d9d35685cee019f34cb65c2655a63bbe877879b8408cf577",
+      "bytes": 6346
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/environment.json",
+      "sha256": "83327eccc13478de5852580b210c3432df667285d1f6a26a96e720d6d871fcf3",
+      "bytes": 2093
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/native-observer.json",
+      "sha256": "271ce009864c9d779abf71992af01744270befb0e9e57d3dd358f4687db617a8",
+      "bytes": 35503
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/native.txt.json",
+      "sha256": "e71793dff18a7dd7d4bf015f2b8e808fa95067d6376713857c78a6288a5d0c78",
+      "bytes": 6115,
+      "encoding": "lossless_utf8_json_string",
+      "raw_sha256": "490ccf2d188492b8d921151a06d25cc999408fa6d25f6bd5a98d7a865ef18535",
+      "raw_bytes": 5586,
+      "original_git_source": {
+        "commit": "a557eb0a5d60b480c5d8506f648c20263e8eb898",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/native.txt"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/native.xml",
+      "sha256": "1c008e9c19f492160eea4b279818b1893e002bb7ffce74cc11264cff3aa7e925",
+      "bytes": 10099
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/origin-summary.json",
+      "sha256": "9105d50bf4df1c2b789b5659724b3611171eee28ef311c953363a4c37fee872c",
+      "bytes": 5236
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/readback_pg.source.txt",
+      "sha256": "d69d5e041fb6fb3b44b4226b9eea7fa0de69bb1d42a14973c459e05dd75a0a99",
+      "bytes": 2911
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/retained-schema-readback.json",
+      "sha256": "ac5e5eecaece03f738f6f0a1bc4f1ff41b789f9e19622f449ca7c57a6078c99c",
+      "bytes": 218684
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/source-after.json",
+      "sha256": "fff311dd19686f619e04d917c35d009e033d66b553423bfa923fc318e16fdb19",
+      "bytes": 4727
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/source-before.json",
+      "sha256": "1f8756d630d46119d0b45f7f7827cf322d684528e88a08dc6e24e991490f58b0",
+      "bytes": 4656
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/source-lineage.json",
+      "sha256": "f2d22df28664bc0df2d38edbee6a46a36d1c8209892d64d1366663d9a1366690",
+      "bytes": 2024
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/tool-executables.json",
+      "sha256": "94949eeb52a14978946679c38764cd0bb187ea1f09b636bedfe34a618192785c",
+      "bytes": 1094
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/wrapper.json",
+      "sha256": "4ed21ab4a45008d978fd02161e81ab3ccd03be8cbbfeb148aa1cfd87bba37518",
+      "bytes": 1674
+    }
+  ],
+  "file_count": 17,
+  "total_payload_bytes": 402744,
+  "private_DSN_in_any_published_payload": false,
+  "large_cloud_raw": [
+    {
+      "path": "/dev/shm/e02-B-final-pg1862-20261006/module-origins.json",
+      "bytes": 920156,
+      "sha256": "4441f2ed4af2711f6333cef8d528ad3a0ecb19578aeae445366977cae16bdc25",
+      "G_raw_availability": "not_established; exact replay of committed driver regenerates the census"
+    }
+  ],
+  "repackaging": "Raw stdout/canonical source whitespace retained losslessly via JSON string; original Git objects and SHM originals preserved. No runtime/source/test change."
+}

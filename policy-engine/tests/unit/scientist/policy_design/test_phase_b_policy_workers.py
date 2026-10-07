@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from decimal import Decimal
+from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
@@ -10,7 +11,9 @@ from polisyos.scientist.methods.autotune.models import BenchmarkSplitManifest
 from polisyos.scientist.methods.doe.designs import ParameterSpec as DOEParameterSpec
 from polisyos.scientist.methods.search.objective import CompositeObjective, GDPGrowthObjective
 from polisyos.scientist.methods.search.readiness import DecisionReadiness, DecisionReadinessContract
-from polisyos.scientist.orchestration.engine.budget import BudgetState
+from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+from polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedger
+from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
 from polisyos.scientist.policy_design.adversary import (
     ScenarioAdversaryConfig,
     ScenarioAdversaryWorker,
@@ -99,13 +102,24 @@ def _translator_bundle() -> TranslatorInputBundle:
             uncertainties={"statistical": 0.2, "structural": 0.3},
             binding_types=[],
         ),
-        budget_state=BudgetState(),
     )
 
 
-def test_translator_falls_back_deterministically_without_gateway() -> None:
+def _worker_budget(tmp_path: Path) -> BudgetMiddleware:
+    return BudgetMiddleware(
+        BudgetState(
+            limits={
+                key: BudgetLimit(key=key, max_usd=Decimal("10"))
+                for key in ("policy_translator", "policy_briefing", "policy_adversary")
+            }
+        ),
+        ledger=FileBudgetLedger(tmp_path / "worker-budget.json"),
+    )
+
+
+def test_translator_falls_back_deterministically_without_gateway(tmp_path: Path) -> None:
     bundle = _translator_bundle()
-    brief = PolicyTranslatorWorker().translate(bundle)
+    brief = PolicyTranslatorWorker(budget_middleware=_worker_budget(tmp_path)).translate(bundle)
 
     assert brief.readiness_level == DecisionReadiness.RECOMMENDATION_READY.value
     assert bundle.readiness_contract.assumptions_must_be_surfaced == brief.surfaced_assumptions
@@ -139,7 +153,7 @@ async def test_translator_gateway_parses_think_prefixed_json(
     assert brief.metadata.get("translator_mode") == "deterministic"
 
 
-def test_translator_surfaces_degraded_evidence_channels() -> None:
+def test_translator_surfaces_degraded_evidence_channels(tmp_path: Path) -> None:
     bundle = _translator_bundle()
     bundle = bundle.model_copy(
         update={
@@ -157,7 +171,7 @@ def test_translator_surfaces_degraded_evidence_channels() -> None:
         }
     )
 
-    brief = PolicyTranslatorWorker().translate(bundle)
+    brief = PolicyTranslatorWorker(budget_middleware=_worker_budget(tmp_path)).translate(bundle)
     descriptions = [risk.description for risk in brief.risks]
 
     assert any(
@@ -229,8 +243,11 @@ def test_constraint_critic_surfaces_budget_and_not_assessed_findings() -> None:
     assert "binding_hard_constraint" in failure_types
 
 
-def test_scenario_adversary_fallback_and_execution(tmp_path) -> None:
-    worker = ScenarioAdversaryWorker(ScenarioAdversaryConfig(max_scenarios=3, collect_top_k=2))
+def test_scenario_adversary_fallback_and_execution(tmp_path: Path) -> None:
+    worker = ScenarioAdversaryWorker(
+        ScenarioAdversaryConfig(max_scenarios=3, collect_top_k=2),
+        budget_middleware=_worker_budget(tmp_path),
+    )
     surface = ScenarioAttackSurface(
         candidate_id="candidate_policy",
         parameter_specs=[
@@ -245,7 +262,7 @@ def test_scenario_adversary_fallback_and_execution(tmp_path) -> None:
         ),
         vulnerability_threshold=0.5,
     )
-    bundle = worker.propose(surface, run_id="adv_test", budget_state=BudgetState())
+    bundle = worker.propose(surface, run_id="adv_test")
 
     assert bundle.fallback_used is True
     assert bundle.scenarios
@@ -275,9 +292,7 @@ async def test_scenario_adversary_gateway_parses_think_prefixed_json(
 ) -> None:
     surface = ScenarioAttackSurface(
         candidate_id="candidate_think_prefixed",
-        parameter_specs=[
-            DOEParameterSpec(name="shock", lower_bound=0.0, upper_bound=1.0)
-        ],
+        parameter_specs=[DOEParameterSpec(name="shock", lower_bound=0.0, upper_bound=1.0)],
     )
     payload = {
         "scenarios": [
@@ -306,6 +321,4 @@ async def test_scenario_adversary_gateway_parses_think_prefixed_json(
     bundle = await ScenarioAdversaryWorker().propose_async(surface)
 
     assert bundle.fallback_used is False
-    assert [scenario.scenario_id for scenario in bundle.scenarios] == [
-        "adv_think_prefixed"
-    ]
+    assert [scenario.scenario_id for scenario in bundle.scenarios] == ["adv_think_prefixed"]

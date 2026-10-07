@@ -1,3 +1,5 @@
+Current criterion-scope correction: [B109/B111/B100 errata](../../../../research/e02-cloud-test-plan/integration/reviews/original-criteria-errata-2026-10-06.md). B109 is fast/direct comparator acceptance; the served provider is additional capability. B111 keeps invalid-state/partial-denominator/finite-or-unavailable semantics; schema-v3 migration and finite-positive underflow are separately scoped. Historical outcomes and status counts below are retained.
+
 # Final stop boundary — 2026-10-04
 
 Denis requested stop and summary. This entry records measurements at source/test cut `0213101b6d124e6f855b1aff7c442bb0912a61c2`, tree `5e890bcb23dfa20db77be486e7296e36f3382576`; final documentation is a later, separate commit. The original completion criteria are not met. All deciding receipt paths/hashes are in [HANDOFF_EVIDENCE.json](HANDOFF_EVIDENCE.json); historical sections below keep their own cuts.

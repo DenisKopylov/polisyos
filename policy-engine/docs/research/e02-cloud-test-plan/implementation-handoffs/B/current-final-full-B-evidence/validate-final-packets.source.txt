@@ -1,0 +1,97 @@
+"""Read-only Git receipt and complete indexed payload custody validation.
+
+This does not run native tests, accept product code, or reconstruct absent outcomes.
+Input is a JSON list of exact {commit, path} receipt references. Output is stdout JSON.
+"""
+import hashlib
+import json
+import pathlib
+import subprocess
+import sys
+
+REQUIRED = {
+    "schema", "unit", "slice", "closure_ids", "bundle_ids", "slice_base_sha",
+    "implementation_commits", "candidate_tree_sha", "branch", "pull_request",
+    "changed_paths", "baseline_cells", "checks", "property", "predicate_basis",
+    "capability_state_or_finding_state", "limitations_and_next_owner",
+}
+CHECK = {"command", "target_sha", "environment", "input_closure", "outcome", "output"}
+PROPERTY = {"statement", "runtime_path", "proxy_divergence", "negative_controls"}
+OUTCOMES = {"PASS", "FAIL", "ERROR", "SKIP", "UNRUN"}
+BASIS = {"recomputed", "independently_reconciled", "consumer_asserted", "institutionally_supplied", "not_established"}
+
+
+def git(*args):
+    return subprocess.check_output(["git", *args])
+
+
+def blob(commit, path):
+    return git("show", commit + ":" + path)
+
+
+def indexed_entries(value):
+    if isinstance(value, dict):
+        if isinstance(value.get("path"), str) and "bytes" in value and "sha256" in value:
+            yield value
+        else:
+            for child in value.values():
+                yield from indexed_entries(child)
+    elif isinstance(value, list):
+        for child in value:
+            yield from indexed_entries(child)
+
+
+rows = []
+for reference in json.loads(pathlib.Path(sys.argv[1]).read_bytes()):
+    commit, path = reference["commit"], reference["path"]
+    raw = blob(commit, path)
+    packet = json.loads(raw)
+    candidate = packet.get("candidate_sha", packet["implementation_commits"][-1])
+    failures = []
+    if REQUIRED - packet.keys():
+        failures.append({"missing_fields": sorted(REQUIRED - packet.keys())})
+    if packet["schema"] != "policyos.e02.implementation_handoff.v1":
+        failures.append("wrong_schema")
+    if packet["predicate_basis"] not in BASIS:
+        failures.append("noncanonical_predicate_basis")
+    if PROPERTY - packet["property"].keys():
+        failures.append("incomplete_property")
+    for check in packet["checks"]:
+        if CHECK - check.keys() or check["outcome"] not in OUTCOMES:
+            failures.append({"incomplete_or_noncanonical_check": check.get("id", check.get("command"))})
+    tree = git("rev-parse", candidate + "^{tree}").decode().strip()
+    if tree != packet["candidate_tree_sha"]:
+        failures.append("candidate_tree_mismatch")
+    union = set()
+    for implementation in packet["implementation_commits"]:
+        union.update(git("diff-tree", "--no-commit-id", "--name-only", "-r", implementation).decode().splitlines())
+    declared = set(packet["changed_paths"])
+    if union != declared:
+        failures.append({"undeclared_implementation_paths": sorted(union - declared), "declared_not_in_implementation_union": sorted(declared - union)})
+    indices = []
+    for index_path in sorted(p for p in declared if p.endswith("index.json")):
+        index = json.loads(blob(candidate, index_path))
+        observations = []
+        payload_list = index.get("files", index.get("payloads"))
+        if payload_list is None:
+            raise ValueError("Unknown published payload index shape: " + index_path)
+        for entry in indexed_entries(payload_list):
+            payload_path = entry["path"]
+            if not payload_path.startswith("policy-engine/"):
+                payload_path = str(pathlib.PurePosixPath(index_path).parent / payload_path)
+            actual = blob(candidate, payload_path)
+            actual_hash = hashlib.sha256(actual).hexdigest()
+            if len(actual) != entry["bytes"] or actual_hash != entry["sha256"]:
+                failures.append({"payload_mismatch": payload_path})
+            if entry.get("encoding") == "lossless_utf8_json_string":
+                representation = json.loads(actual)
+                literal_text = representation["text"] if isinstance(representation, dict) else representation
+                decoded = literal_text.encode("utf-8")
+                if len(decoded) != entry["raw_bytes"] or hashlib.sha256(decoded).hexdigest() != entry["raw_sha256"]:
+                    failures.append({"lossless_representation_mismatch": payload_path})
+            observations.append({"path": payload_path, "bytes": len(actual), "sha256": actual_hash})
+        indices.append({"path": index_path, "complete_payload_count": len(observations), "complete_payload_bytes": sum(p["bytes"] for p in observations), "payloads": observations})
+    rows.append({"receipt": reference, "receipt_bytes": len(raw), "receipt_sha256": hashlib.sha256(raw).hexdigest(), "implementation_candidate": candidate, "tree": tree, "implementation_union_paths": sorted(union), "check_count": len(packet["checks"]), "indices": indices, "failures": failures})
+
+print(json.dumps({"scope": "Read-only finite receipt shape, implementation union and complete indexed Git-byte custody; no native execution or finding closure", "packets": rows, "all_pass": all(not r["failures"] for r in rows)}, ensure_ascii=False, indent=2))
+sys.exit(0 if all(not r["failures"] for r in rows) else 1)

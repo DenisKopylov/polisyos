@@ -1,0 +1,17 @@
+id = "2026-10-06-e02-current-resilience-ownership"
+title = "Retain keyed resilience regulators through physical provider operations"
+type = "fixed"
+component = "fabric-connectors"
+owner = "team-fabric"
+summary = "Bounded operation leases prevent regulator replacement while provider work owns it; finite positive service quantities refuse invalid provider admission."
+evidence = ["tests/unit/fabric/connectors/test_resilience_e02.py"]
+compatibility = "Registry pressure can now raise a typed protected-capacity refusal before provider work starts; same-key operations continue sharing one regulator."
+change_class = "python-public-api"
+surface_classification = "public_experimental: BoundedResourceRegistry.lease and resilience decorators"
+migration = "Hold registry.lease for the whole awaited operation instead of treating get_or_create as an operation ownership contract."
+api = "Existing lookup and decorator signatures remain compatible."
+limitations = "Registry leases do not establish external permission or impose a physical cancellation deadline."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/fabric/connectors/README.md"]
+runbook_docs = []

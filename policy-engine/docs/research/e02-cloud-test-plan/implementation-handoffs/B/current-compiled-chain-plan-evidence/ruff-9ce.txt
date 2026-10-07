@@ -1,0 +1,22 @@
+I001 [*] Import block is un-sorted or un-formatted
+  --> src/polisyos/foundry/methods/components/composer.pyi:1:1
+   |
+ 1 | / from _typeshed import Incomplete
+ 2 | | from collections.abc import Iterator, Mapping, Sequence
+ 3 | | from dataclasses import dataclass, field
+ 4 | | from enum import Enum
+ 5 | | from polisyos.foundry.methods.backends.chain_executor import ExecutorMode, FxRateProvider
+ 6 | | from polisyos.foundry.methods.base import MethodSignature
+ 7 | | from polisyos.foundry.methods.components.linker import LinkResult, SlotBinding, SlotLinker
+ 8 | | from polisyos.foundry.methods.selection.registry import MethodRegistry
+ 9 | | from types import MappingProxyType
+10 | | from typing import Any
+11 | | from uuid import UUID
+   | |_____________________^
+12 |
+13 |   __all__ = [
+   |
+help: Organize imports
+
+Found 1 error.
+[*] 1 fixable with the `--fix` option.

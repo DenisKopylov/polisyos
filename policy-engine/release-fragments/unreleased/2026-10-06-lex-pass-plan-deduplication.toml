@@ -1,0 +1,26 @@
+id = "2026-10-06-lex-pass-plan-deduplication"
+title = "Execute each legal impact pass once per comparison"
+type = "fixed"
+component = "lex"
+owner = "team-policyos-runtime"
+summary = "Canonicalize repeated legal impact pass references in first-occurrence order before execution, report identity and CAS persistence. Duplicate CLI or API entries no longer inflate compliance blocker counts."
+compatibility = "The historical report schema 1.0 and unique pass plans retain their meaning. Repeated entries now identify one check. Unknown pass IDs remain invalid."
+surface_classification = "public_stable: polisyos.lex"
+public_surface_inventory_reviewed = true
+change_class = "python-public-api"
+migration = "No data migration. Consumers using repeated checks as multiplicities must use distinct independently defined checks."
+limitations = "Lexical candidate topics and synthetic legal checks do not establish current law, causal effects or legal authority."
+evidence = ["tests/unit/lex/legal_evaluation/test_impact_diff.py"]
+
+[[compatibility_change]]
+id = "lex-pass-plan-deduplication"
+change_class = "python-public-api"
+impact = "breaking"
+surface = "public_stable: polisyos.lex NormImpactAnalyzer"
+owner = "team-policyos-runtime"
+version_owner = "team-architecture"
+deprecation_window = "not_applicable"
+release_note = "Repeated supported pass references execute once in first-occurrence order."
+generated_client_compatibility = "not_applicable"
+migration_docs = []
+runbook_docs = []

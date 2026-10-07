@@ -1,0 +1,445 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="6" skipped="0" tests="6" time="0.252" timestamp="2026-10-06T15:02:56.867405+00:00" hostname="b878f4efbdfc"><testcase classname="tests.unit.remediation.test_wire_01" name="test_artifact_ref_and_artifact_id_tags_are_compatible[native-current-v2]" time="0.005"><failure message="polisyos.scientist.orchestration.engine.runner.serialization.DeserializationError: Unsupported runner wire type tag: 'model'">wire_profile = 'current-v2'
+
+    @pytest.mark.usefixtures("_wire_backend")
+    @pytest.mark.parametrize("wire_profile", ["current-v2", "legacy-v0", "legacy-framed-v1"])
+    def test_artifact_ref_and_artifact_id_tags_are_compatible(wire_profile: str) -&gt; None:
+        ref = _artifact_ref()
+        state = ExperimentState(run_id="wire-01-artifact-tags", inputs={"input": ref})
+    
+        payload = serialize_state(state)
+        encoded = serialization_module._loads(payload)
+        assert set(encoded) == {"wire_schema", "value"}
+        assert encoded["wire_schema"] == "polisyos.scientist.state_wire.v2"
+        encoded_ref = encoded["value"]["inputs"]["input"]
+    
+        assert encoded_ref["_type"] == "model"
+        assert encoded_ref["module"] == "polisyos.core.artifacts.manifest"
+        assert encoded_ref["qualname"] == "ArtifactRef"
+        encoded_id = encoded_ref["value"]["artifact_id"]
+        assert encoded_id["_type"] == "model"
+        assert encoded_id["module"] == "polisyos.core.artifacts.ids"
+        assert encoded_id["qualname"] == "ArtifactID"
+        assert encoded_id["value"] == str(ref.artifact_id)
+    
+        if wire_profile != "current-v2":
+            # This explicit historical input is independent of the current writer.
+            # Framing v1 adds integrity bytes; it does not change the legacy JSON tags.
+            legacy = {
+                "run_id": state.run_id,
+                "inputs": {
+                    "input": {
+                        "_type": "model",
+                        "module": "polisyos.core.artifacts.manifest",
+                        "qualname": "ArtifactRef",
+                        "value": {
+                            "artifact_id": {
+                                "_type": "model",
+                                "module": "polisyos.core.artifacts.ids",
+                                "qualname": "ArtifactID",
+                                "value": str(ref.artifact_id),
+                            },
+                            "kind": ref.kind,
+                            "media_type": ref.media_type,
+                        },
+                    }
+                },
+            }
+            payload = serialization_module._dumps(legacy)
+            if wire_profile == "legacy-framed-v1":
+                payload = b"\x01" + payload + hashlib.sha256(payload).digest()
+    
+&gt;       restored = deserialize_state(payload)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/remediation/test_wire_01.py:294: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:541: in deserialize_state
+    decoded = _validate_decoded_state(_decode_wire_value(raw))
+                                      ^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:391: in _decode_wire_value
+    decoded[key] = _decode_wire_value(item, depth=depth + 1)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:391: in _decode_wire_value
+    decoded[key] = _decode_wire_value(item, depth=depth + 1)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:386: in _decode_wire_value
+    return _decode_wire_tag(value, depth=depth + 1)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = {'_type': 'model', 'module': 'polisyos.core.artifacts.manifest', 'qualname': 'ArtifactRef', 'value': {'artifact_id': {...aaaaaaaaaaaaaaaaaaaaaaaa'}, 'kind': 'test.wire_01', 'manifest_profile_sha256': None, 'media_type': 'application/json'}}
+
+&gt;   ???
+E   polisyos.scientist.orchestration.engine.runner.serialization.DeserializationError: Unsupported runner wire type tag: 'model'
+
+&lt;isolated-model-tag-reader-removal&gt;:79: DeserializationError</failure></testcase><testcase classname="tests.unit.remediation.test_wire_01" name="test_artifact_ref_and_artifact_id_tags_are_compatible[native-legacy-v0]" time="0.001"><failure message="polisyos.scientist.orchestration.engine.runner.serialization.DeserializationError: Unsupported runner wire type tag: 'model'">wire_profile = 'legacy-v0'
+
+    @pytest.mark.usefixtures("_wire_backend")
+    @pytest.mark.parametrize("wire_profile", ["current-v2", "legacy-v0", "legacy-framed-v1"])
+    def test_artifact_ref_and_artifact_id_tags_are_compatible(wire_profile: str) -&gt; None:
+        ref = _artifact_ref()
+        state = ExperimentState(run_id="wire-01-artifact-tags", inputs={"input": ref})
+    
+        payload = serialize_state(state)
+        encoded = serialization_module._loads(payload)
+        assert set(encoded) == {"wire_schema", "value"}
+        assert encoded["wire_schema"] == "polisyos.scientist.state_wire.v2"
+        encoded_ref = encoded["value"]["inputs"]["input"]
+    
+        assert encoded_ref["_type"] == "model"
+        assert encoded_ref["module"] == "polisyos.core.artifacts.manifest"
+        assert encoded_ref["qualname"] == "ArtifactRef"
+        encoded_id = encoded_ref["value"]["artifact_id"]
+        assert encoded_id["_type"] == "model"
+        assert encoded_id["module"] == "polisyos.core.artifacts.ids"
+        assert encoded_id["qualname"] == "ArtifactID"
+        assert encoded_id["value"] == str(ref.artifact_id)
+    
+        if wire_profile != "current-v2":
+            # This explicit historical input is independent of the current writer.
+            # Framing v1 adds integrity bytes; it does not change the legacy JSON tags.
+            legacy = {
+                "run_id": state.run_id,
+                "inputs": {
+                    "input": {
+                        "_type": "model",
+                        "module": "polisyos.core.artifacts.manifest",
+                        "qualname": "ArtifactRef",
+                        "value": {
+                            "artifact_id": {
+                                "_type": "model",
+                                "module": "polisyos.core.artifacts.ids",
+                                "qualname": "ArtifactID",
+                                "value": str(ref.artifact_id),
+                            },
+                            "kind": ref.kind,
+                            "media_type": ref.media_type,
+                        },
+                    }
+                },
+            }
+            payload = serialization_module._dumps(legacy)
+            if wire_profile == "legacy-framed-v1":
+                payload = b"\x01" + payload + hashlib.sha256(payload).digest()
+    
+&gt;       restored = deserialize_state(payload)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/remediation/test_wire_01.py:294: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:541: in deserialize_state
+    decoded = _validate_decoded_state(_decode_wire_value(raw))
+                                      ^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:391: in _decode_wire_value
+    decoded[key] = _decode_wire_value(item, depth=depth + 1)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:391: in _decode_wire_value
+    decoded[key] = _decode_wire_value(item, depth=depth + 1)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:386: in _decode_wire_value
+    return _decode_wire_tag(value, depth=depth + 1)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = {'_type': 'model', 'module': 'polisyos.core.artifacts.manifest', 'qualname': 'ArtifactRef', 'value': {'artifact_id': {...aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'}, 'kind': 'test.wire_01', 'media_type': 'application/json'}}
+
+&gt;   ???
+E   polisyos.scientist.orchestration.engine.runner.serialization.DeserializationError: Unsupported runner wire type tag: 'model'
+
+&lt;isolated-model-tag-reader-removal&gt;:79: DeserializationError</failure></testcase><testcase classname="tests.unit.remediation.test_wire_01" name="test_artifact_ref_and_artifact_id_tags_are_compatible[native-legacy-framed-v1]" time="0.001"><failure message="polisyos.scientist.orchestration.engine.runner.serialization.DeserializationError: Unsupported runner wire type tag: 'model'">wire_profile = 'legacy-framed-v1'
+
+    @pytest.mark.usefixtures("_wire_backend")
+    @pytest.mark.parametrize("wire_profile", ["current-v2", "legacy-v0", "legacy-framed-v1"])
+    def test_artifact_ref_and_artifact_id_tags_are_compatible(wire_profile: str) -&gt; None:
+        ref = _artifact_ref()
+        state = ExperimentState(run_id="wire-01-artifact-tags", inputs={"input": ref})
+    
+        payload = serialize_state(state)
+        encoded = serialization_module._loads(payload)
+        assert set(encoded) == {"wire_schema", "value"}
+        assert encoded["wire_schema"] == "polisyos.scientist.state_wire.v2"
+        encoded_ref = encoded["value"]["inputs"]["input"]
+    
+        assert encoded_ref["_type"] == "model"
+        assert encoded_ref["module"] == "polisyos.core.artifacts.manifest"
+        assert encoded_ref["qualname"] == "ArtifactRef"
+        encoded_id = encoded_ref["value"]["artifact_id"]
+        assert encoded_id["_type"] == "model"
+        assert encoded_id["module"] == "polisyos.core.artifacts.ids"
+        assert encoded_id["qualname"] == "ArtifactID"
+        assert encoded_id["value"] == str(ref.artifact_id)
+    
+        if wire_profile != "current-v2":
+            # This explicit historical input is independent of the current writer.
+            # Framing v1 adds integrity bytes; it does not change the legacy JSON tags.
+            legacy = {
+                "run_id": state.run_id,
+                "inputs": {
+                    "input": {
+                        "_type": "model",
+                        "module": "polisyos.core.artifacts.manifest",
+                        "qualname": "ArtifactRef",
+                        "value": {
+                            "artifact_id": {
+                                "_type": "model",
+                                "module": "polisyos.core.artifacts.ids",
+                                "qualname": "ArtifactID",
+                                "value": str(ref.artifact_id),
+                            },
+                            "kind": ref.kind,
+                            "media_type": ref.media_type,
+                        },
+                    }
+                },
+            }
+            payload = serialization_module._dumps(legacy)
+            if wire_profile == "legacy-framed-v1":
+                payload = b"\x01" + payload + hashlib.sha256(payload).digest()
+    
+&gt;       restored = deserialize_state(payload)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/remediation/test_wire_01.py:294: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:541: in deserialize_state
+    decoded = _validate_decoded_state(_decode_wire_value(raw))
+                                      ^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:391: in _decode_wire_value
+    decoded[key] = _decode_wire_value(item, depth=depth + 1)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:391: in _decode_wire_value
+    decoded[key] = _decode_wire_value(item, depth=depth + 1)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:386: in _decode_wire_value
+    return _decode_wire_tag(value, depth=depth + 1)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = {'_type': 'model', 'module': 'polisyos.core.artifacts.manifest', 'qualname': 'ArtifactRef', 'value': {'artifact_id': {...aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'}, 'kind': 'test.wire_01', 'media_type': 'application/json'}}
+
+&gt;   ???
+E   polisyos.scientist.orchestration.engine.runner.serialization.DeserializationError: Unsupported runner wire type tag: 'model'
+
+&lt;isolated-model-tag-reader-removal&gt;:79: DeserializationError</failure></testcase><testcase classname="tests.unit.remediation.test_wire_01" name="test_artifact_ref_and_artifact_id_tags_are_compatible[stdlib-current-v2]" time="0.001"><failure message="polisyos.scientist.orchestration.engine.runner.serialization.DeserializationError: Unsupported runner wire type tag: 'model'">wire_profile = 'current-v2'
+
+    @pytest.mark.usefixtures("_wire_backend")
+    @pytest.mark.parametrize("wire_profile", ["current-v2", "legacy-v0", "legacy-framed-v1"])
+    def test_artifact_ref_and_artifact_id_tags_are_compatible(wire_profile: str) -&gt; None:
+        ref = _artifact_ref()
+        state = ExperimentState(run_id="wire-01-artifact-tags", inputs={"input": ref})
+    
+        payload = serialize_state(state)
+        encoded = serialization_module._loads(payload)
+        assert set(encoded) == {"wire_schema", "value"}
+        assert encoded["wire_schema"] == "polisyos.scientist.state_wire.v2"
+        encoded_ref = encoded["value"]["inputs"]["input"]
+    
+        assert encoded_ref["_type"] == "model"
+        assert encoded_ref["module"] == "polisyos.core.artifacts.manifest"
+        assert encoded_ref["qualname"] == "ArtifactRef"
+        encoded_id = encoded_ref["value"]["artifact_id"]
+        assert encoded_id["_type"] == "model"
+        assert encoded_id["module"] == "polisyos.core.artifacts.ids"
+        assert encoded_id["qualname"] == "ArtifactID"
+        assert encoded_id["value"] == str(ref.artifact_id)
+    
+        if wire_profile != "current-v2":
+            # This explicit historical input is independent of the current writer.
+            # Framing v1 adds integrity bytes; it does not change the legacy JSON tags.
+            legacy = {
+                "run_id": state.run_id,
+                "inputs": {
+                    "input": {
+                        "_type": "model",
+                        "module": "polisyos.core.artifacts.manifest",
+                        "qualname": "ArtifactRef",
+                        "value": {
+                            "artifact_id": {
+                                "_type": "model",
+                                "module": "polisyos.core.artifacts.ids",
+                                "qualname": "ArtifactID",
+                                "value": str(ref.artifact_id),
+                            },
+                            "kind": ref.kind,
+                            "media_type": ref.media_type,
+                        },
+                    }
+                },
+            }
+            payload = serialization_module._dumps(legacy)
+            if wire_profile == "legacy-framed-v1":
+                payload = b"\x01" + payload + hashlib.sha256(payload).digest()
+    
+&gt;       restored = deserialize_state(payload)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/remediation/test_wire_01.py:294: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:541: in deserialize_state
+    decoded = _validate_decoded_state(_decode_wire_value(raw))
+                                      ^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:391: in _decode_wire_value
+    decoded[key] = _decode_wire_value(item, depth=depth + 1)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:391: in _decode_wire_value
+    decoded[key] = _decode_wire_value(item, depth=depth + 1)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:386: in _decode_wire_value
+    return _decode_wire_tag(value, depth=depth + 1)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = {'_type': 'model', 'module': 'polisyos.core.artifacts.manifest', 'qualname': 'ArtifactRef', 'value': {'artifact_id': {...aaaaaaaaaaaaaaaaaaaaaaaa'}, 'kind': 'test.wire_01', 'manifest_profile_sha256': None, 'media_type': 'application/json'}}
+
+&gt;   ???
+E   polisyos.scientist.orchestration.engine.runner.serialization.DeserializationError: Unsupported runner wire type tag: 'model'
+
+&lt;isolated-model-tag-reader-removal&gt;:79: DeserializationError</failure></testcase><testcase classname="tests.unit.remediation.test_wire_01" name="test_artifact_ref_and_artifact_id_tags_are_compatible[stdlib-legacy-v0]" time="0.001"><failure message="polisyos.scientist.orchestration.engine.runner.serialization.DeserializationError: Unsupported runner wire type tag: 'model'">wire_profile = 'legacy-v0'
+
+    @pytest.mark.usefixtures("_wire_backend")
+    @pytest.mark.parametrize("wire_profile", ["current-v2", "legacy-v0", "legacy-framed-v1"])
+    def test_artifact_ref_and_artifact_id_tags_are_compatible(wire_profile: str) -&gt; None:
+        ref = _artifact_ref()
+        state = ExperimentState(run_id="wire-01-artifact-tags", inputs={"input": ref})
+    
+        payload = serialize_state(state)
+        encoded = serialization_module._loads(payload)
+        assert set(encoded) == {"wire_schema", "value"}
+        assert encoded["wire_schema"] == "polisyos.scientist.state_wire.v2"
+        encoded_ref = encoded["value"]["inputs"]["input"]
+    
+        assert encoded_ref["_type"] == "model"
+        assert encoded_ref["module"] == "polisyos.core.artifacts.manifest"
+        assert encoded_ref["qualname"] == "ArtifactRef"
+        encoded_id = encoded_ref["value"]["artifact_id"]
+        assert encoded_id["_type"] == "model"
+        assert encoded_id["module"] == "polisyos.core.artifacts.ids"
+        assert encoded_id["qualname"] == "ArtifactID"
+        assert encoded_id["value"] == str(ref.artifact_id)
+    
+        if wire_profile != "current-v2":
+            # This explicit historical input is independent of the current writer.
+            # Framing v1 adds integrity bytes; it does not change the legacy JSON tags.
+            legacy = {
+                "run_id": state.run_id,
+                "inputs": {
+                    "input": {
+                        "_type": "model",
+                        "module": "polisyos.core.artifacts.manifest",
+                        "qualname": "ArtifactRef",
+                        "value": {
+                            "artifact_id": {
+                                "_type": "model",
+                                "module": "polisyos.core.artifacts.ids",
+                                "qualname": "ArtifactID",
+                                "value": str(ref.artifact_id),
+                            },
+                            "kind": ref.kind,
+                            "media_type": ref.media_type,
+                        },
+                    }
+                },
+            }
+            payload = serialization_module._dumps(legacy)
+            if wire_profile == "legacy-framed-v1":
+                payload = b"\x01" + payload + hashlib.sha256(payload).digest()
+    
+&gt;       restored = deserialize_state(payload)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/remediation/test_wire_01.py:294: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:541: in deserialize_state
+    decoded = _validate_decoded_state(_decode_wire_value(raw))
+                                      ^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:391: in _decode_wire_value
+    decoded[key] = _decode_wire_value(item, depth=depth + 1)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:391: in _decode_wire_value
+    decoded[key] = _decode_wire_value(item, depth=depth + 1)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:386: in _decode_wire_value
+    return _decode_wire_tag(value, depth=depth + 1)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = {'_type': 'model', 'module': 'polisyos.core.artifacts.manifest', 'qualname': 'ArtifactRef', 'value': {'artifact_id': {...aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'}, 'kind': 'test.wire_01', 'media_type': 'application/json'}}
+
+&gt;   ???
+E   polisyos.scientist.orchestration.engine.runner.serialization.DeserializationError: Unsupported runner wire type tag: 'model'
+
+&lt;isolated-model-tag-reader-removal&gt;:79: DeserializationError</failure></testcase><testcase classname="tests.unit.remediation.test_wire_01" name="test_artifact_ref_and_artifact_id_tags_are_compatible[stdlib-legacy-framed-v1]" time="0.001"><failure message="polisyos.scientist.orchestration.engine.runner.serialization.DeserializationError: Unsupported runner wire type tag: 'model'">wire_profile = 'legacy-framed-v1'
+
+    @pytest.mark.usefixtures("_wire_backend")
+    @pytest.mark.parametrize("wire_profile", ["current-v2", "legacy-v0", "legacy-framed-v1"])
+    def test_artifact_ref_and_artifact_id_tags_are_compatible(wire_profile: str) -&gt; None:
+        ref = _artifact_ref()
+        state = ExperimentState(run_id="wire-01-artifact-tags", inputs={"input": ref})
+    
+        payload = serialize_state(state)
+        encoded = serialization_module._loads(payload)
+        assert set(encoded) == {"wire_schema", "value"}
+        assert encoded["wire_schema"] == "polisyos.scientist.state_wire.v2"
+        encoded_ref = encoded["value"]["inputs"]["input"]
+    
+        assert encoded_ref["_type"] == "model"
+        assert encoded_ref["module"] == "polisyos.core.artifacts.manifest"
+        assert encoded_ref["qualname"] == "ArtifactRef"
+        encoded_id = encoded_ref["value"]["artifact_id"]
+        assert encoded_id["_type"] == "model"
+        assert encoded_id["module"] == "polisyos.core.artifacts.ids"
+        assert encoded_id["qualname"] == "ArtifactID"
+        assert encoded_id["value"] == str(ref.artifact_id)
+    
+        if wire_profile != "current-v2":
+            # This explicit historical input is independent of the current writer.
+            # Framing v1 adds integrity bytes; it does not change the legacy JSON tags.
+            legacy = {
+                "run_id": state.run_id,
+                "inputs": {
+                    "input": {
+                        "_type": "model",
+                        "module": "polisyos.core.artifacts.manifest",
+                        "qualname": "ArtifactRef",
+                        "value": {
+                            "artifact_id": {
+                                "_type": "model",
+                                "module": "polisyos.core.artifacts.ids",
+                                "qualname": "ArtifactID",
+                                "value": str(ref.artifact_id),
+                            },
+                            "kind": ref.kind,
+                            "media_type": ref.media_type,
+                        },
+                    }
+                },
+            }
+            payload = serialization_module._dumps(legacy)
+            if wire_profile == "legacy-framed-v1":
+                payload = b"\x01" + payload + hashlib.sha256(payload).digest()
+    
+&gt;       restored = deserialize_state(payload)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/remediation/test_wire_01.py:294: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:541: in deserialize_state
+    decoded = _validate_decoded_state(_decode_wire_value(raw))
+                                      ^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:391: in _decode_wire_value
+    decoded[key] = _decode_wire_value(item, depth=depth + 1)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:391: in _decode_wire_value
+    decoded[key] = _decode_wire_value(item, depth=depth + 1)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:386: in _decode_wire_value
+    return _decode_wire_tag(value, depth=depth + 1)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = {'_type': 'model', 'module': 'polisyos.core.artifacts.manifest', 'qualname': 'ArtifactRef', 'value': {'artifact_id': {...aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'}, 'kind': 'test.wire_01', 'media_type': 'application/json'}}
+
+&gt;   ???
+E   polisyos.scientist.orchestration.engine.runner.serialization.DeserializationError: Unsupported runner wire type tag: 'model'
+
+&lt;isolated-model-tag-reader-removal&gt;:79: DeserializationError</failure></testcase></testsuite></testsuites>

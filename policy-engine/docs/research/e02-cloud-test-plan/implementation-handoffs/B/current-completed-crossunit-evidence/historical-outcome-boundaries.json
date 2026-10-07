@@ -1,0 +1,63 @@
+{
+  "unchanged_historical_optional_receipt": {
+    "source_sha": "97d0684c1f2765fc67d40331a8a2602a08c1f2e0",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-optional-spend-projection-boundary.json",
+    "git_blob": "27d215c86a00ea3359f9da5d01903913d6e41e74",
+    "bytes": 17779,
+    "sha256": "06fe970bfb85b274a62741ce57b001a52d0971751cfac61fd32c652033635804"
+  },
+  "historical_deciding_receipts": [
+    {
+      "receipt": {
+        "source_sha": "c9909f984c6ab4ca76ac220bfe7d0f830c6194e0",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-pool-stream-contract.json",
+        "git_blob": "a90d4f45c8ece2ac5d0b51278cc308237930fd09",
+        "bytes": 31456,
+        "sha256": "0cc234162e7130e97beaec7e808a74f26fa48b8152a8fa6e1d50accee701b3fa"
+      },
+      "slice": "current-pool-stream-contract",
+      "literal_prior_outcome": "1PASS1FAIL actual final466, capacity-before-effects refusal fails",
+      "qualifier": "Immutable previous observation, not a runtime result on this snapshot, selected owner successor, or final future candidate."
+    },
+    {
+      "receipt": {
+        "source_sha": "c9909f984c6ab4ca76ac220bfe7d0f830c6194e0",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-consumer-portable.json",
+        "git_blob": "bd9e90bd9be756ee72b0a8b5b87fb8f702186ed4",
+        "bytes": 17494,
+        "sha256": "13ca21897bbb2f01efe6efdf896d74d8c988a509a8d9c86b2b258d198c8afca9"
+      },
+      "slice": "current-stream-cleanup-consumer-portable",
+      "literal_prior_outcome": "7PASS1FAIL actual product205/own724, process-failed-close owner escape",
+      "qualifier": "Immutable previous observation, not a runtime result on this snapshot, selected owner successor, or final future candidate."
+    },
+    {
+      "receipt": {
+        "source_sha": "c9909f984c6ab4ca76ac220bfe7d0f830c6194e0",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-optional-spend-projection-boundary.json",
+        "git_blob": "27d215c86a00ea3359f9da5d01903913d6e41e74",
+        "bytes": 17779,
+        "sha256": "06fe970bfb85b274a62741ce57b001a52d0971751cfac61fd32c652033635804"
+      },
+      "slice": "current-optional-spend-projection-boundary",
+      "literal_prior_outcome": "1FAIL unknown/2PASS reported.02/0 actual a2 helper only",
+      "qualifier": "Immutable previous observation, not a runtime result on this snapshot, selected owner successor, or final future candidate."
+    },
+    {
+      "receipt": {
+        "source_sha": "c9909f984c6ab4ca76ac220bfe7d0f830c6194e0",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03.json",
+        "git_blob": "71ac15a4b8d9b52342da926e8cc5ba23ab21f275",
+        "bytes": 16760,
+        "sha256": "9590b0863dd781194dab34bb52f39b24c1d88657f9d6fc2f2458958b377c4731"
+      },
+      "slice": "current-composition-res03-cloud-stop",
+      "literal_prior_outcome": "actual061 whole1FAIL before served consumer; true earlier successful simulation/later failure prefix and054 artifact readback preserved",
+      "qualifier": "Immutable previous observation, not a runtime result on this snapshot, selected owner successor, or final future candidate."
+    }
+  ],
+  "P41": "not_established; no exact slice-base runtime replay/disjoint full input denominator",
+  "source_grade_only": true,
+  "runtime_commands_executed": [],
+  "final_root_pending": true
+}

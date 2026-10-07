@@ -1,0 +1,114 @@
+{
+  "all_inputs_unchanged": true,
+  "all_module_origins_under_candidate_src": true,
+  "candidate_sha": "5ece606ee1c1016c1133a1e81bbf852574a64a48",
+  "candidate_tree": "ff36af874a0a08d3571a1703ce1574b8273c9cbf",
+  "child_maxrss": 924123136,
+  "child_maxrss_unit": "bytes on Darwin",
+  "child_process_origin_assertion": "executed by test_put_consumer_oracle.py; child asserts polisyos.core.artifacts.store.__file__ resolves under its candidate source argument",
+  "elapsed_seconds": 14.361175791011192,
+  "exit_code": 0,
+  "finished_at_utc": "2026-10-06T18:43:06.600837+00:00",
+  "foreign_module_origins": [],
+  "input_hashes_after_file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-Bcas-checks/outputs/attempt2/input-manifest-after.json",
+  "junit_bytes": 3397,
+  "junit_cases": [
+    {
+      "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+      "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[corrupt-sha256 mismatch]",
+      "outcome": "passed"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+      "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[same_size-sha256 mismatch]",
+      "outcome": "passed"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+      "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_size-byte_size mismatch]",
+      "outcome": "passed"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+      "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_profile-Selected manifest profile mismatch]",
+      "outcome": "passed"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+      "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[invalid_manifest-manifest invalid:]",
+      "outcome": "passed"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+      "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_integrity-manifest integrity mismatch]",
+      "outcome": "passed"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+      "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_ref_type-Artifact reference type]",
+      "outcome": "passed"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+      "name": "test_failed_report_cannot_reread_operator_repaired_bytes[False]",
+      "outcome": "passed"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+      "name": "test_failed_report_cannot_reread_operator_repaired_bytes[True]",
+      "outcome": "passed"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+      "name": "test_pre_read_failure_cannot_invent_blob_measurements",
+      "outcome": "passed"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+      "name": "test_public_verify_capture_remains_consumable_by_actual_owner_index[False]",
+      "outcome": "passed"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+      "name": "test_public_verify_capture_remains_consumable_by_actual_owner_index[True]",
+      "outcome": "passed"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+      "name": "test_valid_signature_cannot_admit_a_wrong_size_selected_snapshot",
+      "outcome": "passed"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+      "name": "test_actual_chronology_reader_classifies_observed_corruption_as_rejected",
+      "outcome": "passed"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_put_consumer_oracle",
+      "name": "test_damaged_duplicate_put_is_refused_before_fresh_process_retry_consumer[same_size]",
+      "outcome": "passed"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_put_consumer_oracle",
+      "name": "test_damaged_duplicate_put_is_refused_before_fresh_process_retry_consumer[short]",
+      "outcome": "passed"
+    }
+  ],
+  "junit_present": true,
+  "junit_sha256": "9386e89ff6b1bd0fc46eebcc4c4e6d6adf2e460e5943e868e91e5283573ec3b9",
+  "junit_summary": {
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "testcases": 16
+  },
+  "module_origin_count": 1434,
+  "module_origin_file_present": true,
+  "outcome": "PASS",
+  "started_at_utc": "2026-10-06T18:42:51.956565+00:00",
+  "stderr_bytes": 0,
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stdout_bytes": 4381,
+  "stdout_sha256": "d65802914dfe996043dfd6feda396892b19cd631d5ca277ea105bd9fe3bb54ea",
+  "timeout_seconds": 180
+}

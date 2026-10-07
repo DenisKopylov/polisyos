@@ -1,0 +1,33 @@
+{"argv": ["/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python", "-m", "pytest", "-vv", "-p", "origin_guard", "tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py", "tests/unit/remediation/test_jit_01.py::test_chain_shape_inference_refuses_unknown_data_dependent_shape", "--basetemp", "/tmp/e02-B-compiled-preparation-358fee80e6e1/pytest", "-o", "cache_dir=/tmp/e02-B-compiled-preparation-358fee80e6e1/cache", "--junitxml=/tmp/e02-B-compiled-preparation-358fee80e6e1/native.xml"], "cwd": "/workspace/e02-B-current-cas-generation/policy-engine", "source": {"head": "cd337675930d7c1822671a27102b83025e57e95a", "tree": "53397ed853aa3cdb2cc491aa06f0912809148449", "status": ""}}
+============================= test session starts ==============================
+platform linux -- Python 3.14.2, pytest-9.0.2, pluggy-1.6.0 -- /workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python
+cachedir: /tmp/e02-B-compiled-preparation-358fee80e6e1/cache
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/workspace/e02-B-current-cas-generation/policy-engine/_cache/hypothesis'))
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/e02-B-current-cas-generation/policy-engine
+configfile: pytest.ini
+plugins: benchmark-5.2.3, hypothesis-6.151.2, anyio-4.12.0, langsmith-0.6.0, asyncio-1.3.0, xdist-3.8.0, jaxtyping-0.3.4
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 1 item / 1 error
+
+==================================== ERRORS ====================================
+_ ERROR collecting tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py _
+tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py:49: in <module>
+    class _Draw:
+tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py:54: in _Draw
+    input_slots=frozenset({_slot("values", ("n",))}),
+                           ^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py:46: in _slot
+    return SlotSpec(name, SlotType.VECTOR if shape else SlotType.SCALAR, Unit("value", "1"), shape)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<string>:12: in __init__
+    ???
+src/polisyos/foundry/methods/base.py:423: in __post_init__
+    raise TypeError("SlotSpec.contract_id must be None or a non-empty string")
+E   TypeError: SlotSpec.contract_id must be None or a non-empty string
+- generated xml file: /tmp/e02-B-compiled-preparation-358fee80e6e1/native.xml --
+=========================== short test summary info ============================
+ERROR tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+=============================== 1 error in 1.13s ===============================

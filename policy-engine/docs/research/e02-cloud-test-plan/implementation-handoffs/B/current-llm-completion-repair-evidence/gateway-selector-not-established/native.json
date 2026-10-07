@@ -1,0 +1,70 @@
+{
+  "schema": "policyos.e02.llm-affected-native.v1",
+  "harness_state": "EXECUTED",
+  "target_source_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96",
+  "test_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96",
+  "test_path": "/workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/orchestration/llm/test_protected_audit_admission_e02.py",
+  "test_sha256": "b2f169797b06613024bbd3665fc0c502bb82eb86eb26a9e115cf12b7982865f9",
+  "whole_test_input": {
+    "whole_files": [
+      "tests/unit/scientist/orchestration/llm/test_gateway_client.py",
+      "tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py"
+    ],
+    "scope": "Header-value typed narrowing successor; actual gateway and parser/financial knowledge consumers only. Earlier full34 stays31-targeted."
+  },
+  "argv": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "/dev/shm/e02-B-gateway-a697/child.source.txt",
+    "/workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_client.py",
+    "/workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+    "--import-mode=importlib",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "-s",
+    "--tb=short",
+    "--basetemp",
+    "/dev/shm/e02-B-gateway-a697/fixtures",
+    "--junitxml",
+    "/dev/shm/e02-B-gateway-a697/native.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+  "explicit_environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-adapters/policy-engine/src:/workspace/e02-B-current-adapters/policy-engine",
+    "E02_B66_TARGET_ROOT": "/workspace/e02-B-current-adapters",
+    "E02_B66_TARGET_SHA": "a697a8312ff00edfcc766f9906dbcd2252cfcf96",
+    "E02_B65_CONTEXT": "/dev/shm/e02-B-gateway-a697/source-context.json",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache"
+  },
+  "fixture_profile": "Unique actual /dev/shm filesystem/provider/ledger; temporary memory filesystem does not prove production storage durability. No live TCP/API/external financial authority or numerical/process/thread/CPU quota added.",
+  "actual_exit": 4,
+  "wall_seconds": 1.3497375700098928,
+  "max_rss_kib": 94980,
+  "source_head_before_after": "a697a8312ff00edfcc766f9906dbcd2252cfcf96",
+  "test_head_before_after": "a697a8312ff00edfcc766f9906dbcd2252cfcf96",
+  "actual_cases": [],
+  "outcomes": {
+    "PASS": 0,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "outputs": [
+    {
+      "path": "/dev/shm/e02-B-gateway-a697/native.txt",
+      "bytes": 695,
+      "sha256": "e7f4f9ee437ddf20e0c54b04d0f55fa71073e9f3028920d6e2ac85fd618bcc88"
+    },
+    {
+      "path": "/dev/shm/e02-B-gateway-a697/native.xml",
+      "bytes": 238,
+      "sha256": "0927695ae4cc639745537ea6f06e5def3d34ea2340f5864542ccaaef28131c9d"
+    },
+    {
+      "path": "/dev/shm/e02-B-gateway-a697/source-context.json",
+      "bytes": 19079,
+      "sha256": "90b6026a2f8a536e5a034d7800984f9859b2ed7a59a9a57ab228afa443bba826"
+    }
+  ],
+  "closure_ids": []
+}

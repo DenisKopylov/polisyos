@@ -1,0 +1,177 @@
+SOURCE: final-B-cohort.txt; lines 18486-18538 are interleaved Task context without fixture-ID binding. Lines 18799-18919 contain the complete selected case failure and warning context.
+
+           ^^^^^^^^^^^^^^^^^^^^^Task exception was never retrieved
+future: <Task finished name='Task-2200' coro=<AsyncWorkflowExecutor.execute() done, defined at /workspace/e02-B-current-coordination/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py:176> exception=WorkflowTimeoutError('Workflow deadline expired during scientist.workflow_spec')>
+Traceback (most recent call last):
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/tasks.py", line 488, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/artifacts/async_store.py", line 91, in put_json
+    return await run_blocking_async(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/common/async_tools.py", line 293, in run_blocking_async
+    return await asyncio.wait_for(future, timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/tasks.py", line 488, in wait_for
+    return await fut
+           ^^^^^^^^^
+asyncio.exceptions.CancelledError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py", line 2316, in _put_workflow_artifact
+    ref = await asyncio.wait_for(pending, timeout=remaining)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/tasks.py", line 487, in wait_for
+    async with timeouts.timeout(timeout):
+               ~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/timeouts.py", line 114, in __aexit__
+    raise TimeoutError from exc_val
+TimeoutError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py", line 214, in execute
+    workflow_ref = await self._persist_workflow_spec(workflow)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py", line 2329, in _persist_workflow_spec
+    return await self._put_workflow_artifact(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+    )
+    ^
+  File "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py", line 2319, in _put_workflow_artifact
+    self._guard_workflow_admission(operation=opts.kind, execution_state="unknown")
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py", line 2285, in _guard_workflow_admission
+    raise WorkflowTimeoutError(
+    ...<3 lines>...
+    )
+polisyos.scientist.orchestration.engine.errors.WorkflowTimeoutError: Workflow deadline expired during scientist.workflow_spec
+
+_ test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer[deadline-scientist.experiment_state] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1')
+kind = 'scientist.experiment_state', end = 'deadline'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "kind", ["scientist.workflow_spec", "scientist.experiment_state", "scientist.workflow_report"]
+    )
+    @pytest.mark.parametrize("end", ["deadline", "cancel"])
+    async def test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer(tmp_path, kind, end):
+        store = _WriteGateCAS(tmp_path / "cas")
+        ctx, node, workflow, executor = _setup(store, timeout=0.5 if end == "deadline" else None)
+        state = ExperimentState(run_id="R_deadline", params={"seed": 7})
+        store.target = kind
+        loop_thread = threading.get_ident()
+        task = asyncio.create_task(executor.execute(workflow, state))
+        if end == "deadline":
+            release = _release_after_enter(store, 0.8)
+        else:
+            release = None
+        try:
+>           assert await asyncio.to_thread(store.entered.wait, 5)
+E           assert False
+
+tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py:198: AssertionError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1')
+kind = 'scientist.experiment_state', end = 'deadline'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "kind", ["scientist.workflow_spec", "scientist.experiment_state", "scientist.workflow_report"]
+    )
+    @pytest.mark.parametrize("end", ["deadline", "cancel"])
+    async def test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer(tmp_path, kind, end):
+        store = _WriteGateCAS(tmp_path / "cas")
+        ctx, node, workflow, executor = _setup(store, timeout=0.5 if end == "deadline" else None)
+        state = ExperimentState(run_id="R_deadline", params={"seed": 7})
+        store.target = kind
+        loop_thread = threading.get_ident()
+        task = asyncio.create_task(executor.execute(workflow, state))
+        if end == "deadline":
+            release = _release_after_enter(store, 0.8)
+        else:
+            release = None
+        try:
+            assert await asyncio.to_thread(store.entered.wait, 5)
+            if end == "cancel":
+                task.cancel()
+            with pytest.raises(WorkflowTimeoutError if end == "deadline" else asyncio.CancelledError):
+                await task
+            assert not store.release.is_set(), (
+                "owner wait refreshed or entered I/O was treated as cancelled"
+            )
+            assert store.thread != loop_thread
+            assert node.calls == (1 if kind == "scientist.workflow_report" else 0)
+            if kind != "scientist.workflow_report":
+                assert executor._cache is None
+            assert ctx.run.run_manifest.outputs == []
+            assert len(ctx.run.run_manifest.inputs) == (
+                0
+                if kind == "scientist.workflow_spec"
+                else 1
+                if kind == "scientist.experiment_state"
+                else 2
+            )
+            before = _events(ctx)
+            assert not any(event.get("event") == "RUN_FINALIZED" for event in before)
+        finally:
+            store.release.set()
+            if release:
+                release.join(5)
+>           assert await asyncio.to_thread(store.finished.wait, 5)
+E           assert False
+
+tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py:224: AssertionError
+=============================== warnings summary ===============================
+tests/unit/remediation/test_cas_01.py::test_lock_registry_is_bounded_without_evicting_active_waiters
+  tests/unit/remediation/test_cas_01.py:772: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_lock_registry_is_bounded_without_evicting_active_waiters(
+
+tests/unit/runtime/http/test_runtime_authorization_access_audit.py: 1 warning
+tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py: 1 warning
+tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py: 2 warnings
+tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py: 1 warning
+tests/unit/scientist/orchestration/engine/test_retry.py: 35 warnings
+tests/unit/scientist/orchestration/engine/test_retry_integration.py: 1 warning
+  /workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/popen_fork.py:70: RuntimeWarning: os.fork() was called. os.fork() is incompatible with multithreaded code, and JAX is multithreaded, so this will likely lead to a deadlock.
+    self.pid = os.fork()
+
+tests/unit/runtime/http/test_runtime_authorization_access_audit.py: 2 warnings
+tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py: 1 warning
+tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py: 2 warnings
+tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py: 1 warning
+tests/unit/scientist/orchestration/engine/test_retry.py: 43 warnings
+tests/unit/scientist/orchestration/engine/test_retry_integration.py: 1 warning
+  /workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/popen_fork.py:70: DeprecationWarning: This process (pid=272612) is multi-threaded, use of fork() may lead to deadlocks in the child.
+    self.pid = os.fork()
+
+tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py::test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer[deadline-scientist.experiment_state]
+  /workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/threadexception.py:58: PytestUnhandledThreadExceptionWarning: Exception in thread Thread-116 (release)
+  
+  Traceback (most recent call last):
+    File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/threading.py", line 1082, in _bootstrap_inner
+      self._context.run(self.run)
+      ~~~~~~~~~~~~~~~~~^^^^^^^^^^
+    File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/threading.py", line 1024, in run
+      self._target(*self._args, **self._kwargs)
+      ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py", line 136, in release
+      assert store.entered.wait(5)
+  AssertionError: assert False
+   +  where False = wait(5)
+   +    where wait = <threading.Event at 0x7fefd01d7290: unset>.wait
+   +      where <threading.Event at 0x7fefd01d7290: unset> = <engine.test_workflow_deadline_custody._WriteGateCAS object at 0x7fefd055bc50>.entered
+  
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.

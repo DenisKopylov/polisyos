@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="8" time="11.344" timestamp="2026-10-06T12:03:41.776554+00:00" hostname="b878f4efbdfc"><testcase classname="tests.unit.scientist.orchestration.engine.test_native_execution_admission" name="test_native_skip_width_preserves_frontier_and_reopened_resume_meaning[False]" time="0.525" /><testcase classname="tests.unit.scientist.orchestration.engine.test_native_execution_admission" name="test_native_skip_width_preserves_frontier_and_reopened_resume_meaning[True]" time="0.551" /><testcase classname="tests.unit.scientist.orchestration.engine.test_native_execution_admission" name="test_native_failed_nested_branch_does_not_leak_to_live_neighbor_or_basis" time="0.324" /><testcase classname="tests.unit.scientist.methods.causal.test_resolve_parameters_node" name="test_resolve_parameters_node_persists_bundle_and_bridge_payload" time="0.951" /><testcase classname="tests.unit.scientist.methods.causal.test_resolve_parameters_node" name="test_existing_bundle_is_revalidated_for_changed_request" time="0.613" /><testcase classname="tests.unit.scientist.methods.causal.test_resolve_parameters_node" name="test_matching_bundle_reuses_without_reinvoking_selector" time="0.445"><failure message="AssertionError: ParameterSelector must not run for a matching CAS bundle">tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-frontier-state-current/tmp/test_matching_bundle_reuses_wi0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fdb8c32af10&gt;
+
+    def test_matching_bundle_reuses_without_reinvoking_selector(tmp_path, monkeypatch) -&gt; None:
+        """A valid same-request CAS bundle is reused without selecting again."""
+        ctx = _build_ctx(tmp_path, run_id="R_phase15_reuse")
+        db_path = tmp_path / "skg.duckdb"
+        _seed_skg(db_path)
+        graph_ref = persist_causal_graph_model(
+            ctx.store,
+            CausalGraphModel(graph_type=GraphType.DAG, nodes=["fiscal_multiplier"], edges=[]),
+        )
+        state = ExperimentState(
+            run_id="R_phase15_reuse",
+            artifacts_index={ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: graph_ref},
+            params={
+                "target_context": {
+                    "context_id": "UA",
+                    "income_level": "lower_middle",
+                    "institutional_quality": 0.4,
+                    "post_communist": True,
+                },
+                "required_parameters": ["fiscal_multiplier"],
+                "skg_db_path": str(db_path),
+                "skg_index_dir": str(tmp_path / "idx"),
+                "domain": "fiscal",
+            },
+        )
+    
+        node = ResolveParametersNode()
+        first = node.execute(ctx, state)
+        assert first.status == "ok"
+        first_ref = first.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
+    
+        def fail_if_selected(*args, **kwargs):
+            del args, kwargs
+            raise AssertionError("ParameterSelector must not run for a matching CAS bundle")
+    
+        monkeypatch.setattr(
+            "polisyos.scientist.nodes.builtins.causal.resolve_parameters.ParameterSelector",
+            fail_if_selected,
+        )
+&gt;       replay = node.execute(ctx, first.state.model_copy(deep=True))
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py:249: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py:225: in execute
+    selector = ParameterSelector(skg_query)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def fail_if_selected(*args, **kwargs):
+        del args, kwargs
+&gt;       raise AssertionError("ParameterSelector must not run for a matching CAS bundle")
+E       AssertionError: ParameterSelector must not run for a matching CAS bundle
+
+policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py:243: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.methods.causal.test_resolve_parameters_node" name="test_changed_domain_invalidates_bundle_and_idempotency_key" time="0.630" /><testcase classname="tests.unit.scientist.methods.causal.test_resolve_parameters_node" name="test_resolve_parameters_node_skips_on_missing_inputs" time="0.165" /></testsuite></testsuites>

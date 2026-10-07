@@ -1,0 +1,4 @@
+src/polisyos/core/artifacts/store.py:3006: error: Argument 2 to "_require_import_input_owners" of "FileSystemCAS" has incompatible type "dict[str, str | None] | None"; expected "_ResolvedWriteOwner | None"  [arg-type]
+src/polisyos/core/artifacts/store.py:3014: error: Argument 2 to "_require_bound_context_for_owner" of "FileSystemCAS" has incompatible type "dict[str, str | None] | None"; expected "_ResolvedWriteOwner | None"  [arg-type]
+src/polisyos/core/artifacts/store.py:4170: error: Argument "open_member" to "export_subgraph" has incompatible type "Callable[[ArtifactID | ArtifactRef | str, Literal['blob', 'manifest', 'signature']], _GeneratorContextManager[_VerifiedCASMemberStream, None, None]]"; expected "Callable[[ArtifactID | ArtifactRef, Literal['blob', 'manifest', 'signature']], AbstractContextManager[CASMemberStream, bool | None]]"  [arg-type]
+Found 3 errors in 1 file (checked 2 source files)

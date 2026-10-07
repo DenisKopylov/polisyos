@@ -1,0 +1,2505 @@
+{
+  "head": "85f2417187396d40ef0a41e9d7f6651286f55754",
+  "head_after": "85f2417187396d40ef0a41e9d7f6651286f55754",
+  "xml_path": "/tmp/e02-B38-pg-evidence/native-first/native.xml",
+  "xml_sha256": "2b6bb177e417ceb09a6bcb9f357559abd4d4ee4d145e606351245f5bbdf7f93a",
+  "schemas": [
+    {
+      "case": {
+        "classname": "tests.unit.runtime.http.test_control_worker_postgres_fencing_oracle",
+        "name": "test_postgres_stale_bound_worker_cannot_mutate_any_table[running]",
+        "time": "44.289"
+      },
+      "properties": {
+        "postgres_identity": "[\"PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit\", \"postgres\", \"127.0.0.1/32\", 45483]",
+        "postgres_schema": "e02_b38_f348d6cf03474d10aabecb84f593881c",
+        "driver_version": "3.3.2",
+        "driver_origin": "/tmp/e02-B38-pg-profile/psycopg/__init__.py",
+        "table_denominator": "[\"control_dead_letter_jobs\", \"control_diagnostic_events\", \"control_job_events\", \"control_job_progress\", \"control_jobs\", \"control_outbox_events\", \"control_worker_leases\", \"runtime_acquisition_action_heads\", \"runtime_human_decision_reservations\", \"runtime_scenario_heads\", \"runtime_step_up_replays\"]",
+        "stale_rejected_inlets": "[\"complete\", \"fail\", \"progress\", \"manifest\", \"current_record\", \"upsert\", \"event\", \"outbox\", \"child_event\", \"child_outbox\", \"create\", \"mark_running\", \"lease_next\", \"scenario\", \"step_up\", \"human_reservation\", \"worker_heartbeat\", \"worker_release\"]",
+        "unchanged_rows_after_each_rejection": "True"
+      },
+      "identity": [
+        "PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+        "postgres",
+        "e02_b38_f348d6cf03474d10aabecb84f593881c",
+        45483
+      ],
+      "tables": {
+        "control_dead_letter_jobs": {
+          "columns": [
+            "job_id",
+            "job_kind",
+            "run_id",
+            "pipeline_id",
+            "attempt",
+            "error_message",
+            "failed_at",
+            "acknowledged_at",
+            "acknowledged_by"
+          ],
+          "rows": []
+        },
+        "control_diagnostic_events": {
+          "columns": [
+            "row_id",
+            "event_id",
+            "event_type",
+            "run_id",
+            "job_id",
+            "trace_id",
+            "span_id",
+            "event_json",
+            "payload_ref",
+            "payload_inline_json",
+            "payload_sha256",
+            "created_at"
+          ],
+          "rows": [
+            [
+              1,
+              "evt_worker_bffba7e9b3b54353",
+              "polisyos.runtime.diagnostic.producer_execution.v1",
+              "e02-b38-postgres-run",
+              "current-job",
+              "trace_current-job",
+              "span_0423508d939046f6",
+              "{\"artifact_refs\": [], \"blocking_status\": null, \"cell_id\": \"cell-unknown\", \"dedupe_key\": null, \"duplicate_of\": null, \"event_id\": \"evt_worker_bffba7e9b3b54353\", \"event_source\": \"polisyos.runtime.worker\", \"event_subject\": \"run/e02-b38-postgres-run/job/current-job/phase/worker_dispatch\", \"event_time\": \"2026-10-06T18:27:53Z\", \"event_type\": \"polisyos.runtime.diagnostic.producer_execution.v1\", \"execution_profile\": \"dev\", \"input_refs\": [\"control.request\", \"control-job:current-job\", \"control-job:current-job:carrier\", \"control-job:current-job:lease:1\"], \"job_id\": \"current-job\", \"parent_span_id\": null, \"payload_ref\": null, \"phase\": \"worker_dispatch\", \"producer_component\": \"polisyos.runtime.control_worker\", \"producer_version\": \"2026.05.15+hds-phase2.2\", \"redaction_policy_ref\": \"redaction-policy/runtime-diagnostics-v1\", \"run_id\": \"e02-b38-postgres-run\", \"sampling_decision\": \"always_record\", \"sampling_rate\": 1.0, \"schema_name\": \"polisyos.runtime.quality.diagnostic_event\", \"schema_version\": \"1.0\", \"span_id\": \"span_0423508d939046f6\", \"state_after\": \"leased\", \"state_before\": \"running\", \"tenant_id\": \"tenant-unknown\", \"trace_id\": \"trace_current-job\"}",
+              null,
+              null,
+              null,
+              "2026-10-06 18:27:53+00:00"
+            ],
+            [
+              2,
+              "evt_worker_16e025e2878146f7",
+              "polisyos.runtime.diagnostic.producer_execution.v1",
+              "e02-b38-postgres-run",
+              "current-job",
+              "trace_current-job",
+              "span_5db89bab1d7c45ff",
+              "{\"artifact_refs\": [], \"blocking_status\": null, \"cell_id\": \"cell-unknown\", \"dedupe_key\": null, \"duplicate_of\": null, \"event_id\": \"evt_worker_16e025e2878146f7\", \"event_source\": \"polisyos.runtime.worker\", \"event_subject\": \"run/e02-b38-postgres-run/job/current-job/phase/worker_dispatch\", \"event_time\": \"2026-10-06T18:28:15Z\", \"event_type\": \"polisyos.runtime.diagnostic.producer_execution.v1\", \"execution_profile\": \"dev\", \"input_refs\": [\"control.request\", \"control-job:current-job\", \"control-job:current-job:carrier\", \"control-job:current-job:lease:1\"], \"job_id\": \"current-job\", \"parent_span_id\": null, \"payload_ref\": null, \"phase\": \"worker_dispatch\", \"producer_component\": \"polisyos.runtime.control_worker\", \"producer_version\": \"2026.05.15+hds-phase2.2\", \"redaction_policy_ref\": \"redaction-policy/runtime-diagnostics-v1\", \"run_id\": \"e02-b38-postgres-run\", \"sampling_decision\": \"always_record\", \"sampling_rate\": 1.0, \"schema_name\": \"polisyos.runtime.quality.diagnostic_event\", \"schema_version\": \"1.0\", \"span_id\": \"span_5db89bab1d7c45ff\", \"state_after\": \"released\", \"state_before\": \"running\", \"tenant_id\": \"tenant-unknown\", \"trace_id\": \"trace_current-job\"}",
+              null,
+              null,
+              null,
+              "2026-10-06 18:28:15+00:00"
+            ],
+            [
+              3,
+              "evt_worker_0370c7f417ba49fd",
+              "polisyos.runtime.diagnostic.producer_execution.v1",
+              "e02-b38-postgres-run",
+              "current-job",
+              "trace_current-job",
+              "span_fb72cc30a6554e21",
+              "{\"artifact_refs\": [], \"blocking_status\": null, \"cell_id\": \"cell-unknown\", \"dedupe_key\": null, \"duplicate_of\": null, \"event_id\": \"evt_worker_0370c7f417ba49fd\", \"event_source\": \"polisyos.runtime.worker\", \"event_subject\": \"run/e02-b38-postgres-run/job/current-job/phase/worker_dispatch\", \"event_time\": \"2026-10-06T18:28:35Z\", \"event_type\": \"polisyos.runtime.diagnostic.producer_execution.v1\", \"execution_profile\": \"dev\", \"input_refs\": [\"control.request\", \"control-job:current-job\", \"control-job:current-job:carrier\", \"control-job:current-job:lease:1\", \"control-job:current-job:lease:2\"], \"job_id\": \"current-job\", \"parent_span_id\": null, \"payload_ref\": null, \"phase\": \"worker_dispatch\", \"producer_component\": \"polisyos.runtime.control_worker\", \"producer_version\": \"2026.05.15+hds-phase2.2\", \"redaction_policy_ref\": \"redaction-policy/runtime-diagnostics-v1\", \"run_id\": \"e02-b38-postgres-run\", \"sampling_decision\": \"always_record\", \"sampling_rate\": 1.0, \"schema_name\": \"polisyos.runtime.quality.diagnostic_event\", \"schema_version\": \"1.0\", \"span_id\": \"span_fb72cc30a6554e21\", \"state_after\": \"released\", \"state_before\": \"running\", \"tenant_id\": \"tenant-unknown\", \"trace_id\": \"trace_current-job\"}",
+              null,
+              null,
+              null,
+              "2026-10-06 18:28:35+00:00"
+            ]
+          ]
+        },
+        "control_job_events": {
+          "columns": [
+            "event_id",
+            "job_id",
+            "event_type",
+            "payload_json",
+            "created_at"
+          ],
+          "rows": [
+            [
+              1,
+              "current-job",
+              "job_created",
+              "{\"state\": \"pending\"}",
+              "2026-10-06 18:27:53+00:00"
+            ],
+            [
+              2,
+              "current-job",
+              "job_running",
+              "{\"lease_expires_at\": \"2026-10-06T18:32:53+00:00\", \"lease_owner\": \"worker-A\", \"state\": \"running\"}",
+              "2026-10-06 18:27:53+00:00"
+            ],
+            [
+              3,
+              "current-job",
+              "job_running",
+              "{\"lease_expires_at\": \"2026-10-06T18:33:13+00:00\", \"lease_owner\": \"worker-B\", \"state\": \"running\"}",
+              "2026-10-06 18:28:13+00:00"
+            ],
+            [
+              4,
+              "pending-child",
+              "job_created",
+              "{\"state\": \"pending\"}",
+              "2026-10-06 18:28:15+00:00"
+            ],
+            [
+              5,
+              "current-job",
+              "job_progress",
+              "{\"attempt\": 2, \"evidence_spine_handoff_count\": 1, \"evidence_spine_handoffs\": [{\"batch_id\": null, \"bridge_authority_ref\": null, \"carrier_redaction_status\": \"pass\", \"carrier_ref\": \"control-job:current-job:carrier\", \"concept_spine_ref\": null, \"consumer_ref\": \"runtime.control_progress_readers\", \"handoff_id\": \"handoff:07d6f18a5e0083237e311d3c\", \"handoff_kind\": \"workflow_state_persistence\", \"input_refs\": [\"control-job:current-job\"], \"integrity_status\": \"pass\", \"message_count\": 1, \"output_refs\": [\"control-job:current-job:progress\"], \"parent_spine_ref\": \"control-job:current-job:carrier\", \"producer_handshake_refs\": [], \"producer_ref\": \"runtime.control_plane_store\", \"schema_version\": \"policyos.evidence_spine_handoff.v1\"}], \"lease_owner\": \"worker-B\", \"phase\": \"current-B\", \"state\": \"running\"}",
+              "2026-10-06 18:28:35+00:00"
+            ],
+            [
+              6,
+              "current-job",
+              "job_completed",
+              "{\"attempt\": 2, \"lease_owner\": \"worker-B\", \"state\": \"completed\"}",
+              "2026-10-06 18:28:35+00:00"
+            ]
+          ]
+        },
+        "control_job_progress": {
+          "columns": [
+            "job_id",
+            "progress_json",
+            "updated_at"
+          ],
+          "rows": [
+            [
+              "current-job",
+              "{\"phase\": \"completed-B\"}",
+              "2026-10-06 18:28:35+00:00"
+            ],
+            [
+              "pending-child",
+              "{\"evidence_spine_handoff_count\": 1, \"evidence_spine_handoffs\": [{\"batch_id\": null, \"bridge_authority_ref\": null, \"carrier_redaction_status\": \"pass\", \"carrier_ref\": \"control-job:pending-child:carrier\", \"concept_spine_ref\": null, \"consumer_ref\": \"runtime.control_plane_store\", \"handoff_id\": \"handoff:d1ffda6b1fa4e909cd1d6790\", \"handoff_kind\": \"nl_request_creation\", \"input_refs\": [\"control.request\"], \"integrity_status\": \"pass\", \"message_count\": 1, \"output_refs\": [\"control-job:pending-child\"], \"parent_spine_ref\": \"control-job:pending-child:carrier\", \"producer_handshake_refs\": [], \"producer_ref\": \"runtime.api.nl_request\", \"schema_version\": \"policyos.evidence_spine_handoff.v1\"}]}",
+              "2026-10-06 18:28:15+00:00"
+            ]
+          ]
+        },
+        "control_jobs": {
+          "columns": [
+            "job_id",
+            "job_kind",
+            "state",
+            "run_id",
+            "pipeline_id",
+            "requested_profile",
+            "effective_profile",
+            "policy_flags_json",
+            "capability_manifest_ref",
+            "payload_ref",
+            "submitted_by",
+            "created_at",
+            "started_at",
+            "finished_at",
+            "lease_owner",
+            "lease_expires_at",
+            "attempt",
+            "error_message"
+          ],
+          "rows": [
+            [
+              "current-job",
+              "workflow_run",
+              "completed",
+              "e02-b38-postgres-run",
+              null,
+              "dev",
+              "dev",
+              "{}",
+              null,
+              null,
+              "e02-b38-postgres-native-fixture",
+              "2026-10-06 18:27:53+00:00",
+              "2026-10-06 18:27:53+00:00",
+              "2026-10-06 18:28:35+00:00",
+              null,
+              null,
+              2,
+              null
+            ],
+            [
+              "pending-child",
+              "workflow_run",
+              "pending",
+              "e02-b38-postgres-run",
+              null,
+              "dev",
+              "dev",
+              "{}",
+              null,
+              null,
+              "e02-b38-postgres-native-fixture",
+              "2026-10-06 18:28:15+00:00",
+              null,
+              null,
+              null,
+              null,
+              0,
+              null
+            ]
+          ]
+        },
+        "control_outbox_events": {
+          "columns": [
+            "event_id",
+            "topic",
+            "event_key",
+            "state",
+            "job_id",
+            "run_id",
+            "payload_json",
+            "created_at",
+            "published_at",
+            "attempt",
+            "error_message"
+          ],
+          "rows": [
+            [
+              "outbox_33742850166d4e0a",
+              "control.job.running",
+              "current-job:job_running",
+              "pending",
+              "current-job",
+              "e02-b38-postgres-run",
+              "{\"effective_execution_profile\": \"dev\", \"job_id\": \"current-job\", \"job_kind\": \"workflow_run\", \"lease_expires_at\": \"2026-10-06T18:32:53+00:00\", \"lease_owner\": \"worker-A\", \"pipeline_id\": null, \"run_id\": \"e02-b38-postgres-run\", \"state\": \"running\"}",
+              "2026-10-06 18:27:53+00:00",
+              null,
+              0,
+              null
+            ],
+            [
+              "outbox_5d0dec15e61e4e30",
+              "control.job.created",
+              "current-job:job_created",
+              "pending",
+              "current-job",
+              "e02-b38-postgres-run",
+              "{\"effective_execution_profile\": \"dev\", \"job_id\": \"current-job\", \"job_kind\": \"workflow_run\", \"pipeline_id\": null, \"run_id\": \"e02-b38-postgres-run\", \"state\": \"pending\"}",
+              "2026-10-06 18:27:53+00:00",
+              null,
+              0,
+              null
+            ],
+            [
+              "outbox_82fdd68f879c4e6a",
+              "control.job.completed",
+              "current-job:job_completed",
+              "pending",
+              "current-job",
+              "e02-b38-postgres-run",
+              "{\"attempt\": 2, \"effective_execution_profile\": \"dev\", \"job_id\": \"current-job\", \"job_kind\": \"workflow_run\", \"lease_owner\": \"worker-B\", \"pipeline_id\": null, \"progress\": {\"phase\": \"completed-B\"}, \"run_id\": \"e02-b38-postgres-run\", \"state\": \"completed\"}",
+              "2026-10-06 18:28:35+00:00",
+              null,
+              0,
+              null
+            ],
+            [
+              "outbox_d7ffc03a58794d74",
+              "control.job.progress",
+              null,
+              "pending",
+              "current-job",
+              "e02-b38-postgres-run",
+              "{\"attempt\": 2, \"effective_execution_profile\": \"dev\", \"evidence_spine_handoff_count\": 1, \"evidence_spine_handoffs\": [{\"batch_id\": null, \"bridge_authority_ref\": null, \"carrier_redaction_status\": \"pass\", \"carrier_ref\": \"control-job:current-job:carrier\", \"concept_spine_ref\": null, \"consumer_ref\": \"runtime.control_progress_readers\", \"handoff_id\": \"handoff:07d6f18a5e0083237e311d3c\", \"handoff_kind\": \"workflow_state_persistence\", \"input_refs\": [\"control-job:current-job\"], \"integrity_status\": \"pass\", \"message_count\": 1, \"output_refs\": [\"control-job:current-job:progress\"], \"parent_spine_ref\": \"control-job:current-job:carrier\", \"producer_handshake_refs\": [], \"producer_ref\": \"runtime.control_plane_store\", \"schema_version\": \"policyos.evidence_spine_handoff.v1\"}], \"job_id\": \"current-job\", \"job_kind\": \"workflow_run\", \"lease_owner\": \"worker-B\", \"phase\": \"current-B\", \"pipeline_id\": null, \"run_id\": \"e02-b38-postgres-run\", \"state\": \"running\"}",
+              "2026-10-06 18:28:35+00:00",
+              null,
+              0,
+              null
+            ],
+            [
+              "outbox_e7256d211c454ca6",
+              "control.job.created",
+              "pending-child:job_created",
+              "pending",
+              "pending-child",
+              "e02-b38-postgres-run",
+              "{\"effective_execution_profile\": \"dev\", \"job_id\": \"pending-child\", \"job_kind\": \"workflow_run\", \"pipeline_id\": null, \"run_id\": \"e02-b38-postgres-run\", \"state\": \"pending\"}",
+              "2026-10-06 18:28:15+00:00",
+              null,
+              0,
+              null
+            ]
+          ]
+        },
+        "control_worker_leases": {
+          "columns": [
+            "worker_id",
+            "state",
+            "backend",
+            "active_job_id",
+            "metadata_json",
+            "heartbeat_at",
+            "lease_expires_at",
+            "created_at",
+            "updated_at"
+          ],
+          "rows": [
+            [
+              "worker-A",
+              "idle",
+              "embedded",
+              null,
+              "{\"last_job_id\": \"current-job\"}",
+              "2026-10-06 18:28:15+00:00",
+              "2026-10-06 18:33:15+00:00",
+              "2026-10-06 18:27:53+00:00",
+              "2026-10-06 18:28:15+00:00"
+            ],
+            [
+              "worker-B",
+              "idle",
+              "embedded",
+              null,
+              "{\"last_job_id\": \"current-job\"}",
+              "2026-10-06 18:28:35+00:00",
+              "2026-10-06 18:33:35+00:00",
+              "2026-10-06 18:28:35+00:00",
+              "2026-10-06 18:28:35+00:00"
+            ]
+          ]
+        },
+        "runtime_acquisition_action_heads": {
+          "columns": [
+            "tenant_id",
+            "cell_id",
+            "run_id",
+            "source_job_id",
+            "route_id",
+            "action_generation",
+            "head_generation",
+            "receipt_ref",
+            "receipt_sha256",
+            "durable_event_id",
+            "coarse_phase",
+            "receipt_phase",
+            "recovery_state",
+            "job_id",
+            "predecessor_receipt_ref",
+            "created_at"
+          ],
+          "rows": []
+        },
+        "runtime_human_decision_reservations": {
+          "columns": [
+            "tenant_id",
+            "governed_action_key",
+            "reservation_id",
+            "reservation_version",
+            "binding_sha256",
+            "state",
+            "reserved_at",
+            "lease_expires_at",
+            "record_valid_until",
+            "record_ref",
+            "record_sha256",
+            "durable_event_id",
+            "committed_at",
+            "reconciled_at"
+          ],
+          "rows": []
+        },
+        "runtime_scenario_heads": {
+          "columns": [
+            "scenario_id",
+            "baseline_run_id",
+            "revision",
+            "artifact_ref",
+            "manifest_hash",
+            "updated_at"
+          ],
+          "rows": []
+        },
+        "runtime_step_up_replays": {
+          "columns": [
+            "assertion_digest",
+            "expires_at",
+            "consumed_at"
+          ],
+          "rows": []
+        }
+      }
+    },
+    {
+      "case": {
+        "classname": "tests.unit.runtime.http.test_control_worker_postgres_fencing_oracle",
+        "name": "test_postgres_stale_bound_worker_cannot_mutate_any_table[completed]",
+        "time": "43.022"
+      },
+      "properties": {
+        "postgres_identity": "[\"PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit\", \"postgres\", \"127.0.0.1/32\", 45483]",
+        "postgres_schema": "e02_b38_b7961516ab0b449c8a40321076794bb6",
+        "driver_version": "3.3.2",
+        "driver_origin": "/tmp/e02-B38-pg-profile/psycopg/__init__.py",
+        "table_denominator": "[\"control_dead_letter_jobs\", \"control_diagnostic_events\", \"control_job_events\", \"control_job_progress\", \"control_jobs\", \"control_outbox_events\", \"control_worker_leases\", \"runtime_acquisition_action_heads\", \"runtime_human_decision_reservations\", \"runtime_scenario_heads\", \"runtime_step_up_replays\"]",
+        "stale_rejected_inlets": "[\"complete\", \"fail\", \"progress\", \"manifest\", \"current_record\", \"upsert\", \"event\", \"outbox\", \"child_event\", \"child_outbox\", \"create\", \"mark_running\", \"lease_next\", \"scenario\", \"step_up\", \"human_reservation\", \"worker_heartbeat\", \"worker_release\"]",
+        "unchanged_rows_after_each_rejection": "True"
+      },
+      "identity": [
+        "PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+        "postgres",
+        "e02_b38_b7961516ab0b449c8a40321076794bb6",
+        45483
+      ],
+      "tables": {
+        "control_dead_letter_jobs": {
+          "columns": [
+            "job_id",
+            "job_kind",
+            "run_id",
+            "pipeline_id",
+            "attempt",
+            "error_message",
+            "failed_at",
+            "acknowledged_at",
+            "acknowledged_by"
+          ],
+          "rows": []
+        },
+        "control_diagnostic_events": {
+          "columns": [
+            "row_id",
+            "event_id",
+            "event_type",
+            "run_id",
+            "job_id",
+            "trace_id",
+            "span_id",
+            "event_json",
+            "payload_ref",
+            "payload_inline_json",
+            "payload_sha256",
+            "created_at"
+          ],
+          "rows": [
+            [
+              1,
+              "evt_worker_8cdb0142b64e4462",
+              "polisyos.runtime.diagnostic.producer_execution.v1",
+              "e02-b38-postgres-run",
+              "current-job",
+              "trace_current-job",
+              "span_7c7ffffcc07443b4",
+              "{\"artifact_refs\": [], \"blocking_status\": null, \"cell_id\": \"cell-unknown\", \"dedupe_key\": null, \"duplicate_of\": null, \"event_id\": \"evt_worker_8cdb0142b64e4462\", \"event_source\": \"polisyos.runtime.worker\", \"event_subject\": \"run/e02-b38-postgres-run/job/current-job/phase/worker_dispatch\", \"event_time\": \"2026-10-06T18:28:37Z\", \"event_type\": \"polisyos.runtime.diagnostic.producer_execution.v1\", \"execution_profile\": \"dev\", \"input_refs\": [\"control.request\", \"control-job:current-job\", \"control-job:current-job:carrier\", \"control-job:current-job:lease:1\"], \"job_id\": \"current-job\", \"parent_span_id\": null, \"payload_ref\": null, \"phase\": \"worker_dispatch\", \"producer_component\": \"polisyos.runtime.control_worker\", \"producer_version\": \"2026.05.15+hds-phase2.2\", \"redaction_policy_ref\": \"redaction-policy/runtime-diagnostics-v1\", \"run_id\": \"e02-b38-postgres-run\", \"sampling_decision\": \"always_record\", \"sampling_rate\": 1.0, \"schema_name\": \"polisyos.runtime.quality.diagnostic_event\", \"schema_version\": \"1.0\", \"span_id\": \"span_7c7ffffcc07443b4\", \"state_after\": \"leased\", \"state_before\": \"running\", \"tenant_id\": \"tenant-unknown\", \"trace_id\": \"trace_current-job\"}",
+              null,
+              null,
+              null,
+              "2026-10-06 18:28:37+00:00"
+            ],
+            [
+              2,
+              "evt_worker_313dac01098a47aa",
+              "polisyos.runtime.diagnostic.producer_execution.v1",
+              "e02-b38-postgres-run",
+              "current-job",
+              "trace_current-job",
+              "span_ff46c9e2dc0b4f6f",
+              "{\"artifact_refs\": [], \"blocking_status\": null, \"cell_id\": \"cell-unknown\", \"dedupe_key\": null, \"duplicate_of\": null, \"event_id\": \"evt_worker_313dac01098a47aa\", \"event_source\": \"polisyos.runtime.worker\", \"event_subject\": \"run/e02-b38-postgres-run/job/current-job/phase/worker_dispatch\", \"event_time\": \"2026-10-06T18:29:18Z\", \"event_type\": \"polisyos.runtime.diagnostic.producer_execution.v1\", \"execution_profile\": \"dev\", \"input_refs\": [\"control.request\", \"control-job:current-job\", \"control-job:current-job:carrier\", \"control-job:current-job:lease:1\", \"control-job:current-job:lease:2\"], \"job_id\": \"current-job\", \"parent_span_id\": null, \"payload_ref\": null, \"phase\": \"worker_dispatch\", \"producer_component\": \"polisyos.runtime.control_worker\", \"producer_version\": \"2026.05.15+hds-phase2.2\", \"redaction_policy_ref\": \"redaction-policy/runtime-diagnostics-v1\", \"run_id\": \"e02-b38-postgres-run\", \"sampling_decision\": \"always_record\", \"sampling_rate\": 1.0, \"schema_name\": \"polisyos.runtime.quality.diagnostic_event\", \"schema_version\": \"1.0\", \"span_id\": \"span_ff46c9e2dc0b4f6f\", \"state_after\": \"released\", \"state_before\": \"running\", \"tenant_id\": \"tenant-unknown\", \"trace_id\": \"trace_current-job\"}",
+              null,
+              null,
+              null,
+              "2026-10-06 18:29:18+00:00"
+            ],
+            [
+              3,
+              "evt_worker_cf7893412f26406f",
+              "polisyos.runtime.diagnostic.producer_execution.v1",
+              "e02-b38-postgres-run",
+              "current-job",
+              "trace_current-job",
+              "span_bdf312d8159045c3",
+              "{\"artifact_refs\": [], \"blocking_status\": null, \"cell_id\": \"cell-unknown\", \"dedupe_key\": null, \"duplicate_of\": null, \"event_id\": \"evt_worker_cf7893412f26406f\", \"event_source\": \"polisyos.runtime.worker\", \"event_subject\": \"run/e02-b38-postgres-run/job/current-job/phase/worker_dispatch\", \"event_time\": \"2026-10-06T18:29:20Z\", \"event_type\": \"polisyos.runtime.diagnostic.producer_execution.v1\", \"execution_profile\": \"dev\", \"input_refs\": [\"control.request\", \"control-job:current-job\", \"control-job:current-job:carrier\", \"control-job:current-job:lease:1\"], \"job_id\": \"current-job\", \"parent_span_id\": null, \"payload_ref\": null, \"phase\": \"worker_dispatch\", \"producer_component\": \"polisyos.runtime.control_worker\", \"producer_version\": \"2026.05.15+hds-phase2.2\", \"redaction_policy_ref\": \"redaction-policy/runtime-diagnostics-v1\", \"run_id\": \"e02-b38-postgres-run\", \"sampling_decision\": \"always_record\", \"sampling_rate\": 1.0, \"schema_name\": \"polisyos.runtime.quality.diagnostic_event\", \"schema_version\": \"1.0\", \"span_id\": \"span_bdf312d8159045c3\", \"state_after\": \"released\", \"state_before\": \"running\", \"tenant_id\": \"tenant-unknown\", \"trace_id\": \"trace_current-job\"}",
+              null,
+              null,
+              null,
+              "2026-10-06 18:29:20+00:00"
+            ]
+          ]
+        },
+        "control_job_events": {
+          "columns": [
+            "event_id",
+            "job_id",
+            "event_type",
+            "payload_json",
+            "created_at"
+          ],
+          "rows": [
+            [
+              1,
+              "current-job",
+              "job_created",
+              "{\"state\": \"pending\"}",
+              "2026-10-06 18:28:37+00:00"
+            ],
+            [
+              2,
+              "current-job",
+              "job_running",
+              "{\"lease_expires_at\": \"2026-10-06T18:33:37+00:00\", \"lease_owner\": \"worker-A\", \"state\": \"running\"}",
+              "2026-10-06 18:28:37+00:00"
+            ],
+            [
+              3,
+              "current-job",
+              "job_running",
+              "{\"lease_expires_at\": \"2026-10-06T18:33:56+00:00\", \"lease_owner\": \"worker-B\", \"state\": \"running\"}",
+              "2026-10-06 18:28:57+00:00"
+            ],
+            [
+              4,
+              "current-job",
+              "job_progress",
+              "{\"attempt\": 2, \"evidence_spine_handoff_count\": 1, \"evidence_spine_handoffs\": [{\"batch_id\": null, \"bridge_authority_ref\": null, \"carrier_redaction_status\": \"pass\", \"carrier_ref\": \"control-job:current-job:carrier\", \"concept_spine_ref\": null, \"consumer_ref\": \"runtime.control_progress_readers\", \"handoff_id\": \"handoff:07d6f18a5e0083237e311d3c\", \"handoff_kind\": \"workflow_state_persistence\", \"input_refs\": [\"control-job:current-job\"], \"integrity_status\": \"pass\", \"message_count\": 1, \"output_refs\": [\"control-job:current-job:progress\"], \"parent_spine_ref\": \"control-job:current-job:carrier\", \"producer_handshake_refs\": [], \"producer_ref\": \"runtime.control_plane_store\", \"schema_version\": \"policyos.evidence_spine_handoff.v1\"}], \"lease_owner\": \"worker-B\", \"phase\": \"current-B\", \"state\": \"running\"}",
+              "2026-10-06 18:29:18+00:00"
+            ],
+            [
+              5,
+              "current-job",
+              "job_completed",
+              "{\"attempt\": 2, \"lease_owner\": \"worker-B\", \"state\": \"completed\"}",
+              "2026-10-06 18:29:18+00:00"
+            ],
+            [
+              6,
+              "pending-child",
+              "job_created",
+              "{\"state\": \"pending\"}",
+              "2026-10-06 18:29:20+00:00"
+            ]
+          ]
+        },
+        "control_job_progress": {
+          "columns": [
+            "job_id",
+            "progress_json",
+            "updated_at"
+          ],
+          "rows": [
+            [
+              "current-job",
+              "{\"phase\": \"completed-B\"}",
+              "2026-10-06 18:29:18+00:00"
+            ],
+            [
+              "pending-child",
+              "{\"evidence_spine_handoff_count\": 1, \"evidence_spine_handoffs\": [{\"batch_id\": null, \"bridge_authority_ref\": null, \"carrier_redaction_status\": \"pass\", \"carrier_ref\": \"control-job:pending-child:carrier\", \"concept_spine_ref\": null, \"consumer_ref\": \"runtime.control_plane_store\", \"handoff_id\": \"handoff:d1ffda6b1fa4e909cd1d6790\", \"handoff_kind\": \"nl_request_creation\", \"input_refs\": [\"control.request\"], \"integrity_status\": \"pass\", \"message_count\": 1, \"output_refs\": [\"control-job:pending-child\"], \"parent_spine_ref\": \"control-job:pending-child:carrier\", \"producer_handshake_refs\": [], \"producer_ref\": \"runtime.api.nl_request\", \"schema_version\": \"policyos.evidence_spine_handoff.v1\"}]}",
+              "2026-10-06 18:29:20+00:00"
+            ]
+          ]
+        },
+        "control_jobs": {
+          "columns": [
+            "job_id",
+            "job_kind",
+            "state",
+            "run_id",
+            "pipeline_id",
+            "requested_profile",
+            "effective_profile",
+            "policy_flags_json",
+            "capability_manifest_ref",
+            "payload_ref",
+            "submitted_by",
+            "created_at",
+            "started_at",
+            "finished_at",
+            "lease_owner",
+            "lease_expires_at",
+            "attempt",
+            "error_message"
+          ],
+          "rows": [
+            [
+              "current-job",
+              "workflow_run",
+              "completed",
+              "e02-b38-postgres-run",
+              null,
+              "dev",
+              "dev",
+              "{}",
+              null,
+              null,
+              "e02-b38-postgres-native-fixture",
+              "2026-10-06 18:28:37+00:00",
+              "2026-10-06 18:28:37+00:00",
+              "2026-10-06 18:29:18+00:00",
+              null,
+              null,
+              2,
+              null
+            ],
+            [
+              "pending-child",
+              "workflow_run",
+              "pending",
+              "e02-b38-postgres-run",
+              null,
+              "dev",
+              "dev",
+              "{}",
+              null,
+              null,
+              "e02-b38-postgres-native-fixture",
+              "2026-10-06 18:29:20+00:00",
+              null,
+              null,
+              null,
+              null,
+              0,
+              null
+            ]
+          ]
+        },
+        "control_outbox_events": {
+          "columns": [
+            "event_id",
+            "topic",
+            "event_key",
+            "state",
+            "job_id",
+            "run_id",
+            "payload_json",
+            "created_at",
+            "published_at",
+            "attempt",
+            "error_message"
+          ],
+          "rows": [
+            [
+              "outbox_43dabb6f6c95469d",
+              "control.job.created",
+              "current-job:job_created",
+              "pending",
+              "current-job",
+              "e02-b38-postgres-run",
+              "{\"effective_execution_profile\": \"dev\", \"job_id\": \"current-job\", \"job_kind\": \"workflow_run\", \"pipeline_id\": null, \"run_id\": \"e02-b38-postgres-run\", \"state\": \"pending\"}",
+              "2026-10-06 18:28:37+00:00",
+              null,
+              0,
+              null
+            ],
+            [
+              "outbox_920bb80a724747d8",
+              "control.job.completed",
+              "current-job:job_completed",
+              "pending",
+              "current-job",
+              "e02-b38-postgres-run",
+              "{\"attempt\": 2, \"effective_execution_profile\": \"dev\", \"job_id\": \"current-job\", \"job_kind\": \"workflow_run\", \"lease_owner\": \"worker-B\", \"pipeline_id\": null, \"progress\": {\"phase\": \"completed-B\"}, \"run_id\": \"e02-b38-postgres-run\", \"state\": \"completed\"}",
+              "2026-10-06 18:29:18+00:00",
+              null,
+              0,
+              null
+            ],
+            [
+              "outbox_973b323f7ac84dbd",
+              "control.job.progress",
+              null,
+              "pending",
+              "current-job",
+              "e02-b38-postgres-run",
+              "{\"attempt\": 2, \"effective_execution_profile\": \"dev\", \"evidence_spine_handoff_count\": 1, \"evidence_spine_handoffs\": [{\"batch_id\": null, \"bridge_authority_ref\": null, \"carrier_redaction_status\": \"pass\", \"carrier_ref\": \"control-job:current-job:carrier\", \"concept_spine_ref\": null, \"consumer_ref\": \"runtime.control_progress_readers\", \"handoff_id\": \"handoff:07d6f18a5e0083237e311d3c\", \"handoff_kind\": \"workflow_state_persistence\", \"input_refs\": [\"control-job:current-job\"], \"integrity_status\": \"pass\", \"message_count\": 1, \"output_refs\": [\"control-job:current-job:progress\"], \"parent_spine_ref\": \"control-job:current-job:carrier\", \"producer_handshake_refs\": [], \"producer_ref\": \"runtime.control_plane_store\", \"schema_version\": \"policyos.evidence_spine_handoff.v1\"}], \"job_id\": \"current-job\", \"job_kind\": \"workflow_run\", \"lease_owner\": \"worker-B\", \"phase\": \"current-B\", \"pipeline_id\": null, \"run_id\": \"e02-b38-postgres-run\", \"state\": \"running\"}",
+              "2026-10-06 18:29:18+00:00",
+              null,
+              0,
+              null
+            ],
+            [
+              "outbox_de5c2fa8950c458f",
+              "control.job.created",
+              "pending-child:job_created",
+              "pending",
+              "pending-child",
+              "e02-b38-postgres-run",
+              "{\"effective_execution_profile\": \"dev\", \"job_id\": \"pending-child\", \"job_kind\": \"workflow_run\", \"pipeline_id\": null, \"run_id\": \"e02-b38-postgres-run\", \"state\": \"pending\"}",
+              "2026-10-06 18:29:20+00:00",
+              null,
+              0,
+              null
+            ],
+            [
+              "outbox_fe7bd4af94ed4096",
+              "control.job.running",
+              "current-job:job_running",
+              "pending",
+              "current-job",
+              "e02-b38-postgres-run",
+              "{\"effective_execution_profile\": \"dev\", \"job_id\": \"current-job\", \"job_kind\": \"workflow_run\", \"lease_expires_at\": \"2026-10-06T18:33:37+00:00\", \"lease_owner\": \"worker-A\", \"pipeline_id\": null, \"run_id\": \"e02-b38-postgres-run\", \"state\": \"running\"}",
+              "2026-10-06 18:28:37+00:00",
+              null,
+              0,
+              null
+            ]
+          ]
+        },
+        "control_worker_leases": {
+          "columns": [
+            "worker_id",
+            "state",
+            "backend",
+            "active_job_id",
+            "metadata_json",
+            "heartbeat_at",
+            "lease_expires_at",
+            "created_at",
+            "updated_at"
+          ],
+          "rows": [
+            [
+              "worker-A",
+              "idle",
+              "embedded",
+              null,
+              "{\"last_job_id\": \"current-job\"}",
+              "2026-10-06 18:29:20+00:00",
+              "2026-10-06 18:34:20+00:00",
+              "2026-10-06 18:28:37+00:00",
+              "2026-10-06 18:29:20+00:00"
+            ],
+            [
+              "worker-B",
+              "idle",
+              "embedded",
+              null,
+              "{\"last_job_id\": \"current-job\"}",
+              "2026-10-06 18:29:18+00:00",
+              "2026-10-06 18:34:18+00:00",
+              "2026-10-06 18:29:18+00:00",
+              "2026-10-06 18:29:18+00:00"
+            ]
+          ]
+        },
+        "runtime_acquisition_action_heads": {
+          "columns": [
+            "tenant_id",
+            "cell_id",
+            "run_id",
+            "source_job_id",
+            "route_id",
+            "action_generation",
+            "head_generation",
+            "receipt_ref",
+            "receipt_sha256",
+            "durable_event_id",
+            "coarse_phase",
+            "receipt_phase",
+            "recovery_state",
+            "job_id",
+            "predecessor_receipt_ref",
+            "created_at"
+          ],
+          "rows": []
+        },
+        "runtime_human_decision_reservations": {
+          "columns": [
+            "tenant_id",
+            "governed_action_key",
+            "reservation_id",
+            "reservation_version",
+            "binding_sha256",
+            "state",
+            "reserved_at",
+            "lease_expires_at",
+            "record_valid_until",
+            "record_ref",
+            "record_sha256",
+            "durable_event_id",
+            "committed_at",
+            "reconciled_at"
+          ],
+          "rows": []
+        },
+        "runtime_scenario_heads": {
+          "columns": [
+            "scenario_id",
+            "baseline_run_id",
+            "revision",
+            "artifact_ref",
+            "manifest_hash",
+            "updated_at"
+          ],
+          "rows": []
+        },
+        "runtime_step_up_replays": {
+          "columns": [
+            "assertion_digest",
+            "expires_at",
+            "consumed_at"
+          ],
+          "rows": []
+        }
+      }
+    },
+    {
+      "case": {
+        "classname": "tests.unit.runtime.http.test_control_worker_postgres_fencing_oracle",
+        "name": "test_postgres_current_worker_publishes_coherent_terminal_generation[completed]",
+        "time": "22.355"
+      },
+      "properties": {
+        "postgres_identity": "[\"PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit\", \"postgres\", \"127.0.0.1/32\", 45483]",
+        "postgres_schema": "e02_b38_c229575249c7464a8d0e16074a925a47",
+        "driver_version": "3.3.2",
+        "driver_origin": "/tmp/e02-B38-pg-profile/psycopg/__init__.py",
+        "table_denominator": "[\"control_dead_letter_jobs\", \"control_diagnostic_events\", \"control_job_events\", \"control_job_progress\", \"control_jobs\", \"control_outbox_events\", \"control_worker_leases\", \"runtime_acquisition_action_heads\", \"runtime_human_decision_reservations\", \"runtime_scenario_heads\", \"runtime_step_up_replays\"]"
+      },
+      "identity": [
+        "PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+        "postgres",
+        "e02_b38_c229575249c7464a8d0e16074a925a47",
+        45483
+      ],
+      "tables": {
+        "control_dead_letter_jobs": {
+          "columns": [
+            "job_id",
+            "job_kind",
+            "run_id",
+            "pipeline_id",
+            "attempt",
+            "error_message",
+            "failed_at",
+            "acknowledged_at",
+            "acknowledged_by"
+          ],
+          "rows": []
+        },
+        "control_diagnostic_events": {
+          "columns": [
+            "row_id",
+            "event_id",
+            "event_type",
+            "run_id",
+            "job_id",
+            "trace_id",
+            "span_id",
+            "event_json",
+            "payload_ref",
+            "payload_inline_json",
+            "payload_sha256",
+            "created_at"
+          ],
+          "rows": [
+            [
+              1,
+              "evt_worker_d766c323e76a4050",
+              "polisyos.runtime.diagnostic.producer_execution.v1",
+              "e02-b38-postgres-run",
+              "current-job",
+              "trace_current-job",
+              "span_e236002bf557453b",
+              "{\"artifact_refs\": [], \"blocking_status\": null, \"cell_id\": \"cell-unknown\", \"dedupe_key\": null, \"duplicate_of\": null, \"event_id\": \"evt_worker_d766c323e76a4050\", \"event_source\": \"polisyos.runtime.worker\", \"event_subject\": \"run/e02-b38-postgres-run/job/current-job/phase/worker_dispatch\", \"event_time\": \"2026-10-06T18:29:43Z\", \"event_type\": \"polisyos.runtime.diagnostic.producer_execution.v1\", \"execution_profile\": \"dev\", \"input_refs\": [\"control.request\", \"control-job:current-job\", \"control-job:current-job:carrier\", \"control-job:current-job:lease:1\", \"control-job:current-job:lease:2\"], \"job_id\": \"current-job\", \"parent_span_id\": null, \"payload_ref\": null, \"phase\": \"worker_dispatch\", \"producer_component\": \"polisyos.runtime.control_worker\", \"producer_version\": \"2026.05.15+hds-phase2.2\", \"redaction_policy_ref\": \"redaction-policy/runtime-diagnostics-v1\", \"run_id\": \"e02-b38-postgres-run\", \"sampling_decision\": \"always_record\", \"sampling_rate\": 1.0, \"schema_name\": \"polisyos.runtime.quality.diagnostic_event\", \"schema_version\": \"1.0\", \"span_id\": \"span_e236002bf557453b\", \"state_after\": \"released\", \"state_before\": \"running\", \"tenant_id\": \"tenant-unknown\", \"trace_id\": \"trace_current-job\"}",
+              null,
+              null,
+              null,
+              "2026-10-06 18:29:43+00:00"
+            ]
+          ]
+        },
+        "control_job_events": {
+          "columns": [
+            "event_id",
+            "job_id",
+            "event_type",
+            "payload_json",
+            "created_at"
+          ],
+          "rows": [
+            [
+              1,
+              "current-job",
+              "job_created",
+              "{\"state\": \"pending\"}",
+              "2026-10-06 18:29:20+00:00"
+            ],
+            [
+              2,
+              "current-job",
+              "job_running",
+              "{\"lease_expires_at\": \"2026-10-06T18:34:20+00:00\", \"lease_owner\": \"worker-A\", \"state\": \"running\"}",
+              "2026-10-06 18:29:20+00:00"
+            ],
+            [
+              3,
+              "current-job",
+              "job_running",
+              "{\"lease_expires_at\": \"2026-10-06T18:34:40+00:00\", \"lease_owner\": \"worker-B\", \"state\": \"running\"}",
+              "2026-10-06 18:29:40+00:00"
+            ],
+            [
+              4,
+              "current-job",
+              "job_progress",
+              "{\"attempt\": 2, \"evidence_spine_handoff_count\": 1, \"evidence_spine_handoffs\": [{\"batch_id\": null, \"bridge_authority_ref\": null, \"carrier_redaction_status\": \"pass\", \"carrier_ref\": \"control-job:current-job:carrier\", \"concept_spine_ref\": null, \"consumer_ref\": \"runtime.control_progress_readers\", \"handoff_id\": \"handoff:07d6f18a5e0083237e311d3c\", \"handoff_kind\": \"workflow_state_persistence\", \"input_refs\": [\"control-job:current-job\"], \"integrity_status\": \"pass\", \"message_count\": 1, \"output_refs\": [\"control-job:current-job:progress\"], \"parent_spine_ref\": \"control-job:current-job:carrier\", \"producer_handshake_refs\": [], \"producer_ref\": \"runtime.control_plane_store\", \"schema_version\": \"policyos.evidence_spine_handoff.v1\"}], \"lease_owner\": \"worker-B\", \"phase\": \"active\", \"state\": \"running\"}",
+              "2026-10-06 18:29:43+00:00"
+            ],
+            [
+              5,
+              "current-job",
+              "job_completed",
+              "{\"attempt\": 2, \"lease_owner\": \"worker-B\", \"state\": \"completed\"}",
+              "2026-10-06 18:29:43+00:00"
+            ]
+          ]
+        },
+        "control_job_progress": {
+          "columns": [
+            "job_id",
+            "progress_json",
+            "updated_at"
+          ],
+          "rows": [
+            [
+              "current-job",
+              "{\"phase\": \"completed-B\"}",
+              "2026-10-06 18:29:43+00:00"
+            ]
+          ]
+        },
+        "control_jobs": {
+          "columns": [
+            "job_id",
+            "job_kind",
+            "state",
+            "run_id",
+            "pipeline_id",
+            "requested_profile",
+            "effective_profile",
+            "policy_flags_json",
+            "capability_manifest_ref",
+            "payload_ref",
+            "submitted_by",
+            "created_at",
+            "started_at",
+            "finished_at",
+            "lease_owner",
+            "lease_expires_at",
+            "attempt",
+            "error_message"
+          ],
+          "rows": [
+            [
+              "current-job",
+              "workflow_run",
+              "completed",
+              "e02-b38-postgres-run",
+              null,
+              "dev",
+              "dev",
+              "{}",
+              null,
+              null,
+              "e02-b38-postgres-native-fixture",
+              "2026-10-06 18:29:20+00:00",
+              "2026-10-06 18:29:20+00:00",
+              "2026-10-06 18:29:43+00:00",
+              null,
+              null,
+              2,
+              null
+            ]
+          ]
+        },
+        "control_outbox_events": {
+          "columns": [
+            "event_id",
+            "topic",
+            "event_key",
+            "state",
+            "job_id",
+            "run_id",
+            "payload_json",
+            "created_at",
+            "published_at",
+            "attempt",
+            "error_message"
+          ],
+          "rows": [
+            [
+              "outbox_15996958ddab4b72",
+              "control.job.completed",
+              "current-job:job_completed",
+              "pending",
+              "current-job",
+              "e02-b38-postgres-run",
+              "{\"attempt\": 2, \"effective_execution_profile\": \"dev\", \"job_id\": \"current-job\", \"job_kind\": \"workflow_run\", \"lease_owner\": \"worker-B\", \"pipeline_id\": null, \"progress\": {\"phase\": \"completed-B\"}, \"run_id\": \"e02-b38-postgres-run\", \"state\": \"completed\"}",
+              "2026-10-06 18:29:43+00:00",
+              null,
+              0,
+              null
+            ],
+            [
+              "outbox_76e411fc182342ca",
+              "control.job.running",
+              "current-job:job_running",
+              "pending",
+              "current-job",
+              "e02-b38-postgres-run",
+              "{\"effective_execution_profile\": \"dev\", \"job_id\": \"current-job\", \"job_kind\": \"workflow_run\", \"lease_expires_at\": \"2026-10-06T18:34:20+00:00\", \"lease_owner\": \"worker-A\", \"pipeline_id\": null, \"run_id\": \"e02-b38-postgres-run\", \"state\": \"running\"}",
+              "2026-10-06 18:29:20+00:00",
+              null,
+              0,
+              null
+            ],
+            [
+              "outbox_ec85f67943544c69",
+              "control.job.created",
+              "current-job:job_created",
+              "pending",
+              "current-job",
+              "e02-b38-postgres-run",
+              "{\"effective_execution_profile\": \"dev\", \"job_id\": \"current-job\", \"job_kind\": \"workflow_run\", \"pipeline_id\": null, \"run_id\": \"e02-b38-postgres-run\", \"state\": \"pending\"}",
+              "2026-10-06 18:29:20+00:00",
+              null,
+              0,
+              null
+            ],
+            [
+              "outbox_f4e0cf5f4cda4e87",
+              "control.job.progress",
+              null,
+              "pending",
+              "current-job",
+              "e02-b38-postgres-run",
+              "{\"attempt\": 2, \"effective_execution_profile\": \"dev\", \"evidence_spine_handoff_count\": 1, \"evidence_spine_handoffs\": [{\"batch_id\": null, \"bridge_authority_ref\": null, \"carrier_redaction_status\": \"pass\", \"carrier_ref\": \"control-job:current-job:carrier\", \"concept_spine_ref\": null, \"consumer_ref\": \"runtime.control_progress_readers\", \"handoff_id\": \"handoff:07d6f18a5e0083237e311d3c\", \"handoff_kind\": \"workflow_state_persistence\", \"input_refs\": [\"control-job:current-job\"], \"integrity_status\": \"pass\", \"message_count\": 1, \"output_refs\": [\"control-job:current-job:progress\"], \"parent_spine_ref\": \"control-job:current-job:carrier\", \"producer_handshake_refs\": [], \"producer_ref\": \"runtime.control_plane_store\", \"schema_version\": \"policyos.evidence_spine_handoff.v1\"}], \"job_id\": \"current-job\", \"job_kind\": \"workflow_run\", \"lease_owner\": \"worker-B\", \"phase\": \"active\", \"pipeline_id\": null, \"run_id\": \"e02-b38-postgres-run\", \"state\": \"running\"}",
+              "2026-10-06 18:29:43+00:00",
+              null,
+              0,
+              null
+            ]
+          ]
+        },
+        "control_worker_leases": {
+          "columns": [
+            "worker_id",
+            "state",
+            "backend",
+            "active_job_id",
+            "metadata_json",
+            "heartbeat_at",
+            "lease_expires_at",
+            "created_at",
+            "updated_at"
+          ],
+          "rows": [
+            [
+              "worker-B",
+              "idle",
+              "embedded",
+              null,
+              "{\"last_job_id\": \"current-job\"}",
+              "2026-10-06 18:29:43+00:00",
+              "2026-10-06 18:34:43+00:00",
+              "2026-10-06 18:29:43+00:00",
+              "2026-10-06 18:29:43+00:00"
+            ]
+          ]
+        },
+        "runtime_acquisition_action_heads": {
+          "columns": [
+            "tenant_id",
+            "cell_id",
+            "run_id",
+            "source_job_id",
+            "route_id",
+            "action_generation",
+            "head_generation",
+            "receipt_ref",
+            "receipt_sha256",
+            "durable_event_id",
+            "coarse_phase",
+            "receipt_phase",
+            "recovery_state",
+            "job_id",
+            "predecessor_receipt_ref",
+            "created_at"
+          ],
+          "rows": []
+        },
+        "runtime_human_decision_reservations": {
+          "columns": [
+            "tenant_id",
+            "governed_action_key",
+            "reservation_id",
+            "reservation_version",
+            "binding_sha256",
+            "state",
+            "reserved_at",
+            "lease_expires_at",
+            "record_valid_until",
+            "record_ref",
+            "record_sha256",
+            "durable_event_id",
+            "committed_at",
+            "reconciled_at"
+          ],
+          "rows": []
+        },
+        "runtime_scenario_heads": {
+          "columns": [
+            "scenario_id",
+            "baseline_run_id",
+            "revision",
+            "artifact_ref",
+            "manifest_hash",
+            "updated_at"
+          ],
+          "rows": []
+        },
+        "runtime_step_up_replays": {
+          "columns": [
+            "assertion_digest",
+            "expires_at",
+            "consumed_at"
+          ],
+          "rows": []
+        }
+      }
+    },
+    {
+      "case": {
+        "classname": "tests.unit.runtime.http.test_control_worker_postgres_fencing_oracle",
+        "name": "test_postgres_current_worker_publishes_coherent_terminal_generation[failed]",
+        "time": "21.933"
+      },
+      "properties": {
+        "postgres_identity": "[\"PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit\", \"postgres\", \"127.0.0.1/32\", 45483]",
+        "postgres_schema": "e02_b38_f9d5410f721b4620940ab17205e9d077",
+        "driver_version": "3.3.2",
+        "driver_origin": "/tmp/e02-B38-pg-profile/psycopg/__init__.py",
+        "table_denominator": "[\"control_dead_letter_jobs\", \"control_diagnostic_events\", \"control_job_events\", \"control_job_progress\", \"control_jobs\", \"control_outbox_events\", \"control_worker_leases\", \"runtime_acquisition_action_heads\", \"runtime_human_decision_reservations\", \"runtime_scenario_heads\", \"runtime_step_up_replays\"]"
+      },
+      "identity": [
+        "PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+        "postgres",
+        "e02_b38_f9d5410f721b4620940ab17205e9d077",
+        45483
+      ],
+      "tables": {
+        "control_dead_letter_jobs": {
+          "columns": [
+            "job_id",
+            "job_kind",
+            "run_id",
+            "pipeline_id",
+            "attempt",
+            "error_message",
+            "failed_at",
+            "acknowledged_at",
+            "acknowledged_by"
+          ],
+          "rows": [
+            [
+              "current-job",
+              "workflow_run",
+              "e02-b38-postgres-run",
+              null,
+              2,
+              "fixture failure",
+              "2026-10-06 18:30:05+00:00",
+              null,
+              null
+            ]
+          ]
+        },
+        "control_diagnostic_events": {
+          "columns": [
+            "row_id",
+            "event_id",
+            "event_type",
+            "run_id",
+            "job_id",
+            "trace_id",
+            "span_id",
+            "event_json",
+            "payload_ref",
+            "payload_inline_json",
+            "payload_sha256",
+            "created_at"
+          ],
+          "rows": [
+            [
+              1,
+              "evt_worker_df809a7a93564d68",
+              "polisyos.runtime.diagnostic.producer_execution.v1",
+              "e02-b38-postgres-run",
+              "current-job",
+              "trace_current-job",
+              "span_96030ffc90974aa6",
+              "{\"artifact_refs\": [], \"blocking_status\": null, \"cell_id\": \"cell-unknown\", \"dedupe_key\": null, \"duplicate_of\": null, \"event_id\": \"evt_worker_df809a7a93564d68\", \"event_source\": \"polisyos.runtime.worker\", \"event_subject\": \"run/e02-b38-postgres-run/job/current-job/phase/worker_dispatch\", \"event_time\": \"2026-10-06T18:30:05Z\", \"event_type\": \"polisyos.runtime.diagnostic.producer_execution.v1\", \"execution_profile\": \"dev\", \"input_refs\": [\"control.request\", \"control-job:current-job\", \"control-job:current-job:carrier\", \"control-job:current-job:lease:1\", \"control-job:current-job:lease:2\"], \"job_id\": \"current-job\", \"parent_span_id\": null, \"payload_ref\": null, \"phase\": \"worker_dispatch\", \"producer_component\": \"polisyos.runtime.control_worker\", \"producer_version\": \"2026.05.15+hds-phase2.2\", \"redaction_policy_ref\": \"redaction-policy/runtime-diagnostics-v1\", \"run_id\": \"e02-b38-postgres-run\", \"sampling_decision\": \"always_record\", \"sampling_rate\": 1.0, \"schema_name\": \"polisyos.runtime.quality.diagnostic_event\", \"schema_version\": \"1.0\", \"span_id\": \"span_96030ffc90974aa6\", \"state_after\": \"released\", \"state_before\": \"running\", \"tenant_id\": \"tenant-unknown\", \"trace_id\": \"trace_current-job\"}",
+              null,
+              null,
+              null,
+              "2026-10-06 18:30:05+00:00"
+            ]
+          ]
+        },
+        "control_job_events": {
+          "columns": [
+            "event_id",
+            "job_id",
+            "event_type",
+            "payload_json",
+            "created_at"
+          ],
+          "rows": [
+            [
+              1,
+              "current-job",
+              "job_created",
+              "{\"state\": \"pending\"}",
+              "2026-10-06 18:29:43+00:00"
+            ],
+            [
+              2,
+              "current-job",
+              "job_running",
+              "{\"lease_expires_at\": \"2026-10-06T18:34:43+00:00\", \"lease_owner\": \"worker-A\", \"state\": \"running\"}",
+              "2026-10-06 18:29:43+00:00"
+            ],
+            [
+              3,
+              "current-job",
+              "job_running",
+              "{\"lease_expires_at\": \"2026-10-06T18:35:02+00:00\", \"lease_owner\": \"worker-B\", \"state\": \"running\"}",
+              "2026-10-06 18:30:02+00:00"
+            ],
+            [
+              4,
+              "current-job",
+              "job_progress",
+              "{\"attempt\": 2, \"evidence_spine_handoff_count\": 1, \"evidence_spine_handoffs\": [{\"batch_id\": null, \"bridge_authority_ref\": null, \"carrier_redaction_status\": \"pass\", \"carrier_ref\": \"control-job:current-job:carrier\", \"concept_spine_ref\": null, \"consumer_ref\": \"runtime.control_progress_readers\", \"handoff_id\": \"handoff:07d6f18a5e0083237e311d3c\", \"handoff_kind\": \"workflow_state_persistence\", \"input_refs\": [\"control-job:current-job\"], \"integrity_status\": \"pass\", \"message_count\": 1, \"output_refs\": [\"control-job:current-job:progress\"], \"parent_spine_ref\": \"control-job:current-job:carrier\", \"producer_handshake_refs\": [], \"producer_ref\": \"runtime.control_plane_store\", \"schema_version\": \"policyos.evidence_spine_handoff.v1\"}], \"lease_owner\": \"worker-B\", \"phase\": \"active\", \"state\": \"running\"}",
+              "2026-10-06 18:30:05+00:00"
+            ],
+            [
+              5,
+              "current-job",
+              "job_failed",
+              "{\"attempt\": 2, \"error_message\": \"fixture failure\", \"lease_owner\": \"worker-B\", \"state\": \"failed\"}",
+              "2026-10-06 18:30:05+00:00"
+            ]
+          ]
+        },
+        "control_job_progress": {
+          "columns": [
+            "job_id",
+            "progress_json",
+            "updated_at"
+          ],
+          "rows": [
+            [
+              "current-job",
+              "{\"phase\": \"failed-B\"}",
+              "2026-10-06 18:30:05+00:00"
+            ]
+          ]
+        },
+        "control_jobs": {
+          "columns": [
+            "job_id",
+            "job_kind",
+            "state",
+            "run_id",
+            "pipeline_id",
+            "requested_profile",
+            "effective_profile",
+            "policy_flags_json",
+            "capability_manifest_ref",
+            "payload_ref",
+            "submitted_by",
+            "created_at",
+            "started_at",
+            "finished_at",
+            "lease_owner",
+            "lease_expires_at",
+            "attempt",
+            "error_message"
+          ],
+          "rows": [
+            [
+              "current-job",
+              "workflow_run",
+              "failed",
+              "e02-b38-postgres-run",
+              null,
+              "dev",
+              "dev",
+              "{}",
+              null,
+              null,
+              "e02-b38-postgres-native-fixture",
+              "2026-10-06 18:29:43+00:00",
+              "2026-10-06 18:29:43+00:00",
+              "2026-10-06 18:30:05+00:00",
+              null,
+              null,
+              2,
+              "fixture failure"
+            ]
+          ]
+        },
+        "control_outbox_events": {
+          "columns": [
+            "event_id",
+            "topic",
+            "event_key",
+            "state",
+            "job_id",
+            "run_id",
+            "payload_json",
+            "created_at",
+            "published_at",
+            "attempt",
+            "error_message"
+          ],
+          "rows": [
+            [
+              "outbox_85b5bcf0f2274a69",
+              "control.job.progress",
+              null,
+              "pending",
+              "current-job",
+              "e02-b38-postgres-run",
+              "{\"attempt\": 2, \"effective_execution_profile\": \"dev\", \"evidence_spine_handoff_count\": 1, \"evidence_spine_handoffs\": [{\"batch_id\": null, \"bridge_authority_ref\": null, \"carrier_redaction_status\": \"pass\", \"carrier_ref\": \"control-job:current-job:carrier\", \"concept_spine_ref\": null, \"consumer_ref\": \"runtime.control_progress_readers\", \"handoff_id\": \"handoff:07d6f18a5e0083237e311d3c\", \"handoff_kind\": \"workflow_state_persistence\", \"input_refs\": [\"control-job:current-job\"], \"integrity_status\": \"pass\", \"message_count\": 1, \"output_refs\": [\"control-job:current-job:progress\"], \"parent_spine_ref\": \"control-job:current-job:carrier\", \"producer_handshake_refs\": [], \"producer_ref\": \"runtime.control_plane_store\", \"schema_version\": \"policyos.evidence_spine_handoff.v1\"}], \"job_id\": \"current-job\", \"job_kind\": \"workflow_run\", \"lease_owner\": \"worker-B\", \"phase\": \"active\", \"pipeline_id\": null, \"run_id\": \"e02-b38-postgres-run\", \"state\": \"running\"}",
+              "2026-10-06 18:30:05+00:00",
+              null,
+              0,
+              null
+            ],
+            [
+              "outbox_9a3e2e21cb9146ec",
+              "control.job.failed",
+              "current-job:job_failed",
+              "pending",
+              "current-job",
+              "e02-b38-postgres-run",
+              "{\"attempt\": 2, \"effective_execution_profile\": \"dev\", \"error_message\": \"fixture failure\", \"job_id\": \"current-job\", \"job_kind\": \"workflow_run\", \"lease_owner\": \"worker-B\", \"pipeline_id\": null, \"progress\": {\"phase\": \"failed-B\"}, \"run_id\": \"e02-b38-postgres-run\", \"state\": \"failed\"}",
+              "2026-10-06 18:30:05+00:00",
+              null,
+              0,
+              null
+            ],
+            [
+              "outbox_9bb3144677d8428f",
+              "control.job.running",
+              "current-job:job_running",
+              "pending",
+              "current-job",
+              "e02-b38-postgres-run",
+              "{\"effective_execution_profile\": \"dev\", \"job_id\": \"current-job\", \"job_kind\": \"workflow_run\", \"lease_expires_at\": \"2026-10-06T18:34:43+00:00\", \"lease_owner\": \"worker-A\", \"pipeline_id\": null, \"run_id\": \"e02-b38-postgres-run\", \"state\": \"running\"}",
+              "2026-10-06 18:29:43+00:00",
+              null,
+              0,
+              null
+            ],
+            [
+              "outbox_acc8e70d149e4c70",
+              "control.job.created",
+              "current-job:job_created",
+              "pending",
+              "current-job",
+              "e02-b38-postgres-run",
+              "{\"effective_execution_profile\": \"dev\", \"job_id\": \"current-job\", \"job_kind\": \"workflow_run\", \"pipeline_id\": null, \"run_id\": \"e02-b38-postgres-run\", \"state\": \"pending\"}",
+              "2026-10-06 18:29:43+00:00",
+              null,
+              0,
+              null
+            ]
+          ]
+        },
+        "control_worker_leases": {
+          "columns": [
+            "worker_id",
+            "state",
+            "backend",
+            "active_job_id",
+            "metadata_json",
+            "heartbeat_at",
+            "lease_expires_at",
+            "created_at",
+            "updated_at"
+          ],
+          "rows": [
+            [
+              "worker-B",
+              "idle",
+              "embedded",
+              null,
+              "{\"last_job_id\": \"current-job\"}",
+              "2026-10-06 18:30:05+00:00",
+              "2026-10-06 18:35:05+00:00",
+              "2026-10-06 18:30:05+00:00",
+              "2026-10-06 18:30:05+00:00"
+            ]
+          ]
+        },
+        "runtime_acquisition_action_heads": {
+          "columns": [
+            "tenant_id",
+            "cell_id",
+            "run_id",
+            "source_job_id",
+            "route_id",
+            "action_generation",
+            "head_generation",
+            "receipt_ref",
+            "receipt_sha256",
+            "durable_event_id",
+            "coarse_phase",
+            "receipt_phase",
+            "recovery_state",
+            "job_id",
+            "predecessor_receipt_ref",
+            "created_at"
+          ],
+          "rows": []
+        },
+        "runtime_human_decision_reservations": {
+          "columns": [
+            "tenant_id",
+            "governed_action_key",
+            "reservation_id",
+            "reservation_version",
+            "binding_sha256",
+            "state",
+            "reserved_at",
+            "lease_expires_at",
+            "record_valid_until",
+            "record_ref",
+            "record_sha256",
+            "durable_event_id",
+            "committed_at",
+            "reconciled_at"
+          ],
+          "rows": []
+        },
+        "runtime_scenario_heads": {
+          "columns": [
+            "scenario_id",
+            "baseline_run_id",
+            "revision",
+            "artifact_ref",
+            "manifest_hash",
+            "updated_at"
+          ],
+          "rows": []
+        },
+        "runtime_step_up_replays": {
+          "columns": [
+            "assertion_digest",
+            "expires_at",
+            "consumed_at"
+          ],
+          "rows": []
+        }
+      }
+    },
+    {
+      "case": {
+        "classname": "tests.unit.runtime.http.test_control_worker_postgres_fencing_oracle",
+        "name": "test_postgres_real_statement_fault_rolls_back_all_terminal_rows[event-completed]",
+        "time": "0.198"
+      },
+      "properties": {
+        "postgres_identity": "[\"PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit\", \"postgres\", \"127.0.0.1/32\", 45483]",
+        "postgres_schema": "e02_b38_1dd1e8de3c7b435095c75c5414ee8ac8",
+        "driver_version": "3.3.2",
+        "driver_origin": "/tmp/e02-B38-pg-profile/psycopg/__init__.py",
+        "table_denominator": "[\"control_dead_letter_jobs\", \"control_diagnostic_events\", \"control_job_events\", \"control_job_progress\", \"control_jobs\", \"control_outbox_events\", \"control_worker_leases\", \"runtime_acquisition_action_heads\", \"runtime_human_decision_reservations\", \"runtime_scenario_heads\", \"runtime_step_up_replays\"]"
+      },
+      "identity": [
+        "PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+        "postgres",
+        "e02_b38_1dd1e8de3c7b435095c75c5414ee8ac8",
+        45483
+      ],
+      "tables": {
+        "control_dead_letter_jobs": {
+          "columns": [
+            "job_id",
+            "job_kind",
+            "run_id",
+            "pipeline_id",
+            "attempt",
+            "error_message",
+            "failed_at",
+            "acknowledged_at",
+            "acknowledged_by"
+          ],
+          "rows": []
+        },
+        "control_diagnostic_events": {
+          "columns": [
+            "row_id",
+            "event_id",
+            "event_type",
+            "run_id",
+            "job_id",
+            "trace_id",
+            "span_id",
+            "event_json",
+            "payload_ref",
+            "payload_inline_json",
+            "payload_sha256",
+            "created_at"
+          ],
+          "rows": []
+        },
+        "control_job_events": {
+          "columns": [
+            "event_id",
+            "job_id",
+            "event_type",
+            "payload_json",
+            "created_at"
+          ],
+          "rows": [
+            [
+              1,
+              "fault-job",
+              "job_created",
+              "{\"state\": \"pending\"}",
+              "2026-10-06 18:30:05+00:00"
+            ],
+            [
+              2,
+              "fault-job",
+              "job_running",
+              "{\"lease_expires_at\": \"2026-10-06T18:35:05+00:00\", \"lease_owner\": \"worker-A\", \"state\": \"running\"}",
+              "2026-10-06 18:30:05+00:00"
+            ]
+          ]
+        },
+        "control_job_progress": {
+          "columns": [
+            "job_id",
+            "progress_json",
+            "updated_at"
+          ],
+          "rows": [
+            [
+              "fault-job",
+              "{\"evidence_spine_handoff_count\": 2, \"evidence_spine_handoffs\": [{\"batch_id\": null, \"bridge_authority_ref\": null, \"carrier_redaction_status\": \"pass\", \"carrier_ref\": \"control-job:fault-job:carrier\", \"concept_spine_ref\": null, \"consumer_ref\": \"runtime.control_plane_store\", \"handoff_id\": \"handoff:341fc224f443f2ad8ef10ff0\", \"handoff_kind\": \"nl_request_creation\", \"input_refs\": [\"control.request\"], \"integrity_status\": \"pass\", \"message_count\": 1, \"output_refs\": [\"control-job:fault-job\"], \"parent_spine_ref\": \"control-job:fault-job:carrier\", \"producer_handshake_refs\": [], \"producer_ref\": \"runtime.api.nl_request\", \"schema_version\": \"policyos.evidence_spine_handoff.v1\"}, {\"batch_id\": null, \"bridge_authority_ref\": null, \"carrier_redaction_status\": \"pass\", \"carrier_ref\": \"control-job:fault-job:carrier\", \"concept_spine_ref\": null, \"consumer_ref\": \"runtime.control_worker:worker-A\", \"handoff_id\": \"handoff:66b579c64f33575d212e46fd\", \"handoff_kind\": \"control_plane_job_lease\", \"input_refs\": [\"control-job:fault-job\"], \"integrity_status\": \"pass\", \"message_count\": 1, \"output_refs\": [\"control-job:fault-job:lease:1\"], \"parent_spine_ref\": \"control-job:fault-job:carrier\", \"producer_handshake_refs\": [], \"producer_ref\": \"runtime.control_plane_store\", \"schema_version\": \"policyos.evidence_spine_handoff.v1\"}]}",
+              "2026-10-06 18:30:05+00:00"
+            ]
+          ]
+        },
+        "control_jobs": {
+          "columns": [
+            "job_id",
+            "job_kind",
+            "state",
+            "run_id",
+            "pipeline_id",
+            "requested_profile",
+            "effective_profile",
+            "policy_flags_json",
+            "capability_manifest_ref",
+            "payload_ref",
+            "submitted_by",
+            "created_at",
+            "started_at",
+            "finished_at",
+            "lease_owner",
+            "lease_expires_at",
+            "attempt",
+            "error_message"
+          ],
+          "rows": [
+            [
+              "fault-job",
+              "workflow_run",
+              "running",
+              "e02-b38-postgres-run",
+              null,
+              "dev",
+              "dev",
+              "{}",
+              null,
+              null,
+              "e02-b38-postgres-native-fixture",
+              "2026-10-06 18:30:05+00:00",
+              "2026-10-06 18:30:05+00:00",
+              null,
+              "worker-A",
+              "2026-10-06 18:35:05+00:00",
+              1,
+              null
+            ]
+          ]
+        },
+        "control_outbox_events": {
+          "columns": [
+            "event_id",
+            "topic",
+            "event_key",
+            "state",
+            "job_id",
+            "run_id",
+            "payload_json",
+            "created_at",
+            "published_at",
+            "attempt",
+            "error_message"
+          ],
+          "rows": [
+            [
+              "outbox_73ca7343cd894965",
+              "control.job.running",
+              "fault-job:job_running",
+              "pending",
+              "fault-job",
+              "e02-b38-postgres-run",
+              "{\"effective_execution_profile\": \"dev\", \"job_id\": \"fault-job\", \"job_kind\": \"workflow_run\", \"lease_expires_at\": \"2026-10-06T18:35:05+00:00\", \"lease_owner\": \"worker-A\", \"pipeline_id\": null, \"run_id\": \"e02-b38-postgres-run\", \"state\": \"running\"}",
+              "2026-10-06 18:30:05+00:00",
+              null,
+              0,
+              null
+            ],
+            [
+              "outbox_e43e8d7187814975",
+              "control.job.created",
+              "fault-job:job_created",
+              "pending",
+              "fault-job",
+              "e02-b38-postgres-run",
+              "{\"effective_execution_profile\": \"dev\", \"job_id\": \"fault-job\", \"job_kind\": \"workflow_run\", \"pipeline_id\": null, \"run_id\": \"e02-b38-postgres-run\", \"state\": \"pending\"}",
+              "2026-10-06 18:30:05+00:00",
+              null,
+              0,
+              null
+            ]
+          ]
+        },
+        "control_worker_leases": {
+          "columns": [
+            "worker_id",
+            "state",
+            "backend",
+            "active_job_id",
+            "metadata_json",
+            "heartbeat_at",
+            "lease_expires_at",
+            "created_at",
+            "updated_at"
+          ],
+          "rows": []
+        },
+        "runtime_acquisition_action_heads": {
+          "columns": [
+            "tenant_id",
+            "cell_id",
+            "run_id",
+            "source_job_id",
+            "route_id",
+            "action_generation",
+            "head_generation",
+            "receipt_ref",
+            "receipt_sha256",
+            "durable_event_id",
+            "coarse_phase",
+            "receipt_phase",
+            "recovery_state",
+            "job_id",
+            "predecessor_receipt_ref",
+            "created_at"
+          ],
+          "rows": []
+        },
+        "runtime_human_decision_reservations": {
+          "columns": [
+            "tenant_id",
+            "governed_action_key",
+            "reservation_id",
+            "reservation_version",
+            "binding_sha256",
+            "state",
+            "reserved_at",
+            "lease_expires_at",
+            "record_valid_until",
+            "record_ref",
+            "record_sha256",
+            "durable_event_id",
+            "committed_at",
+            "reconciled_at"
+          ],
+          "rows": []
+        },
+        "runtime_scenario_heads": {
+          "columns": [
+            "scenario_id",
+            "baseline_run_id",
+            "revision",
+            "artifact_ref",
+            "manifest_hash",
+            "updated_at"
+          ],
+          "rows": []
+        },
+        "runtime_step_up_replays": {
+          "columns": [
+            "assertion_digest",
+            "expires_at",
+            "consumed_at"
+          ],
+          "rows": []
+        }
+      }
+    },
+    {
+      "case": {
+        "classname": "tests.unit.runtime.http.test_control_worker_postgres_fencing_oracle",
+        "name": "test_postgres_real_statement_fault_rolls_back_all_terminal_rows[event-failed]",
+        "time": "0.166"
+      },
+      "properties": {
+        "postgres_identity": "[\"PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit\", \"postgres\", \"127.0.0.1/32\", 45483]",
+        "postgres_schema": "e02_b38_eb9f56632aca47a5a4515f584c7f36f8",
+        "driver_version": "3.3.2",
+        "driver_origin": "/tmp/e02-B38-pg-profile/psycopg/__init__.py",
+        "table_denominator": "[\"control_dead_letter_jobs\", \"control_diagnostic_events\", \"control_job_events\", \"control_job_progress\", \"control_jobs\", \"control_outbox_events\", \"control_worker_leases\", \"runtime_acquisition_action_heads\", \"runtime_human_decision_reservations\", \"runtime_scenario_heads\", \"runtime_step_up_replays\"]"
+      },
+      "identity": [
+        "PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+        "postgres",
+        "e02_b38_eb9f56632aca47a5a4515f584c7f36f8",
+        45483
+      ],
+      "tables": {
+        "control_dead_letter_jobs": {
+          "columns": [
+            "job_id",
+            "job_kind",
+            "run_id",
+            "pipeline_id",
+            "attempt",
+            "error_message",
+            "failed_at",
+            "acknowledged_at",
+            "acknowledged_by"
+          ],
+          "rows": []
+        },
+        "control_diagnostic_events": {
+          "columns": [
+            "row_id",
+            "event_id",
+            "event_type",
+            "run_id",
+            "job_id",
+            "trace_id",
+            "span_id",
+            "event_json",
+            "payload_ref",
+            "payload_inline_json",
+            "payload_sha256",
+            "created_at"
+          ],
+          "rows": []
+        },
+        "control_job_events": {
+          "columns": [
+            "event_id",
+            "job_id",
+            "event_type",
+            "payload_json",
+            "created_at"
+          ],
+          "rows": [
+            [
+              1,
+              "fault-job",
+              "job_created",
+              "{\"state\": \"pending\"}",
+              "2026-10-06 18:30:05+00:00"
+            ],
+            [
+              2,
+              "fault-job",
+              "job_running",
+              "{\"lease_expires_at\": \"2026-10-06T18:35:05+00:00\", \"lease_owner\": \"worker-A\", \"state\": \"running\"}",
+              "2026-10-06 18:30:05+00:00"
+            ]
+          ]
+        },
+        "control_job_progress": {
+          "columns": [
+            "job_id",
+            "progress_json",
+            "updated_at"
+          ],
+          "rows": [
+            [
+              "fault-job",
+              "{\"evidence_spine_handoff_count\": 2, \"evidence_spine_handoffs\": [{\"batch_id\": null, \"bridge_authority_ref\": null, \"carrier_redaction_status\": \"pass\", \"carrier_ref\": \"control-job:fault-job:carrier\", \"concept_spine_ref\": null, \"consumer_ref\": \"runtime.control_plane_store\", \"handoff_id\": \"handoff:341fc224f443f2ad8ef10ff0\", \"handoff_kind\": \"nl_request_creation\", \"input_refs\": [\"control.request\"], \"integrity_status\": \"pass\", \"message_count\": 1, \"output_refs\": [\"control-job:fault-job\"], \"parent_spine_ref\": \"control-job:fault-job:carrier\", \"producer_handshake_refs\": [], \"producer_ref\": \"runtime.api.nl_request\", \"schema_version\": \"policyos.evidence_spine_handoff.v1\"}, {\"batch_id\": null, \"bridge_authority_ref\": null, \"carrier_redaction_status\": \"pass\", \"carrier_ref\": \"control-job:fault-job:carrier\", \"concept_spine_ref\": null, \"consumer_ref\": \"runtime.control_worker:worker-A\", \"handoff_id\": \"handoff:66b579c64f33575d212e46fd\", \"handoff_kind\": \"control_plane_job_lease\", \"input_refs\": [\"control-job:fault-job\"], \"integrity_status\": \"pass\", \"message_count\": 1, \"output_refs\": [\"control-job:fault-job:lease:1\"], \"parent_spine_ref\": \"control-job:fault-job:carrier\", \"producer_handshake_refs\": [], \"producer_ref\": \"runtime.control_plane_store\", \"schema_version\": \"policyos.evidence_spine_handoff.v1\"}]}",
+              "2026-10-06 18:30:05+00:00"
+            ]
+          ]
+        },
+        "control_jobs": {
+          "columns": [
+            "job_id",
+            "job_kind",
+            "state",
+            "run_id",
+            "pipeline_id",
+            "requested_profile",
+            "effective_profile",
+            "policy_flags_json",
+            "capability_manifest_ref",
+            "payload_ref",
+            "submitted_by",
+            "created_at",
+            "started_at",
+            "finished_at",
+            "lease_owner",
+            "lease_expires_at",
+            "attempt",
+            "error_message"
+          ],
+          "rows": [
+            [
+              "fault-job",
+              "workflow_run",
+              "running",
+              "e02-b38-postgres-run",
+              null,
+              "dev",
+              "dev",
+              "{}",
+              null,
+              null,
+              "e02-b38-postgres-native-fixture",
+              "2026-10-06 18:30:05+00:00",
+              "2026-10-06 18:30:05+00:00",
+              null,
+              "worker-A",
+              "2026-10-06 18:35:05+00:00",
+              1,
+              null
+            ]
+          ]
+        },
+        "control_outbox_events": {
+          "columns": [
+            "event_id",
+            "topic",
+            "event_key",
+            "state",
+            "job_id",
+            "run_id",
+            "payload_json",
+            "created_at",
+            "published_at",
+            "attempt",
+            "error_message"
+          ],
+          "rows": [
+            [
+              "outbox_3843437c21744fe3",
+              "control.job.running",
+              "fault-job:job_running",
+              "pending",
+              "fault-job",
+              "e02-b38-postgres-run",
+              "{\"effective_execution_profile\": \"dev\", \"job_id\": \"fault-job\", \"job_kind\": \"workflow_run\", \"lease_expires_at\": \"2026-10-06T18:35:05+00:00\", \"lease_owner\": \"worker-A\", \"pipeline_id\": null, \"run_id\": \"e02-b38-postgres-run\", \"state\": \"running\"}",
+              "2026-10-06 18:30:05+00:00",
+              null,
+              0,
+              null
+            ],
+            [
+              "outbox_b4d29e6f33b24017",
+              "control.job.created",
+              "fault-job:job_created",
+              "pending",
+              "fault-job",
+              "e02-b38-postgres-run",
+              "{\"effective_execution_profile\": \"dev\", \"job_id\": \"fault-job\", \"job_kind\": \"workflow_run\", \"pipeline_id\": null, \"run_id\": \"e02-b38-postgres-run\", \"state\": \"pending\"}",
+              "2026-10-06 18:30:05+00:00",
+              null,
+              0,
+              null
+            ]
+          ]
+        },
+        "control_worker_leases": {
+          "columns": [
+            "worker_id",
+            "state",
+            "backend",
+            "active_job_id",
+            "metadata_json",
+            "heartbeat_at",
+            "lease_expires_at",
+            "created_at",
+            "updated_at"
+          ],
+          "rows": []
+        },
+        "runtime_acquisition_action_heads": {
+          "columns": [
+            "tenant_id",
+            "cell_id",
+            "run_id",
+            "source_job_id",
+            "route_id",
+            "action_generation",
+            "head_generation",
+            "receipt_ref",
+            "receipt_sha256",
+            "durable_event_id",
+            "coarse_phase",
+            "receipt_phase",
+            "recovery_state",
+            "job_id",
+            "predecessor_receipt_ref",
+            "created_at"
+          ],
+          "rows": []
+        },
+        "runtime_human_decision_reservations": {
+          "columns": [
+            "tenant_id",
+            "governed_action_key",
+            "reservation_id",
+            "reservation_version",
+            "binding_sha256",
+            "state",
+            "reserved_at",
+            "lease_expires_at",
+            "record_valid_until",
+            "record_ref",
+            "record_sha256",
+            "durable_event_id",
+            "committed_at",
+            "reconciled_at"
+          ],
+          "rows": []
+        },
+        "runtime_scenario_heads": {
+          "columns": [
+            "scenario_id",
+            "baseline_run_id",
+            "revision",
+            "artifact_ref",
+            "manifest_hash",
+            "updated_at"
+          ],
+          "rows": []
+        },
+        "runtime_step_up_replays": {
+          "columns": [
+            "assertion_digest",
+            "expires_at",
+            "consumed_at"
+          ],
+          "rows": []
+        }
+      }
+    },
+    {
+      "case": {
+        "classname": "tests.unit.runtime.http.test_control_worker_postgres_fencing_oracle",
+        "name": "test_postgres_real_statement_fault_rolls_back_all_terminal_rows[outbox-completed]",
+        "time": "0.164"
+      },
+      "properties": {
+        "postgres_identity": "[\"PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit\", \"postgres\", \"127.0.0.1/32\", 45483]",
+        "postgres_schema": "e02_b38_7c2039bff0a24019beec6a1a6b7afee4",
+        "driver_version": "3.3.2",
+        "driver_origin": "/tmp/e02-B38-pg-profile/psycopg/__init__.py",
+        "table_denominator": "[\"control_dead_letter_jobs\", \"control_diagnostic_events\", \"control_job_events\", \"control_job_progress\", \"control_jobs\", \"control_outbox_events\", \"control_worker_leases\", \"runtime_acquisition_action_heads\", \"runtime_human_decision_reservations\", \"runtime_scenario_heads\", \"runtime_step_up_replays\"]"
+      },
+      "identity": [
+        "PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+        "postgres",
+        "e02_b38_7c2039bff0a24019beec6a1a6b7afee4",
+        45483
+      ],
+      "tables": {
+        "control_dead_letter_jobs": {
+          "columns": [
+            "job_id",
+            "job_kind",
+            "run_id",
+            "pipeline_id",
+            "attempt",
+            "error_message",
+            "failed_at",
+            "acknowledged_at",
+            "acknowledged_by"
+          ],
+          "rows": []
+        },
+        "control_diagnostic_events": {
+          "columns": [
+            "row_id",
+            "event_id",
+            "event_type",
+            "run_id",
+            "job_id",
+            "trace_id",
+            "span_id",
+            "event_json",
+            "payload_ref",
+            "payload_inline_json",
+            "payload_sha256",
+            "created_at"
+          ],
+          "rows": []
+        },
+        "control_job_events": {
+          "columns": [
+            "event_id",
+            "job_id",
+            "event_type",
+            "payload_json",
+            "created_at"
+          ],
+          "rows": [
+            [
+              1,
+              "fault-job",
+              "job_created",
+              "{\"state\": \"pending\"}",
+              "2026-10-06 18:30:05+00:00"
+            ],
+            [
+              2,
+              "fault-job",
+              "job_running",
+              "{\"lease_expires_at\": \"2026-10-06T18:35:05+00:00\", \"lease_owner\": \"worker-A\", \"state\": \"running\"}",
+              "2026-10-06 18:30:05+00:00"
+            ]
+          ]
+        },
+        "control_job_progress": {
+          "columns": [
+            "job_id",
+            "progress_json",
+            "updated_at"
+          ],
+          "rows": [
+            [
+              "fault-job",
+              "{\"evidence_spine_handoff_count\": 2, \"evidence_spine_handoffs\": [{\"batch_id\": null, \"bridge_authority_ref\": null, \"carrier_redaction_status\": \"pass\", \"carrier_ref\": \"control-job:fault-job:carrier\", \"concept_spine_ref\": null, \"consumer_ref\": \"runtime.control_plane_store\", \"handoff_id\": \"handoff:341fc224f443f2ad8ef10ff0\", \"handoff_kind\": \"nl_request_creation\", \"input_refs\": [\"control.request\"], \"integrity_status\": \"pass\", \"message_count\": 1, \"output_refs\": [\"control-job:fault-job\"], \"parent_spine_ref\": \"control-job:fault-job:carrier\", \"producer_handshake_refs\": [], \"producer_ref\": \"runtime.api.nl_request\", \"schema_version\": \"policyos.evidence_spine_handoff.v1\"}, {\"batch_id\": null, \"bridge_authority_ref\": null, \"carrier_redaction_status\": \"pass\", \"carrier_ref\": \"control-job:fault-job:carrier\", \"concept_spine_ref\": null, \"consumer_ref\": \"runtime.control_worker:worker-A\", \"handoff_id\": \"handoff:66b579c64f33575d212e46fd\", \"handoff_kind\": \"control_plane_job_lease\", \"input_refs\": [\"control-job:fault-job\"], \"integrity_status\": \"pass\", \"message_count\": 1, \"output_refs\": [\"control-job:fault-job:lease:1\"], \"parent_spine_ref\": \"control-job:fault-job:carrier\", \"producer_handshake_refs\": [], \"producer_ref\": \"runtime.control_plane_store\", \"schema_version\": \"policyos.evidence_spine_handoff.v1\"}]}",
+              "2026-10-06 18:30:05+00:00"
+            ]
+          ]
+        },
+        "control_jobs": {
+          "columns": [
+            "job_id",
+            "job_kind",
+            "state",
+            "run_id",
+            "pipeline_id",
+            "requested_profile",
+            "effective_profile",
+            "policy_flags_json",
+            "capability_manifest_ref",
+            "payload_ref",
+            "submitted_by",
+            "created_at",
+            "started_at",
+            "finished_at",
+            "lease_owner",
+            "lease_expires_at",
+            "attempt",
+            "error_message"
+          ],
+          "rows": [
+            [
+              "fault-job",
+              "workflow_run",
+              "running",
+              "e02-b38-postgres-run",
+              null,
+              "dev",
+              "dev",
+              "{}",
+              null,
+              null,
+              "e02-b38-postgres-native-fixture",
+              "2026-10-06 18:30:05+00:00",
+              "2026-10-06 18:30:05+00:00",
+              null,
+              "worker-A",
+              "2026-10-06 18:35:05+00:00",
+              1,
+              null
+            ]
+          ]
+        },
+        "control_outbox_events": {
+          "columns": [
+            "event_id",
+            "topic",
+            "event_key",
+            "state",
+            "job_id",
+            "run_id",
+            "payload_json",
+            "created_at",
+            "published_at",
+            "attempt",
+            "error_message"
+          ],
+          "rows": [
+            [
+              "outbox_d16272429e3c4896",
+              "control.job.running",
+              "fault-job:job_running",
+              "pending",
+              "fault-job",
+              "e02-b38-postgres-run",
+              "{\"effective_execution_profile\": \"dev\", \"job_id\": \"fault-job\", \"job_kind\": \"workflow_run\", \"lease_expires_at\": \"2026-10-06T18:35:05+00:00\", \"lease_owner\": \"worker-A\", \"pipeline_id\": null, \"run_id\": \"e02-b38-postgres-run\", \"state\": \"running\"}",
+              "2026-10-06 18:30:05+00:00",
+              null,
+              0,
+              null
+            ],
+            [
+              "outbox_d85bcbbfe45f4fd0",
+              "control.job.created",
+              "fault-job:job_created",
+              "pending",
+              "fault-job",
+              "e02-b38-postgres-run",
+              "{\"effective_execution_profile\": \"dev\", \"job_id\": \"fault-job\", \"job_kind\": \"workflow_run\", \"pipeline_id\": null, \"run_id\": \"e02-b38-postgres-run\", \"state\": \"pending\"}",
+              "2026-10-06 18:30:05+00:00",
+              null,
+              0,
+              null
+            ]
+          ]
+        },
+        "control_worker_leases": {
+          "columns": [
+            "worker_id",
+            "state",
+            "backend",
+            "active_job_id",
+            "metadata_json",
+            "heartbeat_at",
+            "lease_expires_at",
+            "created_at",
+            "updated_at"
+          ],
+          "rows": []
+        },
+        "runtime_acquisition_action_heads": {
+          "columns": [
+            "tenant_id",
+            "cell_id",
+            "run_id",
+            "source_job_id",
+            "route_id",
+            "action_generation",
+            "head_generation",
+            "receipt_ref",
+            "receipt_sha256",
+            "durable_event_id",
+            "coarse_phase",
+            "receipt_phase",
+            "recovery_state",
+            "job_id",
+            "predecessor_receipt_ref",
+            "created_at"
+          ],
+          "rows": []
+        },
+        "runtime_human_decision_reservations": {
+          "columns": [
+            "tenant_id",
+            "governed_action_key",
+            "reservation_id",
+            "reservation_version",
+            "binding_sha256",
+            "state",
+            "reserved_at",
+            "lease_expires_at",
+            "record_valid_until",
+            "record_ref",
+            "record_sha256",
+            "durable_event_id",
+            "committed_at",
+            "reconciled_at"
+          ],
+          "rows": []
+        },
+        "runtime_scenario_heads": {
+          "columns": [
+            "scenario_id",
+            "baseline_run_id",
+            "revision",
+            "artifact_ref",
+            "manifest_hash",
+            "updated_at"
+          ],
+          "rows": []
+        },
+        "runtime_step_up_replays": {
+          "columns": [
+            "assertion_digest",
+            "expires_at",
+            "consumed_at"
+          ],
+          "rows": []
+        }
+      }
+    },
+    {
+      "case": {
+        "classname": "tests.unit.runtime.http.test_control_worker_postgres_fencing_oracle",
+        "name": "test_postgres_real_statement_fault_rolls_back_all_terminal_rows[outbox-failed]",
+        "time": "0.169"
+      },
+      "properties": {
+        "postgres_identity": "[\"PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit\", \"postgres\", \"127.0.0.1/32\", 45483]",
+        "postgres_schema": "e02_b38_3e998b69c65c46959ee7aac08305035e",
+        "driver_version": "3.3.2",
+        "driver_origin": "/tmp/e02-B38-pg-profile/psycopg/__init__.py",
+        "table_denominator": "[\"control_dead_letter_jobs\", \"control_diagnostic_events\", \"control_job_events\", \"control_job_progress\", \"control_jobs\", \"control_outbox_events\", \"control_worker_leases\", \"runtime_acquisition_action_heads\", \"runtime_human_decision_reservations\", \"runtime_scenario_heads\", \"runtime_step_up_replays\"]"
+      },
+      "identity": [
+        "PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+        "postgres",
+        "e02_b38_3e998b69c65c46959ee7aac08305035e",
+        45483
+      ],
+      "tables": {
+        "control_dead_letter_jobs": {
+          "columns": [
+            "job_id",
+            "job_kind",
+            "run_id",
+            "pipeline_id",
+            "attempt",
+            "error_message",
+            "failed_at",
+            "acknowledged_at",
+            "acknowledged_by"
+          ],
+          "rows": []
+        },
+        "control_diagnostic_events": {
+          "columns": [
+            "row_id",
+            "event_id",
+            "event_type",
+            "run_id",
+            "job_id",
+            "trace_id",
+            "span_id",
+            "event_json",
+            "payload_ref",
+            "payload_inline_json",
+            "payload_sha256",
+            "created_at"
+          ],
+          "rows": []
+        },
+        "control_job_events": {
+          "columns": [
+            "event_id",
+            "job_id",
+            "event_type",
+            "payload_json",
+            "created_at"
+          ],
+          "rows": [
+            [
+              1,
+              "fault-job",
+              "job_created",
+              "{\"state\": \"pending\"}",
+              "2026-10-06 18:30:05+00:00"
+            ],
+            [
+              2,
+              "fault-job",
+              "job_running",
+              "{\"lease_expires_at\": \"2026-10-06T18:35:05+00:00\", \"lease_owner\": \"worker-A\", \"state\": \"running\"}",
+              "2026-10-06 18:30:05+00:00"
+            ]
+          ]
+        },
+        "control_job_progress": {
+          "columns": [
+            "job_id",
+            "progress_json",
+            "updated_at"
+          ],
+          "rows": [
+            [
+              "fault-job",
+              "{\"evidence_spine_handoff_count\": 2, \"evidence_spine_handoffs\": [{\"batch_id\": null, \"bridge_authority_ref\": null, \"carrier_redaction_status\": \"pass\", \"carrier_ref\": \"control-job:fault-job:carrier\", \"concept_spine_ref\": null, \"consumer_ref\": \"runtime.control_plane_store\", \"handoff_id\": \"handoff:341fc224f443f2ad8ef10ff0\", \"handoff_kind\": \"nl_request_creation\", \"input_refs\": [\"control.request\"], \"integrity_status\": \"pass\", \"message_count\": 1, \"output_refs\": [\"control-job:fault-job\"], \"parent_spine_ref\": \"control-job:fault-job:carrier\", \"producer_handshake_refs\": [], \"producer_ref\": \"runtime.api.nl_request\", \"schema_version\": \"policyos.evidence_spine_handoff.v1\"}, {\"batch_id\": null, \"bridge_authority_ref\": null, \"carrier_redaction_status\": \"pass\", \"carrier_ref\": \"control-job:fault-job:carrier\", \"concept_spine_ref\": null, \"consumer_ref\": \"runtime.control_worker:worker-A\", \"handoff_id\": \"handoff:66b579c64f33575d212e46fd\", \"handoff_kind\": \"control_plane_job_lease\", \"input_refs\": [\"control-job:fault-job\"], \"integrity_status\": \"pass\", \"message_count\": 1, \"output_refs\": [\"control-job:fault-job:lease:1\"], \"parent_spine_ref\": \"control-job:fault-job:carrier\", \"producer_handshake_refs\": [], \"producer_ref\": \"runtime.control_plane_store\", \"schema_version\": \"policyos.evidence_spine_handoff.v1\"}]}",
+              "2026-10-06 18:30:05+00:00"
+            ]
+          ]
+        },
+        "control_jobs": {
+          "columns": [
+            "job_id",
+            "job_kind",
+            "state",
+            "run_id",
+            "pipeline_id",
+            "requested_profile",
+            "effective_profile",
+            "policy_flags_json",
+            "capability_manifest_ref",
+            "payload_ref",
+            "submitted_by",
+            "created_at",
+            "started_at",
+            "finished_at",
+            "lease_owner",
+            "lease_expires_at",
+            "attempt",
+            "error_message"
+          ],
+          "rows": [
+            [
+              "fault-job",
+              "workflow_run",
+              "running",
+              "e02-b38-postgres-run",
+              null,
+              "dev",
+              "dev",
+              "{}",
+              null,
+              null,
+              "e02-b38-postgres-native-fixture",
+              "2026-10-06 18:30:05+00:00",
+              "2026-10-06 18:30:05+00:00",
+              null,
+              "worker-A",
+              "2026-10-06 18:35:05+00:00",
+              1,
+              null
+            ]
+          ]
+        },
+        "control_outbox_events": {
+          "columns": [
+            "event_id",
+            "topic",
+            "event_key",
+            "state",
+            "job_id",
+            "run_id",
+            "payload_json",
+            "created_at",
+            "published_at",
+            "attempt",
+            "error_message"
+          ],
+          "rows": [
+            [
+              "outbox_872f724669e643d8",
+              "control.job.created",
+              "fault-job:job_created",
+              "pending",
+              "fault-job",
+              "e02-b38-postgres-run",
+              "{\"effective_execution_profile\": \"dev\", \"job_id\": \"fault-job\", \"job_kind\": \"workflow_run\", \"pipeline_id\": null, \"run_id\": \"e02-b38-postgres-run\", \"state\": \"pending\"}",
+              "2026-10-06 18:30:05+00:00",
+              null,
+              0,
+              null
+            ],
+            [
+              "outbox_f894c0dc21ec476a",
+              "control.job.running",
+              "fault-job:job_running",
+              "pending",
+              "fault-job",
+              "e02-b38-postgres-run",
+              "{\"effective_execution_profile\": \"dev\", \"job_id\": \"fault-job\", \"job_kind\": \"workflow_run\", \"lease_expires_at\": \"2026-10-06T18:35:05+00:00\", \"lease_owner\": \"worker-A\", \"pipeline_id\": null, \"run_id\": \"e02-b38-postgres-run\", \"state\": \"running\"}",
+              "2026-10-06 18:30:05+00:00",
+              null,
+              0,
+              null
+            ]
+          ]
+        },
+        "control_worker_leases": {
+          "columns": [
+            "worker_id",
+            "state",
+            "backend",
+            "active_job_id",
+            "metadata_json",
+            "heartbeat_at",
+            "lease_expires_at",
+            "created_at",
+            "updated_at"
+          ],
+          "rows": []
+        },
+        "runtime_acquisition_action_heads": {
+          "columns": [
+            "tenant_id",
+            "cell_id",
+            "run_id",
+            "source_job_id",
+            "route_id",
+            "action_generation",
+            "head_generation",
+            "receipt_ref",
+            "receipt_sha256",
+            "durable_event_id",
+            "coarse_phase",
+            "receipt_phase",
+            "recovery_state",
+            "job_id",
+            "predecessor_receipt_ref",
+            "created_at"
+          ],
+          "rows": []
+        },
+        "runtime_human_decision_reservations": {
+          "columns": [
+            "tenant_id",
+            "governed_action_key",
+            "reservation_id",
+            "reservation_version",
+            "binding_sha256",
+            "state",
+            "reserved_at",
+            "lease_expires_at",
+            "record_valid_until",
+            "record_ref",
+            "record_sha256",
+            "durable_event_id",
+            "committed_at",
+            "reconciled_at"
+          ],
+          "rows": []
+        },
+        "runtime_scenario_heads": {
+          "columns": [
+            "scenario_id",
+            "baseline_run_id",
+            "revision",
+            "artifact_ref",
+            "manifest_hash",
+            "updated_at"
+          ],
+          "rows": []
+        },
+        "runtime_step_up_replays": {
+          "columns": [
+            "assertion_digest",
+            "expires_at",
+            "consumed_at"
+          ],
+          "rows": []
+        }
+      }
+    }
+  ],
+  "scope": "Every table row in the eight actual JUnit schemas; no sequence/catalog rollback claim."
+}

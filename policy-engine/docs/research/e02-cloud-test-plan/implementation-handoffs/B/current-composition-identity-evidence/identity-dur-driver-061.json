@@ -1,0 +1,33 @@
+{
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "/workspace/e02-B-current-durability/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b74-review/probe.py",
+    "/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/identity-dur-driver-061-fixture",
+    "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf"
+  ],
+  "cwd": "/workspace/e02-B-current-composition/policy-engine",
+  "source_before": {
+    "sha": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+    "tree": "fdc138d132c9bb0b23f79ff5f27db1cb8091bd68",
+    "status": "",
+    "changed_paths_sha256": {}
+  },
+  "environment": {
+    "PYTHONPATH": "src",
+    "POLISYOS_METRICS_PORT": "0",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "python": "Python 3.14.2",
+  "start_utc": "2026-10-06T11:43:12.954631+00:00",
+  "exit_code": 0,
+  "wall_seconds": 1.737327782990178,
+  "max_rss_kib": 144444,
+  "resource_method": "direct wait4 child rusage; Linux KiB",
+  "source_after": {
+    "sha": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+    "tree": "fdc138d132c9bb0b23f79ff5f27db1cb8091bd68",
+    "status": "",
+    "changed_paths_sha256": {}
+  },
+  "end_utc": "2026-10-06T11:43:14.745230+00:00"
+}

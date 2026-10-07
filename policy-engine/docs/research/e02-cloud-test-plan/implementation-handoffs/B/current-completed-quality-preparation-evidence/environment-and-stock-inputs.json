@@ -1,0 +1,84 @@
+{
+  "schema": "policyos.e02.preparation_environment.v1",
+  "actual_interpreter": "/workspace/polisyos/policy-engine/.venv/bin/python",
+  "python_version": "3.14.2",
+  "actual_tool_versions": {
+    "ruff": "0.14.10",
+    "mypy": "1.19.1"
+  },
+  "cwd": "/workspace/e02-B-current-runtime/policy-engine",
+  "author_source_sha": "36957513b0b2d58c3010cf3db9b268ba13881898",
+  "author_configs": [
+    {
+      "source_ref": "36957513b0b2d58c3010cf3db9b268ba13881898:policy-engine/pyproject.toml",
+      "bytes": 11007,
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "role": "Author static configuration only; final gates bind final root config independently"
+    },
+    {
+      "source_ref": "36957513b0b2d58c3010cf3db9b268ba13881898:policy-engine/ruff.toml",
+      "bytes": 247,
+      "sha256": "543068227742e00057e19329f2df8ee944090f828a40b3e5da0b72f8e3b06fbd",
+      "git_blob": "a0928fffdad2d96d6030fc23584801beac45b560",
+      "role": "Author static configuration only; final gates bind final root config independently"
+    },
+    {
+      "source_ref": "36957513b0b2d58c3010cf3db9b268ba13881898:policy-engine/mypy.ini",
+      "bytes": 328,
+      "sha256": "fb1ae483c1d597920e8418e908d95061010ccddcac4fe88d7a9c96144a646538",
+      "git_blob": "594ab4d060735c68b3d135f836908b096874801d",
+      "role": "Author static configuration only; final gates bind final root config independently"
+    },
+    {
+      "source_ref": "36957513b0b2d58c3010cf3db9b268ba13881898:policy-engine/uv.lock",
+      "bytes": 779204,
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+      "git_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+      "role": "Author static configuration only; final gates bind final root config independently"
+    }
+  ],
+  "future_gate_environment": "UNRUN; supplied root194 environment will be separately byte/profile-bound by executing launcher",
+  "stock_source_reads": [
+    {
+      "source_ref": "4703d19296998d93bac94bfcafc0934a37901126:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/capture_frozen.py",
+      "git_blob": "25061d0273e6a973758b3878dd34040986edc4fc",
+      "bytes": 3729,
+      "sha256": "e26a065cbee683f3a19a01e0d217d299cc859dbbf2a8ad0cbb3e10c77336a1d4",
+      "complete_read": true,
+      "retained_copy": "capture_frozen.source.txt",
+      "grade": "Read preparation stock source, not future candidate execution"
+    },
+    {
+      "source_ref": "4703d19296998d93bac94bfcafc0934a37901126:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_successor.py",
+      "git_blob": "0e7b6618f2273a48cecb8000c23678e40e013540",
+      "bytes": 14010,
+      "sha256": "b92a3a98bb0ba5a0019b0f1e7812ec43767b64d4216339b3da1480e251625deb",
+      "complete_read": true,
+      "retained_copy": "run_successor.source.txt",
+      "grade": "Read preparation stock source, not future candidate execution"
+    },
+    {
+      "source_ref": "4703d19296998d93bac94bfcafc0934a37901126:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_cohort.py",
+      "git_blob": "58572b058b9a9327937ae755e632d3e15271b04e",
+      "bytes": 6709,
+      "sha256": "7fa5eadfa31bf2187e9a52188e2c299ce24e3b3e2bcc4ad8900453e38cf09288",
+      "complete_read": true,
+      "retained_copy": "run_completed_cohort.source.txt",
+      "grade": "Read preparation stock source, not future candidate execution"
+    },
+    {
+      "source_ref": "4703d19296998d93bac94bfcafc0934a37901126:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/uncapped_constituents.py",
+      "git_blob": "76e4feff9c39b5a1fb6363e426fe9fe993369419",
+      "bytes": 9651,
+      "sha256": "e214ad4b56b01e4e700803d46c57ed81f806e2bf04b2687d62ac0cf5b0794cc4",
+      "complete_read": true,
+      "retained_copy": "uncapped_constituents.source.txt",
+      "grade": "Read preparation stock source, not future candidate execution"
+    }
+  ],
+  "limitations": [
+    "Preparation reads four stock files completely; imports/Git/subprocess/services of future gates not executed",
+    "No declared future file denominator or dependency inventory is a read receipt"
+  ]
+}

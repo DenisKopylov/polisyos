@@ -1,0 +1,5 @@
+{
+  "generation_sha256": "sha256:8e6e1ef0650510039f78a884ccd459503b8ce83ce31c60d4933ca9564adf3959",
+  "mode": "shared_immutable_cas",
+  "schema_version": "policyos.artifact_ownership_index_pointer.v1"
+}

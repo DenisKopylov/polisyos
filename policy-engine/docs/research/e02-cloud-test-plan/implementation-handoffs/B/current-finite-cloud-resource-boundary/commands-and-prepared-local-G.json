@@ -1,0 +1,45 @@
+{
+  "executed_metadata": [
+    {
+      "argv": [
+        "python3",
+        ".polisyos/resource-prerequisite-1862/census.py"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation",
+      "stdout_redirection": ".polisyos/resource-prerequisite-1862/census-full-stdout.json",
+      "exit": 0
+    },
+    {
+      "argv": [
+        "python3",
+        ".polisyos/resource-prerequisite-1862/audit.py"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation",
+      "stdout_redirection": ".polisyos/resource-prerequisite-1862/audit-full-stdout.json",
+      "exit": 0
+    }
+  ],
+  "metadata_python": {
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "version": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]"
+  },
+  "source_checkout_actual_at_execution": "9cb17d4a2b512eef7e8448776a2f5a9b7bcb9b52",
+  "resource_reads": "Volatile real /proc, /sys/fs/cgroup, mount/statvfs, closed filesystem bytes, exact immutable Git sources and retained actual root profiles. Source/test imports and outcome re-parsing not performed.",
+  "prepared_unrun_native": {
+    "argv": [
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/run_completed_cohort_filebacked_retry.py",
+      "--sha",
+      "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "--selector",
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-selector.json",
+      "--scratch",
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/scratch/completed-final-filebacked-1862c021df74",
+      "--wheel-input",
+      "/tmp/e02-B-la057-final-1862c021df74-run/cohort-input-environment.json"
+    ],
+    "cwd": "/workspace/e02-B-current-coordination",
+    "outcome": "UNRUN",
+    "qualification": "Root explicitly held launch: current adequate whole-run filesystem/memory headroom not established. Script literal preserved; source-fixed ROOT path requires qualified operational locator projection on a differently located G environment. Neither this argv nor a new wheel/PG setup was executed here."
+  }
+}

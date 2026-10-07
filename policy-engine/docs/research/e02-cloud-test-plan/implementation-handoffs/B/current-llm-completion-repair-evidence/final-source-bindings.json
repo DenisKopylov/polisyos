@@ -1,0 +1,94 @@
+{
+  "source_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96",
+  "source_tree_sha": "b2e13011d78a871f7f7ee6a7cc00444d479d2f95",
+  "slice_base_sha": "d56c0218592ed9539e114cdcf5686a57c6b65d75",
+  "slice_base_tree_sha": "d08a962e0a166bc628bd709bce6ea650b10fbe37",
+  "main198_is_ancestor": true,
+  "files": [
+    {
+      "path": "policy-engine/src/polisyos/core/llm/response.py",
+      "source_ref": "a697a8312ff00edfcc766f9906dbcd2252cfcf96:policy-engine/src/polisyos/core/llm/response.py",
+      "sha256": "9964c5183108f47143cec32b0beb8b65aa4de6df706757b3a1f02be1c77b0581",
+      "bytes": 8621,
+      "classification": "canonical upper source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/llm/settlement.py",
+      "source_ref": "a697a8312ff00edfcc766f9906dbcd2252cfcf96:policy-engine/src/polisyos/core/llm/settlement.py",
+      "sha256": "6d680b37b3107322ec79e56d6e7959b6605c5af22be641d6305f65bc495f78a7",
+      "bytes": 21507,
+      "classification": "canonical upper source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/llm/traced_client.py",
+      "source_ref": "a697a8312ff00edfcc766f9906dbcd2252cfcf96:policy-engine/src/polisyos/core/llm/traced_client.py",
+      "sha256": "f982028c7533dacac0df93475177bd840857768744ebf0bfd8c2181af912b81a",
+      "bytes": 37572,
+      "classification": "canonical upper source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/agent/_drafter_llm.py",
+      "source_ref": "a697a8312ff00edfcc766f9906dbcd2252cfcf96:policy-engine/src/polisyos/scientist/agent/_drafter_llm.py",
+      "sha256": "1f6575d2c0c835fb0eeb5af81f482d3321aefa7754d82ebe9a1a1c44cee692a5",
+      "bytes": 3404,
+      "classification": "canonical upper source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+      "source_ref": "a697a8312ff00edfcc766f9906dbcd2252cfcf96:policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+      "sha256": "66432ce3a2844a8e8b3dee12ada29c7cd093a6aa93065b20234498724e6db71a",
+      "bytes": 58032,
+      "classification": "canonical upper source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+      "source_ref": "a697a8312ff00edfcc766f9906dbcd2252cfcf96:policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+      "sha256": "df2db47dfb56639242cbb14edff4740c2c177ea6400d435a89d2deafa4ee4c8c",
+      "bytes": 27826,
+      "classification": "canonical upper source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+      "source_ref": "a697a8312ff00edfcc766f9906dbcd2252cfcf96:policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+      "sha256": "e84db90c7c193c721602c506229cce6b7ab3d1af051e26ef032692992d66a7d5",
+      "bytes": 43152,
+      "classification": "canonical upper source"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-durable-completion-obligations.toml",
+      "source_ref": "a697a8312ff00edfcc766f9906dbcd2252cfcf96:policy-engine/release-fragments/unreleased/2026-10-06-e02-b-durable-completion-obligations.toml",
+      "sha256": "5201281ce4f318070688120ef060c1ad40340cae4e9f101df613c8e02bd50be4",
+      "bytes": 1475,
+      "classification": "foreign DUR dependency"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "source_ref": "a697a8312ff00edfcc766f9906dbcd2252cfcf96:policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "sha256": "312f31fd3fd6062124b3124a526e4997f6d05e3d79b9c5ce0ec968dec5a41efe",
+      "bytes": 59381,
+      "classification": "foreign DUR dependency"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+      "source_ref": "a697a8312ff00edfcc766f9906dbcd2252cfcf96:policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+      "sha256": "6ad7d0eddbfa7aef9f6f32de5c35505047016367a8b6aa54edbdba99eba3c0f8",
+      "bytes": 10751,
+      "classification": "foreign DUR dependency"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_completion_obligations.py",
+      "source_ref": "a697a8312ff00edfcc766f9906dbcd2252cfcf96:policy-engine/tests/unit/scientist/orchestration/engine/test_budget_completion_obligations.py",
+      "sha256": "e014ebecd3342c76e4e3d529d32fe0a72a0708b49f90375e59792526a077116d",
+      "bytes": 26912,
+      "classification": "foreign DUR dependency"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+      "source_ref": "a697a8312ff00edfcc766f9906dbcd2252cfcf96:policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+      "sha256": "2cd4013df96e19c5620ad8d05cf6d79151f0c532eb00b1d4638ea6975bec8a01",
+      "bytes": 13720,
+      "classification": "foreign DUR dependency"
+    }
+  ],
+  "boundary": "Literal tracked final snapshot custody only. These hashes are not runtime module-origin claims for older checks; each execution retains its own target and actual origin receipt."
+}

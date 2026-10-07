@@ -1,0 +1,16 @@
+id = "2026-10-06-e02-b-foundry-compiled-chain-plan"
+title = "Reopen persisted Foundry effective execution plans"
+type = "added"
+component = "foundry"
+owner = "team-policyos-foundry"
+summary = "Add a distinct versioned CompiledChainPlan artifact that preserves concrete occurrences, payloads, data bindings and effective requirements, and rebuilds through the current canonical composer before cold execution."
+evidence = ["tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py"]
+compatibility = "Legacy ChainArtifact wire 1.0.0 and its provenance meaning remain unchanged. The new internal plan wire 1.0.0 requires finite plain JSON parameters and an exact selected-manifest ArtifactRef. Intake refuses current signature ABI, binding, dependency, occurrence or order divergence before returning a runnable chain."
+change_class = "behavior-change"
+surface_classification = "internal: polisyos.foundry.methods.artifacts and MethodComposer.from_nodes"
+migration = "Persist CompiledChainPlan.from_chain with store_compiled_chain_plan, then reopen with load_compiled_chain_plan and the stable current registry. Advisory captured warnings do not replace current strict structural validation."
+limitations = "Cold structural restoration selects current implementation code. It does not attest historical source, reproduce checkpoint prefixes or cached results, grant execution permission, or establish scientific validity. Arbitrary Python and nonfinite parameter values are unsupported."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/foundry/methods/artifacts/README.md", "src/polisyos/foundry/methods/components/README.md"]
+runbook_docs = []

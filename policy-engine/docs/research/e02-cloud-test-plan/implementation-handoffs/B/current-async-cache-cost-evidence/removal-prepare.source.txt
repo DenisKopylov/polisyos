@@ -1,0 +1,45 @@
+"""Derive one literal in-memory cache-boundary removal; frozen files unchanged."""
+from pathlib import Path
+import hashlib
+import json
+
+base = Path('/tmp/e02-B52-cache-cost-c043')
+out = base/'removal'
+out.mkdir()
+injection = '''
+import ast
+import polisyos.scientist.orchestration.engine.async_executor as executor_module
+original_source = git('show', SHA+':policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py')
+tree = ast.parse(original_source)
+changes = []
+class RemoveCacheOffLoop(ast.NodeTransformer):
+    def __init__(self):
+        self.parents = []
+    def visit_AsyncFunctionDef(self, node):
+        self.parents.append(node.name)
+        result = self.generic_visit(node)
+        self.parents.pop()
+        return result
+    def visit_Call(self, node):
+        if isinstance(node.func, ast.Name) and node.func.id == 'run_blocking_async' and any(x in {'_recover_cache','_put_cache_entry','_execute_node'} for x in self.parents):
+            changes.append({'line':node.lineno,'function':self.parents[-1],'before':node.func.id,'after':'_e02_onloop_cache_io'})
+            node.func.id = '_e02_onloop_cache_io'
+        return self.generic_visit(node)
+RemoveCacheOffLoop().visit(tree)
+assert len(changes) == 4, changes
+async def _e02_onloop_cache_io(func, *args, **kwargs):
+    kwargs.pop('timeout_seconds', None)
+    kwargs.pop('unbounded', None)
+    return func(*args, **kwargs)
+executor_module.__dict__['_e02_onloop_cache_io'] = _e02_onloop_cache_io
+exec(compile(ast.fix_missing_locations(tree),executor_module.__file__,'exec'),executor_module.__dict__)
+print('B52_LITERAL_REMOVAL '+json.dumps({'source_sha256':hashlib.sha256(original_source).hexdigest(),'changes':changes,'replacement':'async bridge runs unchanged real cache function on caller loop; only helper timeout/unbounded transport options omitted','source_files_unchanged':True}),flush=True)
+'''
+child = (base/'evidence/child.source.txt').read_text()
+child = child.replace("OUT = pathlib.Path('/tmp/e02-B52-cache-cost-c043/evidence')", "OUT = pathlib.Path('/tmp/e02-B52-cache-cost-c043/removal')")
+child = child.replace('import pytest\n',injection+'\nimport pytest\n')
+child = child.replace("code = pytest.main(args)","args[args.index(TEST)] = TEST+'::test_real_async_cache_costs_and_neighbour_waits[1024]'\nargs[args.index('--basetemp=/tmp/e02-B52-cache-cost-c043/fixtures')] = '--basetemp=/tmp/e02-B52-cache-cost-c043/removal-fixtures'\nprint('B52_REMOVAL_PYTEST_ARGV '+json.dumps(args),flush=True)\ncode = pytest.main(args)")
+(out/'child.source.txt').write_text(child)
+capture = (base/'evidence/capture.source.txt').read_text().replace("OUT = pathlib.Path('/tmp/e02-B52-cache-cost-c043/evidence')", "OUT = pathlib.Path('/tmp/e02-B52-cache-cost-c043/removal')")
+(out/'capture.source.txt').write_text(capture)
+print(json.dumps({'derived_child_sha256':hashlib.sha256(child.encode()).hexdigest(),'derived_capture_sha256':hashlib.sha256(capture.encode()).hexdigest(),'injection_literal':injection},indent=2))

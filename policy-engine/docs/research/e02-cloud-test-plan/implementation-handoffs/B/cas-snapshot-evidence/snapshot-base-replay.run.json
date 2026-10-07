@@ -1,0 +1,48 @@
+{
+  "target_sha": "d53d147aacec22628eda54864c6f4a06bc7b214f",
+  "base_tree": "f00e5ead99c0e9026475e0d3f2a7c4c2c97fcd5c",
+  "cwd": "/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/snapshot-base-input/policy-engine",
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "--tb=short",
+    "tests/unit/core/artifacts/test_verification_snapshot_report.py",
+    "--basetemp=/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/snapshot-base-replay-tmp",
+    "-o",
+    "cache_dir=/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/snapshot-base-replay-cache",
+    "--junitxml=/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/raw/snapshot-base-replay.xml"
+  ],
+  "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+  "python_version": "3.14.2",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "PYTHONPATH": "src",
+  "source_archive": {
+    "sha256": "ae12f45da20f3a0a2d12dfa2a3850d75eebe1ba00a39b6a36576068200ed9a3c",
+    "bytes": 92385280,
+    "paths": [
+      "policy-engine/src",
+      "policy-engine/tests",
+      "policy-engine/pytest.ini",
+      "policy-engine/pyproject.toml",
+      "policy-engine/uv.lock"
+    ]
+  },
+  "overlay": [
+    {
+      "ref": "policy-engine/tests/unit/core/artifacts/test_verification_snapshot_report.py@b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa",
+      "sha256": "d6ff2c719331efdb453b9051ff6c75c6cf3e3c67276cd7eb488f8476a0569dcc"
+    },
+    {
+      "ref": "policy-engine/tests/unit/core/artifacts/snapshot_special_path_worker.py@b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa",
+      "sha256": "cabb8b449999c0153d9f67cd65621404437c0df1f890a82b733fa3d54acf16eb"
+    }
+  ],
+  "returncode": 1,
+  "wall_s": 7.728513072011992,
+  "max_rss_kib": 108544,
+  "runner_quota": null,
+  "custody_boundary": "Fresh tracked source projection inside the root-admitted CAS lane ignored scratch; no new Git checkout/worktree or retrospective admission claim.",
+  "rusage_boundary": "os.wait4 exact subprocess PID; kernel child and descendant accounting, not VM peak"
+}

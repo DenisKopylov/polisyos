@@ -1,0 +1,444 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-worker-accounting-repair-independent",
+  "owner": "/root/dur_probe",
+  "branch": "codex/e02-B-current-durability",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/43",
+  "finding_ids": [
+    "B65",
+    "B66"
+  ],
+  "bundle_ids": [
+    "LLM-01"
+  ],
+  "closure_ids": [],
+  "slice_base_sha": "3ec5c39ba3bccb75bf2c4b942ad0c2905e9a07f9",
+  "implementation_commits": [
+    "c6644b9f3553814aba6e7d8175139f7c62563ef4",
+    "5902db2744b518cdde223901904c1bbf928481f3",
+    "e6af1ded9ac6415b1edde1b6e4b9518804958d28"
+  ],
+  "candidate_sha": "e6af1ded9ac6415b1edde1b6e4b9518804958d28",
+  "candidate_tree_sha": "e3dd3c2c3e19764c3434260f786264d91fb9e967",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/evidence-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/native/filesystem/test_actual_worker_preserves_a0/actual-worker-budget.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/native/filesystem/test_actual_worker_preserves_a0/physical-provider-work.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/native/filesystem/test_actual_worker_preserves_a1/actual-worker-budget.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/native/filesystem/test_actual_worker_preserves_a1/physical-provider-work.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/native/filesystem/test_actual_worker_preserves_a10/physical-provider-work.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/native/filesystem/test_actual_worker_preserves_a11/physical-provider-work.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/native/filesystem/test_actual_worker_preserves_a2/actual-worker-budget.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/native/filesystem/test_actual_worker_preserves_a2/physical-provider-work.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/native/filesystem/test_actual_worker_preserves_a3/actual-worker-budget.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/native/filesystem/test_actual_worker_preserves_a3/physical-provider-work.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/native/filesystem/test_actual_worker_preserves_a6/actual-worker-budget.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/native/filesystem/test_actual_worker_preserves_a7/actual-worker-budget.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/native/native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/native/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/native/wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/removal.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/remove-admission/filesystem/test_actual_worker_preserves_a0/physical-provider-work.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/remove-admission/filesystem/test_actual_worker_preserves_a1/physical-provider-work.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/remove-admission/native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/remove-admission/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/remove-admission/wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/remove-propagation/filesystem/test_actual_worker_preserves_a0/actual-worker-budget.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/remove-propagation/filesystem/test_actual_worker_preserves_a0/physical-provider-work.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/remove-propagation/filesystem/test_actual_worker_preserves_a1/actual-worker-budget.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/remove-propagation/filesystem/test_actual_worker_preserves_a1/physical-provider-work.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/remove-propagation/native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/remove-propagation/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/remove-propagation/wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/run-native.source.txt",
+    "policy-engine/tests/unit/scientist/policy_design/test_worker_accounting_boundary_e02.py"
+  ],
+  "production_changed_paths": [],
+  "executed_product_source_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+  "executed_product_tree_sha": "81a1399d2c167044e6127c8b4201f1276f85370d",
+  "actual_test_input_sha": "5902db2744b518cdde223901904c1bbf928481f3",
+  "original_counterexample": {
+    "git_sha": "3ec5c39ba3bccb75bf2c4b942ad0c2905e9a07f9",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-boundary-independent.json",
+    "sha256": "2fb948966d2a3e5f256fc5763ab0554be6ec387b3ed78963ef1f4f3459bbe081",
+    "original_source_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96",
+    "original_test_input_sha": "a311172aec902a855e4acc44d4e887b45f892544",
+    "native": "qualified-tokenized literal2PASS2FAIL retained unchanged; no claim unchanged test bytes after new supported contour contract."
+  },
+  "canonical_criteria": {
+    "source": {
+      "sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/LLM-01.md",
+      "bytes": 18658,
+      "sha256": "56e5cceefa8382986c7c5662a093b3adb7bf5d4afa50c6b77093797bd19cff1f"
+    },
+    "digest_convention": "Raw exact regex capture between SOURCE_BEGIN/END markers, including its original whitespace; not marker-inclusive line excerpt.",
+    "B65": {
+      "source_block_sha256": "90e562abc3c5f0f27d186df9b75f70a800407315b44b6bc92dd4a2d69469d4b9",
+      "criterion": "Mandatory accounting keeps obtained-response/needs-reconciliation distinction and restricts further uncontrolled spend; only optional metrics may degrade."
+    },
+    "B66": {
+      "source_block_sha256": "ef9b4c4d8d959e699bfc06780c1d7e6e4abb4c44b1f6386a78bf6d08d193610e",
+      "criterion": "Real provider event and reuse costs remain distinct through actual cost consumers; unknown network cost cannot become known zero from absent raw."
+    }
+  },
+  "baseline_cells": [
+    {
+      "id": "F01-P026",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "job": "F01",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "exact_source_environment_input_closure": {
+        "git_sha": "3ec5c39ba3bccb75bf2c4b942ad0c2905e9a07f9",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-boundary-independent.json",
+        "json_pointer": "/baseline_cells/0"
+      },
+      "role": "Historical navigation only; not this candidate proof."
+    },
+    {
+      "id": "F03-P066",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "job": "F03",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+      "exact_source_environment_input_closure": {
+        "git_sha": "3ec5c39ba3bccb75bf2c4b942ad0c2905e9a07f9",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-boundary-independent.json",
+        "json_pointer": "/baseline_cells/1"
+      },
+      "role": "Historical navigation only; not this candidate proof."
+    },
+    {
+      "id": "F03-P091",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "job": "F03",
+      "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+      "exact_source_environment_input_closure": {
+        "git_sha": "3ec5c39ba3bccb75bf2c4b942ad0c2905e9a07f9",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-boundary-independent.json",
+        "json_pointer": "/baseline_cells/2"
+      },
+      "role": "Historical navigation only; not this candidate proof."
+    },
+    {
+      "id": "F05-P047",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "source_ref": "e02_execution_base",
+      "job": "F05",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "exact_source_environment_input_closure": {
+        "git_sha": "3ec5c39ba3bccb75bf2c4b942ad0c2905e9a07f9",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-boundary-independent.json",
+        "json_pointer": "/baseline_cells/3"
+      },
+      "role": "Historical navigation only; not this candidate proof."
+    },
+    {
+      "id": "F07-P027",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_ref": "e02_head",
+      "job": "F07",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "exact_source_environment_input_closure": {
+        "git_sha": "3ec5c39ba3bccb75bf2c4b942ad0c2905e9a07f9",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-boundary-independent.json",
+        "json_pointer": "/baseline_cells/4"
+      },
+      "role": "Historical navigation only; not this candidate proof."
+    },
+    {
+      "id": "F07-P084",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_ref": "e02_head",
+      "job": "F07",
+      "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+      "exact_source_environment_input_closure": {
+        "git_sha": "3ec5c39ba3bccb75bf2c4b942ad0c2905e9a07f9",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-boundary-independent.json",
+        "json_pointer": "/baseline_cells/5"
+      },
+      "role": "Historical navigation only; not this candidate proof."
+    },
+    {
+      "id": "F10-P031",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "source_ref": "main",
+      "job": "F10",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "exact_source_environment_input_closure": {
+        "git_sha": "3ec5c39ba3bccb75bf2c4b942ad0c2905e9a07f9",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-boundary-independent.json",
+        "json_pointer": "/baseline_cells/6"
+      },
+      "role": "Historical navigation only; not this candidate proof."
+    },
+    {
+      "id": "F13-P104",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head",
+      "job": "F13",
+      "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+      "exact_source_environment_input_closure": {
+        "git_sha": "3ec5c39ba3bccb75bf2c4b942ad0c2905e9a07f9",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-boundary-independent.json",
+        "json_pointer": "/baseline_cells/7"
+      },
+      "role": "Historical navigation only; not this candidate proof."
+    },
+    {
+      "id": "F15-P032",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head",
+      "job": "F15",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "exact_source_environment_input_closure": {
+        "git_sha": "3ec5c39ba3bccb75bf2c4b942ad0c2905e9a07f9",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-boundary-independent.json",
+        "json_pointer": "/baseline_cells/8"
+      },
+      "role": "Historical navigation only; not this candidate proof."
+    }
+  ],
+  "baseline_environment_input_closure": {
+    "git_sha": "3ec5c39ba3bccb75bf2c4b942ad0c2905e9a07f9",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-boundary-independent.json",
+    "json_pointer": "/baseline_environment_input_closure",
+    "role": "Exact original 9 cells/7 source-reported job contexts, not new runtime evidence."
+  },
+  "checks": [
+    {
+      "id": "native",
+      "command": "python3 /tmp/e02-B-worker-repair-preparation-5902/run.source.txt --source-root /workspace/e02-B-current-adapters --source-sha 4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd --test-sha 5902db2744b518cdde223901904c1bbf928481f3 --output /tmp/e02-B-worker-repair-4b368-14-493612",
+      "target_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+      "environment": {
+        "actual_python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "wrapper": {
+          "git_sha": "e6af1ded9ac6415b1edde1b6e4b9518804958d28",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/native/wrapper.json",
+          "bytes": 3431,
+          "sha256": "1f97384bcbadf33981be9118b8d8cd0e20b6166c47f6f0bc8a6cf6b86fb91468"
+        },
+        "shared_python_immutable": true,
+        "source_root": "/workspace/e02-B-current-adapters",
+        "strict_head_tree_tracked_clean_before_after": true,
+        "numeric_caps": "All six ambient numerical caps removed; values and explicit PYTHONPATH/tokenizer env in actual wrapper."
+      },
+      "input_closure": {
+        "test_git_sha": "5902db2744b518cdde223901904c1bbf928481f3",
+        "test_path": "policy-engine/tests/unit/scientist/policy_design/test_worker_accounting_boundary_e02.py",
+        "test_sha256": "bb171bf9a96bc0780eb27be2e229e8c986ef18fdae5ca10fc6b950b42ee34aa6",
+        "product_git_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+        "product_tree_sha": "81a1399d2c167044e6127c8b4201f1276f85370d",
+        "actual_command_driver": {
+          "git_sha": "e6af1ded9ac6415b1edde1b6e4b9518804958d28",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/run-native.source.txt",
+          "bytes": 4177,
+          "sha256": "9ff2f665146389f9693e808f235280694d0a15ee24c2054d78f05df4695143e2"
+        },
+        "declared_in_memory_source_overlay": null,
+        "overlay_driver": null,
+        "fixture": "Real worker/factory/decoder/cache/Traced/enforcer/FileBudgetLedger; only GatewayLLMClient._post_json SDK boundary returns known .02 or omitted usage and fsyncs each full actual request. Fresh BudgetMiddleware and FileBudgetLedger(path) every configured call. Exact official cl100k cache asset pinned in wrapper."
+      },
+      "outcome": "PASS",
+      "expected_property_removal_failure": false,
+      "native_case_count": 14,
+      "deciding_quantities": "14 actual PASS. Unknown both worker routes physical1, first LLMAccountingError then fresh same-ledger refusal, actual cost_unknown/no spend or receipts. Known .02 twice becomes .04 all keys, no pending. Raw/mixed/ledgerless/active-loop actual typed refusal/physical0. Explicit unbudgeted known profile real output/physical2 remains non-durable.",
+      "wall_seconds": 13.84613847998844,
+      "maxrss_kib": 730784,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/native/native.txt",
+      "output_sha256": "6a9151b4e7a43cfa4d28126738d748f6a358f9ef5ece734daa4f5e53951b7d74",
+      "output_bytes": 137301,
+      "junit": {
+        "git_sha": "e6af1ded9ac6415b1edde1b6e4b9518804958d28",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/native/native.xml",
+        "bytes": 2182,
+        "sha256": "7a62a7ca067bd5aed4de7bddd6d904d1adef617d9d4e8c23b2e06998a87314f5"
+      }
+    },
+    {
+      "id": "remove-admission",
+      "command": "python3 /tmp/e02-B-worker-repair-preparation-5902/run.source.txt --source-root /workspace/e02-B-current-adapters --source-sha 4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd --test-sha 5902db2744b518cdde223901904c1bbf928481f3 --output /tmp/e02-B-worker-repair-4b368-remove-admission-493612 --removal durable_admission",
+      "target_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+      "environment": {
+        "actual_python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "wrapper": {
+          "git_sha": "e6af1ded9ac6415b1edde1b6e4b9518804958d28",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/remove-admission/wrapper.json",
+          "bytes": 3066,
+          "sha256": "ca8bde6bc1031f418e0c5ea5217007f90357f1d615a09329eda12758488222da"
+        },
+        "shared_python_immutable": true,
+        "source_root": "/workspace/e02-B-current-adapters",
+        "strict_head_tree_tracked_clean_before_after": true,
+        "numeric_caps": "All six ambient numerical caps removed; values and explicit PYTHONPATH/tokenizer env in actual wrapper."
+      },
+      "input_closure": {
+        "test_git_sha": "5902db2744b518cdde223901904c1bbf928481f3",
+        "test_path": "policy-engine/tests/unit/scientist/policy_design/test_worker_accounting_boundary_e02.py",
+        "test_sha256": "bb171bf9a96bc0780eb27be2e229e8c986ef18fdae5ca10fc6b950b42ee34aa6",
+        "product_git_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+        "product_tree_sha": "81a1399d2c167044e6127c8b4201f1276f85370d",
+        "actual_command_driver": {
+          "git_sha": "e6af1ded9ac6415b1edde1b6e4b9518804958d28",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/run-native.source.txt",
+          "bytes": 4177,
+          "sha256": "9ff2f665146389f9693e808f235280694d0a15ee24c2054d78f05df4695143e2"
+        },
+        "declared_in_memory_source_overlay": "durable_admission",
+        "overlay_driver": {
+          "git_sha": "e6af1ded9ac6415b1edde1b6e4b9518804958d28",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/removal.source.txt",
+          "bytes": 3153,
+          "sha256": "74bbfc17cc4dd575b220904b76af9908fec88bf4b158cee7402c3ceed30e2d05"
+        },
+        "fixture": "Real worker/factory/decoder/cache/Traced/enforcer/FileBudgetLedger; only GatewayLLMClient._post_json SDK boundary returns known .02 or omitted usage and fsyncs each full actual request. Fresh BudgetMiddleware and FileBudgetLedger(path) every configured call. Exact official cl100k cache asset pinned in wrapper."
+      },
+      "outcome": "FAIL",
+      "expected_property_removal_failure": true,
+      "native_case_count": 2,
+      "deciding_quantities": "2 actual FAIL, no errors. Each worker raw-only missing SDK usage physically called twice, propagated unknown both times and retained estimated reservation without known spend. Same 14-case input selected raw-only; only declared admission function replacement in memory.",
+      "wall_seconds": 12.868397325000842,
+      "maxrss_kib": 689624,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/remove-admission/native.txt",
+      "output_sha256": "07fb92d9def8e9870624c80794a0544e049fef5ead81752da5ecb5bef285ea16",
+      "output_bytes": 54870,
+      "junit": {
+        "git_sha": "e6af1ded9ac6415b1edde1b6e4b9518804958d28",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/remove-admission/native.xml",
+        "bytes": 31056,
+        "sha256": "9deafbbfadfcd0d8642f0a04c79d330a82675532c174dd085ce5508d18a647b0"
+      }
+    },
+    {
+      "id": "remove-propagation",
+      "command": "python3 /tmp/e02-B-worker-repair-preparation-5902/run.source.txt --source-root /workspace/e02-B-current-adapters --source-sha 4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd --test-sha 5902db2744b518cdde223901904c1bbf928481f3 --output /tmp/e02-B-worker-repair-4b368-remove-propagation-493612 --removal accounting_error_propagation",
+      "target_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+      "environment": {
+        "actual_python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "wrapper": {
+          "git_sha": "e6af1ded9ac6415b1edde1b6e4b9518804958d28",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/remove-propagation/wrapper.json",
+          "bytes": 3083,
+          "sha256": "2425510fe7e801b04f19e5b405138b95cb890d06622a30a1c790b710c2efa9b5"
+        },
+        "shared_python_immutable": true,
+        "source_root": "/workspace/e02-B-current-adapters",
+        "strict_head_tree_tracked_clean_before_after": true,
+        "numeric_caps": "All six ambient numerical caps removed; values and explicit PYTHONPATH/tokenizer env in actual wrapper."
+      },
+      "input_closure": {
+        "test_git_sha": "5902db2744b518cdde223901904c1bbf928481f3",
+        "test_path": "policy-engine/tests/unit/scientist/policy_design/test_worker_accounting_boundary_e02.py",
+        "test_sha256": "bb171bf9a96bc0780eb27be2e229e8c986ef18fdae5ca10fc6b950b42ee34aa6",
+        "product_git_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+        "product_tree_sha": "81a1399d2c167044e6127c8b4201f1276f85370d",
+        "actual_command_driver": {
+          "git_sha": "e6af1ded9ac6415b1edde1b6e4b9518804958d28",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/run-native.source.txt",
+          "bytes": 4177,
+          "sha256": "9ff2f665146389f9693e808f235280694d0a15ee24c2054d78f05df4695143e2"
+        },
+        "declared_in_memory_source_overlay": "accounting_error_propagation",
+        "overlay_driver": {
+          "git_sha": "e6af1ded9ac6415b1edde1b6e4b9518804958d28",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/removal.source.txt",
+          "bytes": 3153,
+          "sha256": "74bbfc17cc4dd575b220904b76af9908fec88bf4b158cee7402c3ceed30e2d05"
+        },
+        "fixture": "Real worker/factory/decoder/cache/Traced/enforcer/FileBudgetLedger; only GatewayLLMClient._post_json SDK boundary returns known .02 or omitted usage and fsyncs each full actual request. Fresh BudgetMiddleware and FileBudgetLedger(path) every configured call. Exact official cl100k cache asset pinned in wrapper."
+      },
+      "outcome": "FAIL",
+      "expected_property_removal_failure": true,
+      "native_case_count": 2,
+      "deciding_quantities": "2 actual FAIL, no errors. Each configured worker returned deterministic fallback twice instead of typed unknown; actual durable cost_unknown kept physical1. The error-handler removal proves propagation separately and does not show a second durable provider effect.",
+      "wall_seconds": 13.398496925001382,
+      "maxrss_kib": 692632,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/remove-propagation/native.txt",
+      "output_sha256": "e218c8ec3181ad2a09ba4170a761f831d1914bec4d92f8eb2d5dd9aef3a523bc",
+      "output_bytes": 57283,
+      "junit": {
+        "git_sha": "e6af1ded9ac6415b1edde1b6e4b9518804958d28",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/remove-propagation/native.xml",
+        "bytes": 31390,
+        "sha256": "b99053406197f80c546182da668802575ba9d9bdf9e9248aad43f93ef985584e"
+      }
+    }
+  ],
+  "property": {
+    "statement": "Actual policy workers admit only the configured initialized durable budget owner when budgeting is requested, preserve obtained-but-unaccounted LLMAccountingError, and a newly constructed worker/middleware reading the same ledger refuses pending unknown before a second physical provider call. Healthy known-cost behavior remains available.",
+    "runtime_path": [
+      "ScenarioAdversaryWorker.propose_async / PolicyTranslatorWorker.translate_async and active-loop sync frontends",
+      "canonical worker_budget_state settlement_owner_identity admission before factory",
+      "real factory\u2192GatewayLLMClient\u2192real decoder/cache/Traced\u2192LLMBudgetEnforcer",
+      "FileBudgetLedger durable intent\u2192cost_unknown/spend receipt\u2192fresh BudgetMiddleware/worker",
+      "actual SDK-boundary fsynced requests and fresh persisted snapshot readback"
+    ],
+    "proxy_divergence": "A constructor accepting BudgetState or a propagated exception alone does not establish owner continuity. Remove only durable owner admission: both workers still propagate LLMAccountingError but freshly constructed raw-state wrappers physically call the provider twice. Remove only typed-error propagation: durable admission still limits physical effect to1, yet actual worker falls back instead of returning reconciliation status.",
+    "negative_controls": [
+      "raw-only/mixed/ledgerless/active-loop actual pre-provider refusal",
+      "real missing-usage response retained unknown and fresh same-ledger owner blocks",
+      "two declared independent in-memory property removals retain original on-disk imports/markers and use unchanged test5902 bytes"
+    ],
+    "finite_supported_profile": "Actual two B-owned policy workers, initialized local FileBudgetLedger, original budget keys/run identity, same OS process fresh worker/middleware/ledger construction; no complete-data dependency. SDK transport boundary supplied finite known reported .02 or absent usage."
+  },
+  "predicate_basis": "recomputed",
+  "predicate_basis_by_quantity": {
+    "actual_source_origins_and_filesystem_readback": "recomputed",
+    "typed_errors_real_outputs_and_physical_operations": "recomputed",
+    "14_native_and_2plus2_removal_assertions": "recomputed",
+    "SDK_return_amount_and_world_model_input": "consumer_asserted fixture inputs; not accounting/institutional authority. The finite operational property is recomputed from actual consumers under those inputs.",
+    "external_billing_or_unknown_cost_resolution": "not_established; not supplied/invented by this oracle."
+  },
+  "capability_state_or_finding_state": "Worker-specific memory-contour escape repaired and verified on4b; joint all-consumer acceptance and full finding closure remain root/G decisions.",
+  "finding_dispositions": [
+    {
+      "finding_id": "B65",
+      "state": "open",
+      "proposal_only": true,
+      "formal_closure": false,
+      "technical_disposition": "mechanism_fixed_bounded",
+      "deciding_checks": [
+        "native",
+        "remove-admission",
+        "remove-propagation"
+      ],
+      "remaining": "Full canonical finding adjudication on final joined source and affected-consumer receipts is pending; this record neither manufactures a remaining worker bug nor imports DD or other profile PASS.",
+      "next_owner": "Root/G independent acceptance; ADAPTER owns these actual worker sources."
+    },
+    {
+      "finding_id": "B66",
+      "state": "open",
+      "proposal_only": true,
+      "formal_closure": false,
+      "technical_disposition": "mechanism_fixed_bounded",
+      "deciding_checks": [
+        "native",
+        "remove-admission",
+        "remove-propagation"
+      ],
+      "remaining": "Full canonical finding adjudication on final joined source and affected-consumer receipts is pending; this record neither manufactures a remaining worker bug nor imports DD or other profile PASS.",
+      "next_owner": "Root/G independent acceptance; ADAPTER owns these actual worker sources."
+    }
+  ],
+  "complete_evidence_index": {
+    "git_sha": "e6af1ded9ac6415b1edde1b6e4b9518804958d28",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/evidence-index.json",
+    "bytes": 9254,
+    "sha256": "b6804fa197ff5f28046db682265f1b07bde1e3c8d5be21e0fd63777d80d43cd6"
+  },
+  "limitations_and_next_owner": [
+    "29 complete deciding objects397115B plus index: all3 full stdout/XML/wrappers, exact execution/removal drivers, 10 concrete fsynced requestJSONLs and8 actual persisted ledger artifacts. No duplicate pytest-current alias or recomputable source inventory is retained.",
+    "13 named module origins per executed case are actual same-child source/Git byte checks. This is a named functional boundary, not a complete loaded-module import census. Both removal runs deliberately execute declared mutated functions in memory: original file hashes identify the substrate and never claim unchanged executed code.",
+    "Observed read-only exception trace includes normal StopIteration async-await events; those are not failures. Assertions use actual returned object/typed errors, full request count and reopened ledger.",
+    "Explicit unbudgeted profile remains non-durable and makes no accounting ACK claim. Raw/mixed or ledgerless requested contours now refuse rather than synthesizing an owner or zero receipt.",
+    "Known reported.02 is provider-boundary fixture input, not an invoice claim. Omitted usage remains None/unknown; no zero ACK, financial double-charge or fabricated external resolver. No powerloss/multihost guarantee.",
+    "Own DUR lower9f mechanism is executed as part of the real consumer path but not independently accepted by its author; foreign EXE787be366 source review and root integration/consumer acceptance remain distinct.",
+    "One nondeciding metadata read initially encountered a literal printed source line instead of JSON; parser repaired without native rerun. Literal native classifications remain14PASS/2FAIL/2FAIL.",
+    "Original268L and qualifieda311/a697 2PASS2FAIL bytes remain immutable in3ec history. New input explicitly follows constructor-owned middleware contract and includes helper source-origin checks; not an unchanged-input old/new claim.",
+    "Future root freeze/full native/gates not run here and not imported. Root/RUN review this exact published packet, then root adjudicates B65/B66 with all actual consumers."
+  ],
+  "created_at_utc": "2026-10-06T22:15:45.655414+00:00"
+}

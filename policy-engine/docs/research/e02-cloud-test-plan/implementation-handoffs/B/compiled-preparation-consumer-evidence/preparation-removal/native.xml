@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="1.326" timestamp="2026-10-06T21:01:17.066903+00:00" hostname="b878f4efbdfc"><testcase classname="tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle" name="test_cold_warm_preparation_preserves_independent_seeded_numerical_repetitions[True-True]" time="0.825"><failure message="AssertionError: assert {'draw': 1, 'reduce': 1} == {'draw': 0, 'reduce': 0}&#10;  &#10;  Differing items:&#10;  {'draw': 1} != {'draw': 0}&#10;  {'reduce': 1} != {'reduce': 0}&#10;  &#10;  Full diff:&#10;    {...&#10;  &#10;  ...Full output truncated (9 lines hidden), use '-vv' to show">tmp_path = PosixPath('/tmp/e02-B-compiled-preparation-5b36cc53b242/pytest/test_cold_warm_preparation_pre0')
+jit = True, infer_shapes = True
+
+    @pytest.mark.parametrize("jit", [False, True])
+    @pytest.mark.parametrize("infer_shapes", [False, True])
+    def test_cold_warm_preparation_preserves_independent_seeded_numerical_repetitions(
+        tmp_path: Path, jit: bool, infer_shapes: bool
+    ) -&gt; None:
+        state = _state()
+        compiler, chain, producer, reducer = _owner(scale=0.5)
+        observations: dict[str, Any] = {"jit": jit, "infer_shapes": infer_shapes, "repetitions": []}
+        with _body_observer() as calls:
+            cold = compiler.compile_chain(chain, state, jit=jit, infer_shapes=infer_shapes)
+            warm = compiler.compile_chain(chain, state, jit=jit, infer_shapes=infer_shapes)
+&gt;           assert calls == {"draw": 0, "reduce": 0}
+E           AssertionError: assert {'draw': 1, 'reduce': 1} == {'draw': 0, 'reduce': 0}
+E             
+E             Differing items:
+E             {'draw': 1} != {'draw': 0}
+E             {'reduce': 1} != {'reduce': 0}
+E             
+E             Full diff:
+E               {...
+E             
+E             ...Full output truncated (9 lines hidden), use '-vv' to show
+
+tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py:164: AssertionError</failure></testcase></testsuite></testsuites>

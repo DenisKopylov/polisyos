@@ -1,0 +1,16 @@
+{
+  "damage": "required-node",
+  "ref": {
+    "artifact_id": "sha256:6db62b6678e8d2ed9a41a4b1a423cb4777f577caa84c3d739625d5fc2c695f4e",
+    "kind": "foundry.compiled_chain_plan",
+    "media_type": "application/json",
+    "manifest_profile_sha256": "sha256:cb7e78ce790596143dbd8da823dee56b00006a8623b7aa3671af59955e4e427c"
+  },
+  "wire_sha256": "6db62b6678e8d2ed9a41a4b1a423cb4777f577caa84c3d739625d5fc2c695f4e",
+  "refusal_type": "MissingRequirementError",
+  "refusal": "tests.independent_preparation.reduce@1.0.0 requires tests.independent_preparation.draw@1.0.0, which is not in composition",
+  "body_entries": {
+    "draw": 0,
+    "reduce": 0
+  }
+}

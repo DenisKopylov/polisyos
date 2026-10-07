@@ -1,0 +1,807 @@
+{
+  "schema_version": "e02.independent-source-data-review.v1",
+  "unit": "B",
+  "reviewer": "cmp_res_probe",
+  "review_role": "Independent full OpenAPI output comparison and canonical generator/owner source interpretation; reviewer did not author root generated output.",
+  "source_sha": "02ff9d0467423a99c2b4c737329da0c629e6b869",
+  "source_tree": "2c50e068a79f0a57de8d4349b5ee00b5a298d821",
+  "reviewer_branch": "codex/e02-B-current-composition",
+  "reviewer_parent_head": "08e18da60f79121a8b3b09b1b1147257ad3fdb6f",
+  "reviewed_root_worktree": "/workspace/e02-B-current-coordination",
+  "root_head_at_final_inspection": "31a91a7c001191ac52afc9107a4deed77c87a4ba",
+  "source_inspection_binding": "Producer result belongs to immutable02ff. Root subsequently advanced while read-only review ran. Every canonical source context is joined to exactGit02ff blobs; all current inspected context bytes except generated schema still equal02ff. No result is relabeled as a future-source gate PASS.",
+  "verdict": "NONBLOCKING_FINITE_GENERATED_COMPANION_COPY",
+  "closure_ids": [],
+  "finding_closure_ids": [],
+  "formal_closure": false,
+  "P41": "not_established; no inherited failure waiver",
+  "reviewer_runtime_tests": "UNRUN",
+  "reviewer_gates": "UNRUN",
+  "reviewer_generation": "UNRUN",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-openapi-independent-review.json"
+  ],
+  "deciding_inputs": [
+    {
+      "path": "/tmp/e02-B-successor-openapi-02ff/before.json",
+      "bytes": 2812414,
+      "sha256": "73d9109067c01ae2391acfb4bc3017634c96f1482f208bd47f8aa556e20c764a"
+    },
+    {
+      "path": "/tmp/e02-B-successor-openapi-02ff/after.json",
+      "bytes": 2812414,
+      "sha256": "9c57673ed7731f7902105b089316539af9746553a6f1f4411876ca82bd6de693"
+    },
+    {
+      "path": "/tmp/e02-B-successor-openapi-02ff/full-recursive-diff.json",
+      "bytes": 4387,
+      "sha256": "88493c0421c4999a21c98cc08d2e107c6a8d32558f8c84e1ce608052acd67132"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-prefreeze-openapi-02ff.json",
+      "bytes": 2269,
+      "sha256": "8daa9f106086bc0638a9c9b3d1547b84dc281f0f4848d5c4a2f7e16a793aebbd"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-prefreeze-openapi-02ff.txt",
+      "bytes": 6800,
+      "sha256": "27c66961d1cdb4c268375ce0433d54d76c850202a88ce13994743b57e0e65c26"
+    }
+  ],
+  "before_git_binding": {
+    "source_sha": "02ff9d0467423a99c2b4c737329da0c629e6b869",
+    "path": "policy-engine/schemas/runtime_api_v1.openapi.json",
+    "git_blob": "f8a9dda954bc3bee4f9d4441311f2dcc9fe392e7",
+    "byte_equal_full_before_json": true
+  },
+  "actual_root_producer": {
+    "outcome": "PASS",
+    "actual_exit": 0,
+    "qualification": "Observed completed producer wrapper/stdout/data from root; no independent producer execution by reviewer. PASS means generator completed, not runtime/API/architecture/native/client acceptance.",
+    "complete_wrapper": {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "run",
+        "--no-sync",
+        "--extra",
+        "runtime",
+        "--extra",
+        "ml",
+        "python",
+        "tools/ops_runners/runtime/export_runtime_openapi.py",
+        "--output",
+        "/tmp/e02-B-successor-openapi-02ff/after.json",
+        "--scratch-root",
+        "/tmp/e02-B-successor-openapi-02ff/runtime-cas"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "head": "02ff9d0467423a99c2b4c737329da0c629e6b869",
+      "tree": "2c50e068a79f0a57de8d4349b5ee00b5a298d821",
+      "head_after": "02ff9d0467423a99c2b4c737329da0c629e6b869",
+      "wall_s": 49.839998826006195,
+      "process_rusage_maxrss_kib": 1190576,
+      "exit_code": 0,
+      "exec_setup_error": null,
+      "harness_state": "EXECUTED",
+      "output_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-prefreeze-openapi-02ff.txt",
+      "output_sha256": "27c66961d1cdb4c268375ce0433d54d76c850202a88ce13994743b57e0e65c26",
+      "source_environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_B_PROPERTY_REMOVAL": null,
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+        "UV_NO_SYNC": "1",
+        "E02_B_COHORT_INVENTORY_PATH": null
+      },
+      "limitations": [
+        "Combined stdout/stderr; no separate stream-count claim.",
+        "Source boundary is HEAD identity; the launcher checks initial cleanliness.",
+        "RSS is wait4 child rusage, not an aggregate of independently concurrent gates."
+      ]
+    },
+    "wrapper_raw_text": "{\n  \"command\": [\n    \"/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv\",\n    \"run\",\n    \"--no-sync\",\n    \"--extra\",\n    \"runtime\",\n    \"--extra\",\n    \"ml\",\n    \"python\",\n    \"tools/ops_runners/runtime/export_runtime_openapi.py\",\n    \"--output\",\n    \"/tmp/e02-B-successor-openapi-02ff/after.json\",\n    \"--scratch-root\",\n    \"/tmp/e02-B-successor-openapi-02ff/runtime-cas\"\n  ],\n  \"cwd\": \"/workspace/e02-B-current-coordination/policy-engine\",\n  \"head\": \"02ff9d0467423a99c2b4c737329da0c629e6b869\",\n  \"tree\": \"2c50e068a79f0a57de8d4349b5ee00b5a298d821\",\n  \"head_after\": \"02ff9d0467423a99c2b4c737329da0c629e6b869\",\n  \"wall_s\": 49.839998826006195,\n  \"process_rusage_maxrss_kib\": 1190576,\n  \"exit_code\": 0,\n  \"exec_setup_error\": null,\n  \"harness_state\": \"EXECUTED\",\n  \"output_path\": \"/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-prefreeze-openapi-02ff.txt\",\n  \"output_sha256\": \"27c66961d1cdb4c268375ce0433d54d76c850202a88ce13994743b57e0e65c26\",\n  \"source_environment\": {\n    \"PYTHONPATH\": \"/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine\",\n    \"PATH\": \"/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback\",\n    \"LANG\": \"C.UTF-8\",\n    \"POLISYOS_METRICS_PORT\": \"0\",\n    \"TIKTOKEN_CACHE_DIR\": \"/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache\",\n    \"E02_B_PROPERTY_REMOVAL\": null,\n    \"UV_PROJECT_ENVIRONMENT\": \"/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment\",\n    \"UV_NO_SYNC\": \"1\",\n    \"E02_B_COHORT_INVENTORY_PATH\": null\n  },\n  \"limitations\": [\n    \"Combined stdout/stderr; no separate stream-count claim.\",\n    \"Source boundary is HEAD identity; the launcher checks initial cleanliness.\",\n    \"RSS is wait4 child rusage, not an aggregate of independently concurrent gates.\"\n  ]\n}\n",
+    "complete_combined_stdout_stderr": "2026-10-06 18:50:23.015 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized\n2026-10-06 18:50:23.015 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized\n2026-10-06 18:50:23.016 | INFO     | polisyos.common.logger:_call:120 - Contract registered\n2026-10-06 18:50:23.016 | INFO     | polisyos.common.logger:_call:120 - Contract registered\n2026-10-06 18:50:23.016 | INFO     | polisyos.common.logger:_call:120 - Contract registered\n2026-10-06 18:50:23.016 | INFO     | polisyos.common.logger:_call:120 - Contract registered\n2026-10-06 18:50:23.016 | INFO     | polisyos.common.logger:_call:120 - Contract registered\n2026-10-06 18:50:23.052 | INFO     | polisyos.common.logger:_call:120 - Registered connector\n2026-10-06 18:50:23.055 | INFO     | polisyos.common.logger:_call:120 - Registered connector\n2026-10-06 18:50:23.060 | INFO     | polisyos.common.logger:_call:120 - Registered connector\n2026-10-06 18:50:23.064 | INFO     | polisyos.common.logger:_call:120 - Registered connector\n2026-10-06 18:50:23.072 | INFO     | polisyos.common.logger:_call:120 - Registered connector\n2026-10-06 18:50:23.080 | INFO     | polisyos.common.logger:_call:120 - Registered connector\n2026-10-06 18:50:23.085 | INFO     | polisyos.common.logger:_call:120 - Registered connector\n2026-10-06 18:50:23.090 | INFO     | polisyos.common.logger:_call:120 - Registered connector\n2026-10-06 18:50:23.095 | INFO     | polisyos.common.logger:_call:120 - Registered connector\n2026-10-06 18:50:23.101 | INFO     | polisyos.common.logger:_call:120 - Registered connector\n2026-10-06 18:50:23.107 | INFO     | polisyos.common.logger:_call:120 - Registered connector\n2026-10-06 18:50:23.110 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'worldbank.wdi@1.0.0' already registered. Use override=True to replace.\n2026-10-06 18:50:23.113 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'wvs.wave7@1.0.0' already registered. Use override=True to replace.\n2026-10-06 18:50:23.115 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'eurostat.data@1.0.0' already registered. Use override=True to replace.\n2026-10-06 18:50:23.118 | INFO     | polisyos.common.logger:_call:120 - Registered connector\n2026-10-06 18:50:23.121 | INFO     | polisyos.common.logger:_call:120 - Registered connector\n2026-10-06 18:50:23.124 | INFO     | polisyos.common.logger:_call:120 - Registered connector\n2026-10-06 18:50:23.127 | INFO     | polisyos.common.logger:_call:120 - Registered connector\n2026-10-06 18:50:23.130 | INFO     | polisyos.common.logger:_call:120 - Registered connector\n2026-10-06 18:50:23.133 | INFO     | polisyos.common.logger:_call:120 - Registered connector\n2026-10-06 18:50:23.135 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'ukons.datasets@1.0.0' already registered. Use override=True to replace.\n2026-10-06 18:50:23.139 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'sdmx.source@1.0.0' already registered. Use override=True to replace.\n2026-10-06 18:50:23.142 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'ckan.catalog@1.0.0' already registered. Use override=True to replace.\n2026-10-06 18:50:23.144 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'ckan.resource@1.0.0' already registered. Use override=True to replace.\n2026-10-06 18:50:23.146 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'socrata.soda@1.0.0' already registered. Use override=True to replace.\n2026-10-06 18:50:23.148 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'opendatasoft.ods@1.0.0' already registered. Use override=True to replace.\n2026-10-06 18:50:23.150 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'sparql.endpoint@1.0.0' already registered. Use override=True to replace.\n2026-10-06 18:50:23.154 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'rest.json@1.0.0' already registered. Use override=True to replace.\n2026-10-06 18:50:23.157 | INFO     | polisyos.common.logger:_call:120 - Registered connector\n2026-10-06 18:50:23.160 | INFO     | polisyos.common.logger:_call:120 - Registered connector\n2026-10-06 18:50:23.163 | INFO     | polisyos.common.logger:_call:120 - Registered connector\n2026-10-06 18:50:23.163 | INFO     | polisyos.common.logger:_call:120 - ConnectorRegistry bootstrapped\n2026-10-06 18:50:23.164 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config\n2026-10-06 18:50:23.164 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config\n2026-10-06 18:50:23.164 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config\n2026-10-06 18:50:23.164 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config\n2026-10-06 18:50:23.164 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config\n2026-10-06 18:50:23.164 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config\n2026-10-06 18:50:23.164 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config\n2026-10-06 18:50:23.164 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config\n2026-10-06 18:50:23.164 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config\n2026-10-06 18:50:23.164 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config\n2026-10-06 18:50:23.164 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config\n2026-10-06 18:50:23.164 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config\n2026-10-06 18:50:23.164 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config\n2026-10-06 18:50:23.164 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config\n2026-10-06 18:50:23.164 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config\n2026-10-06 18:50:23.164 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config\n2026-10-06 18:50:23.164 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config\n2026-10-06 18:50:23.165 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config\n2026-10-06 18:50:23.165 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config\n2026-10-06 18:50:23.165 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config\n2026-10-06 18:50:23.165 | INFO     | polisyos.common.logger:_call:120 - Default configs bootstrapped from profiles\n2026-10-06 18:50:23.216 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized\n/tmp/e02-B-successor-openapi-02ff/after.json\n",
+    "source_environment_limits": [
+      "Wrapper records original ambient PATH and original194 UV_PROJECT_ENVIRONMENT, no PG sidepath argv. The six removed numeric caps and exact194 distribution census are root-supplied context, not independently demonstrated by this wrapper allowlist.",
+      "No child worker dependency map or complete1502inputmembership retained in producer stdout; aggregate/pin/count coherence is observable, individualBpath causal attribution is not established.",
+      "wait4 child RSS1190576KiB is not aggregate concurrent process RSS. Source boundary uses wrapper HEAD before/after with initialcleanliness delegated to root launcher."
+    ]
+  },
+  "full_json_comparison": {
+    "read_grade": "Both complete2812414byte files parsed independently; no partial/truncated diff predicate.",
+    "recursive_scalar_changes": [
+      {
+        "path_segments": [
+          "paths",
+          "/api/v1/exports/governed-projections/confidence-ledger-risk-spend",
+          "get",
+          "responses",
+          "200",
+          "content",
+          "application/json",
+          "examples",
+          "default",
+          "value",
+          "projection_hash"
+        ],
+        "kind": "scalar",
+        "before": "sha256:4eeb3067bf27dd1e13ea84edc90fe8b974d0dc3f7030c6dba864ee990c7f30ee",
+        "after": "sha256:27e186d158e9f6313da00f545e50f8e948b99f741c3bd392ca4cd5754aa7ff3c"
+      },
+      {
+        "path_segments": [
+          "paths",
+          "/api/v1/exports/governed-projections/confidence-ledger-risk-spend",
+          "get",
+          "responses",
+          "200",
+          "content",
+          "application/json",
+          "examples",
+          "default",
+          "value",
+          "replay_address"
+        ],
+        "kind": "scalar",
+        "before": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3A4eeb3067bf27dd1e13ea84edc90fe8b974d0dc3f7030c6dba864ee990c7f30ee&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3Afe16e5f1294f07c2e176796ec3d6e11a7d2b4decf4329d38877df555af9eda4b",
+        "after": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3A27e186d158e9f6313da00f545e50f8e948b99f741c3bd392ca4cd5754aa7ff3c&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3A4973f2728576eba533345a6c80102b116a41975dea70eb610738e19c5ab33595"
+      },
+      {
+        "path_segments": [
+          "paths",
+          "/api/v1/exports/governed-projections/confidence-ledger-risk-spend",
+          "get",
+          "responses",
+          "200",
+          "content",
+          "application/json",
+          "examples",
+          "default",
+          "value",
+          "replay_pins",
+          "projection_hash"
+        ],
+        "kind": "scalar",
+        "before": "sha256:4eeb3067bf27dd1e13ea84edc90fe8b974d0dc3f7030c6dba864ee990c7f30ee",
+        "after": "sha256:27e186d158e9f6313da00f545e50f8e948b99f741c3bd392ca4cd5754aa7ff3c"
+      },
+      {
+        "path_segments": [
+          "paths",
+          "/api/v1/exports/governed-projections/confidence-ledger-risk-spend",
+          "get",
+          "responses",
+          "200",
+          "content",
+          "application/json",
+          "examples",
+          "default",
+          "value",
+          "replay_pins",
+          "source_dependency_hash"
+        ],
+        "kind": "scalar",
+        "before": "sha256:fe16e5f1294f07c2e176796ec3d6e11a7d2b4decf4329d38877df555af9eda4b",
+        "after": "sha256:4973f2728576eba533345a6c80102b116a41975dea70eb610738e19c5ab33595"
+      },
+      {
+        "path_segments": [
+          "paths",
+          "/api/v1/exports/governed-projections/confidence-ledger-risk-spend",
+          "get",
+          "responses",
+          "200",
+          "content",
+          "application/json",
+          "examples",
+          "default",
+          "value",
+          "source",
+          "validation",
+          "bound_dependency_aggregate_identity"
+        ],
+        "kind": "scalar",
+        "before": "sha256:fe16e5f1294f07c2e176796ec3d6e11a7d2b4decf4329d38877df555af9eda4b",
+        "after": "sha256:4973f2728576eba533345a6c80102b116a41975dea70eb610738e19c5ab33595"
+      },
+      {
+        "path_segments": [
+          "paths",
+          "/api/v1/exports/governed-projections/confidence-ledger-risk-spend",
+          "get",
+          "responses",
+          "200",
+          "content",
+          "application/json",
+          "examples",
+          "default",
+          "value",
+          "source",
+          "validation",
+          "bound_dependency_count"
+        ],
+        "kind": "scalar",
+        "before": 1489,
+        "after": 1502
+      },
+      {
+        "path_segments": [
+          "paths",
+          "/api/v1/exports/governed-projections/confidence-ledger-risk-spend",
+          "get",
+          "responses",
+          "200",
+          "content",
+          "application/json",
+          "examples",
+          "default",
+          "value",
+          "source",
+          "validation",
+          "worker_validation_receipt_hash"
+        ],
+        "kind": "scalar",
+        "before": "sha256:c272fccfe1dfcb5ada6aff2d71e9d4ecba6340d17d070651633f6ee0023537c2",
+        "after": "sha256:9f061fe032188d9975686f9360f580a5612f9938167bf0f2d841d74f816251ea"
+      },
+      {
+        "path_segments": [
+          "paths",
+          "/api/v1/exports/governed-projections/confidence-ledger-risk-spend",
+          "get",
+          "responses",
+          "200",
+          "content",
+          "application/json",
+          "examples",
+          "default",
+          "value",
+          "source_dependency_hash"
+        ],
+        "kind": "scalar",
+        "before": "sha256:fe16e5f1294f07c2e176796ec3d6e11a7d2b4decf4329d38877df555af9eda4b",
+        "after": "sha256:4973f2728576eba533345a6c80102b116a41975dea70eb610738e19c5ab33595"
+      },
+      {
+        "path_segments": [
+          "paths",
+          "/api/v1/exports/governed-projections/confidence-ledger-risk-spend",
+          "get",
+          "responses",
+          "200",
+          "content",
+          "application/json",
+          "examples",
+          "default",
+          "value",
+          "worker_validation_receipt_hash"
+        ],
+        "kind": "scalar",
+        "before": "sha256:c272fccfe1dfcb5ada6aff2d71e9d4ecba6340d17d070651633f6ee0023537c2",
+        "after": "sha256:9f061fe032188d9975686f9360f580a5612f9938167bf0f2d841d74f816251ea"
+      },
+      {
+        "path_segments": [
+          "paths",
+          "/api/v1/exports/governed-projections/confidence-ledger-risk-spend",
+          "get",
+          "responses",
+          "200",
+          "content",
+          "application/json",
+          "examples",
+          "default",
+          "value",
+          "worker_validation_receipt_ref"
+        ],
+        "kind": "scalar",
+        "before": "owner-validation:sha256:c272fccfe1dfcb5ada6aff2d71e9d4ecba6340d17d070651633f6ee0023537c2",
+        "after": "owner-validation:sha256:9f061fe032188d9975686f9360f580a5612f9938167bf0f2d841d74f816251ea"
+      }
+    ],
+    "root_supplied_diff_exactly_equal_independent_complete_recursion": true,
+    "all_changes_inside_one_example_value": [
+      "paths",
+      "/api/v1/exports/governed-projections/confidence-ledger-risk-spend",
+      "get",
+      "responses",
+      "200",
+      "content",
+      "application/json",
+      "examples",
+      "default",
+      "value"
+    ],
+    "whole_json_equal_after_removing_only_this_example": true,
+    "masked_complete_document_sha256": "5aaff4798ce9f7d2e4b2c80bb5fe9dadbc3549e0370a0f0b4c81866fd29f41dd",
+    "all_components_schemas_equal": true,
+    "schema_count_before_after": [
+      573,
+      573
+    ],
+    "schemas_complete_subtree_sha256": "da6240476d3456304004f899d82b0b6bfaa08368fa4be8c77a322412e7b13f9e",
+    "path_sets_equal": true,
+    "path_count_before_after": [
+      111,
+      111
+    ],
+    "operation_identity_tuples_equal": true,
+    "http_operation_count_before_after": [
+      113,
+      113
+    ],
+    "security_schemes_equal": true,
+    "complete_route_DTO_contract_outside_example_equal": true,
+    "canonical_rendering_bytes_exact": true,
+    "interpretation": "1489→1502 is consulted dependency binding count, not13newpaths/routes/schemas. No key/type/list-size/schema/route/operation/parameter/security/response-contract delta exists outside the one example."
+  },
+  "complete_packet_coherence": {
+    "source_basis": "Plain-JSON standard-library projection hashing/replay reconstruction follows exact canonical export_replay.py and packet_semantic_projection source; no product imports or typed validator rerun.",
+    "before_after": [
+      {
+        "projection_hash_recomputed_from_complete_non_self_referential_packet": "sha256:4eeb3067bf27dd1e13ea84edc90fe8b974d0dc3f7030c6dba864ee990c7f30ee",
+        "replay_address_recomputed_from_complete_sorted_pins": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3A4eeb3067bf27dd1e13ea84edc90fe8b974d0dc3f7030c6dba864ee990c7f30ee&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3Afe16e5f1294f07c2e176796ec3d6e11a7d2b4decf4329d38877df555af9eda4b",
+        "source_dependency_hash": "sha256:fe16e5f1294f07c2e176796ec3d6e11a7d2b4decf4329d38877df555af9eda4b",
+        "bound_dependency_count": 1489,
+        "worker_validation_receipt_hash": "sha256:c272fccfe1dfcb5ada6aff2d71e9d4ecba6340d17d070651633f6ee0023537c2",
+        "validation_status": "passed",
+        "issue_codes": [],
+        "source_payload_equal": true,
+        "artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
+        "payload_sha256": "2e040218047bce0e880d6bd0cf8d4986dbc062b1bde9ffb7b700cc653e4f9248"
+      },
+      {
+        "projection_hash_recomputed_from_complete_non_self_referential_packet": "sha256:27e186d158e9f6313da00f545e50f8e948b99f741c3bd392ca4cd5754aa7ff3c",
+        "replay_address_recomputed_from_complete_sorted_pins": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3A27e186d158e9f6313da00f545e50f8e948b99f741c3bd392ca4cd5754aa7ff3c&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3A4973f2728576eba533345a6c80102b116a41975dea70eb610738e19c5ab33595",
+        "source_dependency_hash": "sha256:4973f2728576eba533345a6c80102b116a41975dea70eb610738e19c5ab33595",
+        "bound_dependency_count": 1502,
+        "worker_validation_receipt_hash": "sha256:9f061fe032188d9975686f9360f580a5612f9938167bf0f2d841d74f816251ea",
+        "validation_status": "passed",
+        "issue_codes": [],
+        "source_payload_equal": true,
+        "artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
+        "payload_sha256": "2e040218047bce0e880d6bd0cf8d4986dbc062b1bde9ffb7b700cc653e4f9248"
+      }
+    ],
+    "payload_entirely_equal": true,
+    "negative_posture_entirely_equal": "Full example comparison leaves measured refusal/acquisition/instrument/spend/positive-register/coverage/not_promoted posture, authoritative_for/may_not_use_for, registry/source semantic projections and artifact hash unchanged.",
+    "worker_receipt_hash_recomputed": false,
+    "worker_receipt_limit": "No complete worker receipt/dependency map is present in output; its hash is independently checked for consistent transport binding, not recomputed from unavailable inputs."
+  },
+  "registered_owner_basis": {
+    "authoritative_source": "policy-engine/architecture/generated_artifacts.toml@02ff9d0467423a99c2b4c737329da0c629e6b869",
+    "relevant_complete_family_objects": [
+      {
+        "id": "runtime-openapi-snapshot",
+        "label": "Runtime OpenAPI snapshot",
+        "owner": "team-polisyos",
+        "approval_owner": "team-polisyos",
+        "lifecycle": "generated_committed",
+        "generator": "canonical generator declared in regenerate_commands",
+        "verifier": "verifier declared by check_command, drift_gate, workflow, or manual review policy",
+        "promotion_target": "registered committed outputs listed in outputs",
+        "stale_output_behavior": "fail",
+        "source_of_truth": "src/polisyos/runtime/http/** FastAPI app factory and DTO contracts, including the owner-validator consulted dependency basis embedded in governed projection examples",
+        "outputs": [
+          "schemas/runtime_api_v1.openapi.json"
+        ],
+        "regenerate_commands": [
+          "PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json"
+        ],
+        "commit_policy": "committed",
+        "freshness_rule": "Regenerate and commit whenever runtime routes, request/response DTOs, OpenAPI examples, or an owner-validator consulted dependency basis changes.",
+        "compatibility_class": "schema-openapi-abi",
+        "version_owner": "team-runtime",
+        "deprecation_window": "2 minor releases",
+        "release_fragment_change_class": "schema-openapi-abi",
+        "compatibility_promise": "Runtime OpenAPI changes declare additive, compatible-breaking, or breaking behavior and generated-client impact.",
+        "drift_gate": "automated",
+        "workflow": "ops/ci/templates/workflows/arch.yml",
+        "check_cwd": ".",
+        "check_command": [
+          "uv",
+          "run",
+          "--extra",
+          "runtime",
+          "--extra",
+          "ml",
+          "python",
+          "tools/ops_runners/runtime/check_runtime_api_contract.py",
+          "--skip-client-drift"
+        ],
+        "default_freshness_check": true,
+        "output_probe_command": [
+          "env",
+          "PYTHONDONTWRITEBYTECODE=1",
+          "PYTHONNOUSERSITE=1",
+          "PYTHONHASHSEED=0",
+          "JAX_PLATFORMS=cpu",
+          "PYTHONPATH=src:.",
+          "uv",
+          "run",
+          "--extra",
+          "runtime",
+          "--extra",
+          "ml",
+          "python",
+          "tools/ops_runners/runtime/export_runtime_openapi.py",
+          "--output",
+          "{output_root}/schemas/runtime_api_v1.openapi.json"
+        ]
+      },
+      {
+        "id": "runtime-api-client",
+        "label": "Generated runtime API client",
+        "owner": "team-polisyos",
+        "approval_owner": "team-polisyos",
+        "lifecycle": "generated_committed",
+        "generator": "canonical generator declared in regenerate_commands",
+        "verifier": "verifier declared by check_command, drift_gate, workflow, or manual review policy",
+        "promotion_target": "registered committed outputs listed in outputs",
+        "stale_output_behavior": "fail",
+        "source_of_truth": "schemas/runtime_api_v1.openapi.json",
+        "outputs": [
+          "packages/runtime-api-client/types.ts",
+          "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+          "packages/runtime-api-client/canonicalRuntimeApiClient.js"
+        ],
+        "regenerate_commands": [
+          "corepack pnpm --filter @polisyos/runtime-api-client run generate -- --openapi schemas/runtime_api_v1.openapi.json"
+        ],
+        "commit_policy": "committed",
+        "freshness_rule": "Regenerate and commit whenever the runtime OpenAPI snapshot changes.",
+        "compatibility_class": "js-package-api",
+        "version_owner": "team-frontend",
+        "deprecation_window": "2 minor releases",
+        "release_fragment_change_class": "js-package-api",
+        "generated_client_compatibility": "required: declare compatibility in structured release fragments whenever this generated client changes.",
+        "drift_gate": "automated",
+        "workflow": "ops/ci/templates/workflows/arch.yml",
+        "check_cwd": ".",
+        "check_command": [
+          "uv",
+          "run",
+          "--extra",
+          "runtime",
+          "--extra",
+          "ml",
+          "python",
+          "tools/ops_runners/runtime/check_runtime_api_contract.py"
+        ],
+        "default_freshness_check": true,
+        "output_probe_command": [
+          "corepack",
+          "pnpm",
+          "--filter",
+          "@polisyos/runtime-api-client",
+          "run",
+          "generate",
+          "--",
+          "--openapi",
+          "schemas/runtime_api_v1.openapi.json",
+          "--output-root",
+          "{output_root}"
+        ]
+      },
+      {
+        "id": "policy-design-case-layer3-gy-n11-confidence-ledger",
+        "label": "Policy Design Case Layer 3 GY-N11 anytime-valid confidence ledger",
+        "owner": "team-runtime-quality",
+        "approval_owner": "team-runtime-quality",
+        "lifecycle": "generated_committed",
+        "gy_lifecycle_family": true,
+        "generator": "GY-N11 canonical writer over the typed confidence-ledger core, data-registered instrument families, the predictable obligation-class risk schedule, durable execution/spend lineage, narrow owner-recomputed N10/N13b evidence projections, and the N9 promotion-certificate projection consumer",
+        "verifier": "GY-N11 recomputing checker, byte-stable canonical writer, nested corrupt-field lane, and restoring behavioral source-flip suite",
+        "promotion_target": "N9 anytime-valid probabilistic promotion accounting and N12 epoch-reference projection only; never unconditional confidence, certificate authority, or policy authority",
+        "stale_output_behavior": "fail",
+        "source_of_truth": "architecture/production_quality/confidence_ledger.toml, src/polisyos/runtime/quality/confidence_ledger.py, tools/quality/validation/layer3_gy_confidence_ledger_contract.py, tools/quality/validation/check_layer3_gy_confidence_ledger.py, src/polisyos/runtime/quality/promotion_sequence.py as the N9 projection consumer, and narrow structurally recomputed N10/N13b owner projections",
+        "outputs": [
+          "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json"
+        ],
+        "regenerate_commands": [
+          "JAX_PLATFORMS=cpu uv run --extra analytics --extra solvers --extra test python tools/quality/validation/check_layer3_gy_confidence_ledger.py --write --catalog-path production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb --l5-path production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/measurement_registry.json"
+        ],
+        "commit_policy": "committed",
+        "freshness_rule": "Regenerate whenever the instrument registry, obligation-class delta split, predictable schedule, durable execution/spend lineage, N9 promotion intake, conditionality assumptions, projection graph, or bound N10/N13b owner projections change.",
+        "drift_gate": "automated",
+        "workflow": "tools/quality/validation/check_layer3_gy_confidence_ledger.py",
+        "check_cwd": ".",
+        "check_command": [
+          "env",
+          "JAX_PLATFORMS=cpu",
+          "uv",
+          "run",
+          "--extra",
+          "analytics",
+          "--extra",
+          "solvers",
+          "--extra",
+          "test",
+          "python",
+          "tools/quality/validation/check_layer3_gy_confidence_ledger.py",
+          "--check",
+          "--catalog-path",
+          "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
+          "--l5-path",
+          "production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/measurement_registry.json"
+        ]
+      }
+    ],
+    "interpretation": "runtime-openapi-snapshot owner/approvalteam-polisyos and versionteam-runtime explicitly require regeneration for owner-validator consulted dependency basis changes. Copying actual canonicalafter bytes is an active required generated-companion freshness correction with a structured schema-openapi-abi release fragment, not protectedA/C source mutation or new authority acceptance. Generated client is separately registered downstream; this review does not claim its fresh byte result.",
+    "approval_boundary": "Repository owner fields are declared institutional metadata; parent root authorizes the canonical companion copy. This independent source/data verdict does not ratify N11 promotion/publication/policy authority or rewrite its governed source."
+  },
+  "canonical_source_trace": [
+    {
+      "path": "tools/ops_runners/runtime/export_runtime_openapi.py",
+      "quantity": "Fresh process create_runtime_api_app(enable_security_middlewares=False, cas_root=retainedscratch/cas).openapi, sorted canonical JSON. Explicitscratch createsnewroot and retainsCAS; no TemporaryDirectory deletion on actualargv."
+    },
+    {
+      "path": "src/polisyos/runtime/http/app.py:419 andopenapi_contract.py:4509",
+      "quantity": "Actual app installs canonical augmenting schema closure and invokes real success-example factory for existing operation."
+    },
+    {
+      "path": "src/polisyos/runtime/http/openapi_contract.py:1582",
+      "quantity": "Requests real ConfidenceLedgerRiskSpendProjectionService.get, refuses non-Available arm; normalizes only sampletime, recomputes packet projection/replay pins/address, strictlyadmits typedpacket and checks actualnegative measuredshape."
+    },
+    {
+      "path": "src/polisyos/runtime/http/services/governed_projection_validation_worker.py:654,907",
+      "quantity": "Worker calls existing N11validate_payload and reconciles typedsource/request/registry/spend; tracks actual consultedrepository file/directory/moduleidentities, verifiesbindingsbefore/after, emits dependencyaggregate andpassed/failedreceipt. Dependency count derives len(actualworkerbindings), notGitdiffguess."
+    },
+    {
+      "path": "src/polisyos/runtime/http/services/governed_projections.py:1362",
+      "quantity": "Parent validates worker ID/version/source/payload and dependencyaggregate content, checksrequiredcomponentbindings, hashesactualmodel_dump workerreceipt. ProjectionSourceValidation carries aggregate/count/workerhash; transport source_dependency uses same admitted aggregate."
+    },
+    {
+      "path": "src/polisyos/runtime/http/services/confidence_ledger_risk_spend_contracts.py:161",
+      "quantity": "Typedavailablearm checks allsource/registry/semantic/dependency/worker/replaybindings plus actualpacket identity. Read-onlyindependentdatawalker reproducedprojectionhash+replayURL andidentityequalities oncompletebothpackets."
+    }
+  ],
+  "source_bindings": [
+    {
+      "source_sha": "02ff9d0467423a99c2b4c737329da0c629e6b869",
+      "path": "policy-engine/architecture/generated_artifacts.toml",
+      "git_blob": "6621206f112833142f966ce8318f3f6b48e3e57d",
+      "bytes": 253707,
+      "sha256": "9d612433dcd7fac0f936ec5cc52d4d9416f8c84af37a8e77faac68011f445bc0",
+      "byte_equal_base198": true,
+      "current_worktree_bytes_equal_pinned_blob": true
+    },
+    {
+      "source_sha": "02ff9d0467423a99c2b4c737329da0c629e6b869",
+      "path": "policy-engine/CONTRIBUTING.md",
+      "git_blob": "ac70f96fa6a0c0bd6b810e10f33b409dea2a78bf",
+      "bytes": 10553,
+      "sha256": "1c9ea84e5fa0d8f05517287523d47d71128742ad02a5d20ce326163d21754783",
+      "byte_equal_base198": true,
+      "current_worktree_bytes_equal_pinned_blob": true
+    },
+    {
+      "source_sha": "02ff9d0467423a99c2b4c737329da0c629e6b869",
+      "path": "policy-engine/tools/ops_runners/runtime/export_runtime_openapi.py",
+      "git_blob": "04416db33c86bd5610fd33893ad6867db7a9f22f",
+      "bytes": 1793,
+      "sha256": "daeff9a91f19662a9f21788f73bd002659059f2ca3804ac03a258294185255da",
+      "byte_equal_base198": true,
+      "current_worktree_bytes_equal_pinned_blob": true
+    },
+    {
+      "source_sha": "02ff9d0467423a99c2b4c737329da0c629e6b869",
+      "path": "policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py",
+      "git_blob": "37ceb13937e36ab6c237595a74e7be70ca987c8d",
+      "bytes": 7528,
+      "sha256": "210f376a6b95310fdedcbbea3917b7e0dc8a59d176d24631772522794d6877b1",
+      "byte_equal_base198": true,
+      "current_worktree_bytes_equal_pinned_blob": true
+    },
+    {
+      "source_sha": "02ff9d0467423a99c2b4c737329da0c629e6b869",
+      "path": "policy-engine/src/polisyos/runtime/http/app.py",
+      "git_blob": "8a4cf8347d16ee64d1923152ce074266de132dfa",
+      "bytes": 23110,
+      "sha256": "4d3ebc492b943a12b8cf339fde81f5f40c61d932a1958032e80d1d651e8bad24",
+      "byte_equal_base198": true,
+      "current_worktree_bytes_equal_pinned_blob": true
+    },
+    {
+      "source_sha": "02ff9d0467423a99c2b4c737329da0c629e6b869",
+      "path": "policy-engine/src/polisyos/runtime/http/openapi_contract.py",
+      "git_blob": "792724c41c9787e4f573e1335103698ce69fc311",
+      "bytes": 184930,
+      "sha256": "d0223be603ecdde252a96ded5970f2fedfecf3099401a3a8608bb70fd27b1e3c",
+      "byte_equal_base198": true,
+      "current_worktree_bytes_equal_pinned_blob": true
+    },
+    {
+      "source_sha": "02ff9d0467423a99c2b4c737329da0c629e6b869",
+      "path": "policy-engine/src/polisyos/runtime/http/services/governed_projections.py",
+      "git_blob": "11e2b068fafa53361ba96ad847fa93da5e169b7e",
+      "bytes": 106265,
+      "sha256": "f697b9bd324cafd7d90ca0d3dd6e641d9c2db131b2a49d9d1af0ebb024e9668a",
+      "byte_equal_base198": true,
+      "current_worktree_bytes_equal_pinned_blob": true
+    },
+    {
+      "source_sha": "02ff9d0467423a99c2b4c737329da0c629e6b869",
+      "path": "policy-engine/src/polisyos/runtime/http/services/governed_projection_validation_worker.py",
+      "git_blob": "ca4663b1c53fb05d966f39be2686de7112e59df3",
+      "bytes": 38045,
+      "sha256": "e913ddef94876b7a54eb524d4577c489c8ee79f3f5b87092a8232d7a33b70536",
+      "byte_equal_base198": true,
+      "current_worktree_bytes_equal_pinned_blob": true
+    },
+    {
+      "source_sha": "02ff9d0467423a99c2b4c737329da0c629e6b869",
+      "path": "policy-engine/src/polisyos/runtime/http/services/governed_projection_dependencies.py",
+      "git_blob": "c02e29a3d44552ba38ded8c14530f5a798e0c40f",
+      "bytes": 7934,
+      "sha256": "fdc36162cefd57c807e70026fca9d27608ecf540930cece436dcf6a75d4dc6aa",
+      "byte_equal_base198": true,
+      "current_worktree_bytes_equal_pinned_blob": true
+    },
+    {
+      "source_sha": "02ff9d0467423a99c2b4c737329da0c629e6b869",
+      "path": "policy-engine/src/polisyos/runtime/http/services/confidence_ledger_risk_spend_projection.py",
+      "git_blob": "ada4d58b31b5460997fcebb1c97a4cece8b7f265",
+      "bytes": 21420,
+      "sha256": "ca826a3d68e0810d72e972a043264441511240a7bb6ef4dcd77c688c997ce1e8",
+      "byte_equal_base198": true,
+      "current_worktree_bytes_equal_pinned_blob": true
+    },
+    {
+      "source_sha": "02ff9d0467423a99c2b4c737329da0c629e6b869",
+      "path": "policy-engine/src/polisyos/runtime/http/services/confidence_ledger_risk_spend_contracts.py",
+      "git_blob": "a4e00667835ad0cddb8256be9f452fb930f0173d",
+      "bytes": 14186,
+      "sha256": "3d14b752fdf91976a1d59438d0d477f3ae4be0da47261a3abd03d1fd74ad7fc1",
+      "byte_equal_base198": true,
+      "current_worktree_bytes_equal_pinned_blob": true
+    },
+    {
+      "source_sha": "02ff9d0467423a99c2b4c737329da0c629e6b869",
+      "path": "policy-engine/src/polisyos/runtime/http/services/export_replay.py",
+      "git_blob": "c6c67d35e0baac67257651c423b72f718ef4947d",
+      "bytes": 6630,
+      "sha256": "83cf4b614ec5e0b654fb4cc0954610e8747441f06b13aca96817c1627c896931",
+      "byte_equal_base198": true,
+      "current_worktree_bytes_equal_pinned_blob": true
+    },
+    {
+      "source_sha": "02ff9d0467423a99c2b4c737329da0c629e6b869",
+      "path": "policy-engine/tools/quality/validation/check_layer3_gy_confidence_ledger.py",
+      "git_blob": "f18726c6d7896450089c0a992d6fe701d2894fd6",
+      "bytes": 197019,
+      "sha256": "14a30d4b930e78af4b59e8e56b94405fe65051ce5ad375d355ebfa91e396ecd7",
+      "byte_equal_base198": true,
+      "current_worktree_bytes_equal_pinned_blob": true
+    },
+    {
+      "source_sha": "02ff9d0467423a99c2b4c737329da0c629e6b869",
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json",
+      "git_blob": "58a81301ba500bf2ff9c5aaed765a4d9365a17b3",
+      "bytes": 980647,
+      "sha256": "dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
+      "byte_equal_base198": true,
+      "current_worktree_bytes_equal_pinned_blob": true
+    },
+    {
+      "source_sha": "02ff9d0467423a99c2b4c737329da0c629e6b869",
+      "path": "policy-engine/architecture/production_quality/confidence_ledger.toml",
+      "git_blob": "23f4b82efd7eb479786deb4e6668e0f2b1f5f9e1",
+      "bytes": 8144,
+      "sha256": "f337fc1ef5a40daec98f8970a64cd85721b55590b93f452503c4c5a7fa49942b",
+      "byte_equal_base198": true,
+      "current_worktree_bytes_equal_pinned_blob": true
+    },
+    {
+      "source_sha": "02ff9d0467423a99c2b4c737329da0c629e6b869",
+      "path": "policy-engine/schemas/runtime_api_v1.openapi.json",
+      "git_blob": "f8a9dda954bc3bee4f9d4441311f2dcc9fe392e7",
+      "bytes": 2812414,
+      "sha256": "73d9109067c01ae2391acfb4bc3017634c96f1482f208bd47f8aa556e20c764a",
+      "byte_equal_base198": true,
+      "current_worktree_bytes_equal_pinned_blob": true
+    }
+  ],
+  "complete_relevant_source_regions": [
+    {
+      "source_sha": "02ff9d0467423a99c2b4c737329da0c629e6b869",
+      "path": "policy-engine/tools/ops_runners/runtime/export_runtime_openapi.py",
+      "start_line": 1,
+      "end_line": 65,
+      "complete_literal_region": "#!/usr/bin/env python3\nfrom __future__ import annotations\n\nimport argparse\nimport json\nimport sys\nimport tempfile\nfrom pathlib import Path\n\nfrom tools.lib.imports import repo_root_from\n\n\ndef _parse_args() -> argparse.Namespace:\n    parser = argparse.ArgumentParser(\n        description=\"Export Runtime API v1 OpenAPI schema to a deterministic JSON file.\"\n    )\n    parser.add_argument(\n        \"--output\",\n        type=Path,\n        default=Path(\"schemas/runtime_api_v1.openapi.json\"),\n        help=\"Output JSON path.\",\n    )\n    parser.add_argument(\n        \"--scratch-root\",\n        type=Path,\n        help=\"Keep the runtime CAS used for export at this new directory.\",\n    )\n    return parser.parse_args()\n\n\ndef main() -> int:\n    args = _parse_args()\n    repo_root = repo_root_from(__file__)\n    src_root = repo_root / \"src\"\n    if str(src_root) not in sys.path:\n        sys.path.insert(0, str(src_root))\n\n    from polisyos.runtime.http.app import create_runtime_api_app\n\n    args.output.parent.mkdir(parents=True, exist_ok=True)\n\n    def render(scratch: Path) -> dict:\n        app = create_runtime_api_app(enable_security_middlewares=False, cas_root=scratch / \"cas\")\n        return app.openapi()\n\n    if args.scratch_root is None:\n        with tempfile.TemporaryDirectory(\n            prefix=\"runtime_openapi_\", dir=args.output.parent\n        ) as scratch:\n            schema = render(Path(scratch))\n    else:\n        scratch = args.scratch_root.resolve()\n        scratch.mkdir(parents=True, exist_ok=False)\n        schema = render(scratch)\n\n    args.output.write_text(\n        json.dumps(schema, ensure_ascii=False, indent=2, sort_keys=True) + \"\\n\",\n        encoding=\"utf-8\",\n    )\n    print(args.output.as_posix())\n    return 0\n\n\nif __name__ == \"__main__\":\n    raise SystemExit(main())\n"
+    },
+    {
+      "source_sha": "02ff9d0467423a99c2b4c737329da0c629e6b869",
+      "path": "policy-engine/src/polisyos/runtime/http/openapi_contract.py",
+      "start_line": 1581,
+      "end_line": 1635,
+      "complete_literal_region": "@lru_cache(maxsize=1)\ndef _confidence_ledger_risk_spend_example() -> dict[str, Any]:\n    \"\"\"Project and strictly admit the real measured DS17 negative example.\"\"\"\n\n    configured_root = os.getenv(\"POLISYOS_GOVERNED_ARTIFACT_ROOT\")\n    repository_root = (\n        Path(configured_root) if configured_root else Path(__file__).resolve().parents[4]\n    )\n    packet = ConfidenceLedgerRiskSpendProjectionService(repository_root).get()\n    if not isinstance(packet, AvailableConfidenceLedgerRiskSpendPacket):\n        raise ValueError(\"DS17 OpenAPI source is not owner-admitted\")\n\n    sample_time = datetime(2026, 2, 11, 12, tzinfo=UTC)\n    normalized = packet.model_copy(\n        update={\n            \"as_of\": sample_time,\n            \"freshness\": packet.freshness.model_copy(\n                update={\n                    \"observed_at\": sample_time,\n                    \"source_as_of\": sample_time,\n                }\n            ),\n            \"replay_pins\": packet.replay_pins.model_copy(update={\"source_as_of\": sample_time}),\n        }\n    )\n    projection_hash = hash_export_projection(packet_semantic_projection(normalized))\n    replay_pins = normalized.replay_pins.model_copy(update={\"projection_hash\": projection_hash})\n    normalized = normalized.model_copy(\n        update={\n            \"replay_pins\": replay_pins,\n            \"projection_hash\": projection_hash,\n            \"replay_address\": build_export_replay_address(\n                normalized.stable_address,\n                replay_pins.model_dump(mode=\"json\"),\n            ),\n        }\n    )\n    admitted = TypeAdapter(ConfidenceLedgerRiskSpendPacket).validate_json(\n        normalized.model_dump_json(),\n        strict=True,\n    )\n    if not isinstance(admitted, AvailableConfidenceLedgerRiskSpendPacket):\n        raise ValueError(\"DS17 OpenAPI example changed transport arm\")\n    payload = admitted.payload\n    measured_shape = (\n        len(payload.refusal_instance_refs),\n        len(payload.acquisition_instance_refs),\n        len(payload.obligation_class_risk_spend),\n        len(payload.instrument_definitions),\n        len(payload.positive_register.entries),\n        payload.total_spend.amount.fraction,\n        payload.coverage_assessment.value,\n        payload.status,\n    )\n    if measured_shape != (1, 2, 15, 13, 0, 0, \"open_world_unresolved\", \"not_promoted\"):\n"
+    },
+    {
+      "source_sha": "02ff9d0467423a99c2b4c737329da0c629e6b869",
+      "path": "policy-engine/src/polisyos/runtime/http/openapi_contract.py",
+      "start_line": 4509,
+      "end_line": 4523,
+      "complete_literal_region": "\n\ndef install_runtime_openapi_contract(app: Any) -> None:\n    \"\"\"Install runtime openapi contract helper.\"\"\"\n    original_openapi = app.openapi\n    cached: dict[str, Any] | None = None\n\n    def _custom_openapi() -> dict[str, Any]:\n        nonlocal cached\n        if cached is None:\n            cached = augment_runtime_openapi(original_openapi())\n        return cached\n\n    app.openapi = _custom_openapi\n\n"
+    },
+    {
+      "source_sha": "02ff9d0467423a99c2b4c737329da0c629e6b869",
+      "path": "policy-engine/src/polisyos/runtime/http/services/governed_projections.py",
+      "start_line": 1362,
+      "end_line": 1411,
+      "complete_literal_region": "        expected_dependency_bindings = _component_dependency_bindings(loaded)\n        receipt_mismatch = (\n            result.projection_id is not definition.projection_id\n            or result.validator_id != definition.owner_validator_id\n            or result.validator_version != definition.owner_validator_version\n            or result.bound_aggregate_identity != hash_export_projection(expected_bindings)\n            or result.bound_source_identities != expected_bindings\n            or result.bound_projection_payload_hash != payload_hash\n            or result.dependency_aggregate_identity\n            != hash_export_projection(result.dependency_bindings)\n            or any(\n                result.dependency_bindings.get(path) != identity\n                for path, identity in expected_dependency_bindings.items()\n            )\n        )\n        if receipt_mismatch:\n            return _owner_bridge_failure(\n                loaded,\n                \"owner_validator_receipt_mismatch\",\n            )\n        worker_receipt = result.model_dump(mode=\"json\")\n        if result.related_dependency_diagnostic is None:\n            worker_receipt.pop(\"related_dependency_diagnostic\")\n        validation = ProjectionSourceValidation(\n            validator_id=result.validator_id,\n            validator_version=result.validator_version,\n            status=result.status,\n            bound_artifact_content_hash=loaded.content_hash,\n            bound_dependency_aggregate_identity=result.dependency_aggregate_identity,\n            bound_dependency_count=len(result.dependency_bindings),\n            semantic_projection_hash=result.semantic_projection_hash,\n            semantic_projection_hash_rule_version=(result.semantic_projection_hash_rule_version),\n            issue_codes=result.issue_codes,\n            worker_validation_receipt_hash=hash_export_projection(worker_receipt),\n            source_payload_equal=result.source_payload_equal,\n            registry_content_hash=result.registry_content_hash,\n            registry_projection_hash=result.registry_projection_hash,\n            frozen_semantic_projection_hash=result.frozen_semantic_projection_hash,\n            recomputed_total_spend_numerator=(result.recomputed_total_spend_numerator),\n            recomputed_total_spend_denominator=(result.recomputed_total_spend_denominator),\n            registry_delta_numerator=result.registry_delta_numerator,\n            registry_delta_denominator=result.registry_delta_denominator,\n        )\n        validation._related_dependency_diagnostic = _dependency_diagnostic_from_worker(\n            result.projection_id,\n            result.related_dependency_diagnostic,\n        )\n        if validation.status == \"passed\" and cache_enabled:\n            _OWNER_VALIDATION_CACHE[cache_key] = _OwnerValidationCacheEntry(\n                validation=validation,\n"
+    },
+    {
+      "source_sha": "02ff9d0467423a99c2b4c737329da0c629e6b869",
+      "path": "policy-engine/src/polisyos/runtime/http/services/governed_projections.py",
+      "start_line": 1523,
+      "end_line": 1540,
+      "complete_literal_region": "            validation=validation,\n            related_artifact_bindings=(),\n        )\n        return GuardedProjectionSourceResolution(\n            projection_id=resolved_id,\n            availability=(\n                ProjectionAvailability.AVAILABLE\n                if validation.status == \"passed\"\n                else ProjectionAvailability.INVALID_SOURCE\n            ),\n            source=source,\n            source_dependency_hash=validation.bound_dependency_aggregate_identity,\n            source_schema_version=_source_schema_version(loaded.parsed),\n            source_rule_version=_optional_string(loaded.parsed.get(\"rule_version\")),\n            as_of=as_of,\n            freshness=ProjectionFreshness(\n                state=(\"observed\" if validation.status == \"passed\" else \"invalid_source\"),\n                basis=basis,\n"
+    },
+    {
+      "source_sha": "02ff9d0467423a99c2b4c737329da0c629e6b869",
+      "path": "policy-engine/src/polisyos/runtime/http/services/governed_projection_validation_worker.py",
+      "start_line": 654,
+      "end_line": 674,
+      "complete_literal_region": "def _validate_confidence_ledger(\n    root: Path,\n    requested_projection: Mapping[str, Any],\n) -> dict[str, Any]:\n    \"\"\"Run the real N11 validator and freeze source/request arithmetic facts.\"\"\"\n\n    from polisyos.runtime.quality.confidence_ledger import (\n        ConfidenceLedgerSemanticReceiptProjection,\n        load_confidence_ledger_registry,\n    )\n    from tools.quality.validation.check_layer3_gy_confidence_ledger import (\n        validate_payload,\n    )\n\n    artifact = _load_json(root, _CONFIDENCE_LEDGER_PATH)\n    issues = _extract_issue_codes(validate_payload(artifact))\n    facts: dict[str, Any] = {\n        \"issue_codes\": issues,\n        \"source_payload_equal\": None,\n        \"registry_content_hash\": None,\n        \"registry_projection_hash\": None,\n"
+    },
+    {
+      "source_sha": "02ff9d0467423a99c2b4c737329da0c629e6b869",
+      "path": "policy-engine/src/polisyos/runtime/http/services/governed_projection_validation_worker.py",
+      "start_line": 907,
+      "end_line": 927,
+      "complete_literal_region": "                issues.append(\"component_changed_during_validation\")\n                issues.extend(after_issues)\n        if not issues:\n            try:\n                semantic_projection_hash, semantic_hash_rule = _semantic_projection_hash(\n                    projection_id,\n                    projection_payload,\n                )\n            except Exception as exc:  # hash owner failures are typed validation failures\n                issues.append(f\"semantic_projection_hash_{type(exc).__name__}\")\n    tracker.record_loaded_modules()\n    dependency_bindings, dependency_issues = tracker.receipt()\n    issues.extend(dependency_issues)\n    normalized = sorted({str(code) for code in issues if str(code)})\n    result[\"issue_codes\"] = normalized\n    result[\"status\"] = \"passed\" if not normalized else \"failed\"\n    result[\"semantic_projection_hash\"] = semantic_projection_hash if not normalized else None\n    result[\"semantic_projection_hash_rule_version\"] = semantic_hash_rule if not normalized else None\n    result[\"dependency_bindings\"] = dependency_bindings\n    result[\"dependency_aggregate_identity\"] = _aggregate_identity(dependency_bindings)\n    return result\n"
+    },
+    {
+      "source_sha": "02ff9d0467423a99c2b4c737329da0c629e6b869",
+      "path": "policy-engine/src/polisyos/runtime/http/services/governed_projection_dependencies.py",
+      "start_line": 116,
+      "end_line": 132,
+      "complete_literal_region": "            return f\"directory:{_hash_mapping(entries)}\"\n        return f\"special:{metadata.st_mode}:{metadata.st_size}\"\n\n    def record_loaded_modules(self) -> None:\n        \"\"\"Bind every repository module loaded by the isolated validation worker.\"\"\"\n\n        for module in tuple(sys.modules.values()):\n            raw_path = getattr(module, \"__file__\", None)\n            if not isinstance(raw_path, str) or not raw_path:\n                continue\n            module_path = Path(raw_path)\n            if module_path.suffix in {\".pyc\", \".pyo\"}:\n                with suppress(ValueError):\n                    module_path = Path(importlib.util.source_from_cache(str(module_path)))\n            self.record(module_path)\n\n    def __enter__(self) -> DependencyTracker:\n"
+    },
+    {
+      "source_sha": "02ff9d0467423a99c2b4c737329da0c629e6b869",
+      "path": "policy-engine/src/polisyos/runtime/http/services/governed_projection_dependencies.py",
+      "start_line": 191,
+      "end_line": 202,
+      "complete_literal_region": "    def receipt(self) -> tuple[dict[str, str], tuple[str, ...]]:\n        \"\"\"Return current bindings and detect a dependency that changed mid-run.\"\"\"\n\n        current = {\n            relative: self.identity(self._root / relative)\n            for relative in sorted(self._initial)\n        }\n        issues = () if current == self._initial else (\"dependency_changed_during_validation\",)\n        return current, issues\n\n\ndef dependency_manifest_matches(root: Path, bindings: dict[str, str]) -> bool:\n"
+    },
+    {
+      "source_sha": "02ff9d0467423a99c2b4c737329da0c629e6b869",
+      "path": "policy-engine/src/polisyos/runtime/http/services/confidence_ledger_risk_spend_contracts.py",
+      "start_line": 161,
+      "end_line": 198,
+      "complete_literal_region": "    @model_validator(mode=\"after\")\n    def _bind_available_packet(self) -> Self:\n        validation = self.source.validation\n        if (\n            self.source_schema_version != CONFIDENCE_LEDGER_GUARDED_SCHEMA_VERSION\n            or self.source_rule_version is not None\n            or self.source.relative_path != CONFIDENCE_LEDGER_GUARDED_SOURCE_PATH\n            or validation.validator_id != CONFIDENCE_LEDGER_GUARDED_VALIDATOR_ID\n            or validation.validator_version != CONFIDENCE_LEDGER_GUARDED_VALIDATOR_VERSION\n            or validation.status != \"passed\"\n            or validation.issue_codes != ()\n            or validation.source_payload_equal is not True\n        ):\n            raise ValueError(\"available_confidence_source_structure_mismatch\")\n        if (\n            self.source.artifact_content_hash != self.replay_pins.artifact_content_hash\n            or validation.bound_artifact_content_hash != self.source.artifact_content_hash\n            or self.source_dependency_hash != self.replay_pins.source_dependency_hash\n            or validation.bound_dependency_aggregate_identity != self.source_dependency_hash\n            or self.projection_rule_version != self.replay_pins.projection_rule_version\n            or self.projection_hash != self.replay_pins.projection_hash\n            or self.as_of != self.replay_pins.source_as_of\n            or validation.worker_validation_receipt_hash != self.worker_validation_receipt_hash\n            or validation.registry_content_hash != self.registry_content_hash\n            or validation.registry_projection_hash != self.registry_projection_hash\n            or validation.frozen_semantic_projection_hash != self.frozen_semantic_projection_hash\n            or validation.semantic_projection_hash != self.frozen_semantic_projection_hash\n            or self.payload.registry_content_hash != self.registry_content_hash\n            or self.payload.source_projection_hash != self.frozen_semantic_projection_hash\n        ):\n            raise ValueError(\"available_confidence_packet_binding_mismatch\")\n        if self.worker_validation_receipt_ref != (\n            f\"owner-validation:{self.worker_validation_receipt_hash}\"\n        ):\n            raise ValueError(\"confidence_worker_receipt_ref_mismatch\")\n        _validate_packet_identity(self)\n        return self\n\n"
+    },
+    {
+      "source_sha": "02ff9d0467423a99c2b4c737329da0c629e6b869",
+      "path": "policy-engine/src/polisyos/runtime/http/services/confidence_ledger_risk_spend_contracts.py",
+      "start_line": 298,
+      "end_line": 329,
+      "complete_literal_region": "def packet_semantic_projection(\n    packet: AvailableConfidenceLedgerRiskSpendPacket | SourceBlockedConfidenceLedgerRiskSpendPacket,\n) -> dict[str, object]:\n    \"\"\"Return the non-self-referential semantics used for coherence hashing.\"\"\"\n\n    body = packet.model_dump(\n        mode=\"json\",\n        exclude={\"projection_hash\", \"replay_pins\", \"replay_address\"},\n    )\n    freshness = body.get(\"freshness\")\n    if isinstance(freshness, dict):\n        freshness.pop(\"observed_at\", None)\n    return body\n\n\ndef _validate_packet_identity(\n    packet: AvailableConfidenceLedgerRiskSpendPacket | SourceBlockedConfidenceLedgerRiskSpendPacket,\n) -> None:\n    expected_hash = hash_export_projection(packet_semantic_projection(packet))\n    if packet.projection_hash != expected_hash:\n        raise ValueError(\"confidence_packet_projection_hash_mismatch\")\n    expected_replay = build_export_replay_address(\n        STABLE_ADDRESS,\n        packet.replay_pins.model_dump(mode=\"json\"),\n    )\n    if packet.replay_address != expected_replay:\n        raise ValueError(\"confidence_packet_replay_address_mismatch\")\n\n\n__all__ = [\n    \"AUTHORITATIVE_FOR\",\n    \"MAY_NOT_USE_FOR\",\n"
+    },
+    {
+      "source_sha": "02ff9d0467423a99c2b4c737329da0c629e6b869",
+      "path": "policy-engine/src/polisyos/runtime/http/services/export_replay.py",
+      "start_line": 152,
+      "end_line": 173,
+      "complete_literal_region": "def hash_export_projection(value: object) -> str:\n    \"\"\"Return the canonical SHA-256 for a narrow export projection.\"\"\"\n\n    encoded = json.dumps(\n        _json_ready(value),\n        allow_nan=False,\n        ensure_ascii=False,\n        separators=(\",\", \":\"),\n        sort_keys=True,\n    ).encode(\"utf-8\")\n    return f\"sha256:{hashlib.sha256(encoded).hexdigest()}\"\n\n\ndef build_export_replay_address(\n    stable_address: str,\n    pins: Mapping[str, str],\n) -> str:\n    \"\"\"Append sorted replay pins to an already canonical stable address.\"\"\"\n\n    separator = \"&\" if \"?\" in stable_address else \"?\"\n    return f\"{stable_address}{separator}{urlencode(sorted(pins.items()))}\"\n\n"
+    }
+  ],
+  "finite_non_attestations": [
+    "No independent full1502workerinputclosure or perfilecausalblame; exactaggregate changes are observed and trigger registeredfreshness.",
+    "No arbitrary endpoint execution, authorization, lifecycle, streaming, PG, installedwheel, frontendclient, deployment, hostedCI or newnative/gates measured by this review.",
+    "No N11source artifact/registry rewrite: immutableartifactdd8f4 and registry/source bytes remain equalbase198 and fullsemanticpayload unchanged.",
+    "Earlier IR snapshot/manifest parity FAIL and all other required gate/native FAIL/UNRUN remain independent actual results; example copy does not hide/resolve them or imply P41.",
+    "Fresh producer02ff is not reused as future target generation/runtime/gate PASS. Later source/docsPython input changes require exacttarget basis proof or fresh canonical generation under rootowner."
+  ],
+  "review_instrument": {
+    "kind": "Standard-library full-data parser/hash/recursive compare plus read-only Git source joins; not a gate/test/generator",
+    "script_path": "/workspace/e02-B-current-composition/.polisyos/e02-B-current-composition/openapi-02ff-review/build_review.py",
+    "sha256": "f344f86b725983deb023888d51f65273ed8aef4d47b24fb212de7081a3a203f5",
+    "literal_executed_script": "from __future__ import annotations\nimport copy\nimport hashlib\nimport json\nimport subprocess\nimport tomllib\nfrom pathlib import Path\nfrom urllib.parse import urlencode\n\nOWN = Path('/workspace/e02-B-current-composition')\nROOT = Path('/workspace/e02-B-current-coordination')\nSHA = '02ff9d0467423a99c2b4c737329da0c629e6b869'\nTREE = '2c50e068a79f0a57de8d4349b5ee00b5a298d821'\nBASE = '198076863e143dea9f89f02734b13d50dae3eed5'\nDATA = Path('/tmp/e02-B-successor-openapi-02ff')\nRAW = ROOT / '.polisyos/e02-B-current/raw/review'\nOUT = OWN / 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-openapi-independent-review.json'\nEXAMPLE_PATH = ['paths', '/api/v1/exports/governed-projections/confidence-ledger-risk-spend', 'get', 'responses', '200', 'content', 'application/json', 'examples', 'default', 'value']\n\ndef git(*args: str) -> bytes:\n    return subprocess.check_output(['git', *args], cwd=ROOT)\n\ndef blob(path: str, sha: str = SHA) -> bytes:\n    return git('show', sha + ':' + path)\n\ndef digest(raw: bytes) -> str:\n    return hashlib.sha256(raw).hexdigest()\n\ndef canonical(value: object) -> bytes:\n    return json.dumps(value, ensure_ascii=False, allow_nan=False, sort_keys=True, separators=(',', ':')).encode()\n\ndef binding(path: Path) -> dict:\n    raw = path.read_bytes()\n    return {'path': str(path), 'bytes': len(raw), 'sha256': digest(raw)}\n\ndef source_binding(path: str) -> dict:\n    raw = blob(path)\n    return {'source_sha': SHA, 'path': path, 'git_blob': git('rev-parse', SHA + ':' + path).decode().strip(), 'bytes': len(raw), 'sha256': digest(raw), 'byte_equal_base198': raw == blob(path, BASE), 'current_worktree_bytes_equal_pinned_blob': (ROOT / path).read_bytes() == raw}\n\ndef select(value: dict, path: list[str]) -> object:\n    for key in path:\n        value = value[key]\n    return value\n\ndef changes(a: object, b: object, path: list[str] | None = None) -> list[dict]:\n    path = [] if path is None else path\n    if type(a) is not type(b):\n        return [{'path_segments': path, 'kind': 'type', 'before': a, 'after': b}]\n    if isinstance(a, dict):\n        rows = []\n        for key in sorted(set(a) | set(b)):\n            if key not in a or key not in b:\n                rows.append({'path_segments': path + [key], 'kind': 'key_membership', 'before_present': key in a, 'after_present': key in b})\n            else:\n                rows.extend(changes(a[key], b[key], path + [key]))\n        return rows\n    if isinstance(a, list):\n        if len(a) != len(b):\n            return [{'path_segments': path, 'kind': 'list_length', 'before': len(a), 'after': len(b)}]\n        return [row for index, (left, right) in enumerate(zip(a, b)) for row in changes(left, right, path + [str(index)])]\n    return [] if a == b else [{'path_segments': path, 'kind': 'scalar', 'before': a, 'after': b}]\n\nbefore_raw = (DATA / 'before.json').read_bytes()\nafter_raw = (DATA / 'after.json').read_bytes()\nbefore = json.loads(before_raw)\nafter = json.loads(after_raw)\nassert digest(before_raw) == '73d9109067c01ae2391acfb4bc3017634c96f1482f208bd47f8aa556e20c764a'\nassert digest(after_raw) == '9c57673ed7731f7902105b089316539af9746553a6f1f4411876ca82bd6de693'\nassert before_raw == blob('policy-engine/schemas/runtime_api_v1.openapi.json')\nfor raw, parsed in [(before_raw, before), (after_raw, after)]:\n    assert raw == (json.dumps(parsed, ensure_ascii=False, indent=2, sort_keys=True) + '\\n').encode()\nrows = changes(before, after)\nassert len(rows) == 10 and all(row['kind'] == 'scalar' and row['path_segments'][:len(EXAMPLE_PATH)] == EXAMPLE_PATH for row in rows)\nroot_rows = json.loads((DATA / 'full-recursive-diff.json').read_bytes())\nassert root_rows == [{'path': '/' + '/'.join(row['path_segments']), 'before': row['before'], 'after': row['after']} for row in rows]\nmasked_before = copy.deepcopy(before)\nmasked_after = copy.deepcopy(after)\nselect(masked_before, EXAMPLE_PATH[:-1]).pop('value')\nselect(masked_after, EXAMPLE_PATH[:-1]).pop('value')\nassert masked_before == masked_after\nassert before['components']['schemas'] == after['components']['schemas']\nassert len(before['components']['schemas']) == len(after['components']['schemas']) == 573\nassert set(before['paths']) == set(after['paths']) and len(before['paths']) == 111\nmethods = {'get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'}\noperations = [[(path, method, value.get('operationId')) for path, item in document['paths'].items() for method, value in item.items() if method in methods] for document in (before, after)]\nassert operations[0] == operations[1] and len(operations[0]) == 113\npackets = [select(document, EXAMPLE_PATH) for document in (before, after)]\npacket_checks = []\nfor packet in packets:\n    body = {key: copy.deepcopy(value) for key, value in packet.items() if key not in {'projection_hash', 'replay_pins', 'replay_address'}}\n    body['freshness'].pop('observed_at', None)\n    projection_hash = 'sha256:' + digest(canonical(body))\n    assert projection_hash == packet['projection_hash'] == packet['replay_pins']['projection_hash']\n    pins = packet['replay_pins']\n    replay = packet['stable_address'] + '?' + urlencode(sorted(pins.items()))\n    assert replay == packet['replay_address']\n    validation = packet['source']['validation']\n    assert packet['source_dependency_hash'] == pins['source_dependency_hash'] == validation['bound_dependency_aggregate_identity']\n    assert packet['worker_validation_receipt_hash'] == validation['worker_validation_receipt_hash']\n    assert packet['worker_validation_receipt_ref'] == 'owner-validation:' + packet['worker_validation_receipt_hash']\n    assert packet['source']['artifact_content_hash'] == validation['bound_artifact_content_hash'] == pins['artifact_content_hash']\n    assert validation['status'] == 'passed' and validation['issue_codes'] == [] and validation['source_payload_equal'] is True\n    packet_checks.append({'projection_hash_recomputed_from_complete_non_self_referential_packet': projection_hash, 'replay_address_recomputed_from_complete_sorted_pins': replay, 'source_dependency_hash': packet['source_dependency_hash'], 'bound_dependency_count': validation['bound_dependency_count'], 'worker_validation_receipt_hash': packet['worker_validation_receipt_hash'], 'validation_status': validation['status'], 'issue_codes': validation['issue_codes'], 'source_payload_equal': validation['source_payload_equal'], 'artifact_content_hash': pins['artifact_content_hash'], 'payload_sha256': digest(canonical(packet['payload']))})\nassert packets[0]['payload'] == packets[1]['payload']\nassert packets[0]['source']['artifact_content_hash'] == packets[1]['source']['artifact_content_hash'] == 'sha256:' + digest(blob('policy-engine/architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json'))\nwrapper_path = RAW / 'successor-prefreeze-openapi-02ff.json'\nstdout_path = RAW / 'successor-prefreeze-openapi-02ff.txt'\nwrapper_raw = wrapper_path.read_bytes()\nstdout_raw = stdout_path.read_bytes()\nwrapper = json.loads(wrapper_raw)\nassert wrapper['head'] == wrapper['head_after'] == SHA and wrapper['tree'] == TREE and wrapper['exit_code'] == 0 and wrapper['harness_state'] == 'EXECUTED' and wrapper['exec_setup_error'] is None\nassert wrapper['output_sha256'] == digest(stdout_raw)\nassert git('rev-parse', SHA + '^{tree}').decode().strip() == TREE\nmanifest = tomllib.loads(blob('policy-engine/architecture/generated_artifacts.toml').decode())\nfamilies = {family['id']: family for family in manifest['family']}\nsource_paths = [\n    'policy-engine/architecture/generated_artifacts.toml',\n    'policy-engine/CONTRIBUTING.md',\n    'policy-engine/tools/ops_runners/runtime/export_runtime_openapi.py',\n    'policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py',\n    'policy-engine/src/polisyos/runtime/http/app.py',\n    'policy-engine/src/polisyos/runtime/http/openapi_contract.py',\n    'policy-engine/src/polisyos/runtime/http/services/governed_projections.py',\n    'policy-engine/src/polisyos/runtime/http/services/governed_projection_validation_worker.py',\n    'policy-engine/src/polisyos/runtime/http/services/governed_projection_dependencies.py',\n    'policy-engine/src/polisyos/runtime/http/services/confidence_ledger_risk_spend_projection.py',\n    'policy-engine/src/polisyos/runtime/http/services/confidence_ledger_risk_spend_contracts.py',\n    'policy-engine/src/polisyos/runtime/http/services/export_replay.py',\n    'policy-engine/tools/quality/validation/check_layer3_gy_confidence_ledger.py',\n    'policy-engine/architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json',\n    'policy-engine/architecture/production_quality/confidence_ledger.toml',\n    'policy-engine/schemas/runtime_api_v1.openapi.json',\n]\nbindings = [source_binding(path) for path in source_paths]\nassert all(row['current_worktree_bytes_equal_pinned_blob'] for row in bindings if row['path'] != 'policy-engine/schemas/runtime_api_v1.openapi.json')\nexcerpt_ranges = {\n    'policy-engine/tools/ops_runners/runtime/export_runtime_openapi.py': [(1, 70)],\n    'policy-engine/src/polisyos/runtime/http/openapi_contract.py': [(1581, 1635), (4509, 4523)],\n    'policy-engine/src/polisyos/runtime/http/services/governed_projections.py': [(1362, 1411), (1523, 1540)],\n    'policy-engine/src/polisyos/runtime/http/services/governed_projection_validation_worker.py': [(654, 674), (907, 927)],\n    'policy-engine/src/polisyos/runtime/http/services/governed_projection_dependencies.py': [(116, 132), (191, 202)],\n    'policy-engine/src/polisyos/runtime/http/services/confidence_ledger_risk_spend_contracts.py': [(161, 198), (298, 329)],\n    'policy-engine/src/polisyos/runtime/http/services/export_replay.py': [(152, 173)],\n}\nexcerpts = []\nfor path, ranges in excerpt_ranges.items():\n    lines = blob(path).decode().splitlines(keepends=True)\n    for start, end in ranges:\n        excerpts.append({'source_sha': SHA, 'path': path, 'start_line': start, 'end_line': min(end, len(lines)), 'complete_literal_region': ''.join(lines[start - 1:end])})\nreviewer_head = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=OWN, text=True).strip()\ninspection_head = git('rev-parse', 'HEAD').decode().strip()\nreceipt = {\n    'schema_version': 'e02.independent-source-data-review.v1',\n    'unit': 'B',\n    'reviewer': 'cmp_res_probe',\n    'review_role': 'Independent full OpenAPI output comparison and canonical generator/owner source interpretation; reviewer did not author root generated output.',\n    'source_sha': SHA,\n    'source_tree': TREE,\n    'reviewer_branch': 'codex/e02-B-current-composition',\n    'reviewer_parent_head': reviewer_head,\n    'reviewed_root_worktree': str(ROOT),\n    'root_head_at_final_inspection': inspection_head,\n    'source_inspection_binding': 'Producer result belongs to immutable02ff. Root subsequently advanced while read-only review ran. Every canonical source context is joined to exactGit02ff blobs; all current inspected context bytes except generated schema still equal02ff. No result is relabeled as a future-source gate PASS.',\n    'verdict': 'NONBLOCKING_FINITE_GENERATED_COMPANION_COPY',\n    'closure_ids': [],\n    'finding_closure_ids': [],\n    'formal_closure': False,\n    'P41': 'not_established; no inherited failure waiver',\n    'reviewer_runtime_tests': 'UNRUN',\n    'reviewer_gates': 'UNRUN',\n    'reviewer_generation': 'UNRUN',\n    'changed_paths': ['policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-openapi-independent-review.json'],\n    'deciding_inputs': [binding(DATA / name) for name in ['before.json', 'after.json', 'full-recursive-diff.json']] + [binding(wrapper_path), binding(stdout_path)],\n    'before_git_binding': {'source_sha': SHA, 'path': 'policy-engine/schemas/runtime_api_v1.openapi.json', 'git_blob': git('rev-parse', SHA + ':policy-engine/schemas/runtime_api_v1.openapi.json').decode().strip(), 'byte_equal_full_before_json': True},\n    'actual_root_producer': {'outcome': 'PASS', 'actual_exit': 0, 'qualification': 'Observed completed producer wrapper/stdout/data from root; no independent producer execution by reviewer. PASS means generator completed, not runtime/API/architecture/native/client acceptance.', 'complete_wrapper': wrapper, 'wrapper_raw_text': wrapper_raw.decode(), 'complete_combined_stdout_stderr': stdout_raw.decode(), 'source_environment_limits': ['Wrapper records original ambient PATH and original194 UV_PROJECT_ENVIRONMENT, no PG sidepath argv. The six removed numeric caps and exact194 distribution census are root-supplied context, not independently demonstrated by this wrapper allowlist.', 'No child worker dependency map or complete1502inputmembership retained in producer stdout; aggregate/pin/count coherence is observable, individualBpath causal attribution is not established.', 'wait4 child RSS1190576KiB is not aggregate concurrent process RSS. Source boundary uses wrapper HEAD before/after with initialcleanliness delegated to root launcher.']},\n    'full_json_comparison': {'read_grade': 'Both complete2812414byte files parsed independently; no partial/truncated diff predicate.', 'recursive_scalar_changes': rows, 'root_supplied_diff_exactly_equal_independent_complete_recursion': True, 'all_changes_inside_one_example_value': EXAMPLE_PATH, 'whole_json_equal_after_removing_only_this_example': True, 'masked_complete_document_sha256': digest(canonical(masked_after)), 'all_components_schemas_equal': True, 'schema_count_before_after': [573, 573], 'schemas_complete_subtree_sha256': digest(canonical(after['components']['schemas'])), 'path_sets_equal': True, 'path_count_before_after': [111, 111], 'operation_identity_tuples_equal': True, 'http_operation_count_before_after': [113, 113], 'security_schemes_equal': before['components'].get('securitySchemes') == after['components'].get('securitySchemes'), 'complete_route_DTO_contract_outside_example_equal': True, 'canonical_rendering_bytes_exact': True, 'interpretation': '1489→1502 is consulted dependency binding count, not13newpaths/routes/schemas. No key/type/list-size/schema/route/operation/parameter/security/response-contract delta exists outside the one example.'},\n    'complete_packet_coherence': {'source_basis': 'Plain-JSON standard-library projection hashing/replay reconstruction follows exact canonical export_replay.py and packet_semantic_projection source; no product imports or typed validator rerun.', 'before_after': packet_checks, 'payload_entirely_equal': True, 'negative_posture_entirely_equal': 'Full example comparison leaves measured refusal/acquisition/instrument/spend/positive-register/coverage/not_promoted posture, authoritative_for/may_not_use_for, registry/source semantic projections and artifact hash unchanged.', 'worker_receipt_hash_recomputed': False, 'worker_receipt_limit': 'No complete worker receipt/dependency map is present in output; its hash is independently checked for consistent transport binding, not recomputed from unavailable inputs.'},\n    'registered_owner_basis': {'authoritative_source': 'policy-engine/architecture/generated_artifacts.toml@' + SHA, 'relevant_complete_family_objects': [families[key] for key in ['runtime-openapi-snapshot', 'runtime-api-client', 'policy-design-case-layer3-gy-n11-confidence-ledger']], 'interpretation': 'runtime-openapi-snapshot owner/approvalteam-polisyos and versionteam-runtime explicitly require regeneration for owner-validator consulted dependency basis changes. Copying actual canonicalafter bytes is an active required generated-companion freshness correction with a structured schema-openapi-abi release fragment, not protectedA/C source mutation or new authority acceptance. Generated client is separately registered downstream; this review does not claim its fresh byte result.', 'approval_boundary': 'Repository owner fields are declared institutional metadata; parent root authorizes the canonical companion copy. This independent source/data verdict does not ratify N11 promotion/publication/policy authority or rewrite its governed source.'},\n    'canonical_source_trace': [\n        {'path': 'tools/ops_runners/runtime/export_runtime_openapi.py', 'quantity': 'Fresh process create_runtime_api_app(enable_security_middlewares=False, cas_root=retainedscratch/cas).openapi, sorted canonical JSON. Explicitscratch createsnewroot and retainsCAS; no TemporaryDirectory deletion on actualargv.'},\n        {'path': 'src/polisyos/runtime/http/app.py:419 andopenapi_contract.py:4509', 'quantity': 'Actual app installs canonical augmenting schema closure and invokes real success-example factory for existing operation.'},\n        {'path': 'src/polisyos/runtime/http/openapi_contract.py:1582', 'quantity': 'Requests real ConfidenceLedgerRiskSpendProjectionService.get, refuses non-Available arm; normalizes only sampletime, recomputes packet projection/replay pins/address, strictlyadmits typedpacket and checks actualnegative measuredshape.'},\n        {'path': 'src/polisyos/runtime/http/services/governed_projection_validation_worker.py:654,907', 'quantity': 'Worker calls existing N11validate_payload and reconciles typedsource/request/registry/spend; tracks actual consultedrepository file/directory/moduleidentities, verifiesbindingsbefore/after, emits dependencyaggregate andpassed/failedreceipt. Dependency count derives len(actualworkerbindings), notGitdiffguess.'},\n        {'path': 'src/polisyos/runtime/http/services/governed_projections.py:1362', 'quantity': 'Parent validates worker ID/version/source/payload and dependencyaggregate content, checksrequiredcomponentbindings, hashesactualmodel_dump workerreceipt. ProjectionSourceValidation carries aggregate/count/workerhash; transport source_dependency uses same admitted aggregate.'},\n        {'path': 'src/polisyos/runtime/http/services/confidence_ledger_risk_spend_contracts.py:161', 'quantity': 'Typedavailablearm checks allsource/registry/semantic/dependency/worker/replaybindings plus actualpacket identity. Read-onlyindependentdatawalker reproducedprojectionhash+replayURL andidentityequalities oncompletebothpackets.'},\n    ],\n    'source_bindings': bindings,\n    'complete_relevant_source_regions': excerpts,\n    'finite_non_attestations': ['No independent full1502workerinputclosure or perfilecausalblame; exactaggregate changes are observed and trigger registeredfreshness.', 'No arbitrary endpoint execution, authorization, lifecycle, streaming, PG, installedwheel, frontendclient, deployment, hostedCI or newnative/gates measured by this review.', 'No N11source artifact/registry rewrite: immutableartifactdd8f4 and registry/source bytes remain equalbase198 and fullsemanticpayload unchanged.', 'Earlier IR snapshot/manifest parity FAIL and all other required gate/native FAIL/UNRUN remain independent actual results; example copy does not hide/resolve them or imply P41.', 'Fresh producer02ff is not reused as future target generation/runtime/gate PASS. Later source/docsPython input changes require exacttarget basis proof or fresh canonical generation under rootowner.'],\n    'review_instrument': {'kind': 'Standard-library full-data parser/hash/recursive compare plus read-only Git source joins; not a gate/test/generator', 'script_path': str(Path(__file__).resolve()), 'sha256': digest(Path(__file__).read_bytes()), 'literal_executed_script': Path(__file__).read_text()},\n}\nOUT.write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + '\\n')\nassert json.loads(OUT.read_bytes()) == receipt\nprint(json.dumps({'path': str(OUT), 'bytes': OUT.stat().st_size, 'sha256': digest(OUT.read_bytes()), 'verdict': receipt['verdict'], 'scalar_changes': len(rows), 'schemas': 573, 'paths': 111, 'operations': 113, 'runtime': 'UNRUN'}))\n"
+  }
+}

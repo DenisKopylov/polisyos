@@ -1,0 +1,92 @@
+{
+  "schema": "policyos.e02.evidence_references.v1",
+  "unit_id": "B",
+  "state": "DRAFT_compact_authoritative_census_and_frozen_test_only_successor",
+  "source_points": {
+    "leaf_test_source": "3543f89a3a247bf01294d98e5dfa0f36cfefd958",
+    "whole_file_inventory_root": "933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+    "all12_original_implementation": "126024b95fcac6400f5afc29a60596b88cdd5212",
+    "all12_original_receipt": "250df6ec8366659c13b72b6a33cedf4dba5ec24a",
+    "independent_wire_receipt": "44af46ed73f73ee5ff6e2eadf46a0a648efe6201"
+  },
+  "companion_files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-audit.json",
+      "sha256": "0dfb6d2688225442ebc3757944d7369bf431204d7d90099f91ab7012def57893",
+      "bytes": 328367
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-equivalents.json",
+      "sha256": "2c916a62658080fc836e3c49778e9ceb60bd60bbd0fc908b2d5bad1ebc5b9358",
+      "bytes": 21891
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-source-review.json",
+      "sha256": "50d6eec3f04efa6a5ffd4e6ac4f98293a92f9c1978c84a8407f5c07a4f06101c",
+      "bytes": 58692
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/derive-cohort-selector-audit.py",
+      "sha256": "3e8eb5abd9d5ed6dd03cb12fed2f44285ea7350544ba3c0a776ae16f797964a1",
+      "bytes": 27924
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/wire-process-ancestry-companion.json",
+      "sha256": "84686fb1a532b871048c9bc69ece7ffb371362410b3755c4407cc29581e3b1cd",
+      "bytes": 18980
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/currenta6-adapters-full15.json",
+      "sha256": "ba764f313b446c6c5352edd44f495ce5f6c775fb5ccd46cf72d43551961a3321",
+      "bytes": 2806
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/currenta6-adapters-full15.txt",
+      "sha256": "90fd6ca77cf0fed0be67112c581a5da61e9a0f31e9ad761a7c1dac77f49aae31",
+      "bytes": 9581
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/currenta6-adapters-full15.xml",
+      "sha256": "f2484f0914e2fae1c5d352b6d43692b33f0482c5ec62c3e85f5b3046395f45b7",
+      "bytes": 65775
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/current933-adapters-full15.json",
+      "sha256": "a76dc4c71eafd4322a6c7762f4688c8b96eeef026c5425e7bc85db78fee6e142",
+      "bytes": 2707
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/current933-adapters-full15.txt",
+      "sha256": "59abafe822538195a0e38f4e01317c90df77ee9582d4645f4e4e37d413430f3d",
+      "bytes": 1158
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/current933-adapters-full15.xml",
+      "sha256": "5eef4d4c46d6c847bf3d23bd7d14a100245a69e31f2effacf8f436b10ce5e78a",
+      "bytes": 57583
+    }
+  ],
+  "limits": [
+    "Selector audit reads all25 canonical cards/fullB.md/complete60finding owners+coverage and all561 routes/189cells at exactroot933; baseline cells are navigation only.",
+    "All422 recorded native-argv lineage rows reduce to161 exact descriptor refs, with source hash/index/pointer/command IDs;28 static handoff-driver rows from33 top receipts. Historical3816 complete command-lineage rows are ignoredraw metadata, never newcasecount. No last-command truncation.",
+    "98 candidate whole files; all15 missing planned names carry source-reviewed bounded alternatives and explicit residuals. None is automatically adjudicated by path or AST existence.",
+    "Whole98 native collection/execution and final all-owner freeze remain UNRUN in this snapshot; historical74/1317 never current denominator.",
+    "Original all12 disposition/closure[] unchanged. B13 A-only generation consumer/B61 immutable versioned SKG owner premise/Cstreaming/institutionalB67/external outcome boundary remain explicit.",
+    "Root owns publication of root933 and future final union. No new worktree, source production change, helper agent, pytest execution or collection performed for this census.",
+    "Oversized327 Git object is retained as a historical publishing mistake and superseded by this small-tree forward commit; it is not current input proof. Full metadata exists only in ignoredraw with sourceSHA/size/SHA256. Current compact facts are freshly rederived from exactroot933 immutableGit."
+  ],
+  "historical_oversized_packet": {
+    "commit": "327b90023110f91b42a94e039863e7a8fe1425ec",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-audit.json",
+    "sha256": "7d9c8a9c1507753635d553f98c90e533524024d8b30c05094efdc1b155ccb922",
+    "bytes": 6125292,
+    "grade": "historical publishing mistake; superseded, not current input proof"
+  },
+  "ignored_full_lineage": {
+    "path": "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/cohort-selector-full-lineage-933-v2.json",
+    "source_git_sha": "933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+    "sha256": "175585a436a765a32cefbbee3375821bfb8e2745e0891caa6f42f73aa1c54c6c",
+    "bytes": 6125325,
+    "grade": "ignored full lineage; compact census/source Git refs are authoritative"
+  }
+}

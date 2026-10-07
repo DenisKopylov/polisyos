@@ -1,0 +1,161 @@
+{
+  "schema": "policyos.e02.complete_output_custody.v1",
+  "checked_source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+  "checked_source_tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+  "original_copies": [
+    {
+      "source_actual": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort.json",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-root-evidence/completed-final-B-cohort.json",
+      "bytes": 2858,
+      "sha256": "128df0057719f39a62fc303c4c267fc04a1db4d34a1e67d2b49523bdef889d97"
+    },
+    {
+      "source_actual": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-root-evidence/completed-final-B-cohort.txt",
+      "bytes": 172778,
+      "sha256": "2f1ccd3ec853f830617b714cd7041ac18f7ce6b22ed7c70cfe4ac90a4dbbc84b"
+    },
+    {
+      "source_actual": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort-profile.json",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-root-evidence/completed-final-B-cohort-profile.json",
+      "bytes": 21086,
+      "sha256": "306f134d1c709a33b1e195f62775ce226fee61f9addeda95fbc3dd1151158f58"
+    },
+    {
+      "source_actual": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-affected-consumers.json",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-root-evidence/completed-final-affected-consumers.json",
+      "bytes": 2929,
+      "sha256": "d4ba231338db6d83de3829de20cd9592ec791596ea0f26651ba0e38d67b3cd43"
+    },
+    {
+      "source_actual": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-affected-consumers.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-root-evidence/completed-final-affected-consumers.txt",
+      "bytes": 1673745,
+      "sha256": "05ca33cf103234b77d78b37ce4f5731d5e14d14895bf2223a6b77e8df41e3b49"
+    },
+    {
+      "source_actual": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-affected-consumers-profile.json",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-root-evidence/completed-final-affected-consumers-profile.json",
+      "bytes": 16353,
+      "sha256": "9f1559932776fcf0f215a15399b9f4329fc54a6bcd68aa2711a57523724fe9f1"
+    },
+    {
+      "source_actual": "/dev/shm/e02-B-completed-affected-1862c021df74-bound/native.xml",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-root-evidence/native-affected.xml",
+      "bytes": 151979,
+      "sha256": "e7952cf7c945b460e4511a526b0e38c4d9bc7bce54fe57c1e2c0ce1ad4d8c872"
+    },
+    {
+      "source_actual": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-selector.json",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-root-evidence/completed-final-selector.json",
+      "bytes": 1450744,
+      "sha256": "738f7becb550dd7a39dcd549f303a588eee8542ab8d382373544a46f3d9b5cc3"
+    },
+    {
+      "source_actual": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/run_completed_affected.py",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-root-evidence/run-completed-affected.source.txt",
+      "bytes": 4403,
+      "sha256": "75721676506947d8ae604ee0b1c504374fda3ab1b95b053de5131bca781a2c4d"
+    },
+    {
+      "source_actual": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/pack_completed_root.py",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-root-evidence/pack-completed-root.source.txt",
+      "bytes": 7146,
+      "sha256": "47f16afb05638737081a1e80d33740a31e2d7ffa160c3d54b24345bb4cf8231b"
+    },
+    {
+      "source_actual": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/run_completed_cohort_filebacked_retry.py",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-root-evidence/run-completed-cohort-filebacked-retry.source.txt",
+      "bytes": 6834,
+      "sha256": "25b390a1afb74c9376617a0a5ba98a6f5fbbba03ddd96ae4717e24c8d6c485b8"
+    },
+    {
+      "source_actual": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort-filebacked-retry-derivation.json",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-root-evidence/completed-final-B-cohort-filebacked-retry-derivation.json",
+      "bytes": 1402,
+      "sha256": "0c76ee00c9c12c3523cd5c8e86f8ed24ba4dd596793f817fbc9a143f935e05b3"
+    }
+  ],
+  "payloads": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-root-evidence/README.md",
+      "bytes": 634,
+      "sha256": "25e30fee1c92765babae356e5e794651721235e7fcf0b59e69ab5d2eba806a49"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-root-evidence/completed-final-B-cohort-filebacked-retry-derivation.json",
+      "bytes": 1402,
+      "sha256": "0c76ee00c9c12c3523cd5c8e86f8ed24ba4dd596793f817fbc9a143f935e05b3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-root-evidence/completed-final-B-cohort-profile.json",
+      "bytes": 21086,
+      "sha256": "306f134d1c709a33b1e195f62775ce226fee61f9addeda95fbc3dd1151158f58"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-root-evidence/completed-final-B-cohort.json",
+      "bytes": 2858,
+      "sha256": "128df0057719f39a62fc303c4c267fc04a1db4d34a1e67d2b49523bdef889d97"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-root-evidence/completed-final-B-cohort.txt",
+      "bytes": 172778,
+      "sha256": "2f1ccd3ec853f830617b714cd7041ac18f7ce6b22ed7c70cfe4ac90a4dbbc84b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-root-evidence/completed-final-affected-consumers-profile.json",
+      "bytes": 16353,
+      "sha256": "9f1559932776fcf0f215a15399b9f4329fc54a6bcd68aa2711a57523724fe9f1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-root-evidence/completed-final-affected-consumers.json",
+      "bytes": 2929,
+      "sha256": "d4ba231338db6d83de3829de20cd9592ec791596ea0f26651ba0e38d67b3cd43"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-root-evidence/completed-final-affected-consumers.txt",
+      "bytes": 1673745,
+      "sha256": "05ca33cf103234b77d78b37ce4f5731d5e14d14895bf2223a6b77e8df41e3b49"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-root-evidence/completed-final-selector.json",
+      "bytes": 1450744,
+      "sha256": "738f7becb550dd7a39dcd549f303a588eee8542ab8d382373544a46f3d9b5cc3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-root-evidence/execution-qualification.json",
+      "bytes": 2404,
+      "sha256": "cdccff92bf8b0813e3d9981184c686f1a686961741acbf33e79e6f6f3c6c7bfc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-root-evidence/incomplete-collected-nodeids.json",
+      "bytes": 2177582,
+      "sha256": "641f1ad779d5430b2adf6a589967da3e788e0670ef06623e7e8051804032aebe"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-root-evidence/large-raw-locators.json",
+      "bytes": 1905,
+      "sha256": "4ec2b1dec2ce8bc6ba6a1befa20cd236b3f63bcf925b490d0764e5a214660499"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-root-evidence/native-affected.xml",
+      "bytes": 151979,
+      "sha256": "e7952cf7c945b460e4511a526b0e38c4d9bc7bce54fe57c1e2c0ce1ad4d8c872"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-root-evidence/pack-completed-root.source.txt",
+      "bytes": 7146,
+      "sha256": "47f16afb05638737081a1e80d33740a31e2d7ffa160c3d54b24345bb4cf8231b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-root-evidence/run-completed-affected.source.txt",
+      "bytes": 4403,
+      "sha256": "75721676506947d8ae604ee0b1c504374fda3ab1b95b053de5131bca781a2c4d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-root-evidence/run-completed-cohort-filebacked-retry.source.txt",
+      "bytes": 6834,
+      "sha256": "25b390a1afb74c9376617a0a5ba98a6f5fbbba03ddd96ae4717e24c8d6c485b8"
+    }
+  ]
+}

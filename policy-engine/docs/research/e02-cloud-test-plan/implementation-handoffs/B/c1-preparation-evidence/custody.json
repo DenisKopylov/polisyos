@@ -1,0 +1,137 @@
+{
+  "schema": "policyos.e02.preparation_attempt_custody.v1",
+  "target_sha": "c1d031ed48134a2c084b937f0275884aeb40971c",
+  "tree": "d09913b83338767e0e063739f97f583a19390e12",
+  "purpose": "Failed full input derivation before any new pytest cohort; six gates executed and retained, parity/cohort UNRUN. Subsequent namespace must not overwrite these outputs.",
+  "all_six_gates": "Actual EXECUTED/exit1/source unchanged; not final successor evidence and no inherited P41 attribution",
+  "selector_failure": "229existing references/18absent:14canonical mapped +4incidental source-only controlled constants; independent trace publishes separately. No missing reference is a collected case.",
+  "environment_qualification": "Six real gates used reviewed launcher six-cap removal; pure-stdlib selector failure capture used ambient inherited environment with cap fields not recorded, no numerical or product runtime claim.",
+  "files": [
+    {
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/repaired-final-all-changed-ruff.json",
+      "sha256": "c6b45a2227a1878b119313e0165b81c7b134dcca87fc6090e0aa0a72ee385346",
+      "bytes": 24043,
+      "committed_complete_bytes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/c1-preparation-evidence/repaired-final-all-changed-ruff.json"
+    },
+    {
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/repaired-final-all-changed-ruff-profile.json",
+      "sha256": "7f0bc992226ccd595eae3ec98ae94ecd5517c083ce912aedf5a935650e36ec1e",
+      "bytes": 75087,
+      "committed_complete_bytes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/c1-preparation-evidence/repaired-final-all-changed-ruff-profile.json"
+    },
+    {
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/repaired-final-all-changed-ruff.txt",
+      "sha256": "94b7ce7ca4a50c145969f7a06cc248baf23133893a699657e87744d74360c619",
+      "bytes": 2913214,
+      "custody": "ignored complete raw; exact rerun required if receiver cannot read bytes; summary never substitutes deciding bytes"
+    },
+    {
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/repaired-final-all-changed-format.json",
+      "sha256": "09f413309f1415f5f2fdbadacbe2c199899ad8c805876052b32a57a7a513700e",
+      "bytes": 24044,
+      "committed_complete_bytes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/c1-preparation-evidence/repaired-final-all-changed-format.json"
+    },
+    {
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/repaired-final-all-changed-format-profile.json",
+      "sha256": "b4e5ecb5a55f9740ad4ce03f3d506f1d2f6fe42afc1a898383cdcbd2ec1a5ae2",
+      "bytes": 75087,
+      "committed_complete_bytes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/c1-preparation-evidence/repaired-final-all-changed-format-profile.json"
+    },
+    {
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/repaired-final-all-changed-format.txt",
+      "sha256": "52f6a3043f8f30a93d9919264a10995131f49214d72b2afba8cc385ba3246934",
+      "bytes": 13569,
+      "committed_complete_bytes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/c1-preparation-evidence/repaired-final-all-changed-format.txt"
+    },
+    {
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/repaired-final-architecture.json",
+      "sha256": "af0e00309bfdb7f86e361ef64a1e0dc6e1d37c243b4a976acf98ed70ed270e74",
+      "bytes": 2369,
+      "committed_complete_bytes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/c1-preparation-evidence/repaired-final-architecture.json"
+    },
+    {
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/repaired-final-architecture-profile.json",
+      "sha256": "8f6f8592a1900194fd6e69a12e293a884c53b016634bfe0175bcf5c60663e2e5",
+      "bytes": 2170,
+      "committed_complete_bytes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/c1-preparation-evidence/repaired-final-architecture-profile.json"
+    },
+    {
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/repaired-final-architecture.txt",
+      "sha256": "3c1a37a7f2a900c270e8faca0fe21ef985cc77ad59bc3d319dd34bcd625d2f16",
+      "bytes": 123233,
+      "committed_complete_bytes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/c1-preparation-evidence/repaired-final-architecture.txt"
+    },
+    {
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/repaired-final-runtime-api.json",
+      "sha256": "7ac9adadbafa543cfac782e3f2c4a6293c699fbca029c10aa8ffc33f12c9bb77",
+      "bytes": 2419,
+      "committed_complete_bytes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/c1-preparation-evidence/repaired-final-runtime-api.json"
+    },
+    {
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/repaired-final-runtime-api-profile.json",
+      "sha256": "421bc026baa5e415d2c5edae74f1be31ac4b086a702d642b33e5aa3bfe46c988",
+      "bytes": 2222,
+      "committed_complete_bytes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/c1-preparation-evidence/repaired-final-runtime-api-profile.json"
+    },
+    {
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/repaired-final-runtime-api.txt",
+      "sha256": "98094ffc787ef7fe936027e594dc8eee885b034f5de437563600c604e7da332a",
+      "bytes": 13048,
+      "committed_complete_bytes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/c1-preparation-evidence/repaired-final-runtime-api.txt"
+    },
+    {
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/repaired-final-production-invocation.json",
+      "sha256": "7e28a1737403f844afd152837e16eaac9134a76dae4825c4bf5b5d8f6cfe4929",
+      "bytes": 2623,
+      "committed_complete_bytes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/c1-preparation-evidence/repaired-final-production-invocation.json"
+    },
+    {
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/repaired-final-production-invocation-profile.json",
+      "sha256": "bef23a8498196d5f81ae4ac23fcfba89a65393404624f9b30b352f8406ba4589",
+      "bytes": 2508,
+      "committed_complete_bytes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/c1-preparation-evidence/repaired-final-production-invocation-profile.json"
+    },
+    {
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/repaired-final-production-invocation.txt",
+      "sha256": "bb8fb8d7bec8a8728297e76dfa527862a72d489df5239e94737f49d8a8d5793e",
+      "bytes": 15789,
+      "committed_complete_bytes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/c1-preparation-evidence/repaired-final-production-invocation.txt"
+    },
+    {
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/repaired-final-verify-uncapped.json",
+      "sha256": "10dfccb06812167530b94e40786d474750128486839b84b7837a562ead1cf8c6",
+      "bytes": 2767,
+      "committed_complete_bytes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/c1-preparation-evidence/repaired-final-verify-uncapped.json"
+    },
+    {
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/repaired-final-verify-uncapped-profile.json",
+      "sha256": "66d3041dcf5c3b2227205d670dd713f8bb57554d8f519c544002520468f9a0c1",
+      "bytes": 3123,
+      "committed_complete_bytes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/c1-preparation-evidence/repaired-final-verify-uncapped-profile.json"
+    },
+    {
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/repaired-final-verify-uncapped.txt",
+      "sha256": "25225ec99b4681e9cab5535d2181a1ac8fa89d18a5957ddf3244cacc7787ffaf",
+      "bytes": 18074,
+      "committed_complete_bytes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/c1-preparation-evidence/repaired-final-verify-uncapped.txt"
+    },
+    {
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/c1-selector-admission-failure.json",
+      "sha256": "48594d8ff9406ad061369f7543d61de6c9bfbdc9a1a73c38d9987fce776df4e1",
+      "bytes": 2416,
+      "committed_complete_bytes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/c1-preparation-evidence/c1-selector-admission-failure.json"
+    },
+    {
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/c1-selector-admission-failure.txt",
+      "sha256": "3075568e88e39c1cd6939ab09bc0095f202e4eb83cff76b9c7bb66245998c54f",
+      "bytes": 549,
+      "committed_complete_bytes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/c1-preparation-evidence/c1-selector-admission-failure.txt"
+    },
+    {
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/repaired-final-production-invocation-full.json",
+      "sha256": "1892a27aa2446bb5b0538d7d3baa5a84cfbf5564d603eaa53f432dbb35582f01",
+      "bytes": 173315329,
+      "custody": "ignored complete static graph; no runtime invocation proof"
+    }
+  ]
+}

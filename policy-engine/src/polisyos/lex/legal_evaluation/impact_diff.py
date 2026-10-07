@@ -109,6 +109,9 @@ class NormImpactAnalyzer:
         for pass_id in self._pass_ids:
             if pass_id not in self.DEFAULT_PASSES:
                 raise ValueError(f"Unsupported impact pass: {pass_id!r}")
+        # A plan identifies checks, not multiplicities. Preserve the first
+        # occurrence so repeated references cannot inflate compliance deltas.
+        self._pass_ids = tuple(dict.fromkeys(self._pass_ids))
         self._legal_backend = legal_backend
 
     def analyze(

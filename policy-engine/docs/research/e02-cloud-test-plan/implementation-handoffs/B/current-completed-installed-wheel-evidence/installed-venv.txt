@@ -1,0 +1,3 @@
+Using CPython 3.14.2 interpreter at: /workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/bin/python3.14
+Creating virtual environment at: installed-env
+Activate with: source installed-env/bin/activate

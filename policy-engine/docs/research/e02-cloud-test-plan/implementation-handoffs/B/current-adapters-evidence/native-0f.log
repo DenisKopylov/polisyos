@@ -1,0 +1,13 @@
+........................................................................ [ 23%]
+........................................................................ [ 47%]
+........................................................................ [ 70%]
+........................................................................ [ 94%]
+.................                                                        [100%]
+=============================== warnings summary ===============================
+tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py::test_real_worker_process_consumes_state_and_emits_exact_typed_outcome[stdlib]
+tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py::test_real_worker_process_consumes_state_and_emits_exact_typed_outcome[orjson]
+  /workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/popen_fork.py:70: DeprecationWarning: This process (pid=124844) is multi-threaded, use of fork() may lead to deadlocks in the child.
+    self.pid = os.fork()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+305 passed, 2 warnings in 10.26s

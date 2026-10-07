@@ -1,0 +1,59 @@
+import hashlib, importlib.metadata, json, os, platform, subprocess, sys, time, uuid
+from pathlib import Path
+import xml.etree.ElementTree as ET
+
+OWN=Path('/workspace/e02-B-current-cas-generation')
+SOURCE=Path('/workspace/e02-B-current-adapters')
+EXPECTED='a391e0c1f5bec81e6033675e4d48dd1cbe8e194d'
+EXPECTED_TREE='da24b5d33dad29e7d23ad953e687b73d99c5265e'
+PYTHON=Path('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python')
+TEST='tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py'
+HERE=Path(__file__).resolve().parent
+OUT=Path('/tmp')/('e02-B-completion-consumer-a391-'+uuid.uuid4().hex[:12]); OUT.mkdir()
+
+def git(root,*args):
+    return subprocess.check_output(['git','-C',str(root),*args],text=True).strip()
+def ident(root):
+    return {'head':git(root,'rev-parse','HEAD'),'tree':git(root,'rev-parse','HEAD^{tree}'),'status':git(root,'status','--porcelain')}
+def custody(path):
+    data=path.read_bytes();return {'path':str(path),'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()}
+def production():
+    rows=[]
+    for rel in git(SOURCE,'ls-files','policy-engine/src').splitlines():
+        path=SOURCE/rel
+        if not path.is_file():continue
+        actual=path.read_bytes();canonical=subprocess.check_output(['git','-C',str(SOURCE),'show',EXPECTED+':'+rel])
+        assert actual==canonical,rel
+        rows.append(custody(path)|{'git_path':rel})
+    return rows
+before=ident(SOURCE);assert before=={'head':EXPECTED,'tree':EXPECTED_TREE,'status':''},before
+own=ident(OWN);assert own['head']=='619e3834cb56a8109460d07cd5d18fcde1fedc49' and own['status']=='',own
+sources=production()
+configs=[OWN/'policy-engine'/rel for rel in [TEST,'pytest.ini','pyproject.toml','uv.lock','tests/conftest.py','tests/unit/scientist/conftest.py','tests/quarantine.toml','tests/_helpers/artifacts.py','tests/_helpers/observability.py']]
+env=dict(os.environ)
+removed={key:env.pop(key) for key in ('OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','NUMEXPR_NUM_THREADS','VECLIB_MAXIMUM_THREADS','BLIS_NUM_THREADS') if key in env}
+env['PYTHONPATH']=str(HERE)+':'+str(SOURCE/'policy-engine/src')+':'+str(OWN/'policy-engine/src')
+env['POLISYOS_METRICS_PORT']='0';env['COMPLETION_ORIGIN_OBSERVATIONS']=str(OUT/'module-origins.jsonl')
+argv=[str(PYTHON),'-m','pytest','-vv','-p','origin_guard',TEST,'--basetemp',str(OUT/'pytest'),'-o','cache_dir='+str(OUT/'cache'),'--junitxml='+str(OUT/'native.xml')]
+profile={'predicate_basis':'recomputed','claim_grade':'independent test-author measured consumer runtime; no self-acceptance of canonical ledger/enforcer code','source_before':before,'source_ref':EXPECTED,'source_tree':EXPECTED_TREE,'test_checkout':own,'argv':argv,'cwd':str(OWN/'policy-engine'),'public_environment':{key:env[key] for key in ('PYTHONPATH','POLISYOS_METRICS_PORT','COMPLETION_ORIGIN_OBSERVATIONS')},'numeric_thread_caps_removed':sorted(removed),'python_executable':str(PYTHON),'python_environment':{'version':sys.version,'platform':platform.platform(),'distributions':sorted((d.metadata['Name'],d.version) for d in importlib.metadata.distributions())},'input_closure':{'production_tracked_files':sources,'test_and_configs':[custody(path) for path in configs],'instruments':[custody(Path(__file__)),custody(HERE/'origin_guard.py')]},'started_utc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime())}
+(OUT/'profile.json').write_text(json.dumps(profile,indent=2,sort_keys=True)+'\n')
+print(json.dumps({'output':str(OUT),'argv':argv,'source':before,'test':own}),flush=True)
+started=time.monotonic()
+with (OUT/'native-stdout.txt').open('wb') as stdout:
+    stdout.write((json.dumps({'argv':argv,'cwd':profile['cwd'],'source':before,'test':own})+'\n').encode());stdout.flush()
+    process=subprocess.Popen(argv,cwd=profile['cwd'],env=env,stdout=stdout,stderr=subprocess.STDOUT)
+    waited_pid,status,usage=os.wait4(process.pid,0)
+    assert waited_pid==process.pid
+    process.returncode=os.waitstatus_to_exitcode(status)
+after=ident(SOURCE);sources_after=production()
+assert after==before and sources_after==sources,(before,after)
+assert ident(OWN)==own
+counts={}
+if (OUT/'native.xml').exists():
+    root=ET.parse(OUT/'native.xml').getroot();cases=list(root.iter('testcase'))
+    counts={'actual_cases':len(cases),'passed':sum(not any(c.find(tag) is not None for tag in ('failure','error','skipped')) for c in cases),'failed':sum(c.find('failure') is not None for c in cases),'error':sum(c.find('error') is not None for c in cases),'skipped':sum(c.find('skipped') is not None for c in cases)}
+result={'returncode':process.returncode,'source_before':before,'source_after':after,'test_before_after':own,'elapsed_seconds':time.monotonic()-started,'rusage_exact_pytest_pid':{'pid':waited_pid,'maxrss_kib':usage.ru_maxrss,'user_seconds':usage.ru_utime,'system_seconds':usage.ru_stime},'counts':counts,'finished_utc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime())}
+result['artifacts']=[custody(p) for p in sorted(OUT.rglob('*')) if p.is_file() and p.name!='result.json']
+(OUT/'result.json').write_text(json.dumps(result,indent=2,sort_keys=True)+'\n')
+print(json.dumps({'output':str(OUT),'result':result},sort_keys=True),flush=True)
+sys.exit(process.returncode)

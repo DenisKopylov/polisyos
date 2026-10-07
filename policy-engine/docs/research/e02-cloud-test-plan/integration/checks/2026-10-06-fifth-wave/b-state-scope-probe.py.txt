@@ -1,0 +1,282 @@
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+import shutil
+import stat
+import subprocess
+import sys
+import time
+from datetime import UTC, datetime
+from pathlib import Path
+
+REPO = Path('/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos')
+CANDIDATE = '3eb2e887e07452a316aab95b7dbe3b4f2874951d'
+EXPECTED_TREE = '1fa3889f9fa5d216ab54357de6a680d03c4621d4'
+EXPECTED_G_HEAD = '363e7ae0cb2929a92d9667334fdc0ac3087daf5e'
+R = REPO / 'policy-engine/_build/e02-g-continuation-20261006/R'
+CANDIDATE_ROOT = R / 'candidates/b-all15-state-probe-3eb'
+RESULTS = R / 'results'
+CHILD = RESULTS / 'b-all15-state-probe-3eb-child.py'
+STARTED = datetime.now(UTC).isoformat()
+MAX_CLOSURE_BYTES = 100 * 1024 * 1024
+SHORT_TIMEOUT_SECONDS = 60
+
+
+def git(*args: str, timeout: int = 30) -> bytes:
+    return subprocess.check_output(['git', '-C', str(REPO), *args], timeout=timeout)
+
+
+def parse_ls_tree(raw: bytes) -> dict[str, tuple[str, str]]:
+    result: dict[str, tuple[str, str]] = {}
+    for record in raw.split(b'\0'):
+        if not record:
+            continue
+        header, raw_path = record.split(b'\t', 1)
+        mode, obj_type, blob = header.decode('ascii').split()
+        if obj_type != 'blob':
+            raise RuntimeError(f'non-blob source entry: {record!r}')
+        result[raw_path.decode('utf-8', 'surrogateescape')] = (mode, blob)
+    return result
+
+
+def git_blob_sha(data: bytes) -> str:
+    return hashlib.sha1(b'blob ' + str(len(data)).encode('ascii') + b'\0' + data).hexdigest()
+
+
+EXPECTED_PARENT_DOC_STATUS = {
+    ' M policy-engine/docs/research/e02-cloud-test-plan/integration/README.md',
+    ' M policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-06-fourth-wave-intake.md',
+    '?? policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-06-fifth-wave.md',
+    '?? policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/B-current-owner-actions-2026-10-06.md',
+    '?? policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/E-r2-owner-actions-2026-10-06.md',
+}
+
+
+def parent_doc_hashes() -> dict[str, str]:
+    paths = [line[3:] for line in EXPECTED_PARENT_DOC_STATUS]
+    return {path: hashlib.sha256((REPO / path).read_bytes()).hexdigest() for path in sorted(paths)}
+
+
+def verify_source_tree(expected: dict[str, tuple[str, str]]) -> dict[str, int | str]:
+    source_dir = CANDIDATE_ROOT / 'policy-engine/src'
+    if not source_dir.is_dir():
+        raise RuntimeError(f'exact source root is absent: {source_dir}')
+    actual_paths: set[str] = set()
+    content_bytes = 0
+    total_files = 0
+    for path in source_dir.rglob('*'):
+        if not (path.is_file() or path.is_symlink()):
+            continue
+        total_files += 1
+        rel = path.relative_to(CANDIDATE_ROOT).as_posix()
+        actual_paths.add(rel)
+        if path.is_symlink():
+            data = os.fsencode(os.readlink(path))
+            mode = '120000'
+        else:
+            data = path.read_bytes()
+            actual_mode = stat.S_IMODE(path.stat().st_mode)
+            mode = '100755' if actual_mode & 0o111 else '100644'
+        content_bytes += len(data)
+        if rel not in expected:
+            raise RuntimeError(f'untracked/unexpected file in exact source closure: {rel}')
+        wanted_mode, wanted_blob = expected[rel]
+        actual_blob = git_blob_sha(data)
+        if mode != wanted_mode or actual_blob != wanted_blob:
+            raise RuntimeError(
+                f'exact source mismatch {rel}: mode={mode}/{wanted_mode} '
+                f'blob={actual_blob}/{wanted_blob}'
+            )
+    missing = sorted(set(expected) - actual_paths)
+    if missing:
+        raise RuntimeError(f'missing source paths ({len(missing)}): {missing[:8]}')
+    if content_bytes > MAX_CLOSURE_BYTES:
+        raise RuntimeError(f'selected source closure exceeds 100 MiB: {content_bytes}')
+    return {
+        'tracked_blob_count': len(expected),
+        'materialized_file_count': total_files,
+        'content_bytes': content_bytes,
+        'content_mib': round(content_bytes / (1024 * 1024), 3),
+        'all_blob_hashes_and_modes_match': 'yes',
+    }
+
+
+def main() -> int:
+    RESULTS.mkdir(parents=True, exist_ok=True)
+    ignore_check = subprocess.run(
+        ['git', '-C', str(REPO), 'check-ignore', '-q', str(CANDIDATE_ROOT.relative_to(REPO))],
+        capture_output=True,
+    )
+    if ignore_check.returncode != 0:
+        raise RuntimeError('candidate directory is not ignored by Git')
+    if CANDIDATE_ROOT.exists():
+        raise RuntimeError(f'refusing to overwrite existing candidate directory: {CANDIDATE_ROOT}')
+    head = git('rev-parse', 'HEAD').decode().strip()
+    branch = git('symbolic-ref', '--short', 'HEAD').decode().strip()
+    status_lines_before = set(git('status', '--porcelain=v1').decode().splitlines())
+    parent_docs_before = parent_doc_hashes()
+    if head != EXPECTED_G_HEAD or branch != 'codex/e02-integration' or status_lines_before != EXPECTED_PARENT_DOC_STATUS:
+        raise RuntimeError(
+            f'G checkout precondition failed: head={head}, branch={branch}, '
+            f'status={sorted(status_lines_before)!r}'
+        )
+    tree = git('rev-parse', f'{CANDIDATE}^{{tree}}').decode().strip()
+    if tree != EXPECTED_TREE:
+        raise RuntimeError(f'candidate tree changed: {tree}')
+    expected = parse_ls_tree(git('ls-tree', '-r', '-z', CANDIDATE, '--', 'policy-engine/src'))
+    source_tree = git('rev-parse', f'{CANDIDATE}:policy-engine/src').decode().strip()
+    expected_size = sum(
+        int(record.split(b'\t', 1)[0].rsplit(b' ', 1)[1])
+        for record in git('ls-tree', '-r', '-l', '-z', CANDIDATE, '--', 'policy-engine/src').split(b'\0')
+        if record
+    )
+    if expected_size > MAX_CLOSURE_BYTES:
+        raise RuntimeError(f'selected source closure over budget before extraction: {expected_size}')
+    free_before = shutil.disk_usage(REPO).free
+    CANDIDATE_ROOT.mkdir(parents=True, exist_ok=False)
+    git_archive = subprocess.Popen(
+        ['git', '-C', str(REPO), 'archive', CANDIDATE, 'policy-engine/src'],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    assert git_archive.stdout is not None
+    tar_extract = subprocess.Popen(
+        ['tar', '-xf', '-', '-C', str(CANDIDATE_ROOT)],
+        stdin=git_archive.stdout,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    git_archive.stdout.close()
+    try:
+        tar_stdout, tar_stderr = tar_extract.communicate(timeout=SHORT_TIMEOUT_SECONDS)
+        _, archive_stderr = git_archive.communicate(timeout=SHORT_TIMEOUT_SECONDS)
+    except subprocess.TimeoutExpired:
+        tar_extract.kill()
+        git_archive.kill()
+        raise RuntimeError(f'git archive extraction exceeded {SHORT_TIMEOUT_SECONDS}s')
+    (RESULTS / 'b-all15-state-probe-3eb-archive.stdout').write_bytes(tar_stdout)
+    (RESULTS / 'b-all15-state-probe-3eb-archive.stderr').write_bytes(tar_stderr + archive_stderr)
+    if git_archive.returncode != 0 or tar_extract.returncode != 0:
+        raise RuntimeError(
+            f'archive/extract failed: git={git_archive.returncode} tar={tar_extract.returncode}; '
+            f'{(tar_stderr + archive_stderr).decode(errors="replace")}'
+        )
+    source_before = verify_source_tree(expected)
+    child_source = CHILD.read_text() if CHILD.exists() else ''
+    if not child_source:
+        raise RuntimeError(f'probe child script must be present: {CHILD}')
+
+    env = os.environ.copy()
+    for key in ('PYTHONHOME', 'PYTHONSTARTUP', 'PYTHONPATH'):
+        env.pop(key, None)
+    env.update({
+        'PYTHONPATH': str(CANDIDATE_ROOT / 'policy-engine/src'),
+        'PYTHONNOUSERSITE': '1',
+        'PYTHONDONTWRITEBYTECODE': '1',
+        'OMP_NUM_THREADS': '1',
+        'OPENBLAS_NUM_THREADS': '1',
+        'MKL_NUM_THREADS': '1',
+        'POLISYOS_PROBE_REPO': str(REPO),
+        'POLISYOS_PROBE_CANDIDATE': CANDIDATE,
+        'POLISYOS_PROBE_SOURCE_ROOT': str(CANDIDATE_ROOT / 'policy-engine/src'),
+    })
+    started = time.monotonic()
+    try:
+        probe = subprocess.run(
+            [sys.executable, str(CHILD)],
+            cwd=CANDIDATE_ROOT / 'policy-engine',
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=SHORT_TIMEOUT_SECONDS,
+        )
+        timed_out = False
+        returncode = probe.returncode
+        stdout = probe.stdout
+        stderr = probe.stderr
+    except subprocess.TimeoutExpired as exc:
+        timed_out = True
+        returncode = 124
+        stdout = (exc.stdout or b'').decode(errors='replace') if isinstance(exc.stdout, bytes) else (exc.stdout or '')
+        stderr = (exc.stderr or b'').decode(errors='replace') if isinstance(exc.stderr, bytes) else (exc.stderr or '')
+    wall = time.monotonic() - started
+    (RESULTS / 'b-all15-state-probe-3eb-child.stdout').write_text(stdout)
+    (RESULTS / 'b-all15-state-probe-3eb-child.stderr').write_text(stderr)
+    source_after = verify_source_tree(expected)
+    head_after = git('rev-parse', 'HEAD').decode().strip()
+    status_lines_after = set(git('status', '--porcelain=v1').decode().splitlines())
+    parent_docs_after = parent_doc_hashes()
+    workspace_unchanged = (
+        head_after == head
+        and status_lines_after == status_lines_before
+        and parent_docs_after == parent_docs_before
+    )
+    child_json: dict[str, object] = {}
+    try:
+        child_json = json.loads(stdout.strip().splitlines()[-1])
+    except (IndexError, json.JSONDecodeError):
+        pass
+    receipt = {
+        'started_utc': STARTED,
+        'finished_utc': datetime.now(UTC).isoformat(),
+        'candidate_commit': CANDIDATE,
+        'candidate_tree': tree,
+        'candidate_src_tree': source_tree,
+        'attached_g_head_before_after': [head, head_after],
+        'branch': branch,
+        'expected_parent_doc_status_lines_before_after': [sorted(status_lines_before), sorted(status_lines_after)],
+        'expected_parent_doc_sha256_before_after': [parent_docs_before, parent_docs_after],
+        'workspace_unchanged_before_after': workspace_unchanged,
+        'candidate_root': str(CANDIDATE_ROOT),
+        'source_closure': {'before': source_before, 'after': source_after},
+        'closure_budget_bytes': MAX_CLOSURE_BYTES,
+        'source_input_blobs': {
+            p: expected[p][1]
+            for p in (
+                'policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py',
+                'policy-engine/src/polisyos/scientist/orchestration/engine/state.py',
+                'policy-engine/src/polisyos/core/artifacts/manifest.py',
+            )
+        },
+        'supporting_test_input_blob': parse_ls_tree(git('ls-tree', '-r', '-z', CANDIDATE, '--', 'policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py'))['policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py'][1],
+        'interpreter': sys.executable,
+        'probe_command': [sys.executable, str(CHILD)],
+        'orchestrator_python': sys.version,
+        'probe_return_code': returncode,
+        'probe_timed_out': timed_out,
+        'probe_timeout_seconds': SHORT_TIMEOUT_SECONDS,
+        'probe_wall_seconds': round(wall, 6),
+        'disk_free_bytes_before_archive': free_before,
+        'disk_free_bytes_after_run': shutil.disk_usage(REPO).free,
+        'probe_result': child_json,
+        'stdout_path': str(RESULTS / 'b-all15-state-probe-3eb-child.stdout'),
+        'stderr_path': str(RESULTS / 'b-all15-state-probe-3eb-child.stderr'),
+        'archive_stdout_path': str(RESULTS / 'b-all15-state-probe-3eb-archive.stdout'),
+        'archive_stderr_path': str(RESULTS / 'b-all15-state-probe-3eb-archive.stderr'),
+        'script_path': str(Path(__file__).resolve()),
+        'child_script_path': str(CHILD),
+        'all_polisyos_origins_source_blob_verified': bool(child_json.get('all_polisyos_origins_source_blob_verified')),
+        'decision': 'PROBE_COMPLETE' if returncode == 0 and workspace_unchanged else 'HARNESS_FAIL',
+    }
+    (RESULTS / 'b-all15-state-probe-3eb-receipt.json').write_text(
+        json.dumps(receipt, indent=2, sort_keys=True) + '\n'
+    )
+    print(json.dumps({
+        'receipt': str(RESULTS / 'b-all15-state-probe-3eb-receipt.json'),
+        'candidate_root': str(CANDIDATE_ROOT),
+        'closure': source_before,
+        'probe_return_code': returncode,
+        'probe_timed_out': timed_out,
+        'probe_wall_seconds': round(wall, 6),
+        'expected_parent_doc_status_lines_before_after': [sorted(status_lines_before), sorted(status_lines_after)],
+        'expected_parent_doc_sha256_before_after': [parent_docs_before, parent_docs_after],
+        'workspace_unchanged_before_after': workspace_unchanged,
+        'child_result': child_json,
+    }, indent=2, sort_keys=True))
+    return 0 if receipt['decision'] == 'PROBE_COMPLETE' else 1
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

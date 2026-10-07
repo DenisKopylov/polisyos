@@ -1,0 +1,58 @@
+{
+  "source_sha": "013547e63c166075a7ec143fe890b1fe4589797c",
+  "source_tree": "6adb6266399f64c55692e009e76324d1959f36e0",
+  "source_binding": "tracked HEAD plus exact input-closure bytes; draft status is recorded separately",
+  "driver_sha256": "ffbc81f6c2d0e3aed328c77c1d943bb974554d2b543f402922fa6fb1a615b1d7",
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_absent_owner_deadline_does_not_inherit_helper_timeout",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_publication_trace_requires_completed_verified_storage[unbounded]",
+    "--junitxml=/workspace/e02-B-current-execution-state/_build/current-execution-state/before-consumer-unbounded/cohort.xml",
+    "--basetemp=/workspace/e02-B-current-execution-state/_build/current-execution-state/before-consumer-unbounded/tmp"
+  ],
+  "cwd": "/workspace/e02-B-current-execution-state",
+  "environment": {
+    "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "details": "/workspace/e02-B-current-execution-state/_build/current-execution-state/before-consumer-unbounded/environment.json",
+    "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"
+  },
+  "input_closure": {
+    "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/before-consumer-unbounded/input-closure.json",
+    "sha256": "e8193a7a9d38991312c55bcdec680f6f63622c86591734eafbeab4ef555d9036",
+    "paths": 2732,
+    "fixture_inputs": "Exact test code, isolated basetemp/cas/run paths, no production data"
+  },
+  "start_utc": "2026-10-06T10:06:44.254703+00:00",
+  "end_utc": "2026-10-06T10:06:59.651288+00:00",
+  "wall_s": 15.273667216999456,
+  "max_rss_kib": 608528,
+  "exit": 1,
+  "source_unchanged": true,
+  "outputs": [
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/before-consumer-unbounded/cohort.xml",
+      "sha256": "8ea6b7a85d7719017914925c7d07f32f85caa9ae6a82ee133ec164f818de0d67",
+      "bytes": 35694
+    },
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/before-consumer-unbounded/environment.json",
+      "sha256": "5ffa6944b3cd7f42880bd9fa98950bc744b01e033fb89a5dbc6013f5493afce8",
+      "bytes": 9887
+    },
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/before-consumer-unbounded/input-closure.json",
+      "sha256": "e8193a7a9d38991312c55bcdec680f6f63622c86591734eafbeab4ef555d9036",
+      "bytes": 519043
+    },
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/before-consumer-unbounded/native.txt",
+      "sha256": "463e50ae1f3dc0f2395764ae60f8759d11c277c9f9ce9e0d08791a5741359444",
+      "bytes": 35637
+    }
+  ]
+}

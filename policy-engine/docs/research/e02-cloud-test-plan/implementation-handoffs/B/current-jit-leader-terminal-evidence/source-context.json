@@ -1,0 +1,65 @@
+{
+  "production_source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+  "production_source_tree": "d3bae9a9502b701e2ed73d9ffab07ba6a0883502",
+  "test_overlay_sha": "a8af9d0fcdc55436f008f065941ed1cfa5069502",
+  "test": {
+    "path": "policy-engine/tests/unit/foundry/methods/test_compiler_leader_termination_e02.py",
+    "bytes": 8277,
+    "sha256": "75afc999a46ea3e4697b79dbecbe0678e4946cd89e360754543a32a0ea15812f"
+  },
+  "source_files": [
+    {
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "path": "policy-engine/src/polisyos/foundry/methods/compiler/__init__.py",
+      "bytes": 41586,
+      "sha256": "0d44e8e789c34c37160e6d4de77fbc1f3b0daae5e6f0381a20ef16211e573029",
+      "physical_path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/foundry/methods/compiler/__init__.py",
+      "actual_backing_bytes_match_source": true
+    },
+    {
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "path": "policy-engine/src/polisyos/foundry/methods/base.py",
+      "bytes": 74245,
+      "sha256": "ae6ab49021c3adbab8a72f39b2a7cc126d082a54d748f737e0092c64bd6720e8",
+      "physical_path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/foundry/methods/base.py",
+      "actual_backing_bytes_match_source": true
+    },
+    {
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "path": "policy-engine/src/polisyos/foundry/methods/exceptions.py",
+      "bytes": 18716,
+      "sha256": "70210012ae7f5bc26b36a92bc9c5ab612b77f9b318d57a1c718a44276b1c9441",
+      "physical_path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/foundry/methods/exceptions.py",
+      "actual_backing_bytes_match_source": true
+    },
+    {
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "path": "policy-engine/src/polisyos/foundry/methods/selection/registry.py",
+      "bytes": 35936,
+      "sha256": "3250f70d07a658c9beb9b9210254d425715129a1b9eb29cdbbcdc4a208c977b9",
+      "physical_path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/foundry/methods/selection/registry.py",
+      "actual_backing_bytes_match_source": true
+    },
+    {
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "path": "policy-engine/pytest.ini",
+      "bytes": 1021,
+      "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+      "physical_path": "/workspace/e02-B-current-coordination/policy-engine/pytest.ini",
+      "actual_backing_bytes_match_source": true
+    },
+    {
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "path": "policy-engine/pyproject.toml",
+      "bytes": 11007,
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "physical_path": "/workspace/e02-B-current-coordination/policy-engine/pyproject.toml",
+      "actual_backing_bytes_match_source": true
+    }
+  ],
+  "boundaries": [
+    "Root source unchanged before/after native; own branch supplies only frozen new test input.",
+    "--noconftest prevents own conftest prepending own older src; root PYTHONPATH and actual compiler hash guard source.",
+    "Actual constructible compilation and publication ports; not every post-claim bytecode, custom cache law or XLA physical kill."
+  ]
+}

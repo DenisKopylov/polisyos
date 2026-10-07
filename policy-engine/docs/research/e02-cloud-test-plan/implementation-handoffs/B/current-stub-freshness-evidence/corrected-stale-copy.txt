@@ -1,0 +1,17 @@
+ACTUAL_STUB_GENERATOR {"source_sha": "b7d966af6551fc0ff63d3a830c70fe300c320967", "origin": "/workspace/e02-B-current-composition/policy-engine/tools/devx/foundry/generate_stubs.py", "sha256": "d6fa01ae4abc12f86faec0a63aaaa675e6bffaa2969e51391abbeb1693b3dabd"}
+  DRIFT: generated stub differs from /tmp/e02-stale-stubs-1tgq4tzh/0/base.pyi
+
+Stub generation failed for: polisyos.foundry.methods.base
+Generating type stubs for Foundry Methods public API ...
+
+  Processing polisyos.foundry.methods.base ...
+
+  Processing polisyos.foundry.methods.registry ...
+  Current -> /tmp/e02-stale-stubs-1tgq4tzh/1/registry.pyi
+
+  Processing polisyos.foundry.methods.composer ...
+  Current -> /tmp/e02-stale-stubs-1tgq4tzh/2/composer.pyi
+
+  Processing polisyos.foundry.methods.components.composer ...
+  Current -> /tmp/e02-stale-stubs-1tgq4tzh/3/composer.pyi
+STUB_STALE_COPY_OBSERVATION {"copied_after": {"/tmp/e02-stale-stubs-1tgq4tzh/0/base.pyi": "51dfbf98c112cddb34c0a1d45a01709bf3523914b904fc0540a7621a89ec5526", "/tmp/e02-stale-stubs-1tgq4tzh/1/registry.pyi": "f8edc807f8cc38140afe51f899925dd86576d506cd1f80362cfb8b594dbf34bd", "/tmp/e02-stale-stubs-1tgq4tzh/2/composer.pyi": "f3a8a6c3055389a21652307f66be1b1d8c6db72fad25d599cac2f4aca801ef83", "/tmp/e02-stale-stubs-1tgq4tzh/3/composer.pyi": "1657ceac5b499914d5f7c2b8ff0f17ad366abe19b9aac0ad474d9975433fc241"}, "copied_before": {"/tmp/e02-stale-stubs-1tgq4tzh/0/base.pyi": "51dfbf98c112cddb34c0a1d45a01709bf3523914b904fc0540a7621a89ec5526", "/tmp/e02-stale-stubs-1tgq4tzh/1/registry.pyi": "f8edc807f8cc38140afe51f899925dd86576d506cd1f80362cfb8b594dbf34bd", "/tmp/e02-stale-stubs-1tgq4tzh/2/composer.pyi": "f3a8a6c3055389a21652307f66be1b1d8c6db72fad25d599cac2f4aca801ef83", "/tmp/e02-stale-stubs-1tgq4tzh/3/composer.pyi": "1657ceac5b499914d5f7c2b8ff0f17ad366abe19b9aac0ad474d9975433fc241"}, "expected_refusal_exit": 1, "original_after": {"/workspace/e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/base.pyi": "44ed7feb6deee222ce6ac8980cceb92c3b4cb264ccb5f6f9ee9d9ce6ed9d9cb3", "/workspace/e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/components/composer.pyi": "1657ceac5b499914d5f7c2b8ff0f17ad366abe19b9aac0ad474d9975433fc241", "/workspace/e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/composer.pyi": "f3a8a6c3055389a21652307f66be1b1d8c6db72fad25d599cac2f4aca801ef83", "/workspace/e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/registry.pyi": "f8edc807f8cc38140afe51f899925dd86576d506cd1f80362cfb8b594dbf34bd"}, "original_before": {"/workspace/e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/base.pyi": "44ed7feb6deee222ce6ac8980cceb92c3b4cb264ccb5f6f9ee9d9ce6ed9d9cb3", "/workspace/e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/components/composer.pyi": "1657ceac5b499914d5f7c2b8ff0f17ad366abe19b9aac0ad474d9975433fc241", "/workspace/e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/composer.pyi": "f3a8a6c3055389a21652307f66be1b1d8c6db72fad25d599cac2f4aca801ef83", "/workspace/e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/registry.pyi": "f8edc807f8cc38140afe51f899925dd86576d506cd1f80362cfb8b594dbf34bd"}, "scratch": "/tmp/e02-stale-stubs-1tgq4tzh"}

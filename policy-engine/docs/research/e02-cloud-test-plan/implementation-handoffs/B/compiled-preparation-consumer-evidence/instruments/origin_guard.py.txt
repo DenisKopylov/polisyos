@@ -1,0 +1,17 @@
+import hashlib,json,os,subprocess,sys
+from pathlib import Path
+ROOT=Path('/workspace/e02-B-current-cas-generation')
+REF='dd9584728bd96f204983615216efdbc58117e713'
+OUT=Path(os.environ['COMPILED_ORIGIN_OBSERVATIONS'])
+def snapshot(stage):
+ rows=[]
+ for name,module in sorted(sys.modules.items()):
+  if name!='polisyos' and not name.startswith('polisyos.'):continue
+  raw=getattr(module,'__file__',None)
+  if not raw:continue
+  path=Path(raw).resolve();assert path.is_relative_to(ROOT/'policy-engine/src'),(name,path)
+  rel=str(path.relative_to(ROOT));data=path.read_bytes();expected=subprocess.check_output(['git','-C',str(ROOT),'show',REF+':'+rel]);assert data==expected,(name,rel)
+  rows.append({'module':name,'path':rel,'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()})
+ with OUT.open('a') as output:output.write(json.dumps({'stage':stage,'declared_source_projection':REF,'modules':rows},sort_keys=True)+'\n')
+def pytest_collection_finish(session):snapshot('collection_finish')
+def pytest_sessionfinish(session,exitstatus):snapshot('session_finish')

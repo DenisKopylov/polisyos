@@ -1,0 +1,128 @@
+{
+  "actual_openapi_complete_nine_typed_differences": {
+    "semantic_delta_count": 9,
+    "complete_typed_json_differences": [
+      {
+        "path": "/paths/~1api~1v1~1exports~1governed-projections~1confidence-ledger-risk-spend/get/responses/200/content/application~1json/examples/default/value/projection_hash",
+        "kind": "value",
+        "expected": {
+          "type": "str",
+          "value": "sha256:d5a9c30ec00b3913e28b6da86cc33b6717d48ea7cb785d46bd2ce55d79cacc1d"
+        },
+        "observed": {
+          "type": "str",
+          "value": "sha256:bfad0e1cb35b13e65aa509c2afffd3e8f439b807cf62188a016282ff4ac93545"
+        }
+      },
+      {
+        "path": "/paths/~1api~1v1~1exports~1governed-projections~1confidence-ledger-risk-spend/get/responses/200/content/application~1json/examples/default/value/replay_address",
+        "kind": "value",
+        "expected": {
+          "type": "str",
+          "value": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3Ad5a9c30ec00b3913e28b6da86cc33b6717d48ea7cb785d46bd2ce55d79cacc1d&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3A8f81067a192ae48be90c92609a86ebcd97d3ff19e9919b1daea8c2cf9fb79dc5"
+        },
+        "observed": {
+          "type": "str",
+          "value": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3Abfad0e1cb35b13e65aa509c2afffd3e8f439b807cf62188a016282ff4ac93545&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3A06fbcb0213a5a084aa1426054dc548247f4bfe0bf71bf2a97b378937bf3d001e"
+        }
+      },
+      {
+        "path": "/paths/~1api~1v1~1exports~1governed-projections~1confidence-ledger-risk-spend/get/responses/200/content/application~1json/examples/default/value/replay_pins/projection_hash",
+        "kind": "value",
+        "expected": {
+          "type": "str",
+          "value": "sha256:d5a9c30ec00b3913e28b6da86cc33b6717d48ea7cb785d46bd2ce55d79cacc1d"
+        },
+        "observed": {
+          "type": "str",
+          "value": "sha256:bfad0e1cb35b13e65aa509c2afffd3e8f439b807cf62188a016282ff4ac93545"
+        }
+      },
+      {
+        "path": "/paths/~1api~1v1~1exports~1governed-projections~1confidence-ledger-risk-spend/get/responses/200/content/application~1json/examples/default/value/replay_pins/source_dependency_hash",
+        "kind": "value",
+        "expected": {
+          "type": "str",
+          "value": "sha256:8f81067a192ae48be90c92609a86ebcd97d3ff19e9919b1daea8c2cf9fb79dc5"
+        },
+        "observed": {
+          "type": "str",
+          "value": "sha256:06fbcb0213a5a084aa1426054dc548247f4bfe0bf71bf2a97b378937bf3d001e"
+        }
+      },
+      {
+        "path": "/paths/~1api~1v1~1exports~1governed-projections~1confidence-ledger-risk-spend/get/responses/200/content/application~1json/examples/default/value/source/validation/bound_dependency_aggregate_identity",
+        "kind": "value",
+        "expected": {
+          "type": "str",
+          "value": "sha256:8f81067a192ae48be90c92609a86ebcd97d3ff19e9919b1daea8c2cf9fb79dc5"
+        },
+        "observed": {
+          "type": "str",
+          "value": "sha256:06fbcb0213a5a084aa1426054dc548247f4bfe0bf71bf2a97b378937bf3d001e"
+        }
+      },
+      {
+        "path": "/paths/~1api~1v1~1exports~1governed-projections~1confidence-ledger-risk-spend/get/responses/200/content/application~1json/examples/default/value/source/validation/worker_validation_receipt_hash",
+        "kind": "value",
+        "expected": {
+          "type": "str",
+          "value": "sha256:b82d6e9033dd0ead29a88a2688750920a3640ca2414e93392c30c46bcb7c7222"
+        },
+        "observed": {
+          "type": "str",
+          "value": "sha256:6905c15bdb00b6cb1305493c9cfb4542b4fa6f93f7e66b8f36e53c95f216d6a2"
+        }
+      },
+      {
+        "path": "/paths/~1api~1v1~1exports~1governed-projections~1confidence-ledger-risk-spend/get/responses/200/content/application~1json/examples/default/value/source_dependency_hash",
+        "kind": "value",
+        "expected": {
+          "type": "str",
+          "value": "sha256:8f81067a192ae48be90c92609a86ebcd97d3ff19e9919b1daea8c2cf9fb79dc5"
+        },
+        "observed": {
+          "type": "str",
+          "value": "sha256:06fbcb0213a5a084aa1426054dc548247f4bfe0bf71bf2a97b378937bf3d001e"
+        }
+      },
+      {
+        "path": "/paths/~1api~1v1~1exports~1governed-projections~1confidence-ledger-risk-spend/get/responses/200/content/application~1json/examples/default/value/worker_validation_receipt_hash",
+        "kind": "value",
+        "expected": {
+          "type": "str",
+          "value": "sha256:b82d6e9033dd0ead29a88a2688750920a3640ca2414e93392c30c46bcb7c7222"
+        },
+        "observed": {
+          "type": "str",
+          "value": "sha256:6905c15bdb00b6cb1305493c9cfb4542b4fa6f93f7e66b8f36e53c95f216d6a2"
+        }
+      },
+      {
+        "path": "/paths/~1api~1v1~1exports~1governed-projections~1confidence-ledger-risk-spend/get/responses/200/content/application~1json/examples/default/value/worker_validation_receipt_ref",
+        "kind": "value",
+        "expected": {
+          "type": "str",
+          "value": "owner-validation:sha256:b82d6e9033dd0ead29a88a2688750920a3640ca2414e93392c30c46bcb7c7222"
+        },
+        "observed": {
+          "type": "str",
+          "value": "owner-validation:sha256:6905c15bdb00b6cb1305493c9cfb4542b4fa6f93f7e66b8f36e53c95f216d6a2"
+        }
+      }
+    ],
+    "note": "Observed delta only; no inherited/seed/environment causal or public compatibility normalization."
+  },
+  "trust_index_aligned_leaf_counts": {
+    "architecture-default-ready/trust-claim-posture-register": 19596,
+    "architecture-runtime-ml-ready/trust-claim-posture-register": 19596
+  },
+  "trust_interpretation": "19,596 index-aligned leaves can cascade when list rows move; not a semantic change count, cause attribution or waiver. Full observed trust JSON is committed; exact expected1862 Gitbytes/ref/hash are in output map.",
+  "huge_complete_naive_typed_diff": {
+    "path": "/tmp/e02-B-completed-quality-retry-review-1862c021df74/complete-index-aligned-typed-json-drift.raw.json",
+    "bytes": 13021748,
+    "sha256": "62c1777cd14eac21a3d6745f1c0e0cba30d9fbf644c125a0767c390fb28fc5e6",
+    "availability_to_G": "not_established for this ignored scratch; recompute from full committed observed JSON and exact1862 expected source Git ref",
+    "deciding_use": "Optional exhaustive index-aligned representation; full actual output bytes/hash equality is independently deciding without transferring this13MB duplicate representation."
+  }
+}

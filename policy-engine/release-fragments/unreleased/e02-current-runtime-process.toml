@@ -1,0 +1,11 @@
+id = "e02-current-runtime-process"
+title = "Reap owned node processes before admitting retry results"
+type = "fixed"
+component = "scientist.orchestration.engine"
+owner = "team-policyos-runtime"
+summary = "On Linux a separate child supervisor owns and reaps node processes and adopted descendants before publishing a result. The parent drains a framed Pipe concurrently, including partial and large result frames. Typed category and code survive the process boundary without reconstructing arbitrary exception classes. Pipe ownership starts at first acquisition, including setup failures before process admission."
+evidence = ["tests/unit/scientist/orchestration/engine/test_retry.py", "tests/unit/remediation/test_run_03.py"]
+compatibility = "The existing sync/async retry entrypoints and typed NodeOutcome serializer remain. Process-boundary permanent errors preserve their terminal classification. A timeout reports whether owned processes were actually reaped or the external outcome remains unknown."
+surface_classification = "internal: scientist retry process boundary"
+migration = "No user configuration migration. Native macOS process cleanup and unsupported Linux procfs/libc capabilities require local acceptance."
+limitations = "The supervisor changes only its own Linux subreaper flag. It owns kernel-PPID descendants, including adopted new-session grandchildren; it cannot establish cleanup outside that owned census. Multithreaded fork retains the Python warning. Running arbitrary threads/coroutines remain cooperative. Full retry/deadline parity continues in a separate slice."

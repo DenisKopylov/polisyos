@@ -1,0 +1,12 @@
+import json,os
+from pathlib import Path
+from polisyos.foundry.methods.compiler import CompiledChainExecutor
+ORIGINAL=CompiledChainExecutor.__call__
+def _reuse_first_seed(self,state,params=None):
+ original=params or {}
+ pinned={key:{**value,**({'seed':11} if 'seed' in value else {})} for key,value in original.items()}
+ actual=ORIGINAL(self,state,pinned);actual.total.block_until_ready()
+ path=Path(os.environ['COMPILED_ORIGIN_OBSERVATIONS']).with_name('property-removal-effects.jsonl')
+ with path.open('a') as output:output.write(json.dumps({'removed_quantity':'independent stochastic seed repetitions','requested_seed_parameters':[(str(key),v['seed']) for key,v in original.items() if 'seed' in v],'actual_numerical_total':float(actual.total),'effective_seed':11,'source_files_mutated':False})+'\n')
+ return actual
+CompiledChainExecutor.__call__=_reuse_first_seed

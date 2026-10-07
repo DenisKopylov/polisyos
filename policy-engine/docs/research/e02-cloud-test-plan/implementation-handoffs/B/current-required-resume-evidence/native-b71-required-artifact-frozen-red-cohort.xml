@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="3" time="8.326" timestamp="2026-10-06T11:17:42.503984+00:00" hostname="b878f4efbdfc"><testcase classname="tests.unit.scientist.orchestration.engine.test_resume_artifact_requirements" name="test_native_resume_reads_available_required_artifact_without_producer_reexecution" time="0.531" /><testcase classname="tests.unit.scientist.orchestration.engine.test_resume_artifact_requirements" name="test_missing_required_blob_refuses_resume_before_dependent_cas_effect" time="0.402"><failure message="Failed: DID NOT RAISE &lt;class 'polisyos.scientist.orchestration.engine.checkpoint.CheckpointCorruptedError'&gt;">tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-b71-required-artifact-frozen-red/tmp/test_missing_required_blob_ref0')
+
+    def test_missing_required_blob_refuses_resume_before_dependent_cas_effect(tmp_path):
+        store, run_id, bundle, required = _native_checkpoint(tmp_path)
+        store._paths(required.artifact_id)[0].unlink()
+        reopened = FileSystemCAS(store.root)
+        assert not reopened.verify(required).ok
+        registry, producer, reader = _registry()
+&gt;       with pytest.raises(CheckpointCorruptedError, match=r"inputs\.required_ref"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'polisyos.scientist.orchestration.engine.checkpoint.CheckpointCorruptedError'&gt;
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_resume_artifact_requirements.py:200: Failed</failure></testcase><testcase classname="tests.unit.scientist.orchestration.engine.test_resume_artifact_requirements" name="test_allow_replay_repairs_required_blob_before_real_consumer_read" time="0.399"><failure message="AssertionError: assert 'fail' == 'ok'&#10;  &#10;  - ok&#10;  + fail">tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-b71-required-artifact-frozen-red/tmp/test_allow_replay_repairs_requ0')
+
+    def test_allow_replay_repairs_required_blob_before_real_consumer_read(tmp_path):
+        store, run_id, bundle, required = _native_checkpoint(tmp_path)
+        store._paths(required.artifact_id)[0].unlink()
+        reopened = FileSystemCAS(store.root)
+        assert not reopened.verify(required).ok
+        registry, producer, reader = _registry()
+        result = resume_from_checkpoint(
+            reopened,
+            run_id,
+            workflow=_workflow(),
+            registry=registry,
+            registry_bundle_ref=bundle,
+            resume_strategy="allow_replay",
+        )
+&gt;       assert result.report.status == "ok"
+E       AssertionError: assert 'fail' == 'ok'
+E         
+E         - ok
+E         + fail
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_resume_artifact_requirements.py:222: AssertionError</failure></testcase></testsuite></testsuites>

@@ -1,0 +1,2002 @@
+{
+  "schema": "policyos.e02.cas_successor_actual_consumer_review.v1",
+  "created_at_utc": "2026-10-06T20:12:44.109213+00:00",
+  "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+  "source_tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+  "role": "CAS author actual case/source/input reconciliation; no independent acceptance of own mechanics",
+  "predicate_basis": {
+    "case_phase_and_complete_XML_join": "independently recomputed",
+    "full_native_test_input_source": "all236 exact Git bytes/hash verified",
+    "actual_effects": "root native consumer_asserted; literal current test source/body predicates read",
+    "own_source_correctness": "independent reviewers remain CMP965744/RUNa243; not this audit",
+    "formal_closure": "root/G owns"
+  },
+  "outcome": "CAS finite mechanisms supported by actual DD defining consumers; global wave and external compatibility FAIL retained",
+  "scope": {
+    "whole_selector_files": 236,
+    "all_actual_cases": 3622,
+    "all_actual_counts": {
+      "PASS": 2880,
+      "FAIL": 140,
+      "ERROR": 600,
+      "SKIP": 2
+    },
+    "all_phase_reports": 10266,
+    "all_collection_errors": 0,
+    "central": {
+      "files": 46,
+      "cases": 430,
+      "outcomes": {
+        "PASS": 430
+      }
+    },
+    "central_EXE_async_cases": 3,
+    "central_CAS_without_EXE_async": 427,
+    "external": {
+      "files": 11,
+      "cases": 145,
+      "outcomes": {
+        "PASS": 111,
+        "ERROR": 27,
+        "FAIL": 7
+      }
+    },
+    "selected_total_cases": 575,
+    "count_qualification": "Central430 and outside145 are complete selected native compatibility cases. They are not430 independent finding controls and are not old501 denominator."
+  },
+  "B152_fourteen_defining_controls": [
+    {
+      "nodeid": "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_failed_selected_snapshot_retains_actual_measurements_and_refusal[corrupt-sha256 mismatch]",
+      "status": "PASS",
+      "body_entered": true,
+      "full_case_index": 183,
+      "test_function_source": {
+        "line_begin": 22,
+        "line_end": 90,
+        "block_sha256": "6fa367e7c2f01a59ba07160af6352089b3708cda1092603685eb0cc19b1ae2b7"
+      },
+      "defining_quantity": "Seven real corrupt/size/profile/malformed-integrity/ref-type cases retain measured digest/size/manifest digest and actual normalized first refusal; one blob/manifest read and one content_hash; get_bytes/report builder still refuse."
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_failed_selected_snapshot_retains_actual_measurements_and_refusal[same_size-sha256 mismatch]",
+      "status": "PASS",
+      "body_entered": true,
+      "full_case_index": 184,
+      "test_function_source": {
+        "line_begin": 22,
+        "line_end": 90,
+        "block_sha256": "6fa367e7c2f01a59ba07160af6352089b3708cda1092603685eb0cc19b1ae2b7"
+      },
+      "defining_quantity": "Seven real corrupt/size/profile/malformed-integrity/ref-type cases retain measured digest/size/manifest digest and actual normalized first refusal; one blob/manifest read and one content_hash; get_bytes/report builder still refuse."
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_size-byte_size mismatch]",
+      "status": "PASS",
+      "body_entered": true,
+      "full_case_index": 185,
+      "test_function_source": {
+        "line_begin": 22,
+        "line_end": 90,
+        "block_sha256": "6fa367e7c2f01a59ba07160af6352089b3708cda1092603685eb0cc19b1ae2b7"
+      },
+      "defining_quantity": "Seven real corrupt/size/profile/malformed-integrity/ref-type cases retain measured digest/size/manifest digest and actual normalized first refusal; one blob/manifest read and one content_hash; get_bytes/report builder still refuse."
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_profile-Selected manifest profile mismatch]",
+      "status": "PASS",
+      "body_entered": true,
+      "full_case_index": 186,
+      "test_function_source": {
+        "line_begin": 22,
+        "line_end": 90,
+        "block_sha256": "6fa367e7c2f01a59ba07160af6352089b3708cda1092603685eb0cc19b1ae2b7"
+      },
+      "defining_quantity": "Seven real corrupt/size/profile/malformed-integrity/ref-type cases retain measured digest/size/manifest digest and actual normalized first refusal; one blob/manifest read and one content_hash; get_bytes/report builder still refuse."
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_failed_selected_snapshot_retains_actual_measurements_and_refusal[invalid_manifest-manifest invalid:]",
+      "status": "PASS",
+      "body_entered": true,
+      "full_case_index": 187,
+      "test_function_source": {
+        "line_begin": 22,
+        "line_end": 90,
+        "block_sha256": "6fa367e7c2f01a59ba07160af6352089b3708cda1092603685eb0cc19b1ae2b7"
+      },
+      "defining_quantity": "Seven real corrupt/size/profile/malformed-integrity/ref-type cases retain measured digest/size/manifest digest and actual normalized first refusal; one blob/manifest read and one content_hash; get_bytes/report builder still refuse."
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_integrity-manifest integrity mismatch]",
+      "status": "PASS",
+      "body_entered": true,
+      "full_case_index": 188,
+      "test_function_source": {
+        "line_begin": 22,
+        "line_end": 90,
+        "block_sha256": "6fa367e7c2f01a59ba07160af6352089b3708cda1092603685eb0cc19b1ae2b7"
+      },
+      "defining_quantity": "Seven real corrupt/size/profile/malformed-integrity/ref-type cases retain measured digest/size/manifest digest and actual normalized first refusal; one blob/manifest read and one content_hash; get_bytes/report builder still refuse."
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_ref_type-Artifact reference type]",
+      "status": "PASS",
+      "body_entered": true,
+      "full_case_index": 189,
+      "test_function_source": {
+        "line_begin": 22,
+        "line_end": 90,
+        "block_sha256": "6fa367e7c2f01a59ba07160af6352089b3708cda1092603685eb0cc19b1ae2b7"
+      },
+      "defining_quantity": "Seven real corrupt/size/profile/malformed-integrity/ref-type cases retain measured digest/size/manifest digest and actual normalized first refusal; one blob/manifest read and one content_hash; get_bytes/report builder still refuse."
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_failed_report_cannot_reread_operator_repaired_bytes[False]",
+      "status": "PASS",
+      "body_entered": true,
+      "full_case_index": 190,
+      "test_function_source": {
+        "line_begin": 93,
+        "line_end": 132,
+        "block_sha256": "d49599985d51182b4520f2f541fcc52018406b5061d8f558e661732aea6f8be8"
+      },
+      "defining_quantity": "Two public/private-stage failed reads retain genuinely acquired damaged bytes after the operator repairs the path; local hash/read counters forbid reread-on-error."
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_failed_report_cannot_reread_operator_repaired_bytes[True]",
+      "status": "PASS",
+      "body_entered": true,
+      "full_case_index": 191,
+      "test_function_source": {
+        "line_begin": 93,
+        "line_end": 132,
+        "block_sha256": "d49599985d51182b4520f2f541fcc52018406b5061d8f558e661732aea6f8be8"
+      },
+      "defining_quantity": "Two public/private-stage failed reads retain genuinely acquired damaged bytes after the operator repairs the path; local hash/read counters forbid reread-on-error."
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_pre_read_failure_cannot_invent_blob_measurements",
+      "status": "PASS",
+      "body_entered": true,
+      "full_case_index": 192,
+      "test_function_source": {
+        "line_begin": 135,
+        "line_end": 142,
+        "block_sha256": "285e2f7c097161a00e3c7eab617b49878cba829a91834482820d815126e9eb48"
+      },
+      "defining_quantity": "Missing blob has no safely acquired digest/size; report fields remain None."
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_public_verify_capture_remains_consumable_by_actual_owner_index[False]",
+      "status": "PASS",
+      "body_entered": true,
+      "full_case_index": 193,
+      "test_function_source": {
+        "line_begin": 145,
+        "line_end": 168,
+        "block_sha256": "d21fc99b314b9e127a0102ba50109677d69431dcebc8d8ff7c3146a4542eb805"
+      },
+      "defining_quantity": "Healthy and corrupt scoped verify captures persist a supported verify operation, then a fresh FileSystemCAS owner index reload consumes the exact recorded closure. Not a full governed authorization/replay route."
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_public_verify_capture_remains_consumable_by_actual_owner_index[True]",
+      "status": "PASS",
+      "body_entered": true,
+      "full_case_index": 194,
+      "test_function_source": {
+        "line_begin": 145,
+        "line_end": 168,
+        "block_sha256": "d21fc99b314b9e127a0102ba50109677d69431dcebc8d8ff7c3146a4542eb805"
+      },
+      "defining_quantity": "Healthy and corrupt scoped verify captures persist a supported verify operation, then a fresh FileSystemCAS owner index reload consumes the exact recorded closure. Not a full governed authorization/replay route."
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_valid_signature_cannot_admit_a_wrong_size_selected_snapshot",
+      "status": "PASS",
+      "body_entered": true,
+      "full_case_index": 195,
+      "test_function_source": {
+        "line_begin": 171,
+        "line_end": 192,
+        "block_sha256": "bfb9e7a6d6841eeb0ab47dd6a438c7736ddb295e7279de1422a843f385489492"
+      },
+      "defining_quantity": "Real Ed25519 cryptographic signature validates the exact malformed metadata bytes, yet signature consumer refuses integrity; public invalid report retains measured digest/size."
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_actual_chronology_reader_classifies_observed_corruption_as_rejected",
+      "status": "PASS",
+      "body_entered": true,
+      "full_case_index": 196,
+      "test_function_source": {
+        "line_begin": 195,
+        "line_end": 226,
+        "block_sha256": "7c228cece948a3a19a37cbc6d308e071cbf338a88e91f7815139cf7c59dfb74a"
+      },
+      "defining_quantity": "Actual ChronologyProofArtifactReader returns IntegrityMismatch/rejected with measured corrupted raw hash; absence-of-measurement is not substituted."
+    }
+  ],
+  "B151_defining_direct_and_fresh_process_consumers": [
+    {
+      "nodeid": "tests/unit/core/artifacts/test_put_integrity_retry.py::test_duplicate_put_refuses_damage_before_exact_repair_and_reopened_retry[same_size_bytes]",
+      "status": "PASS",
+      "body_entered": true,
+      "full_case_index": 144,
+      "test_function_source": {
+        "line_begin": 38,
+        "line_end": 87,
+        "block_sha256": "d71654984b553c2bff83f0e5025a456b25b21a3d29b7d45e2c9251380dff45cd"
+      }
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_put_integrity_retry.py::test_duplicate_put_refuses_damage_before_exact_repair_and_reopened_retry[short_bytes]",
+      "status": "PASS",
+      "body_entered": true,
+      "full_case_index": 145,
+      "test_function_source": {
+        "line_begin": 38,
+        "line_end": 87,
+        "block_sha256": "d71654984b553c2bff83f0e5025a456b25b21a3d29b7d45e2c9251380dff45cd"
+      }
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_put_integrity_retry.py::test_duplicate_put_refuses_damage_before_exact_repair_and_reopened_retry[selected_manifest_size]",
+      "status": "PASS",
+      "body_entered": true,
+      "full_case_index": 146,
+      "test_function_source": {
+        "line_begin": 38,
+        "line_end": 87,
+        "block_sha256": "d71654984b553c2bff83f0e5025a456b25b21a3d29b7d45e2c9251380dff45cd"
+      }
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_put_integrity_retry.py::test_duplicate_put_restores_a_missing_sidecar_and_reopens_its_exact_view[default]",
+      "status": "PASS",
+      "body_entered": true,
+      "full_case_index": 147,
+      "test_function_source": {
+        "line_begin": 90,
+        "line_end": 117,
+        "block_sha256": "6680e1b9b276c2b68f7b65a52e6b4621742425fd72494f37536a6890df4f9463"
+      }
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_put_integrity_retry.py::test_duplicate_put_restores_a_missing_sidecar_and_reopens_its_exact_view[selected]",
+      "status": "PASS",
+      "body_entered": true,
+      "full_case_index": 148,
+      "test_function_source": {
+        "line_begin": 90,
+        "line_end": 117,
+        "block_sha256": "6680e1b9b276c2b68f7b65a52e6b4621742425fd72494f37536a6890df4f9463"
+      }
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_put_consumer_oracle.py::test_damaged_duplicate_put_is_refused_before_fresh_process_retry_consumer[same_size]",
+      "status": "PASS",
+      "body_entered": true,
+      "full_case_index": 142,
+      "test_function_source": {
+        "line_begin": 33,
+        "line_end": 105,
+        "block_sha256": "2a17bab18bca6f3db2267d66bf8a19b1bb7fc1f92ee90a779b8076f4f5ea997c"
+      }
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_put_consumer_oracle.py::test_damaged_duplicate_put_is_refused_before_fresh_process_retry_consumer[short]",
+      "status": "PASS",
+      "body_entered": true,
+      "full_case_index": 143,
+      "test_function_source": {
+        "line_begin": 33,
+        "line_end": 105,
+        "block_sha256": "2a17bab18bca6f3db2267d66bf8a19b1bb7fc1f92ee90a779b8076f4f5ea997c"
+      }
+    }
+  ],
+  "B150_actual_distinct_creation_time_readthrough": [
+    {
+      "nodeid": "tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py::test_write_through_transfers_exact_owner_bytes_across_distinct_creation_times[False-put_bytes]",
+      "status": "PASS",
+      "body_entered": true,
+      "full_case_index": 74,
+      "test_function_source": {
+        "line_begin": 15,
+        "line_end": 59,
+        "block_sha256": "e13a3502365b8f8e4a0543ab264db360eacfff26213ff45d2305d3334759cf40"
+      }
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py::test_write_through_transfers_exact_owner_bytes_across_distinct_creation_times[False-put_json]",
+      "status": "PASS",
+      "body_entered": true,
+      "full_case_index": 75,
+      "test_function_source": {
+        "line_begin": 15,
+        "line_end": 59,
+        "block_sha256": "e13a3502365b8f8e4a0543ab264db360eacfff26213ff45d2305d3334759cf40"
+      }
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py::test_write_through_transfers_exact_owner_bytes_across_distinct_creation_times[True-put_bytes]",
+      "status": "PASS",
+      "body_entered": true,
+      "full_case_index": 76,
+      "test_function_source": {
+        "line_begin": 15,
+        "line_end": 59,
+        "block_sha256": "e13a3502365b8f8e4a0543ab264db360eacfff26213ff45d2305d3334759cf40"
+      }
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py::test_write_through_transfers_exact_owner_bytes_across_distinct_creation_times[True-put_json]",
+      "status": "PASS",
+      "body_entered": true,
+      "full_case_index": 77,
+      "test_function_source": {
+        "line_begin": 15,
+        "line_end": 59,
+        "block_sha256": "e13a3502365b8f8e4a0543ab264db360eacfff26213ff45d2305d3334759cf40"
+      }
+    }
+  ],
+  "B153_actual_concurrency_and_owner_pool": [
+    {
+      "nodeid": "tests/unit/remediation/test_cas_01.py::test_concurrent_writers_publish_only_the_persisted_first_writer_profile",
+      "status": "PASS",
+      "body_entered": true,
+      "full_case_index": 427,
+      "test_function_source": {
+        "line_begin": 447,
+        "line_end": 595,
+        "block_sha256": "d0a3e7f46b75439a9bce5b6dd4c1ac872c56dd05de92c1df4b6c281feb3428a6"
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_cas_01.py::test_exception_releases_same_id_lock_for_scoped_view_waiter",
+      "status": "PASS",
+      "body_entered": true,
+      "full_case_index": 428,
+      "test_function_source": {
+        "line_begin": 598,
+        "line_end": 769,
+        "block_sha256": "2766ac4fd5b9964bcf286abb60d585e710fd5f15c59972eeabf89de3954ba040"
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_cas_01.py::test_lock_registry_is_bounded_without_evicting_active_waiters",
+      "status": "PASS",
+      "body_entered": true,
+      "full_case_index": 429,
+      "test_function_source": {
+        "line_begin": 772,
+        "line_end": 944,
+        "block_sha256": "949496f59ca0463fa4a6e4b6361be1acd6d234b94eb7defe1b04541591d06b91"
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_cas_01.py::test_colliding_lock_stripe_keeps_distinct_cas_bytes_and_manifests",
+      "status": "PASS",
+      "body_entered": true,
+      "full_case_index": 430,
+      "test_function_source": {
+        "line_begin": 947,
+        "line_end": 1089,
+        "block_sha256": "456fcb1b581fae93870d59b04aba41bc95f530caf608691cf029260684525c02"
+      }
+    }
+  ],
+  "finding_dispositions": [
+    {
+      "finding_id": "B148",
+      "classification": "HELD",
+      "basis": "current_actual_root_native_consumer_asserted; author independently reconciled data/source/input, not own-code acceptance",
+      "criterion": {
+        "id": "B148",
+        "primary_bundle": "CAS-02",
+        "criterion_refs": [
+          {
+            "criterion_id": "B148",
+            "document": "B_r19",
+            "lines": [
+              3917,
+              3928
+            ],
+            "sha256": "9dc24cc351838bcc7e2f1210c44c7cd4a6b6377579f500b53a677e8276e6e47a",
+            "card": "CAS-02"
+          }
+        ],
+        "source": {
+          "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "bytes": 1336380,
+          "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+        }
+      },
+      "reason": "Fresh DD bounded recommended scoped pre-stage/intake/lease/true-noop mechanism is supported. Canonical B.md explicitly leaves public cross-tenant semantics proposed/unratified. A explicit-bound None-cell writer attestation into cell-a is correctly refused by this guard; do not relax guard or use optional query None as a wildcard.",
+      "whole_native_file_refs": [
+        {
+          "file": "tests/unit/core/artifacts/test_import_admission_noop.py",
+          "case_count": 34,
+          "source": {
+            "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+            "path": "policy-engine/tests/unit/core/artifacts/test_import_admission_noop.py",
+            "git_blob": "facd74807e31c44f95cd13a657a001da5438f8e9",
+            "bytes": 14387,
+            "sha256": "44b8e5d352da4ada1cc4a66b9f824776e38582d28424c408474769a6c0bb14a3"
+          }
+        },
+        {
+          "file": "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+          "case_count": 12,
+          "source": {
+            "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+            "path": "policy-engine/tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+            "git_blob": "052d125e2b3c17497188ee5cfe096f4d13e4b709",
+            "bytes": 24787,
+            "sha256": "ea350b993f693b6421ea0bab58c01e0acbf6f6a7e7c8152c7c3043d856d7f3e4"
+          }
+        },
+        {
+          "file": "tests/unit/remediation/test_cas_02.py",
+          "case_count": 18,
+          "source": {
+            "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+            "path": "policy-engine/tests/unit/remediation/test_cas_02.py",
+            "git_blob": "8253c577d0e953318de826e7fa6c1a8c8da381d1",
+            "bytes": 24197,
+            "sha256": "d64c46bb4055cb6cd65fcff05067ef6c89941b5af316a63931088fbebaa98771"
+          }
+        }
+      ],
+      "exact_property_tag_case_indices": [
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        130,
+        131,
+        132,
+        133,
+        134,
+        135,
+        136,
+        137,
+        138,
+        139,
+        140,
+        141,
+        178,
+        179,
+        180,
+        181,
+        182,
+        435,
+        436,
+        440,
+        441,
+        442,
+        443,
+        444,
+        445,
+        446,
+        447,
+        448,
+        449,
+        450,
+        451,
+        452
+      ],
+      "property_tag_qualification": "Tags group candidate properties only. Whole native file and tagged case totals never establish criterion closure without the stated defining quantities.",
+      "next_owner": "Root/G normative owner decision; A actual authority writer aligns its declared producer context and appointed scoped sink.",
+      "actual_closure": false
+    },
+    {
+      "finding_id": "B149",
+      "classification": "CONDITIONALLY_SUPPORTED_FINITE_CRITERION",
+      "basis": "current_actual_root_native_consumer_asserted; author independently reconciled data/source/input, not own-code acceptance",
+      "criterion": {
+        "id": "B149",
+        "primary_bundle": "CAS-02",
+        "criterion_refs": [
+          {
+            "criterion_id": "B149",
+            "document": "B_r19",
+            "lines": [
+              3929,
+              3940
+            ],
+            "sha256": "77fcd9a12a06828f4ec68229fb69245c81ebe2842c53b348352a1dae01422cee",
+            "card": "CAS-02"
+          }
+        ],
+        "source": {
+          "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "bytes": 1336380,
+          "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+        }
+      },
+      "reason": "Actual directory/archive same-destination generations, include_manifests switch, exact inventory, independent import, retained old history, exchange/replace/fsync faults, child interruption and pinned concurrent reader passed. Linux native atomic exchange is exercised; unsupported platforms refuse. Darwin UNRUN is a finite platform qualification, not an invented universal closure prerequisite.",
+      "whole_native_file_refs": [
+        {
+          "file": "tests/unit/core/artifacts/test_transfer_generation_publication.py",
+          "case_count": 25,
+          "source": {
+            "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+            "path": "policy-engine/tests/unit/core/artifacts/test_transfer_generation_publication.py",
+            "git_blob": "b1d912b4d742d635194a6876e3a612eb86f28205",
+            "bytes": 23917,
+            "sha256": "8996cc5b02bf74aeda4d1ec36adb30cdf14bd9030c242f3425baad678b23d861"
+          }
+        },
+        {
+          "file": "tests/unit/remediation/test_cas_02.py",
+          "case_count": 18,
+          "source": {
+            "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+            "path": "policy-engine/tests/unit/remediation/test_cas_02.py",
+            "git_blob": "8253c577d0e953318de826e7fa6c1a8c8da381d1",
+            "bytes": 24197,
+            "sha256": "d64c46bb4055cb6cd65fcff05067ef6c89941b5af316a63931088fbebaa98771"
+          }
+        }
+      ],
+      "exact_property_tag_case_indices": [
+        158,
+        159,
+        160,
+        161,
+        162,
+        163,
+        164,
+        165,
+        166,
+        167,
+        168,
+        169,
+        170,
+        171,
+        172,
+        173,
+        174,
+        175,
+        176,
+        177,
+        437,
+        438,
+        439
+      ],
+      "property_tag_qualification": "Tags group candidate properties only. Whole native file and tagged case totals never establish criterion closure without the stated defining quantities.",
+      "next_owner": "Root/G may adjudicate bounded Linux canonical criterion; future source changes require exact input/source qualification.",
+      "actual_closure": false
+    },
+    {
+      "finding_id": "B150",
+      "classification": "REGRESSION_SUPPORTED_CURRENT_DD",
+      "basis": "current_actual_root_native_consumer_asserted; author independently reconciled data/source/input, not own-code acceptance",
+      "criterion": {
+        "id": "B150",
+        "primary_bundle": "CAS-01",
+        "criterion_refs": [
+          {
+            "criterion_id": "B150",
+            "document": "B_r19",
+            "lines": [
+              3941,
+              3952
+            ],
+            "sha256": "b40a162af24b14c3160e0129551e58ecfabf054df9da4e3cab413f020cde5aa4",
+            "card": "CAS-01"
+          }
+        ],
+        "source": {
+          "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "bytes": 1336380,
+          "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+        }
+      },
+      "reason": "Actual first-writer and selected-profile refs agree with immutable manifest bytes; distinct creation-time local/remote write-through consumers preserve unrelated default and exact remote selected bytes; Foundry exact checkpoint consumers pass. No own CAS mechanics independent acceptance is supplied by this author audit.",
+      "whole_native_file_refs": [
+        {
+          "file": "tests/unit/core/artifacts/backends/test_caching_store.py",
+          "case_count": 28,
+          "source": {
+            "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+            "path": "policy-engine/tests/unit/core/artifacts/backends/test_caching_store.py",
+            "git_blob": "404f80fb7c7f1829bf167fce41e03f12585d284e",
+            "bytes": 34836,
+            "sha256": "df322346f50d545b2eb7049c7ff03f4827abe7282b7e8fdff2ab92fe513d1fe2"
+          }
+        },
+        {
+          "file": "tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py",
+          "case_count": 4,
+          "source": {
+            "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+            "path": "policy-engine/tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py",
+            "git_blob": "aaec1f8f593fb1f63f36140d773ac14fe662b546",
+            "bytes": 2582,
+            "sha256": "2cf4a16829b342bd9b35a69fc28fcbfff845e3e8b56166d0a0cf207429038dda"
+          }
+        },
+        {
+          "file": "tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+          "case_count": 39,
+          "source": {
+            "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+            "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+            "git_blob": "c4752a53c232c4e57a10433a48a7d0959a60732f",
+            "bytes": 33264,
+            "sha256": "23f3a815adb38d2b18ef9f68b320300788941a45e4d32bac2e9e2cfe734d13fd"
+          }
+        },
+        {
+          "file": "tests/unit/remediation/test_cas_01.py",
+          "case_count": 18,
+          "source": {
+            "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+            "path": "policy-engine/tests/unit/remediation/test_cas_01.py",
+            "git_blob": "9b9898162c7f32190af9b17be8a4706b57c5782f",
+            "bytes": 48119,
+            "sha256": "2f5e579c9522fac98b8b1e727a12f3b3f3ab89fab6dd2827fd44d67bce8d94df"
+          }
+        }
+      ],
+      "exact_property_tag_case_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        74,
+        75,
+        76,
+        77,
+        417,
+        418,
+        419,
+        420,
+        421,
+        422,
+        423,
+        424,
+        425,
+        431,
+        432,
+        433,
+        434,
+        528,
+        529,
+        530,
+        531,
+        533,
+        534,
+        535,
+        536,
+        540,
+        541,
+        542,
+        543
+      ],
+      "property_tag_qualification": "Tags group candidate properties only. Whole native file and tagged case totals never establish criterion closure without the stated defining quantities.",
+      "next_owner": "Root/G retains prior closed regression only within accepted current source/profile; CMP/RUN remain independent source reviewers.",
+      "actual_closure": false
+    },
+    {
+      "finding_id": "B151",
+      "classification": "CONDITIONALLY_SUPPORTED_FINITE_CRITERION",
+      "basis": "current_actual_root_native_consumer_asserted; author independently reconciled data/source/input, not own-code acceptance",
+      "criterion": {
+        "id": "B151",
+        "primary_bundle": "CAS-01",
+        "criterion_refs": [
+          {
+            "criterion_id": "B151",
+            "document": "B_r19",
+            "lines": [
+              3953,
+              3964
+            ],
+            "sha256": "b48507b8d9539968f2aa0e75206129e70e987c9a704aea12ae4299b944c098e7",
+            "card": "CAS-01"
+          }
+        ],
+        "source": {
+          "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "bytes": 1336380,
+          "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+        }
+      },
+      "reason": "Five direct real put_bytes controls refuse damaged blob or wrong selected size, retain refused evidence, accept exact operator repair/missing sidecar retry and reopen get_bytes/manifest/verify. Two different-author fresh OS-process consumers independently read retained selected view after repaired retry.",
+      "whole_native_file_refs": [
+        {
+          "file": "tests/unit/core/artifacts/test_put_consumer_oracle.py",
+          "case_count": 2,
+          "source": {
+            "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+            "path": "policy-engine/tests/unit/core/artifacts/test_put_consumer_oracle.py",
+            "git_blob": "97190f48a671eec12e02cfe09c3ad153a462bb5f",
+            "bytes": 4011,
+            "sha256": "4c3ad9d5c7c2662b8e192570f54b13defd26beef7bda71bd378f2505b6157576"
+          }
+        },
+        {
+          "file": "tests/unit/core/artifacts/test_put_integrity_retry.py",
+          "case_count": 5,
+          "source": {
+            "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+            "path": "policy-engine/tests/unit/core/artifacts/test_put_integrity_retry.py",
+            "git_blob": "b334e3c6a9096672ace78aad280ae8e1877461aa",
+            "bytes": 5011,
+            "sha256": "1bb168058fbae8b00094c0cdec0f322bbfb5b9768ef4bafc0d5bc9f946327da7"
+          }
+        }
+      ],
+      "exact_property_tag_case_indices": [
+        142,
+        143,
+        144,
+        145,
+        146,
+        147,
+        148,
+        426
+      ],
+      "property_tag_qualification": "Tags group candidate properties only. Whole native file and tagged case totals never establish criterion closure without the stated defining quantities.",
+      "next_owner": "Root/G current criterion adjudication; earlier a823 byte-predicate removal remains explicitly historical, not a new DD removal run.",
+      "actual_closure": false
+    },
+    {
+      "finding_id": "B152",
+      "classification": "CONDITIONALLY_SUPPORTED_FINITE_CRITERION",
+      "basis": "current_actual_root_native_consumer_asserted; author independently reconciled data/source/input, not own-code acceptance",
+      "criterion": {
+        "id": "B152",
+        "primary_bundle": "CAS-03",
+        "criterion_refs": [
+          {
+            "criterion_id": "B152",
+            "document": "B_r19",
+            "lines": [
+              3965,
+              3976
+            ],
+            "sha256": "dcbbcfcb4637d8b4fa80ffc8d169874ee5d6e5c9afe56e833a61d54a857daf2c",
+            "card": "CAS-03"
+          }
+        ],
+        "source": {
+          "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "bytes": 1336380,
+          "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+        }
+      },
+      "reason": "All fourteen new failed-read/public-capture tests and nine prior one-snapshot consumers passed, plus phase0 corruption and real signature/chronology consumers. Same safe snapshot supplies hash/size/manifest/report including invalid reads; pre-safe-read None fields and original get/signature refusal remain.",
+      "whole_native_file_refs": [
+        {
+          "file": "tests/unit/core/artifacts/test_cas_integrity_report.py",
+          "case_count": 1,
+          "source": {
+            "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+            "path": "policy-engine/tests/unit/core/artifacts/test_cas_integrity_report.py",
+            "git_blob": "678583397bb5375579dae6581d6ac381898d2965",
+            "bytes": 4638,
+            "sha256": "cb4bb3f5564bfc4e9e602466989e622e114e725f16c4488b12c9a051d0bf2aa4"
+          }
+        },
+        {
+          "file": "tests/unit/core/artifacts/test_signed_evidence.py",
+          "case_count": 6,
+          "source": {
+            "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+            "path": "policy-engine/tests/unit/core/artifacts/test_signed_evidence.py",
+            "git_blob": "c72691a8abb71cdb98aab15bd184c3d8ed5319e3",
+            "bytes": 7305,
+            "sha256": "08a2fc52ab0eebe5b3d1b465663ba566d6f59ceff81e545f867adce1157b0b3e"
+          }
+        },
+        {
+          "file": "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+          "case_count": 14,
+          "source": {
+            "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+            "path": "policy-engine/tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+            "git_blob": "e39b376a65f7cd194b439c9695da44f3a056b5e6",
+            "bytes": 9989,
+            "sha256": "16f2ac386885257997a58d97fabc78fe632c328fa6bca2780fcb35825c95fb32"
+          }
+        },
+        {
+          "file": "tests/unit/core/artifacts/test_verification_snapshot_report.py",
+          "case_count": 9,
+          "source": {
+            "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+            "path": "policy-engine/tests/unit/core/artifacts/test_verification_snapshot_report.py",
+            "git_blob": "a90abb5ec4a65745be7ff82b362e151d9917a287",
+            "bytes": 5578,
+            "sha256": "d6ff2c719331efdb453b9051ff6c75c6cf3e3c67276cd7eb488f8476a0569dcc"
+          }
+        },
+        {
+          "file": "tests/unit/core/phase0/test_artifact_store.py",
+          "case_count": 11,
+          "source": {
+            "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+            "path": "policy-engine/tests/unit/core/phase0/test_artifact_store.py",
+            "git_blob": "5fbd693e74b17a161c7d8f4de616c2faa63c0a5f",
+            "bytes": 7257,
+            "sha256": "3c610fbed5e7c7f416b0eb9ebf0220cc2e5495452e24728ca658a5532b3cae7b"
+          }
+        },
+        {
+          "file": "tests/unit/core/phase0/test_cli_signing.py",
+          "case_count": 5,
+          "source": {
+            "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+            "path": "policy-engine/tests/unit/core/phase0/test_cli_signing.py",
+            "git_blob": "0cc9baedb0d22cfe0c0faf87a76140783e066ff7",
+            "bytes": 4595,
+            "sha256": "414daba848a4814c1f65ef02318efc74b326191a96abad028939fc0cda69fcd7"
+          }
+        },
+        {
+          "file": "tests/unit/core/phase0/test_signing.py",
+          "case_count": 11,
+          "source": {
+            "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+            "path": "policy-engine/tests/unit/core/phase0/test_signing.py",
+            "git_blob": "f7a3fca5f3f158c6e91a275781e51fc5afc4e05a",
+            "bytes": 6894,
+            "sha256": "4af98942b89206f63cea7fa3e27ece121bdafcea179b1cc957cf4befe8c97973"
+          }
+        },
+        {
+          "file": "tests/unit/core/phase0/test_store_signing.py",
+          "case_count": 21,
+          "source": {
+            "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+            "path": "policy-engine/tests/unit/core/phase0/test_store_signing.py",
+            "git_blob": "2b49dbe9b27796a4aacce3369be5c2f4c5bbb288",
+            "bytes": 14325,
+            "sha256": "21d210a1d4b9493e3400f64b109e5f820821495c298dfbe3f3017a17bd3abf34"
+          }
+        },
+        {
+          "file": "tests/unit/remediation/test_cas_03.py",
+          "case_count": 16,
+          "source": {
+            "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+            "path": "policy-engine/tests/unit/remediation/test_cas_03.py",
+            "git_blob": "7f72aa0992ef443b4faf042b20214745df58230b",
+            "bytes": 31421,
+            "sha256": "19636b58cf687da7ec3eb9c3ded9ef9cb0ed6c24f0b3bcb6aa10e31eda9db9b9"
+          }
+        },
+        {
+          "file": "tests/unit/runtime/quality/test_chronology_proof.py",
+          "case_count": 39,
+          "source": {
+            "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+            "path": "policy-engine/tests/unit/runtime/quality/test_chronology_proof.py",
+            "git_blob": "83640077ad0a533468c94e29f07247c116ddcbbf",
+            "bytes": 64363,
+            "sha256": "069e7d9509449da6ee232809909d864c835eff44dbb94746433cd04f5c911f8f"
+          }
+        }
+      ],
+      "exact_property_tag_case_indices": [
+        78,
+        149,
+        150,
+        151,
+        152,
+        153,
+        154,
+        183,
+        184,
+        185,
+        186,
+        187,
+        188,
+        189,
+        190,
+        191,
+        192,
+        193,
+        194,
+        195,
+        196,
+        197,
+        198,
+        199,
+        200,
+        201,
+        202,
+        203,
+        204,
+        205,
+        218,
+        219,
+        247,
+        248,
+        249,
+        250,
+        251,
+        306,
+        307,
+        308,
+        309,
+        310,
+        311,
+        312,
+        313,
+        314,
+        315,
+        316,
+        317,
+        318,
+        319,
+        320,
+        321,
+        322,
+        323,
+        324,
+        325,
+        326,
+        327,
+        328,
+        329,
+        330,
+        331,
+        332,
+        333,
+        334,
+        335,
+        336,
+        337,
+        453,
+        454,
+        532,
+        538,
+        547,
+        548,
+        549,
+        550
+      ],
+      "property_tag_qualification": "Tags group candidate properties only. Whole native file and tagged case totals never establish criterion closure without the stated defining quantities.",
+      "next_owner": "Root/G current criterion adjudication with independent CMP965744 and RUNa243 source reviews; current positive does not relabel earlier property-removal execution as DD.",
+      "actual_closure": false
+    },
+    {
+      "finding_id": "B153",
+      "classification": "REGRESSION_SUPPORTED_CURRENT_DD",
+      "basis": "current_actual_root_native_consumer_asserted; author independently reconciled data/source/input, not own-code acceptance",
+      "criterion": {
+        "id": "B153",
+        "primary_bundle": "CAS-01",
+        "criterion_refs": [
+          {
+            "criterion_id": "B153",
+            "document": "B_r19",
+            "lines": [
+              3977,
+              3988
+            ],
+            "sha256": "ce457c31ae354ef0b798696a95c012edf46cc582a985d184f4081a0a55ba5566",
+            "card": "CAS-01"
+          }
+        ],
+        "source": {
+          "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "bytes": 1336380,
+          "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+        }
+      },
+      "reason": "Actual concurrent same-key writers, exception-release scoped waiter, 3000 actual owner-lease pressure with active waiter and distinct colliding IDs all passed. Native pressure counts lock acquisitions, not3000 put operations or RSS; no process-lock to distributed-lock promotion.",
+      "whole_native_file_refs": [
+        {
+          "file": "tests/unit/core/phase0/test_artifact_store.py",
+          "case_count": 11,
+          "source": {
+            "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+            "path": "policy-engine/tests/unit/core/phase0/test_artifact_store.py",
+            "git_blob": "5fbd693e74b17a161c7d8f4de616c2faa63c0a5f",
+            "bytes": 7257,
+            "sha256": "3c610fbed5e7c7f416b0eb9ebf0220cc2e5495452e24728ca658a5532b3cae7b"
+          }
+        },
+        {
+          "file": "tests/unit/remediation/test_cas_01.py",
+          "case_count": 18,
+          "source": {
+            "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+            "path": "policy-engine/tests/unit/remediation/test_cas_01.py",
+            "git_blob": "9b9898162c7f32190af9b17be8a4706b57c5782f",
+            "bytes": 48119,
+            "sha256": "2f5e579c9522fac98b8b1e727a12f3b3f3ab89fab6dd2827fd44d67bce8d94df"
+          }
+        }
+      ],
+      "exact_property_tag_case_indices": [
+        214,
+        427,
+        428,
+        429,
+        430
+      ],
+      "property_tag_qualification": "Tags group candidate properties only. Whole native file and tagged case totals never establish criterion closure without the stated defining quantities.",
+      "next_owner": "Root/G preserves prior bounded regression verdict; no new multi-host/whole-system memory claim.",
+      "actual_closure": false
+    },
+    {
+      "finding_id": "B154",
+      "classification": "consumer_missing",
+      "basis": "current_actual_root_native_consumer_asserted; author independently reconciled data/source/input, not own-code acceptance",
+      "criterion": {
+        "id": "B154",
+        "primary_bundle": "CAS-03",
+        "criterion_refs": [
+          {
+            "criterion_id": "B154",
+            "document": "B_r19",
+            "lines": [
+              3989,
+              4000
+            ],
+            "sha256": "5e25ba12544423bc8a7de3338e8d104bb6c6ef4619bcdf95639c05652cd8c1c5",
+            "card": "CAS-03"
+          }
+        ],
+        "source": {
+          "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "bytes": 1336380,
+          "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+        }
+      },
+      "reason": "Fresh producer typed full per-item complete/aborted reports and genuine importer integrity gate passed, including local corruption/global basis loss/cancel, exact selected references and incomplete per-item refusal. Actual appointed all-signature-confirmations scientific publisher integration remains absent under canonical B.md:75; CLI and integrity import do not substitute.",
+      "whole_native_file_refs": [
+        {
+          "file": "tests/unit/core/artifacts/test_batch_completion_admission.py",
+          "case_count": 20,
+          "source": {
+            "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+            "path": "policy-engine/tests/unit/core/artifacts/test_batch_completion_admission.py",
+            "git_blob": "c493db7680df69132ef36f14e951f001f0f993e9",
+            "bytes": 14133,
+            "sha256": "2ba68f1c9b0524ea648aef179ae63bdb20d6633571064d533282eadb51599503"
+          }
+        },
+        {
+          "file": "tests/unit/core/phase0/test_cli_signing.py",
+          "case_count": 5,
+          "source": {
+            "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+            "path": "policy-engine/tests/unit/core/phase0/test_cli_signing.py",
+            "git_blob": "0cc9baedb0d22cfe0c0faf87a76140783e066ff7",
+            "bytes": 4595,
+            "sha256": "414daba848a4814c1f65ef02318efc74b326191a96abad028939fc0cda69fcd7"
+          }
+        },
+        {
+          "file": "tests/unit/remediation/test_cas_03.py",
+          "case_count": 16,
+          "source": {
+            "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+            "path": "policy-engine/tests/unit/remediation/test_cas_03.py",
+            "git_blob": "7f72aa0992ef443b4faf042b20214745df58230b",
+            "bytes": 31421,
+            "sha256": "19636b58cf687da7ec3eb9c3ded9ef9cb0ed6c24f0b3bcb6aa10e31eda9db9b9"
+          }
+        }
+      ],
+      "exact_property_tag_case_indices": [
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        455,
+        456,
+        457,
+        458,
+        459,
+        460,
+        461,
+        462,
+        463,
+        464,
+        465,
+        466,
+        467,
+        468
+      ],
+      "property_tag_qualification": "Tags group candidate properties only. Whole native file and tagged case totals never establish criterion closure without the stated defining quantities.",
+      "next_owner": "A integrates fresh local BulkVerificationReport.require_complete_valid(required_refs) before the real all-confirmations publication under existing fences, preserves unsigned policy; root/G reviews actual consumer.",
+      "actual_closure": false
+    },
+    {
+      "finding_id": "B155",
+      "classification": "CONDITIONALLY_SUPPORTED_FINITE_CRITERION",
+      "basis": "current_actual_root_native_consumer_asserted; author independently reconciled data/source/input, not own-code acceptance",
+      "criterion": {
+        "id": "B155",
+        "primary_bundle": "CAS-03",
+        "criterion_refs": [
+          {
+            "criterion_id": "B155",
+            "document": "B_r19",
+            "lines": [
+              4001,
+              4012
+            ],
+            "sha256": "ba554ca2b34048d819b857f7aa3b10bf5bd68045d66eff2ae38465016b29816b",
+            "card": "CAS-03"
+          }
+        ],
+        "source": {
+          "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "bytes": 1336380,
+          "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+        }
+      },
+      "reason": "Fresh explicit iterator/window/deadline/duplicate/infinite-source controls passed with preserved item identity/full reports. Per-source-item checks cover duplicates/exhaustion. Default filesystem intake declares O(N) canonical name/member census and visible IDs before yield; it checks cancellation/deadline between filesystem operations. Full detailed reports also remain O(N), as allowed by original criterion. This is not a bounded-memory/hard-preemption claim.",
+      "whole_native_file_refs": [
+        {
+          "file": "tests/unit/core/artifacts/test_batch_completion_admission.py",
+          "case_count": 20,
+          "source": {
+            "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+            "path": "policy-engine/tests/unit/core/artifacts/test_batch_completion_admission.py",
+            "git_blob": "c493db7680df69132ef36f14e951f001f0f993e9",
+            "bytes": 14133,
+            "sha256": "2ba68f1c9b0524ea648aef179ae63bdb20d6633571064d533282eadb51599503"
+          }
+        },
+        {
+          "file": "tests/unit/remediation/test_cas_03.py",
+          "case_count": 16,
+          "source": {
+            "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+            "path": "policy-engine/tests/unit/remediation/test_cas_03.py",
+            "git_blob": "7f72aa0992ef443b4faf042b20214745df58230b",
+            "bytes": 31421,
+            "sha256": "19636b58cf687da7ec3eb9c3ded9ef9cb0ed6c24f0b3bcb6aa10e31eda9db9b9"
+          }
+        }
+      ],
+      "exact_property_tag_case_indices": [
+        56,
+        57,
+        60,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        456,
+        460,
+        461,
+        462,
+        463,
+        464,
+        465,
+        467,
+        468
+      ],
+      "property_tag_qualification": "Tags group candidate properties only. Whole native file and tagged case totals never establish criterion closure without the stated defining quantities.",
+      "next_owner": "Root/G may adjudicate bounded cooperative quantity; preserve one user next/syscall and physical callback drain boundary. No unstated powerloss/allOS/hard worker death/RSS condition is manufactured.",
+      "actual_closure": false
+    }
+  ],
+  "nonpassed_external_actual_cases": [
+    {
+      "nodeid": "tests/unit/runtime/http/test_artifact_inspector_api.py::test_eval_safety_projection_is_informational_only",
+      "actual_status": "ERROR",
+      "body_entered": false,
+      "classification_bucket": "cloud_missing_local_production_catalog",
+      "defining_quantity_boundary": "Target route/authorization consumer not reached: pytest setup fails",
+      "next_owner": "A/C consumer fixture or local G production dataset environment",
+      "diagnostics_full_output_locator": {
+        "file": "audit-full-stdout.json",
+        "array": "nonpassed_relevant_cases",
+        "index": 0
+      },
+      "diagnostic_sha256": [
+        "592fd8a1f678e604270cf0f4b9d7cd6f623dcb63bdbfa4178fd1feac7425146c"
+      ]
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_artifact_inspector_api.py::test_artifact_manifest_endpoint_returns_canonical_metadata",
+      "actual_status": "ERROR",
+      "body_entered": false,
+      "classification_bucket": "cloud_missing_local_production_catalog",
+      "defining_quantity_boundary": "Target route/authorization consumer not reached: pytest setup fails",
+      "next_owner": "A/C consumer fixture or local G production dataset environment",
+      "diagnostics_full_output_locator": {
+        "file": "audit-full-stdout.json",
+        "array": "nonpassed_relevant_cases",
+        "index": 1
+      },
+      "diagnostic_sha256": [
+        "c0bd0716b5b2ffd8def0c9e69cf06c9cacfc07cdf6fac9117a1cc24574c4dfbd"
+      ]
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_artifact_inspector_api.py::test_artifact_content_preview_enforces_max_bytes",
+      "actual_status": "ERROR",
+      "body_entered": false,
+      "classification_bucket": "cloud_missing_local_production_catalog",
+      "defining_quantity_boundary": "Target route/authorization consumer not reached: pytest setup fails",
+      "next_owner": "A/C consumer fixture or local G production dataset environment",
+      "diagnostics_full_output_locator": {
+        "file": "audit-full-stdout.json",
+        "array": "nonpassed_relevant_cases",
+        "index": 2
+      },
+      "diagnostic_sha256": [
+        "6aba28788c11ff5d141f63b98aa8f4cb1e40196d8d2325a8f242852f4f6e1eae"
+      ]
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_artifact_inspector_api.py::test_artifact_lineage_and_schema_endpoints",
+      "actual_status": "ERROR",
+      "body_entered": false,
+      "classification_bucket": "cloud_missing_local_production_catalog",
+      "defining_quantity_boundary": "Target route/authorization consumer not reached: pytest setup fails",
+      "next_owner": "A/C consumer fixture or local G production dataset environment",
+      "diagnostics_full_output_locator": {
+        "file": "audit-full-stdout.json",
+        "array": "nonpassed_relevant_cases",
+        "index": 3
+      },
+      "diagnostic_sha256": [
+        "dff68e0137cc43b75ba5f17afb29d1ac4722d21b1295f457bed010503f586056"
+      ]
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_artifact_surface_safety.py::test_raw_and_manifest_artifact_surfaces_block_secret_pii",
+      "actual_status": "FAIL",
+      "body_entered": true,
+      "classification_bucket": "cloud_missing_local_production_catalog",
+      "defining_quantity_boundary": "Target route/authorization consumer not reached: test call enters and prepares CAS fixture, but TestClient startup fails before governed routes are exercised",
+      "next_owner": "A/C consumer fixture or local G production dataset environment",
+      "diagnostics_full_output_locator": {
+        "file": "audit-full-stdout.json",
+        "array": "nonpassed_relevant_cases",
+        "index": 4
+      },
+      "diagnostic_sha256": [
+        "fcedefb2397d89ba8d0d65a7758877d37286231cc096162e282128c4360f2101"
+      ]
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_artifact_surface_safety.py::test_composed_gate_blocks_declared_inconsistent_time_source_on_raw_and_export",
+      "actual_status": "FAIL",
+      "body_entered": true,
+      "classification_bucket": "cloud_missing_local_production_catalog",
+      "defining_quantity_boundary": "Target route/authorization consumer not reached: test call enters and prepares CAS fixture, but TestClient startup fails before governed routes are exercised",
+      "next_owner": "A/C consumer fixture or local G production dataset environment",
+      "diagnostics_full_output_locator": {
+        "file": "audit-full-stdout.json",
+        "array": "nonpassed_relevant_cases",
+        "index": 5
+      },
+      "diagnostic_sha256": [
+        "3b51af4635ab9823ae448a65c44db859ed8e0853cd8913bb1df27bdfe6a4279d"
+      ]
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_artifact_surface_safety.py::test_composed_gate_blocks_s12_deref_bypass_on_raw_and_export",
+      "actual_status": "FAIL",
+      "body_entered": true,
+      "classification_bucket": "cloud_missing_local_production_catalog",
+      "defining_quantity_boundary": "Target route/authorization consumer not reached: test call enters and prepares CAS fixture, but TestClient startup fails before governed routes are exercised",
+      "next_owner": "A/C consumer fixture or local G production dataset environment",
+      "diagnostics_full_output_locator": {
+        "file": "audit-full-stdout.json",
+        "array": "nonpassed_relevant_cases",
+        "index": 6
+      },
+      "diagnostic_sha256": [
+        "bbb3c1ff2ced1901cd5ca07390d0b23eba7a6ebf2fb25ca26371c83a02f3f448"
+      ]
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_artifact_surface_safety.py::test_lineage_routes_block_clean_no_authority",
+      "actual_status": "FAIL",
+      "body_entered": true,
+      "classification_bucket": "cloud_missing_local_production_catalog",
+      "defining_quantity_boundary": "Target route/authorization consumer not reached: test call enters and prepares CAS fixture, but TestClient startup fails before governed routes are exercised",
+      "next_owner": "A/C consumer fixture or local G production dataset environment",
+      "diagnostics_full_output_locator": {
+        "file": "audit-full-stdout.json",
+        "array": "nonpassed_relevant_cases",
+        "index": 7
+      },
+      "diagnostic_sha256": [
+        "762973ab995aa4c87ca65b06dfc0f821b40379286b2c93c0856fb4a95fd43a6f"
+      ]
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_authorization_allow_is_appended_to_existing_access_audit_trail",
+      "actual_status": "ERROR",
+      "body_entered": false,
+      "classification_bucket": "cloud_missing_local_production_catalog",
+      "defining_quantity_boundary": "Target route/authorization consumer not reached: pytest setup fails",
+      "next_owner": "A/C consumer fixture or local G production dataset environment",
+      "diagnostics_full_output_locator": {
+        "file": "audit-full-stdout.json",
+        "array": "nonpassed_relevant_cases",
+        "index": 8
+      },
+      "diagnostic_sha256": [
+        "97a4d5a195d716740522814ef6f71e75974b481af46a7dc599232258fb8b97d8"
+      ]
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_authorization_deny_is_appended_to_existing_access_audit_trail",
+      "actual_status": "ERROR",
+      "body_entered": false,
+      "classification_bucket": "cloud_missing_local_production_catalog",
+      "defining_quantity_boundary": "Target route/authorization consumer not reached: pytest setup fails",
+      "next_owner": "A/C consumer fixture or local G production dataset environment",
+      "diagnostics_full_output_locator": {
+        "file": "audit-full-stdout.json",
+        "array": "nonpassed_relevant_cases",
+        "index": 9
+      },
+      "diagnostic_sha256": [
+        "421a087375fe92fdfd52d9aaf162bac7552feb8c1f03e0e5a3829d3c6c9cacaf"
+      ]
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_acquisition_get_rego_denies_same_permission_proxy_before_projection[runtime.case_inspection]",
+      "actual_status": "ERROR",
+      "body_entered": false,
+      "classification_bucket": "cloud_missing_local_production_catalog",
+      "defining_quantity_boundary": "Target route/authorization consumer not reached: pytest setup fails",
+      "next_owner": "A/C consumer fixture or local G production dataset environment",
+      "diagnostics_full_output_locator": {
+        "file": "audit-full-stdout.json",
+        "array": "nonpassed_relevant_cases",
+        "index": 10
+      },
+      "diagnostic_sha256": [
+        "60cab6b93f5cfe3323db3bfe39ce0700fc62f967bb0cc94c2ec88b8a3e4d9b7a"
+      ]
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_acquisition_get_rego_denies_same_permission_proxy_before_projection[runtime.run_paper]",
+      "actual_status": "ERROR",
+      "body_entered": false,
+      "classification_bucket": "cloud_missing_local_production_catalog",
+      "defining_quantity_boundary": "Target route/authorization consumer not reached: pytest setup fails",
+      "next_owner": "A/C consumer fixture or local G production dataset environment",
+      "diagnostics_full_output_locator": {
+        "file": "audit-full-stdout.json",
+        "array": "nonpassed_relevant_cases",
+        "index": 11
+      },
+      "diagnostic_sha256": [
+        "1e3d20e6387a2eacc9a752365eeb669cf1a3428e18cd2a5c2aa54ed3bf045385"
+      ]
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_acquisition_get_rego_denies_same_permission_proxy_before_projection[runtime.governed_projection.depth_n_cycle_board]",
+      "actual_status": "ERROR",
+      "body_entered": false,
+      "classification_bucket": "cloud_missing_local_production_catalog",
+      "defining_quantity_boundary": "Target route/authorization consumer not reached: pytest setup fails",
+      "next_owner": "A/C consumer fixture or local G production dataset environment",
+      "diagnostics_full_output_locator": {
+        "file": "audit-full-stdout.json",
+        "array": "nonpassed_relevant_cases",
+        "index": 12
+      },
+      "diagnostic_sha256": [
+        "57e5db1436c9464436740f8e94720b1fe57c8d1cc5ad5242465d199152c5f83e"
+      ]
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_invalid_delegation_denial_emits_one_terminal_audit",
+      "actual_status": "ERROR",
+      "body_entered": false,
+      "classification_bucket": "cloud_missing_local_production_catalog",
+      "defining_quantity_boundary": "Target route/authorization consumer not reached: pytest setup fails",
+      "next_owner": "A/C consumer fixture or local G production dataset environment",
+      "diagnostics_full_output_locator": {
+        "file": "audit-full-stdout.json",
+        "array": "nonpassed_relevant_cases",
+        "index": 13
+      },
+      "diagnostic_sha256": [
+        "b586a8da3befbee8d3bc490206287622cb497eed46136e6b92d9f74934eae44e"
+      ]
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_dependency_override_denial_emits_one_terminal_audit",
+      "actual_status": "ERROR",
+      "body_entered": false,
+      "classification_bucket": "cloud_missing_local_production_catalog",
+      "defining_quantity_boundary": "Target route/authorization consumer not reached: pytest setup fails",
+      "next_owner": "A/C consumer fixture or local G production dataset environment",
+      "diagnostics_full_output_locator": {
+        "file": "audit-full-stdout.json",
+        "array": "nonpassed_relevant_cases",
+        "index": 14
+      },
+      "diagnostic_sha256": [
+        "74c374072a5f6299633ea6d65dbfa314f4b8747e19103c55224c4078c146060c"
+      ]
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_unbound_resource_denial_emits_one_terminal_audit",
+      "actual_status": "ERROR",
+      "body_entered": false,
+      "classification_bucket": "cloud_missing_local_production_catalog",
+      "defining_quantity_boundary": "Target route/authorization consumer not reached: pytest setup fails",
+      "next_owner": "A/C consumer fixture or local G production dataset environment",
+      "diagnostics_full_output_locator": {
+        "file": "audit-full-stdout.json",
+        "array": "nonpassed_relevant_cases",
+        "index": 15
+      },
+      "diagnostic_sha256": [
+        "49c0098695331c3aa2eb821cfe57b7d2c86ddc7268ed79c6c872185769314824"
+      ]
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_missing_identity_denial_is_appended_without_unbound_authority_claims",
+      "actual_status": "ERROR",
+      "body_entered": false,
+      "classification_bucket": "cloud_missing_local_production_catalog",
+      "defining_quantity_boundary": "Target route/authorization consumer not reached: pytest setup fails",
+      "next_owner": "A/C consumer fixture or local G production dataset environment",
+      "diagnostics_full_output_locator": {
+        "file": "audit-full-stdout.json",
+        "array": "nonpassed_relevant_cases",
+        "index": 16
+      },
+      "diagnostic_sha256": [
+        "b3a22d880ad1574d23bbbb705dc8329cffb1a1ffc30ecff8ca3f2455e15fcaf2"
+      ]
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_opa_denial_is_appended_once",
+      "actual_status": "ERROR",
+      "body_entered": false,
+      "classification_bucket": "cloud_missing_local_production_catalog",
+      "defining_quantity_boundary": "Target route/authorization consumer not reached: pytest setup fails",
+      "next_owner": "A/C consumer fixture or local G production dataset environment",
+      "diagnostics_full_output_locator": {
+        "file": "audit-full-stdout.json",
+        "array": "nonpassed_relevant_cases",
+        "index": 17
+      },
+      "diagnostic_sha256": [
+        "52fa298de72dfe9591494de7d31eaddb47004f1de2feb312a2e159a154160f84"
+      ]
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_opa_timeout_is_appended_once",
+      "actual_status": "ERROR",
+      "body_entered": false,
+      "classification_bucket": "cloud_missing_local_production_catalog",
+      "defining_quantity_boundary": "Target route/authorization consumer not reached: pytest setup fails",
+      "next_owner": "A/C consumer fixture or local G production dataset environment",
+      "diagnostics_full_output_locator": {
+        "file": "audit-full-stdout.json",
+        "array": "nonpassed_relevant_cases",
+        "index": 18
+      },
+      "diagnostic_sha256": [
+        "0a53fce096056d60d8bd9bf106016b4717a8c6780015fe4bbd6ced91d0432d7b"
+      ]
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_resource_binding_denial_is_appended_before_opa",
+      "actual_status": "ERROR",
+      "body_entered": false,
+      "classification_bucket": "cloud_missing_local_production_catalog",
+      "defining_quantity_boundary": "Target route/authorization consumer not reached: pytest setup fails",
+      "next_owner": "A/C consumer fixture or local G production dataset environment",
+      "diagnostics_full_output_locator": {
+        "file": "audit-full-stdout.json",
+        "array": "nonpassed_relevant_cases",
+        "index": 19
+      },
+      "diagnostic_sha256": [
+        "374576ccf1125651f0890a3a934d1ef71958b6822cbcb22b9dada8c78152c978"
+      ]
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_step_up_denial_is_appended_without_token_material",
+      "actual_status": "ERROR",
+      "body_entered": false,
+      "classification_bucket": "cloud_missing_local_production_catalog",
+      "defining_quantity_boundary": "Target route/authorization consumer not reached: pytest setup fails",
+      "next_owner": "A/C consumer fixture or local G production dataset environment",
+      "diagnostics_full_output_locator": {
+        "file": "audit-full-stdout.json",
+        "array": "nonpassed_relevant_cases",
+        "index": 20
+      },
+      "diagnostic_sha256": [
+        "e6ef07e0af3e7b2853783dbf15a4e802ac66143f39060a8be0ad752cf837e142"
+      ]
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_denied_mutation_remains_denied_when_access_audit_append_fails",
+      "actual_status": "ERROR",
+      "body_entered": false,
+      "classification_bucket": "cloud_missing_local_production_catalog",
+      "defining_quantity_boundary": "Target route/authorization consumer not reached: pytest setup fails",
+      "next_owner": "A/C consumer fixture or local G production dataset environment",
+      "diagnostics_full_output_locator": {
+        "file": "audit-full-stdout.json",
+        "array": "nonpassed_relevant_cases",
+        "index": 21
+      },
+      "diagnostic_sha256": [
+        "b2835fbb709cce487395492ef984a525cc5431ec77b66d33930171394cf69fad"
+      ]
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_opa_unavailable_is_appended_once",
+      "actual_status": "ERROR",
+      "body_entered": false,
+      "classification_bucket": "cloud_missing_local_production_catalog",
+      "defining_quantity_boundary": "Target route/authorization consumer not reached: pytest setup fails",
+      "next_owner": "A/C consumer fixture or local G production dataset environment",
+      "diagnostics_full_output_locator": {
+        "file": "audit-full-stdout.json",
+        "array": "nonpassed_relevant_cases",
+        "index": 22
+      },
+      "diagnostic_sha256": [
+        "9c535fd205827db2889a27bc633e8d48a227951486560d078c0431fe0522b221"
+      ]
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_lower_stakes_action_denies_when_access_audit_append_fails",
+      "actual_status": "ERROR",
+      "body_entered": false,
+      "classification_bucket": "cloud_missing_local_production_catalog",
+      "defining_quantity_boundary": "Target route/authorization consumer not reached: pytest setup fails",
+      "next_owner": "A/C consumer fixture or local G production dataset environment",
+      "diagnostics_full_output_locator": {
+        "file": "audit-full-stdout.json",
+        "array": "nonpassed_relevant_cases",
+        "index": 23
+      },
+      "diagnostic_sha256": [
+        "ee5c759dff6a28b1c793800b3e1b92e573e2a7ec6f07f1a0983b19eae9ffe6ff"
+      ]
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_high_stakes_action_denies_when_access_audit_append_fails",
+      "actual_status": "ERROR",
+      "body_entered": false,
+      "classification_bucket": "cloud_missing_local_production_catalog",
+      "defining_quantity_boundary": "Target route/authorization consumer not reached: pytest setup fails",
+      "next_owner": "A/C consumer fixture or local G production dataset environment",
+      "diagnostics_full_output_locator": {
+        "file": "audit-full-stdout.json",
+        "array": "nonpassed_relevant_cases",
+        "index": 24
+      },
+      "diagnostic_sha256": [
+        "eecc2050ce97ac5c3b5f6767f466cb1a593634e1c0f9202408fb75377aef28be"
+      ]
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_handler_cannot_mutate_sealed_authorization_state[replace-binding]",
+      "actual_status": "ERROR",
+      "body_entered": false,
+      "classification_bucket": "cloud_missing_local_production_catalog",
+      "defining_quantity_boundary": "Target route/authorization consumer not reached: pytest setup fails",
+      "next_owner": "A/C consumer fixture or local G production dataset environment",
+      "diagnostics_full_output_locator": {
+        "file": "audit-full-stdout.json",
+        "array": "nonpassed_relevant_cases",
+        "index": 25
+      },
+      "diagnostic_sha256": [
+        "b29041022b4b981ed36c76f9165e7431bc6fa8aeeb8d5e84327def3cab2a419d"
+      ]
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_handler_cannot_mutate_sealed_authorization_state[mutate-resource]",
+      "actual_status": "ERROR",
+      "body_entered": false,
+      "classification_bucket": "cloud_missing_local_production_catalog",
+      "defining_quantity_boundary": "Target route/authorization consumer not reached: pytest setup fails",
+      "next_owner": "A/C consumer fixture or local G production dataset environment",
+      "diagnostics_full_output_locator": {
+        "file": "audit-full-stdout.json",
+        "array": "nonpassed_relevant_cases",
+        "index": 26
+      },
+      "diagnostic_sha256": [
+        "78f78dfdc6a17bfe14cc2600033289b8a21ba86d83cd249a00eb15cbeb68d85f"
+      ]
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_handler_cannot_mutate_sealed_authorization_state[base-dict-mutator]",
+      "actual_status": "ERROR",
+      "body_entered": false,
+      "classification_bucket": "cloud_missing_local_production_catalog",
+      "defining_quantity_boundary": "Target route/authorization consumer not reached: pytest setup fails",
+      "next_owner": "A/C consumer fixture or local G production dataset environment",
+      "diagnostics_full_output_locator": {
+        "file": "audit-full-stdout.json",
+        "array": "nonpassed_relevant_cases",
+        "index": 27
+      },
+      "diagnostic_sha256": [
+        "bc3cd6089f514ec252268a21541aac5e1b00f24371ec36c08cdaa949204ad3b9"
+      ]
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_handler_cannot_mutate_sealed_authorization_state[base-state-dict-mutator]",
+      "actual_status": "ERROR",
+      "body_entered": false,
+      "classification_bucket": "cloud_missing_local_production_catalog",
+      "defining_quantity_boundary": "Target route/authorization consumer not reached: pytest setup fails",
+      "next_owner": "A/C consumer fixture or local G production dataset environment",
+      "diagnostics_full_output_locator": {
+        "file": "audit-full-stdout.json",
+        "array": "nonpassed_relevant_cases",
+        "index": 28
+      },
+      "diagnostic_sha256": [
+        "ffd75e12c42b54a36b79451cda23f2bba737092d390113b1882914feb02b0d05"
+      ]
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_handler_cannot_mutate_sealed_authorization_state[clear-state]",
+      "actual_status": "ERROR",
+      "body_entered": false,
+      "classification_bucket": "cloud_missing_local_production_catalog",
+      "defining_quantity_boundary": "Target route/authorization consumer not reached: pytest setup fails",
+      "next_owner": "A/C consumer fixture or local G production dataset environment",
+      "diagnostics_full_output_locator": {
+        "file": "audit-full-stdout.json",
+        "array": "nonpassed_relevant_cases",
+        "index": 29
+      },
+      "diagnostic_sha256": [
+        "cde92ebeb89720e00a31283561b0303be9cd1f974091ee629a9d4b06ea3e5f14"
+      ]
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_blocking_authorization_resolver_does_not_stall_event_loop",
+      "actual_status": "ERROR",
+      "body_entered": false,
+      "classification_bucket": "cloud_missing_local_production_catalog",
+      "defining_quantity_boundary": "Target route/authorization consumer not reached: pytest setup fails",
+      "next_owner": "A/C consumer fixture or local G production dataset environment",
+      "diagnostics_full_output_locator": {
+        "file": "audit-full-stdout.json",
+        "array": "nonpassed_relevant_cases",
+        "index": 30
+      },
+      "diagnostic_sha256": [
+        "292447b30da660675fe2b2fbcff3ab3e5f9f5103d754a1fddb4d4e38e06ad338"
+      ]
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_human_decision_exposure_is_a_top_level_completed_event",
+      "actual_status": "FAIL",
+      "body_entered": true,
+      "classification_bucket": "A_authority_writer_bound_cell_contract_refusal",
+      "defining_quantity_boundary": "Actual prepare→write_runtime_authority_artifact→_persist_cas_writer_attestation→put_json reaches lease-level guard with context tenant-a/cellNone versus explicit sink tenant-a/cell-a; downstream signature/reservation/completion assertions are unentered.",
+      "next_owner": "A authority writer/producer; root/G owner law decision; B guard preserved",
+      "diagnostics_full_output_locator": {
+        "file": "audit-full-stdout.json",
+        "array": "nonpassed_relevant_cases",
+        "index": 31
+      },
+      "diagnostic_sha256": [
+        "ce2cea60c4ceeb466edbddc875380ad9bc4d31e6ca10cd1769e3812bbf2d5c87"
+      ]
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_exposure_signature_failure_leaves_no_completed_row",
+      "actual_status": "FAIL",
+      "body_entered": true,
+      "classification_bucket": "A_authority_writer_bound_cell_contract_refusal",
+      "defining_quantity_boundary": "Actual prepare→write_runtime_authority_artifact→_persist_cas_writer_attestation→put_json reaches lease-level guard with context tenant-a/cellNone versus explicit sink tenant-a/cell-a; downstream signature/reservation/completion assertions are unentered.",
+      "next_owner": "A authority writer/producer; root/G owner law decision; B guard preserved",
+      "diagnostics_full_output_locator": {
+        "file": "audit-full-stdout.json",
+        "array": "nonpassed_relevant_cases",
+        "index": 32
+      },
+      "diagnostic_sha256": [
+        "e39daab2f1a56bc90d8c4834e8742dac1e93d3c5aeec8833b7d364186237c562"
+      ]
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_served_unknown_target_scope.py::test_eval_safety_source_reader_rejects_missing_artifact_schema_as_typed_error",
+      "actual_status": "FAIL",
+      "body_entered": true,
+      "classification_bucket": "foreign_missing_schema_negative_oracle_premise_not_established",
+      "defining_quantity_boundary": "Body runs but fake checks typed ArtifactID argument against literal str ref. Reader converts wire str to ArtifactID and explicitly rejects schemaNone; producer returns str. Source structure predicts fallback to healthy manifest, so the desired malformed branch is not directly measured. Actual FAIL remains; no source/native repair by this audit.",
+      "next_owner": "A/G consumer test owner must bind the exact selected argument in fault injector",
+      "diagnostics_full_output_locator": {
+        "file": "audit-full-stdout.json",
+        "array": "nonpassed_relevant_cases",
+        "index": 33
+      },
+      "diagnostic_sha256": [
+        "64e86fa6e93c6109b7c7b006922f3bc7e4d792db439791202e9d11baa9f57cfe"
+      ]
+    }
+  ],
+  "catalog_dependency_cloud_limit": {
+    "cases": 31,
+    "setup_errors": 27,
+    "entered_call_startup_failures": 4,
+    "missing_path": "/workspace/e02-B-current-coordination/policy-engine/production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
+    "source": {
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py",
+      "git_blob": "1f037ef49a940c80dd5592eac5e4bb5655699329",
+      "bytes": 42587,
+      "sha256": "ba5781f542b3cfb2477158a5d09205f6b559d96dd27c1ed9235912955689b710"
+    },
+    "source_predicate": "DatasetCatalogStore._fetch_source_identities identify(path) path.is_file false→catalog_fetch_source_unreadable at966; no file bytes/digest acquired",
+    "local_G_candidate": {
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+      "cases": [
+        "tests/unit/runtime/http/test_artifact_inspector_api.py::test_eval_safety_projection_is_informational_only",
+        "tests/unit/runtime/http/test_artifact_inspector_api.py::test_artifact_manifest_endpoint_returns_canonical_metadata",
+        "tests/unit/runtime/http/test_artifact_inspector_api.py::test_artifact_content_preview_enforces_max_bytes",
+        "tests/unit/runtime/http/test_artifact_inspector_api.py::test_artifact_lineage_and_schema_endpoints",
+        "tests/unit/runtime/http/test_artifact_surface_safety.py::test_raw_and_manifest_artifact_surfaces_block_secret_pii",
+        "tests/unit/runtime/http/test_artifact_surface_safety.py::test_composed_gate_blocks_declared_inconsistent_time_source_on_raw_and_export",
+        "tests/unit/runtime/http/test_artifact_surface_safety.py::test_composed_gate_blocks_s12_deref_bypass_on_raw_and_export",
+        "tests/unit/runtime/http/test_artifact_surface_safety.py::test_lineage_routes_block_clean_no_authority",
+        "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_authorization_allow_is_appended_to_existing_access_audit_trail",
+        "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_authorization_deny_is_appended_to_existing_access_audit_trail",
+        "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_acquisition_get_rego_denies_same_permission_proxy_before_projection[runtime.case_inspection]",
+        "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_acquisition_get_rego_denies_same_permission_proxy_before_projection[runtime.run_paper]",
+        "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_acquisition_get_rego_denies_same_permission_proxy_before_projection[runtime.governed_projection.depth_n_cycle_board]",
+        "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_invalid_delegation_denial_emits_one_terminal_audit",
+        "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_dependency_override_denial_emits_one_terminal_audit",
+        "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_unbound_resource_denial_emits_one_terminal_audit",
+        "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_missing_identity_denial_is_appended_without_unbound_authority_claims",
+        "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_opa_denial_is_appended_once",
+        "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_opa_timeout_is_appended_once",
+        "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_resource_binding_denial_is_appended_before_opa",
+        "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_step_up_denial_is_appended_without_token_material",
+        "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_denied_mutation_remains_denied_when_access_audit_append_fails",
+        "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_opa_unavailable_is_appended_once",
+        "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_lower_stakes_action_denies_when_access_audit_append_fails",
+        "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_high_stakes_action_denies_when_access_audit_append_fails",
+        "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_handler_cannot_mutate_sealed_authorization_state[replace-binding]",
+        "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_handler_cannot_mutate_sealed_authorization_state[mutate-resource]",
+        "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_handler_cannot_mutate_sealed_authorization_state[base-dict-mutator]",
+        "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_handler_cannot_mutate_sealed_authorization_state[base-state-dict-mutator]",
+        "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_handler_cannot_mutate_sealed_authorization_state[clear-state]",
+        "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_blocking_authorization_resolver_does_not_stall_event_loop"
+      ],
+      "input_requirement": "Legitimate local production catalog dataset/indices with actual source identities and original runtime fixture settings; entire production dataset stays local. Missing cloud bytes have no invented hash. Root/G must record actual local input closure, no old baseline summary substitution."
+    }
+  },
+  "A_authority_negative_contract": {
+    "declared_input": "ArtifactTenantContextInfo(tenant-a,cell_id=None)",
+    "active_scoped_sink": "tenant-a/cell-a",
+    "runtime_call_chain": [
+      "access_audit.py:762 prepare_human_decision_exposure_event",
+      "services/control/artifacts.py:576 write_runtime_authority_artifact",
+      "services/control/artifacts.py:281 write_authority_artifact",
+      "services/control/artifacts.py:435 _persist_cas_writer_attestation",
+      "core/artifacts/store.py:2554 put_json",
+      "core/artifacts/store.py:2239 _put_blob_and_manifest_once",
+      "core/artifacts/store.py:2840 _require_bound_context_for_owner"
+    ],
+    "guard": "Exact bound tenant/cell mismatch refuses before intent/claims; absent producer context and passive unscoped cache are separate existing contracts.",
+    "next_owner": "A aligns appointed writer/sink contexts or obtains root/G normative decision; never relax B guard or make None cell a wildcard.",
+    "original_current_FAIL": "Both failed public exposure tests remain currentDD FAIL, not inherited/flake."
+  },
+  "foreign_schema_oracle_source_boundary": {
+    "source_first_refusal_guard": "services/control/evaluation_safety.py:589–598 explicitly rejects artifact_schemaNone",
+    "wire_ref_producer": "run_lifecycle.py::_persist_job_payload→_put_json_artifact returnsstr at2805–2854",
+    "intake": "evaluation_safety.py:565–569 convertsstrtoArtifactID",
+    "fault_injector": "test_served_unknown_target_scope.py:313 comparesartifact_ref==ref withoutnormalization",
+    "dependency": "Pinned actualpydantic/root_model.py:147 returnsNotImplemented for non-RootModel; ArtifactID has no custom __eq__",
+    "grade": "Source-established structural oracle precondition mismatch; actual malformed branch entry was not separately instrumented. Actual failed native case remains FAIL.",
+    "effect_qualification": "Healthy typed selected CAS read is not evidence of missing-schema admission; no foreign fixture or source edit here."
+  },
+  "B154_exact_A_contract": {
+    "API": "fresh local FileSystemCAS.verify_all_signatures(verifier,artifact_ids=required_refs,...) -> BulkVerificationReport; report.require_complete_valid(required_refs) before actual required-all-signature publication",
+    "required_quantities": [
+      "complete state",
+      "inventory_exhausted true",
+      "no abort_reason",
+      "each admitted/finished/exactdetail reconciled to exact requiredrefs",
+      "everyrowVALID",
+      "no duplicate/unexpected/missing confirmation",
+      "kind/media/profile identity exact"
+    ],
+    "negative_inputs": [
+      "Three actually signed healthy references",
+      "same three with one actual local corruptblob: complete2valid/1ERROR mustrefuse",
+      "cancel/commonbasisloss: explicitaborted withretainedfinishedrows mustrefuse",
+      "substituted/missing per-item report cannot authorize actual importer publication"
+    ],
+    "existing_consumers": "Actual CLI consumes completion and importer requires typed measured integritybatch; neither is signaturepromotion authority. Existing legacyok permits unsigned/untrusted and is preserved.",
+    "handoff": {
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-signature-publisher-contract.json",
+      "git_blob": "2bc684de21d4b6680c5481c2e69a6f87b9fd1c53",
+      "bytes": 5415,
+      "sha256": "a7c05409125b4717241b327f98c149152897ee4ea80e282d9de55302fae45cae"
+    },
+    "classification": "consumer_missing until A appointed actualpublisher integrates; no C/A productfile edits"
+  },
+  "global_gate_boundary": {
+    "all_eight_actual_wrappers": "supplement-full-stdout.json all_eight_wrappers; exact commands/heads/trees/raw hashes retained",
+    "native": "EXECUTED exit1, sourceclean before/afterDD",
+    "runtime_api": "exit0",
+    "other_seven_scope": "native plus production/verify/parity/Ruff/format/architecture exit1 are not averaged into green",
+    "P41": "NOT_ESTABLISHED; touched inputs intersect required gates, no actual full same-baseline zero-overlap attribution in this audit. Native uncapped projections retain original native-CLI incompatible profile qualification."
+  },
+  "historical_witness_controls": {
+    "qualification": "Prior deciding baseline/property-removal source/runtime refs stay historical. Actual DD positives and unchanged accepted source bytes do not pretend those removals reran atDD.",
+    "B152": "Current DD tracked cas-failed-snapshot-report-followup + independent CMP965744: corrected prior264PASS; witness14 12FAIL2PASS; private-captureidentity removal2FAIL; original4e actualreportlossFAIL and earlier wrong-profile11/1/collectionErrors retained.",
+    "B151": "a823 complete put-byte predicate removalDIDNOTRAISE2FAIL; earlier broad/non-distinguishing controls remain retained, not closure.",
+    "B154_B155": "Earlier batch complete/stop/window/duplicate controls and exactreport/source refs retained in cas-batch-completion; no fresh removal atDD by this author."
+  },
+  "formal_closure_ids": [],
+  "proposed_criterion_ids": [
+    "B149",
+    "B150",
+    "B151",
+    "B152",
+    "B153",
+    "B155"
+  ],
+  "limits": [
+    "No new native/gates/collection/service/DSN/privatefixture queries, product/test/source edits or rootHEAD mutation.",
+    "No dataset download or copy: production dataset remains local; cloud dependency cases have precise localGcandidate.",
+    "Observed file origins are finite finish-time module/file evidence, not universal transient/child/backend/service readset.",
+    "Public verify capture2 measures supported operation record/persist/fresh indexreload, not full GovernedPublicRecord authorization.",
+    "Linux native filesystem/processtest scope does not invent powerloss/multihost/allOS/hostileparent/ACL/set-ID guarantees.",
+    "Future LLM/ledger/currentroot source changes are not covered by exactDD case evidence; root/G binds later candidate and chooses meaningful affected consumers.",
+    "Original4e/456global failures and unique fixtures remain; currentDDglobalFAIL is preserved.",
+    "Ancillary first summary failed wrongTMPwrapper locator after successful primaryaudit; preserved as metadata-only FileNotFoundError, actualROOTwrapper subsequently verified."
+  ],
+  "B153_actual_JUnit_property_quantities": {
+    "junit": {
+      "path": "/tmp/e02-B-successor-final/raw/review/successor-final-B-cohort.xml",
+      "bytes": 3168754,
+      "sha256": "c61a02426c844ea6e3de05d0853fa939e1ce6cad9b5d31e1b8c5e8a65fa78cf7",
+      "stable_size_mtime_during_read": true
+    },
+    "class": "tests.unit.remediation.test_cas_01",
+    "case": "test_lock_registry_is_bounded_without_evicting_active_waiters",
+    "properties": [
+      {
+        "name": "b153_pressure_eligible_ids",
+        "value": "3000"
+      },
+      {
+        "name": "b153_pressure_candidates_scanned",
+        "value": "3047"
+      },
+      {
+        "name": "b153_pressure_excluded_active_stripe_ids",
+        "value": "47"
+      },
+      {
+        "name": "b153_pressure_owner_pool_size",
+        "value": "64"
+      },
+      {
+        "name": "b153_pressure_actual_lock_acquisitions",
+        "value": "3000"
+      },
+      {
+        "name": "b153_pressure_actual_unique_locks",
+        "value": "63"
+      },
+      {
+        "name": "b153_pressure_unbounded_mutant_locks",
+        "value": "0"
+      }
+    ],
+    "qualification": "Actual property values from the same complete JUnit; source body independently asserts them after real owner lease pressure and before active holder release. Pool64 is canonical mechanism/fixture quantity, not a cloud process/thread quota."
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "legacy_source": null,
+  "mode": "shared_immutable_cas",
+  "parent_generation_sha256": "sha256:16573c71fdbf4aae3ed27c8a32d752e9e21405c15329d63e16c79740bb43e415",
+  "payload": {
+    "artifacts": {
+      "sha256:2809f82c48d24902d6a2ece8f1d5c6f9da5a3ef5888a8ca33d5b11284325db23": [
+        {
+          "cell_id": "cell-a",
+          "claimed_at": "2026-10-06T16:55:54+00:00",
+          "manifest_profile_sha256": "sha256:01b538c879efdf441ef16d14b11e0a6fafb530f8ad43a7daaa1d275a0a0d0893",
+          "tenant_id": "tenant-a",
+          "writer": "FileSystemCAS"
+        }
+      ],
+      "sha256:fc93587dbe5cea725511489962364e2749e989a9b83cc4ffc97508e550db65e5": [
+        {
+          "cell_id": "cell-a",
+          "claimed_at": "2026-10-06T16:55:54+00:00",
+          "tenant_id": "tenant-a",
+          "writer": "FileSystemCAS"
+        },
+        {
+          "cell_id": "cell-a",
+          "claimed_at": "2026-10-06T16:55:54+00:00",
+          "manifest_profile_sha256": "sha256:26d6901e16f6b7640382fd98841b122cee3948db4aaa2be5c4a9e1de5304bf00",
+          "tenant_id": "tenant-a",
+          "writer": "FileSystemCAS"
+        }
+      ]
+    },
+    "blob_readers": {
+      "sha256:2809f82c48d24902d6a2ece8f1d5c6f9da5a3ef5888a8ca33d5b11284325db23": [
+        {
+          "cell_id": "cell-a",
+          "claimed_at": "2026-10-06T16:55:54+00:00",
+          "tenant_id": "tenant-a",
+          "writer": "FileSystemCAS"
+        }
+      ]
+    },
+    "mode": "shared_immutable_cas",
+    "public_read_closures": {},
+    "schema_version": "policyos.artifact_ownership_index.v3"
+  },
+  "payload_sha256": "sha256:8ec0e34877808500239956b8c5942dc2aa93ebb88ae5bb065c3a2e838940b32c",
+  "schema_version": "policyos.artifact_ownership_index_generation.v1",
+  "signature": {
+    "algorithm": "sha256-local-integrity",
+    "index_schema_version": "policyos.artifact_ownership_index.v3",
+    "index_sha256": "sha256:8ec0e34877808500239956b8c5942dc2aa93ebb88ae5bb065c3a2e838940b32c",
+    "key_id": "local-cas-ownership-index",
+    "mode": "shared_immutable_cas",
+    "schema_version": "policyos.artifact_ownership_index_signature.v3",
+    "signature": "sha256:25fc6e7fcaeba63bf686a018aa18f57bfc0c7869e5324159afff513907d2b2ac"
+  }
+}

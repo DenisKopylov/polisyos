@@ -1,0 +1,42 @@
+{
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "-m",
+    "pytest",
+    "-vv",
+    "tests/unit/core/phase0",
+    "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+    "tests/unit/core/artifacts/test_verification_snapshot_report.py",
+    "tests/unit/core/artifacts/test_cas_integrity_report.py",
+    "tests/unit/core/artifacts/test_storage_protocol_boundaries.py",
+    "tests/unit/core/artifacts/test_signed_evidence.py",
+    "tests/unit/core/artifacts/test_batch_completion_admission.py",
+    "tests/unit/runtime/quality/test_chronology_proof.py",
+    "--basetemp=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/corrected-followup-affected-pytest",
+    "--junitxml=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/corrected-followup-affected.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+  "target_sha": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+  "target_tree": "4e9c65a495510758671596d3bf84a0ce236452af",
+  "exit_code": 0,
+  "wall_s": 47.004174702989985,
+  "maxrss_kib": 907996,
+  "environment": {
+    "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+    "POLISYOS_METRICS_PORT": "0",
+    "numerical_caps": "all6absent"
+  },
+  "outputs": [
+    {
+      "path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/corrected-followup-affected.txt",
+      "bytes": 37499,
+      "sha256": "8aeef486ca160435bf76a5f8cdbb5f8729bcdf90886fb71375356a9641c42581"
+    },
+    {
+      "path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/corrected-followup-affected.xml",
+      "bytes": 39995,
+      "sha256": "9c3fcfc36a1ca6cb48b6cbcd51bbec36e3be7022b906b7de2e28941b55678eab"
+    }
+  ]
+}

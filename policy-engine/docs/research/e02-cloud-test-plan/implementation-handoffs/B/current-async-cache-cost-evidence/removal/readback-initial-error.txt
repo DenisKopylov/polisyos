@@ -1,0 +1,9 @@
+Tool-captured actual first auxiliary readback invocation (not the native oracle):
+/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python -I -B /tmp/e02-B52-cache-cost-c043/removal-readback.source.txt
+exit_code=1; harness ERROR; no product verdict.
+Traceback (most recent call last):
+  File "/tmp/e02-B52-cache-cost-c043/removal-readback.source.txt", line 26, in <module>
+    outcome=cache.get(entry['cache_key'])
+                      ~~~~~^^^^^^^^^^^^^
+KeyError: 'cache_key'
+Corrected readback uses actual canonical NodeCacheEntry.idempotency_key; original script preserved as removal-readback-initial.source.txt. Native source/test input and retained real CAS bytes unchanged.

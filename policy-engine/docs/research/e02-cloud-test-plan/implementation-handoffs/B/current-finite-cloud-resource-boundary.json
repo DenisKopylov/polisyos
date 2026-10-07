@@ -1,0 +1,815 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-finite-cloud-resource-boundary",
+  "owner": "CAS leaf independent environment/source/input inspection; ROOT/G own replay admission and all60 decisions",
+  "closure_ids": [],
+  "bundle_ids": [],
+  "slice_base_sha": "9cb17d4a2b512eef7e8448776a2f5a9b7bcb9b52",
+  "implementation_commits": [
+    "1437b6d7e36a3f6b002bbb66fe1a6fcc830a4239"
+  ],
+  "candidate_tree_sha": "296bf5223a49825e650a92ae7974da4d4e4aef15",
+  "branch": "codex/e02-B-current-cas-generation",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/42",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-finite-cloud-resource-boundary/artifact-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-finite-cloud-resource-boundary/audit-full-stdout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-finite-cloud-resource-boundary/audit.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-finite-cloud-resource-boundary/census-full-stdout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-finite-cloud-resource-boundary/census.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-finite-cloud-resource-boundary/commands-and-prepared-local-G.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-finite-cloud-resource-boundary/environment-checkpoint.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-finite-cloud-resource-boundary/new-forests-census.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-finite-cloud-resource-boundary/prepared-filebacked-launcher.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-finite-cloud-resource-boundary/prepared-retry-derivation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-finite-cloud-resource-boundary/retained-top-level-census.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-finite-cloud-resource-boundary/review.json"
+  ],
+  "baseline_cells": [],
+  "property": {
+    "statement": "An incomplete SIGKILL invocation and retained tmpfs allocations cannot establish a full native verdict, per-case physical effect, product defect or safe repeat. Replay requires actual sufficient memory/filesystem inputs while preserving source, data and unfiltered selectors without numeric process/worker/thread/CPU quotas.",
+    "runtime_path": [
+      "actual clean ROOT1862 unfiltered250selectors\u2192collection3882\u2192HTTP fixture/cache/native catalog\u2192SIGKILL-9 before final observer hooks",
+      "actual canonical observer collection checkpoint versus in-memory phase array and final persistence",
+      "/tmp+/dev/shm tmpfs allocations\u2192shared17.18GBcgroup/noSwap and volatile resource snapshots",
+      "source-qualified whole-file/build/wheel7/realPG inputs\u2192prepared file-backed scratch+distinct tag; native launch UNRUN"
+    ],
+    "proxy_divergence": "3882selected nodeids and a clean source can remain while abrupt death loses every persisted runtime phase; the last printed HTTP node need not have entered its body. Mount free space can remain while shared-cgroup tmpfs residency is near its limit.218MiBzeros can be intact and insufficient for a3.43GBlinear future storage projection.",
+    "negative_controls": [
+      "Actual native exit-9/incomplete collection checkpoint and two actual static exit-9 wrappers retained; no partition or PASS inference.",
+      "Current near-limit memory dominated by retained shmem while no heavy native source process survives; snapshots do not prove a specific PID OOM kill or absence of a transient heap leak.",
+      "Prepared improved replay explicitly UNRUN despite intact exact source/markers/wheel/backend; unavailable capacity is not bypassed by quotas/deletion/moving used fixtures/env.",
+      "Accessible FD/maps false for64stable candidates does not conceal two denied process namespaces; no punch was executed or authorized by this packet."
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "claim_grade": "finite independent environment/source/input review; no own CAS mechanism acceptance or root-native full outcome",
+  "per_premise_basis": {
+    "source_blobs_profiles_exact_selector_order_and_observer_checkpoint": "independently_reconciled",
+    "volatile_resource_census_actual_snapshots": "independently_reconciled current observations, not kill-time counter attribution",
+    "HTTP_live_heap_leak_specific_PID_kill_causality_future_capacity_fullnativepartition": "not_established",
+    "root_declined_prepared_replay": "consumer_asserted ROOT session decision; actual prepared check UNRUN"
+  },
+  "checks": [
+    {
+      "name": "new-closed-forest-filesystem-census",
+      "command": [
+        "python3",
+        ".polisyos/resource-prerequisite-1862/census.py"
+      ],
+      "target_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-cas-generation",
+        "python_executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "python_version": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+        "metadata_execution_checkout_head": "9cb17d4a2b512eef7e8448776a2f5a9b7bcb9b52",
+        "reviewed_ROOT_source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "reviewed_ROOT_source_tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+        "execution_kind": "stdlib read-only volatile resource/source/metadata inspection; no product imports/test/collection/native/gates/service/cleanup/quota"
+      },
+      "input_closure": {
+        "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "source_tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+        "actual_root_source_bytes": [
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py",
+            "bytes": 20488,
+            "sha256": "2766137b6322946a1e4a6f05717708636148391622e37106e66e6d9634e0f802",
+            "working_bytes_equal": true
+          },
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_cohort.py",
+            "bytes": 6709,
+            "sha256": "7fa5eadfa31bf2187e9a52188e2c299ce24e3b3e2bcc4ad8900453e38cf09288",
+            "working_bytes_equal": true
+          },
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_successor.py",
+            "bytes": 14010,
+            "sha256": "b92a3a98bb0ba5a0019b0f1e7812ec43767b64d4216339b3da1480e251625deb",
+            "working_bytes_equal": true
+          },
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/capture_frozen.py",
+            "bytes": 3729,
+            "sha256": "e26a065cbee683f3a19a01e0d217d299cc859dbbf2a8ad0cbb3e10c77336a1d4",
+            "working_bytes_equal": true
+          },
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/tests/unit/runtime/http/test_authorization_audience_denials.py",
+            "bytes": 5820,
+            "sha256": "3cf7160a1a05fc05a4dd116cb8a65184ca279f08fc0a94654b0a2c3b168ee315",
+            "working_bytes_equal": true
+          },
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/tests/unit/runtime/http/test_runtime_api_authz.py",
+            "bytes": 133813,
+            "sha256": "420a9579e15d894a1d342305b3ae660dbdaff56690d5202933331c8d522972d4",
+            "working_bytes_equal": true
+          },
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/tests/unit/runtime/http/conftest.py",
+            "bytes": 74,
+            "sha256": "917f1f86d2cb56cf32cdad790b71fb08fd9511cd5616c0e4414b2e9b9a7b50ce",
+            "working_bytes_equal": true
+          },
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/tests/_helpers/runtime_http.py",
+            "bytes": 56431,
+            "sha256": "b1e9e4a3ca5ae825aaed75b814e48d2e842800aa3dd9ab21be3848f2a230a85e",
+            "working_bytes_equal": true
+          },
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/tests/conftest.py",
+            "bytes": 9664,
+            "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+            "working_bytes_equal": true
+          },
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/src/polisyos/runtime/http/app.py",
+            "bytes": 23110,
+            "sha256": "4d3ebc492b943a12b8cf339fde81f5f40c61d932a1958032e80d1d651e8bad24",
+            "working_bytes_equal": true
+          },
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/src/polisyos/runtime/http/container.py",
+            "bytes": 39227,
+            "sha256": "6b537e9183d57a503a35b211c2309309f52c5f2480c7adbba88a49e3a80e2f81",
+            "working_bytes_equal": true
+          },
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+            "bytes": 347497,
+            "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9",
+            "working_bytes_equal": true
+          },
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+            "bytes": 37677,
+            "sha256": "c175225c5e4f8eda08d784e0319b4a5c023fe97fd89fbe24e758f5530a9beb72",
+            "working_bytes_equal": true
+          },
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/search.py",
+            "bytes": 29478,
+            "sha256": "eaebbe358294cb227faa417fa23cefc12b881b2e298137dd4abbded4099a1ab2",
+            "working_bytes_equal": true
+          },
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py",
+            "bytes": 42587,
+            "sha256": "ba5781f542b3cfb2477158a5d09205f6b559d96dd27c1ed9235912955689b710",
+            "working_bytes_equal": true
+          },
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/src/polisyos/runtime/quality/production_invocation.py",
+            "bytes": 27007,
+            "sha256": "cf3ce1dcc120fe321a2d2e77295a368f178764a9d0158b8896307f146400b286",
+            "working_bytes_equal": true
+          },
+          {
+            "copied_observer": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/current_cohort_inventory.py",
+            "bytes_equal_pinned": true
+          }
+        ],
+        "original_root_profile_and_raw_refs": [
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort-inventory.json",
+            "bytes": 4445184,
+            "sha256": "5904954da6fb919cf693d485fe665777b1f43cd5aa0419b244111a5ab93b46d4",
+            "receiver_availability": "not_established; original ignored bytes retained, no copied large inventory/stdout"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort-profile.json",
+            "bytes": 21086,
+            "sha256": "306f134d1c709a33b1e195f62775ce226fee61f9addeda95fbc3dd1151158f58",
+            "receiver_availability": "not_established; original ignored bytes retained, no copied large inventory/stdout"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort.json",
+            "bytes": 2858,
+            "sha256": "128df0057719f39a62fc303c4c267fc04a1db4d34a1e67d2b49523bdef889d97",
+            "receiver_availability": "not_established; original ignored bytes retained, no copied large inventory/stdout"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort.txt",
+            "bytes": 172778,
+            "sha256": "2f1ccd3ec853f830617b714cd7041ac18f7ce6b22ed7c70cfe4ac90a4dbbc84b",
+            "receiver_availability": "not_established; original ignored bytes retained, no copied large inventory/stdout"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-production-invocation-1862c021df74.json",
+            "bytes": 2667,
+            "sha256": "c6c6a0403f3ebaa47bcc000a8ff9264829ea105c1c9e3fd365e80b2d4cc077eb",
+            "receiver_availability": "not_established; original ignored bytes retained, no copied large inventory/stdout"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-production-invocation-1862c021df74.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "receiver_availability": "not_established; original ignored bytes retained, no copied large inventory/stdout"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-production-invocation-retry-1862c021df74.json",
+            "bytes": 2679,
+            "sha256": "034683efdd3c7c188f1a28012307c35f0589d8f5d8ac2eb2e6228dc6a24c4943",
+            "receiver_availability": "not_established; original ignored bytes retained, no copied large inventory/stdout"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-production-invocation-retry-1862c021df74.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "receiver_availability": "not_established; original ignored bytes retained, no copied large inventory/stdout"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort-filebacked-retry-derivation.json",
+            "bytes": 1402,
+            "sha256": "0c76ee00c9c12c3523cd5c8e86f8ed24ba4dd596793f817fbc9a143f935e05b3",
+            "receiver_availability": "not_established; original ignored bytes retained, no copied large inventory/stdout"
+          }
+        ],
+        "volatile_filesystem_and_cgroup_scope": "Exact timestamps and resource samples, no reconstructed kill-time causality. Resource states change; receiver ignored raw availability not_established.",
+        "literal_executed_instrument": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-finite-cloud-resource-boundary/census.py.txt",
+          "commit": "1437b6d7e36a3f6b002bbb66fe1a6fcc830a4239",
+          "bytes": 4622,
+          "sha256": "432fb777084cf49664407fa8c50534df137f19c5d762bc8c93a2e4717782e931"
+        },
+        "data": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-finite-cloud-resource-boundary/new-forests-census.json",
+          "commit": "1437b6d7e36a3f6b002bbb66fe1a6fcc830a4239",
+          "bytes": 92751,
+          "sha256": "91a003d09cf542c7349310458e13dc51c0f8d8a5a7f8322b697014c0a847fbaf"
+        }
+      },
+      "outcome": "PASS",
+      "qualification": "Finite read census completed.64stable candidates,218MiBzero-page projection, inaccessible dockerd/containerd FD scope and per-path hardlink sum limits retained; no resource readiness, authority or mutation conclusion.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-finite-cloud-resource-boundary/census-full-stdout.json",
+        "commit": "1437b6d7e36a3f6b002bbb66fe1a6fcc830a4239",
+        "bytes": 28659,
+        "sha256": "b7bd9f7f188648b7425dcd99c357b6fae373d5733a7740690485eea28623f29e"
+      }
+    },
+    {
+      "name": "actual-source-input-resource-boundary",
+      "command": [
+        "python3",
+        ".polisyos/resource-prerequisite-1862/audit.py"
+      ],
+      "target_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-cas-generation",
+        "python_executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "python_version": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+        "metadata_execution_checkout_head": "9cb17d4a2b512eef7e8448776a2f5a9b7bcb9b52",
+        "reviewed_ROOT_source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "reviewed_ROOT_source_tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+        "execution_kind": "stdlib read-only volatile resource/source/metadata inspection; no product imports/test/collection/native/gates/service/cleanup/quota"
+      },
+      "input_closure": {
+        "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "source_tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+        "actual_root_source_bytes": [
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py",
+            "bytes": 20488,
+            "sha256": "2766137b6322946a1e4a6f05717708636148391622e37106e66e6d9634e0f802",
+            "working_bytes_equal": true
+          },
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_cohort.py",
+            "bytes": 6709,
+            "sha256": "7fa5eadfa31bf2187e9a52188e2c299ce24e3b3e2bcc4ad8900453e38cf09288",
+            "working_bytes_equal": true
+          },
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_successor.py",
+            "bytes": 14010,
+            "sha256": "b92a3a98bb0ba5a0019b0f1e7812ec43767b64d4216339b3da1480e251625deb",
+            "working_bytes_equal": true
+          },
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/capture_frozen.py",
+            "bytes": 3729,
+            "sha256": "e26a065cbee683f3a19a01e0d217d299cc859dbbf2a8ad0cbb3e10c77336a1d4",
+            "working_bytes_equal": true
+          },
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/tests/unit/runtime/http/test_authorization_audience_denials.py",
+            "bytes": 5820,
+            "sha256": "3cf7160a1a05fc05a4dd116cb8a65184ca279f08fc0a94654b0a2c3b168ee315",
+            "working_bytes_equal": true
+          },
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/tests/unit/runtime/http/test_runtime_api_authz.py",
+            "bytes": 133813,
+            "sha256": "420a9579e15d894a1d342305b3ae660dbdaff56690d5202933331c8d522972d4",
+            "working_bytes_equal": true
+          },
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/tests/unit/runtime/http/conftest.py",
+            "bytes": 74,
+            "sha256": "917f1f86d2cb56cf32cdad790b71fb08fd9511cd5616c0e4414b2e9b9a7b50ce",
+            "working_bytes_equal": true
+          },
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/tests/_helpers/runtime_http.py",
+            "bytes": 56431,
+            "sha256": "b1e9e4a3ca5ae825aaed75b814e48d2e842800aa3dd9ab21be3848f2a230a85e",
+            "working_bytes_equal": true
+          },
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/tests/conftest.py",
+            "bytes": 9664,
+            "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+            "working_bytes_equal": true
+          },
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/src/polisyos/runtime/http/app.py",
+            "bytes": 23110,
+            "sha256": "4d3ebc492b943a12b8cf339fde81f5f40c61d932a1958032e80d1d651e8bad24",
+            "working_bytes_equal": true
+          },
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/src/polisyos/runtime/http/container.py",
+            "bytes": 39227,
+            "sha256": "6b537e9183d57a503a35b211c2309309f52c5f2480c7adbba88a49e3a80e2f81",
+            "working_bytes_equal": true
+          },
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+            "bytes": 347497,
+            "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9",
+            "working_bytes_equal": true
+          },
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+            "bytes": 37677,
+            "sha256": "c175225c5e4f8eda08d784e0319b4a5c023fe97fd89fbe24e758f5530a9beb72",
+            "working_bytes_equal": true
+          },
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/search.py",
+            "bytes": 29478,
+            "sha256": "eaebbe358294cb227faa417fa23cefc12b881b2e298137dd4abbded4099a1ab2",
+            "working_bytes_equal": true
+          },
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py",
+            "bytes": 42587,
+            "sha256": "ba5781f542b3cfb2477158a5d09205f6b559d96dd27c1ed9235912955689b710",
+            "working_bytes_equal": true
+          },
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/src/polisyos/runtime/quality/production_invocation.py",
+            "bytes": 27007,
+            "sha256": "cf3ce1dcc120fe321a2d2e77295a368f178764a9d0158b8896307f146400b286",
+            "working_bytes_equal": true
+          },
+          {
+            "copied_observer": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/current_cohort_inventory.py",
+            "bytes_equal_pinned": true
+          }
+        ],
+        "original_root_profile_and_raw_refs": [
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort-inventory.json",
+            "bytes": 4445184,
+            "sha256": "5904954da6fb919cf693d485fe665777b1f43cd5aa0419b244111a5ab93b46d4",
+            "receiver_availability": "not_established; original ignored bytes retained, no copied large inventory/stdout"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort-profile.json",
+            "bytes": 21086,
+            "sha256": "306f134d1c709a33b1e195f62775ce226fee61f9addeda95fbc3dd1151158f58",
+            "receiver_availability": "not_established; original ignored bytes retained, no copied large inventory/stdout"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort.json",
+            "bytes": 2858,
+            "sha256": "128df0057719f39a62fc303c4c267fc04a1db4d34a1e67d2b49523bdef889d97",
+            "receiver_availability": "not_established; original ignored bytes retained, no copied large inventory/stdout"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort.txt",
+            "bytes": 172778,
+            "sha256": "2f1ccd3ec853f830617b714cd7041ac18f7ce6b22ed7c70cfe4ac90a4dbbc84b",
+            "receiver_availability": "not_established; original ignored bytes retained, no copied large inventory/stdout"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-production-invocation-1862c021df74.json",
+            "bytes": 2667,
+            "sha256": "c6c6a0403f3ebaa47bcc000a8ff9264829ea105c1c9e3fd365e80b2d4cc077eb",
+            "receiver_availability": "not_established; original ignored bytes retained, no copied large inventory/stdout"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-production-invocation-1862c021df74.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "receiver_availability": "not_established; original ignored bytes retained, no copied large inventory/stdout"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-production-invocation-retry-1862c021df74.json",
+            "bytes": 2679,
+            "sha256": "034683efdd3c7c188f1a28012307c35f0589d8f5d8ac2eb2e6228dc6a24c4943",
+            "receiver_availability": "not_established; original ignored bytes retained, no copied large inventory/stdout"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-production-invocation-retry-1862c021df74.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "receiver_availability": "not_established; original ignored bytes retained, no copied large inventory/stdout"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort-filebacked-retry-derivation.json",
+            "bytes": 1402,
+            "sha256": "0c76ee00c9c12c3523cd5c8e86f8ed24ba4dd596793f817fbc9a143f935e05b3",
+            "receiver_availability": "not_established; original ignored bytes retained, no copied large inventory/stdout"
+          }
+        ],
+        "volatile_filesystem_and_cgroup_scope": "Exact timestamps and resource samples, no reconstructed kill-time causality. Resource states change; receiver ignored raw availability not_established.",
+        "literal_executed_instrument": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-finite-cloud-resource-boundary/audit.py.txt",
+          "commit": "1437b6d7e36a3f6b002bbb66fe1a6fcc830a4239",
+          "bytes": 7497,
+          "sha256": "27d6bb3436d78d1c522098d83d396dedc319cb0e62e5fd3c6e98bf33c719c152"
+        },
+        "forest_input": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-finite-cloud-resource-boundary/new-forests-census.json",
+          "commit": "1437b6d7e36a3f6b002bbb66fe1a6fcc830a4239",
+          "bytes": 92751,
+          "sha256": "91a003d09cf542c7349310458e13dc51c0f8d8a5a7f8322b697014c0a847fbaf"
+        },
+        "earlier_environment": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-finite-cloud-resource-boundary/environment-checkpoint.json",
+          "commit": "1437b6d7e36a3f6b002bbb66fe1a6fcc830a4239",
+          "bytes": 3398,
+          "sha256": "eab915bcd0121c04cbd3796809a24407c6250f4677f4771044029f3f1cae9436"
+        },
+        "retained_top_level_census": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-finite-cloud-resource-boundary/retained-top-level-census.json",
+          "commit": "1437b6d7e36a3f6b002bbb66fe1a6fcc830a4239",
+          "bytes": 21733,
+          "sha256": "1372bba2dd6a5620fbb1ec80ee7413f3e0668c8a19b439d0a4f106b702c8b591"
+        }
+      },
+      "outcome": "PASS",
+      "qualification": "Source/input/environment correspondence read only.250selectors/order,3882collectioncheckpoint,561fixture declarations/544remaining and actual old SIGKILL wrappers; no phase/body/effect partition. No runtime acceptance or original failure causality inferred.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-finite-cloud-resource-boundary/audit-full-stdout.json",
+        "commit": "1437b6d7e36a3f6b002bbb66fe1a6fcc830a4239",
+        "bytes": 62822,
+        "sha256": "cebd99be0d55cd345dfc2e2124242c90903974c6e74ff2b0c497a11274c44c55"
+      }
+    },
+    {
+      "name": "prepared-filebacked-full-native-falsifier",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/run_completed_cohort_filebacked_retry.py",
+        "--sha",
+        "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "--selector",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-selector.json",
+        "--scratch",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/scratch/completed-final-filebacked-1862c021df74",
+        "--wheel-input",
+        "/tmp/e02-B-la057-final-1862c021df74-run/cohort-input-environment.json"
+      ],
+      "target_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-cas-generation",
+        "python_executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "python_version": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+        "metadata_execution_checkout_head": "9cb17d4a2b512eef7e8448776a2f5a9b7bcb9b52",
+        "reviewed_ROOT_source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "reviewed_ROOT_source_tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+        "execution_kind": "stdlib read-only volatile resource/source/metadata inspection; no product imports/test/collection/native/gates/service/cleanup/quota",
+        "intended_cwd": "/workspace/e02-B-current-coordination",
+        "intended_profile": {
+          "PYTHONPATH": "/tmp/e02-B38-pg-profile:/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools",
+          "PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/tmp/e02-B-opa-latest-preparation-1db95544/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+          "UV_NO_SYNC": "1",
+          "POLISYOS_METRICS_PORT": "0",
+          "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+          "E02_B_COHORT_INVENTORY_PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort-inventory.json"
+        },
+        "intended_verification_inputs": {
+          "installed_wheel_profile": "/tmp/e02-B-la057-final-1862c021df74-run/cohort-input-environment.json",
+          "installed_wheel_profile_sha256": "009c6b38467f697b7c4c3972ee3a81fb374c066c2ae29b7bde6807711f0f74f3",
+          "installed_wheel_inputs": {
+            "E02_LA057_WHEEL_PATH": "/tmp/e02-B-la057-final-1862c021df74-run/wheels/policy_engine-0.1.0-py3-none-any.whl",
+            "E02_LA057_INSTALLED_SITE": "/tmp/e02-B-la057-final-1862c021df74-run/installed-env/lib/python3.14/site-packages",
+            "E02_LA057_SOURCE_ROOT": "/workspace/e02-B-current-coordination/policy-engine",
+            "E02_LA057_SOURCE_SHA": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "E02_LA057_INSTALLED_PYTHON": "/tmp/e02-B-la057-final-1862c021df74-run/installed-env/bin/python",
+            "E02_LA057_CONSUMER_SHA256": "9c2dccab7a3d22313f96eea4131062c16d2008c7b5a9bfdf716003ac2eb86b09",
+            "E02_LA057_OUTER_TEST_SHA256": "eb24cd99386a0856f5d6f7639c751bd6b019b6dfdf0be605d64caeeb64a51702"
+          },
+          "wheel_sha256": "a9b7d921724a176b725222ca609f93d241fc83c244ec8aba996a3b0588912449",
+          "postgres_private_dsn_file": "/tmp/e02-B38-pg-evidence/postgres-dsn",
+          "postgres_driver_root": "/tmp/e02-B38-pg-profile",
+          "postgres_driver_distribution_profile": "Task-only psycopg and psycopg-binary 3.3.2; inherited 194-distribution environment unchanged",
+          "postgres_dsn_values": "Private credentials passed only to actual fixture consumers; omitted from public profiles",
+          "postgres_existing_optional_native_profile": "POLISYOS_TEST_PG_DSN supplied and POLISYOS_DS9_REQUIRE_PG=1; unavailable backend is a failure, not a silent skip"
+        }
+      },
+      "input_closure": {
+        "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "source_tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+        "actual_root_source_bytes": [
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py",
+            "bytes": 20488,
+            "sha256": "2766137b6322946a1e4a6f05717708636148391622e37106e66e6d9634e0f802",
+            "working_bytes_equal": true
+          },
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_cohort.py",
+            "bytes": 6709,
+            "sha256": "7fa5eadfa31bf2187e9a52188e2c299ce24e3b3e2bcc4ad8900453e38cf09288",
+            "working_bytes_equal": true
+          },
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_successor.py",
+            "bytes": 14010,
+            "sha256": "b92a3a98bb0ba5a0019b0f1e7812ec43767b64d4216339b3da1480e251625deb",
+            "working_bytes_equal": true
+          },
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/capture_frozen.py",
+            "bytes": 3729,
+            "sha256": "e26a065cbee683f3a19a01e0d217d299cc859dbbf2a8ad0cbb3e10c77336a1d4",
+            "working_bytes_equal": true
+          },
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/tests/unit/runtime/http/test_authorization_audience_denials.py",
+            "bytes": 5820,
+            "sha256": "3cf7160a1a05fc05a4dd116cb8a65184ca279f08fc0a94654b0a2c3b168ee315",
+            "working_bytes_equal": true
+          },
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/tests/unit/runtime/http/test_runtime_api_authz.py",
+            "bytes": 133813,
+            "sha256": "420a9579e15d894a1d342305b3ae660dbdaff56690d5202933331c8d522972d4",
+            "working_bytes_equal": true
+          },
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/tests/unit/runtime/http/conftest.py",
+            "bytes": 74,
+            "sha256": "917f1f86d2cb56cf32cdad790b71fb08fd9511cd5616c0e4414b2e9b9a7b50ce",
+            "working_bytes_equal": true
+          },
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/tests/_helpers/runtime_http.py",
+            "bytes": 56431,
+            "sha256": "b1e9e4a3ca5ae825aaed75b814e48d2e842800aa3dd9ab21be3848f2a230a85e",
+            "working_bytes_equal": true
+          },
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/tests/conftest.py",
+            "bytes": 9664,
+            "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+            "working_bytes_equal": true
+          },
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/src/polisyos/runtime/http/app.py",
+            "bytes": 23110,
+            "sha256": "4d3ebc492b943a12b8cf339fde81f5f40c61d932a1958032e80d1d651e8bad24",
+            "working_bytes_equal": true
+          },
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/src/polisyos/runtime/http/container.py",
+            "bytes": 39227,
+            "sha256": "6b537e9183d57a503a35b211c2309309f52c5f2480c7adbba88a49e3a80e2f81",
+            "working_bytes_equal": true
+          },
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+            "bytes": 347497,
+            "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9",
+            "working_bytes_equal": true
+          },
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+            "bytes": 37677,
+            "sha256": "c175225c5e4f8eda08d784e0319b4a5c023fe97fd89fbe24e758f5530a9beb72",
+            "working_bytes_equal": true
+          },
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/search.py",
+            "bytes": 29478,
+            "sha256": "eaebbe358294cb227faa417fa23cefc12b881b2e298137dd4abbded4099a1ab2",
+            "working_bytes_equal": true
+          },
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py",
+            "bytes": 42587,
+            "sha256": "ba5781f542b3cfb2477158a5d09205f6b559d96dd27c1ed9235912955689b710",
+            "working_bytes_equal": true
+          },
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/src/polisyos/runtime/quality/production_invocation.py",
+            "bytes": 27007,
+            "sha256": "cf3ce1dcc120fe321a2d2e77295a368f178764a9d0158b8896307f146400b286",
+            "working_bytes_equal": true
+          },
+          {
+            "copied_observer": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/current_cohort_inventory.py",
+            "bytes_equal_pinned": true
+          }
+        ],
+        "original_root_profile_and_raw_refs": [
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort-inventory.json",
+            "bytes": 4445184,
+            "sha256": "5904954da6fb919cf693d485fe665777b1f43cd5aa0419b244111a5ab93b46d4",
+            "receiver_availability": "not_established; original ignored bytes retained, no copied large inventory/stdout"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort-profile.json",
+            "bytes": 21086,
+            "sha256": "306f134d1c709a33b1e195f62775ce226fee61f9addeda95fbc3dd1151158f58",
+            "receiver_availability": "not_established; original ignored bytes retained, no copied large inventory/stdout"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort.json",
+            "bytes": 2858,
+            "sha256": "128df0057719f39a62fc303c4c267fc04a1db4d34a1e67d2b49523bdef889d97",
+            "receiver_availability": "not_established; original ignored bytes retained, no copied large inventory/stdout"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort.txt",
+            "bytes": 172778,
+            "sha256": "2f1ccd3ec853f830617b714cd7041ac18f7ce6b22ed7c70cfe4ac90a4dbbc84b",
+            "receiver_availability": "not_established; original ignored bytes retained, no copied large inventory/stdout"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-production-invocation-1862c021df74.json",
+            "bytes": 2667,
+            "sha256": "c6c6a0403f3ebaa47bcc000a8ff9264829ea105c1c9e3fd365e80b2d4cc077eb",
+            "receiver_availability": "not_established; original ignored bytes retained, no copied large inventory/stdout"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-production-invocation-1862c021df74.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "receiver_availability": "not_established; original ignored bytes retained, no copied large inventory/stdout"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-production-invocation-retry-1862c021df74.json",
+            "bytes": 2679,
+            "sha256": "034683efdd3c7c188f1a28012307c35f0589d8f5d8ac2eb2e6228dc6a24c4943",
+            "receiver_availability": "not_established; original ignored bytes retained, no copied large inventory/stdout"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-production-invocation-retry-1862c021df74.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "receiver_availability": "not_established; original ignored bytes retained, no copied large inventory/stdout"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort-filebacked-retry-derivation.json",
+            "bytes": 1402,
+            "sha256": "0c76ee00c9c12c3523cd5c8e86f8ed24ba4dd596793f817fbc9a143f935e05b3",
+            "receiver_availability": "not_established; original ignored bytes retained, no copied large inventory/stdout"
+          }
+        ],
+        "volatile_filesystem_and_cgroup_scope": "Exact timestamps and resource samples, no reconstructed kill-time causality. Resource states change; receiver ignored raw availability not_established.",
+        "prepared_literal_launcher": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-finite-cloud-resource-boundary/prepared-filebacked-launcher.py.txt",
+          "commit": "1437b6d7e36a3f6b002bbb66fe1a6fcc830a4239",
+          "bytes": 6834,
+          "sha256": "25b390a1afb74c9376617a0a5ba98a6f5fbbba03ddd96ae4717e24c8d6c485b8"
+        },
+        "declared_derivation": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-finite-cloud-resource-boundary/prepared-retry-derivation.json",
+          "commit": "1437b6d7e36a3f6b002bbb66fe1a6fcc830a4239",
+          "bytes": 1402,
+          "sha256": "0c76ee00c9c12c3523cd5c8e86f8ed24ba4dd596793f817fbc9a143f935e05b3"
+        },
+        "wheel_preparation_bindings": [
+          {
+            "path": "/tmp/e02-B-la057-final-1862c021df74-run/profile.json",
+            "bytes": 1870,
+            "sha256": "a54ca2943c672045836c68e7f1172f9994e1da4696e82bc67f5baa574fcdc6eb"
+          },
+          {
+            "path": "/tmp/e02-B-la057-final-1862c021df74-run/wheel-build.json",
+            "bytes": 1055,
+            "sha256": "b10877a202f460181401cbd5ec60e3c682ace6d8c9be51f86b82567ba0a2bade"
+          },
+          {
+            "path": "/tmp/e02-B-la057-final-1862c021df74-run/wheel-install.json",
+            "bytes": 954,
+            "sha256": "3ce7894317371800cfa32e79af07678d885645582842d2709f703fb153960cab"
+          },
+          {
+            "path": "/tmp/e02-B-la057-final-1862c021df74-run/build-dependencies.json",
+            "bytes": 870,
+            "sha256": "585ace9467f7eef982a380a9202b38b5320ca089ff8ff3f086c378d080c8df24"
+          },
+          {
+            "path": "/tmp/e02-B-la057-final-1862c021df74-run/consumer-dependencies.json",
+            "bytes": 983,
+            "sha256": "a7796d20f004110b4ea59f9832323bd4f05236823f1cdef42c1edaa065fc375f"
+          }
+        ],
+        "commands_and_input_premises": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-finite-cloud-resource-boundary/commands-and-prepared-local-G.json",
+          "commit": "1437b6d7e36a3f6b002bbb66fe1a6fcc830a4239",
+          "bytes": 2189,
+          "sha256": "56298ba8496e728368fc3035f0f9975e8c4a9d64ab756a9716c668d8fac9a738"
+        }
+      },
+      "outcome": "UNRUN",
+      "qualification": "ROOT held prepared launch because adequate memory/filesystem headroom is not established. No new execution/output/runtime proof. Local G must freshly admit exact source/order/wheel7/backend and adequate filesystem, disclose any location projection and retain source-byte guards.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-finite-cloud-resource-boundary/commands-and-prepared-local-G.json",
+        "commit": "1437b6d7e36a3f6b002bbb66fe1a6fcc830a4239",
+        "bytes": 2189,
+        "sha256": "56298ba8496e728368fc3035f0f9975e8c4a9d64ab756a9716c668d8fac9a738"
+      }
+    }
+  ],
+  "capability_state_or_finding_state": "FINITE_CLOUD_RESOURCE_BOUNDARY; sufficient replay headroom not established, exact prepared retry UNRUN, no product defect or impossibility claimed.",
+  "limitations_and_next_owner": [
+    "Current snapshots and cumulative oom_kill5 do not identify a specific killed PID or causal allocation.",
+    "Neither a hidden HTTP app heap leak nor source/product bug is established by last printed node.",
+    "Per-path st_blocks sums in census may double-count hardlinks and exclude metadata; statvfs/cgroup remain independent measured quantities, not derived sum identities.",
+    "Closed-fixture zero-page estimate is not permission or a remedy; no punch, move, cleanup, cache/env mutation, service action, heavy native or quota.",
+    "Retained raw source-profile/input locators are hash-bound; receiver availability remains not_established unless ROOT transfers bytes. PG credentials and private DSN file values were never read.",
+    "Source-leaf scoped runtime evidence and all60 dispositions remain distinct from incomplete broad root acceptance; ROOT/DUR/G own adjudication.",
+    "ROOT/G owns resource-preserving replay on exact1862 with adequate storage/memory; existing source-leaf actual native evidence and all60 adjudication stay separate from root broad acceptance. No repeated heavy native/gate/collection by reviewer.",
+    "Original wheel/PG/selector profiles are actual1862 inputs; fresh replay must retain/re-admit same quantities, not silently transplant a predecessor PASS. Private credentials were neither accessed nor published."
+  ],
+  "evidence_index": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-finite-cloud-resource-boundary/artifact-index.json",
+    "commit": "1437b6d7e36a3f6b002bbb66fe1a6fcc830a4239",
+    "bytes": 3117,
+    "sha256": "97861de3b0003dcc8fffa77e8d0600ba02c760f6f95c6f8788fc88442c5bc5a2"
+  },
+  "review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-finite-cloud-resource-boundary/review.json",
+    "commit": "1437b6d7e36a3f6b002bbb66fe1a6fcc830a4239",
+    "bytes": 11889,
+    "sha256": "c846a973fa526e4ab7d43efc0cca0565779aa4bfb7e196a04d2a3518f61e51c7"
+  },
+  "source_changed_paths": [],
+  "test_paths": [],
+  "current_ROOT_source_target": {
+    "sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+    "tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36"
+  }
+}

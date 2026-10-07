@@ -1,0 +1,177 @@
+{
+  "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+  "source_tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+  "first8_receipt": "916953164be6e21b8dd2e35888f7dfe48068cb63:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-output-review.json",
+  "registered_cache_receipt": "f70eeaaff3a6ff43e0d5a88b61fcd9b9c32d99d2:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite.json",
+  "literal_retry_rows": [
+    {
+      "stage": "architecture-default-ready",
+      "tag": "completed-final-architecture-cache-ready-1862c021df74",
+      "exit_code": 2,
+      "wall_seconds": 133.1247834609967,
+      "maxrss_kib": 843872,
+      "source_before_after": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "run",
+        "--no-sync",
+        "polisyos-tools",
+        "architecture",
+        "guardrails",
+        "check",
+        "--generated-freshness-workspace-root",
+        "/dev/shm/e02-B-completed-architecture-1862c021df74-cache-ready",
+        "--generated-freshness-uv-cache-dir",
+        "/home/agent/.cache/uv"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "stdout": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-architecture-cache-ready-1862c021df74.txt",
+        "bytes": 129485,
+        "sha256": "c5c954983c24ea9ea43a96c3b46687e20001442cd40cfe942a177d5a06f49e78"
+      },
+      "profile": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-architecture-cache-ready-1862c021df74-profile.json",
+        "bytes": 2641,
+        "sha256": "668631aeb78a30bcb94d9f173c61fa23ab5dc302e7df00411d93b70c04c84c80"
+      },
+      "capture": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-architecture-cache-ready-1862c021df74.json",
+        "bytes": 2625,
+        "sha256": "a5a4682a07ca031bb267ab959a88a5d6070b3b0a43df0c3223a756131ab51fc6"
+      }
+    },
+    {
+      "stage": "architecture-runtime-ml-ready",
+      "tag": "completed-final-architecture-runtime-ml-ready-1862c021df74",
+      "exit_code": 1,
+      "wall_seconds": 213.1577511170035,
+      "maxrss_kib": 1139076,
+      "source_before_after": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "run",
+        "--no-sync",
+        "polisyos-tools",
+        "architecture",
+        "guardrails",
+        "check",
+        "--generated-freshness-workspace-root",
+        "/workspace/e02-B-completed-architecture-1862c021df74-runtime-ml-ready",
+        "--generated-freshness-uv-cache-dir",
+        "/home/agent/.cache/uv"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "stdout": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-architecture-runtime-ml-ready-1862c021df74.txt",
+        "bytes": 129112,
+        "sha256": "7a92e6e62ffbeb133894aaf76b2b8811b958efc4b1ce4b358079a9c64ac0930d"
+      },
+      "profile": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-architecture-runtime-ml-ready-1862c021df74-profile.json",
+        "bytes": 3078,
+        "sha256": "45933c5c354b85a4e9fdf372d6cba7464acaae952be0c368328df8608f5c7822"
+      },
+      "capture": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-architecture-runtime-ml-ready-1862c021df74.json",
+        "bytes": 2638,
+        "sha256": "4b00cda6b95cc87406ae7c99051836c661eb5147023d51ddda9abac6fdc456b5"
+      }
+    },
+    {
+      "stage": "production-invocation-retry",
+      "tag": "completed-final-production-invocation-retry-1862c021df74",
+      "exit_code": -9,
+      "wall_seconds": 109.96838946299977,
+      "maxrss_kib": 5456628,
+      "source_before_after": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "polisyos.runtime.quality.production_invocation",
+        "--repo-root",
+        "/workspace/e02-B-current-coordination/policy-engine",
+        "--base",
+        "198076863e143dea9f89f02734b13d50dae3eed5",
+        "--receipt",
+        "/dev/shm/e02-B-completed-quality-1862c021df74-production-invocation-retry/production-invocation-full.json"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "stdout": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-production-invocation-retry-1862c021df74.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "profile": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-production-invocation-retry-1862c021df74-profile.json",
+        "bytes": 2472,
+        "sha256": "90ed7f3321f6115296259ed943c492b90992a1c36ebecd436ad44cdf623eb27a"
+      },
+      "capture": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-production-invocation-retry-1862c021df74.json",
+        "bytes": 2679,
+        "sha256": "034683efdd3c7c188f1a28012307c35f0589d8f5d8ac2eb2e6228dc6a24c4943"
+      }
+    }
+  ],
+  "architecture_timeline": [
+    "First exit2 UNRUN four environment stages, absent exact Pillow;0 measured outputs.",
+    "Second exit2 UNRUN OpenAPI generator exact lifelines;5 measured outputs:4equal/1trustdrift.",
+    "Third exit1 completed FAIL;6 outputs/four families:4equal/2drift plus171 deep-import/baseline diagnostics. No UNRUN."
+  ],
+  "static_timeline": {
+    "first": {
+      "exit_code": -9,
+      "wall_seconds": 123.27904838400718,
+      "maxrss_kib": 5610612
+    },
+    "retry": {
+      "exit_code": -9,
+      "wall_seconds": 109.96838946299977,
+      "maxrss_kib": 5456628
+    },
+    "same_complete_argv_except_fresh_receipt": true,
+    "both_empty_stdout": true,
+    "both_complete_receipt_absent": true,
+    "causal_individual_PID_OOM_proof": "not_established",
+    "parent_reported_cgroup_interval": "oom2\u21925 / kill1\u21923 consistent resource events, not individual victim proof"
+  },
+  "native_execution_denominators": {
+    "root_affected47": "Parent reports807 =806PASS1scientificFAIL; distinct wave, not fullcohort.",
+    "root_full250": "Actual parent wrapper SIGKILL/-9 after486.204744s; no XML; inventory collection_finished_runtime_pending. Counts/custody locators directly read, no complete case partition established.",
+    "qualification": "Root affected47 quantity remains parent-reported context; fullcohort wrapper/inventory custody quantities directly read only and bound in root-native-partial-custody-locators.json. ROOT exclusively publishes those complete native bytes."
+  },
+  "source_inputs": [
+    {
+      "source_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/architecture/generated_artifacts.toml",
+      "git_blob": "bafd93f56ac0a803851816a77e9f65ec335f80ec",
+      "path": "/workspace/e02-B-current-coordination/policy-engine/architecture/generated_artifacts.toml",
+      "bytes": 255402,
+      "sha256": "2a647722c8e8448fca732ff77328a9157265c86dcc80346246d578c0cfebe6fc"
+    },
+    {
+      "source_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/tools/devx/architecture/guardrails.py",
+      "git_blob": "6a2784631e836a35dc09e0034e02d86bf21ed14e",
+      "path": "/workspace/e02-B-current-coordination/policy-engine/tools/devx/architecture/guardrails.py",
+      "bytes": 103077,
+      "sha256": "65f0daa51b96910c04cd6dd69676040f9b41b1674955c66e7c479106cd9d187a"
+    },
+    {
+      "source_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/uv.lock",
+      "git_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+      "path": "/workspace/e02-B-current-coordination/policy-engine/uv.lock",
+      "bytes": 779204,
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+    },
+    {
+      "source_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/pyproject.toml",
+      "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "path": "/workspace/e02-B-current-coordination/policy-engine/pyproject.toml",
+      "bytes": 11007,
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+    }
+  ],
+  "all_source_clean_after": true,
+  "no_gates_native_collection_or_cache_mutation_by_this_review": true,
+  "closure_ids": []
+}

@@ -1,0 +1,223 @@
+{
+  "schema": "policyos.e02.inventory_consumer_guide.v1",
+  "unit": "B",
+  "slice_base_sha": "4a128c419f16e9d8aca39b1e811353bbef60262e",
+  "scope": "Read-only interpretation contract for one future real pytest wave; this metadata is not a new test, collection run, gate or finding disposition.",
+  "state": "prepared_runtime_UNRUN",
+  "closure_ids": [],
+  "predicate_basis": "recomputed",
+  "predicate_scope": "Source inspection of the frozen observer and the actual installed pytest9 implementations; runtime interpretation awaits the root wave.",
+  "observer": {
+    "candidate_sha": "e692f8cff4ca2d2e2697321ba77f7ba5050f27d1",
+    "candidate_tree_sha": "886c0df7e6d0ee867021b122ab9c680bb140a3c4",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py",
+    "bytes": 20488,
+    "sha256": "2766137b6322946a1e4a6f05717708636148391622e37106e66e6d9634e0f802",
+    "publication_sha": "4a128c419f16e9d8aca39b1e811353bbef60262e",
+    "review": "CMP independent source-only review; immutable review packet will be linked when published; no runtime claim."
+  },
+  "input_closure": {
+    "source_inputs": [
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/junitxml.py",
+        "distribution": "pytest",
+        "version": "9.0.2",
+        "bytes": 25522,
+        "sha256": "d71198950cf33bd1c7dc782167986ee130427fc57e221046e6455dc7a5b63d5a",
+        "read_kind": "source bytes only; no import or runtime invocation",
+        "used_for": "mangle_test_address, bin_xml_escape, NodeReporter, LogXML per-phase and collection emission; duplicate call-failure/teardown-error XML representations"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/runner.py",
+        "distribution": "pytest",
+        "version": "9.0.2",
+        "bytes": 19785,
+        "sha256": "8d784b2b3e23b05f4c4edd3f5263eb11964e86b6e16d2c814c5fcb2125dc4ea4",
+        "read_kind": "source bytes only; no import or runtime invocation",
+        "used_for": "actual setup/call/teardown protocol and final session fixture teardown"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/skipping.py",
+        "distribution": "pytest",
+        "version": "9.0.2",
+        "bytes": 10810,
+        "sha256": "5824731d5a311780f418eac9a094e7cf1fd63a82d3b0cd5e9e5498cc6ecd127c",
+        "read_kind": "source bytes only; no import or runtime invocation",
+        "used_for": "evaluated xfail stash, wasxfail, nonstrict XPASS and strict XPASS raw outcomes"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/main.py",
+        "distribution": "pytest",
+        "version": "9.0.2",
+        "bytes": 42435,
+        "sha256": "7ca2b20cc41fbfc2761bcb231eecb26967d553651035c40000f44d70e174b693",
+        "read_kind": "source bytes only; no import or runtime invocation",
+        "used_for": "wrap_session hook argument versus returned process status; Session.testsfailed counts failed reports, including collection"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/terminal.py",
+        "distribution": "pytest",
+        "version": "9.0.2",
+        "bytes": 64444,
+        "sha256": "e2fe406f930e795d09026746e8209a9a7142ac704fc0a0200af9e4f74d2104d0",
+        "read_kind": "source bytes only; no import or runtime invocation",
+        "used_for": "sessionfinish wrapper emits summary after inner hooks; terminal phase counters are not distinct-case counters"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/hookspec.py",
+        "distribution": "pytest",
+        "version": "9.0.2",
+        "bytes": 43019,
+        "sha256": "bb1c4432b56a49fe4fe327308fb4c454e7df55666d1708548cdd392c5102ffc1",
+        "read_kind": "source bytes only; no import or runtime invocation",
+        "used_for": "pytest9 hook signatures and lifecycle declaration"
+      }
+    ],
+    "runtime_inputs_required": [
+      "Exact invocation wrapper: argv/argsfile bytes and hash, cwd, frozen Git SHA/tree, explicit environment/tool profile, actual wait4 status, complete stdout/stderr identities.",
+      "Complete observer inventory artifact(s) with path, bytes and SHA256; actual loaded observer identity, schema and pytest version; retain raw artifacts in ignored storage.",
+      "Complete JUnit bytes with path and SHA256 and actual junit family/prefix options from the same invocation; default xunit2 does not retain file/line attributes.",
+      "Final whole-file selector manifest and complete B routes/bundle criteria pinned separately; selected files and collected cases are different denominators.",
+      "Independent drivers/removal checks retain their own source/env/input receipts; a pytest-native inventory never absorbs their results by path adjacency."
+    ],
+    "execution": "No observer import, collection, tests, browser, gates or product code executed for this guide."
+  },
+  "artifact_admission": [
+    "Use the actual wrapper invocation identity to bind inventory, JUnit, stdout and argsfile to one wave. Missing, malformed, truncated or cross-wave artifacts are unresolved; do not reconstruct a successful artifact from summaries.",
+    "Require schema policyos.e02.pytest_inventory.v1 and the frozen observer bytes. Check git_at_start/head/tree, tracked_status and loaded_instrument_source_git_byte_match; record disagreements rather than silently transplanting the source target.",
+    "state=session_finished means this observer reached its regular pytest_sessionfinish hook. It does not mean all hook wrappers, terminal summary, unconfigure or finalization completed.",
+    "session_exitstatus is the int(exitstatus) ARGUMENT supplied to this hook, not necessarily session.exitstatus after later hook wrappers or the child process exit code. Keep observed_hook_exitstatus and actual_wait4_exitstatus as separate fields; a mismatch is an explicit reconciliation item.",
+    "module_origin_snapshot is captured during this hook. Its modules are hook-time declared origins and observed backing-file bytes; they are not a census after all finalization, loader read events, child modules or resource/service inputs.",
+    "session_testsfailed counts failed reports in actual pytest9 Session, including failed collection reports and multiple failed phases; it is not a unique failed-case count.",
+    "Record state configured_collection_pending, collection_finished_runtime_pending or incomplete_no_sessionfinish as incomplete. Preserve surviving checkpoints and actual process signal/status; never call all selected or collected cases PASS because JUnit is absent."
+  ],
+  "identity_and_denominators": {
+    "case_identity": "For the root plain-pytest, no-rerun profile with unique session nodeids: (invocation identity, exact session_items_before_execution.nodeid). Keep parameter suffixes, brackets, class segments and full spelling.",
+    "ordered_cases": "Retain the complete original session_items_before_execution list order, then index by nodeid only after uniqueness is checked. Every admitted nodeid gets one case row.",
+    "duplicates": "If the session item list contains duplicate nodeids, retain both positions and report duplicate identity ambiguity. Observer reports do not identify an occurrence index; do not collapse duplicate physical cases or invent one-to-one report assignment. That profile requires independent occurrence evidence.",
+    "report_identity": "Retain original runtime_phase_reports list indexes and all fields. For a unique nodeid in the plain profile, group by nodeid and when; do not sum setup/call/teardown as cases.",
+    "repeated_phases": "Repeated (nodeid, when) reports may be a rerun, plugin outcome transformation or duplicate event. Keep every event and mark per-case run assignment unresolved unless the actual invocation/plugin-specific evidence resolves it; do not overwrite with the last report.",
+    "orphan_reports": "Runtime nodeids absent from the recorded session items are explicit orphan-runtime observations. They may indicate later collection-hook mutation or a different execution profile; they are never silently dropped or automatically added as proved planned cases.",
+    "collections": "collection_reports are collector events at session/file/class/function nodes. result_nodeids can repeat through nested collectors and are not a case denominator.",
+    "deselected": "deselected_items are observed excluded items, retained separately. They are UNRUN/deselected for selection coverage, not admitted executed cases and not SKIP runtime outcomes.",
+    "missing_selectors": "A requested file with no admitted cases due to collection failure/skip or an invalid selector is a selector-level ERROR/SKIP/UNRUN observation with an unknown case cardinality. Do not invent one testcase or infer an empty implementation.",
+    "counts_to_publish": [
+      "whole files requested",
+      "session item entries",
+      "unique admitted nodeids and duplicate identity ambiguity",
+      "distinct case states exactly once",
+      "phase-report event counts by setup/call/teardown raw outcome and classification",
+      "collector event counts",
+      "deselected items",
+      "orphan/repeated events",
+      "JUnit XML representation count and synthetic collector/internal entries",
+      "explicit unselected/uncollected criterion inputs without a fabricated case count"
+    ]
+  },
+  "phase_classification": {
+    "passed": "Observed raw outcome=passed is PASS for that phase. classification=xpass adds unexpected_success_nonstrict=true; it remains raw PASS, not XFAIL.",
+    "failed_call": "Observed raw outcome=failed, when=call is FAIL. classification=strict_xpass adds unexpected_success_strict=true and remains FAIL.",
+    "failed_setup_teardown": "Observed raw outcome=failed in setup or teardown is ERROR for that phase, even if call passed or failed.",
+    "xfail": "Observed raw outcome=skipped AND recorded classification=xfail is XFAIL for that phase. The observer uses evaluated pytest9 semantics/wasxfail; marker names alone are insufficient.",
+    "ordinary_skip": "Observed raw outcome=skipped with no actual xfail annotation is SKIP. If annotation is absent in a transported profile, use the actual worker artifact or uniquely matched JUnit skipped type=pytest.xfail; absent evidence remains an unresolved qualifier, not marker-based XFAIL.",
+    "unrun": "No recorded phase is UNRUN/not_observed for that phase. In the normal protocol, call may legitimately be absent when setup failed or skipped; preserve call UNRUN rather than fabricating a skipped call.",
+    "flags": "Retain outcome, classification, has_wasxfail, evaluated_xfail, evaluated_xfail_strict and call_had_exception separately. Unknown/contradictory values require reconciliation; classification is a version-bound diagnostic observation, not independent property proof."
+  },
+  "case_reduction": {
+    "profile": "Deterministic reporting policy for unique nodeids in a normal single-attempt setup/call/teardown profile; preserve the complete phase vector and completion flag alongside the one primary case state.",
+    "completion": "A completed normal attempt has exactly one setup and teardown report; if setup passed it also has exactly one call report. A failed/skipped setup legitimately has no call. --setup-only, rerun, subtest and xdist-each/custom protocols need their own declared interpretation instead of guessing.",
+    "ordered_rules": [
+      {
+        "state": "UNRUN",
+        "condition": "Report assignment is structurally ambiguous (duplicate nodeids/repeated phases/unknown phases) and independent invocation evidence does not resolve the physical attempt.",
+        "detail": "Keep every observed raw failing/passing event in phase facts; UNRUN here means no sound single-case reduction, not no physical activity."
+      },
+      {
+        "state": "ERROR",
+        "condition": "Any assigned setup or teardown raw outcome is failed.",
+        "detail": "A call FAIL or PASS is still retained; completion may be false if later phases are absent."
+      },
+      {
+        "state": "FAIL",
+        "condition": "No setup/teardown ERROR, and assigned call raw outcome is failed.",
+        "detail": "Strict XPASS is FAIL with the unexpected_success_strict qualifier; preserve incomplete teardown separately."
+      },
+      {
+        "state": "UNRUN",
+        "condition": "No observed raw failure above, but the normal terminal attempt is incomplete.",
+        "detail": "A call PASS with absent teardown is a partial call observation, not overall case PASS. No reports is UNRUN/not_started."
+      },
+      {
+        "state": "SKIP",
+        "condition": "Complete attempt with at least one ordinary skipped phase and no raw failure.",
+        "detail": "Retain any XFAIL phase and call PASS as secondary facts; this mixed-phase policy is explicitly declared, not a claim about terminal summary counters."
+      },
+      {
+        "state": "XFAIL",
+        "condition": "Complete attempt, no raw failure/ordinary skip, and at least one actual classification=xfail phase.",
+        "detail": "Expected setup failure/run=False may mean the body was not run. XFAIL is never promoted to repaired-property PASS."
+      },
+      {
+        "state": "PASS",
+        "condition": "Complete normal setup/call/teardown attempt, all phases raw passed.",
+        "detail": "Nonstrict XPASS remains PASS with an explicit unexpected-success qualifier. Criterion adequacy/finding disposition remains separate."
+      }
+    ],
+    "exclusive_total": "After uniqueness/assignment checks, each admitted case row has exactly one primary state PASS, FAIL, ERROR, XFAIL, SKIP or UNRUN. Their counts sum to the complete unique admitted case denominator. Phase/collector/JUnit representation counts are separate and need not equal that total.",
+    "known_failure_and_incomplete": "Observed ERROR/FAIL retains precedence over missing later phases; completion=false and missing phases remain explicit. Do not turn an observed failure into a successful or entirely unexecuted case.",
+    "no_gate_inference": "All-case PASS alone is not a complete property/closure verdict; errors in collection, wrong/omitted inputs, process status and criterion-specific evidence remain separate."
+  },
+  "junit_reconciliation": {
+    "mapping": [
+      "Build a forward mapping from every complete inventory nodeid to pytest9 mangle_test_address: partition at the first [, split pre-parameter path on ::, replace nodes.SEP in names[0] with ., remove only terminal .py, append the untouched bracket/parameter suffix to names[-1]. Do not reverse classname dots or truncate parameter brackets.",
+      "Apply the actual command junitprefix to the classname exactly as _NodeReporter.record_testreport does. The XML classname is join(names[:-1], .); XML name is pytest9 bin_xml_escape(names[-1]) followed by ordinary XML entity decoding by the XML parser.",
+      "Use exact (classname, name), and actual file/line if the declared JUnit family includes them, to find candidates. Detect forward-map collisions before assigning XML rows; custom record_xml_attribute can override names in xunit1, so unproven or ambiguous mappings stay unresolved.",
+      "Assign all XML entries sharing one unambiguous nodeid to the single case row as representation indexes. A call failure followed by a teardown error deliberately produces two testcase elements for that same case. Preserve both failure/error entries and both phase facts; do not increment the case denominator twice.",
+      "Collector failure/skipped entries are matched separately to failed/skipped collection_reports with the same forward address mapping. Internal-error synthetic entries (pytest, internal) are separate session events, not runtime cases. If a key also collides with a runtime case, keep it unresolved.",
+      "Every XML testcase element and runtime/collection report is either mapped or explicitly unmatched/ambiguous. Do not discard synthetic, partial or unexpected entries to make counters agree."
+    ],
+    "outcomes": [
+      "failure supports a call FAIL, error supports setup/teardown or collection/internal ERROR; use inventory when rather than free-text message parsing to determine the phase.",
+      "skipped type=pytest.xfail supports XFAIL; skipped type=pytest.skip supports ordinary SKIP; collection-skipped XML lacks a runtime case and remains a collector skip.",
+      "An empty testcase element is not alone a PASS proof: interrupted execution/setup-only may leave a reporter without a call. Verify the actual phase vector and completion.",
+      "Nonstrict XPASS is usually emitted as a passing testcase; only actual inventory/worker annotations retain its unexpected-success qualifier. Strict XPASS is emitted as failure.",
+      "JUnit suite tests/errors/failures/skipped are pytest event-format counters, not an independently unique-case denominator. pytest subtracts its call-failure+teardown-error double representation from tests; other mixed phase counters can still differ. Publish raw suite attributes, XML row count and derived distinct-case counts separately."
+    ],
+    "diagnostics": "Inventory stores longrepr rendered-text hashes only. JUnit applies message/invalid-XML-character conversions and may omit captured streams depending on actual options; its text need not hash to inventory.longrepr_sha256. Complete native stdout/JUnit stay separately hash-bound; never claim universal captured-stream completeness from the inventory."
+  },
+  "collection_and_coverage": {
+    "collection_failure": "Every failed collection report is a collector ERROR event. The case count inside the failed module/class is unknown if not admitted into session.items; criterion input remains UNRUN due to collection_error.",
+    "collection_skip": "Every skipped collection report is a collector SKIP event. Native backend/module skip can leave no admitted cases; it is not successful coverage and its unknown case cardinality is not counted as one actual test.",
+    "continue_on_errors": "If the actual command used --continue-on-collection-errors, remaining admitted cases may execute and have their own states while collector ERRORs persist. Do not overwrite case states with the global process exit, and do not omit failed modules from coverage.",
+    "criteria": "Join observed cases to actual file/selector and criterion inputs declared by the final complete route/manifest/card census. A requested file, a marker, a name or a collected nodeid is execution metadata, not a discriminator proving the finding.",
+    "non_native": "Raw-source oracle drivers, removal probes, actual subprocess consumers and B→C semantic owner checks have separate identities and outcomes. Include them in criterion evidence only with their exact receipts; do not fabricate native nodeids or inherit a package summary.",
+    "scope": "This inventory cannot prove all possible production inputs, institutional owner permission, unavailable research backends, resources/services or external process child read sets. Keep named cloud/input/owner boundaries explicit."
+  },
+  "parallel_profile": {
+    "root_profile": "Plain pytest default/autoload invocation; no fixed process, worker, numerical-thread or CPU quota is introduced by this guide.",
+    "xdist": "If the actual caller chooses xdist, reconcile controller plus every actual worker O_EXCL artifact and explicit worker collection reports. Workers may each collect the complete same list; union nodeids only with complete report ownership. Controller phase rows may lack evaluated-xfail annotations; worker rows preserve them.",
+    "limits": "Worker collection lists, controller module origins and worker reports are different scopes. Missing worker artifacts or --dist=each/repeated nodeids cannot be silently reduced as the plain profile; require actual worker/attempt assignment evidence. No worker count is presumed or imposed."
+  },
+  "future_independent_parser_review": [
+    "Read complete final inventory/JUnit/wrapper/stdout from their immutable path@SHA references; confirm actual wave source/env/input closure.",
+    "Check uniqueness and every phase/event denominator; verify the exclusive case partition sums exactly to admitted cases and retain all orphan/missing/duplicate artifacts.",
+    "Check every XML representation mapping including real call+teardown failure if present, synthetic collector/internal entries and actual skipped/xfail/strictXPASS cases without string-parsing authority.",
+    "Compare hook-time exit to actual wait4 exit without overwriting either; inspect actual collection errors, incomplete cases and unsupported execution profiles.",
+    "Review complete final criterion/native/script coverage against all B routes, retain semantic/input boundaries, and publish moderate deciding totals with full raw inventories/logs ignored and hash-bound."
+  ],
+  "actual_results": {
+    "runtime": "UNRUN",
+    "collection": "UNRUN",
+    "consumer_parser": "UNRUN awaiting final root wave; no fake successful record",
+    "existing_observer_source_changes": "none"
+  },
+  "pattern_pass": {
+    "P04": "One exclusive primary case partition plus full phase facts avoids losing mixed setup/call/teardown outcomes.",
+    "P14": "Source review and runtime observation grades stay distinct; independent parser review has not run.",
+    "P29": "No marker/path/name or static inspection becomes behavioral PASS.",
+    "P35": "Complete admitted items and all event/XML rows retained, no sampled eight-command or historical count stop.",
+    "P37": "Only the explicit bounded source interpretation is recomputed; runtime result predicates are not established.",
+    "P38": "JUnit element count diverges from physical case count on actual pytest call failure plus teardown error.",
+    "P41": "No red is attributed as inherited; this guide runs no product gates."
+  }
+}

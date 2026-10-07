@@ -1,0 +1,14 @@
+{
+  "output": "/tmp/e02-run-la057-frozen-source-audit.json",
+  "bytes": 136614,
+  "sha256": "59be61de3f5382fd5dc4899f58f941256dcbda64457dd00ca50384b96d5346aa",
+  "input_sha": "02b14aa0928fa32da6b46fa5169605d59e71d9ac",
+  "input_tree": "83667eaae1959f37a0a13a904709944c999f5463",
+  "direct_full_AST_equal_without_normalization": true,
+  "source_derived_outer": 1,
+  "source_derived_child": 8,
+  "baseline_cells": 10,
+  "baseline_contexts": 7,
+  "runtime_build": "UNRUN",
+  "source_verdict": "PASS bounded source review: no blocker under explicit installed-wheel profile."
+}

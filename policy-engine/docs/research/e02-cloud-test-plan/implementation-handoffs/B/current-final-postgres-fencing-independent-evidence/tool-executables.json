@@ -1,0 +1,25 @@
+{
+  "point": "after completed native run; server retained",
+  "records": [
+    {
+      "tool": "postgres_process_exe_interpreter",
+      "path": "/tmp/e02-B38-pg-evidence/oci/rootfs/lib/ld-musl-x86_64.so.1",
+      "sha256": "38d022ce7425ff105ccfb53598f606e6e5f5f0a34bfbc793d65e6f34c9d72806",
+      "bytes": 670312
+    },
+    {
+      "tool": "python_executable",
+      "path": "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/bin/python3.14",
+      "sha256": "010d370720b52e3ad79b21a079be6a10ea848acfc460552aaf3d36334980129f",
+      "bytes": 29992840
+    },
+    {
+      "tool": "postgres_actual_server_file_backed_map",
+      "path": "/tmp/e02-B38-pg-evidence/oci/rootfs/usr/local/bin/postgres.real",
+      "sha256": "b65c19ceb9ae7e18f6e271e08dda64557a92d5a7bf46b76257d58d8c95678555",
+      "bytes": 11339488,
+      "selection": "existing PID381902 actual file-backed executable mapping; no whole argv/environment or DSN recorded"
+    }
+  ],
+  "closure_limit": "executable files and observed selected module origins; not exhaustive shared-library/locale/kernel inputs"
+}

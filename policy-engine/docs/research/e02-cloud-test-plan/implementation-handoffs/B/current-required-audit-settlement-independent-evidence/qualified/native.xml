@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="4" time="0.164" timestamp="2026-10-06T19:44:25.410408+00:00" hostname="b878f4efbdfc"><testcase classname="" name="test_protected_audit_reconciliation_precedes_next_provider[healthy-sync-invoke]" time="0.031" /><testcase classname="" name="test_protected_audit_reconciliation_precedes_next_provider[healthy-async-generate]" time="0.014" /><testcase classname="" name="test_protected_audit_reconciliation_precedes_next_provider[protected-commit-fault-sync-invoke]" time="0.017"><failure message="AssertionError: a received, known-cost provider result still lacks its mandatory protected COMMITTED audit; restoring the file alone must not admit another spend&#10;assert 2 == 1&#10; +  where 2 = len([{'max_tokens': 4, 'prompt': 'nonempty physical request'}, {'max_tokens': 4, 'prompt': 'nonempty physical request'}])">tmp_path = PosixPath('/tmp/e02-B65-protected-audit-qualified/pytest-tmp/test_protected_audit_reconcili2')
+route = 'sync-invoke', fail_commit = True
+
+    @pytest.mark.parametrize("route", ["sync-invoke", "async-generate"])
+    @pytest.mark.parametrize("fail_commit", [False, True], ids=["healthy", "protected-commit-fault"])
+    def test_protected_audit_reconciliation_precedes_next_provider(
+        tmp_path: Path, route: str, fail_commit: bool
+    ) -&gt; None:
+        audit_path = tmp_path / "protected-audit.jsonl"
+        ledger_path = tmp_path / "ledger.json"
+        provider_path = tmp_path / "actual-provider.jsonl"
+        initial = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("10"))})
+        middleware = BudgetMiddleware(initial, ledger=FileBudgetLedger(ledger_path))
+        # Explicit bootstrap precedes the tested reservation and real provider.
+        assert FileBudgetLedger(ledger_path).snapshot().state.spent == {}
+        sink = ChainedAuditSink(chain_id="B65:protected-local", local_path=audit_path)
+        audit = _CommitFaultAuditLog(sink, audit_path, fail=fail_commit)
+        provider = _PhysicalProvider(provider_path)
+        enforcer = LLMBudgetEnforcer(
+            client=TracedLLMClient(provider, model_name="default", run_id="B65-real-audit"),
+            budget_state=initial,
+            budget_keys=["run"],
+            budget_middleware=middleware,
+            audit_log=audit,
+            run_id="B65-real-audit",
+        )
+        try:
+            first_error = None
+            first_response = None
+            try:
+                first_response = _call(enforcer, route)
+            except LLMAccountingError as error:
+                first_error = error
+            first = _observation(audit_path, ledger_path, provider_path)
+            print("B65_FIRST " + json.dumps({"route": route, "fault": fail_commit, **first}))
+            assert len(first["provider_requests"]) == 1
+            snapshot = FileBudgetLedger(ledger_path).snapshot()
+            assert snapshot.state.spent["run"] == Decimal("0.02")
+            assert snapshot.state.reserved["run"] == Decimal("0")
+            assert len(snapshot.spend_receipts) == 1
+            assert next(iter(snapshot.spend_receipts.values())).amount == Decimal("0.02")
+            assert first["audit_chain"]["chain_intact"]
+            assert audit.attempted_actions[:3] == ["BUDGET_RESERVED", "BUDGET_CHECK", "BUDGET_RELEASED"]
+            if not fail_commit:
+                assert first_error is None
+                settlement = producer_settlement(first_response)
+                assert settlement is not None
+                assert settlement.ack.status == "committed"
+                assert settlement.event.amount == Decimal("0.02")
+                assert first["audit_entries"][-1]["payload"]["action"] == "BUDGET_COMMITTED"
+                second_response = _call(enforcer, route)
+                assert producer_settlement(second_response).ack.status == "committed"
+                final = _observation(audit_path, ledger_path, provider_path)
+                print("B65_FINAL " + json.dumps({"route": route, "fault": False, **final}))
+                assert len(final["provider_requests"]) == 2
+                assert final["audit_chain"]["chain_intact"]
+                assert FileBudgetLedger(ledger_path).load().spent["run"] == Decimal("0.04")
+                return
+            assert first_error is not None
+            assert first_error.response is provider.responses[0]
+            assert first_error.cause is audit.failure
+            assert isinstance(audit.failure, IsADirectoryError)
+            assert first_error.event["producer_event"].amount == Decimal("0.02")
+            assert not any(e["payload"]["action"] == "BUDGET_COMMITTED" for e in first["audit_entries"])
+            second_error = None
+            try:
+                _call(enforcer, route)
+            except LLMAccountingError as error:
+                second_error = error
+            final = _observation(audit_path, ledger_path, provider_path)
+            final.update(
+                second_error_type=type(second_error).__name__ if second_error is not None else None,
+                first_error_cause=type(first_error.cause).__name__,
+                first_error_response_content=first_error.response.content,
+                attempted_actions=audit.attempted_actions,
+            )
+            print("B65_FINAL " + json.dumps({"route": route, "fault": True, **final}))
+&gt;           assert len(final["provider_requests"]) == 1, (
+                "a received, known-cost provider result still lacks its mandatory protected "
+                "COMMITTED audit; restoring the file alone must not admit another spend"
+            )
+E           AssertionError: a received, known-cost provider result still lacks its mandatory protected COMMITTED audit; restoring the file alone must not admit another spend
+E           assert 2 == 1
+E            +  where 2 = len([{'max_tokens': 4, 'prompt': 'nonempty physical request'}, {'max_tokens': 4, 'prompt': 'nonempty physical request'}])
+
+../../e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py:189: AssertionError</failure></testcase><testcase classname="" name="test_protected_audit_reconciliation_precedes_next_provider[protected-commit-fault-async-generate]" time="0.017"><failure message="AssertionError: a received, known-cost provider result still lacks its mandatory protected COMMITTED audit; restoring the file alone must not admit another spend&#10;assert 2 == 1&#10; +  where 2 = len([{'max_tokens': 4, 'user': 'nonempty physical request'}, {'max_tokens': 4, 'user': 'nonempty physical request'}])">tmp_path = PosixPath('/tmp/e02-B65-protected-audit-qualified/pytest-tmp/test_protected_audit_reconcili3')
+route = 'async-generate', fail_commit = True
+
+    @pytest.mark.parametrize("route", ["sync-invoke", "async-generate"])
+    @pytest.mark.parametrize("fail_commit", [False, True], ids=["healthy", "protected-commit-fault"])
+    def test_protected_audit_reconciliation_precedes_next_provider(
+        tmp_path: Path, route: str, fail_commit: bool
+    ) -&gt; None:
+        audit_path = tmp_path / "protected-audit.jsonl"
+        ledger_path = tmp_path / "ledger.json"
+        provider_path = tmp_path / "actual-provider.jsonl"
+        initial = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("10"))})
+        middleware = BudgetMiddleware(initial, ledger=FileBudgetLedger(ledger_path))
+        # Explicit bootstrap precedes the tested reservation and real provider.
+        assert FileBudgetLedger(ledger_path).snapshot().state.spent == {}
+        sink = ChainedAuditSink(chain_id="B65:protected-local", local_path=audit_path)
+        audit = _CommitFaultAuditLog(sink, audit_path, fail=fail_commit)
+        provider = _PhysicalProvider(provider_path)
+        enforcer = LLMBudgetEnforcer(
+            client=TracedLLMClient(provider, model_name="default", run_id="B65-real-audit"),
+            budget_state=initial,
+            budget_keys=["run"],
+            budget_middleware=middleware,
+            audit_log=audit,
+            run_id="B65-real-audit",
+        )
+        try:
+            first_error = None
+            first_response = None
+            try:
+                first_response = _call(enforcer, route)
+            except LLMAccountingError as error:
+                first_error = error
+            first = _observation(audit_path, ledger_path, provider_path)
+            print("B65_FIRST " + json.dumps({"route": route, "fault": fail_commit, **first}))
+            assert len(first["provider_requests"]) == 1
+            snapshot = FileBudgetLedger(ledger_path).snapshot()
+            assert snapshot.state.spent["run"] == Decimal("0.02")
+            assert snapshot.state.reserved["run"] == Decimal("0")
+            assert len(snapshot.spend_receipts) == 1
+            assert next(iter(snapshot.spend_receipts.values())).amount == Decimal("0.02")
+            assert first["audit_chain"]["chain_intact"]
+            assert audit.attempted_actions[:3] == ["BUDGET_RESERVED", "BUDGET_CHECK", "BUDGET_RELEASED"]
+            if not fail_commit:
+                assert first_error is None
+                settlement = producer_settlement(first_response)
+                assert settlement is not None
+                assert settlement.ack.status == "committed"
+                assert settlement.event.amount == Decimal("0.02")
+                assert first["audit_entries"][-1]["payload"]["action"] == "BUDGET_COMMITTED"
+                second_response = _call(enforcer, route)
+                assert producer_settlement(second_response).ack.status == "committed"
+                final = _observation(audit_path, ledger_path, provider_path)
+                print("B65_FINAL " + json.dumps({"route": route, "fault": False, **final}))
+                assert len(final["provider_requests"]) == 2
+                assert final["audit_chain"]["chain_intact"]
+                assert FileBudgetLedger(ledger_path).load().spent["run"] == Decimal("0.04")
+                return
+            assert first_error is not None
+            assert first_error.response is provider.responses[0]
+            assert first_error.cause is audit.failure
+            assert isinstance(audit.failure, IsADirectoryError)
+            assert first_error.event["producer_event"].amount == Decimal("0.02")
+            assert not any(e["payload"]["action"] == "BUDGET_COMMITTED" for e in first["audit_entries"])
+            second_error = None
+            try:
+                _call(enforcer, route)
+            except LLMAccountingError as error:
+                second_error = error
+            final = _observation(audit_path, ledger_path, provider_path)
+            final.update(
+                second_error_type=type(second_error).__name__ if second_error is not None else None,
+                first_error_cause=type(first_error.cause).__name__,
+                first_error_response_content=first_error.response.content,
+                attempted_actions=audit.attempted_actions,
+            )
+            print("B65_FINAL " + json.dumps({"route": route, "fault": True, **final}))
+&gt;           assert len(final["provider_requests"]) == 1, (
+                "a received, known-cost provider result still lacks its mandatory protected "
+                "COMMITTED audit; restoring the file alone must not admit another spend"
+            )
+E           AssertionError: a received, known-cost provider result still lacks its mandatory protected COMMITTED audit; restoring the file alone must not admit another spend
+E           assert 2 == 1
+E            +  where 2 = len([{'max_tokens': 4, 'user': 'nonempty physical request'}, {'max_tokens': 4, 'user': 'nonempty physical request'}])
+
+../../e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py:189: AssertionError</failure></testcase></testsuite></testsuites>

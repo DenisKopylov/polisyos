@@ -1,0 +1,21 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+_____ test_live_provider_owns_neutral_refilled_limiter_under_pressure[2.0] _____
+tests/unit/fabric/connectors/test_resilience_e02.py:42: in test_live_provider_owns_neutral_refilled_limiter_under_pressure
+    with pytest.raises(BoundedResourceRegistryCapacityError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.fabric.connectors.resilience._bounded_registry.BoundedResourceRegistryCapacityError'>
+___ test_live_provider_owns_neutral_refilled_limiter_under_pressure[1000.0] ____
+tests/unit/fabric/connectors/test_resilience_e02.py:42: in test_live_provider_owns_neutral_refilled_limiter_under_pressure
+    with pytest.raises(BoundedResourceRegistryCapacityError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.fabric.connectors.resilience._bounded_registry.BoundedResourceRegistryCapacityError'>
+____ test_available_protected_capacity_admits_independent_actual_operation _____
+tests/unit/fabric/connectors/test_resilience_e02.py:77: in test_available_protected_capacity_admits_independent_actual_operation
+    assert registry.snapshot()["live"] is original
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'live'
+=========================== short test summary info ============================
+FAILED tests/unit/fabric/connectors/test_resilience_e02.py::test_live_provider_owns_neutral_refilled_limiter_under_pressure[2.0]
+FAILED tests/unit/fabric/connectors/test_resilience_e02.py::test_live_provider_owns_neutral_refilled_limiter_under_pressure[1000.0]
+FAILED tests/unit/fabric/connectors/test_resilience_e02.py::test_available_protected_capacity_admits_independent_actual_operation

@@ -1,0 +1,11 @@
+import json,os
+from pathlib import Path
+from polisyos.foundry.methods.compiler import MethodCompiler
+ORIGINAL=MethodCompiler.compile_chain
+def _extra_numerical_preparation(self,chain,sample_state,**kwargs):
+ result=ORIGINAL(self,chain,sample_state,**kwargs)
+ actual=result(sample_state);actual.total.block_until_ready()
+ path=Path(os.environ['COMPILED_ORIGIN_OBSERVATIONS']).with_name('property-removal-effects.jsonl')
+ with path.open('a') as output:output.write(json.dumps({'removed_quantity':'preparation zero scientific work','actual_numerical_total':float(actual.total),'compiled_nodes':len(result),'source_files_mutated':False})+'\n')
+ return result
+MethodCompiler.compile_chain=_extra_numerical_preparation

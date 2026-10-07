@@ -1,0 +1,41 @@
+{
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-s",
+    "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py",
+    "-k",
+    "real_statement_fault",
+    "--basetemp=/tmp/e02-B38-pg-evidence/native-style-successor/pytest",
+    "--junitxml=/tmp/e02-B38-pg-evidence/native-style-successor/native.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+  "head": "414c7ec3148a857c3a4e5554dde5d5503fec6e95",
+  "tree": "58aff10a15c5ad109e3dd4781454c137d392f303",
+  "head_after": "414c7ec3148a857c3a4e5554dde5d5503fec6e95",
+  "wall_s": 29.1607804739906,
+  "process_rusage_maxrss_kib": 934084,
+  "exit_code": 0,
+  "exec_setup_error": null,
+  "harness_state": "EXECUTED",
+  "output_path": "/tmp/e02-B38-pg-evidence/native-style-successor/native.txt",
+  "output_sha256": "a100cc7b8761ca6832eb43b20c871fba05a5e18af6651ba8462d9142697e4946",
+  "source_environment": {
+    "PYTHONPATH": "/tmp/e02-B38-pg-profile:/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "LANG": "C.UTF-8",
+    "POLISYOS_METRICS_PORT": "0",
+    "TIKTOKEN_CACHE_DIR": null,
+    "E02_B_PROPERTY_REMOVAL": null,
+    "UV_PROJECT_ENVIRONMENT": null,
+    "UV_NO_SYNC": null,
+    "E02_B_COHORT_INVENTORY_PATH": null
+  },
+  "limitations": [
+    "Combined stdout/stderr; no separate stream-count claim.",
+    "Source boundary is HEAD identity; the launcher checks initial cleanliness.",
+    "RSS is wait4 child rusage, not an aggregate of independently concurrent gates."
+  ]
+}

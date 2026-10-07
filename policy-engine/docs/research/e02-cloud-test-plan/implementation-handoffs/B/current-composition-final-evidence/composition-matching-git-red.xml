@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="17" time="0.861" timestamp="2026-10-06T12:29:26.983101+00:00" hostname="b878f4efbdfc"><testcase classname="tests.unit.foundry.methods.components.test_composition_e02" name="test_strict_complete_incoming_dag_materializes_actual_two_source_values[False]" time="0.132" /><testcase classname="tests.unit.foundry.methods.components.test_composition_e02" name="test_strict_complete_incoming_dag_materializes_actual_two_source_values[True]" time="0.087" /><testcase classname="tests.unit.foundry.methods.components.test_composition_e02" name="test_strict_linker_refuses_incomplete_incoming_dag_at_build[SemanticValidationLevel.OFF]" time="0.010" /><testcase classname="tests.unit.foundry.methods.components.test_composition_e02" name="test_strict_linker_refuses_incomplete_incoming_dag_at_build[SemanticValidationLevel.WARN]" time="0.010" /><testcase classname="tests.unit.foundry.methods.components.test_composition_e02" name="test_strict_linker_refuses_incomplete_incoming_dag_at_build[SemanticValidationLevel.STRICT]" time="0.010" /><testcase classname="tests.unit.foundry.methods.components.test_composition_e02" name="test_required_explicit_earlier_occurrence_excludes_future_same_fqn" time="0.080" /><testcase classname="tests.unit.foundry.methods.components.test_composition_e02" name="test_required_only_occurrence_selects_nearest_earlier_instance" time="0.081" /><testcase classname="tests.unit.foundry.methods.components.test_composition_e02" name="test_required_only_ambiguous_future_instances_are_typed_refused[SemanticValidationLevel.OFF]" time="0.010" /><testcase classname="tests.unit.foundry.methods.components.test_composition_e02" name="test_required_only_ambiguous_future_instances_are_typed_refused[SemanticValidationLevel.WARN]" time="0.010" /><testcase classname="tests.unit.foundry.methods.components.test_composition_e02" name="test_required_only_ambiguous_future_instances_are_typed_refused[SemanticValidationLevel.STRICT]" time="0.010" /><testcase classname="tests.unit.foundry.methods.components.test_composition_e02" name="test_strict_root_input_remains_actual_caller_context" time="0.029" /><testcase classname="tests.unit.foundry.methods.components.test_composition_e02" name="test_two_explicit_required_occurrences_are_refused_with_exact_typed_context" time="0.010" /><testcase classname="tests.unit.foundry.methods.components.test_composition_e02" name="test_manual_auto_single_edge_structural_refusal_has_identical_typed_reason[unit]" time="0.001" /><testcase classname="tests.unit.foundry.methods.components.test_composition_e02" name="test_manual_auto_single_edge_structural_refusal_has_identical_typed_reason[shape]" time="0.001" /><testcase classname="tests.unit.foundry.methods.components.test_composition_e02" name="test_equal_full_matching_requires_explicit_choice_after_actual_numeric_controls[source_names0-target_names0]" time="0.123"><failure message="Failed: DID NOT RAISE &lt;class 'polisyos.foundry.methods.exceptions.SlotConnectionError'&gt;">source_names = ('a', 'b'), target_names = ('left', 'right')
+
+    @pytest.mark.parametrize(
+        ("source_names", "target_names"),
+        [(("a", "b"), ("left", "right")), (("z_source", "a_source"), ("z_target", "a_target"))],
+    )
+    def test_equal_full_matching_requires_explicit_choice_after_actual_numeric_controls(
+        source_names, target_names
+    ):
+        values = []
+        for permutation in (source_names, source_names[::-1]):
+            registry, composer, source, target = _pair_chain(source_names, target_names)
+            composer.connect(source, target, dict(zip(permutation, target_names)))
+            chain = composer.build(validate_semantics=SemanticValidationLevel.STRICT)
+            values.append(
+                execute_heterogeneous_chain(chain, state={}, registry=registry).final_state["result"]
+            )
+        assert values == [711, 1107]
+        _, composer, source, target = _pair_chain(source_names, target_names)
+&gt;       with pytest.raises(SlotConnectionError, match="Ambiguous automatic bindings"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'polisyos.foundry.methods.exceptions.SlotConnectionError'&gt;
+
+tests/unit/foundry/methods/components/test_composition_e02.py:312: Failed</failure></testcase><testcase classname="tests.unit.foundry.methods.components.test_composition_e02" name="test_equal_full_matching_requires_explicit_choice_after_actual_numeric_controls[source_names1-target_names1]" time="0.123"><failure message="Failed: DID NOT RAISE &lt;class 'polisyos.foundry.methods.exceptions.SlotConnectionError'&gt;">source_names = ('z_source', 'a_source'), target_names = ('z_target', 'a_target')
+
+    @pytest.mark.parametrize(
+        ("source_names", "target_names"),
+        [(("a", "b"), ("left", "right")), (("z_source", "a_source"), ("z_target", "a_target"))],
+    )
+    def test_equal_full_matching_requires_explicit_choice_after_actual_numeric_controls(
+        source_names, target_names
+    ):
+        values = []
+        for permutation in (source_names, source_names[::-1]):
+            registry, composer, source, target = _pair_chain(source_names, target_names)
+            composer.connect(source, target, dict(zip(permutation, target_names)))
+            chain = composer.build(validate_semantics=SemanticValidationLevel.STRICT)
+            values.append(
+                execute_heterogeneous_chain(chain, state={}, registry=registry).final_state["result"]
+            )
+        assert values == [711, 1107]
+        _, composer, source, target = _pair_chain(source_names, target_names)
+&gt;       with pytest.raises(SlotConnectionError, match="Ambiguous automatic bindings"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'polisyos.foundry.methods.exceptions.SlotConnectionError'&gt;
+
+tests/unit/foundry/methods/components/test_composition_e02.py:312: Failed</failure></testcase><testcase classname="tests.unit.foundry.methods.components.test_composition_e02" name="test_exact_named_full_matching_is_a_resolved_actual_numeric_control" time="0.057" /></testsuite></testsuites>

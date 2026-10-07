@@ -1,0 +1,25 @@
+from pathlib import Path
+import datetime,hashlib,json,os,subprocess,sys,time
+own=Path('/workspace/e02-B-current-composition')
+label,target_root,target_sha=sys.argv[1:]
+raw=own/'.polisyos/e02-B-current-composition/gateway-settlement-review'/label
+raw.mkdir(exist_ok=False)
+python='/workspace/polisyos/policy-engine/.venv/bin/python'
+test=own/'policy-engine/tests/unit/scientist/agent/test_drafter_accounting_owner_oracle.py'
+argv=[python,'-m','pytest','--noconftest','-c','/dev/null','-o','cache_dir='+str(raw/'cache'),'--basetemp='+str(raw/'tmp'),'--junitxml='+str(raw/'native.xml'),'-vv','-s',str(test)]
+env=os.environ.copy()
+env.update({'PYTHONPATH':str(Path(target_root)/'policy-engine/src')+':'+str(Path(target_root)/'policy-engine/product'),'POLISYOS_METRICS_PORT':'0','PYTEST_DISABLE_PLUGIN_AUTOLOAD':'1','E02_DRAFTER_ORACLE_SOURCE_ROOT':target_root,'E02_DRAFTER_ORACLE_SOURCE_SHA':target_sha})
+for k in ['OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','VECLIB_MAXIMUM_THREADS','NUMEXPR_NUM_THREADS','XLA_FLAGS']:
+ env.pop(k,None)
+def git(root,*args):return subprocess.check_output(['git','-C',str(root),*args],text=True).strip()
+before={'actual_target_head':git(target_root,'rev-parse','HEAD'),'actual_target_tree':git(target_root,'rev-parse','HEAD^{tree}'),'target_status':git(target_root,'status','--short'),'own_test_sha':git(own,'rev-parse','HEAD'),'test_sha256':hashlib.sha256(test.read_bytes()).hexdigest(),'test_bytes':test.stat().st_size}
+start=datetime.datetime.now(datetime.UTC).isoformat();t0=time.perf_counter()
+with (raw/'native.txt').open('xb') as stream:
+ proc=subprocess.Popen(argv,cwd=Path(target_root)/'policy-engine',env=env,stdout=stream,stderr=subprocess.STDOUT)
+ pid,status,usage=os.wait4(proc.pid,0)
+ proc.returncode=os.waitstatus_to_exitcode(status)
+end=datetime.datetime.now(datetime.UTC).isoformat()
+wrapper={'argv':argv,'cwd':str(Path(target_root)/'policy-engine'),'environment':{k:env.get(k) for k in ['PYTHONPATH','POLISYOS_METRICS_PORT','PYTEST_DISABLE_PLUGIN_AUTOLOAD','E02_DRAFTER_ORACLE_SOURCE_ROOT','E02_DRAFTER_ORACLE_SOURCE_SHA']},'numeric_environment_caps_removed':True,'source_projection_sha':target_sha,'before':before,'after':{'actual_target_head':git(target_root,'rev-parse','HEAD'),'actual_target_tree':git(target_root,'rev-parse','HEAD^{tree}'),'target_status':git(target_root,'status','--short')},'started_utc':start,'ended_utc':end,'wall_seconds':time.perf_counter()-t0,'actual_exit':proc.returncode,'wait4_resource':{'utime':usage.ru_utime,'stime':usage.ru_stime,'maxrss_kib_linux':usage.ru_maxrss},'full_stdout':{'path':str(raw/'native.txt'),'bytes':(raw/'native.txt').stat().st_size,'sha256':hashlib.sha256((raw/'native.txt').read_bytes()).hexdigest()},'closure':'Exact six printed polisyos module origins and Git bytes, real filesystem provider; no full imported-module/network/resource/invoice census.'}
+(raw/'wrapper.json').write_text(json.dumps(wrapper,indent=2)+'\n')
+print(json.dumps(wrapper,indent=2))
+sys.exit(proc.returncode)

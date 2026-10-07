@@ -1,0 +1,52 @@
+{
+  "harness_state": "EXECUTED",
+  "setup_failure": null,
+  "actual_pid": 631181,
+  "waited_pid": 631181,
+  "wait_status": 0,
+  "actual_exit_code": 0,
+  "signal": null,
+  "wall_s": 432.1670279940008,
+  "max_rss_kib": 1026224,
+  "user_s": 314.963073,
+  "system_s": 32.780383,
+  "source_before": {
+    "head": "10e812a98d5f7f3997e7d0aa44de43dc90eb022c",
+    "tree": "071a52554be3c0eaa67ad0e870a0d9198ec0fa61",
+    "branch": "refs/heads/codex/e02-B-current-coordination",
+    "tracked_status": "",
+    "expected_clean_attached": true
+  },
+  "source_after": {
+    "head": "10e812a98d5f7f3997e7d0aa44de43dc90eb022c",
+    "tree": "071a52554be3c0eaa67ad0e870a0d9198ec0fa61",
+    "branch": "refs/heads/codex/e02-B-current-coordination",
+    "tracked_status": "",
+    "expected_clean_attached": true
+  },
+  "declared_disk_bytes_stable": true,
+  "whole_file_count": 35,
+  "argv": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "-m",
+    "pytest",
+    "@/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/affected-10e-20261006/selectors.args",
+    "-vv",
+    "--tb=short",
+    "--import-mode=importlib",
+    "-p",
+    "no:cacheprovider",
+    "-p",
+    "current_cohort_inventory",
+    "--basetemp",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/affected-10e-20261006/fixtures",
+    "--junitxml",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/affected-10e-20261006/native.xml"
+  ],
+  "stdout": {
+    "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/affected-10e-20261006/native.txt",
+    "bytes": 106811,
+    "sha256": "c3bd7294fd8d47583c7531129994ab77c55042e4a5322f09655d4582378e015c"
+  },
+  "driver_sha256": "b952f450a7f972ce63a2483b7bdf35fda64e72a7db128cee5567036f7ca129da"
+}

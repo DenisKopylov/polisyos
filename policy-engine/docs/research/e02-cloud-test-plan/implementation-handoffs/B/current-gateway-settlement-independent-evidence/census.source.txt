@@ -1,0 +1,33 @@
+"""Pinned literal production consumer census; no product imports or native execution."""
+import hashlib,json,re,subprocess,sys
+from pathlib import Path
+root=Path('/workspace/e02-B-current-composition');source=sys.argv[1]
+paths=subprocess.check_output(['git','ls-tree','-r','--name-only',source,'--','policy-engine/src','policy-engine/product'],cwd=root,text=True).splitlines()
+patterns={
+ 'gateway_types':r'\b(?:GatewayUsage|GatewayLLMResponse)\b',
+ 'response_normalization':r'\b(?:LLMResponseData|extract_llm_response_data|_extract_physical_provider_response_data)\b',
+ 'settlement_abi':r'\b(?:LLMProducerEvent|LLMProducerSettlement|LLMSettlementAck|LLMSettledResponse|LLMAuditObligation|LLMAuditResolution|producer_settlement|_completion_amount|_settlement_owner_context)\b',
+ 'gateway_numeric_reader':r'\b(?:[A-Za-z_][A-Za-z_0-9]*\.)*usage\.(?:prompt_tokens|completion_tokens|total_tokens|cost_usd|usage_status|cost_status)\b',
+ 'factory_budget_composition':r'\b(?:create_traced_gateway_client|LLMBudgetEnforcer|CachingLLMClient|CacheReuseAuthorizer)\b'}
+compiled={k:re.compile(v) for k,v in patterns.items()};matches={k:[] for k in patterns};identities={};python_paths=0
+proc=subprocess.Popen(['git','cat-file','--batch'],cwd=root,stdin=subprocess.PIPE,stdout=subprocess.PIPE)
+assert proc.stdin is not None and proc.stdout is not None
+for path in paths:
+ proc.stdin.write((source+':'+path+'\n').encode());proc.stdin.flush();header=proc.stdout.readline().decode().strip().split()
+ assert len(header)==3 and header[1]=='blob',header
+ blob,_,length=header;raw=proc.stdout.read(int(length));assert proc.stdout.read(1)==b'\n'
+ if path.endswith('.py'):python_paths+=1
+ text=raw.decode('utf-8',errors='replace')
+ touched=False
+ for label,pattern in compiled.items():
+  found=[{'line':i,'text':line} for i,line in enumerate(text.splitlines(),1) if pattern.search(line)]
+  if found:matches[label].append({'path':path,'matches':found});touched=True
+ if touched:identities[path]={'path':path,'git_blob':blob,'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest()}
+proc.stdin.close();assert proc.wait()==0
+transitive_paths=['policy-engine/src/polisyos/scientist/agent/_drafter_orchestrator.py','policy-engine/src/polisyos/runtime/http/services/control/response_shapes.py','policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py']
+transitive=[]
+for path in transitive_paths:
+ raw=subprocess.check_output(['git','show',source+':'+path],cwd=root)
+ transitive.append({'path':path,'git_blob':subprocess.check_output(['git','rev-parse',source+':'+path],cwd=root,text=True).strip(),'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest()})
+out={'transitive_consumer_identity_roots':transitive,'transitive_scope':'Finite manually traced normalization/count estimates and observer cost aggregation only; not arbitrary downstream cost fields','kind':'full pinned literal symbol/reader census over complete tracked production roots, not a universal data-flow/child/runtime readset','source_sha':source,'source_tree':subprocess.check_output(['git','rev-parse',source+'^{tree}'],cwd=root,text=True).strip(),'input_roots':['policy-engine/src','policy-engine/product'],'tracked_all_file_denominator':len(paths),'tracked_python_file_denominator':python_paths,'matched_file_count':len(identities),'patterns':patterns,'match_denominators':{k:{'files':len(rows),'python_files':sum(row['path'].endswith('.py') for row in rows),'literal_line_occurrences':sum(len(row['matches']) for row in rows)} for k,rows in matches.items()},'module_identities':list(identities.values()),'matches':matches,'unresolved_by_construction':['Runtime/dynamic imports or callable aliases lacking these literal names','External SDK/package versions, nontracked production data/resources and network responses','Arbitrary serialized downstream consumers with renamed fields','Native/billing/authority behavior not established by a source census']}
+print(json.dumps(out,indent=2))

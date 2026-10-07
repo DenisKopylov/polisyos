@@ -1,0 +1,123 @@
+"""Read immutable portable custody objects; no native/gates/parser or imports."""
+
+import collections
+import hashlib
+import json
+import platform
+import re
+import subprocess
+import sys
+import xml.etree.ElementTree as ET
+
+CUSTODY = "120a9f11a0fb4f800c71da370176b6fc22d4aa87"
+TREE = "8d5ba04ac605347a57fc93e75362867486c69520"
+RECEIPT = "67473d324ee573d9a9673198d2b011130fbd799a"
+SOURCE = "1862c021df74a5c5815bc5cd21a20e61b30132b6"
+SOURCE_TREE = "f765043b27b96a1fbb0795aa600db9bd94df0e36"
+PREFIX = "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-root-evidence/"
+OLD = "afe74448796d5d82cd70cf2a37e861f5424b0fc9"
+OLD_PREFIX = "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-native-incomplete-review-evidence/"
+
+
+def git(*args):
+    return subprocess.check_output(["git", *args])
+
+
+def read(sha, path):
+    return git("show", sha + ":" + path)
+
+
+def hash_value(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+assert git("rev-parse", CUSTODY + "^{tree}").decode().strip() == TREE
+remote_head = git("rev-parse", "FETCH_HEAD").decode().strip()
+assert remote_head == RECEIPT
+subprocess.run(["git", "merge-base", "--is-ancestor", CUSTODY, remote_head], check=True)
+paths = git("ls-tree", "-rz", "--name-only", CUSTODY, "--", PREFIX).decode().strip("\0").split("\0")
+assert len(paths) == 17
+contents = {path: read(CUSTODY, path) for path in paths}
+index = json.loads(contents[PREFIX + "index.json"])
+assert index["checked_source_sha"] == SOURCE and index["checked_source_tree"] == SOURCE_TREE
+assert len(index["payloads"]) == 16
+assert {row["path"] for row in index["payloads"]} == set(paths) - {PREFIX + "index.json"}
+objects = []
+for path, data in sorted(contents.items()):
+    objects.append({"path": path, "commit": CUSTODY, "bytes": len(data), "sha256": hash_value(data)})
+for row in index["payloads"]:
+    data = contents[row["path"]]
+    assert len(data) == row["bytes"] and hash_value(data) == row["sha256"]
+assert sum(row["bytes"] for row in index["payloads"]) == 5694782
+old_audit = json.loads(read(OLD, OLD_PREFIX + "audit.stdout.json"))
+old_inputs = {row["path"]: row for row in old_audit["input_objects"]}
+original_aliases = {}
+for row in index["original_copies"]:
+    data = contents[row["committed_path"]]
+    assert len(data) == row["bytes"] and hash_value(data) == row["sha256"]
+    if row["source_actual"] in old_inputs:
+        old_input = old_inputs[row["source_actual"]]
+        assert old_input["bytes"] == row["bytes"] and old_input["sha256"] == row["sha256"]
+    original_aliases[row["source_actual"]] = {
+        "path": row["committed_path"], "commit": CUSTODY,
+        "bytes": row["bytes"], "sha256": row["sha256"],
+        "identity": "Exact original bytes; artifact locator only, no profile-schema alias/restamp."
+    }
+assert len(original_aliases) == 12
+projection = json.loads(contents[PREFIX + "incomplete-collected-nodeids.json"])
+assert projection["source_sha"] == SOURCE and projection["source_tree"] == SOURCE_TREE
+assert projection["original_state"] == "collection_finished_runtime_pending"
+assert len(projection["items"]) == 3882
+assert len({row["nodeid"] for row in projection["items"]}) == 3882
+assert all(set(row) == {"nodeid", "path", "location", "originalname"} for row in projection["items"])
+full_text = contents[PREFIX + "completed-final-B-cohort.txt"].decode()
+labels = re.findall(r"^(tests/.*?)(?:\s+)(PASSED|FAILED|ERROR|SKIPPED|XFAIL|XPASS)(?:\s+\[\s*\d+%\])?\s*$", full_text, re.M)
+assert collections.Counter(label for _, label in labels) == {"PASSED": 1290, "FAILED": 16, "ERROR": 16}
+assert len(labels) == len({nodeid for nodeid, _ in labels}) == 1322
+assert {nodeid for nodeid, _ in labels} <= {row["nodeid"] for row in projection["items"]}
+full_wrapper = json.loads(contents[PREFIX + "completed-final-B-cohort.json"])
+assert full_wrapper["exit_code"] == -9 and full_wrapper["head"] == full_wrapper["head_after"] == SOURCE
+profile = json.loads(contents[PREFIX + "completed-final-B-cohort-profile.json"])
+assert "inputs" not in profile and profile["whole_file_count"] == 250
+xml = ET.fromstring(contents[PREFIX + "native-affected.xml"])
+cases = xml.findall(".//testcase")
+assert len(cases) == 807
+labels_xml = collections.Counter("FAIL" if case.find("failure") is not None else "ERROR" if case.find("error") is not None else "SKIP" if case.find("skipped") is not None else "PASS" for case in cases)
+assert labels_xml == {"PASS": 806, "FAIL": 1}
+assert "1 failed, 806 passed, 15 warnings in 178.45s" in contents[PREFIX + "completed-final-affected-consumers.txt"].decode()
+locators = json.loads(contents[PREFIX + "large-raw-locators.json"])
+assert len(locators) == 3
+for row in locators:
+    assert row["receiver_availability"].startswith("not_established")
+    if row["path"] in old_inputs:
+        assert row["bytes"] == old_inputs[row["path"]]["bytes"]
+        assert row["sha256"] == old_inputs[row["path"]]["sha256"]
+receipt_path = "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-output-custody.json"
+receipt_bytes = read(RECEIPT, receipt_path)
+receipt = json.loads(receipt_bytes)
+required = {"schema", "unit", "slice", "closure_ids", "bundle_ids", "slice_base_sha", "implementation_commits", "candidate_tree_sha", "branch", "pull_request", "changed_paths", "baseline_cells", "checks", "property", "predicate_basis", "capability_state_or_finding_state", "limitations_and_next_owner"}
+assert required <= set(receipt)
+assert receipt["schema"] == "policyos.e02.implementation_handoff.v1"
+assert receipt["candidate_sha"] == CUSTODY and receipt["candidate_tree_sha"] == TREE
+assert receipt["slice_base_sha"] == SOURCE and receipt["closure_ids"] == []
+actual_footprint = git("diff", "--name-only", SOURCE, CUSTODY).decode().splitlines()
+assert sorted(actual_footprint) == sorted(paths) == sorted(receipt["changed_paths"])
+assert {"statement", "runtime_path", "proxy_divergence", "negative_controls"} <= set(receipt["property"])
+for check in receipt["checks"]:
+    assert {"command", "target_sha", "environment", "input_closure", "outcome", "output"} <= set(check)
+    assert check["outcome"] in {"PASS", "FAIL", "ERROR", "SKIP", "UNRUN"}
+print(json.dumps({
+    "schema": "policyos.e02.portable_output_custody_review.v1",
+    "operation": "Read all17 immutable Git artifacts/full bytes; compare16 index payloads, previous original hashes, source/table/JSON/XML/footprint. No native/gates/genericparser/project imports or alias/restamp.",
+    "environment": {"python": sys.executable, "version": sys.version, "platform": platform.platform()},
+    "custody_commit": CUSTODY, "custody_tree": TREE, "remote_fetched_receipt_head": remote_head,
+    "runtime_source_sha": SOURCE, "runtime_source_tree": SOURCE_TREE,
+    "objects": objects, "payloads": 16, "payload_bytes": 5694782,
+    "all17_bytes": sum(len(data) for data in contents.values()),
+    "mismatches": 0, "exact_original_artifact_locators": original_aliases,
+    "root_receipt": {"path": receipt_path, "commit": RECEIPT, "bytes": len(receipt_bytes), "sha256": hash_value(receipt_bytes)},
+    "full_cohort": {"exit_code": -9, "collected": 3882, "visible_stdout_rows": 1322, "visible_label_counts": dict(collections.Counter(label for _, label in labels)), "terminal_partition": "not_established; projection is collection-only, not terminal outcomes"},
+    "affected": {"cases": 807, "XML": dict(labels_xml), "qualification": "Original terminal FAIL preserved; no inherited attribution or whole250 cohort completion."},
+    "untransferred_large_raw": locators,
+    "result": "PASS finite portable-output custody only; prior runtime classifications and closure_ids[] unchanged."
+}, ensure_ascii=False, indent=2))

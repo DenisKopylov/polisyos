@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/composition-acceptance-review/solver_bruteforce.py"
+  ],
+  "cwd": "/workspace/e02-B-current-durability/policy-engine",
+  "target_sha": "8fba148d7082089b4f5cd4979c4e0e09eefa2b6f",
+  "target_tree": "f4d4945ecfc501645809bc4c98223f76027298ca",
+  "owner_sha": "54efb24d87ef9b50beba0e9e8d2ca5bef6bbb96f",
+  "started_at": "2026-10-06T12:41:53.546897+00:00",
+  "elapsed_s": 1.4775216890120646,
+  "exit_code": 0,
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-durability/policy-engine/src:/workspace/e02-B-current-durability/policy-engine",
+    "POLISYOS_METRICS_PORT": "0",
+    "E02_REVIEW_TARGET_SHA": "8fba148d7082089b4f5cd4979c4e0e09eefa2b6f",
+    "E02_REVIEW_OWNER_SHA": "54efb24d87ef9b50beba0e9e8d2ca5bef6bbb96f"
+  },
+  "stdout_sha256": "37b88ece4ccbdcccf33830039997a244061c264e8e50e173961b7f62add7cba3",
+  "stdout_bytes": 1334
+}

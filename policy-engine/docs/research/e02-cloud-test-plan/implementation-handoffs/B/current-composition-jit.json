@@ -1,0 +1,546 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-composition-jit",
+  "closure_ids": [],
+  "finding_ids": [
+    "B49",
+    "B50",
+    "B53"
+  ],
+  "criterion_ids": [
+    "B49",
+    "B50",
+    "B53"
+  ],
+  "bundle_ids": [
+    "JIT-01"
+  ],
+  "slice_base_sha": "612351236667277f0f73573a19da9692d045e579",
+  "implementation_sha": "ec36f1cbb39f89b7f95f962713182b57b52ebd53",
+  "implementation_commits": [
+    "132066318b3a1226bee87b46019741b4e13ac3ac",
+    "62a1917de4bfc936fdf448219ec5fdc2b899279d",
+    "ec36f1cbb39f89b7f95f962713182b57b52ebd53"
+  ],
+  "candidate_tree_sha": "4d11dee082ccc9be299e0ee40bfaee7f8c7494e6",
+  "tested_head": "59468d2245b700322a0c1a00e2dd8de5d55b64f8",
+  "branch": "codex/e02-B-current-composition",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/45",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-foundry-compiled-inputs.toml",
+    "policy-engine/src/polisyos/foundry/methods/backends/__init__.py",
+    "policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py",
+    "policy-engine/src/polisyos/foundry/methods/compiler/README.md",
+    "policy-engine/src/polisyos/foundry/methods/compiler/__init__.py",
+    "policy-engine/src/polisyos/foundry/methods/compiler/specialization.py",
+    "policy-engine/src/polisyos/foundry/methods/components/README.md",
+    "policy-engine/tests/unit/foundry/methods/test_compiler_e02.py",
+    "policy-engine/tests/unit/remediation/test_jit_01.py"
+  ],
+  "baseline_context": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/baseline-input-closure.json@c31e69958ba1d639db6d739ec42f6595add88234",
+    "sha256": "72074203c19fb69b2c21cf42438eef708f3afc7d63652b4c4afa22e29ef684b8",
+    "grade": "transferred navigation/source context, not new candidate evidence"
+  },
+  "checks": [
+    {
+      "name": "jit-readonly-c639",
+      "outcome": "FAIL",
+      "command_argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/read_only_jit_probe.py"
+      ],
+      "cwd": "/workspace/e02-B-current-composition/policy-engine",
+      "source_before": {
+        "sha": "c639295e25a602869c6c28754cd43fd856aa05cf",
+        "tree": "22374e2a7480ab580e2192b066555ae47d1312c6",
+        "status": "",
+        "changed_paths_sha256": {}
+      },
+      "source_after": {
+        "sha": "c639295e25a602869c6c28754cd43fd856aa05cf",
+        "tree": "22374e2a7480ab580e2192b066555ae47d1312c6",
+        "status": "",
+        "changed_paths_sha256": {}
+      },
+      "environment": {
+        "PYTHONPATH": "src",
+        "POLISYOS_METRICS_PORT": "0",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "exit_code": 1,
+      "wall_seconds": 1.0013577439967776,
+      "max_rss_kib": 160088,
+      "resource_method": "direct wait4 child rusage; Linux KiB",
+      "artifacts": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit-readonly-c639.txt",
+          "sha256": "2ac180c87f120dcff05e1e3a8603a1ef3e937dbb318d54794f482fa36a0063bf",
+          "bytes": 1405
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit-readonly-c639.json",
+          "sha256": "d431a2237e787486a984a9bd055f9420099feea10870e8c2a0bd34df4fc5d262",
+          "bytes": 1014
+        }
+      ]
+    },
+    {
+      "name": "jit-native-frozen-red",
+      "outcome": "FAIL",
+      "command_argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/jit-native-frozen-red-cache",
+        "-q",
+        "tests/unit/foundry/methods/test_compiler_e02.py",
+        "--basetemp=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/jit-native-frozen-red-tmp",
+        "--junitxml=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/jit-native-frozen-red.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-composition/policy-engine",
+      "source_before": {
+        "sha": "132066318b3a1226bee87b46019741b4e13ac3ac",
+        "tree": "799f0c2d63099fa9943888416778b5c4ad2a0922",
+        "status": "",
+        "changed_paths_sha256": {}
+      },
+      "source_after": {
+        "sha": "132066318b3a1226bee87b46019741b4e13ac3ac",
+        "tree": "799f0c2d63099fa9943888416778b5c4ad2a0922",
+        "status": "",
+        "changed_paths_sha256": {}
+      },
+      "environment": {
+        "PYTHONPATH": "src",
+        "POLISYOS_METRICS_PORT": "0",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "exit_code": 1,
+      "wall_seconds": 2.428723233999335,
+      "max_rss_kib": 215992,
+      "resource_method": "direct wait4 child rusage; Linux KiB",
+      "artifacts": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit-native-frozen-red.txt",
+          "sha256": "5fdf035d6e78673dc7d14d63a7957b29bc9c65999de703322081fc74643208ba",
+          "bytes": 12412
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit-native-frozen-red.json",
+          "sha256": "827909541d618b14da54aa2fb02577c8c069949a9328b739557b6fcaeb4e1c28",
+          "bytes": 1421
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit-native-frozen-red.xml",
+          "sha256": "b5a2bcbdb74c55b4f84efdebfdd3d81d10c69e0f647379b3b89ac968eadc952c",
+          "bytes": 11607
+        }
+      ],
+      "native_cases": {
+        "total": 6,
+        "pass": 0,
+        "fail": 6,
+        "error": 0,
+        "skip": 0
+      }
+    },
+    {
+      "name": "jit-alias-runtime-frozen-red",
+      "outcome": "FAIL",
+      "command_argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/jit-alias-runtime-frozen-red-cache",
+        "-q",
+        "tests/unit/foundry/methods/test_compiler_e02.py",
+        "--basetemp=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/jit-alias-runtime-frozen-red-tmp",
+        "--junitxml=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/jit-alias-runtime-frozen-red.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-composition/policy-engine",
+      "source_before": {
+        "sha": "62a1917de4bfc936fdf448219ec5fdc2b899279d",
+        "tree": "6b6a12138a8a3144240de552fe5b80e87594a6b4",
+        "status": "",
+        "changed_paths_sha256": {}
+      },
+      "source_after": {
+        "sha": "62a1917de4bfc936fdf448219ec5fdc2b899279d",
+        "tree": "6b6a12138a8a3144240de552fe5b80e87594a6b4",
+        "status": "",
+        "changed_paths_sha256": {}
+      },
+      "environment": {
+        "PYTHONPATH": "src",
+        "POLISYOS_METRICS_PORT": "0",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "exit_code": 1,
+      "wall_seconds": 2.683228870999301,
+      "max_rss_kib": 221852,
+      "resource_method": "direct wait4 child rusage; Linux KiB",
+      "artifacts": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit-alias-runtime-frozen-red.txt",
+          "sha256": "139ef42504a9aae9018bf018088889ef1e1de1066e4425c99e54484c35bdc158",
+          "bytes": 19508
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit-alias-runtime-frozen-red.json",
+          "sha256": "c86ac1fff4df6ce3af8cd75e11de1695bb997ccceef61ea0273230ff7ab4695f",
+          "bytes": 1442
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit-alias-runtime-frozen-red.xml",
+          "sha256": "011c827582f4505a8edda1020bc387d9de377138284ff0a98e97faf4fa1f5a4d",
+          "bytes": 18070
+        }
+      ],
+      "native_cases": {
+        "total": 8,
+        "pass": 0,
+        "fail": 8,
+        "error": 0,
+        "skip": 0
+      }
+    },
+    {
+      "name": "jit-frozen-native",
+      "outcome": "PASS",
+      "command_argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/jit-frozen-native-cache",
+        "-q",
+        "tests/unit/foundry/methods/test_compiler_e02.py",
+        "tests/unit/foundry/methods/test_compiler.py",
+        "tests/unit/remediation/test_jit_01.py",
+        "--basetemp=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/jit-frozen-native-tmp",
+        "--junitxml=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/jit-frozen-native.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-composition/policy-engine",
+      "source_before": {
+        "sha": "59468d2245b700322a0c1a00e2dd8de5d55b64f8",
+        "tree": "e23d844935680b86efb027ac478a8c0570ef9634",
+        "status": "",
+        "changed_paths_sha256": {}
+      },
+      "source_after": {
+        "sha": "59468d2245b700322a0c1a00e2dd8de5d55b64f8",
+        "tree": "e23d844935680b86efb027ac478a8c0570ef9634",
+        "status": "",
+        "changed_paths_sha256": {}
+      },
+      "environment": {
+        "PYTHONPATH": "src",
+        "POLISYOS_METRICS_PORT": "0",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "exit_code": 0,
+      "wall_seconds": 8.888447480014293,
+      "max_rss_kib": 264128,
+      "resource_method": "direct wait4 child rusage; Linux KiB",
+      "artifacts": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit-frozen-native.txt",
+          "sha256": "22902ee18f8e5924836b247ae127c528344008ee39a4d100ea76bdb6d652a06b",
+          "bytes": 99
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit-frozen-native.json",
+          "sha256": "3a46a1fc4ed16974ca10d73de1ab66fa3c13e75dd527a0f2d5ece424989afd71",
+          "bytes": 1505
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit-frozen-native.xml",
+          "sha256": "5146e47afef338db4f8fec9a277dd9b631954a0024d23f586de035f389e6631e",
+          "bytes": 9506
+        }
+      ],
+      "native_cases": {
+        "total": 67,
+        "pass": 67,
+        "fail": 0,
+        "error": 0,
+        "skip": 0
+      }
+    },
+    {
+      "name": "jit-unchanged-driver-frozen",
+      "outcome": "PASS",
+      "command_argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "_build/e02-B-current-composition/read_only_jit_probe.py"
+      ],
+      "cwd": "/workspace/e02-B-current-composition/policy-engine",
+      "source_before": {
+        "sha": "59468d2245b700322a0c1a00e2dd8de5d55b64f8",
+        "tree": "e23d844935680b86efb027ac478a8c0570ef9634",
+        "status": "",
+        "changed_paths_sha256": {}
+      },
+      "source_after": {
+        "sha": "59468d2245b700322a0c1a00e2dd8de5d55b64f8",
+        "tree": "e23d844935680b86efb027ac478a8c0570ef9634",
+        "status": "",
+        "changed_paths_sha256": {}
+      },
+      "environment": {
+        "PYTHONPATH": "src",
+        "POLISYOS_METRICS_PORT": "0",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "exit_code": 0,
+      "wall_seconds": 1.6482461639971007,
+      "max_rss_kib": 178764,
+      "resource_method": "direct wait4 child rusage; Linux KiB",
+      "artifacts": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit-unchanged-driver-frozen.txt",
+          "sha256": "204f2779b25bdb4eaea4e7f3bb22fef7c3784bc04a6ed516c8d388ff25ac6748",
+          "bytes": 1403
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit-unchanged-driver-frozen.json",
+          "sha256": "6f8576716d191afe917119e1155b2a7264a87c30242dd3156032e6beba815df4",
+          "bytes": 963
+        }
+      ]
+    },
+    {
+      "name": "jit-environment-actual",
+      "outcome": "PASS",
+      "command_argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "_build/e02-B-current-composition/jit_environment.py"
+      ],
+      "cwd": "/workspace/e02-B-current-composition/policy-engine",
+      "source_before": {
+        "sha": "59468d2245b700322a0c1a00e2dd8de5d55b64f8",
+        "tree": "e23d844935680b86efb027ac478a8c0570ef9634",
+        "status": "",
+        "changed_paths_sha256": {}
+      },
+      "source_after": {
+        "sha": "59468d2245b700322a0c1a00e2dd8de5d55b64f8",
+        "tree": "e23d844935680b86efb027ac478a8c0570ef9634",
+        "status": "",
+        "changed_paths_sha256": {}
+      },
+      "environment": {
+        "PYTHONPATH": "src",
+        "POLISYOS_METRICS_PORT": "0",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "exit_code": 0,
+      "wall_seconds": 1.2414730969903758,
+      "max_rss_kib": 134720,
+      "resource_method": "direct wait4 child rusage; Linux KiB",
+      "artifacts": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit-environment-actual.txt",
+          "sha256": "2ae7b59cd4408131773345d9de9df04e014b39fc7de9cb6a3e570a29d965c8b3",
+          "bytes": 8028
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit-environment-actual.json",
+          "sha256": "12e5cf4cd4e28aec001bdd94b7bce2f8e97d158ff06c3651d245d51bca5964f1",
+          "bytes": 959
+        }
+      ]
+    }
+  ],
+  "deciding_artifacts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit-readonly-c639.txt",
+      "sha256": "2ac180c87f120dcff05e1e3a8603a1ef3e937dbb318d54794f482fa36a0063bf",
+      "bytes": 1405
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit-readonly-c639.json",
+      "sha256": "d431a2237e787486a984a9bd055f9420099feea10870e8c2a0bd34df4fc5d262",
+      "bytes": 1014
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit-native-frozen-red.txt",
+      "sha256": "5fdf035d6e78673dc7d14d63a7957b29bc9c65999de703322081fc74643208ba",
+      "bytes": 12412
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit-native-frozen-red.json",
+      "sha256": "827909541d618b14da54aa2fb02577c8c069949a9328b739557b6fcaeb4e1c28",
+      "bytes": 1421
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit-native-frozen-red.xml",
+      "sha256": "b5a2bcbdb74c55b4f84efdebfdd3d81d10c69e0f647379b3b89ac968eadc952c",
+      "bytes": 11607
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit-alias-runtime-frozen-red.txt",
+      "sha256": "139ef42504a9aae9018bf018088889ef1e1de1066e4425c99e54484c35bdc158",
+      "bytes": 19508
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit-alias-runtime-frozen-red.json",
+      "sha256": "c86ac1fff4df6ce3af8cd75e11de1695bb997ccceef61ea0273230ff7ab4695f",
+      "bytes": 1442
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit-alias-runtime-frozen-red.xml",
+      "sha256": "011c827582f4505a8edda1020bc387d9de377138284ff0a98e97faf4fa1f5a4d",
+      "bytes": 18070
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit-frozen-native.txt",
+      "sha256": "22902ee18f8e5924836b247ae127c528344008ee39a4d100ea76bdb6d652a06b",
+      "bytes": 99
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit-frozen-native.json",
+      "sha256": "3a46a1fc4ed16974ca10d73de1ab66fa3c13e75dd527a0f2d5ece424989afd71",
+      "bytes": 1505
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit-frozen-native.xml",
+      "sha256": "5146e47afef338db4f8fec9a277dd9b631954a0024d23f586de035f389e6631e",
+      "bytes": 9506
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit-unchanged-driver-frozen.txt",
+      "sha256": "204f2779b25bdb4eaea4e7f3bb22fef7c3784bc04a6ed516c8d388ff25ac6748",
+      "bytes": 1403
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit-unchanged-driver-frozen.json",
+      "sha256": "6f8576716d191afe917119e1155b2a7264a87c30242dd3156032e6beba815df4",
+      "bytes": 963
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit-environment-actual.txt",
+      "sha256": "2ae7b59cd4408131773345d9de9df04e014b39fc7de9cb6a3e570a29d965c8b3",
+      "bytes": 8028
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit-environment-actual.json",
+      "sha256": "12e5cf4cd4e28aec001bdd94b7bce2f8e97d158ff06c3651d245d51bca5964f1",
+      "bytes": 959
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/read_only_jit_probe.py",
+      "sha256": "007ccf806eba130cb9d0f8a18c3236db3bc81a6f782ccbf408e73f823e28f0b9",
+      "bytes": 4743
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit_environment.py",
+      "sha256": "92daccee3f7eee26ba0d6366a983ef988c652dd01b5bbd0c1414dccfdcd16a43",
+      "bytes": 1424
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/run_checks.py",
+      "sha256": "ce4721c25c5389e9d992ed1967b9300e12163dc658933dc1981a3d2979f25273",
+      "bytes": 2072
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/run_command.py",
+      "sha256": "a7f267bce62145508b5be5f63f73923417d0dd2b957e5a8ae32731bfd7c610da",
+      "bytes": 1895
+    }
+  ],
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "bounded_runtime_verified",
+  "formal_e02_closure": false,
+  "property": {
+    "statement": "Current finite implementation graph and actual materialized input select immutable JAX/Python kernel; ready generation publication is reconciled before a shared flight is claimed; bound aliases consume producer occurrences without numerical shape preparation.",
+    "runtime_path": [
+      "MethodRegistry concrete classes and compiled DAG",
+      "MethodCompiler Specialization/source graph",
+      "CompilationCache generation/flight/immutable kernel",
+      "CompiledChainExecutor canonical collector, occurrence slot outputs and context merge",
+      "real JAX trace/block_until_ready and actual NumPy/Python arithmetic"
+    ],
+    "proxy_divergence": "Same FQN/shape/static/backend on base reused an old20 kernel when real cold source produced30. A cache miss before peer publication then claim also built a second actual kernel. Missing aliased payload caused actual dict+scalar TypeError although a compiled chain object existed.",
+    "negative_controls": [
+      "inspectable static helper replacement, cold/warm/old handle arithmetic",
+      "late helper replacement before first actual trace refuses; removal restores20",
+      "mutable list capture typed refusal before compilation and actual immutable20 control",
+      "actual miss is paused before claim; peer builds/publishes real JAX20, first reuses one kernel",
+      "real required scalar alias producer staticfactor2 and dynamicincrement1 produces7 in plain/JAX cold/warm",
+      "external Python profiler proves zero scientific body calls during declared shape preparation; unknown data-dependent shape refused",
+      "producer materializes int32 despite declared provisional float32 metadata, consumer selects actual int32 kernel and reuses it on next call",
+      "whole existing JIT native dynamic defaults, shape/static/backend, seed, flight-error/deadline/cancel/generation controls retained"
+    ]
+  },
+  "independent_review": {
+    "owner": "CAS different author",
+    "kind": "source-only full nine path review",
+    "target_sha": "ec36f1cbb39f89b7f95f962713182b57b52ebd53",
+    "status": "no blocking source finding reported; immutable CAS packet pending",
+    "runtime_pass_claim": false,
+    "message": "Full actual cache lock order/claim/publication, source identity seam, canonical collector and actual dtype reconciliation reviewed; finite unsupported capture/runtime boundaries retained."
+  },
+  "source_identity": {
+    "compiler_sha256": "0d44e8e789c34c37160e6d4de77fbc1f3b0daae5e6f0381a20ef16211e573029",
+    "test_head_relation": "594 adds only separate CMP red native fixture; nine implementation paths and all three deciding JIT test files equal ec36 bytes. Its ten CMP actual failures remain active and are not included in JIT67 denominator.",
+    "environment": "current-composition-jit-evidence/jit-environment-actual.txt"
+  },
+  "finding_classification": {
+    "B49": {
+      "source_status": "partial",
+      "strict_disposition": "limited",
+      "formal_closure": false,
+      "candidate_status": "bounded_runtime_verified",
+      "deciding_checks": [
+        "jit-frozen-native",
+        "jit-unchanged-driver-frozen"
+      ],
+      "basis": "Finite source graph, ABI/static/shape/dtype/backend source-bound kernel with current dynamic defaults; already traced immutable JAX handles preserved.",
+      "falsifier": "Supported source helper changes actual cold result but same source-bound warm cache emits old result, or bound dynamic defaults mutate another handle.",
+      "next_owner": "B canonical composition owner finishes final DAG admission; root/G final generated surface and integrated runtime profile checks."
+    },
+    "B50": {
+      "source_status": "partial",
+      "strict_disposition": "limited",
+      "formal_closure": false,
+      "candidate_status": "bounded_runtime_verified",
+      "deciding_checks": [
+        "jit-frozen-native",
+        "jit-unchanged-driver-frozen"
+      ],
+      "basis": "Generation publication, follower terminal result and miss→claim recheck hold under actual concurrent compiler; existing error/cancel/deadline controls pass.",
+      "falsifier": "Two owners build one unchanged ready specialization after real intervening publication, or a terminal generation error leaves a follower blocked.",
+      "next_owner": "B canonical composition owner finishes final DAG admission; root/G final generated surface and integrated runtime profile checks."
+    },
+    "B53": {
+      "source_status": "partial",
+      "strict_disposition": "limited",
+      "formal_closure": false,
+      "candidate_status": "bounded_runtime_verified",
+      "deciding_checks": [
+        "jit-frozen-native",
+        "jit-unchanged-driver-frozen"
+      ],
+      "basis": "Declared shapes propagate along occurrence-bound aliases without body execution; actual runtime materialization supplies static+dynamic inputs and dtype-correct kernel.",
+      "falsifier": "Preparation executes the scientific body, loses a required alias, or a stale provisional dtype selects the actual execution kernel incorrectly.",
+      "next_owner": "B canonical composition owner finishes final DAG admission; root/G final generated surface and integrated runtime profile checks."
+    }
+  },
+  "limitations_and_next_owner": [
+    "Finite configured source graph only: versioned imported modules/builtins do not establish mutable contents, dynamic reflection or external effects. Low-level build_specialization empty implementation_hash remains a limited unbound profile.",
+    "Untraced source drift refuses; already traced JAX handle retains prior computation. Physical leader compilation is not forcibly cancelled by a follower leaving its cooperative wait.",
+    "Unknown data-dependent output shapes are refused. Compilation preparation and explicit numerical warmup remain distinct. No checkpoint resume, parallel DAG execution, automatic retry or exactly-once effects implemented here.",
+    "CMP whole-DAG completeness/requirement-occurrence two independent actual FAIL are active in the following slice; B13 full served production catalog route stays cloud-blocked."
+  ]
+}

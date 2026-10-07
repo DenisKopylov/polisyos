@@ -1,0 +1,67 @@
+{
+  "base_prefix": "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none",
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos",
+  "machine": "arm64",
+  "overlay_distributions": {
+    "SALib": {
+      "direct_url_json": "{\"url\":\"https://files.pythonhosted.org/packages/13/e2/9fbf2d571c0d5360f9cf6656de6c94b273d08ede1b628f23f319fa1a910d/salib-1.5.2-py3-none-any.whl\",\"archive_info\":{}}",
+      "dist_info": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-doe-prerequisite/overlay/salib-1.5.2.dist-info",
+      "record_bytes": 5146,
+      "record_sha256": "2ea8cf88e6addd67f7e0dcd342fc1e431ecb92cd4595bf97ed7e62d54ef1ee74",
+      "version": "1.5.2"
+    },
+    "dill": {
+      "direct_url_json": "{\"url\":\"https://files.pythonhosted.org/packages/1e/77/dc8c558f7593132cf8fefec57c4f60c83b16941c574ac5f619abb3ae7933/dill-0.4.1-py3-none-any.whl\",\"archive_info\":{}}",
+      "dist_info": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-doe-prerequisite/overlay/dill-0.4.1.dist-info",
+      "record_bytes": 4506,
+      "record_sha256": "0a28cfe2ca770f48576940118ec1aee8b7e90ac2396642af70f43a313e5f88d0",
+      "version": "0.4.1"
+    },
+    "multiprocess": {
+      "direct_url_json": "{\"url\":\"https://files.pythonhosted.org/packages/a0/61/af9115673a5870fd885247e2f1b68c4f1197737da315b520a91c757a861a/multiprocess-0.70.19-py314-none-any.whl\",\"archive_info\":{}}",
+      "dist_info": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-doe-prerequisite/overlay/multiprocess-0.70.19.dist-info",
+      "record_bytes": 5312,
+      "record_sha256": "0cfb00af2c89cb1193260c76f0444e812f0dc4979b3bfffdee86cf0f6ae13328",
+      "version": "0.70.19"
+    }
+  },
+  "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+  "python_executable": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+  "relevant_g_venv_distributions": {
+    "matplotlib": {
+      "dist_info": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/matplotlib-3.10.8.dist-info",
+      "version": "3.10.8"
+    },
+    "numpy": {
+      "dist_info": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/numpy-2.3.5.dist-info",
+      "version": "2.3.5"
+    },
+    "pandas": {
+      "dist_info": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pandas-2.3.3.dist-info",
+      "version": "2.3.3"
+    },
+    "pytest": {
+      "dist_info": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest-9.0.2.dist-info",
+      "version": "9.0.2"
+    },
+    "pytest-benchmark": {
+      "dist_info": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest_benchmark-5.2.3.dist-info",
+      "version": "5.2.3"
+    },
+    "scipy": {
+      "dist_info": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/scipy-1.16.3.dist-info",
+      "version": "1.16.3"
+    }
+  },
+  "sys_path": [
+    "",
+    "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python314.zip",
+    "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14",
+    "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/lib-dynload",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/src"
+  ],
+  "sys_prefix": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv"
+}

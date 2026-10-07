@@ -1,0 +1,12 @@
+B52_PYTEST_ARGV ["--noconftest", "-p", "no:cacheprovider", "-s", "-ra", "tests/unit/scientist/orchestration/engine/test_async_cache_cost_oracle.py", "--basetemp=/tmp/e02-B52-cache-cost-c043/fixtures", "--junitxml=/tmp/e02-B52-cache-cost-c043/evidence/native.xml"]
+B52_REAL_CACHE_COST {"payload_bytes": 1024, "cold_workflow_return_cost_ns": 46753192, "warm_observations": 12, "neighbour_observations": 258, "neighbour_wait_p95_ns": 6488516, "neighbour_wait_p99_ns": 7828224, "warm_workflow_return_cost_p95_ns": 54349895, "warm_workflow_return_cost_p99_ns": 54349895, "serialized_cache_put_bytes": 5545, "raw_individual_measurements": "/tmp/e02-B52-cache-cost-c043/fixtures/test_real_async_cache_costs_an0/individual-costs.json", "qualification": "Finite 1KiB/64KiB workloads, injected12ms actual-cache-I/O delay; empirical nearest-rank statistics, no SLA or general speedup claim. Workflow hit return includes recovery/read/apply/state/report/finalize, not only disk read. CPU/GIL timing not isolated."}
+.B52_REAL_CACHE_COST {"payload_bytes": 65536, "cold_workflow_return_cost_ns": 53632106, "warm_observations": 12, "neighbour_observations": 280, "neighbour_wait_p95_ns": 3594116, "neighbour_wait_p99_ns": 7445936, "warm_workflow_return_cost_p95_ns": 72293586, "warm_workflow_return_cost_p99_ns": 72293586, "serialized_cache_put_bytes": 199085, "raw_individual_measurements": "/tmp/e02-B52-cache-cost-c043/fixtures/test_real_async_cache_costs_an1/individual-costs.json", "qualification": "Finite 1KiB/64KiB workloads, injected12ms actual-cache-I/O delay; empirical nearest-rank statistics, no SLA or general speedup claim. Workflow hit return includes recovery/read/apply/state/report/finalize, not only disk read. CPU/GIL timing not isolated."}
+.
+=============================== warnings summary ===============================
+../../e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+2 passed, 1 warning in 13.63s

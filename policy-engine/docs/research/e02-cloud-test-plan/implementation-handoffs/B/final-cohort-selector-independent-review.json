@@ -1,0 +1,237 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "final-cohort-selector-independent-source-review",
+  "closure_ids": [],
+  "bundle_ids": [],
+  "slice_base_sha": "e7c220067dbe0d232c660697c8f836de614e3235",
+  "implementation_commits": [],
+  "candidate_tree_sha": "1f70ab73fbf1e90bcc8d466b9776305a45eed85a",
+  "branch": "codex/e02-B-current-cas-generation",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/42",
+  "changed_paths": [],
+  "baseline_cells": [],
+  "role": "Independent source-only reviewer of root selector; metadata receipt only, no canonical edit, test execution, collection, new worktree or helper.",
+  "reviewed_sources": {
+    "complete_original": {
+      "sha": "8f065eb5e557cc309571c2e0ed7db6fd9cf9db3a",
+      "tree": "00f98ce422f82ee781579ec0a2a2c82f2b5b79bd",
+      "identity": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-cohort-selector.py",
+        "source_sha": "8f065eb5e557cc309571c2e0ed7db6fd9cf9db3a",
+        "git_blob": "dd763c208d7528e204c3e39010bf924201460c1d",
+        "bytes": 29585,
+        "sha256": "3b73c703a3be94e302d3f509f5a369589d66567c038a0637f57805b2d54d7f66"
+      }
+    },
+    "original_same_bytes_in_later_corpus": {
+      "sha": "a5ab26e094f6ead67e858e10a1429cac2c76d858",
+      "tree": "5ff080ffa44cbe5226c2e3a746a2cd8a1587840a",
+      "identity": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-cohort-selector.py",
+        "source_sha": "a5ab26e094f6ead67e858e10a1429cac2c76d858",
+        "git_blob": "dd763c208d7528e204c3e39010bf924201460c1d",
+        "bytes": 29585,
+        "sha256": "3b73c703a3be94e302d3f509f5a369589d66567c038a0637f57805b2d54d7f66"
+      }
+    },
+    "binding_delta": {
+      "sha": "8c178815999b159050246c76bdc12375c8fc05bb",
+      "tree": "fbfe0acec50e084eb621ba485af000fb76d0d723",
+      "identity": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-cohort-selector.py",
+        "source_sha": "8c178815999b159050246c76bdc12375c8fc05bb",
+        "git_blob": "7b342407da0eb21297365dc2b9412c16277c79df",
+        "bytes": 30069,
+        "sha256": "b476a53ece249d6d33e6fb4167565f2434259996af2c511b57ea1efab89761e0"
+      },
+      "scope": "12line diff, 10insertions/2deletions; corpus census was not repeated on this later source."
+    }
+  },
+  "canonical_corpus_inputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+      "source_sha": "a5ab26e094f6ead67e858e10a1429cac2c76d858",
+      "git_blob": "515c70d29f59f3175521642e72d04f1aaffc72d7",
+      "bytes": 9504,
+      "sha256": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv",
+      "source_sha": "a5ab26e094f6ead67e858e10a1429cac2c76d858",
+      "git_blob": "78b4385b8a9a3752d84d3389c8c4a972dd65f16b",
+      "bytes": 12413,
+      "sha256": "f587df5256ebef909b4060a588c2f947f31b173adf8d44b32e7f4eea5abd1f75"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "source_sha": "a5ab26e094f6ead67e858e10a1429cac2c76d858",
+      "git_blob": "561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a",
+      "bytes": 549568,
+      "sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/routes.tsv",
+      "source_sha": "a5ab26e094f6ead67e858e10a1429cac2c76d858",
+      "git_blob": "484108de4691f41cfac81996eeff477607774c05",
+      "bytes": 280085,
+      "sha256": "30755ddca05267c4aeec56154c1c9282ee985c3414b76991aecb99d0ecf59da2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv",
+      "source_sha": "a5ab26e094f6ead67e858e10a1429cac2c76d858",
+      "git_blob": "51c6234d89edf66d0a88025572b24960fce0c22d",
+      "bytes": 451094,
+      "sha256": "afbf14fc428d89e20e409cd7f18db0a52bf17e2c0ecde1a2a5e33626c8b49152"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md",
+      "source_sha": "a5ab26e094f6ead67e858e10a1429cac2c76d858",
+      "git_blob": "58267726b4fb3a390c421c68130c788a0c6e90ee",
+      "bytes": 33768,
+      "sha256": "ce79be8c2a247a6dfe3bd543bc1898ca969d60d2b1012f8f8d735e521a1798db"
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json",
+      "source_sha": "a5ab26e094f6ead67e858e10a1429cac2c76d858",
+      "git_blob": "130ba865f6df9b1e7cd3bec5ce868df85e9b918c",
+      "bytes": 602186,
+      "sha256": "5abd40cc31570b26747c36ca2f782503e066c5df0195574452535943626b2b87"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-equivalents.json",
+      "source_sha": "a5ab26e094f6ead67e858e10a1429cac2c76d858",
+      "git_blob": "6c21c1a371c5f37aa0ce1aeb6eac4065b570baac",
+      "bytes": 21891,
+      "sha256": "2c916a62658080fc836e3c49778e9ceb60bd60bbd0fc908b2d5bad1ebc5b9358"
+    }
+  ],
+  "checks": [
+    {
+      "command_argv": [
+        "git",
+        "show",
+        "8f065eb5e557cc309571c2e0ed7db6fd9cf9db3a:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-cohort-selector.py"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation",
+      "target_sha": "8f065eb5e557cc309571c2e0ed7db6fd9cf9db3a",
+      "input_closure": "Read complete selector source; later a5 selector bytes independently equal original. No selector main() executed or imported.",
+      "outcome": "PASS",
+      "scope": "source_review_only",
+      "output": "Reviewed full parsing, receipt graph, canonical routes/cards, changed-test union, whole-file promotion, AST body descriptors, compact artifact identity/pointers and all non-execution qualifications."
+    },
+    {
+      "command": "Read pinned a5 Git bytes with stdlib csv/json/AST; enumerate complete B owner/card/manifest sets and complete canonical route/cell relation.",
+      "cwd": "/workspace/e02-B-current-cas-generation",
+      "target_sha": "a5ab26e094f6ead67e858e10a1429cac2c76d858",
+      "input_closure": "Exact eight corpus source identities above; complete sets, not sampled cards. This is a metadata census, not a runtime gate or semantic criterion verdict.",
+      "outcome": "PASS",
+      "scope": "metadata_denominator_review",
+      "output": {
+        "owner_rows": 60,
+        "unique_owner_ids": 60,
+        "bundle_rows": 25,
+        "unique_bundles": 25,
+        "cards_rows": 25,
+        "finding_criteria_rows": 60,
+        "per_bundle_owner_card_manifest_mismatches": [],
+        "criteria_id_set_matches_owner": true,
+        "manifest_plus_legacy_id_set_matches_owner": true,
+        "legacy": {
+          "finding_id": "LA-057",
+          "bundle_id": "RUN-01",
+          "manifest_legacy_cards": [
+            "LA-057"
+          ]
+        },
+        "route_rows": 561,
+        "unique_historical_cells": 189,
+        "findings_without_routes": [],
+        "routes_without_exact_cells": [],
+        "all_route_grade": "candidate_unverified",
+        "all_semantic_adequacy": "not_established"
+      }
+    },
+    {
+      "command": "Read immutable a5 top receipt graph and exact candidate bodies using stdlib json/shlex/AST; inspect supported recorded pytest argv forms.",
+      "cwd": "/workspace/e02-B-current-cas-generation",
+      "target_sha": "a5ab26e094f6ead67e858e10a1429cac2c76d858",
+      "input_closure": "42eligible root receipts selected by actual naming contract; complete1639reachable tracked JSON/Python artifacts. No receipt source interpreted as current execution or finding acceptance.",
+      "outcome": "PASS",
+      "scope": "static_input_lineage_only",
+      "output": {
+        "root_receipts": 42,
+        "visited_artifact_files": 1639,
+        "native_command_locators": 298,
+        "directory_selector_commands": [],
+        "directory_only_dropped_commands": [],
+        "recognized_output_option_value_false_candidates": [],
+        "cas_batch_completion_reachable": true,
+        "equivalence_map_entries": 15,
+        "exact_candidate_selectors": 38,
+        "candidate_body_mismatches": [],
+        "literal_native_filename_descriptors": 95,
+        "filename_descriptor_grade": "Literal recorded filename inputs, including historical or absent names;95 is not current tracked/executable file count."
+      }
+    },
+    {
+      "command_argv": [
+        "git",
+        "diff",
+        "8f065eb5e557cc309571c2e0ed7db6fd9cf9db3a..8c178815999b159050246c76bdc12375c8fc05bb",
+        "--",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-cohort-selector.py"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation",
+      "target_sha": "8c178815999b159050246c76bdc12375c8fc05bb",
+      "input_closure": "Reviewed exact committed12line input-custody delta. Old source/corpus review remains pinned separately; no newer descriptor/case census claimed.",
+      "outcome": "PASS",
+      "scope": "narrow_delta_source_review",
+      "output": "Map locator must resolve inside repo and be tracked at candidateSHA; bytes are read with git show SHA:path. Derivation records map Git path, source SHA and SHA256. Live mapping content no longer enters derivation."
+    }
+  ],
+  "review_findings": [
+    {
+      "class": "input_custody_binding",
+      "disposition": "corrected_by_root_source_delta; source_review_only",
+      "original_boundary": "args.equivalents.read_bytes() admitted live tracked-map contents while root_snapshot_custody claimed every tracked input read through git show@SHA. Map SHA256 was disclosed, but the claimed frozen-source relationship was not enforced.",
+      "falsifier": "Change live mapping source_property/residual text while preserving selector names/AST definitions and pinnedGitSHA: old source would emit changed map contents under unchanged root_snapshot_sha. This is a source-derived counterexample, not an executed mutation control.",
+      "successor_source": "8c178815999b159050246c76bdc12375c8fc05bb",
+      "successor_invariant": "Require inside-repo tracked path at candidateSHA and read that Git blob; live content edits cannot change emitted map bytes.",
+      "remaining_boundary": "The map is a reviewed static input, not proof of semantic equivalence, collection, parameter expansion or finding closure. No property-removal runtime claim is made."
+    }
+  ],
+  "nonblocking_source_observations": [
+    "All canonical manifest/card/criterion/owner ID sets match at the inspected corpus. RUN-01 includes LA-057 rather than dropping legacy finding from60.",
+    "Canonical routes are full navigation lineage: pinned cells.tsv identity retains original job/source fields, but route records are not environment/input-closure adjudication or baseline proof for current changes.",
+    "Full native pytest filenames are normalized to whole files. Actual changed test modules are also added independently; changed support helpers and defining sources retain separate identities. Filename/AST presence is explicitly candidate-input evidence only.",
+    "Recursive descriptor parsing includes serialized native-child JSON; source drivers are explicitly static descriptors. The CAS final batch receipt is reachable even though its filename is not a top-root prefix.",
+    "Receipt records are historical/type-only or owner/independent inputs, with no automatic latest-overlay adjudication. Compact output retains Git identities/pointers; it does not manufacture closure from recorded owner fields.",
+    "Parameterized cases, successful collection, conftest/import closure, and runtime semantics remain UNRUN. The hardcoded74files/1317cases are explicitly historicalG97 context, never current case count.",
+    "Missing planned names stay UNRUN with bounded source-reviewed candidate bodies and residuals; B13 A-owned route/B61 versionedSKG authority remain separate. Cardinality is not acceptance."
+  ],
+  "property": {
+    "statement": "Preserve the complete canonical B input basis and explicit static/runtime distinction while binding every emitted tracked map artifact to the candidate Git snapshot.",
+    "runtime_path": [
+      "canonical owner/manifest/card/cell inputs",
+      "receipt and changed-test static descriptors",
+      "whole-file candidate selectors",
+      "root later collection/execution"
+    ],
+    "proxy_divergence": "60IDs/25bundles and an AST body are input-census predicates. They do not prove collection, runtime property, institutional premises or closure. Existing selector labels these limits; original live-map claim was the one concrete source-binding divergence.",
+    "negative_controls": [
+      "Original live-map source counterexample above; not executed.",
+      "Source-only rejected current-case/closure interpretation of historical74/1317 and descriptor counts."
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "capability_state_or_finding_state": "No blocking source finding in inspected snapshot and corrected narrow binding class; final source-derived cohort/collection/runtime remain root-owned UNRUN.",
+  "limitations_and_next_owner": [
+    "Census binds a5ab corpus; source correction binds8c178. Do not project95native paths or42receipts onto newer frozen root without final derivation.",
+    "The complete candidate union/file count was not re-executed by this reviewer. Root must derive final selector once after source freeze, then measure actual collection/case count and run full retained cohort.",
+    "Supported parser grammar is literal pytest argv containing Python filenames and static handoff driver descriptors. No actual directory-selector omission or option-path confusion was present in inspected commands; arbitrary future argv/interpreter code is not proven conformant.",
+    "Map admission proves candidate Git identity, not independent semantic equivalence by itself. Reviewed map fields remain bounded proposal inputs with residuals; no semantic authority rule invented.",
+    "Historical cells stay navigation context. This review does not resolve runtime environment, producer input closure, local production dataset or accepted source criterion for any finding.",
+    "No broad checks, native collection, runtime replay, canonical source/config edits, witness rewrites, new trees, helpers, quotas or history rewrite."
+  ]
+}

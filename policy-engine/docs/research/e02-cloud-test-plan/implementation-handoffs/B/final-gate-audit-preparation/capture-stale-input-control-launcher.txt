@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/workspace/e02-B-current-coordination/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/capture_frozen.py", line 104, in <module>
+    main()
+    ~~~~^^
+  File "/workspace/e02-B-current-coordination/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/capture_frozen.py", line 40, in main
+    fd = os.open(log, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o644)
+FileExistsError: [Errno 17] File exists: '/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/capture-stale-input-control.txt'

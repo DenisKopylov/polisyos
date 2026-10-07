@@ -1,0 +1,22 @@
+{
+  "schema": "policyos.e02.moderate_evidence_index.v1",
+  "artifacts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-independent-review/audit-full-stdout.json",
+      "bytes": 5760,
+      "sha256": "9b5613b5af737a2d55223d7737e1844d9800a8556ff5f4d8c13fcc9fc81613fa"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-independent-review/audit.py.txt",
+      "bytes": 5884,
+      "sha256": "f4d1045bcad51d8176b9f4044b6cc8468a6a9be2b31f067e351557d7aea0e0a9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-independent-review/review.json",
+      "bytes": 4723,
+      "sha256": "2aaa279a0b5d7bed2a4bb2d436c275c6d94fcefb7db8220480951e4ca56aed58"
+    }
+  ],
+  "artifact_count_excluding_index": 3,
+  "bytes_excluding_index": 16367
+}

@@ -1,0 +1,1095 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="5" skipped="0" tests="6" time="24.890" timestamp="2026-10-06T17:06:52.774352+00:00" hostname="b878f4efbdfc"><testcase classname="" name="test_real_checkpoint_healthy_control" time="0.342" /><testcase classname="" name="test_original_budget_refuses_new_phases_and_retains_entered_io[artifact-deadline]" time="2.180"><failure message="TypeError: Object of type mappingproxy is not JSON serializable&#10;when serializing dict item 'error_details'">tmp_path = PosixPath('/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/checkpoint-deadline-oracle/short-base456-relative/pytest-scratch-first/test_original_budget_refuses_n0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f2e7f34ad70&gt;
+stage = 'artifact', stop = 'deadline'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "stage,stop",
+        [
+            ("artifact", "deadline"),
+            ("head_fsync", "deadline"),
+            ("head_fsync", "cancel"),
+            ("head_return", "deadline"),
+            ("gc_read", "deadline"),
+        ],
+    )
+    async def test_original_budget_refuses_new_phases_and_retains_entered_io(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch, stage: str, stop: str
+    ) -&gt; None:
+        sources = _source_observation()
+        store, run_dir, node, executor, workflow = _execution(tmp_path, deadline=2)
+        # GC receives actual complete CAS checkpoints and their canonical history,
+        # not fabricated marker files. Their state is fixture input, not authority.
+        if stage == "gc_read":
+            fingerprint = compute_workflow_fingerprint(workflow)
+            for sequence in range(3):
+                created = create_checkpoint(
+                    store,
+                    run_id="R_budget",
+                    state=ExperimentState(run_id="R_budget", params={"seed": sequence}).model_dump(),
+                    sequence_number=sequence,
+                    completed_node_alias="fixture",
+                    completed_node_id=str(node.spec.metadata.component_id),
+                    completed_nodes=[],
+                    workflow_id=workflow.workflow_id,
+                    workflow_fingerprint=fingerprint,
+                    fsm_phase="UNKNOWN",
+                    cache_entry_refs=[],
+                )
+                update_checkpoint_head(
+                    run_dir,
+                    run_id="R_budget",
+                    checkpoint_ref=created.checkpoint_ref,
+                    sequence_number=sequence,
+                    node_alias="fixture",
+                    writer_pid=os.getpid(),
+                    writer_hostname="fixture",
+                )
+            hook = CASCheckpointHook(
+                store=store,
+                run_dir=run_dir,
+                sequence_start=3,
+                gc_policy=CheckpointGCPolicy(max_checkpoints=1),
+            )
+            executor = AsyncWorkflowExecutor(
+                executor._ctx, executor._registry, checkpoint_hook=hook, workflow_timeout_s=2
+            )
+    
+        entered, release, completed = threading.Event(), threading.Event(), threading.Event()
+        original_put = store.put_json
+        original_head = checkpoint_module.update_checkpoint_head
+        original_gc = checkpoint_module.gc_checkpoints
+        original_mkstemp, original_fsync, original_replace = tempfile.mkstemp, os.fsync, os.replace
+        original_read = Path.read_bytes
+        head_fds: set[int] = set()
+        gc_thread: list[int] = []
+        counts = {"checkpoint_put": 0, "head_replace": 0, "gc_entered": 0}
+        history_path = run_dir / "checkpoint_history.json"
+        history_at_gate: list[bytes] = []
+    
+        def barrier() -&gt; None:
+            entered.set()
+            if not release.wait(15):
+                raise TimeoutError("Independent fixture watchdog expired before release")
+    
+        def observed_put(obj: object, opts: object, **kwargs: object):
+            if opts.kind == "scientist.checkpoint":
+                counts["checkpoint_put"] += 1
+                if stage == "artifact":
+                    barrier()
+            try:
+                return original_put(obj, opts, **kwargs)
+            finally:
+                if stage == "artifact" and opts.kind == "scientist.checkpoint":
+                    completed.set()
+    
+        def observed_head(*args: object, **kwargs: object) -&gt; None:
+            try:
+                original_head(*args, **kwargs)
+                if stage == "head_return":
+                    barrier()
+            finally:
+                if stage in {"head_fsync", "head_return"}:
+                    completed.set()
+    
+        def observed_gc(*args: object, **kwargs: object) -&gt; int:
+            counts["gc_entered"] += 1
+            gc_thread.append(threading.get_ident())
+            try:
+                return original_gc(*args, **kwargs)
+            finally:
+                if stage == "gc_read":
+                    completed.set()
+    
+        def observed_mkstemp(*args: object, **kwargs: object):
+            fd, path = original_mkstemp(*args, **kwargs)
+            if Path(path).parent == run_dir and Path(path).name.startswith(".checkpoint_head_"):
+                head_fds.add(fd)
+            return fd, path
+    
+        def observed_fsync(fd: int) -&gt; None:
+            if stage == "head_fsync" and fd in head_fds:
+                barrier()
+            original_fsync(fd)
+    
+        def observed_replace(source: str | Path, destination: str | Path) -&gt; None:
+            if Path(destination) == run_dir / "checkpoint_head.json":
+                counts["head_replace"] += 1
+            original_replace(source, destination)
+    
+        def observed_read(path: Path) -&gt; bytes:
+            if stage == "gc_read" and path == history_path and threading.get_ident() in gc_thread:
+                history_at_gate.append(original_read(path))
+                barrier()
+            return original_read(path)
+    
+        monkeypatch.setattr(store, "put_json", observed_put)
+        monkeypatch.setattr(checkpoint_module, "update_checkpoint_head", observed_head)
+        monkeypatch.setattr(checkpoint_module, "gc_checkpoints", observed_gc)
+        monkeypatch.setattr(tempfile, "mkstemp", observed_mkstemp)
+        monkeypatch.setattr(os, "fsync", observed_fsync)
+        monkeypatch.setattr(os, "replace", observed_replace)
+        monkeypatch.setattr(Path, "read_bytes", observed_read)
+        task = asyncio.create_task(executor.execute(workflow, ExperimentState(run_id="R_budget")))
+        error: BaseException | None = None
+        result = None
+        try:
+            await _wait_event(entered)
+            if stop == "cancel":
+                task.cancel()
+            try:
+                result = await task
+            except BaseException as exc:
+                error = exc
+            observed = {
+                "sources": sources,
+                "stage": stage,
+                "stop": stop,
+                "budget_seconds": 2,
+                "error_type": type(error).__name__ if error is not None else None,
+                "error_details": error.details if isinstance(error, WorkflowTimeoutError) else None,
+                "accepted_result": result is not None,
+                "head_at_return": load_checkpoint_head(run_dir) is not None,
+                "physical_workers_at_return": async_tools.get_shared_executor()._physical_workers,
+                "reserved_jobs_at_return": async_tools.get_shared_executor()._outstanding_jobs,
+                "physical_finished_at_return": completed.is_set(),
+                "counts_at_return": dict(counts),
+            }
+        finally:
+            release.set()
+            await _wait_event(completed)
+            if not task.done():
+                task.cancel()
+            await asyncio.gather(task, return_exceptions=True)
+        # A completed Future is not enough: observe the canonical physical worker
+        # and reservation retiring after the actual delegated operation returns.
+        async with asyncio.timeout(10):
+            while async_tools.get_shared_executor()._physical_workers:
+                await asyncio.sleep(0.001)
+        reopened = FileSystemCAS(store.root)
+        head = load_checkpoint_head(run_dir)
+        observed.update(
+            counts_after_physical_return=dict(counts),
+            physical_workers_after=async_tools.get_shared_executor()._physical_workers,
+            reserved_jobs_after=async_tools.get_shared_executor()._outstanding_jobs,
+            head_after_physical_return=head is not None,
+            producer_calls=node.calls,
+            history_unchanged_after_gc_read=(
+                original_read(history_path) == history_at_gate[0] if history_at_gate else None
+            ),
+            history_entries=(len(load_checkpoint_history(run_dir).entries) if head else 0),
+        )
+        if head is not None:
+            resolved = resolve_latest_checkpoint(reopened, "R_budget", run_dir=run_dir)
+            assert resolved is not None and resolved[1].state is not None
+            observed["reopened_answer"] = resolved[1].state["params"].get("answer")
+            observed["checkpoint_verified"] = reopened.verify(head.checkpoint_ref).ok
+&gt;       print("CHECKPOINT_SHORT_ORACLE=" + json.dumps(observed, sort_keys=True), flush=True)
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+../../e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py:238: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/json/__init__.py:242: in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/json/encoder.py:202: in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/json/encoder.py:263: in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;json.encoder.JSONEncoder object at 0x7f2e7f2a1950&gt;
+o = mappingproxy({'execution_state': 'unknown', 'publication_operation': 'checkpoint'})
+
+    def default(self, o):
+        """Implement this method in a subclass such that it returns
+        a serializable object for ``o``, or calls the base implementation
+        (to raise a ``TypeError``).
+    
+        For example, to support arbitrary iterators, you could
+        implement default like this::
+    
+            def default(self, o):
+                try:
+                    iterable = iter(o)
+                except TypeError:
+                    pass
+                else:
+                    return list(iterable)
+                # Let the base class default method raise the TypeError
+                return super().default(o)
+    
+        """
+&gt;       raise TypeError(f'Object of type {o.__class__.__name__} '
+                        f'is not JSON serializable')
+E       TypeError: Object of type mappingproxy is not JSON serializable
+E       when serializing dict item 'error_details'
+
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/json/encoder.py:182: TypeError</failure></testcase><testcase classname="" name="test_original_budget_refuses_new_phases_and_retains_entered_io[head_fsync-deadline]" time="2.144"><failure message="TypeError: Object of type mappingproxy is not JSON serializable&#10;when serializing dict item 'error_details'">tmp_path = PosixPath('/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/checkpoint-deadline-oracle/short-base456-relative/pytest-scratch-first/test_original_budget_refuses_n1')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f2e7e9405a0&gt;
+stage = 'head_fsync', stop = 'deadline'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "stage,stop",
+        [
+            ("artifact", "deadline"),
+            ("head_fsync", "deadline"),
+            ("head_fsync", "cancel"),
+            ("head_return", "deadline"),
+            ("gc_read", "deadline"),
+        ],
+    )
+    async def test_original_budget_refuses_new_phases_and_retains_entered_io(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch, stage: str, stop: str
+    ) -&gt; None:
+        sources = _source_observation()
+        store, run_dir, node, executor, workflow = _execution(tmp_path, deadline=2)
+        # GC receives actual complete CAS checkpoints and their canonical history,
+        # not fabricated marker files. Their state is fixture input, not authority.
+        if stage == "gc_read":
+            fingerprint = compute_workflow_fingerprint(workflow)
+            for sequence in range(3):
+                created = create_checkpoint(
+                    store,
+                    run_id="R_budget",
+                    state=ExperimentState(run_id="R_budget", params={"seed": sequence}).model_dump(),
+                    sequence_number=sequence,
+                    completed_node_alias="fixture",
+                    completed_node_id=str(node.spec.metadata.component_id),
+                    completed_nodes=[],
+                    workflow_id=workflow.workflow_id,
+                    workflow_fingerprint=fingerprint,
+                    fsm_phase="UNKNOWN",
+                    cache_entry_refs=[],
+                )
+                update_checkpoint_head(
+                    run_dir,
+                    run_id="R_budget",
+                    checkpoint_ref=created.checkpoint_ref,
+                    sequence_number=sequence,
+                    node_alias="fixture",
+                    writer_pid=os.getpid(),
+                    writer_hostname="fixture",
+                )
+            hook = CASCheckpointHook(
+                store=store,
+                run_dir=run_dir,
+                sequence_start=3,
+                gc_policy=CheckpointGCPolicy(max_checkpoints=1),
+            )
+            executor = AsyncWorkflowExecutor(
+                executor._ctx, executor._registry, checkpoint_hook=hook, workflow_timeout_s=2
+            )
+    
+        entered, release, completed = threading.Event(), threading.Event(), threading.Event()
+        original_put = store.put_json
+        original_head = checkpoint_module.update_checkpoint_head
+        original_gc = checkpoint_module.gc_checkpoints
+        original_mkstemp, original_fsync, original_replace = tempfile.mkstemp, os.fsync, os.replace
+        original_read = Path.read_bytes
+        head_fds: set[int] = set()
+        gc_thread: list[int] = []
+        counts = {"checkpoint_put": 0, "head_replace": 0, "gc_entered": 0}
+        history_path = run_dir / "checkpoint_history.json"
+        history_at_gate: list[bytes] = []
+    
+        def barrier() -&gt; None:
+            entered.set()
+            if not release.wait(15):
+                raise TimeoutError("Independent fixture watchdog expired before release")
+    
+        def observed_put(obj: object, opts: object, **kwargs: object):
+            if opts.kind == "scientist.checkpoint":
+                counts["checkpoint_put"] += 1
+                if stage == "artifact":
+                    barrier()
+            try:
+                return original_put(obj, opts, **kwargs)
+            finally:
+                if stage == "artifact" and opts.kind == "scientist.checkpoint":
+                    completed.set()
+    
+        def observed_head(*args: object, **kwargs: object) -&gt; None:
+            try:
+                original_head(*args, **kwargs)
+                if stage == "head_return":
+                    barrier()
+            finally:
+                if stage in {"head_fsync", "head_return"}:
+                    completed.set()
+    
+        def observed_gc(*args: object, **kwargs: object) -&gt; int:
+            counts["gc_entered"] += 1
+            gc_thread.append(threading.get_ident())
+            try:
+                return original_gc(*args, **kwargs)
+            finally:
+                if stage == "gc_read":
+                    completed.set()
+    
+        def observed_mkstemp(*args: object, **kwargs: object):
+            fd, path = original_mkstemp(*args, **kwargs)
+            if Path(path).parent == run_dir and Path(path).name.startswith(".checkpoint_head_"):
+                head_fds.add(fd)
+            return fd, path
+    
+        def observed_fsync(fd: int) -&gt; None:
+            if stage == "head_fsync" and fd in head_fds:
+                barrier()
+            original_fsync(fd)
+    
+        def observed_replace(source: str | Path, destination: str | Path) -&gt; None:
+            if Path(destination) == run_dir / "checkpoint_head.json":
+                counts["head_replace"] += 1
+            original_replace(source, destination)
+    
+        def observed_read(path: Path) -&gt; bytes:
+            if stage == "gc_read" and path == history_path and threading.get_ident() in gc_thread:
+                history_at_gate.append(original_read(path))
+                barrier()
+            return original_read(path)
+    
+        monkeypatch.setattr(store, "put_json", observed_put)
+        monkeypatch.setattr(checkpoint_module, "update_checkpoint_head", observed_head)
+        monkeypatch.setattr(checkpoint_module, "gc_checkpoints", observed_gc)
+        monkeypatch.setattr(tempfile, "mkstemp", observed_mkstemp)
+        monkeypatch.setattr(os, "fsync", observed_fsync)
+        monkeypatch.setattr(os, "replace", observed_replace)
+        monkeypatch.setattr(Path, "read_bytes", observed_read)
+        task = asyncio.create_task(executor.execute(workflow, ExperimentState(run_id="R_budget")))
+        error: BaseException | None = None
+        result = None
+        try:
+            await _wait_event(entered)
+            if stop == "cancel":
+                task.cancel()
+            try:
+                result = await task
+            except BaseException as exc:
+                error = exc
+            observed = {
+                "sources": sources,
+                "stage": stage,
+                "stop": stop,
+                "budget_seconds": 2,
+                "error_type": type(error).__name__ if error is not None else None,
+                "error_details": error.details if isinstance(error, WorkflowTimeoutError) else None,
+                "accepted_result": result is not None,
+                "head_at_return": load_checkpoint_head(run_dir) is not None,
+                "physical_workers_at_return": async_tools.get_shared_executor()._physical_workers,
+                "reserved_jobs_at_return": async_tools.get_shared_executor()._outstanding_jobs,
+                "physical_finished_at_return": completed.is_set(),
+                "counts_at_return": dict(counts),
+            }
+        finally:
+            release.set()
+            await _wait_event(completed)
+            if not task.done():
+                task.cancel()
+            await asyncio.gather(task, return_exceptions=True)
+        # A completed Future is not enough: observe the canonical physical worker
+        # and reservation retiring after the actual delegated operation returns.
+        async with asyncio.timeout(10):
+            while async_tools.get_shared_executor()._physical_workers:
+                await asyncio.sleep(0.001)
+        reopened = FileSystemCAS(store.root)
+        head = load_checkpoint_head(run_dir)
+        observed.update(
+            counts_after_physical_return=dict(counts),
+            physical_workers_after=async_tools.get_shared_executor()._physical_workers,
+            reserved_jobs_after=async_tools.get_shared_executor()._outstanding_jobs,
+            head_after_physical_return=head is not None,
+            producer_calls=node.calls,
+            history_unchanged_after_gc_read=(
+                original_read(history_path) == history_at_gate[0] if history_at_gate else None
+            ),
+            history_entries=(len(load_checkpoint_history(run_dir).entries) if head else 0),
+        )
+        if head is not None:
+            resolved = resolve_latest_checkpoint(reopened, "R_budget", run_dir=run_dir)
+            assert resolved is not None and resolved[1].state is not None
+            observed["reopened_answer"] = resolved[1].state["params"].get("answer")
+            observed["checkpoint_verified"] = reopened.verify(head.checkpoint_ref).ok
+&gt;       print("CHECKPOINT_SHORT_ORACLE=" + json.dumps(observed, sort_keys=True), flush=True)
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+../../e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py:238: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/json/__init__.py:242: in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/json/encoder.py:202: in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/json/encoder.py:263: in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;json.encoder.JSONEncoder object at 0x7f2e7e7e5e50&gt;
+o = mappingproxy({'execution_state': 'unknown', 'publication_operation': 'checkpoint'})
+
+    def default(self, o):
+        """Implement this method in a subclass such that it returns
+        a serializable object for ``o``, or calls the base implementation
+        (to raise a ``TypeError``).
+    
+        For example, to support arbitrary iterators, you could
+        implement default like this::
+    
+            def default(self, o):
+                try:
+                    iterable = iter(o)
+                except TypeError:
+                    pass
+                else:
+                    return list(iterable)
+                # Let the base class default method raise the TypeError
+                return super().default(o)
+    
+        """
+&gt;       raise TypeError(f'Object of type {o.__class__.__name__} '
+                        f'is not JSON serializable')
+E       TypeError: Object of type mappingproxy is not JSON serializable
+E       when serializing dict item 'error_details'
+
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/json/encoder.py:182: TypeError</failure></testcase><testcase classname="" name="test_original_budget_refuses_new_phases_and_retains_entered_io[head_fsync-cancel]" time="0.265"><failure message="AssertionError: {'accepted_result': False, 'budget_seconds': 2, 'checkpoint_verified': True, 'counts_after_physical_return': {'checkpoint_put': 1, 'gc_entered': 0, 'head_replace': 1}, ...}&#10;assert (CheckpointHead(run_id='R_budget', checkpoint_ref=ArtifactRef(artifact_id=ArtifactID(root='sha256:d5f312f09cdb927e43e28...=354116, writer_hostname='b878f4efbdfc', updated_at=datetime.datetime(2026, 10, 6, 17, 7, 5, 228812, tzinfo=TzInfo(0))) is None)">tmp_path = PosixPath('/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/checkpoint-deadline-oracle/short-base456-relative/pytest-scratch-first/test_original_budget_refuses_n2')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f2e7e84da50&gt;
+stage = 'head_fsync', stop = 'cancel'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "stage,stop",
+        [
+            ("artifact", "deadline"),
+            ("head_fsync", "deadline"),
+            ("head_fsync", "cancel"),
+            ("head_return", "deadline"),
+            ("gc_read", "deadline"),
+        ],
+    )
+    async def test_original_budget_refuses_new_phases_and_retains_entered_io(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch, stage: str, stop: str
+    ) -&gt; None:
+        sources = _source_observation()
+        store, run_dir, node, executor, workflow = _execution(tmp_path, deadline=2)
+        # GC receives actual complete CAS checkpoints and their canonical history,
+        # not fabricated marker files. Their state is fixture input, not authority.
+        if stage == "gc_read":
+            fingerprint = compute_workflow_fingerprint(workflow)
+            for sequence in range(3):
+                created = create_checkpoint(
+                    store,
+                    run_id="R_budget",
+                    state=ExperimentState(run_id="R_budget", params={"seed": sequence}).model_dump(),
+                    sequence_number=sequence,
+                    completed_node_alias="fixture",
+                    completed_node_id=str(node.spec.metadata.component_id),
+                    completed_nodes=[],
+                    workflow_id=workflow.workflow_id,
+                    workflow_fingerprint=fingerprint,
+                    fsm_phase="UNKNOWN",
+                    cache_entry_refs=[],
+                )
+                update_checkpoint_head(
+                    run_dir,
+                    run_id="R_budget",
+                    checkpoint_ref=created.checkpoint_ref,
+                    sequence_number=sequence,
+                    node_alias="fixture",
+                    writer_pid=os.getpid(),
+                    writer_hostname="fixture",
+                )
+            hook = CASCheckpointHook(
+                store=store,
+                run_dir=run_dir,
+                sequence_start=3,
+                gc_policy=CheckpointGCPolicy(max_checkpoints=1),
+            )
+            executor = AsyncWorkflowExecutor(
+                executor._ctx, executor._registry, checkpoint_hook=hook, workflow_timeout_s=2
+            )
+    
+        entered, release, completed = threading.Event(), threading.Event(), threading.Event()
+        original_put = store.put_json
+        original_head = checkpoint_module.update_checkpoint_head
+        original_gc = checkpoint_module.gc_checkpoints
+        original_mkstemp, original_fsync, original_replace = tempfile.mkstemp, os.fsync, os.replace
+        original_read = Path.read_bytes
+        head_fds: set[int] = set()
+        gc_thread: list[int] = []
+        counts = {"checkpoint_put": 0, "head_replace": 0, "gc_entered": 0}
+        history_path = run_dir / "checkpoint_history.json"
+        history_at_gate: list[bytes] = []
+    
+        def barrier() -&gt; None:
+            entered.set()
+            if not release.wait(15):
+                raise TimeoutError("Independent fixture watchdog expired before release")
+    
+        def observed_put(obj: object, opts: object, **kwargs: object):
+            if opts.kind == "scientist.checkpoint":
+                counts["checkpoint_put"] += 1
+                if stage == "artifact":
+                    barrier()
+            try:
+                return original_put(obj, opts, **kwargs)
+            finally:
+                if stage == "artifact" and opts.kind == "scientist.checkpoint":
+                    completed.set()
+    
+        def observed_head(*args: object, **kwargs: object) -&gt; None:
+            try:
+                original_head(*args, **kwargs)
+                if stage == "head_return":
+                    barrier()
+            finally:
+                if stage in {"head_fsync", "head_return"}:
+                    completed.set()
+    
+        def observed_gc(*args: object, **kwargs: object) -&gt; int:
+            counts["gc_entered"] += 1
+            gc_thread.append(threading.get_ident())
+            try:
+                return original_gc(*args, **kwargs)
+            finally:
+                if stage == "gc_read":
+                    completed.set()
+    
+        def observed_mkstemp(*args: object, **kwargs: object):
+            fd, path = original_mkstemp(*args, **kwargs)
+            if Path(path).parent == run_dir and Path(path).name.startswith(".checkpoint_head_"):
+                head_fds.add(fd)
+            return fd, path
+    
+        def observed_fsync(fd: int) -&gt; None:
+            if stage == "head_fsync" and fd in head_fds:
+                barrier()
+            original_fsync(fd)
+    
+        def observed_replace(source: str | Path, destination: str | Path) -&gt; None:
+            if Path(destination) == run_dir / "checkpoint_head.json":
+                counts["head_replace"] += 1
+            original_replace(source, destination)
+    
+        def observed_read(path: Path) -&gt; bytes:
+            if stage == "gc_read" and path == history_path and threading.get_ident() in gc_thread:
+                history_at_gate.append(original_read(path))
+                barrier()
+            return original_read(path)
+    
+        monkeypatch.setattr(store, "put_json", observed_put)
+        monkeypatch.setattr(checkpoint_module, "update_checkpoint_head", observed_head)
+        monkeypatch.setattr(checkpoint_module, "gc_checkpoints", observed_gc)
+        monkeypatch.setattr(tempfile, "mkstemp", observed_mkstemp)
+        monkeypatch.setattr(os, "fsync", observed_fsync)
+        monkeypatch.setattr(os, "replace", observed_replace)
+        monkeypatch.setattr(Path, "read_bytes", observed_read)
+        task = asyncio.create_task(executor.execute(workflow, ExperimentState(run_id="R_budget")))
+        error: BaseException | None = None
+        result = None
+        try:
+            await _wait_event(entered)
+            if stop == "cancel":
+                task.cancel()
+            try:
+                result = await task
+            except BaseException as exc:
+                error = exc
+            observed = {
+                "sources": sources,
+                "stage": stage,
+                "stop": stop,
+                "budget_seconds": 2,
+                "error_type": type(error).__name__ if error is not None else None,
+                "error_details": error.details if isinstance(error, WorkflowTimeoutError) else None,
+                "accepted_result": result is not None,
+                "head_at_return": load_checkpoint_head(run_dir) is not None,
+                "physical_workers_at_return": async_tools.get_shared_executor()._physical_workers,
+                "reserved_jobs_at_return": async_tools.get_shared_executor()._outstanding_jobs,
+                "physical_finished_at_return": completed.is_set(),
+                "counts_at_return": dict(counts),
+            }
+        finally:
+            release.set()
+            await _wait_event(completed)
+            if not task.done():
+                task.cancel()
+            await asyncio.gather(task, return_exceptions=True)
+        # A completed Future is not enough: observe the canonical physical worker
+        # and reservation retiring after the actual delegated operation returns.
+        async with asyncio.timeout(10):
+            while async_tools.get_shared_executor()._physical_workers:
+                await asyncio.sleep(0.001)
+        reopened = FileSystemCAS(store.root)
+        head = load_checkpoint_head(run_dir)
+        observed.update(
+            counts_after_physical_return=dict(counts),
+            physical_workers_after=async_tools.get_shared_executor()._physical_workers,
+            reserved_jobs_after=async_tools.get_shared_executor()._outstanding_jobs,
+            head_after_physical_return=head is not None,
+            producer_calls=node.calls,
+            history_unchanged_after_gc_read=(
+                original_read(history_path) == history_at_gate[0] if history_at_gate else None
+            ),
+            history_entries=(len(load_checkpoint_history(run_dir).entries) if head else 0),
+        )
+        if head is not None:
+            resolved = resolve_latest_checkpoint(reopened, "R_budget", run_dir=run_dir)
+            assert resolved is not None and resolved[1].state is not None
+            observed["reopened_answer"] = resolved[1].state["params"].get("answer")
+            observed["checkpoint_verified"] = reopened.verify(head.checkpoint_ref).ok
+        print("CHECKPOINT_SHORT_ORACLE=" + json.dumps(observed, sort_keys=True), flush=True)
+        assert result is None and error is not None, observed
+        assert observed["physical_workers_at_return"] == observed["reserved_jobs_at_return"] == 1
+        assert observed["physical_finished_at_return"] is False
+        assert observed["physical_workers_after"] == observed["reserved_jobs_after"] == 0
+        if stop == "deadline":
+            assert isinstance(error, WorkflowTimeoutError), observed
+            assert observed["error_details"]["execution_state"] == "unknown", observed
+        else:
+            assert isinstance(error, asyncio.CancelledError), observed
+        if stage in {"artifact", "head_fsync"}:
+&gt;           assert head is None and counts["head_replace"] == counts["gc_entered"] == 0, observed
+E           AssertionError: {'accepted_result': False, 'budget_seconds': 2, 'checkpoint_verified': True, 'counts_after_physical_return': {'checkpoint_put': 1, 'gc_entered': 0, 'head_replace': 1}, ...}
+E           assert (CheckpointHead(run_id='R_budget', checkpoint_ref=ArtifactRef(artifact_id=ArtifactID(root='sha256:d5f312f09cdb927e43e28...=354116, writer_hostname='b878f4efbdfc', updated_at=datetime.datetime(2026, 10, 6, 17, 7, 5, 228812, tzinfo=TzInfo(0))) is None)
+
+../../e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py:249: AssertionError</failure></testcase><testcase classname="" name="test_original_budget_refuses_new_phases_and_retains_entered_io[head_return-deadline]" time="2.160"><failure message="TypeError: Object of type mappingproxy is not JSON serializable&#10;when serializing dict item 'error_details'">tmp_path = PosixPath('/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/checkpoint-deadline-oracle/short-base456-relative/pytest-scratch-first/test_original_budget_refuses_n3')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f2e7e8bb020&gt;
+stage = 'head_return', stop = 'deadline'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "stage,stop",
+        [
+            ("artifact", "deadline"),
+            ("head_fsync", "deadline"),
+            ("head_fsync", "cancel"),
+            ("head_return", "deadline"),
+            ("gc_read", "deadline"),
+        ],
+    )
+    async def test_original_budget_refuses_new_phases_and_retains_entered_io(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch, stage: str, stop: str
+    ) -&gt; None:
+        sources = _source_observation()
+        store, run_dir, node, executor, workflow = _execution(tmp_path, deadline=2)
+        # GC receives actual complete CAS checkpoints and their canonical history,
+        # not fabricated marker files. Their state is fixture input, not authority.
+        if stage == "gc_read":
+            fingerprint = compute_workflow_fingerprint(workflow)
+            for sequence in range(3):
+                created = create_checkpoint(
+                    store,
+                    run_id="R_budget",
+                    state=ExperimentState(run_id="R_budget", params={"seed": sequence}).model_dump(),
+                    sequence_number=sequence,
+                    completed_node_alias="fixture",
+                    completed_node_id=str(node.spec.metadata.component_id),
+                    completed_nodes=[],
+                    workflow_id=workflow.workflow_id,
+                    workflow_fingerprint=fingerprint,
+                    fsm_phase="UNKNOWN",
+                    cache_entry_refs=[],
+                )
+                update_checkpoint_head(
+                    run_dir,
+                    run_id="R_budget",
+                    checkpoint_ref=created.checkpoint_ref,
+                    sequence_number=sequence,
+                    node_alias="fixture",
+                    writer_pid=os.getpid(),
+                    writer_hostname="fixture",
+                )
+            hook = CASCheckpointHook(
+                store=store,
+                run_dir=run_dir,
+                sequence_start=3,
+                gc_policy=CheckpointGCPolicy(max_checkpoints=1),
+            )
+            executor = AsyncWorkflowExecutor(
+                executor._ctx, executor._registry, checkpoint_hook=hook, workflow_timeout_s=2
+            )
+    
+        entered, release, completed = threading.Event(), threading.Event(), threading.Event()
+        original_put = store.put_json
+        original_head = checkpoint_module.update_checkpoint_head
+        original_gc = checkpoint_module.gc_checkpoints
+        original_mkstemp, original_fsync, original_replace = tempfile.mkstemp, os.fsync, os.replace
+        original_read = Path.read_bytes
+        head_fds: set[int] = set()
+        gc_thread: list[int] = []
+        counts = {"checkpoint_put": 0, "head_replace": 0, "gc_entered": 0}
+        history_path = run_dir / "checkpoint_history.json"
+        history_at_gate: list[bytes] = []
+    
+        def barrier() -&gt; None:
+            entered.set()
+            if not release.wait(15):
+                raise TimeoutError("Independent fixture watchdog expired before release")
+    
+        def observed_put(obj: object, opts: object, **kwargs: object):
+            if opts.kind == "scientist.checkpoint":
+                counts["checkpoint_put"] += 1
+                if stage == "artifact":
+                    barrier()
+            try:
+                return original_put(obj, opts, **kwargs)
+            finally:
+                if stage == "artifact" and opts.kind == "scientist.checkpoint":
+                    completed.set()
+    
+        def observed_head(*args: object, **kwargs: object) -&gt; None:
+            try:
+                original_head(*args, **kwargs)
+                if stage == "head_return":
+                    barrier()
+            finally:
+                if stage in {"head_fsync", "head_return"}:
+                    completed.set()
+    
+        def observed_gc(*args: object, **kwargs: object) -&gt; int:
+            counts["gc_entered"] += 1
+            gc_thread.append(threading.get_ident())
+            try:
+                return original_gc(*args, **kwargs)
+            finally:
+                if stage == "gc_read":
+                    completed.set()
+    
+        def observed_mkstemp(*args: object, **kwargs: object):
+            fd, path = original_mkstemp(*args, **kwargs)
+            if Path(path).parent == run_dir and Path(path).name.startswith(".checkpoint_head_"):
+                head_fds.add(fd)
+            return fd, path
+    
+        def observed_fsync(fd: int) -&gt; None:
+            if stage == "head_fsync" and fd in head_fds:
+                barrier()
+            original_fsync(fd)
+    
+        def observed_replace(source: str | Path, destination: str | Path) -&gt; None:
+            if Path(destination) == run_dir / "checkpoint_head.json":
+                counts["head_replace"] += 1
+            original_replace(source, destination)
+    
+        def observed_read(path: Path) -&gt; bytes:
+            if stage == "gc_read" and path == history_path and threading.get_ident() in gc_thread:
+                history_at_gate.append(original_read(path))
+                barrier()
+            return original_read(path)
+    
+        monkeypatch.setattr(store, "put_json", observed_put)
+        monkeypatch.setattr(checkpoint_module, "update_checkpoint_head", observed_head)
+        monkeypatch.setattr(checkpoint_module, "gc_checkpoints", observed_gc)
+        monkeypatch.setattr(tempfile, "mkstemp", observed_mkstemp)
+        monkeypatch.setattr(os, "fsync", observed_fsync)
+        monkeypatch.setattr(os, "replace", observed_replace)
+        monkeypatch.setattr(Path, "read_bytes", observed_read)
+        task = asyncio.create_task(executor.execute(workflow, ExperimentState(run_id="R_budget")))
+        error: BaseException | None = None
+        result = None
+        try:
+            await _wait_event(entered)
+            if stop == "cancel":
+                task.cancel()
+            try:
+                result = await task
+            except BaseException as exc:
+                error = exc
+            observed = {
+                "sources": sources,
+                "stage": stage,
+                "stop": stop,
+                "budget_seconds": 2,
+                "error_type": type(error).__name__ if error is not None else None,
+                "error_details": error.details if isinstance(error, WorkflowTimeoutError) else None,
+                "accepted_result": result is not None,
+                "head_at_return": load_checkpoint_head(run_dir) is not None,
+                "physical_workers_at_return": async_tools.get_shared_executor()._physical_workers,
+                "reserved_jobs_at_return": async_tools.get_shared_executor()._outstanding_jobs,
+                "physical_finished_at_return": completed.is_set(),
+                "counts_at_return": dict(counts),
+            }
+        finally:
+            release.set()
+            await _wait_event(completed)
+            if not task.done():
+                task.cancel()
+            await asyncio.gather(task, return_exceptions=True)
+        # A completed Future is not enough: observe the canonical physical worker
+        # and reservation retiring after the actual delegated operation returns.
+        async with asyncio.timeout(10):
+            while async_tools.get_shared_executor()._physical_workers:
+                await asyncio.sleep(0.001)
+        reopened = FileSystemCAS(store.root)
+        head = load_checkpoint_head(run_dir)
+        observed.update(
+            counts_after_physical_return=dict(counts),
+            physical_workers_after=async_tools.get_shared_executor()._physical_workers,
+            reserved_jobs_after=async_tools.get_shared_executor()._outstanding_jobs,
+            head_after_physical_return=head is not None,
+            producer_calls=node.calls,
+            history_unchanged_after_gc_read=(
+                original_read(history_path) == history_at_gate[0] if history_at_gate else None
+            ),
+            history_entries=(len(load_checkpoint_history(run_dir).entries) if head else 0),
+        )
+        if head is not None:
+            resolved = resolve_latest_checkpoint(reopened, "R_budget", run_dir=run_dir)
+            assert resolved is not None and resolved[1].state is not None
+            observed["reopened_answer"] = resolved[1].state["params"].get("answer")
+            observed["checkpoint_verified"] = reopened.verify(head.checkpoint_ref).ok
+&gt;       print("CHECKPOINT_SHORT_ORACLE=" + json.dumps(observed, sort_keys=True), flush=True)
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+../../e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py:238: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/json/__init__.py:242: in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/json/encoder.py:202: in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/json/encoder.py:263: in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;json.encoder.JSONEncoder object at 0x7f2e7e7e6990&gt;
+o = mappingproxy({'execution_state': 'unknown', 'publication_operation': 'checkpoint'})
+
+    def default(self, o):
+        """Implement this method in a subclass such that it returns
+        a serializable object for ``o``, or calls the base implementation
+        (to raise a ``TypeError``).
+    
+        For example, to support arbitrary iterators, you could
+        implement default like this::
+    
+            def default(self, o):
+                try:
+                    iterable = iter(o)
+                except TypeError:
+                    pass
+                else:
+                    return list(iterable)
+                # Let the base class default method raise the TypeError
+                return super().default(o)
+    
+        """
+&gt;       raise TypeError(f'Object of type {o.__class__.__name__} '
+                        f'is not JSON serializable')
+E       TypeError: Object of type mappingproxy is not JSON serializable
+E       when serializing dict item 'error_details'
+
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/json/encoder.py:182: TypeError</failure></testcase><testcase classname="" name="test_original_budget_refuses_new_phases_and_retains_entered_io[gc_read-deadline]" time="10.219"><failure message="TimeoutError">event = &lt;threading.Event at 0x7f2e7e7e7250: unset&gt;
+
+    async def _wait_event(event: threading.Event, *, timeout: float = 10) -&gt; None:
+        async with asyncio.timeout(timeout):
+            while not event.is_set():
+&gt;               await asyncio.sleep(0.001)
+
+../../e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py:85: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+delay = 0.001, result = None
+
+    async def sleep(delay, result=None):
+        """Coroutine that completes after a given time (in seconds)."""
+        if delay &lt;= 0:
+            await __sleep0()
+            return result
+    
+        if math.isnan(delay):
+            raise ValueError("Invalid delay: NaN (not a number)")
+    
+        loop = events.get_running_loop()
+        future = loop.create_future()
+        h = loop.call_later(delay,
+                            futures._set_result_unless_cancelled,
+                            future, result)
+        try:
+&gt;           return await future
+                   ^^^^^^^^^^^^
+E           asyncio.exceptions.CancelledError
+
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/tasks.py:702: CancelledError
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = PosixPath('/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/checkpoint-deadline-oracle/short-base456-relative/pytest-scratch-first/test_original_budget_refuses_n4')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f2e7e813af0&gt;
+stage = 'gc_read', stop = 'deadline'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "stage,stop",
+        [
+            ("artifact", "deadline"),
+            ("head_fsync", "deadline"),
+            ("head_fsync", "cancel"),
+            ("head_return", "deadline"),
+            ("gc_read", "deadline"),
+        ],
+    )
+    async def test_original_budget_refuses_new_phases_and_retains_entered_io(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch, stage: str, stop: str
+    ) -&gt; None:
+        sources = _source_observation()
+        store, run_dir, node, executor, workflow = _execution(tmp_path, deadline=2)
+        # GC receives actual complete CAS checkpoints and their canonical history,
+        # not fabricated marker files. Their state is fixture input, not authority.
+        if stage == "gc_read":
+            fingerprint = compute_workflow_fingerprint(workflow)
+            for sequence in range(3):
+                created = create_checkpoint(
+                    store,
+                    run_id="R_budget",
+                    state=ExperimentState(run_id="R_budget", params={"seed": sequence}).model_dump(),
+                    sequence_number=sequence,
+                    completed_node_alias="fixture",
+                    completed_node_id=str(node.spec.metadata.component_id),
+                    completed_nodes=[],
+                    workflow_id=workflow.workflow_id,
+                    workflow_fingerprint=fingerprint,
+                    fsm_phase="UNKNOWN",
+                    cache_entry_refs=[],
+                )
+                update_checkpoint_head(
+                    run_dir,
+                    run_id="R_budget",
+                    checkpoint_ref=created.checkpoint_ref,
+                    sequence_number=sequence,
+                    node_alias="fixture",
+                    writer_pid=os.getpid(),
+                    writer_hostname="fixture",
+                )
+            hook = CASCheckpointHook(
+                store=store,
+                run_dir=run_dir,
+                sequence_start=3,
+                gc_policy=CheckpointGCPolicy(max_checkpoints=1),
+            )
+            executor = AsyncWorkflowExecutor(
+                executor._ctx, executor._registry, checkpoint_hook=hook, workflow_timeout_s=2
+            )
+    
+        entered, release, completed = threading.Event(), threading.Event(), threading.Event()
+        original_put = store.put_json
+        original_head = checkpoint_module.update_checkpoint_head
+        original_gc = checkpoint_module.gc_checkpoints
+        original_mkstemp, original_fsync, original_replace = tempfile.mkstemp, os.fsync, os.replace
+        original_read = Path.read_bytes
+        head_fds: set[int] = set()
+        gc_thread: list[int] = []
+        counts = {"checkpoint_put": 0, "head_replace": 0, "gc_entered": 0}
+        history_path = run_dir / "checkpoint_history.json"
+        history_at_gate: list[bytes] = []
+    
+        def barrier() -&gt; None:
+            entered.set()
+            if not release.wait(15):
+                raise TimeoutError("Independent fixture watchdog expired before release")
+    
+        def observed_put(obj: object, opts: object, **kwargs: object):
+            if opts.kind == "scientist.checkpoint":
+                counts["checkpoint_put"] += 1
+                if stage == "artifact":
+                    barrier()
+            try:
+                return original_put(obj, opts, **kwargs)
+            finally:
+                if stage == "artifact" and opts.kind == "scientist.checkpoint":
+                    completed.set()
+    
+        def observed_head(*args: object, **kwargs: object) -&gt; None:
+            try:
+                original_head(*args, **kwargs)
+                if stage == "head_return":
+                    barrier()
+            finally:
+                if stage in {"head_fsync", "head_return"}:
+                    completed.set()
+    
+        def observed_gc(*args: object, **kwargs: object) -&gt; int:
+            counts["gc_entered"] += 1
+            gc_thread.append(threading.get_ident())
+            try:
+                return original_gc(*args, **kwargs)
+            finally:
+                if stage == "gc_read":
+                    completed.set()
+    
+        def observed_mkstemp(*args: object, **kwargs: object):
+            fd, path = original_mkstemp(*args, **kwargs)
+            if Path(path).parent == run_dir and Path(path).name.startswith(".checkpoint_head_"):
+                head_fds.add(fd)
+            return fd, path
+    
+        def observed_fsync(fd: int) -&gt; None:
+            if stage == "head_fsync" and fd in head_fds:
+                barrier()
+            original_fsync(fd)
+    
+        def observed_replace(source: str | Path, destination: str | Path) -&gt; None:
+            if Path(destination) == run_dir / "checkpoint_head.json":
+                counts["head_replace"] += 1
+            original_replace(source, destination)
+    
+        def observed_read(path: Path) -&gt; bytes:
+            if stage == "gc_read" and path == history_path and threading.get_ident() in gc_thread:
+                history_at_gate.append(original_read(path))
+                barrier()
+            return original_read(path)
+    
+        monkeypatch.setattr(store, "put_json", observed_put)
+        monkeypatch.setattr(checkpoint_module, "update_checkpoint_head", observed_head)
+        monkeypatch.setattr(checkpoint_module, "gc_checkpoints", observed_gc)
+        monkeypatch.setattr(tempfile, "mkstemp", observed_mkstemp)
+        monkeypatch.setattr(os, "fsync", observed_fsync)
+        monkeypatch.setattr(os, "replace", observed_replace)
+        monkeypatch.setattr(Path, "read_bytes", observed_read)
+        task = asyncio.create_task(executor.execute(workflow, ExperimentState(run_id="R_budget")))
+        error: BaseException | None = None
+        result = None
+        try:
+&gt;           await _wait_event(entered)
+
+../../e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py:188: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py:83: in _wait_event
+    async with asyncio.timeout(timeout):
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;Timeout [expired]&gt;
+exc_type = &lt;class 'asyncio.exceptions.CancelledError'&gt;
+exc_val = CancelledError(), exc_tb = &lt;traceback object at 0x7f2e7e8b1880&gt;
+
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -&gt; bool | None:
+        assert self._state in (_State.ENTERED, _State.EXPIRING)
+    
+        if self._timeout_handler is not None:
+            self._timeout_handler.cancel()
+            self._timeout_handler = None
+    
+        if self._state is _State.EXPIRING:
+            self._state = _State.EXPIRED
+    
+            if self._task.uncancel() &lt;= self._cancelling and exc_type is not None:
+                # Since there are no new cancel requests, we're
+                # handling this.
+                if issubclass(exc_type, exceptions.CancelledError):
+&gt;                   raise TimeoutError from exc_val
+E                   TimeoutError
+
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/timeouts.py:114: TimeoutError</failure></testcase></testsuite></testsuites>

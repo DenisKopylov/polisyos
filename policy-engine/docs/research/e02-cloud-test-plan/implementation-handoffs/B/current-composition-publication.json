@@ -1,0 +1,533 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-composition-publication",
+  "closure_ids": [
+    "B76"
+  ],
+  "owned_finding_ids": [
+    "B13",
+    "B42",
+    "B43",
+    "B44",
+    "B45",
+    "B46",
+    "B47",
+    "B48",
+    "B49",
+    "B50",
+    "B53",
+    "B74",
+    "B75",
+    "B76"
+  ],
+  "bundle_ids": [
+    "RES-04"
+  ],
+  "all_owned_bundle_ids": [
+    "CMP-01",
+    "CMP-02",
+    "CMP-03",
+    "RES-03",
+    "RES-04",
+    "JIT-01"
+  ],
+  "slice_base_sha": "c31e69958ba1d639db6d739ec42f6595add88234",
+  "base_production_sha": "e10a81470275e41ebffd3324412c47707aa7dafd",
+  "implementation_commits": [
+    "36a270f596e55b1969edea78cfdb87a146ac7ebb",
+    "89ead1586d00ff48bb296d0e36d337851fe76ee3"
+  ],
+  "implementation_sha": "89ead1586d00ff48bb296d0e36d337851fe76ee3",
+  "candidate_tree_sha": "6e0d20ecdad6b2f114971147fc62aed1be7b6d27",
+  "branch": "codex/e02-B-current-composition",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/45",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-foundry-checkpoint-generations.toml",
+    "policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py",
+    "policy-engine/src/polisyos/foundry/methods/components/README.md",
+    "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+    "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+    "policy-engine/tests/unit/remediation/test_res_04.py"
+  ],
+  "baseline_cells": [
+    {
+      "id": "F01-P044",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "state": "PASS",
+      "collected": "6",
+      "calls": "6",
+      "call_pass": "6",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.89",
+      "rss_kib": "174068",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F01.txt",
+      "source_line": "161",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F03-P065",
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_res_04.py",
+      "state": "PASS",
+      "collected": "16",
+      "calls": "16",
+      "call_pass": "16",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.04",
+      "rss_kib": "165492.0",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F03.txt",
+      "source_line": "195",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F05-P065",
+      "job": "F05",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "state": "PASS",
+      "collected": "5",
+      "calls": "5",
+      "call_pass": "5",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.67",
+      "rss_kib": "259996",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F05.txt",
+      "source_line": "475",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F07-P041",
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "state": "PASS",
+      "collected": "6",
+      "calls": "6",
+      "call_pass": "6",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.371877431869507",
+      "rss_kib": "259564.0",
+      "receipt_status": "valid",
+      "source_file": "received/F07.txt",
+      "source_line": "47",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F07-P059",
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/remediation/test_res_04.py",
+      "state": "PASS",
+      "collected": "16",
+      "calls": "16",
+      "call_pass": "16",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.220776319503784",
+      "rss_kib": "255460.0",
+      "receipt_status": "valid",
+      "source_file": "received/F07.txt",
+      "source_line": "65",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F12-P052",
+      "job": "F12",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "state": "PASS",
+      "collected": "5",
+      "calls": "5",
+      "call_pass": "5",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "8.00252217599973",
+      "rss_kib": "246516.0",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F12.txt",
+      "source_line": "637",
+      "extra_json": "{\"reason\":\"native\"}"
+    },
+    {
+      "id": "F14-P054",
+      "job": "F14",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "state": "PASS",
+      "collected": "6",
+      "calls": "6",
+      "call_pass": "6",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "7.704198632000043",
+      "rss_kib": "271952",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F14.txt",
+      "source_line": "404",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F14-P077",
+      "job": "F14",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_res_04.py",
+      "state": "PASS",
+      "collected": "16",
+      "calls": "16",
+      "call_pass": "16",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "7.841175300000032",
+      "rss_kib": "269232",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F14.txt",
+      "source_line": "427",
+      "extra_json": "{}"
+    }
+  ],
+  "baseline_context": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/baseline-input-closure.json",
+    "sha256": "72074203c19fb69b2c21cf42438eef708f3afc7d63652b4c4afa22e29ef684b8",
+    "bytes": 81611
+  },
+  "canonical_source_cards": {
+    "RES-04": {
+      "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RES-04.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "sha256": "1beb9b75bb18f74356b568fa6a2261666b7d7893c879bd8ce08c513cb0ed38c2"
+    }
+  },
+  "baseline_limits": "Navigation only: exact transferred text and declared environment/config/manifest locators resolved; 28 unique cells/74 routes for all14 IDs are source-reported PASS. Raw archives absent and semantic adequacy not established. These old summaries do not prove this candidate.",
+  "property": {
+    "statement": "The published pointer selects one complete immutable state/frontier/history generation. A failed writer cannot delete or overwrite a selected generation, including a history-only NumPy result.",
+    "runtime_path": [
+      "Real registry NumPy method \u2192 MethodDispatcher \u2192 original NumPy MethodResult and output slots",
+      "Actual ChainCheckpoint.save filesystem/flock/flush/fsync/replace",
+      "Atomic pointer \u2192 snapshot content binding \u2192 generation-local NumPy content/shape/dtype validation",
+      "ChainCheckpoint.load \u2192 original MethodResult restoration \u2192 genuine CheckpointingChainExecutor resume"
+    ],
+    "negative_controls": [
+      "Actual file-descriptor fsync failures in sidecar/snapshot and actual root os.replace failure preserve old selected checkpoint",
+      "Parent directory fsync fault after pointer replacement preserves new generation and returns typed publication uncertainty",
+      "Fault-writer rollback and genuine peer history-only publication remain in the same actual lock",
+      "SIGKILL before pointer selects old complete snapshot; after actual pointer replacement selects new complete snapshot",
+      "Independent fresh reader consumes real original result history through 50 writes from two processes",
+      "Snapshot content tamper, traversal, symlink, unsupported format and UUID collision typed refusal"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "bounded_candidate_runtime_verified; original E02 source finding remains partial, no formal closure",
+  "finding_classification": {
+    "B76": {
+      "source_status": "partial",
+      "candidate_status": "bounded_runtime_verified",
+      "formal_closure": false,
+      "basis": "Two actual inherited failures reproduced on production e10/c31 and frozen generation candidate passes56 full native checks, including independent processes and fault boundaries."
+    }
+  },
+  "checks": [
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/publication-frozen-89ead1586-cache",
+        "-q",
+        "tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+        "tests/unit/foundry/methods/backends/test_checkpointing.py",
+        "tests/unit/remediation/test_res_04.py",
+        "tests/unit/remediation/test_cmp_01.py",
+        "--basetemp=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/publication-frozen-89ead1586-tmp",
+        "--junitxml=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/publication-frozen-89ead1586.xml"
+      ],
+      "target_sha": "89ead1586d00ff48bb296d0e36d337851fe76ee3",
+      "target_tree": "6e0d20ecdad6b2f114971147fc62aed1be7b6d27",
+      "environment": {
+        "PYTHONPATH": "src",
+        "POLISYOS_METRICS_PORT": "0",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "outcome": "PASS",
+      "native_counts": {
+        "tests": 56,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "source_before_after_equal": true,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication/native.txt",
+        "sha256": "2c5fc3443aa1057986d067f390b1ac7dfb23a3ea0f3bdefb9e74644ff4292aaf",
+        "bytes": 99
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication/native.xml",
+        "sha256": "99edf69f92055a6d128b46565d0fade86e359a5b442964fc0e308e64975da6cf",
+        "bytes": 9350
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication/native-wrapper.json",
+        "sha256": "d300967b28776726ec0c829bb379915fd010a304aacf6c9a328acd35e8c4f09d",
+        "bytes": 1618
+      },
+      "environment_artifact": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication/environment.json",
+        "sha256": "da14f26fb21fc3ca8d1d74a4d9c724c7435b356a5923619b42308585b74fd282",
+        "bytes": 6845
+      }
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/publication-red-corrected-c31-cache",
+        "-q",
+        "tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+        "--basetemp=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/publication-red-corrected-c31-tmp",
+        "--junitxml=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/publication-red-corrected-c31.xml"
+      ],
+      "target_sha": "c31e69958ba1d639db6d739ec42f6595add88234",
+      "target_tree": "6120afb3fd3471503ce9b4c2c42bd8bd302349d5",
+      "environment": {
+        "PYTHONPATH": "src",
+        "POLISYOS_METRICS_PORT": "0",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "outcome": "FAIL",
+      "native_counts": {
+        "tests": 19,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "source_before_after_equal": true,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication/publication-red.txt",
+        "sha256": "bafc4789f1940bf2181834e013e204401369635013e3d8a17d67cc5ef60d9229",
+        "bytes": 18414
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication/publication-red.xml",
+        "sha256": "676456ed03e4be68245a4c6d623d3fe9e18debd3a46978eb4fbad1ee785a9601",
+        "bytes": 20158
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication/publication-red-wrapper.json",
+        "sha256": "ba09ca95a5787c90602e7612d35c4f3ae21ab290fd3a2f3f6ce277c0d3bc778f",
+        "bytes": 1957
+      },
+      "test_source_commit": "36a270f596e55b1969edea78cfdb87a146ac7ebb",
+      "test_input": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication/publication-red-input.txt",
+        "sha256": "fa0882f0157db01a70078dc57d95cb1f46796beb5df89dcdb17c0d539d69a1f3",
+        "bytes": 21595
+      },
+      "actual_failures": [
+        "Post-pointer parent fsync error removes live history sidecar referenced by visible manifest",
+        "Failed writer releases lock before rollback, then deletes genuine peer-published history-only array"
+      ]
+    }
+  ],
+  "process_packets": [
+    {
+      "fixture": "/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/publication-frozen-89ead1586-tmp/test_fresh_process_reader_obse0/process-reader-0",
+      "role": "process-reader-0",
+      "files": {
+        "result.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication/process-reader-0-result.json",
+          "sha256": "b07161408971a52c8f2937b49b606fc8527b2037b29ffe9b8077a6b3f1304db2",
+          "bytes": 253
+        },
+        "stdout.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication/process-reader-0-stdout.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stderr.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication/process-reader-0-stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "result": {
+        "observations": 429,
+        "values_seen": [
+          1,
+          2
+        ],
+        "module_path": "/workspace/e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py",
+        "module_sha256": "9387af931c5171bc7540233db459abb09c4e2d7062e7215eb91a698f97e5d15c"
+      }
+    },
+    {
+      "fixture": "/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/publication-frozen-89ead1586-tmp/test_fresh_process_reader_obse0/process-writer-1",
+      "role": "process-writer-1",
+      "files": {
+        "result.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication/process-writer-1-result.json",
+          "sha256": "94e4e3fca26b88affc0b631830dc85d95bfefa2775a3f0b4ae3ba2b7f3bdb3e4",
+          "bytes": 223
+        },
+        "stdout.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication/process-writer-1-stdout.txt",
+          "sha256": "7d5e3a18bca5385f0f2876a0f89d099cd84deb8af26977df285fda42f1f9dbd5",
+          "bytes": 1104
+        },
+        "stderr.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication/process-writer-1-stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "result": {
+        "writes": 25,
+        "module_path": "/workspace/e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py",
+        "module_sha256": "9387af931c5171bc7540233db459abb09c4e2d7062e7215eb91a698f97e5d15c"
+      }
+    },
+    {
+      "fixture": "/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/publication-frozen-89ead1586-tmp/test_fresh_process_reader_obse0/process-writer-2",
+      "role": "process-writer-2",
+      "files": {
+        "result.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication/process-writer-2-result.json",
+          "sha256": "94e4e3fca26b88affc0b631830dc85d95bfefa2775a3f0b4ae3ba2b7f3bdb3e4",
+          "bytes": 223
+        },
+        "stdout.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication/process-writer-2-stdout.txt",
+          "sha256": "ddbe55f39fbf7e0335d81d948916aedbcd26a1ebc17a693d2ae98a53b4dab236",
+          "bytes": 1104
+        },
+        "stderr.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication/process-writer-2-stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "result": {
+        "writes": 25,
+        "module_path": "/workspace/e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py",
+        "module_sha256": "9387af931c5171bc7540233db459abb09c4e2d7062e7215eb91a698f97e5d15c"
+      }
+    },
+    {
+      "fixture": "/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/publication-frozen-89ead1586-tmp/test_process_kill_selects_only0/process-kill_before_pointer-2",
+      "role": "process-kill_before_pointer-2",
+      "files": {
+        "stdout.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication/process-kill_before_pointer-2-stdout.txt",
+          "sha256": "c16af46ca59a9166509cf260e29267724ff50698dfadd15d3cc737a6b5c5b5dd",
+          "bytes": 1104
+        },
+        "stderr.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication/process-kill_before_pointer-2-stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      }
+    },
+    {
+      "fixture": "/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/publication-frozen-89ead1586-tmp/test_process_kill_selects_only1/process-kill_after_pointer-2",
+      "role": "process-kill_after_pointer-2",
+      "files": {
+        "stdout.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication/process-kill_after_pointer-2-stdout.txt",
+          "sha256": "96575f0dceb9142f1640b76a66f3144fd39536fc6efc156695567e6110e5894b",
+          "bytes": 1102
+        },
+        "stderr.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication/process-kill_after_pointer-2-stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      }
+    }
+  ],
+  "check_wrapper": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication/run-checks.py.txt",
+    "sha256": "ce4721c25c5389e9d992ed1967b9300e12163dc658933dc1981a3d2979f25273",
+    "bytes": 2072
+  },
+  "independent_review": {
+    "owner": "root B orchestrator",
+    "source_point": "89ead1586d00ff48bb296d0e36d337851fe76ee3",
+    "status": "pending_at_receipt_construction",
+    "author_review_verdict": false
+  },
+  "limitations_and_next_owner": [
+    "Retained/orphan generations are not garbage-collected; process termination can leave an unreachable unpublished generation.",
+    "Local-filesystem flock/atomic-replace/directory-fsync protocol; no physical power-loss proof and no hostile filesystem actor/concurrent symlink-swap claim.",
+    "Post-publication fsync failure is visible publication with unacknowledged durability, never success; callers can inspect or retry.",
+    "Generation-v1 files require ChainCheckpoint.load; legacy direct JSON remains readable under content and execution checks.",
+    "B74 exact selected-view/content/tenant/origin/config/dependency request closure remains pending; no global dataset identity or production data attestation.",
+    "B13 public route A/G only, remaining CMP/JIT assigned work still pending; no Scientist or streaming source edits.",
+    "Fixture errors before corrected baseline and process reader done-path correction are retained ignored and not attributed to production.",
+    "Maintenance scanner84 exit3 partial remains earlier source only; it does not certify this89 source."
+  ]
+}

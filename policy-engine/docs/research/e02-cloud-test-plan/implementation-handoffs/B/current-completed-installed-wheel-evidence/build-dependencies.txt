@@ -1,0 +1,9 @@
+Using Python 3.14.2 environment at: build-env
+Resolved 5 packages in 2.19s
+Prepared 5 packages in 599ms
+Installed 5 packages in 2ms
+ + hatchling==1.27.0
+ + packaging==26.3
+ + pathspec==1.1.1
+ + pluggy==1.6.0
+ + trove-classifiers==2026.9.21.13

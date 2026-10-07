@@ -1,0 +1,17 @@
+id = "2026-10-06-e02-b-policy-worker-accounting"
+title = "Require explicit durable accounting for budgeted policy workers"
+type = "fixed"
+component = "scientist-policy-design"
+owner = "team-scientist"
+summary = "Both LLM policy workers admit one initialized middleware owner before gateway creation and preserve obtained accounting errors instead of returning a successful scientific fallback."
+evidence = ["tests/unit/scientist/policy_design/test_worker_accounting_admission_e02.py", "tests/unit/scientist/policy_design/test_worker_accounting_boundary_e02.py", "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py"]
+compatibility = "Raw BudgetState worker inputs now refuse before factory/provider work. Unbudgeted calls and ordinary scientific fallback remain available."
+change_class = "internal"
+surface_classification = "internal: unlisted scientist.policy_design workers and shared owner admission helper; registered Scientist facade exports unchanged"
+migration = "Initialize the selected FileBudgetLedger through BudgetMiddleware explicitly, pass budget_middleware to the worker constructor, and leave raw budget_state arguments and TranslatorInputBundle.budget_state unset. Do not combine raw limits with a different middleware owner."
+api = "Both constructors accept budget_middleware. Raw-only, mixed-owner and ledgerless contours raise typed PolicyWorkerAccountingAdmissionError; obtained LLMAccountingError is propagated unchanged."
+limitations = "No storage path, bootstrap, institutional permission or external billing status is selected by a worker. Omitting both accounting inputs is the explicit non-durable contour."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/scientist/policy_design/README.md"]
+runbook_docs = []

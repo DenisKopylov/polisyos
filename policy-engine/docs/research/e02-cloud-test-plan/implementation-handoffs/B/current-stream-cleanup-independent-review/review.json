@@ -1,0 +1,705 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-stream-cleanup-independent-review",
+  "reviewer": "RUN writer /root/run_writer",
+  "author": "DUR consumer author /root/dur_probe",
+  "reviewer_intake_sha": "dae863be52dc612e7ccef8b52a542159ca69e330",
+  "reviewed_test_sha": "a6ddddc114e195c7f1686042cf7c63ad99b9d5af",
+  "reviewed_test_tree": "5f18c250c0c74afce848a3da117185212af6c315",
+  "runtime_source_sha": "f131958a71413154785823abeb0765d40499bad2",
+  "actual_runtime_checkout_sha": "48e1f7170b04f1362e9b7e1d9b74eb9763151830",
+  "actual_runtime_checkout_tree": "8ba3aa789a2997e523e37e6784fec207d86d9747",
+  "slice_base_sha": "1015b9f3e24d8759f82c73d2cbd9d5b1f6a0e786",
+  "author_publication_sha": "67c4a6f6f4e396c61d26846c51127cc4724978e1",
+  "author_publication_tree": "28a571faa24ea703157ca24d1e8a1cbaf54c2a69",
+  "branch": "codex/e02-B-current-runtime",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/46",
+  "read_only_product_tests": true,
+  "runtime_execution_by_reviewer": false,
+  "closure_ids": [],
+  "finding_ids": [
+    "B87"
+  ],
+  "bundle_ids": [
+    "NET-01"
+  ],
+  "candidate_tracked_footprint": [
+    {
+      "status": "A",
+      "path": "policy-engine/tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py"
+    }
+  ],
+  "candidate_production_changed_paths": [],
+  "classification": "Independent bounded source/oracle premise PASS; author native actual7PASS1FAIL retained. No production fix or finding closure.",
+  "predicate_basis": "independently_reconciled",
+  "predicate_scope": "Immutable canonical source/test and captured author native inputs/outputs, without reviewer runtime or service incident claim.",
+  "capability_state_or_finding_state": "B87 OPEN: final-process retry owner missing; seven finite controls supported.",
+  "source_review": {
+    "complete_test_read": {
+      "ref": "a6ddddc114e195c7f1686042cf7c63ad99b9d5af",
+      "path": "policy-engine/tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py",
+      "git_blob": "1f677e7cf2fa3397ce02fd634ea65e622c480757",
+      "bytes": 12070,
+      "sha256": "19b14a681ffce04b13fc1973aa19fba064691751c3e7b8a5c0e697d3a7d5050f"
+    },
+    "source_trace": [
+      "Full ConnectionPool1136L acquire/release/pending physical owner/close_all lifetime",
+      "StreamingSourceSession create/subscribe/rewind/close and process_stream_dataset recovery/finally consumer",
+      "Registry lifecycle _retain_pending_startup_cleanup/shutdown_async owner retry",
+      "Full actual EventStreamConnector and local _file_common file reader; CursorStore index load and async adapter"
+    ],
+    "pool_observer": "Only streaming_module.ConnectionPool constructor name replaced by observer returning canonical original pool. No fake pool/session/process or patched cleanup implementation.",
+    "connector_input": "ObservedFileConnector subclasses EventStreamConnector, delegates real connect/fetch_stream/disconnect. Deliberate stage-entry fault, not an actual OS disconnect error; no added subscribe_stream/rewind_stream/close_stream methods.",
+    "same_child_origins": [
+      {
+        "module": "polisyos.fabric.connectors.pool",
+        "origin": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/pool.py",
+        "sha256": "0efa56aab0b99ae5213be8f5e5e44bc3f5ffb935382b878ed0858cbbaa7ece35"
+      },
+      {
+        "module": "polisyos.fabric.data_plane.streaming",
+        "origin": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+        "sha256": "aaa69447dca6eb011a21e2385abad9a91b796d0f90689d1ab7b93e88ffa9e5c3"
+      },
+      {
+        "module": "polisyos.fabric.data_plane.cursor_store",
+        "origin": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/data_plane/cursor_store.py",
+        "sha256": "e52018d556972e60932490fa7c7e9510ad66f2c72a694b429f4eb1e9bebc3405"
+      },
+      {
+        "module": "polisyos.fabric.connectors.sources.event_stream",
+        "origin": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/sources/event_stream.py",
+        "sha256": "63fb6aed45dd586828adec4a8a1dd8eea8a347ff4659ad1b5a801c8bd78a2d48"
+      }
+    ],
+    "source_equivalence": {
+      "f131_to_actual48e_all_tracked_product": "ZERO_DIFF",
+      "historic4e_to_actual48e_all_tracked_product": "ZERO_DIFF",
+      "meaning": "Git custody and four observed loaded module identities, not full nested import/resource read-set"
+    },
+    "producer_consumer": "Startup failure transfers pending pool to registry; successful create hands session to process. After final close_all refusal the private pool retains actual pending handle; process exits without registry transfer. Registry shutdown retries retained startup pools, cannot reach this final-process private pool."
+  },
+  "property": {
+    "statement": "A finished stream process must not abandon an acquired ConnectionHandle with unconfirmed disconnect and no production owner able to retry cleanup.",
+    "runtime_path": [
+      "Actual EventStreamConnector file URI connect/fetch_stream",
+      "StreamingSourceSession create/fallback subscribe/poll/rewind",
+      "process_stream_dataset real FileSystemCAS/CursorStore processing",
+      "Canonical ConnectionPool release/close_all physical disconnect confirmation",
+      "ConnectorRegistry startup owner transfer/shutdown_async retry consumer"
+    ],
+    "proxy_divergence": "Free semaphore count is insufficient: failing case has available_permits=1 and pending_permit=False in a permanently closed pool, while one actual old handle remains unconfirmed, registry retry owner count is zero and shutdown cannot retire it. Fresh new C session creates another real handle; later observer-only close completes old cleanup but cannot repair the missing production transfer.",
+    "negative_controls": [
+      "Subscribe fetch-entry fault preserves exact primary exception and cleans acquired handle.",
+      "Corrupt actual CursorStore index refuses and cleans after real session acquisition.",
+      "Actual fallback rewind fetch-entry fault cleans both release/reacquire stages.",
+      "Caller cancellation while poll gate is entered propagates CancelledError and cleans.",
+      "Three startup disconnect failures preserve primary reason+notes and registry owns retry; shutdown retires old handle.",
+      "Direct retained session second close finishes once-failed disconnect; third close is idempotent.",
+      "Final process disconnect failure is retained actual FAIL, with every retry/fresh-acquire observation printed before property assertions."
+    ],
+    "authority_purpose": "Bounded connection protocol lifetime, no tenant/institutional/data authority"
+  },
+  "P37_qualification": {
+    "native_input": "Actual two-row JSONL, validated canonical ConnectionHandle, FileSystemCAS/CursorStore and actual file generator. Corrupt real index read by actual CursorStore; persisted empty legacy checkpoint triggers fallback release/reacquire before entry fault.",
+    "quantity_limit": "EventStreamConnector retains no persistent FD; disconnect deletes its local handle argument. Quantity is actual handle protocol disconnect confirmation/reachable retry owner, not external connection/global capacity/descriptor leak. Test active map retains references to witness confirmation.",
+    "cancellation_limit": "Caller cancel after polling gate entered, before file iterator reads. Healthy/fresh controls reach real read; no blocked filesystem syscall/disconnect-task cancellation claim."
+  },
+  "P38_qualification": {
+    "countercase": "Current source once-refused final disconnect leaves same oldhandle after registryretry. Fresh real session creates another handle/reads2rows/closes only its own. Later observer close confirms oldhandle; captured production owner assertion stays actualFAIL.",
+    "positive_contrast": "Three startup disconnect refusals preserve exact primary plus3notes and registry-owned retry frees permit0→1. Direct retained session second-close finishes and third-close is idempotent.",
+    "historical_limit": "Current C recovery setup inside try/finally, closed flag set after cleanup; old early-closed/pre-try proxies not evidence for new source."
+  },
+  "canonical_criterion": {
+    "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+    "bytes": 1336380,
+    "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+    "line_begin": 2263,
+    "line_end": 2274,
+    "finding_id": "B87",
+    "exact_text": "## B87. Ошибка подготовки или закрытия потока оставляет приобретённое соединение без cleanup\n\n**Происхождение:** C07-09. **Основание:** StreamingSourceSession.create/subscribe/close и границы try в process_stream_dataset; LC1–LC4. [C07.R02: окна 1–570 и 570–1190]\n\n**Проблема.** `subscribe()` приобретает connector/handle до последующего await подписки. При её ошибке create не возвращает session и не выполняет cleanup. В process_stream_dataset создание session, поиск latest checkpoint и rewind также происходят до основного try/finally. Кроме того, close устанавливает `_closed=True` до `close_stream`; если тот выбросит исключение, pool.release/close_all не выполнятся, а повторный close сразу вернётся по `_closed`.\n\nНа перенесённых методах: ошибка close дала ноль release/close_all; второй close уже не пытался завершить очистку. Нормальный путь корректно вызвал оба — отсутствие управления ресурсами вообще не утверждается. Ошибка subscribe возникла после одного acquire и без освобождения внутри метода. Pool и connector фикстурные; реальные leaked descriptors в работающем сервисе не измерялись.\n\n**Рекомендуемое исправление.** Каждый успешно приобретённый ресурс немедленно включать в область гарантированного освобождения. Подготовка session и восстановление курсора должны находиться внутри той же области владения. Close различает requested/closing/fully-closed и через вложенный finally либо существующий async-context выполняет все обязательные стадии, сохраняя исходную причину ошибки. Повреждённый handle нужно инвалидировать, а не бездумно возвращать в пул как здоровый. `AsyncExitStack` — возможный стандартный механизм, не требование новой подсистемы. [C07.E02–E03]\n\n**Приёмка.** Ошибка подписки, чтения checkpoint, rewind, обычного close и отмена не оставляют занятый слот пула. Повторный close безопасен и способен закончить незавершённую очистку; одна ошибка cleanup не маскирует первичную. Подавление всех ошибок не считается решением. Такая локальная правка полезна уже для нескольких последовательных попыток, без кластерного масштаба.\n",
+    "exact_text_sha256": "77ba7599ba78375afc0c8be8886b2bf8f8dfbe03ddd5c6a8bf130103f9cb34e3",
+    "scope": "Full criterion and full NET-01 card read; historical pre-try/early-closed proxy examples are not reused as current witness."
+  },
+  "canonical_bundle": {
+    "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/NET-01.md",
+    "git_blob": "eec33f3da4d2452e787269152e8ce1a56be2c85a",
+    "bytes": 17369,
+    "sha256": "3317b0e88f1b3517d0e5d6ea2fef5ad20bfa19d5a39eac4a15fe146a6d698683",
+    "marker_line_begin": 49,
+    "marker_line_end": 62,
+    "body_raw_capture_sha256": "9c6e17b748643693b07a5fefefd6943e2ada4415b4b29c7a3e3aaa70d3846781",
+    "body_raw_capture_bytes": 3321,
+    "digest_convention": "Exact raw regex capture between SOURCE markers, excludes markers but retains leading LF and two trailing LFs. Not inclusive49–62 literal block hash.",
+    "digest_source_driver": {
+      "source_sha": "0f76c579880c5b34746da5d793cd23ef54688e0f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-independent-evidence/denominator.py",
+      "git_blob": "82dde24e5bbd9265eb3a3898e954bcb4252c9f11",
+      "bytes": 7246,
+      "sha256": "02bdb405015af71a7e10ade97ca3067abafd515f63f5ce04ca0660f69b350dca"
+    }
+  },
+  "author_digest_qualification": {
+    "status": "VALID raw regex capture digest; convention ambiguous from line-range alone and now independently reproduced",
+    "historical_author_field": {
+      "source_sha": "67c4a6f6f4e396c61d26846c51127cc4724978e1",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-consumer-oracle.json",
+      "json_pointer": "/finding_dispositions/0/canonical_criterion/source_block_sha256"
+    },
+    "actual_digest": "9c6e17b748643693b07a5fefefd6943e2ada4415b4b29c7a3e3aaa70d3846781",
+    "metadata_only": "Source/test/status/native bytes unchanged; no rerun required for digest convention."
+  },
+  "baseline_cells": [
+    {
+      "id": "F02-P004",
+      "job": "F02",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/fabric/connectors/test_registry.py",
+      "state": "PASS",
+      "collected": "74",
+      "calls": "74",
+      "call_pass": "74",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "3.17",
+      "rss_kib": "180576",
+      "receipt_status": "reconciled",
+      "source_file": "received/F02.txt",
+      "source_line": "132",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F04-P009",
+      "job": "F04",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+      "state": "PASS",
+      "collected": "50",
+      "calls": "50",
+      "call_pass": "50",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "11.432",
+      "rss_kib": "179680",
+      "receipt_status": "valid_reconciled_parent",
+      "source_file": "received/F04.txt",
+      "source_line": "219",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F06-P010",
+      "job": "F06",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/fabric/connectors/test_registry.py",
+      "state": "PASS",
+      "collected": "63",
+      "calls": "63",
+      "call_pass": "63",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "5.185155868530273",
+      "rss_kib": "225928",
+      "receipt_status": "valid",
+      "source_file": "received/F06.txt",
+      "source_line": "194",
+      "extra_json": "{\"reason\":\"null\"}"
+    },
+    {
+      "id": "F06-P020",
+      "job": "F06",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+      "state": "PASS",
+      "collected": "10",
+      "calls": "10",
+      "call_pass": "10",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "5.970865249633789",
+      "rss_kib": "226796",
+      "receipt_status": "valid",
+      "source_file": "received/F06.txt",
+      "source_line": "204",
+      "extra_json": "{\"reason\":\"null\"}"
+    },
+    {
+      "id": "F07-P008",
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+      "state": "PASS",
+      "collected": "50",
+      "calls": "50",
+      "call_pass": "50",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "8.337976455688477",
+      "rss_kib": "224704.0",
+      "receipt_status": "valid",
+      "source_file": "received/F07.txt",
+      "source_line": "14",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F08-P010",
+      "job": "F08",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/fabric/connectors/test_registry.py",
+      "state": "PASS",
+      "collected": "73",
+      "calls": "73",
+      "call_pass": "73",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "6.014201879501343",
+      "rss_kib": "216496",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F08.txt",
+      "source_line": "133",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F11-P015",
+      "job": "F11",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+      "state": "PASS",
+      "collected": "10",
+      "calls": "10",
+      "call_pass": "10",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "5.005",
+      "rss_kib": "221960",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F11.txt",
+      "source_line": "144",
+      "extra_json": "{\"receipt_quality\":\"reconciled\",\"input_custody_blockers\":\"0\"}"
+    },
+    {
+      "id": "F12-P008",
+      "job": "F12",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/fabric/connectors/test_registry.py",
+      "state": "PASS",
+      "collected": "63",
+      "calls": "63",
+      "call_pass": "63",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "8.001466637999329",
+      "rss_kib": "212464.0",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F12.txt",
+      "source_line": "593",
+      "extra_json": "{\"reason\":\"native\"}"
+    },
+    {
+      "id": "F13-P010",
+      "job": "F13",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+      "state": "PASS",
+      "collected": "50",
+      "calls": "50",
+      "call_pass": "50",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "12.09",
+      "rss_kib": "228248",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F13.txt",
+      "source_line": "137",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F15-P004",
+      "job": "F15",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/fabric/connectors/test_registry.py",
+      "state": "PASS",
+      "collected": "74",
+      "calls": "74",
+      "call_pass": "74",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.63",
+      "rss_kib": "225580",
+      "receipt_status": "valid",
+      "source_file": "received/F15.txt",
+      "source_line": "159",
+      "extra_json": "{\"reason\":\"null\"}"
+    }
+  ],
+  "baseline_navigation": {
+    "source_sha": "dae863be52dc612e7ccef8b52a542159ca69e330",
+    "command": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--finding",
+      "B87",
+      "--details",
+      "--job-context",
+      "--limit",
+      "30"
+    ],
+    "cwd": "/workspace/e02-B-current-runtime",
+    "cell_denominator": 10,
+    "job_denominator": 9,
+    "source_sha_denominator": 5,
+    "source_refs": [
+      {
+        "job": "F02",
+        "ref": "research_main",
+        "cell_ids": [
+          "F02-P004"
+        ]
+      },
+      {
+        "job": "F04",
+        "ref": "research_main",
+        "cell_ids": [
+          "F04-P009"
+        ]
+      },
+      {
+        "job": "F06",
+        "ref": "e02_execution_base",
+        "cell_ids": [
+          "F06-P010",
+          "F06-P020"
+        ]
+      },
+      {
+        "job": "F07",
+        "ref": "e02_head",
+        "cell_ids": [
+          "F07-P008"
+        ]
+      },
+      {
+        "job": "F08",
+        "ref": "e02_head",
+        "cell_ids": [
+          "F08-P010"
+        ]
+      },
+      {
+        "job": "F11",
+        "ref": "main",
+        "cell_ids": [
+          "F11-P015"
+        ]
+      },
+      {
+        "job": "F12",
+        "ref": "main",
+        "cell_ids": [
+          "F12-P008"
+        ]
+      },
+      {
+        "job": "F13",
+        "ref": "integration_head",
+        "cell_ids": [
+          "F13-P010"
+        ]
+      },
+      {
+        "job": "F15",
+        "ref": "integration_head",
+        "cell_ids": [
+          "F15-P004"
+        ]
+      }
+    ],
+    "raw_query": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-independent-review/baseline-navigation.json",
+      "bytes": 67858,
+      "sha256": "e57499dd348b51fd0e3546956e449539a9b04e92786f2f99dd072e8b79543ae4"
+    },
+    "complete_captured_metadata_headers": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-independent-review/baseline-contexts.json",
+      "bytes": 146952,
+      "sha256": "c2b2df378b135393a45f09cdf9d4f1b63a3dc58f9836222abb04ec04e69b3874"
+    }
+  },
+  "baseline_qualification": "10compactPASS candidate_unverified/semantic_adequacy_not_established,0receivedrawarchives. Nine full captured job metadata headers retain exact source SHA/tree/ref/environment/locked configuration and input/context refs; navigation only, not proof of new oracle or closure.",
+  "author_handoff": {
+    "source_sha": "67c4a6f6f4e396c61d26846c51127cc4724978e1",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-consumer-oracle.json",
+    "git_blob": "6162aeba8a3148a7b65f9c6a1a6add1d0d4204fd",
+    "bytes": 16409,
+    "sha256": "918b905ba68920b8f84831118db799eba6c339d2ec8c704d3568293f50172638"
+  },
+  "author_checks": [
+    {
+      "id": "actual-jsonl-cas-cursor-pool-consumers",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-c",
+        "import hashlib,json,pathlib,pytest\nfrom polisyos.fabric.connectors import pool\nfrom polisyos.fabric.data_plane import streaming,cursor_store\nfrom polisyos.fabric.connectors.sources import event_stream\nexpected={pool: \"0efa56aab0b99ae5213be8f5e5e44bc3f5ffb935382b878ed0858cbbaa7ece35\",streaming:\"aaa69447dca6eb011a21e2385abad9a91b796d0f90689d1ab7b93e88ffa9e5c3\",cursor_store:\"e52018d556972e60932490fa7c7e9510ad66f2c72a694b429f4eb1e9bebc3405\",event_stream:\"63fb6aed45dd586828adec4a8a1dd8eea8a347ff4659ad1b5a801c8bd78a2d48\"}\nfor module,digest in expected.items():\n p=pathlib.Path(module.__file__).resolve(); actual=hashlib.sha256(p.read_bytes()).hexdigest(); print(\"B87_ACTUAL_SOURCE\",json.dumps({\"module\":module.__name__,\"origin\":str(p),\"sha256\":actual}),flush=True); assert str(p).startswith(\"/workspace/e02-B-current-coordination/policy-engine/src/\") and actual==digest\nraise SystemExit(pytest.main([\"-vv\",\"-s\",\"/workspace/e02-B-current-durability/policy-engine/tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py\",\"--basetemp=/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/b87-cleanup-a6/pytest\",\"-o\",\"cache_dir=/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/b87-cleanup-a6/cache\",\"--junitxml=/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/b87-cleanup-a6/native.xml\"]))"
+      ],
+      "cwd": "/workspace/e02-B-current-durability/policy-engine",
+      "target_sha": "a6ddddc114e195c7f1686042cf7c63ad99b9d5af",
+      "product_source_sha": "f131958a71413154785823abeb0765d40499bad2",
+      "environment": {
+        "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "python_version": "3.14.2",
+        "pytest_version": "9.0.2",
+        "dependency_profile": "Root-provided isolated actual environment; no sync/install by this slice. Declared environment/source/config/fixture closure, not complete dynamic import/resource readset.",
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache"
+      },
+      "input_closure": {
+        "product_source_ref": "f131958a71413154785823abeb0765d40499bad2",
+        "actual_product_checkout_ref": "48e1f7170b04f1362e9b7e1d9b74eb9763151830",
+        "native_test_ref": "a6ddddc114e195c7f1686042cf7c63ad99b9d5af:policy-engine/tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py",
+        "pytest_config_and_conftest_ref": "a6ddddc114e195c7f1686042cf7c63ad99b9d5af:policy-engine/{pytest.ini,pyproject.toml,tests/conftest.py}",
+        "fixtures": "Per-case temporary real JSONL with two rows, real FileSystemCAS and CursorStore; corrupt stream_checkpoint_index.json for read refusal; actual persisted empty legacy StreamCheckpoint for fallback rewind. No production dataset, external DB, network service or added synthetic stream protocol method.",
+        "fault_profile": "ObservedFileConnector subclasses actual EventStreamConnector; delegate real connect/fetch_stream/disconnect. Fetch-entry refusal, three startup disconnect refusals, once final disconnect refusal; caller cancellation after connector poll gate entered before actual file iterator read.",
+        "observation_profile": "Constructor observer returns canonical ConnectionPool unchanged. Captures actual C-created pool solely to measure/clean test fixtures; observer close is explicitly after all production registry retry/fresh acquire measurements and cannot satisfy the property.",
+        "physical_scope": "File EventStream does not retain OS descriptors across reads. Actual ConnectionHandle disconnect confirmation and pool pending owner measured; actual /proc/self/fd JSONL counts separately reported as zero. No descriptor leak or connector-global connection quota inferred.",
+        "isolation": "Unique new basetemp/cache paths in exact argv. Full actual scratch retained until deciding outputs. No artificial process/worker/thread concurrency quota introduced."
+      },
+      "outcome": "FAIL",
+      "exit": 1,
+      "case_counts": {
+        "PASS": 7,
+        "FAIL": 1,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "wall_s": 2.7074725440033944,
+      "max_rss_kib": 200672,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-consumer-evidence/native.txt",
+        "sha256": "a457b623d95800965be657f2f4cae8723e4d2e15d5bd0ef1bc429b064b67252f",
+        "bytes": 40439
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-consumer-evidence/native.xml",
+        "sha256": "744cb047d52f8656971d315f03de51d1a633045741c516ac6ce52e07f571fa2e",
+        "bytes": 10726
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-consumer-evidence/native-wrapper.json",
+        "sha256": "2c62850c8269876cc7f7a2f5d1b6e4bf983d53e3152e6b06776570e903289aaf",
+        "bytes": 2825
+      },
+      "deciding_output": "Only process-disconnect-failure actual assertion FAIL. All seven healthy/error/cancel/startup-owner/direct-retry controls PASS; no XFAIL or suppressed assertion."
+    }
+  ],
+  "author_deciding_evidence_consistency": {
+    "cases": 8,
+    "pass": 7,
+    "fail": 1,
+    "error": 0,
+    "skip": 0,
+    "exit": 1
+  },
+  "independent_checks": [
+    {
+      "id": "immutable-source-and-captured-evidence-audit",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-independent-review/audit.py",
+        "--repo",
+        "/workspace/e02-B-current-runtime",
+        "--author-ref",
+        "67c4a6f6f4e396c61d26846c51127cc4724978e1",
+        "--stdout-path",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-consumer-evidence/native.txt",
+        "--xml-path",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-consumer-evidence/native.xml",
+        "--wrapper-path",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-consumer-evidence/native-wrapper.json"
+      ],
+      "cwd": "/workspace/e02-B-current-runtime",
+      "target_test_sha": "a6ddddc114e195c7f1686042cf7c63ad99b9d5af",
+      "product_source_sha": "f131958a71413154785823abeb0765d40499bad2",
+      "author_evidence_sha": "67c4a6f6f4e396c61d26846c51127cc4724978e1",
+      "environment": {
+        "interpreter": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "libraries": "stdlib only",
+        "git_executable": "/usr/local/bin/git",
+        "product_imports": false,
+        "pytest_imports": false
+      },
+      "input_closure": "Exact Git source/test/evidence objects and captured stdout/XML/wrapper, no product execution.",
+      "outcome": "PASS",
+      "exit": 0,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-independent-review/audit.json",
+        "bytes": 49196,
+        "sha256": "65cf052407e44e1ccb399282b9cb0e1fecc470863b614b1fe4772f5dc013b75d"
+      }
+    }
+  ],
+  "finding_dispositions": [
+    {
+      "finding_id": "B87",
+      "bundle_id": "NET-01",
+      "state": "OPEN",
+      "verified_quantity": "Finite final-process handle cleanup retry ownership gap on named current source;7PASS controls/1actualFAIL.",
+      "criterion_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "bytes": 1336380,
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+        "line_begin": 2263,
+        "line_end": 2274,
+        "finding_id": "B87",
+        "exact_text": "## B87. Ошибка подготовки или закрытия потока оставляет приобретённое соединение без cleanup\n\n**Происхождение:** C07-09. **Основание:** StreamingSourceSession.create/subscribe/close и границы try в process_stream_dataset; LC1–LC4. [C07.R02: окна 1–570 и 570–1190]\n\n**Проблема.** `subscribe()` приобретает connector/handle до последующего await подписки. При её ошибке create не возвращает session и не выполняет cleanup. В process_stream_dataset создание session, поиск latest checkpoint и rewind также происходят до основного try/finally. Кроме того, close устанавливает `_closed=True` до `close_stream`; если тот выбросит исключение, pool.release/close_all не выполнятся, а повторный close сразу вернётся по `_closed`.\n\nНа перенесённых методах: ошибка close дала ноль release/close_all; второй close уже не пытался завершить очистку. Нормальный путь корректно вызвал оба — отсутствие управления ресурсами вообще не утверждается. Ошибка subscribe возникла после одного acquire и без освобождения внутри метода. Pool и connector фикстурные; реальные leaked descriptors в работающем сервисе не измерялись.\n\n**Рекомендуемое исправление.** Каждый успешно приобретённый ресурс немедленно включать в область гарантированного освобождения. Подготовка session и восстановление курсора должны находиться внутри той же области владения. Close различает requested/closing/fully-closed и через вложенный finally либо существующий async-context выполняет все обязательные стадии, сохраняя исходную причину ошибки. Повреждённый handle нужно инвалидировать, а не бездумно возвращать в пул как здоровый. `AsyncExitStack` — возможный стандартный механизм, не требование новой подсистемы. [C07.E02–E03]\n\n**Приёмка.** Ошибка подписки, чтения checkpoint, rewind, обычного close и отмена не оставляют занятый слот пула. Повторный close безопасен и способен закончить незавершённую очистку; одна ошибка cleanup не маскирует первичную. Подавление всех ошибок не считается решением. Такая локальная правка полезна уже для нескольких последовательных попыток, без кластерного масштаба.\n",
+        "exact_text_sha256": "77ba7599ba78375afc0c8be8886b2bf8f8dfbe03ddd5c6a8bf130103f9cb34e3",
+        "scope": "Full criterion and full NET-01 card read; historical pre-try/early-closed proxy examples are not reused as current witness."
+      },
+      "baseline_cell_ids": [
+        "F02-P004",
+        "F04-P009",
+        "F06-P010",
+        "F06-P020",
+        "F07-P008",
+        "F08-P010",
+        "F11-P015",
+        "F12-P008",
+        "F13-P010",
+        "F15-P004"
+      ],
+      "source_sha": "f131958a71413154785823abeb0765d40499bad2",
+      "test_sha": "a6ddddc114e195c7f1686042cf7c63ad99b9d5af",
+      "deciding_checks": [
+        "actual-jsonl-cas-cursor-pool-consumers",
+        "immutable-source-and-captured-evidence-audit"
+      ],
+      "residual": "C final-process cleanup retains pending private-pool handle without production registry retry owner. Real external resources/service/close_stream-specific/repeatedcancel profiles unverified.",
+      "next_owner": "C/G",
+      "selector": "policy-engine/tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[process-disconnect-failure]",
+      "replay_command_ref": {
+        "source_sha": "67c4a6f6f4e396c61d26846c51127cc4724978e1",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-consumer-oracle.json",
+        "json_pointer": "/checks/0/command"
+      },
+      "closure_ids": []
+    }
+  ],
+  "limitations_and_next_owner": [
+    "C alone owns streaming.py; this branch changes only the defining consumer test and receipt companions. Root/G code acceptance and final whole cohort/gates remain separate.",
+    "Current C sets closed after release/close_all and recovery setup is already inside try/finally. Historical early-closed/pre-try examples are not witnesses for current source.",
+    "Fresh session uses a new pool; it does not restore capacity of the original permanently closed pool. No global connector capacity, persistent FD, service incident, powerloss or multihost claim.",
+    "Cap1 restored-frontier budget FAIL remains a separate B→C divergence and does not establish this cleanup countercase.",
+    "Caller cancellation is injected at an entered connector polling wait before real file read; actual file read/processing is established by healthy/fresh controls. Native subscribe_stream/rewind_stream/close_stream absent on file connector and not fabricated.",
+    "Smallest required C consumer capability: keep failed final process pool/handle reachable by an explicit runtime retry owner, with actual original handle disconnect-confirmed by that owner; no source fix is claimed here.",
+    "Reviewer ran only read-only Git/hash/XML audit and Ruff on audit.py; no native invocation/collection/product import.",
+    "New8casefile lies outside historic root4e2253 denominator; original fullwave/cap1budget FAIL retained. Root owns finalcohort recomputation after normalintegration.",
+    "Disconnect task cancellation itself, repeated caller cancel, other external physicalresources/OSfaults/powerloss/multihost were not tested."
+  ],
+  "pattern_pass": {
+    "ids": [
+      "P29",
+      "P31",
+      "P35",
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "bucket": "Same B87 cleanup ownership class, post-create consumer deeper; no new normative law/source patch",
+    "P40": "Scoped source trace establishes startup retry capability and missing final-process transfer; two positive real ownership contrasts separate countercase from semaphore counts/genericpool failure.",
+    "P41": "Four actual root-backed origins +complete tracked production equivalence. New8nativecases not inherited rootfullwave evidence."
+  },
+  "evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-independent-review/audit.py",
+      "bytes": 11381,
+      "sha256": "d2128634340bfc8c9a0c695774618458a8dc6622e41908c3f0e9bc6c7422d894"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-independent-review/audit.json",
+      "bytes": 49196,
+      "sha256": "65cf052407e44e1ccb399282b9cb0e1fecc470863b614b1fe4772f5dc013b75d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-independent-review/baseline-navigation.json",
+      "bytes": 67858,
+      "sha256": "e57499dd348b51fd0e3546956e449539a9b04e92786f2f99dd072e8b79543ae4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-independent-review/baseline-contexts.json",
+      "bytes": 146952,
+      "sha256": "c2b2df378b135393a45f09cdf9d4f1b63a3dc58f9836222abb04ec04e69b3874"
+    }
+  ],
+  "reviewer_static_checks": {
+    "ruff_check": "PASS audit.py",
+    "ruff_format_check": "PASS audit.py",
+    "source_and_tests": "ZERO_DIFF from e1871506fcebc47d6572891b323ddf1f2083a3c9 through intake, only five-file docs namespace added."
+  },
+  "publication_qualification": "Actual immutable author67Git objects bound. Reviewer publication/readback follows generation separately; no futureSHA included."
+}

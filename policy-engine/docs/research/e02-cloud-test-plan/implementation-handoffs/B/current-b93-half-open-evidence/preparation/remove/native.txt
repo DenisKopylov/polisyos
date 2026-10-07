@@ -1,0 +1,250 @@
+2026-10-06 23:23:32.779 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized
+2026-10-06 23:23:32.782 | DEBUG    | polisyos.common.logger:_call:120 - Failure recorded
+2026-10-06 23:23:32.782 | CRITICAL | polisyos.common.logger:_call:120 - Circuit opened (tripped)
+2026-10-06 23:23:32.782 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized
+F
+=================================== FAILURES ===================================
+______ test_actual_half_open_provider_retains_regulator[ttl-and-pressure] ______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f4ef162c2b0>
+tmp_path = PosixPath('/workspace/e02-B-current-runtime/.polisyos/e02-B-current-runtime/b93-half-open/remove/pytest-tmp/test_actual_half_open_provider0')
+ttl = 1.0, advance = 2.0, capacity = 1
+
+    @pytest.mark.parametrize(
+        ("ttl", "advance", "capacity"),
+        [(1.0, 2.0, 1), (1000.0, 0.0, 1), (1.0, 2.0, 2)],
+        ids=["ttl-and-pressure", "pressure-without-expiry", "spare-protected-slot"],
+    )
+    def test_actual_half_open_provider_retains_regulator(
+        monkeypatch, tmp_path, ttl, advance, capacity
+    ):
+        now = [0.0]
+        monkeypatch.setattr(registry_module, "_monotonic", lambda: now[0])
+        monkeypatch.setattr(circuit_module, "_monotonic", lambda: now[0])
+        removed = os.environ.get("E02_REMOVE_PROTECTION") == "1"
+        if removed:
+            # Counterfactual only: keep registry/decorator/lease markers and real provider intact.
+            monkeypatch.setattr(
+                registry_module.BoundedResourceRegistry,
+                "_entry_is_quiescent",
+                lambda self, key, value: True,
+            )
+        config = circuit_module.CircuitBreakerConfig(
+            failure_threshold=1,
+            success_threshold=1,
+            timeout_seconds=10.0,
+            half_open_max_calls=1,
+            window_size_seconds=60.0,
+            min_throughput=1,
+        )
+        physical = tmp_path / "physical-provider.jsonl"
+        observations = []
+        pending = 0
+        peak_pending = 0
+    
+        async def scenario():
+            nonlocal pending, peak_pending
+            started, release = asyncio.Event(), asyncio.Event()
+    
+            @circuit_module.with_circuit_breaker(config, circuit_id=lambda key, action: key)
+            async def provider(key, action):
+                nonlocal pending, peak_pending
+                pending += 1
+                peak_pending = max(peak_pending, pending)
+                with physical.open("a") as output:
+                    output.write(
+                        json.dumps({"key": key, "action": action, "pending": pending})
+                        + "\n"
+                    )
+                    output.flush()
+                    os.fsync(output.fileno())
+                try:
+                    if action == "trip":
+                        raise ConnectionError("actual trip body")
+                    if action == "probe":
+                        started.set()
+                        await release.wait()
+                    return {"key": key, "action": action}
+                finally:
+                    pending -= 1
+    
+            registry = provider._circuit_breakers
+            registry._max_items = capacity
+            registry._ttl_seconds = ttl
+            with pytest.raises(ConnectionError, match="actual trip body"):
+                await provider("owned", "trip")
+            original = registry.snapshot()["owned"]
+            assert original.state is circuit_module.CircuitState.OPEN
+            now[0] = 10.0
+            active = asyncio.create_task(provider("owned", "probe"))
+            await asyncio.wait_for(started.wait(), 5.0)
+            generation = original._generation
+            issued = sorted(original._half_open_leases)
+            assert original.state is circuit_module.CircuitState.HALF_OPEN
+            assert len(issued) == 1 and original._active_attempts == set(issued)
+            assert registry._leases == {"owned": 1} and pending == 1
+            now[0] += advance
+            try:
+                same = registry.get_or_create(
+                    "owned", lambda: circuit_module.CircuitBreaker("owned", config)
+                )
+                same_outcome = None
+                try:
+                    same_outcome = await provider("owned", "illegal-second-probe")
+                except Exception as error:
+                    same_outcome = type(error).__name__
+                pressure_outcome = None
+                try:
+                    pressure_outcome = await provider("new-key", "pressure")
+                except Exception as error:
+                    pressure_outcome = type(error).__name__
+                snapshot = registry.snapshot()
+                during = {
+                    "clock": now[0],
+                    "ttl": ttl,
+                    "capacity": capacity,
+                    "same_object": same is original,
+                    "same_generation": same._generation == generation,
+                    "same_outcome": same_outcome,
+                    "pressure_outcome": pressure_outcome,
+                    "old_state": original.state.value,
+                    "issued_tokens": issued,
+                    "old_tokens": sorted(original._half_open_leases),
+                    "old_active": sorted(original._active_attempts),
+                    "registry_keys": sorted(snapshot),
+                    "registry_leases": dict(registry._leases),
+                    "protected_count": registry._protected_count_locked(),
+                    "quiescent_count": registry._quiescent_count_locked(),
+                    "pending": pending,
+                    "peak_pending": peak_pending,
+                    "physical_rows": [
+                        json.loads(line) for line in physical.read_text().splitlines()
+                    ],
+                    "removed_protection": removed,
+                }
+                observations.append({"during": during})
+            finally:
+                release.set()
+                result = await active
+            observations[-1]["released"] = {
+                "result": result,
+                "pending": pending,
+                "old_state": original.state.value,
+                "old_tokens": sorted(original._half_open_leases),
+                "old_active": sorted(original._active_attempts),
+                "leases": dict(registry._leases),
+            }
+            # The real completed HALF_OPEN success returns to neutral CLOSED and frees its slot.
+            now[0] += ttl + 100.0
+            recovery = await provider("recovery-key", "capacity-after-release")
+            observations[-1]["recovery"] = {
+                "result": recovery,
+                "pending": pending,
+                "keys": sorted(registry.snapshot()),
+                "leases": dict(registry._leases),
+                "physical_rows": [
+                    json.loads(line) for line in physical.read_text().splitlines()
+                ],
+            }
+            packet = {
+                "schema": "e02.b93.half_open_observation.v1",
+                "observations": observations,
+            }
+            (tmp_path / "observations.json").write_text(json.dumps(packet, indent=2) + "\n")
+            print("B93_ACTUAL " + json.dumps(packet, sort_keys=True))
+            # Consumer invariant, evaluated after actual effects and all finally cleanup are recorded.
+            assert during["same_object"] and during["same_generation"], during
+            assert during["same_outcome"] == "CircuitOpenError", during
+            assert during["old_tokens"] == issued and during["old_active"] == issued, during
+            assert during["pending"] == 1, during
+            assert during["protected_count"] <= capacity, during
+            if capacity == 1:
+                assert (
+                    during["pressure_outcome"]
+                    == BoundedResourceRegistryCapacityError.__name__
+                ), during
+                assert during["physical_rows"] == [
+                    {"key": "owned", "action": "trip", "pending": 1},
+                    {"key": "owned", "action": "probe", "pending": 1},
+                ], during
+                assert during["peak_pending"] == 1, during
+            else:
+                assert during["pressure_outcome"] == {
+                    "key": "new-key",
+                    "action": "pressure",
+                }, during
+                assert during["physical_rows"][-1] == {
+                    "key": "new-key",
+                    "action": "pressure",
+                    "pending": 2,
+                }, during
+            assert observations[-1]["released"]["old_state"] == "CLOSED"
+            assert observations[-1]["released"]["old_tokens"] == []
+            assert observations[-1]["released"]["old_active"] == []
+            assert observations[-1]["released"]["leases"] == {}
+            assert recovery == {"key": "recovery-key", "action": "capacity-after-release"}
+            assert pending == 0 and registry._leases == {}
+    
+>       asyncio.run(scenario())
+
+../../e02-B-current-runtime/.polisyos/e02-B-current-runtime/b93-half-open/test_half_open_consumer.py:192: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py:204: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py:127: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/base_events.py:719: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    async def scenario():
+        nonlocal pending, peak_pending
+        started, release = asyncio.Event(), asyncio.Event()
+    
+        @circuit_module.with_circuit_breaker(config, circuit_id=lambda key, action: key)
+        async def provider(key, action):
+            nonlocal pending, peak_pending
+            pending += 1
+            peak_pending = max(peak_pending, pending)
+            with physical.open("a") as output:
+                output.write(
+                    json.dumps({"key": key, "action": action, "pending": pending})
+                    + "\n"
+                )
+                output.flush()
+                os.fsync(output.fileno())
+            try:
+                if action == "trip":
+                    raise ConnectionError("actual trip body")
+                if action == "probe":
+                    started.set()
+                    await release.wait()
+                return {"key": key, "action": action}
+            finally:
+                pending -= 1
+    
+        registry = provider._circuit_breakers
+        registry._max_items = capacity
+        registry._ttl_seconds = ttl
+        with pytest.raises(ConnectionError, match="actual trip body"):
+            await provider("owned", "trip")
+        original = registry.snapshot()["owned"]
+        assert original.state is circuit_module.CircuitState.OPEN
+        now[0] = 10.0
+        active = asyncio.create_task(provider("owned", "probe"))
+        await asyncio.wait_for(started.wait(), 5.0)
+        generation = original._generation
+        issued = sorted(original._half_open_leases)
+>       assert original.state is circuit_module.CircuitState.HALF_OPEN
+E       AssertionError: assert <CircuitState.OPEN: 'OPEN'> is <CircuitState.HALF_OPEN: 'HALF_OPEN'>
+E        +  where <CircuitState.OPEN: 'OPEN'> = <polisyos.fabric.connectors.resilience.circuit_breaker.CircuitBreaker object at 0x7f4ef176fb60>.state
+E        +  and   <CircuitState.HALF_OPEN: 'HALF_OPEN'> = <enum 'CircuitState'>.HALF_OPEN
+E        +    where <enum 'CircuitState'> = circuit_module.CircuitState
+
+../../e02-B-current-runtime/.polisyos/e02-B-current-runtime/b93-half-open/test_half_open_consumer.py:87: AssertionError
+=========================== short test summary info ============================
+FAILED ../../../dev::test_actual_half_open_provider_retains_regulator[ttl-and-pressure]
+1 failed in 1.11s

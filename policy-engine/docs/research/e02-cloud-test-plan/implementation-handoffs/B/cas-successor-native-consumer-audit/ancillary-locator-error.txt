@@ -1,0 +1,11 @@
+Qualification: manually retained tool-returned metadata error excerpt; not an original raw stderr byte stream and not a product/native failure. Primary final-audit already completed exit0. A later stdin summary computed all global counts then attempted the wrong TMP wrapper locator and exited1. Correct ROOT wrapper was read and independently hash/source verified by supplement.py.
+
+Traceback (most recent call last):
+  File "<stdin>", line 11, in <module>
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/e02-B-successor-final/raw/review/successor-final-B-cohort.json'

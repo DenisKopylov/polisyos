@@ -1,0 +1,34 @@
+{
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py::test_exact_view_import_uses_deny_only_owner_transaction_and_exact_retry",
+    "--basetemp",
+    "/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/raw/cas-exact-view-fixture/baseline-node-pytest",
+    "-o",
+    "cache_dir=/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/raw/cas-exact-view-fixture/baseline-node-cache",
+    "--junitxml=/workspace/e02-B-current-cas-generation/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/baseline-node.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+  "head": "f53842e1c635dc390f47073f6ad1526a3f2e12c5",
+  "tree": "ce0210c7dfb97111ba17f736e63e355ce2c1b960",
+  "head_after": "f53842e1c635dc390f47073f6ad1526a3f2e12c5",
+  "wall_s": 1.3715552450012183,
+  "pid": 262852,
+  "exit_code": 1,
+  "process_rusage_maxrss_kib": 103304,
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+    "POLISYOS_METRICS_PORT": "0",
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "VECLIB_MAXIMUM_THREADS": null,
+    "NUMEXPR_NUM_THREADS": null,
+    "BLIS_NUM_THREADS": null,
+    "E02_B_PROPERTY_REMOVAL": null
+  },
+  "output_sha256": "4c52019a81752d2428f7f8a3c2e4c52d8d5657c242cb26f8720b2a5d92e82fb9"
+}

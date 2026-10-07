@@ -23,6 +23,12 @@ packages are build-time implementation unless registered through
 | `legal/` | Legal corpus extraction and normalization. |
 | `ukraine/` | Ukraine data domain build surfaces. |
 
+The internal catalog resource owner `catalog/_resources.py` resolves the four
+curated defaults authored under `data/dataset_catalog`. Source checkouts retain
+those original paths; unpacked installations use exact Hatch projections in the
+private catalog `_resources/` directory. Raw observations and mutable batch
+outputs remain external. See [catalog defaults](../../../../docs/reference/data-forge/catalog-default-resources.md).
+
 ## Extension Points
 
 External domains use the `polisyos.data_forge_domains` entry-point group and

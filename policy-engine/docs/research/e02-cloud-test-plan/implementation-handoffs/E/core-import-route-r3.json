@@ -382,7 +382,7 @@
   "predicate_basis": "recomputed",
   "independent_review": "independent/root-review.json",
   "independent_owner_packet_review": "independent/owner-export/owner-packet-review.json",
-  "raw_probe_source_policy": "Independent scratch probe/test input bytes are preserved under raw-source/*.py.raw as historical deciding inputs, not active publication utilities. G can materialize exact bytes to original source_path names using the asset map before reproducing recorded isolated overlay commands; do not confuse scratch overlay with admitted shared source.",
+  "raw_probe_source_policy": "Independent scratch probe/test input bytes are preserved under raw-source/*.py.txt as historical deciding inputs, not active publication utilities. G can materialize exact bytes to original source_path names using the asset map before reproducing recorded isolated overlay commands; do not confuse scratch overlay with admitted shared source.",
   "capability_state_or_finding_state": "implemented",
   "capability_scope": "Bounded Core import-route chain only; missing canonical IR/Foundry public exports are surface_missing",
   "finding_status": "Historical ledger unchanged; individual original-criterion decisions belong to accountable owners and are not inferred from 114 PASS or the route fix",
@@ -696,25 +696,25 @@
       "sha256": "91f366fec701106259e9a24c55064d633d403cd282157dc87359f4ff42472698"
     },
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/raw-source/owner_export_overlay.py.raw",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/raw-source/owner_export_overlay.py.txt",
       "source_path": "/workspace/e02-E-pr38-r3-receipts/owner-export-independent/owner_export_overlay.py",
       "bytes": 1023,
       "sha256": "92395871535b2ee48786c15c74d5ea34765f59584e4b39c293c34cf15744ea8f"
     },
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/raw-source/owner_export_final_overlay.py.raw",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/raw-source/owner_export_final_overlay.py.txt",
       "source_path": "/workspace/e02-E-pr38-r3-receipts/owner-export-independent/owner_export_final_overlay.py",
       "bytes": 1152,
       "sha256": "4aab351b27f975c754a9b0047845585a443c42507d5d115d84811b26b40621e0"
     },
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/raw-source/test_owner_export_routes.py.raw",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/raw-source/test_owner_export_routes.py.txt",
       "source_path": "/workspace/e02-E-pr38-r3-receipts/owner-export-independent/test_owner_export_routes.py",
       "bytes": 4558,
       "sha256": "dc50512b5ecd926c5123dd8c98d87632dcffc055f7bcf6febe73e57182b0422b"
     },
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/raw-source/test_owner_export_final_routes.py.raw",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/raw-source/test_owner_export_final_routes.py.txt",
       "source_path": "/workspace/e02-E-pr38-r3-receipts/owner-export-independent/test_owner_export_final_routes.py",
       "bytes": 5729,
       "sha256": "c473b2e68b330644c315eeec58df31cfb92aeb7d4ce8860a4bd608e7980d0cf9"
@@ -780,7 +780,7 @@
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/raw-source/probe_final_unadmitted_exports.py.raw",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/raw-source/probe_final_unadmitted_exports.py.txt",
       "source_path": "/workspace/e02-E-pr38-r3-receipts/owner-export-independent/probe_final_unadmitted_exports.py",
       "bytes": 1724,
       "sha256": "cfe289e3d44a38c39f23452695fe99c1b22462c0b54f63c0b809b159cfb41a77"
@@ -804,7 +804,7 @@
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/raw-source/probe_current_architecture_negative.py.raw",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/raw-source/probe_current_architecture_negative.py.txt",
       "source_path": "/workspace/e02-E-pr38-r3-receipts/owner-export-independent/probe_current_architecture_negative.py",
       "bytes": 5484,
       "sha256": "60dc40ff0f6de056273397debd3ed5c3a872f88a4cfb6d08b6b067ffafdcea88"
@@ -818,6 +818,11 @@
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/validate.py",
       "bytes": 3409,
       "sha256": "8982a401b34835208600a31cea8c99257e66fd9479b262bbe685c8fe2a4badab"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/copy-index.json",
+      "bytes": 25652,
+      "sha256": "04ceecfb9c84fc7620d88de19da714998044a798d408a8a4ce68a08f87361a61"
     }
   ],
   "cleanup": {
@@ -829,5 +834,6 @@
     ],
     "inactivity_established": false,
     "action": "No removal; preserve source/docs/unique deciding receipts. Root/shared interpreter is active and excluded. Only list candidates without native Trash."
-  }
+  },
+  "deciding_copy_index": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/copy-index.json"
 }

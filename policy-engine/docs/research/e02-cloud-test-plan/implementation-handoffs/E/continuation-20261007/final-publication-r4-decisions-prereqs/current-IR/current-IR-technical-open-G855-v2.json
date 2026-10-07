@@ -1,0 +1,172 @@
+{
+  "schema": "policyos.e02.E.current_IR_technical_counterexample_dispositions.v1",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "input_refs": {
+    "frozen54_V2": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-all-54-source-wave-update-v2.json",
+      "bytes": 948332,
+      "sha256": "9ce6df09fe956cb4fc3c55021649ceb4fbc92fb89b341dc4e4a66b08f8778872"
+    },
+    "current_actual_counterexamples": {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/actual-conditions-counterexamples.json",
+      "bytes": 18774,
+      "sha256": "d4827c252f4da22f69be8fb920dde6e6a5737553df43a199f886e115637b8042"
+    },
+    "independent_owner_response": {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/independent-owner-response.json",
+      "bytes": 11390,
+      "sha256": "f3878619073bf02ed4b66f89525958d0cb5c5d929cd1f860a9535a438e1ae5ca"
+    },
+    "complete_probe_selection": {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/publication-selection.json",
+      "bytes": 3201,
+      "sha256": "b001b5e01eebd0f23a7e51c92a95728d087bec7ae6413c2096a1fcafc31be048"
+    }
+  },
+  "G_review": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+  "IR_candidate": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+  "historical_ledger_unchanged": {
+    "partial": 49,
+    "held": 4,
+    "closed": 1
+  },
+  "frozen_previous_E_proposals_unchanged": {
+    "closed": 43,
+    "limited": 9,
+    "held": 2
+  },
+  "current_E_proposals_after_exact_two_row_correction": {
+    "closed": 41,
+    "limited": 9,
+    "held": 2,
+    "open": 2
+  },
+  "scope": "Two current technical corrections only; no duplicate54 plan or new semantic ratification",
+  "rows": [
+    {
+      "id": "B201",
+      "bundle_ids": [
+        "UQS-01"
+      ],
+      "historical_ledger_status": "held",
+      "frozen_previous_E_proposal": "closed",
+      "current_accountable_E_decision": "open",
+      "reason": "Current exact700/64d source has confirmed technical counterexamples. The implementation requires correction and independent defining-property acceptance.",
+      "semantic_owner": "E scoped B201/B202 appointment a0ac10fc",
+      "four_tracked_semantic_decisions_preserved": true,
+      "missing_semantic_owner_is_not_the_blocker": true,
+      "next_owner": "E canonical producer/profile and shared MC mechanism writer",
+      "minimal_inputs": "Already available native equal-length/no-alignment marginal fixture and 100 positive atoms (99 zeros, last1e15). No production history needed for these fixes.",
+      "next_verifiable_result": "Append-only implementation SHA/tree; healthy declared-aligned input through CAS and fresh native consumers; absent alignment refuses before callbacks; one admitted finite probability convention for named mean, draw CDF and sorted quantile CDF, or explicit versioned approximation/error admission; independent adversarial and property-removal evidence.",
+      "source_fit_noise_institutional_authority_boundary": "Actual posterior scientific quality/source fit/noise remains B197's separate held criterion; it does not excuse these available mechanical defects.",
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B202",
+      "bundle_ids": [
+        "UQS-01"
+      ],
+      "historical_ledger_status": "held",
+      "frozen_previous_E_proposal": "closed",
+      "current_accountable_E_decision": "open",
+      "reason": "Current exact700/64d source has confirmed technical counterexamples. The implementation requires correction and independent defining-property acceptance.",
+      "semantic_owner": "E scoped B201/B202 appointment a0ac10fc",
+      "four_tracked_semantic_decisions_preserved": true,
+      "missing_semantic_owner_is_not_the_blocker": true,
+      "next_owner": "E canonical producer/profile and shared MC mechanism writer",
+      "minimal_inputs": "Already available native equal-length/no-alignment marginal fixture and 100 positive atoms (99 zeros, last1e15). No production history needed for these fixes.",
+      "next_verifiable_result": "Append-only implementation SHA/tree; healthy declared-aligned input through CAS and fresh native consumers; absent alignment refuses before callbacks; one admitted finite probability convention for named mean, draw CDF and sorted quantile CDF, or explicit versioned approximation/error admission; independent adversarial and property-removal evidence.",
+      "source_fit_noise_institutional_authority_boundary": "Actual posterior scientific quality/source fit/noise remains B197's separate held criterion; it does not excuse these available mechanical defects.",
+      "formal_ledger_change": false
+    }
+  ],
+  "independent_exact_condition_responses": [
+    {
+      "condition": "Aligned joint-source premise",
+      "current_result": "FAIL at generated-row producer/consumer inlet",
+      "source_citations": [
+        {
+          "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+          "line": 222,
+          "purpose": "Public Mapping-of-arrays input; draw_ids/context optional."
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+          "line": 260,
+          "purpose": "Only cross-coordinate equality is length; default shared draw:i generation."
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+          "line": 368,
+          "purpose": "Marks producer_input_order and publishes common joint digest."
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+          "line": 297,
+          "purpose": "Admission checks sibling copies/context/digest, not source-bound alignment premise."
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+          "line": 233,
+          "purpose": "Generated shared IDs/digest are sufficient for multivariate empirical transform."
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "line": 133,
+          "purpose": "Real E node calls group admission before builder, but current group admission lacks premise."
+        }
+      ],
+      "actual_positive": "Explicit supplied shared IDs healthy producer→native CAS→fresh profile→MC128-net callback129, 64/64 paired rows, no authority.",
+      "actual_adversarial": "Equal-length marginal arrays/no explicit IDs/empty context still produce generated shared IDs/digest and run callback129; reorder one marginal with same summaries changes Var(a-b)0→4. Length and hashes alone do not choose a coupling.",
+      "minimal_next_result": "Canonical E producer must require an explicit shared aligned-row input declaration/IDs or resolve source-bound alignment; otherwise emit honest unestablished joint relation and refuse multivariate stochastic composition before nominal/evaluator. Preserve single-coordinate summaries and supplied aligned-row native fixture. Strict fresh reader/group admission must enforce the actual profile basis, not only producer preflight.",
+      "next_owner": "E calibrated posterior producer/profile owner, with shared MC inlet writer companion; factual production posterior source/fit join remains actual Calibrator/source owner and scoped local recipe."
+    },
+    {
+      "condition": "Identical finite probability convention for mean and CDF",
+      "current_result": "FAIL current admitted finite corpus, all positive categories retained",
+      "source_citations": [
+        {
+          "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+          "line": 132,
+          "purpose": "Returns normalized stored p after support-only CDF check."
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+          "line": 123,
+          "purpose": "CDF cumulative final boundary=1 adjusts effective category masses."
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+          "line": 164,
+          "purpose": "Named mean uses stored probabilities directly."
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+          "line": 179,
+          "purpose": "Independent sorted CDF repeats final residual convention."
+        }
+      ],
+      "actual_adversarial": "Admitted default100 equal weights,99zero atoms+last1e15: named stored mean1e13 versus actual finite CDF increment mean9999999999999.342, delta0.658203125. Fresh strict CAS/profile reader admits, all categories positive, no range/collapse/nonfinite failure.",
+      "minimal_next_result": "Shared canonical finite-law mechanism must give stored mean/draw CDF/sorted quantile CDF one explicit effective mass/error convention. Either persist/calculate common effective weights consistently or version an explicit numerical approximation bound and refusal guard; merely checking sum tolerance/positive support is insufficient. Validate both original order and value-sort order before callback; do not independently silently replace final atoms in siblings.",
+      "next_owner": "Shared E sampling admission/profile numerical writers; use existing NumPy/SciPy, no new library or new envelope semantics required.",
+      "required_control": "Current counterexample refusal or exact declared bounded convention, healthy dyadic1:1:2 law unchanged; adversarial sorted-CDF order/zero-mass/tiny-positive controls, marker-preserving removal of the new admission predicate."
+    }
+  ],
+  "frozen54_V2_rewritten": false,
+  "original37_or_native_backend_outcomes_rewritten": false,
+  "frozen_common_wave_counts_are_not_new_counterexample_or_fix_evidence": true,
+  "formal_G_intake_separate": true,
+  "formal_ledger_change": false,
+  "native_tests_or_math_probes_repeated_by_this_recorder": false,
+  "ROOT_source_or_environment_mutated": false,
+  "recorder": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/record-current-IR-technical-open.py.txt",
+    "bytes": 6374,
+    "sha256": "58a1c4c7630031eca479acd5f8cc51ea4890adb67e740453347d295e3a638d8d"
+  },
+  "observer_environment": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "schema": "policyos.e02.public_canon_removal_observer_correction.v2",
+  "historical_observers": [
+    {
+      "observer": {
+        "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/probe_route_property_removal.py",
+        "bytes": 2234,
+        "sha256": "24b6a0e018c71712bb0b7c56fac1b96e0e2505643bc84795fb34207d9660034c"
+      },
+      "stdout": {
+        "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/removal.stdout.json",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/removal.stderr.txt",
+        "bytes": 3353,
+        "sha256": "2c7c5daede9841d977682d85288223c8497c5cece46f4d1a0773d02d8a40e5e9"
+      },
+      "outcome": "ERROR",
+      "reason": "Expected wrong literal refusal; real empirical writer already refused."
+    },
+    {
+      "observer": {
+        "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/probe_route_property_removal_v2.py",
+        "bytes": 2245,
+        "sha256": "fb48800eddb8d77f105389ad0b15948eaf7c8cfd46dbb44b8e23644d7d5eef36"
+      },
+      "stdout": {
+        "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/removal-v2.stdout.json",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/removal-v2.stderr.txt",
+        "bytes": 322,
+        "sha256": "3b6791dcd1241b1a75ea166a5be7a7095046e25f342c016dd5fa5eab57ace93b"
+      },
+      "outcome": "ERROR",
+      "reason": "Overbroad control required rejection of candidate whose payload has no native floats."
+    }
+  ],
+  "current": {
+    "observer": {
+      "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/probe_route_property_removal_v3.py",
+      "bytes": 2751,
+      "sha256": "d44521285e954d3b3a939bf81907d7657cce5ad258da9e9cad1a9d0403856915"
+    },
+    "argv": [
+      "env",
+      "PYTHONDONTWRITEBYTECODE=1",
+      "PYTHONPATH=/workspace/e02-E-continuation-20261006/policy-engine:/workspace/e02-E-continuation-20261006/policy-engine/src",
+      "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+      "-B",
+      "/tmp/e02-E-forecast-canon-public-route-64d-20261007/probe_route_property_removal_v3.py"
+    ],
+    "cwd": "/workspace",
+    "started_unix": 1791375769.025725,
+    "finished_unix": 1791375771.088796,
+    "exit_code": 0,
+    "stdout": {
+      "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/removal-v3.stdout.json",
+      "bytes": 1435,
+      "sha256": "2430a4de3b1f3c8f83b037a384028af2e4428a3d40cd8984930883cff97029b2"
+    },
+    "stderr": {
+      "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/removal-v3.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "ETS_or_numeric_wave_repeated": false,
+  "ROOT_environment_or_interpreter_used": false,
+  "product_source_modified": false,
+  "source_route_statically_compatible": false
+}

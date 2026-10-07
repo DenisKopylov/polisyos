@@ -1,0 +1,320 @@
+"""Join immutable individual E decisions with independently recomputed observations."""
+
+from __future__ import annotations
+
+import argparse
+import copy
+import hashlib
+import json
+import sys
+from collections import Counter
+from pathlib import Path
+from typing import Any
+
+SOURCE = "64d7444a18c55df7b88b71b7699a2f1b25ca24bd"
+TREE = "aef23574d3162abb19bf5a1c67d02624ff9d4d1d"
+PREWAVE_HASH = "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8"
+NUMERIC_HASH = "bb59345873fdc306c98458587354f3caaed45312694c14a51d01edfd08768bbf"
+CASE_INDEX_HASH = "73a5974a61fe29424373bac0edfc0bbdff1840b7717dd493e8261c3dff3e7ab0"
+DEFINING_CASE_INDEX_HASH = (
+    "6d68193c3ff1650e5d3e32718470548b9ff1d8115110a56dfba80ef8534121b1"
+)
+OUTCOMES = {"PASS", "FAIL", "ERROR", "SKIP", "UNRUN"}
+STANDALONE_SCOPE = (
+    "Standalone receipts are independent of umbrella fail-fast observations"
+)
+
+
+def require(condition: bool, reason: str) -> None:
+    if not condition:
+        raise ValueError(reason)
+
+
+def record(path: Path) -> dict[str, Any]:
+    data = path.read_bytes()
+    return {
+        "path": str(path),
+        "bytes": len(data),
+        "sha256": hashlib.sha256(data).hexdigest(),
+    }
+
+
+def object_input(path: Path) -> dict[str, Any]:
+    result = json.loads(path.read_bytes())
+    require(isinstance(result, dict), "object input required")
+    return result
+
+
+def arg_value(argv: list[str], option: str) -> str:
+    require(argv.count(option) == 1, "unique required option")
+    index = argv.index(option)
+    require(index + 1 < len(argv), "missing option value")
+    return argv[index + 1]
+
+
+def frozen_receipt(path: Path) -> dict[str, Any]:
+    value = object_input(path)
+    require(value.get("candidate_sha") == SOURCE, "receipt source mismatch")
+    require(value.get("candidate_tree_sha") == TREE, "receipt tree mismatch")
+    require(value.get("outcome") in OUTCOMES, "invalid receipt outcome")
+    require(type(value.get("exit_code")) is int, "integer process exit required")
+    if value["outcome"] in {"PASS", "SKIP"}:
+        require(value.get("exit_code") == 0, "nonzero successful receipt")
+        require(value.get("source_immutable") is True, "successful source drift")
+    stdout = Path(value["stdout_path"])
+    require(
+        stdout == path.with_suffix(".stdout.txt"), "stdout path outside receipt custody"
+    )
+    require(stdout.is_file(), "stdout unavailable")
+    raw = stdout.read_bytes()
+    require(len(raw) == value["stdout_bytes"], "stdout size drift")
+    require(
+        hashlib.sha256(raw).hexdigest() == value["stdout_sha256"], "stdout digest drift"
+    )
+    return {
+        "outcome": value["outcome"],
+        "receipt": record(path),
+        "stdout": record(stdout),
+        "exit_code": value.get("exit_code"),
+        "source_immutable": value.get("source_immutable"),
+        "command": value.get("command"),
+        "counts": value.get("counts"),
+        "junit": value.get("junit"),
+    }
+
+
+def join(
+    prewave: dict[str, Any],
+    numeric: dict[str, Any],
+    case_index: dict[str, Any],
+    selector_index: dict[str, Any],
+    input_records: dict[str, Any],
+) -> dict[str, Any]:
+    require(
+        numeric.get("schema")
+        == "policyos.e02.independent_final_numeric_recomputation.v1",
+        "collector schema mismatch",
+    )
+    for report in (numeric, case_index):
+        require(report.get("source") == SOURCE, "collector source mismatch")
+        require(report.get("tree") == TREE, "collector tree mismatch")
+    links = numeric["finding_links"]
+    require(len(links) == 54, "54 current finding links required")
+    by_id = {link["finding_id"]: link for link in links}
+    require(len(by_id) == 54, "duplicate current finding links")
+    require(
+        set(by_id) == {row["id"] for row in prewave["rows"]}, "finding link mismatch"
+    )
+    result = copy.deepcopy(prewave)
+    result["schema"] = "policyos.e02.E.final-individual-dispositions.v2"
+    result["input_records"] = input_records
+    result["numeric_independent_recomputation_ref"] = input_records["numeric"]
+    summary_keys = [
+        "disposition",
+        "check_findings_separate",
+        "scope",
+        "independent_source_frame",
+        "plan_job_denominator",
+        "job_denominator",
+        "native_test_path_denominator",
+        "case_denominator",
+        "case_outcome_counts",
+        "finding_denominator",
+        "bundle_denominator",
+        "id_to_bundle_links",
+        "known_A_current_binding_denominator",
+        "unexpected_current_numeric_failures",
+        "issues",
+        "limits",
+    ]
+    result["numeric_observation_summary"] = {key: numeric[key] for key in summary_keys}
+    job_keys = [
+        "name",
+        "kind",
+        "exit_code",
+        "signal",
+        "interrupted_without_JUnit",
+        "interruption_cause",
+        "recomputed_outcome",
+        "declared_outcome",
+        "counts",
+        "source_frame_equal",
+        "receipt",
+    ]
+    result["numeric_primary_jobs"] = [
+        {key: job[key] for key in job_keys} for job in numeric["jobs"]
+    ]
+    result["bounded_retry_observations"] = [
+        {key: value for key, value in retry.items() if key != "cases"}
+        for retry in numeric["bounded_retry_attempts"]
+    ]
+    result["native_case_index_ref"] = input_records["case_index"]
+    require(
+        selector_index.get("schema")
+        == "policyos.e02.E.current_37_selector_dispositions.v1",
+        "selector index schema mismatch",
+    )
+    require(
+        selector_index.get("source") == SOURCE and selector_index.get("tree") == TREE,
+        "selector source mismatch",
+    )
+    require(
+        selector_index.get("complete_selector_denominator") == 37,
+        "37 selector denominator required",
+    )
+    require(
+        len(selector_index["rows"]) == 37
+        and len({row["selector"] for row in selector_index["rows"]}) == 37,
+        "37 unique selector rows required",
+    )
+    require(
+        selector_index.get("all_invocations_closed") is True,
+        "Wait for actual running selectors to close before final join",
+    )
+    require(
+        not any(row.get("receipt_not_final") for row in selector_index["rows"]),
+        "Final selector receipts remain pending",
+    )
+    expected_ids = {f"workspace-{i:02d}" for i in range(1, 15)} | {
+        f"ci-{i:02d}" for i in range(1, 24)
+    }
+    require(
+        {row["selector"] for row in selector_index["rows"]} == expected_ids,
+        "Exact declared selector IDs required",
+    )
+    require(
+        all(
+            row.get("observed_selector_check_outcome") in OUTCOMES
+            for row in selector_index["rows"]
+        ),
+        "Final native selector outcomes required",
+    )
+    require(
+        all(
+            row.get("canonical_umbrella_UNRUN_rewritten") is False
+            for row in selector_index["rows"]
+        ),
+        "Canonical umbrella observations cannot be rewritten",
+    )
+    require(
+        Counter(
+            row["observed_selector_check_outcome"] for row in selector_index["rows"]
+        )
+        == Counter(selector_index["observed_selector_outcome_counts"]),
+        "Selector counts mismatch",
+    )
+    result["current_37_selector_index_ref"] = input_records["successor_index"]
+    result["standalone_successor_observations"] = selector_index["rows"]
+    result["selector_observation_counts"] = selector_index[
+        "observed_selector_outcome_counts"
+    ]
+    result["current_wave_rule"] = (
+        "Exact current JUnit matches are navigation observations. Individual criterion "
+        "decisions retain their independent defining-property basis; family membership "
+        "and aggregate PASS counts do not create finding closure."
+    )
+    for row in result["rows"]:
+        link = by_id[row["id"]]
+        require(link["bundle_ids"] == row["bundle_ids"], "current bundle links changed")
+        require(
+            link["ledger_status_historical"] == row["historical_ledger_status"],
+            "current historical status changed",
+        )
+        row["current_check_links"]["frozen_wave"] = {
+            "candidate": SOURCE,
+            "tree": TREE,
+            "receipt_recomputation_pending": False,
+            "current_selector_navigation": link["current_selector_navigation"],
+            "scope": "Recomputed current selector matches, not automatic criterion PASS",
+            "criterion_check_outcome": None,
+        }
+        row["current_independent_collector_link"] = {
+            "report_ref": input_records["numeric"],
+            "json_pointer": "/finding_links/" + str(links.index(link)),
+            "canonical_link_sha256": hashlib.sha256(
+                json.dumps(
+                    link, sort_keys=True, ensure_ascii=False, separators=(",", ":")
+                ).encode()
+            ).hexdigest(),
+            "criterion_evidence_rule": (
+                "Verbatim collector source remains at this exact report pointer; i"
+                "ndependent original-criterion decisions are retained separately"
+            ),
+        }
+        row["formal_ledger_change"] = False
+    require(
+        Counter(row["historical_ledger_status"] for row in result["rows"])
+        == Counter({"partial": 49, "held": 4, "closed": 1}),
+        "historical ledger changed",
+    )
+    require(
+        Counter(row["proposed_finding_outcome"] for row in result["rows"])
+        == Counter({"closed": 43, "limited": 9, "held": 2}),
+        "owner decisions changed",
+    )
+    require(
+        sum(len(row["bundle_ids"]) for row in result["rows"]) == 55, "55 links changed"
+    )
+    require(len(result["bundles"]) == 22, "22 bundles changed")
+    result["source_vs_evidence_rule"] = (
+        "Execution source remains 64d7444a/tree aef23574. Later publication/evidence "
+        "utilities and regenerated-JSON delta observations have separate source refs; "
+        "they do not replace frozen runtime or test identities."
+    )
+    result["formal_ledger_change"] = False
+    return result
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--prewave", type=Path, required=True)
+    parser.add_argument("--numeric-report", type=Path, required=True)
+    parser.add_argument("--case-index", type=Path, required=True)
+    parser.add_argument("--successor-index", type=Path, required=True)
+    parser.add_argument("--defining-case-index", type=Path)
+    parser.add_argument("--evidence-delta", type=Path)
+    parser.add_argument("--output", type=Path, required=True)
+    args = parser.parse_args()
+    require(not args.output.exists(), "append-only output required")
+    prewave_record = record(args.prewave)
+    require(prewave_record["sha256"] == PREWAVE_HASH, "prewave custody drift")
+    records = {
+        "prewave": prewave_record,
+        "numeric": record(args.numeric_report),
+        "case_index": record(args.case_index),
+        "successor_index": record(args.successor_index),
+    }
+    require(
+        records["numeric"]["sha256"] == NUMERIC_HASH, "collector report custody drift"
+    )
+    require(
+        records["case_index"]["sha256"] == CASE_INDEX_HASH,
+        "native case index custody drift",
+    )
+    if args.evidence_delta:
+        records["evidence_delta"] = record(args.evidence_delta)
+    if args.defining_case_index:
+        defining = object_input(args.defining_case_index)
+        require(
+            defining.get("source") == SOURCE and defining.get("tree") == TREE,
+            "defining source-navigation identity mismatch",
+        )
+        records["defining_case_index"] = record(args.defining_case_index)
+        require(
+            records["defining_case_index"]["sha256"] == DEFINING_CASE_INDEX_HASH,
+            "defining source-navigation custody drift",
+        )
+    value = join(
+        object_input(args.prewave),
+        object_input(args.numeric_report),
+        object_input(args.case_index),
+        object_input(args.successor_index),
+        records,
+    )
+    if args.evidence_delta:
+        value["later_evidence_delta"] = object_input(args.evidence_delta)
+    if args.defining_case_index:
+        value["defining_source_navigation_ref"] = records["defining_case_index"]
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    args.output.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n")
+    sys.stdout.write(json.dumps(record(args.output), indent=2) + "\n")

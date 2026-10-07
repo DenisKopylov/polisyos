@@ -1,0 +1,5 @@
+{
+  "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/attempt-admission-optimized.json",
+  "bytes": 2829,
+  "sha256": "0ea13fd050dfbfa6ebaf92e638fb90079f16b48ea633adef9e4b49273f3edf6a"
+}

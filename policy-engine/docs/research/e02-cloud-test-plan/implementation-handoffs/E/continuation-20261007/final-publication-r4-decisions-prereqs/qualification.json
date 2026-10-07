@@ -1,0 +1,62 @@
+{
+  "schema": "policyos.e02.frozen_decisions_prereqs_publication_qualification.v1",
+  "verification_source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "verification_tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "frozen54": {
+    "proposal_counts": {
+      "closed": 43,
+      "limited": 9,
+      "held": 2
+    },
+    "status": "frozen previously reviewed proposals before G855; not current accepted finding closure",
+    "historical_ledger": {
+      "partial": 49,
+      "held": 4,
+      "closed": 1
+    },
+    "full_original54_included": true,
+    "accountable_owner_decisions_accepted_by_this_carrier": false
+  },
+  "G855_pre_fix_qualification": {
+    "source": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+    "root_source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+    "snapshot": "current-IR/current-IR-technical-open-G855-v2.json",
+    "proposal_counts": {
+      "closed": 41,
+      "limited": 9,
+      "held": 2,
+      "open": 2
+    },
+    "B201": "open",
+    "B202": "open",
+    "timing": "pre-fix current64d technical-open snapshot, preserved unchanged"
+  },
+  "separate_source_slice": {
+    "commit": "ca17a489559eb574285bb1c7291cc3c56a9e29da",
+    "tree": "f2ce9f70a02fa7184a5caac3faaeddd95f6e1d3e",
+    "bounded_source_review": {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-final-review-ca17.json",
+      "bytes": 51924,
+      "sha256": "81f32f772907604ca7608f0e85a7229f25b0f94d33568de1f24e6e7cafa00340"
+    },
+    "source_author": "imports_r4 owns source/handoff publication; oracle independently reviews bounded property",
+    "source_review_scope": "narrow source-property GO; schema/companion review and original-row disposition separate",
+    "source_slice_or_math_selector_copied_here": false,
+    "G_formal_finding_closure": false,
+    "ROOT64d_source_replaced": false
+  },
+  "install": {
+    "installation_and_declared_native_preflight": "bounded closed PASS; four declared dependencies only,203 old METADATA unchanged to207",
+    "running_full_backend_outcome": "excluded, no outcome inferred",
+    "external_wheels": "ignored immutable refs only; no29MB wheel payload copies"
+  },
+  "canonspec": {
+    "private_product_import": "open canonical API-owner edge",
+    "runtime_only_Core_route": "native configured-CAS runtime positive but scoped typecheck33 to35 errors (+2 CoreCanonSpec vs IRCanonSpec)",
+    "IR_export_proposal": "unapplied two-path canonical-owner packet; no public lease/source implementation inferred"
+  },
+  "global_or_finding_PASS": false,
+  "ROOT_source_env_locks_mutated": false,
+  "native_tests_or_gate_reexecuted": false,
+  "semantic_choices_and_historical_ledger_rewritten": false
+}

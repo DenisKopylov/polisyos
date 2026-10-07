@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-forecast-canon-public-route-64d-20261007/probe_route_property_removal_v2.py", line 23, in <module>
+    else:raise ValueError('removed numericalconfig accepted')
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: removed numericalconfig accepted

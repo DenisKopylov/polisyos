@@ -1,0 +1,58 @@
+{
+  "schema": "policyos.e02.independent_criterion_decision_review_selection.v1",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "rows": [
+    {
+      "source_path": "/tmp/e02-E-criteria-decision-independent-64d/criteria-decision-review.json",
+      "portable_path": "historical-v1-original-criterion-review.json",
+      "bytes": 62079,
+      "sha256": "4f984ade4d1d68f30fda5cb6220fced6c61092beb8f5288131918d70695cf555"
+    },
+    {
+      "source_path": "/tmp/e02-E-criteria-decision-independent-64d/criteria-decision-v2-delta-review.json",
+      "portable_path": "current-v2-original-criterion-review.json",
+      "bytes": 6925,
+      "sha256": "ff89f37488ca3101084b3b836adf5143c00318043493e080cc34e07f7933796e"
+    },
+    {
+      "source_path": "/tmp/e02-E-criteria-decision-independent-64d/review_criteria.py",
+      "portable_path": "review_criteria.py.txt",
+      "bytes": 17520,
+      "sha256": "566bbdc43847b96f16a2b259f916b60724703b405d8f85d2255b68935e216a13"
+    },
+    {
+      "source_path": "/tmp/e02-E-criteria-decision-independent-64d/review_criteria_v2_delta.py",
+      "portable_path": "review_criteria_v2_delta.py.txt",
+      "bytes": 5277,
+      "sha256": "240cfa5289e8f0299f625821bf6ca4362fc3d4a6cf32d9e628defa24ad7e2d87"
+    },
+    {
+      "source_path": "/tmp/e02-E-criteria-decision-independent-64d/review.stdout",
+      "portable_path": "historical-v1-review.stdout",
+      "bytes": 482,
+      "sha256": "faa251fea66633245191bddef96772207f7fd1be404bfd7b681db14dd3d88b55"
+    },
+    {
+      "source_path": "/tmp/e02-E-criteria-decision-independent-64d/review.stderr",
+      "portable_path": "historical-v1-review.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-criteria-decision-independent-64d/v2-delta.stdout",
+      "portable_path": "current-v2-review.stdout",
+      "bytes": 473,
+      "sha256": "48415d385fa4795eeca7178b346248cb986680278d613b2008c043e9e10fdfc0"
+    },
+    {
+      "source_path": "/tmp/e02-E-criteria-decision-independent-64d/v2-delta.stderr",
+      "portable_path": "current-v2-review.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "files": 8,
+  "bytes": 92756,
+  "scope": "Literal read-only originalcriteria/owner-proposal/citation/dependency review receipts; no numeric/test/gate rerun. Original54sourcecardtext is alreadytracked and excludedfromrepeatpublication. Initial reviewer invalid-codec path operationalerror preservedonlyscratch; not artifact failure."
+}

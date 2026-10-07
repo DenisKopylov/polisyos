@@ -1,0 +1,11 @@
+{
+  "logical_count": 237,
+  "logical_bytes": 8564493,
+  "unique_payload_files": 168,
+  "unique_payload_bytes": 8218180,
+  "deduplicated_aliases": 69,
+  "metadata_files": 9,
+  "implementation_paths": 177,
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "source_numeric_gate_execution": false
+}

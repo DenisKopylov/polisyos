@@ -1,0 +1,6 @@
+Auto-merging policy-engine/src/polisyos/calibration/README.md
+Auto-merging policy-engine/src/polisyos/calibration/__init__.py
+CONFLICT (content): Merge conflict in policy-engine/src/polisyos/calibration/__init__.py
+Auto-merging policy-engine/tests/unit/calibration/test_evidence_facades.py
+CONFLICT (content): Merge conflict in policy-engine/tests/unit/calibration/test_evidence_facades.py
+Automatic merge failed; fix conflicts and then commit the result.

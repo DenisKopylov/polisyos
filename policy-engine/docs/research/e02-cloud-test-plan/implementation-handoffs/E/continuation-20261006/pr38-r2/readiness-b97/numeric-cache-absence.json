@@ -1,0 +1,91 @@
+{
+  "complete_numeric_cache_path_count": 14,
+  "all_absent": true,
+  "paths": [
+    {
+      "job": "pcl-continuous-persistence",
+      "kind": "pytest_cache",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/checks/pcl-continuous-persistence/cache/pytest",
+      "absent": true
+    },
+    {
+      "job": "pcl-continuous-persistence",
+      "kind": "benchmark_storage",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/checks/pcl-continuous-persistence/cache/benchmarks",
+      "absent": true
+    },
+    {
+      "job": "ddm-runtime-and-facade",
+      "kind": "pytest_cache",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/checks/ddm-runtime-and-facade/cache/pytest",
+      "absent": true
+    },
+    {
+      "job": "ddm-runtime-and-facade",
+      "kind": "benchmark_storage",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/checks/ddm-runtime-and-facade/cache/benchmarks",
+      "absent": true
+    },
+    {
+      "job": "bkt-frc-s10-and-adjacent-report-consumers",
+      "kind": "pytest_cache",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/checks/bkt-frc-s10-and-adjacent-report-consumers/cache/pytest",
+      "absent": true
+    },
+    {
+      "job": "bkt-frc-s10-and-adjacent-report-consumers",
+      "kind": "benchmark_storage",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/checks/bkt-frc-s10-and-adjacent-report-consumers/cache/benchmarks",
+      "absent": true
+    },
+    {
+      "job": "cal-and-welfare-consumer",
+      "kind": "pytest_cache",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/checks/cal-and-welfare-consumer/cache/pytest",
+      "absent": true
+    },
+    {
+      "job": "cal-and-welfare-consumer",
+      "kind": "benchmark_storage",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/checks/cal-and-welfare-consumer/cache/benchmarks",
+      "absent": true
+    },
+    {
+      "job": "mc-joint-law-support-and-scientist-consumer",
+      "kind": "pytest_cache",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/checks/mc-joint-law-support-and-scientist-consumer/cache/pytest",
+      "absent": true
+    },
+    {
+      "job": "mc-joint-law-support-and-scientist-consumer",
+      "kind": "benchmark_storage",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/checks/mc-joint-law-support-and-scientist-consumer/cache/benchmarks",
+      "absent": true
+    },
+    {
+      "job": "doe-salib-and-consumer-factory",
+      "kind": "pytest_cache",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/checks/doe-salib-and-consumer-factory/cache/pytest",
+      "absent": true
+    },
+    {
+      "job": "doe-salib-and-consumer-factory",
+      "kind": "benchmark_storage",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/checks/doe-salib-and-consumer-factory/cache/benchmarks",
+      "absent": true
+    },
+    {
+      "job": "g-checkpoint10-controlplanestore-companion",
+      "kind": "pytest_cache",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/checks/g-checkpoint10-controlplanestore-companion/cache/pytest",
+      "absent": true
+    },
+    {
+      "job": "g-checkpoint10-controlplanestore-companion",
+      "kind": "benchmark_storage",
+      "path": "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006/checks/g-checkpoint10-controlplanestore-companion/cache/benchmarks",
+      "absent": true
+    }
+  ],
+  "output_root_not_created": true
+}

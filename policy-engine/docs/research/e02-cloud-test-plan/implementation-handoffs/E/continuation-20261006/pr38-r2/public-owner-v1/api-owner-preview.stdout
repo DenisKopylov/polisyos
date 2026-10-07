@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/api_probe.py", line 51, in <module>
+    try:execution.get_state_path(reopened,badpath)
+        ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/fixture-current/policy-engine/src/polisyos/foundry/execute/_internal/models/__init__.py", line 198, in get_state_path
+    raise StatePathTraversalError(
+    ...<5 lines>...
+    )
+polisyos.foundry.methods.exceptions.StatePathTraversalError: State path read failed for 'agents.missing' at segment 'missing' (index=1) on AgentState

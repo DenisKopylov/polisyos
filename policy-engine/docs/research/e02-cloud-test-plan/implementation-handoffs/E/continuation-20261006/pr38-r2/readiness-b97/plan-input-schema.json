@@ -1,0 +1,107 @@
+{
+  "schema": "policyos.e02.final_wave_plan.v1",
+  "required_cli": {
+    "repo": "/workspace/e02-E-continuation-20261006",
+    "candidate": "exact approved clean root freeze SHA",
+    "output_root": "new absolute outside-repository scratch path never used for planning",
+    "execute": "only after root explicit freeze authorization"
+  },
+  "top_level_keys": [
+    "schema",
+    "execution_state",
+    "observed_head",
+    "candidate_sha",
+    "candidate_tree_sha",
+    "tracked_dirty",
+    "output_root",
+    "repo",
+    "interpreter",
+    "comparison_base",
+    "comparison_meaning",
+    "source_runtime_input_path_count",
+    "tracked_all_path_count",
+    "groups",
+    "group_path_counts",
+    "native_test_path_count",
+    "owner_packet_extra_inputs",
+    "test_input_path_count_including_owner_packets",
+    "ast_test_function_counts_only",
+    "runtime_test_case_count",
+    "old_paths_retained",
+    "additions",
+    "missing_required_paths",
+    "changed_foreign_tests_outside_E_wave",
+    "required_upstream",
+    "source_test_assets",
+    "changed_python_lint_paths",
+    "environment",
+    "removed_inherited_caps",
+    "jobs",
+    "execution_schedule",
+    "mutable_seams",
+    "custody",
+    "preconditions_for_execute"
+  ],
+  "job_required_keys": [
+    "argv",
+    "cwd",
+    "environment",
+    "group",
+    "junit",
+    "kind",
+    "name",
+    "output"
+  ],
+  "global_job_names": [
+    "results-importer",
+    "architecture",
+    "runtime-api-contract",
+    "static-invocation",
+    "ruff",
+    "ruff-format",
+    "workspace-verify",
+    "ci-parity"
+  ],
+  "numerical_job_names": [
+    "pcl-continuous-persistence",
+    "ddm-runtime-and-facade",
+    "bkt-frc-s10-and-adjacent-report-consumers",
+    "cal-and-welfare-consumer",
+    "mc-joint-law-support-and-scientist-consumer",
+    "doe-salib-and-consumer-factory",
+    "g-checkpoint10-controlplanestore-companion"
+  ],
+  "source_harness": [
+    {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+      "bytes": 23015,
+      "sha256": "9adde423ab2cbfc841a8a2de41fc1c03906e3429b176fa17412fd22c09c47e87"
+    },
+    {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+      "bytes": 11192,
+      "sha256": "9d59c0e66658bae5b8ab22ae4770335462a167af6ecd640356978f8402a2fce6"
+    },
+    {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py",
+      "bytes": 7225,
+      "sha256": "c809e5503ba23afacb8ad0f3f4da81e7cdca0ea6184d6eb346bfc82ddeae5173"
+    },
+    {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/proposal.json",
+      "bytes": 2477,
+      "sha256": "183a0cd6b4fc8364ae086d1a5e921a7b06b09a241a1041359be855261125cf63"
+    },
+    {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/original-wave-groups.json",
+      "bytes": 9604,
+      "sha256": "a5578a4dd8bc8e622603e5b538a412594eafb507ca640518bf527d8c0c5168af"
+    }
+  ],
+  "source_inputs": {
+    "source_runtime_input_path_count": 7648,
+    "tracked_all_path_count": 15005,
+    "native_test_path_count": 120,
+    "test_input_path_count_including_owner_packets": 122
+  }
+}

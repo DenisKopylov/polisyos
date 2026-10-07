@@ -1,0 +1,82 @@
+--- a/policy-engine/src/polisyos/core/__init__.py
++++ b/policy-engine/src/polisyos/core/__init__.py
+@@ -32,6 +32,21 @@
+     "security",
+ )
+ _LAZY_EXPORTS = {
++    "ArtifactRef": ("polisyos.core.artifacts", "ArtifactRef"),
++    "ArtifactStore": ("polisyos.core.artifacts", "ArtifactStore"),
++    "ArtifactWriteOptions": ("polisyos.core.artifacts", "ArtifactWriteOptions"),
++    "PutOptions": ("polisyos.core.artifacts", "PutOptions"),
++    "SchemaInfo": ("polisyos.core.artifacts", "SchemaInfo"),
++    "input_ref_from_artifact_ref": (
++        "polisyos.core.artifacts",
++        "input_ref_from_artifact_ref",
++    ),
++    "CanonSpec": ("polisyos.core.canon", "CanonSpec"),
++    "from_canonical_bytes": ("polisyos.core.canon", "from_canonical_bytes"),
++    "load_registry_bundle_content": (
++        "polisyos.core.registry",
++        "load_registry_bundle_content",
++    ),
+     "FileSystemSignedArtifactEvidenceRepository": (
+         "polisyos.core.artifacts.signed_evidence",
+         "FileSystemSignedArtifactEvidenceRepository",
+@@ -171,7 +186,19 @@
+ )
+ 
+ if TYPE_CHECKING:
+-    from polisyos.core.artifacts.signed_evidence import FileSystemSignedArtifactEvidenceRepository
++    from polisyos.core.artifacts import (
++        ArtifactRef,
++        ArtifactStore,
++        ArtifactWriteOptions,
++        PutOptions,
++        SchemaInfo,
++        input_ref_from_artifact_ref,
++    )
++    from polisyos.core.canon import CanonSpec, from_canonical_bytes
++    from polisyos.core.registry import load_registry_bundle_content
++    from polisyos.core.artifacts.signed_evidence import (
++        FileSystemSignedArtifactEvidenceRepository,
++    )
+     from polisyos.core.security.full_prefix import (
+         FullPrefixVerifier,
+         build_full_prefix_bundle,
+@@ -190,6 +217,10 @@
+     "AnchorRetentionPackage",
+     "ApplicablePredicateDenominatorArtifactFailure",
+     "ApplicablePredicateDenominatorStatement",
++    "ArtifactRef",
++    "ArtifactStore",
++    "ArtifactWriteOptions",
++    "CanonSpec",
+     "ChronologyApplicablePredicateDenominatorArtifacts",
+     "ChronologyBundleHeader",
+     "ChronologyBundleRequest",
+@@ -275,12 +306,14 @@
+     "PredicatePolicyResolutionFailure",
+     "PredicatePolicySelectionKey",
+     "PromptSanitizer",
++    "PutOptions",
+     "QueryPredicateDisposition",
+     "RejectedAcceptanceOutcome",
+     "RejectedRetentionOutcome",
+     "ResolvedPredicatePolicyAdmission",
+     "RetentionRejectedNonReceipt",
+     "RetentionUnavailableNonReceipt",
++    "SchemaInfo",
+     "SecretAndPIIScanReport",
+     "SecretPIIScanResult",
+     "UnavailableAcceptanceOutcome",
+@@ -304,7 +337,10 @@
+     "discovery",
+     "errors",
+     "evaluation",
++    "from_canonical_bytes",
++    "input_ref_from_artifact_ref",
+     "llm",
++    "load_registry_bundle_content",
+     "observability",
+     "pipeline",
+     "registry",

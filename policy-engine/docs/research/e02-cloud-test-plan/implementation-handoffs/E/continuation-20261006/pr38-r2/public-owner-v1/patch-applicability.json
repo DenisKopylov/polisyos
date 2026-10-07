@@ -1,0 +1,67 @@
+[
+  {
+    "patch": "core-option-a-existing-entrypoints.patch",
+    "command": [
+      "git",
+      "apply",
+      "--check",
+      "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/patches/core-option-a-existing-entrypoints.patch"
+    ],
+    "cwd": "/workspace/e02-E-continuation-20261006",
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "patch": "core-option-b-nine-root-exports.patch",
+    "command": [
+      "git",
+      "apply",
+      "--check",
+      "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/patches/core-option-b-nine-root-exports.patch"
+    ],
+    "cwd": "/workspace/e02-E-continuation-20261006",
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "patch": "foundry-execute-three-canonical-snapshot-exports.patch",
+    "command": [
+      "git",
+      "apply",
+      "--check",
+      "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/patches/foundry-execute-three-canonical-snapshot-exports.patch"
+    ],
+    "cwd": "/workspace/e02-E-continuation-20261006",
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "patch": "ir-three-canonical-analytics-exports.patch",
+    "command": [
+      "git",
+      "apply",
+      "--check",
+      "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/patches/ir-three-canonical-analytics-exports.patch"
+    ],
+    "cwd": "/workspace/e02-E-continuation-20261006",
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "patch": "owned-uncertainty-readme-count.patch",
+    "command": [
+      "git",
+      "apply",
+      "--check",
+      "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/patches/owned-uncertainty-readme-count.patch"
+    ],
+    "cwd": "/workspace/e02-E-continuation-20261006",
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+]

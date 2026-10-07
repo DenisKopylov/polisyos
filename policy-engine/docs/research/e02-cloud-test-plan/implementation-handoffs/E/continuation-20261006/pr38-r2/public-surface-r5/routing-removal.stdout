@@ -1,0 +1,6 @@
+{"control": "AST property-removal of admitted routing; canonical exports/reader implementation unchanged, no source files edited", "exports": {"calibration": 29, "uncertainty": 20}, "canonical_identity": true, "introduced_private_edges": ["polisyos.calibration->polisyos.foundry.calibration.report"], "source_sha": "bf3b54c3a894d2d9d9bfb0cd13edb13177405f33"}
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r2-receipts/public-surface-packet-r5/routing_removal_control.py", line 26, in <module>
+    assert not edges,'names remain present but private cross-root edge returns when admitted routing is removed'
+           ^^^^^^^^^
+AssertionError: names remain present but private cross-root edge returns when admitted routing is removed

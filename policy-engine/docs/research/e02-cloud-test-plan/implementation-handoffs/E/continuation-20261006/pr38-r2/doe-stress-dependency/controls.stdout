@@ -1,0 +1,1 @@
+{"control_results": [{"case": "native", "yielded": 3, "proxy": "PASS", "predicate": "PASS"}, {"case": "cap-property-removed", "yielded": 4096, "proxy": "PASS", "predicate": "FAIL"}], "direction_cases": ["maximize-utility", "minimize-cost"], "output": "/workspace/e02-E-pr38-r2-receipts/doe-stress-dependency/controls-deciding.json"}

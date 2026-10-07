@@ -1,0 +1,14 @@
+{
+  "started_utc": "2026-10-06T18:48:43.233756+00:00",
+  "finished_utc": "2026-10-06T18:48:46.869302+00:00",
+  "wall_seconds": 3.635,
+  "timeout_seconds": 180,
+  "timed_out": false,
+  "exit_status": 0,
+  "stdout_bytes": 249,
+  "stderr_bytes": 0,
+  "candidate_archive_sha256_before": "93accd8d4582e6958c6a30d3c376caae16ecca0fa4342efc7cc01f938b458bb9",
+  "source_files_verified_before_run": 2946,
+  "source_payload_bytes": 55497795,
+  "test_selector": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/tests/unit/scientist/methods/doe/test_plan_runtime_admission.py"
+}

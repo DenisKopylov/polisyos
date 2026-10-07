@@ -1,0 +1,26 @@
+{
+  "scope": "Only plan/JUnit/Git metadata helpers; no product test, numeric callback, architecture/runtime/API/workspace/CI gate executed",
+  "positive_junit": {
+    "cases": 4,
+    "passed": 1,
+    "failed": 1,
+    "errors": 1,
+    "skipped": 1
+  },
+  "old_reader_dtd_entity_admitted": {
+    "cases": 1,
+    "passed": 1,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "new_reader_dtd_entity": {
+    "refused": true,
+    "error_type": "DTDForbidden",
+    "reason": "DTDForbidden(name='testsuites', system_id=None, public_id=None)"
+  },
+  "absent_junit_preserved": true,
+  "Git_identity_preserved": true,
+  "defusedxml_version": "0.7.1",
+  "defusedxml_provenance": "uv.lock base odfpy dependency; no dependency or environment change"
+}

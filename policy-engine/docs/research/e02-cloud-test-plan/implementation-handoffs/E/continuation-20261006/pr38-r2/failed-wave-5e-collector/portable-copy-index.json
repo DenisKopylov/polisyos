@@ -1,0 +1,111 @@
+{
+  "schema": "e02.E.complete-portable-evidence.v1",
+  "source_index": "publication-prep-index-5e3e37276.json",
+  "primary_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/failed-wave-analysis-5e3e37276.json",
+  "records": [
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/README-5e3e37276-publication.md",
+      "bytes": 3758,
+      "sha256": "baf32f105cee2b6c57ae1dd6c4e1bcd8371d626d6d3f8f9099a624a0f0c5a207",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/README-5e3e37276-publication.md"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collect_wave.py",
+      "bytes": 31168,
+      "sha256": "01949833ab8b51a87fc0f54ae4192d592aea7b9a39a5a6f6aec9a6ef2624d3e2",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/collect_wave.py"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collect_wave_v2.py",
+      "bytes": 32636,
+      "sha256": "c1846ca80e2fd5c2cdd6d4dc6f28e1a0497eed273f2013314d608165c340a212",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/collect_wave_v2.py"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/control_collector.py",
+      "bytes": 8934,
+      "sha256": "e3e7017681fc8f521485daf91d08b8549ee8984b2ac8e733e52f1aed477767d3",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/control_collector.py"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/control_collector_v2.py",
+      "bytes": 9032,
+      "sha256": "6c215e808dff12431ac9e4533ea59c34d5a66c1b9360c1dce14ce42edc930bce",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/control_collector_v2.py"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collector-control-results.json",
+      "bytes": 7459,
+      "sha256": "9fd02ed15d987c12bd7573e046b6c51cf15009bcd7a09f20bc863ac5661b1a73",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/collector-control-results.json"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collector-control-results-v2.json",
+      "bytes": 8267,
+      "sha256": "0b383f703b29ff8f9d69abda5f35dd2500597749bd3c93a7b4cbea3d9ee1164d",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/collector-control-results-v2.json"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collector-configured-checks-v2.json",
+      "bytes": 1424,
+      "sha256": "1c1b30893eae580286a4f268148568f38568f4bbb3ea60554c95b26caa257f88",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/collector-configured-checks-v2.json"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collector-configured-ruff.stdout.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/collector-configured-ruff.stdout.txt"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collector-configured-ruff.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/collector-configured-ruff.stderr.txt"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collector-configured-format.stdout.txt",
+      "bytes": 25,
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/collector-configured-format.stdout.txt"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collector-configured-format.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/collector-configured-format.stderr.txt"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/failed-wave-analysis-5e3e37276.json",
+      "bytes": 261781,
+      "sha256": "0c4054db6790de110f27e1909d08491545cd116fda34a6ebd19a542df1c6976f",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/failed-wave-analysis-5e3e37276.json"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/actual-failed-5e3e37276-v2/copy-index.json",
+      "bytes": 17603,
+      "sha256": "bdd6c7101e32f9788aefa9ad9eb630adc22639edcfdb917869fece1ac57ec75f",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/copy-index.json"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/actual-failed-5e3e37276/copy-index.json",
+      "bytes": 17603,
+      "sha256": "467613ea6a2fc5be3dcebcb22803ca52ff8790ee80f1cdfcab5f59c73ffdb04b",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276/copy-index.json"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/publication-prep-index-5e3e37276.json",
+      "bytes": 2893,
+      "sha256": "402432fa342e293e011c49a709fdd45236af29fd6ab95b4bfc3840ad118499f0",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/publication-prep-index-5e3e37276.json"
+    }
+  ],
+  "complete": true,
+  "file_count": 16,
+  "bytes": 402602,
+  "source_candidate": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+  "scope": "Preserved author / actual first failed attempt / independent evidence, not new-candidate common-wave PASS",
+  "raw_private_config_included": false,
+  "large_raw_included": false,
+  "finding_closure_ratified": false
+}

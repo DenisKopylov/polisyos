@@ -1,0 +1,25 @@
+{
+  "is_owner_ratification": false,
+  "fixture_is_git_candidate": false,
+  "core_alternative": "B-narrow-root",
+  "results": [
+    {
+      "patch": "core-option-b-nine-root-exports.patch",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "ir-three-canonical-analytics-exports.patch",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "foundry-execute-three-canonical-snapshot-exports.patch",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ]
+}

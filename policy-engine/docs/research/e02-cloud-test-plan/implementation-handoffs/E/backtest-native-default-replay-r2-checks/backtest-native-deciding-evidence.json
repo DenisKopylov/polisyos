@@ -1,0 +1,2807 @@
+{
+  "numerical_candidate_sha": "0e457bf0b2cef01fb423ba925048d6d9f7ce1095",
+  "readback_after_import_only_sha": "9c51a7f7e0a7fc901a681b2fba6240b8cbcf7cef",
+  "generic_native_reports": [
+    {
+      "report_artifact_id": "sha256:26d12492f6a5f9c807a837eee86206ea6f67d3a96fa240f3743d1607d124d300",
+      "cas_root": "/workspace/e02-E-pr38-r2-receipts/backtest-native-frozen-tests/test_default_native_forecast_r0/cas",
+      "report_payload": {
+        "aggregation_policy": "micro_rmse_with_explicit_equal_scenario_macro",
+        "backtest_config_ref": null,
+        "cas_artifact_id": null,
+        "decision_packet_ref": null,
+        "degraded": false,
+        "degraded_reasons": [],
+        "detected_biases": [],
+        "historical_data_ref": null,
+        "metadata": {
+          "comparison_denominator": {
+            "basis": "recomputed",
+            "eligible": 2,
+            "observed": 2,
+            "requested": 2,
+            "unit": "metric_time_cell_per_replay"
+          },
+          "evaluation_status": "evaluated",
+          "interval_contracts": [
+            {
+              "interval_available_count": 0,
+              "interval_evaluated_count": 0,
+              "interval_hit_count": 0,
+              "interval_requested_count": 0,
+              "interval_type": null,
+              "nominal_confidence_level": 0.95,
+              "scenario_id": "native"
+            }
+          ],
+          "replay_denominators": [
+            {
+              "attempted": 1,
+              "basis": "recomputed",
+              "completed": 1,
+              "declared_n_simulation_runs": 1,
+              "failed": 0,
+              "outcomes": [
+                "native"
+              ],
+              "plan_id": "native",
+              "requested": 1,
+              "unit": "scenario",
+              "unobserved": 0
+            }
+          ],
+          "trust_admission": {
+            "bias_equivalence": "not_established",
+            "next_owner": "Scientist backtest trust-profile owner",
+            "predicate_basis": "not_established",
+            "profile_ref": null,
+            "purpose": null,
+            "status": "profile_missing"
+          },
+          "warnings": []
+        },
+        "model_spec_ref": null,
+        "n_metrics_evaluated": 2,
+        "n_scenarios": 1,
+        "overall_bias_direction": "neutral",
+        "overall_coverage_probability": null,
+        "overall_macro_rmse": 0.0,
+        "overall_mae": 0.0,
+        "overall_mape": 0.0,
+        "overall_r_squared": null,
+        "overall_rmse": 0.0,
+        "policy_spec_ref": null,
+        "prediction_mode_effective": "scientist",
+        "prediction_mode_requested": "scientist",
+        "report_id": "BT_a4f54c25f15f",
+        "scenarios": [
+          {
+            "absolute_error_sum": 0.0,
+            "compared_count": 2,
+            "coverage_probability": null,
+            "data_source": "sha256:864a735b1b7fd59f0a9065bbad0c75befad7d9cccb23a0d7d30b8be7e64dc507",
+            "interval_availability": null,
+            "interval_available_count": 0,
+            "interval_evaluated_count": 0,
+            "interval_hit_count": 0,
+            "interval_hit_rate": null,
+            "interval_requested_count": 0,
+            "interval_type": null,
+            "intervention_date": "t2",
+            "invalid_cells": [],
+            "invalid_count": 0,
+            "jurisdiction": "",
+            "mae": 0.0,
+            "mape": 0.0,
+            "metadata": {
+              "actual_foundry_seed": 12,
+              "backend_attempted": true,
+              "backend_run_id": "native-fiscal",
+              "comparison_denominator": {
+                "basis": "recomputed",
+                "eligible": 2,
+                "observed": 2,
+                "requested": 2,
+                "unit": "metric_time_cell"
+              },
+              "declared_n_simulation_runs": 1,
+              "degraded": false,
+              "evaluation_status": "evaluated",
+              "historical_snapshot_ref": {
+                "artifact_id": "sha256:a63318ab872c3dfa9ccc34aa358f6f1133267a4e85ff37aa0a0cb6d6b87cdb46",
+                "kind": "fabric.data_snapshot",
+                "media_type": "application/json"
+              },
+              "native_forecast_purpose": "predictive_simulation",
+              "native_forecast_ref": {
+                "artifact_id": "sha256:2b46ff8759b987bbf52614c61bfe81653a07a66eb84e799990726cfc7b9e68ec",
+                "kind": "scientist.backtest.native_forecast",
+                "media_type": "application/json"
+              },
+              "native_request_ref": {
+                "artifact_id": "sha256:ec7d4c7f70cd9dde34ad73ac4a931cd9c0fd77d6b88d4200666c2b4348a96d92",
+                "kind": "scientist.backtest.native_forecast_request",
+                "media_type": "application/json"
+              },
+              "native_trinity_ref": {
+                "artifact_id": "sha256:f1aae8d2a68dd475d25f54ad5b89900bbe8b40b662317a938a5e735bba18c88d",
+                "kind": "ir.trinity_bundle",
+                "media_type": "application/json"
+              },
+              "prediction_source_effective": "scientist",
+              "prediction_source_requested": "scientist",
+              "replica_count": 1,
+              "replica_index": 0,
+              "requested_replay_seed": 12,
+              "source_plan_id": "native"
+            },
+            "missing_cells": [],
+            "missing_count": 0,
+            "nominal_confidence_level": 0.95,
+            "outcome_comparisons": [
+              {
+                "absolute_error": 0.0,
+                "ci_lower": null,
+                "ci_upper": null,
+                "metric_name": "income",
+                "relative_error": 0.0,
+                "within_ci": null,
+                "y_pred": 1.5,
+                "y_true": 1.5
+              },
+              {
+                "absolute_error": 0.0,
+                "ci_lower": null,
+                "ci_upper": null,
+                "metric_name": "income",
+                "relative_error": 0.0,
+                "within_ci": null,
+                "y_pred": 1.0,
+                "y_true": 1.0
+              }
+            ],
+            "percentage_error_count": 2,
+            "percentage_error_sum": 0.0,
+            "requested_count": 2,
+            "rmse": 0.0,
+            "scenario_id": "native",
+            "scenario_label": "native",
+            "squared_error_sum": 0.0
+          }
+        ],
+        "schema_version": "1.0",
+        "trust_eligible": false,
+        "trust_grade": null,
+        "trust_score": null
+      },
+      "scenario_evidence": [
+        {
+          "scenario_id": "native",
+          "metadata": {
+            "actual_foundry_seed": 12,
+            "backend_attempted": true,
+            "backend_run_id": "native-fiscal",
+            "comparison_denominator": {
+              "basis": "recomputed",
+              "eligible": 2,
+              "observed": 2,
+              "requested": 2,
+              "unit": "metric_time_cell"
+            },
+            "declared_n_simulation_runs": 1,
+            "degraded": false,
+            "evaluation_status": "evaluated",
+            "historical_snapshot_ref": {
+              "artifact_id": "sha256:a63318ab872c3dfa9ccc34aa358f6f1133267a4e85ff37aa0a0cb6d6b87cdb46",
+              "kind": "fabric.data_snapshot",
+              "media_type": "application/json"
+            },
+            "native_forecast_purpose": "predictive_simulation",
+            "native_forecast_ref": {
+              "artifact_id": "sha256:2b46ff8759b987bbf52614c61bfe81653a07a66eb84e799990726cfc7b9e68ec",
+              "kind": "scientist.backtest.native_forecast",
+              "media_type": "application/json"
+            },
+            "native_request_ref": {
+              "artifact_id": "sha256:ec7d4c7f70cd9dde34ad73ac4a931cd9c0fd77d6b88d4200666c2b4348a96d92",
+              "kind": "scientist.backtest.native_forecast_request",
+              "media_type": "application/json"
+            },
+            "native_trinity_ref": {
+              "artifact_id": "sha256:f1aae8d2a68dd475d25f54ad5b89900bbe8b40b662317a938a5e735bba18c88d",
+              "kind": "ir.trinity_bundle",
+              "media_type": "application/json"
+            },
+            "prediction_source_effective": "scientist",
+            "prediction_source_requested": "scientist",
+            "replica_count": 1,
+            "replica_index": 0,
+            "requested_replay_seed": 12,
+            "source_plan_id": "native"
+          },
+          "request": {
+            "schema_version": "1.0",
+            "profile": {
+              "purpose": "predictive_simulation",
+              "origin": "t2",
+              "time_index": [
+                "t2",
+                "t3"
+              ],
+              "history_columns": [
+                "income"
+              ],
+              "targets": [
+                {
+                  "metric": "income",
+                  "slot_id": "agents.income",
+                  "unit_id": "usd",
+                  "reduction": "mean"
+                }
+              ]
+            },
+            "data_snapshot_ref": {
+              "artifact_id": "sha256:a63318ab872c3dfa9ccc34aa358f6f1133267a4e85ff37aa0a0cb6d6b87cdb46",
+              "kind": "fabric.data_snapshot",
+              "media_type": "application/json"
+            },
+            "trinity_bundle_ref": {
+              "artifact_id": "sha256:f1aae8d2a68dd475d25f54ad5b89900bbe8b40b662317a938a5e735bba18c88d",
+              "kind": "ir.trinity_bundle",
+              "media_type": "application/json"
+            },
+            "registry_bundle_ref": {
+              "artifact_id": "sha256:b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20",
+              "kind": "core.registry_bundle",
+              "media_type": "application/json"
+            },
+            "row_ids": [
+              "r0",
+              "r1"
+            ],
+            "history_time_index": [
+              "t0",
+              "t1"
+            ],
+            "run_id": "native-fiscal",
+            "seed": 12
+          },
+          "forecast": {
+            "schema_version": "1.0",
+            "request_ref": {
+              "artifact_id": "sha256:ec7d4c7f70cd9dde34ad73ac4a931cd9c0fd77d6b88d4200666c2b4348a96d92",
+              "kind": "scientist.backtest.native_forecast_request",
+              "media_type": "application/json"
+            },
+            "exec_config_ref": {
+              "artifact_id": "sha256:e2ded087cc1e6bab1a8d907c1879eb27c4f32f64e0d3efa3d359dc62d7ee26f6",
+              "kind": "foundry.exec_config",
+              "media_type": "application/json"
+            },
+            "input_bindings_ref": {
+              "artifact_id": "sha256:322545b95b14016124eb0bc1fbd5e019734894544be8f53991ca4e7f3453309c",
+              "kind": "foundry.input_bindings",
+              "media_type": "application/json"
+            },
+            "execution_bindings_refs": [
+              {
+                "artifact_id": "sha256:322545b95b14016124eb0bc1fbd5e019734894544be8f53991ca4e7f3453309c",
+                "kind": "foundry.input_bindings",
+                "media_type": "application/json"
+              },
+              {
+                "artifact_id": "sha256:f3d96b40cd4a2ee7d4aac05b7ce828310df79e6e8303eb9c23b9436aa305802e",
+                "kind": "foundry.input_bindings",
+                "media_type": "application/json"
+              }
+            ],
+            "simulation_refs": [
+              {
+                "artifact_id": "sha256:a220dd3b600d78cada6b82cecc5f2bff892347213b05239efaddf43ee242aeaa",
+                "kind": "foundry.simulation_result",
+                "media_type": "application/json"
+              },
+              {
+                "artifact_id": "sha256:17e0e4a4e48a627fad3b52f63c6595e0a4f8262b2d232d20a91c8ed172053df4",
+                "kind": "foundry.simulation_result",
+                "media_type": "application/json"
+              }
+            ],
+            "state_snapshot_refs": [
+              {
+                "artifact_id": "sha256:d339ba8409b19215cfa8abd15af3c81b566b3bd92a95e65c04ef214bd878a79b",
+                "kind": "foundry.state_snapshot",
+                "media_type": "application/json"
+              },
+              {
+                "artifact_id": "sha256:b9a5a2d59f5dc24455017bae2dfbeca2841e9e64b7e7fc0ac358e4c2b2ebb21e",
+                "kind": "foundry.state_snapshot",
+                "media_type": "application/json"
+              }
+            ],
+            "values": {
+              "income": [
+                1.5,
+                1.0
+              ]
+            }
+          },
+          "consumed_source_rows": {
+            "income": [
+              1.0,
+              2.0
+            ],
+            "row_ids": [
+              "r0",
+              "r1"
+            ],
+            "time_index": [
+              "t0",
+              "t1"
+            ]
+          },
+          "state_snapshot_payloads": [
+            {
+              "checksum_sha256": "90c02b271b9cef127bcbd9fd725cf7c5e28b2a437071f01e99db348e1f904042",
+              "codec": "numpy-npz",
+              "entry_count": 34,
+              "format_version": "npz-v2",
+              "lineage_inputs": [
+                {
+                  "artifact_id": "sha256:48ce8f8e52d365b13ed03edfff6f92a77a2226a2ef63d94884cb25560143e56f",
+                  "role": "state_delta"
+                },
+                {
+                  "artifact_id": "sha256:8cc01f313482a0ce1764e6d115adcbcc4dbef01da7f80200eec0e691f4aa7842",
+                  "role": "base_state"
+                },
+                {
+                  "artifact_id": "sha256:90c02b271b9cef127bcbd9fd725cf7c5e28b2a437071f01e99db348e1f904042",
+                  "role": "state_blob"
+                }
+              ],
+              "notes": [
+                "snapshot_format:npz-v2"
+              ],
+              "schema_version": "2.2",
+              "state_ref": {
+                "artifact_id": "sha256:90c02b271b9cef127bcbd9fd725cf7c5e28b2a437071f01e99db348e1f904042",
+                "kind": "foundry.state_blob",
+                "media_type": "application/x-npz"
+              },
+              "step": 0
+            },
+            {
+              "checksum_sha256": "2cbc508b9b079698960473d1c8f479975f9940e5bcf6d0d27a597b11854085aa",
+              "codec": "numpy-npz",
+              "entry_count": 34,
+              "format_version": "npz-v2",
+              "lineage_inputs": [
+                {
+                  "artifact_id": "sha256:3a222d7984a8d7962174f9bbf43244df45bc47abcd19aab71ac63da846de5b6c",
+                  "role": "state_delta"
+                },
+                {
+                  "artifact_id": "sha256:1debf0f37e916c209513de2cab193290f42c38d5283b3e8050dd22e1bd8a937a",
+                  "role": "base_state"
+                },
+                {
+                  "artifact_id": "sha256:2cbc508b9b079698960473d1c8f479975f9940e5bcf6d0d27a597b11854085aa",
+                  "role": "state_blob"
+                }
+              ],
+              "notes": [
+                "snapshot_format:npz-v2"
+              ],
+              "schema_version": "2.2",
+              "state_ref": {
+                "artifact_id": "sha256:2cbc508b9b079698960473d1c8f479975f9940e5bcf6d0d27a597b11854085aa",
+                "kind": "foundry.state_blob",
+                "media_type": "application/x-npz"
+              },
+              "step": 1
+            }
+          ],
+          "forecast_consumer_recomputed": true
+        }
+      ]
+    },
+    {
+      "report_artifact_id": "sha256:11da9926d1cfd9d7cf70a2fd4c414f0f5e0261d501b8bcdb8301b59b02bf1fe0",
+      "cas_root": "/workspace/e02-E-pr38-r2-receipts/backtest-native-frozen-tests/test_default_native_forecast_r1/cas",
+      "report_payload": {
+        "aggregation_policy": "micro_rmse_with_explicit_equal_scenario_macro",
+        "backtest_config_ref": null,
+        "cas_artifact_id": null,
+        "decision_packet_ref": null,
+        "degraded": false,
+        "degraded_reasons": [],
+        "detected_biases": [],
+        "historical_data_ref": null,
+        "metadata": {
+          "comparison_denominator": {
+            "basis": "recomputed",
+            "eligible": 14,
+            "observed": 14,
+            "requested": 14,
+            "unit": "metric_time_cell_per_replay"
+          },
+          "evaluation_status": "evaluated",
+          "interval_contracts": [
+            {
+              "interval_available_count": 0,
+              "interval_evaluated_count": 0,
+              "interval_hit_count": 0,
+              "interval_requested_count": 0,
+              "interval_type": null,
+              "nominal_confidence_level": 0.95,
+              "scenario_id": "native:replica:0"
+            },
+            {
+              "interval_available_count": 0,
+              "interval_evaluated_count": 0,
+              "interval_hit_count": 0,
+              "interval_requested_count": 0,
+              "interval_type": null,
+              "nominal_confidence_level": 0.95,
+              "scenario_id": "native:replica:1"
+            },
+            {
+              "interval_available_count": 0,
+              "interval_evaluated_count": 0,
+              "interval_hit_count": 0,
+              "interval_requested_count": 0,
+              "interval_type": null,
+              "nominal_confidence_level": 0.95,
+              "scenario_id": "native:replica:2"
+            },
+            {
+              "interval_available_count": 0,
+              "interval_evaluated_count": 0,
+              "interval_hit_count": 0,
+              "interval_requested_count": 0,
+              "interval_type": null,
+              "nominal_confidence_level": 0.95,
+              "scenario_id": "native:replica:3"
+            },
+            {
+              "interval_available_count": 0,
+              "interval_evaluated_count": 0,
+              "interval_hit_count": 0,
+              "interval_requested_count": 0,
+              "interval_type": null,
+              "nominal_confidence_level": 0.95,
+              "scenario_id": "native:replica:4"
+            },
+            {
+              "interval_available_count": 0,
+              "interval_evaluated_count": 0,
+              "interval_hit_count": 0,
+              "interval_requested_count": 0,
+              "interval_type": null,
+              "nominal_confidence_level": 0.95,
+              "scenario_id": "native:replica:5"
+            },
+            {
+              "interval_available_count": 0,
+              "interval_evaluated_count": 0,
+              "interval_hit_count": 0,
+              "interval_requested_count": 0,
+              "interval_type": null,
+              "nominal_confidence_level": 0.95,
+              "scenario_id": "native:replica:6"
+            }
+          ],
+          "replay_denominators": [
+            {
+              "attempted": 7,
+              "basis": "recomputed",
+              "completed": 7,
+              "declared_n_simulation_runs": 7,
+              "failed": 0,
+              "outcomes": [
+                "native:replica:0",
+                "native:replica:1",
+                "native:replica:2",
+                "native:replica:3",
+                "native:replica:4",
+                "native:replica:5",
+                "native:replica:6"
+              ],
+              "plan_id": "native",
+              "requested": 7,
+              "unit": "backend_replay",
+              "unobserved": 0
+            }
+          ],
+          "trust_admission": {
+            "bias_equivalence": "not_established",
+            "next_owner": "Scientist backtest trust-profile owner",
+            "predicate_basis": "not_established",
+            "profile_ref": null,
+            "purpose": null,
+            "status": "profile_missing"
+          },
+          "warnings": []
+        },
+        "model_spec_ref": null,
+        "n_metrics_evaluated": 14,
+        "n_scenarios": 7,
+        "overall_bias_direction": "neutral",
+        "overall_coverage_probability": null,
+        "overall_macro_rmse": 0.0,
+        "overall_mae": 0.0,
+        "overall_mape": 0.0,
+        "overall_r_squared": null,
+        "overall_rmse": 0.0,
+        "policy_spec_ref": null,
+        "prediction_mode_effective": "scientist",
+        "prediction_mode_requested": "scientist",
+        "report_id": "BT_5a227d9867bc",
+        "scenarios": [
+          {
+            "absolute_error_sum": 0.0,
+            "compared_count": 2,
+            "coverage_probability": null,
+            "data_source": "sha256:864a735b1b7fd59f0a9065bbad0c75befad7d9cccb23a0d7d30b8be7e64dc507",
+            "interval_availability": null,
+            "interval_available_count": 0,
+            "interval_evaluated_count": 0,
+            "interval_hit_count": 0,
+            "interval_hit_rate": null,
+            "interval_requested_count": 0,
+            "interval_type": null,
+            "intervention_date": "t2",
+            "invalid_cells": [],
+            "invalid_count": 0,
+            "jurisdiction": "",
+            "mae": 0.0,
+            "mape": 0.0,
+            "metadata": {
+              "actual_foundry_seed": 570356716,
+              "backend_attempted": true,
+              "backend_run_id": "native-fiscal:replica:0",
+              "comparison_denominator": {
+                "basis": "recomputed",
+                "eligible": 2,
+                "observed": 2,
+                "requested": 2,
+                "unit": "metric_time_cell"
+              },
+              "declared_n_simulation_runs": 7,
+              "degraded": false,
+              "evaluation_status": "evaluated",
+              "historical_snapshot_ref": {
+                "artifact_id": "sha256:a63318ab872c3dfa9ccc34aa358f6f1133267a4e85ff37aa0a0cb6d6b87cdb46",
+                "kind": "fabric.data_snapshot",
+                "media_type": "application/json"
+              },
+              "native_forecast_purpose": "predictive_simulation",
+              "native_forecast_ref": {
+                "artifact_id": "sha256:c2603e805b543931b637da7d2deeec00ab2d4440200a1c635d09c9881125fc95",
+                "kind": "scientist.backtest.native_forecast",
+                "media_type": "application/json"
+              },
+              "native_request_ref": {
+                "artifact_id": "sha256:843456cb4bb892417677d9e2b5a097c94dd71f77ac98fb542e6a15666f9fc0fa",
+                "kind": "scientist.backtest.native_forecast_request",
+                "media_type": "application/json"
+              },
+              "native_trinity_ref": {
+                "artifact_id": "sha256:f1aae8d2a68dd475d25f54ad5b89900bbe8b40b662317a938a5e735bba18c88d",
+                "kind": "ir.trinity_bundle",
+                "media_type": "application/json"
+              },
+              "prediction_source_effective": "scientist",
+              "prediction_source_requested": "scientist",
+              "replica_count": 7,
+              "replica_index": 0,
+              "requested_replay_seed": 570356716,
+              "source_plan_id": "native"
+            },
+            "missing_cells": [],
+            "missing_count": 0,
+            "nominal_confidence_level": 0.95,
+            "outcome_comparisons": [
+              {
+                "absolute_error": 0.0,
+                "ci_lower": null,
+                "ci_upper": null,
+                "metric_name": "income",
+                "relative_error": 0.0,
+                "within_ci": null,
+                "y_pred": 1.5,
+                "y_true": 1.5
+              },
+              {
+                "absolute_error": 0.0,
+                "ci_lower": null,
+                "ci_upper": null,
+                "metric_name": "income",
+                "relative_error": 0.0,
+                "within_ci": null,
+                "y_pred": 1.0,
+                "y_true": 1.0
+              }
+            ],
+            "percentage_error_count": 2,
+            "percentage_error_sum": 0.0,
+            "requested_count": 2,
+            "rmse": 0.0,
+            "scenario_id": "native:replica:0",
+            "scenario_label": "native:replica:0",
+            "squared_error_sum": 0.0
+          },
+          {
+            "absolute_error_sum": 0.0,
+            "compared_count": 2,
+            "coverage_probability": null,
+            "data_source": "sha256:864a735b1b7fd59f0a9065bbad0c75befad7d9cccb23a0d7d30b8be7e64dc507",
+            "interval_availability": null,
+            "interval_available_count": 0,
+            "interval_evaluated_count": 0,
+            "interval_hit_count": 0,
+            "interval_hit_rate": null,
+            "interval_requested_count": 0,
+            "interval_type": null,
+            "intervention_date": "t2",
+            "invalid_cells": [],
+            "invalid_count": 0,
+            "jurisdiction": "",
+            "mae": 0.0,
+            "mape": 0.0,
+            "metadata": {
+              "actual_foundry_seed": 741055479,
+              "backend_attempted": true,
+              "backend_run_id": "native-fiscal:replica:1",
+              "comparison_denominator": {
+                "basis": "recomputed",
+                "eligible": 2,
+                "observed": 2,
+                "requested": 2,
+                "unit": "metric_time_cell"
+              },
+              "declared_n_simulation_runs": 7,
+              "degraded": false,
+              "evaluation_status": "evaluated",
+              "historical_snapshot_ref": {
+                "artifact_id": "sha256:a63318ab872c3dfa9ccc34aa358f6f1133267a4e85ff37aa0a0cb6d6b87cdb46",
+                "kind": "fabric.data_snapshot",
+                "media_type": "application/json"
+              },
+              "native_forecast_purpose": "predictive_simulation",
+              "native_forecast_ref": {
+                "artifact_id": "sha256:92483244273f3874d20c845214a7f27374f0ed237210dd30b57ced14702c3f3c",
+                "kind": "scientist.backtest.native_forecast",
+                "media_type": "application/json"
+              },
+              "native_request_ref": {
+                "artifact_id": "sha256:bf0973c8d5d46cdd241b7a07d1b75488371a40c4e8e93e1274b3c542a5c76a6c",
+                "kind": "scientist.backtest.native_forecast_request",
+                "media_type": "application/json"
+              },
+              "native_trinity_ref": {
+                "artifact_id": "sha256:f1aae8d2a68dd475d25f54ad5b89900bbe8b40b662317a938a5e735bba18c88d",
+                "kind": "ir.trinity_bundle",
+                "media_type": "application/json"
+              },
+              "prediction_source_effective": "scientist",
+              "prediction_source_requested": "scientist",
+              "replica_count": 7,
+              "replica_index": 1,
+              "requested_replay_seed": 741055479,
+              "source_plan_id": "native"
+            },
+            "missing_cells": [],
+            "missing_count": 0,
+            "nominal_confidence_level": 0.95,
+            "outcome_comparisons": [
+              {
+                "absolute_error": 0.0,
+                "ci_lower": null,
+                "ci_upper": null,
+                "metric_name": "income",
+                "relative_error": 0.0,
+                "within_ci": null,
+                "y_pred": 1.5,
+                "y_true": 1.5
+              },
+              {
+                "absolute_error": 0.0,
+                "ci_lower": null,
+                "ci_upper": null,
+                "metric_name": "income",
+                "relative_error": 0.0,
+                "within_ci": null,
+                "y_pred": 1.0,
+                "y_true": 1.0
+              }
+            ],
+            "percentage_error_count": 2,
+            "percentage_error_sum": 0.0,
+            "requested_count": 2,
+            "rmse": 0.0,
+            "scenario_id": "native:replica:1",
+            "scenario_label": "native:replica:1",
+            "squared_error_sum": 0.0
+          },
+          {
+            "absolute_error_sum": 0.0,
+            "compared_count": 2,
+            "coverage_probability": null,
+            "data_source": "sha256:864a735b1b7fd59f0a9065bbad0c75befad7d9cccb23a0d7d30b8be7e64dc507",
+            "interval_availability": null,
+            "interval_available_count": 0,
+            "interval_evaluated_count": 0,
+            "interval_hit_count": 0,
+            "interval_hit_rate": null,
+            "interval_requested_count": 0,
+            "interval_type": null,
+            "intervention_date": "t2",
+            "invalid_cells": [],
+            "invalid_count": 0,
+            "jurisdiction": "",
+            "mae": 0.0,
+            "mape": 0.0,
+            "metadata": {
+              "actual_foundry_seed": 2285044420,
+              "backend_attempted": true,
+              "backend_run_id": "native-fiscal:replica:2",
+              "comparison_denominator": {
+                "basis": "recomputed",
+                "eligible": 2,
+                "observed": 2,
+                "requested": 2,
+                "unit": "metric_time_cell"
+              },
+              "declared_n_simulation_runs": 7,
+              "degraded": false,
+              "evaluation_status": "evaluated",
+              "historical_snapshot_ref": {
+                "artifact_id": "sha256:a63318ab872c3dfa9ccc34aa358f6f1133267a4e85ff37aa0a0cb6d6b87cdb46",
+                "kind": "fabric.data_snapshot",
+                "media_type": "application/json"
+              },
+              "native_forecast_purpose": "predictive_simulation",
+              "native_forecast_ref": {
+                "artifact_id": "sha256:00750d40daf34115d3e2f8ae1f7565f2d1c84857bd55acd01d19234aad46220f",
+                "kind": "scientist.backtest.native_forecast",
+                "media_type": "application/json"
+              },
+              "native_request_ref": {
+                "artifact_id": "sha256:7027b70687f4cf123a791fc594e286373405980285901fd4b221353d68470784",
+                "kind": "scientist.backtest.native_forecast_request",
+                "media_type": "application/json"
+              },
+              "native_trinity_ref": {
+                "artifact_id": "sha256:f1aae8d2a68dd475d25f54ad5b89900bbe8b40b662317a938a5e735bba18c88d",
+                "kind": "ir.trinity_bundle",
+                "media_type": "application/json"
+              },
+              "prediction_source_effective": "scientist",
+              "prediction_source_requested": "scientist",
+              "replica_count": 7,
+              "replica_index": 2,
+              "requested_replay_seed": 2285044420,
+              "source_plan_id": "native"
+            },
+            "missing_cells": [],
+            "missing_count": 0,
+            "nominal_confidence_level": 0.95,
+            "outcome_comparisons": [
+              {
+                "absolute_error": 0.0,
+                "ci_lower": null,
+                "ci_upper": null,
+                "metric_name": "income",
+                "relative_error": 0.0,
+                "within_ci": null,
+                "y_pred": 1.5,
+                "y_true": 1.5
+              },
+              {
+                "absolute_error": 0.0,
+                "ci_lower": null,
+                "ci_upper": null,
+                "metric_name": "income",
+                "relative_error": 0.0,
+                "within_ci": null,
+                "y_pred": 1.0,
+                "y_true": 1.0
+              }
+            ],
+            "percentage_error_count": 2,
+            "percentage_error_sum": 0.0,
+            "requested_count": 2,
+            "rmse": 0.0,
+            "scenario_id": "native:replica:2",
+            "scenario_label": "native:replica:2",
+            "squared_error_sum": 0.0
+          },
+          {
+            "absolute_error_sum": 0.0,
+            "compared_count": 2,
+            "coverage_probability": null,
+            "data_source": "sha256:864a735b1b7fd59f0a9065bbad0c75befad7d9cccb23a0d7d30b8be7e64dc507",
+            "interval_availability": null,
+            "interval_available_count": 0,
+            "interval_evaluated_count": 0,
+            "interval_hit_count": 0,
+            "interval_hit_rate": null,
+            "interval_requested_count": 0,
+            "interval_type": null,
+            "intervention_date": "t2",
+            "invalid_cells": [],
+            "invalid_count": 0,
+            "jurisdiction": "",
+            "mae": 0.0,
+            "mape": 0.0,
+            "metadata": {
+              "actual_foundry_seed": 577497900,
+              "backend_attempted": true,
+              "backend_run_id": "native-fiscal:replica:3",
+              "comparison_denominator": {
+                "basis": "recomputed",
+                "eligible": 2,
+                "observed": 2,
+                "requested": 2,
+                "unit": "metric_time_cell"
+              },
+              "declared_n_simulation_runs": 7,
+              "degraded": false,
+              "evaluation_status": "evaluated",
+              "historical_snapshot_ref": {
+                "artifact_id": "sha256:a63318ab872c3dfa9ccc34aa358f6f1133267a4e85ff37aa0a0cb6d6b87cdb46",
+                "kind": "fabric.data_snapshot",
+                "media_type": "application/json"
+              },
+              "native_forecast_purpose": "predictive_simulation",
+              "native_forecast_ref": {
+                "artifact_id": "sha256:13bcf843a66fd6f4fd0ea815acbb3ecd92203a3840ead56904b42c54f058f4ea",
+                "kind": "scientist.backtest.native_forecast",
+                "media_type": "application/json"
+              },
+              "native_request_ref": {
+                "artifact_id": "sha256:4f09b6f64078c5a661d662cca630e5f08a52625d2e77baf92776bad1cf00fa90",
+                "kind": "scientist.backtest.native_forecast_request",
+                "media_type": "application/json"
+              },
+              "native_trinity_ref": {
+                "artifact_id": "sha256:f1aae8d2a68dd475d25f54ad5b89900bbe8b40b662317a938a5e735bba18c88d",
+                "kind": "ir.trinity_bundle",
+                "media_type": "application/json"
+              },
+              "prediction_source_effective": "scientist",
+              "prediction_source_requested": "scientist",
+              "replica_count": 7,
+              "replica_index": 3,
+              "requested_replay_seed": 577497900,
+              "source_plan_id": "native"
+            },
+            "missing_cells": [],
+            "missing_count": 0,
+            "nominal_confidence_level": 0.95,
+            "outcome_comparisons": [
+              {
+                "absolute_error": 0.0,
+                "ci_lower": null,
+                "ci_upper": null,
+                "metric_name": "income",
+                "relative_error": 0.0,
+                "within_ci": null,
+                "y_pred": 1.5,
+                "y_true": 1.5
+              },
+              {
+                "absolute_error": 0.0,
+                "ci_lower": null,
+                "ci_upper": null,
+                "metric_name": "income",
+                "relative_error": 0.0,
+                "within_ci": null,
+                "y_pred": 1.0,
+                "y_true": 1.0
+              }
+            ],
+            "percentage_error_count": 2,
+            "percentage_error_sum": 0.0,
+            "requested_count": 2,
+            "rmse": 0.0,
+            "scenario_id": "native:replica:3",
+            "scenario_label": "native:replica:3",
+            "squared_error_sum": 0.0
+          },
+          {
+            "absolute_error_sum": 0.0,
+            "compared_count": 2,
+            "coverage_probability": null,
+            "data_source": "sha256:864a735b1b7fd59f0a9065bbad0c75befad7d9cccb23a0d7d30b8be7e64dc507",
+            "interval_availability": null,
+            "interval_available_count": 0,
+            "interval_evaluated_count": 0,
+            "interval_hit_count": 0,
+            "interval_hit_rate": null,
+            "interval_requested_count": 0,
+            "interval_type": null,
+            "intervention_date": "t2",
+            "invalid_cells": [],
+            "invalid_count": 0,
+            "jurisdiction": "",
+            "mae": 0.0,
+            "mape": 0.0,
+            "metadata": {
+              "actual_foundry_seed": 82331697,
+              "backend_attempted": true,
+              "backend_run_id": "native-fiscal:replica:4",
+              "comparison_denominator": {
+                "basis": "recomputed",
+                "eligible": 2,
+                "observed": 2,
+                "requested": 2,
+                "unit": "metric_time_cell"
+              },
+              "declared_n_simulation_runs": 7,
+              "degraded": false,
+              "evaluation_status": "evaluated",
+              "historical_snapshot_ref": {
+                "artifact_id": "sha256:a63318ab872c3dfa9ccc34aa358f6f1133267a4e85ff37aa0a0cb6d6b87cdb46",
+                "kind": "fabric.data_snapshot",
+                "media_type": "application/json"
+              },
+              "native_forecast_purpose": "predictive_simulation",
+              "native_forecast_ref": {
+                "artifact_id": "sha256:2c694b6821e32a55a557c988a5488f40319f11bdd2a8db84af9c0691de94bbab",
+                "kind": "scientist.backtest.native_forecast",
+                "media_type": "application/json"
+              },
+              "native_request_ref": {
+                "artifact_id": "sha256:7368497215f5c952e5fcd66c22330c6b71d7bcd0717be748baa3875e583780e4",
+                "kind": "scientist.backtest.native_forecast_request",
+                "media_type": "application/json"
+              },
+              "native_trinity_ref": {
+                "artifact_id": "sha256:f1aae8d2a68dd475d25f54ad5b89900bbe8b40b662317a938a5e735bba18c88d",
+                "kind": "ir.trinity_bundle",
+                "media_type": "application/json"
+              },
+              "prediction_source_effective": "scientist",
+              "prediction_source_requested": "scientist",
+              "replica_count": 7,
+              "replica_index": 4,
+              "requested_replay_seed": 82331697,
+              "source_plan_id": "native"
+            },
+            "missing_cells": [],
+            "missing_count": 0,
+            "nominal_confidence_level": 0.95,
+            "outcome_comparisons": [
+              {
+                "absolute_error": 0.0,
+                "ci_lower": null,
+                "ci_upper": null,
+                "metric_name": "income",
+                "relative_error": 0.0,
+                "within_ci": null,
+                "y_pred": 1.5,
+                "y_true": 1.5
+              },
+              {
+                "absolute_error": 0.0,
+                "ci_lower": null,
+                "ci_upper": null,
+                "metric_name": "income",
+                "relative_error": 0.0,
+                "within_ci": null,
+                "y_pred": 1.0,
+                "y_true": 1.0
+              }
+            ],
+            "percentage_error_count": 2,
+            "percentage_error_sum": 0.0,
+            "requested_count": 2,
+            "rmse": 0.0,
+            "scenario_id": "native:replica:4",
+            "scenario_label": "native:replica:4",
+            "squared_error_sum": 0.0
+          },
+          {
+            "absolute_error_sum": 0.0,
+            "compared_count": 2,
+            "coverage_probability": null,
+            "data_source": "sha256:864a735b1b7fd59f0a9065bbad0c75befad7d9cccb23a0d7d30b8be7e64dc507",
+            "interval_availability": null,
+            "interval_available_count": 0,
+            "interval_evaluated_count": 0,
+            "interval_hit_count": 0,
+            "interval_hit_rate": null,
+            "interval_requested_count": 0,
+            "interval_type": null,
+            "intervention_date": "t2",
+            "invalid_cells": [],
+            "invalid_count": 0,
+            "jurisdiction": "",
+            "mae": 0.0,
+            "mape": 0.0,
+            "metadata": {
+              "actual_foundry_seed": 659408303,
+              "backend_attempted": true,
+              "backend_run_id": "native-fiscal:replica:5",
+              "comparison_denominator": {
+                "basis": "recomputed",
+                "eligible": 2,
+                "observed": 2,
+                "requested": 2,
+                "unit": "metric_time_cell"
+              },
+              "declared_n_simulation_runs": 7,
+              "degraded": false,
+              "evaluation_status": "evaluated",
+              "historical_snapshot_ref": {
+                "artifact_id": "sha256:a63318ab872c3dfa9ccc34aa358f6f1133267a4e85ff37aa0a0cb6d6b87cdb46",
+                "kind": "fabric.data_snapshot",
+                "media_type": "application/json"
+              },
+              "native_forecast_purpose": "predictive_simulation",
+              "native_forecast_ref": {
+                "artifact_id": "sha256:56a9e7b9d5c064c8bfb5d4a2e92c7b8f62e3a33dcf4096f4311e04f127537c86",
+                "kind": "scientist.backtest.native_forecast",
+                "media_type": "application/json"
+              },
+              "native_request_ref": {
+                "artifact_id": "sha256:28d23a765e3f4c80309f510dddf8536089f6fe47be5ee87b2d3123c71a457220",
+                "kind": "scientist.backtest.native_forecast_request",
+                "media_type": "application/json"
+              },
+              "native_trinity_ref": {
+                "artifact_id": "sha256:f1aae8d2a68dd475d25f54ad5b89900bbe8b40b662317a938a5e735bba18c88d",
+                "kind": "ir.trinity_bundle",
+                "media_type": "application/json"
+              },
+              "prediction_source_effective": "scientist",
+              "prediction_source_requested": "scientist",
+              "replica_count": 7,
+              "replica_index": 5,
+              "requested_replay_seed": 659408303,
+              "source_plan_id": "native"
+            },
+            "missing_cells": [],
+            "missing_count": 0,
+            "nominal_confidence_level": 0.95,
+            "outcome_comparisons": [
+              {
+                "absolute_error": 0.0,
+                "ci_lower": null,
+                "ci_upper": null,
+                "metric_name": "income",
+                "relative_error": 0.0,
+                "within_ci": null,
+                "y_pred": 1.5,
+                "y_true": 1.5
+              },
+              {
+                "absolute_error": 0.0,
+                "ci_lower": null,
+                "ci_upper": null,
+                "metric_name": "income",
+                "relative_error": 0.0,
+                "within_ci": null,
+                "y_pred": 1.0,
+                "y_true": 1.0
+              }
+            ],
+            "percentage_error_count": 2,
+            "percentage_error_sum": 0.0,
+            "requested_count": 2,
+            "rmse": 0.0,
+            "scenario_id": "native:replica:5",
+            "scenario_label": "native:replica:5",
+            "squared_error_sum": 0.0
+          },
+          {
+            "absolute_error_sum": 0.0,
+            "compared_count": 2,
+            "coverage_probability": null,
+            "data_source": "sha256:864a735b1b7fd59f0a9065bbad0c75befad7d9cccb23a0d7d30b8be7e64dc507",
+            "interval_availability": null,
+            "interval_available_count": 0,
+            "interval_evaluated_count": 0,
+            "interval_hit_count": 0,
+            "interval_hit_rate": null,
+            "interval_requested_count": 0,
+            "interval_type": null,
+            "intervention_date": "t2",
+            "invalid_cells": [],
+            "invalid_count": 0,
+            "jurisdiction": "",
+            "mae": 0.0,
+            "mape": 0.0,
+            "metadata": {
+              "actual_foundry_seed": 3138027851,
+              "backend_attempted": true,
+              "backend_run_id": "native-fiscal:replica:6",
+              "comparison_denominator": {
+                "basis": "recomputed",
+                "eligible": 2,
+                "observed": 2,
+                "requested": 2,
+                "unit": "metric_time_cell"
+              },
+              "declared_n_simulation_runs": 7,
+              "degraded": false,
+              "evaluation_status": "evaluated",
+              "historical_snapshot_ref": {
+                "artifact_id": "sha256:a63318ab872c3dfa9ccc34aa358f6f1133267a4e85ff37aa0a0cb6d6b87cdb46",
+                "kind": "fabric.data_snapshot",
+                "media_type": "application/json"
+              },
+              "native_forecast_purpose": "predictive_simulation",
+              "native_forecast_ref": {
+                "artifact_id": "sha256:83966f6992a770c60b3853cd84697c33e29f8676c5ee3203a52c5c4502911e08",
+                "kind": "scientist.backtest.native_forecast",
+                "media_type": "application/json"
+              },
+              "native_request_ref": {
+                "artifact_id": "sha256:e8fb83a3a5b3e12b4727fbe7345da7c4c5946c3b0d7e03a432cfff54dc3a3348",
+                "kind": "scientist.backtest.native_forecast_request",
+                "media_type": "application/json"
+              },
+              "native_trinity_ref": {
+                "artifact_id": "sha256:f1aae8d2a68dd475d25f54ad5b89900bbe8b40b662317a938a5e735bba18c88d",
+                "kind": "ir.trinity_bundle",
+                "media_type": "application/json"
+              },
+              "prediction_source_effective": "scientist",
+              "prediction_source_requested": "scientist",
+              "replica_count": 7,
+              "replica_index": 6,
+              "requested_replay_seed": 3138027851,
+              "source_plan_id": "native"
+            },
+            "missing_cells": [],
+            "missing_count": 0,
+            "nominal_confidence_level": 0.95,
+            "outcome_comparisons": [
+              {
+                "absolute_error": 0.0,
+                "ci_lower": null,
+                "ci_upper": null,
+                "metric_name": "income",
+                "relative_error": 0.0,
+                "within_ci": null,
+                "y_pred": 1.5,
+                "y_true": 1.5
+              },
+              {
+                "absolute_error": 0.0,
+                "ci_lower": null,
+                "ci_upper": null,
+                "metric_name": "income",
+                "relative_error": 0.0,
+                "within_ci": null,
+                "y_pred": 1.0,
+                "y_true": 1.0
+              }
+            ],
+            "percentage_error_count": 2,
+            "percentage_error_sum": 0.0,
+            "requested_count": 2,
+            "rmse": 0.0,
+            "scenario_id": "native:replica:6",
+            "scenario_label": "native:replica:6",
+            "squared_error_sum": 0.0
+          }
+        ],
+        "schema_version": "1.0",
+        "trust_eligible": false,
+        "trust_grade": null,
+        "trust_score": null
+      },
+      "scenario_evidence": [
+        {
+          "scenario_id": "native:replica:0",
+          "metadata": {
+            "actual_foundry_seed": 570356716,
+            "backend_attempted": true,
+            "backend_run_id": "native-fiscal:replica:0",
+            "comparison_denominator": {
+              "basis": "recomputed",
+              "eligible": 2,
+              "observed": 2,
+              "requested": 2,
+              "unit": "metric_time_cell"
+            },
+            "declared_n_simulation_runs": 7,
+            "degraded": false,
+            "evaluation_status": "evaluated",
+            "historical_snapshot_ref": {
+              "artifact_id": "sha256:a63318ab872c3dfa9ccc34aa358f6f1133267a4e85ff37aa0a0cb6d6b87cdb46",
+              "kind": "fabric.data_snapshot",
+              "media_type": "application/json"
+            },
+            "native_forecast_purpose": "predictive_simulation",
+            "native_forecast_ref": {
+              "artifact_id": "sha256:c2603e805b543931b637da7d2deeec00ab2d4440200a1c635d09c9881125fc95",
+              "kind": "scientist.backtest.native_forecast",
+              "media_type": "application/json"
+            },
+            "native_request_ref": {
+              "artifact_id": "sha256:843456cb4bb892417677d9e2b5a097c94dd71f77ac98fb542e6a15666f9fc0fa",
+              "kind": "scientist.backtest.native_forecast_request",
+              "media_type": "application/json"
+            },
+            "native_trinity_ref": {
+              "artifact_id": "sha256:f1aae8d2a68dd475d25f54ad5b89900bbe8b40b662317a938a5e735bba18c88d",
+              "kind": "ir.trinity_bundle",
+              "media_type": "application/json"
+            },
+            "prediction_source_effective": "scientist",
+            "prediction_source_requested": "scientist",
+            "replica_count": 7,
+            "replica_index": 0,
+            "requested_replay_seed": 570356716,
+            "source_plan_id": "native"
+          },
+          "request": {
+            "schema_version": "1.0",
+            "profile": {
+              "purpose": "predictive_simulation",
+              "origin": "t2",
+              "time_index": [
+                "t2",
+                "t3"
+              ],
+              "history_columns": [
+                "income"
+              ],
+              "targets": [
+                {
+                  "metric": "income",
+                  "slot_id": "agents.income",
+                  "unit_id": "usd",
+                  "reduction": "mean"
+                }
+              ]
+            },
+            "data_snapshot_ref": {
+              "artifact_id": "sha256:a63318ab872c3dfa9ccc34aa358f6f1133267a4e85ff37aa0a0cb6d6b87cdb46",
+              "kind": "fabric.data_snapshot",
+              "media_type": "application/json"
+            },
+            "trinity_bundle_ref": {
+              "artifact_id": "sha256:f1aae8d2a68dd475d25f54ad5b89900bbe8b40b662317a938a5e735bba18c88d",
+              "kind": "ir.trinity_bundle",
+              "media_type": "application/json"
+            },
+            "registry_bundle_ref": {
+              "artifact_id": "sha256:b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20",
+              "kind": "core.registry_bundle",
+              "media_type": "application/json"
+            },
+            "row_ids": [
+              "r0",
+              "r1"
+            ],
+            "history_time_index": [
+              "t0",
+              "t1"
+            ],
+            "run_id": "native-fiscal:replica:0",
+            "seed": 570356716
+          },
+          "forecast": {
+            "schema_version": "1.0",
+            "request_ref": {
+              "artifact_id": "sha256:843456cb4bb892417677d9e2b5a097c94dd71f77ac98fb542e6a15666f9fc0fa",
+              "kind": "scientist.backtest.native_forecast_request",
+              "media_type": "application/json"
+            },
+            "exec_config_ref": {
+              "artifact_id": "sha256:874a0d8d6850e4f90ab6536ef2bec895c0bcdd1c41c21a06ccdefcc79675c086",
+              "kind": "foundry.exec_config",
+              "media_type": "application/json"
+            },
+            "input_bindings_ref": {
+              "artifact_id": "sha256:322545b95b14016124eb0bc1fbd5e019734894544be8f53991ca4e7f3453309c",
+              "kind": "foundry.input_bindings",
+              "media_type": "application/json"
+            },
+            "execution_bindings_refs": [
+              {
+                "artifact_id": "sha256:322545b95b14016124eb0bc1fbd5e019734894544be8f53991ca4e7f3453309c",
+                "kind": "foundry.input_bindings",
+                "media_type": "application/json"
+              },
+              {
+                "artifact_id": "sha256:f3d96b40cd4a2ee7d4aac05b7ce828310df79e6e8303eb9c23b9436aa305802e",
+                "kind": "foundry.input_bindings",
+                "media_type": "application/json"
+              }
+            ],
+            "simulation_refs": [
+              {
+                "artifact_id": "sha256:e399bcf17d78e1905dc490e796ef6efdb7109909e9ff4f98fa90abe62c544167",
+                "kind": "foundry.simulation_result",
+                "media_type": "application/json"
+              },
+              {
+                "artifact_id": "sha256:5508b481a0b016c596ea1f3907457e7259d31839d49a5b0d0a5eefa5a81ba89b",
+                "kind": "foundry.simulation_result",
+                "media_type": "application/json"
+              }
+            ],
+            "state_snapshot_refs": [
+              {
+                "artifact_id": "sha256:d339ba8409b19215cfa8abd15af3c81b566b3bd92a95e65c04ef214bd878a79b",
+                "kind": "foundry.state_snapshot",
+                "media_type": "application/json"
+              },
+              {
+                "artifact_id": "sha256:b9a5a2d59f5dc24455017bae2dfbeca2841e9e64b7e7fc0ac358e4c2b2ebb21e",
+                "kind": "foundry.state_snapshot",
+                "media_type": "application/json"
+              }
+            ],
+            "values": {
+              "income": [
+                1.5,
+                1.0
+              ]
+            }
+          },
+          "consumed_source_rows": {
+            "income": [
+              1.0,
+              2.0
+            ],
+            "row_ids": [
+              "r0",
+              "r1"
+            ],
+            "time_index": [
+              "t0",
+              "t1"
+            ]
+          },
+          "state_snapshot_payloads": [
+            {
+              "checksum_sha256": "90c02b271b9cef127bcbd9fd725cf7c5e28b2a437071f01e99db348e1f904042",
+              "codec": "numpy-npz",
+              "entry_count": 34,
+              "format_version": "npz-v2",
+              "lineage_inputs": [
+                {
+                  "artifact_id": "sha256:48ce8f8e52d365b13ed03edfff6f92a77a2226a2ef63d94884cb25560143e56f",
+                  "role": "state_delta"
+                },
+                {
+                  "artifact_id": "sha256:8cc01f313482a0ce1764e6d115adcbcc4dbef01da7f80200eec0e691f4aa7842",
+                  "role": "base_state"
+                },
+                {
+                  "artifact_id": "sha256:90c02b271b9cef127bcbd9fd725cf7c5e28b2a437071f01e99db348e1f904042",
+                  "role": "state_blob"
+                }
+              ],
+              "notes": [
+                "snapshot_format:npz-v2"
+              ],
+              "schema_version": "2.2",
+              "state_ref": {
+                "artifact_id": "sha256:90c02b271b9cef127bcbd9fd725cf7c5e28b2a437071f01e99db348e1f904042",
+                "kind": "foundry.state_blob",
+                "media_type": "application/x-npz"
+              },
+              "step": 0
+            },
+            {
+              "checksum_sha256": "2cbc508b9b079698960473d1c8f479975f9940e5bcf6d0d27a597b11854085aa",
+              "codec": "numpy-npz",
+              "entry_count": 34,
+              "format_version": "npz-v2",
+              "lineage_inputs": [
+                {
+                  "artifact_id": "sha256:3a222d7984a8d7962174f9bbf43244df45bc47abcd19aab71ac63da846de5b6c",
+                  "role": "state_delta"
+                },
+                {
+                  "artifact_id": "sha256:1debf0f37e916c209513de2cab193290f42c38d5283b3e8050dd22e1bd8a937a",
+                  "role": "base_state"
+                },
+                {
+                  "artifact_id": "sha256:2cbc508b9b079698960473d1c8f479975f9940e5bcf6d0d27a597b11854085aa",
+                  "role": "state_blob"
+                }
+              ],
+              "notes": [
+                "snapshot_format:npz-v2"
+              ],
+              "schema_version": "2.2",
+              "state_ref": {
+                "artifact_id": "sha256:2cbc508b9b079698960473d1c8f479975f9940e5bcf6d0d27a597b11854085aa",
+                "kind": "foundry.state_blob",
+                "media_type": "application/x-npz"
+              },
+              "step": 1
+            }
+          ],
+          "forecast_consumer_recomputed": true
+        },
+        {
+          "scenario_id": "native:replica:1",
+          "metadata": {
+            "actual_foundry_seed": 741055479,
+            "backend_attempted": true,
+            "backend_run_id": "native-fiscal:replica:1",
+            "comparison_denominator": {
+              "basis": "recomputed",
+              "eligible": 2,
+              "observed": 2,
+              "requested": 2,
+              "unit": "metric_time_cell"
+            },
+            "declared_n_simulation_runs": 7,
+            "degraded": false,
+            "evaluation_status": "evaluated",
+            "historical_snapshot_ref": {
+              "artifact_id": "sha256:a63318ab872c3dfa9ccc34aa358f6f1133267a4e85ff37aa0a0cb6d6b87cdb46",
+              "kind": "fabric.data_snapshot",
+              "media_type": "application/json"
+            },
+            "native_forecast_purpose": "predictive_simulation",
+            "native_forecast_ref": {
+              "artifact_id": "sha256:92483244273f3874d20c845214a7f27374f0ed237210dd30b57ced14702c3f3c",
+              "kind": "scientist.backtest.native_forecast",
+              "media_type": "application/json"
+            },
+            "native_request_ref": {
+              "artifact_id": "sha256:bf0973c8d5d46cdd241b7a07d1b75488371a40c4e8e93e1274b3c542a5c76a6c",
+              "kind": "scientist.backtest.native_forecast_request",
+              "media_type": "application/json"
+            },
+            "native_trinity_ref": {
+              "artifact_id": "sha256:f1aae8d2a68dd475d25f54ad5b89900bbe8b40b662317a938a5e735bba18c88d",
+              "kind": "ir.trinity_bundle",
+              "media_type": "application/json"
+            },
+            "prediction_source_effective": "scientist",
+            "prediction_source_requested": "scientist",
+            "replica_count": 7,
+            "replica_index": 1,
+            "requested_replay_seed": 741055479,
+            "source_plan_id": "native"
+          },
+          "request": {
+            "schema_version": "1.0",
+            "profile": {
+              "purpose": "predictive_simulation",
+              "origin": "t2",
+              "time_index": [
+                "t2",
+                "t3"
+              ],
+              "history_columns": [
+                "income"
+              ],
+              "targets": [
+                {
+                  "metric": "income",
+                  "slot_id": "agents.income",
+                  "unit_id": "usd",
+                  "reduction": "mean"
+                }
+              ]
+            },
+            "data_snapshot_ref": {
+              "artifact_id": "sha256:a63318ab872c3dfa9ccc34aa358f6f1133267a4e85ff37aa0a0cb6d6b87cdb46",
+              "kind": "fabric.data_snapshot",
+              "media_type": "application/json"
+            },
+            "trinity_bundle_ref": {
+              "artifact_id": "sha256:f1aae8d2a68dd475d25f54ad5b89900bbe8b40b662317a938a5e735bba18c88d",
+              "kind": "ir.trinity_bundle",
+              "media_type": "application/json"
+            },
+            "registry_bundle_ref": {
+              "artifact_id": "sha256:b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20",
+              "kind": "core.registry_bundle",
+              "media_type": "application/json"
+            },
+            "row_ids": [
+              "r0",
+              "r1"
+            ],
+            "history_time_index": [
+              "t0",
+              "t1"
+            ],
+            "run_id": "native-fiscal:replica:1",
+            "seed": 741055479
+          },
+          "forecast": {
+            "schema_version": "1.0",
+            "request_ref": {
+              "artifact_id": "sha256:bf0973c8d5d46cdd241b7a07d1b75488371a40c4e8e93e1274b3c542a5c76a6c",
+              "kind": "scientist.backtest.native_forecast_request",
+              "media_type": "application/json"
+            },
+            "exec_config_ref": {
+              "artifact_id": "sha256:f2dd103dd8288897c97646da6aeb1eafa3d82018c403fb77ecb778658446a91f",
+              "kind": "foundry.exec_config",
+              "media_type": "application/json"
+            },
+            "input_bindings_ref": {
+              "artifact_id": "sha256:322545b95b14016124eb0bc1fbd5e019734894544be8f53991ca4e7f3453309c",
+              "kind": "foundry.input_bindings",
+              "media_type": "application/json"
+            },
+            "execution_bindings_refs": [
+              {
+                "artifact_id": "sha256:322545b95b14016124eb0bc1fbd5e019734894544be8f53991ca4e7f3453309c",
+                "kind": "foundry.input_bindings",
+                "media_type": "application/json"
+              },
+              {
+                "artifact_id": "sha256:f3d96b40cd4a2ee7d4aac05b7ce828310df79e6e8303eb9c23b9436aa305802e",
+                "kind": "foundry.input_bindings",
+                "media_type": "application/json"
+              }
+            ],
+            "simulation_refs": [
+              {
+                "artifact_id": "sha256:b846a8dfb14b0af215e3c9b31dc68ecf82cfd9a134e63e761ea932910bd4da89",
+                "kind": "foundry.simulation_result",
+                "media_type": "application/json"
+              },
+              {
+                "artifact_id": "sha256:de209ac2cc5d2eb6f8c536c6839cf5b3db7caa2050dcfe1c157d2ceb6303de48",
+                "kind": "foundry.simulation_result",
+                "media_type": "application/json"
+              }
+            ],
+            "state_snapshot_refs": [
+              {
+                "artifact_id": "sha256:d339ba8409b19215cfa8abd15af3c81b566b3bd92a95e65c04ef214bd878a79b",
+                "kind": "foundry.state_snapshot",
+                "media_type": "application/json"
+              },
+              {
+                "artifact_id": "sha256:b9a5a2d59f5dc24455017bae2dfbeca2841e9e64b7e7fc0ac358e4c2b2ebb21e",
+                "kind": "foundry.state_snapshot",
+                "media_type": "application/json"
+              }
+            ],
+            "values": {
+              "income": [
+                1.5,
+                1.0
+              ]
+            }
+          },
+          "consumed_source_rows": {
+            "income": [
+              1.0,
+              2.0
+            ],
+            "row_ids": [
+              "r0",
+              "r1"
+            ],
+            "time_index": [
+              "t0",
+              "t1"
+            ]
+          },
+          "state_snapshot_payloads": [
+            {
+              "checksum_sha256": "90c02b271b9cef127bcbd9fd725cf7c5e28b2a437071f01e99db348e1f904042",
+              "codec": "numpy-npz",
+              "entry_count": 34,
+              "format_version": "npz-v2",
+              "lineage_inputs": [
+                {
+                  "artifact_id": "sha256:48ce8f8e52d365b13ed03edfff6f92a77a2226a2ef63d94884cb25560143e56f",
+                  "role": "state_delta"
+                },
+                {
+                  "artifact_id": "sha256:8cc01f313482a0ce1764e6d115adcbcc4dbef01da7f80200eec0e691f4aa7842",
+                  "role": "base_state"
+                },
+                {
+                  "artifact_id": "sha256:90c02b271b9cef127bcbd9fd725cf7c5e28b2a437071f01e99db348e1f904042",
+                  "role": "state_blob"
+                }
+              ],
+              "notes": [
+                "snapshot_format:npz-v2"
+              ],
+              "schema_version": "2.2",
+              "state_ref": {
+                "artifact_id": "sha256:90c02b271b9cef127bcbd9fd725cf7c5e28b2a437071f01e99db348e1f904042",
+                "kind": "foundry.state_blob",
+                "media_type": "application/x-npz"
+              },
+              "step": 0
+            },
+            {
+              "checksum_sha256": "2cbc508b9b079698960473d1c8f479975f9940e5bcf6d0d27a597b11854085aa",
+              "codec": "numpy-npz",
+              "entry_count": 34,
+              "format_version": "npz-v2",
+              "lineage_inputs": [
+                {
+                  "artifact_id": "sha256:3a222d7984a8d7962174f9bbf43244df45bc47abcd19aab71ac63da846de5b6c",
+                  "role": "state_delta"
+                },
+                {
+                  "artifact_id": "sha256:1debf0f37e916c209513de2cab193290f42c38d5283b3e8050dd22e1bd8a937a",
+                  "role": "base_state"
+                },
+                {
+                  "artifact_id": "sha256:2cbc508b9b079698960473d1c8f479975f9940e5bcf6d0d27a597b11854085aa",
+                  "role": "state_blob"
+                }
+              ],
+              "notes": [
+                "snapshot_format:npz-v2"
+              ],
+              "schema_version": "2.2",
+              "state_ref": {
+                "artifact_id": "sha256:2cbc508b9b079698960473d1c8f479975f9940e5bcf6d0d27a597b11854085aa",
+                "kind": "foundry.state_blob",
+                "media_type": "application/x-npz"
+              },
+              "step": 1
+            }
+          ],
+          "forecast_consumer_recomputed": true
+        },
+        {
+          "scenario_id": "native:replica:2",
+          "metadata": {
+            "actual_foundry_seed": 2285044420,
+            "backend_attempted": true,
+            "backend_run_id": "native-fiscal:replica:2",
+            "comparison_denominator": {
+              "basis": "recomputed",
+              "eligible": 2,
+              "observed": 2,
+              "requested": 2,
+              "unit": "metric_time_cell"
+            },
+            "declared_n_simulation_runs": 7,
+            "degraded": false,
+            "evaluation_status": "evaluated",
+            "historical_snapshot_ref": {
+              "artifact_id": "sha256:a63318ab872c3dfa9ccc34aa358f6f1133267a4e85ff37aa0a0cb6d6b87cdb46",
+              "kind": "fabric.data_snapshot",
+              "media_type": "application/json"
+            },
+            "native_forecast_purpose": "predictive_simulation",
+            "native_forecast_ref": {
+              "artifact_id": "sha256:00750d40daf34115d3e2f8ae1f7565f2d1c84857bd55acd01d19234aad46220f",
+              "kind": "scientist.backtest.native_forecast",
+              "media_type": "application/json"
+            },
+            "native_request_ref": {
+              "artifact_id": "sha256:7027b70687f4cf123a791fc594e286373405980285901fd4b221353d68470784",
+              "kind": "scientist.backtest.native_forecast_request",
+              "media_type": "application/json"
+            },
+            "native_trinity_ref": {
+              "artifact_id": "sha256:f1aae8d2a68dd475d25f54ad5b89900bbe8b40b662317a938a5e735bba18c88d",
+              "kind": "ir.trinity_bundle",
+              "media_type": "application/json"
+            },
+            "prediction_source_effective": "scientist",
+            "prediction_source_requested": "scientist",
+            "replica_count": 7,
+            "replica_index": 2,
+            "requested_replay_seed": 2285044420,
+            "source_plan_id": "native"
+          },
+          "request": {
+            "schema_version": "1.0",
+            "profile": {
+              "purpose": "predictive_simulation",
+              "origin": "t2",
+              "time_index": [
+                "t2",
+                "t3"
+              ],
+              "history_columns": [
+                "income"
+              ],
+              "targets": [
+                {
+                  "metric": "income",
+                  "slot_id": "agents.income",
+                  "unit_id": "usd",
+                  "reduction": "mean"
+                }
+              ]
+            },
+            "data_snapshot_ref": {
+              "artifact_id": "sha256:a63318ab872c3dfa9ccc34aa358f6f1133267a4e85ff37aa0a0cb6d6b87cdb46",
+              "kind": "fabric.data_snapshot",
+              "media_type": "application/json"
+            },
+            "trinity_bundle_ref": {
+              "artifact_id": "sha256:f1aae8d2a68dd475d25f54ad5b89900bbe8b40b662317a938a5e735bba18c88d",
+              "kind": "ir.trinity_bundle",
+              "media_type": "application/json"
+            },
+            "registry_bundle_ref": {
+              "artifact_id": "sha256:b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20",
+              "kind": "core.registry_bundle",
+              "media_type": "application/json"
+            },
+            "row_ids": [
+              "r0",
+              "r1"
+            ],
+            "history_time_index": [
+              "t0",
+              "t1"
+            ],
+            "run_id": "native-fiscal:replica:2",
+            "seed": 2285044420
+          },
+          "forecast": {
+            "schema_version": "1.0",
+            "request_ref": {
+              "artifact_id": "sha256:7027b70687f4cf123a791fc594e286373405980285901fd4b221353d68470784",
+              "kind": "scientist.backtest.native_forecast_request",
+              "media_type": "application/json"
+            },
+            "exec_config_ref": {
+              "artifact_id": "sha256:ac0c2e7b862d745adf0a0e518b2a2f790c03015e6915bc653691a297361302ab",
+              "kind": "foundry.exec_config",
+              "media_type": "application/json"
+            },
+            "input_bindings_ref": {
+              "artifact_id": "sha256:322545b95b14016124eb0bc1fbd5e019734894544be8f53991ca4e7f3453309c",
+              "kind": "foundry.input_bindings",
+              "media_type": "application/json"
+            },
+            "execution_bindings_refs": [
+              {
+                "artifact_id": "sha256:322545b95b14016124eb0bc1fbd5e019734894544be8f53991ca4e7f3453309c",
+                "kind": "foundry.input_bindings",
+                "media_type": "application/json"
+              },
+              {
+                "artifact_id": "sha256:f3d96b40cd4a2ee7d4aac05b7ce828310df79e6e8303eb9c23b9436aa305802e",
+                "kind": "foundry.input_bindings",
+                "media_type": "application/json"
+              }
+            ],
+            "simulation_refs": [
+              {
+                "artifact_id": "sha256:1831a9258479a32c634e0d05161348b029b21da7ec9c37d916aa44b4975e74e1",
+                "kind": "foundry.simulation_result",
+                "media_type": "application/json"
+              },
+              {
+                "artifact_id": "sha256:72b5a44146cbb18f649940d7e3bfeb4768eecdd5555e8023a1676e4ca1e3b565",
+                "kind": "foundry.simulation_result",
+                "media_type": "application/json"
+              }
+            ],
+            "state_snapshot_refs": [
+              {
+                "artifact_id": "sha256:d339ba8409b19215cfa8abd15af3c81b566b3bd92a95e65c04ef214bd878a79b",
+                "kind": "foundry.state_snapshot",
+                "media_type": "application/json"
+              },
+              {
+                "artifact_id": "sha256:b9a5a2d59f5dc24455017bae2dfbeca2841e9e64b7e7fc0ac358e4c2b2ebb21e",
+                "kind": "foundry.state_snapshot",
+                "media_type": "application/json"
+              }
+            ],
+            "values": {
+              "income": [
+                1.5,
+                1.0
+              ]
+            }
+          },
+          "consumed_source_rows": {
+            "income": [
+              1.0,
+              2.0
+            ],
+            "row_ids": [
+              "r0",
+              "r1"
+            ],
+            "time_index": [
+              "t0",
+              "t1"
+            ]
+          },
+          "state_snapshot_payloads": [
+            {
+              "checksum_sha256": "90c02b271b9cef127bcbd9fd725cf7c5e28b2a437071f01e99db348e1f904042",
+              "codec": "numpy-npz",
+              "entry_count": 34,
+              "format_version": "npz-v2",
+              "lineage_inputs": [
+                {
+                  "artifact_id": "sha256:48ce8f8e52d365b13ed03edfff6f92a77a2226a2ef63d94884cb25560143e56f",
+                  "role": "state_delta"
+                },
+                {
+                  "artifact_id": "sha256:8cc01f313482a0ce1764e6d115adcbcc4dbef01da7f80200eec0e691f4aa7842",
+                  "role": "base_state"
+                },
+                {
+                  "artifact_id": "sha256:90c02b271b9cef127bcbd9fd725cf7c5e28b2a437071f01e99db348e1f904042",
+                  "role": "state_blob"
+                }
+              ],
+              "notes": [
+                "snapshot_format:npz-v2"
+              ],
+              "schema_version": "2.2",
+              "state_ref": {
+                "artifact_id": "sha256:90c02b271b9cef127bcbd9fd725cf7c5e28b2a437071f01e99db348e1f904042",
+                "kind": "foundry.state_blob",
+                "media_type": "application/x-npz"
+              },
+              "step": 0
+            },
+            {
+              "checksum_sha256": "2cbc508b9b079698960473d1c8f479975f9940e5bcf6d0d27a597b11854085aa",
+              "codec": "numpy-npz",
+              "entry_count": 34,
+              "format_version": "npz-v2",
+              "lineage_inputs": [
+                {
+                  "artifact_id": "sha256:3a222d7984a8d7962174f9bbf43244df45bc47abcd19aab71ac63da846de5b6c",
+                  "role": "state_delta"
+                },
+                {
+                  "artifact_id": "sha256:1debf0f37e916c209513de2cab193290f42c38d5283b3e8050dd22e1bd8a937a",
+                  "role": "base_state"
+                },
+                {
+                  "artifact_id": "sha256:2cbc508b9b079698960473d1c8f479975f9940e5bcf6d0d27a597b11854085aa",
+                  "role": "state_blob"
+                }
+              ],
+              "notes": [
+                "snapshot_format:npz-v2"
+              ],
+              "schema_version": "2.2",
+              "state_ref": {
+                "artifact_id": "sha256:2cbc508b9b079698960473d1c8f479975f9940e5bcf6d0d27a597b11854085aa",
+                "kind": "foundry.state_blob",
+                "media_type": "application/x-npz"
+              },
+              "step": 1
+            }
+          ],
+          "forecast_consumer_recomputed": true
+        },
+        {
+          "scenario_id": "native:replica:3",
+          "metadata": {
+            "actual_foundry_seed": 577497900,
+            "backend_attempted": true,
+            "backend_run_id": "native-fiscal:replica:3",
+            "comparison_denominator": {
+              "basis": "recomputed",
+              "eligible": 2,
+              "observed": 2,
+              "requested": 2,
+              "unit": "metric_time_cell"
+            },
+            "declared_n_simulation_runs": 7,
+            "degraded": false,
+            "evaluation_status": "evaluated",
+            "historical_snapshot_ref": {
+              "artifact_id": "sha256:a63318ab872c3dfa9ccc34aa358f6f1133267a4e85ff37aa0a0cb6d6b87cdb46",
+              "kind": "fabric.data_snapshot",
+              "media_type": "application/json"
+            },
+            "native_forecast_purpose": "predictive_simulation",
+            "native_forecast_ref": {
+              "artifact_id": "sha256:13bcf843a66fd6f4fd0ea815acbb3ecd92203a3840ead56904b42c54f058f4ea",
+              "kind": "scientist.backtest.native_forecast",
+              "media_type": "application/json"
+            },
+            "native_request_ref": {
+              "artifact_id": "sha256:4f09b6f64078c5a661d662cca630e5f08a52625d2e77baf92776bad1cf00fa90",
+              "kind": "scientist.backtest.native_forecast_request",
+              "media_type": "application/json"
+            },
+            "native_trinity_ref": {
+              "artifact_id": "sha256:f1aae8d2a68dd475d25f54ad5b89900bbe8b40b662317a938a5e735bba18c88d",
+              "kind": "ir.trinity_bundle",
+              "media_type": "application/json"
+            },
+            "prediction_source_effective": "scientist",
+            "prediction_source_requested": "scientist",
+            "replica_count": 7,
+            "replica_index": 3,
+            "requested_replay_seed": 577497900,
+            "source_plan_id": "native"
+          },
+          "request": {
+            "schema_version": "1.0",
+            "profile": {
+              "purpose": "predictive_simulation",
+              "origin": "t2",
+              "time_index": [
+                "t2",
+                "t3"
+              ],
+              "history_columns": [
+                "income"
+              ],
+              "targets": [
+                {
+                  "metric": "income",
+                  "slot_id": "agents.income",
+                  "unit_id": "usd",
+                  "reduction": "mean"
+                }
+              ]
+            },
+            "data_snapshot_ref": {
+              "artifact_id": "sha256:a63318ab872c3dfa9ccc34aa358f6f1133267a4e85ff37aa0a0cb6d6b87cdb46",
+              "kind": "fabric.data_snapshot",
+              "media_type": "application/json"
+            },
+            "trinity_bundle_ref": {
+              "artifact_id": "sha256:f1aae8d2a68dd475d25f54ad5b89900bbe8b40b662317a938a5e735bba18c88d",
+              "kind": "ir.trinity_bundle",
+              "media_type": "application/json"
+            },
+            "registry_bundle_ref": {
+              "artifact_id": "sha256:b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20",
+              "kind": "core.registry_bundle",
+              "media_type": "application/json"
+            },
+            "row_ids": [
+              "r0",
+              "r1"
+            ],
+            "history_time_index": [
+              "t0",
+              "t1"
+            ],
+            "run_id": "native-fiscal:replica:3",
+            "seed": 577497900
+          },
+          "forecast": {
+            "schema_version": "1.0",
+            "request_ref": {
+              "artifact_id": "sha256:4f09b6f64078c5a661d662cca630e5f08a52625d2e77baf92776bad1cf00fa90",
+              "kind": "scientist.backtest.native_forecast_request",
+              "media_type": "application/json"
+            },
+            "exec_config_ref": {
+              "artifact_id": "sha256:1dc15c5dee54a03d39d712adcbba03ae20368ebcd2cbe31ba9e1f04275c647a2",
+              "kind": "foundry.exec_config",
+              "media_type": "application/json"
+            },
+            "input_bindings_ref": {
+              "artifact_id": "sha256:322545b95b14016124eb0bc1fbd5e019734894544be8f53991ca4e7f3453309c",
+              "kind": "foundry.input_bindings",
+              "media_type": "application/json"
+            },
+            "execution_bindings_refs": [
+              {
+                "artifact_id": "sha256:322545b95b14016124eb0bc1fbd5e019734894544be8f53991ca4e7f3453309c",
+                "kind": "foundry.input_bindings",
+                "media_type": "application/json"
+              },
+              {
+                "artifact_id": "sha256:f3d96b40cd4a2ee7d4aac05b7ce828310df79e6e8303eb9c23b9436aa305802e",
+                "kind": "foundry.input_bindings",
+                "media_type": "application/json"
+              }
+            ],
+            "simulation_refs": [
+              {
+                "artifact_id": "sha256:68bf63f47f1153ef9ad8a3a8ded0183a1b479a7f8c27d10df7f80ca428544ea8",
+                "kind": "foundry.simulation_result",
+                "media_type": "application/json"
+              },
+              {
+                "artifact_id": "sha256:9286ac4921e26670e1ec53143fbd66096bf2f636466c698ec90e3f4da272867d",
+                "kind": "foundry.simulation_result",
+                "media_type": "application/json"
+              }
+            ],
+            "state_snapshot_refs": [
+              {
+                "artifact_id": "sha256:d339ba8409b19215cfa8abd15af3c81b566b3bd92a95e65c04ef214bd878a79b",
+                "kind": "foundry.state_snapshot",
+                "media_type": "application/json"
+              },
+              {
+                "artifact_id": "sha256:b9a5a2d59f5dc24455017bae2dfbeca2841e9e64b7e7fc0ac358e4c2b2ebb21e",
+                "kind": "foundry.state_snapshot",
+                "media_type": "application/json"
+              }
+            ],
+            "values": {
+              "income": [
+                1.5,
+                1.0
+              ]
+            }
+          },
+          "consumed_source_rows": {
+            "income": [
+              1.0,
+              2.0
+            ],
+            "row_ids": [
+              "r0",
+              "r1"
+            ],
+            "time_index": [
+              "t0",
+              "t1"
+            ]
+          },
+          "state_snapshot_payloads": [
+            {
+              "checksum_sha256": "90c02b271b9cef127bcbd9fd725cf7c5e28b2a437071f01e99db348e1f904042",
+              "codec": "numpy-npz",
+              "entry_count": 34,
+              "format_version": "npz-v2",
+              "lineage_inputs": [
+                {
+                  "artifact_id": "sha256:48ce8f8e52d365b13ed03edfff6f92a77a2226a2ef63d94884cb25560143e56f",
+                  "role": "state_delta"
+                },
+                {
+                  "artifact_id": "sha256:8cc01f313482a0ce1764e6d115adcbcc4dbef01da7f80200eec0e691f4aa7842",
+                  "role": "base_state"
+                },
+                {
+                  "artifact_id": "sha256:90c02b271b9cef127bcbd9fd725cf7c5e28b2a437071f01e99db348e1f904042",
+                  "role": "state_blob"
+                }
+              ],
+              "notes": [
+                "snapshot_format:npz-v2"
+              ],
+              "schema_version": "2.2",
+              "state_ref": {
+                "artifact_id": "sha256:90c02b271b9cef127bcbd9fd725cf7c5e28b2a437071f01e99db348e1f904042",
+                "kind": "foundry.state_blob",
+                "media_type": "application/x-npz"
+              },
+              "step": 0
+            },
+            {
+              "checksum_sha256": "2cbc508b9b079698960473d1c8f479975f9940e5bcf6d0d27a597b11854085aa",
+              "codec": "numpy-npz",
+              "entry_count": 34,
+              "format_version": "npz-v2",
+              "lineage_inputs": [
+                {
+                  "artifact_id": "sha256:3a222d7984a8d7962174f9bbf43244df45bc47abcd19aab71ac63da846de5b6c",
+                  "role": "state_delta"
+                },
+                {
+                  "artifact_id": "sha256:1debf0f37e916c209513de2cab193290f42c38d5283b3e8050dd22e1bd8a937a",
+                  "role": "base_state"
+                },
+                {
+                  "artifact_id": "sha256:2cbc508b9b079698960473d1c8f479975f9940e5bcf6d0d27a597b11854085aa",
+                  "role": "state_blob"
+                }
+              ],
+              "notes": [
+                "snapshot_format:npz-v2"
+              ],
+              "schema_version": "2.2",
+              "state_ref": {
+                "artifact_id": "sha256:2cbc508b9b079698960473d1c8f479975f9940e5bcf6d0d27a597b11854085aa",
+                "kind": "foundry.state_blob",
+                "media_type": "application/x-npz"
+              },
+              "step": 1
+            }
+          ],
+          "forecast_consumer_recomputed": true
+        },
+        {
+          "scenario_id": "native:replica:4",
+          "metadata": {
+            "actual_foundry_seed": 82331697,
+            "backend_attempted": true,
+            "backend_run_id": "native-fiscal:replica:4",
+            "comparison_denominator": {
+              "basis": "recomputed",
+              "eligible": 2,
+              "observed": 2,
+              "requested": 2,
+              "unit": "metric_time_cell"
+            },
+            "declared_n_simulation_runs": 7,
+            "degraded": false,
+            "evaluation_status": "evaluated",
+            "historical_snapshot_ref": {
+              "artifact_id": "sha256:a63318ab872c3dfa9ccc34aa358f6f1133267a4e85ff37aa0a0cb6d6b87cdb46",
+              "kind": "fabric.data_snapshot",
+              "media_type": "application/json"
+            },
+            "native_forecast_purpose": "predictive_simulation",
+            "native_forecast_ref": {
+              "artifact_id": "sha256:2c694b6821e32a55a557c988a5488f40319f11bdd2a8db84af9c0691de94bbab",
+              "kind": "scientist.backtest.native_forecast",
+              "media_type": "application/json"
+            },
+            "native_request_ref": {
+              "artifact_id": "sha256:7368497215f5c952e5fcd66c22330c6b71d7bcd0717be748baa3875e583780e4",
+              "kind": "scientist.backtest.native_forecast_request",
+              "media_type": "application/json"
+            },
+            "native_trinity_ref": {
+              "artifact_id": "sha256:f1aae8d2a68dd475d25f54ad5b89900bbe8b40b662317a938a5e735bba18c88d",
+              "kind": "ir.trinity_bundle",
+              "media_type": "application/json"
+            },
+            "prediction_source_effective": "scientist",
+            "prediction_source_requested": "scientist",
+            "replica_count": 7,
+            "replica_index": 4,
+            "requested_replay_seed": 82331697,
+            "source_plan_id": "native"
+          },
+          "request": {
+            "schema_version": "1.0",
+            "profile": {
+              "purpose": "predictive_simulation",
+              "origin": "t2",
+              "time_index": [
+                "t2",
+                "t3"
+              ],
+              "history_columns": [
+                "income"
+              ],
+              "targets": [
+                {
+                  "metric": "income",
+                  "slot_id": "agents.income",
+                  "unit_id": "usd",
+                  "reduction": "mean"
+                }
+              ]
+            },
+            "data_snapshot_ref": {
+              "artifact_id": "sha256:a63318ab872c3dfa9ccc34aa358f6f1133267a4e85ff37aa0a0cb6d6b87cdb46",
+              "kind": "fabric.data_snapshot",
+              "media_type": "application/json"
+            },
+            "trinity_bundle_ref": {
+              "artifact_id": "sha256:f1aae8d2a68dd475d25f54ad5b89900bbe8b40b662317a938a5e735bba18c88d",
+              "kind": "ir.trinity_bundle",
+              "media_type": "application/json"
+            },
+            "registry_bundle_ref": {
+              "artifact_id": "sha256:b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20",
+              "kind": "core.registry_bundle",
+              "media_type": "application/json"
+            },
+            "row_ids": [
+              "r0",
+              "r1"
+            ],
+            "history_time_index": [
+              "t0",
+              "t1"
+            ],
+            "run_id": "native-fiscal:replica:4",
+            "seed": 82331697
+          },
+          "forecast": {
+            "schema_version": "1.0",
+            "request_ref": {
+              "artifact_id": "sha256:7368497215f5c952e5fcd66c22330c6b71d7bcd0717be748baa3875e583780e4",
+              "kind": "scientist.backtest.native_forecast_request",
+              "media_type": "application/json"
+            },
+            "exec_config_ref": {
+              "artifact_id": "sha256:5f854c32a91b84a89689a8f5702af5223aabfdcb7da041c40a4c3dc57ff349aa",
+              "kind": "foundry.exec_config",
+              "media_type": "application/json"
+            },
+            "input_bindings_ref": {
+              "artifact_id": "sha256:322545b95b14016124eb0bc1fbd5e019734894544be8f53991ca4e7f3453309c",
+              "kind": "foundry.input_bindings",
+              "media_type": "application/json"
+            },
+            "execution_bindings_refs": [
+              {
+                "artifact_id": "sha256:322545b95b14016124eb0bc1fbd5e019734894544be8f53991ca4e7f3453309c",
+                "kind": "foundry.input_bindings",
+                "media_type": "application/json"
+              },
+              {
+                "artifact_id": "sha256:f3d96b40cd4a2ee7d4aac05b7ce828310df79e6e8303eb9c23b9436aa305802e",
+                "kind": "foundry.input_bindings",
+                "media_type": "application/json"
+              }
+            ],
+            "simulation_refs": [
+              {
+                "artifact_id": "sha256:ff1c8ab261663aa56b8eae71232e3c3e96863a47c0c5c6a2ec8090089f17115b",
+                "kind": "foundry.simulation_result",
+                "media_type": "application/json"
+              },
+              {
+                "artifact_id": "sha256:4b74004c9036b3e2b5b39c02dda8911e2a21f93821bdc9f3e47fbeea9cd38b08",
+                "kind": "foundry.simulation_result",
+                "media_type": "application/json"
+              }
+            ],
+            "state_snapshot_refs": [
+              {
+                "artifact_id": "sha256:d339ba8409b19215cfa8abd15af3c81b566b3bd92a95e65c04ef214bd878a79b",
+                "kind": "foundry.state_snapshot",
+                "media_type": "application/json"
+              },
+              {
+                "artifact_id": "sha256:b9a5a2d59f5dc24455017bae2dfbeca2841e9e64b7e7fc0ac358e4c2b2ebb21e",
+                "kind": "foundry.state_snapshot",
+                "media_type": "application/json"
+              }
+            ],
+            "values": {
+              "income": [
+                1.5,
+                1.0
+              ]
+            }
+          },
+          "consumed_source_rows": {
+            "income": [
+              1.0,
+              2.0
+            ],
+            "row_ids": [
+              "r0",
+              "r1"
+            ],
+            "time_index": [
+              "t0",
+              "t1"
+            ]
+          },
+          "state_snapshot_payloads": [
+            {
+              "checksum_sha256": "90c02b271b9cef127bcbd9fd725cf7c5e28b2a437071f01e99db348e1f904042",
+              "codec": "numpy-npz",
+              "entry_count": 34,
+              "format_version": "npz-v2",
+              "lineage_inputs": [
+                {
+                  "artifact_id": "sha256:48ce8f8e52d365b13ed03edfff6f92a77a2226a2ef63d94884cb25560143e56f",
+                  "role": "state_delta"
+                },
+                {
+                  "artifact_id": "sha256:8cc01f313482a0ce1764e6d115adcbcc4dbef01da7f80200eec0e691f4aa7842",
+                  "role": "base_state"
+                },
+                {
+                  "artifact_id": "sha256:90c02b271b9cef127bcbd9fd725cf7c5e28b2a437071f01e99db348e1f904042",
+                  "role": "state_blob"
+                }
+              ],
+              "notes": [
+                "snapshot_format:npz-v2"
+              ],
+              "schema_version": "2.2",
+              "state_ref": {
+                "artifact_id": "sha256:90c02b271b9cef127bcbd9fd725cf7c5e28b2a437071f01e99db348e1f904042",
+                "kind": "foundry.state_blob",
+                "media_type": "application/x-npz"
+              },
+              "step": 0
+            },
+            {
+              "checksum_sha256": "2cbc508b9b079698960473d1c8f479975f9940e5bcf6d0d27a597b11854085aa",
+              "codec": "numpy-npz",
+              "entry_count": 34,
+              "format_version": "npz-v2",
+              "lineage_inputs": [
+                {
+                  "artifact_id": "sha256:3a222d7984a8d7962174f9bbf43244df45bc47abcd19aab71ac63da846de5b6c",
+                  "role": "state_delta"
+                },
+                {
+                  "artifact_id": "sha256:1debf0f37e916c209513de2cab193290f42c38d5283b3e8050dd22e1bd8a937a",
+                  "role": "base_state"
+                },
+                {
+                  "artifact_id": "sha256:2cbc508b9b079698960473d1c8f479975f9940e5bcf6d0d27a597b11854085aa",
+                  "role": "state_blob"
+                }
+              ],
+              "notes": [
+                "snapshot_format:npz-v2"
+              ],
+              "schema_version": "2.2",
+              "state_ref": {
+                "artifact_id": "sha256:2cbc508b9b079698960473d1c8f479975f9940e5bcf6d0d27a597b11854085aa",
+                "kind": "foundry.state_blob",
+                "media_type": "application/x-npz"
+              },
+              "step": 1
+            }
+          ],
+          "forecast_consumer_recomputed": true
+        },
+        {
+          "scenario_id": "native:replica:5",
+          "metadata": {
+            "actual_foundry_seed": 659408303,
+            "backend_attempted": true,
+            "backend_run_id": "native-fiscal:replica:5",
+            "comparison_denominator": {
+              "basis": "recomputed",
+              "eligible": 2,
+              "observed": 2,
+              "requested": 2,
+              "unit": "metric_time_cell"
+            },
+            "declared_n_simulation_runs": 7,
+            "degraded": false,
+            "evaluation_status": "evaluated",
+            "historical_snapshot_ref": {
+              "artifact_id": "sha256:a63318ab872c3dfa9ccc34aa358f6f1133267a4e85ff37aa0a0cb6d6b87cdb46",
+              "kind": "fabric.data_snapshot",
+              "media_type": "application/json"
+            },
+            "native_forecast_purpose": "predictive_simulation",
+            "native_forecast_ref": {
+              "artifact_id": "sha256:56a9e7b9d5c064c8bfb5d4a2e92c7b8f62e3a33dcf4096f4311e04f127537c86",
+              "kind": "scientist.backtest.native_forecast",
+              "media_type": "application/json"
+            },
+            "native_request_ref": {
+              "artifact_id": "sha256:28d23a765e3f4c80309f510dddf8536089f6fe47be5ee87b2d3123c71a457220",
+              "kind": "scientist.backtest.native_forecast_request",
+              "media_type": "application/json"
+            },
+            "native_trinity_ref": {
+              "artifact_id": "sha256:f1aae8d2a68dd475d25f54ad5b89900bbe8b40b662317a938a5e735bba18c88d",
+              "kind": "ir.trinity_bundle",
+              "media_type": "application/json"
+            },
+            "prediction_source_effective": "scientist",
+            "prediction_source_requested": "scientist",
+            "replica_count": 7,
+            "replica_index": 5,
+            "requested_replay_seed": 659408303,
+            "source_plan_id": "native"
+          },
+          "request": {
+            "schema_version": "1.0",
+            "profile": {
+              "purpose": "predictive_simulation",
+              "origin": "t2",
+              "time_index": [
+                "t2",
+                "t3"
+              ],
+              "history_columns": [
+                "income"
+              ],
+              "targets": [
+                {
+                  "metric": "income",
+                  "slot_id": "agents.income",
+                  "unit_id": "usd",
+                  "reduction": "mean"
+                }
+              ]
+            },
+            "data_snapshot_ref": {
+              "artifact_id": "sha256:a63318ab872c3dfa9ccc34aa358f6f1133267a4e85ff37aa0a0cb6d6b87cdb46",
+              "kind": "fabric.data_snapshot",
+              "media_type": "application/json"
+            },
+            "trinity_bundle_ref": {
+              "artifact_id": "sha256:f1aae8d2a68dd475d25f54ad5b89900bbe8b40b662317a938a5e735bba18c88d",
+              "kind": "ir.trinity_bundle",
+              "media_type": "application/json"
+            },
+            "registry_bundle_ref": {
+              "artifact_id": "sha256:b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20",
+              "kind": "core.registry_bundle",
+              "media_type": "application/json"
+            },
+            "row_ids": [
+              "r0",
+              "r1"
+            ],
+            "history_time_index": [
+              "t0",
+              "t1"
+            ],
+            "run_id": "native-fiscal:replica:5",
+            "seed": 659408303
+          },
+          "forecast": {
+            "schema_version": "1.0",
+            "request_ref": {
+              "artifact_id": "sha256:28d23a765e3f4c80309f510dddf8536089f6fe47be5ee87b2d3123c71a457220",
+              "kind": "scientist.backtest.native_forecast_request",
+              "media_type": "application/json"
+            },
+            "exec_config_ref": {
+              "artifact_id": "sha256:9755780c498aeb53ab06fe896afd8c225f84fca13c55e802e37b7da2e15f9617",
+              "kind": "foundry.exec_config",
+              "media_type": "application/json"
+            },
+            "input_bindings_ref": {
+              "artifact_id": "sha256:322545b95b14016124eb0bc1fbd5e019734894544be8f53991ca4e7f3453309c",
+              "kind": "foundry.input_bindings",
+              "media_type": "application/json"
+            },
+            "execution_bindings_refs": [
+              {
+                "artifact_id": "sha256:322545b95b14016124eb0bc1fbd5e019734894544be8f53991ca4e7f3453309c",
+                "kind": "foundry.input_bindings",
+                "media_type": "application/json"
+              },
+              {
+                "artifact_id": "sha256:f3d96b40cd4a2ee7d4aac05b7ce828310df79e6e8303eb9c23b9436aa305802e",
+                "kind": "foundry.input_bindings",
+                "media_type": "application/json"
+              }
+            ],
+            "simulation_refs": [
+              {
+                "artifact_id": "sha256:94809027f9612bda0d004d3847c66c759e3d1c31e5a7c70465b2f95d2dfd8238",
+                "kind": "foundry.simulation_result",
+                "media_type": "application/json"
+              },
+              {
+                "artifact_id": "sha256:f336ded97cdbfe526a910944da753abdb0ead3832153ae430ed12d83db659732",
+                "kind": "foundry.simulation_result",
+                "media_type": "application/json"
+              }
+            ],
+            "state_snapshot_refs": [
+              {
+                "artifact_id": "sha256:d339ba8409b19215cfa8abd15af3c81b566b3bd92a95e65c04ef214bd878a79b",
+                "kind": "foundry.state_snapshot",
+                "media_type": "application/json"
+              },
+              {
+                "artifact_id": "sha256:b9a5a2d59f5dc24455017bae2dfbeca2841e9e64b7e7fc0ac358e4c2b2ebb21e",
+                "kind": "foundry.state_snapshot",
+                "media_type": "application/json"
+              }
+            ],
+            "values": {
+              "income": [
+                1.5,
+                1.0
+              ]
+            }
+          },
+          "consumed_source_rows": {
+            "income": [
+              1.0,
+              2.0
+            ],
+            "row_ids": [
+              "r0",
+              "r1"
+            ],
+            "time_index": [
+              "t0",
+              "t1"
+            ]
+          },
+          "state_snapshot_payloads": [
+            {
+              "checksum_sha256": "90c02b271b9cef127bcbd9fd725cf7c5e28b2a437071f01e99db348e1f904042",
+              "codec": "numpy-npz",
+              "entry_count": 34,
+              "format_version": "npz-v2",
+              "lineage_inputs": [
+                {
+                  "artifact_id": "sha256:48ce8f8e52d365b13ed03edfff6f92a77a2226a2ef63d94884cb25560143e56f",
+                  "role": "state_delta"
+                },
+                {
+                  "artifact_id": "sha256:8cc01f313482a0ce1764e6d115adcbcc4dbef01da7f80200eec0e691f4aa7842",
+                  "role": "base_state"
+                },
+                {
+                  "artifact_id": "sha256:90c02b271b9cef127bcbd9fd725cf7c5e28b2a437071f01e99db348e1f904042",
+                  "role": "state_blob"
+                }
+              ],
+              "notes": [
+                "snapshot_format:npz-v2"
+              ],
+              "schema_version": "2.2",
+              "state_ref": {
+                "artifact_id": "sha256:90c02b271b9cef127bcbd9fd725cf7c5e28b2a437071f01e99db348e1f904042",
+                "kind": "foundry.state_blob",
+                "media_type": "application/x-npz"
+              },
+              "step": 0
+            },
+            {
+              "checksum_sha256": "2cbc508b9b079698960473d1c8f479975f9940e5bcf6d0d27a597b11854085aa",
+              "codec": "numpy-npz",
+              "entry_count": 34,
+              "format_version": "npz-v2",
+              "lineage_inputs": [
+                {
+                  "artifact_id": "sha256:3a222d7984a8d7962174f9bbf43244df45bc47abcd19aab71ac63da846de5b6c",
+                  "role": "state_delta"
+                },
+                {
+                  "artifact_id": "sha256:1debf0f37e916c209513de2cab193290f42c38d5283b3e8050dd22e1bd8a937a",
+                  "role": "base_state"
+                },
+                {
+                  "artifact_id": "sha256:2cbc508b9b079698960473d1c8f479975f9940e5bcf6d0d27a597b11854085aa",
+                  "role": "state_blob"
+                }
+              ],
+              "notes": [
+                "snapshot_format:npz-v2"
+              ],
+              "schema_version": "2.2",
+              "state_ref": {
+                "artifact_id": "sha256:2cbc508b9b079698960473d1c8f479975f9940e5bcf6d0d27a597b11854085aa",
+                "kind": "foundry.state_blob",
+                "media_type": "application/x-npz"
+              },
+              "step": 1
+            }
+          ],
+          "forecast_consumer_recomputed": true
+        },
+        {
+          "scenario_id": "native:replica:6",
+          "metadata": {
+            "actual_foundry_seed": 3138027851,
+            "backend_attempted": true,
+            "backend_run_id": "native-fiscal:replica:6",
+            "comparison_denominator": {
+              "basis": "recomputed",
+              "eligible": 2,
+              "observed": 2,
+              "requested": 2,
+              "unit": "metric_time_cell"
+            },
+            "declared_n_simulation_runs": 7,
+            "degraded": false,
+            "evaluation_status": "evaluated",
+            "historical_snapshot_ref": {
+              "artifact_id": "sha256:a63318ab872c3dfa9ccc34aa358f6f1133267a4e85ff37aa0a0cb6d6b87cdb46",
+              "kind": "fabric.data_snapshot",
+              "media_type": "application/json"
+            },
+            "native_forecast_purpose": "predictive_simulation",
+            "native_forecast_ref": {
+              "artifact_id": "sha256:83966f6992a770c60b3853cd84697c33e29f8676c5ee3203a52c5c4502911e08",
+              "kind": "scientist.backtest.native_forecast",
+              "media_type": "application/json"
+            },
+            "native_request_ref": {
+              "artifact_id": "sha256:e8fb83a3a5b3e12b4727fbe7345da7c4c5946c3b0d7e03a432cfff54dc3a3348",
+              "kind": "scientist.backtest.native_forecast_request",
+              "media_type": "application/json"
+            },
+            "native_trinity_ref": {
+              "artifact_id": "sha256:f1aae8d2a68dd475d25f54ad5b89900bbe8b40b662317a938a5e735bba18c88d",
+              "kind": "ir.trinity_bundle",
+              "media_type": "application/json"
+            },
+            "prediction_source_effective": "scientist",
+            "prediction_source_requested": "scientist",
+            "replica_count": 7,
+            "replica_index": 6,
+            "requested_replay_seed": 3138027851,
+            "source_plan_id": "native"
+          },
+          "request": {
+            "schema_version": "1.0",
+            "profile": {
+              "purpose": "predictive_simulation",
+              "origin": "t2",
+              "time_index": [
+                "t2",
+                "t3"
+              ],
+              "history_columns": [
+                "income"
+              ],
+              "targets": [
+                {
+                  "metric": "income",
+                  "slot_id": "agents.income",
+                  "unit_id": "usd",
+                  "reduction": "mean"
+                }
+              ]
+            },
+            "data_snapshot_ref": {
+              "artifact_id": "sha256:a63318ab872c3dfa9ccc34aa358f6f1133267a4e85ff37aa0a0cb6d6b87cdb46",
+              "kind": "fabric.data_snapshot",
+              "media_type": "application/json"
+            },
+            "trinity_bundle_ref": {
+              "artifact_id": "sha256:f1aae8d2a68dd475d25f54ad5b89900bbe8b40b662317a938a5e735bba18c88d",
+              "kind": "ir.trinity_bundle",
+              "media_type": "application/json"
+            },
+            "registry_bundle_ref": {
+              "artifact_id": "sha256:b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20",
+              "kind": "core.registry_bundle",
+              "media_type": "application/json"
+            },
+            "row_ids": [
+              "r0",
+              "r1"
+            ],
+            "history_time_index": [
+              "t0",
+              "t1"
+            ],
+            "run_id": "native-fiscal:replica:6",
+            "seed": 3138027851
+          },
+          "forecast": {
+            "schema_version": "1.0",
+            "request_ref": {
+              "artifact_id": "sha256:e8fb83a3a5b3e12b4727fbe7345da7c4c5946c3b0d7e03a432cfff54dc3a3348",
+              "kind": "scientist.backtest.native_forecast_request",
+              "media_type": "application/json"
+            },
+            "exec_config_ref": {
+              "artifact_id": "sha256:e8b2533fe39016b20588085f1c6752fd85ca2cd7e36e1406e8299b96115759fa",
+              "kind": "foundry.exec_config",
+              "media_type": "application/json"
+            },
+            "input_bindings_ref": {
+              "artifact_id": "sha256:322545b95b14016124eb0bc1fbd5e019734894544be8f53991ca4e7f3453309c",
+              "kind": "foundry.input_bindings",
+              "media_type": "application/json"
+            },
+            "execution_bindings_refs": [
+              {
+                "artifact_id": "sha256:322545b95b14016124eb0bc1fbd5e019734894544be8f53991ca4e7f3453309c",
+                "kind": "foundry.input_bindings",
+                "media_type": "application/json"
+              },
+              {
+                "artifact_id": "sha256:f3d96b40cd4a2ee7d4aac05b7ce828310df79e6e8303eb9c23b9436aa305802e",
+                "kind": "foundry.input_bindings",
+                "media_type": "application/json"
+              }
+            ],
+            "simulation_refs": [
+              {
+                "artifact_id": "sha256:3b1098c4c8489edbd581d78e3d9a150440f1e07357030ea67bc0e1fe68eaaaac",
+                "kind": "foundry.simulation_result",
+                "media_type": "application/json"
+              },
+              {
+                "artifact_id": "sha256:61b27378f45669557d56bf5d39b072c3adecdbc7721dad2c7eb9d8bf3a99fba3",
+                "kind": "foundry.simulation_result",
+                "media_type": "application/json"
+              }
+            ],
+            "state_snapshot_refs": [
+              {
+                "artifact_id": "sha256:d339ba8409b19215cfa8abd15af3c81b566b3bd92a95e65c04ef214bd878a79b",
+                "kind": "foundry.state_snapshot",
+                "media_type": "application/json"
+              },
+              {
+                "artifact_id": "sha256:b9a5a2d59f5dc24455017bae2dfbeca2841e9e64b7e7fc0ac358e4c2b2ebb21e",
+                "kind": "foundry.state_snapshot",
+                "media_type": "application/json"
+              }
+            ],
+            "values": {
+              "income": [
+                1.5,
+                1.0
+              ]
+            }
+          },
+          "consumed_source_rows": {
+            "income": [
+              1.0,
+              2.0
+            ],
+            "row_ids": [
+              "r0",
+              "r1"
+            ],
+            "time_index": [
+              "t0",
+              "t1"
+            ]
+          },
+          "state_snapshot_payloads": [
+            {
+              "checksum_sha256": "90c02b271b9cef127bcbd9fd725cf7c5e28b2a437071f01e99db348e1f904042",
+              "codec": "numpy-npz",
+              "entry_count": 34,
+              "format_version": "npz-v2",
+              "lineage_inputs": [
+                {
+                  "artifact_id": "sha256:48ce8f8e52d365b13ed03edfff6f92a77a2226a2ef63d94884cb25560143e56f",
+                  "role": "state_delta"
+                },
+                {
+                  "artifact_id": "sha256:8cc01f313482a0ce1764e6d115adcbcc4dbef01da7f80200eec0e691f4aa7842",
+                  "role": "base_state"
+                },
+                {
+                  "artifact_id": "sha256:90c02b271b9cef127bcbd9fd725cf7c5e28b2a437071f01e99db348e1f904042",
+                  "role": "state_blob"
+                }
+              ],
+              "notes": [
+                "snapshot_format:npz-v2"
+              ],
+              "schema_version": "2.2",
+              "state_ref": {
+                "artifact_id": "sha256:90c02b271b9cef127bcbd9fd725cf7c5e28b2a437071f01e99db348e1f904042",
+                "kind": "foundry.state_blob",
+                "media_type": "application/x-npz"
+              },
+              "step": 0
+            },
+            {
+              "checksum_sha256": "2cbc508b9b079698960473d1c8f479975f9940e5bcf6d0d27a597b11854085aa",
+              "codec": "numpy-npz",
+              "entry_count": 34,
+              "format_version": "npz-v2",
+              "lineage_inputs": [
+                {
+                  "artifact_id": "sha256:3a222d7984a8d7962174f9bbf43244df45bc47abcd19aab71ac63da846de5b6c",
+                  "role": "state_delta"
+                },
+                {
+                  "artifact_id": "sha256:1debf0f37e916c209513de2cab193290f42c38d5283b3e8050dd22e1bd8a937a",
+                  "role": "base_state"
+                },
+                {
+                  "artifact_id": "sha256:2cbc508b9b079698960473d1c8f479975f9940e5bcf6d0d27a597b11854085aa",
+                  "role": "state_blob"
+                }
+              ],
+              "notes": [
+                "snapshot_format:npz-v2"
+              ],
+              "schema_version": "2.2",
+              "state_ref": {
+                "artifact_id": "sha256:2cbc508b9b079698960473d1c8f479975f9940e5bcf6d0d27a597b11854085aa",
+                "kind": "foundry.state_blob",
+                "media_type": "application/x-npz"
+              },
+              "step": 1
+            }
+          ],
+          "forecast_consumer_recomputed": true
+        }
+      ]
+    }
+  ],
+  "repeated_pytest_current_symlink_excluded": true
+}

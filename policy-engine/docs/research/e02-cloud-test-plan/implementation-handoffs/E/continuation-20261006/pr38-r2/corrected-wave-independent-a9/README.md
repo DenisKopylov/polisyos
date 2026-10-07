@@ -1,0 +1,9 @@
+Independent actual corrected-wave audit at a9f78817c873be5b35a08155f2593b229d9fdbb6 / tree c02e043c3e1c8222c28aa71187fa8db4e2fdeea7.
+
+Source/input and receipt/output custody GO. Actual JUnit:1445 cases,1441 PASS,4 FAIL,0 ERROR,0 SKIP. Native1438=1436PASS+2FAIL; A packets7=5PASS+2FAIL. Current four assertions remain A/default resolver/status-reason residuals; no inherited P41 waiver. Seven global gates FAIL, importer PASS; workspace13 and CI23 required later stages UNRUN. Numerical and fullCI acceptance remain HOLD/FAIL, separately from finding closure.
+
+All15 actual receipts, complete122 native+2 A source inputs,317 changed Python lint paths, full stdout/JUnit, full tracked source and effective private-config hash/size reconciled. The raw171MB diagnostic and private config remain ignored and are not copied. Artifact presence is IO custody, not authority; negative-test CAS records may intentionally be malformed.
+
+Original6358B/f901 source freeze is preserved. Typed publication carrier only reclassifies six Git and two external content-bound reviews while preserving source/time/environment/wave/closure values. DoE adapter GO is separately bound; canonicalv4 alone does not verify external metadata. Original collection InputERROR128 is preserved as a publication-input error, distinct from backend outcomes.
+
+Primary:independent-wave-review-a9f78817c.json. Inputs, JUnit case IDs/nonpasses, exact output asset digests, exact source attribution, actual scratch/CAS-file custody, pure audit scripts and effective negatives are indexed. This reviewer launched no tests/global/numerical checks and made no Git/config/ref/product changes. CAL mechanism approval uses unchanged independent DoE source review; no self-approval. Prior5e failed attempt remains separate. Ledger statuses and held IR/source-law/served boundaries are unchanged. Parent publishes these moderate files after the wave; their presence in frozena9 is not claimed.

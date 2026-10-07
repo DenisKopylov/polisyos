@@ -1,0 +1,8 @@
+/workspace/e02-E-pr38-r2-receipts/public-surface-packet-r3/real_domain_removal_probe.py:11: ComplexWarning: Casting complex values to real discards the imaginary part
+  def unsafe_real(values):return np.asarray(values,dtype=np.float64)
+{"entry": "actual frozen bounded-pilot budget producer", "emitted": [0.0995612819216314, 408], "export_names_and_canonical_identities_retained": true, "source_files_unchanged": true}
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r2-receipts/public-surface-packet-r3/real_domain_removal_probe.py", line 26, in <module>
+    assert emitted is None, 'shared domain guard removed: complex pilot emitted mainN408 certificate'
+           ^^^^^^^^^^^^^^^
+AssertionError: shared domain guard removed: complex pilot emitted mainN408 certificate

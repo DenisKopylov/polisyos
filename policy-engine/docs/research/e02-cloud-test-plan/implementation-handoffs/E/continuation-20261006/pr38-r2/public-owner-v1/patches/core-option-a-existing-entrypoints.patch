@@ -1,0 +1,12 @@
+--- a/policy-engine/architecture/public_surface/contract.toml
++++ b/policy-engine/architecture/public_surface/contract.toml
+@@ -157,6 +157,9 @@
+ supported_entrypoints = [
+   "polisyos.core",
+   "polisyos.core.contracts",
++  "polisyos.core.artifacts",
++  "polisyos.core.canon",
++  "polisyos.core.registry",
+   "polisyos.core.observability",
+   "polisyos.core.security",
+   "polisyos.core.trace",

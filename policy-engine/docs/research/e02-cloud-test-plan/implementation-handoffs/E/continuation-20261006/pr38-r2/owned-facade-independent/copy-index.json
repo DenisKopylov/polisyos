@@ -1,0 +1,960 @@
+{
+  "schema": "policyos.e02.independent-welfare-facade-copy-index.v1",
+  "reviewer": "/root/ddm_r2",
+  "candidate_sha": "cfd79255aab85544082fcf24f93db894202fbfa2",
+  "candidate_tree": "8b5fea530b22e5402f3e3bf31d0c5a54e4117be7",
+  "files": [
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/CAS-export.stderr",
+      "path": "CAS-export.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/CAS-export.stdout",
+      "path": "CAS-export.stdout",
+      "bytes": 99,
+      "sha256": "6abde76e1bd5f8bb5fb4f484b8e93dac2b29e5b1c2dfd4b4c0e60fe6551a41e2"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/READY-and-Git-binding-review.json",
+      "path": "READY-and-Git-binding-review.json",
+      "bytes": 5154,
+      "sha256": "59115e25254fcd293bfca364452d7db1155f2c5b39627ab8d5299b478e5ca6a1"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/READY.json",
+      "path": "author-READY-inputs/READY.json",
+      "bytes": 567,
+      "sha256": "d86b0376f883a581ff0c7a32a5596b21303c395cf760c510e3f57064b43d03f5"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/apply-check.json",
+      "path": "author-READY-inputs/apply-check.json",
+      "bytes": 318,
+      "sha256": "d5689564ca8ba785cd249fad09647e9acfed91c7480ec4490392a9c01fe740de"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/author-receipt.json",
+      "path": "author-READY-inputs/author-receipt.json",
+      "bytes": 18018,
+      "sha256": "0de0a970c28dfae21687f80dbf1d845ca834f6682635154a962c213d3063109d"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/collector-generator-expanded.stderr",
+      "path": "author-READY-inputs/collector-generator-expanded.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/collector-generator-expanded.stdout",
+      "path": "author-READY-inputs/collector-generator-expanded.stdout",
+      "bytes": 858,
+      "sha256": "2bf3587e34009dc664c42bc0dd121c5671bf83627d275cc13ef776926c866f7a"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/collector-generator.json",
+      "path": "author-READY-inputs/collector-generator.json",
+      "bytes": 14434,
+      "sha256": "f9429dd453835f4bd54df9cc5345022ae4a34c4055e5d5eec3fe4a485c12e4d9"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/environment-probe-receipt.json",
+      "path": "author-READY-inputs/environment-probe-receipt.json",
+      "bytes": 1416,
+      "sha256": "9660e8b99697ffd5a446f1279ffd0262e13232702de842abd69007d78faca84a"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/environment-probe.stderr",
+      "path": "author-READY-inputs/environment-probe.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/environment-probe.stdout",
+      "path": "author-READY-inputs/environment-probe.stdout",
+      "bytes": 702,
+      "sha256": "393b0f1749693fa48c51e7ba4b27bdc41637a14b4de5f4ceb1933a64ea0d2375"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/finalize_packet.py",
+      "path": "author-READY-inputs/finalize_packet.py",
+      "bytes": 15254,
+      "sha256": "10e3d0700ca6fa17933d8514cf4fe49448e79d493cc736c41eb6e9475b245248"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/freeze-source.stderr",
+      "path": "author-READY-inputs/freeze-source.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/freeze-source.stdout",
+      "path": "author-READY-inputs/freeze-source.stdout",
+      "bytes": 162,
+      "sha256": "188409865f3558ddae0686e7630a6ae33de9fd57a9278af87daae8a28531307f"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/freeze_source.py",
+      "path": "author-READY-inputs/freeze_source.py",
+      "bytes": 2267,
+      "sha256": "67d10aebe663da0ca1cf97337fc66ad3ee43160814d596bc8e643981d8433da6"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/fresh-cas-readback/bundle.json",
+      "path": "author-READY-inputs/fresh-cas-readback/bundle.json",
+      "bytes": 3396,
+      "sha256": "38f67f84f4003581229dedb5d725e1716834aac200857740fcc104cb808ca12f"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/fresh-cas-readback/bundle.manifest.json",
+      "path": "author-READY-inputs/fresh-cas-readback/bundle.manifest.json",
+      "bytes": 1751,
+      "sha256": "217257c240c56f9a4fa79649c094f5f1ecbde9ce851dea7f5a79dc9efe108e4f"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/fresh-cas-readback/draw-outcomes.json",
+      "path": "author-READY-inputs/fresh-cas-readback/draw-outcomes.json",
+      "bytes": 81796,
+      "sha256": "11d64d61b6dd35545ca0cf499eee676b6f82685890b38b845b94dd11296ac7e7"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/fresh-cas-readback/draw-outcomes.manifest.json",
+      "path": "author-READY-inputs/fresh-cas-readback/draw-outcomes.manifest.json",
+      "bytes": 1216,
+      "sha256": "dbf37eb31d54f6489766305c04c26f305b12ada3c5c1ce7e4e9328c15c81980d"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/fresh-cas-readback/input-envelope.json",
+      "path": "author-READY-inputs/fresh-cas-readback/input-envelope.json",
+      "bytes": 800,
+      "sha256": "ba08433809de85da5860a4c7c9cc99d31da84ab75e6423eb2aef269c132bf056"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/fresh-cas-readback/input-envelope.manifest.json",
+      "path": "author-READY-inputs/fresh-cas-readback/input-envelope.manifest.json",
+      "bytes": 611,
+      "sha256": "d24287b1fcdd16975ae7c0bfe52a6d452574ee8aa609438e7e52cb3995e4a6f7"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/fresh-cas-readback/propagation-report.json",
+      "path": "author-READY-inputs/fresh-cas-readback/propagation-report.json",
+      "bytes": 1309,
+      "sha256": "d6edee3d85af188f67eeef4a95b133fa4f200d13fd386359e18429fa543ffd08"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/fresh-cas-readback/propagation-report.manifest.json",
+      "path": "author-READY-inputs/fresh-cas-readback/propagation-report.manifest.json",
+      "bytes": 1223,
+      "sha256": "74d923aed25e8f04ee55583710cc4364d652ddccd7829e214f12812d3faf2273"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/fresh-cas-readback/sample-bundle.json",
+      "path": "author-READY-inputs/fresh-cas-readback/sample-bundle.json",
+      "bytes": 8602,
+      "sha256": "e7c8fc2c5ed05a7548c426391100b64284ce6722cc5d6551fff3cee208a006c6"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/fresh-cas-readback/sample-bundle.manifest.json",
+      "path": "author-READY-inputs/fresh-cas-readback/sample-bundle.manifest.json",
+      "bytes": 1057,
+      "sha256": "0abaf7547d35e4e16bee2a8bb090eb6d3d0106b06aafb46aa2ff0a2c46346161"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/fresh-cas-readback.json",
+      "path": "author-READY-inputs/fresh-cas-readback.json",
+      "bytes": 7329,
+      "sha256": "601b35301beea77b95d15f2de467c8f3a9794829179bc18e67237ed246c445e3"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/fresh-readback.stderr",
+      "path": "author-READY-inputs/fresh-readback.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/fresh-readback.stdout",
+      "path": "author-READY-inputs/fresh-readback.stdout",
+      "bytes": 137,
+      "sha256": "09c311f377114473ddeb7bd4ac9ae5a3b6e289c0a5056d58d4b1c374c4228994"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/fresh_readback.py",
+      "path": "author-READY-inputs/fresh_readback.py",
+      "bytes": 4825,
+      "sha256": "01951674665708f5bd00c1a606dd617cbcc117a3e0fd39037a50426b8889128f"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/generate_and_collect.py",
+      "path": "author-READY-inputs/generate_and_collect.py",
+      "bytes": 10414,
+      "sha256": "d63ff657ac048cbc9093fe91a9d6398ace07733cf8ad9e821d3fe5737679095b"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/harness-errors/bootstrap-NameError.txt",
+      "path": "author-READY-inputs/harness-errors/bootstrap-NameError.txt",
+      "bytes": 352,
+      "sha256": "f54846048842bbbf7493f27c25e667d12419ec14c90171bd6b49ac2869437824"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/harness-errors/expanded-package-boundaries-filename.stderr",
+      "path": "author-READY-inputs/harness-errors/expanded-package-boundaries-filename.stderr",
+      "bytes": 905,
+      "sha256": "0587b8810e6556ce1c7369bc2f9e9d0b25853e3912fb20b83a6f2944705e8dc4"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/harness-errors/fresh-exporter-typed-store-reference.stderr",
+      "path": "author-READY-inputs/harness-errors/fresh-exporter-typed-store-reference.stderr",
+      "bytes": 1154,
+      "sha256": "c4540df63c028175972e323547cbe0ff5060efbb56798a0581ce7d44c09743ee"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/harness-errors/initial-format.stderr",
+      "path": "author-READY-inputs/harness-errors/initial-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/harness-errors/initial-format.stdout",
+      "path": "author-READY-inputs/harness-errors/initial-format.stdout",
+      "bytes": 204,
+      "sha256": "4fd69b38ac8ad90e1635c74d939e8b3c7baac342818ee560ddd4676ebe5d2f11"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/harness-errors/initial-ruff.stdout",
+      "path": "author-READY-inputs/harness-errors/initial-ruff.stdout",
+      "bytes": 30378,
+      "sha256": "db10cc92cfab16aeeaaae8961d3db8b631d50358f174123ee38013da446a1bac"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/historical-covariance-only/collector-generator-final.stderr",
+      "path": "author-READY-inputs/historical-covariance-only/collector-generator-final.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/historical-covariance-only/collector-generator-final.stdout",
+      "path": "author-READY-inputs/historical-covariance-only/collector-generator-final.stdout",
+      "bytes": 622,
+      "sha256": "cafaa462ba22a4159d8fa985b1eb8f0a88dda9abeeb24f3f40c8f663755ce6d4"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/historical-covariance-only/collector-generator.json",
+      "path": "author-READY-inputs/historical-covariance-only/collector-generator.json",
+      "bytes": 5247,
+      "sha256": "f6390d19bc00b6f15c938810cf12ca1f8778da761f8556eee6d264445fcc09f5"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/historical-covariance-only/native-final.stderr",
+      "path": "author-READY-inputs/historical-covariance-only/native-final.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/historical-covariance-only/native-final.stdout",
+      "path": "author-READY-inputs/historical-covariance-only/native-final.stdout",
+      "bytes": 80,
+      "sha256": "83a1593c5b5783693fe3006d1f6597bcb4f3a5968f23b59481ee09a0477f910a"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/historical-covariance-only/native-final.xml",
+      "path": "author-READY-inputs/historical-covariance-only/native-final.xml",
+      "bytes": 1190,
+      "sha256": "076af4bba466f391fa7812fcc38dbb76e20e72d871b1ae127b40d1f63f50bead"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/historical-covariance-only/native-origins-final.json",
+      "path": "author-READY-inputs/historical-covariance-only/native-origins-final.json",
+      "bytes": 345699,
+      "sha256": "96225815236e75a22c1ad68ca7b4e4e73a70acc672cc26debdef1463135bb982"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/hooks/origin_plugin.py",
+      "path": "author-READY-inputs/hooks/origin_plugin.py",
+      "bytes": 3017,
+      "sha256": "b1e643db52f1984a5d1a9afa1d3e4fb95405614f65f11bc7606bf6a41d445584"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/hooks/sitecustomize.py",
+      "path": "author-READY-inputs/hooks/sitecustomize.py",
+      "bytes": 801,
+      "sha256": "590cb62a6b37b1362d78393d3c5c53fef84ffb7bc8f7e8d1177e2a8af5126911"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/import-policy-old5e.json",
+      "path": "author-READY-inputs/import-policy-old5e.json",
+      "bytes": 1364,
+      "sha256": "67208368b90a653e870577964f128636c4e552fa6aeeaf24ad93b18616fb6bce"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/import-policy-postimage.json",
+      "path": "author-READY-inputs/import-policy-postimage.json",
+      "bytes": 1027,
+      "sha256": "4598c9934297b8b7a8cf7f9729170055cc46f38d2c5dc5cf3c18e2df2dbc8a42"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/import-policy-present-old-alias.json",
+      "path": "author-READY-inputs/import-policy-present-old-alias.json",
+      "bytes": 1364,
+      "sha256": "2dcef7cb82fcb489e54ec3428cd48c32ddb392e7d370be7f64502dff13294d92"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/index.json",
+      "path": "author-READY-inputs/index.json",
+      "bytes": 19315,
+      "sha256": "db188c6fabb217680c598d30d533ed3f0a2d5cf1d05069b0776cb940a5c6f1c2"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/native-combined-receipt.json",
+      "path": "author-READY-inputs/native-combined-receipt.json",
+      "bytes": 3913,
+      "sha256": "fe9b31a3ab3fe964e5d654b2661764bdfa6f421062fd66822596767ad9d7cb90"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/native-combined.stderr",
+      "path": "author-READY-inputs/native-combined.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/native-combined.stdout",
+      "path": "author-READY-inputs/native-combined.stdout",
+      "bytes": 80,
+      "sha256": "f44919a3367dc52929a8af8f8919d5f9536d2eb90b5c6c6d38b1e58904be21bc"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/native-combined.xml",
+      "path": "author-READY-inputs/native-combined.xml",
+      "bytes": 2854,
+      "sha256": "ee1cff885ad669ae7dd2e6b02ed541e729751a7b881b12ce6cb5dc6935785656"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/native-origins-combined.json",
+      "path": "author-READY-inputs/native-origins-combined.json",
+      "bytes": 351236,
+      "sha256": "34da05bedfd9e410c17f555e1c383dc03f1d62cb4f078d3fa0722e02eae2f812"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/original-5e-red/architecture.json",
+      "path": "author-READY-inputs/original-5e-red/architecture.json",
+      "bytes": 8076,
+      "sha256": "d8ec97019b33ebc3cdb21b4e8063bc40160a2afe75fc6a0cf7741b7bf9acdce2"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/original-5e-red/architecture.stdout.txt",
+      "path": "author-READY-inputs/original-5e-red/architecture.stdout.txt",
+      "bytes": 126481,
+      "sha256": "360aae0a52b76619d99f6adf1faacea4eb0139cc3aa645a54560b1874636799f"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/original-5e-red/workspace-verify.json",
+      "path": "author-READY-inputs/original-5e-red/workspace-verify.json",
+      "bytes": 8555,
+      "sha256": "98d3725ebbb8794afcf8fb910690b99d5b3c097146694e9c7482a5be37304d15"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/original-5e-red/workspace-verify.stdout.txt",
+      "path": "author-READY-inputs/original-5e-red/workspace-verify.stdout.txt",
+      "bytes": 8214,
+      "sha256": "118eb8210cb8a650b7f99186c4ff84c6590c57b2c671d45fd520afee7d50e252"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/overlay.json",
+      "path": "author-READY-inputs/overlay.json",
+      "bytes": 1123,
+      "sha256": "3e9a731aee47983a2f610e80e45d2c748d69d25d4690bad2a116cbe068787ed0"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/owned-facade-route.patch",
+      "path": "author-READY-inputs/owned-facade-route.patch",
+      "bytes": 27897,
+      "sha256": "ed474d8a61cc5edeff3f195044cd9d095282b72d51b56e1eb0fb74e48ef572b7"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/postimage/policy-engine/architecture/public_surface/inventory.json",
+      "path": "author-READY-inputs/postimage/policy-engine/architecture/public_surface/inventory.json",
+      "bytes": 222856,
+      "sha256": "63a4ed665331cb937ec4ec5968e72ba5659914c147ed23eb447f7183c5a37fd1"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/postimage/policy-engine/docs/reference/public-surface.md",
+      "path": "author-READY-inputs/postimage/policy-engine/docs/reference/public-surface.md",
+      "bytes": 154167,
+      "sha256": "99b655871e2e68c0577cd6f6e18358dfea9a5aac7e216bcbb3a6aed7d2fd56ed"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/postimage/policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-reader-facade.toml",
+      "path": "author-READY-inputs/postimage/policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-reader-facade.toml",
+      "bytes": 1914,
+      "sha256": "ed5f4cc351d274de679e9ee91c39f55438daf10b921b17c3924b480fbcc2eee5"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/postimage/policy-engine/release-fragments/unreleased/2026-10-06-e02-welfare-covariance-facade.toml",
+      "path": "author-READY-inputs/postimage/policy-engine/release-fragments/unreleased/2026-10-06-e02-welfare-covariance-facade.toml",
+      "bytes": 2105,
+      "sha256": "9fc124328372a37e28d7e413f38312e721ac0af23dfe59ac9c101eb0430ec43e"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/postimage/policy-engine/src/polisyos/calibration/README.md",
+      "path": "author-READY-inputs/postimage/policy-engine/src/polisyos/calibration/README.md",
+      "bytes": 4536,
+      "sha256": "c09461f8058513803099d107beeb942407e7f349c87dac05d1a2a27e76d729de"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/postimage/policy-engine/src/polisyos/calibration/__init__.py",
+      "path": "author-READY-inputs/postimage/policy-engine/src/polisyos/calibration/__init__.py",
+      "bytes": 2217,
+      "sha256": "42d6b4c46672c228d067b14a03f79db2b702d0325558d4cd89b615d7c025bbfc"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/postimage/policy-engine/src/polisyos/foundry/uncertainty/README.md",
+      "path": "author-READY-inputs/postimage/policy-engine/src/polisyos/foundry/uncertainty/README.md",
+      "bytes": 5379,
+      "sha256": "653ec2ef3463e5d910725e2eb5b836e36cf415cad1a72bc9180a8982fa67eb2c"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/postimage/policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "path": "author-READY-inputs/postimage/policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "bytes": 3397,
+      "sha256": "068f0f1bd0bc2fcbd59884331f98d3c89bb0e6e67567ff3d8949055f5a6d2fd4"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "path": "author-READY-inputs/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "bytes": 20616,
+      "sha256": "04a95dc4d969d95ec056d789057d7384bdf3cd4b1e7fd90e3e5b919f567559bd"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "path": "author-READY-inputs/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "bytes": 192619,
+      "sha256": "8050f1a81d593d14363efaf91cf0e2088bc685a8e0e48b7c35cbd8f29c1f9def"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/postimage/policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "path": "author-READY-inputs/postimage/policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "bytes": 5641,
+      "sha256": "b8a793867ae61d5d249d47e108fab66874951cda7644f5dd5a32b81b18de51b8"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/postimage/policy-engine/tests/unit/foundry/uncertainty/test_covariance_facade.py",
+      "path": "author-READY-inputs/postimage/policy-engine/tests/unit/foundry/uncertainty/test_covariance_facade.py",
+      "bytes": 5316,
+      "sha256": "463dc5b879e0edf4a6f898e50715b1902faadc9182550dff1786a37db427b938"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/postimage-manifest.json",
+      "path": "author-READY-inputs/postimage-manifest.json",
+      "bytes": 4875,
+      "sha256": "41beb0865aa3b2a1767a070a2e5a1bf60bcdd10c0ba046c10bcaa2237e4485f2"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/release-and-refs.stderr",
+      "path": "author-READY-inputs/release-and-refs.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/release-and-refs.stdout",
+      "path": "author-READY-inputs/release-and-refs.stdout",
+      "bytes": 138,
+      "sha256": "d9d54116875b43f0fb0c455e784157eb6ec678803be3e369d3c29fb96d14c3ff"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/release-parser.json",
+      "path": "author-READY-inputs/release-parser.json",
+      "bytes": 9575,
+      "sha256": "7b64c6b31aa147651d57861d398024ac39192bb83b6a7d95a98c154a7906ca8b"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/release_and_refs.py",
+      "path": "author-READY-inputs/release_and_refs.py",
+      "bytes": 6369,
+      "sha256": "f522b27cdfbadcf762a4af8c40c7ab3b5cafff99bc4bedc645efddc4c8dcf7e2"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/run_native.py",
+      "path": "author-READY-inputs/run_native.py",
+      "bytes": 2952,
+      "sha256": "84fce9df86a781059bee1728772f8c048f191941a5a70d0390010533a808e8bd"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/style-receipt.json",
+      "path": "author-READY-inputs/style-receipt.json",
+      "bytes": 5895,
+      "sha256": "9d9efb46380bdcd80f450aeab367ae60c6d79972f3734aea894e106049272c45"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/style-src_polisyos_calibration___init__.py-format.stderr",
+      "path": "author-READY-inputs/style-src_polisyos_calibration___init__.py-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/style-src_polisyos_calibration___init__.py-format.stdout",
+      "path": "author-READY-inputs/style-src_polisyos_calibration___init__.py-format.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/style-src_polisyos_calibration___init__.py-lint.stderr",
+      "path": "author-READY-inputs/style-src_polisyos_calibration___init__.py-lint.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/style-src_polisyos_calibration___init__.py-lint.stdout",
+      "path": "author-READY-inputs/style-src_polisyos_calibration___init__.py-lint.stdout",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/style-src_polisyos_foundry_uncertainty___init__.py-format.stderr",
+      "path": "author-READY-inputs/style-src_polisyos_foundry_uncertainty___init__.py-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/style-src_polisyos_foundry_uncertainty___init__.py-format.stdout",
+      "path": "author-READY-inputs/style-src_polisyos_foundry_uncertainty___init__.py-format.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/style-src_polisyos_foundry_uncertainty___init__.py-lint.stderr",
+      "path": "author-READY-inputs/style-src_polisyos_foundry_uncertainty___init__.py-lint.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/style-src_polisyos_foundry_uncertainty___init__.py-lint.stdout",
+      "path": "author-READY-inputs/style-src_polisyos_foundry_uncertainty___init__.py-lint.stdout",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/style-src_polisyos_scientist_nodes_builtins_simulate_propagate_uncertainty.py-format.stderr",
+      "path": "author-READY-inputs/style-src_polisyos_scientist_nodes_builtins_simulate_propagate_uncertainty.py-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/style-src_polisyos_scientist_nodes_builtins_simulate_propagate_uncertainty.py-format.stdout",
+      "path": "author-READY-inputs/style-src_polisyos_scientist_nodes_builtins_simulate_propagate_uncertainty.py-format.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/style-src_polisyos_scientist_nodes_builtins_simulate_propagate_uncertainty.py-lint.stderr",
+      "path": "author-READY-inputs/style-src_polisyos_scientist_nodes_builtins_simulate_propagate_uncertainty.py-lint.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/style-src_polisyos_scientist_nodes_builtins_simulate_propagate_uncertainty.py-lint.stdout",
+      "path": "author-READY-inputs/style-src_polisyos_scientist_nodes_builtins_simulate_propagate_uncertainty.py-lint.stdout",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/style-src_polisyos_scientist_nodes_builtins_simulate_propagate_welfare.py-format.stderr",
+      "path": "author-READY-inputs/style-src_polisyos_scientist_nodes_builtins_simulate_propagate_welfare.py-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/style-src_polisyos_scientist_nodes_builtins_simulate_propagate_welfare.py-format.stdout",
+      "path": "author-READY-inputs/style-src_polisyos_scientist_nodes_builtins_simulate_propagate_welfare.py-format.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/style-src_polisyos_scientist_nodes_builtins_simulate_propagate_welfare.py-lint.stderr",
+      "path": "author-READY-inputs/style-src_polisyos_scientist_nodes_builtins_simulate_propagate_welfare.py-lint.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/style-src_polisyos_scientist_nodes_builtins_simulate_propagate_welfare.py-lint.stdout",
+      "path": "author-READY-inputs/style-src_polisyos_scientist_nodes_builtins_simulate_propagate_welfare.py-lint.stdout",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/style-summary.stderr",
+      "path": "author-READY-inputs/style-summary.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/style-summary.stdout",
+      "path": "author-READY-inputs/style-summary.stdout",
+      "bytes": 49,
+      "sha256": "1217eceb6d7b2f18c93c3a9c5271edc6b42b731705b34ea37eebe33633cc14e9"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/style-tests_unit_calibration_test_evidence_facades.py-format.stderr",
+      "path": "author-READY-inputs/style-tests_unit_calibration_test_evidence_facades.py-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/style-tests_unit_calibration_test_evidence_facades.py-format.stdout",
+      "path": "author-READY-inputs/style-tests_unit_calibration_test_evidence_facades.py-format.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/style-tests_unit_calibration_test_evidence_facades.py-lint.stderr",
+      "path": "author-READY-inputs/style-tests_unit_calibration_test_evidence_facades.py-lint.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/style-tests_unit_calibration_test_evidence_facades.py-lint.stdout",
+      "path": "author-READY-inputs/style-tests_unit_calibration_test_evidence_facades.py-lint.stdout",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/style-tests_unit_foundry_uncertainty_test_covariance_facade.py-format.stderr",
+      "path": "author-READY-inputs/style-tests_unit_foundry_uncertainty_test_covariance_facade.py-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/style-tests_unit_foundry_uncertainty_test_covariance_facade.py-format.stdout",
+      "path": "author-READY-inputs/style-tests_unit_foundry_uncertainty_test_covariance_facade.py-format.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/style-tests_unit_foundry_uncertainty_test_covariance_facade.py-lint.stderr",
+      "path": "author-READY-inputs/style-tests_unit_foundry_uncertainty_test_covariance_facade.py-lint.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/style-tests_unit_foundry_uncertainty_test_covariance_facade.py-lint.stdout",
+      "path": "author-READY-inputs/style-tests_unit_foundry_uncertainty_test_covariance_facade.py-lint.stdout",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/style_checks.py",
+      "path": "author-READY-inputs/style_checks.py",
+      "bytes": 1135,
+      "sha256": "ed919fc0fb8a529dc4643e3efc607b6aa420e15db81fe4cb40bdc1872e7d6e1c"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/tracked-reader-refs-base.stdout",
+      "path": "author-READY-inputs/tracked-reader-refs-base.stdout",
+      "bytes": 3932,
+      "sha256": "1284a5acb34edde1beb9ff90016f51710ee18cb0825f97ff12657cb31d4a03e6"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs/tracked-reader-refs.json",
+      "path": "author-READY-inputs/tracked-reader-refs.json",
+      "bytes": 14014,
+      "sha256": "afe83ac94824f152c2eb60b86e0a165b4f53a08e751259bbd40006d7421464c2"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/check_selected_routes.py",
+      "path": "check_selected_routes.py",
+      "bytes": 10130,
+      "sha256": "3feb7539b2a2d346a4f8c0868ae14aac57d7b10768e4e1a0a9c572a94b35b57b"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/executed-helper-index.json",
+      "path": "executed-helper-index.json",
+      "bytes": 1917,
+      "sha256": "dbbe5a22890cf5680ccfe0624f038361e6db8181641350109a83613182c51070"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/executed-helper-source/check_selected_routes.py",
+      "path": "executed-helper-source/check_selected_routes.py",
+      "bytes": 9055,
+      "sha256": "39a0e99764ecd2c997a25225b845cd0bc4dc7dd3e66d983cfd9dc7c6b7351804"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/executed-helper-source/export_cas_deciding.py",
+      "path": "executed-helper-source/export_cas_deciding.py",
+      "bytes": 4217,
+      "sha256": "7514a01fd384933025c344b3da1bb63536e2d45effec5247f6423eba234e7573"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/executed-helper-source/run_independent_native.py",
+      "path": "executed-helper-source/run_independent_native.py",
+      "bytes": 4407,
+      "sha256": "9037857b03c24449f5a96125c2926a53b8090b4842a0c4a0699d4bec1c905436"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/executed-helper-source/test_independent_api.py",
+      "path": "executed-helper-source/test_independent_api.py",
+      "bytes": 3734,
+      "sha256": "48512216234a2f39dba5562fc9a702f24fd232b6240d36f4d6da63abf5523463"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/export_cas_deciding.py",
+      "path": "export_cas_deciding.py",
+      "bytes": 4806,
+      "sha256": "3510ceea01f2a13ba209579c951d3dd1728f84df357f17e2d44b4ce58eb7ef0e"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/hooks/origin_plugin.py",
+      "path": "hooks/origin_plugin.py",
+      "bytes": 3054,
+      "sha256": "1032392562ee2ff1da51c789b5f5b50db91ada265adbc4c87f5356be6f4e428f"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/hooks/sitecustomize.py",
+      "path": "hooks/sitecustomize.py",
+      "bytes": 801,
+      "sha256": "590cb62a6b37b1362d78393d3c5c53fef84ffb7bc8f7e8d1177e2a8af5126911"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/immutable-inputs/collector-generator.json",
+      "path": "immutable-inputs/collector-generator.json",
+      "bytes": 14434,
+      "sha256": "f9429dd453835f4bd54df9cc5345022ae4a34c4055e5d5eec3fe4a485c12e4d9"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/immutable-inputs/generate_and_collect.py",
+      "path": "immutable-inputs/generate_and_collect.py",
+      "bytes": 10414,
+      "sha256": "d63ff657ac048cbc9093fe91a9d6398ace07733cf8ad9e821d3fe5737679095b"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/immutable-inputs/overlay.json",
+      "path": "immutable-inputs/overlay.json",
+      "bytes": 1123,
+      "sha256": "3e9a731aee47983a2f610e80e45d2c748d69d25d4690bad2a116cbe068787ed0"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/immutable-inputs/owned-facade-route.patch",
+      "path": "immutable-inputs/owned-facade-route.patch",
+      "bytes": 27897,
+      "sha256": "ed474d8a61cc5edeff3f195044cd9d095282b72d51b56e1eb0fb74e48ef572b7"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/immutable-inputs/postimage/policy-engine/architecture/public_surface/inventory.json",
+      "path": "immutable-inputs/postimage/policy-engine/architecture/public_surface/inventory.json",
+      "bytes": 222856,
+      "sha256": "63a4ed665331cb937ec4ec5968e72ba5659914c147ed23eb447f7183c5a37fd1"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/immutable-inputs/postimage/policy-engine/docs/reference/public-surface.md",
+      "path": "immutable-inputs/postimage/policy-engine/docs/reference/public-surface.md",
+      "bytes": 154167,
+      "sha256": "99b655871e2e68c0577cd6f6e18358dfea9a5aac7e216bcbb3a6aed7d2fd56ed"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/immutable-inputs/postimage/policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-reader-facade.toml",
+      "path": "immutable-inputs/postimage/policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-reader-facade.toml",
+      "bytes": 1914,
+      "sha256": "ed5f4cc351d274de679e9ee91c39f55438daf10b921b17c3924b480fbcc2eee5"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/immutable-inputs/postimage/policy-engine/release-fragments/unreleased/2026-10-06-e02-welfare-covariance-facade.toml",
+      "path": "immutable-inputs/postimage/policy-engine/release-fragments/unreleased/2026-10-06-e02-welfare-covariance-facade.toml",
+      "bytes": 2105,
+      "sha256": "9fc124328372a37e28d7e413f38312e721ac0af23dfe59ac9c101eb0430ec43e"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/immutable-inputs/postimage/policy-engine/src/polisyos/calibration/README.md",
+      "path": "immutable-inputs/postimage/policy-engine/src/polisyos/calibration/README.md",
+      "bytes": 4536,
+      "sha256": "c09461f8058513803099d107beeb942407e7f349c87dac05d1a2a27e76d729de"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/immutable-inputs/postimage/policy-engine/src/polisyos/calibration/__init__.py",
+      "path": "immutable-inputs/postimage/policy-engine/src/polisyos/calibration/__init__.py",
+      "bytes": 2217,
+      "sha256": "42d6b4c46672c228d067b14a03f79db2b702d0325558d4cd89b615d7c025bbfc"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/immutable-inputs/postimage/policy-engine/src/polisyos/foundry/uncertainty/README.md",
+      "path": "immutable-inputs/postimage/policy-engine/src/polisyos/foundry/uncertainty/README.md",
+      "bytes": 5379,
+      "sha256": "653ec2ef3463e5d910725e2eb5b836e36cf415cad1a72bc9180a8982fa67eb2c"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/immutable-inputs/postimage/policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "path": "immutable-inputs/postimage/policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "bytes": 3397,
+      "sha256": "068f0f1bd0bc2fcbd59884331f98d3c89bb0e6e67567ff3d8949055f5a6d2fd4"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/immutable-inputs/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "path": "immutable-inputs/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "bytes": 20616,
+      "sha256": "04a95dc4d969d95ec056d789057d7384bdf3cd4b1e7fd90e3e5b919f567559bd"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/immutable-inputs/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "path": "immutable-inputs/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "bytes": 192619,
+      "sha256": "8050f1a81d593d14363efaf91cf0e2088bc685a8e0e48b7c35cbd8f29c1f9def"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/immutable-inputs/postimage/policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "path": "immutable-inputs/postimage/policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "bytes": 5641,
+      "sha256": "b8a793867ae61d5d249d47e108fab66874951cda7644f5dd5a32b81b18de51b8"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/immutable-inputs/postimage/policy-engine/tests/unit/foundry/uncertainty/test_covariance_facade.py",
+      "path": "immutable-inputs/postimage/policy-engine/tests/unit/foundry/uncertainty/test_covariance_facade.py",
+      "bytes": 5316,
+      "sha256": "463dc5b879e0edf4a6f898e50715b1902faadc9182550dff1786a37db427b938"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/immutable-inputs/postimage-manifest.json",
+      "path": "immutable-inputs/postimage-manifest.json",
+      "bytes": 4875,
+      "sha256": "41beb0865aa3b2a1767a070a2e5a1bf60bcdd10c0ba046c10bcaa2237e4485f2"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/immutable-inputs/style-receipt.json",
+      "path": "immutable-inputs/style-receipt.json",
+      "bytes": 5895,
+      "sha256": "9d9efb46380bdcd80f450aeab367ae60c6d79972f3734aea894e106049272c45"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/independent-native-origins.json",
+      "path": "independent-native-origins.json",
+      "bytes": 351429,
+      "sha256": "cbcbf3f061ea8bc5c7d3bb8a8ed8fa0b2318f3d95224e52e1158924b9301e788"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/native-CAS-deciding.json",
+      "path": "native-CAS-deciding.json",
+      "bytes": 7009,
+      "sha256": "ee49dae71b743b2e8a4566829549de93e22525f8710e077d63185e1af133fadc"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/native-origins-cfd-Git-binding.json",
+      "path": "native-origins-cfd-Git-binding.json",
+      "bytes": 266247,
+      "sha256": "6b8cd52fcac74c25d6cb16cd399abdc98f59fd2f86b8c351c91802b29f6bf484"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/native-overlay.json",
+      "path": "native-overlay.json",
+      "bytes": 1247,
+      "sha256": "fcd1584cd045dc27577d789c1fab5bc0d38bba8364da04d8bbbde28cba4e0cb6"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/native-receipt.json",
+      "path": "native-receipt.json",
+      "bytes": 4324,
+      "sha256": "306773da4b257709a999fd0473aaec0c71311a45b790753c8bef1b40d8023ccb"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/native-runner.stdout",
+      "path": "native-runner.stdout",
+      "bytes": 133,
+      "sha256": "62bd5ebd89fca00b24a32fffc0d32078fde27405234bb2e9b61e0f73f6ef330f"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/native.stderr",
+      "path": "native.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/native.stdout",
+      "path": "native.stdout",
+      "bytes": 80,
+      "sha256": "585ba42829657b9e2d56f8614be6c3365a8405474eed008559511ab50f2ffcfb"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/native.xml",
+      "path": "native.xml",
+      "bytes": 1875,
+      "sha256": "068553a2d8b8757a1341d8bd6699e92e3a1c3c4685d11ac2beb481265f499673"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/queued-base-provenance.json",
+      "path": "queued-base-provenance.json",
+      "bytes": 4021,
+      "sha256": "684d8934746d7f617b55cad7227ccaeeed1d92b6e8e1aaa30ee12401d9eca8dd"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/release-metadata-review.json",
+      "path": "release-metadata-review.json",
+      "bytes": 2858,
+      "sha256": "ba610c656b22fb733ecb4ee8701cd1b0acbd7139c71473b5511bfb2769936bbf"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/review-cfd79255.json",
+      "path": "review-cfd79255.json",
+      "bytes": 27913,
+      "sha256": "d75ba9aa14111c8f754319107b2cf63c67d32ceb64ea32f6291b518e50cf948b"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/reviewer-format.stdout",
+      "path": "reviewer-format.stdout",
+      "bytes": 20,
+      "sha256": "779cd08be038ac289c50927416d74769a286b3d89191260af669534feb28cf68"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/reviewer-ruff.stdout",
+      "path": "reviewer-ruff.stdout",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/run_independent_native.py",
+      "path": "run_independent_native.py",
+      "bytes": 5318,
+      "sha256": "93acff182ac626b387e54dc5bad160dd7fa789b150c92cc68964c7cc14d0d7b6"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/selected-routes-review.json",
+      "path": "selected-routes-review.json",
+      "bytes": 15592,
+      "sha256": "9c866e206da8740315daf837fee107f1123fee928c1a50bada75eefd0e8bfd5f"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/selected-routes.stdout",
+      "path": "selected-routes.stdout",
+      "bytes": 363,
+      "sha256": "0de3c1f7bf167625ae35c33b1e488b2e07f5453e527799d8fa23657b2defec16"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/snapshot-index.json",
+      "path": "snapshot-index.json",
+      "bytes": 8254,
+      "sha256": "5308e1f1ab6d9108b60594bb334f89941935bfafaafcdf49d98a2a979f11b696"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/test_independent_api.py",
+      "path": "test_independent_api.py",
+      "bytes": 3834,
+      "sha256": "e0f873325f2975209092ee404a544430f04fb174e9f6440cc094e9dca5fa2f3c"
+    }
+  ],
+  "file_count": 155,
+  "total_bytes": 3232732,
+  "negative_controls": [
+    {
+      "control": "index_corrupt_bytes",
+      "state": "REJECTED"
+    },
+    {
+      "control": "index_corrupt_sha256",
+      "state": "REJECTED"
+    }
+  ],
+  "excluded": [
+    "__pycache__",
+    "native-basetemp",
+    "native-benchmark",
+    "native-cache",
+    "new-cache",
+    "old-alias-negative-cache",
+    "old-cache"
+  ],
+  "scope": "Complete moderate deciding outputs/scripts/immutable input snapshots; raw fixture/CAS working directories preserved locally and listedcleanupcandidates, not permanentdeleted"
+}

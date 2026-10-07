@@ -1,0 +1,34 @@
+--- a/policy-engine/src/polisyos/foundry/__init__.py
++++ b/policy-engine/src/polisyos/foundry/__init__.py
+@@ -26,6 +26,11 @@
+ from typing import TYPE_CHECKING
+ 
+ if TYPE_CHECKING:
++    from polisyos.foundry.calibration.report import (
++        CalibrationCoordinateProjection,
++        CalibrationReport,
++        load_calibration_report,
++    )
+     from polisyos.foundry.methods.backends.protocol import (
+         EmbedderProtocol,
+         SentenceTransformerEmbedder,
+@@ -53,6 +58,9 @@
+     )
+ 
+ __all__ = [
++    "CalibrationCoordinateProjection",
++    "CalibrationReport",
++    "load_calibration_report",
+     "DependencyProfileResolutionFailure",
+     "EmbedderProtocol",
+     "LegalCorrespondenceRequest",
+@@ -83,6 +91,9 @@
+ ]
+ 
+ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
++    "CalibrationCoordinateProjection": ("polisyos.foundry.calibration.report", "CalibrationCoordinateProjection"),
++    "CalibrationReport": ("polisyos.foundry.calibration.report", "CalibrationReport"),
++    "load_calibration_report": ("polisyos.foundry.calibration.report", "load_calibration_report"),
+     "InputContractMethodSelection": ("polisyos.foundry.methods.selection", "InputContractMethodSelection"),
+     "select_method_for_input_contract": ("polisyos.foundry.methods.selection", "select_method_for_input_contract"),
+     "DependencyProfileResolutionFailure": (

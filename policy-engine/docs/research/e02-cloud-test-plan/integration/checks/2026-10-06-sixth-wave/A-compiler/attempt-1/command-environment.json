@@ -1,0 +1,72 @@
+{
+  "started_utc": "2026-10-06T16:11:29.364616+00:00",
+  "candidate_commit": "577521c6651bba048d6bdfdc13f36a383c8146c6",
+  "candidate_tree": "1e8820533c48ec88355f2a2fccba486f279c2a4b",
+  "g_branch_head": "53b309019913b938909d6dc0fc13f8edb409f368",
+  "g_branch": "codex/e02-integration",
+  "test_path": "policy-engine/tests/unit/remediation/test_req_01_installed.py",
+  "test_git_blob": "c05a7da95fffb1e4dc2550d11f7a33dfaab8ea89",
+  "test_sha256": "f69b4792064af8747114a2c7e65a39e03abfd181a63ad148fcec22dcf027b830",
+  "selected_source_file_count": 3463,
+  "selected_source_bytes": 67525540,
+  "selected_source_limit_bytes": 104857600,
+  "command": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-c",
+    "pytest.ini",
+    "--basetemp",
+    "/tmp/polisyos-e02-Acompiler-577521c6651bba048d6bdfdc13f36a383c8146c6/pytest-basetemp",
+    "--junitxml",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/1548-Acompiler-checks/installed-wheel.junit.xml",
+    "tests/unit/remediation/test_req_01_installed.py"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/1548-Acompiler-checks/candidate/policy-engine",
+  "pytest_config": "policy-engine/pytest.ini (candidate exact SHA)",
+  "pytest_profile": "repository conftest.py plus _helpers.artifacts and _helpers.observability; selected single test only",
+  "python": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "resolved_path": "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/bin/python3.14",
+    "version": "Python 3.14.3",
+    "pytest": "9.0.2",
+    "hypothesis": "6.151.9",
+    "loguru": "0.7.3",
+    "opentelemetry-api": "1.40.0",
+    "opentelemetry-sdk": "1.40.0"
+  },
+  "uv": {
+    "path": "/opt/homebrew/bin/uv",
+    "version": "uv 0.10.6 (Homebrew 2026-02-24)",
+    "cache_dir": "/Users/deniskopylov/.cache/uv"
+  },
+  "backend_cache_observation": "The active exact command `uv --offline build --wheel --out-dir <tmp>` reported hatchling>=1.27.0 unavailable from its cache. Earlier filesystem artifacts alone do not establish resolver availability. No installation/prewarm/network access attempted; criterion is UNRUN.",
+  "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "python_version": "3.14.0 (main, Oct  7 2025, 09:34:52) [Clang 17.0.0 (clang-1700.0.13.3)]",
+  "sysconfig": {
+    "python_version": "3.14",
+    "platform": "macosx-15.0-arm64"
+  },
+  "environment": {
+    "PATH": "/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0IKaEzY:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources:/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS",
+    "TMPDIR": "/tmp/polisyos-e02-Acompiler-577521c6651bba048d6bdfdc13f36a383c8146c6",
+    "TEMP": "/tmp/polisyos-e02-Acompiler-577521c6651bba048d6bdfdc13f36a383c8146c6",
+    "TMP": "/tmp/polisyos-e02-Acompiler-577521c6651bba048d6bdfdc13f36a383c8146c6",
+    "VIRTUAL_ENV": null,
+    "UV_CACHE_DIR": null,
+    "UV_OFFLINE": null,
+    "PYTEST_ADDOPTS": null,
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+    "PYTHONPATH": null,
+    "PYTHONHOME": null
+  },
+  "limits": {
+    "outer_timeout_seconds": 180,
+    "combined_receipt_and_test_tmp_disk_cap_bytes": 209715200,
+    "disk_cap_scope": "allocated bytes of selected candidate closure + receipt + dedicated test temp, sampled throughout pytest"
+  },
+  "test_tmp_root": "/tmp/polisyos-e02-Acompiler-577521c6651bba048d6bdfdc13f36a383c8146c6",
+  "pytest_basetemp": "/tmp/polisyos-e02-Acompiler-577521c6651bba048d6bdfdc13f36a383c8146c6/pytest-basetemp",
+  "storage_initial_allocated_bytes": 76431072,
+  "free_disk_before_bytes": 17428373504
+}

@@ -18,6 +18,7 @@ from .designs import (
     SensitivityMethod,
     SensitivityPlan,
     SensitivityResult,
+    _admit_sensitivity_plan,
     _build_salib_problem,
     _derive_backend_seed,
 )
@@ -40,6 +41,7 @@ def analyze_sensitivity(
     preparation_context: _PreparedAnalysisInputs | None = None,
 ) -> SensitivityResult:
     """Summarize sampled runs into Morris, Sobol, or FAST sensitivity statistics."""
+    plan = _admit_sensitivity_plan(plan)
     _admit_sobol_input_law(plan)
     if outputs.ndim != 1:
         raise ValueError("outputs must be a 1D array")
@@ -185,6 +187,7 @@ def _analysis_identity(
     plan: SensitivityPlan, samples: np.ndarray, outputs: np.ndarray
 ) -> dict[str, object]:
     """Record actual ordered design, outcomes and estimator identity."""
+    plan = _admit_sensitivity_plan(plan)
     if plan.method == SensitivityMethod.SOBOL:
         if plan.seed is None:
             raise ValueError("Sobol analysis requires a seed to reconcile its ordered design")
@@ -275,6 +278,7 @@ def _prepare_analysis_inputs(
     samples: np.ndarray,
     outputs: np.ndarray,
 ) -> _PreparedAnalysisInputs:
+    plan = _admit_sensitivity_plan(plan)
     if outputs.ndim not in {1, 2}:
         raise ValueError("outputs must be 1-D or 2-D")
     if samples.ndim != 2 or samples.shape[0] != outputs.shape[0]:

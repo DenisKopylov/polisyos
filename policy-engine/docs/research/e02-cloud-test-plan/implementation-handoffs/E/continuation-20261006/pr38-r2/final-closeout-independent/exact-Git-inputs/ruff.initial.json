@@ -1,0 +1,3183 @@
+[
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 35,
+      "row": 16
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "import ast\nimport copy\nimport hashlib\nimport json\nimport re\nimport subprocess\nimport xml.etree.ElementTree as ET\nfrom collections import Counter\nfrom pathlib import Path\n\n",
+          "end_location": {
+            "column": 1,
+            "row": 18
+          },
+          "location": {
+            "column": 1,
+            "row": 8
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 8
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "noqa_row": 8,
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 11,
+      "row": 8
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 9
+          },
+          "location": {
+            "column": 1,
+            "row": 8
+          }
+        }
+      ],
+      "message": "Remove unused import: `ast`"
+    },
+    "location": {
+      "column": 8,
+      "row": 8
+    },
+    "message": "`ast` imported but unused",
+    "noqa_row": 8,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 12,
+      "row": 10
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 11
+          },
+          "location": {
+            "column": 1,
+            "row": 10
+          }
+        }
+      ],
+      "message": "Remove unused import: `copy`"
+    },
+    "location": {
+      "column": 8,
+      "row": 10
+    },
+    "message": "`copy` imported but unused",
+    "noqa_row": 10,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "ANN201",
+    "end_location": {
+      "column": 8,
+      "row": 35
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 35
+    },
+    "message": "Missing return type annotation for public function `git`",
+    "noqa_row": 35,
+    "url": "https://docs.astral.sh/ruff/rules/missing-return-type-undocumented-public-function"
+  },
+  {
+    "cell": null,
+    "code": "ANN002",
+    "end_location": {
+      "column": 14,
+      "row": 35
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 9,
+      "row": 35
+    },
+    "message": "Missing type annotation for `*args`",
+    "noqa_row": 35,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-args"
+  },
+  {
+    "cell": null,
+    "code": "S603",
+    "end_location": {
+      "column": 35,
+      "row": 36
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 12,
+      "row": 36
+    },
+    "message": "`subprocess` call: check for execution of untrusted input",
+    "noqa_row": 36,
+    "url": "https://docs.astral.sh/ruff/rules/subprocess-without-shell-equals-true"
+  },
+  {
+    "cell": null,
+    "code": "S607",
+    "end_location": {
+      "column": 67,
+      "row": 36
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 36,
+      "row": 36
+    },
+    "message": "Starting a process with a partial executable path",
+    "noqa_row": 36,
+    "url": "https://docs.astral.sh/ruff/rules/start-process-with-partial-path"
+  },
+  {
+    "cell": null,
+    "code": "ANN201",
+    "end_location": {
+      "column": 13,
+      "row": 39
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 39
+    },
+    "message": "Missing return type annotation for public function `identity`",
+    "noqa_row": 39,
+    "url": "https://docs.astral.sh/ruff/rules/missing-return-type-undocumented-public-function"
+  },
+  {
+    "cell": null,
+    "code": "ANN001",
+    "end_location": {
+      "column": 18,
+      "row": 39
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 14,
+      "row": 39
+    },
+    "message": "Missing type annotation for function argument `data`",
+    "noqa_row": 39,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+  },
+  {
+    "cell": null,
+    "code": "ANN201",
+    "end_location": {
+      "column": 12,
+      "row": 43
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 43
+    },
+    "message": "Missing return type annotation for public function `tracked`",
+    "noqa_row": 43,
+    "url": "https://docs.astral.sh/ruff/rules/missing-return-type-undocumented-public-function"
+  },
+  {
+    "cell": null,
+    "code": "ANN001",
+    "end_location": {
+      "column": 17,
+      "row": 43
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 43
+    },
+    "message": "Missing type annotation for function argument `path`",
+    "noqa_row": 43,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+  },
+  {
+    "cell": null,
+    "code": "ANN001",
+    "end_location": {
+      "column": 22,
+      "row": 43
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 43
+    },
+    "message": "Missing type annotation for function argument `sha`",
+    "noqa_row": 43,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+  },
+  {
+    "cell": null,
+    "code": "ANN001",
+    "end_location": {
+      "column": 41,
+      "row": 43
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 31,
+      "row": 43
+    },
+    "message": "Missing type annotation for function argument `json_value`",
+    "noqa_row": 43,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+  },
+  {
+    "cell": null,
+    "code": "ANN201",
+    "end_location": {
+      "column": 12,
+      "row": 54
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 54
+    },
+    "message": "Missing return type annotation for public function `current`",
+    "noqa_row": 54,
+    "url": "https://docs.astral.sh/ruff/rules/missing-return-type-undocumented-public-function"
+  },
+  {
+    "cell": null,
+    "code": "ANN001",
+    "end_location": {
+      "column": 17,
+      "row": 54
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 54
+    },
+    "message": "Missing type annotation for function argument `path`",
+    "noqa_row": 54,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+  },
+  {
+    "cell": null,
+    "code": "ANN001",
+    "end_location": {
+      "column": 34,
+      "row": 54
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 54
+    },
+    "message": "Missing type annotation for function argument `repository_path`",
+    "noqa_row": 54,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+  },
+  {
+    "cell": null,
+    "code": "ANN201",
+    "end_location": {
+      "column": 9,
+      "row": 69
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": " -> None",
+          "end_location": {
+            "column": 22,
+            "row": 69
+          },
+          "location": {
+            "column": 22,
+            "row": 69
+          }
+        }
+      ],
+      "message": "Add return type annotation: `None`"
+    },
+    "location": {
+      "column": 5,
+      "row": 69
+    },
+    "message": "Missing return type annotation for public function `emit`",
+    "noqa_row": 69,
+    "url": "https://docs.astral.sh/ruff/rules/missing-return-type-undocumented-public-function"
+  },
+  {
+    "cell": null,
+    "code": "ANN001",
+    "end_location": {
+      "column": 14,
+      "row": 69
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 10,
+      "row": 69
+    },
+    "message": "Missing type annotation for function argument `path`",
+    "noqa_row": 69,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+  },
+  {
+    "cell": null,
+    "code": "ANN001",
+    "end_location": {
+      "column": 21,
+      "row": 69
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 16,
+      "row": 69
+    },
+    "message": "Missing type annotation for function argument `value`",
+    "noqa_row": 69,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+  },
+  {
+    "cell": null,
+    "code": "ANN201",
+    "end_location": {
+      "column": 11,
+      "row": 73
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 73
+    },
+    "message": "Missing return type annotation for public function `counts`",
+    "noqa_row": 73,
+    "url": "https://docs.astral.sh/ruff/rules/missing-return-type-undocumented-public-function"
+  },
+  {
+    "cell": null,
+    "code": "ANN001",
+    "end_location": {
+      "column": 17,
+      "row": 73
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 12,
+      "row": 73
+    },
+    "message": "Missing type annotation for function argument `cases`",
+    "noqa_row": 73,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+  },
+  {
+    "cell": null,
+    "code": "ANN201",
+    "end_location": {
+      "column": 22,
+      "row": 84
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 84
+    },
+    "message": "Missing return type annotation for public function `parse_diagnostics`",
+    "noqa_row": 84,
+    "url": "https://docs.astral.sh/ruff/rules/missing-return-type-undocumented-public-function"
+  },
+  {
+    "cell": null,
+    "code": "ANN001",
+    "end_location": {
+      "column": 26,
+      "row": 84
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 23,
+      "row": 84
+    },
+    "message": "Missing type annotation for function argument `raw`",
+    "noqa_row": 84,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+  },
+  {
+    "cell": null,
+    "code": "ANN201",
+    "end_location": {
+      "column": 11,
+      "row": 101
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 101
+    },
+    "message": "Missing return type annotation for public function `select`",
+    "noqa_row": 101,
+    "url": "https://docs.astral.sh/ruff/rules/missing-return-type-undocumented-public-function"
+  },
+  {
+    "cell": null,
+    "code": "ANN001",
+    "end_location": {
+      "column": 17,
+      "row": 101
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 12,
+      "row": 101
+    },
+    "message": "Missing type annotation for function argument `cases`",
+    "noqa_row": 101,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+  },
+  {
+    "cell": null,
+    "code": "ANN001",
+    "end_location": {
+      "column": 26,
+      "row": 101
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 101
+    },
+    "message": "Missing type annotation for function argument `pattern`",
+    "noqa_row": 101,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 129,
+      "row": 106
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 106
+    },
+    "message": "Line too long (128 > 100)",
+    "noqa_row": 106,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 276,
+      "row": 109
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 109
+    },
+    "message": "Line too long (275 > 100)",
+    "noqa_row": 109,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 153,
+      "row": 110
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 110
+    },
+    "message": "Line too long (152 > 100)",
+    "noqa_row": 110,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 183,
+      "row": 114
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 114
+    },
+    "message": "Line too long (182 > 100)",
+    "noqa_row": 114,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 112,
+      "row": 115
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 115
+    },
+    "message": "Line too long (111 > 100)",
+    "noqa_row": 115,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 137,
+      "row": 116
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 116
+    },
+    "message": "Line too long (136 > 100)",
+    "noqa_row": 116,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 134,
+      "row": 117
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 117
+    },
+    "message": "Line too long (133 > 100)",
+    "noqa_row": 117,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 123,
+      "row": 118
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 118
+    },
+    "message": "Line too long (122 > 100)",
+    "noqa_row": 118,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 113,
+      "row": 119
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 119
+    },
+    "message": "Line too long (112 > 100)",
+    "noqa_row": 119,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 122,
+      "row": 121
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 121
+    },
+    "message": "Line too long (121 > 100)",
+    "noqa_row": 121,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 161,
+      "row": 124
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 124
+    },
+    "message": "Line too long (160 > 100)",
+    "noqa_row": 124,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 103,
+      "row": 133
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 133
+    },
+    "message": "Line too long (102 > 100)",
+    "noqa_row": 133,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 152,
+      "row": 134
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 134
+    },
+    "message": "Line too long (151 > 100)",
+    "noqa_row": 134,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 170,
+      "row": 135
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 135
+    },
+    "message": "Line too long (169 > 100)",
+    "noqa_row": 135,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 119,
+      "row": 136
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 136
+    },
+    "message": "Line too long (118 > 100)",
+    "noqa_row": 136,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 332,
+      "row": 137
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 137
+    },
+    "message": "Line too long (331 > 100)",
+    "noqa_row": 137,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 136,
+      "row": 138
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 138
+    },
+    "message": "Line too long (135 > 100)",
+    "noqa_row": 138,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 119,
+      "row": 139
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 139
+    },
+    "message": "Line too long (118 > 100)",
+    "noqa_row": 139,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 104,
+      "row": 140
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 140
+    },
+    "message": "Line too long (103 > 100)",
+    "noqa_row": 140,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 222,
+      "row": 141
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 141
+    },
+    "message": "Line too long (221 > 100)",
+    "noqa_row": 141,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 182,
+      "row": 142
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 142
+    },
+    "message": "Line too long (181 > 100)",
+    "noqa_row": 142,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 200,
+      "row": 143
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 143
+    },
+    "message": "Line too long (199 > 100)",
+    "noqa_row": 143,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 183,
+      "row": 144
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 144
+    },
+    "message": "Line too long (182 > 100)",
+    "noqa_row": 144,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 138,
+      "row": 145
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 145
+    },
+    "message": "Line too long (137 > 100)",
+    "noqa_row": 145,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 149,
+      "row": 146
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 146
+    },
+    "message": "Line too long (148 > 100)",
+    "noqa_row": 146,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 122,
+      "row": 147
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 147
+    },
+    "message": "Line too long (121 > 100)",
+    "noqa_row": 147,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 117,
+      "row": 148
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 148
+    },
+    "message": "Line too long (116 > 100)",
+    "noqa_row": 148,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 175,
+      "row": 149
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 149
+    },
+    "message": "Line too long (174 > 100)",
+    "noqa_row": 149,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 113,
+      "row": 151
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 151
+    },
+    "message": "Line too long (112 > 100)",
+    "noqa_row": 151,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 205,
+      "row": 152
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 152
+    },
+    "message": "Line too long (204 > 100)",
+    "noqa_row": 152,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 116,
+      "row": 153
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 153
+    },
+    "message": "Line too long (115 > 100)",
+    "noqa_row": 153,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 155,
+      "row": 155
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 155
+    },
+    "message": "Line too long (154 > 100)",
+    "noqa_row": 155,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 159,
+      "row": 156
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 156
+    },
+    "message": "Line too long (158 > 100)",
+    "noqa_row": 156,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 133,
+      "row": 158
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 158
+    },
+    "message": "Line too long (132 > 100)",
+    "noqa_row": 158,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 136,
+      "row": 159
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 159
+    },
+    "message": "Line too long (135 > 100)",
+    "noqa_row": 159,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "ANN201",
+    "end_location": {
+      "column": 9,
+      "row": 163
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": " -> None",
+          "end_location": {
+            "column": 11,
+            "row": 163
+          },
+          "location": {
+            "column": 11,
+            "row": 163
+          }
+        }
+      ],
+      "message": "Add return type annotation: `None`"
+    },
+    "location": {
+      "column": 5,
+      "row": 163
+    },
+    "message": "Missing return type annotation for public function `main`",
+    "noqa_row": 163,
+    "url": "https://docs.astral.sh/ruff/rules/missing-return-type-undocumented-public-function"
+  },
+  {
+    "cell": null,
+    "code": "ANN202",
+    "end_location": {
+      "column": 18,
+      "row": 212
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 9,
+      "row": 212
+    },
+    "message": "Missing return type annotation for private function `reviewref`",
+    "noqa_row": 212,
+    "url": "https://docs.astral.sh/ruff/rules/missing-return-type-private-function"
+  },
+  {
+    "cell": null,
+    "code": "ANN001",
+    "end_location": {
+      "column": 22,
+      "row": 212
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 212
+    },
+    "message": "Missing type annotation for function argument `key`",
+    "noqa_row": 212,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+  },
+  {
+    "cell": null,
+    "code": "F841",
+    "end_location": {
+      "column": 11,
+      "row": 225
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 14,
+            "row": 225
+          },
+          "location": {
+            "column": 5,
+            "row": 225
+          }
+        }
+      ],
+      "message": "Remove assignment to unused variable `freeze`"
+    },
+    "location": {
+      "column": 5,
+      "row": 225
+    },
+    "message": "Local variable `freeze` is assigned to but never used",
+    "noqa_row": 225,
+    "url": "https://docs.astral.sh/ruff/rules/unused-variable"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 116,
+      "row": 264
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 264
+    },
+    "message": "Line too long (115 > 100)",
+    "noqa_row": 264,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "S314",
+    "end_location": {
+      "column": 43,
+      "row": 270
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 22,
+      "row": 270
+    },
+    "message": "Using `xml` to parse untrusted data is known to be vulnerable to XML attacks; use `defusedxml` equivalents",
+    "noqa_row": 270,
+    "url": "https://docs.astral.sh/ruff/rules/suspicious-xml-element-tree-usage"
+  },
+  {
+    "cell": null,
+    "code": "C401",
+    "end_location": {
+      "column": 64,
+      "row": 388
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "{",
+          "end_location": {
+            "column": 40,
+            "row": 388
+          },
+          "location": {
+            "column": 36,
+            "row": 388
+          }
+        },
+        {
+          "content": "}",
+          "end_location": {
+            "column": 64,
+            "row": 388
+          },
+          "location": {
+            "column": 63,
+            "row": 388
+          }
+        }
+      ],
+      "message": "Rewrite as a set comprehension"
+    },
+    "location": {
+      "column": 36,
+      "row": 388
+    },
+    "message": "Unnecessary generator (rewrite as a set comprehension)",
+    "noqa_row": 388,
+    "url": "https://docs.astral.sh/ruff/rules/unnecessary-generator-set"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 130,
+      "row": 400
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 400
+    },
+    "message": "Line too long (129 > 100)",
+    "noqa_row": 400,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 350,
+      "row": 401
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 401
+    },
+    "message": "Line too long (349 > 100)",
+    "noqa_row": 401,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 128,
+      "row": 440
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 440
+    },
+    "message": "Line too long (127 > 100)",
+    "noqa_row": 440,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 164,
+      "row": 453
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 453
+    },
+    "message": "Line too long (163 > 100)",
+    "noqa_row": 453,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 145,
+      "row": 455
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 455
+    },
+    "message": "Line too long (144 > 100)",
+    "noqa_row": 455,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 117,
+      "row": 458
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 458
+    },
+    "message": "Line too long (116 > 100)",
+    "noqa_row": 458,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 103,
+      "row": 467
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 467
+    },
+    "message": "Line too long (102 > 100)",
+    "noqa_row": 467,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 216,
+      "row": 487
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 487
+    },
+    "message": "Line too long (215 > 100)",
+    "noqa_row": 487,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 303,
+      "row": 501
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 501
+    },
+    "message": "Line too long (302 > 100)",
+    "noqa_row": 501,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 282,
+      "row": 514
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 514
+    },
+    "message": "Line too long (281 > 100)",
+    "noqa_row": 514,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 466,
+      "row": 517
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 517
+    },
+    "message": "Line too long (465 > 100)",
+    "noqa_row": 517,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 155,
+      "row": 525
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 525
+    },
+    "message": "Line too long (154 > 100)",
+    "noqa_row": 525,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 348,
+      "row": 527
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 527
+    },
+    "message": "Line too long (347 > 100)",
+    "noqa_row": 527,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 374,
+      "row": 537
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 537
+    },
+    "message": "Line too long (373 > 100)",
+    "noqa_row": 537,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 366,
+      "row": 540
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 540
+    },
+    "message": "Line too long (365 > 100)",
+    "noqa_row": 540,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 194,
+      "row": 543
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 543
+    },
+    "message": "Line too long (193 > 100)",
+    "noqa_row": 543,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 153,
+      "row": 544
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 544
+    },
+    "message": "Line too long (152 > 100)",
+    "noqa_row": 544,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 132,
+      "row": 545
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 545
+    },
+    "message": "Line too long (131 > 100)",
+    "noqa_row": 545,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 163,
+      "row": 546
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 546
+    },
+    "message": "Line too long (162 > 100)",
+    "noqa_row": 546,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 217,
+      "row": 547
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 547
+    },
+    "message": "Line too long (216 > 100)",
+    "noqa_row": 547,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 175,
+      "row": 548
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 548
+    },
+    "message": "Line too long (174 > 100)",
+    "noqa_row": 548,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 196,
+      "row": 549
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 549
+    },
+    "message": "Line too long (195 > 100)",
+    "noqa_row": 549,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 146,
+      "row": 552
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 552
+    },
+    "message": "Line too long (145 > 100)",
+    "noqa_row": 552,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 168,
+      "row": 553
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 553
+    },
+    "message": "Line too long (167 > 100)",
+    "noqa_row": 553,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 112,
+      "row": 554
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 554
+    },
+    "message": "Line too long (111 > 100)",
+    "noqa_row": 554,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 243,
+      "row": 557
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 557
+    },
+    "message": "Line too long (242 > 100)",
+    "noqa_row": 557,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 102,
+      "row": 565
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 565
+    },
+    "message": "Line too long (101 > 100)",
+    "noqa_row": 565,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 134,
+      "row": 568
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 568
+    },
+    "message": "Line too long (133 > 100)",
+    "noqa_row": 568,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 108,
+      "row": 571
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 571
+    },
+    "message": "Line too long (107 > 100)",
+    "noqa_row": 571,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 166,
+      "row": 574
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 574
+    },
+    "message": "Line too long (165 > 100)",
+    "noqa_row": 574,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 250,
+      "row": 575
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 575
+    },
+    "message": "Line too long (249 > 100)",
+    "noqa_row": 575,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 232,
+      "row": 578
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 578
+    },
+    "message": "Line too long (231 > 100)",
+    "noqa_row": 578,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 227,
+      "row": 581
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 581
+    },
+    "message": "Line too long (226 > 100)",
+    "noqa_row": 581,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 135,
+      "row": 600
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 600
+    },
+    "message": "Line too long (134 > 100)",
+    "noqa_row": 600,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 263,
+      "row": 603
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 603
+    },
+    "message": "Line too long (262 > 100)",
+    "noqa_row": 603,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 126,
+      "row": 607
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 607
+    },
+    "message": "Line too long (125 > 100)",
+    "noqa_row": 607,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 180,
+      "row": 610
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 610
+    },
+    "message": "Line too long (179 > 100)",
+    "noqa_row": 610,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 196,
+      "row": 611
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 611
+    },
+    "message": "Line too long (195 > 100)",
+    "noqa_row": 611,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 177,
+      "row": 612
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 612
+    },
+    "message": "Line too long (176 > 100)",
+    "noqa_row": 612,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 222,
+      "row": 613
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 613
+    },
+    "message": "Line too long (221 > 100)",
+    "noqa_row": 613,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 190,
+      "row": 614
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 614
+    },
+    "message": "Line too long (189 > 100)",
+    "noqa_row": 614,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 171,
+      "row": 637
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 637
+    },
+    "message": "Line too long (170 > 100)",
+    "noqa_row": 637,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 158,
+      "row": 650
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 650
+    },
+    "message": "Line too long (157 > 100)",
+    "noqa_row": 650,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 194,
+      "row": 655
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 655
+    },
+    "message": "Line too long (193 > 100)",
+    "noqa_row": 655,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 117,
+      "row": 664
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 664
+    },
+    "message": "Line too long (116 > 100)",
+    "noqa_row": 664,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 115,
+      "row": 670
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 670
+    },
+    "message": "Line too long (114 > 100)",
+    "noqa_row": 670,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 199,
+      "row": 683
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 683
+    },
+    "message": "Line too long (198 > 100)",
+    "noqa_row": 683,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 212,
+      "row": 692
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 692
+    },
+    "message": "Line too long (211 > 100)",
+    "noqa_row": 692,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 137,
+      "row": 697
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 697
+    },
+    "message": "Line too long (136 > 100)",
+    "noqa_row": 697,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 251,
+      "row": 707
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 707
+    },
+    "message": "Line too long (250 > 100)",
+    "noqa_row": 707,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 179,
+      "row": 711
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 711
+    },
+    "message": "Line too long (178 > 100)",
+    "noqa_row": 711,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 270,
+      "row": 714
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 714
+    },
+    "message": "Line too long (269 > 100)",
+    "noqa_row": 714,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 181,
+      "row": 718
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 718
+    },
+    "message": "Line too long (180 > 100)",
+    "noqa_row": 718,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 385,
+      "row": 721
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 721
+    },
+    "message": "Line too long (384 > 100)",
+    "noqa_row": 721,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 387,
+      "row": 724
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 724
+    },
+    "message": "Line too long (386 > 100)",
+    "noqa_row": 724,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 124,
+      "row": 730
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 730
+    },
+    "message": "Line too long (123 > 100)",
+    "noqa_row": 730,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 102,
+      "row": 738
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 738
+    },
+    "message": "Line too long (101 > 100)",
+    "noqa_row": 738,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 232,
+      "row": 742
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 742
+    },
+    "message": "Line too long (231 > 100)",
+    "noqa_row": 742,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 325,
+      "row": 747
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 747
+    },
+    "message": "Line too long (324 > 100)",
+    "noqa_row": 747,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 195,
+      "row": 757
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 757
+    },
+    "message": "Line too long (194 > 100)",
+    "noqa_row": 757,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 169,
+      "row": 763
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 763
+    },
+    "message": "Line too long (168 > 100)",
+    "noqa_row": 763,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 150,
+      "row": 766
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 766
+    },
+    "message": "Line too long (149 > 100)",
+    "noqa_row": 766,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 160,
+      "row": 770
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 770
+    },
+    "message": "Line too long (159 > 100)",
+    "noqa_row": 770,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 219,
+      "row": 786
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 786
+    },
+    "message": "Line too long (218 > 100)",
+    "noqa_row": 786,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 274,
+      "row": 789
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 789
+    },
+    "message": "Line too long (273 > 100)",
+    "noqa_row": 789,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 152,
+      "row": 918
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 918
+    },
+    "message": "Line too long (151 > 100)",
+    "noqa_row": 918,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 134,
+      "row": 927
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 927
+    },
+    "message": "Line too long (133 > 100)",
+    "noqa_row": 927,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 271,
+      "row": 952
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 952
+    },
+    "message": "Line too long (270 > 100)",
+    "noqa_row": 952,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 181,
+      "row": 965
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 965
+    },
+    "message": "Line too long (180 > 100)",
+    "noqa_row": 965,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 161,
+      "row": 975
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 975
+    },
+    "message": "Line too long (160 > 100)",
+    "noqa_row": 975,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 224,
+      "row": 989
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 989
+    },
+    "message": "Line too long (223 > 100)",
+    "noqa_row": 989,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 438,
+      "row": 993
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 993
+    },
+    "message": "Line too long (437 > 100)",
+    "noqa_row": 993,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 147,
+      "row": 1001
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 1001
+    },
+    "message": "Line too long (146 > 100)",
+    "noqa_row": 1001,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 196,
+      "row": 1003
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 1003
+    },
+    "message": "Line too long (195 > 100)",
+    "noqa_row": 1003,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "T201",
+    "end_location": {
+      "column": 10,
+      "row": 1012
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 1026
+          },
+          "location": {
+            "column": 1,
+            "row": 1012
+          }
+        }
+      ],
+      "message": "Remove `print`"
+    },
+    "location": {
+      "column": 5,
+      "row": 1012
+    },
+    "message": "`print` found",
+    "noqa_row": 1012,
+    "url": "https://docs.astral.sh/ruff/rules/print"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 35,
+      "row": 19
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/validate.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "import argparse\nimport copy\nimport csv\nimport hashlib\nimport io\nimport json\nimport re\nimport subprocess\nimport xml.etree.ElementTree as ET\nfrom collections import Counter\nfrom functools import lru_cache\nfrom pathlib import Path\n\n",
+          "end_location": {
+            "column": 1,
+            "row": 21
+          },
+          "location": {
+            "column": 1,
+            "row": 8
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 8
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "noqa_row": 8,
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "ANN201",
+    "end_location": {
+      "column": 12,
+      "row": 28
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/validate.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": " -> None",
+          "end_location": {
+            "column": 31,
+            "row": 28
+          },
+          "location": {
+            "column": 31,
+            "row": 28
+          }
+        }
+      ],
+      "message": "Add return type annotation: `None`"
+    },
+    "location": {
+      "column": 5,
+      "row": 28
+    },
+    "message": "Missing return type annotation for public function `require`",
+    "noqa_row": 28,
+    "url": "https://docs.astral.sh/ruff/rules/missing-return-type-undocumented-public-function"
+  },
+  {
+    "cell": null,
+    "code": "ANN001",
+    "end_location": {
+      "column": 22,
+      "row": 28
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/validate.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 28
+    },
+    "message": "Missing type annotation for function argument `condition`",
+    "noqa_row": 28,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+  },
+  {
+    "cell": null,
+    "code": "ANN001",
+    "end_location": {
+      "column": 30,
+      "row": 28
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/validate.py",
+    "fix": null,
+    "location": {
+      "column": 24,
+      "row": 28
+    },
+    "message": "Missing type annotation for function argument `reason`",
+    "noqa_row": 28,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+  },
+  {
+    "cell": null,
+    "code": "UP033",
+    "end_location": {
+      "column": 25,
+      "row": 33
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/validate.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from functools import lru_cache, cache",
+          "end_location": {
+            "column": 32,
+            "row": 12
+          },
+          "location": {
+            "column": 1,
+            "row": 12
+          }
+        },
+        {
+          "content": "cache",
+          "end_location": {
+            "column": 25,
+            "row": 33
+          },
+          "location": {
+            "column": 2,
+            "row": 33
+          }
+        }
+      ],
+      "message": "Rewrite with `@functools.cache"
+    },
+    "location": {
+      "column": 11,
+      "row": 33
+    },
+    "message": "Use `@functools.cache` instead of `@functools.lru_cache(maxsize=None)`",
+    "noqa_row": 33,
+    "url": "https://docs.astral.sh/ruff/rules/lru-cache-with-maxsize-none"
+  },
+  {
+    "cell": null,
+    "code": "ANN201",
+    "end_location": {
+      "column": 8,
+      "row": 34
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/validate.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 34
+    },
+    "message": "Missing return type annotation for public function `git`",
+    "noqa_row": 34,
+    "url": "https://docs.astral.sh/ruff/rules/missing-return-type-undocumented-public-function"
+  },
+  {
+    "cell": null,
+    "code": "ANN001",
+    "end_location": {
+      "column": 13,
+      "row": 34
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/validate.py",
+    "fix": null,
+    "location": {
+      "column": 9,
+      "row": 34
+    },
+    "message": "Missing type annotation for function argument `repo`",
+    "noqa_row": 34,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+  },
+  {
+    "cell": null,
+    "code": "ANN002",
+    "end_location": {
+      "column": 20,
+      "row": 34
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/validate.py",
+    "fix": null,
+    "location": {
+      "column": 15,
+      "row": 34
+    },
+    "message": "Missing type annotation for `*args`",
+    "noqa_row": 34,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-args"
+  },
+  {
+    "cell": null,
+    "code": "S603",
+    "end_location": {
+      "column": 35,
+      "row": 35
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/validate.py",
+    "fix": null,
+    "location": {
+      "column": 12,
+      "row": 35
+    },
+    "message": "`subprocess` call: check for execution of untrusted input",
+    "noqa_row": 35,
+    "url": "https://docs.astral.sh/ruff/rules/subprocess-without-shell-equals-true"
+  },
+  {
+    "cell": null,
+    "code": "S607",
+    "end_location": {
+      "column": 67,
+      "row": 35
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/validate.py",
+    "fix": null,
+    "location": {
+      "column": 36,
+      "row": 35
+    },
+    "message": "Starting a process with a partial executable path",
+    "noqa_row": 35,
+    "url": "https://docs.astral.sh/ruff/rules/start-process-with-partial-path"
+  },
+  {
+    "cell": null,
+    "code": "UP033",
+    "end_location": {
+      "column": 25,
+      "row": 38
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/validate.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from functools import lru_cache, cache",
+          "end_location": {
+            "column": 32,
+            "row": 12
+          },
+          "location": {
+            "column": 1,
+            "row": 12
+          }
+        },
+        {
+          "content": "cache",
+          "end_location": {
+            "column": 25,
+            "row": 38
+          },
+          "location": {
+            "column": 2,
+            "row": 38
+          }
+        }
+      ],
+      "message": "Rewrite with `@functools.cache"
+    },
+    "location": {
+      "column": 11,
+      "row": 38
+    },
+    "message": "Use `@functools.cache` instead of `@functools.lru_cache(maxsize=None)`",
+    "noqa_row": 38,
+    "url": "https://docs.astral.sh/ruff/rules/lru-cache-with-maxsize-none"
+  },
+  {
+    "cell": null,
+    "code": "ANN201",
+    "end_location": {
+      "column": 9,
+      "row": 39
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/validate.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 39
+    },
+    "message": "Missing return type annotation for public function `read`",
+    "noqa_row": 39,
+    "url": "https://docs.astral.sh/ruff/rules/missing-return-type-undocumented-public-function"
+  },
+  {
+    "cell": null,
+    "code": "ANN001",
+    "end_location": {
+      "column": 14,
+      "row": 39
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/validate.py",
+    "fix": null,
+    "location": {
+      "column": 10,
+      "row": 39
+    },
+    "message": "Missing type annotation for function argument `path`",
+    "noqa_row": 39,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+  },
+  {
+    "cell": null,
+    "code": "ANN201",
+    "end_location": {
+      "column": 10,
+      "row": 43
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/validate.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 43
+    },
+    "message": "Missing return type annotation for public function `ident`",
+    "noqa_row": 43,
+    "url": "https://docs.astral.sh/ruff/rules/missing-return-type-undocumented-public-function"
+  },
+  {
+    "cell": null,
+    "code": "ANN001",
+    "end_location": {
+      "column": 15,
+      "row": 43
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/validate.py",
+    "fix": null,
+    "location": {
+      "column": 11,
+      "row": 43
+    },
+    "message": "Missing type annotation for function argument `data`",
+    "noqa_row": 43,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+  },
+  {
+    "cell": null,
+    "code": "ANN201",
+    "end_location": {
+      "column": 10,
+      "row": 47
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/validate.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 47
+    },
+    "message": "Missing return type annotation for public function `tally`",
+    "noqa_row": 47,
+    "url": "https://docs.astral.sh/ruff/rules/missing-return-type-undocumented-public-function"
+  },
+  {
+    "cell": null,
+    "code": "ANN001",
+    "end_location": {
+      "column": 16,
+      "row": 47
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/validate.py",
+    "fix": null,
+    "location": {
+      "column": 11,
+      "row": 47
+    },
+    "message": "Missing type annotation for function argument `cases`",
+    "noqa_row": 47,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+  },
+  {
+    "cell": null,
+    "code": "ANN201",
+    "end_location": {
+      "column": 19,
+      "row": 58
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/validate.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 58
+    },
+    "message": "Missing return type annotation for public function `exact_portable`",
+    "noqa_row": 58,
+    "url": "https://docs.astral.sh/ruff/rules/missing-return-type-undocumented-public-function"
+  },
+  {
+    "cell": null,
+    "code": "ANN001",
+    "end_location": {
+      "column": 25,
+      "row": 58
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/validate.py",
+    "fix": null,
+    "location": {
+      "column": 20,
+      "row": 58
+    },
+    "message": "Missing type annotation for function argument `index`",
+    "noqa_row": 58,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+  },
+  {
+    "cell": null,
+    "code": "ANN201",
+    "end_location": {
+      "column": 10,
+      "row": 85
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/validate.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 85
+    },
+    "message": "Missing return type annotation for public function `check`",
+    "noqa_row": 85,
+    "url": "https://docs.astral.sh/ruff/rules/missing-return-type-undocumented-public-function"
+  },
+  {
+    "cell": null,
+    "code": "ANN001",
+    "end_location": {
+      "column": 17,
+      "row": 85
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/validate.py",
+    "fix": null,
+    "location": {
+      "column": 11,
+      "row": 85
+    },
+    "message": "Missing type annotation for function argument `packet`",
+    "noqa_row": 85,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+  },
+  {
+    "cell": null,
+    "code": "ANN001",
+    "end_location": {
+      "column": 26,
+      "row": 85
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/validate.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 85
+    },
+    "message": "Missing type annotation for function argument `recipes`",
+    "noqa_row": 85,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+  },
+  {
+    "cell": null,
+    "code": "ANN001",
+    "end_location": {
+      "column": 33,
+      "row": 85
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/validate.py",
+    "fix": null,
+    "location": {
+      "column": 28,
+      "row": 85
+    },
+    "message": "Missing type annotation for function argument `index`",
+    "noqa_row": 85,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+  },
+  {
+    "cell": null,
+    "code": "ANN001",
+    "end_location": {
+      "column": 45,
+      "row": 85
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/validate.py",
+    "fix": null,
+    "location": {
+      "column": 35,
+      "row": 85
+    },
+    "message": "Missing type annotation for function argument `case_index`",
+    "noqa_row": 85,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+  },
+  {
+    "cell": null,
+    "code": "ANN001",
+    "end_location": {
+      "column": 51,
+      "row": 85
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/validate.py",
+    "fix": null,
+    "location": {
+      "column": 47,
+      "row": 85
+    },
+    "message": "Missing type annotation for function argument `lint`",
+    "noqa_row": 85,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+  },
+  {
+    "cell": null,
+    "code": "ANN001",
+    "end_location": {
+      "column": 57,
+      "row": 85
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/validate.py",
+    "fix": null,
+    "location": {
+      "column": 53,
+      "row": 85
+    },
+    "message": "Missing type annotation for function argument `repo`",
+    "noqa_row": 85,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+  },
+  {
+    "cell": null,
+    "code": "S314",
+    "end_location": {
+      "column": 56,
+      "row": 352
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/validate.py",
+    "fix": null,
+    "location": {
+      "column": 18,
+      "row": 352
+    },
+    "message": "Using `xml` to parse untrusted data is known to be vulnerable to XML attacks; use `defusedxml` equivalents",
+    "noqa_row": 352,
+    "url": "https://docs.astral.sh/ruff/rules/suspicious-xml-element-tree-usage"
+  },
+  {
+    "cell": null,
+    "code": "ANN201",
+    "end_location": {
+      "column": 9,
+      "row": 510
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/validate.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": " -> None",
+          "end_location": {
+            "column": 11,
+            "row": 510
+          },
+          "location": {
+            "column": 11,
+            "row": 510
+          }
+        }
+      ],
+      "message": "Add return type annotation: `None`"
+    },
+    "location": {
+      "column": 5,
+      "row": 510
+    },
+    "message": "Missing return type annotation for public function `main`",
+    "noqa_row": 510,
+    "url": "https://docs.astral.sh/ruff/rules/missing-return-type-undocumented-public-function"
+  },
+  {
+    "cell": null,
+    "code": "T201",
+    "end_location": {
+      "column": 10,
+      "row": 583
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/validate.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 584
+          },
+          "location": {
+            "column": 1,
+            "row": 583
+          }
+        }
+      ],
+      "message": "Remove `print`"
+    },
+    "location": {
+      "column": 5,
+      "row": 583
+    },
+    "message": "`print` found",
+    "noqa_row": 583,
+    "url": "https://docs.astral.sh/ruff/rules/print"
+  }
+]

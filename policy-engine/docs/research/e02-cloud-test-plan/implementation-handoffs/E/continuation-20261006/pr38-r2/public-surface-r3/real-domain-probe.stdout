@@ -1,0 +1,37 @@
+{
+  "source_sha": "ec042402ec91fbdcb51006852e29fe67f38d9452",
+  "source_tree": "cd83045f99de341ae40e2c56bf880ef49ec9f6dc",
+  "properties": [
+    {
+      "property": "independent-all-zero-IID-pilot-mean-oracle",
+      "U": 0.0995612819216314,
+      "N": 408,
+      "outcome": "PASS",
+      "authority": "numerical formula only; actual independent bounded law required separately"
+    },
+    {
+      "property": "five-common-inlets-non-real-refusal-before-cast",
+      "cases": 25,
+      "outcome": "PASS"
+    },
+    {
+      "property": "supported-real-int-float32-float64-Fraction-object-dyadic-law",
+      "outcome": "PASS"
+    },
+    {
+      "property": "actual-native-MC-complex-covariance-pre-nominal-refusal",
+      "callback_count": 0,
+      "family": "unknown",
+      "gate_eligible": false,
+      "outcome": "PASS"
+    }
+  ],
+  "module_origin_count": 41,
+  "source_property_paths": {
+    "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py": "1f3f496b78324a5d90e994092140a9773bcb2463a4331e100bc5fefc8cb3ec80",
+    "policy-engine/src/polisyos/foundry/uncertainty/__init__.py": "92b8ba4e7ab8c99d510bd889776798fba6e5c41794911bbb72e540443f224203",
+    "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py": "bb84f24451cd90a51d59f1593f7798ad46caf1cbddb5c7b3bacd47edffd893c7"
+  },
+  "source_before_after_equal": true,
+  "verdict": "GO-bounded-common-real-domain-property"
+}

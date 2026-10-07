@@ -1,0 +1,546 @@
+{
+  "original_tracked_evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/backtest-native-deciding-evidence.json",
+  "original_git_blob": "03893d66e17feede3a387e69b95161c58b12619a",
+  "original_sha256": "521c823387785b4f2498ce700a917758a8713643d8bcf01c170c492b9be628c2",
+  "original_numerical_candidate": "0e457bf0b2cef01fb423ba925048d6d9f7ce1095",
+  "original_import_only_readback": "9c51a7f7e0a7fc901a681b2fba6240b8cbcf7cef",
+  "report_artifact_id": "sha256:11da9926d1cfd9d7cf70a2fd4c414f0f5e0261d501b8bcdb8301b59b02bf1fe0",
+  "replay_counts": {
+    "attempted": 7,
+    "basis": "recomputed",
+    "completed": 7,
+    "declared_n_simulation_runs": 7,
+    "failed": 0,
+    "outcomes": [
+      "native:replica:0",
+      "native:replica:1",
+      "native:replica:2",
+      "native:replica:3",
+      "native:replica:4",
+      "native:replica:5",
+      "native:replica:6"
+    ],
+    "plan_id": "native",
+    "requested": 7,
+    "unit": "backend_replay",
+    "unobserved": 0
+  },
+  "comparison_counts": {
+    "basis": "recomputed",
+    "eligible": 14,
+    "observed": 14,
+    "requested": 14,
+    "unit": "metric_time_cell_per_replay"
+  },
+  "actual_foundry_seeds": [
+    570356716,
+    741055479,
+    2285044420,
+    577497900,
+    82331697,
+    659408303,
+    3138027851
+  ],
+  "actual_run_ids": [
+    "native-fiscal:replica:0",
+    "native-fiscal:replica:1",
+    "native-fiscal:replica:2",
+    "native-fiscal:replica:3",
+    "native-fiscal:replica:4",
+    "native-fiscal:replica:5",
+    "native-fiscal:replica:6"
+  ],
+  "scenarios": [
+    {
+      "scenario_id": "native:replica:0",
+      "predictions": [
+        {
+          "absolute_error": 0.0,
+          "ci_lower": null,
+          "ci_upper": null,
+          "metric_name": "income",
+          "relative_error": 0.0,
+          "within_ci": null,
+          "y_pred": 1.5,
+          "y_true": 1.5
+        },
+        {
+          "absolute_error": 0.0,
+          "ci_lower": null,
+          "ci_upper": null,
+          "metric_name": "income",
+          "relative_error": 0.0,
+          "within_ci": null,
+          "y_pred": 1.0,
+          "y_true": 1.0
+        }
+      ],
+      "metadata": {
+        "actual_foundry_seed": 570356716,
+        "backend_attempted": true,
+        "backend_run_id": "native-fiscal:replica:0",
+        "comparison_denominator": {
+          "basis": "recomputed",
+          "eligible": 2,
+          "observed": 2,
+          "requested": 2,
+          "unit": "metric_time_cell"
+        },
+        "declared_n_simulation_runs": 7,
+        "degraded": false,
+        "evaluation_status": "evaluated",
+        "historical_snapshot_ref": {
+          "artifact_id": "sha256:a63318ab872c3dfa9ccc34aa358f6f1133267a4e85ff37aa0a0cb6d6b87cdb46",
+          "kind": "fabric.data_snapshot",
+          "media_type": "application/json"
+        },
+        "native_forecast_purpose": "predictive_simulation",
+        "native_forecast_ref": {
+          "artifact_id": "sha256:c2603e805b543931b637da7d2deeec00ab2d4440200a1c635d09c9881125fc95",
+          "kind": "scientist.backtest.native_forecast",
+          "media_type": "application/json"
+        },
+        "native_request_ref": {
+          "artifact_id": "sha256:843456cb4bb892417677d9e2b5a097c94dd71f77ac98fb542e6a15666f9fc0fa",
+          "kind": "scientist.backtest.native_forecast_request",
+          "media_type": "application/json"
+        },
+        "native_trinity_ref": {
+          "artifact_id": "sha256:f1aae8d2a68dd475d25f54ad5b89900bbe8b40b662317a938a5e735bba18c88d",
+          "kind": "ir.trinity_bundle",
+          "media_type": "application/json"
+        },
+        "prediction_source_effective": "scientist",
+        "prediction_source_requested": "scientist",
+        "replica_count": 7,
+        "replica_index": 0,
+        "requested_replay_seed": 570356716,
+        "source_plan_id": "native"
+      },
+      "compared_count": 2,
+      "requested_count": 2,
+      "source": "sha256:864a735b1b7fd59f0a9065bbad0c75befad7d9cccb23a0d7d30b8be7e64dc507"
+    },
+    {
+      "scenario_id": "native:replica:1",
+      "predictions": [
+        {
+          "absolute_error": 0.0,
+          "ci_lower": null,
+          "ci_upper": null,
+          "metric_name": "income",
+          "relative_error": 0.0,
+          "within_ci": null,
+          "y_pred": 1.5,
+          "y_true": 1.5
+        },
+        {
+          "absolute_error": 0.0,
+          "ci_lower": null,
+          "ci_upper": null,
+          "metric_name": "income",
+          "relative_error": 0.0,
+          "within_ci": null,
+          "y_pred": 1.0,
+          "y_true": 1.0
+        }
+      ],
+      "metadata": {
+        "actual_foundry_seed": 741055479,
+        "backend_attempted": true,
+        "backend_run_id": "native-fiscal:replica:1",
+        "comparison_denominator": {
+          "basis": "recomputed",
+          "eligible": 2,
+          "observed": 2,
+          "requested": 2,
+          "unit": "metric_time_cell"
+        },
+        "declared_n_simulation_runs": 7,
+        "degraded": false,
+        "evaluation_status": "evaluated",
+        "historical_snapshot_ref": {
+          "artifact_id": "sha256:a63318ab872c3dfa9ccc34aa358f6f1133267a4e85ff37aa0a0cb6d6b87cdb46",
+          "kind": "fabric.data_snapshot",
+          "media_type": "application/json"
+        },
+        "native_forecast_purpose": "predictive_simulation",
+        "native_forecast_ref": {
+          "artifact_id": "sha256:92483244273f3874d20c845214a7f27374f0ed237210dd30b57ced14702c3f3c",
+          "kind": "scientist.backtest.native_forecast",
+          "media_type": "application/json"
+        },
+        "native_request_ref": {
+          "artifact_id": "sha256:bf0973c8d5d46cdd241b7a07d1b75488371a40c4e8e93e1274b3c542a5c76a6c",
+          "kind": "scientist.backtest.native_forecast_request",
+          "media_type": "application/json"
+        },
+        "native_trinity_ref": {
+          "artifact_id": "sha256:f1aae8d2a68dd475d25f54ad5b89900bbe8b40b662317a938a5e735bba18c88d",
+          "kind": "ir.trinity_bundle",
+          "media_type": "application/json"
+        },
+        "prediction_source_effective": "scientist",
+        "prediction_source_requested": "scientist",
+        "replica_count": 7,
+        "replica_index": 1,
+        "requested_replay_seed": 741055479,
+        "source_plan_id": "native"
+      },
+      "compared_count": 2,
+      "requested_count": 2,
+      "source": "sha256:864a735b1b7fd59f0a9065bbad0c75befad7d9cccb23a0d7d30b8be7e64dc507"
+    },
+    {
+      "scenario_id": "native:replica:2",
+      "predictions": [
+        {
+          "absolute_error": 0.0,
+          "ci_lower": null,
+          "ci_upper": null,
+          "metric_name": "income",
+          "relative_error": 0.0,
+          "within_ci": null,
+          "y_pred": 1.5,
+          "y_true": 1.5
+        },
+        {
+          "absolute_error": 0.0,
+          "ci_lower": null,
+          "ci_upper": null,
+          "metric_name": "income",
+          "relative_error": 0.0,
+          "within_ci": null,
+          "y_pred": 1.0,
+          "y_true": 1.0
+        }
+      ],
+      "metadata": {
+        "actual_foundry_seed": 2285044420,
+        "backend_attempted": true,
+        "backend_run_id": "native-fiscal:replica:2",
+        "comparison_denominator": {
+          "basis": "recomputed",
+          "eligible": 2,
+          "observed": 2,
+          "requested": 2,
+          "unit": "metric_time_cell"
+        },
+        "declared_n_simulation_runs": 7,
+        "degraded": false,
+        "evaluation_status": "evaluated",
+        "historical_snapshot_ref": {
+          "artifact_id": "sha256:a63318ab872c3dfa9ccc34aa358f6f1133267a4e85ff37aa0a0cb6d6b87cdb46",
+          "kind": "fabric.data_snapshot",
+          "media_type": "application/json"
+        },
+        "native_forecast_purpose": "predictive_simulation",
+        "native_forecast_ref": {
+          "artifact_id": "sha256:00750d40daf34115d3e2f8ae1f7565f2d1c84857bd55acd01d19234aad46220f",
+          "kind": "scientist.backtest.native_forecast",
+          "media_type": "application/json"
+        },
+        "native_request_ref": {
+          "artifact_id": "sha256:7027b70687f4cf123a791fc594e286373405980285901fd4b221353d68470784",
+          "kind": "scientist.backtest.native_forecast_request",
+          "media_type": "application/json"
+        },
+        "native_trinity_ref": {
+          "artifact_id": "sha256:f1aae8d2a68dd475d25f54ad5b89900bbe8b40b662317a938a5e735bba18c88d",
+          "kind": "ir.trinity_bundle",
+          "media_type": "application/json"
+        },
+        "prediction_source_effective": "scientist",
+        "prediction_source_requested": "scientist",
+        "replica_count": 7,
+        "replica_index": 2,
+        "requested_replay_seed": 2285044420,
+        "source_plan_id": "native"
+      },
+      "compared_count": 2,
+      "requested_count": 2,
+      "source": "sha256:864a735b1b7fd59f0a9065bbad0c75befad7d9cccb23a0d7d30b8be7e64dc507"
+    },
+    {
+      "scenario_id": "native:replica:3",
+      "predictions": [
+        {
+          "absolute_error": 0.0,
+          "ci_lower": null,
+          "ci_upper": null,
+          "metric_name": "income",
+          "relative_error": 0.0,
+          "within_ci": null,
+          "y_pred": 1.5,
+          "y_true": 1.5
+        },
+        {
+          "absolute_error": 0.0,
+          "ci_lower": null,
+          "ci_upper": null,
+          "metric_name": "income",
+          "relative_error": 0.0,
+          "within_ci": null,
+          "y_pred": 1.0,
+          "y_true": 1.0
+        }
+      ],
+      "metadata": {
+        "actual_foundry_seed": 577497900,
+        "backend_attempted": true,
+        "backend_run_id": "native-fiscal:replica:3",
+        "comparison_denominator": {
+          "basis": "recomputed",
+          "eligible": 2,
+          "observed": 2,
+          "requested": 2,
+          "unit": "metric_time_cell"
+        },
+        "declared_n_simulation_runs": 7,
+        "degraded": false,
+        "evaluation_status": "evaluated",
+        "historical_snapshot_ref": {
+          "artifact_id": "sha256:a63318ab872c3dfa9ccc34aa358f6f1133267a4e85ff37aa0a0cb6d6b87cdb46",
+          "kind": "fabric.data_snapshot",
+          "media_type": "application/json"
+        },
+        "native_forecast_purpose": "predictive_simulation",
+        "native_forecast_ref": {
+          "artifact_id": "sha256:13bcf843a66fd6f4fd0ea815acbb3ecd92203a3840ead56904b42c54f058f4ea",
+          "kind": "scientist.backtest.native_forecast",
+          "media_type": "application/json"
+        },
+        "native_request_ref": {
+          "artifact_id": "sha256:4f09b6f64078c5a661d662cca630e5f08a52625d2e77baf92776bad1cf00fa90",
+          "kind": "scientist.backtest.native_forecast_request",
+          "media_type": "application/json"
+        },
+        "native_trinity_ref": {
+          "artifact_id": "sha256:f1aae8d2a68dd475d25f54ad5b89900bbe8b40b662317a938a5e735bba18c88d",
+          "kind": "ir.trinity_bundle",
+          "media_type": "application/json"
+        },
+        "prediction_source_effective": "scientist",
+        "prediction_source_requested": "scientist",
+        "replica_count": 7,
+        "replica_index": 3,
+        "requested_replay_seed": 577497900,
+        "source_plan_id": "native"
+      },
+      "compared_count": 2,
+      "requested_count": 2,
+      "source": "sha256:864a735b1b7fd59f0a9065bbad0c75befad7d9cccb23a0d7d30b8be7e64dc507"
+    },
+    {
+      "scenario_id": "native:replica:4",
+      "predictions": [
+        {
+          "absolute_error": 0.0,
+          "ci_lower": null,
+          "ci_upper": null,
+          "metric_name": "income",
+          "relative_error": 0.0,
+          "within_ci": null,
+          "y_pred": 1.5,
+          "y_true": 1.5
+        },
+        {
+          "absolute_error": 0.0,
+          "ci_lower": null,
+          "ci_upper": null,
+          "metric_name": "income",
+          "relative_error": 0.0,
+          "within_ci": null,
+          "y_pred": 1.0,
+          "y_true": 1.0
+        }
+      ],
+      "metadata": {
+        "actual_foundry_seed": 82331697,
+        "backend_attempted": true,
+        "backend_run_id": "native-fiscal:replica:4",
+        "comparison_denominator": {
+          "basis": "recomputed",
+          "eligible": 2,
+          "observed": 2,
+          "requested": 2,
+          "unit": "metric_time_cell"
+        },
+        "declared_n_simulation_runs": 7,
+        "degraded": false,
+        "evaluation_status": "evaluated",
+        "historical_snapshot_ref": {
+          "artifact_id": "sha256:a63318ab872c3dfa9ccc34aa358f6f1133267a4e85ff37aa0a0cb6d6b87cdb46",
+          "kind": "fabric.data_snapshot",
+          "media_type": "application/json"
+        },
+        "native_forecast_purpose": "predictive_simulation",
+        "native_forecast_ref": {
+          "artifact_id": "sha256:2c694b6821e32a55a557c988a5488f40319f11bdd2a8db84af9c0691de94bbab",
+          "kind": "scientist.backtest.native_forecast",
+          "media_type": "application/json"
+        },
+        "native_request_ref": {
+          "artifact_id": "sha256:7368497215f5c952e5fcd66c22330c6b71d7bcd0717be748baa3875e583780e4",
+          "kind": "scientist.backtest.native_forecast_request",
+          "media_type": "application/json"
+        },
+        "native_trinity_ref": {
+          "artifact_id": "sha256:f1aae8d2a68dd475d25f54ad5b89900bbe8b40b662317a938a5e735bba18c88d",
+          "kind": "ir.trinity_bundle",
+          "media_type": "application/json"
+        },
+        "prediction_source_effective": "scientist",
+        "prediction_source_requested": "scientist",
+        "replica_count": 7,
+        "replica_index": 4,
+        "requested_replay_seed": 82331697,
+        "source_plan_id": "native"
+      },
+      "compared_count": 2,
+      "requested_count": 2,
+      "source": "sha256:864a735b1b7fd59f0a9065bbad0c75befad7d9cccb23a0d7d30b8be7e64dc507"
+    },
+    {
+      "scenario_id": "native:replica:5",
+      "predictions": [
+        {
+          "absolute_error": 0.0,
+          "ci_lower": null,
+          "ci_upper": null,
+          "metric_name": "income",
+          "relative_error": 0.0,
+          "within_ci": null,
+          "y_pred": 1.5,
+          "y_true": 1.5
+        },
+        {
+          "absolute_error": 0.0,
+          "ci_lower": null,
+          "ci_upper": null,
+          "metric_name": "income",
+          "relative_error": 0.0,
+          "within_ci": null,
+          "y_pred": 1.0,
+          "y_true": 1.0
+        }
+      ],
+      "metadata": {
+        "actual_foundry_seed": 659408303,
+        "backend_attempted": true,
+        "backend_run_id": "native-fiscal:replica:5",
+        "comparison_denominator": {
+          "basis": "recomputed",
+          "eligible": 2,
+          "observed": 2,
+          "requested": 2,
+          "unit": "metric_time_cell"
+        },
+        "declared_n_simulation_runs": 7,
+        "degraded": false,
+        "evaluation_status": "evaluated",
+        "historical_snapshot_ref": {
+          "artifact_id": "sha256:a63318ab872c3dfa9ccc34aa358f6f1133267a4e85ff37aa0a0cb6d6b87cdb46",
+          "kind": "fabric.data_snapshot",
+          "media_type": "application/json"
+        },
+        "native_forecast_purpose": "predictive_simulation",
+        "native_forecast_ref": {
+          "artifact_id": "sha256:56a9e7b9d5c064c8bfb5d4a2e92c7b8f62e3a33dcf4096f4311e04f127537c86",
+          "kind": "scientist.backtest.native_forecast",
+          "media_type": "application/json"
+        },
+        "native_request_ref": {
+          "artifact_id": "sha256:28d23a765e3f4c80309f510dddf8536089f6fe47be5ee87b2d3123c71a457220",
+          "kind": "scientist.backtest.native_forecast_request",
+          "media_type": "application/json"
+        },
+        "native_trinity_ref": {
+          "artifact_id": "sha256:f1aae8d2a68dd475d25f54ad5b89900bbe8b40b662317a938a5e735bba18c88d",
+          "kind": "ir.trinity_bundle",
+          "media_type": "application/json"
+        },
+        "prediction_source_effective": "scientist",
+        "prediction_source_requested": "scientist",
+        "replica_count": 7,
+        "replica_index": 5,
+        "requested_replay_seed": 659408303,
+        "source_plan_id": "native"
+      },
+      "compared_count": 2,
+      "requested_count": 2,
+      "source": "sha256:864a735b1b7fd59f0a9065bbad0c75befad7d9cccb23a0d7d30b8be7e64dc507"
+    },
+    {
+      "scenario_id": "native:replica:6",
+      "predictions": [
+        {
+          "absolute_error": 0.0,
+          "ci_lower": null,
+          "ci_upper": null,
+          "metric_name": "income",
+          "relative_error": 0.0,
+          "within_ci": null,
+          "y_pred": 1.5,
+          "y_true": 1.5
+        },
+        {
+          "absolute_error": 0.0,
+          "ci_lower": null,
+          "ci_upper": null,
+          "metric_name": "income",
+          "relative_error": 0.0,
+          "within_ci": null,
+          "y_pred": 1.0,
+          "y_true": 1.0
+        }
+      ],
+      "metadata": {
+        "actual_foundry_seed": 3138027851,
+        "backend_attempted": true,
+        "backend_run_id": "native-fiscal:replica:6",
+        "comparison_denominator": {
+          "basis": "recomputed",
+          "eligible": 2,
+          "observed": 2,
+          "requested": 2,
+          "unit": "metric_time_cell"
+        },
+        "declared_n_simulation_runs": 7,
+        "degraded": false,
+        "evaluation_status": "evaluated",
+        "historical_snapshot_ref": {
+          "artifact_id": "sha256:a63318ab872c3dfa9ccc34aa358f6f1133267a4e85ff37aa0a0cb6d6b87cdb46",
+          "kind": "fabric.data_snapshot",
+          "media_type": "application/json"
+        },
+        "native_forecast_purpose": "predictive_simulation",
+        "native_forecast_ref": {
+          "artifact_id": "sha256:83966f6992a770c60b3853cd84697c33e29f8676c5ee3203a52c5c4502911e08",
+          "kind": "scientist.backtest.native_forecast",
+          "media_type": "application/json"
+        },
+        "native_request_ref": {
+          "artifact_id": "sha256:e8fb83a3a5b3e12b4727fbe7345da7c4c5946c3b0d7e03a432cfff54dc3a3348",
+          "kind": "scientist.backtest.native_forecast_request",
+          "media_type": "application/json"
+        },
+        "native_trinity_ref": {
+          "artifact_id": "sha256:f1aae8d2a68dd475d25f54ad5b89900bbe8b40b662317a938a5e735bba18c88d",
+          "kind": "ir.trinity_bundle",
+          "media_type": "application/json"
+        },
+        "prediction_source_effective": "scientist",
+        "prediction_source_requested": "scientist",
+        "replica_count": 7,
+        "replica_index": 6,
+        "requested_replay_seed": 3138027851,
+        "source_plan_id": "native"
+      },
+      "compared_count": 2,
+      "requested_count": 2,
+      "source": "sha256:864a735b1b7fd59f0a9065bbad0c75befad7d9cccb23a0d7d30b8be7e64dc507"
+    }
+  ],
+  "evidence_scope": "Previously executed generic native K7 witness, original report reopened fresh; not a new execution or production history. Exact current producer/native reader/report source blobs join reviewed0983; independent fixed-reader K3 evidence is separate review input."
+}

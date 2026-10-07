@@ -1,0 +1,73 @@
+{
+  "schema": "e02.E.final-owned-facade-routing-review.v1",
+  "reviewer": "doe_r2 independent of root facade author",
+  "source_sha": "bf3b54c3a894d2d9d9bfb0cd13edb13177405f33",
+  "source_tree": "0a414803650c9646b597ba24c93afbea0632dcd1",
+  "canonical_companion": "7dc540d08d30bad8cf23744172c253c934dfc77e",
+  "canonical_tree": "d423da4821085f521463d6d5d60673f163c0d47e",
+  "review_flag_companion": "7bc65f73d333bc4a526c55d8a959d2b7dea7e472",
+  "flag_tree": "2c1b3fd02d751a6a8bd3053954ace7be4fce65ad",
+  "code_verdict": "GO-bounded-canonical-routing-and-actual-consumer-inlet",
+  "publication_verdict": "GO-bounded-owned-canonical-metadata-and-classification",
+  "runtime_properties": {
+    "cold_import_canonical_identity": "Calibration/Foundryuncertainty/Foundryreportowner/actualNode reader all same object",
+    "export_counts": {
+      "calibration": 29,
+      "uncertainty": 20
+    },
+    "actual_consumer": "_collect_input_envelopes fresh configuredCAS admits exact A.rate fromvalidFoundryv2report; refuses3corrupt profiles",
+    "actual_reader_negative_controls": 6,
+    "module_origins": 793,
+    "exact_module_Git_bytes": true,
+    "source_before_after_equal": true
+  },
+  "architecture_property": {
+    "real_canonical_collector": "guardrails.collect_deep_import_edges, exact3-source-module denominator, agrees with canonical predicate andexact trackedcontract",
+    "old_exact_source": "2c275dc69a5b544704256ee0ccd37649ae7e8ea4",
+    "removed_edge": "polisyos.calibration->polisyos.foundry.calibration.report",
+    "introduced_new_edges": 0,
+    "global_guard": "UNRUN byreviewer; selectededge proof isnot fullglobalarchitecturePASS",
+    "retained_names_negative": "AST route removal keeps29/20exports andcanonicalobject, nativepredicate reintroducesprivateCal\u2192Foundryreportedge; expectedASSERTFAIL"
+  },
+  "publication_properties": {
+    "exact_companion_footprint": 3,
+    "canonical_generator_full_bytes_match": true,
+    "Calibration_count": 29,
+    "uncertainty_count": 20,
+    "classification": {
+      "Calibration": "public_experimental",
+      "Foundryuncertainty": "public_stable"
+    },
+    "source_Python_unchanged": true,
+    "generated_artifacts_unchanged": true,
+    "five_corrupt_field_controls": "REJECTED",
+    "release_review_flag": true,
+    "release_flag_exactdelta": "7bcparentc3\u21927bc one stable readerfragment linefalse\u2192true; canonical7dc\u21927bc also contains separatelycommittedr4receipts, recordedfullboundary"
+  },
+  "independent_evidence_reused": {
+    "r3": "immutable5cdcommonreal-domain/nonzero-preservation probes,35nativePASS,actualMCconfiguredCASdyadic256net64/64/128mean5.25var15.1875,0callbackcollapsedlaw andeffectiveCDF/weights/pilotremovals",
+    "r4": "immutable43reader/Node same strict reportownerbody; actual tiedCalibrator\u2192v2report\u2192fresh Node\u2192persisted100jointdraws A-B0/gatefalse; wrongkind/schema/version0dispatch0callback; present-but-fake reader removal101callbacks.10nativePASS.",
+    "basis": "Only import routing andoneadditional canonical alias changed atbf3; loader, Node andnumeric mechanism implementation bytes unchanged."
+  },
+  "owner_decisions": {
+    "Core_IR_execute": "All v1 Core/IR/execute admission alternatives remainnot_ratified/unapplied; no sharedcontract/baseline/exception changes.",
+    "IR_current_packet": "Four aliases required:ParametricFitCarrier,PosteriorSamplesCarrier,load_forecasting_uncertainty_bundle,persist_forecasting_uncertainty_bundle. Either existingIRanalytics withcanonicalgeneratorinventoryfix or narrowIRroot; libraryAPI decision doesnot ratifyB201/B202.",
+    "E_legacy_reader_route": "Completed within two existingowned/admittedfacades; draft3Foundryrootexportownerproposal superseded andnotrequired.",
+    "targeted_import_denominator": "Original12 audit unchanged;3 resolved/9ownerpending. BKT5ownerpending. Post-v1 transientCal privateedge fixed bybf3. Targetedpendingmoduleedges14; notfullglobaldenominator.",
+    "missing_public_IR_semantic_owner": "Needs explicitcanonicaldesignation andfourfinite semanticdecisions; heldB201/B202 unaffected."
+  },
+  "finding_closure": "No automaticledgerchange. B194/B197/B201/B202held andB198closed historicalregression preserved; allotherstatuses remainwithaccountableowners. Successfulcode/nativewitness andmetadatareview are separatefromfindingclosure.",
+  "P37_basis": {
+    "API": "Canonicalfunctionidentity plus actualCASkind/schema/payload reader andconsumerinlet, notmerelyexportnames",
+    "architecture": "Targetmodule in trackedadmittedentrypoints or sameFoundryroot; concreteold/newcanonicalcollectorproof",
+    "authority": "Content integrity and generic fixture do not establishsourcefit/served evaluator/institutionalsignoff. Gatefalse retained."
+  },
+  "P40": "Detected relocationprivateedge afterfirstfacadefix; corrected atcommonownedadmittedFoundryfacade, thenvalidatedcaller/API/collector instead ofrelabelingPASS. Commonprecastlossclass independentlyfixed inr3.",
+  "P41": "Exactsource andmoderateoutput identity saved; no globalred inheritedbyreportedpathoverlap. Baselinequery isnot newcandidatePASS.",
+  "remaining_checks": {
+    "root_common_wave": "Root onceafterallindependentreviews/freeze; nofullglobalgate claimedhere",
+    "productionhistory": "Onlylocalread-only G whereoriginalcriterionstrictlyrequiresactualhistory; genericnativefixture enough for libraryproperties",
+    "default_served_A_D_and_shared_Core_IR_contracts": "Owner-readypackets viaGit; no sharedA/D/Core/IR sourcechangesbythisreviewer"
+  },
+  "cleanup": "Native Trash unavailable. Preservecode,docs,uniquedata andall decidinghistory. Repeatable generated-bf3 andcas-route-cold-reader candidates onlyafterreceipts/noactiveusers; no permanentdeletion."
+}

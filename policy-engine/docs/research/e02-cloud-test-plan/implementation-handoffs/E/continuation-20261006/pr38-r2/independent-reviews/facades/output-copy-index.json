@@ -1,0 +1,150 @@
+{
+  "preserve_original_command_paths": true,
+  "scope": "moderate full stdout/metadata copied into commissioned facades output root; no cleanup or permanent deletion",
+  "copies": [
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facade-affected-suite.json",
+      "publication_copy": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-affected-suite.json",
+      "sha256": "42fc837ac5d074e0fcd16e9bf89351e7297e93c643f880672528ccd231047b6d",
+      "bytes": 1538
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facade-affected-suite.stdout",
+      "publication_copy": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-affected-suite.stdout",
+      "sha256": "9e852ba8da888f02f3a7c7371ed5181daa0112ff5967c51eebbfb9f7ebff4616",
+      "bytes": 655
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facade-canonical-generator-two-entrypoints.json",
+      "publication_copy": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-canonical-generator-two-entrypoints.json",
+      "sha256": "0fd460cec217633c4f957a8c27cf04afd70c9d18d0f8363ce4917f05fc15fcd5",
+      "bytes": 1239
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facade-canonical-generator-two-entrypoints.stdout",
+      "publication_copy": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-canonical-generator-two-entrypoints.stdout",
+      "sha256": "fdfd2872656773019aaa0ed0ba2fc6bae10f8474bc960ab40b51d567fe3d6a43",
+      "bytes": 3163
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facade-certificate-native.json",
+      "publication_copy": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-certificate-native.json",
+      "sha256": "f84584835bbfc800bad0a1469af6c9552cbabc935bb7de7976b6d8318f3b2626",
+      "bytes": 1395
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facade-certificate-native.stdout",
+      "publication_copy": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-certificate-native.stdout",
+      "sha256": "1c05a8dd667416042a34ee872f72ab037ebe0a1699894d8cc44d873ecd8edbbe",
+      "bytes": 123115
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facade-certificate-removal.json",
+      "publication_copy": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-certificate-removal.json",
+      "sha256": "ba096283ae61b50e2547195c6d9039ef9ac403afd1630c2b7c5979470958db43",
+      "bytes": 1408
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facade-certificate-removal.stdout",
+      "publication_copy": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-certificate-removal.stdout",
+      "sha256": "0e611eb9add987dc59b0dff5988d90ee96a560ca5465848a4213cf2be5519ac6",
+      "bytes": 1905
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facade-consumer-native-v2.json",
+      "publication_copy": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-consumer-native-v2.json",
+      "sha256": "8cb9d0b6a1ea6ddf77530fe1eb90ef30b15f36b64d96993bb90bae4a91cfd3c6",
+      "bytes": 1393
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facade-consumer-native-v2.stdout",
+      "publication_copy": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-consumer-native-v2.stdout",
+      "sha256": "52c861d7409129280c067e45aad936e19e326cfba3abedc7075ca26c73d8f705",
+      "bytes": 993
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facade-consumer-native-v3.json",
+      "publication_copy": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-consumer-native-v3.json",
+      "sha256": "b5c8cb238a2a3764dac88cb419809d74ab21900e9f0c939e2902391171788029",
+      "bytes": 1396
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facade-consumer-native-v3.stdout",
+      "publication_copy": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-consumer-native-v3.stdout",
+      "sha256": "dbe63d5373f11f359a92b19ccaf71a8452607aaa3d608290b042881733cd9a45",
+      "bytes": 124303
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facade-consumer-native.json",
+      "publication_copy": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-consumer-native.json",
+      "sha256": "c6e40bead990079a920ab9a2d1494a8d5996fe9acd2635a4547fbb0f1fe611f3",
+      "bytes": 1383
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facade-consumer-native.stdout",
+      "publication_copy": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-consumer-native.stdout",
+      "sha256": "94fd35d371ecd697e8611a06db0b3de322f2f6d871108be14f3a759c9eaecf24",
+      "bytes": 990
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facade-consumer-removal-v2.json",
+      "publication_copy": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-consumer-removal-v2.json",
+      "sha256": "93d9adaa714b0552d2565240a1d006195721f595d00ac8a3c77e2faf39be2d20",
+      "bytes": 1408
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facade-consumer-removal-v2.stdout",
+      "publication_copy": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-consumer-removal-v2.stdout",
+      "sha256": "52c861d7409129280c067e45aad936e19e326cfba3abedc7075ca26c73d8f705",
+      "bytes": 993
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facade-consumer-removal-v3.json",
+      "publication_copy": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-consumer-removal-v3.json",
+      "sha256": "1602e8509b56cab80a6473e2939a76bccc5b2aa292e39adfc7f0b63e23777249",
+      "bytes": 1407
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facade-consumer-removal-v3.stdout",
+      "publication_copy": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-consumer-removal-v3.stdout",
+      "sha256": "d11f53f3c995c7e012937d781a2a80cf2dc37158afbb66d22827a1619980d0b3",
+      "bytes": 414
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facade-consumer-removal.json",
+      "publication_copy": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-consumer-removal.json",
+      "sha256": "5c1f13de0ec067523ab64156d7c3161ee2411ddce13477f1a9c0955b69359f38",
+      "bytes": 1399
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facade-consumer-removal.stdout",
+      "publication_copy": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-consumer-removal.stdout",
+      "sha256": "94fd35d371ecd697e8611a06db0b3de322f2f6d871108be14f3a759c9eaecf24",
+      "bytes": 990
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facade-forecast-native.json",
+      "publication_copy": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-forecast-native.json",
+      "sha256": "825293b7da10d6c338f5da66a9ef6b212b9f4a2238c767fc3cf2c387f0ea3fc6",
+      "bytes": 1391
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facade-forecast-native.stdout",
+      "publication_copy": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-forecast-native.stdout",
+      "sha256": "5b179c60f91b6267ad15f71012e42c2aa9ca2e4831a011b65797d9c967b1d862",
+      "bytes": 137103
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facade-forecast-removal.json",
+      "publication_copy": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-forecast-removal.json",
+      "sha256": "f2159de1d9f678e6d7d9ce584b77514b0f2cc48857082c741592f2471dfb0aaf",
+      "bytes": 1404
+    },
+    {
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facade-forecast-removal.stdout",
+      "publication_copy": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-forecast-removal.stdout",
+      "sha256": "f0bc7f1d6ad329c01e250f3fcc61898e0800fb723866a60dca9a2a9d57063f09",
+      "bytes": 5078
+    }
+  ]
+}

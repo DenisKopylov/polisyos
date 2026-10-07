@@ -1,0 +1,17 @@
+id = "2026-10-06-e02-welfare-empirical-law"
+title = "Preserve empirical laws in the native Welfare GE consumer"
+type = "fixed"
+component = "scientist"
+owner = "team-scientist"
+summary = "Preserve admitted empirical atoms and failed support in native Welfare GE propagation."
+change_class = "internal"
+surface_classification = "internal"
+compatibility = "Unsupported uncertainty laws now refuse before evaluator callbacks instead of silently substituting a Normal law."
+migration = "Supply a supported one-parameter PosteriorSamplesCarrier or an existing admitted Gaussian calibration projection; unknown joint inputs remain non-gating."
+evidence = ["tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py"]
+api = "No new IR schema, HTTP API or wire semantics."
+limitations = "Bounded numerical diagnostics do not establish a served evaluator, production source law or retry profile; B194 remains held."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

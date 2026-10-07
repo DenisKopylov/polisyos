@@ -1,3 +1,7 @@
+Latest A continuation: [A after full delivery](A-resume-after-delivery.md), with [exact audit and all criterion actions](../../integration/reviews/A-delivery-continuation-audit-2026-10-06.md).
+
+Latest E continuation: [E after PR38 r2](E-resume-after-pr38-r2.md), with the [current G audit](../../integration/reviews/E-pr38-r2-continuation-audit-2026-10-06.md). Its original-criterion scope and current output roles supersede stale E wave/pending statements.
+
 # E02: шесть поручений продолжения после публикации main
 
 G опубликовал код, пакет решений и publication companions в `origin/main`
@@ -71,3 +75,17 @@ P41 — атрибутировать red только по exact slice-base repl
 сверяет полный набор findings, deciding outputs, математические остатки,
 default consumers и внешние owner decisions. Это дополнение к исходному E.md;
 оно не принимает E код и не меняет finding ledger.
+
+## Возобновление D и F после финальных передач
+
+[Промпт D после PR47](D-resume-after-pr47.md) и
+[аудит D](../../integration/reviews/D-pr47-continuation-audit-2026-10-06.md)
+сверяют все 45 IDs/46 occurrences, отделяют старые lineages от fresh checks
+и задают math, ledger/factory, transfer, service и permit work.
+
+[Промпт F после PR65](F-resume-after-pr65.md) и
+[аудит F](../../integration/reviews/F-pr65-continuation-audit-2026-10-06.md)
+сверяют все 35 IDs, сохраняют bounded numerical proofs и задают shared
+consumer/authority, graph-profile, original-card, migration и companion work.
+Это дополнения к исходным D.md/F.md. Рекомендации авторов о closure не становятся
+formal closure G; source acceptance и finding decisions ведутся отдельно.

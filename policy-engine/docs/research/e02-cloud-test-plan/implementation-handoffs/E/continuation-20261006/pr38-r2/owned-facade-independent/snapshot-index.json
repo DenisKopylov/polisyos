@@ -1,0 +1,118 @@
+{
+  "schema": "policyos.e02.independent-proposed-input-snapshot.v1",
+  "base_sha": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+  "base_tree": "3b63e778d5b6d17b2e9edc3b4bf91af079b32eb0",
+  "source_state": "immutable scratch postimages; no implementation Git commit yet",
+  "before_independent_checks": true,
+  "files": [
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/architecture/public_surface/inventory.json",
+      "copied_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/immutable-inputs/postimage/policy-engine/architecture/public_surface/inventory.json",
+      "bytes": 222856,
+      "sha256": "63a4ed665331cb937ec4ec5968e72ba5659914c147ed23eb447f7183c5a37fd1"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/docs/reference/public-surface.md",
+      "copied_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/immutable-inputs/postimage/policy-engine/docs/reference/public-surface.md",
+      "bytes": 154167,
+      "sha256": "99b655871e2e68c0577cd6f6e18358dfea9a5aac7e216bcbb3a6aed7d2fd56ed"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-reader-facade.toml",
+      "copied_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/immutable-inputs/postimage/policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-reader-facade.toml",
+      "bytes": 1914,
+      "sha256": "ed5f4cc351d274de679e9ee91c39f55438daf10b921b17c3924b480fbcc2eee5"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/release-fragments/unreleased/2026-10-06-e02-welfare-covariance-facade.toml",
+      "copied_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/immutable-inputs/postimage/policy-engine/release-fragments/unreleased/2026-10-06-e02-welfare-covariance-facade.toml",
+      "bytes": 2105,
+      "sha256": "9fc124328372a37e28d7e413f38312e721ac0af23dfe59ac9c101eb0430ec43e"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/src/polisyos/calibration/README.md",
+      "copied_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/immutable-inputs/postimage/policy-engine/src/polisyos/calibration/README.md",
+      "bytes": 4536,
+      "sha256": "c09461f8058513803099d107beeb942407e7f349c87dac05d1a2a27e76d729de"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/src/polisyos/calibration/__init__.py",
+      "copied_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/immutable-inputs/postimage/policy-engine/src/polisyos/calibration/__init__.py",
+      "bytes": 2217,
+      "sha256": "42d6b4c46672c228d067b14a03f79db2b702d0325558d4cd89b615d7c025bbfc"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/src/polisyos/foundry/uncertainty/README.md",
+      "copied_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/immutable-inputs/postimage/policy-engine/src/polisyos/foundry/uncertainty/README.md",
+      "bytes": 5379,
+      "sha256": "653ec2ef3463e5d910725e2eb5b836e36cf415cad1a72bc9180a8982fa67eb2c"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "copied_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/immutable-inputs/postimage/policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "bytes": 3397,
+      "sha256": "068f0f1bd0bc2fcbd59884331f98d3c89bb0e6e67567ff3d8949055f5a6d2fd4"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "copied_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/immutable-inputs/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "bytes": 20616,
+      "sha256": "04a95dc4d969d95ec056d789057d7384bdf3cd4b1e7fd90e3e5b919f567559bd"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "copied_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/immutable-inputs/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "bytes": 192619,
+      "sha256": "8050f1a81d593d14363efaf91cf0e2088bc685a8e0e48b7c35cbd8f29c1f9def"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "copied_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/immutable-inputs/postimage/policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "bytes": 5641,
+      "sha256": "b8a793867ae61d5d249d47e108fab66874951cda7644f5dd5a32b81b18de51b8"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/tests/unit/foundry/uncertainty/test_covariance_facade.py",
+      "copied_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/immutable-inputs/postimage/policy-engine/tests/unit/foundry/uncertainty/test_covariance_facade.py",
+      "bytes": 5316,
+      "sha256": "463dc5b879e0edf4a6f898e50715b1902faadc9182550dff1786a37db427b938"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage-manifest.json",
+      "copied_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/immutable-inputs/postimage-manifest.json",
+      "bytes": 4875,
+      "sha256": "41beb0865aa3b2a1767a070a2e5a1bf60bcdd10c0ba046c10bcaa2237e4485f2"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/owned-facade-route.patch",
+      "copied_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/immutable-inputs/owned-facade-route.patch",
+      "bytes": 27897,
+      "sha256": "ed474d8a61cc5edeff3f195044cd9d095282b72d51b56e1eb0fb74e48ef572b7"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/collector-generator.json",
+      "copied_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/immutable-inputs/collector-generator.json",
+      "bytes": 14434,
+      "sha256": "f9429dd453835f4bd54df9cc5345022ae4a34c4055e5d5eec3fe4a485c12e4d9"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/style-receipt.json",
+      "copied_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/immutable-inputs/style-receipt.json",
+      "bytes": 5895,
+      "sha256": "9d9efb46380bdcd80f450aeab367ae60c6d79972f3734aea894e106049272c45"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/generate_and_collect.py",
+      "copied_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/immutable-inputs/generate_and_collect.py",
+      "bytes": 10414,
+      "sha256": "d63ff657ac048cbc9093fe91a9d6398ace07733cf8ad9e821d3fe5737679095b"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/overlay.json",
+      "copied_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/immutable-inputs/overlay.json",
+      "bytes": 1123,
+      "sha256": "3e9a731aee47983a2f610e80e45d2c748d69d25d4690bad2a116cbe068787ed0"
+    }
+  ],
+  "total_bytes": 685401
+}

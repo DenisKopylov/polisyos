@@ -1,0 +1,35 @@
+"""Freeze only moderate review records; original Git evidence stays reference-bound."""
+from pathlib import Path
+import copy
+import hashlib
+import json
+
+ROOT=Path(__file__).parent
+identity=lambda p:dict(bytes=p.stat().st_size,sha256=hashlib.sha256(p.read_bytes()).hexdigest())
+review=json.loads((ROOT/'review.json').read_text())
+assert review['verdict']=='GO-bounded-new-test-and-moderate-evidence-delta'
+assert review['delta_paths']==68 and review['production_source_config_release_surface_changes']==0
+assert len(review['independent_corrupt_field_controls'])==4
+assert all(row['outcome']=='REFUSED' for row in review['independent_corrupt_field_controls'])
+assert (ROOT/'review.stderr').read_bytes()==b''
+names=['review_delta.py.txt','review.json','review.stdout','review.stderr','full-68-footprint.json','collector-source-Git-binding.json','initial-short-ref.stdout','initial-short-ref.stderr','freeze_index.py.txt']
+rows=[{'path':str(ROOT/name),**identity(ROOT/name)} for name in names]
+data={'schema':'policyos.e02.moderate-copy-index.v1','state':'READY','scope':'Immutable independent Gcheckpoint11 test/evidence delta review; no new wheel/product/gates or finding closure','primary':str(ROOT/'review.json'),'files':rows,'file_count':len(rows),'total_bytes':sum(row['bytes'] for row in rows),'index_self_excluded':True,'large_raw_wheel_census_or_production_payload_included':False}
+
+def validate(index):
+    assert len(index['files'])==index['file_count']
+    assert sum(row['bytes'] for row in index['files'])==index['total_bytes']
+    for row in index['files']:
+        assert identity(Path(row['path']))==dict(bytes=row['bytes'],sha256=row['sha256'])
+
+validate(data)
+for field,wrong in [('bytes',-1),('sha256','0'*64)]:
+    corrupted=copy.deepcopy(data)
+    corrupted['files'][0][field]=wrong
+    try:
+        validate(corrupted)
+        raise RuntimeError('index corrupt field accepted')
+    except AssertionError:
+        pass
+(ROOT/'copy-index.json').write_text(json.dumps(data,indent=2)+'\n')
+print(json.dumps({'state':'READY','files':len(rows),'bytes':data['total_bytes'],'index':identity(ROOT/'copy-index.json'),'primary':identity(ROOT/'review.json'),'corrupt_index_fields':'bytes/hash REFUSED'}))

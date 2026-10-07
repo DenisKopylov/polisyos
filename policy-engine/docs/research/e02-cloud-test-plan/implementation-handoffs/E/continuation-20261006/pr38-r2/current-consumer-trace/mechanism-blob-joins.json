@@ -1,0 +1,156 @@
+[
+  {
+    "family": "BKT",
+    "path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+    "review_source": "0983d064df3c3e21f8b1accff4ee90484d78973b",
+    "current_source": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+    "review_blob": "c633f081a4ea6b5b242e670aca831bf46213c5bc",
+    "current_blob": "c633f081a4ea6b5b242e670aca831bf46213c5bc",
+    "sha256": "c334d79aa079f0fc61fde33554e12ae24849495860a74134630fcafe360c24e9",
+    "bytes": 26958,
+    "exact_bytes_unchanged": true
+  },
+  {
+    "family": "BKT",
+    "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+    "review_source": "0983d064df3c3e21f8b1accff4ee90484d78973b",
+    "current_source": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+    "review_blob": "ff4d436808dee6e56a79a15abda5c6c6cd49c444",
+    "current_blob": "ff4d436808dee6e56a79a15abda5c6c6cd49c444",
+    "sha256": "8969a05db324abd9b65d58f58333a221f171f1074b027ce3ab01eeb0399675e2",
+    "bytes": 57679,
+    "exact_bytes_unchanged": true
+  },
+  {
+    "family": "BKT",
+    "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_simulation.py",
+    "review_source": "0983d064df3c3e21f8b1accff4ee90484d78973b",
+    "current_source": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+    "review_blob": "79367fe7a9d8cc1ae0a5199318691915de113d6b",
+    "current_blob": "79367fe7a9d8cc1ae0a5199318691915de113d6b",
+    "sha256": "f8e601bc9a8aedd148c910712afa4658043c8e1f00178fa46c8c68bef112994b",
+    "bytes": 29327,
+    "exact_bytes_unchanged": true
+  },
+  {
+    "family": "BKT",
+    "path": "policy-engine/src/polisyos/scientist/methods/backtesting/plan.py",
+    "review_source": "0983d064df3c3e21f8b1accff4ee90484d78973b",
+    "current_source": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+    "review_blob": "3c15ed02a28c6258d452e8fabb7174ad5909057b",
+    "current_blob": "3c15ed02a28c6258d452e8fabb7174ad5909057b",
+    "sha256": "4e68219b6f8e3e5a6d3f9e921662b773757e732a822df27cb333150bde624fce",
+    "bytes": 3937,
+    "exact_bytes_unchanged": true
+  },
+  {
+    "family": "BKT",
+    "path": "policy-engine/src/polisyos/scientist/methods/backtesting/evaluator.py",
+    "review_source": "0983d064df3c3e21f8b1accff4ee90484d78973b",
+    "current_source": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+    "review_blob": "2820084a2107eb82e991ebd777c730a23683128c",
+    "current_blob": "2820084a2107eb82e991ebd777c730a23683128c",
+    "sha256": "da7aa8f51262450c62cf562b8b690112333893014d5d884873c12d8cc2bd3d8c",
+    "bytes": 9364,
+    "exact_bytes_unchanged": true
+  },
+  {
+    "family": "BKT",
+    "path": "policy-engine/src/polisyos/ir/analytics/backtest.py",
+    "review_source": "0983d064df3c3e21f8b1accff4ee90484d78973b",
+    "current_source": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+    "review_blob": "26b15390105b5c478824f899754af9a0f6bc64d8",
+    "current_blob": "26b15390105b5c478824f899754af9a0f6bc64d8",
+    "sha256": "d1a0ee6fd24077f63cd0ba81f745df1ac4c6831cd8e7a68e9aeae6bc5f6cb80c",
+    "bytes": 10339,
+    "exact_bytes_unchanged": true
+  },
+  {
+    "family": "PCL",
+    "path": "policy-engine/src/polisyos/foundry/execute/_internal/graph/__init__.py",
+    "review_source": "74b26eb067dea76d90b134641e66537759e4dc0f",
+    "current_source": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+    "review_blob": "8d22828e23a0a26817be0943022b5b99e7bf03a4",
+    "current_blob": "8d22828e23a0a26817be0943022b5b99e7bf03a4",
+    "sha256": "93f563291d569fbb22c36ca47cf9abb2b6478565bd81b390cb9c44d6521a76b8",
+    "bytes": 42347,
+    "exact_bytes_unchanged": true
+  },
+  {
+    "family": "PCL",
+    "path": "policy-engine/src/polisyos/foundry/methods/backends/numpy_runner.py",
+    "review_source": "74b26eb067dea76d90b134641e66537759e4dc0f",
+    "current_source": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+    "review_blob": "dc9c56e70e15b8c3b09329c0df23059a4b6501ab",
+    "current_blob": "dc9c56e70e15b8c3b09329c0df23059a4b6501ab",
+    "sha256": "e7fdf9ed774330ab9d89290370d1bb93ab604eeec3d69592c9906f1ac78f7e8e",
+    "bytes": 5418,
+    "exact_bytes_unchanged": true
+  },
+  {
+    "family": "PCL",
+    "path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+    "review_source": "74b26eb067dea76d90b134641e66537759e4dc0f",
+    "current_source": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+    "review_blob": "7ca3d5b6637a7677fc54a4e178262dd0fcf0e081",
+    "current_blob": "7ca3d5b6637a7677fc54a4e178262dd0fcf0e081",
+    "sha256": "66fc76228ba02f1469cae40b33f64ac504845d72451ad6d0668c27a3cdadf9c3",
+    "bytes": 90744,
+    "exact_bytes_unchanged": true
+  },
+  {
+    "family": "PCL",
+    "path": "policy-engine/src/polisyos/calibration/continuous.py",
+    "review_source": "74b26eb067dea76d90b134641e66537759e4dc0f",
+    "current_source": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+    "review_blob": "53008144d8bc4c903392cdd80db14f734496208e",
+    "current_blob": "53008144d8bc4c903392cdd80db14f734496208e",
+    "sha256": "309608a01361ece0894c8981b40144a18258b858fdb21033f23156d6673bc032",
+    "bytes": 22899,
+    "exact_bytes_unchanged": true
+  },
+  {
+    "family": "FRC",
+    "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+    "review_source": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+    "current_source": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+    "review_blob": "a9c668bfde25542e1cf788230f7229d33617dc9c",
+    "current_blob": "a9c668bfde25542e1cf788230f7229d33617dc9c",
+    "sha256": "c99a5b3402e4da8d4030976bcd961ba1a287ab86f656e1436ae8a85c012eb0b3",
+    "bytes": 59611,
+    "exact_bytes_unchanged": true
+  },
+  {
+    "family": "FRC",
+    "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+    "review_source": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+    "current_source": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+    "review_blob": "b3bce8ce42df233d434196fafdca31225e949c18",
+    "current_blob": "b3bce8ce42df233d434196fafdca31225e949c18",
+    "sha256": "274ebed54ea54eaa1fee1d1da0355dc7df3c0abcfd27adda1b9066e7437e43c6",
+    "bytes": 81721,
+    "exact_bytes_unchanged": true
+  },
+  {
+    "family": "FRC",
+    "path": "policy-engine/src/polisyos/foundry/methods/catalog/forecasting/advanced.py",
+    "review_source": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+    "current_source": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+    "review_blob": "31d980504edd463b252e63f1f440911231528518",
+    "current_blob": "31d980504edd463b252e63f1f440911231528518",
+    "sha256": "f03abbcaae152a37146816b8fded773a8ecd924a13ecdf87832fd53dbd55d584",
+    "bytes": 17802,
+    "exact_bytes_unchanged": true
+  },
+  {
+    "family": "FRC",
+    "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+    "review_source": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+    "current_source": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+    "review_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+    "current_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+    "sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44",
+    "bytes": 578822,
+    "exact_bytes_unchanged": true
+  }
+]

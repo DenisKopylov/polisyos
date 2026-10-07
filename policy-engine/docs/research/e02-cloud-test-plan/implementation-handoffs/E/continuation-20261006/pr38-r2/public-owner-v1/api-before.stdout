@@ -1,0 +1,49 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/api_probe.py", line 24, in <module>
+    ref=store.put_json(payload,art.PutOptions(kind='e02.facade-oracle',media_type='application/json',schema=art.SchemaInfo(name='e02.FacadeOracle',version='1.0.0')))
+  File "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/fixture-current/policy-engine/src/polisyos/core/artifacts/store.py", line 2460, in put_json
+    data = to_canonical_bytes(obj, canon_spec)
+  File "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/fixture-current/policy-engine/src/polisyos/core/canon/canon_json.py", line 40, in to_canonical_bytes
+    return _to_canonical_bytes(
+        obj,
+    ...<2 lines>...
+        canonical_types=_CANONICAL_TYPES,
+    )
+  File "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/fixture-current/policy-engine/src/polisyos/common/canonical.py", line 232, in to_canonical_bytes
+    canon_obj = _canonicalize_obj(
+        obj,
+    ...<2 lines>...
+        canonical_types=canonical_types,
+    )
+  File "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/fixture-current/policy-engine/src/polisyos/common/canonical.py", line 200, in _canonicalize_obj
+    return _canonicalize_mapping(
+        obj,
+    ...<3 lines>...
+        canonical_types=canonical_types,
+    )
+  File "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/fixture-current/policy-engine/src/polisyos/common/canonical.py", line 108, in _canonicalize_mapping
+    out[key] = _canonicalize_obj(
+               ~~~~~~~~~~~~~~~~~^
+        value,
+        ^^^^^^
+    ...<3 lines>...
+        canonical_types=canonical_types,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/fixture-current/policy-engine/src/polisyos/common/canonical.py", line 210, in _canonicalize_obj
+    _canonicalize_obj(
+    ~~~~~~~~~~~~~~~~~^
+        item,
+        ^^^^^
+    ...<3 lines>...
+        canonical_types=canonical_types,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/fixture-current/policy-engine/src/polisyos/common/canonical.py", line 193, in _canonicalize_obj
+    _raise_violation(violation_type, "float forbidden in canonical JSON")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/fixture-current/policy-engine/src/polisyos/common/canonical.py", line 67, in _raise_violation
+    raise violation_type(message)
+polisyos.core.canon.canon_json.CanonViolation: float forbidden in canonical JSON

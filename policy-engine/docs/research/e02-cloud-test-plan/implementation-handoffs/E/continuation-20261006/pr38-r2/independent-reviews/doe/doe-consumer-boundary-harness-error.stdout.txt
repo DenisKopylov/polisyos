@@ -1,0 +1,36 @@
+{"case": "default_codec_admits_base_refuses_decorator_metadata", "outcome": "OBSERVED_OWNER_RESIDUAL", "detail": {"type": "ValidationError", "message": "1 validation error for MutationArtifact\n_sensitivity\n  Extra inputs are not permitted [type=extra_forbidden, input_value={'ranking': ['z', 'x'], '...tus': 'not_established'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden"}}
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe_consumer_boundary.py", line 46, in <module>
+    plan=SensitivityPlan.model_validate(payload['plan'])
+  File "/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py", line 716, in model_validate
+    return cls.__pydantic_validator__.validate_python(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        obj,
+        ^^^^
+    ...<5 lines>...
+        by_name=by_name,
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+pydantic_core._pydantic_core.ValidationError: 7 validation errors for SensitivityPlan
+parameter_specs.0.lower_bound
+  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '0'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/float_type
+parameter_specs.0.upper_bound
+  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/float_type
+parameter_specs.1.lower_bound
+  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '0'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/float_type
+parameter_specs.1.upper_bound
+  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/float_type
+confidence_level
+  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '0.94999999999999996'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/float_type
+min_success_rate
+  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '0.90000000000000002'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/float_type
+uncertainty.level
+  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '0.94999999999999996'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/float_type

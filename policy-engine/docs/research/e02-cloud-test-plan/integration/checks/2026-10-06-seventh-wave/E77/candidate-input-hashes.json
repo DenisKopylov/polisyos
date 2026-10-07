@@ -1,0 +1,15 @@
+{
+  "candidate": "70c4a14fc872f5ef66437d958ba63884ecdda168",
+  "tree": "3e654b07a3228d1b3d2d0bb2a3a91ae792068090",
+  "archive_sha256_before": "93accd8d4582e6958c6a30d3c376caae16ecca0fa4342efc7cc01f938b458bb9",
+  "archive_sha256_after": "93accd8d4582e6958c6a30d3c376caae16ecca0fa4342efc7cc01f938b458bb9",
+  "archive_unchanged": true,
+  "tracked_file_count_before": 2946,
+  "tracked_file_count_after": 2946,
+  "tracked_payload_bytes_before": 55497795,
+  "tracked_payload_bytes_after": 55497795,
+  "all_blob_sha1_and_sha256_unchanged": true,
+  "manifest_sha256_before": "678bedbc6838f509cbe0afcadad64e77a0f80a5d55a5d728ffac35882aff71ee",
+  "manifest_sha256_after": "678bedbc6838f509cbe0afcadad64e77a0f80a5d55a5d728ffac35882aff71ee",
+  "manifests_match": true
+}

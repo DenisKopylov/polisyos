@@ -1,0 +1,206 @@
+[
+  {
+    "cell": null,
+    "code": "N817",
+    "end_location": {
+      "column": 41,
+      "row": 17
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 24,
+      "row": 17
+    },
+    "message": "CamelCase `ElementTree` imported as acronym `ET`",
+    "noqa_row": 17,
+    "url": "https://docs.astral.sh/ruff/rules/camelcase-imported-as-acronym"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 103,
+      "row": 175
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 175
+    },
+    "message": "Line too long (102 > 100)",
+    "noqa_row": 175,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 104,
+      "row": 205
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 205
+    },
+    "message": "Line too long (103 > 100)",
+    "noqa_row": 205,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 116,
+      "row": 387
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 387
+    },
+    "message": "Line too long (115 > 100)",
+    "noqa_row": 387,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 117,
+      "row": 601
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 601
+    },
+    "message": "Line too long (116 > 100)",
+    "noqa_row": 601,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 103,
+      "row": 610
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 610
+    },
+    "message": "Line too long (102 > 100)",
+    "noqa_row": 610,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 102,
+      "row": 809
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 809
+    },
+    "message": "Line too long (101 > 100)",
+    "noqa_row": 809,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 117,
+      "row": 982
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 982
+    },
+    "message": "Line too long (116 > 100)",
+    "noqa_row": 982,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 115,
+      "row": 988
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 988
+    },
+    "message": "Line too long (114 > 100)",
+    "noqa_row": 988,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 102,
+      "row": 1112
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 1112
+    },
+    "message": "Line too long (101 > 100)",
+    "noqa_row": 1112,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "N817",
+    "end_location": {
+      "column": 41,
+      "row": 22
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/validate.py",
+    "fix": null,
+    "location": {
+      "column": 24,
+      "row": 22
+    },
+    "message": "CamelCase `ElementTree` imported as acronym `ET`",
+    "noqa_row": 22,
+    "url": "https://docs.astral.sh/ruff/rules/camelcase-imported-as-acronym"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 181,
+      "row": 91
+    },
+    "filename": "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/validate.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 91
+    },
+    "message": "Line too long (180 > 100)",
+    "noqa_row": 91,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  }
+]

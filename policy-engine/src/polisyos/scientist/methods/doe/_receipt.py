@@ -8,7 +8,7 @@ import numpy as np
 from pydantic import BaseModel, ConfigDict
 
 from .analysis import _analysis_identity, analyze_sensitivity
-from .designs import SensitivityPlan, SensitivityResult
+from .designs import SensitivityPlan, SensitivityResult, _admit_sensitivity_plan
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts import ArtifactRef, ArtifactStore
@@ -42,6 +42,7 @@ def _persist_analysis(
     result: SensitivityResult,
 ) -> ArtifactRef:
     """Persist complete rows, preserving each nonfinite outcome without dropping it."""
+    plan = _admit_sensitivity_plan(plan)
     from polisyos.core.artifacts import ArtifactWriteOptions, SchemaInfo
     from polisyos.core.canon import CanonSpec
 

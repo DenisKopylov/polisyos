@@ -1,0 +1,21 @@
+{
+  "candidate": "577521c6651bba048d6bdfdc13f36a383c8146c6",
+  "candidate_tree": "1e8820533c48ec88355f2a2fccba486f279c2a4b",
+  "accepted_merge": "9c989f7877bd25fea38416cbd10d4c8b2511d10e",
+  "accepted_tree": "12b0155a2166a932e243ad14117890c8f1e90005",
+  "original_commits": [
+    "5650b7aed7991606d62cd8510b377698a778ce39",
+    "43644bb6d80831890f18bd696a560f23688867ab",
+    "577521c6651bba048d6bdfdc13f36a383c8146c6"
+  ],
+  "complete_changed_path_denominator": 15,
+  "changed_test_paths": 1,
+  "handoff_evidence_companions": 14,
+  "all_changed_blobs_equal_after_merge": true,
+  "wheel_all_python_entries": 3143,
+  "all_python_entries_exact_candidate_git_bytes": true,
+  "wheel_sha256": "c1d20a264ced1691f0cdfdf89c5727bc152269a989be40ba352357d9abab8f27",
+  "installed_package_python_file_count": 2698,
+  "loaded_module_count": "not equated with wheel/package file count",
+  "predicate_basis": "independently_reconciled"
+}

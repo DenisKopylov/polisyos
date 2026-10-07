@@ -1,0 +1,98 @@
+[
+  {
+    "path": "raw/pcl-continuous-persistence.git-config-private.nul",
+    "bytes": 5288,
+    "sha256": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+    "publication": "private_excluded_hash_size_only"
+  },
+  {
+    "path": "raw/ddm-runtime-and-facade.git-config-private.nul",
+    "bytes": 5288,
+    "sha256": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+    "publication": "private_excluded_hash_size_only"
+  },
+  {
+    "path": "raw/bkt-frc-s10-and-adjacent-report-consumers.git-config-private.nul",
+    "bytes": 5288,
+    "sha256": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+    "publication": "private_excluded_hash_size_only"
+  },
+  {
+    "path": "raw/cal-and-welfare-consumer.git-config-private.nul",
+    "bytes": 5288,
+    "sha256": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+    "publication": "private_excluded_hash_size_only"
+  },
+  {
+    "path": "raw/mc-joint-law-support-and-scientist-consumer.git-config-private.nul",
+    "bytes": 5288,
+    "sha256": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+    "publication": "private_excluded_hash_size_only"
+  },
+  {
+    "path": "raw/doe-salib-and-consumer-factory.git-config-private.nul",
+    "bytes": 5288,
+    "sha256": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+    "publication": "private_excluded_hash_size_only"
+  },
+  {
+    "path": "raw/g-checkpoint10-controlplanestore-companion.git-config-private.nul",
+    "bytes": 5288,
+    "sha256": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+    "publication": "private_excluded_hash_size_only"
+  },
+  {
+    "path": "raw/results-importer.git-config-private.nul",
+    "bytes": 5288,
+    "sha256": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+    "publication": "private_excluded_hash_size_only"
+  },
+  {
+    "path": "raw/architecture.git-config-private.nul",
+    "bytes": 5288,
+    "sha256": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+    "publication": "private_excluded_hash_size_only"
+  },
+  {
+    "path": "raw/runtime-api-contract.git-config-private.nul",
+    "bytes": 5288,
+    "sha256": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+    "publication": "private_excluded_hash_size_only"
+  },
+  {
+    "path": "raw/static-invocation.git-config-private.nul",
+    "bytes": 5288,
+    "sha256": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+    "publication": "private_excluded_hash_size_only"
+  },
+  {
+    "path": "raw/ruff.git-config-private.nul",
+    "bytes": 5288,
+    "sha256": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+    "publication": "private_excluded_hash_size_only"
+  },
+  {
+    "path": "raw/ruff-format.git-config-private.nul",
+    "bytes": 5288,
+    "sha256": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+    "publication": "private_excluded_hash_size_only"
+  },
+  {
+    "path": "raw/workspace-verify.git-config-private.nul",
+    "bytes": 5288,
+    "sha256": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+    "publication": "private_excluded_hash_size_only"
+  },
+  {
+    "path": "raw/ci-parity.git-config-private.nul",
+    "bytes": 5288,
+    "sha256": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+    "publication": "private_excluded_hash_size_only"
+  },
+  {
+    "path": "raw/production-invocation.raw.json",
+    "bytes": 171772803,
+    "sha256": "404cdb1543a96433016ca3880c3d557e2d027f9fa62060be40d9b8e266b16fbd",
+    "publication": "large_raw_excluded_no_repeated_dump"
+  }
+]

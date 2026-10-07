@@ -1,0 +1,47 @@
+{
+  "schema": "policyos.e02.wave_preparation.v1",
+  "execution_state": "NOT_RUN",
+  "observed_head": "ec042402ec91fbdcb51006852e29fe67f38d9452",
+  "old_source": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+  "old_paths": 110,
+  "inventory": {
+    "bundles": 22,
+    "findings": 54,
+    "id_to_bundle_links": 55
+  },
+  "required_additions": {
+    "PCL_continuous_persistence": [
+      "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "policy-engine/tests/unit/foundry/methods/catalog/econometrics/test_advanced_persistence.py"
+    ],
+    "DDM_runtime_and_facade": [
+      "policy-engine/tests/unit/ddm/test_registry_schema_compatibility.py"
+    ],
+    "BKT_FRC_S10_and_adjacent_report_consumers": [
+      "policy-engine/tests/unit/scientist/methods/backtesting/test_native_replay.py"
+    ],
+    "CAL_and_welfare_consumer": [
+      "policy-engine/tests/unit/foundry/calibration/test_gaussian_noise_preflight.py",
+      "policy-engine/tests/unit/scientist/nodes/test_calibration_report_consumer.py",
+      "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py"
+    ],
+    "MC_joint_law_support_and_Scientist_consumer": [
+      "policy-engine/tests/unit/foundry/uncertainty/test_finite_empirical_law.py",
+      "policy-engine/tests/unit/foundry/uncertainty/test_sampling_real_domain.py"
+    ],
+    "DOE_SALib_and_consumer_factory": [],
+    "G_checkpoint10_ControlPlaneStore_companion": [
+      "policy-engine/tests/unit/runtime/http/test_control_plane_store.py"
+    ]
+  },
+  "required_upstream": {
+    "G_checkpoint10": "6f869f39d04deaff7eda9b9047848912605beca5",
+    "B197_legacy_consumer": "1e942ff624ae7cb6c71227d48eef760687e17d2b",
+    "Welfare_law_source": "884681db485b7466b183a206f83bbe0635f86ca3"
+  },
+  "original_groups_file": "original-wave-groups.json",
+  "default_comparison_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "delta_selection_base": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+  "resources": "No process/thread/CPU caps; seven isolated pytest groups in parallel, not an artificial worker quota. The groups partition families and one foreign companion. Mutable generator/workspace/frontend build outputs serial only.",
+  "new_modules": "9 E additions including the current root sampling-real-domain module, plus one foreign ControlPlaneStore companion: proposed120 native paths once every requirement is tracked in final candidate. Actual case count comes from final JUnit, not AST/old1125."
+}

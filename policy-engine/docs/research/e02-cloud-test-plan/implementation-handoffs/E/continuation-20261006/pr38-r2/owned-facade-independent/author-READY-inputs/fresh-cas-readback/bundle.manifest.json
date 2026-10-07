@@ -1,0 +1,63 @@
+{
+  "manifest_schema_version": "v3",
+  "artifact_id": "sha256:38f67f84f4003581229dedb5d725e1716834aac200857740fcc104cb808ca12f",
+  "kind": "ir.welfare_bundle",
+  "media_type": "application/json",
+  "byte_size": 3396,
+  "created_at": "2026-10-06T17:01:12Z",
+  "schema": {
+    "name": "ir.welfare_bundle",
+    "version": "1.0"
+  },
+  "canon": {
+    "name": "polisyos.canon.json",
+    "version": "0.2.0",
+    "forbid_floats": false,
+    "forbid_nan_inf": true,
+    "exclude_none": true,
+    "max_depth": 128,
+    "sort_keys": true,
+    "separators": [
+      ",",
+      ":"
+    ],
+    "ensure_ascii": false
+  },
+  "inputs": [
+    {
+      "artifact_id": "sha256:f100f1df9ebb175fd851ad373d144135d9ba341e887b561ed8517104bab54e81",
+      "role": "simulation_result"
+    },
+    {
+      "artifact_id": "sha256:f0e1987790c051536cc1538b46dbb7f5d8103e1b6bfdef1c2a4bd936a51efed8",
+      "role": "metrics"
+    },
+    {
+      "artifact_id": "sha256:df386975b61e2f3c398e84cbed449e89f0a4a1e31b089cbc4b4a1503034f5102",
+      "role": "method_config"
+    },
+    {
+      "artifact_id": "sha256:d6edee3d85af188f67eeef4a95b133fa4f200d13fd386359e18429fa543ffd08",
+      "role": "propagation_report"
+    },
+    {
+      "artifact_id": "sha256:e7c8fc2c5ed05a7548c426391100b64284ce6722cc5d6551fff3cee208a006c6",
+      "role": "sample_bundle"
+    },
+    {
+      "artifact_id": "sha256:a40ad3151adf479c363611f2786d822b1c0a5efb804034ee3bf1614ab8d59bad",
+      "role": "sensitivity_diagnostics"
+    }
+  ],
+  "producer": null,
+  "env": null,
+  "governance": null,
+  "tenant_context": null,
+  "same_input_closure": null,
+  "authority": null,
+  "integrity": {
+    "sha256": "38f67f84f4003581229dedb5d725e1716834aac200857740fcc104cb808ca12f",
+    "optional": null
+  },
+  "warnings": []
+}

@@ -1,0 +1,29 @@
+{
+  "scope": "Authoractualcurrentwave ownerresults, fullmoderateoutputs referencedonce; not independentselfGO",
+  "primary": "actual-owner-results.json",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 908,
+      "sha256": "22a44c7b0a13352f73b95393387248767ecbd5f67fe42e0f29783aa5062cecc5"
+    },
+    {
+      "path": "actual-owner-results.json",
+      "bytes": 15961,
+      "sha256": "5e18597cb2c8ceba4f57edd7d78580a9e4e8c529671494fda19a0a7b3c16c862"
+    },
+    {
+      "path": "collector-execution.json",
+      "bytes": 2134,
+      "sha256": "34ff23086933ec230f0f5a1a154bf3a776d8160db3d5a018ad87324becb0fda3"
+    },
+    {
+      "path": "four-actual-A-FRC-failures.json",
+      "bytes": 11750,
+      "sha256": "2e4fa91a8a6f855bb5b0df740f020e069fe6ccf2d0bc3afcb96edf5c95e158d6"
+    }
+  ],
+  "file_count": 4,
+  "total_bytes": 30753,
+  "index_self_excluded": true
+}

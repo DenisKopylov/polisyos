@@ -1,0 +1,48 @@
+{
+  "schema": "e02.E.implementation-handoff.v1",
+  "unit": "E",
+  "slice": "common-public-evidence-role-admission",
+  "base_sha": "7dad1566e9bd289aa1385b149bfcb0bfaef60bf1",
+  "base_tree": "fa0ca51853325f98dc73714f48b80b7c238c7f20",
+  "candidate_sha": "2f7e7e12516dd98678903c5b4a89553a28b08608",
+  "candidate_tree": "5e7aa365c72665bf2a6d5ab07fde86a72a85475f",
+  "diff_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/README.md"
+  ],
+  "source_bytes": 38197,
+  "source_sha256": "faecae68f9eecc741e12ae1469fcd57faad11a9facb747f2430762da1758f9fc",
+  "companions": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v3-author/portable-copy-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v4-author/portable-copy-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v4-independent/portable-copy-index.json"
+  ],
+  "property_path": "All public copies require canonical role/path admission before copying; full source components retain raw/private roles even when an external freeze receipt changes the admitted parent. Exact module/file/anonymous-source matching binds A packet outcomes; contradictions remain unattributed/non-complete.",
+  "predicate_basis": "P37 frozen: complete evidence denominator/source identity/raw-private custody is distinct from check outcome/authority; P40 common admission across stdout/receipt/JUnit/owner-packet/freeze roles fixes repeated role escapes, not backend-local exceptions.",
+  "independent_oracle": "Independent DoE actual v2/v3 escapes; v4 AST differs from v3 only public_evidence role predicate, rest exact. Canonical/external standalone positives and actual5e frozen metadata admission preserved.",
+  "negative_controls": {
+    "prior_v3_controls_reused": 14,
+    "common_role_refusals": 25,
+    "external_symlink_refusals": 2,
+    "effective_role_predicate_removals": 2,
+    "corrupt_index_hash_size": "REFUSED"
+  },
+  "commands_outputs_environment": {
+    "author": "collector-v4-author/repair-receipt-v4.json",
+    "independent": "collector-v4-independent/review.json",
+    "full_moderate_assets": "All exact author/index/source/control/stdout/code bytes portable-indexed; real private/raw payloads excluded.",
+    "scope": "Synthetic custody fixtures and read-only actual first-attempt custody; no numerical/gate replay",
+    "configured_source_ruff_format": "PASS bounded exact source commands; global lint/gates remain separate"
+  },
+  "source_Git_binding": "Exact git show candidate:path38197B equals independently frozenfaec source; no claim oldprotocol executions happened on newGit SHA",
+  "code_review": "GO bounded independent DoE; authorFRC not reviewer",
+  "finding_closure_ratified": false,
+  "historical_states": "v2HOLD(valid-hashprivate stdout/substring attribution), v3HOLD(externalfreeze parentrole), actual5e custodyGO and failed1086/3/351 preserved separately",
+  "limitations": [
+    "Collector completeness binds measurements; it is not native numerical PASS, fullCI PASS, verifier authority or finding closure.",
+    "Source-bound historical evidence lint debt remains actualFAIL and is independently classified; no scope waiver.",
+    "Large raw/private Gitconfig identities stay ignored; moderate deciding outputs and source references are inGit."
+  ],
+  "next_owner": "RootE binds complete source delta and all independent reviews, publishes checkpoint, freezes distinctnewcandidate and runs one corrected common wave; CAL independently audits fresh actual inputs/outputs; PCL finalall54, DDM closeout review; G integration/production checks separately.",
+  "cleanup": "No permanent deletion/no nativeTrash; exact repeatable candidates in original receipts, deferred while active users exist."
+}

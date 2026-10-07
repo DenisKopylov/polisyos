@@ -1,0 +1,18 @@
+{
+  "base": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+  "removed_owned_covariance_edge": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.foundry.uncertainty.covariance",
+  "new_cross_root_private_edges": [],
+  "postimage_counts": {
+    "Calibration": 29,
+    "Foundry uncertainty": 25,
+    "DDM": 17
+  },
+  "baseline_generated_bytes_exact": true,
+  "only_owned_entrypoint_JSON_changed": true,
+  "Welfare_non_import_AST_unchanged": true,
+  "exports_present_old_route_negative": {
+    "exports": 25,
+    "owned_covariance_edge_retained": true,
+    "outcome": "EXPECTED_FAIL_actual_collector"
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "schema": "e02.E.public-surface.owner-addendum.v1",
+  "source_sha": "c64b13aeaef11073bbdb2f9e52b30b6effae928d",
+  "previous_immutable_packet": "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/packet.json",
+  "unchanged_previous_owner_proposals": "Core/Foundry.execute options remain not_ratified/unapplied; prior source/behavioral oracle receipts reused",
+  "new_pending_edge": {
+    "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+    "target_module": "polisyos.foundry.calibration.report",
+    "symbols": [
+      "load_calibration_report"
+    ],
+    "status": "pending owner admission: new cross-root module edge",
+    "owner": "team-polisyos Foundry public API + team-architecture contract/inventory"
+  },
+  "IR_symbol_delta": {
+    "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+    "target_module": "polisyos.ir.analytics.uncertainty",
+    "symbols": [
+      "DistributionFamily",
+      "ParametricFitCarrier",
+      "PosteriorSamplesCarrier",
+      "UncertaintyEnvelope",
+      "load_uncertainty_envelope",
+      "persist_uncertainty_envelope"
+    ],
+    "status": "existing module edge; new ParametricFitCarrier symbol needs curated IR alias admission",
+    "owner": "team-polisyos IR public API + team-architecture inventory",
+    "already_available_in_admitted_facade": [
+      "DistributionFamily",
+      "UncertaintyEnvelope",
+      "load_uncertainty_envelope",
+      "persist_uncertainty_envelope"
+    ],
+    "not_curated": [
+      "ParametricFitCarrier",
+      "PosteriorSamplesCarrier"
+    ]
+  },
+  "owner_decisions": [
+    {
+      "owner": "team-polisyos IR library API + architecture generator owner",
+      "minimal_input": "Choose already-admitted ir.analytics vs ir root; admit ParametricFitCarrier in addition to prior PosteriorSamplesCarrier and forecast bundle loader/writer. Dynamic analytics __all__ metadata requires canonical generator fix if analytics chosen.",
+      "patches": [
+        "patches/ir-four-canonical-analytics-exports.patch",
+        "patches/ir-four-canonical-root-exports.patch"
+      ],
+      "next_verifiable_result": "Owner commit with canonical identity/actual fresh carrier and forecast bundle readback; E consumers rewired; canonical inventory/docs and architecture check. No B201/B202 wire semantics ratified."
+    },
+    {
+      "owner": "team-polisyos Foundry library API + architecture contract/inventory owner",
+      "minimal_input": "Admit narrow Foundry root aliases for existing Foundry-specific CalibrationReport/CalibrationCoordinateProjection/load_calibration_report OR explicitly admit existing Foundry calibration facade and export missing reader/projection there. Preserve distinction from polisyos.calibration.CalibrationReport.",
+      "patches": [
+        "patches/foundry-three-canonical-legacy-report-exports.patch"
+      ],
+      "next_verifiable_result": "Owner commit resolves strict Foundry report CAS reader through admitted entrypoint; rewire both Scientist actual consumers, fresh persisted report readback and wrong-kind/schema/scope negatives. Release/inventory/docs follow actual selected stable API."
+    }
+  ],
+  "patch_status": "reviewable only; no shared source/schema/contract patch applied",
+  "test_recipe": [
+    "Existing strict legacy B197 tests and independent CAL/native Welfare producer\u2192CAS\u2192consumer receipts validate implementation; after API admission run those actual callers through new facade and assert canonical object identities.",
+    "Run canonical guardrails sync --skip-deep-import-baseline into approved outputs, review exports and classification, then actual architecture guard over complete candidate. Do not sync deep-import baseline or broaden exceptions."
+  ],
+  "finding_authority": "B197 source fit/consumer and B201/B202 semantics remain independent; API admission cannot ratify authority",
+  "P41": "Global red provenance not_established: no exact old full command with whole denominator replay in this packet."
+}

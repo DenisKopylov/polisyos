@@ -1,0 +1,28 @@
+........F.                                                               [100%]
+=================================== FAILURES ===================================
+___________ test_actual_tied_calibrator_v2_reaches_fresh_legacy_node ___________
+
+tmp_path = PosixPath('/workspace/e02-E-pr38-r2-receipts/cal-reader-root-facade-temp/test_actual_tied_calibrator_v20')
+
+    def test_actual_tied_calibrator_v2_reaches_fresh_legacy_node(tmp_path):
+        from polisyos.core.canon import from_canonical_bytes
+        from polisyos.ir.analytics.uncertainty import PosteriorSamplesCarrier
+    
+>       helper = runpy.run_path(
+            "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py"
+        )
+
+policy-engine/tests/unit/scientist/nodes/test_calibration_report_consumer.py:202: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+<frozen runpy>:293: in run_path
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+fname = 'tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'
+
+>   ???
+E   FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-continuation-20261006/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'
+
+<frozen runpy>:261: FileNotFoundError
+=========================== short test summary info ============================
+FAILED policy-engine/tests/unit/scientist/nodes/test_calibration_report_consumer.py::test_actual_tied_calibrator_v2_reaches_fresh_legacy_node

@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 
 import numpy as np
 
-from .designs import SensitivityPlan, SensitivityResult
+from .designs import SensitivityPlan, SensitivityResult, _admit_sensitivity_plan
 
 
 @dataclass
@@ -62,6 +62,7 @@ class MultiOutputAnalyzer:
             Output array ``(n_samples, n_outputs)``.  If 1-D, treated as
             single-output fallback.
         """
+        plan = _admit_sensitivity_plan(plan)
         from .analysis import _prepare_analysis_inputs, analyze_sensitivity
 
         if outputs.ndim == 1:
@@ -111,9 +112,7 @@ class MultiOutputAnalyzer:
         # Analyze each component
         per_component: list[SensitivityResult] = []
         total_variance_explained = float(sum(variance_ratio))
-        variance_threshold_met = (
-            total_variance_explained + 1e-12 >= self._min_variance
-        )
+        variance_threshold_met = total_variance_explained + 1e-12 >= self._min_variance
         variance_threshold_status = "met" if variance_threshold_met else "unmet_limited"
         for i, pc_scores in enumerate(components):
             result = analyze_sensitivity(

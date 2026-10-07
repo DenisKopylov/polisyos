@@ -1,0 +1,44 @@
+[
+  {
+    "command": "UV_NO_SYNC=1 .venv/bin/python /workspace/e02-E-pr38-r2-receipts/public-surface-packet-r3/nonzero_support_independent_probe.py",
+    "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+    "exit_code": 0,
+    "stdout": "nonzero-support-independent.stdout",
+    "result": "nonzero-support-independent-probe.json"
+  },
+  {
+    "command": "UV_NO_SYNC=1 SUPPORT_REMOVAL_MODE=weights .venv/bin/python /workspace/e02-E-pr38-r2-receipts/public-surface-packet-r3/nonzero_support_independent_probe.py",
+    "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+    "exit_code": 1,
+    "expected_failure": true,
+    "stdout": "nonzero-support-removal-weights.stdout"
+  },
+  {
+    "command": "UV_NO_SYNC=1 SUPPORT_REMOVAL_MODE=pilot .venv/bin/python /workspace/e02-E-pr38-r2-receipts/public-surface-packet-r3/nonzero_support_independent_probe.py",
+    "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+    "exit_code": 1,
+    "expected_failure": true,
+    "stdout": "nonzero-support-removal-pilot.stdout"
+  },
+  {
+    "command": "UV_NO_SYNC=1 .venv/bin/python -m pytest -p no:cacheprovider -q tests/unit/foundry/uncertainty/test_sampling_real_domain.py --junitxml=/workspace/e02-E-pr38-r2-receipts/public-surface-packet-r3/nonzero-support-native.xml",
+    "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+    "exit_code": 0,
+    "stdout": "nonzero-support-native.stdout",
+    "junit": "nonzero-support-native.xml",
+    "actual_tests": 35
+  },
+  {
+    "command": "UV_NO_SYNC=1 .venv/bin/python /workspace/e02-E-pr38-r2-receipts/public-surface-packet-r3/native_mc_pinned5cd_probe.py",
+    "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+    "exit_code": 0,
+    "stdout": "native-mc-positive-5cd.stdout"
+  },
+  {
+    "command": "UV_NO_SYNC=1 REMOVE_CDF_GUARD=1 .venv/bin/python /workspace/e02-E-pr38-r2-receipts/public-surface-packet-r3/native_mc_pinned5cd_probe.py",
+    "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+    "exit_code": 1,
+    "expected_failure": true,
+    "stdout": "native-mc-removal-5cd.stdout"
+  }
+]

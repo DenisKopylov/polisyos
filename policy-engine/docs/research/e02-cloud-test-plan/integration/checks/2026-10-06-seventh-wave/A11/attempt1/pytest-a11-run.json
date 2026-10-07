@@ -1,0 +1,100 @@
+{
+  "command": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-vv",
+    "-p",
+    "e02_a11_observer",
+    "-o",
+    "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1910-A11-checks/outputs/attempt1/pytest-cache",
+    "--benchmark-storage=file:///Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1910-A11-checks/outputs/attempt1/benchmark-store",
+    "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1910-A11-checks/outputs/attempt1/basetemp",
+    "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1910-A11-checks/outputs/attempt1/a11.xml",
+    "tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1910-A11-checks/checkout/policy-engine",
+  "ended_at_utc": "2026-10-06T19:13:47.230958+00:00",
+  "exit_code": 2,
+  "generated_cap_stopped": false,
+  "generated_unique_bytes_at_end": 3605204,
+  "label": "pytest-a11",
+  "max_observed_process_tree_rss_kib": 905536,
+  "resource_samples": [
+    {
+      "elapsed_s": 0.0,
+      "generated_unique_bytes": 2789367,
+      "tree_rss_kib": 304
+    },
+    {
+      "elapsed_s": 1.02,
+      "generated_unique_bytes": 2790718,
+      "tree_rss_kib": 118080
+    },
+    {
+      "elapsed_s": 2.05,
+      "generated_unique_bytes": 2790718,
+      "tree_rss_kib": 260912
+    },
+    {
+      "elapsed_s": 3.07,
+      "generated_unique_bytes": 2790718,
+      "tree_rss_kib": 386704
+    },
+    {
+      "elapsed_s": 4.09,
+      "generated_unique_bytes": 2790718,
+      "tree_rss_kib": 483376
+    },
+    {
+      "elapsed_s": 5.11,
+      "generated_unique_bytes": 2790718,
+      "tree_rss_kib": 559520
+    },
+    {
+      "elapsed_s": 6.13,
+      "generated_unique_bytes": 2790718,
+      "tree_rss_kib": 623280
+    },
+    {
+      "elapsed_s": 7.15,
+      "generated_unique_bytes": 2790718,
+      "tree_rss_kib": 724256
+    },
+    {
+      "elapsed_s": 8.17,
+      "generated_unique_bytes": 2790718,
+      "tree_rss_kib": 810592
+    },
+    {
+      "elapsed_s": 9.2,
+      "generated_unique_bytes": 2790718,
+      "tree_rss_kib": 905536
+    },
+    {
+      "elapsed_s": 10.23,
+      "generated_unique_bytes": 3603577,
+      "tree_rss_kib": 904688
+    },
+    {
+      "elapsed_s": 11.25,
+      "generated_unique_bytes": 3605204,
+      "tree_rss_kib": 904704
+    },
+    {
+      "elapsed_s": 12.27,
+      "generated_unique_bytes": 3605204,
+      "tree_rss_kib": 896960
+    }
+  ],
+  "started_at_utc": "2026-10-06T19:13:33.936564+00:00",
+  "stderr_bytes": 0,
+  "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1910-A11-checks/outputs/attempt1/pytest.stderr.txt",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stdout_bytes": 2978,
+  "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1910-A11-checks/outputs/attempt1/pytest.stdout.txt",
+  "stdout_sha256": "92e5a09008e01870308b0080949000ce25155414c9862455fdc1ca803866a555",
+  "timed_out": false,
+  "timeout_seconds": 240,
+  "wall_seconds": 13.294
+}

@@ -1,0 +1,125 @@
+{
+  "schema": "e02.E.complete-portable-evidence.v1",
+  "primary_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v4-author/repair-receipt-v4.json",
+  "records": [
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v4-author/actual-standalone-admission.json",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/actual-standalone-admission.json",
+      "bytes": 764,
+      "sha256": "606ac27249893164a2c3c2ed8ec1a812d74d3e0d61849631e9cd350b1390fdcf"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v4-author/configured-collector-format.stderr.txt",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/configured-collector-format.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v4-author/configured-collector-format.stdout.txt",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/configured-collector-format.stdout.txt",
+      "bytes": 25,
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v4-author/configured-collector-ruff.stderr.txt",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/configured-collector-ruff.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v4-author/configured-collector-ruff.stdout.txt",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/configured-collector-ruff.stdout.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v4-author/freeze-controls.stderr.txt",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/freeze-controls.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v4-author/freeze-controls.stdout.txt",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/freeze-controls.stdout.txt",
+      "bytes": 1698,
+      "sha256": "f99f4edd217dc3f1bc7834a9939a269f0cdef292b8634957ee541a57b6449d9f"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v4-author/freeze-role-probe.json",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/freeze-role-probe.json",
+      "bytes": 1698,
+      "sha256": "f99f4edd217dc3f1bc7834a9939a269f0cdef292b8634957ee541a57b6449d9f"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v4-author/freeze_role_probe_v4.py.txt",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/freeze_role_probe_v4.py.txt",
+      "bytes": 3195,
+      "sha256": "74483fef3259bd8326994cfc021e283af3f3850aeb8e6491808f94399fc6df8a"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v4-author/full_source_role_guard_removed.py.txt",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/full_source_role_guard_removed.py.txt",
+      "bytes": 38152,
+      "sha256": "a6399cc46cbfe25b103fa210259eff2be9483f582ae7cba773632f079f7194ec"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v4-author/removal-controls.stderr.txt",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/removal-controls.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v4-author/removal-controls.stdout.txt",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/removal-controls.stdout.txt",
+      "bytes": 1061,
+      "sha256": "2a75e42dceca67c88c38163f106e3821a0986d2d6d4e13b8b53a51fd62c720ec"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v4-author/repair-receipt-v4.json",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/repair-receipt-v4.json",
+      "bytes": 7092,
+      "sha256": "4148d146935dc11ac2cfecda6759c83efcdcc0d9690cb8674c91a635cb12b91d"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v4-author/role-removal-probe.json",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/role-removal-probe.json",
+      "bytes": 1061,
+      "sha256": "2a75e42dceca67c88c38163f106e3821a0986d2d6d4e13b8b53a51fd62c720ec"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v4-author/role_removal_probe_v4.py.txt",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/role_removal_probe_v4.py.txt",
+      "bytes": 3168,
+      "sha256": "78eb020c52d4d095e81e885517317e289d8bb56e6cf5f45afffb9d3576a896ed"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v4-author/syntax.stdout.txt",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/syntax.stdout.txt",
+      "bytes": 101,
+      "sha256": "20a2a54a2ae55c7a0ad5c2e66df16e6a2c14ba87e22a07c2f974ec72a4f67202"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v4-author/v3-to-v4.diff.txt",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/v3-to-v4.diff.txt",
+      "bytes": 771,
+      "sha256": "b732069d44a93669eb889d5e63c9a71a6466662f3ebc63428b8c3dfdd97990e8"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v4-author/_external/common-wave-publication-prep/collect_wave_v4.py",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/collect_wave_v4.py",
+      "bytes": 38197,
+      "sha256": "faecae68f9eecc741e12ae1469fcd57faad11a9facb747f2430762da1758f9fc"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v4-author/copy-index.json",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/copy-index.json",
+      "bytes": 4308,
+      "sha256": "d380077d8e636ee33e92c8ed6343a9c59e938f0d1b350f4f1a99db976b751e42"
+    }
+  ],
+  "complete": true,
+  "copies": 19,
+  "bytes": 101310,
+  "raw_private_actual_payloads_copied": false,
+  "scope": "Historical v3 author/HOLD or reviewedv4 author/independent GO; no new numeric/gate/finding closure result"
+}

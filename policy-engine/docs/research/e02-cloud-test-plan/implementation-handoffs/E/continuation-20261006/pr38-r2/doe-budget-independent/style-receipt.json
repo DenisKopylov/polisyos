@@ -1,0 +1,68 @@
+{
+  "label": "style",
+  "base": "a2677935015e8a0e7f2dfd5412b671e13fb3175a",
+  "candidate": "70c4a14fc872f5ef66437d958ba63884ecdda168",
+  "tree": "3e654b07a3228d1b3d2d0bb2a3a91ae792068090",
+  "argv": [
+    "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/ruff",
+    "check",
+    "src/polisyos/scientist/methods/doe/designs.py",
+    "src/polisyos/scientist/methods/doe/sampling.py",
+    "src/polisyos/scientist/methods/doe/analysis.py",
+    "src/polisyos/scientist/methods/doe/_receipt.py",
+    "src/polisyos/scientist/methods/doe/adaptive.py",
+    "src/polisyos/scientist/methods/doe/multi_output.py",
+    "src/polisyos/scientist/methods/doe/stability.py",
+    "tests/unit/scientist/methods/doe/test_plan_runtime_admission.py"
+  ],
+  "cwd": "/workspace/e02-E-doe-20261006/policy-engine",
+  "exit_code": 0,
+  "wall_seconds": 0.16060547300730832,
+  "before": {
+    "head": "70c4a14fc872f5ef66437d958ba63884ecdda168",
+    "tree": "3e654b07a3228d1b3d2d0bb2a3a91ae792068090",
+    "source_count": 2915,
+    "source_digest": "f0c8d7b233dc683477e3d0c6ea837d6d9ec1c8ed97aaf6aca6655de1dc00e64b",
+    "frozen_source_delta": "",
+    "changed_source_sha256": {
+      "policy-engine/src/polisyos/scientist/methods/doe/README.md": "3a7772d33735eb262ed49896e3c8b36605b766a085a8d3d6824a4b8bca40e6b9",
+      "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py": "65dc3871e65eeaab30e1210efafc8dc184450783751d4ec2c9b9c584b5b92350",
+      "policy-engine/src/polisyos/scientist/methods/doe/adaptive.py": "fee7bcdd5ee5d980f89437a4f252d1c7f9e378cb0a3cc40848e56d88728b73e7",
+      "policy-engine/src/polisyos/scientist/methods/doe/analysis.py": "41ed0c540fd4b304455112261bded3797e2407bfc911d69ddf77ec152abafe60",
+      "policy-engine/src/polisyos/scientist/methods/doe/designs.py": "983304e49dda38688ea1f87e44775f67129fcf9337444c8458ef95ebaf04513c",
+      "policy-engine/src/polisyos/scientist/methods/doe/multi_output.py": "cc98dd394851a25da2c7b52855b9860c780b9cb5ff7886ed8dae23191549d19f",
+      "policy-engine/src/polisyos/scientist/methods/doe/sampling.py": "863384fc13da74d72d9bb7b5c4285c2103b2fc7f2a3895b6b6b383324515d574",
+      "policy-engine/src/polisyos/scientist/methods/doe/stability.py": "9f4c83b406703b9267973a88e1f3a9705481074e6357b01603632fe120c3cd32"
+    }
+  },
+  "after": {
+    "head": "70c4a14fc872f5ef66437d958ba63884ecdda168",
+    "tree": "3e654b07a3228d1b3d2d0bb2a3a91ae792068090",
+    "source_count": 2915,
+    "source_digest": "f0c8d7b233dc683477e3d0c6ea837d6d9ec1c8ed97aaf6aca6655de1dc00e64b",
+    "frozen_source_delta": "",
+    "changed_source_sha256": {
+      "policy-engine/src/polisyos/scientist/methods/doe/README.md": "3a7772d33735eb262ed49896e3c8b36605b766a085a8d3d6824a4b8bca40e6b9",
+      "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py": "65dc3871e65eeaab30e1210efafc8dc184450783751d4ec2c9b9c584b5b92350",
+      "policy-engine/src/polisyos/scientist/methods/doe/adaptive.py": "fee7bcdd5ee5d980f89437a4f252d1c7f9e378cb0a3cc40848e56d88728b73e7",
+      "policy-engine/src/polisyos/scientist/methods/doe/analysis.py": "41ed0c540fd4b304455112261bded3797e2407bfc911d69ddf77ec152abafe60",
+      "policy-engine/src/polisyos/scientist/methods/doe/designs.py": "983304e49dda38688ea1f87e44775f67129fcf9337444c8458ef95ebaf04513c",
+      "policy-engine/src/polisyos/scientist/methods/doe/multi_output.py": "cc98dd394851a25da2c7b52855b9860c780b9cb5ff7886ed8dae23191549d19f",
+      "policy-engine/src/polisyos/scientist/methods/doe/sampling.py": "863384fc13da74d72d9bb7b5c4285c2103b2fc7f2a3895b6b6b383324515d574",
+      "policy-engine/src/polisyos/scientist/methods/doe/stability.py": "9f4c83b406703b9267973a88e1f3a9705481074e6357b01603632fe120c3cd32"
+    }
+  },
+  "source_unchanged": true,
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-E-doe-20261006/policy-engine/src",
+    "UV_NO_SYNC": "1",
+    "OMP_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "XLA_FLAGS": null,
+    "REVIEW_OUTPUT": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-budget/style-origins-artifacts.json"
+  },
+  "wrapper_executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+  "wrapper_python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "stdout_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+}

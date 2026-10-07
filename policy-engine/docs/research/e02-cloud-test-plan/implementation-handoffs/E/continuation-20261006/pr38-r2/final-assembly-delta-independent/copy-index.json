@@ -1,0 +1,81 @@
+{
+  "schema": "e02.E.independent-final-assembly-portable-index.v1",
+  "primary": "independent-assembly-review-94d3.json",
+  "candidate": "94d3e6ee67b70a5ef4f71e529275aa7db0fddcde",
+  "tree": "2220bc48d1ccfd62310de0737c3be939c06d2d2f",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 4283,
+      "sha256": "7d4ea4bb286488a1523cf5e629d05a5627178f608511fa249c158f195b2c7326"
+    },
+    {
+      "path": "full-footprint-5e-to-94d3.json",
+      "bytes": 241154,
+      "sha256": "1c179775307725a7371b230f907b87e697a16da496e40c56369aa210ad1f52cb"
+    },
+    {
+      "path": "independent-assembly-review-94d3.json",
+      "bytes": 13248,
+      "sha256": "bc87f3d175bee92a534cd700c6f0b4b9578ad9a474e67b8e37073f6b1d494aa0"
+    },
+    {
+      "path": "negative-controls-94d3.json",
+      "bytes": 1729,
+      "sha256": "1536729314bb050a74a9b3eb6aa7661d659152febf1625a7023cb50e4adbcab1"
+    },
+    {
+      "path": "portable-Git-copies-94d3.json",
+      "bytes": 7825,
+      "sha256": "fd7c4c81d82cdbd4b05fc6febec51c59d094996a44c184d50aa7fc273ca69daf"
+    },
+    {
+      "path": "prepared-plan-94d3.json",
+      "bytes": 180623,
+      "sha256": "41516be068ac5e1be59e12b3757823cdce1a2b9eb24d545bc73aed6816fb6ef0"
+    },
+    {
+      "path": "review.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "review.stderr.txt.initial.txt",
+      "bytes": 234,
+      "sha256": "c063cf109209c2ad4a960f1326a935354a760ebd0a6ea98032931aca0ddba380"
+    },
+    {
+      "path": "review.stdout.txt",
+      "bytes": 385,
+      "sha256": "2e88aa7c92d60e9fc152fbb8ff196439816271c90cd8b3b0b925118ac4ad459d"
+    },
+    {
+      "path": "review.stdout.txt.initial.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "review_assembly.py",
+      "bytes": 25097,
+      "sha256": "65b73e55b2cd6601b77f0b287a2da3209a8f9f05aacdeed808dccbd764ccd971"
+    },
+    {
+      "path": "review_assembly.py.initial.txt",
+      "bytes": 23931,
+      "sha256": "31f018bca20551f5bbaf62fad2797935d955311a4b41dc6bdea1b2d8da648474"
+    },
+    {
+      "path": "source-review-joins-94d3.json",
+      "bytes": 49311,
+      "sha256": "5ec799e7bd1dd14b9ae3e771034fe2801169567c53ed766d0da31a6dec7bfddd"
+    }
+  ],
+  "file_count": 13,
+  "bytes": 547820,
+  "source_immutable": true,
+  "numerical_or_global_wave_launched": false,
+  "private_Git_config_copied": false,
+  "actual_large_raw_copied": false,
+  "initial_nondeciding_auditor_error_preserved": true,
+  "no_permanent_cleanup": true
+}

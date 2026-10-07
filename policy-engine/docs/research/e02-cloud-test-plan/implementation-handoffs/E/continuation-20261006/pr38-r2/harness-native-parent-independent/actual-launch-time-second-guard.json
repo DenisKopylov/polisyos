@@ -1,0 +1,8 @@
+{
+  "outcome": "REFUSED_BEFORE_NUMERIC_CHILD",
+  "actual_importer_child_count": 1,
+  "actual_numeric_child_count": 0,
+  "reason": "numerical pytest basetemp exists; preserve it and choose fresh scratch",
+  "marker_preserved": true,
+  "importer_receipt": "/workspace/e02-E-pr38-r2-receipts/harness-parent-independent-06aec834/actual-second-guard/checks/independent-preflight/independent-preflight.json"
+}

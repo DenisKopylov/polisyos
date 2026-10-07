@@ -1,0 +1,97 @@
+{
+  "file_count": 18,
+  "total_bytes": 112290,
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 875,
+      "sha256": "a95a5d8587a03a834ad2b96bba08946975e727109d2d66970556254ad5205dfb"
+    },
+    {
+      "path": "configured-checks-v2.json",
+      "bytes": 4164,
+      "sha256": "c4f935f0360cd51432a70baec3efb86836b48f639136a430dc4992cf404296f2"
+    },
+    {
+      "path": "git-apply-check.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "historical-configured-preflight/diagnostics.json",
+      "bytes": 22018,
+      "sha256": "1e026be606eb7526b0eba709b8d1c82a959f651c0d0a0ea69019bb86ab3f8bb9"
+    },
+    {
+      "path": "historical-configured-preflight/receipt.json",
+      "bytes": 1847,
+      "sha256": "257e6ef37f03b4c2aab926004ce7b6a51fb1ebc14f74f990f319c56b0eebe513"
+    },
+    {
+      "path": "historical-configured-preflight/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "original-wave-groups.json",
+      "bytes": 9604,
+      "sha256": "a5578a4dd8bc8e622603e5b538a412594eafb507ca640518bf527d8c0c5168af"
+    },
+    {
+      "path": "plan_wave.py",
+      "bytes": 23015,
+      "sha256": "9adde423ab2cbfc841a8a2de41fc1c03906e3429b176fa17412fd22c09c47e87"
+    },
+    {
+      "path": "preservation-controls/existing-basetemp/sentinel.txt",
+      "bytes": 39,
+      "sha256": "0f0fec308ebc2185b1fadf11703e0cb84ac4dbef51066037a8040c6e87486229"
+    },
+    {
+      "path": "preservation-controls/existing-output/sentinel.txt",
+      "bytes": 39,
+      "sha256": "0f0fec308ebc2185b1fadf11703e0cb84ac4dbef51066037a8040c6e87486229"
+    },
+    {
+      "path": "preservation-controls.json",
+      "bytes": 1328,
+      "sha256": "a0089d727f994a2de8e31572d4fae0fff6b2da44069d409e2ff1cd856bceea2b"
+    },
+    {
+      "path": "proposal.json",
+      "bytes": 2477,
+      "sha256": "183a0cd6b4fc8364ae086d1a5e921a7b06b09a241a1041359be855261125cf63"
+    },
+    {
+      "path": "repair-packet.json",
+      "bytes": 4705,
+      "sha256": "d30fd76f9c19a5ba7e89b8f3e671fe5e35530c1922eba6c83e9a5132ccf8e12e"
+    },
+    {
+      "path": "ruff-check.stdout.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "ruff-format-check.stdout.txt",
+      "bytes": 26,
+      "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd"
+    },
+    {
+      "path": "run_check.py",
+      "bytes": 11192,
+      "sha256": "9d59c0e66658bae5b8ab22ae4770335462a167af6ecd640356978f8402a2fce6"
+    },
+    {
+      "path": "uncapped_umbrella.py",
+      "bytes": 7225,
+      "sha256": "c809e5503ba23afacb8ad0f3f4da81e7cdca0ea6184d6eb346bfc82ddeae5173"
+    },
+    {
+      "path": "wave-controls-configured-repair-v2.patch",
+      "bytes": 23717,
+      "sha256": "935428d3f81693dd80a3f9f89f0b1d1ff21a1c689666950c7ef59c00624cadbb"
+    }
+  ],
+  "self_index_excluded": true
+}

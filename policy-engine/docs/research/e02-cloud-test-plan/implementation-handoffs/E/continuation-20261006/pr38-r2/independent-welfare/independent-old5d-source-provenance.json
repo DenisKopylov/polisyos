@@ -1,0 +1,9 @@
+{
+  "base": "5d4e01011a0b7e0a3954decdb622a9e9cf1fb787",
+  "tree": "ba48381b0cf671c316e2cffa4be6568fd945011a",
+  "tracked_source_file_count": 2915,
+  "tracked_source_aggregate_sha256": "ce9091b2f4c9a6c41cf8fafc3629277055f27e8dea23263e5125e20bf02aa47f",
+  "all_actual_source_bytes_match_exact_git_blobs": true,
+  "overlay": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/old5d-git-blob-overlay",
+  "notes": "Native run source_file_count included preexisting transient __pycache__ files from failed setup; this tracked-only Git-blobs attestation is the code denominator. No numerical replay inherited from an earlier run."
+}

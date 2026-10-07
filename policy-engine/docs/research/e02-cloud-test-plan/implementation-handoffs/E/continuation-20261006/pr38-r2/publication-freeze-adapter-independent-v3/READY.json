@@ -1,0 +1,84 @@
+{
+  "status": "READY-immutable-independent-publication-role-adapter",
+  "primary": "review.json",
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "root": "/workspace/e02-E-continuation-20261006",
+  "source": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/adapt_publication_freeze.py",
+    "bytes": 7493,
+    "sha256": "b7decef4df3596751c69928f3ad55cedca91eb201aedc4e077046194a7c19f6b"
+  },
+  "carrier": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-v3.json",
+    "bytes": 7951,
+    "sha256": "c3cfeb2a9df29d1eb5f2e73da1a8eba940d1ff93569201dfb5a6fa671eae950d"
+  },
+  "author_index": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/copy-index.json",
+    "bytes": 5654,
+    "sha256": "3066a842654d4f20a9666af3e2ec7d16602a3206f7563bd4d5b2e107a49750f6",
+    "assets": 23,
+    "asset_bytes": 87308
+  },
+  "commands": [
+    {
+      "argv": [
+        "python",
+        "review_adapter.py.txt"
+      ],
+      "exit_code": 0,
+      "stdout": "review.stdout",
+      "stderr": "review.stderr"
+    },
+    {
+      "argv": [
+        "ruff",
+        "check",
+        "--no-cache",
+        "--config",
+        "/workspace/e02-E-continuation-20261006/policy-engine/ruff.toml",
+        "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/adapt_publication_freeze.py",
+        "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/adapter_controls.py"
+      ],
+      "exit_code": 0,
+      "stdout": "ruff.stdout",
+      "stderr": "ruff.stderr"
+    },
+    {
+      "argv": [
+        "ruff",
+        "format",
+        "--check",
+        "--no-cache",
+        "--config",
+        "/workspace/e02-E-continuation-20261006/policy-engine/ruff.toml",
+        "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/adapt_publication_freeze.py",
+        "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/adapter_controls.py"
+      ],
+      "exit_code": 0,
+      "stdout": "format.stdout",
+      "stderr": "format.stderr"
+    }
+  ],
+  "required_environment": {
+    "UV_NO_SYNC": "1",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "complete_role_denominator": {
+    "original": 8,
+    "candidateGit": 6,
+    "external_content_bound": 2,
+    "omitted": 0
+  },
+  "collector_extra_external_field_validated": false,
+  "independent_adapter_additional_binding_required": true,
+  "initial_carrier_error_preserved": true,
+  "new_source_freeze": false,
+  "scope": "Scratch pure metadata predicate checks/configured two-file lint only; no collector/native/numeric/gate/wheel or environment/repository mutation.",
+  "cleanup_candidates": [
+    "synthetic-public-roles/; own repeatable synthetic metadata fixtures, not original/carrier/eight reviews/source/docs/deciding evidence; native Trash unavailable; no deletion performed"
+  ],
+  "next_owner": "Root may retry exact canonical v4 with this unchanged terminal wave and independently-bound typed carrier; CAL binds original/carrier plus actual terminal custody/counts; G acceptance and A/D/Core/IR decisions remain distinct."
+}

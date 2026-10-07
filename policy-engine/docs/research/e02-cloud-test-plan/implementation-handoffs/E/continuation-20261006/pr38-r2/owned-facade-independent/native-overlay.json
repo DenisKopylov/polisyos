@@ -1,0 +1,18 @@
+{
+  "polisyos.foundry.uncertainty": {
+    "source": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/immutable-inputs/postimage/policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+    "package_path": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/foundry/uncertainty"
+  },
+  "polisyos.scientist.nodes.builtins.simulate.propagate_welfare": {
+    "source": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/immutable-inputs/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+    "package_path": null
+  },
+  "polisyos.calibration": {
+    "source": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/immutable-inputs/postimage/policy-engine/src/polisyos/calibration/__init__.py",
+    "package_path": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/calibration"
+  },
+  "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty": {
+    "source": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/immutable-inputs/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+    "package_path": null
+  }
+}

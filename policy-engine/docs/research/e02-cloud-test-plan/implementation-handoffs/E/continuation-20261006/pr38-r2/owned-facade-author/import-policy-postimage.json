@@ -1,0 +1,40 @@
+{
+  "data": {
+    "allowed_exception_count": 0,
+    "cache_hits": 0,
+    "cache_misses": 4,
+    "changed_file_count": 0,
+    "cycle_count": 0,
+    "cycle_error_count": 0,
+    "cycles_enforced": false,
+    "fixes_applied": 0,
+    "lapsed_cover_count": 0,
+    "policy_version": "2",
+    "scan_mode": "full",
+    "top_god_files": [
+      {
+        "internal_import_count": 22,
+        "path": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py"
+      },
+      {
+        "internal_import_count": 17,
+        "path": "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py"
+      },
+      {
+        "internal_import_count": 11,
+        "path": "src/polisyos/foundry/uncertainty/__init__.py"
+      },
+      {
+        "internal_import_count": 7,
+        "path": "src/polisyos/calibration/__init__.py"
+      }
+    ],
+    "unadjudicated_count": 0,
+    "violation_count": 0
+  },
+  "exit_code": 0,
+  "messages": [],
+  "status": "ok",
+  "summary": "import policy passed",
+  "tool": "lint.lint-imports"
+}

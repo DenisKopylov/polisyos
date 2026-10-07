@@ -1,0 +1,1 @@
+syntax PASS: collector source and two protocol helpers; compile() only, no bytecode/source mutations

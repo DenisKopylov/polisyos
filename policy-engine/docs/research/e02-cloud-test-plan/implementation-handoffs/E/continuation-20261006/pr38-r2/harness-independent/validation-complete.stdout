@@ -1,0 +1,1 @@
+{"outcome": "PASS-recomputing-moderate-custody-and-predicate-validator", "corrupt_field_controls": ["size_bytes REFUSED", "sha256 REFUSED", "native denominator REFUSED"], "numeric_and_full_CI": "UNRUN"}

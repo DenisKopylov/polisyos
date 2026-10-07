@@ -1,0 +1,114 @@
+{
+  "schema": "e02.evidence-copy-index.v1",
+  "files": [
+    {
+      "path": "calibration-reader-independent.json",
+      "size_bytes": 200260,
+      "sha256": "90c96bdda1be2108b8d22c2e69708f6b7a10477000afed6ca2a567f3199e2df1"
+    },
+    {
+      "path": "calibration-reader-positive-initial-harness-error.stdout",
+      "size_bytes": 375,
+      "sha256": "453b3596cd189a26f4e6ed00d14a2a80148c966c1fb1735306fe926802a16b22"
+    },
+    {
+      "path": "calibration-reader-positive.stdout",
+      "size_bytes": 5646,
+      "sha256": "df1bef82c8e873659db7984c3d50df50aa856e3229cd601345122cf5a6a1dccf"
+    },
+    {
+      "path": "calibration-reader-removal-initial-harness-error.stdout",
+      "size_bytes": 375,
+      "sha256": "453b3596cd189a26f4e6ed00d14a2a80148c966c1fb1735306fe926802a16b22"
+    },
+    {
+      "path": "calibration-reader-removal.stdout",
+      "size_bytes": 880,
+      "sha256": "ab7628fbf5f35acdb091bf1674d1a4515da6af4bdc6036ea3d020ad5dd8b657d"
+    },
+    {
+      "path": "calibration_reader_probe.py",
+      "size_bytes": 8183,
+      "sha256": "f45480f1e2f6af981f0fd13722b7f23045bfaa934dd0414ee248d6d480e02cb5"
+    },
+    {
+      "path": "canonical-raw-output-index.json",
+      "size_bytes": 1337,
+      "sha256": "f4247e6d3c27ba513adbd254c8d2ad354f045cfe632e3ba73a41e05e21cc20cd"
+    },
+    {
+      "path": "commands.json",
+      "size_bytes": 1491,
+      "sha256": "86b4c292df5cd5c775d09bb657af1ed6e92c290a0059b951f894bfb43530f3bd"
+    },
+    {
+      "path": "metadata29-19-delta.json",
+      "size_bytes": 1129,
+      "sha256": "c9b06ab71daf0cc5e975578225cdaf4475c59ef6628f66e89ee413d2718323a2"
+    },
+    {
+      "path": "native.stdout",
+      "size_bytes": 549,
+      "sha256": "16145145c8314fd427316d2915bd6ac4106319e34150da2c9e5571a87480bb20"
+    },
+    {
+      "path": "native.xml",
+      "size_bytes": 2089,
+      "sha256": "fa4ac14bb3e73495c8be59344d6584a5b2266285e94817185280316f897549cb"
+    },
+    {
+      "path": "patches/owned-generator-generated-artifacts29-19.patch",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "patches/owned-generator-inventory29-19.patch",
+      "size_bytes": 2119,
+      "sha256": "006769fa3893d42aa30003089c24f1f02d078f6d0769751c5225c5df6ede057a"
+    },
+    {
+      "path": "patches/owned-generator-public-surface29-19.patch",
+      "size_bytes": 3408,
+      "sha256": "a3599755efb91b395f88bd69b12111ab5b5b2b554a9a2d16286a95f8599807cc"
+    },
+    {
+      "path": "patches/owned-uncertainty-readme19.patch",
+      "size_bytes": 412,
+      "sha256": "1b7c9a14ab3550bf670b7bcbb070bf6a26d82eed8db038b4b52b66936db75b0a"
+    },
+    {
+      "path": "publication-review-2c275.json",
+      "size_bytes": 2422,
+      "sha256": "8283667890f8535a8793665d4d7d0648821a3e61843af60ba654b013b92fba64"
+    },
+    {
+      "path": "publication-review-2c275.stdout",
+      "size_bytes": 2422,
+      "sha256": "8283667890f8535a8793665d4d7d0648821a3e61843af60ba654b013b92fba64"
+    },
+    {
+      "path": "publication_review.py",
+      "size_bytes": 4744,
+      "sha256": "e81b829099dc2348706bcec1cacdb18f8b11b6f292ac6772145f949f80d9318f"
+    },
+    {
+      "path": "review-r4.json",
+      "size_bytes": 6568,
+      "sha256": "a62efc3934f7729fa8d7ca269791c27fb625b3dec1b4107337e632dee96945d7"
+    },
+    {
+      "path": "validate_receipt.py",
+      "size_bytes": 983,
+      "sha256": "4d66d0d468ef8dbd705889b07389828d419f6c857a503cc1f4039be21cde380b"
+    },
+    {
+      "path": "validator.stdout",
+      "size_bytes": 230,
+      "sha256": "15b58966e53fdc188e5e09365ea790e30bcc2e7fb1d3369dced3536f3ea38d55"
+    }
+  ],
+  "total_files": 21,
+  "total_bytes": 245622,
+  "stage": "Frozen43code/2cmetadata historicalCal29/uncertainty19; finaluncertainty20requiresnextstage",
+  "excluded_raw": "generated-43c whole outputs, configuredCAS/nativepytest fixtures preservedoutsideGit; exact hashes andfullinputscripts inmoderatepacket"
+}

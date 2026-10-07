@@ -227,6 +227,18 @@ class SensitivityPlan(BaseModel):
         return self
 
 
+def _admit_sensitivity_plan(plan: SensitivityPlan) -> SensitivityPlan:
+    """Re-admit a defensive snapshot before materializing a mutable plan.
+
+    Construction, assignment and ``model_copy(update=...)`` are separate
+    boundaries. Reconstruct from fields, including nested models, so every
+    consumer uses the existing structural and estimated-run predicate rather
+    than trusting admission of an earlier state. The caller's mutable object
+    remains unchanged and cannot change this operation's effective plan.
+    """
+    return SensitivityPlan.model_validate(plan.model_dump(mode="python"))
+
+
 def _derive_backend_seed(seed: int | None, stream: str) -> int | None:
     """Derive a stable backend seed for one logical DOE stream.
 
@@ -292,6 +304,7 @@ def _salib_parameter_mapping(
 
 def _build_salib_problem(plan: SensitivityPlan) -> tuple[dict[str, object], str]:
     """Build the canonical bounded SALib problem and its mapping fingerprint."""
+    plan = _admit_sensitivity_plan(plan)
     names = [item.name for item in plan.parameter_specs]
     bounds: list[list[float]] = []
     dists: list[str] = []

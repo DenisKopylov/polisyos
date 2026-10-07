@@ -69,7 +69,7 @@ def _persisted_bridge_fixture(
 
     bridge = importlib.import_module("polisyos.calibration.forecast_bridge")
     store = FileSystemCAS(tmp_path / "frc01-typed-evidence-cas")
-    report_id = "frc01-s10-synthetic-interval-report"
+    report_id = "frc01-s10-interval-coverage-2026q1"
     model_ref = "model://frc01/ets/v1"
     policy_ref = "policy://frc01/ets/v1"
     estimand = "predictive_interval_coverage"

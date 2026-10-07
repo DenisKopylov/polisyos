@@ -88,6 +88,27 @@ def _activate_four_row_scenario(
     return scenario, projection
 
 
+def _activate_four_row_scenario_isolated(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> tuple[Any, ActivatedAcquisitionObservationProjection]:
+    """Activate a fixture with scoped helper patches, then bind its read roots."""
+    with monkeypatch.context() as fixture_patches:
+        scenario, projection = _activate_four_row_scenario(tmp_path, fixture_patches)
+    paths = SimpleNamespace(l1_dcat_path=scenario.authority.baseline_path)
+    monkeypatch.setattr(
+        data_state_substrate,
+        "default_substrate_catalog_paths",
+        lambda _repo_root: paths,
+    )
+    monkeypatch.setattr(
+        substrate_registry,
+        "default_substrate_catalog_paths",
+        lambda _repo_root: paths,
+    )
+    return scenario, projection
+
+
 def _seed_baseline_nonmembers_before_authority_freeze(
     monkeypatch: pytest.MonkeyPatch,
     *,
@@ -407,7 +428,9 @@ def test_non_none_projection_is_c_verified_before_availability(
     expected_code: str,
 ) -> None:
     """Malformed, mismatched, and foreign C views cannot reach availability."""
-    scenario, projection = _activate_four_row_scenario(tmp_path / "local", monkeypatch)
+    scenario, projection = _activate_four_row_scenario_isolated(
+        tmp_path / "local", monkeypatch
+    )
     if case == "malformed_digest":
         supplied_projection = projection.model_copy(
             update={"projection_content_sha256": "sha256:" + "0" * 64}
@@ -429,9 +452,10 @@ def test_non_none_projection_is_c_verified_before_availability(
     elif case == "foreign_projection":
         foreign_rows = _four_ratio_rows()
         foreign_rows[0]["distress_score"] = 0.44
-        foreign_scenario, supplied_projection = _activate_scenario(
-            tmp_path / "foreign", monkeypatch, foreign_rows
-        )
+        with monkeypatch.context() as foreign_patches:
+            foreign_scenario, supplied_projection = _activate_scenario(
+                tmp_path / "foreign", foreign_patches, foreign_rows
+            )
         assert foreign_scenario.store is not scenario.store
         # Restore the local fixture's read roots after creating the foreign C
         # projection. Its real passport ref must not resolve in the local store.
@@ -500,6 +524,17 @@ def test_no_active_c_claim_keeps_epoch_zero_rows_in_baseline_only_mode(
         years=(2017, 2018, 2019, 2020),
     )
     scenario = _scenario_with_raw_rows(tmp_path, monkeypatch, _four_ratio_rows())
+    paths = SimpleNamespace(l1_dcat_path=scenario.authority.baseline_path)
+    monkeypatch.setattr(
+        data_state_substrate,
+        "default_substrate_catalog_paths",
+        lambda _repo_root: paths,
+    )
+    monkeypatch.setattr(
+        substrate_registry,
+        "default_substrate_catalog_paths",
+        lambda _repo_root: paths,
+    )
     state = catalog_read_api.project_catalog_acquisition_state(
         scenario.authority.baseline_path,
         overlay_path=scenario.overlay.overlay_path,

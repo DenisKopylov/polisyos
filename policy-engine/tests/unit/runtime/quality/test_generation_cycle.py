@@ -3617,7 +3617,12 @@ def test_joint_port_falls_back_from_unbound_program_graph_to_owner_ncm(
     unbound_store = FileSystemCAS(tmp_path / "unbound-program-store")
     request_seen: list[JointSimulationRequest] = []
     try:
-        problem, context, candidate = _owner_n5_case_with_selected_ncm_ref(ncm_ref)
+        problem, context, candidate = _owner_n5_case_with_selected_ncm_ref(
+            ncm_ref,
+            runtime_hints={
+                "joint_simulation_horizon": {"start": 0, "end": 0, "step": 1}
+            },
+        )
         owner_port = JointSimulationPort(
             repo_root=tmp_path / "empty-repo",
             cycle_substrate_context=context,
@@ -3631,6 +3636,7 @@ def test_joint_port_falls_back_from_unbound_program_graph_to_owner_ncm(
 
         assert len(owner_request.engine_plan) == 1
         assert owner_request.engine_plan[0].engine_kind == "ncm_parallel_worlds"
+        assert owner_request.horizon.steps() == (0,)
         unbound_program_plan = EnginePlan(
             engine_kind="program_graph",
             objective_ref="objective://firm_survival",
@@ -4189,10 +4195,10 @@ async def test_generation_cycle_serves_persisted_n5_into_default_n8_value_port(
 
 
 @pytest.mark.asyncio
-async def test_partial_static_ncm_interaction_reaches_candidate_n8_but_not_evalsafety(
+async def test_single_step_static_ncm_reaches_candidate_n8_but_not_evalsafety(
     tmp_path: Path,
 ) -> None:
-    """The served N6 path keeps partial N5 value candidate-only through N8."""
+    """A one-step static NCM stays candidate-only through N8, outside EvalSafety."""
 
     from polisyos.core.security.tenant_context import tenant_scope
     from polisyos.runtime.quality.generation_cycle import (
@@ -4203,7 +4209,7 @@ async def test_partial_static_ncm_interaction_reaches_candidate_n8_but_not_evals
 
     store, _expected_ncm, ncm_ref = _runtime_ncm_fixture_store(tmp_path)
     hints = {
-        "joint_simulation_horizon": {"start": 0, "end": 3, "step": 1},
+        "joint_simulation_horizon": {"start": 0, "end": 0, "step": 1},
         "joint_simulation_baseline_state": {"firm_survival": 0.0},
     }
     problem, context, candidate = _owner_n5_case_with_selected_ncm_ref(
@@ -4262,7 +4268,12 @@ async def test_partial_static_ncm_interaction_reaches_candidate_n8_but_not_evals
             simulation = cycle.simulation
             assert simulation.status == "joint_simulated"
             assert simulation.simulation_result_ref is not None
-            assert "interaction_evidence_incomplete" in simulation.authority_blockers
+            assert [
+                (item["engine_kind"], item["decision"])
+                for item in simulation.diagnostics["engine_decisions"]
+            ] == [("ncm_parallel_worlds", "selected")]
+            assert "simulation_only_k_sim_not_world_evidence" in simulation.authority_blockers
+            assert "interaction_evidence_incomplete" not in simulation.authority_blockers
 
             persisted = load_joint_simulation_result(
                 simulation.simulation_result_ref,
@@ -4278,15 +4289,16 @@ async def test_partial_static_ncm_interaction_reaches_candidate_n8_but_not_evals
             assert abs(observed_interaction) > 1e-6
             packet = persisted.promotion_ready_value_packet
             persisted_blockers = set(packet["authority_blockers"])
-            assert "interaction_evidence_incomplete" in persisted_blockers
+            assert "simulation_only_k_sim_not_world_evidence" in persisted_blockers
+            assert "interaction_evidence_incomplete" not in persisted_blockers
 
             value = cycle.value_port
             assert value.status == "value_conditional"
             assert value.evaluation_mode == "simulate_only"
             assert value.decision_grade == "low"
             assert value.value_ref == str(simulation.simulation_result_ref.artifact_id)
-            assert "interaction_evidence_incomplete" in value.authority_blockers
             assert "simulation_only_k_sim_not_world_evidence" in value.authority_blockers
+            assert "interaction_evidence_incomplete" not in value.authority_blockers
             assert value.value_receipt is None
             assert value.method_selection_receipt is None
 
@@ -4308,10 +4320,10 @@ async def test_partial_static_ncm_interaction_reaches_candidate_n8_but_not_evals
 
 
 @pytest.mark.asyncio
-async def test_n8_recovers_persisted_blocker_after_lossy_simulation_projection(
+async def test_n8_recovers_persisted_candidate_only_blocker_after_lossy_projection(
     tmp_path: Path,
 ) -> None:
-    """N8 retains verified packet blockers omitted by an injected N5 port projection."""
+    """N8 restores the persisted K_sim limitation lost by an injected N5 projection."""
 
     from polisyos.core.security.tenant_context import tenant_scope
     from polisyos.runtime.quality.generation_cycle import (
@@ -4322,7 +4334,7 @@ async def test_n8_recovers_persisted_blocker_after_lossy_simulation_projection(
 
     store, _expected_ncm, ncm_ref = _runtime_ncm_fixture_store(tmp_path)
     hints = {
-        "joint_simulation_horizon": {"start": 0, "end": 3, "step": 1},
+        "joint_simulation_horizon": {"start": 0, "end": 0, "step": 1},
         "joint_simulation_baseline_state": {"firm_survival": 0.0},
     }
     problem, context, candidate = _owner_n5_case_with_selected_ncm_ref(
@@ -4386,7 +4398,7 @@ async def test_n8_recovers_persisted_blocker_after_lossy_simulation_projection(
                     "authority_blockers": tuple(
                         blocker
                         for blocker in observation.authority_blockers
-                        if blocker != "interaction_evidence_incomplete"
+                        if blocker != "simulation_only_k_sim_not_world_evidence"
                     )
                 }
             )
@@ -4418,8 +4430,21 @@ async def test_n8_recovers_persisted_blocker_after_lossy_simulation_projection(
             simulation = cycle.simulation
             assert simulation.status == "joint_simulated"
             assert simulation.simulation_result_ref is not None
-            assert "interaction_evidence_incomplete" in lossy_port.original_authority_blockers
-            assert "interaction_evidence_incomplete" not in simulation.authority_blockers
+            assert [
+                (item["engine_kind"], item["decision"])
+                for item in simulation.diagnostics["engine_decisions"]
+            ] == [("ncm_parallel_worlds", "selected")]
+            assert (
+                "simulation_only_k_sim_not_world_evidence"
+                in lossy_port.original_authority_blockers
+            )
+            assert "interaction_evidence_incomplete" not in (
+                lossy_port.original_authority_blockers
+            )
+            assert (
+                "simulation_only_k_sim_not_world_evidence"
+                not in simulation.authority_blockers
+            )
 
             persisted = load_joint_simulation_result(
                 simulation.simulation_result_ref,
@@ -4432,7 +4457,10 @@ async def test_n8_recovers_persisted_blocker_after_lossy_simulation_projection(
             )
             assert set(persisted.interaction_terms[0].by_step) == {0}
             assert abs(persisted.interaction_terms[0].by_step[0]) > 1e-6
-            assert "interaction_evidence_incomplete" in set(
+            assert "simulation_only_k_sim_not_world_evidence" in set(
+                persisted.promotion_ready_value_packet["authority_blockers"]
+            )
+            assert "interaction_evidence_incomplete" not in set(
                 persisted.promotion_ready_value_packet["authority_blockers"]
             )
 
@@ -4440,8 +4468,8 @@ async def test_n8_recovers_persisted_blocker_after_lossy_simulation_projection(
             assert value.status == "value_conditional"
             assert value.evaluation_mode == "simulate_only"
             assert value.decision_grade == "low"
-            assert "interaction_evidence_incomplete" in value.authority_blockers
             assert "simulation_only_k_sim_not_world_evidence" in value.authority_blockers
+            assert "interaction_evidence_incomplete" not in value.authority_blockers
             assert value.value_receipt is None
             assert value.method_selection_receipt is None
             assert simulation_evaluation_input_ref(
@@ -5306,13 +5334,28 @@ async def test_missing_canonical_registry_never_mints_n6_bootstrap_authority(
 
     from polisyos.runtime.quality import generation_cycle
 
-    def _owner_unavailable(_repo_root: Path) -> SubstrateRegistry:
+    registry_lookups = 0
+
+    def _owner_unavailable_and_recorded(_repo_root: Path) -> SubstrateRegistry:
+        nonlocal registry_lookups
+        registry_lookups += 1
         raise FileNotFoundError("lane0 owner unavailable")
 
     monkeypatch.setattr(
         generation_cycle,
         "build_substrate_registry_from_existing_catalogs",
-        _owner_unavailable,
+        _owner_unavailable_and_recorded,
+    )
+    problem = _problem("missing_canonical_registry")
+    problem = problem.model_copy(
+        update={
+            "runtime_hints": {
+                **problem.runtime_hints,
+                # Keep requirement compilation out of the way so this test reaches
+                # the canonical substrate-registry owner boundary it is exercising.
+                "n7_data_requirement_specs": (_n7_data_requirement_spec(),),
+            }
+        }
     )
     run = await GenerationCycleController(
         generation_port=_CounterexampleAwareGenerator(),
@@ -5323,13 +5366,14 @@ async def test_missing_canonical_registry_never_mints_n6_bootstrap_authority(
         acquisition_owner_gateway=RecordedAcquisitionOwnerGateway(artifacts_by_requirement={}),
         repo_root=REPO_ROOT,
     ).run(
-        _problem("missing_canonical_registry"),
+        problem,
         budget_state=_budget(),
         min_cycles=1,
         max_cycles=1,
     )
 
     cycle = run.cycles[0]
+    assert registry_lookups == 1
     assert cycle.terminal_kind == "acquisition_required"
     assert cycle.acquisition_receipt is None
     assert "n7_substrate_registry_unresolved" in cycle.counterexample.diagnostic.code

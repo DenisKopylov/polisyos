@@ -446,7 +446,7 @@ def _registered_seir_input_preflight_case(
 
     base_request = _request()
     atom = _atom(
-        "seir_preflight_atom",
+        intervention_id="seir_preflight_atom",
         causal_variable="agents.income",
         engine_variable="audit_noise",
         value=1.0,

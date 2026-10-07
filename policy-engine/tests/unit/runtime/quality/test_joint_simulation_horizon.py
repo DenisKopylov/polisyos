@@ -596,12 +596,8 @@ def _program_graph_plan(
         exec_plan_ref=exec_plan_ref,
         program_base_state=base_state,
         program_parameter_overrides_by_atom={
-            "income_subsidy": {
-                "apply_subsidy": {"rate": 0.10, "debug_mode": False}
-            },
-            "balance_grant": {
-                "apply_subsidy": {"debug_mode": False, "rate": 0.10}
-            },
+            "income_subsidy": {"apply_subsidy": {"rate": 0.10}},
+            "balance_grant": {"apply_subsidy": {"rate": 0.10}},
         },
         mechanism_registry=DEFAULT_MECHANISM_REGISTRY,
         slot_registry=DEFAULT_SLOT_REGISTRY,

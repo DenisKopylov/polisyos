@@ -23,6 +23,7 @@ from polisyos.pdc import (
 from polisyos.runtime.quality.design_axes.coupling_composition import (
     CouplingEdge,
     CouplingGraph,
+    build_coupling_graph,
     compose_subdesigns,
 )
 from polisyos.runtime.quality.evidence_independence import build_evidence_independence_map
@@ -194,16 +195,35 @@ def _subdesign(
 def _coupling_graph(
     graph_id: str,
     *,
-    edges: tuple[CouplingEdge, ...] = (),
+    edges: tuple[CouplingEdge, ...] | None = None,
     evidence_state: str = "observed",
 ) -> CouplingGraph:
-    return CouplingGraph(
-        graph_id=f"graph-{graph_id}",
-        graph_ref=f"pdc://composition/{graph_id}/graph",
-        design_ref=f"pdc://composition/{graph_id}/design",
+    """Build a graph fixture with explicit evidence for its default boundary."""
+
+    design_ref = f"pdc://composition/{graph_id}/design"
+    interaction_edges = edges
+    if interaction_edges is None:
+        interaction_edges = (
+            (
+                CouplingEdge(
+                    boundary_ref=f"boundary://composition/{graph_id}/chapter-pair",
+                    source_module_ref="ws-chapter-a",
+                    target_module_ref="ws-chapter-b",
+                    relation="observed_independent_measurement",
+                    interaction_strength="none",
+                    evidence_ref=(
+                        f"fixture://workspace-composition/{graph_id}/bounded-no-interaction"
+                    ),
+                ),
+            )
+            if evidence_state == "observed"
+            else ()
+        )
+    return build_coupling_graph(
+        design_ref=design_ref,
         module_refs=["ws-chapter-a", "ws-chapter-b"],
         module_discovery_ref=f"pdc://composition/{graph_id}/module-discovery",
-        interaction_edges=list(edges),
+        interaction_edges=interaction_edges,
         evidence_state=evidence_state,  # type: ignore[arg-type]
         rule_version_ref=RULE_REF,
     )
@@ -323,6 +343,23 @@ def test_independent_chapters_compose_through_ports_with_certificate() -> None:
         "port-chapter-a",
         "port-chapter-b",
     }
+
+
+def test_empty_or_absent_graph_does_not_inherit_default_boundary_evidence() -> None:
+    for graph in (
+        _coupling_graph("empty-observed", edges=()),
+        _coupling_graph("absent", evidence_state="absent"),
+    ):
+        assert graph.interaction_edges == []
+        certificate = compose_subdesigns(
+            subdesigns=[_subdesign("chapter-a"), _subdesign("chapter-b")],
+            claims=[],
+            graph=graph,
+            parent_workspace_id="ws-parent",
+        )
+
+        assert certificate.verdict == "not_composable"
+        assert certificate.authority_flow == []
 
 
 def test_in_memory_subdesign_port_authority_pseudo_ref_fails_closed() -> None:

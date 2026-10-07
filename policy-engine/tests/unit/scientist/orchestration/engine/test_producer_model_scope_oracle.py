@@ -16,7 +16,7 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -50,6 +50,10 @@ class _Holder(BaseModel):
     rows: list[_Leaf]
 
 
+class _ValidatingHolder(_Holder):
+    model_config = ConfigDict(validate_assignment=True)
+
+
 _FIELD_VALUES = {"count": 23, "tag": "changed"}
 _FIELDS = tuple(_Leaf.model_fields)
 
@@ -65,9 +69,12 @@ def _snapshot(value: Any) -> Any:
     return value
 
 
-def _state(run_id: str, *, shared: bool = False, tag: str = "stable") -> ExperimentState:
+def _state(
+    run_id: str, *, shared: bool = False, tag: str = "stable", validating: bool = False
+) -> ExperimentState:
     leaf = _Leaf(count=3, tag=tag)
-    holder = _Holder(leaf=leaf, rows=[leaf if shared else _Leaf(count=4, tag="row")])
+    model = _ValidatingHolder if validating else _Holder
+    holder = model(leaf=leaf, rows=[leaf if shared else _Leaf(count=4, tag="row")])
     # Pydantic can normalize values independently on ingestion. These ordinary
     # runtime assignments establish genuine aliases before the producer branch.
     if shared:
@@ -104,11 +111,13 @@ class _ModelNode:
         shared: bool,
         append: bool = False,
         copy_alias: bool = False,
+        replace_validated_rows: bool = False,
     ):
         self.field = field
         self.shared = shared
         self.append = append
         self.copy_alias = copy_alias
+        self.replace_validated_rows = replace_validated_rows
         self.copy_observation: dict[str, bool] | None = None
         self.calls = 0
         self.view: ExperimentState | None = None
@@ -158,7 +167,12 @@ class _ModelNode:
             assert self.copy_observation["narrowed_shared_leaf"]
             self.view = state
             self.before = _snapshot(state.params)
-        if self.append:
+        if self.replace_validated_rows:
+            assert holder.model_config["validate_assignment"] is True
+            holder.rows = [_Leaf(count=8, tag="assigned")]
+            holder.rows.append(_Leaf(count=9, tag="appended"))
+            holder.rows[0].count = 11
+        elif self.append:
             holder.rows.append(_Leaf(count=7, tag="appended"))
         else:
             # setattr uses the ordinary model setter; it is not the explicitly
@@ -396,3 +410,64 @@ def test_ordinary_shallow_model_copy_retains_child_owner_after_scope_attenuation
     assert observed["producer_after"] == observed["producer_before"]
     assert observed["result_status"] == "fail"
     assert observed["physical_effects"] == observed["physical_completion_callbacks"] == []
+
+
+@pytest.mark.parametrize("mode", ["sync", "async"])
+def test_validating_model_stored_rows_preserve_all_subsequent_intents_on_reopen(
+    tmp_path: Path, mode: str
+) -> None:
+    state = _state("R_validated_model_rows", validating=True)
+    before = _snapshot(state.params)
+    node = _ModelNode(
+        field="count",
+        writes=["params.holder.rows"],
+        shared=False,
+        replace_validated_rows=True,
+    )
+    store, run, consumer, result = _execute(tmp_path, mode=mode, node=node, state=state)
+    observed = _measure(
+        tmp_path,
+        store=store,
+        node=node,
+        state=state,
+        before=before,
+        consumer=consumer,
+        result=result,
+    )
+    expected = deepcopy(before)
+    expected["holder"]["rows"] = [
+        {"count": 11, "tag": "assigned"},
+        {"count": 9, "tag": "appended"},
+    ]
+    assert observed["producer_calls"] == 1
+    assert observed["base_after"] == before
+    assert observed["result_status"] == "ok"
+    assert _snapshot(result.state.params) == expected
+    assert observed["physical_effects"][0]["payload"] == expected["holder"]
+    assert observed["physical_completion_callbacks"][0]["payload"] == expected
+    intents = observed["producer_journal"]
+    assert any(
+        row["path"] == "params.holder.rows" and row["operation"] == "append" for row in intents
+    )
+    assert any(
+        row["path"] == "params.holder.rows.0.count" and row["value"] == 11 for row in intents
+    )
+    publications = [json.loads(line) for line in run.trace_path.read_text().splitlines()]
+    entry_event = next(row for row in publications if row["event"] == "NODE_CACHE_STORE")
+    ref = ArtifactRef.model_validate(entry_event["refs"]["outputs"][0])
+    reopened = FileSystemCAS(store.root)
+    entry = json.loads(reopened.get_bytes(ref))
+    reader = NodeResultCache(reopened, state.run_id)
+    assert reader.load_entry(ref)
+    cached = reader.get(entry["idempotency_key"])
+    assert cached is not None
+    current = _state(state.run_id, tag="current-neighbor", validating=True)
+    current_before = _snapshot(current.params)
+    applied = _merge_cached_outcome_state(
+        alias="model", node=node, base_state=current, outcome=cached
+    )
+    expected_current = deepcopy(current_before)
+    expected_current["holder"]["rows"] = expected["holder"]["rows"]
+    assert _snapshot(applied.params) == expected_current
+    assert _snapshot(current.params) == current_before
+    assert node.calls == 1

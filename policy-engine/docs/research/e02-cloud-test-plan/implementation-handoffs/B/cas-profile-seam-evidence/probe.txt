@@ -1,0 +1,1 @@
+PASS: real persisted manifest; facade projection/digest identical to canonical owner for v1/v2/v3

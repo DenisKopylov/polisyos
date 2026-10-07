@@ -1,0 +1,27 @@
+import hashlib,importlib.metadata,json,os,platform,subprocess,sys,time,uuid,xml.etree.ElementTree as ET
+from pathlib import Path
+ROOT=Path('/workspace/e02-B-current-cas-generation');HERE=Path(__file__).resolve().parent
+EXPECTED='83b7b81a4f6d665380993b3fed3b9985a51b547d'
+OUT=Path('/tmp')/('e02-B-compiled-preparation-'+uuid.uuid4().hex[:12]);OUT.mkdir()
+PYTHON='/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python'
+TEST='tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py'
+NEGATIVE='tests/unit/remediation/test_jit_01.py::test_chain_shape_inference_refuses_unknown_data_dependent_shape'
+def git(*args):return subprocess.check_output(['git','-C',str(ROOT),*args],text=True).strip()
+def ident():return {'head':git('rev-parse','HEAD'),'tree':git('rev-parse','HEAD^{tree}'),'status':git('status','--porcelain')}
+def custody(path):
+ b=path.read_bytes();return {'path':str(path),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()}
+before=ident();assert before['head']==EXPECTED and before['status']=='',before
+env=dict(os.environ);removed={key:env.pop(key) for key in ('OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','NUMEXPR_NUM_THREADS','VECLIB_MAXIMUM_THREADS','BLIS_NUM_THREADS') if key in env}
+env['PYTHONPATH']=str(HERE)+':'+str(ROOT/'policy-engine/src');env['POLISYOS_METRICS_PORT']='0';env['COMPILED_ORIGIN_OBSERVATIONS']=str(OUT/'module-origins.jsonl')
+argv=[PYTHON,'-m','pytest','-vv','-p','origin_guard','-p','removal_seed',TEST+'::test_cold_warm_preparation_preserves_independent_seeded_numerical_repetitions[True-True]','--basetemp',str(OUT/'pytest'),'-o','cache_dir='+str(OUT/'cache'),'--junitxml='+str(OUT/'native.xml')]
+inputs=[TEST,'tests/unit/remediation/test_jit_01.py','pytest.ini','pyproject.toml','uv.lock','tests/conftest.py','tests/quarantine.toml','tests/_helpers/artifacts.py','tests/_helpers/observability.py']
+profile={'source_before':before,'production_projection_ref':'dd9584728bd96f204983615216efdbc58117e713','projection_qualification':'Only loaded relevant polisyos module bytes are independently checked equal to DD before/after actual native; actual checkout/test overlay is83b7, not a DD checkout. Root authorized this source projection before new CMP serialized owner; no successor proof.','argv':argv,'cwd':str(ROOT/'policy-engine'),'public_environment':{k:env[k] for k in ('PYTHONPATH','POLISYOS_METRICS_PORT','COMPILED_ORIGIN_OBSERVATIONS')},'numeric_thread_caps_removed':sorted(removed),'python_executable':PYTHON,'environment':{'python':sys.version,'platform':platform.platform(),'distributions':sorted((d.metadata['Name'],d.version) for d in importlib.metadata.distributions())},'input_closure':{'test_and_config_files':[custody(ROOT/'policy-engine'/rel) for rel in inputs],'literal_instruments':[custody(Path(__file__)),custody(HERE/'origin_guard.py'),custody(HERE/'removal_seed.py')]},'started_utc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime())}
+(OUT/'profile.json').write_text(json.dumps(profile,indent=2,sort_keys=True)+'\n');print(json.dumps({'output':str(OUT),'argv':argv,'checkout':before}),flush=True)
+started=time.monotonic()
+with (OUT/'native-stdout.txt').open('wb') as output:
+ output.write((json.dumps({'argv':argv,'cwd':profile['cwd'],'source':before})+'\n').encode());output.flush();process=subprocess.Popen(argv,cwd=profile['cwd'],env=env,stdout=output,stderr=subprocess.STDOUT);pid,status,usage=os.wait4(process.pid,0);assert pid==process.pid;process.returncode=os.waitstatus_to_exitcode(status)
+after=ident();assert after==before,(before,after)
+cases=list(ET.parse(OUT/'native.xml').getroot().iter('testcase')) if (OUT/'native.xml').exists() else []
+counts={'actual_cases':len(cases),'passed':sum(not any(c.find(t) is not None for t in ('failure','error','skipped')) for c in cases),'failed':sum(c.find('failure') is not None for c in cases),'error':sum(c.find('error') is not None for c in cases),'skipped':sum(c.find('skipped') is not None for c in cases)}
+result={'returncode':process.returncode,'source_before':before,'source_after':after,'elapsed_seconds':time.monotonic()-started,'rusage_exact_pytest_pid':{'pid':pid,'maxrss_kib':usage.ru_maxrss,'user_seconds':usage.ru_utime,'system_seconds':usage.ru_stime},'counts':counts,'finished_utc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'artifacts':[custody(p) for p in sorted(OUT.rglob('*')) if p.is_file() and not p.is_symlink()]}
+(OUT/'result.json').write_text(json.dumps(result,indent=2,sort_keys=True)+'\n');print(json.dumps({'output':str(OUT),'returncode':process.returncode,'counts':counts,'elapsed_seconds':result['elapsed_seconds']}),flush=True);sys.exit(process.returncode)

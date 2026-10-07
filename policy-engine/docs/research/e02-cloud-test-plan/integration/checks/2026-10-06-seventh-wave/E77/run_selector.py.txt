@@ -1,0 +1,92 @@
+from __future__ import annotations
+import importlib
+import importlib.metadata as metadata
+import importlib.util
+import json
+import os
+from pathlib import Path
+import platform
+import re
+import sys
+import time
+
+root = Path(os.environ['E02_CHECK_ROOT']).resolve()
+spec = json.loads((root / 'runner-input.json').read_text())
+candidate_src = Path(spec['candidate_src']).resolve()
+overlay = Path(spec['overlay']).resolve()
+outputs = Path(spec['outputs']).resolve()
+
+def inside(path: str | None, base: Path) -> bool:
+    if not path or path in {'built-in', 'frozen'}:
+        return False
+    try:
+        return Path(path).resolve().is_relative_to(base)
+    except (OSError, ValueError):
+        return False
+
+import pytest
+start = time.monotonic()
+pytest_code = int(pytest.main(spec['pytest_args']))
+pytest_elapsed = round(time.monotonic() - start, 3)
+
+# Snapshot all project-owned modules the selected tests actually loaded.
+own = []
+for name, module in sorted(sys.modules.items()):
+    if name != 'polisyos' and not name.startswith('polisyos.'):
+        continue
+    file = getattr(module, '__file__', None)
+    origin = getattr(getattr(module, '__spec__', None), 'origin', None)
+    paths = list(getattr(module, '__path__', []) or [])
+    candidate_local = inside(file or origin, candidate_src) if (file or origin) else bool(paths) and all(inside(p, candidate_src) for p in paths)
+    own.append({'name': name, 'file': file, 'spec_origin': origin, 'package_paths': paths, 'candidate_local': candidate_local})
+
+# Record loaded module origins; for packages the selector did not import, use find_spec without
+# importing unrelated heavy modules or running additional package behavior.
+modules = {}
+for name in ('SALib', 'SALib.sample', 'SALib.sample.morris', 'SALib.sample.sobol', 'SALib.analyze', 'multiprocess', 'dill', 'numpy', 'scipy', 'pandas', 'matplotlib'):
+    mod = sys.modules.get(name)
+    if mod is not None:
+        modules[name] = {'loaded': True, 'file': getattr(mod, '__file__', None), 'spec_origin': getattr(getattr(mod, '__spec__', None), 'origin', None)}
+    else:
+        spec_obj = importlib.util.find_spec(name)
+        modules[name] = {'loaded': False, 'file': None, 'spec_origin': getattr(spec_obj, 'origin', None)}
+
+def normalized(name: str) -> str:
+    return re.sub(r'[-_.]+', '-', name).lower()
+
+dists = {normalized(d.metadata.get('Name', '')): d for d in metadata.distributions(path=[str(overlay)])}
+overlay_dists = {}
+for name in ('SALib', 'multiprocess', 'dill'):
+    d = dists[normalized(name)]
+    record = Path(d._path) / 'RECORD'
+    raw = record.read_bytes()
+    direct = Path(d._path) / 'direct_url.json'
+    overlay_dists[name] = {
+        'version': d.version,
+        'dist_info': str(d._path),
+        'record_bytes': len(raw),
+        'record_sha256': __import__('hashlib').sha256(raw).hexdigest(),
+        'direct_url_json': direct.read_text() if direct.exists() else None,
+    }
+
+assertions = {
+    'at_least_one_own_module_loaded': bool(own),
+    'all_loaded_own_modules_candidate_local': bool(own) and all(m['candidate_local'] for m in own),
+    'SALib_loaded_from_overlay': inside(modules.get('SALib', {}).get('file') or modules.get('SALib', {}).get('spec_origin'), overlay),
+    'multiprocess_loaded_from_overlay': inside(modules.get('multiprocess', {}).get('file') or modules.get('multiprocess', {}).get('spec_origin'), overlay),
+    'dill_loaded_from_overlay': inside(modules.get('dill', {}).get('file') or modules.get('dill', {}).get('spec_origin'), overlay),
+}
+report = {
+    'candidate': spec['candidate'], 'candidate_tree': spec['candidate_tree'],
+    'python_executable': sys.executable, 'python_version': sys.version,
+    'sys_prefix': sys.prefix, 'platform': platform.platform(), 'machine': platform.machine(),
+    'pytest_exit_code': pytest_code, 'pytest_elapsed_seconds': pytest_elapsed,
+    'project_root': str(Path.cwd()), 'candidate_src': str(candidate_src), 'overlay': str(overlay),
+    'pytest_args': spec['pytest_args'], 'candidate_owned_module_count': len(own),
+    'candidate_owned_modules': own, 'relevant_import_origins': modules,
+    'overlay_distributions': overlay_dists, 'assertions': assertions,
+    'all_provenance_assertions_pass': all(assertions.values()),
+}
+(root / 'runtime-provenance.json').write_text(json.dumps(report, indent=2, sort_keys=True) + '\n')
+print(f'candidate_source_modules={len(own)} candidate_local={assertions["all_loaded_own_modules_candidate_local"]} overlay_origins={assertions["SALib_loaded_from_overlay"] and assertions["multiprocess_loaded_from_overlay"] and assertions["dill_loaded_from_overlay"]}')
+sys.exit(pytest_code if pytest_code else (0 if all(assertions.values()) else 90))

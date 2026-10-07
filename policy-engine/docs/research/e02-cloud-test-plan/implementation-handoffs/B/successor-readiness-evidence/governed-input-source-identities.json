@@ -1,0 +1,1743 @@
+{
+  "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+  "source_tree": "072fe84b882f50e5ed3aa593c0bf0a647b52cdac",
+  "scope": "Explicit248 governed source files, no collection/runtime/import or dependency-wide audit",
+  "files": [
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/pytest.ini",
+      "bytes": 1021,
+      "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/_helpers/artifacts.py",
+      "bytes": 9046,
+      "sha256": "0c50d082c6861b08aa8d8d0c9f0753bac567204b6bb7fd69457be6700ec7fecf",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/_helpers/observability.py",
+      "bytes": 2392,
+      "sha256": "612a617513e52f310e81fc48dc930c0c6bb95ca091ab66c81779075618a48ff8",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/_helpers/runtime_http.py",
+      "bytes": 56431,
+      "sha256": "b1e9e4a3ca5ae825aaed75b814e48d2e842800aa3dd9ab21be3848f2a230a85e",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/conftest.py",
+      "bytes": 9664,
+      "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/integration/scientist/test_checkpoint_resume.py",
+      "bytes": 68820,
+      "sha256": "c94e36b922f539c2256eefe1ad653b2c99c9fc73895c598b05c8034cdaf3bea2",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/integration/scientist/test_res_03_real_simulation_route.py",
+      "bytes": 39751,
+      "sha256": "38fa5c5a098c67a2fa8b30fcbfa90eb989177b817c5a66f81bfedc1aa64eb76d",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/common/conftest.py",
+      "bytes": 105,
+      "sha256": "b2e4e5f3cf94c28ff6ff09a3975d90a5097b09b7def417c965887b80fa394b99",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/common/test_async_tools.py",
+      "bytes": 15730,
+      "sha256": "d93dbdd1b577c207e89520d2bfc2385fe738953743abab40bc75c1c24bbd7ca5",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/core/artifacts/backends/test_caching_store.py",
+      "bytes": 34836,
+      "sha256": "df322346f50d545b2eb7049c7ff03f4827abe7282b7e8fdff2ab92fe513d1fe2",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+      "bytes": 27917,
+      "sha256": "bcfa3165f4de79df0b39fbb147f3d2cb7873a56bcffd9c3d112abc223cf60af1",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/core/artifacts/test_artifact_store_protocol.py",
+      "bytes": 10082,
+      "sha256": "43c39a7064b161649c2a4cf65c1363ec4f2c02555f09523ebe47dc7a0ad36065",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/core/artifacts/test_async_store.py",
+      "bytes": 2279,
+      "sha256": "dda8d14da68846e8c2df061c18ee678d6efe0154959370b97e5473b7a037a2f4",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/core/artifacts/test_batch_completion_admission.py",
+      "bytes": 14133,
+      "sha256": "2ba68f1c9b0524ea648aef179ae63bdb20d6633571064d533282eadb51599503",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py",
+      "bytes": 2582,
+      "sha256": "2cf4a16829b342bd9b35a69fc28fcbfff845e3e8b56166d0a0cf207429038dda",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/core/artifacts/test_cas_integrity_report.py",
+      "bytes": 4638,
+      "sha256": "cb4bb3f5564bfc4e9e602466989e622e114e725f16c4488b12c9a051d0bf2aa4",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/core/artifacts/test_import_admission_noop.py",
+      "bytes": 14387,
+      "sha256": "44b8e5d352da4ada1cc4a66b9f824776e38582d28424c408474769a6c0bb14a3",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/core/artifacts/test_manifest_lineage_input_normalization.py",
+      "bytes": 10821,
+      "sha256": "4018de5c4c54c765ad77616a5f5da52e327aa86e995f80920c20f175b151b752",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/core/artifacts/test_manifest_serialization_schema.py",
+      "bytes": 5649,
+      "sha256": "c30f463f851085b56fade4aafa60d26de822062eb261e61297b1403bea41b466",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+      "bytes": 24787,
+      "sha256": "ea350b993f693b6421ea0bab58c01e0acbf6f6a7e7c8152c7c3043d856d7f3e4",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/core/artifacts/test_put_consumer_oracle.py",
+      "bytes": 4011,
+      "sha256": "4c3ad9d5c7c2662b8e192570f54b13defd26beef7bda71bd378f2505b6157576",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/core/artifacts/test_put_integrity_retry.py",
+      "bytes": 5011,
+      "sha256": "1bb168058fbae8b00094c0cdec0f322bbfb5b9768ef4bafc0d5bc9f946327da7",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/core/artifacts/test_signed_evidence.py",
+      "bytes": 7305,
+      "sha256": "08a2fc52ab0eebe5b3d1b465663ba566d6f59ceff81e545f867adce1157b0b3e",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/core/artifacts/test_storage_protocol_boundaries.py",
+      "bytes": 7246,
+      "sha256": "058fd8c5f7c117a189b9cd86c6e369339c561e5bb38f9cb904d1257a07c9d6cd",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/core/artifacts/test_transfer_generation_publication.py",
+      "bytes": 23917,
+      "sha256": "8996cc5b02bf74aeda4d1ec36adb30cdf14bd9030c242f3425baad678b23d861",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+      "bytes": 9989,
+      "sha256": "16f2ac386885257997a58d97fabc78fe632c328fa6bca2780fcb35825c95fb32",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/core/artifacts/test_verification_snapshot_report.py",
+      "bytes": 5578,
+      "sha256": "d6ff2c719331efdb453b9051ff6c75c6cf3e3c67276cd7eb488f8476a0569dcc",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/core/conftest.py",
+      "bytes": 101,
+      "sha256": "e05c5e31b5113b760b314691473acf9af9dda52b0200c47e61b05e415cbe88c3",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/core/phase0/test_artifact_export_import.py",
+      "bytes": 1412,
+      "sha256": "c98392b794ec39606f137b17f24379cf1c165072936c2b8b7948cdefbad7c30b",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/core/phase0/test_artifact_graph.py",
+      "bytes": 2913,
+      "sha256": "cb720254abc71c32771a848948b69f88a87711b0d0e8a4996e4483fe5fa4c86b",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/core/phase0/test_artifact_store.py",
+      "bytes": 7257,
+      "sha256": "3c610fbed5e7c7f416b0eb9ebf0220cc2e5495452e24728ca658a5532b3cae7b",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/core/phase0/test_audit_export_verify.py",
+      "bytes": 5833,
+      "sha256": "fce5b4e0c6cd7aecb12248008b7a0447322839841845a36c94abdb895858f5a7",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/core/phase0/test_audit_manifest_compat.py",
+      "bytes": 4728,
+      "sha256": "88d318dce390fdcb7e7233da897bfa0c1881cf6bc581d9aa34d2d667dfdcfff1",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/core/phase0/test_canon_json.py",
+      "bytes": 1457,
+      "sha256": "19dd0144c4ff594513cbe0aa45f3eeef03065a3c4f97970ee3b8b818a3e6fad8",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/core/phase0/test_cli.py",
+      "bytes": 9895,
+      "sha256": "f57a9689060a90643bd1b61e060307ad177ff0270244e05ff50f84ddbeae5692",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/core/phase0/test_cli_resume.py",
+      "bytes": 2466,
+      "sha256": "8dbd60ab636b667c41c682262feb06fd8e7a225f955f6e02d82374c75200a357",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/core/phase0/test_cli_signing.py",
+      "bytes": 4595,
+      "sha256": "414daba848a4814c1f65ef02318efc74b326191a96abad028939fc0cda69fcd7",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/core/phase0/test_decorators.py",
+      "bytes": 5714,
+      "sha256": "d633cb5896bd84fc3bfdc9a620e2d5946cb14e78307009534b98b0001ca8a008",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/core/phase0/test_environment_manifest.py",
+      "bytes": 13363,
+      "sha256": "ecb42584e3d65a16035ef80545e154b183225f6b9c60195619ed5a807def7588",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/core/phase0/test_logs.py",
+      "bytes": 1627,
+      "sha256": "f9eb4cd7d76bfbed26479679c4028a83815965fe51728f8eb0e74ed0eac541c6",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/core/phase0/test_metric_validation_cli.py",
+      "bytes": 1956,
+      "sha256": "0d6e2be569e39255390fa6fdf9d7948108a865e5c2219c28eb3e7597329f4a02",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/core/phase0/test_metrics.py",
+      "bytes": 4697,
+      "sha256": "f9c5559c3a1869295d28a331f827e905cd136d17e2b6611c056e4a793338ea90",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/core/phase0/test_observability.py",
+      "bytes": 2893,
+      "sha256": "9d3bab9129aff33cc2ddd5161972c56e6c11997fbcf05316bbc2e447b8086ca0",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/core/phase0/test_phase0_quality_validation_contract.py",
+      "bytes": 1218,
+      "sha256": "e2c59f50e1de9dcfe5d4e4436dae0f483b762595b82e9cca84d1483786f35541",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/core/phase0/test_propagation.py",
+      "bytes": 3844,
+      "sha256": "30456b263fc3bf4ae9731ae8ad1f7c96d216ccef6c0de56af45386bbb7fd9c02",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/core/phase0/test_provenance_contract_shims.py",
+      "bytes": 2304,
+      "sha256": "6bbe79b75c96fb2dc55afe5e3e65a4caca13923fa7671af19b1761d332d0fb4c",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/core/phase0/test_registry_bundle.py",
+      "bytes": 4824,
+      "sha256": "e58f4611a289e00d773f2f106137916e9311162fd789991281778d7f59b06ae5",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/core/phase0/test_run_context.py",
+      "bytes": 4314,
+      "sha256": "ba2e51668cccb71a0156ff912ff10d554f7383cc8dd72d6062f6183240a6d065",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/core/phase0/test_signing.py",
+      "bytes": 6894,
+      "sha256": "4af98942b89206f63cea7fa3e27ece121bdafcea179b1cc957cf4befe8c97973",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/core/phase0/test_store_signing.py",
+      "bytes": 14325,
+      "sha256": "21d210a1d4b9493e3400f64b109e5f820821495c298dfbe3f3017a17bd3abf34",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/core/phase0/test_tracer.py",
+      "bytes": 5970,
+      "sha256": "74bb2650bb6bb65b3b5db3927d84f7686efa372a16830b29de91149541310611",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/core/phase0/test_workspace_commands.py",
+      "bytes": 2918,
+      "sha256": "36ca54ffb2b3eb1ee0b72c3a07cb646a63382da720b4a9ef04ce7d800430756f",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/core/phase0/test_worktree_admission.py",
+      "bytes": 8532,
+      "sha256": "2fc4c2c48505c8465d10cfbc44f99ea24dc03b6ef958a2af03d920fa3d8108fc",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/core/test_llm_core.py",
+      "bytes": 1942,
+      "sha256": "5de4046006fb35942a30eb161d7e403d6eceee7067c22deae8bbec1972c5da5d",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/data_forge/conftest.py",
+      "bytes": 105,
+      "sha256": "4a61ad636dc710882f9882a1ea989ef860dadcca4362a856b407ccd8b47e3725",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/data_forge/domains/academic/knowledge/test_skg_query.py",
+      "bytes": 36569,
+      "sha256": "c6fff84f61ab2ce019988e09c97f86afa57db36291f4e0282d26be17a3d631a2",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/fabric/conftest.py",
+      "bytes": 97,
+      "sha256": "7df4085256e8f0b4afcf6e6529fe666c56fd741699e4ff92b5c32744d53e0307",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/fabric/connectors/conftest.py",
+      "bytes": 8194,
+      "sha256": "16f8fa44c54469d37ccadb79f0aacc4a2e1f82e42117eb4184e96100652fec9a",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/fabric/connectors/test_pool_e02.py",
+      "bytes": 10635,
+      "sha256": "a9ec798fc3e2e36c2e99c171526c3fa7a00027947f3f8776513de8b717bb11bf",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/fabric/connectors/test_registry.py",
+      "bytes": 63686,
+      "sha256": "f37a87d195dbf8a09d8d98d9f8307c9ea4026d562797c9e8846c4220cfa2b598",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+      "bytes": 29464,
+      "sha256": "66a7b774c2e7250d15e8dbc55b065d65f9498d11539b70c2de7090fb8ccc4c73",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/fabric/connectors/test_resilience_e02.py",
+      "bytes": 6312,
+      "sha256": "20d6d959e58d65e676945766f3be4ceb32c5c5bc5d134659138e55c64a813049",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py",
+      "bytes": 8699,
+      "sha256": "e1d4fca7abf7934f38bd789c5dcb6c4a461ba59a4e65a731bdff9104630e512d",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py",
+      "bytes": 12269,
+      "sha256": "57a93345d81860b0de51fcd4fc494c82f7b4f2ef845f9253659b6e41d54bc6f9",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+      "bytes": 100684,
+      "sha256": "e5c13242e9ccd2779217102c656899f04729c4c78eaceda0a4b3e854257ad7a7",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/fabric/test_concurrency_bounded_runtime_phase2.py",
+      "bytes": 12574,
+      "sha256": "44ab7e31733758219627e35d32facd9fb7bb7ee3e8cac30aa995334a6e42421f",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/foundry/conftest.py",
+      "bytes": 969,
+      "sha256": "53c808c34be3ea5d31db2c8e5172c0c75235a0ea1f11846416dacc2501b5ec40",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+      "bytes": 33264,
+      "sha256": "23f3a815adb38d2b18ef9f68b320300788941a45e4d32bac2e9e2cfe734d13fd",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "bytes": 13742,
+      "sha256": "025f395d25306b5a94d392489d1eea5ed9a1a0649cc0b28607b860b8d259385f",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+      "bytes": 30912,
+      "sha256": "70818a2e1b8c4e94f930823693ef7f0d232ff7c92f987decbf97d0c39ef18449",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/foundry/methods/components/test_composition_e02.py",
+      "bytes": 12213,
+      "sha256": "059bde6f9f3550b2f77f82039cf4d258cdac28262c2b53d092228d4cdfea91cc",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/foundry/methods/conftest.py",
+      "bytes": 11773,
+      "sha256": "d4cc421ea080fd04e04c93345f066c9f2993020a1e95219e325319d0fb987d11",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/foundry/methods/test_artifacts.py",
+      "bytes": 25712,
+      "sha256": "a71b81fcbfa54e81a8188ebcdcd5e4bd12b765c510949b14dc35ec4d7eeb1f2b",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/foundry/methods/test_compiler.py",
+      "bytes": 34246,
+      "sha256": "a015d14b41eb7bce0ab0b9ed96e79663be29e71aebd1f19f1f7801e646a5805f",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/foundry/methods/test_compiler_e02.py",
+      "bytes": 11608,
+      "sha256": "75673416c70a2f82ca72194c015a8a1c1e5d0372ffeeb103c4658667121ba462",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/foundry/methods/test_compiler_leader_termination_e02.py",
+      "bytes": 8277,
+      "sha256": "75afc999a46ea3e4697b79dbecbe0678e4946cd89e360754543a32a0ea15812f",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/foundry/methods/test_composer.py",
+      "bytes": 17844,
+      "sha256": "0aa58ad4447e7a35b2512dae8056c01e0ff9151bcabb82879b74c0a37da9a926",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/foundry/methods/test_composer_hardening.py",
+      "bytes": 9243,
+      "sha256": "88a67c39f5a8fa57f4c9a1c5c552321fbcfe5235370776f3b3eeace0cacffa56",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/foundry/methods/test_linker.py",
+      "bytes": 30180,
+      "sha256": "3443e856ba52a04e0d2c84b80380b525acded1595e88b3642bf3c9b11f0c4efb",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/foundry/methods/test_semantic_validator.py",
+      "bytes": 9850,
+      "sha256": "8f3d3313aeb8f6b8ddcee0f94e0bbc922439c16b49586b1d810a48169ec22934",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/foundry/mirror_contracts/test_specialization.py",
+      "bytes": 229,
+      "sha256": "0884c5e5608e78172083c7577a3b57609796cb4076451d58b0adebbb41fda3ef",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/remediation/test_cas_01.py",
+      "bytes": 48119,
+      "sha256": "2f5e579c9522fac98b8b1e727a12f3b3f3ab89fab6dd2827fd44d67bce8d94df",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/remediation/test_cas_02.py",
+      "bytes": 24197,
+      "sha256": "d64c46bb4055cb6cd65fcff05067ef6c89941b5af316a63931088fbebaa98771",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/remediation/test_cas_03.py",
+      "bytes": 31421,
+      "sha256": "19636b58cf687da7ec3eb9c3ded9ef9cb0ed6c24f0b3bcb6aa10e31eda9db9b9",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/remediation/test_cmp_01.py",
+      "bytes": 9897,
+      "sha256": "1430274f7228fccb77a5c29832d31d65b30e22740f9b622ef6553f63efe59a16",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/remediation/test_cmp_02.py",
+      "bytes": 9386,
+      "sha256": "368417feeb5bd2a64280de1a3e1d6071356c886e412209a4675062532974d74e",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/remediation/test_cmp_03.py",
+      "bytes": 8449,
+      "sha256": "79b396b1c7766377baf471c51b215a921409fbaa4541685073a25be215967f4a",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/remediation/test_dur_02.py",
+      "bytes": 8596,
+      "sha256": "22aa14c0d4e8a3ad6c0bcc0ae1101bfeff551f2fb69c89610507cf80210449a8",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/remediation/test_dur_02_process.py",
+      "bytes": 27256,
+      "sha256": "35f48eb3182363408dbb02e4c57b4cdb01b37b6f6df4391f3753bdf975426b48",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/remediation/test_exe_02.py",
+      "bytes": 11319,
+      "sha256": "34a2a44040561fd7af9b03de765f5accb3fc6726f4c1e74e47821afa483a7104",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/remediation/test_jit_01.py",
+      "bytes": 24311,
+      "sha256": "c7e68d8b29bd4d61b7cd5ec9c1e3b49c42cf410d38c456730171d63d0c6daa0a",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+      "bytes": 8263,
+      "sha256": "b247897d69ec0c990aeb94700db0d471a46890e77ea6f181190e3eaa40d7b5de",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/remediation/test_res_01.py",
+      "bytes": 17834,
+      "sha256": "e8913b401a0101c2301671962e876c97e86afed696536407f0c86e8c2acec93b",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/remediation/test_res_02.py",
+      "bytes": 14175,
+      "sha256": "1a8d8c7d305fe66bd8fcf261ec7423be61b37df27354e752152b001ef729d0aa",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/remediation/test_res_03.py",
+      "bytes": 8082,
+      "sha256": "8a53733d6ecfb84e68eb222c99926c0794b28d33b61c947ca97a3bf0b965e32d",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/remediation/test_res_04.py",
+      "bytes": 15865,
+      "sha256": "d6ea1299420903c72a42e8c6b07b506ed6aaa1dc5d0366a7bcdf144aec4838b0",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/remediation/test_run_03.py",
+      "bytes": 14399,
+      "sha256": "037753a3c4200bef8492b65e7e0ee0a96dd1aa09940e1e6e6b8e5b798ead835c",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/remediation/test_wire_01.py",
+      "bytes": 12091,
+      "sha256": "20a9f68b15462ca6e20a2ffa602828a1b64354a2457f2cc18cb8fed70430e507",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/conftest.py",
+      "bytes": 99,
+      "sha256": "85147d4db3518969cdfa50bd10f84c0f5bab79f72dd8e00123cd49722af37ab3",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/conftest.py",
+      "bytes": 74,
+      "sha256": "917f1f86d2cb56cf32cdad790b71fb08fd9511cd5616c0e4414b2e9b9a7b50ce",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/services/test__control_contracts.py",
+      "bytes": 2276,
+      "sha256": "f94ea8ab38e5469afc2841579c875f9946464b0ae4604117d1e0afc8ec7e010c",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/services/test_evaluation_safety.py",
+      "bytes": 109346,
+      "sha256": "f56f1239f79fbc3c22d9fea856df05adf00bc9006e48c3b445c450c82a4c6ffd",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/services/test_lex_pipeline.py",
+      "bytes": 6820,
+      "sha256": "683d1bd786c70cd3c453906e89926153ebbe6a7dd6c2e3049b5896d4d30b151f",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_acquisition_admission_artifact_facade.py",
+      "bytes": 1487,
+      "sha256": "e8ee45cde911b5bd084b64d4079367d05d66ad5c4525caa6e2baa474c80dbdb9",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_acquisition_authority_deployment.py",
+      "bytes": 1718,
+      "sha256": "362dc8dd742e8b104caefef6806e1ff4e721e1e9fe4a566cfe7a7c1b4820b231",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_acquisition_control_worker.py",
+      "bytes": 26310,
+      "sha256": "355725bf89b01e23ecc1ee44509d46b38a7b3c4069c0ede1e2c926c2a9ff160d",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_acquisition_human_source.py",
+      "bytes": 6700,
+      "sha256": "7381651a41fa15e4a7d57c1dd0738088fcd012b3607086cd820b6e00e996376d",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_acquisition_route_authority_sink.py",
+      "bytes": 11686,
+      "sha256": "9dbe70cb185806fe3d41cae16a7853a8d22308f08acbc18346d6f3a72bd614d5",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_acquisition_routes_api.py",
+      "bytes": 2446,
+      "sha256": "506eaab840bf6018705f0a94bbdb87956f9c88bc58a07ce1899a46ce1c2c4f1d",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_acquisition_surface_projection.py",
+      "bytes": 6468,
+      "sha256": "2452885a8cff7f8beaf3ea9f79091df167e3d311ba71905a579a8d08f5f0f8e4",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_analysis_api.py",
+      "bytes": 3717,
+      "sha256": "fb11e25613eea5ff5645fe707ebe7417f131ee9d54cb51b4fbb7091577feb0ef",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_api_maturity.py",
+      "bytes": 10135,
+      "sha256": "60ffdd080d946190d9e3dd3dd5e8a95a95014ca13baf1877ee025224d1ad885f",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_architecture_boundaries.py",
+      "bytes": 18604,
+      "sha256": "daf21462d1bc91fc9096fb5fd6417ea82cb6bf0a3796ae0e7aa0c5da1c9362c2",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_artifact_inspector_api.py",
+      "bytes": 6896,
+      "sha256": "07a51f2e2090ef2a1c52be5152dfbea6dc7a4f284cbd2c20ec888a7fb7cb5a0d",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_artifact_inspector_service.py",
+      "bytes": 3278,
+      "sha256": "4e9bdfca57f295a6dd7bdada1f99fd52bb5dcbe55ba88c56f203abed678d2dd9",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_artifact_surface_safety.py",
+      "bytes": 8071,
+      "sha256": "5e95df05377ea7699cb3500ca861bee525d5480cd2ac8b331d70f301dc4f5aad",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_auth_api.py",
+      "bytes": 709,
+      "sha256": "272535232c7dbfed16e7f03f63b1f4bef88b5bbf6c5f608dd860198b9bf792fe",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_authority_values.py",
+      "bytes": 6978,
+      "sha256": "e8c53cb5d64521f588dc62c14d8f4d87c5aae5b662dd8ffe4cbb1b2be038a691",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_authorization_audience_denials.py",
+      "bytes": 5820,
+      "sha256": "3cf7160a1a05fc05a4dd116cb8a65184ca279f08fc0a94654b0a2c3b168ee315",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_b88_served_replay.py",
+      "bytes": 20807,
+      "sha256": "bfe28ba23ea2e047e9e22fb11fe85b9531d6b2d9b8c5d20d57c24171d8fb6d3e",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_bureaucratic_rendering_api.py",
+      "bytes": 9337,
+      "sha256": "4c8e036b418a6883943ae0f09347da30410fcc1a9a69d2a91aff2110ae6cf5ef",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_capability_discovery_api.py",
+      "bytes": 17426,
+      "sha256": "13e18cd08d192452c89642cf91188d3ad3bbeb4021b23d4fac4304defd04daef",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_case_inspection_api.py",
+      "bytes": 6638,
+      "sha256": "516588ccadc313e797f74a0abd6ce5973b956393c40b1f034d09301338f6c021",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_confidence_ledger_risk_spend_api.py",
+      "bytes": 9101,
+      "sha256": "a0fb38676b8811f36fe5189276f5b00b3fae668068a6bad09ddcbe54378f3863",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_confidence_ledger_risk_spend_contracts.py",
+      "bytes": 8790,
+      "sha256": "17253abbc71403bf94b38b54efbcf09042185f78a5a89da3c07689a3eb3a601f",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_confidence_ledger_risk_spend_projection.py",
+      "bytes": 18382,
+      "sha256": "0b4e6f970f69fc65311338bb193c2738c714c0eaed5c01ebaa73e5fba8a19052",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_control_api.py",
+      "bytes": 100312,
+      "sha256": "2640fda5cc310bb74673467aa4ccff927d619708c22fa43a1767eeb48428750b",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_control_hardening.py",
+      "bytes": 5627,
+      "sha256": "eaa3f63b8b00bafa1daa03632f3fd64726b4feda374fa7aa874080a67cd8457c",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_control_import_boundary.py",
+      "bytes": 6371,
+      "sha256": "610ca47afd947029bd0542ec87fff391e3bc75e0c62c711d9513f78fb4b40e5a",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_control_job_core_attempts.py",
+      "bytes": 15099,
+      "sha256": "c70dc1726c2a5de6f92a99e188752a019cd713a77c2e26edda5e2c8d6ccfd2ba",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_control_job_execution_intent.py",
+      "bytes": 75617,
+      "sha256": "765ecc3270c338e3a7753e02836f5bbfd4ad8ce28642eb3fedadf1a5453598ea",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_control_plane_store.py",
+      "bytes": 81515,
+      "sha256": "a21c740a7c4c038e3fbc1af90a45dd69d09710461a5c4ecb2cef601afb79cdb0",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+      "bytes": 123424,
+      "sha256": "01278a3cecfc6d3ca20dca7c10b817adf16847cf1ed5c5d28e47d87fd5d3b821",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_control_worker_custody.py",
+      "bytes": 3674,
+      "sha256": "9ad4a994b2d10486608d23a9f4a7ac2e6b1e6f26327fdb7cc9ad19d7259920c8",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_control_worker_maintenance.py",
+      "bytes": 1029,
+      "sha256": "6bb1c109d248d3517764e9d734bc040c048917614f1b995b40ed27ea21fe4fbc",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_core_only_runs_api.py",
+      "bytes": 830,
+      "sha256": "c0fb4a4c1b88a86234f21ab283543412177aedebd0807bf476e0adc776966b81",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_curated_dir_resolution.py",
+      "bytes": 2900,
+      "sha256": "e003eabde695617be0c0c97f7e42a2f2c77ca9f3e8692f46eda24339d3611900",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_cycle_board_historical_availability.py",
+      "bytes": 6961,
+      "sha256": "ee24bafb5e07f874e8f827964d49deae04ecc98734a663605e91123a3537f32c",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_cycle_board_movement.py",
+      "bytes": 2088,
+      "sha256": "1761a1ec65ad039c65661e3b46a8a35a5e8563b77eea9ad6af860377ae14dd6b",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_cycle_board_projection_access_replay.py",
+      "bytes": 3848,
+      "sha256": "3dedb4f0a08763a48ae6dd891e68b686db4488e22e9a388d617109faafd38f83",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_cycle_board_projection_fact_algebra.py",
+      "bytes": 6314,
+      "sha256": "2cc6c0217ca58be23d6cab136714883cbb9f17159c05f31c549f0e9b6cf1e73e",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_cycle_board_projection_fact_owners.py",
+      "bytes": 6065,
+      "sha256": "dfaa94c6bf30f462d6d6119be5fc9f19d17e3b7c849601885cb3080efdbe85f0",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_cycle_board_projection_loading.py",
+      "bytes": 7984,
+      "sha256": "64858691046ed97ad3474a8f6bfb3d3b035f6e2eec4d1d38124ed2e1f973867d",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_cycle_board_projection_service.py",
+      "bytes": 32783,
+      "sha256": "06f91e7855619ad4cfa002ea5ead5c0c757b714f0c6a9776ffdb229d6d1446fd",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_cycle_substrate_job_execution_binding.py",
+      "bytes": 32652,
+      "sha256": "797b8e4a5bbec0af46a04b1346376c2e62f42b3ada0b00daea467fb1bc536a3a",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_debug_api.py",
+      "bytes": 3611,
+      "sha256": "2d5b72204a35df4ef2801aed793bdb6c0c4c6cc483e830807a779296b1efe658",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_decision_validity_api.py",
+      "bytes": 37372,
+      "sha256": "dc621de07ab9e3915ab8e7b67ea7ab0cdf9afdbd6769bcb3993a04e7df9e62a7",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_depth_n_route_projection_artifact.py",
+      "bytes": 5136,
+      "sha256": "48d966e5e4071586020a0db68c8446b5789824a3ddfac9c17a71eb6ccbd0cf91",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_ds20_authorization_binding_followups.py",
+      "bytes": 5113,
+      "sha256": "9c07b3bc6ac95d77145037dce595f115ff872fc8c027d7e375d46ab55fc5ef60",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_ds20_seeded_negatives.py",
+      "bytes": 8277,
+      "sha256": "5d952d3ef51c005842f29f2bb5a3954e6f4ec07b8f80a070ee6123a0e3b67349",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_e2e_ingestion.py",
+      "bytes": 10130,
+      "sha256": "7097f8b11672df057cfbffad7a98f720307f26e1353ba26b832ed6a05cea020a",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_epoch_custody_container.py",
+      "bytes": 520,
+      "sha256": "cdd8e85046c71b633cb3908bbcb58c8ef93556ebd950bd53e691ad6837b6ee68",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_epoch_issuance_composition.py",
+      "bytes": 4828,
+      "sha256": "a9162845e05ec0f0a69abe700a5c99fdcd4d066c7ac845b7d0027a2d7a226d04",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_error_semantics.py",
+      "bytes": 3672,
+      "sha256": "c33cc82642f2b82d3c4f25f8d211a614d4fcdef9384cf894267721c00aa4e1cd",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_fabric_integration_routes.py",
+      "bytes": 3325,
+      "sha256": "c7411536b62f2398226b33ab7da996679ff13a21a00603497f706c257fd7736f",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_fixture_runtime_api_loader.py",
+      "bytes": 1604,
+      "sha256": "0093b25d98e5ab27116426245dc8379f1dfdbb05b2753d0d1ab2fce5e06e6a57",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_governed_projection_api.py",
+      "bytes": 16209,
+      "sha256": "675c94d2b5271f330bdc78eba68f0d0a86ca20b39ada24394d6839eb4bfa257d",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_governed_projection_service.py",
+      "bytes": 75433,
+      "sha256": "57d2070fb7a794803e5b3fc291c630c5f8e17cd3627be88278390aef858ca099",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_governed_projection_validation_worker.py",
+      "bytes": 28246,
+      "sha256": "ccf4e4c7adff4832667417254674499cc4a2c023d96d136fc12e8a73462935c0",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_human_decision_api.py",
+      "bytes": 4174,
+      "sha256": "a78ce52aad1f1a043e3c47b6625e9e3d4f2219b9d597823f318e755852d22220",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_human_decision_guarded_custody.py",
+      "bytes": 1124,
+      "sha256": "74fd871acf56d45bafe112e3342d39517108eeeecdfeb5db21c80a728f28bb5b",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_human_decision_guarded_timeout.py",
+      "bytes": 7000,
+      "sha256": "8a8c919bad82bc5967677c7fa1a9f1c2d8bdc2842772fed2812cf133e510118d",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_human_decision_mutation_binding.py",
+      "bytes": 2491,
+      "sha256": "c68704f8c2a917746b9f1daa3c96a0af8a636468171a77b415460b2de8969b9c",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_human_decision_service.py",
+      "bytes": 129504,
+      "sha256": "9bac7dc0dd225e2cae3a34389cadc69bc41f9cbb6a5c0d8faee6d5cb0e1d7e38",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_insights_api.py",
+      "bytes": 4333,
+      "sha256": "27f122a65fd503e1a55fd173c2dc6611c2c04d63c6db3851e61429ac2ef57d53",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_lineage_api.py",
+      "bytes": 7683,
+      "sha256": "f672b4ef2599d3bde14ffea848efd36d7cd6fe41b7d69715ab82d68103e6b655",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_lineage_routes.py",
+      "bytes": 3228,
+      "sha256": "fbc6da82e6efe93371a30e5fe64b98a969fa7cae838d3372e2ce5acf6b3264dc",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_mobility_api.py",
+      "bytes": 3352,
+      "sha256": "72a8673d683b61a8eef7a9ca8b9a484b6afa8ca80ece630e0798a39ef3e8ed6d",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_nl_pipeline_materialization.py",
+      "bytes": 171460,
+      "sha256": "99d6b21eab61bed66d23d58326b07df6b800aacff2d4ea916ab5e056864a85e7",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_non_data_acquisition_projection.py",
+      "bytes": 12266,
+      "sha256": "8e2827b59d00876bcdc0ec5dfc5890c1df2a5301701c7228863bb8dda8296088",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_normative_evidence_intake.py",
+      "bytes": 19443,
+      "sha256": "a63e4a4c1a36256cf3f15324166f09b99cb849ef43f6bcbc2a4b25e1203f9e4c",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_normative_generation_bridge.py",
+      "bytes": 46269,
+      "sha256": "7faaf00f351b304edf51462e8c02dbe8bea3fcffd2b52cbd0ea5b826131aa27b",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_public_decision_verification.py",
+      "bytes": 18065,
+      "sha256": "e24c4e0edec117c05f6d1aec7bc2797013506f3364c308340766bb25577831c7",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_public_decision_verification_configuration.py",
+      "bytes": 6153,
+      "sha256": "58c3d0a46ab4dcab88e6e737cce84e4fe7b8c04864c6fa178d13e709524d469b",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_public_decision_verification_routes.py",
+      "bytes": 20081,
+      "sha256": "87d7c963c8e5f998662e6c4028f09235e6a0eb3bf58509b04d8171fe0b750556",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_public_decision_verification_schema.py",
+      "bytes": 4735,
+      "sha256": "430122863eca2963081eeadaa19513ed2a4f47d597066af69a7db722021addb0",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_public_export.py",
+      "bytes": 51511,
+      "sha256": "3a8ad7447d9728ae66370794e47addd3976c1605b294cec3eb5a9c2d66e8d66e",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_r13_ingestion_tenant_custody.py",
+      "bytes": 16981,
+      "sha256": "4190d20a165a8dff7fe7a501557dedf0734e7e591948b009548acc01a23671bf",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_resilience_guards.py",
+      "bytes": 5722,
+      "sha256": "83b37541592c28e5b949618c2d4052b88de17e09ec954d2eb9119f8ab5f7ab88",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_review_collaboration_api.py",
+      "bytes": 5893,
+      "sha256": "a5385918448b5501b5227671cdf4d55605a368c37b90891e2261ef06f423ea57",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_review_collaboration_service.py",
+      "bytes": 5834,
+      "sha256": "9014d87f2318c5a4c6252d9da5f89ec92e13ee52e8d0234036cad6c645e21f1e",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_review_effectiveness_projection.py",
+      "bytes": 11773,
+      "sha256": "87eb681139c374933a67a6d702954c9d3ec7b2d61d3fa2274e284bad2aa20d65",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_run_compare_api.py",
+      "bytes": 6359,
+      "sha256": "2d2c6607e72c1fa735fac9c14e5c34d298b6beb6c983cfbc0e99aff1069ed2f3",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_run_evidence_context_promotions.py",
+      "bytes": 5985,
+      "sha256": "99dceb4dcfecdac329072d9b3ee3f2a9126137ce67c9cce1bc196bea258b56fa",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_run_paper_api.py",
+      "bytes": 50174,
+      "sha256": "d6ce9713073cf9ebd85d5d0d6033234e64dcfffa823b472a7eb60a51623ceec3",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_runs_api.py",
+      "bytes": 58483,
+      "sha256": "1bfcc732edbe96fd632a4c3e3bb1a359bca409c86c94fa3d9da2a0be9fb314cb",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_api_authz.py",
+      "bytes": 133813,
+      "sha256": "420a9579e15d894a1d342305b3ae660dbdaff56690d5202933331c8d522972d4",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_api_contract_hardening.py",
+      "bytes": 52180,
+      "sha256": "16850e4f3caecb1bf53f6487097ce2b6f0ab763daf091d6b040f0498e6109de0",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_api_no_legacy_sources.py",
+      "bytes": 972,
+      "sha256": "dcc8f0db57610401d201c1a8895379c0493d64b764aca628d254ddb7848b92ee",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_api_observability.py",
+      "bytes": 19482,
+      "sha256": "ecf60711696ad37c98a7e384eb4443875a110516493fdd117688932863862f56",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_api_write_path_hardening.py",
+      "bytes": 6869,
+      "sha256": "fecf4943f4e97f10c8773ac4d32645dfdf24d0eec368d2142423a42612ecdf8d",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_authorization_access_audit.py",
+      "bytes": 48767,
+      "sha256": "78773ed6f46d7f68620bfdc875e2e38513beb31c2d97208e930f182d36873b42",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_deployment_security.py",
+      "bytes": 51799,
+      "sha256": "b627180f417cd900d1683a35a46d2dab7f8745bc14d4b9151175d0c98673e922",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_fixture_identity_prohibition.py",
+      "bytes": 7743,
+      "sha256": "18f78dabc748b1a88a03009da4c174680dac532ea438edf56b94feaf9311cbc8",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_permission_vocabulary.py",
+      "bytes": 6303,
+      "sha256": "4d8ca696d7afd47c959f4c3af75e1724e311c13c9a58942bd569e8a7236ad3a3",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_postgres_linearizability.py",
+      "bytes": 17894,
+      "sha256": "2a96232af95ccc1068d79c860b142cb72bd956ecf6f7de79ad451558ede8bbfa",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_rego_authorization_parity.py",
+      "bytes": 30427,
+      "sha256": "a3ba4ad43b7e2b09811a2815406bf9c8cac9207c758844578142c5baee55994a",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_security_compliance.py",
+      "bytes": 6992,
+      "sha256": "a8a2c6df75ad779d3ca1d7d21a11721711623dbf970bb395aa97c02e62163d1b",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_service_container.py",
+      "bytes": 9008,
+      "sha256": "5945c92a78872d6420f4fd0e8d66dbc9814fc219a9e0d14c31b905ec4151f30f",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_step_up_authz.py",
+      "bytes": 58327,
+      "sha256": "7eb76c0e4a648226b18741c61798c2908eebe9a663b1e9bec7bef5ba6aab1fcd",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_sae_spatial_route.py",
+      "bytes": 5389,
+      "sha256": "dd9596a0026cf1629c2c1a8b1379dd62f0e4b90840867f5c86b5ce761848f957",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_scenarios_api.py",
+      "bytes": 17299,
+      "sha256": "2fde43eb1616e26466f3cec58b0674ad086ba052b693a7349f678dbe8bea8efe",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_served_unknown_target_scope.py",
+      "bytes": 13273,
+      "sha256": "74f214458dba8be76b23493c015c044f5ae2d1b24b4fd2062f3bd9aabad28f8f",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_temporal_api.py",
+      "bytes": 12202,
+      "sha256": "464c72fcd19e1bc85c13082bfbeaa0fc5a9685ad907c8ff14d6018aad952cfaf",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_temporal_routes.py",
+      "bytes": 24945,
+      "sha256": "83ad5ceea2590d0e80579f7f2e0f6433772a636a36685df995a8748fbf5b4321",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_timeline_api.py",
+      "bytes": 5322,
+      "sha256": "fa825bcc2cff6212b908436f818e891153f040cef968cbdc9ef9cec37a29574b",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/http/test_workspace_loop_transition.py",
+      "bytes": 79752,
+      "sha256": "50bdbb9bef34f016822960a97815fe628258dd322b4718e6a361aeff5d2f7522",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/runtime/quality/test_chronology_proof.py",
+      "bytes": 64363,
+      "sha256": "069e7d9509449da6ee232809909d864c835eff44dbb94746433cd04f5c911f8f",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/scientist/conftest.py",
+      "bytes": 103,
+      "sha256": "9d711f8d627e1aec1d9baa959b5cac44971a4383aa44a449b348a085495d6fcd",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py",
+      "bytes": 21415,
+      "sha256": "daaacc64978a18d4e76af2eb120b0f0146ea4779a4a3aa19683319a5a84de93c",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/scientist/mirror_contracts/test_budget_ledger.py",
+      "bytes": 229,
+      "sha256": "27b668a1baad69ccd6ba840118a59141ff01bb1a78ef95834c87854e09ab4d82",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/scientist/mirror_contracts/test_local_runner.py",
+      "bytes": 227,
+      "sha256": "3ce3dca10ebb4fd828d8035ce690354f9ab2dbaa0e1134913295947ab25eee97",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py",
+      "bytes": 10368,
+      "sha256": "3b2aabe75572c246560a0993f97085f6414dabb252d93fddb892ab6dfbfd7188",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/scientist/nodes/conftest.py",
+      "bytes": 1556,
+      "sha256": "5efe0ef0510816c884b4ae09930fadeabd058eb8dfb16b1f3e281fdd5096d9b7",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+      "bytes": 23634,
+      "sha256": "2c5c3308b9a8a6f28091a834d13d7286f1db3316c906f7e1ac65c3b91123f9e2",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py",
+      "bytes": 13006,
+      "sha256": "46ebf470762385b9f511379e1510e5c10d2455152081999b4c5d14ffd5b2dbc5",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+      "bytes": 16009,
+      "sha256": "d46a9978d496042c2372bc5ec99bc93fa6cedc0ee61e2db70a66a0cbb71f081f",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+      "bytes": 10251,
+      "sha256": "a0a2bb4190a150b76c09239056e7f97ec9ff8506d133fb3333d8e741770f7e03",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+      "bytes": 20275,
+      "sha256": "e798e0546ac1b461e603ea43e7d9feb9de5526c45e90362a96a17faf1c4cb972",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py",
+      "bytes": 30571,
+      "sha256": "59f0acf06052db762b2b0b638f02a6d9fb0c1b825e2d6844c572186f821f61de",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+      "bytes": 18096,
+      "sha256": "442e105be30e8cacb8436a2755bedf12bb792cf46e9b65fd2539d1724f8e43d1",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+      "bytes": 16904,
+      "sha256": "3a21ea963a4bc3e2fcdb3f62daf1456ae69153ef2f3d990cb7d56a7e9b48b8cc",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+      "bytes": 13682,
+      "sha256": "aca02227a7c9d3a5ac6740cb9a7428785e324d97fc09d36fa036e6c8a6c965f4",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+      "bytes": 17417,
+      "sha256": "f9a037cc70ab8c8b8eb61a5c26c2e16809d6fc20a8b438d819d69512a77b1bbc",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py",
+      "bytes": 5302,
+      "sha256": "3da9f7887b520884b1d4b3a320965452f95ec1aafa519118bed5aca096811e73",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+      "bytes": 6681,
+      "sha256": "08f7d895f640625f74090ec1bf5c959b539e98974c7f92b41f793a630cceae9a",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint.py",
+      "bytes": 33109,
+      "sha256": "1e06eddf3a53bb96da51b5b233e8a5eb3421886585c114c36fcc8d29b122620c",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py",
+      "bytes": 7565,
+      "sha256": "05623df2c82e8538591a262daca17bd0bd27f196c106a8a8552b95c8de9fbd58",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_gc.py",
+      "bytes": 10088,
+      "sha256": "c283ee687bd7722b02d4e02793daac83504410f6f816cd21a8fc9b9641f24ee9",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py",
+      "bytes": 11173,
+      "sha256": "b9e2005611669331441083aac3740f506bc6415f8b02bb01fb2d8310b5a7a57a",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_circuit_breaker.py",
+      "bytes": 10168,
+      "sha256": "19fdaec33d56a6082e9eb5354af176810d0f4d90902bbfd312e61af0b5d33a94",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+      "bytes": 15391,
+      "sha256": "0201cdaa224e24adc298c14efabf9dc1c441dd73eb291830026c4668a8fde7f6",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_idempotency.py",
+      "bytes": 30145,
+      "sha256": "7089614efb8797b91f9d093a6839bc8f26522e732c871e7d83e4009d78c0ec51",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_native_execution_admission.py",
+      "bytes": 19724,
+      "sha256": "df6d564625a63469388d1f5da63c6d0db7f35e4173b86f21aa19ca529adcbe18",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py",
+      "bytes": 32478,
+      "sha256": "8caba8a940ecd756bbd47f7fb97e7695c8e45fc3cd258c392170b0ae2cdfd53c",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+      "bytes": 5301,
+      "sha256": "fba2beb39298c54788516a69fa8a5ba8bdabc47fdf6f51a772825f866110366e",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_resume_artifact_requirements.py",
+      "bytes": 13231,
+      "sha256": "cc96bdff760c0cdab55f8b6f3b388610c32e1ead363325cefbeebd4cc624dcd8",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+      "bytes": 79749,
+      "sha256": "b7039c547aef21cdd2c12923b371da4196326555a85ff579acc9c7da6e95d139",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry_integration.py",
+      "bytes": 13068,
+      "sha256": "f457a9163f9b2480523623dbdce531fdcaac88d64a7b73dce61e0afddb9874b2",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_state_branching.py",
+      "bytes": 8098,
+      "sha256": "4b2cffae6377f20558002a5895d91a6a3812c427f8c348284c6c5cf753a1fa65",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py",
+      "bytes": 15169,
+      "sha256": "44597a58ee34d703db68f189d03b6e7a99a5d7bbe7a9352ac8876241537e1648",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+      "bytes": 17286,
+      "sha256": "c33325ff111015a1fac83658b2b5a5bed6c12de984e73f370df05747e0ccf493",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+      "bytes": 19957,
+      "sha256": "6d5e5e45cf8404f72105c76cee31ff57206598cfcffb8ebe3ba486085cfc7f91",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+      "bytes": 6427,
+      "sha256": "bef7aa0de4133162c63515a6614b47ff3492ddc7a668971e20ddd9b3f4fd6464",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_factory.py",
+      "bytes": 9466,
+      "sha256": "0c9582814b5e82cce3c45ad48025af72c663be2ee0759a60862b62ccf9a1c301",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "bytes": 21046,
+      "sha256": "b85a152ba32ac72aa4586f40f562c008a1e01479307032f5a466faac0f90a02b",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+      "bytes": 41666,
+      "sha256": "acf11eee561f833de25be229e4de1086aef6a7e6f625148f765a8e687adf3682",
+      "actual_backing_bytes_match_source_snapshot": true
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_sanitization.py",
+      "bytes": 4182,
+      "sha256": "733452c3d753d3f66464152c7b11628b8a57cbb2ed12387375127d50a5ca09b0",
+      "actual_backing_bytes_match_source_snapshot": true
+    }
+  ]
+}

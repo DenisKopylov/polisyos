@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/tmp/e02-dur-getter-oracle-8aa69009572b/run_native.py", line 53, in <module>
+    sys.exit(child())
+             ~~~~~^^
+  File "/tmp/e02-dur-getter-oracle-8aa69009572b/run_native.py", line 21, in child
+    assert before == {'sha':SOURCE,'tree':TREE,'status':''}, before
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'sha': '8aa69009572bdec3b4906257208c601bed4fd9a6', 'tree': 'e6bfbe8e37f243bcb85d6097712e97a6832c52c7', 'status': 'MM policy-engine/release-fragments/unreleased/2026-10-07-foundry-imported-module-identity.toml\nMM policy-engine/src/polisyos/foundry/methods/artifacts/README.md\nMM policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py\nMM policy-engine/tests/unit/foundry/methods/backends/test_module_source_identity.py\n'}

@@ -18,7 +18,7 @@ from typing import TYPE_CHECKING, Protocol, runtime_checkable
 if TYPE_CHECKING:
     from polisyos.core.canon.canon_json import CanonSpec
 
-    from ._integrity_ops import VerificationReport
+    from ._integrity_ops import VerificationReport, VerifiedArtifactSnapshot
     from .ids import ArtifactID
     from .manifest import ArtifactManifest, ArtifactRef
     from .signing import Ed25519Verifier, SignatureVerificationResult
@@ -84,6 +84,17 @@ class ArtifactStore(Protocol):
 
     def iter_artifact_ids(self) -> list[ArtifactID]:  # pragma: no cover - protocol
         """List artifact IDs known to the backend."""
+        ...
+
+
+class VerifiedSnapshotArtifactStore(Protocol):
+    """Optional proof port for an owned, verified immutable byte/manifest view."""
+
+    def get_verified_snapshot(
+        self,
+        artifact_id: ArtifactID | ArtifactRef | str,
+    ) -> VerifiedArtifactSnapshot:
+        """Read and validate one selected view under the backend's owner boundary."""
         ...
 
 

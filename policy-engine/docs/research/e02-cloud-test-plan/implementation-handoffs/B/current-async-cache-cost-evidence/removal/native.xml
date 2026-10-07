@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.255" timestamp="2026-10-06T21:11:33.284051+00:00" hostname="b878f4efbdfc"><testcase classname="tests.unit.scientist.orchestration.engine.test_async_cache_cost_oracle" name="test_real_async_cache_costs_and_neighbour_waits[1024]" time="0.080"><failure message="assert 140540730410880 != 140540730410880">tmp_path = PosixPath('/tmp/e02-B52-cache-cost-c043/removal-fixtures/test_real_async_cache_costs_an0')
+payload_bytes = 1024
+
+    @pytest.mark.parametrize("payload_bytes", [1024, 65536])
+    @pytest.mark.asyncio
+    async def test_real_async_cache_costs_and_neighbour_waits(
+        tmp_path: Path, payload_bytes: int
+    ) -&gt; None:
+        root = tmp_path / "cas"
+        initial_store = FileSystemCAS(root)
+        bundle_ref = build_default_registry_bundle(initial_store).bundle_ref
+        provider_path = tmp_path / "physical-provider.jsonl"
+        node = _PhysicalNode(provider_path)
+        registry = NodeRegistry()
+        registry.register(node)
+        workflow = WorkflowSpec(
+            workflow_id="cache_cost_profile",
+            nodes=[NodeInvocation(alias="compute", node_id=node.spec.metadata.component_id)],
+        )
+        run_id = f"B52-cost-{payload_bytes}"
+        run_dir = tmp_path / "run"
+        payload = "x" * payload_bytes
+        expected = {"digest": hashlib.sha256(payload.encode()).hexdigest(), "bytes": payload_bytes}
+        measurements: list[dict[str, Any]] = []
+        for ordinal in range(_WARM_REPETITIONS + 1):
+            # Reopening both the real CAS and executor makes every warm consumer
+            # resolve persisted trace/cache bytes rather than a retained object.
+            store = _MeasuredCAS(root)
+            run = RunContext.start(store, bundle_ref, run_id=run_id, run_dir=run_dir)
+            metrics = _ObservedMetrics()
+            ctx = ExecutionContext(
+                store=store, run=run, logger=logging.getLogger("cache-cost-oracle"), metrics=metrics
+            )
+            current = ExperimentState(
+                run_id=run_id, params={"payload": payload, "unrelated": f"current-{ordinal}"}
+            )
+            waits: list[dict[str, int]] = []
+            done = asyncio.Event()
+    
+            async def neighbour(done_event: asyncio.Event, timer_samples: list[dict[str, int]]) -&gt; None:
+                while not done_event.is_set():
+                    scheduled_ns = time.monotonic_ns() + int(_TIMER_PERIOD_S * 1_000_000_000)
+                    await asyncio.sleep(_TIMER_PERIOD_S)
+                    resumed_ns = time.monotonic_ns()
+                    timer_samples.append(
+                        {
+                            "scheduled_ns": scheduled_ns,
+                            "resumed_ns": resumed_ns,
+                            "lateness_ns": resumed_ns - scheduled_ns,
+                        }
+                    )
+    
+            loop_thread = threading.get_ident()
+            neighbour_task = asyncio.create_task(neighbour(done, waits))
+            await asyncio.sleep(0)
+            started_ns = time.monotonic_ns()
+            store.recording = True
+            try:
+                result = await AsyncWorkflowExecutor(ctx, registry).execute(workflow, current)
+            finally:
+                finished_ns = time.monotonic_ns()
+                store.recording = False
+                done.set()
+                await neighbour_task
+            cache_samples = store.samples
+            record = {
+                "ordinal": ordinal,
+                "warm": ordinal &gt; 0,
+                "workflow_started_ns": started_ns,
+                "workflow_finished_ns": finished_ns,
+                "workflow_return_cost_ns": finished_ns - started_ns,
+                "loop_thread_id": loop_thread,
+                "neighbour_timer_samples": waits,
+                "cache_io_samples": cache_samples,
+                "serialized_cache_put_bytes": sum(
+                    row["serialized_bytes"] for row in cache_samples if row["operation"] == "put"
+                ),
+                "cache_read_bytes": sum(
+                    row["serialized_bytes"] for row in cache_samples if row["operation"] == "get"
+                ),
+                "native_node_completed_metrics": metrics.completed,
+                "actual_provider_calls": node.calls,
+            }
+            measurements.append(record)
+            # Retain all actual observations before any property assertion.
+            (tmp_path / "individual-costs.json").write_text(
+                json.dumps(measurements, indent=2) + "\n", encoding="utf-8"
+            )
+            assert result.report.status == "ok"
+            assert node.calls == 1
+            assert result.state.params["result"] == expected
+            assert result.state.params["expanded"] == payload
+            assert result.state.params["unrelated"] == f"current-{ordinal}"
+            assert "result" not in current.params and "expanded" not in current.params
+            assert len(metrics.completed) == 1
+            assert metrics.completed[0]["cache_hit"] is (ordinal &gt; 0)
+            assert len(provider_path.read_text().splitlines()) == 1
+            output = result.report.nodes[0].artifacts[0]
+            assert store.verify(output).ok
+            assert json.loads(store.get_bytes(output)) == expected
+            assert store.get_manifest(output).kind == "scientist.cache_cost_effect"
+            assert store.verify(result.run_ref).ok
+            assert cache_samples and waits
+            for sample in cache_samples:
+&gt;               assert sample["thread_id"] != loop_thread
+E               assert 140540730410880 != 140540730410880
+
+tests/unit/scientist/orchestration/engine/test_async_cache_cost_oracle.py:239: AssertionError</failure></testcase></testsuite></testsuites>

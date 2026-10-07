@@ -1,0 +1,31 @@
+{
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py",
+    "--basetemp",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/pool-stream-final-pytest",
+    "-o",
+    "cache_dir=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/pool-stream-final-cache",
+    "--junitxml=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/pool-stream-final.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+  "head": "46656d88103f8cb289da78d92411f2d58f01df4a",
+  "tree": "2f62e105218a3d528bde4ce865c1d5f1f71d23cb",
+  "head_after": "46656d88103f8cb289da78d92411f2d58f01df4a",
+  "wall_s": 3.7285415350052062,
+  "process_rusage_maxrss_kib": 173416,
+  "exit_code": 1,
+  "output_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/pool-stream-final.txt",
+  "output_sha256": "be5c46ca96dc39b6360d7cb837e6b8a2eac373ecae76f83bfba24f7879f7ca66",
+  "source_environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "LANG": "C.UTF-8",
+    "POLISYOS_METRICS_PORT": "0",
+    "TIKTOKEN_CACHE_DIR": null,
+    "E02_B_PROPERTY_REMOVAL": null
+  }
+}

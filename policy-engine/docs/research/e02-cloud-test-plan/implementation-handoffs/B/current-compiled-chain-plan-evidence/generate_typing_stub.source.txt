@@ -1,0 +1,9 @@
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path.cwd()))
+from tools.devx.foundry import generate_stubs
+module = sys.argv[1]
+assert module in ('polisyos.foundry.methods.base', 'polisyos.foundry.methods.components.composer')
+print(f'Canonical helper selected target: {module}', flush=True)
+generate_stubs.TARGETS = (module,)
+raise SystemExit(generate_stubs.main(['--verbose']))

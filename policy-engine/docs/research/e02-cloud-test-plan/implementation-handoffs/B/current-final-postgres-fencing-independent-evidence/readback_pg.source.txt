@@ -1,0 +1,66 @@
+"""Read only the retained schemas named by this completed native JUnit."""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+from pathlib import Path
+import sys
+import xml.etree.ElementTree as ET
+
+OUT = Path('/dev/shm/e02-B-final-pg1862-20261006')
+sys.path.insert(0, '/tmp/e02-B38-pg-profile')
+import psycopg
+
+dsn = Path('/tmp/e02-B38-pg-evidence/postgres-dsn').read_text().strip()
+xml = ET.parse(OUT / 'native.xml')
+schemas = []
+for case in xml.iter('testcase'):
+    properties = {node.attrib['name']: node.attrib['value']
+                  for node in case.findall('./properties/property')}
+    if 'postgres_schema' in properties:
+        schemas.append((case.attrib['name'], properties['postgres_schema'], properties))
+rows = []
+with psycopg.connect(dsn, autocommit=True) as connection:
+    connection.execute('SET default_transaction_read_only = on')
+    identity = connection.execute(
+        'SELECT version(), current_database(), inet_server_addr()::text, inet_server_port()'
+    ).fetchone()
+    for case, schema, properties in schemas:
+        tables = connection.execute(
+            'SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = %s ORDER BY tablename',
+            (schema,),
+        ).fetchall()
+        captured = []
+        for (table,) in tables:
+            query = psycopg.sql.SQL('SELECT * FROM {}.{}').format(
+                psycopg.sql.Identifier(schema), psycopg.sql.Identifier(table)
+            )
+            cursor = connection.execute(query)
+            native_rows = sorted(cursor.fetchall(), key=repr)
+            captured.append({
+                'table': table,
+                'columns': [{'name': column.name, 'pg_type_oid': column.type_code}
+                            for column in cursor.description],
+                'row_count': len(native_rows),
+                'rows': native_rows,
+                'native_tuple_repr': repr(tuple(native_rows)),
+            })
+        rows.append({'case_name': case, 'schema': schema, 'native_properties': properties,
+                     'tables': captured})
+value = {
+    'boundary': 'Read-only final SQL rows of every table in the unique schemas from this native JUnit; intermediate equality is asserted by the unchanged native test, not inferred from final snapshot.',
+    'postgres_identity': identity,
+    'schemas': rows,
+    'schema_count': len(rows),
+    'driver_version': psycopg.__version__, 'driver_origin': psycopg.__file__,
+    'no_schema_or_row_cleanup': True,
+}
+data = (json.dumps(value, indent=2, default=str, ensure_ascii=True) + '\n').encode()
+assert dsn.encode() not in data
+path = OUT / 'retained-schema-readback.json'
+with path.open('xb') as stream:
+    stream.write(data)
+print(json.dumps({'schemas': len(rows), 'tables_per_schema': [len(row['tables']) for row in rows],
+                  'path': str(path), 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}))

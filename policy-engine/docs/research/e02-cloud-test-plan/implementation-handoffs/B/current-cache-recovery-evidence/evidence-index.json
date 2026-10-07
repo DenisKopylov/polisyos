@@ -1,0 +1,172 @@
+[
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/admission-create.json",
+    "sha256": "7f4ab5f246e50329c7a177777512cfbe01f20b3754258feb913eac108fb656f5",
+    "bytes": 123382
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/admission-resume.json",
+    "sha256": "dd0055c100deebabd3cccf5e4aaba574b92cdd7ea695c47daa4c0c0b5b757a0e",
+    "bytes": 129721
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/architecture-stdout.txt",
+    "sha256": "f745685cd4c2de496ad73b383dd5be515606da66abebb12173a3c1c613e54270",
+    "bytes": 115208
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/architecture-wrapper.json",
+    "sha256": "622d800a4903ed2768c91458b1a241766f3505c7a95092515aca743e5765f4d4",
+    "bytes": 1796
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/baseline-navigation-compact.json",
+    "sha256": "97d1df75377d8c90836d285ac520496bd67e5137ac5c99c5512882728a0fef71",
+    "bytes": 221968,
+    "storage": "historical_git_and_ignored_raw",
+    "historical_git_ref": "30b546d22695d568b1ae5eaa4ec63c5ca78c43c5",
+    "ignored_raw_path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/retained-raw/baseline-navigation-compact.json",
+    "retention": "Original immutable Git bytes and ignored actual copy retained; no history rewrite or permanent raw deletion."
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/baseline-recovery-full-ref-input-cohort.xml",
+    "sha256": "66ad40ed2a5a6175549111a67e9e59206cdc4efdd1adc0112b3da7622aed6204",
+    "bytes": 30387
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/baseline-recovery-full-ref-input-environment.json",
+    "sha256": "5ffa6944b3cd7f42880bd9fa98950bc744b01e033fb89a5dbc6013f5493afce8",
+    "bytes": 9887
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/baseline-recovery-full-ref-input-input-closure.json",
+    "sha256": "64350865b59db928991ccdc2da14aa5462301a1848f3a963e4b5f5e1cdb0c731",
+    "bytes": 519254,
+    "storage": "historical_git_and_ignored_raw",
+    "historical_git_ref": "30b546d22695d568b1ae5eaa4ec63c5ca78c43c5",
+    "ignored_raw_path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/retained-raw/baseline-recovery-full-ref-input-input-closure.json",
+    "retention": "Original immutable Git bytes and ignored actual copy retained; no history rewrite or permanent raw deletion."
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/baseline-recovery-full-ref-input-native.txt",
+    "sha256": "917dc3188894fe432ae00d5468832607bf1a0a3c3a0aed532c55eb1408ffe77b",
+    "bytes": 32246
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/baseline-recovery-full-ref-input-wrapper.json",
+    "sha256": "60651e7027abbfef813ef3ae5d260ad3f179c63d719865b77795fc1a4ff90a5e",
+    "bytes": 3020
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/baseline_navigation.py",
+    "sha256": "fea25ce470c223a78f81d9afaca2ca2ac3b2b0f929a5b27de324e5b7fede4257",
+    "bytes": 2128
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/before-consumer-unbounded-cohort.xml",
+    "sha256": "8ea6b7a85d7719017914925c7d07f32f85caa9ae6a82ee133ec164f818de0d67",
+    "bytes": 35694
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/before-consumer-unbounded-environment.json",
+    "sha256": "5ffa6944b3cd7f42880bd9fa98950bc744b01e033fb89a5dbc6013f5493afce8",
+    "bytes": 9887
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/before-consumer-unbounded-input-closure.json",
+    "sha256": "e8193a7a9d38991312c55bcdec680f6f63622c86591734eafbeab4ef555d9036",
+    "bytes": 519043,
+    "storage": "historical_git_and_ignored_raw",
+    "historical_git_ref": "30b546d22695d568b1ae5eaa4ec63c5ca78c43c5",
+    "ignored_raw_path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/retained-raw/before-consumer-unbounded-input-closure.json",
+    "retention": "Original immutable Git bytes and ignored actual copy retained; no history rewrite or permanent raw deletion."
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/before-consumer-unbounded-native.txt",
+    "sha256": "463e50ae1f3dc0f2395764ae60f8759d11c277c9f9ce9e0d08791a5741359444",
+    "bytes": 35637
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/before-consumer-unbounded-wrapper.json",
+    "sha256": "28c5cea3336c37901d8559dff4f382301dc3d856f2fc6c349022b5f1f2419540",
+    "bytes": 3092
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/frozen-cache-consumers-cohort.xml",
+    "sha256": "44b642e705d11be3620e29bd1a13ea8fe848e2498a161a51be3113ed5eb80f36",
+    "bytes": 90044
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/frozen-cache-consumers-environment.json",
+    "sha256": "5ffa6944b3cd7f42880bd9fa98950bc744b01e033fb89a5dbc6013f5493afce8",
+    "bytes": 9887
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/frozen-cache-consumers-input-closure.json",
+    "sha256": "f0859757c66cf997cd0d44ccaa38fd4dd39381906f58afc88142c19b28bdfe6c",
+    "bytes": 522180,
+    "storage": "historical_git_and_ignored_raw",
+    "historical_git_ref": "30b546d22695d568b1ae5eaa4ec63c5ca78c43c5",
+    "ignored_raw_path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/retained-raw/frozen-cache-consumers-input-closure.json",
+    "retention": "Original immutable Git bytes and ignored actual copy retained; no history rewrite or permanent raw deletion."
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/frozen-cache-consumers-native.txt",
+    "sha256": "db5b4b89041de897253e2eca42160c5a7fcd0d074b3ecff0667cca482a2db7c7",
+    "bytes": 54152
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/frozen-cache-consumers-wrapper.json",
+    "sha256": "10ca7f46a722da00d23d6f13bc9713ca1c57789043881245c1d30b2d86e5259d",
+    "bytes": 4098
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/invocation-stdout.txt",
+    "sha256": "f563b2836e2bbd717e8f7f11d0798bdee42b4194b1cd0ebf9c1aea10044f9b8b",
+    "bytes": 2357
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/invocation-wrapper.json",
+    "sha256": "18ee9215611bae1ff354aa9aed8859fd97cd1985fde8f0463f7cd65c5758ee98",
+    "bytes": 2265
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/quality-full-tracked-input-closure.json",
+    "sha256": "bbca988b5321a333a31199c59cd14d49f99502b2415f8836c5bb0a7b4bf0f364",
+    "bytes": 2754648,
+    "storage": "historical_git_and_ignored_raw",
+    "historical_git_ref": "30b546d22695d568b1ae5eaa4ec63c5ca78c43c5",
+    "ignored_raw_path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/retained-raw/quality-full-tracked-input-closure.json",
+    "retention": "Original immutable Git bytes and ignored actual copy retained; no history rewrite or permanent raw deletion."
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/read_b73_current.json",
+    "sha256": "a0a32e477d25242070f2f9aa58d1dae027dc9b4893d6db8ee866e30098220b51",
+    "bytes": 36478
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/read_b73_current.py",
+    "sha256": "29070eca7ab4b8ba5984455d1e1f42640a32a108f68b955b138564f2b8cad4f1",
+    "bytes": 4204
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/requested-baseline-query.json",
+    "sha256": "9620f913ce0faa3773d4e91862b06643135542725ab3fd9ed591843c69bf5624",
+    "bytes": 47140
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/run_check.py",
+    "sha256": "d00105b9385369bc6bfeeb90ede651b44dd24ff7b4cba897fdb091f12e010efd",
+    "bytes": 2404
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/run_native.py",
+    "sha256": "ffbc81f6c2d0e3aed328c77c1d943bb974554d2b543f402922fa6fb1a615b1d7",
+    "bytes": 4135
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/run_native_original.py",
+    "sha256": "542652180bb08a5f31e150aa4176704943ed1a49307760baf12fb1e41637ce9e",
+    "bytes": 4077
+  }
+]

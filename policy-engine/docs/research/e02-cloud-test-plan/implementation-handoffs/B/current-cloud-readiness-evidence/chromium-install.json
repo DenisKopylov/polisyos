@@ -1,0 +1,20 @@
+{
+  "target_sha": "99af508a5282854f3e609c5a94bc19ac55893dde",
+  "head_after": "99af508a5282854f3e609c5a94bc19ac55893dde",
+  "command": [
+    "corepack",
+    "pnpm",
+    "exec",
+    "playwright",
+    "install",
+    "chromium"
+  ],
+  "cwd": "/workspace/e02-B-current-coordination/policy-engine/apps/runtime-dashboard",
+  "outcome": "PASS",
+  "exit_code": 0,
+  "wall_s": 114.55838990199845,
+  "output_path": "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/browser-readiness/chromium-install.txt",
+  "output_sha256": "1975334f43865588ee29e87fa598e4b8e5427872c0046404c4dcb6c89ce65417",
+  "output_bytes": 6813,
+  "policy": "Existing pinnedPlaywright CLI; only Chromium family/required auxiliaries; no npm dependency updates/source/lock changes; inherited proxy/CA preserved"
+}

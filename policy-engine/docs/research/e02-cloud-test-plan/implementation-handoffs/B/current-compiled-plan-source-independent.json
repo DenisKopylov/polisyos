@@ -1,0 +1,637 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-compiled-plan-source-independent",
+  "reviewer": "/root/dur_probe",
+  "author_reviewed": "/root/cmp_res_probe",
+  "finding_ids": [
+    "B43"
+  ],
+  "closure_ids": [],
+  "bundle_ids": [
+    "CMP-01"
+  ],
+  "slice_base_sha": "348252b6f9057a4dad2cd12c0a3d3fc8dbdd1d1a",
+  "implementation_commits": [
+    "1eca0ade95e08330dfcd1ff35d35314e8a44d68d",
+    "6f028c7c3a8fbcad1c7e65bc5b6bafdb0c5e5132",
+    "0d3ee9707d397a7066eb144345220f42e36d7386"
+  ],
+  "candidate_sha": "0d3ee9707d397a7066eb144345220f42e36d7386",
+  "candidate_tree_sha": "54b0b2b00a0495031a745d2462a8260fc2d4eacd",
+  "branch": "codex/e02-B-current-durability",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/43",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-plan-source-independent-review/reconcile.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-plan-source-independent-review/reconciliation-stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-plan-source-independent-review/reconciliation-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-plan-source-independent-review/reconciliation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-plan-source-independent-review/review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-plan-source-independent-review/successor-qualification.json"
+  ],
+  "baseline_cells": [
+    {
+      "id": "F02-P117",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main"
+    },
+    {
+      "id": "F03-P010",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main"
+    },
+    {
+      "id": "F08-P117",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_ref": "e02_head"
+    },
+    {
+      "id": "F15-P137",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head"
+    }
+  ],
+  "baseline_navigation_qualification": {
+    "query": "python3 policy-engine/docs/research/e02-cloud-test-plan/results/query.py --unit B --finding B43 --details --job-context --limit 50",
+    "source_cut": "348252b6f9057a4dad2cd12c0a3d3fc8dbdd1d1a",
+    "cells": [
+      {
+        "id": "F02-P117",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "source_ref": "research_main"
+      },
+      {
+        "id": "F03-P010",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "source_ref": "research_main"
+      },
+      {
+        "id": "F08-P117",
+        "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "source_ref": "e02_head"
+      },
+      {
+        "id": "F15-P137",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "source_ref": "integration_head"
+      }
+    ],
+    "grade": "source_reported_compact_text_only; candidate_unverified routes; all4 literalPASS are not new implementation evidence",
+    "environment_input_closure": "Exact per-job dictionary/context locators remain in results/received/F02.txt,F03.txt,F08.txt,F15.txt and query job-context output at source_cut. Raw archives received=0. Their historical reported environment is not re-executed or promoted to this review environment. New review reads immutable Git objects only."
+  },
+  "checks": [
+    {
+      "id": "independent-frozen-source-reconciliation",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-B-current-durability/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-plan-source-independent-review/reconcile.source.txt"
+      ],
+      "target_sha": "1eca0ade95e08330dfcd1ff35d35314e8a44d68d",
+      "environment": {
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "cwd": "/workspace/e02-B-current-durability",
+        "PYTHONPATH": null,
+        "caps": {
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "BLIS_NUM_THREADS": null
+        }
+      },
+      "input_closure": {
+        "mode": "stdlib/Git/AST only; no product/native imports",
+        "reviewed_foreign_source_sha": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+        "reviewed_foreign_tree_sha": "8909428c4fe4a03b6d481ed5e34f942b59f07318",
+        "script": {
+          "sha": "0d3ee9707d397a7066eb144345220f42e36d7386",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-plan-source-independent-review/reconcile.source.txt",
+          "bytes": 6010,
+          "sha256": "f73c9b6300033364c425bbd59e25b4cb4a191005fa968f67783f429b6e0ea092"
+        },
+        "complete_input_refs": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-plan-source-independent-review/reconciliation.json@0d3ee9707d397a7066eb144345220f42e36d7386",
+        "unselected_boundaries": "Actual scientific/dispatcher/backend/runtime origins, institutional authority, hot reload, source reuse, root fullcohort/gates"
+      },
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-plan-source-independent-review/reconciliation.json",
+      "output_sha256": "2f5adf7e097c40f86cdc071164b9a2831857c56763c642e4aa37435d0cd4d206",
+      "output_bytes": 9733,
+      "output_git_sha": "0d3ee9707d397a7066eb144345220f42e36d7386",
+      "wrapper": {
+        "sha": "0d3ee9707d397a7066eb144345220f42e36d7386",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-plan-source-independent-review/reconciliation-wrapper.json",
+        "bytes": 2255,
+        "sha256": "0cc4140a898e635bc3d51e6eddf1bf5f74f57f58556507e825822314905c9763"
+      },
+      "stderr": {
+        "sha": "0d3ee9707d397a7066eb144345220f42e36d7386",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-plan-source-independent-review/reconciliation-stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "wall_s": 0.1333206550043542,
+      "rss_kib": 14224,
+      "interpretation": "Metadata custody quantities only; AST/markers do not establish scientific runtime semantics."
+    },
+    {
+      "id": "manual-full-source-and-successor-review",
+      "command": "Manual immutable Git full10paths 97d→f563, full6path producer/stub delta f563→e69, full2path e69→9ce, full5path9ce→885 plus named adjacent canonical consumers; no native/checker invocation",
+      "target_sha": "885b3e0eff36ee8a733e32a0c604bdcd58a62eb5",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-durability",
+        "source_access": "immutable Git show/diff objects in shared Git; own admitted existing attached lane; no new worktree/helper",
+        "native": "UNRUN",
+        "mypy": "UNRUN",
+        "gates": "UNRUN"
+      },
+      "input_closure": {
+        "source_base": "97d0684c1f2765fc67d40331a8a2602a08c1f2e0",
+        "full_read_source_identity": {
+          "base": "97d0684c1f2765fc67d40331a8a2602a08c1f2e0",
+          "first": "f563fde9238a08b55135f167ddf0d6fa154690c5",
+          "first_tree": "411e48ca75e101a34af8b0a5c10ec557e1a7e050",
+          "producer_stub_fix": "e69f25bf273758b10d5b205a28f9349804fdc7d1",
+          "producer_stub_fix_tree": "93312b69fcb9f2704a9e0b8407c7fe57b8e41500",
+          "candidate": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+          "candidate_tree": "8909428c4fe4a03b6d481ed5e34f942b59f07318"
+        },
+        "delta_base": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+        "delta_paths": [
+          "policy-engine/src/polisyos/foundry/methods/base.pyi",
+          "policy-engine/src/polisyos/foundry/methods/components/composer.py",
+          "policy-engine/src/polisyos/foundry/methods/components/composer.pyi",
+          "policy-engine/tools/devx/foundry/README.md",
+          "policy-engine/tools/devx/foundry/generate_stubs.py"
+        ],
+        "canonical_criterion": {
+          "sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CMP-01.md",
+          "lines": [
+            79,
+            96
+          ],
+          "raw_capture_sha256": "10b7eabc7d65e7ee68eff8d1b3ee523ce960f00f696c34edf1aae65cdd67a8c9",
+          "hash_convention": "Literal regex capture including whitespace between SOURCE_BEGIN B:B43 and SOURCE_END B:B43, not body-only or whole-card digest.",
+          "clauses": [
+            "Build→freeze→execute preserves ordering-only B.requires(A) without inventing data flow in actual modes.",
+            "Independent sibling remains available for parallelism.",
+            "Cycle is refused before scientific execution.",
+            "Actual plan serialization/readback and substantial edge change are verified."
+          ]
+        },
+        "adjacency_inputs": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-plan-source-independent-review/reconciliation.json@0d3ee9707d397a7066eb144345220f42e36d7386"
+      },
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-plan-source-independent-review/successor-qualification.json",
+      "output_sha256": "2de156be8f24110ceb8db154298be30a2d96c7c422e7e525940f3f9b181cbed5",
+      "output_bytes": 7227,
+      "output_git_sha": "0d3ee9707d397a7066eb144345220f42e36d7386",
+      "interpretation": "NONBLOCKING finite cold-plan source only. First f563 overallBLOCKED; no reviewer runtime or formal acceptance."
+    },
+    {
+      "id": "foreign-defining-f563",
+      "runner": "CMP, independently read by DUR; not own execution",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py",
+        "--basetemp=/dev/shm/e02-B-cmp-b43-freeze/tmp-f563",
+        "-o",
+        "cache_dir=/dev/shm/e02-B-cmp-b43-freeze/cache-f563",
+        "--junitxml=/dev/shm/e02-B-cmp-b43-freeze/defining-f563.xml"
+      ],
+      "target_sha": "f563fde9238a08b55135f167ddf0d6fa154690c5",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-composition/policy-engine",
+        "env": {
+          "PYTHONPATH": "src",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "POLISYOS_METRICS_PORT": "0",
+          "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback"
+        },
+        "caps_absent": true
+      },
+      "input_closure": {
+        "source_before_after_wrapper": {
+          "sha": "6d7f42f0f2b19e98685c21e512e040b6ddd69a37",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-f563.json",
+          "bytes": 5298,
+          "sha256": "0f50e22293e1287b2d7a6356dbaea7645b244ca8ec029ef9d5fe66ceae34ba39"
+        },
+        "scope": "Exact argv selected files/fixtures and wrapper tracked-source snapshots. No complete loaded-runtime origin claim; historical baseline summaries not evidence.",
+        "fixture_profile": "Finite plain JSON/current registry/real local FileSystemCAS under actual command; full production data not required for this structural property."
+      },
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-f563.txt",
+      "output_sha256": "e413aa96ab75450826a69a4ccea0c9602d4c3767532041918409170029ac6675",
+      "output_bytes": 18102,
+      "output_git_sha": "6d7f42f0f2b19e98685c21e512e040b6ddd69a37",
+      "wrapper": {
+        "sha": "6d7f42f0f2b19e98685c21e512e040b6ddd69a37",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-f563.json",
+        "bytes": 5298,
+        "sha256": "0f50e22293e1287b2d7a6356dbaea7645b244ca8ec029ef9d5fe66ceae34ba39"
+      },
+      "wall_s": 2.5847599506378174,
+      "rss_kib": 173948,
+      "interpretation": "11PASS6FAIL; seven mutation literalPASS did not reach decoder; exact executed source, never885 PASS transplantation.",
+      "xml": {
+        "sha": "6d7f42f0f2b19e98685c21e512e040b6ddd69a37",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-f563.xml",
+        "bytes": 18329,
+        "sha256": "63f38aaddd2bcc5a8085f95d6f7f211a95ccf39449f5e96b74b370daa2672614"
+      }
+    },
+    {
+      "id": "foreign-defining-e69",
+      "runner": "CMP, independently read by DUR; not own execution",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py",
+        "--basetemp=/dev/shm/e02-B-cmp-b43-freeze/tmp-e69",
+        "-o",
+        "cache_dir=/dev/shm/e02-B-cmp-b43-freeze/cache-e69",
+        "--junitxml=/dev/shm/e02-B-cmp-b43-freeze/defining-e69.xml"
+      ],
+      "target_sha": "e69f25bf273758b10d5b205a28f9349804fdc7d1",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-composition/policy-engine",
+        "env": {
+          "PYTHONPATH": "src",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "POLISYOS_METRICS_PORT": "0",
+          "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback"
+        },
+        "caps_absent": true
+      },
+      "input_closure": {
+        "source_before_after_wrapper": {
+          "sha": "6d7f42f0f2b19e98685c21e512e040b6ddd69a37",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-e69.json",
+          "bytes": 5302,
+          "sha256": "dbee101b83a29d47a102fb20d576b83e09eaec2c7e4bfe015488f3b6c60865d0"
+        },
+        "scope": "Exact argv selected files/fixtures and wrapper tracked-source snapshots. No complete loaded-runtime origin claim; historical baseline summaries not evidence.",
+        "fixture_profile": "Finite plain JSON/current registry/real local FileSystemCAS under actual command; full production data not required for this structural property."
+      },
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-e69.txt",
+      "output_sha256": "618cc94bac64a250ffb297f4fb859e2d8242f6296c16333bd0fe946651c28851",
+      "output_bytes": 4379,
+      "output_git_sha": "6d7f42f0f2b19e98685c21e512e040b6ddd69a37",
+      "wrapper": {
+        "sha": "6d7f42f0f2b19e98685c21e512e040b6ddd69a37",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-e69.json",
+        "bytes": 5302,
+        "sha256": "dbee101b83a29d47a102fb20d576b83e09eaec2c7e4bfe015488f3b6c60865d0"
+      },
+      "wall_s": 2.77085018157959,
+      "rss_kib": 174084,
+      "interpretation": "18PASS1FAIL; final unpromised sibling ordering assertion after arithmetic17; exact executed source, never885 PASS transplantation.",
+      "xml": {
+        "sha": "6d7f42f0f2b19e98685c21e512e040b6ddd69a37",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-e69.xml",
+        "bytes": 5175,
+        "sha256": "ac926e21a9d54dd7e8552bdbe2940428931a0fa0aa08a4419094cdb86f9585d2"
+      }
+    },
+    {
+      "id": "foreign-defining-9ce",
+      "runner": "CMP, independently read by DUR; not own execution",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py",
+        "--basetemp=/dev/shm/e02-B-cmp-b43-freeze/tmp-9ce",
+        "-o",
+        "cache_dir=/dev/shm/e02-B-cmp-b43-freeze/cache-9ce",
+        "--junitxml=/dev/shm/e02-B-cmp-b43-freeze/defining-9ce.xml"
+      ],
+      "target_sha": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-composition/policy-engine",
+        "env": {
+          "PYTHONPATH": "src",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "POLISYOS_METRICS_PORT": "0",
+          "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback"
+        },
+        "caps_absent": true
+      },
+      "input_closure": {
+        "source_before_after_wrapper": {
+          "sha": "6d7f42f0f2b19e98685c21e512e040b6ddd69a37",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-9ce.json",
+          "bytes": 5289,
+          "sha256": "cc211272d2ac64d1a6489802a9905fad12d2147bbcb12468c388f81c8f0b0e62"
+        },
+        "scope": "Exact argv selected files/fixtures and wrapper tracked-source snapshots. No complete loaded-runtime origin claim; historical baseline summaries not evidence.",
+        "fixture_profile": "Finite plain JSON/current registry/real local FileSystemCAS under actual command; full production data not required for this structural property."
+      },
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-9ce.txt",
+      "output_sha256": "0caf379acbcb845c31b98bf4efeffb865a66d527d27d5bb4f34018bea0099078",
+      "output_bytes": 80,
+      "output_git_sha": "6d7f42f0f2b19e98685c21e512e040b6ddd69a37",
+      "wrapper": {
+        "sha": "6d7f42f0f2b19e98685c21e512e040b6ddd69a37",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-9ce.json",
+        "bytes": 5289,
+        "sha256": "cc211272d2ac64d1a6489802a9905fad12d2147bbcb12468c388f81c8f0b0e62"
+      },
+      "wall_s": 2.6633853912353516,
+      "rss_kib": 173948,
+      "interpretation": "19PASS actual defining cases; exact executed source, never885 PASS transplantation.",
+      "xml": {
+        "sha": "6d7f42f0f2b19e98685c21e512e040b6ddd69a37",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-9ce.xml",
+        "bytes": 3384,
+        "sha256": "4537481ef0770079214abc0c50295abe5b13909aca914cee1e103ff6e6a6b0e5"
+      }
+    },
+    {
+      "id": "foreign-affected-9ce",
+      "runner": "CMP, independently read by DUR; not own execution",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/foundry/methods/test_artifacts.py",
+        "tests/unit/foundry/methods/test_composer.py",
+        "tests/unit/foundry/methods/test_composer_hardening.py",
+        "tests/unit/remediation/test_cmp_01.py",
+        "--basetemp=/dev/shm/e02-B-cmp-b43-freeze/tmp-affected-9ce",
+        "-o",
+        "cache_dir=/dev/shm/e02-B-cmp-b43-freeze/cache-affected-9ce",
+        "--junitxml=/dev/shm/e02-B-cmp-b43-freeze/affected-9ce.xml"
+      ],
+      "target_sha": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-composition/policy-engine",
+        "env": {
+          "PYTHONPATH": "src",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "POLISYOS_METRICS_PORT": "0",
+          "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback"
+        },
+        "caps_absent": true
+      },
+      "input_closure": {
+        "source_before_after_wrapper": {
+          "sha": "6d7f42f0f2b19e98685c21e512e040b6ddd69a37",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/affected-9ce.json",
+          "bytes": 5453,
+          "sha256": "752123855c53e6f907d2c677fd50218ddeaa0b6d697b282b31a01239fee993f8"
+        },
+        "scope": "Exact argv selected files/fixtures and wrapper tracked-source snapshots. No complete loaded-runtime origin claim; historical baseline summaries not evidence.",
+        "fixture_profile": "Finite plain JSON/current registry/real local FileSystemCAS under actual command; full production data not required for this structural property."
+      },
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/affected-9ce.txt",
+      "output_sha256": "de0615cf37b5c81f3262e96c1af6d39e3e1ed022fb623f364a1d3c083a4e551f",
+      "output_bytes": 80,
+      "output_git_sha": "6d7f42f0f2b19e98685c21e512e040b6ddd69a37",
+      "wrapper": {
+        "sha": "6d7f42f0f2b19e98685c21e512e040b6ddd69a37",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/affected-9ce.json",
+        "bytes": 5453,
+        "sha256": "752123855c53e6f907d2c677fd50218ddeaa0b6d697b282b31a01239fee993f8"
+      },
+      "wall_s": 5.369341850280762,
+      "rss_kib": 175936,
+      "interpretation": "62PASS four existing consumer files; exact executed source, never885 PASS transplantation.",
+      "xml": {
+        "sha": "6d7f42f0f2b19e98685c21e512e040b6ddd69a37",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/affected-9ce.xml",
+        "bytes": 8863,
+        "sha256": "a2c0aa1857b15e932194198ea358f550f21ca3fb83c88475be57e8dcf67e9f3e"
+      }
+    },
+    {
+      "id": "foreign-mypy-imported-9ce",
+      "runner": "CMP, independently read by DUR; not own execution",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "mypy",
+        "src/polisyos/foundry/methods/artifacts/_chain.py",
+        "src/polisyos/foundry/methods/artifacts/parts.py",
+        "src/polisyos/foundry/methods/components/composer.py",
+        "--follow-imports=silent",
+        "--cache-dir=/dev/shm/e02-B-cmp-b43-freeze/mypy-f563"
+      ],
+      "target_sha": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-composition/policy-engine",
+        "env": {
+          "PYTHONPATH": "src",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "POLISYOS_METRICS_PORT": "0",
+          "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback"
+        },
+        "caps_absent": true
+      },
+      "input_closure": {
+        "source_before_after_wrapper": {
+          "sha": "6d7f42f0f2b19e98685c21e512e040b6ddd69a37",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/mypy-imported-9ce.json",
+          "bytes": 5284,
+          "sha256": "6acc1feeb31352e2a2adc0b638974e0f36674bb4e75581692c8929637f94e6c1"
+        },
+        "scope": "Exact argv selected files/fixtures and wrapper tracked-source snapshots. No complete loaded-runtime origin claim; historical baseline summaries not evidence.",
+        "fixture_profile": "Finite plain JSON/current registry/real local FileSystemCAS under actual command; full production data not required for this structural property."
+      },
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/mypy-imported-9ce.txt",
+      "output_sha256": "7356c860b1de7c107ae3588844e8f18a5fa8fca8d5eb2e1ad35eb8a3393b24ff",
+      "output_bytes": 485,
+      "output_git_sha": "6d7f42f0f2b19e98685c21e512e040b6ddd69a37",
+      "wrapper": {
+        "sha": "6d7f42f0f2b19e98685c21e512e040b6ddd69a37",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/mypy-imported-9ce.json",
+        "bytes": 5284,
+        "sha256": "6acc1feeb31352e2a2adc0b638974e0f36674bb4e75581692c8929637f94e6c1"
+      },
+      "wall_s": 40.2597439289093,
+      "rss_kib": 902688,
+      "interpretation": "Three canonical composer imported typing errors; exact executed source, never885 PASS transplantation."
+    },
+    {
+      "id": "foreign-ruff-9ce",
+      "runner": "CMP, independently read by DUR; not own execution",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "src/polisyos/foundry/methods/artifacts/_chain.py",
+        "src/polisyos/foundry/methods/artifacts/parts.py",
+        "src/polisyos/foundry/methods/components/composer.py",
+        "src/polisyos/foundry/methods/components/composer.pyi",
+        "tools/devx/foundry/generate_stubs.py",
+        "tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py"
+      ],
+      "target_sha": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-composition/policy-engine",
+        "env": {
+          "PYTHONPATH": "src",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "POLISYOS_METRICS_PORT": "0",
+          "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback"
+        },
+        "caps_absent": true
+      },
+      "input_closure": {
+        "source_before_after_wrapper": {
+          "sha": "6d7f42f0f2b19e98685c21e512e040b6ddd69a37",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/ruff-9ce.json",
+          "bytes": 5399,
+          "sha256": "0478c5ecc76e6f4dfc87e53b836c15015e075a68e761ce677af452e083d60207"
+        },
+        "scope": "Exact argv selected files/fixtures and wrapper tracked-source snapshots. No complete loaded-runtime origin claim; historical baseline summaries not evidence.",
+        "fixture_profile": "Finite plain JSON/current registry/real local FileSystemCAS under actual command; full production data not required for this structural property."
+      },
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/ruff-9ce.txt",
+      "output_sha256": "7b24e364de042b2e8738ebf41c49d86038af24d5706adf4f9c429d0b8672ac92",
+      "output_bytes": 874,
+      "output_git_sha": "6d7f42f0f2b19e98685c21e512e040b6ddd69a37",
+      "wrapper": {
+        "sha": "6d7f42f0f2b19e98685c21e512e040b6ddd69a37",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/ruff-9ce.json",
+        "bytes": 5399,
+        "sha256": "0478c5ecc76e6f4dfc87e53b836c15015e075a68e761ce677af452e083d60207"
+      },
+      "wall_s": 0.04467606544494629,
+      "rss_kib": 19328,
+      "interpretation": "Generated composer stub I001; exact executed source, never885 PASS transplantation."
+    }
+  ],
+  "property": {
+    "statement": "Persisted finite cold compiled plan captures and restores concrete occurrences, dynamic/static payloads, current ABI, effective ordering-only/dataflow edges and exact execution order via canonical composer/current registry before existing executor bodies. Selected actual CAS manifest profile gates every reader.",
+    "runtime_path": [
+      "MethodComposer.build→CompiledChainPlan.from_chain",
+      "store_compiled_chain_plan→real put_bytes/guardedget_manifest→public profile typed ArtifactRef",
+      "load_compiled_chain_plan→guarded manifest/bytes→strict wire→canonical from_nodes/connect/STRICTbuild",
+      "real existing sequential/async executor consumes effective graph/current stable registry"
+    ],
+    "proxy_divergence": "Initial negative tests could report PASS at earlier profile refusal and never exercise the claimed wire/graph boundary. Fix reaches the original intended inlet using actual public manifest projection; initial outputs remain historical.",
+    "negative_controls": [
+      {
+        "input": "Delete ordering-only required edge while retaining valid acyclic wire/order",
+        "expected_boundary": "to_chain rebuilds current requires and compares actual full predecessors; mismatch refused before returned chain/body.",
+        "runtime": "CAS independently executes; reviewer UNRUN."
+      },
+      {
+        "input": "Persist cycle or unknown concrete predecessor",
+        "expected_boundary": "_decode_plan checks all node IDs and TopologicalSorter, propagating typed cycle refusal before build/execution.",
+        "runtime": "CAS independently executes; reviewer UNRUN."
+      },
+      {
+        "input": "Change current ABI/requires, sparse node params, foreign fields, bool instance index, invalid schema or unprofiled ref",
+        "expected_boundary": "Strict inlet/current ABI/selected manifest guards refuse before runnable return.",
+        "runtime": "Author/CAS runtime has separate exact inputs; source guard presence is not outcome authority."
+      },
+      {
+        "input": "Remove original manifest-profile writer repair without changing loader/tests",
+        "expected_boundary": "Real writer returns profileNone and caller/reopen fails, as first actual17 wave records.",
+        "runtime": "Foreign first17 full stdout/wrapper/XML read; literal11PASS6FAIL. Publication locator pending author, not a reviewer rerun."
+      },
+      {
+        "input": "Same-FQN repeated occurrences with nearest earlier requires",
+        "expected_boundary": "UUID/index/execution_order/currentABI retained; no invented edge to later occurrence.",
+        "runtime": "Foreign e69 result reached arithmetic17 and graph/index/order assertions; final sibling-order assertion had an unpromised premise. Final9ce input changes only that premise."
+      }
+    ],
+    "authority_purpose": "Operational fresh cold structural execution under explicit registry/caller/backend premises; no historic implementation/cache/checkpoint scientific or institutional authority",
+    "schema_version": "polisyos.foundry.compiled_chain_plan1.0.0; unchanged legacy ChainArtifact separate",
+    "source_review_sha": "885b3e0eff36ee8a733e32a0c604bdcd58a62eb5",
+    "source_review_tree_sha": "fccab3a77a1e4d257d8e347a4d27c63cee286c0f"
+  },
+  "predicate_basis": "independently_reconciled",
+  "predicate_basis_by_quantity": {
+    "byte_hashes_and_XML_counts": "recomputed",
+    "manual_source_and_full_foreign_outputs": "independently_reconciled",
+    "stable_registry_and_numeric_fixture_inputs": "consumer_asserted",
+    "formal_closure_and885_runtime": "not_established"
+  },
+  "capability_state_or_finding_state": "Source-review NONBLOCKING for finite cold profile; mechanism/criterion acceptance PENDING root/CAS exact runtime joins; no closure. First f563 blocked, historical checker FAILs not inherited.",
+  "finding_dispositions": [
+    {
+      "finding_id": "B43",
+      "proposed_state": "limited",
+      "formal_closure": false,
+      "source_acceptance": "NONBLOCKING885 finite coldprofile",
+      "runtime_acceptance": "PENDING independent CAS packet and root actual joined candidate",
+      "criterion_ref": {
+        "sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CMP-01.md",
+        "lines": [
+          79,
+          96
+        ],
+        "raw_capture_sha256": "10b7eabc7d65e7ee68eff8d1b3ee523ce960f00f696c34edf1aae65cdd67a8c9",
+        "hash_convention": "Literal regex capture including whitespace between SOURCE_BEGIN B:B43 and SOURCE_END B:B43, not body-only or whole-card digest.",
+        "clauses": [
+          "Build→freeze→execute preserves ordering-only B.requires(A) without inventing data flow in actual modes.",
+          "Independent sibling remains available for parallelism.",
+          "Cycle is refused before scientific execution.",
+          "Actual plan serialization/readback and substantial edge change are verified."
+        ]
+      },
+      "deciding_source_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-plan-source-independent-review/review.json@0d3ee9707d397a7066eb144345220f42e36d7386",
+      "successor_qualification": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-plan-source-independent-review/successor-qualification.json@0d3ee9707d397a7066eb144345220f42e36d7386"
+    }
+  ],
+  "limitations_and_next_owner": [
+    "CMP source885 actual defining/affected/checker outputs pending at this receipt freeze; historical9ce19/62 never represent newer source execution. Proper9ce mypy3FAIL/RuffI001FAIL remain exact and P41 not_established without slice-base replay/disjoint denominator.",
+    "CAS independent serialized plan/executor/parallelism/changed-edge/removal packet is reported completed but exact published packet not yet independently read here. Root/G accepts criterion after that join and actual affected root candidate; reviewer native/mypy/gates UNRUN.",
+    "Finite plainJSON wire; stable current registry and caller state/seed/permitted overrides are operational premises. No historical-code/prefix/cache reuse authority, allbackend/scientific-validity/tenant/acquisition/permission claim.",
+    "Foreign complete33indexed279404B moderate outputs now committed6d7; exact remote transport verification belongs to publisher/readback. No duplicate log copies or futureSHA locator; author archive initial partial terminated checker cannot carry PASS.",
+    "Root verifies internal surface/release inventory companion; no A lifecycle or C streaming edits. Own admitted existing lane only, no helpers/new worktree; source/tests0 ownpaths.",
+    "Historical DD all60 proposal348 remains unchanged. New source-review records do not close a DD gap or grant formal finding closure."
+  ],
+  "evidence": {
+    "own_review": {
+      "sha": "0d3ee9707d397a7066eb144345220f42e36d7386",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-plan-source-independent-review/review.json",
+      "bytes": 12780,
+      "sha256": "90add54ef45e49a34f343d5ea09040d0b27c75dfdf66445931e4b7701c713457"
+    },
+    "successor": {
+      "sha": "0d3ee9707d397a7066eb144345220f42e36d7386",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-plan-source-independent-review/successor-qualification.json",
+      "bytes": 7227,
+      "sha256": "2de156be8f24110ceb8db154298be30a2d96c7c422e7e525940f3f9b181cbed5"
+    },
+    "foreign_complete_index": {
+      "sha": "6d7f42f0f2b19e98685c21e512e040b6ddd69a37",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/evidence-index.json",
+      "bytes": 4840,
+      "sha256": "b657449a2ab41a0d64f23302432ecddccf89cdb5d6db2e74924a6bd71a211ef1"
+    }
+  },
+  "source_only_final_format_successor": {
+    "base_sha": "6d7f42f0f2b19e98685c21e512e040b6ddd69a37",
+    "candidate_sha": "7cecfd7efbfe0e1d17d9513def504455f222cc1c",
+    "candidate_tree_sha": "e40ec2802f8e9957b07b3271ae06c3ac7532daa6",
+    "changed_paths": [
+      "policy-engine/tools/devx/foundry/generate_stubs.py"
+    ],
+    "source_before_sha256": "d3fec7ef8663b6f499225e74973c2a522da064f16b900f22723ce2893a09ba28",
+    "source_after_sha256": "e3d0c110837c051dcc77c655d1faeb0eff11c21dfb1181f3a34440c78c5a587b",
+    "whole_generator_AST_equal": true,
+    "verdict": "NONBLOCKING source-only two-line tuple-layout formatter delta; source885 reviewed semantics unchanged. AST equality is metadata custody, not runtime acceptance. New author81/mypy3/Ruff7 outcomes reported but full final committed outputs not yet read here; no future PASS claim."
+  },
+  "created_at_utc": "2026-10-06T21:33:19.741736+00:00"
+}

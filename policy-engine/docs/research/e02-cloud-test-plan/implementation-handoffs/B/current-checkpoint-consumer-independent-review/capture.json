@@ -1,0 +1,66 @@
+{
+  "kind": "metadata-only capture, no product imports/tests",
+  "source_target_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+  "source_target_tree": "d3bae9a9502b701e2ed73d9ffab07ba6a0883502",
+  "head_before": "7cbde21de57765c37af5384cb80b85267119a4f5",
+  "tree_before": "3ec603d24b85bb192347c55d9655a81c0c1b8ce8",
+  "branch_before": "codex/e02-B-current-runtime",
+  "tracked_status_before": "",
+  "head_after": "7cbde21de57765c37af5384cb80b85267119a4f5",
+  "checks": [
+    {
+      "id": "literal-census-ruff",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-consumer-independent-review/census.py"
+      ],
+      "cwd": "/workspace/e02-B-current-runtime",
+      "exit_code": 0,
+      "wall_s": 0.04250124799727928,
+      "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-consumer-independent-review/ruff.txt",
+      "output_bytes": 19,
+      "output_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "driver_bytes": 5492,
+      "driver_sha256": "9c5aec9d016c6cf0455fdb76ae286dcf0842b64b9e5b4e51e1f828087a8885df"
+    },
+    {
+      "id": "literal-census-format",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-consumer-independent-review/census.py"
+      ],
+      "cwd": "/workspace/e02-B-current-runtime",
+      "exit_code": 0,
+      "wall_s": 0.05654532599146478,
+      "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-consumer-independent-review/format.txt",
+      "output_bytes": 25,
+      "output_sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+      "driver_bytes": 5492,
+      "driver_sha256": "9c5aec9d016c6cf0455fdb76ae286dcf0842b64b9e5b4e51e1f828087a8885df"
+    },
+    {
+      "id": "git-ast-census",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-consumer-independent-review/census.py"
+      ],
+      "cwd": "/workspace/e02-B-current-runtime",
+      "exit_code": 0,
+      "wall_s": 15.703736310999375,
+      "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-consumer-independent-review/census.json",
+      "output_bytes": 25831,
+      "output_sha256": "49c86ab45bcd75baf1c1a722349144692769b8f85ce2d0542f4e6ff4301d294b",
+      "driver_bytes": 5492,
+      "driver_sha256": "9c5aec9d016c6cf0455fdb76ae286dcf0842b64b9e5b4e51e1f828087a8885df"
+    }
+  ],
+  "scope": "Executed source is pinned Git456; own7cb checkout supplies metadata driver only, not a whole456 product execution. Planned docs untracked; no other tracked/source/test modifications."
+}

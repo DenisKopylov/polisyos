@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/workspace/e02-B-current-execution-state/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-selector-independent-review-evidence/verify.source.txt", line 120, in <module>
+    assert all("policy-engine/" + p in selected for p in x["equivalent_candidate_selectors"])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-B-current-execution-state/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-selector-independent-review-evidence/verify.source.txt", line 120, in <genexpr>
+    assert all("policy-engine/" + p in selected for p in x["equivalent_candidate_selectors"])
+               ~~~~~~~~~~~~~~~~~^~~
+TypeError: can only concatenate str (not "dict") to str

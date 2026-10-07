@@ -1,0 +1,532 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-cohort-inventory",
+  "closure_ids": [],
+  "bundle_ids": [],
+  "finding_ids": [],
+  "slice_base_sha": "0e5a12a8873fce984b5417c0d310c92f5e409b48",
+  "implementation_commits": [
+    "a27bf39edd7248baf000f1be35d9bcbf5be92f2f",
+    "e692f8cff4ca2d2e2697321ba77f7ba5050f27d1"
+  ],
+  "candidate_sha": "e692f8cff4ca2d2e2697321ba77f7ba5050f27d1",
+  "candidate_tree_sha": "886c0df7e6d0ee867021b122ab9c680bb140a3c4",
+  "branch": "codex/e02-B-current-adapters",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/64",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory-evidence/format.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory-evidence/format.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory-evidence/mypy.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory-evidence/mypy.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory-evidence/ruff.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory-evidence/ruff.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory-evidence/syntax.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory-evidence/syntax.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py"
+  ],
+  "surface_classification": "internal research execution observer; no product source/facade/README/generator change",
+  "source_identity": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py",
+    "sha256": "2766137b6322946a1e4a6f05717708636148391622e37106e66e6d9634e0f802",
+    "bytes": 20488,
+    "git_blob": "1359fec9c8f652a76ad9129636b5fb90aef45417"
+  },
+  "baseline_cells": [],
+  "baseline_grade": "No baseline result used: this is an observer instrument, not a finding repair/closure.",
+  "checks": [
+    {
+      "id": "final-syntax",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-c",
+        "from pathlib import Path; p=Path(\"docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py\"); compile(p.read_bytes(), str(p), \"exec\"); print(\"Syntax compile PASS; no plugin import, collection or tests executed\")"
+      ],
+      "target_sha": "e692f8cff4ca2d2e2697321ba77f7ba5050f27d1",
+      "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+      "environment": {
+        "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "platform": "linux",
+        "tool_versions": {
+          "pytest": "9.0.2",
+          "ruff": "0.14.10",
+          "mypy": "1.19.1"
+        },
+        "numerical_process_worker_quota": "none imposed"
+      },
+      "input_closure": {
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py",
+        "source_sha256": "2766137b6322946a1e4a6f05717708636148391622e37106e66e6d9634e0f802",
+        "source_bytes": 20488,
+        "pytest_api_profile": "9.0.2 source signatures inspected; plugin not imported/executed"
+      },
+      "outcome": "PASS",
+      "returncode": 0,
+      "wall_seconds": 0.03400481599965133,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory-evidence/final-basis/syntax.txt",
+        "sha256": "12f6dc0045b0bb28a51b35e54a4469c99dbd5503cddfd60978046d97d5600acb",
+        "bytes": 68
+      }
+    },
+    {
+      "id": "final-ruff",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py"
+      ],
+      "target_sha": "e692f8cff4ca2d2e2697321ba77f7ba5050f27d1",
+      "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+      "environment": {
+        "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "platform": "linux",
+        "tool_versions": {
+          "pytest": "9.0.2",
+          "ruff": "0.14.10",
+          "mypy": "1.19.1"
+        },
+        "numerical_process_worker_quota": "none imposed"
+      },
+      "input_closure": {
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py",
+        "source_sha256": "2766137b6322946a1e4a6f05717708636148391622e37106e66e6d9634e0f802",
+        "source_bytes": 20488,
+        "pytest_api_profile": "9.0.2 source signatures inspected; plugin not imported/executed"
+      },
+      "outcome": "PASS",
+      "returncode": 0,
+      "wall_seconds": 0.048911370991845615,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory-evidence/final-basis/ruff.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "bytes": 19
+      }
+    },
+    {
+      "id": "final-format",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py"
+      ],
+      "target_sha": "e692f8cff4ca2d2e2697321ba77f7ba5050f27d1",
+      "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+      "environment": {
+        "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "platform": "linux",
+        "tool_versions": {
+          "pytest": "9.0.2",
+          "ruff": "0.14.10",
+          "mypy": "1.19.1"
+        },
+        "numerical_process_worker_quota": "none imposed"
+      },
+      "input_closure": {
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py",
+        "source_sha256": "2766137b6322946a1e4a6f05717708636148391622e37106e66e6d9634e0f802",
+        "source_bytes": 20488,
+        "pytest_api_profile": "9.0.2 source signatures inspected; plugin not imported/executed"
+      },
+      "outcome": "PASS",
+      "returncode": 0,
+      "wall_seconds": 0.0468778460053727,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory-evidence/final-basis/format.txt",
+        "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+        "bytes": 25
+      }
+    },
+    {
+      "id": "final-mypy",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "mypy",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py"
+      ],
+      "target_sha": "e692f8cff4ca2d2e2697321ba77f7ba5050f27d1",
+      "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+      "environment": {
+        "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "platform": "linux",
+        "tool_versions": {
+          "pytest": "9.0.2",
+          "ruff": "0.14.10",
+          "mypy": "1.19.1"
+        },
+        "numerical_process_worker_quota": "none imposed"
+      },
+      "input_closure": {
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py",
+        "source_sha256": "2766137b6322946a1e4a6f05717708636148391622e37106e66e6d9634e0f802",
+        "source_bytes": 20488,
+        "pytest_api_profile": "9.0.2 source signatures inspected; plugin not imported/executed"
+      },
+      "outcome": "PASS",
+      "returncode": 0,
+      "wall_seconds": 0.869881478996831,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory-evidence/final-basis/mypy.txt",
+        "sha256": "5d4b6d285b77932e3d08212c3b4974d0a803f98ec60408ac6ccf6a063fa6c19e",
+        "bytes": 42
+      }
+    }
+  ],
+  "evidence_companions": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory-evidence/format.json",
+      "sha256": "02cdc565b99f0d7d31f65676e0725a02ac9c8154dc056e4215b929d6ee5d4e8a",
+      "bytes": 1482
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory-evidence/format.txt",
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+      "bytes": 25
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory-evidence/mypy.json",
+      "sha256": "01d68f5b0f94116cfbaaaf07951722c74e53c93a48d46b52b882aa85e858d64e",
+      "bytes": 1449
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory-evidence/mypy.txt",
+      "sha256": "5d4b6d285b77932e3d08212c3b4974d0a803f98ec60408ac6ccf6a063fa6c19e",
+      "bytes": 42
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory-evidence/ruff.json",
+      "sha256": "f85731e1cb3b91d7ae77687002b092053dfad7fc5bc5d2d030c4ae5da6f17b68",
+      "bytes": 1462
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory-evidence/ruff.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "bytes": 19
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory-evidence/syntax.json",
+      "sha256": "96b5cb1e70f2ed6801cd7a7725412df2885a2e4987a6b445733648d61d1ffa82",
+      "bytes": 1602
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory-evidence/syntax.txt",
+      "sha256": "12f6dc0045b0bb28a51b35e54a4469c99dbd5503cddfd60978046d97d5600acb",
+      "bytes": 68
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory-evidence/final-basis/format.json",
+      "sha256": "0b4d794dc8f0bf2d3642a863287660301e643dc23eb97d97d8a00434bd4619db",
+      "bytes": 1499
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory-evidence/final-basis/format.txt",
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+      "bytes": 25
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory-evidence/final-basis/mypy.json",
+      "sha256": "513256c557341d8764fb939d0a47739ae41cc0a906c7f672fedacd7c4b4fe17f",
+      "bytes": 1465
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory-evidence/final-basis/mypy.txt",
+      "sha256": "5d4b6d285b77932e3d08212c3b4974d0a803f98ec60408ac6ccf6a063fa6c19e",
+      "bytes": 42
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory-evidence/final-basis/ruff.json",
+      "sha256": "e6d5fec287a43112064b0ed3760c823b9fda67e900d1577910e5f5c9e48be272",
+      "bytes": 1481
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory-evidence/final-basis/ruff.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "bytes": 19
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory-evidence/final-basis/syntax.json",
+      "sha256": "324e303ab4cdcfc40dc4394be844989b3bb8458e2004662734adf09250a803d3",
+      "bytes": 1620
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory-evidence/final-basis/syntax.txt",
+      "sha256": "12f6dc0045b0bb28a51b35e54a4469c99dbd5503cddfd60978046d97d5600acb",
+      "bytes": 68
+    }
+  ],
+  "runtime_verification": {
+    "outcome": "UNRUN",
+    "meaning": "Parent explicitly requested no plugin import, collection or cohort execution; syntax/Ruff/format/normalmypy only. No fake runtime PASS or semantic closure.",
+    "next_owner": "B root final frozen ordinary pytest invocation + G receipt review"
+  },
+  "property": {
+    "statement": "Observe actual pytest item denominator before execution, every collector/deselection and runtime phase report, actual xfail semantics and final process module-file byte identities without selecting tests or modifying reports.",
+    "runtime_path": [
+      "Pytest actual collection and report hooks",
+      "exclusive ignored JSON artifact with pre-execution fsynced checkpoint",
+      "root full native stdout/JUnit and inventory bridge",
+      "B root/G final per-case evidence consumer"
+    ],
+    "proxy_divergence": "Present/collected nodeid can still fail setup/call/teardown or be skipped/xfail; module __file__ can point to readable matching bytes without proving loader reads or live function execution. These boundaries remain explicit; no authority admission from inventory.",
+    "negative_controls": [
+      {
+        "case": "Existing output file",
+        "expected": "O_EXCL refusal before collection; no overwrite",
+        "state": "UNRUN_source_review_only"
+      },
+      {
+        "case": "Missing/relative/non-Git-ignored output",
+        "expected": "UsageError before source/runtime mutation",
+        "state": "UNRUN_source_review_only"
+      },
+      {
+        "case": "Unreadable or concurrently changing origin file",
+        "expected": "named unreadable/ambiguous actual_read; no source-byte-match claim",
+        "state": "UNRUN_source_review_only"
+      },
+      {
+        "case": "xfail versus strictXPASS and ordinary failure",
+        "expected": "original pytest outcome retained; actual evaluated xfail+call state supplies separate diagnostic classification",
+        "state": "UNRUN_source_review_only"
+      }
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "predicate_scope": "Only fresh syntax/lint/format/typecheck observations are recomputed; actual runtime instrumentation behavior not_established until final root invocation.",
+  "capability_state_or_finding_state": "implemented_instrument_runtime_unrun",
+  "input_scope": {
+    "case_selection": "Actual session.items after all selection hooks; nodeids/paths/locations/marker names/fixture names only, no serialized parameters/mark arguments.",
+    "collection": "Every actual CollectReport includes outcome/results and hash-bound longrepr identity; full readable diagnostics are native stdout/JUnit.",
+    "runtime": "Every setup/call/teardown TestReport plus actual pytest9 evaluated xfail stash/exception result; no outcome/marker/selection mutations.",
+    "modules": "Finish-time current-process sys.modules copied once, complete entries enumerated and each distinct observed file opened/stream-hashed; Git ls-tree exact startedSHA identifies tracked source blobs. Read failures remain named records.",
+    "resources": "Arbitrary fixture/resource/data/network/backend service reads and removed/transient modules are unresolved_by_construction, never an empty readset.",
+    "worker_profiles": "No quotas imposed. Caller-chosen xdist workers write exclusive suffixed artifacts with their own complete session.items/origins; controller records worker-provided nodeids. Parent runtime subtree module sets remain unresolved.",
+    "privacy": "Only E02_B_COHORT_INVENTORY_PATH environment setting is read; no environment dictionary/value dump, locals/callspec/marker args/captured streams. Diagnostic text is hash-bound, not copied."
+  },
+  "loading_contract": {
+    "root_owns": "Final selector generator/README and actual launch; this leaf edits only the leased instrument and receipt.",
+    "copy_source": "e692f8cff4ca2d2e2697321ba77f7ba5050f27d1:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py",
+    "copy_destination": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/current_cohort_inventory.py",
+    "copy_policy": "Root writes exact Git source bytes to its ignored tools directory, binds/checks sourceSHA256 before invocation; no package/source/lock changes.",
+    "environment": {
+      "E02_B_COHORT_INVENTORY_PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/final-b-native/inventory.json",
+      "PYTHONPATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools:/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+      "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+      "UV_NO_SYNC": "1",
+      "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache"
+    },
+    "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+    "argv": [
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+      "-m",
+      "pytest",
+      "-p",
+      "current_cohort_inventory",
+      "@/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/final-b-native/whole-files.args",
+      "--continue-on-collection-errors",
+      "--junitxml=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/final-b-native/cohort.xml",
+      "--basetemp=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/final-b-native/tmp",
+      "-o",
+      "cache_dir=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/final-b-native/pytest-cache",
+      "-vv"
+    ],
+    "profile": "Python3.14.2/pytest9.0.2, actual contributor root194. @argsfile support source inspected. No separate collection wave.",
+    "status": "UNRUN_until_root_final_freeze",
+    "exclusive_output": "Fresh absolute path inside actual Git-ignored worktree storage. O_EXCL mode0600; fsync collection and finish checkpoints; caller must use a different fresh path for a rerun."
+  },
+  "pattern_pass": [
+    {
+      "id": "P29",
+      "move": "Runtime behavior explicitly UNRUN; source/signature checks do not certify observer operation or finding properties."
+    },
+    {
+      "id": "P35",
+      "move": "Actual complete session items/reports/process module entries, no historical counts or sampled static denominator."
+    },
+    {
+      "id": "P37",
+      "move": "Genuine evaluated pytest9 xfail state is separate from consumer/gateway authority; this instrument is not an admission gate."
+    },
+    {
+      "id": "P38",
+      "move": "Source Git-byte matching/file origins do not stand in for executed/import-loader/resource readsets; finite named unresolved boundaries."
+    },
+    {
+      "id": "P39",
+      "move": "One instrument mechanism; static logs and separate handoff are mandatory record companions."
+    }
+  ],
+  "limitations_and_next_owner": [
+    "Root must merge instrument source and frozen owners before the final actual cohort; projected input cardinality is never a stopping rule.",
+    "No universal import/readset, fixture/resource/backend/production-data consumption claim. File origin metadata may be declared by modules; hash observes backing bytes only.",
+    "No process-tree loader coverage; caller-selected xdist needs its separate worker artifacts. Native child process module sets remain unobserved.",
+    "Pytest9 evaluated xfail stash is an explicit private diagnostic API dependency; runtime version is recorded. Other major pytest API profiles are unverified.",
+    "Abrupt termination may leave pre-execution checkpoint/partial JSON; only state=session_finished with real session exit supports a completed observation.",
+    "Root full native stdout/JUnit supplies complete diagnostics; artifact intentionally excludes potentially sensitive report text/parameter values.",
+    "No source/test generator/canonical card/semantic authority/product API changed; no B finding closure advertised."
+  ],
+  "earlier_source_checks": [
+    {
+      "id": "syntax",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-c",
+        "from pathlib import Path; p=Path(\"docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py\"); compile(p.read_bytes(), str(p), \"exec\"); print(\"Syntax compile PASS; no plugin import, collection or tests executed\")"
+      ],
+      "target_sha": "a27bf39edd7248baf000f1be35d9bcbf5be92f2f",
+      "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+      "environment": {
+        "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "platform": "linux",
+        "tool_versions": {
+          "pytest": "9.0.2",
+          "ruff": "0.14.10",
+          "mypy": "1.19.1"
+        },
+        "numerical_process_worker_quota": "none imposed"
+      },
+      "input_closure": {
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py",
+        "source_sha256": "1ced9505e9526023b013330d6f18a4930d25da19f7dae5b5d29ebf4eb2976c00",
+        "source_bytes": 20450,
+        "pytest_api_profile": "9.0.2 source signatures inspected; plugin not imported/executed"
+      },
+      "outcome": "PASS",
+      "returncode": 0,
+      "wall_seconds": 0.03305488599289674,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory-evidence/syntax.txt",
+        "sha256": "12f6dc0045b0bb28a51b35e54a4469c99dbd5503cddfd60978046d97d5600acb",
+        "bytes": 68
+      }
+    },
+    {
+      "id": "ruff",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py"
+      ],
+      "target_sha": "a27bf39edd7248baf000f1be35d9bcbf5be92f2f",
+      "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+      "environment": {
+        "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "platform": "linux",
+        "tool_versions": {
+          "pytest": "9.0.2",
+          "ruff": "0.14.10",
+          "mypy": "1.19.1"
+        },
+        "numerical_process_worker_quota": "none imposed"
+      },
+      "input_closure": {
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py",
+        "source_sha256": "1ced9505e9526023b013330d6f18a4930d25da19f7dae5b5d29ebf4eb2976c00",
+        "source_bytes": 20450,
+        "pytest_api_profile": "9.0.2 source signatures inspected; plugin not imported/executed"
+      },
+      "outcome": "PASS",
+      "returncode": 0,
+      "wall_seconds": 0.05304793899995275,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory-evidence/ruff.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "bytes": 19
+      }
+    },
+    {
+      "id": "format",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py"
+      ],
+      "target_sha": "a27bf39edd7248baf000f1be35d9bcbf5be92f2f",
+      "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+      "environment": {
+        "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "platform": "linux",
+        "tool_versions": {
+          "pytest": "9.0.2",
+          "ruff": "0.14.10",
+          "mypy": "1.19.1"
+        },
+        "numerical_process_worker_quota": "none imposed"
+      },
+      "input_closure": {
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py",
+        "source_sha256": "1ced9505e9526023b013330d6f18a4930d25da19f7dae5b5d29ebf4eb2976c00",
+        "source_bytes": 20450,
+        "pytest_api_profile": "9.0.2 source signatures inspected; plugin not imported/executed"
+      },
+      "outcome": "PASS",
+      "returncode": 0,
+      "wall_seconds": 0.06088421899767127,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory-evidence/format.txt",
+        "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+        "bytes": 25
+      }
+    },
+    {
+      "id": "mypy",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "mypy",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py"
+      ],
+      "target_sha": "a27bf39edd7248baf000f1be35d9bcbf5be92f2f",
+      "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+      "environment": {
+        "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "platform": "linux",
+        "tool_versions": {
+          "pytest": "9.0.2",
+          "ruff": "0.14.10",
+          "mypy": "1.19.1"
+        },
+        "numerical_process_worker_quota": "none imposed"
+      },
+      "input_closure": {
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py",
+        "source_sha256": "1ced9505e9526023b013330d6f18a4930d25da19f7dae5b5d29ebf4eb2976c00",
+        "source_bytes": 20450,
+        "pytest_api_profile": "9.0.2 source signatures inspected; plugin not imported/executed"
+      },
+      "outcome": "PASS",
+      "returncode": 0,
+      "wall_seconds": 0.24938185600331053,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory-evidence/mypy.txt",
+        "sha256": "5d4b6d285b77932e3d08212c3b4974d0a803f98ec60408ac6ccf6a063fa6c19e",
+        "bytes": 42
+      }
+    }
+  ],
+  "source_label_successor": "Canonical predicate_basis restored to recomputed; claim_grade separately limits observation to runtime evidence, not finding admission. Hook behavior unchanged, runtime remains UNRUN.",
+  "mechanism_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py"
+  ],
+  "implementation_footprint_note": "Append-only canonical-label correction follows the first evidence publication; final implementation tree therefore includes9 earlier static-record/receipt companions in addition to1 mechanism. Final-basis checks and latest canonical handoff are separate successor record commit; no product source changed."
+}

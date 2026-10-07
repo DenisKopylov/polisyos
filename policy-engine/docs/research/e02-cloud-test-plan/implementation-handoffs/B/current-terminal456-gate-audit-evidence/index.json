@@ -1,0 +1,47 @@
+{
+  "terminal-final-verify-uncapped.txt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-terminal456-gate-audit-evidence/terminal-final-verify-uncapped.txt",
+    "bytes": 18074,
+    "sha256": "0ebe92ef8fa05914968cceaddcd17688707b2ff48fee815845ea60458d919ae1"
+  },
+  "terminal-final-parity-uncapped.txt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-terminal456-gate-audit-evidence/terminal-final-parity-uncapped.txt",
+    "bytes": 35088,
+    "sha256": "9b3ae101cf7a4af0c344df0aa5c420133c5a434164b4aface85bf9565976200d"
+  },
+  "terminal-final-all-changed-format.txt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-terminal456-gate-audit-evidence/terminal-final-all-changed-format.txt",
+    "bytes": 13569,
+    "sha256": "a2d9d5ad926063732c33da61e0a65721020b79340d8056347df460cf40d0c56e"
+  },
+  "terminal-final-runtime-api.txt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-terminal456-gate-audit-evidence/terminal-final-runtime-api.txt",
+    "bytes": 13048,
+    "sha256": "4a7599cdf48d99313f81664f95e77ffbde002338c4545f1960ef1a8522096672"
+  },
+  "terminal-final-production-invocation.txt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-terminal456-gate-audit-evidence/terminal-final-production-invocation.txt",
+    "bytes": 15789,
+    "sha256": "a1dd9073a84a62d8b1b44d60c2e39b515e351c0ee17112a8bf5440f87539bd30"
+  },
+  "large-raw-pins.json": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-terminal456-gate-audit-evidence/large-raw-pins.json",
+    "bytes": 695,
+    "sha256": "99316c6b9f1593e122b6b6f9c4c1f70b2fee32b3c2129b41275408152cee9686"
+  },
+  "audit-complete.json": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-terminal456-gate-audit-evidence/audit-complete.json",
+    "bytes": 487962,
+    "sha256": "b949203c1c1ec6b314e19102919af2dbdfdbf387c3efbe3e8e4c1d1bb06e8e5e"
+  },
+  "audit-stdout.txt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-terminal456-gate-audit-evidence/audit-stdout.txt",
+    "bytes": 105,
+    "sha256": "94fc583f761de614db730deeb8a1e03c38ddda9c5d806b1719cea826381a798c"
+  },
+  "terminal-final-architecture.txt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-terminal456-gate-audit-evidence/terminal-final-architecture.txt",
+    "bytes": 123233,
+    "sha256": "3c1a37a7f2a900c270e8faca0fe21ef985cc77ad59bc3d319dd34bcd625d2f16"
+  }
+}

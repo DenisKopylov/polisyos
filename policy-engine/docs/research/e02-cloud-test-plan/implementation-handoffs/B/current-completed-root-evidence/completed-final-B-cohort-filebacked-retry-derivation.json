@@ -1,0 +1,15 @@
+{
+  "canonical_source": "/workspace/e02-B-current-coordination/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_cohort.py",
+  "canonical_git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+  "canonical_bytes": 6709,
+  "canonical_sha256": "7fa5eadfa31bf2187e9a52188e2c299ce24e3b3e2bcc4ad8900453e38cf09288",
+  "derived_launcher": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/run_completed_cohort_filebacked_retry.py",
+  "derived_bytes": 6834,
+  "derived_sha256": "25b390a1afb74c9376617a0a5ba98a6f5fbbba03ddd96ae4717e24c8d6c485b8",
+  "changes": [
+    "Evidence root resolves to exact original tracked frozen instruments, because derived operational launcher is in ignored tools.",
+    "Only output tag is distinct to preserve first SIGKILL partial artifacts."
+  ],
+  "runtime_delta": "Only CLI fresh scratch will use file-backed overlay rather than /dev/shm; complete250 filenames, order, pytest argv/options, observer, installed-wheel7inputs, PGdriver/backend, source1862 and absence of numeric caps are unchanged.",
+  "retry_basis": "Actual first full native SIGKILL-9/incomplete plus measured retained tmpfs/shmem pressure and no swap; source-preserving backing-filesystem prerequisite change. Cause of individual PID signal remains not_established. No data removed/moved/rewritten; old native artifacts retained."
+}

@@ -1,0 +1,44 @@
+{
+  "schema": "policyos.e02.evidence_index.v1",
+  "source_snapshot_sha": "c9909f984c6ab4ca76ac220bfe7d0f830c6194e0",
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-evidence/canonical-criteria.txt",
+      "bytes": 26397,
+      "sha256": "0b2dbdd381620254d30abfc01184dda15576af3afdba33bb276426bb94427e32"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-evidence/contracts.json",
+      "bytes": 8239,
+      "sha256": "2fc20a3010cd1bcb149417f5125f7237d2bf5b259622f4e8017e82daf9c33eeb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-evidence/historical-outcome-boundaries.json",
+      "bytes": 3561,
+      "sha256": "d35a1598aab0a4d01af133475e9afec02e080519a30f7ab5ca79b84174a87fb2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-evidence/local-G-inputs-and-commands.json",
+      "bytes": 10181,
+      "sha256": "7084ad8c0b3d402c77927a9405a1bc8365e54ca06aec2be9c1ee83a95f9ac92d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-evidence/package.source.txt",
+      "bytes": 19777,
+      "sha256": "34cb82a513fa38932a9a243f2e9e5cfdaee54b7d92587c532c9ab9188e6a3569"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-evidence/source-contexts.txt",
+      "bytes": 67813,
+      "sha256": "9eff2bb8cf17fd83a6432b8c3588d7cb819fb1b30b8e9078d9eb1f7134b7a70b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-evidence/source-inputs.json",
+      "bytes": 20866,
+      "sha256": "2f881def9db1fe65447c124f8d9ddf2d5ddda3bacbb5804d5efcfd6b34bf3047"
+    }
+  ],
+  "file_count_excluding_index": 7,
+  "bytes_excluding_index": 156834,
+  "runtime_execution": "none; finite source/read-only metadata preparation only"
+}

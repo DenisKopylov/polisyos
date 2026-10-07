@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="1.534" timestamp="2026-10-06T21:25:51.130220+00:00" hostname="b878f4efbdfc"><testcase classname="tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle" name="test_cold_warm_preparation_preserves_independent_seeded_numerical_repetitions[True-True]" time="1.011"><failure message="AssertionError: &#10;Not equal to tolerance rtol=1e-06, atol=1e-07&#10;&#10;Mismatched elements: 4 / 4 (100%)&#10;Max absolute difference among violations: 0.22851229&#10;Max relative difference among violations: 0.17137519&#10; ACTUAL: array([ 1.104891, -1.990627,  0.863719,  3.172544], dtype=float32)&#10; DESIRED: array([ 1.333404, -1.881827,  0.749399,  3.242402], dtype=float32)">tmp_path = PosixPath('/tmp/e02-B-reopened-compiled-plan-a489c1a67492/pytest/test_cold_warm_preparation_pre0')
+jit = True, infer_shapes = True
+
+    @pytest.mark.parametrize("jit", [False, True])
+    @pytest.mark.parametrize("infer_shapes", [False, True])
+    def test_cold_warm_preparation_preserves_independent_seeded_numerical_repetitions(
+        tmp_path: Path, jit: bool, infer_shapes: bool
+    ) -&gt; None:
+        state = _state()
+        compiler, chain, producer, reducer = _owner(scale=0.5)
+        observations: dict[str, Any] = {"jit": jit, "infer_shapes": infer_shapes, "repetitions": []}
+        with _body_observer() as calls:
+            cold = compiler.compile_chain(chain, state, jit=jit, infer_shapes=infer_shapes)
+            warm = compiler.compile_chain(chain, state, jit=jit, infer_shapes=infer_shapes)
+            assert calls == {"draw": 0, "reduce": 0}
+            observations["preparation_body_entries"] = dict(calls)
+            for index, seed in enumerate((11, 23, 47, 11)):
+                executor = cold if index == 0 else warm
+                result = executor(state, {producer.id: {"seed": seed}, reducer.id: {"offset": 0.75}})
+                result.total.block_until_ready()
+                expected_draws, expected_total = _oracle(state, seed, 0.5, 0.75)
+&gt;               np.testing.assert_allclose(
+                    np.asarray(result.draws), expected_draws, rtol=1e-6, atol=1e-7
+                )
+E               AssertionError: 
+E               Not equal to tolerance rtol=1e-06, atol=1e-07
+E               
+E               Mismatched elements: 4 / 4 (100%)
+E               Max absolute difference among violations: 0.22851229
+E               Max relative difference among violations: 0.17137519
+E                ACTUAL: array([ 1.104891, -1.990627,  0.863719,  3.172544], dtype=float32)
+E                DESIRED: array([ 1.333404, -1.881827,  0.749399,  3.242402], dtype=float32)
+
+tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py:174: AssertionError</failure></testcase></testsuite></testsuites>

@@ -1,0 +1,782 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-independent-budget-cas",
+  "closure_ids": [
+    "B151"
+  ],
+  "bundle_ids": [
+    "CAS-01",
+    "DUR-01"
+  ],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "slice_base_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "implementation_commits": [
+    "b16cf7f6ccb1311e74a6fc8af3dc6e16526e4db4",
+    "bff2464a1303c76e387f4cd2d0cbb995e02d4bea",
+    "2e66535a630d6115e41c657103a6d98f4010338b",
+    "a82302c3f964c2f8bff4d127d900bf33289d2e16"
+  ],
+  "candidate_sha": "a82302c3f964c2f8bff4d127d900bf33289d2e16",
+  "candidate_tree_sha": "ed6eb14803d1305c4f2a528453cc0ec1300486bc",
+  "branch": "codex/e02-B-current-coordination",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-budget-ledger-admission.toml",
+    "policy-engine/release-fragments/unreleased/e02-current-independent-oracles.toml",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+    "policy-engine/tests/unit/core/artifacts/test_put_consumer_oracle.py",
+    "policy-engine/tests/unit/core/artifacts/test_put_integrity_retry.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py"
+  ],
+  "mandatory_companions": "Engine README, unique release fragment, defining/native/fresh-process tests; all included in changed_paths. Source writer CAS/DUR remains original exclusive owner. Root authors independent tests only.",
+  "owner": "B root independent review; CAS producer=cas_probe; DUR producer=dur_probe",
+  "baseline_cells": [
+    "F01-P072",
+    "F01-P077",
+    "F01-P139",
+    "F02-P073",
+    "F04-P043",
+    "F04-P101",
+    "F04-P136",
+    "F05-P095",
+    "F06-P095",
+    "F06-P143",
+    "F08-P074",
+    "F08-P129",
+    "F09-P048",
+    "F09-P074",
+    "F10-P072",
+    "F10-P073",
+    "F12-P120",
+    "F13-P084",
+    "F14-P052",
+    "F15-P085",
+    "F15-P090",
+    "F15-P117",
+    "F15-P158"
+  ],
+  "baseline_basis": {
+    "grade": "source_reported_compact_navigation_only; zero raw archives; semantic adequacy not_established; never deciding new candidate",
+    "routes": {
+      "B37": [
+        {
+          "finding_id": "B37",
+          "bundle_ids": [
+            "DUR-01"
+          ],
+          "recorded_ledger_status": "partial",
+          "route_grade": "candidate_unverified",
+          "semantic_adequacy": "not_established",
+          "discriminator_ref": "bundle-catalog.md#dur-01; owner:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DUR-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b; finding:B37",
+          "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@69780761ae091d8fcc6ab8778c7f5f7227eeef0b#B37",
+          "assigned_routes": [
+            {
+              "job": "F01",
+              "ref": "research_main",
+              "cell_ids": [
+                "F01-P139"
+              ]
+            }
+          ]
+        }
+      ],
+      "B151": [
+        {
+          "finding_id": "B151",
+          "bundle_ids": [
+            "CAS-01"
+          ],
+          "recorded_ledger_status": "partial",
+          "route_grade": "candidate_unverified",
+          "semantic_adequacy": "not_established",
+          "discriminator_ref": "bundle-catalog.md#cas-01; owner:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAS-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b; finding:B151",
+          "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@69780761ae091d8fcc6ab8778c7f5f7227eeef0b#B151",
+          "assigned_routes": [
+            {
+              "job": "F01",
+              "ref": "research_main",
+              "cell_ids": [
+                "F01-P072",
+                "F01-P077"
+              ]
+            },
+            {
+              "job": "F02",
+              "ref": "research_main",
+              "cell_ids": [
+                "F02-P073"
+              ]
+            },
+            {
+              "job": "F04",
+              "ref": "research_main",
+              "cell_ids": [
+                "F04-P043",
+                "F04-P101",
+                "F04-P136"
+              ]
+            },
+            {
+              "job": "F05",
+              "ref": "e02_execution_base",
+              "cell_ids": [
+                "F05-P095"
+              ]
+            },
+            {
+              "job": "F06",
+              "ref": "e02_execution_base",
+              "cell_ids": [
+                "F06-P095",
+                "F06-P143"
+              ]
+            },
+            {
+              "job": "F08",
+              "ref": "e02_head",
+              "cell_ids": [
+                "F08-P074",
+                "F08-P129"
+              ]
+            },
+            {
+              "job": "F09",
+              "ref": "e02_head",
+              "cell_ids": [
+                "F09-P048",
+                "F09-P074"
+              ]
+            },
+            {
+              "job": "F10",
+              "ref": "main",
+              "cell_ids": [
+                "F10-P072",
+                "F10-P073"
+              ]
+            },
+            {
+              "job": "F12",
+              "ref": "main",
+              "cell_ids": [
+                "F12-P120"
+              ]
+            },
+            {
+              "job": "F13",
+              "ref": "integration_head",
+              "cell_ids": [
+                "F13-P084"
+              ]
+            },
+            {
+              "job": "F14",
+              "ref": "integration_head",
+              "cell_ids": [
+                "F14-P052"
+              ]
+            },
+            {
+              "job": "F15",
+              "ref": "integration_head",
+              "cell_ids": [
+                "F15-P085",
+                "F15-P090",
+                "F15-P117",
+                "F15-P158"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "cell_source_identity": {
+      "B37": [
+        {
+          "id": "F01-P139",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "source_path": "received/F01.txt",
+          "source_line": "256"
+        }
+      ],
+      "B151": [
+        {
+          "id": "F01-P072",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "source_path": "received/F01.txt",
+          "source_line": "189"
+        },
+        {
+          "id": "F01-P077",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "source_path": "received/F01.txt",
+          "source_line": "194"
+        },
+        {
+          "id": "F02-P073",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "source_path": "received/F02.txt",
+          "source_line": "201"
+        },
+        {
+          "id": "F04-P043",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "source_path": "received/F04.txt",
+          "source_line": "253"
+        },
+        {
+          "id": "F04-P101",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "source_path": "received/F04.txt",
+          "source_line": "311"
+        },
+        {
+          "id": "F04-P136",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "source_path": "received/F04.txt",
+          "source_line": "346"
+        },
+        {
+          "id": "F05-P095",
+          "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+          "source_path": "received/F05.txt",
+          "source_line": "505"
+        },
+        {
+          "id": "F06-P095",
+          "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+          "source_path": "received/F06.txt",
+          "source_line": "279"
+        },
+        {
+          "id": "F06-P143",
+          "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+          "source_path": "received/F06.txt",
+          "source_line": "327"
+        },
+        {
+          "id": "F08-P074",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "source_path": "received/F08.txt",
+          "source_line": "197"
+        },
+        {
+          "id": "F08-P129",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "source_path": "received/F08.txt",
+          "source_line": "252"
+        },
+        {
+          "id": "F09-P048",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "source_path": "received/F09.txt",
+          "source_line": "164"
+        },
+        {
+          "id": "F09-P074",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "source_path": "received/F09.txt",
+          "source_line": "190"
+        },
+        {
+          "id": "F10-P072",
+          "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+          "source_path": "received/F10.txt",
+          "source_line": "192"
+        },
+        {
+          "id": "F10-P073",
+          "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+          "source_path": "received/F10.txt",
+          "source_line": "193"
+        },
+        {
+          "id": "F12-P120",
+          "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+          "source_path": "received/F12.txt",
+          "source_line": "705"
+        },
+        {
+          "id": "F13-P084",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "source_path": "received/F13.txt",
+          "source_line": "211"
+        },
+        {
+          "id": "F14-P052",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "source_path": "received/F14.txt",
+          "source_line": "402"
+        },
+        {
+          "id": "F15-P085",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "source_path": "received/F15.txt",
+          "source_line": "240"
+        },
+        {
+          "id": "F15-P090",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "source_path": "received/F15.txt",
+          "source_line": "245"
+        },
+        {
+          "id": "F15-P117",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "source_path": "received/F15.txt",
+          "source_line": "272"
+        },
+        {
+          "id": "F15-P158",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "source_path": "received/F15.txt",
+          "source_line": "313"
+        }
+      ]
+    },
+    "source_environment_input_closure_refs": {
+      "F01": {
+        "ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F01.txt@198076863e143dea9f89f02734b13d50dae3eed5",
+        "sha256": "5a03f8140481ae37cf16f656c1fbd3bef67a5daa38c7aa2dcd1c890e8dac75c9",
+        "metadata_lines": [
+          4
+        ],
+        "boundary": "Actual received metadata supplies source/role, environment or toolchain, configuration hashes and custody limitations; absent raw archives prevent independent original-input reconciliation."
+      },
+      "F02": {
+        "ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F02.txt@198076863e143dea9f89f02734b13d50dae3eed5",
+        "sha256": "69b55ba8ab1cd438d9cd3da1093e8c9e08f18653123ebc27acb310f6c8015447",
+        "metadata_lines": [
+          5
+        ],
+        "boundary": "Actual received metadata supplies source/role, environment or toolchain, configuration hashes and custody limitations; absent raw archives prevent independent original-input reconciliation."
+      },
+      "F04": {
+        "ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F04.txt@198076863e143dea9f89f02734b13d50dae3eed5",
+        "sha256": "17756ae979ae73e233cad8bf43a09a3118b1efbbc88acd9dd37e3db4125a8f86",
+        "metadata_lines": [
+          4
+        ],
+        "boundary": "Actual received metadata supplies source/role, environment or toolchain, configuration hashes and custody limitations; absent raw archives prevent independent original-input reconciliation."
+      },
+      "F05": {
+        "ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F05.txt@198076863e143dea9f89f02734b13d50dae3eed5",
+        "sha256": "2fa0d29a606a093f4ac1c1a7860bd1c37fc11a6371df51bc012feb2b72af5db0",
+        "metadata_lines": [
+          7
+        ],
+        "boundary": "Actual received metadata supplies source/role, environment or toolchain, configuration hashes and custody limitations; absent raw archives prevent independent original-input reconciliation."
+      },
+      "F06": {
+        "ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F06.txt@198076863e143dea9f89f02734b13d50dae3eed5",
+        "sha256": "b2e2bac4bbb9f2c89d0fe2ef5ad462fb2238833a9f64486383e07d135f4c4a3f",
+        "metadata_lines": [
+          3
+        ],
+        "boundary": "Actual received metadata supplies source/role, environment or toolchain, configuration hashes and custody limitations; absent raw archives prevent independent original-input reconciliation."
+      },
+      "F08": {
+        "ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F08.txt@198076863e143dea9f89f02734b13d50dae3eed5",
+        "sha256": "d4ccc20c4f1c70e35c9e07c049552e5a8a2a1eca750c350f23f13040468d7f18",
+        "metadata_lines": [
+          5
+        ],
+        "boundary": "Actual received metadata supplies source/role, environment or toolchain, configuration hashes and custody limitations; absent raw archives prevent independent original-input reconciliation."
+      },
+      "F09": {
+        "ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F09.txt@198076863e143dea9f89f02734b13d50dae3eed5",
+        "sha256": "0bd494ff47e618125b8fec7074f76e3c4375da60b0bc2a0fe8860f885ece88ff",
+        "metadata_lines": [
+          5
+        ],
+        "boundary": "Actual received metadata supplies source/role, environment or toolchain, configuration hashes and custody limitations; absent raw archives prevent independent original-input reconciliation."
+      },
+      "F10": {
+        "ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F10.txt@198076863e143dea9f89f02734b13d50dae3eed5",
+        "sha256": "c45428c7e6574666b0a5ef98ba0427e3137c7008046fad65d4ed4dc55620fe36",
+        "metadata_lines": [
+          5
+        ],
+        "boundary": "Actual received metadata supplies source/role, environment or toolchain, configuration hashes and custody limitations; absent raw archives prevent independent original-input reconciliation."
+      },
+      "F12": {
+        "ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F12.txt@198076863e143dea9f89f02734b13d50dae3eed5",
+        "sha256": "03fc5b04209e927bdb5f668f09cb80751532a279060bb3d8a085225ff66fc9c2",
+        "metadata_lines": [
+          5,
+          346
+        ],
+        "boundary": "Actual received metadata supplies source/role, environment or toolchain, configuration hashes and custody limitations; absent raw archives prevent independent original-input reconciliation."
+      },
+      "F13": {
+        "ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F13.txt@198076863e143dea9f89f02734b13d50dae3eed5",
+        "sha256": "7c648c964431d3cdc600c5c29e0d3706f848afbb6b7220a1efd0efe0f9fe9c4b",
+        "metadata_lines": [
+          5
+        ],
+        "boundary": "Actual received metadata supplies source/role, environment or toolchain, configuration hashes and custody limitations; absent raw archives prevent independent original-input reconciliation."
+      },
+      "F14": {
+        "ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F14.txt@198076863e143dea9f89f02734b13d50dae3eed5",
+        "sha256": "6746baa7b42a4fad583e640a8ba845806612b34c13a9688c86fbe7ff667fb50e",
+        "metadata_lines": [
+          4,
+          220
+        ],
+        "boundary": "Actual received metadata supplies source/role, environment or toolchain, configuration hashes and custody limitations; absent raw archives prevent independent original-input reconciliation."
+      },
+      "F15": {
+        "ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F15.txt@198076863e143dea9f89f02734b13d50dae3eed5",
+        "sha256": "efe346d9094f0906bb23b1061cb51b9252afd299f85062591e13449616879169",
+        "metadata_lines": [
+          5
+        ],
+        "boundary": "Actual received metadata supplies source/role, environment or toolchain, configuration hashes and custody limitations; absent raw archives prevent independent original-input reconciliation."
+      }
+    }
+  },
+  "checks": [
+    {
+      "command_argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+        "--basetemp",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/pytest-first-native",
+        "--junitxml",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/first-native.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "target_sha": "e6a8221495c67125e915ba896b26cb3940c7272e",
+      "target_tree": "5ea239232feb8ccae470f170278a8a39deb67f64",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "E02_B_PROPERTY_REMOVAL": "",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python_version": "3.14.2",
+        "uv_version": "0.9.21",
+        "node_version": "22.22.0",
+        "pnpm_version": "10.33.2",
+        "numeric_or_process_quota_imposed": false
+      },
+      "input_closure": "All tracked source/tests/conftest/config at target SHA; own-lane PYTHONPATH asserted in each actual child. Runtime mutation is explicit control code in tracked test; ordinary runs have empty control. Hashes/blobs are recomputable from Git.",
+      "outcome": "PASS",
+      "interpretation": "12 native cases on merged b16+bff source; author tests independently rerun",
+      "exit_code": 0,
+      "wall_s": 8.976492595000309,
+      "process_rusage_maxrss_kib": 93668,
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-independent-budget-cas-evidence/first-native.txt",
+          "sha256": "57bb289a11c70f204c418acfdfffc42a68663202064913fefade34d80ba42534",
+          "bytes": 99
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-independent-budget-cas-evidence/first-native.xml",
+          "sha256": "b6b76cff9aba26c54d5535b223e6b8e151fb288e0b442b9e32592c005879cc60",
+          "bytes": 2420
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-independent-budget-cas-evidence/first-native.json",
+          "sha256": "614d6e44ad32989b8d5eb695359e166dfeeb5eca0da0c28b209b63f4bc732f09",
+          "bytes": 1830
+        }
+      ]
+    },
+    {
+      "command_argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "--tb=short",
+        "tests/unit/core/artifacts/test_put_consumer_oracle.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py",
+        "--basetemp",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/pytest-oracle-final",
+        "--junitxml",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/oracle-final.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "target_sha": "a82302c3f964c2f8bff4d127d900bf33289d2e16",
+      "target_tree": "ed6eb14803d1305c4f2a528453cc0ec1300486bc",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "E02_B_PROPERTY_REMOVAL": "",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python_version": "3.14.2",
+        "uv_version": "0.9.21",
+        "node_version": "22.22.0",
+        "pnpm_version": "10.33.2",
+        "numeric_or_process_quota_imposed": false
+      },
+      "input_closure": "All tracked source/tests/conftest/config at target SHA; own-lane PYTHONPATH asserted in each actual child. Runtime mutation is explicit control code in tracked test; ordinary runs have empty control. Hashes/blobs are recomputable from Git.",
+      "outcome": "PASS",
+      "interpretation": "26 independent fresh-process and fixed-wire consumer cases PASS",
+      "exit_code": 0,
+      "wall_s": 6.51296380799613,
+      "process_rusage_maxrss_kib": 88584,
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-independent-budget-cas-evidence/oracle-final.txt",
+          "sha256": "26b755793d75a504380b1da87d4b77512fa87e6e669d15f72eebeeaed18f0d17",
+          "bytes": 99
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-independent-budget-cas-evidence/oracle-final.xml",
+          "sha256": "6392f1051da916da9ceb074c83507b2f77c803a66b32ef6319ff3a811b89b271",
+          "bytes": 5664
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-independent-budget-cas-evidence/oracle-final.json",
+          "sha256": "d4b5bd40a4a262987a11e97fcdfe600ee5d83e2f9d8e405061d14bfe5218143f",
+          "bytes": 1853
+        }
+      ]
+    },
+    {
+      "command_argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "--tb=short",
+        "tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py",
+        "--basetemp",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/pytest-oracle-remove-budget",
+        "--junitxml",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/oracle-remove-budget.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "target_sha": "2e66535a630d6115e41c657103a6d98f4010338b",
+      "target_tree": "f9020b34c10db869f01ceb32dd254eba3968dc5e",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "E02_B_PROPERTY_REMOVAL": "budget-wire",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python_version": "3.14.2",
+        "uv_version": "0.9.21",
+        "node_version": "22.22.0",
+        "pnpm_version": "10.33.2",
+        "numeric_or_process_quota_imposed": false
+      },
+      "input_closure": "All tracked source/tests/conftest/config at target SHA; own-lane PYTHONPATH asserted in each actual child. Runtime mutation is explicit control code in tracked test; ordinary runs have empty control. Hashes/blobs are recomputable from Git.",
+      "outcome": "FAIL",
+      "interpretation": "Expected property loss:12 FAILED12 PASS; missing defaulted fields accepted/re-written; actual consumer diverges",
+      "exit_code": 1,
+      "wall_s": 6.193281884989119,
+      "process_rusage_maxrss_kib": 88280,
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-independent-budget-cas-evidence/oracle-remove-budget.txt",
+          "sha256": "33a3be7297832215e8c4570b1f2b6f50eae7b50f90b79db729cfcaad087ddf7f",
+          "bytes": 10846
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-independent-budget-cas-evidence/oracle-remove-budget.xml",
+          "sha256": "1444a2c029356450b2188992b67f9d514d3736fa985ff243db97fe757bbdc3ac",
+          "bytes": 17869
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-independent-budget-cas-evidence/oracle-remove-budget.json",
+          "sha256": "db9856154596df20a7bfd9aefbcd4f12f1988d9d02e37227e1d8649ba672a2ae",
+          "bytes": 1817
+        }
+      ]
+    },
+    {
+      "command_argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "--tb=short",
+        "tests/unit/core/artifacts/test_put_consumer_oracle.py",
+        "--basetemp",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/pytest-oracle-cas-quantity",
+        "--junitxml",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/oracle-cas-quantity.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "target_sha": "a82302c3f964c2f8bff4d127d900bf33289d2e16",
+      "target_tree": "ed6eb14803d1305c4f2a528453cc0ec1300486bc",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "E02_B_PROPERTY_REMOVAL": "cas-put-digest",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python_version": "3.14.2",
+        "uv_version": "0.9.21",
+        "node_version": "22.22.0",
+        "pnpm_version": "10.33.2",
+        "numeric_or_process_quota_imposed": false
+      },
+      "input_closure": "All tracked source/tests/conftest/config at target SHA; own-lane PYTHONPATH asserted in each actual child. Runtime mutation is explicit control code in tracked test; ordinary runs have empty control. Hashes/blobs are recomputable from Git.",
+      "outcome": "FAIL",
+      "interpretation": "Expected property loss:2 FAILED DID NOT RAISE; duplicate put returns ref for damaged bytes",
+      "exit_code": 1,
+      "wall_s": 1.3279397599981166,
+      "process_rusage_maxrss_kib": 87176,
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-independent-budget-cas-evidence/oracle-cas-quantity.txt",
+          "sha256": "606125fd41d9b769a90984eea1558c5b0f4f2e2c695f6438e5a723ee24bbb617",
+          "bytes": 1500
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-independent-budget-cas-evidence/oracle-cas-quantity.xml",
+          "sha256": "44182c2f4030088b75f2c81a053961a3e26a148d48776525166a6965abd19753",
+          "bytes": 1666
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-independent-budget-cas-evidence/oracle-cas-quantity.json",
+          "sha256": "155d730e38afe61dd36039f95079a9abfb5374209e02dd8963c48c6d00a93224",
+          "bytes": 1791
+        }
+      ]
+    },
+    {
+      "command_argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "--tb=short",
+        "tests/unit/core/artifacts/test_put_consumer_oracle.py",
+        "--basetemp",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/pytest-oracle-remove-cas",
+        "--junitxml",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/oracle-remove-cas.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "target_sha": "2e66535a630d6115e41c657103a6d98f4010338b",
+      "target_tree": "f9020b34c10db869f01ceb32dd254eba3968dc5e",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "E02_B_PROPERTY_REMOVAL": "cas-put-digest",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python_version": "3.14.2",
+        "uv_version": "0.9.21",
+        "node_version": "22.22.0",
+        "pnpm_version": "10.33.2",
+        "numeric_or_process_quota_imposed": false
+      },
+      "input_closure": "All tracked source/tests/conftest/config at target SHA; own-lane PYTHONPATH asserted in each actual child. Runtime mutation is explicit control code in tracked test; ordinary runs have empty control. Hashes/blobs are recomputable from Git.",
+      "outcome": "FAIL",
+      "interpretation": "Nondistinguishing initial broad hash substitution; manifest rejection remains; no property-loss claim",
+      "exit_code": 1,
+      "wall_s": 1.6250341550039593,
+      "process_rusage_maxrss_kib": 100648,
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-independent-budget-cas-evidence/oracle-remove-cas.txt",
+          "sha256": "e52e62c772243cf4f3a1cad0a7e6d82fc4491961a47dfe2343accb3a71502b06",
+          "bytes": 3476
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-independent-budget-cas-evidence/oracle-remove-cas.xml",
+          "sha256": "758ae6b5bd0283cac6ea9fe459a38c850a8220c7bd64ab4c848e67f931b8d1f4",
+          "bytes": 3926
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-independent-budget-cas-evidence/oracle-remove-cas.json",
+          "sha256": "01de1b9565199ef8e6f209e531504f1fea9f8aa5c076031b147a776cb3084efe",
+          "bytes": 1786
+        }
+      ]
+    }
+  ],
+  "property": {
+    "statement": "Actual malformed/sparse ledger files refuse load/public mutation/middleware and retain bytes; legally omitted nullable fields preserve exhaustion. Direct corrupt duplicate CAS put refuses precise blob corruption and selected manifest size; retained operator repair retry gives exact fresh-reader/process bytes and verification.",
+    "runtime_path": [
+      "FileBudgetLedger actual JSON and stable filesystem lock",
+      "fresh process BudgetMiddleware.pre_check / FileBudgetLedger.record_spend",
+      "FileSystemCAS.put_bytes under actual artifact lease",
+      "persisted blob and default/selected manifest",
+      "fresh FileSystemCAS get_bytes/get_manifest/verify, including separate OS process"
+    ],
+    "proxy_divergence": "Shape/default model construction accepts sparse state and silently makes unlimited/rewrites ledger; matching artifact path/manifest does not prove same-size blob bytes. Removing both put/publish blob-byte predicates leaves markers and owner/manifest checks intact yet duplicate put returns a ref to corrupt bytes.",
+    "negative_controls": [
+      "23 independent fixed required-field deletions from actual writer snapshot",
+      "12 distinguishing missing-field decoder removals through real child consumers",
+      "same-size and short duplicate blob corruption",
+      "selected manifest byte_size corruption in CAS native cases",
+      "full put-path persisted-blob predicate removal in store and ownership helpers"
+    ],
+    "positive_controls": [
+      "Explicit unlimited bootstrap/reopen native cases",
+      "Legal nullable omissions retain exhausted Decimal state across process",
+      "Exact retained operator repair/retry/fresh consumer",
+      "Missing default and selected sidecars recreated by native put cases"
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "predicate_basis_details": {
+    "candidate source identity": "recomputed from exact Git SHA/tree; actual child module origin asserted",
+    "byte preservation/amount/refview": "independently_reconciled using actual persisted bytes, explicit fixed consumer oracle and real process",
+    "institutional billing/publication authority": "out_of_scope; none inferred from local ledger/CAS receipt",
+    "old transfer semantic adequacy": "not_established"
+  },
+  "p40": "Initial broad and single-guard CAS removal retained a second real byte predicate and were nondistinguishing. Widened removal to both complete put-path blob predicates, preserving manifest/signature/owner checks; final 2 tests fail DID NOT RAISE. This is the same byte-admission class, not a new product defect.",
+  "independent_reviews": [
+    {
+      "reviewer": "dur_probe",
+      "artifact": "test_budget_wire_consumer_oracle.py@2e66535a630d6115e41c657103a6d98f4010338b",
+      "verdict": "No blocker; independent fixed field list and actual middleware/process paths; schema1.1 additions require new dedicated controls."
+    },
+    {
+      "reviewer": "cas_probe",
+      "artifact": "test_put_consumer_oracle.py@a82302c3f964c2f8bff4d127d900bf33289d2e16",
+      "verdict": "No blocker; two blob predicates removed over complete put path while unrelated integrity remains."
+    }
+  ],
+  "finding_dispositions": [
+    {
+      "finding_id": "B151",
+      "status": "closed",
+      "scope": "Finite direct put corruption/size/refusal, retained repair/retry and fresh actual consumer at named source; G code integration acceptance separate.",
+      "evidence": "native5 cases + independent2 separate-process consumer cases + final quantity-removal2 actual false-accept failures"
+    },
+    {
+      "finding_id": "B37",
+      "status": "limited",
+      "scope": "Bootstrap/required-wire/nullable/real middleware admission decided; latest fault/restart/concurrency and settlement API source not included here.",
+      "next_owner": "B DUR continuation then root independent review"
+    }
+  ],
+  "capability_state_or_finding_state": "Early independent deciding slice published; full25bundle/60finding B continuation mandatory and final full cohort not yet run.",
+  "limitations_and_next_owner": [
+    "No power-loss or multi-host filesystem guarantee; no external billing/idempotency-status authority inferred.",
+    "B37 fault/restart/concurrency source continuation and B38/B78 pending same B DUR writer.",
+    "CAS B148/B149/B152/B154/B155 continuation remains pending; B150/B153 historical regression claims require fresh final candidate regression.",
+    "B61 held until versioned SKG owner contract; A/C production file leases preserved.",
+    "Final all60 census and one frozen current B cohort pending; this slice does not finish B.",
+    "Cloud has no native Trash discovered; repeatable scratch/environment cleanup candidates will be listed without permanent deletion."
+  ]
+}

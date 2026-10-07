@@ -1,0 +1,684 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-pool-stream-contract",
+  "closure_ids": [],
+  "bundle_ids": [
+    "NET-01"
+  ],
+  "finding_ids": [
+    "B87"
+  ],
+  "slice_base_sha": "610906bbb99dd5e26fa1494517d733fea3556075",
+  "slice_base_tree_sha": "2db184ce0cea106a0bb40f7c228acfe05b2a2020",
+  "published_source_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_commits": [
+    "c8be922c23cfd71d1a253f55d87e0668b8dc2f3d",
+    "12f601e736c237d956d00d6f00609e97b04ec8c5",
+    "46656d88103f8cb289da78d92411f2d58f01df4a"
+  ],
+  "candidate_sha": "46656d88103f8cb289da78d92411f2d58f01df4a",
+  "candidate_tree_sha": "2f62e105218a3d528bde4ce865c1d5f1f71d23cb",
+  "branch": "codex/e02-B-current-coordination",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/55",
+  "changed_paths": [
+    "policy-engine/tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py"
+  ],
+  "mechanism_paths": [],
+  "test_paths": [
+    "policy-engine/tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py"
+  ],
+  "mandatory_companions": [],
+  "owner": "B root independent consumer oracle; C owns streaming.py; G owns integration publication",
+  "source_identity": [
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/pool.py",
+      "git_blob": "850659c2e09aa6a23aa7f3f0daebb88637fd9e29",
+      "sha256": "0efa56aab0b99ae5213be8f5e5e44bc3f5ffb935382b878ed0858cbbaa7ece35"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+      "git_blob": "0915a4e9bc52ed97048d7e9f135ab8d3dfccbff6",
+      "sha256": "aaa69447dca6eb011a21e2385abad9a91b796d0f90689d1ab7b93e88ffa9e5c3"
+    }
+  ],
+  "baseline_cells": [
+    {
+      "id": "F02-P004",
+      "job": "F02",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/fabric/connectors/test_registry.py",
+      "state": "PASS",
+      "collected": "74",
+      "calls": "74",
+      "call_pass": "74",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "3.17",
+      "rss_kib": "180576",
+      "receipt_status": "reconciled",
+      "source_file": "received/F02.txt",
+      "source_line": "132",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F04-P009",
+      "job": "F04",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+      "state": "PASS",
+      "collected": "50",
+      "calls": "50",
+      "call_pass": "50",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "11.432",
+      "rss_kib": "179680",
+      "receipt_status": "valid_reconciled_parent",
+      "source_file": "received/F04.txt",
+      "source_line": "219",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F06-P010",
+      "job": "F06",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/fabric/connectors/test_registry.py",
+      "state": "PASS",
+      "collected": "63",
+      "calls": "63",
+      "call_pass": "63",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "5.185155868530273",
+      "rss_kib": "225928",
+      "receipt_status": "valid",
+      "source_file": "received/F06.txt",
+      "source_line": "194",
+      "extra_json": "{\"reason\":\"null\"}"
+    },
+    {
+      "id": "F06-P020",
+      "job": "F06",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+      "state": "PASS",
+      "collected": "10",
+      "calls": "10",
+      "call_pass": "10",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "5.970865249633789",
+      "rss_kib": "226796",
+      "receipt_status": "valid",
+      "source_file": "received/F06.txt",
+      "source_line": "204",
+      "extra_json": "{\"reason\":\"null\"}"
+    },
+    {
+      "id": "F07-P008",
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+      "state": "PASS",
+      "collected": "50",
+      "calls": "50",
+      "call_pass": "50",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "8.337976455688477",
+      "rss_kib": "224704.0",
+      "receipt_status": "valid",
+      "source_file": "received/F07.txt",
+      "source_line": "14",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F08-P010",
+      "job": "F08",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/fabric/connectors/test_registry.py",
+      "state": "PASS",
+      "collected": "73",
+      "calls": "73",
+      "call_pass": "73",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "6.014201879501343",
+      "rss_kib": "216496",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F08.txt",
+      "source_line": "133",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F11-P015",
+      "job": "F11",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+      "state": "PASS",
+      "collected": "10",
+      "calls": "10",
+      "call_pass": "10",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "5.005",
+      "rss_kib": "221960",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F11.txt",
+      "source_line": "144",
+      "extra_json": "{\"receipt_quality\":\"reconciled\",\"input_custody_blockers\":\"0\"}"
+    },
+    {
+      "id": "F12-P008",
+      "job": "F12",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/fabric/connectors/test_registry.py",
+      "state": "PASS",
+      "collected": "63",
+      "calls": "63",
+      "call_pass": "63",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "8.001466637999329",
+      "rss_kib": "212464.0",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F12.txt",
+      "source_line": "593",
+      "extra_json": "{\"reason\":\"native\"}"
+    },
+    {
+      "id": "F13-P010",
+      "job": "F13",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+      "state": "PASS",
+      "collected": "50",
+      "calls": "50",
+      "call_pass": "50",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "12.09",
+      "rss_kib": "228248",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F13.txt",
+      "source_line": "137",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F15-P004",
+      "job": "F15",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/fabric/connectors/test_registry.py",
+      "state": "PASS",
+      "collected": "74",
+      "calls": "74",
+      "call_pass": "74",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.63",
+      "rss_kib": "225580",
+      "receipt_status": "valid",
+      "source_file": "received/F15.txt",
+      "source_line": "159",
+      "extra_json": "{\"reason\":\"null\"}"
+    }
+  ],
+  "baseline_route_refs": [
+    {
+      "finding_id": "B87",
+      "unit": "B",
+      "cell_id": "F02-P004",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "research_main",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#B87"
+    },
+    {
+      "finding_id": "B87",
+      "unit": "B",
+      "cell_id": "F04-P009",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "research_main",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#B87"
+    },
+    {
+      "finding_id": "B87",
+      "unit": "B",
+      "cell_id": "F06-P010",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "e02_execution_base",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#B87"
+    },
+    {
+      "finding_id": "B87",
+      "unit": "B",
+      "cell_id": "F06-P020",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "e02_execution_base",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#B87"
+    },
+    {
+      "finding_id": "B87",
+      "unit": "B",
+      "cell_id": "F07-P008",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "e02_head",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#B87"
+    },
+    {
+      "finding_id": "B87",
+      "unit": "B",
+      "cell_id": "F08-P010",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "e02_head",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#B87"
+    },
+    {
+      "finding_id": "B87",
+      "unit": "B",
+      "cell_id": "F11-P015",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "main",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#B87"
+    },
+    {
+      "finding_id": "B87",
+      "unit": "B",
+      "cell_id": "F12-P008",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "main",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#B87"
+    },
+    {
+      "finding_id": "B87",
+      "unit": "B",
+      "cell_id": "F13-P010",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "integration_head",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#B87"
+    },
+    {
+      "finding_id": "B87",
+      "unit": "B",
+      "cell_id": "F15-P004",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "integration_head",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#B87"
+    }
+  ],
+  "baseline_jobs": [
+    {
+      "job": "F02",
+      "locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F02.txt:5",
+      "record_end_line": 126,
+      "source_file_sha256": "69b55ba8ab1cd438d9cd3da1093e8c9e08f18653123ebc27acb310f6c8015447",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_tree": "e5513e1f2b80450c80d3ac1a728eaa313e931651",
+      "input_manifest_sha256": "1487b06837c99c3f00b02acb38ddf301917ee5f2d34aa32c05e80529860ef52b",
+      "metadata_binding": "complete original job JSON at tracked locator supplies environment/toolchain, selected profile, config hashes and input manifest; read before conclusion; not replayed raw custody",
+      "raw_archives_received": 0
+    },
+    {
+      "job": "F04",
+      "locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F04.txt:4",
+      "record_end_line": 78,
+      "source_file_sha256": "17756ae979ae73e233cad8bf43a09a3118b1efbbc88acd9dd37e3db4125a8f86",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_tree": "e5513e1f2b80450c80d3ac1a728eaa313e931651",
+      "input_manifest_sha256": "eba2a5ce95a6c327bb6e102c7f52e91f645fb5ba54f7f0b3e92b597358fa1d2e",
+      "metadata_binding": "complete original job JSON at tracked locator supplies environment/toolchain, selected profile, config hashes and input manifest; read before conclusion; not replayed raw custody",
+      "raw_archives_received": 0
+    },
+    {
+      "job": "F06",
+      "locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F06.txt:3",
+      "record_end_line": 126,
+      "source_file_sha256": "b2e2bac4bbb9f2c89d0fe2ef5ad462fb2238833a9f64486383e07d135f4c4a3f",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "source_tree": "595f1df8f85c0a096aa2b61cac01b7d35a81ed7e",
+      "input_manifest_sha256": "d7df889ef4e489f4695a6c9241f78b379db15168974a2940bf43be969292840e",
+      "metadata_binding": "complete original job JSON at tracked locator supplies environment/toolchain, selected profile, config hashes and input manifest; read before conclusion; not replayed raw custody",
+      "raw_archives_received": 0
+    },
+    {
+      "job": "F07",
+      "locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F07.txt:5",
+      "record_end_line": 5,
+      "source_file_sha256": "eb898826dfa872c791dc59b8ff0e97aa8554cb81f72515fa5986a143bc65e866",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_tree": "dde3150361bb45ae3347e585a38dc297015da7ef",
+      "input_manifest_sha256": "d7fb66fc3665474c59f11b0463c741b1b05c1b7c8646897c9b4b7d455a68c40f",
+      "metadata_binding": "complete original job JSON at tracked locator supplies environment/toolchain, selected profile, config hashes and input manifest; read before conclusion; not replayed raw custody",
+      "raw_archives_received": 0
+    },
+    {
+      "job": "F08",
+      "locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F08.txt:5",
+      "record_end_line": 121,
+      "source_file_sha256": "d4ccc20c4f1c70e35c9e07c049552e5a8a2a1eca750c350f23f13040468d7f18",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_tree": "dde3150361bb45ae3347e585a38dc297015da7ef",
+      "input_manifest_sha256": "9f127589aca86d743c482b2e68a3d330e148248109b5f84e69d4497b8aafbc9f",
+      "metadata_binding": "complete original job JSON at tracked locator supplies environment/toolchain, selected profile, config hashes and input manifest; read before conclusion; not replayed raw custody",
+      "raw_archives_received": 0
+    },
+    {
+      "job": "F11",
+      "locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F11.txt:5",
+      "record_end_line": 127,
+      "source_file_sha256": "5d24641c10ed0943503e5c14c2965a849d5389a4ba35ece518418fe12a03f471",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "source_tree": "eb96aa6d6ebc05c23e9eb740895dd0b009ac7e65",
+      "input_manifest_sha256": "70c193180f8034353f89544f8b27bdbb8afbb5d87b0087e5d4a86d89d5f9681b",
+      "metadata_binding": "complete original job JSON at tracked locator supplies environment/toolchain, selected profile, config hashes and input manifest; read before conclusion; not replayed raw custody",
+      "raw_archives_received": 0
+    },
+    {
+      "job": "F12",
+      "locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F12.txt:5",
+      "record_end_line": 194,
+      "source_file_sha256": "03fc5b04209e927bdb5f668f09cb80751532a279060bb3d8a085225ff66fc9c2",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "source_tree": "eb96aa6d6ebc05c23e9eb740895dd0b009ac7e65",
+      "input_manifest_sha256": "d4eb4eca6f827297fc217c5104fd3176da7f63e622951fa801df0f787e233a28",
+      "metadata_binding": "complete original job JSON at tracked locator supplies environment/toolchain, selected profile, config hashes and input manifest; read before conclusion; not replayed raw custody",
+      "raw_archives_received": 0
+    },
+    {
+      "job": "F13",
+      "locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F13.txt:5",
+      "record_end_line": 125,
+      "source_file_sha256": "7c648c964431d3cdc600c5c29e0d3706f848afbb6b7220a1efd0efe0f9fe9c4b",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_tree": "5e890bcb23dfa20db77be486e7296e36f3382576",
+      "input_manifest_sha256": "2747a065030762fc81609e59e81db0029ac11cc6064f29e3d81a5cf3e289fe31",
+      "metadata_binding": "complete original job JSON at tracked locator supplies environment/toolchain, selected profile, config hashes and input manifest; read before conclusion; not replayed raw custody",
+      "raw_archives_received": 0
+    },
+    {
+      "job": "F15",
+      "locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F15.txt:5",
+      "record_end_line": 153,
+      "source_file_sha256": "efe346d9094f0906bb23b1061cb51b9252afd299f85062591e13449616879169",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_tree": "5e890bcb23dfa20db77be486e7296e36f3382576",
+      "input_manifest_sha256": "303fa24cde39780a16e39ee738d073c9e172b5286bb724e44859ea6f72198bec",
+      "metadata_binding": "complete original job JSON at tracked locator supplies environment/toolchain, selected profile, config hashes and input manifest; read before conclusion; not replayed raw custody",
+      "raw_archives_received": 0
+    }
+  ],
+  "baseline_grade": "compact source-reported navigation only; PASS does not prove current recovery cap admission; original raw not received",
+  "checks": [
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py",
+        "--basetemp",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/pool-stream-first-pytest",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/pool-stream-first-cache",
+        "--junitxml=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/pool-stream-first.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "target_sha": "c8be922c23cfd71d1a253f55d87e0668b8dc2f3d",
+      "target_tree": "10c49c34f305283a7d365aa36a44b09fa20c3f0c",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": null,
+        "E02_B_PROPERTY_REMOVAL": null
+      },
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 3.6822882770065917,
+      "maxrss_kib": 177088,
+      "cases": 2,
+      "failures": [
+        {
+          "classname": "tests.unit.fabric.data_plane.test_pool_stream_budget_oracle",
+          "name": "test_restored_frontier_above_new_cap_refuses_before_consumer_effects",
+          "message": "AssertionError: ['acquire', 'release', 'acquire', 'poll', 'poll', 'poll', ...]\nassert not {'commit', 'flush', 'poll'}\n +  where {'commit', 'flush', 'poll'} = <built-in method intersection of set object at 0x7f4095c8af80>(['acquire', 'release', 'acquire', 'poll', 'poll', 'poll', ...])\n +    where <built-in method intersection of set object at 0x7f4095c8af80> = {'commit', 'flush', 'poll'}.intersection"
+        }
+      ],
+      "pass": 1,
+      "outputs": [
+        {
+          "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-pool-stream-contract-evidence/pool-stream-first.txt",
+          "sha256": "77c11e383b8e8d7c1d99845ef1a37a330dd1aeb5b0ef0abf0d94b1332cb4162b",
+          "bytes": 3454
+        },
+        {
+          "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-pool-stream-contract-evidence/pool-stream-first.xml",
+          "sha256": "a996f7f7533222cc377645aaa8f15e54722f2c0fe711795afea2fdc20767c311",
+          "bytes": 4072
+        },
+        {
+          "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-pool-stream-contract-evidence/pool-stream-first.json",
+          "sha256": "c005d448053001f08ae33492e8749b6d4e4e13c8394ef794afb46a52e4fb1171",
+          "bytes": 1813
+        }
+      ],
+      "input_closure": {
+        "source_tree": "10c49c34f305283a7d365aa36a44b09fa20c3f0c",
+        "fixture": "actual tracked _pending_checkpoint producer in new native test; 3 JSONL rows event-1@0,event-2@1,event-3@5, chunk=2, session_gap=2,size=60, cap3 then cap1 or cap3; real OS filesystem+FileSystemCAS+CursorStore+FileEventStreamConnector; no production data"
+      }
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py",
+        "--basetemp",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/pool-stream-final-pytest",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/pool-stream-final-cache",
+        "--junitxml=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/pool-stream-final.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "target_sha": "46656d88103f8cb289da78d92411f2d58f01df4a",
+      "target_tree": "2f62e105218a3d528bde4ce865c1d5f1f71d23cb",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": null,
+        "E02_B_PROPERTY_REMOVAL": null
+      },
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 3.7285415350052062,
+      "maxrss_kib": 173416,
+      "cases": 2,
+      "failures": [
+        {
+          "classname": "tests.unit.fabric.data_plane.test_pool_stream_budget_oracle",
+          "name": "test_restored_frontier_above_new_cap_refuses_before_consumer_effects",
+          "message": "AssertionError: [\"acquire\", \"release\", \"acquire\", \"poll\", \"poll\", \"poll\", \"commit\", \"poll\", \"flush\", \"commit\", \"release\"]\nassert not {'commit', 'flush', 'poll'}\n +  where {'commit', 'flush', 'poll'} = <built-in method intersection of set object at 0x7f4fddf3eea0>(['acquire', 'release', 'acquire', 'poll', 'poll', 'poll', ...])\n +    where <built-in method intersection of set object at 0x7f4fddf3eea0> = {'commit', 'flush', 'poll'}.intersection"
+        }
+      ],
+      "pass": 1,
+      "outputs": [
+        {
+          "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-pool-stream-contract-evidence/pool-stream-final.txt",
+          "sha256": "be5c46ca96dc39b6360d7cb837e6b8a2eac373ecae76f83bfba24f7879f7ca66",
+          "bytes": 3756
+        },
+        {
+          "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-pool-stream-contract-evidence/pool-stream-final.xml",
+          "sha256": "2ac07576e509453644b800b35b9cc9819c4ac95a8b853901bed700d49666b3c8",
+          "bytes": 4527
+        },
+        {
+          "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-pool-stream-contract-evidence/pool-stream-final.json",
+          "sha256": "aa5c4d57d25eb4a88d0ff2e53054de2d9d03266125ba0cf501d0afcfe7455d72",
+          "bytes": 1813
+        }
+      ],
+      "input_closure": {
+        "source_tree": "2f62e105218a3d528bde4ce865c1d5f1f71d23cb",
+        "fixture": "actual tracked _pending_checkpoint producer in new native test; 3 JSONL rows event-1@0,event-2@1,event-3@5, chunk=2, session_gap=2,size=60, cap3 then cap1 or cap3; real OS filesystem+FileSystemCAS+CursorStore+FileEventStreamConnector; no production data"
+      }
+    }
+  ],
+  "property": {
+    "statement": "After a real cap3 two-row pending session checkpoint, restart at cap1 must refuse before real poll/flush/commit and release every actual acquired pool lease exactly once; cap3 recovery emits CAS-verified windows [1,2] then [3] once with verified original contributor event IDs, and subsequent restart emits no rows/chunks/windows.",
+    "runtime_path": [
+      "real JSONL file producer",
+      "registered FileEventStreamConnector",
+      "B ConnectionPool actual schema-discovery and processing leases",
+      "C process_stream_dataset/checkpoint restore",
+      "FileSystemCAS/CursorStore native checkpoint and windows",
+      "fresh store actual get_bytes/get_manifest/verify consumer"
+    ],
+    "proxy_divergence": "A pool cancellation marker or restored DTO constructor does not show restored frontier admission. The unchanged C source actually polls/flushes/commits above cap, despite healthy exact CAS recovery. Delegating wrappers call original real methods and record effects; no mock connector/CAS/process replacement.",
+    "negative_controls": [
+      "actual unchanged C restored state above cap reaches poll/flush/commit: defining native FAIL with exact event sequence in full stdout",
+      "healthy cap3 actual CAS replay/restart positive passes",
+      "first draft assumed constant lease count; final oracle reconciles each actual (pool,session_id) acquisition/release Counter, including schema-discovery lease"
+    ],
+    "property_removal": "not separately injected; production C currently lacks the tested restored-cap admission and is the actual missing-property witness, not a marker/removal claim"
+  },
+  "predicate_basis": "independently_reconciled",
+  "independent_review": {
+    "reviewer": "exe_state_writer",
+    "target_commits": [
+      "c8be922c23cfd71d1a253f55d87e0668b8dc2f3d",
+      "12f601e736c237d956d00d6f00609e97b04ec8c5",
+      "46656d88103f8cb289da78d92411f2d58f01df4a"
+    ],
+    "state": "full source and deltas reviewed independently; source-only accepted; no independent duplicate runtime rerun claimed",
+    "committed_packet": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-pool-stream-oracle-review.json@0f64409dc8f4aff7d2f38139fe337639f76148c7",
+    "packet_sha256": "5afca1c5693170d8e93741983bc86f0d47f0726ee2c5bc7a2102a35e7a5c84a6"
+  },
+  "capability_state_or_finding_state": "B87 producer evidence limited pending C restore-budget admission contract; no B finding newly closed by this cross-owner receipt. Final full B cohort still pending.",
+  "typed_cross_unit_contract": {
+    "schema": "policyos.e02.B_to_C.pool_stream_recovery.v1",
+    "producer_owner": "B",
+    "consumer_owner": "C",
+    "input": "StreamRuntimeOptions(cap=3), real checkpoint operator_state accumulator=2 rows; restart StreamRuntimeOptions(cap=1, default pause policy)",
+    "required_admission": "Refuse before first resumed StreamingSourceSession.poll, StreamWindowAccumulator.flush_with_refs or _commit_stream_frontier, preserve existing checkpoint bytes/content, every successfully acquired pool session released exactly once. C selects concrete typed refusal error or publishes explicit alternative owner contract before acceptance.",
+    "healthy_retry": "Restored cap3 emits rows[1,2],then[3] exactly once with original contributor event IDs and no duplicate on third restart.",
+    "consumer_source_sha": "46656d88103f8cb289da78d92411f2d58f01df4a",
+    "consumer_blob": "0915a4e9bc52ed97048d7e9f135ab8d3dfccbff6",
+    "next_command": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py",
+      "--basetemp",
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/pool-stream-final-pytest",
+      "-o",
+      "cache_dir=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/pool-stream-final-cache",
+      "--junitxml=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/pool-stream-final.xml"
+    ],
+    "next_owner": "C implements stream/cursor restore admission on exact C candidate; G fetches this topic and replays the native two cases on exact accepted B+C combined versions."
+  },
+  "limitations_and_next_owner": [
+    "C streaming.py untouched; failing consumer remains explicit FAIL, not XFAIL/SKIP. No other user chat message sent.",
+    "No power-loss/multi-host guarantee or production dataset criterion covered by synthetic real-file fixture.",
+    "Provider/source publication code acceptance remains separate from per-finding closure; B61 held and full60 disposition/final cohort pending.",
+    "No P41 inherited-red claim: this is a new distinguishing actual consumer negative."
+  ],
+  "cleanup": {
+    "native_trash_available": false,
+    "action": "preserve all; no permanent deletion or registration pruning",
+    "candidates": [
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/pool-stream-first-pytest",
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/pool-stream-final-pytest",
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/pool-stream-first-cache",
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/pool-stream-final-cache"
+    ],
+    "preserve": [
+      "new tracked test, committed deciding evidence, all unique inputs/outputs, code/topic worktrees, production data"
+    ]
+  }
+}

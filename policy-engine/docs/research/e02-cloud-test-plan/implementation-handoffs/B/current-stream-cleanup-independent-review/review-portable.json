@@ -1,0 +1,319 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-stream-cleanup-independent-review-portable",
+  "reviewer": "RUN writer /root/run_writer",
+  "author": "DUR consumer author /root/dur_probe",
+  "reviewed_test_sha": "724ed196e2058d48e7f35e8d141f72bcd631cad0",
+  "reviewed_test_tree": "fcf1446c59dccd41f4a22ae75e0224a5e621a7cc",
+  "runtime_source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+  "runtime_source_tree": "ac45ebc869b655ad349808f262eee50041b1923c",
+  "author_publication_sha": "c0259ced95d65e5ae76ece2e1fc3ce3d49af0723",
+  "author_publication_tree": "9771539fd295edf4e2b2512b8edb5a4e0bb16892",
+  "branch": "codex/e02-B-current-runtime",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/46",
+  "read_only_product_tests": true,
+  "runtime_execution_by_reviewer": false,
+  "closure_ids": [],
+  "finding_ids": [
+    "B87"
+  ],
+  "bundle_ids": [
+    "NET-01"
+  ],
+  "initial_review": {
+    "source_sha": "db78cfe7894c0f09aa0aefa223f04f7944cde151",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-independent-review/review.json",
+    "git_blob": "30e6d9172579b7a57cd1abaff9c071446e0ea0e3",
+    "bytes": 41244,
+    "sha256": "aa100f629a98399a55b2225ba6f7729054f86c25df25f68db6ba3da14ab4746e"
+  },
+  "historical_packet_policy": "Initial review and four companions unchanged; old a6/67 runtime remains separately attributed to actual f131/48e source and is not a root205 execution.",
+  "candidate_footprint": [
+    "policy-engine/tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py"
+  ],
+  "candidate_production_changed_paths": [],
+  "classification": "PASS bounded delta source/evidence review; author new actual7PASS1sameFAIL, B87 OPEN.",
+  "predicate_basis": "independently_reconciled",
+  "predicate_scope": "Source-only observation delta, immutable Git references and captured author native outputs; no reviewer native/collection/product import.",
+  "capability_state_or_finding_state": "B87 remains OPEN on process-final cleanup retry ownership, no source patch or closure.",
+  "property": {
+    "statement": "A finished stream process must not abandon an acquired ConnectionHandle with unconfirmed disconnect and no production owner able to retry cleanup.",
+    "runtime_path": [
+      "Actual EventStreamConnector file URI connect/fetch_stream",
+      "StreamingSourceSession create/fallback subscribe/poll/rewind",
+      "process_stream_dataset real FileSystemCAS/CursorStore processing",
+      "Canonical ConnectionPool release/close_all physical disconnect confirmation",
+      "ConnectorRegistry startup owner transfer/shutdown_async retry consumer"
+    ],
+    "proxy_divergence": "Free semaphore count is insufficient: failing case has available_permits=1 and pending_permit=False in a permanently closed pool, while one actual old handle remains unconfirmed, registry retry owner count is zero and shutdown cannot retire it. Fresh new C session creates another real handle; later observer-only close completes old cleanup but cannot repair the missing production transfer.",
+    "negative_controls": [
+      "Subscribe fetch-entry fault preserves exact primary exception and cleans acquired handle.",
+      "Corrupt actual CursorStore index refuses and cleans after real session acquisition.",
+      "Actual fallback rewind fetch-entry fault cleans both release/reacquire stages.",
+      "Caller cancellation while poll gate is entered propagates CancelledError and cleans.",
+      "Three startup disconnect failures preserve primary reason+notes and registry owns retry; shutdown retires old handle.",
+      "Direct retained session second close finishes once-failed disconnect; third close is idempotent.",
+      "Final process disconnect failure is retained actual FAIL, with every retry/fresh-acquire observation printed before property assertions."
+    ],
+    "authority_purpose": "Bounded operational stream resource ownership; no institutional/data/tenant authority"
+  },
+  "source_delta_review": {
+    "changed_lines": "8 additions / 3 deletions, two nondeciding observer functions only",
+    "changed_behavior": "_file_fds now returns None if /proc/self/fd directory absent; snapshot reports jsonl_fd_observation=UNRUN: procfs unavailable, preserves list/observed on Linux.",
+    "unchanged_quantity": "Entire module AST outside _file_fds/_snapshot is identical, including all consumer tests/faults/delegates/assertions. No removed assertion, XFAIL, skip or cleanup/source replacement.",
+    "non_linux_limit": "No Mac runtime executed; absent-procfs branch is source-reviewed compatibility capability. FD evidence UNRUN when absent; ownership cases continue.",
+    "source_input_delta": "New actual root205 differs from old f131 in CAS README/_integrity_ops/store. Full-production old4e/48e equivalence is not carried. Four same-child pool/C/cursor/EventStream backings unchanged and observed in this new native interpreter."
+  },
+  "P37_qualification": {
+    "unchanged_premise": "Actual consumer/fault/profile AST preserved; two real JSONL rows, canonical pool and native handle, FileSystemCAS/CursorStore, live startup retry/direct retained session.",
+    "quantity_limit": "Actual protocol handle disconnect confirmation/reachable retry owner; EventStreamConnector has no persistent file FD/external connection claim. Fresh session uses new pool.",
+    "new_source_input": "Author executes portable724 test against literal root205 PYTHONPATH/declared source, not stale DUR pool; captured same-child four backing origins checked. Full nested import/resource trace unobserved."
+  },
+  "P38_qualification": {
+    "actual_negative": "On new root205 final once-refused disconnect still leaves same old handle after registry shutdown, new real session coexists then closes only new handle; observer cleanup later retires old and cannot satisfy captured assertion.",
+    "passing_controls": "Native7PASS remaining cases retain healthy/read/rewind/cancel/startup/directretry contrasts. No inference of Mac runtime success or original rootfullwave repair."
+  },
+  "author_handoff": {
+    "source_sha": "c0259ced95d65e5ae76ece2e1fc3ce3d49af0723",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-consumer-portable.json",
+    "git_blob": "bd9e90bd9be756ee72b0a8b5b87fb8f702186ed4",
+    "bytes": 17494,
+    "sha256": "13ca21897bbb2f01efe6efdf896d74d8c988a509a8d9c86b2b258d198c8afca9"
+  },
+  "author_checks": [
+    {
+      "id": "portable-observer-root205-consumers",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-c",
+        "import hashlib,json,pathlib,pytest\nfrom polisyos.fabric.connectors import pool\nfrom polisyos.fabric.data_plane import streaming,cursor_store\nfrom polisyos.fabric.connectors.sources import event_stream\nexpected={pool: \"0efa56aab0b99ae5213be8f5e5e44bc3f5ffb935382b878ed0858cbbaa7ece35\",streaming:\"aaa69447dca6eb011a21e2385abad9a91b796d0f90689d1ab7b93e88ffa9e5c3\",cursor_store:\"e52018d556972e60932490fa7c7e9510ad66f2c72a694b429f4eb1e9bebc3405\",event_stream:\"63fb6aed45dd586828adec4a8a1dd8eea8a347ff4659ad1b5a801c8bd78a2d48\"}\nfor module,digest in expected.items():\n p=pathlib.Path(module.__file__).resolve(); actual=hashlib.sha256(p.read_bytes()).hexdigest(); print(\"B87_ACTUAL_SOURCE\",json.dumps({\"module\":module.__name__,\"origin\":str(p),\"sha256\":actual}),flush=True); assert str(p).startswith(\"/workspace/e02-B-current-coordination/policy-engine/src/\") and actual==digest\nraise SystemExit(pytest.main([\"-vv\",\"-s\",\"/workspace/e02-B-current-durability/policy-engine/tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py\",\"--basetemp=/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/b87-cleanup-portable-205/pytest\",\"-o\",\"cache_dir=/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/b87-cleanup-portable-205/cache\",\"--junitxml=/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/b87-cleanup-portable-205/native.xml\"]))"
+      ],
+      "cwd": "/workspace/e02-B-current-durability/policy-engine",
+      "target_sha": "724ed196e2058d48e7f35e8d141f72bcd631cad0",
+      "product_source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "environment": {
+        "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "python_version": "3.14.2",
+        "pytest_version": "9.0.2",
+        "dependency_profile": "Root-provided isolated actual environment; no sync/install by this slice. Declared environment/source/config/fixture closure, not complete dynamic import/resource readset.",
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache"
+      },
+      "input_closure": {
+        "product_source_ref": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+        "actual_product_checkout_ref": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+        "native_test_ref": "724ed196e2058d48e7f35e8d141f72bcd631cad0:policy-engine/tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py",
+        "pytest_config_and_conftest_ref": "724ed196e2058d48e7f35e8d141f72bcd631cad0:policy-engine/{pytest.ini,pyproject.toml,tests/conftest.py}",
+        "fixtures": "Per-case temporary real JSONL with two rows, real FileSystemCAS and CursorStore; corrupt stream_checkpoint_index.json for read refusal; actual persisted empty legacy StreamCheckpoint for fallback rewind. No production dataset, external DB, network service or added synthetic stream protocol method.",
+        "fault_profile": "ObservedFileConnector subclasses actual EventStreamConnector; delegate real connect/fetch_stream/disconnect. Fetch-entry refusal, three startup disconnect refusals, once final disconnect refusal; caller cancellation after connector poll gate entered before actual file iterator read.",
+        "observation_profile": "Constructor observer returns canonical ConnectionPool unchanged. Captures actual C-created pool solely to measure/clean test fixtures; observer close is explicitly after all production registry retry/fresh acquire measurements and cannot satisfy the property.",
+        "physical_scope": "File EventStream does not retain OS descriptors across reads. Actual ConnectionHandle disconnect confirmation and pool pending owner measured; actual /proc/self/fd JSONL counts separately reported as zero. No descriptor leak or connector-global connection quota inferred. Portable observer returns None with explicit UNRUN when /proc/self/fd is absent; Linux observation remains actual empty list/observed. FD is not a deciding assertion.",
+        "isolation": "Unique new basetemp/cache paths in exact argv. Full actual scratch retained until deciding outputs. No artificial process/worker/thread concurrency quota introduced."
+      },
+      "outcome": "FAIL",
+      "exit": 1,
+      "case_counts": {
+        "PASS": 7,
+        "FAIL": 1,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "wall_s": 2.860126202009269,
+      "max_rss_kib": 200988,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-consumer-evidence/portable-205/native.txt",
+        "sha256": "3cfe260f78516cb84932df7c7caa0ea0a7cafac534a352708d0310a30d8cfca0",
+        "bytes": 41734
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-consumer-evidence/portable-205/native.xml",
+        "sha256": "a5f9dd7ca38eaafd1a20fa5bbb7c24ce11388f0f0707e4030e20b867d1c855a1",
+        "bytes": 10736
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-consumer-evidence/portable-205/native-wrapper.json",
+        "sha256": "59e8235b8434194ec25cb1a86cb6d8f35a7c3ab6d32dd586149888a3d58cf0c2",
+        "bytes": 2989
+      },
+      "deciding_output": "Only process-disconnect-failure actual assertion FAIL. All seven healthy/error/cancel/startup-owner/direct-retry controls PASS; no XFAIL or suppressed assertion."
+    }
+  ],
+  "same_child_origins": [
+    {
+      "module": "polisyos.fabric.connectors.pool",
+      "origin": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/pool.py",
+      "sha256": "0efa56aab0b99ae5213be8f5e5e44bc3f5ffb935382b878ed0858cbbaa7ece35"
+    },
+    {
+      "module": "polisyos.fabric.data_plane.streaming",
+      "origin": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+      "sha256": "aaa69447dca6eb011a21e2385abad9a91b796d0f90689d1ab7b93e88ffa9e5c3"
+    },
+    {
+      "module": "polisyos.fabric.data_plane.cursor_store",
+      "origin": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/data_plane/cursor_store.py",
+      "sha256": "e52018d556972e60932490fa7c7e9510ad66f2c72a694b429f4eb1e9bebc3405"
+    },
+    {
+      "module": "polisyos.fabric.connectors.sources.event_stream",
+      "origin": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/sources/event_stream.py",
+      "sha256": "63fb6aed45dd586828adec4a8a1dd8eea8a347ff4659ad1b5a801c8bd78a2d48"
+    }
+  ],
+  "new_product_changed_paths": [
+    "policy-engine/src/polisyos/core/artifacts/README.md",
+    "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+    "policy-engine/src/polisyos/core/artifacts/store.py"
+  ],
+  "native_counts": {
+    "cases": 8,
+    "pass": 7,
+    "fail": 1,
+    "error": 0,
+    "skip": 0,
+    "exit": 1
+  },
+  "canonical_criterion_and_baseline_ref": {
+    "source_sha": "db78cfe7894c0f09aa0aefa223f04f7944cde151",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-independent-review/review.json",
+    "json_pointers": [
+      "/canonical_criterion",
+      "/canonical_bundle",
+      "/baseline_cells",
+      "/baseline_navigation",
+      "/baseline_qualification"
+    ],
+    "meaning": "Same10baselinecells/9contexts/5sourceSHAs navigate historic evidence only; no baselinePASS proof for new runtime."
+  },
+  "canonical_digest_qualification": {
+    "source_sha": "c0259ced95d65e5ae76ece2e1fc3ce3d49af0723",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-canonical-criterion-digest-qualification.json",
+    "git_blob": "b127e55e38aa8d95245e1dc48a6553c36c6ee56d",
+    "bytes": 2340,
+    "sha256": "b06de8e80a4749ab666c91e1acab08d52263b26f08e3a96173d6ec8f436e048a"
+  },
+  "canonical_digest_review": {
+    "B87_raw_capture_digest": "9c6e17b748643693b07a5fefefd6943e2ada4415b4b29c7a3e3aaa70d3846781",
+    "convention": "SHA256 of UTF-8 re.S capture group2 strictly between SOURCE_BEGIN and SOURCE_END markers, excluding both markers but retaining ALL captured whitespace/newlines; no strip(), no splitlines/join, no newline normalization. line_begin/line_end locate inclusive marker block, not the hashed byte range.",
+    "source_driver": {
+      "git_sha": "0f76c579880c5b34746da5d793cd23ef54688e0f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-independent-evidence/denominator.py",
+      "sha256": "02bdb405015af71a7e10ade97ca3067abafd515f63f5ce04ca0660f69b350dca",
+      "logic": "re.finditer SOURCE marker regex re.S, hashlib.sha256(match[2].encode()).hexdigest(); source lines61–77"
+    },
+    "independent_scope": "B87 exact raw capture reproduced in initial packet; three current JSON objects independently equal old67 after removing sole changed criterion_locator. All other statuses/hashes/objects unchanged. Authorreported60/25 complete verification is not relabeled as reviewer runtime.",
+    "objects": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-independent-adjudication.json",
+        "old": "Per finding SOURCE_BEGIN/SOURCE_END block, lines and hash.",
+        "new": "Marker line range locates the full SOURCE block; source_block_sha256 hashes raw UTF-8 regex capture between markers, preserving all whitespace. See current-canonical-criterion-digest-qualification.json.",
+        "otherwise_object_equivalent": true
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-open-delta-review.json",
+        "old": "Per finding SOURCE_BEGIN/SOURCE_END block, lines and hash.",
+        "new": "Marker line range locates the full SOURCE block; source_block_sha256 hashes raw UTF-8 regex capture between markers, preserving all whitespace. See current-canonical-criterion-digest-qualification.json.",
+        "otherwise_object_equivalent": true
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-consumer-oracle.json",
+        "old": "Per finding SOURCE_BEGIN/SOURCE_END block, lines and hash.",
+        "new": "Marker line range locates the full SOURCE block; source_block_sha256 hashes raw UTF-8 regex capture between markers, preserving all whitespace. See current-canonical-criterion-digest-qualification.json.",
+        "otherwise_object_equivalent": true
+      }
+    ]
+  },
+  "independent_checks": [
+    {
+      "id": "portable-immutable-source-and-captured-evidence-audit",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-independent-review/audit-portable.py",
+        "--repo",
+        "/workspace/e02-B-current-runtime",
+        "--author-ref",
+        "c0259ced95d65e5ae76ece2e1fc3ce3d49af0723"
+      ],
+      "cwd": "/workspace/e02-B-current-runtime",
+      "target_test_sha": "724ed196e2058d48e7f35e8d141f72bcd631cad0",
+      "product_source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "author_evidence_sha": "c0259ced95d65e5ae76ece2e1fc3ce3d49af0723",
+      "environment": {
+        "interpreter": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "libraries": "stdlib only",
+        "product_imports": false,
+        "pytest_imports": false
+      },
+      "input_closure": "Immutable a6/724 test ASTs, old f131/new root205 Git source scope, old67/new c025 metadata/source/evidence objects, full new native stdout/XML/wrapper.",
+      "outcome": "PASS",
+      "exit": 0,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-independent-review/audit-portable.json",
+        "bytes": 61955,
+        "sha256": "05f25ba53f7fbc6cf4c3ab689c2a2d0c841c1c4faea910b9d8e855a3a5fcabab"
+      }
+    }
+  ],
+  "finding_dispositions": [
+    {
+      "finding_id": "B87",
+      "bundle_id": "NET-01",
+      "state": "OPEN",
+      "verified_quantity": "Same process-final ConnectionHandle retry-owner gap, on new literal root205 native input;7PASS controls/1 actualFAIL.",
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "test_sha": "724ed196e2058d48e7f35e8d141f72bcd631cad0",
+      "selector": "policy-engine/tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[process-disconnect-failure]",
+      "replay_command_ref": {
+        "source_sha": "c0259ced95d65e5ae76ece2e1fc3ce3d49af0723",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-consumer-portable.json",
+        "json_pointer": "/checks/0/command"
+      },
+      "next_owner": "C/G",
+      "remaining_consumer": "Keep failed final process private pool/handle reachable by production retry owner or finish required cleanup before returning; confirm original handle disconnect, preserve primary failure/cancellation.",
+      "closure_ids": []
+    }
+  ],
+  "limitations_and_next_owner": [
+    "C alone owns streaming.py; this branch changes only the defining consumer test and receipt companions. Root/G code acceptance and final whole cohort/gates remain separate.",
+    "Current C sets closed after release/close_all and recovery setup is already inside try/finally. Historical early-closed/pre-try examples are not witnesses for current source.",
+    "Fresh session uses a new pool; it does not restore capacity of the original permanently closed pool. No global connector capacity, persistent FD, service incident, powerloss or multihost claim.",
+    "Cap1 restored-frontier budget FAIL remains a separate B→C divergence and does not establish this cleanup countercase.",
+    "Caller cancellation is injected at an entered connector polling wait before real file read; actual file read/processing is established by healthy/fresh controls. Native subscribe_stream/rewind_stream/close_stream absent on file connector and not fabricated.",
+    "Smallest required C consumer capability: keep failed final process pool/handle reachable by an explicit runtime retry owner, with actual original handle disconnect-confirmed by that owner; no source fix is claimed here.",
+    "No exactLinuxdriver/source equivalence claimed across a6→portable test724 or root48e→root205; changed observer/source inputs are explicit.",
+    "No reviewer runtime; source-only compatibility branch review does not establish Mac runtime.",
+    "Root owns actual finalcohort denominator/replay/gates after normalintegration; historic fullwave2253/old7PASS1FAIL preserved.",
+    "Repeated caller cancellation, disconnect task self-cancellation, external realresource OSfaults/service/multihost/powerloss not tested."
+  ],
+  "pattern_pass": {
+    "ids": [
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "bucket": "Same B87 cleanup ownership class, observation portability only; no source fix or new normative law",
+    "P41": "New root205 CAS input explicitly differs; no old allproduct equivalence or old runtime outcome moved to this execution."
+  },
+  "evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-independent-review/audit-portable.py",
+      "bytes": 10054,
+      "sha256": "3fed8b135212da57cce3c9f28b384e14f5cfc9adde06537041891ae9a7982ceb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-independent-review/audit-portable.json",
+      "bytes": 61955,
+      "sha256": "05f25ba53f7fbc6cf4c3ab689c2a2d0c841c1c4faea910b9d8e855a3a5fcabab"
+    }
+  ],
+  "reviewer_static_checks": {
+    "ruff_check": "PASS audit-portable.py",
+    "ruff_format_check": "PASS audit-portable.py",
+    "old_packet": "five original docs byte-identical @db78",
+    "source_and_tests": "ZERO_DIFF from e187 through reviewer source; three docs-only files appended"
+  },
+  "publication_qualification": "Binds already committed c025 Git objects. Successor reviewer commit/readback reported separately without futureSHA."
+}

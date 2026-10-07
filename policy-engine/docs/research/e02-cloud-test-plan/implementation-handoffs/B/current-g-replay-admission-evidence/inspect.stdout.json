@@ -1,0 +1,14 @@
+{
+  "contract_bytes": 52734,
+  "contract_sha256": "cbaf3c7b77fa4fc74c9611b80514cbd7dd9448e539130a938948f3bcbb7a9faf",
+  "source_refs": 26,
+  "full250_checked": 250,
+  "runtime": "UNRUN",
+  "reviewed_recipe_metadata_commit": "10e812a98d5f7f3997e7d0aa44de43dc90eb022c",
+  "observed_root_head": "ebecab2d4376f28285293808e5952de519932a53",
+  "own_write_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-g-replay-admission-evidence/contract.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-g-replay-admission-evidence/inspect.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-g-replay-admission-evidence/inspect.stdout.json"
+  ]
+}

@@ -1,0 +1,16 @@
+.........F..                                                             [100%]
+=================================== FAILURES ===================================
+________ test_expired_budget_refuses_actual_cas_worker_before_artifact _________
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/e02-current-execution-state/checkpoint-deadline/defining-pytest/test_expired_budget_refuses_ac0')
+
+    @pytest.mark.asyncio
+    async def test_expired_budget_refuses_actual_cas_worker_before_artifact(tmp_path):
+        store, ctx, _, _, _, hook, kwargs = await _native_input(tmp_path)
+>       before = set(store.iter_artifact_ids())
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: cannot use 'polisyos.core.artifacts.ids.ArtifactID' as a set element (unhashable type: 'ArtifactID')
+
+tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py:215: TypeError
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py::test_expired_budget_refuses_actual_cas_worker_before_artifact

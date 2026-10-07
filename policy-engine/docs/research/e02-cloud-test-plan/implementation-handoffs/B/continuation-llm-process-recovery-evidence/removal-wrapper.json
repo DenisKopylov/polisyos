@@ -1,0 +1,80 @@
+{
+  "source_sha": "f4e8422232ce3b61ef28c5c1928a65df5038a3fe",
+  "tree": "d2eef1f673e9a1422999f5dc64a9dd4a89d54704",
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-c",
+    "/dev/null",
+    "--noconftest",
+    "-o",
+    "addopts=",
+    "-vv",
+    "-s",
+    "tests/unit/scientist/orchestration/engine/test_budget_llm_process_recovery.py",
+    "-p",
+    "remove_admission",
+    "-k",
+    "kill",
+    "--basetemp",
+    "/tmp/e02-dur-process-f4e842223-removal",
+    "--junitxml",
+    "/workspace/e02-B-current-durability/.polisyos/e02-B-current/raw/continuation-20261007/dur-diagnosis/removal.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-durability/policy-engine",
+  "python": "Python 3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "removed_numeric_caps": [
+    "OMP_NUM_THREADS",
+    "OPENBLAS_NUM_THREADS",
+    "MKL_NUM_THREADS",
+    "NUMEXPR_NUM_THREADS",
+    "VECLIB_MAXIMUM_THREADS",
+    "BLIS_NUM_THREADS"
+  ],
+  "numeric_caps_effective": {
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "NUMEXPR_NUM_THREADS": null,
+    "VECLIB_MAXIMUM_THREADS": null,
+    "BLIS_NUM_THREADS": null
+  },
+  "source_before": "",
+  "disk_before": {
+    "/workspace": {
+      "size": 33770192896,
+      "used": 31275749376,
+      "available": 759681024
+    },
+    "/tmp": {
+      "size": 9441349632,
+      "used": 6992146432,
+      "available": 2449203200
+    }
+  },
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-durability/.polisyos/e02-B-current/raw/continuation-20261007/dur-diagnosis:/workspace/e02-B-current-durability/policy-engine/src:/workspace/e02-B-current-durability/policy-engine",
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "TIKTOKEN_CACHE_DIR": null
+  },
+  "exit_code": 1,
+  "wall_seconds": 2.251674669998465,
+  "maxrss_kib": 72308,
+  "source_after_sha": "f4e8422232ce3b61ef28c5c1928a65df5038a3fe",
+  "source_after_status": "",
+  "disk_after": {
+    "/workspace": {
+      "size": 33770192896,
+      "used": 31275794432,
+      "available": 759635968
+    },
+    "/tmp": {
+      "size": 9441349632,
+      "used": 6992171008,
+      "available": 2449178624
+    }
+  }
+}

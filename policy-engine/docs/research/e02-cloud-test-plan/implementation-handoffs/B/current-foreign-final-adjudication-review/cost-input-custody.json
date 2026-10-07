@@ -1,0 +1,16 @@
+[
+  {
+    "actual_original_path": "/dev/shm/e02-B-completed-affected-1862c021df74-bound/pytest/test_real_async_cache_costs_an0/individual-costs.json",
+    "retained_name": "individual-costs-1024.json",
+    "bytes": 50299,
+    "sha256": "b8f37d14b742006dea960b33b0a0ca2189ba632ac525082973c72114aeb18667",
+    "actual_origin": "original root1862 affected807 physical fixture; no runtime replay"
+  },
+  {
+    "actual_original_path": "/dev/shm/e02-B-completed-affected-1862c021df74-bound/pytest/test_real_async_cache_costs_an1/individual-costs.json",
+    "retained_name": "individual-costs-65536.json",
+    "bytes": 54778,
+    "sha256": "dc886c0024ed82080ae1710f7dadeea944d46cd8c0f1ed06535a2c0092953c1e",
+    "actual_origin": "original root1862 affected807 physical fixture; no runtime replay"
+  }
+]

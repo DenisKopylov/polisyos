@@ -1,0 +1,327 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-dur-b37-b38-independent-review",
+  "closure_ids": [],
+  "proposed_criterion_ids": [
+    "B37",
+    "B38"
+  ],
+  "bundle_ids": [
+    "DUR-01",
+    "DUR-02"
+  ],
+  "finding_dispositions": [
+    {
+      "finding_id": "B37",
+      "state": "limited",
+      "basis": "Finite source/published actual consumer evidence nonblocking; final root/G current-frozen case/input adjudication pending",
+      "proposed_bounded_state": "conditional criterion closure for supported local POSIX profile",
+      "remaining_intrinsic_mechanism_clause_found": null,
+      "closure_ids": [],
+      "next_owner": "root/G final actual current-source consumer reconciliation"
+    },
+    {
+      "finding_id": "B38",
+      "state": "limited",
+      "basis": "Finite SQLite+native PostgreSQL source/published actual consumer evidence nonblocking; final root/G current-frozen case/input adjudication pending",
+      "proposed_bounded_state": "conditional criterion closure for supported SQLite/PostgreSQL bound-worker transaction profile",
+      "remaining_intrinsic_mechanism_clause_found": null,
+      "closure_ids": [],
+      "next_owner": "root/G final actual current-source consumer reconciliation"
+    }
+  ],
+  "slice_base_sha": "9195eaac0dd0bf936b04bef4482a2ad18b613cd1",
+  "implementation_commits": [
+    "fcc4db1d0002be22c2e24e15015ec4d8efac5371"
+  ],
+  "candidate_sha": "fcc4db1d0002be22c2e24e15015ec4d8efac5371",
+  "candidate_tree_sha": "7d3556d688b78d36f6940edad12683078208715f",
+  "review_target_sha": "0fdc39831bc95f059dd220c054494fd410bde9da",
+  "review_target_tree_sha": "b75980daba837e15d8664785107e12d759101b82",
+  "branch": "codex/e02-B-current-cas-generation",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/42",
+  "owner": {
+    "reviewer": "/root/cas_probe",
+    "independence": "Foreign DUR source/oracles and EXE PostgreSQL oracle; this author owns CAS only",
+    "purpose": "source/published-evidence review only, no source or test edits"
+  },
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-b37-b38-independent-review/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-b37-b38-independent-review/artifacts.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-b37-b38-independent-review/audit-full-stdout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-b37-b38-independent-review/audit-instrument.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-b37-b38-independent-review/audit-stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-b37-b38-independent-review/first-audit-error.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-b37-b38-independent-review/first-audit-instrument.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-b37-b38-independent-review/review.json"
+  ],
+  "source_changed_paths": [],
+  "test_changed_paths": [],
+  "baseline_cells": [
+    "F01-P139",
+    "F01-P057",
+    "F02-P012",
+    "F03-P109",
+    "F03-P111",
+    "F05-P070",
+    "F05-P081",
+    "F06-P025",
+    "F07-P011",
+    "F08-P028",
+    "F08-P062",
+    "F08-P078",
+    "F11-P018",
+    "F11-P069",
+    "F12-P064",
+    "F14-P130",
+    "F15-P014",
+    "F15-P070",
+    "F15-P128"
+  ],
+  "baseline_qualification": "Navigation only. All 19 exact route/cell/source/ref/environment/compact input closures reconciled; original raw runtime fixtures/archives absent. No baseline PASS or red attribution is new evidence.",
+  "checks": [
+    {
+      "command": "python3 /tmp/e02-dur-published-review/audit.py > /tmp/e02-dur-published-review/full-stdout.json",
+      "cwd": "/workspace/e02-B-current-cas-generation",
+      "target_sha": "0fdc39831bc95f059dd220c054494fd410bde9da",
+      "environment": {
+        "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+        "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "uid": 1000
+      },
+      "input_closure": {
+        "instrument": {
+          "commit": "fcc4db1d0002be22c2e24e15015ec4d8efac5371",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-b37-b38-independent-review/first-audit-instrument.source.txt",
+          "bytes": 18723,
+          "sha256": "4475cd2818782fcbddd7cefa4d10895b0f0a13ec257dea5532c12529d9f172c3"
+        },
+        "qualification": "First metadata-only attempt under same own9195 source view; heterogeneous historic F03 source_sha key triggered parser KeyError before full audit. Redirected stdout empty; full tool-returned stderr text manually copied with explicit qualification."
+      },
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "output": {
+        "commit": "fcc4db1d0002be22c2e24e15015ec4d8efac5371",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-b37-b38-independent-review/first-audit-error.txt",
+        "bytes": 573,
+        "sha256": "7f801ee1d3510f76bd7ef60b47e4e226dae25eb5bb3c06392de2cf9854f1e575"
+      },
+      "predicate": "Metadata parser completeness; not product runtime or criterion failure"
+    },
+    {
+      "command": "python3 /tmp/e02-dur-published-review/audit.py > /tmp/e02-dur-published-review/full-stdout.json 2> /tmp/e02-dur-published-review/audit-stderr.txt",
+      "cwd": "/workspace/e02-B-current-cas-generation",
+      "target_sha": "0fdc39831bc95f059dd220c054494fd410bde9da",
+      "target_tree_sha": "b75980daba837e15d8664785107e12d759101b82",
+      "environment": {
+        "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+        "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "uid": 1000
+      },
+      "input_closure": {
+        "source_sha": "0fdc39831bc95f059dd220c054494fd410bde9da",
+        "source_tree_sha": "b75980daba837e15d8664785107e12d759101b82",
+        "literal_executed_instrument": {
+          "commit": "fcc4db1d0002be22c2e24e15015ec4d8efac5371",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-b37-b38-independent-review/audit-instrument.source.txt",
+          "bytes": 19353,
+          "sha256": "60782ff873f25d52a70d99d054f629928a86b7160f85fc6041bde99559034c7b"
+        },
+        "canonical_refs": [
+          {
+            "commit": "0fdc39831bc95f059dd220c054494fd410bde9da",
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json",
+            "bytes": 602186,
+            "sha256": "5abd40cc31570b26747c36ca2f782503e066c5df0195574452535943626b2b87",
+            "git_blob": "130ba865f6df9b1e7cd3bec5ce868df85e9b918c"
+          },
+          {
+            "commit": "0fdc39831bc95f059dd220c054494fd410bde9da",
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DUR-01.md",
+            "bytes": 9457,
+            "sha256": "4d2c05567d77dbe20306b5b6dddfb7c680befdc4063d177110c78573454746bf",
+            "git_blob": "333b6e91afbdf22b37cabd29328dacc8e9f0619a"
+          },
+          {
+            "commit": "0fdc39831bc95f059dd220c054494fd410bde9da",
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DUR-02.md",
+            "bytes": 14763,
+            "sha256": "7fa202cb245c67f765b9fbbc10f4c29e78f5e5b3872591f98ee964ee3f222652",
+            "git_blob": "8b7adee3877694b633ab03c5086775e89b8316ff"
+          },
+          {
+            "commit": "0fdc39831bc95f059dd220c054494fd410bde9da",
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+            "bytes": 1336380,
+            "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+            "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a"
+          }
+        ],
+        "baseline_navigation_refs": [
+          {
+            "commit": "0fdc39831bc95f059dd220c054494fd410bde9da",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/results/routes.tsv",
+            "bytes": 280085,
+            "sha256": "30755ddca05267c4aeec56154c1c9282ee985c3414b76991aecb99d0ecf59da2",
+            "git_blob": "484108de4691f41cfac81996eeff477607774c05"
+          },
+          {
+            "commit": "0fdc39831bc95f059dd220c054494fd410bde9da",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv",
+            "bytes": 451094,
+            "sha256": "afbf14fc428d89e20e409cd7f18db0a52bf17e2c0ecde1a2a5e33626c8b49152",
+            "git_blob": "51c6234d89edf66d0a88025572b24960fce0c22d"
+          },
+          {
+            "commit": "0fdc39831bc95f059dd220c054494fd410bde9da",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/bootstrap/baseline-navigation.json",
+            "bytes": 4423,
+            "sha256": "5ba00cfd30fa8f7bb90fec9d6a1bf0aa5825d58eb6e2c432e1f25a8cca9cf6ac",
+            "git_blob": "aa58eaaf2783512e465b1397b215003a70d61f1d"
+          },
+          {
+            "commit": "0fdc39831bc95f059dd220c054494fd410bde9da",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/baseline-navigation.json",
+            "bytes": 60608,
+            "sha256": "596af5f4e2a71bc5dc97070c7f199de60d4ed929041513d1362c0b0e44744457",
+            "git_blob": "658e14e79e2649fa7620ec882ee44c84a0fc1367"
+          }
+        ],
+        "published_native_receipts": "Exact root0fd Git copies of current-durability-bootstrap/current-durability/current-fenced-budget-consumer/current-independent-budget-cas; every selected output artifact hash/length verified in full stdout.",
+        "published_postgres_receipt": {
+          "commit": "9dcf877a037a9814f18ac7ddc75b992049c737b5",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing.json",
+          "bytes": 57308,
+          "sha256": "5747f53e143080c10e065cc10f4ab40227917decbea85f9b035f0727dd0e5ae3",
+          "git_blob": "827770e7e6b6fea8c221c0399e9b1e9081231676"
+        },
+        "published_postgres_index": {
+          "commit": "12fcabd5d0002cb7719f5570d1aad1be8fe3490b",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/index.json",
+          "bytes": 11784,
+          "sha256": "25de04aae1c6d6a146965efdac98785d7f0d449ddc0dd7641799030fdae81f9b",
+          "git_blob": "cb5c82b5f2b4fa06d98b5b40515d865cac2d57b2"
+        },
+        "execution_source_qualification": "Metadata instrument actually executed while own attached HEAD remained9195eaac0dd0bf936b04bef4482a2ad18b613cd1. Product inputs were read only via git show at exact0fd and linked published immutable references; no product-native execution at0fd or implementationfcc is claimed.",
+        "excluded_inputs": "Original ignored raw/fixtures/environments/DSN/password/DB/image data were not read. All deciding input bytes are tracked published Git objects."
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": {
+        "commit": "fcc4db1d0002be22c2e24e15015ec4d8efac5371",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-b37-b38-independent-review/audit-full-stdout.json",
+        "bytes": 174338,
+        "sha256": "b39c202c176d35517266780de9f2a1ce6d513dc178060dc3c44886668a60a6cc"
+      },
+      "stderr": {
+        "commit": "fcc4db1d0002be22c2e24e15015ec4d8efac5371",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-b37-b38-independent-review/audit-stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "actual_denominator": {
+        "exact_historic_routes": 19,
+        "B37_routes": 1,
+        "B38_routes": 18,
+        "native_root81_complete_cases": 230,
+        "native_DUR4f_complete_cases": 206,
+        "PG45_published_objects_bytes": 320285,
+        "PG85_actual_cases": 8,
+        "PG414_actual_affected_cases": 4,
+        "PGretained_schemas": 8,
+        "tables_each": 11,
+        "store_static_methods": 96,
+        "store_static_publication_mutators": 35
+      },
+      "predicate": "Independently recomputed complete immutable-input custody/count/source reconciliation only; native effects retain original author consumer_asserted basis."
+    }
+  ],
+  "property": {
+    "statement": "For exact0fd source, independently reconcile canonical B37/B38 clauses against actual published real-consumer inputs/outputs and distinguish intrinsic criterion gaps from finite-profile boundaries. No new runtime or formal closure.",
+    "runtime_path": [
+      "Published canonical/source Git objects",
+      "Published exact native receipt/source/test/environment boundaries",
+      "Complete XML and artifact hash/source equality reconciliation",
+      "Human canonical clause/common-intake/transaction source review",
+      "Bounded independent root/G handoff"
+    ],
+    "proxy_divergence": "Atomic helper presence, SQL predicate shape, markers, case totals or version strings alone do not establish the criterion. Review reads actual cold/sparse/default-application, syscall/process/middleware and native SQL/all-table consumer bodies/outcomes; source/test byte projections do not turn historic counts into a current-frozen runtime pass.",
+    "negative_controls": [
+      "Historic198 direct real cold/sparse consumers4FAIL/3PASS retained",
+      "Independent wire helper removal24=12FAIL12PASS at exact2e665, never reclassified as current0fd removal",
+      "Common B38 admission removal source73 FAIL vs unchanged control PASS, grouped later assertions UNRUN after first fail",
+      "Real PG SQL trigger event/outbox faults after terminal publication roll back all table rows; current owner positive and stale18-inlet negatives retained"
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "per_premise_basis": {
+    "canonical_clause_read": "human source-reviewed exact pinned original/card/manifest bytes",
+    "immutable_input_hashes_and_source_byte_equality": "recomputed",
+    "historical_native_case_count": "recomputed from complete published XML where available",
+    "historical_native_effect_predicate": "consumer_asserted by original actual native source/outputs; independently read, not rerun",
+    "final_current_frozen_native": "not_established by this review",
+    "formal_closure": "not_adjudicated"
+  },
+  "capability_state_or_finding_state": "Finite DUR source/published-evidence review nonblocking. No intrinsic B37/B38 criterion clause gap found in this profile; conditional bounded closure after root/G actual final-frozen consumer reconciliation. Formal closure_ids empty.",
+  "review_artifacts": [
+    {
+      "commit": "fcc4db1d0002be22c2e24e15015ec4d8efac5371",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-b37-b38-independent-review/review.json",
+      "bytes": 33432,
+      "sha256": "df0b1d24daa66654a1869585a8a20ae84ed253f4725f69660c6198caf7434e24"
+    },
+    {
+      "commit": "fcc4db1d0002be22c2e24e15015ec4d8efac5371",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-b37-b38-independent-review/audit-full-stdout.json",
+      "bytes": 174338,
+      "sha256": "b39c202c176d35517266780de9f2a1ce6d513dc178060dc3c44886668a60a6cc"
+    },
+    {
+      "commit": "fcc4db1d0002be22c2e24e15015ec4d8efac5371",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-b37-b38-independent-review/audit-instrument.source.txt",
+      "bytes": 19353,
+      "sha256": "60782ff873f25d52a70d99d054f629928a86b7160f85fc6041bde99559034c7b"
+    },
+    {
+      "commit": "fcc4db1d0002be22c2e24e15015ec4d8efac5371",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-b37-b38-independent-review/first-audit-instrument.source.txt",
+      "bytes": 18723,
+      "sha256": "4475cd2818782fcbddd7cefa4d10895b0f0a13ec257dea5532c12529d9f172c3"
+    },
+    {
+      "commit": "fcc4db1d0002be22c2e24e15015ec4d8efac5371",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-b37-b38-independent-review/first-audit-error.txt",
+      "bytes": 573,
+      "sha256": "7f801ee1d3510f76bd7ef60b47e4e226dae25eb5bb3c06392de2cf9854f1e575"
+    },
+    {
+      "commit": "fcc4db1d0002be22c2e24e15015ec4d8efac5371",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-b37-b38-independent-review/artifacts.json",
+      "bytes": 1971,
+      "sha256": "8caaa44199d99ec8ace54f0ee4a397bb26a388775f0f208973eaa1304b9044e5"
+    },
+    {
+      "commit": "fcc4db1d0002be22c2e24e15015ec4d8efac5371",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-b37-b38-independent-review/README.md",
+      "bytes": 1275,
+      "sha256": "9074a0f570475ff3215ea2ed1cef860d72ae6495d6e74b623f916f37b0ca770a"
+    }
+  ],
+  "limitations_and_next_owner": [
+    "Original198 B37 real consumer4FAIL/3PASS remains; atomic publication helper presence is not a bug/closure discriminator.",
+    "Original73 complete206=186PASS20FAIL is an introduced fixture-bound authority clash retained; corrected4f proof fixtures use legitimate independent admin instance without weakening bound refusal.",
+    "Original73 broad378 denominator declared17FAIL252ERROR6SKIP retained, with complete deciding stdout and wrapper Git-bound; XML is ignored-only/unavailable in Git. This audit does not recompute full378 from XML or mark red inherited. Changed store intersects inputs; P41 full-input disjoint inheritance NOT_ESTABLISHED.",
+    "PG original85 Ruff/formatFAIL, Docker-save ENOSPC and first native-initdb ICUERROR retained.414 style/affected4PASS and legitimate relocated server READY do not erase those outcomes.",
+    "First independent metadata parser invocation failed KeyError source on heterogeneous historic F03 metadata; original literal script/tool-returned error retained. Corrected parser accepts explicit source/source_sha key forms, source_role/role and exact field locators; no product or baseline outcome altered.",
+    "No ignored historical raw archives, private DSN/password, live DB, native fixture paths, Docker or current workspace raw outputs were read. Every deciding input in this audit is a published Git object.",
+    "Own CAS B148 held authority-law decision and B154 A all-confirmations publisher consumer_missing are untouched; this independent DUR review cannot adjudicate them.",
+    "Root/G owns current final-frozen consumer case/source/input adjudication. Do not require unstated universal powerloss/multihost/hardphysicalworkerdeath/externalexactlyonce proofs; retain actual declared finite deployment boundary.",
+    "All35 publication mutators static source admission is independently reconciled; native PG measured18 inlets per stale condition, not35 separate PG cases. No targeted native rerun by this reviewer.",
+    "PG45 moderate objects and all table observations are Git published. Private fixture credentials/large native image/data remain excluded; G must reconstruct a legitimate owned fixture from pinned scripts/image digests, not treat private original paths as portable replay.",
+    "No new worktrees, helpers, services, canonical code, source/test style changes, global gates, permanent cleanup, resource quotas or source-family closure decisions."
+  ],
+  "created_at_utc": "2026-10-06T19:02:08.943291+00:00"
+}

@@ -1,0 +1,12 @@
+{
+  "branch": "codex/e02-B-current-adapters",
+  "slice_base_sha": "82f7656a3848225c615dfef8c363e914dafe7e3e",
+  "slice_base_tree_sha": "4f9d18eb77392724d5118b43581719b255c2b974",
+  "before_edit_head": "90d2e869ae1e78b06932f8b2349848d41588def8",
+  "before_edit_tree_sha": "464cd34a63c2441c1016b20f3667f9af701eeff6",
+  "docs_only_delta": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair.json"
+  ],
+  "runtime_source_point": "a697a8312ff00edfcc766f9906dbcd2252cfcf96",
+  "qualification": "Existing root-admitted attached writer; no newworktree. Clean published82f\u219290d docs-only progression verified before edits; root explicitly grants worker successor at82f. Original precreation/resume receipts retain their original scope and are not retroactive reservations."
+}

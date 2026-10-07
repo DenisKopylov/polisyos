@@ -1,0 +1,35 @@
+{
+  "command": [
+    "node",
+    "packages/runtime-api-client/scripts/normalize-recursive-openapi-types.mjs",
+    "--types",
+    "/workspace/e02-B-current-coordination/policy-engine/packages/runtime-api-client/types.ts"
+  ],
+  "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+  "head": "42172721bbe1fdb27f6e37fc8acccdd30464380d",
+  "tree": "430dc1504b7e3bf64eff6da5a1a502b99aec38f4",
+  "head_after": "42172721bbe1fdb27f6e37fc8acccdd30464380d",
+  "wall_s": 0.6527155939984368,
+  "process_rusage_maxrss_kib": 164068,
+  "exit_code": 0,
+  "exec_setup_error": null,
+  "harness_state": "EXECUTED",
+  "output_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-prefreeze-client-421-step1.txt",
+  "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "source_environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+    "PATH": "/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "LANG": "C.UTF-8",
+    "POLISYOS_METRICS_PORT": "0",
+    "TIKTOKEN_CACHE_DIR": null,
+    "E02_B_PROPERTY_REMOVAL": null,
+    "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+    "UV_NO_SYNC": "1",
+    "E02_B_COHORT_INVENTORY_PATH": null
+  },
+  "limitations": [
+    "Combined stdout/stderr; no separate stream-count claim.",
+    "Source boundary is HEAD identity; the launcher checks initial cleanliness.",
+    "RSS is wait4 child rusage, not an aggregate of independently concurrent gates."
+  ]
+}

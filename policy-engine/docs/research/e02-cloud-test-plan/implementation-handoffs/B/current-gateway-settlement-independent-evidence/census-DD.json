@@ -1,0 +1,1153 @@
+{
+  "kind": "full pinned literal symbol/reader census over complete tracked production roots, not a universal data-flow/child/runtime readset",
+  "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+  "source_tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+  "input_roots": [
+    "policy-engine/src",
+    "policy-engine/product"
+  ],
+  "tracked_all_file_denominator": 2914,
+  "tracked_python_file_denominator": 2701,
+  "matched_file_count": 27,
+  "patterns": {
+    "gateway_types": "\\b(?:GatewayUsage|GatewayLLMResponse)\\b",
+    "response_normalization": "\\b(?:LLMResponseData|extract_llm_response_data|_extract_physical_provider_response_data)\\b",
+    "settlement_abi": "\\b(?:LLMProducerEvent|LLMProducerSettlement|LLMSettlementAck|LLMSettledResponse|LLMAuditObligation|LLMAuditResolution|producer_settlement|_completion_amount|_settlement_owner_context)\\b",
+    "gateway_numeric_reader": "\\b(?:[A-Za-z_][A-Za-z_0-9]*\\.)*usage\\.(?:prompt_tokens|completion_tokens|total_tokens|cost_usd|usage_status|cost_status)\\b",
+    "factory_budget_composition": "\\b(?:create_traced_gateway_client|LLMBudgetEnforcer|CachingLLMClient|CacheReuseAuthorizer)\\b"
+  },
+  "match_denominators": {
+    "gateway_types": {
+      "files": 6,
+      "python_files": 5,
+      "literal_line_occurrences": 43
+    },
+    "response_normalization": {
+      "files": 6,
+      "python_files": 5,
+      "literal_line_occurrences": 27
+    },
+    "settlement_abi": {
+      "files": 5,
+      "python_files": 5,
+      "literal_line_occurrences": 64
+    },
+    "gateway_numeric_reader": {
+      "files": 3,
+      "python_files": 3,
+      "literal_line_occurrences": 7
+    },
+    "factory_budget_composition": {
+      "files": 17,
+      "python_files": 15,
+      "literal_line_occurrences": 44
+    }
+  },
+  "module_identities": [
+    {
+      "path": "policy-engine/src/polisyos/core/llm/README.md",
+      "git_blob": "c42e89793edac0ce75b6c49107fc77082d7f14fd",
+      "bytes": 3466,
+      "sha256": "06447dfdb0023cf0e8794da2c673fdac4571c662ef729b7b89f46410931e1d2d"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/llm/__init__.py",
+      "git_blob": "b362658c388c1c4c3a861b986c326688e32f1f54",
+      "bytes": 983,
+      "sha256": "e8382029341226839ad5e9b14110d11233c9aca0c9d32b39ae275533a3cc4128"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/llm/response.py",
+      "git_blob": "947105fccabb40710f563e3e57d71ed06e7f0bb3",
+      "bytes": 7635,
+      "sha256": "04778d8fe0dd2cb6e29a9547865321afb92e8355fbbffd602f5d4e276948f6af"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/llm/settlement.py",
+      "git_blob": "c2c631442a3ecf7587425445565d723598eaba81",
+      "bytes": 8687,
+      "sha256": "c2d9ee2d061898a7b4f31181cd9ef23ebf193c467ad4bb18785dcd435f189c3b"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/llm/traced_client.py",
+      "git_blob": "da043259222ebeccf48e4fa8270a56fd2aa9bd62",
+      "bytes": 35161,
+      "sha256": "1d604c7d24f254017e4b69ba304f207d364c0a7e6dd1c0408ffce7e39e05c30a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+      "git_blob": "4956678ca4ec4253cdf96e103ff83e7226e192da",
+      "bytes": 427462,
+      "sha256": "e73f044870901509f76f73a20e7ea34919029d1d60e3557cf3b507981256b6bd"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/design_generation.py",
+      "git_blob": "a12f1aade3ef5368bdd1571df52a2ef32538f7c1",
+      "bytes": 182148,
+      "sha256": "e290ec767a95d032fb55603449a64fb515f95af844e6285650d063f895499ddc"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py",
+      "git_blob": "0ff734f7908e7b27462232e0e63ed9241caf3be5",
+      "bytes": 173858,
+      "sha256": "0675e4d0398c532e744af931816cbfcb91fb41b06cacd6af2eff8d3605cd82d1"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/README.md",
+      "git_blob": "1f6419e4d305fa58f5ac6c165b30d816ab279c77",
+      "bytes": 8896,
+      "sha256": "a0be844195c96f011fe0d1e6a85ed2432c8e6683873990a6d4a31142d3e25c97"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/__init__.py",
+      "git_blob": "568c5962fb5929aaf904ee51d8359725229423b6",
+      "bytes": 7829,
+      "sha256": "ab721e4a2e6da23e8786a1f1af1f7cc8a4a7b90d02384882b21de70b1cbb3e90"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/agent/_drafter_llm.py",
+      "git_blob": "a622ad9d17e47bbf99260a18e9ad05f94ed74754",
+      "bytes": 3482,
+      "sha256": "bf4727c653003c2a9d5a19f5fb7a5f511618f1ee3351e5c7c4cf6def6b7995af"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/discovery/workers/__init__.py",
+      "git_blob": "a37e2447ca1b5535b493eb291f6713ce28bd7cc4",
+      "bytes": 31436,
+      "sha256": "603f72e9caaa857a091a69935b138f7e316441e35bdb97cb00068bd933c497ff"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/README.md",
+      "git_blob": "5bd4656cb9531409581784cad4b8905e3646a565",
+      "bytes": 3940,
+      "sha256": "37ca3c82ed258f655f7a6ccd219b693f57b86f8d5b8c4973a6b4c089956ca1ab"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/__init__.py",
+      "git_blob": "e879f14bbcd9a8b2901cf0fffb4bc7b464248525",
+      "bytes": 3601,
+      "sha256": "e9d970c63e43cc20d6a83d265f425f2b3f3d69fc20a693738454a07138c6ddfe"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+      "git_blob": "ac98ed93e6c48d8f409f10e37d8133bd676a0569",
+      "bytes": 28432,
+      "sha256": "dd6a95c397d7fac287cc26ff1f18c37e4d18c0b1abb152bd04f43f9a0efcd61e"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/cost_anomaly.py",
+      "git_blob": "67a2d4f96e6fe8e05d1f2153b5b58e4491a31282",
+      "bytes": 1454,
+      "sha256": "a4ab0555543a5f89aa731ea6e28b166e9720ef6af1d2a3bbe98188e3dc1e3169"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+      "git_blob": "311b66e54dea6c49c4a295121f3ece57aa4a30b9",
+      "bytes": 9508,
+      "sha256": "e7df151746213f3d7df9fda50b80a8e76f955f9444b9f627c6751fc0772cce68"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/fallback_router.py",
+      "git_blob": "3ee8b3268a5a64fa76860f74696c557dfe511105",
+      "bytes": 8047,
+      "sha256": "22a26cf08a51a641cdad332c821a1ae528e6917fa61c4a44685509dad90576db"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+      "git_blob": "52005eecef61a6ed0b727a7a444e28cf3acfa1e4",
+      "bytes": 28121,
+      "sha256": "43ddf80278eef25a761bfcba103947d34769d4d32a9b804cb480c9b25c639da7"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+      "git_blob": "b1e91052c288df38bfa451cdee6a0436d4836b35",
+      "bytes": 37271,
+      "sha256": "5a5e011522d661e6da34cab1c15c00e77b4cf9549da52240b77f64e8db779462"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/provider_verification.py",
+      "git_blob": "a5d5717a16295a7f040f656a429dd6f9d60181b5",
+      "bytes": 32342,
+      "sha256": "780355c714ea862d4df5b5f66d88cd92bd15d6cb4a5c121d94ba9156d3cdc538"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/simulated_gateway.py",
+      "git_blob": "b40bbfa5a05db8c1eff5fc09c23dcd0cb64ce3d0",
+      "bytes": 24905,
+      "sha256": "933e7817454ecbe91e8a372043fcfc73033f79b437ea31580a51ff90c9a61aa0"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/policy_design/adversary.py",
+      "git_blob": "11ac91e6e7a68453b2d322c448a1812dac1ff4cb",
+      "bytes": 15332,
+      "sha256": "e80592034b0dd93ae9a5fb0e1f22f5f92620f8e57059a7ce796f75b68cd759c7"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/policy_design/search.py",
+      "git_blob": "49ddb4c29f333de12211a1e7222a1d8368f8cd85",
+      "bytes": 55516,
+      "sha256": "a9045842cbfe78123f42d702317f4c65b979ebbc2c3ce46ef192d1472f51412e"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/policy_design/translator.py",
+      "git_blob": "6b3bac9e054559146050e44634dd41a3445b5061",
+      "bytes": 15582,
+      "sha256": "a9cc4245e836c2276bc9d115582bd150fcff2f355158b8fde16cb6b9e7bce9a1"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/validation/citation_faithfulness.py",
+      "git_blob": "6e32c3a106e8a017edef9601a4089459b4369955",
+      "bytes": 47811,
+      "sha256": "7207a445b8e3cdc82cf476a05f2aa4b1d1b3d994339fdc94938b6fdc62842e95"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/validation/policy_verified/service.py",
+      "git_blob": "d8eb528ad61f87990efcde6d427b9257d54d8fbe",
+      "bytes": 42395,
+      "sha256": "d3e7a29cd0a20f00b577605ed2dc7da8e112a6ee499392718da075ea4b9f184e"
+    }
+  ],
+  "matches": {
+    "gateway_types": [
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/README.md",
+        "matches": [
+          {
+            "line": 53,
+            "text": "- `GatewayLLMClient`, `GatewayLLMResponse`, `GatewayUsage`"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/__init__.py",
+        "matches": [
+          {
+            "line": 11,
+            "text": "    \"GatewayLLMResponse\","
+          },
+          {
+            "line": 12,
+            "text": "    \"GatewayUsage\","
+          },
+          {
+            "line": 40,
+            "text": "    \"GatewayLLMResponse\": ("
+          },
+          {
+            "line": 42,
+            "text": "        \"GatewayLLMResponse\","
+          },
+          {
+            "line": 44,
+            "text": "    \"GatewayUsage\": (\"polisyos.scientist.orchestration.llm.gateway_client\", \"GatewayUsage\"),"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/fallback_router.py",
+        "matches": [
+          {
+            "line": 13,
+            "text": "from .gateway_client import GatewayLLMClient, GatewayLLMResponse"
+          },
+          {
+            "line": 114,
+            "text": "    ) -> GatewayLLMResponse:"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+        "matches": [
+          {
+            "line": 27,
+            "text": "class GatewayUsage:"
+          },
+          {
+            "line": 47,
+            "text": "class GatewayLLMResponse:"
+          },
+          {
+            "line": 51,
+            "text": "    usage: GatewayUsage = field(default_factory=GatewayUsage)"
+          },
+          {
+            "line": 233,
+            "text": "    ) -> GatewayLLMResponse:"
+          },
+          {
+            "line": 561,
+            "text": "    def _parse_completion_payload(self, payload: dict[str, Any]) -> GatewayLLMResponse:"
+          },
+          {
+            "line": 581,
+            "text": "        usage = GatewayUsage("
+          },
+          {
+            "line": 631,
+            "text": "        return GatewayLLMResponse("
+          },
+          {
+            "line": 772,
+            "text": "    \"GatewayLLMResponse\","
+          },
+          {
+            "line": 774,
+            "text": "    \"GatewayUsage\","
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+        "matches": [
+          {
+            "line": 29,
+            "text": "from .gateway_client import GatewayLLMResponse, GatewayToolCall, GatewayUsage"
+          },
+          {
+            "line": 146,
+            "text": "class _ProducerGatewayResponse(GatewayLLMResponse):"
+          },
+          {
+            "line": 149,
+            "text": "    def __init__(self, response: GatewayLLMResponse, settlement: LLMProducerSettlement) -> None:"
+          },
+          {
+            "line": 187,
+            "text": "class _CacheReuseGatewayResponse(GatewayLLMResponse):"
+          },
+          {
+            "line": 200,
+            "text": "        response: GatewayLLMResponse,"
+          },
+          {
+            "line": 225,
+            "text": "    def get(self, cache_key: str) -> GatewayLLMResponse | None: ..."
+          },
+          {
+            "line": 229,
+            "text": "        response: GatewayLLMResponse,"
+          },
+          {
+            "line": 322,
+            "text": "    def get(self, cache_key: str) -> GatewayLLMResponse | None:"
+          },
+          {
+            "line": 343,
+            "text": "        response: GatewayLLMResponse,"
+          },
+          {
+            "line": 556,
+            "text": "            if isinstance(cached, GatewayLLMResponse):"
+          },
+          {
+            "line": 595,
+            "text": "            if isinstance(cached, GatewayLLMResponse):"
+          },
+          {
+            "line": 603,
+            "text": "        if isinstance(response, GatewayLLMResponse):"
+          },
+          {
+            "line": 630,
+            "text": "                    if isinstance(raw_response, GatewayLLMResponse):"
+          },
+          {
+            "line": 636,
+            "text": "                if isinstance(response, GatewayLLMResponse):"
+          },
+          {
+            "line": 702,
+            "text": "    response: GatewayLLMResponse,"
+          },
+          {
+            "line": 953,
+            "text": "def _freeze_response(response: GatewayLLMResponse) -> _SerializedGatewayResponse:"
+          },
+          {
+            "line": 978,
+            "text": "def _thaw_response(response: _SerializedGatewayResponse) -> GatewayLLMResponse:"
+          },
+          {
+            "line": 979,
+            "text": "    restored = GatewayLLMResponse("
+          },
+          {
+            "line": 981,
+            "text": "        usage=GatewayUsage("
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/simulated_gateway.py",
+        "matches": [
+          {
+            "line": 9,
+            "text": "    GatewayLLMResponse,"
+          },
+          {
+            "line": 11,
+            "text": "    GatewayUsage,"
+          },
+          {
+            "line": 55,
+            "text": "    ) -> GatewayLLMResponse:"
+          },
+          {
+            "line": 73,
+            "text": "            return GatewayLLMResponse("
+          },
+          {
+            "line": 75,
+            "text": "                usage=GatewayUsage("
+          },
+          {
+            "line": 106,
+            "text": "        return GatewayLLMResponse("
+          },
+          {
+            "line": 108,
+            "text": "            usage=GatewayUsage("
+          }
+        ]
+      }
+    ],
+    "response_normalization": [
+      {
+        "path": "policy-engine/src/polisyos/core/llm/README.md",
+        "matches": [
+          {
+            "line": 16,
+            "text": "- **Response extraction** - `extract_llm_response_data()` normalizes usage/response metadata."
+          },
+          {
+            "line": 27,
+            "text": "- `LLMResponseData`"
+          },
+          {
+            "line": 28,
+            "text": "- `extract_llm_response_data`"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/llm/__init__.py",
+        "matches": [
+          {
+            "line": 5,
+            "text": "from .response import LLMResponseData, extract_llm_response_data"
+          },
+          {
+            "line": 22,
+            "text": "    \"LLMResponseData\","
+          },
+          {
+            "line": 31,
+            "text": "    \"extract_llm_response_data\","
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/llm/response.py",
+        "matches": [
+          {
+            "line": 11,
+            "text": "class LLMResponseData:"
+          },
+          {
+            "line": 46,
+            "text": "def extract_llm_response_data(response: Any) -> LLMResponseData:"
+          },
+          {
+            "line": 103,
+            "text": "    return LLMResponseData("
+          },
+          {
+            "line": 139,
+            "text": "def _extract_physical_provider_response_data(response: Any) -> LLMResponseData:"
+          },
+          {
+            "line": 141,
+            "text": "    parsed = extract_llm_response_data(response)"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/llm/traced_client.py",
+        "matches": [
+          {
+            "line": 28,
+            "text": "    LLMResponseData,"
+          },
+          {
+            "line": 29,
+            "text": "    _extract_physical_provider_response_data,"
+          },
+          {
+            "line": 30,
+            "text": "    extract_llm_response_data,"
+          },
+          {
+            "line": 412,
+            "text": "        parsed: LLMResponseData,"
+          },
+          {
+            "line": 582,
+            "text": "                parsed = _extract_physical_provider_response_data(response)"
+          },
+          {
+            "line": 630,
+            "text": "                parsed = _extract_physical_provider_response_data(response)"
+          },
+          {
+            "line": 661,
+            "text": "        self, parsed: LLMResponseData, args: tuple[Any, ...], kwargs: dict[str, Any]"
+          },
+          {
+            "line": 721,
+            "text": "                    _extract_physical_provider_response_data(response)"
+          },
+          {
+            "line": 723,
+            "text": "                    else extract_llm_response_data(response)"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/agent/_drafter_llm.py",
+        "matches": [
+          {
+            "line": 11,
+            "text": "from polisyos.core.llm import estimate_cost, extract_llm_response_data"
+          },
+          {
+            "line": 83,
+            "text": "        data = extract_llm_response_data(response)"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+        "matches": [
+          {
+            "line": 15,
+            "text": "from polisyos.core.llm.response import extract_llm_response_data"
+          },
+          {
+            "line": 280,
+            "text": "        data = extract_llm_response_data(response)"
+          },
+          {
+            "line": 496,
+            "text": "                self._emit_cost_metrics(event.amount, extract_llm_response_data(response))"
+          },
+          {
+            "line": 611,
+            "text": "                    data = extract_llm_response_data(response)"
+          },
+          {
+            "line": 650,
+            "text": "                    data = extract_llm_response_data(response)"
+          }
+        ]
+      }
+    ],
+    "settlement_abi": [
+      {
+        "path": "policy-engine/src/polisyos/core/llm/response.py",
+        "matches": [
+          {
+            "line": 48,
+            "text": "    from .settlement import LLMSettledResponse"
+          },
+          {
+            "line": 50,
+            "text": "    if isinstance(response, LLMSettledResponse):"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/llm/settlement.py",
+        "matches": [
+          {
+            "line": 48,
+            "text": "class LLMProducerEvent:"
+          },
+          {
+            "line": 88,
+            "text": "class LLMSettlementAck:"
+          },
+          {
+            "line": 99,
+            "text": "class LLMProducerSettlement:"
+          },
+          {
+            "line": 102,
+            "text": "    event: LLMProducerEvent"
+          },
+          {
+            "line": 103,
+            "text": "    ack: LLMSettlementAck"
+          },
+          {
+            "line": 113,
+            "text": "class LLMSettledResponse:"
+          },
+          {
+            "line": 118,
+            "text": "    def __init__(self, response: Any, settlement: LLMProducerSettlement) -> None:"
+          },
+          {
+            "line": 194,
+            "text": "    settle: Callable[[LLMProducerEvent, Any], LLMSettlementAck]"
+          },
+          {
+            "line": 201,
+            "text": "    complete: Callable[[Any, bool], LLMSettledResponse]"
+          },
+          {
+            "line": 234,
+            "text": "def _settlement_owner_context("
+          },
+          {
+            "line": 235,
+            "text": "    scope_key: tuple[str, ...], settle: Callable[[LLMProducerEvent, Any], LLMSettlementAck]"
+          },
+          {
+            "line": 248,
+            "text": "    complete: Callable[[Any, bool], LLMSettledResponse],"
+          },
+          {
+            "line": 269,
+            "text": "def producer_settlement(response: Any) -> LLMProducerSettlement | None:"
+          },
+          {
+            "line": 272,
+            "text": "    return value if isinstance(value, LLMProducerSettlement) else None"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/llm/traced_client.py",
+        "matches": [
+          {
+            "line": 33,
+            "text": "    LLMProducerEvent,"
+          },
+          {
+            "line": 34,
+            "text": "    LLMProducerSettlement,"
+          },
+          {
+            "line": 35,
+            "text": "    LLMSettledResponse,"
+          },
+          {
+            "line": 36,
+            "text": "    LLMSettlementAck,"
+          },
+          {
+            "line": 43,
+            "text": "    producer_settlement,"
+          },
+          {
+            "line": 372,
+            "text": "        if isinstance(response, LLMSettledResponse):"
+          },
+          {
+            "line": 374,
+            "text": "            return LLMSettledResponse(restored, response._polisyos_settlement)"
+          },
+          {
+            "line": 417,
+            "text": "        producer_event: LLMProducerEvent | None = None,"
+          },
+          {
+            "line": 418,
+            "text": "    ) -> LLMProducerSettlement | None:"
+          },
+          {
+            "line": 477,
+            "text": "            ack = LLMSettlementAck("
+          },
+          {
+            "line": 483,
+            "text": "                    if not isinstance(received, LLMSettlementAck):"
+          },
+          {
+            "line": 485,
+            "text": "                    settlement = LLMProducerSettlement(producer_event, received)"
+          },
+          {
+            "line": 494,
+            "text": "            settlement = LLMProducerSettlement(producer_event, ack)"
+          },
+          {
+            "line": 597,
+            "text": "                    response = LLMSettledResponse(response, settled)"
+          },
+          {
+            "line": 645,
+            "text": "                    response = LLMSettledResponse(response, settled)"
+          },
+          {
+            "line": 662,
+            "text": "    ) -> LLMProducerEvent:"
+          },
+          {
+            "line": 663,
+            "text": "        return LLMProducerEvent("
+          },
+          {
+            "line": 718,
+            "text": "            def complete(response: Any, physical_provider: bool = False) -> LLMSettledResponse:"
+          },
+          {
+            "line": 726,
+            "text": "                origin = producer_settlement(response)"
+          },
+          {
+            "line": 741,
+            "text": "                producer_event = LLMProducerEvent("
+          },
+          {
+            "line": 773,
+            "text": "                return LLMSettledResponse(response, settled)"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+        "matches": [
+          {
+            "line": 17,
+            "text": "    LLMProducerEvent,"
+          },
+          {
+            "line": 18,
+            "text": "    LLMSettlementAck,"
+          },
+          {
+            "line": 21,
+            "text": "    _settlement_owner_context,"
+          },
+          {
+            "line": 104,
+            "text": "        self._unknown_settlements: dict[str, tuple[LLMProducerEvent, _BudgetReservation]] = {}"
+          },
+          {
+            "line": 275,
+            "text": "        producer_event: LLMProducerEvent | None = None,"
+          },
+          {
+            "line": 452,
+            "text": "    def _ledger_event_identity(event: LLMProducerEvent, key: str) -> tuple[str, str]:"
+          },
+          {
+            "line": 459,
+            "text": "        self, event: LLMProducerEvent, response: Any, reservation: _BudgetReservation, run_id: str"
+          },
+          {
+            "line": 460,
+            "text": "    ) -> LLMSettlementAck:"
+          },
+          {
+            "line": 499,
+            "text": "        return LLMSettlementAck("
+          },
+          {
+            "line": 509,
+            "text": "        receipt: Any, event_id: str, payload_digest: str, key: str, event: LLMProducerEvent"
+          },
+          {
+            "line": 523,
+            "text": "        self, event: LLMProducerEvent, *, retry_missing: bool = False"
+          },
+          {
+            "line": 524,
+            "text": "    ) -> LLMSettlementAck:"
+          },
+          {
+            "line": 551,
+            "text": "                return LLMSettlementAck(event.event_id, event.payload_digest, \"unknown\")"
+          },
+          {
+            "line": 561,
+            "text": "        return LLMSettlementAck("
+          },
+          {
+            "line": 598,
+            "text": "        def settle(event: LLMProducerEvent, response: Any) -> LLMSettlementAck:"
+          },
+          {
+            "line": 605,
+            "text": "            with _settlement_owner_context(self._accounting_scope(run_id), settle):"
+          },
+          {
+            "line": 612,
+            "text": "                    event = LLMProducerEvent("
+          },
+          {
+            "line": 639,
+            "text": "        def settle(event: LLMProducerEvent, response: Any) -> LLMSettlementAck:"
+          },
+          {
+            "line": 647,
+            "text": "            with _settlement_owner_context(self._accounting_scope(run_id), settle):"
+          },
+          {
+            "line": 651,
+            "text": "                    event = LLMProducerEvent("
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+        "matches": [
+          {
+            "line": 19,
+            "text": "    LLMProducerSettlement,"
+          },
+          {
+            "line": 20,
+            "text": "    LLMSettledResponse,"
+          },
+          {
+            "line": 25,
+            "text": "    producer_settlement,"
+          },
+          {
+            "line": 149,
+            "text": "    def __init__(self, response: GatewayLLMResponse, settlement: LLMProducerSettlement) -> None:"
+          },
+          {
+            "line": 184,
+            "text": "    settlement: LLMProducerSettlement | None = None"
+          },
+          {
+            "line": 215,
+            "text": "        self._polisyos_settlement = producer_settlement(response)"
+          },
+          {
+            "line": 965,
+            "text": "        settlement=producer_settlement(response),"
+          }
+        ]
+      }
+    ],
+    "gateway_numeric_reader": [
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+        "matches": [
+          {
+            "line": 587,
+            "text": "        if usage.total_tokens <= 0:"
+          },
+          {
+            "line": 588,
+            "text": "            usage.total_tokens = usage.prompt_tokens + usage.completion_tokens"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+        "matches": [
+          {
+            "line": 956,
+            "text": "        usage_prompt_tokens=response.usage.prompt_tokens,"
+          },
+          {
+            "line": 957,
+            "text": "        usage_completion_tokens=response.usage.completion_tokens,"
+          },
+          {
+            "line": 958,
+            "text": "        usage_total_tokens=response.usage.total_tokens,"
+          },
+          {
+            "line": 959,
+            "text": "        usage_cost_usd=response.usage.cost_usd,"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/provider_verification.py",
+        "matches": [
+          {
+            "line": 849,
+            "text": "            \"usage_total_tokens\": response.usage.total_tokens,"
+          }
+        ]
+      }
+    ],
+    "factory_budget_composition": [
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+        "matches": [
+          {
+            "line": 79,
+            "text": "from polisyos.scientist.orchestration.llm.factory import create_traced_gateway_client"
+          },
+          {
+            "line": 315,
+            "text": "        client = create_traced_gateway_client(model_name=model_name)"
+          },
+          {
+            "line": 4991,
+            "text": "                    llm_client = create_traced_gateway_client("
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/design_generation.py",
+        "matches": [
+          {
+            "line": 1294,
+            "text": "        from polisyos.scientist.orchestration.llm.factory import create_traced_gateway_client"
+          },
+          {
+            "line": 1296,
+            "text": "        owned_llm_client = create_traced_gateway_client("
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py",
+        "matches": [
+          {
+            "line": 71,
+            "text": "    create_traced_gateway_client,"
+          },
+          {
+            "line": 2000,
+            "text": "        client = create_traced_gateway_client("
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/README.md",
+        "matches": [
+          {
+            "line": 36,
+            "text": "  `create_traced_gateway_client`, and tool-contract summary helpers"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/__init__.py",
+        "matches": [
+          {
+            "line": 47,
+            "text": "    \"create_traced_gateway_client\","
+          },
+          {
+            "line": 155,
+            "text": "    \"create_traced_gateway_client\": ("
+          },
+          {
+            "line": 157,
+            "text": "        \"create_traced_gateway_client\","
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/discovery/workers/__init__.py",
+        "matches": [
+          {
+            "line": 20,
+            "text": "from polisyos.scientist.orchestration.llm.factory import create_traced_gateway_client"
+          },
+          {
+            "line": 358,
+            "text": "        client = create_traced_gateway_client("
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/README.md",
+        "matches": [
+          {
+            "line": 19,
+            "text": "- **Settlement owner** \u2014 `LLMBudgetEnforcer` can compose the actual initialized budget middleware;"
+          },
+          {
+            "line": 22,
+            "text": "- **Reuse owner** \u2014 `create_traced_gateway_client(cache_reuse_authorizer=...)` accepts an internal"
+          },
+          {
+            "line": 33,
+            "text": "The factory explicitly binds the actual `CachingLLMClient` emitter to its traced receiver."
+          },
+          {
+            "line": 56,
+            "text": "- `create_traced_gateway_client(...)`"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/__init__.py",
+        "matches": [
+          {
+            "line": 20,
+            "text": "    \"create_traced_gateway_client\","
+          },
+          {
+            "line": 31,
+            "text": "    \"create_traced_gateway_client\": ("
+          },
+          {
+            "line": 33,
+            "text": "        \"create_traced_gateway_client\","
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+        "matches": [
+          {
+            "line": 68,
+            "text": "class LLMBudgetEnforcer:"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/cost_anomaly.py",
+        "matches": [
+          {
+            "line": 17,
+            "text": "    if used from multiple threads (the ``LLMBudgetEnforcer`` already does)."
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+        "matches": [
+          {
+            "line": 15,
+            "text": "from .prompt_cache import CacheReuseAuthorizer, CachingLLMClient, InMemoryPromptCache"
+          },
+          {
+            "line": 148,
+            "text": "def create_traced_gateway_client("
+          },
+          {
+            "line": 156,
+            "text": "    cache_reuse_authorizer: CacheReuseAuthorizer | None = None,"
+          },
+          {
+            "line": 232,
+            "text": "        raw_client = CachingLLMClient("
+          },
+          {
+            "line": 265,
+            "text": "    \"create_traced_gateway_client\","
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+        "matches": [
+          {
+            "line": 136,
+            "text": "class CacheReuseAuthorizer(Protocol):"
+          },
+          {
+            "line": 392,
+            "text": "class CachingLLMClient:"
+          },
+          {
+            "line": 403,
+            "text": "        reuse_authorizer: CacheReuseAuthorizer | None = None,"
+          },
+          {
+            "line": 1057,
+            "text": "    \"CachingLLMClient\","
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/policy_design/adversary.py",
+        "matches": [
+          {
+            "line": 29,
+            "text": "from polisyos.scientist.orchestration.llm.budget_enforcer import LLMBudgetEnforcer"
+          },
+          {
+            "line": 30,
+            "text": "from polisyos.scientist.orchestration.llm.factory import create_traced_gateway_client"
+          },
+          {
+            "line": 117,
+            "text": "        client = create_traced_gateway_client("
+          },
+          {
+            "line": 127,
+            "text": "            llm_client = LLMBudgetEnforcer("
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/policy_design/search.py",
+        "matches": [
+          {
+            "line": 34,
+            "text": "from polisyos.scientist.orchestration.llm.factory import create_traced_gateway_client"
+          },
+          {
+            "line": 766,
+            "text": "        client = create_traced_gateway_client("
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/policy_design/translator.py",
+        "matches": [
+          {
+            "line": 15,
+            "text": "from polisyos.scientist.orchestration.llm.budget_enforcer import LLMBudgetEnforcer"
+          },
+          {
+            "line": 16,
+            "text": "from polisyos.scientist.orchestration.llm.factory import create_traced_gateway_client"
+          },
+          {
+            "line": 189,
+            "text": "        client = create_traced_gateway_client("
+          },
+          {
+            "line": 199,
+            "text": "            llm_client = LLMBudgetEnforcer("
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/validation/citation_faithfulness.py",
+        "matches": [
+          {
+            "line": 760,
+            "text": "    client = module.create_traced_gateway_client("
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/validation/policy_verified/service.py",
+        "matches": [
+          {
+            "line": 44,
+            "text": "from polisyos.scientist.orchestration.llm.factory import create_traced_gateway_client"
+          },
+          {
+            "line": 938,
+            "text": "    client = create_traced_gateway_client("
+          }
+        ]
+      }
+    ]
+  },
+  "unresolved_by_construction": [
+    "Runtime/dynamic imports or callable aliases lacking these literal names",
+    "External SDK/package versions, nontracked production data/resources and network responses",
+    "Arbitrary serialized downstream consumers with renamed fields",
+    "Native/billing/authority behavior not established by a source census"
+  ]
+}

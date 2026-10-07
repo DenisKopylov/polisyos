@@ -1,0 +1,170 @@
+{
+  "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+  "source_tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+  "input_refs": [
+    {
+      "source_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-evidence/launcher.py",
+      "git_blob": "8a4007a95666c01058f8f4d17c39921c617e18df",
+      "bytes": 10704,
+      "sha256": "cba1f7aa1e664bd81118928db08aeca59b2067bd3eced377ceed85f775bfdedb"
+    },
+    {
+      "source_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/tests/unit/common/test_async_tools_installed_wheel.py",
+      "git_blob": "7c8835f08c9d837e10af0274b3cf306b58acde94",
+      "bytes": 4870,
+      "sha256": "eb24cd99386a0856f5d6f7639c751bd6b019b6dfdf0be605d64caeeb64a51702"
+    },
+    {
+      "source_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py",
+      "git_blob": "a6c8303367b5caeca25629df9ba1eca714e31cd9",
+      "bytes": 9973,
+      "sha256": "9c2dccab7a3d22313f96eea4131062c16d2008c7b5a9bfdf716003ac2eb86b09"
+    },
+    {
+      "source_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/pyproject.toml",
+      "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "bytes": 11007,
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+    },
+    {
+      "source_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/uv.lock",
+      "git_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+      "bytes": 779204,
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+    },
+    {
+      "source_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md",
+      "git_blob": "5ca4f7fed545c21ec7b7024e4e714f5759bf0cf4",
+      "bytes": 29421,
+      "sha256": "269282c72a89487148840df41204b4fb58cef3d8f030035be2a0e579db20b674"
+    },
+    {
+      "source_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "git_blob": "cad358a5161df08d72388d3eb5c58897645360cc",
+      "bytes": 6843,
+      "sha256": "fb8d1b841d24e9069f7618ab08bee23b5f20fb1027f32a4ce8ed3d7e662a1f83"
+    },
+    {
+      "source_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv",
+      "git_blob": "51c6234d89edf66d0a88025572b24960fce0c22d",
+      "bytes": 451094,
+      "sha256": "afbf14fc428d89e20e409cd7f18db0a52bf17e2c0ecde1a2a5e33626c8b49152"
+    },
+    {
+      "source_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/docs/research/e02-cloud-test-plan/results/routes.tsv",
+      "git_blob": "484108de4691f41cfac81996eeff477607774c05",
+      "bytes": 280085,
+      "sha256": "30755ddca05267c4aeec56154c1c9282ee985c3414b76991aecb99d0ecf59da2"
+    },
+    {
+      "source_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/docs/research/e02-cloud-test-plan/results/sources.json",
+      "git_blob": "442112929b6a6a21f6a7f59ab2a92f6f7b864b4c",
+      "bytes": 4860,
+      "sha256": "a08b728541bf0c424e985969760131e553873c3be91aa9b4d6e96a50e9556edb"
+    },
+    {
+      "source_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/docs/research/e02-cloud-test-plan/results/received/F01.txt",
+      "git_blob": "91bab31f4be2a0fa343856f67331d254715d6a5d",
+      "bytes": 71251,
+      "sha256": "5a03f8140481ae37cf16f656c1fbd3bef67a5daa38c7aa2dcd1c890e8dac75c9"
+    },
+    {
+      "source_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt",
+      "git_blob": "ef0d25ff4e71483e861eefece0a9e458bf2ec4dd",
+      "bytes": 75761,
+      "sha256": "1b8651ca7b9d22a8cc16792af8ec9f8b89ea03f5dbc77fc3125b6d19288d6318"
+    },
+    {
+      "source_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/docs/research/e02-cloud-test-plan/results/received/F05.txt",
+      "git_blob": "5acaae596fd294bfbaff15dea1b965e0e8432090",
+      "bytes": 97032,
+      "sha256": "2fa0d29a606a093f4ac1c1a7860bd1c37fc11a6371df51bc012feb2b72af5db0"
+    },
+    {
+      "source_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/docs/research/e02-cloud-test-plan/results/received/F06.txt",
+      "git_blob": "a07cf684bf09389c5ff8ec3372be80e6d458f063",
+      "bytes": 99912,
+      "sha256": "b2e2bac4bbb9f2c89d0fe2ef5ad462fb2238833a9f64486383e07d135f4c4a3f"
+    },
+    {
+      "source_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/docs/research/e02-cloud-test-plan/results/received/F09.txt",
+      "git_blob": "33829d04c5388789d71dfae9dba220e2f910a306",
+      "bytes": 75983,
+      "sha256": "0bd494ff47e618125b8fec7074f76e3c4375da60b0bc2a0fe8860f885ece88ff"
+    },
+    {
+      "source_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/docs/research/e02-cloud-test-plan/results/received/F10.txt",
+      "git_blob": "04b66d22367fa715b8a1a841ff0ba3200933903f",
+      "bytes": 71852,
+      "sha256": "c45428c7e6574666b0a5ef98ba0427e3137c7008046fad65d4ed4dc55620fe36"
+    },
+    {
+      "source_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/docs/research/e02-cloud-test-plan/results/received/F15.txt",
+      "git_blob": "624de4940a02df0cb578256240d1f00de9129574",
+      "bytes": 85661,
+      "sha256": "efe346d9094f0906bb23b1061cb51b9252afd299f85062591e13449616879169"
+    }
+  ],
+  "toolchain": [
+    {
+      "lexical_path": "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "resolved_path": "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/bin/python3.14",
+      "bytes": 29992840,
+      "sha256": "010d370720b52e3ad79b21a079be6a10ea848acfc460552aaf3d36334980129f",
+      "basis": "Actual supplied toolchain, no Git executable-origin assertion"
+    },
+    {
+      "lexical_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+      "resolved_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+      "bytes": 55184128,
+      "sha256": "53d4952a603676225cf4c19899b8f23d8d5e20f1d052e7b25b1cc2209e15deb0",
+      "basis": "Actual supplied toolchain, no Git executable-origin assertion"
+    }
+  ],
+  "build_environment": {
+    "distributions": {
+      "hatchling": "1.27.0",
+      "packaging": "26.3",
+      "pathspec": "1.1.1",
+      "pluggy": "1.6.0",
+      "trove-classifiers": "2026.9.21.13"
+    },
+    "python": "/tmp/e02-B-la057-final-1862c021df74-run/build-env/bin/python",
+    "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"
+  },
+  "consumer_environment": {
+    "distributions": {
+      "Pygments": "2.19.2",
+      "iniconfig": "2.3.0",
+      "packaging": "25.0",
+      "pluggy": "1.6.0",
+      "policy-engine": "0.1.0",
+      "pytest": "9.0.2"
+    },
+    "python": "/tmp/e02-B-la057-final-1862c021df74-run/installed-env/bin/python",
+    "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"
+  },
+  "isolation": "Launcher removes PYTHONPATH/PYTHONHOME/VIRTUAL_ENV/PYTEST_ADDOPTS/PYTEST_PLUGINS, child Python-I-B, no conftest, importlib, devnull ini, disabled plugin autoload",
+  "wheel_identity": {
+    "path": "/tmp/e02-B-la057-final-1862c021df74-run/wheels/policy_engine-0.1.0-py3-none-any.whl",
+    "bytes": 15114486,
+    "sha256": "a9b7d921724a176b725222ca609f93d241fc83c244ec8aba996a3b0588912449",
+    "availability": "Large realwheel remainslocal; G availability not_established until exactartifact transfer/rebuild"
+  },
+  "retained_task_root": "/tmp/e02-B-la057-final-1862c021df74-run",
+  "seven_field_profile": {
+    "E02_LA057_WHEEL_PATH": "/tmp/e02-B-la057-final-1862c021df74-run/wheels/policy_engine-0.1.0-py3-none-any.whl",
+    "E02_LA057_INSTALLED_SITE": "/tmp/e02-B-la057-final-1862c021df74-run/installed-env/lib/python3.14/site-packages",
+    "E02_LA057_SOURCE_ROOT": "/workspace/e02-B-current-coordination/policy-engine",
+    "E02_LA057_SOURCE_SHA": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+    "E02_LA057_INSTALLED_PYTHON": "/tmp/e02-B-la057-final-1862c021df74-run/installed-env/bin/python",
+    "E02_LA057_CONSUMER_SHA256": "9c2dccab7a3d22313f96eea4131062c16d2008c7b5a9bfdf716003ac2eb86b09",
+    "E02_LA057_OUTER_TEST_SHA256": "eb24cd99386a0856f5d6f7639c751bd6b019b6dfdf0be605d64caeeb64a51702"
+  },
+  "no_numeric_caps": "No task-created process/thread quotas or pytest selection filters; complete independent8-case file executes",
+  "limitations": [
+    "Build transitive dependency versions actually observed, not all independently pinned; exact future wheel reproducibility not claimed",
+    "Complete actual3-module identities, not all wheel source/files",
+    "Root wholecohort+quality required gates separate; no exit-only finding closure"
+  ]
+}

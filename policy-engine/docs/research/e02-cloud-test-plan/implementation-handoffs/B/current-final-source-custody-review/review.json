@@ -1,0 +1,74 @@
+{
+  "schema": "policyos.e02.final_source_custody_review.v1",
+  "predicate_basis": "independently_reconciled",
+  "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+  "source_tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+  "source_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "verdict": "NONBLOCKING within declared source/metadata custody; historical and receiver-availability limits explicit",
+  "full_changed_tracked_paths": 3332,
+  "full_changed_categories": {
+    "architecture_contract_or_generated": 1,
+    "nonresearch_documentation": 1,
+    "research_evidence_or_handoff": 3144,
+    "release_fragment": 32,
+    "generated_schema": 1,
+    "product_companion": 13,
+    "product_python": 54,
+    "product_stub": 4,
+    "native_test_module": 74,
+    "native_test_helper": 5,
+    "native_test_fixture_or_companion": 1,
+    "tool_or_generator": 2
+  },
+  "full_changed_candidate_blob_bytes": 78883194,
+  "published198_base_ancestor": true,
+  "forbidden_a3_ancestor": false,
+  "protected_A_C_exact_bytes_equal": 5,
+  "canonical_source_family_mapping": {
+    "54production_py_4stub_paths": 58,
+    "all_one_declared_canonical_nonroot_family": true,
+    "unmapped_source_commits": 0,
+    "family_counts": {
+      "codex/e02-B-current-runtime": 2,
+      "codex/e02-B-current-cas-generation": 11,
+      "codex/e02-B-current-execution-state": 8,
+      "codex/e02-B-current-adapters": 16,
+      "codex/e02-B-current-composition": 18,
+      "codex/e02-B-current-durability": 3
+    },
+    "qualification": "Declared canonical mechanism family + complete Git history correspondence, not independent historical editor/lease proof."
+  },
+  "nonresearch_companion_test_tool_release_custody": {
+    "all_paths": 188,
+    "shared_nonroot_role_rows": 0,
+    "initial_unmapped_test_doc_roles": "8ROOT independent commits now session-qualified consumer_asserted; no production edits in those commits"
+  },
+  "mandatory_current_packets": {
+    "selected_count": 21,
+    "field_enum_defects": 0,
+    "full_scope_list": "active-receipts.json",
+    "all139canonical_records": "44historicshape defects retained, no acceptance waiver"
+  },
+  "evidence_graph": {
+    "explicit_unique_git_objects": 968,
+    "full_bytes": 20061166,
+    "recursive_indices": 7,
+    "hash_or_byte_mismatches": 0,
+    "unavailable_Git_refs": 0,
+    "named_unresolved_availability_rows": 61
+  },
+  "companion_quantities": {
+    "new_product_modules": 4,
+    "nearest_parent_README_updates": 4,
+    "operator_compatibility_release_fragments": 32,
+    "all_declared_refs_exist": true,
+    "actual_four_stub_generator_config_b7_to_final_bytes_equal": true,
+    "actual_fresh_generated_OpenAPI597_to_final_bytes_equal": true,
+    "new_registered_family": "foundry-method-type-stubs",
+    "old110families_plus4criticaldefaults_unchanged": true,
+    "changed_unlisted_facades_internal_by_default": 4
+  },
+  "retained_red_provenance": "P41 inheritance NOT_ESTABLISHED here: no native/gate replay or zero complete input-intersection proof. Final candidate source intersects required gate inputs.",
+  "mandatory_caveat": "A/C protected bytes unchanged does not prove their runtime consumers accept current B admission contracts. B148 law remains held; B154 signature all-confirmations A consumer remains missing until actual owner integration; final ROOT/G all60 decisions remain separate.",
+  "next_owner": "ROOT completed final source/native/gate evidence and DUR/G canonical all60 adjudication. Metadata publication must not move ROOT HEAD during frozen waves."
+}

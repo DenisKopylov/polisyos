@@ -1,0 +1,108 @@
+........................................................................ [ 21%]
+........................................................................ [ 42%]
+................................................F....................... [ 63%]
+........................................................................ [ 84%]
+......................................................                   [100%]
+=================================== FAILURES ===================================
+______ test_single_flight_retries_when_invalidation_wins_result_delivery _______
+
+scalar_slots = (SlotSpec(name='value', slot_type=<SlotType.SCALAR: 1>, unit=Unit('value', 'unit'), contract_id=None, shape=(), descri...ntract_id=None, shape=(), description='', bounds=(None, None), contract_capabilities=frozenset(), contract_owner=None))
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f5168234e50>
+
+    def test_single_flight_retries_when_invalidation_wins_result_delivery(
+        scalar_slots,
+        monkeypatch,
+    ):
+        value_slot, result_slot = scalar_slots
+    
+        def pure_step(state: ScalarState, params: Mapping[str, Any]) -> ScalarState:
+            return state._replace(result=state.value * params["coefficient"])
+    
+        method = _method(
+            name="invalidation_race_scale",
+            namespace="jit01",
+            input_slots=frozenset({value_slot}),
+            output_slots=frozenset({result_slot}),
+            parameters=(ParameterSpec("coefficient", default=2.0, is_static=False),),
+            pure_step=pure_step,
+        )
+        registry = MethodRegistry.get_instance()
+        registry.register(method)
+    
+        cache = CompilationCache()
+        first_compile_started = threading.Event()
+        release_compile = threading.Event()
+        publication_ready = threading.Event()
+        release_publication = threading.Event()
+        follower_wait_entered = threading.Event()
+        release_follower = threading.Event()
+        publish_calls = 0
+        calls = 0
+    
+        class CountingCompiler(MethodCompiler):
+            def _compile_method(self, *args, **kwargs):
+                nonlocal calls
+                calls += 1
+                if calls == 1:
+                    first_compile_started.set()
+                    assert release_compile.wait(timeout=2)
+                return super()._compile_method(*args, **kwargs)
+    
+        compiler_a = CountingCompiler(registry=registry, cache=cache)
+        compiler_b = CountingCompiler(registry=registry, cache=cache)
+        original_publish = cache.publish_flight
+        original_wait = compiler_module._wait_for_flight
+        wait_calls = 0
+    
+        def gated_publish(*args, **kwargs):
+            nonlocal publish_calls
+            publish_calls += 1
+            if publish_calls == 1:
+                published = original_publish(*args, **kwargs)
+                publication_ready.set()
+                assert release_publication.wait(timeout=2)
+                return published
+            return original_publish(*args, **kwargs)
+    
+        def gated_wait(*args, **kwargs):
+            nonlocal wait_calls
+            result = original_wait(*args, **kwargs)
+            wait_calls += 1
+            if wait_calls == 1:
+                follower_wait_entered.set()
+                assert release_follower.wait(timeout=2)
+            return result
+    
+        cache.publish_flight = gated_publish
+        monkeypatch.setattr(compiler_module, "_wait_for_flight", gated_wait)
+        state = ScalarState(value=jnp.asarray(10.0), result=jnp.asarray(0.0))
+    
+        with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+            leader = executor.submit(
+                compiler_a.compile,
+                method_name="jit01.invalidation_race_scale@1.0.0",
+                params={"coefficient": 2.0},
+                sample_inputs={"value": state.value},
+                jit=False,
+            )
+            assert first_compile_started.wait(timeout=2)
+            follower = executor.submit(
+                compiler_b.compile,
+                method_name="jit01.invalidation_race_scale@1.0.0",
+                params={"coefficient": 2.0},
+                sample_inputs={"value": state.value},
+                jit=False,
+            )
+            release_compile.set()
+            assert publication_ready.wait(timeout=2)
+>           assert follower_wait_entered.wait(timeout=2)
+E           assert False
+E            +  where False = wait(timeout=2)
+E            +    where wait = <threading.Event at 0x7f5168245730: unset>.wait
+
+tests/unit/remediation/test_jit_01.py:523: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 12:48:49 [info     ] method_registered              backend=jax fqn=jit01.invalidation_race_scale@1.0.0 lazy=False namespace=jit01 override=False tags=['test'] version=1.0.0
+=========================== short test summary info ============================
+FAILED tests/unit/remediation/test_jit_01.py::test_single_flight_retries_when_invalidation_wins_result_delivery
+1 failed, 341 passed in 29.33s

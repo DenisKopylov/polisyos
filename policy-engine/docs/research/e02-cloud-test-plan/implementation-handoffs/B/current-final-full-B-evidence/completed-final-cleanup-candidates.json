@@ -1,0 +1,187 @@
+{
+  "schema": "policyos.e02.cleanup_candidates.v1",
+  "native_trash": {
+    "gio": null,
+    "trash_put": null,
+    "trash": null,
+    "desktop_trash_directory_exists": false
+  },
+  "performed_deletion_or_move": false,
+  "candidates": [
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+      "kind": "used_environment",
+      "action": "PRESERVED; candidate only, no native Trash",
+      "precondition": "All consumers finished, no live owned process, deciding/unique bytes retained outside candidate. This list alone never authorizes permanent deletion."
+    },
+    {
+      "path": "/tmp/e02-B38-pg-profile",
+      "kind": "used_environment",
+      "action": "PRESERVED; candidate only, no native Trash",
+      "precondition": "All consumers finished, no live owned process, deciding/unique bytes retained outside candidate. This list alone never authorizes permanent deletion."
+    },
+    {
+      "path": "/tmp/e02-B-la057-final-1862c021df74-run/installed-env",
+      "kind": "used_environment",
+      "action": "PRESERVED; candidate only, no native Trash",
+      "precondition": "All consumers finished, no live owned process, deciding/unique bytes retained outside candidate. This list alone never authorizes permanent deletion."
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-cas-pytest",
+      "kind": "repeatable_test_fixtures",
+      "action": "PRESERVED; candidate only, no native Trash",
+      "precondition": "All consumers finished, no live owned process, deciding/unique bytes retained outside candidate. This list alone never authorizes permanent deletion."
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-cmp-pytest",
+      "kind": "repeatable_test_fixtures",
+      "action": "PRESERVED; candidate only, no native Trash",
+      "precondition": "All consumers finished, no live owned process, deciding/unique bytes retained outside candidate. This list alone never authorizes permanent deletion."
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-dur-pytest",
+      "kind": "repeatable_test_fixtures",
+      "action": "PRESERVED; candidate only, no native Trash",
+      "precondition": "All consumers finished, no live owned process, deciding/unique bytes retained outside candidate. This list alone never authorizes permanent deletion."
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-net-wire-pytest",
+      "kind": "repeatable_test_fixtures",
+      "action": "PRESERVED; candidate only, no native Trash",
+      "precondition": "All consumers finished, no live owned process, deciding/unique bytes retained outside candidate. This list alone never authorizes permanent deletion."
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-run-pytest",
+      "kind": "repeatable_test_fixtures",
+      "action": "PRESERVED; candidate only, no native Trash",
+      "precondition": "All consumers finished, no live owned process, deciding/unique bytes retained outside candidate. This list alone never authorizes permanent deletion."
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current610-cas-import-closure-pytest",
+      "kind": "repeatable_test_fixtures",
+      "action": "PRESERVED; candidate only, no native Trash",
+      "precondition": "All consumers finished, no live owned process, deciding/unique bytes retained outside candidate. This list alone never authorizes permanent deletion."
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current610-exe-pytest",
+      "kind": "repeatable_test_fixtures",
+      "action": "PRESERVED; candidate only, no native Trash",
+      "precondition": "All consumers finished, no live owned process, deciding/unique bytes retained outside candidate. This list alone never authorizes permanent deletion."
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current610-run-pytest",
+      "kind": "repeatable_test_fixtures",
+      "action": "PRESERVED; candidate only, no native Trash",
+      "precondition": "All consumers finished, no live owned process, deciding/unique bytes retained outside candidate. This list alone never authorizes permanent deletion."
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current64-cas-pytest",
+      "kind": "repeatable_test_fixtures",
+      "action": "PRESERVED; candidate only, no native Trash",
+      "precondition": "All consumers finished, no live owned process, deciding/unique bytes retained outside candidate. This list alone never authorizes permanent deletion."
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current64-resume-pytest",
+      "kind": "repeatable_test_fixtures",
+      "action": "PRESERVED; candidate only, no native Trash",
+      "precondition": "All consumers finished, no live owned process, deciding/unique bytes retained outside candidate. This list alone never authorizes permanent deletion."
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current81-dur-pytest",
+      "kind": "repeatable_test_fixtures",
+      "action": "PRESERVED; candidate only, no native Trash",
+      "precondition": "All consumers finished, no live owned process, deciding/unique bytes retained outside candidate. This list alone never authorizes permanent deletion."
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current933-adapters-pytest",
+      "kind": "repeatable_test_fixtures",
+      "action": "PRESERVED; candidate only, no native Trash",
+      "precondition": "All consumers finished, no live owned process, deciding/unique bytes retained outside candidate. This list alone never authorizes permanent deletion."
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current933-runtime-pytest",
+      "kind": "repeatable_test_fixtures",
+      "action": "PRESERVED; candidate only, no native Trash",
+      "precondition": "All consumers finished, no live owned process, deciding/unique bytes retained outside candidate. This list alone never authorizes permanent deletion."
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/currenta4-cas-batch-pytest",
+      "kind": "repeatable_test_fixtures",
+      "action": "PRESERVED; candidate only, no native Trash",
+      "precondition": "All consumers finished, no live owned process, deciding/unique bytes retained outside candidate. This list alone never authorizes permanent deletion."
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/currenta6-adapters-full15-pytest",
+      "kind": "repeatable_test_fixtures",
+      "action": "PRESERVED; candidate only, no native Trash",
+      "precondition": "All consumers finished, no live owned process, deciding/unique bytes retained outside candidate. This list alone never authorizes permanent deletion."
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/currentb72-cmp-pytest",
+      "kind": "repeatable_test_fixtures",
+      "action": "PRESERVED; candidate only, no native Trash",
+      "precondition": "All consumers finished, no live owned process, deciding/unique bytes retained outside candidate. This list alone never authorizes permanent deletion."
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/currentf0-cas-snapshot-pytest",
+      "kind": "repeatable_test_fixtures",
+      "action": "PRESERVED; candidate only, no native Trash",
+      "precondition": "All consumers finished, no live owned process, deciding/unique bytes retained outside candidate. This list alone never authorizes permanent deletion."
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/currentf0-exe-pytest",
+      "kind": "repeatable_test_fixtures",
+      "action": "PRESERVED; candidate only, no native Trash",
+      "precondition": "All consumers finished, no live owned process, deciding/unique bytes retained outside candidate. This list alone never authorizes permanent deletion."
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest",
+      "kind": "repeatable_test_fixtures",
+      "action": "PRESERVED; candidate only, no native Trash",
+      "precondition": "All consumers finished, no live owned process, deciding/unique bytes retained outside candidate. This list alone never authorizes permanent deletion."
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/pool-stream-final-pytest",
+      "kind": "repeatable_test_fixtures",
+      "action": "PRESERVED; candidate only, no native Trash",
+      "precondition": "All consumers finished, no live owned process, deciding/unique bytes retained outside candidate. This list alone never authorizes permanent deletion."
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/pool-stream-first-pytest",
+      "kind": "repeatable_test_fixtures",
+      "action": "PRESERVED; candidate only, no native Trash",
+      "precondition": "All consumers finished, no live owned process, deciding/unique bytes retained outside candidate. This list alone never authorizes permanent deletion."
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest",
+      "kind": "repeatable_test_fixtures",
+      "action": "PRESERVED; candidate only, no native Trash",
+      "precondition": "All consumers finished, no live owned process, deciding/unique bytes retained outside candidate. This list alone never authorizes permanent deletion."
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest",
+      "kind": "repeatable_test_fixtures",
+      "action": "PRESERVED; candidate only, no native Trash",
+      "precondition": "All consumers finished, no live owned process, deciding/unique bytes retained outside candidate. This list alone never authorizes permanent deletion."
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-affected-1862c021df74-bound/pytest",
+      "kind": "repeatable_test_fixtures",
+      "action": "PRESERVED; candidate only, no native Trash",
+      "precondition": "All consumers finished, no live owned process, deciding/unique bytes retained outside candidate. This list alone never authorizes permanent deletion."
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/affected-10e-20261006/fixtures",
+      "kind": "repeatable_test_fixtures",
+      "action": "PRESERVED; candidate only, no native Trash",
+      "precondition": "All consumers finished, no live owned process, deciding/unique bytes retained outside candidate. This list alone never authorizes permanent deletion."
+    }
+  ],
+  "explicit_preservation": [
+    "All registered worktrees/topic code and useful documentation; no worktree removal/prune/reset/rewrite.",
+    "All unique raw observations, deciding logs/inventories/lineage/module origins not fully retained in Git.",
+    "/tmp/e02-B38-pg-evidence including native-data-v2/secret DSN and the preserved OCI image. Task-owned postmaster already received guarded graceful SIGTERM only.",
+    "All production data, caches shared by other tasks, and data not proved repeatable."
+  ],
+  "next_owner": "G or human with native Trash may move only independently confirmed finished/repeatable candidates after evidence custody; do not empty Trash."
+}

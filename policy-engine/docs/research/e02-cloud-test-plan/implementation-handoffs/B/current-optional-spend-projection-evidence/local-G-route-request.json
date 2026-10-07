@@ -1,0 +1,20 @@
+{
+  "request": "Compare policy model variants for MSME support under an explicit run spend ceiling.",
+  "context": {},
+  "domain_hint": "Ukraine wartime MSME support policy",
+  "data_source": null,
+  "max_iterations": 1,
+  "llm_models": [
+    "gpt-4o",
+    "gpt-4o-mini"
+  ],
+  "max_parallel_models": 1,
+  "run_budget_usd": 0.01,
+  "per_model_budget_usd": null,
+  "checkpoint_policy": "strict",
+  "execution_plan_ref": null,
+  "execution_plan": null,
+  "stop_criteria": {},
+  "governance_constraints": [],
+  "expected_outputs": []
+}

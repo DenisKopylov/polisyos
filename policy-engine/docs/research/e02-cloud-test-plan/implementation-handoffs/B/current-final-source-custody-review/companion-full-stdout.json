@@ -1,0 +1,94 @@
+{
+  "schema": "policyos.e02.final_companion_custody.v1",
+  "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+  "source_tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+  "published_base_is_ancestor": true,
+  "root_live_head_after_metadata": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+  "exact_runtime_source_unchanged_by_review": true,
+  "selected_nonresearch_nonruntime_path_count": 188,
+  "family_role_path_counts": {
+    "codex/e02-B-current-cas-generation": 33,
+    "codex/e02-B-current-durability": 19,
+    "codex/e02-B-current-composition": 42,
+    "codex/e02-B-current-adapters": 42,
+    "codex/e02-B-current-execution-state": 30,
+    "codex/e02-B-current-runtime": 12
+  },
+  "shared_nonroot_role_rows": [],
+  "unmapped_commit_rows": [
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/README.md",
+      "unmapped_commits": [
+        "75c4ae0a0019e75d8c30781167390409c9a9a49b"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
+      "unmapped_commits": [
+        "75c4ae0a0019e75d8c30781167390409c9a9a49b"
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/common/test_async_tools_installed_wheel.py",
+      "unmapped_commits": [
+        "9826acc52c06030ac1c4f054a8516b7b3d2a7b62"
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/components/test_composition_e02.py",
+      "unmapped_commits": [
+        "61528a96e81083e830107f099c97df4c96c6b48e",
+        "59468d2245b700322a0c1a00e2dd8de5d55b64f8"
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py",
+      "unmapped_commits": [
+        "5962d432ca3d9f9784205e2052bfdea4c601f9d5",
+        "e6036b71b6d1af2f5805b50e578db6bd3384d78a"
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_native_execution_admission.py",
+      "unmapped_commits": [
+        "9bc6ce56f18ad4f4cdab1e92b3f020f116600b64",
+        "c83a3b97bc7a33a9312c69e0547c0bb1dc883ec1"
+      ]
+    }
+  ],
+  "source_with_nearest_readme_missing": [],
+  "source_with_nearest_readme_unchanged": [
+    "policy-engine/src/polisyos/core/components/_cli_crypto.py",
+    "policy-engine/src/polisyos/foundry/methods/backends/__init__.py",
+    "policy-engine/src/polisyos/foundry/methods/backends/async_chain_executor.py",
+    "policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py",
+    "policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py",
+    "policy-engine/src/polisyos/foundry/methods/base.pyi",
+    "policy-engine/src/polisyos/foundry/methods/composer.pyi",
+    "policy-engine/src/polisyos/foundry/methods/exceptions.py",
+    "policy-engine/src/polisyos/foundry/methods/registry.pyi"
+  ],
+  "instructions_bound": [
+    {
+      "path": "AGENTS.md",
+      "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "bytes": 22656,
+      "sha256": "35b1e1bf610b8a19b417cb35d6f0c7afca341c4c8c9bbc1574400c38f24b7d50"
+    },
+    {
+      "path": "policy-engine/CONTRIBUTING.md",
+      "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "bytes": 10553,
+      "sha256": "1c9ea84e5fa0d8f05517287523d47d71128742ad02a5d20ce326163d21754783"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md",
+      "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "bytes": 20260,
+      "sha256": "8519f95eb0ff2ec2c64caa4497eb58b957fe7cd47a0a6955bad98a2c20795d3b"
+    }
+  ],
+  "final4stubs_generator_config_exact_b7_bytes": true,
+  "finalOpenAPI_exact597_produced_bytes": true,
+  "qualification": "Commit/declared-family data correspondence, not historical operational editor/lease/precreation proof. Source author does not accept own CAS implementation. Shared or unmapped roles require exact-source reconciliation, not guessed permission."
+}

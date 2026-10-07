@@ -1,0 +1,42 @@
+"""Extend immutable final custody to test/helper/tool/release companions; no product imports."""
+import collections,hashlib,importlib.util,json,subprocess
+from pathlib import Path
+ROOT=Path('/workspace/e02-B-current-cas-generation');SOURCE='1862c021df74a5c5815bc5cd21a20e61b30132b6';BASE='198076863e143dea9f89f02734b13d50dae3eed5';B='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/'
+spec=importlib.util.spec_from_file_location('custody',ROOT/'.polisyos/source-custody-audit/driver.py');module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+full=module.tree(SOURCE);changed=module.text('diff','--name-only','--no-renames',BASE,SOURCE).splitlines();roles=collections.defaultdict(set)
+for p in full:
+ if p.startswith(B) and '/' not in p[len(B):] and p.endswith('.json'):
+  d=json.loads(module.blob(SOURCE,p))
+  if d.get('schema')=='policyos.e02.implementation_handoff.v1':
+   for c in d.get('implementation_commits',[]):
+    if isinstance(c,str) and isinstance(d.get('branch'),str):roles[c].add(d['branch'])
+peer=json.loads(module.blob(SOURCE,B+'current-root-closeout-source-preparation.json'))
+for c,branches in peer.get('canonical_writer_mapping',{}).get('declared_commit_roles',{}).items():roles[c].update(branches)
+selected=[p for p in changed if p.startswith(('policy-engine/src/','policy-engine/tests/','policy-engine/tools/','policy-engine/release-fragments/','policy-engine/architecture/','policy-engine/schemas/')) or p.startswith('policy-engine/docs/reference/')]
+rows=[];families=collections.Counter();unknown=[];shared=[]
+for p in selected:
+ commits=module.text('log','--no-merges','--format=%H',BASE+'..'+SOURCE,'--',p).splitlines();mapped={c:sorted(roles.get(c,set())) for c in commits};f=sorted({b for v in mapped.values() for b in v if b!='codex/e02-B-current-coordination'})
+ if len(f)>1:shared.append({'path':p,'families':f})
+ um=[c for c,v in mapped.items() if not v]
+ if um:unknown.append({'path':p,'unmapped_commits':um})
+ for family in f:families[family]+=1
+ closest=None
+ if p.startswith('policy-engine/src/'):
+  for parent in Path(p).parent.parents:
+   q=str(parent/'README.md')
+   if q in full:closest=q;break
+  own=str(Path(p).parent/'README.md')
+  if own in full:closest=own
+ rows.append({'path':p,'category':module.category(p),'candidate_blob':full.get(p),'declared_family_roles':f,'nonmerge_commit_roles':mapped,'closest_existing_README':closest,'closest_README_changed':closest in changed if closest else None})
+protected=['policy-engine/AGENTS.md','AGENTS.md','policy-engine/CONTRIBUTING.md','policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md']
+inputs=[]
+for p in protected:
+ if p in full:
+  b=module.blob(SOURCE,p);inputs.append({'path':p,'source_sha':SOURCE,'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()})
+source_subset=['policy-engine/'+p for p in ['src/polisyos/foundry/methods/base.pyi','src/polisyos/foundry/methods/registry.pyi','src/polisyos/foundry/methods/composer.pyi','src/polisyos/foundry/methods/components/composer.pyi','tools/devx/foundry/generate_stubs.py','ruff.toml']]
+assert all(module.blob(SOURCE,p)==module.blob('b7d966af6551fc0ff63d3a830c70fe300c320967',p) for p in source_subset)
+assert module.blob(SOURCE,'policy-engine/schemas/runtime_api_v1.openapi.json')==module.blob('59760f76c2c087931dede4c3f6039b6154ace9c8','policy-engine/schemas/runtime_api_v1.openapi.json')
+base_ancestor=module.git('merge-base','--is-ancestor',BASE,SOURCE,check=False).returncode
+root_live=subprocess.check_output(['git','-C','/workspace/e02-B-current-coordination','rev-parse','HEAD'],text=True).strip()
+result={'schema':'policyos.e02.final_companion_custody.v1','source_sha':SOURCE,'source_tree':module.text('rev-parse',SOURCE+'^{tree}').strip(),'published_base_is_ancestor':base_ancestor==0,'root_live_head_after_metadata':root_live,'exact_runtime_source_unchanged_by_review':root_live==SOURCE,'selected_nonresearch_nonruntime_path_count':len(selected),'family_role_path_counts':dict(families),'shared_nonroot_role_rows':shared,'unmapped_commit_rows':unknown,'source_with_nearest_readme_missing':[r['path'] for r in rows if r['path'].startswith('policy-engine/src/') and not r['closest_existing_README']],'source_with_nearest_readme_unchanged':[r['path'] for r in rows if r['path'].startswith('policy-engine/src/') and r['closest_existing_README'] and not r['closest_README_changed']],'instructions_bound':inputs,'final4stubs_generator_config_exact_b7_bytes':True,'finalOpenAPI_exact597_produced_bytes':True,'qualification':'Commit/declared-family data correspondence, not historical operational editor/lease/precreation proof. Source author does not accept own CAS implementation. Shared or unmapped roles require exact-source reconciliation, not guessed permission.'}
+out=ROOT/'.polisyos/source-custody-audit/final1862';(out/'derivable-nonresearch-role-custody.json').write_text(json.dumps(rows,indent=2)+'\n');(out/'companion-audit.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="7" time="8.543" timestamp="2026-10-06T11:54:28.783565+00:00" hostname="b878f4efbdfc"><testcase classname="tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody" name="test_real_cas_bridge_preserves_legacy_limit_and_explicit_unbounded[omitted-AsyncArtifactStoreAdapter]" time="0.159" /><testcase classname="tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody" name="test_real_cas_bridge_preserves_legacy_limit_and_explicit_unbounded[omitted-AsyncFileSystemArtifactStore]" time="0.148" /><testcase classname="tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody" name="test_real_cas_bridge_preserves_legacy_limit_and_explicit_unbounded[explicit_none-AsyncArtifactStoreAdapter]" time="0.155" /><testcase classname="tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody" name="test_real_cas_bridge_preserves_legacy_limit_and_explicit_unbounded[explicit_none-AsyncFileSystemArtifactStore]" time="0.153" /><testcase classname="tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody" name="test_real_cas_bridge_preserves_legacy_limit_and_explicit_unbounded[unbounded-AsyncArtifactStoreAdapter]" time="0.032"><failure message="TypeError: AsyncArtifactStoreAdapter.__init__() got an unexpected keyword argument 'unbounded'">tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-bridge-cache-deadline-red/tmp/test_real_cas_bridge_preserves4')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fa5d6affe30&gt;
+adapter_type = &lt;class 'polisyos.core.artifacts.async_store.AsyncArtifactStoreAdapter'&gt;
+mode = 'unbounded'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("adapter_type", [AsyncArtifactStoreAdapter, AsyncFileSystemArtifactStore])
+    @pytest.mark.parametrize("mode", ["omitted", "explicit_none", "unbounded"])
+    async def test_real_cas_bridge_preserves_legacy_limit_and_explicit_unbounded(
+        tmp_path, monkeypatch, adapter_type, mode
+    ):
+        store = _ReadGateCAS(tmp_path / "cas")
+        ref = store.put_json(
+            {"value": 7}, PutOptions(kind="deadline.bridge", media_type="application/json")
+        )
+        store.target = str(ref.artifact_id)
+        # A named fixture helper default proves default-vs-unbounded policy without
+        # making each positive test wait the production default of thirty seconds.
+        assert async_tools._DEFAULT_TIMEOUT_SECONDS == 30
+        monkeypatch.setattr(async_tools, "_DEFAULT_TIMEOUT_SECONDS", 0.05)
+        kwargs = {"unbounded": True} if mode == "unbounded" else {}
+        if mode == "explicit_none":
+            kwargs["timeout_seconds"] = None
+&gt;       adapter = adapter_type(store, **kwargs)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: AsyncArtifactStoreAdapter.__init__() got an unexpected keyword argument 'unbounded'
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py:163: TypeError</failure></testcase><testcase classname="tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody" name="test_real_cas_bridge_preserves_legacy_limit_and_explicit_unbounded[unbounded-AsyncFileSystemArtifactStore]" time="0.038"><failure message="TypeError: AsyncFileSystemArtifactStore.__init__() got an unexpected keyword argument 'unbounded'">tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-bridge-cache-deadline-red/tmp/test_real_cas_bridge_preserves5')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fa5d6b7f150&gt;
+adapter_type = &lt;class 'polisyos.core.artifacts.async_store.AsyncFileSystemArtifactStore'&gt;
+mode = 'unbounded'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("adapter_type", [AsyncArtifactStoreAdapter, AsyncFileSystemArtifactStore])
+    @pytest.mark.parametrize("mode", ["omitted", "explicit_none", "unbounded"])
+    async def test_real_cas_bridge_preserves_legacy_limit_and_explicit_unbounded(
+        tmp_path, monkeypatch, adapter_type, mode
+    ):
+        store = _ReadGateCAS(tmp_path / "cas")
+        ref = store.put_json(
+            {"value": 7}, PutOptions(kind="deadline.bridge", media_type="application/json")
+        )
+        store.target = str(ref.artifact_id)
+        # A named fixture helper default proves default-vs-unbounded policy without
+        # making each positive test wait the production default of thirty seconds.
+        assert async_tools._DEFAULT_TIMEOUT_SECONDS == 30
+        monkeypatch.setattr(async_tools, "_DEFAULT_TIMEOUT_SECONDS", 0.05)
+        kwargs = {"unbounded": True} if mode == "unbounded" else {}
+        if mode == "explicit_none":
+            kwargs["timeout_seconds"] = None
+&gt;       adapter = adapter_type(store, **kwargs)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: AsyncFileSystemArtifactStore.__init__() got an unexpected keyword argument 'unbounded'
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py:163: TypeError</failure></testcase><testcase classname="tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody" name="test_expired_native_cache_lookup_cannot_refresh_provider_admission" time="0.791"><failure message="assert 2 == 1&#10; +  where 2 = &lt;engine.test_workflow_deadline_custody._Node object at 0x7fa5d6db2f90&gt;.calls">tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-bridge-cache-deadline-red/tmp/test_expired_native_cache_look0')
+
+    @pytest.mark.asyncio
+    async def test_expired_native_cache_lookup_cannot_refresh_provider_admission(tmp_path):
+        store = _ReadGateCAS(tmp_path / "cas")
+        ctx, node, workflow, executor = _setup(store)
+        state = ExperimentState(run_id="R_deadline", params={"seed": 7})
+        first = await executor.execute(workflow, state)
+        assert first.report.status == "ok"
+        events = _events(ctx)
+        cache_ref = ArtifactRef.model_validate(
+            next(event for event in events if event.get("event") == "NODE_CACHE_STORE")["refs"][
+                "outputs"
+            ][0]
+        )
+        assert store.verify(cache_ref).ok
+        store.target = str(cache_ref.artifact_id)
+        # One seed read remains healthy; the second native lookup consumes the
+        # node's absolute deadline before the miss can reach the actual provider.
+        store.gate_read = 2
+        workflow.nodes[0].timeout_s = 0.2
+        release = _release_after_enter(store, 0.4)
+        try:
+            result = await executor.execute(workflow, state)
+            assert not store.release.is_set()
+            assert result.report.status == "fail"
+            assert result.report.nodes[0].error.code == "node.timeout"
+&gt;           assert node.calls == 1
+E           assert 2 == 1
+E            +  where 2 = &lt;engine.test_workflow_deadline_custody._Node object at 0x7fa5d6db2f90&gt;.calls
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py:286: AssertionError</failure></testcase></testsuite></testsuites>

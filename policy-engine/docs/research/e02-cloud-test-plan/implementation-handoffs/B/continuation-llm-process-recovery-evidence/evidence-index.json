@@ -1,0 +1,88 @@
+{
+  "schema": "policyos.e02.evidence-index.v1",
+  "items": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-llm-process-recovery-evidence/environment-after.json",
+      "bytes": 473,
+      "sha256": "a0dcc34fa23943dad5eeb6e45f6d71c2fdc1acb7da96aefe8d05934111565044"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-llm-process-recovery-evidence/native.txt",
+      "bytes": 151711,
+      "sha256": "30ef600084246e319ceb5e59104e75c9e618ef89abf4cbf25e099bf684ea7459"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-llm-process-recovery-evidence/native.xml",
+      "bytes": 628,
+      "sha256": "6237d351f6f4a037215ee9625b67e104e9bd2dd2f3084182dd14e64b4c9677c1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-llm-process-recovery-evidence/profile.json",
+      "bytes": 1713,
+      "sha256": "c5a2f62ab0f41a75a5f6b5d557b8c463952e49be979aa651760e4062787b4d22"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-llm-process-recovery-evidence/quality-wrapper.json",
+      "bytes": 870,
+      "sha256": "817d4e1001d6ccccac2bce615d1dd4489825ebedfb4317fd2d4ba808d48451f4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-llm-process-recovery-evidence/removal-profile.json",
+      "bytes": 1871,
+      "sha256": "0cb91a62b795332d8ab0a17c47dd03d3bff532448222dfac646a95d119eddfa5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-llm-process-recovery-evidence/removal-wrapper.json",
+      "bytes": 2279,
+      "sha256": "1211a3cdfa1654e12b2d2b67fe46dcb8cf132e777d61fd1a31151289513b3839"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-llm-process-recovery-evidence/removal.txt",
+      "bytes": 33301,
+      "sha256": "bca16bdb598fff51475e64ab2795165a16468bc65a9262464d10b8c0829a52e5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-llm-process-recovery-evidence/removal.xml",
+      "bytes": 4037,
+      "sha256": "b12da257f25ce658d4443020dccec250bcbcef2380c453acc45623e7f521181a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-llm-process-recovery-evidence/remove-admission.source.txt",
+      "bytes": 499,
+      "sha256": "bc0657075b86a3191e7d6bcb99807184c585f5fa4ead4f72b800626d56e0c4ac"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-llm-process-recovery-evidence/ruff-check.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-llm-process-recovery-evidence/ruff-format.txt",
+      "bytes": 25,
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-llm-process-recovery-evidence/run-native.source.txt",
+      "bytes": 2455,
+      "sha256": "05ff24d0e4cb863b2eb14a6f84bdda661c538ad3eb603c34de5faf116b947a4f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-llm-process-recovery-evidence/run-removal.source.txt",
+      "bytes": 2523,
+      "sha256": "fd5b7455da88bec28cc4d836ad3b8df3e5d7f57efc77d04043825d0ebe9fa10f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-llm-process-recovery-evidence/source-inputs.json",
+      "bytes": 3707,
+      "sha256": "9a20f3029baacaa65117a889e437e65a3e17d41321e842e61c0ef09920f904c7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-llm-process-recovery-evidence/wrapper.json",
+      "bytes": 2120,
+      "sha256": "edc298534014d9221a575dfab2032e5ff386ab81902a6efb1dc3050a33e203a3"
+    }
+  ],
+  "payload_count": 16,
+  "payload_bytes": 208231,
+  "original_output_bytes_preserved": true
+}

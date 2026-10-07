@@ -1,0 +1,124 @@
+{
+  "source_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+  "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+  "pytest_version": "9.0.2",
+  "points": {
+    "origins_before_pytest": {
+      "origin_rows": 1166,
+      "unique_file_paths": 1166,
+      "all_rows_git_match": true,
+      "declared_origin_rows": [
+        {
+          "module": "polisyos.scientist.orchestration.engine.budget_ledger",
+          "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+          "sha256": "312f31fd3fd6062124b3124a526e4997f6d05e3d79b9c5ce0ec968dec5a41efe",
+          "source_ref": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd:policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+          "bytes": 59381,
+          "git_match": true
+        },
+        {
+          "module": "polisyos.scientist.orchestration.engine.budget_middleware",
+          "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+          "sha256": "6ad7d0eddbfa7aef9f6f32de5c35505047016367a8b6aa54edbdba99eba3c0f8",
+          "source_ref": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd:policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+          "bytes": 10751,
+          "git_match": true
+        },
+        {
+          "module": "polisyos.scientist.orchestration.llm.budget_enforcer",
+          "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+          "sha256": "66432ce3a2844a8e8b3dee12ada29c7cd093a6aa93065b20234498724e6db71a",
+          "source_ref": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd:policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+          "bytes": 58032,
+          "git_match": true
+        },
+        {
+          "module": "polisyos.scientist.policy_design._llm_accounting",
+          "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/policy_design/_llm_accounting.py",
+          "sha256": "c6c8ebf138fcdeb0610fb9a95082e9fa9fca3ececd3a8af265558bf08198232a",
+          "source_ref": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd:policy-engine/src/polisyos/scientist/policy_design/_llm_accounting.py",
+          "bytes": 2087,
+          "git_match": true
+        },
+        {
+          "module": "polisyos.scientist.policy_design.adversary",
+          "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/policy_design/adversary.py",
+          "sha256": "563f03f061d3b3ed5d26b936b840b3d3cdd48b25dbd27e837ef447dc3f6edde3",
+          "source_ref": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd:policy-engine/src/polisyos/scientist/policy_design/adversary.py",
+          "bytes": 16143,
+          "git_match": true
+        },
+        {
+          "module": "polisyos.scientist.policy_design.translator",
+          "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/policy_design/translator.py",
+          "sha256": "ed8d6b29e3c3ebaef73a780d07c8fb7b8180b2151d40f72b89ddb91a5567b232",
+          "source_ref": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd:policy-engine/src/polisyos/scientist/policy_design/translator.py",
+          "bytes": 16508,
+          "git_match": true
+        }
+      ]
+    },
+    "origins_at_pytest_main_return": {
+      "origin_rows": 1167,
+      "unique_file_paths": 1167,
+      "all_rows_git_match": true,
+      "declared_origin_rows": [
+        {
+          "module": "polisyos.scientist.orchestration.engine.budget_ledger",
+          "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+          "sha256": "312f31fd3fd6062124b3124a526e4997f6d05e3d79b9c5ce0ec968dec5a41efe",
+          "source_ref": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd:policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+          "bytes": 59381,
+          "git_match": true
+        },
+        {
+          "module": "polisyos.scientist.orchestration.engine.budget_middleware",
+          "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+          "sha256": "6ad7d0eddbfa7aef9f6f32de5c35505047016367a8b6aa54edbdba99eba3c0f8",
+          "source_ref": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd:policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+          "bytes": 10751,
+          "git_match": true
+        },
+        {
+          "module": "polisyos.scientist.orchestration.llm.budget_enforcer",
+          "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+          "sha256": "66432ce3a2844a8e8b3dee12ada29c7cd093a6aa93065b20234498724e6db71a",
+          "source_ref": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd:policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+          "bytes": 58032,
+          "git_match": true
+        },
+        {
+          "module": "polisyos.scientist.policy_design._llm_accounting",
+          "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/policy_design/_llm_accounting.py",
+          "sha256": "c6c8ebf138fcdeb0610fb9a95082e9fa9fca3ececd3a8af265558bf08198232a",
+          "source_ref": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd:policy-engine/src/polisyos/scientist/policy_design/_llm_accounting.py",
+          "bytes": 2087,
+          "git_match": true
+        },
+        {
+          "module": "polisyos.scientist.policy_design.adversary",
+          "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/policy_design/adversary.py",
+          "sha256": "563f03f061d3b3ed5d26b936b840b3d3cdd48b25dbd27e837ef447dc3f6edde3",
+          "source_ref": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd:policy-engine/src/polisyos/scientist/policy_design/adversary.py",
+          "bytes": 16143,
+          "git_match": true
+        },
+        {
+          "module": "polisyos.scientist.policy_design.translator",
+          "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/policy_design/translator.py",
+          "sha256": "ed8d6b29e3c3ebaef73a780d07c8fb7b8180b2151d40f72b89ddb91a5567b232",
+          "source_ref": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd:policy-engine/src/polisyos/scientist/policy_design/translator.py",
+          "bytes": 16508,
+          "git_match": true
+        }
+      ]
+    }
+  },
+  "raw_full": {
+    "path": "/dev/shm/e02-B-workers-native-4b368/source-context.json",
+    "bytes": 1049048,
+    "sha256": "355b9ec4434484f399426c0a76162b7d739bd35d463d9723e5166286d5bfe216",
+    "availability_to_G": "not_established; literalfulloriginrows remainignoredraw, rerun exact committeddriver+selectors/source4b to reestablish"
+  },
+  "boundary": "Actual file-backed loaded polisyos modules at these two points only; not all finalization imports, plugin/resource/backend read-set or process descendants."
+}

@@ -1,0 +1,382 @@
+E401 [*] Multiple imports on one line
+ --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/entered-cancel-probe.py:2:1
+  |
+1 | """Actual canonical head replacement cancellation; no source mutation."""
+2 | import asyncio,json,threading
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+3 | from pathlib import Path
+4 | from polisyos.core.artifacts.store import FileSystemCAS
+  |
+help: Split imports
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/entered-cancel-probe.py:2:1
+  |
+1 |   """Actual canonical head replacement cancellation; no source mutation."""
+2 | / import asyncio,json,threading
+3 | | from pathlib import Path
+4 | | from polisyos.core.artifacts.store import FileSystemCAS
+5 | | from polisyos.scientist.orchestration.engine import checkpoint
+6 | | from polisyos.scientist.orchestration.engine.state import ExperimentState
+7 | | from tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody import _setup,_events
+  | |___________________________________________________________________________________________________^
+8 |
+9 |   async def main():
+  |
+help: Organize imports
+
+ANN201 Missing return type annotation for public function `main`
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/entered-cancel-probe.py:9:11
+   |
+ 7 | from tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody import _setup,_events
+ 8 |
+ 9 | async def main():
+   |           ^^^^
+10 |  root=Path('/tmp/e02-B-current-execution-state/checkpoint-deadline/entered-cancel-probe-cas')
+11 |  store=FileSystemCAS(root);ctx,node,workflow,executor=_setup(store)
+   |
+help: Add return type annotation: `None`
+
+S108 Probable insecure usage of temporary file or directory: "/tmp/e02-B-current-execution-state/checkpoint-deadline/entered-cancel-probe-cas"
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/entered-cancel-probe.py:10:12
+   |
+ 9 | async def main():
+10 |  root=Path('/tmp/e02-B-current-execution-state/checkpoint-deadline/entered-cancel-probe-cas')
+   |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+11 |  store=FileSystemCAS(root);ctx,node,workflow,executor=_setup(store)
+12 |  executor._checkpoint_hook=checkpoint.CASCheckpointHook(store=store,run_dir=ctx.run.trace_path.parent)
+   |
+
+E702 Multiple statements on one line (semicolon)
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/entered-cancel-probe.py:11:27
+   |
+ 9 | async def main():
+10 |  root=Path('/tmp/e02-B-current-execution-state/checkpoint-deadline/entered-cancel-probe-cas')
+11 |  store=FileSystemCAS(root);ctx,node,workflow,executor=_setup(store)
+   |                           ^
+12 |  executor._checkpoint_hook=checkpoint.CASCheckpointHook(store=store,run_dir=ctx.run.trace_path.parent)
+13 |  entered,release,finished=threading.Event(),threading.Event(),threading.Event()
+   |
+
+ANN202 Missing return type annotation for private function `held`
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/entered-cancel-probe.py:15:6
+   |
+13 |  entered,release,finished=threading.Event(),threading.Event(),threading.Event()
+14 |  original=checkpoint.os.replace
+15 |  def held(source,target):
+   |      ^^^^
+16 |   if Path(target).name!=checkpoint.CHECKPOINT_HEAD_FILENAME:return original(source,target)
+17 |   entered.set()
+   |
+help: Add return type annotation
+
+ANN001 Missing type annotation for function argument `source`
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/entered-cancel-probe.py:15:11
+   |
+13 |  entered,release,finished=threading.Event(),threading.Event(),threading.Event()
+14 |  original=checkpoint.os.replace
+15 |  def held(source,target):
+   |           ^^^^^^
+16 |   if Path(target).name!=checkpoint.CHECKPOINT_HEAD_FILENAME:return original(source,target)
+17 |   entered.set()
+   |
+
+ANN001 Missing type annotation for function argument `target`
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/entered-cancel-probe.py:15:18
+   |
+13 |  entered,release,finished=threading.Event(),threading.Event(),threading.Event()
+14 |  original=checkpoint.os.replace
+15 |  def held(source,target):
+   |                  ^^^^^^
+16 |   if Path(target).name!=checkpoint.CHECKPOINT_HEAD_FILENAME:return original(source,target)
+17 |   entered.set()
+   |
+
+E701 Multiple statements on one line (colon)
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/entered-cancel-probe.py:16:60
+   |
+14 |  original=checkpoint.os.replace
+15 |  def held(source,target):
+16 |   if Path(target).name!=checkpoint.CHECKPOINT_HEAD_FILENAME:return original(source,target)
+   |                                                            ^
+17 |   entered.set()
+18 |   try:
+   |
+
+S101 Use of `assert` detected
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/entered-cancel-probe.py:19:4
+   |
+17 |   entered.set()
+18 |   try:
+19 |    assert release.wait(5)
+   |    ^^^^^^
+20 |    return original(source,target)
+21 |   finally:finished.set()
+   |
+
+E701 Multiple statements on one line (colon)
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/entered-cancel-probe.py:21:10
+   |
+19 |    assert release.wait(5)
+20 |    return original(source,target)
+21 |   finally:finished.set()
+   |          ^
+22 |  checkpoint.os.replace=held
+23 |  task=asyncio.create_task(executor.execute(workflow,ExperimentState(run_id='R_deadline',params={'seed':7})))
+   |
+
+S101 Use of `assert` detected
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/entered-cancel-probe.py:25:3
+   |
+23 |  task=asyncio.create_task(executor.execute(workflow,ExperimentState(run_id='R_deadline',params={'seed':7})))
+24 |  try:
+25 |   assert await asyncio.to_thread(entered.wait,5)
+   |   ^^^^^^
+26 |   task.cancel()
+27 |   try:await task
+   |
+
+E701 Multiple statements on one line (colon)
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/entered-cancel-probe.py:27:6
+   |
+25 |   assert await asyncio.to_thread(entered.wait,5)
+26 |   task.cancel()
+27 |   try:await task
+   |      ^
+28 |   except asyncio.CancelledError as exc:
+29 |    print(json.dumps({'error':type(exc).__name__,'message':str(exc),'owner_operation':executor._workflow_publication_operation,'caller_…
+   |
+
+T201 `print` found
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/entered-cancel-probe.py:29:4
+   |
+27 |   try:await task
+28 |   except asyncio.CancelledError as exc:
+29 |    print(json.dumps({'error':type(exc).__name__,'message':str(exc),'owner_operation':executor._workflow_publication_operation,'caller_…
+   |    ^^^^^
+30 |  finally:
+31 |   release.set();assert await asyncio.to_thread(finished.wait,5)
+   |
+help: Remove `print`
+
+E702 Multiple statements on one line (semicolon)
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/entered-cancel-probe.py:31:16
+   |
+29 |    print(json.dumps({'error':type(exc).__name__,'message':str(exc),'owner_operation':executor._workflow_publication_operation,'caller_…
+30 |  finally:
+31 |   release.set();assert await asyncio.to_thread(finished.wait,5)
+   |                ^
+32 |   for _ in range(500):
+33 |    if (ctx.run.trace_path.parent/checkpoint.CHECKPOINT_HISTORY_FILENAME).exists():break
+   |
+
+S101 Use of `assert` detected
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/entered-cancel-probe.py:31:17
+   |
+29 |    print(json.dumps({'error':type(exc).__name__,'message':str(exc),'owner_operation':executor._workflow_publication_operation,'caller_…
+30 |  finally:
+31 |   release.set();assert await asyncio.to_thread(finished.wait,5)
+   |                 ^^^^^^
+32 |   for _ in range(500):
+33 |    if (ctx.run.trace_path.parent/checkpoint.CHECKPOINT_HISTORY_FILENAME).exists():break
+   |
+
+E701 Multiple statements on one line (colon)
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/entered-cancel-probe.py:33:82
+   |
+31 |   release.set();assert await asyncio.to_thread(finished.wait,5)
+32 |   for _ in range(500):
+33 |    if (ctx.run.trace_path.parent/checkpoint.CHECKPOINT_HISTORY_FILENAME).exists():break
+   |                                                                                  ^
+34 |    await asyncio.sleep(.002)
+35 |   checkpoint.os.replace=original
+   |
+
+E702 Multiple statements on one line (semicolon)
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/entered-cancel-probe.py:36:30
+   |
+34 |    await asyncio.sleep(.002)
+35 |   checkpoint.os.replace=original
+36 |  reopened=FileSystemCAS(root);head,dto=checkpoint.resolve_latest_checkpoint(reopened,'R_deadline')
+   |                              ^
+37 |  print(json.dumps({'head_verified':reopened.verify(head.checkpoint_ref).ok,'history_matches':checkpoint.load_checkpoint_history(ctx.ru…
+38 | asyncio.run(main())
+   |
+
+T201 `print` found
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/entered-cancel-probe.py:37:2
+   |
+35 |   checkpoint.os.replace=original
+36 |  reopened=FileSystemCAS(root);head,dto=checkpoint.resolve_latest_checkpoint(reopened,'R_deadline')
+37 |  print(json.dumps({'head_verified':reopened.verify(head.checkpoint_ref).ok,'history_matches':checkpoint.load_checkpoint_history(ctx.ru…
+   |  ^^^^^
+38 | asyncio.run(main())
+   |
+help: Remove `print`
+
+E501 Line too long (366 > 100)
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/entered-cancel-probe.py:37:101
+   |
+35 | …
+36 | …e')
+37 | …eckpoint.load_checkpoint_history(ctx.run.trace_path.parent).entries[-1].checkpoint_ref==head.checkpoint_ref,'state':dto.state['params'],'producer':node.calls,'outputs':len(ctx.run.run_manifest.outputs),'finalized':any(e['event']=='RUN_FINALIZED' for e in _events(ctx))}))
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+38 | …
+   |
+
+S603 `subprocess` call: check for execution of untrusted input
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/facade_identity.py:21:14
+   |
+19 |     repo = Path("/workspace/e02-B-current-execution-state")
+20 |     target = "bc958e8efface67193a1347e867cc7567dbfc8bc"
+21 |     actual = subprocess.check_output(["git", "-C", str(repo), "rev-parse", "HEAD"], text=True).strip()
+   |              ^^^^^^^^^^^^^^^^^^^^^^^
+22 |     assert actual == target
+23 |     names = ["polisyos.scientist.orchestration.engine.checkpoint", "polisyos.core.artifacts"]
+   |
+
+S607 Starting a process with a partial executable path
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/facade_identity.py:21:38
+   |
+19 |     repo = Path("/workspace/e02-B-current-execution-state")
+20 |     target = "bc958e8efface67193a1347e867cc7567dbfc8bc"
+21 |     actual = subprocess.check_output(["git", "-C", str(repo), "rev-parse", "HEAD"], text=True).strip()
+   |                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+22 |     assert actual == target
+23 |     names = ["polisyos.scientist.orchestration.engine.checkpoint", "polisyos.core.artifacts"]
+   |
+
+E501 Line too long (102 > 100)
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/facade_identity.py:21:101
+   |
+19 |     repo = Path("/workspace/e02-B-current-execution-state")
+20 |     target = "bc958e8efface67193a1347e867cc7567dbfc8bc"
+21 |     actual = subprocess.check_output(["git", "-C", str(repo), "rev-parse", "HEAD"], text=True).strip()
+   |                                                                                                     ^^
+22 |     assert actual == target
+23 |     names = ["polisyos.scientist.orchestration.engine.checkpoint", "polisyos.core.artifacts"]
+   |
+
+S101 Use of `assert` detected
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/facade_identity.py:22:5
+   |
+20 |     target = "bc958e8efface67193a1347e867cc7567dbfc8bc"
+21 |     actual = subprocess.check_output(["git", "-C", str(repo), "rev-parse", "HEAD"], text=True).strip()
+22 |     assert actual == target
+   |     ^^^^^^
+23 |     names = ["polisyos.scientist.orchestration.engine.checkpoint", "polisyos.core.artifacts"]
+24 |     if args.order == "facade-first":
+   |
+
+E501 Line too long (112 > 100)
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/facade_identity.py:33:101
+   |
+31 |     identities = {
+32 |         name: getattr(checkpoint, name) is getattr(facade, name) is getattr(canonical, name)
+33 |         for name in ["AsyncArtifactStoreAdapter", "AsyncFileSystemArtifactStore", "ensure_async_artifact_store"]
+   |                                                                                                     ^^^^^^^^^^^^
+34 |     }
+35 |     assert all(identities.values())
+   |
+
+S101 Use of `assert` detected
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/facade_identity.py:35:5
+   |
+33 |         for name in ["AsyncArtifactStoreAdapter", "AsyncFileSystemArtifactStore", "ensure_async_artifact_store"]
+34 |     }
+35 |     assert all(identities.values())
+   |     ^^^^^^
+36 |     origins = {}
+37 |     for module in [checkpoint, facade, canonical]:
+   |
+
+S603 `subprocess` call: check for execution of untrusted input
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/facade_identity.py:40:20
+   |
+38 |         path = Path(module.__file__).resolve()
+39 |         relative = path.relative_to(repo).as_posix()
+40 |         expected = subprocess.check_output(["git", "-C", str(repo), "show", f"{target}:{relative}"])
+   |                    ^^^^^^^^^^^^^^^^^^^^^^^
+41 |         assert expected == path.read_bytes()
+42 |         origins[module.__name__] = {"path": relative, "sha256": hashlib.sha256(expected).hexdigest()}
+   |
+
+S607 Starting a process with a partial executable path
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/facade_identity.py:40:44
+   |
+38 |         path = Path(module.__file__).resolve()
+39 |         relative = path.relative_to(repo).as_posix()
+40 |         expected = subprocess.check_output(["git", "-C", str(repo), "show", f"{target}:{relative}"])
+   |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+41 |         assert expected == path.read_bytes()
+42 |         origins[module.__name__] = {"path": relative, "sha256": hashlib.sha256(expected).hexdigest()}
+   |
+
+S101 Use of `assert` detected
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/facade_identity.py:41:9
+   |
+39 |         relative = path.relative_to(repo).as_posix()
+40 |         expected = subprocess.check_output(["git", "-C", str(repo), "show", f"{target}:{relative}"])
+41 |         assert expected == path.read_bytes()
+   |         ^^^^^^
+42 |         origins[module.__name__] = {"path": relative, "sha256": hashlib.sha256(expected).hexdigest()}
+43 |     annotations = get_type_hints(checkpoint.CheckpointPublicationBudget)
+   |
+
+E501 Line too long (101 > 100)
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/facade_identity.py:42:101
+   |
+40 |         expected = subprocess.check_output(["git", "-C", str(repo), "show", f"{target}:{relative}"])
+41 |         assert expected == path.read_bytes()
+42 |         origins[module.__name__] = {"path": relative, "sha256": hashlib.sha256(expected).hexdigest()}
+   |                                                                                                     ^
+43 |     annotations = get_type_hints(checkpoint.CheckpointPublicationBudget)
+44 |     assert set(annotations) == {"deadline_monotonic", "owner_is_current", "caller_cancelled"}
+   |
+
+S101 Use of `assert` detected
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/facade_identity.py:44:5
+   |
+42 |         origins[module.__name__] = {"path": relative, "sha256": hashlib.sha256(expected).hexdigest()}
+43 |     annotations = get_type_hints(checkpoint.CheckpointPublicationBudget)
+44 |     assert set(annotations) == {"deadline_monotonic", "owner_is_current", "caller_cancelled"}
+   |     ^^^^^^
+45 |     print(json.dumps({"target_sha": target, "order": args.order, "object_identity": identities,
+46 |                       "origins": origins, "budget_annotations": {k: str(v) for k, v in annotations.items()},
+   |
+
+T201 `print` found
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/facade_identity.py:45:5
+   |
+43 |     annotations = get_type_hints(checkpoint.CheckpointPublicationBudget)
+44 |     assert set(annotations) == {"deadline_monotonic", "owner_is_current", "caller_cancelled"}
+45 |     print(json.dumps({"target_sha": target, "order": args.order, "object_identity": identities,
+   |     ^^^^^
+46 |                       "origins": origins, "budget_annotations": {k: str(v) for k, v in annotations.items()},
+47 |                       "fixed_legacy_node_signature": str(inspect.signature(checkpoint.AsyncCheckpointHook.on_node_complete_async)),
+   |
+help: Remove `print`
+
+E501 Line too long (108 > 100)
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/facade_identity.py:46:101
+   |
+44 |     assert set(annotations) == {"deadline_monotonic", "owner_is_current", "caller_cancelled"}
+45 |     print(json.dumps({"target_sha": target, "order": args.order, "object_identity": identities,
+46 |                       "origins": origins, "budget_annotations": {k: str(v) for k, v in annotations.items()},
+   |                                                                                                     ^^^^^^^^
+47 |                       "fixed_legacy_node_signature": str(inspect.signature(checkpoint.AsyncCheckpointHook.on_node_complete_async)),
+48 |                       "import_cycle_observed": False}, indent=2))
+   |
+
+E501 Line too long (131 > 100)
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/facade_identity.py:47:101
+   |
+45 |     print(json.dumps({"target_sha": target, "order": args.order, "object_identity": identities,
+46 |                       "origins": origins, "budget_annotations": {k: str(v) for k, v in annotations.items()},
+47 |                       "fixed_legacy_node_signature": str(inspect.signature(checkpoint.AsyncCheckpointHook.on_node_complete_async)),
+   |                                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+48 |                       "import_cycle_observed": False}, indent=2))
+   |
+
+Found 34 errors.
+[*] 2 fixable with the `--fix` option (4 hidden fixes can be enabled with the `--unsafe-fixes` option).

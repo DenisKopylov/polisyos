@@ -1,0 +1,127 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-native-pytest-input-admission",
+  "closure_ids": [],
+  "bundle_ids": [],
+  "slice_base_sha": "c183f969ff6f50982af54e41c61a300e87e0149e",
+  "implementation_commits": [
+    "fba79da7285c121d20c7521ea6d35a8d56532c7d",
+    "7c8684c917675d6d426c846ef58e2d1ac16269fa",
+    "d3a3df91804fa4205681703c3346041eda743836"
+  ],
+  "candidate_sha": "d3a3df91804fa4205681703c3346041eda743836",
+  "candidate_tree_sha": "3641bb432d7a973398a5f0851926b0dbce235e78",
+  "branch": "codex/e02-B-current-coordination",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/55",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-cohort-selector.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/observe_pytest_options.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/pytest-cli-option-profile.json"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "id": "actual-installed-option-registration",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "/workspace/e02-B-current-coordination/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/observe_pytest_options.py",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/pytest-cli-option-profile-final-observed.json"
+      ],
+      "target_sha": "6c540169b65920696cf0b5ad122571b357d30525",
+      "environment": "Actual own194-distribution CPython3.14.2 pytest9.0.2; six ambient caps removed; no pytest parse/collection/test execution",
+      "input_closure": {
+        "source_driver_sha": "7c8684c917675d6d426c846ef58e2d1ac16269fa",
+        "observation": "146actions/176unique names/32source backings; exact measured profile byte-equal original and committed profile",
+        "profile": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/pytest-cli-option-profile.json"
+      },
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/repaired-prefreeze-option-registration.txt"
+    },
+    {
+      "id": "author-native-selector-two-file-style",
+      "command_refs": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/selector-option-style-checks.json",
+      "target_sha": "d3a3df91804fa4205681703c3346041eda743836",
+      "environment": "OwnRuff0.14.10 contributor profile",
+      "input_closure": "Complete selector and observation-driver files; only this narrow style check, no global style acceptance",
+      "outcome": "PASS",
+      "output": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/selector-option-ruff.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/selector-option-format.txt"
+      ]
+    },
+    {
+      "id": "original-independent-option-value-negative",
+      "target_sha": "b336a91390ec5f68869ca512e0a0f3b3a4ebcbeb",
+      "environment": "Independent EXE stdlib AST driver; no pytest/collection/gates",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/b336.json",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/b336.json",
+      "qualification": "Original6controls5PASS1FAIL; split --basetemp tests/controlled incorrectly selected twofiles. Original failure retained, not a new-candidate result."
+    },
+    {
+      "id": "affected-public-surface-sync",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "run",
+        "--no-sync",
+        "polisyos-tools",
+        "architecture",
+        "guardrails",
+        "sync",
+        "--skip-deep-import-baseline"
+      ],
+      "target_sha": "6c540169b65920696cf0b5ad122571b357d30525",
+      "environment": "Ownfrozen194distributions UV0.9.21 no-sync,6capsremoved",
+      "input_closure": "Canonicalguardrail sync with explicit skip-deep-import-baseline; actual noGitdiff",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/repaired-prefreeze-public-surface-sync.txt",
+      "qualification": "No deep baseline reset or gate waiver; all required gates still forthcoming."
+    }
+  ],
+  "property": {
+    "statement": "Recorded pytest argv distinguishes true positional file/directory selectors from option values through pinned observed arities, then expands complete tracked default test filenames. Unknown grammar remains unresolved.",
+    "runtime_path": [
+      "actual contributor pytest plugin option registration objects",
+      "committed measured action arity profile",
+      "stdlib argv grammar and immutable Git directory membership",
+      "fresh final B cohort argument file"
+    ],
+    "proxy_divergence": "A bare tests/ path token after --basetemp is an output location and selected two files under b336; substring/leading-dash filtering did not establish positional identity.",
+    "negative_controls": [
+      "Preserved independent b336 split-value FAIL",
+      "Successor independent source/control review publishes separately; this author receipt does not certify its own patch"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "Input-admission mechanism prepared; final cohort/case counts UNRUN and finding closure empty. Independent successor review is separate.",
+  "P40": "Second positional-selector class escape widened to registered option arity grammar for files and directories, not one hardcoded --basetemp exception.",
+  "limitations_and_next_owner": [
+    "Bounded installed pytest9 option registration; custom repo option grammar and @argument files explicitly unresolved; no guessed selectors or absence proof.",
+    "Pinned default test_*.py/*_test.py expansion is input lineage only; custom collection/conftest/import/runtime closure comes from the actual cohort.",
+    "Static source-driver descriptors remain separately qualified; no regex mention proves execution.",
+    "Root/G require independent successor review plus complete fresh cohort and gates on one later repaired source freeze."
+  ],
+  "committed_complete_observations": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/repaired-prefreeze-option-registration.json",
+      "sha256": "3667275d7544cd5ac24dbba0f6d748c3c67044c331a8bedad1389e3710861e32",
+      "bytes": 2004
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/repaired-prefreeze-option-registration.txt",
+      "sha256": "28cedc1c04d56ffaa237d3fc14f94952972567f8becc63dbac4e12e8d40b6a4a",
+      "bytes": 162
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/repaired-prefreeze-public-surface-sync.json",
+      "sha256": "0437965aef589e5ae21a6018fe365a38d880f167c7927d27ddd4a275a62118f1",
+      "bytes": 2269
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/repaired-prefreeze-public-surface-sync.txt",
+      "sha256": "3a1c841e27e002f813b631ad3847f17a39a1b8e4dab8a007892ea06d0c5d83c8",
+      "bytes": 44
+    }
+  ]
+}

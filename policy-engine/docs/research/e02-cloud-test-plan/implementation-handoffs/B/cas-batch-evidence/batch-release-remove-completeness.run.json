@@ -1,0 +1,141 @@
+{
+  "target_sha": "98cd038b56d08ab33567bce6e7211d77986df326",
+  "target_tree": "0f5411b46c468ed10b8c6cfed6c1690dd800f48a",
+  "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "--tb=short",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "-ra",
+    "--benchmark-storage=file://./_cache/benchmarks",
+    "tests/unit/core/artifacts/test_batch_completion_admission.py::test_real_full_batch_all_confirmations_are_required",
+    "tests/unit/core/artifacts/test_batch_completion_admission.py::test_local_corruption_preserves_full_typed_results_and_refuses_admission",
+    "tests/unit/core/artifacts/test_batch_completion_admission.py::test_cancel_preserves_actual_finished_item_and_explicit_abort",
+    "tests/unit/core/artifacts/test_batch_completion_admission.py::test_deadline_stops_lazy_inventory_before_more_real_verification",
+    "tests/unit/core/artifacts/test_batch_completion_admission.py::test_actual_import_publisher_refuses_unbound_per_item_report",
+    "tests/unit/core/artifacts/test_batch_completion_admission.py::test_global_basis_loss_preserves_finished_row_and_aborts",
+    "tests/unit/core/artifacts/test_batch_completion_admission.py::test_cancel_interrupts_actual_default_name_census",
+    "tests/unit/core/artifacts/test_batch_completion_admission.py::test_selected_and_default_same_blob_remain_two_exact_confirmations",
+    "--basetemp=/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/batch-release-remove-completeness-tmp",
+    "-o",
+    "cache_dir=/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/batch-release-remove-completeness-cache",
+    "--junitxml=/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/raw/batch-release-remove-completeness.xml"
+  ],
+  "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+  "python_version": "3.14.2",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "PYTHONPATH": "src",
+  "property_removal": "cas-batch-completeness",
+  "returncode": 1,
+  "wall_s": 2.117300631987746,
+  "max_rss_kib": 93044,
+  "runner_quota": null,
+  "rusage_boundary": "os.wait4 exact child PID kernel child/descendant accounting; not VM peak",
+  "input_closure": {
+    "source_and_test_sha": "98cd038b56d08ab33567bce6e7211d77986df326",
+    "files": [
+      {
+        "ref": "policy-engine/pyproject.toml@98cd038b56d08ab33567bce6e7211d77986df326",
+        "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+      },
+      {
+        "ref": "policy-engine/pytest.ini@98cd038b56d08ab33567bce6e7211d77986df326",
+        "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+      },
+      {
+        "ref": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py@98cd038b56d08ab33567bce6e7211d77986df326",
+        "sha256": "e05b7632c9cecb98b21952e11f93e0315d015f5b2ab250c83dba6aeb71e8b964"
+      },
+      {
+        "ref": "policy-engine/src/polisyos/core/artifacts/_signature_ops.py@98cd038b56d08ab33567bce6e7211d77986df326",
+        "sha256": "0627738427829a9f7489082297635c1b604d987182aca1e5559b2bafc510cb85"
+      },
+      {
+        "ref": "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py@98cd038b56d08ab33567bce6e7211d77986df326",
+        "sha256": "87932ccfe7d3842ce79427ff4bfcba1c0b76c14d4c7c0a2f2eba729de5d8bc7f"
+      },
+      {
+        "ref": "policy-engine/src/polisyos/core/artifacts/signing.py@98cd038b56d08ab33567bce6e7211d77986df326",
+        "sha256": "d956fa7172434e5fbf1f84773575cf46d523f517e38e0fb11cdbe94a3b7d4a1f"
+      },
+      {
+        "ref": "policy-engine/src/polisyos/core/artifacts/store.py@98cd038b56d08ab33567bce6e7211d77986df326",
+        "sha256": "0899b70593826b18875cac273b1621ab76a5589a03b52fb8dbd9cf4926c882a9"
+      },
+      {
+        "ref": "policy-engine/src/polisyos/core/components/_cli_crypto.py@98cd038b56d08ab33567bce6e7211d77986df326",
+        "sha256": "e8b24432f7efee3eb3fafa1c4951efa4e40c77cea051747ed1bb82593c6c8651"
+      },
+      {
+        "ref": "policy-engine/tests/unit/core/artifacts/backends/test_caching_store.py@98cd038b56d08ab33567bce6e7211d77986df326",
+        "sha256": "df322346f50d545b2eb7049c7ff03f4827abe7282b7e8fdff2ab92fe513d1fe2"
+      },
+      {
+        "ref": "policy-engine/tests/unit/core/artifacts/batch_duplicate_worker.py@98cd038b56d08ab33567bce6e7211d77986df326",
+        "sha256": "085beef4feea22f7cc96fcb4fb5bff07d7ab29132008c03c37a7647f88224130"
+      },
+      {
+        "ref": "policy-engine/tests/unit/core/artifacts/test_batch_completion_admission.py@98cd038b56d08ab33567bce6e7211d77986df326",
+        "sha256": "2ba68f1c9b0524ea648aef179ae63bdb20d6633571064d533282eadb51599503"
+      },
+      {
+        "ref": "policy-engine/tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py@98cd038b56d08ab33567bce6e7211d77986df326",
+        "sha256": "2cf4a16829b342bd9b35a69fc28fcbfff845e3e8b56166d0a0cf207429038dda"
+      },
+      {
+        "ref": "policy-engine/tests/unit/core/artifacts/test_cas_integrity_report.py@98cd038b56d08ab33567bce6e7211d77986df326",
+        "sha256": "cb4bb3f5564bfc4e9e602466989e622e114e725f16c4488b12c9a051d0bf2aa4"
+      },
+      {
+        "ref": "policy-engine/tests/unit/core/artifacts/test_import_admission_noop.py@98cd038b56d08ab33567bce6e7211d77986df326",
+        "sha256": "44b8e5d352da4ada1cc4a66b9f824776e38582d28424c408474769a6c0bb14a3"
+      },
+      {
+        "ref": "policy-engine/tests/unit/core/artifacts/test_multi_tenant_shared_cas.py@98cd038b56d08ab33567bce6e7211d77986df326",
+        "sha256": "f574fb646019857f0df1cae71c16304a36d52d85504ff3d852a265f2d98f9fcc"
+      },
+      {
+        "ref": "policy-engine/tests/unit/core/artifacts/test_put_integrity_retry.py@98cd038b56d08ab33567bce6e7211d77986df326",
+        "sha256": "1bb168058fbae8b00094c0cdec0f322bbfb5b9768ef4bafc0d5bc9f946327da7"
+      },
+      {
+        "ref": "policy-engine/tests/unit/core/artifacts/test_transfer_generation_publication.py@98cd038b56d08ab33567bce6e7211d77986df326",
+        "sha256": "8996cc5b02bf74aeda4d1ec36adb30cdf14bd9030c242f3425baad678b23d861"
+      },
+      {
+        "ref": "policy-engine/tests/unit/core/artifacts/test_verification_snapshot_report.py@98cd038b56d08ab33567bce6e7211d77986df326",
+        "sha256": "d6ff2c719331efdb453b9051ff6c75c6cf3e3c67276cd7eb488f8476a0569dcc"
+      },
+      {
+        "ref": "policy-engine/tests/unit/core/phase0/test_cli_signing.py@98cd038b56d08ab33567bce6e7211d77986df326",
+        "sha256": "414daba848a4814c1f65ef02318efc74b326191a96abad028939fc0cda69fcd7"
+      },
+      {
+        "ref": "policy-engine/tests/unit/core/phase0/test_signing.py@98cd038b56d08ab33567bce6e7211d77986df326",
+        "sha256": "4af98942b89206f63cea7fa3e27ece121bdafcea179b1cc957cf4befe8c97973"
+      },
+      {
+        "ref": "policy-engine/tests/unit/core/phase0/test_store_signing.py@98cd038b56d08ab33567bce6e7211d77986df326",
+        "sha256": "21d210a1d4b9493e3400f64b109e5f820821495c298dfbe3f3017a17bd3abf34"
+      },
+      {
+        "ref": "policy-engine/tests/unit/remediation/test_cas_02.py@98cd038b56d08ab33567bce6e7211d77986df326",
+        "sha256": "d64c46bb4055cb6cd65fcff05067ef6c89941b5af316a63931088fbebaa98771"
+      },
+      {
+        "ref": "policy-engine/tests/unit/remediation/test_cas_03.py@98cd038b56d08ab33567bce6e7211d77986df326",
+        "sha256": "19636b58cf687da7ec3eb9c3ded9ef9cb0ed6c24f0b3bcb6aa10e31eda9db9b9"
+      },
+      {
+        "ref": "policy-engine/uv.lock@98cd038b56d08ab33567bce6e7211d77986df326",
+        "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+      }
+    ]
+  }
+}

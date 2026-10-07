@@ -1,0 +1,115 @@
+{
+  "target_sha": "8fba148d7082089b4f5cd4979c4e0e09eefa2b6f",
+  "target_tree": "f4d4945ecfc501645809bc4c98223f76027298ca",
+  "owner_sha": "54efb24d87ef9b50beba0e9e8d2ca5bef6bbb96f",
+  "scope": "Separate immediate post-run source-origin check in same immutable clean checkout/environment; not complete per-test imported-module census. Mathematical oracle independently asserts actual linker module path/content at execution; unchanged main8staticGitguards and actual publicconsumer environment bind their finite input profile.",
+  "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+  "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "packages": {
+    "numpy": "2.3.5",
+    "pytest": "9.0.2",
+    "pytest-asyncio": "1.3.0",
+    "pydantic": "2.12.5"
+  },
+  "source_identity": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/components/composer.py",
+      "module": "polisyos.foundry.methods.components.composer",
+      "actual_path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/foundry/methods/components/composer.py",
+      "sha256": "402489fc3a89a9ce7567d6ae299576efb155aab1a37977b032cf532eb2833b4c",
+      "bytes": 34720
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/components/linker.py",
+      "module": "polisyos.foundry.methods.components.linker",
+      "actual_path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/foundry/methods/components/linker.py",
+      "sha256": "10d3d0439376525a2a270068d9024bb467468e6150dae3ec64ce250f1132d670",
+      "bytes": 25992
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/components/semantic_validator.py",
+      "module": "polisyos.foundry.methods.components.semantic_validator",
+      "actual_path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/foundry/methods/components/semantic_validator.py",
+      "sha256": "24805f7dabb45c402a5915b968701e267904b90afabab9a2112cf09bafea540c",
+      "bytes": 15325
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/components/slot_schema.py",
+      "module": "polisyos.foundry.methods.components.slot_schema",
+      "actual_path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/foundry/methods/components/slot_schema.py",
+      "sha256": "93ae378d72ce59f927fe5ce51daa25e2ab9201962fbadadeaf213333c429b461",
+      "bytes": 16619
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/components/io.py",
+      "module": "polisyos.foundry.methods.components.io",
+      "actual_path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/foundry/methods/components/io.py",
+      "sha256": "11fd5a3c49d0beb745d3007cb123671c9a53981f1856c1c1591ad909fcb6a621",
+      "bytes": 7890
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py",
+      "module": "polisyos.foundry.methods.backends.chain_executor",
+      "actual_path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py",
+      "sha256": "4ded29c3bb1ef77202b4a57d9595e8b4665552293e9b92321e675a52dcbee559",
+      "bytes": 42439
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/async_chain_executor.py",
+      "module": "polisyos.foundry.methods.backends.async_chain_executor",
+      "actual_path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/foundry/methods/backends/async_chain_executor.py",
+      "sha256": "769060f639d99f2a04f413cfcb7b7aa3fbd0812b38cf961b2a00f31a62da95e1",
+      "bytes": 13846
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/selection/registry.py",
+      "module": "polisyos.foundry.methods.selection.registry",
+      "actual_path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/foundry/methods/selection/registry.py",
+      "sha256": "3250f70d07a658c9beb9b9210254d425715129a1b9eb29cdbbcdc4a208c977b9",
+      "bytes": 35936
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/base.py",
+      "module": "polisyos.foundry.methods.base",
+      "actual_path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/foundry/methods/base.py",
+      "sha256": "ae6ab49021c3adbab8a72f39b2a7cc126d082a54d748f737e0092c64bd6720e8",
+      "bytes": 74245
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/exceptions.py",
+      "module": "polisyos.foundry.methods.exceptions",
+      "actual_path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/foundry/methods/exceptions.py",
+      "sha256": "70210012ae7f5bc26b36a92bc9c5ab612b77f9b318d57a1c718a44276b1c9441",
+      "bytes": 18716
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+      "module": "polisyos.foundry.methods.artifacts._implementation_identity",
+      "actual_path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+      "sha256": "5687fea7a29fb35a6093d2baa3f0a0c12674552dd4c29ee7867e096e19cee35d",
+      "bytes": 8535
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py",
+      "module": "polisyos.foundry.methods.backends.checkpointing",
+      "actual_path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py",
+      "sha256": "1e76c8b5c43136bf60f459fc41295c699ac1ff1f8640195c867b37eafc876bba",
+      "bytes": 58334
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/artifacts/_fingerprint.py",
+      "module": "polisyos.foundry.methods.artifacts._fingerprint",
+      "actual_path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/foundry/methods/artifacts/_fingerprint.py",
+      "sha256": "cfafabb1d101e35d44f51b4a5f36794339a498e64677ccd3a08f577a8f06d9af",
+      "bytes": 8151
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/runtime_fingerprint.py",
+      "module": "polisyos.foundry.methods.backends.runtime_fingerprint",
+      "actual_path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/foundry/methods/backends/runtime_fingerprint.py",
+      "sha256": "0a9f5711a3ea530cc6d0eeb4c29838780537080348bf558532f51a59dfaed8ea",
+      "bytes": 56214
+    }
+  ]
+}

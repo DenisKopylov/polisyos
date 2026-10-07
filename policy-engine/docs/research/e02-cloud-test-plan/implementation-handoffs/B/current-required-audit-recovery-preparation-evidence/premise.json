@@ -1,0 +1,26 @@
+{
+  "test_input_sha": "5290d8a8f6af3ac2d19364b297e09467ecea6512",
+  "test_sha256": "aa091fcb60933e78f60ab3f337ca2892e2d71042528da08d5d901ca5eb84fcde",
+  "prepared_definition_denominator": 3,
+  "prepared_case_denominator": 13,
+  "roles": {
+    "old_admission_barrier_cases": 4,
+    "same_original_owner_exact_entry_recovery_cases": 6,
+    "wrong_event_payload_logowner_refusal_cases": 3
+  },
+  "ast_equivalent_original_functions": [
+    "_call",
+    "test_protected_audit_reconciliation_precedes_next_provider"
+  ],
+  "old_whole_file_bytes_unchanged": false,
+  "input_delta_qualification": "Two original function ASTs unchanged; protected adapter helper generalized fail_action with original COMMITTED default, and nine new prepared cases/helpers added. Historical9c fullbytes/output remain immutable; source-only preparation does not claim wholefile equivalent runtime.",
+  "native": "UNRUN waiting immutable canonical typed API and ledger dependency. No native/collection/build/gate run for prepared input.",
+  "finite_trusted_resolver_profile": "Original configured ChainedAuditSink observer delegates actual original write; trusted constructor resolver checks exact failed ChainedLogEntry hash/payload/run/action/owner, known ledger ACK freshreadback, actual same target prefix then public LocalJsonlBackend.write/fsync and fresh full ChainVerifier. Hash-bound unsigned entry, no signature or institutional authority grant.",
+  "definite_noappend_only": "Actual fault creates a directory at same local append target. Positive replay excludes ambiguous fsync-afterappend and blind duplicates; prefix+retained exact entry must verify beforewrite.",
+  "proposed_API_only": "LLMAuditObligation/LLMAuditResolution and enforcer constructor audit_reconciler/reconcile_required_audit(act_id), public error.event audit_obligation/required_audit_status/knowncharge metadata were sent by ADAPTER. Future production source SHA not yet available, not claimed executed.",
+  "primary_financial_profiles": {
+    "RESERVED": "provider0/nocharge; original audit/reservation pending",
+    "RELEASED_after_producer_settled": "provider1, known.02 local receipt retained; released action alone cannot imply no compute",
+    "COMMITTED": "provider1, known.02receipt and obtained response retained while protected act missing"
+  }
+}

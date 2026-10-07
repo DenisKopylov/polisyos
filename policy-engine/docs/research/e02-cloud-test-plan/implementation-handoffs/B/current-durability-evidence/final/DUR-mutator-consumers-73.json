@@ -1,0 +1,69 @@
+{
+  "target_sha": "73a055e033dad61590d3ef03b9ff44aaef2c0990",
+  "target_tree": "e53602b3b7ed0c638cd196f2dc019628bcbe7cd6",
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "--basetemp=../.polisyos/e02-B-current-durability/tmp/DUR-mutator-consumers-73",
+    "--junitxml=../.polisyos/e02-B-current-durability/raw/DUR-mutator-consumers-73.xml",
+    "tests/unit/runtime/http/test_human_decision_guarded_timeout.py",
+    "tests/unit/runtime/http/test_runtime_step_up_authz.py",
+    "tests/unit/runtime/http/test_runtime_authorization_access_audit.py",
+    "tests/unit/runtime/http/test_runtime_deployment_security.py",
+    "tests/unit/runtime/http/test_runtime_postgres_linearizability.py",
+    "tests/unit/runtime/http/test_runtime_api_authz.py",
+    "tests/unit/runtime/http/test_control_worker_custody.py",
+    "tests/unit/runtime/http/test_control_worker_maintenance.py",
+    "tests/unit/runtime/http/test_normative_evidence_intake.py",
+    "tests/unit/runtime/http/test_normative_generation_bridge.py"
+  ],
+  "cwd": "/workspace/e02-B-current-durability/policy-engine",
+  "environment": {
+    "PYTHONPATH": "src",
+    "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "python": "3.14.2",
+    "no_artificial_process_or_numeric_thread_quota": true
+  },
+  "start_utc": "2026-10-06T10:55:06.557682+00:00",
+  "end_utc": "2026-10-06T11:02:31.928005+00:00",
+  "exit_code": 1,
+  "wall_s": 445.3761977469985,
+  "max_child_rss_kib": 1121984,
+  "status_before": "",
+  "status_after": "",
+  "inputs": [
+    "tests/unit/runtime/http/test_human_decision_guarded_timeout.py",
+    "tests/unit/runtime/http/test_runtime_step_up_authz.py",
+    "tests/unit/runtime/http/test_runtime_authorization_access_audit.py",
+    "tests/unit/runtime/http/test_runtime_deployment_security.py",
+    "tests/unit/runtime/http/test_runtime_postgres_linearizability.py",
+    "tests/unit/runtime/http/test_runtime_api_authz.py",
+    "tests/unit/runtime/http/test_control_worker_custody.py",
+    "tests/unit/runtime/http/test_control_worker_maintenance.py",
+    "tests/unit/runtime/http/test_normative_evidence_intake.py",
+    "tests/unit/runtime/http/test_normative_generation_bridge.py"
+  ],
+  "counts": {
+    "tests": 378,
+    "failures": 17,
+    "errors": 252,
+    "skipped": 6
+  },
+  "input_closure": "Actual checked checkout and complete native files; isolated unique pytest basetemp and real POSIX file/process controls or temporary SQLite typed collaborators; no production dataset/external services.",
+  "outputs": [
+    {
+      "path": "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/raw/DUR-mutator-consumers-73.txt",
+      "sha256": "edcd4598b68a4a74e9da6d85af5256d94de18871aecd913f26469fcc8504dc92",
+      "bytes": 934674
+    },
+    {
+      "path": "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/raw/DUR-mutator-consumers-73.xml",
+      "sha256": "c4b58c93d2f57b7a222b5b00d526837dff31dbde9d605d9c5080d40c36ecf6a4",
+      "bytes": 981716
+    }
+  ]
+}

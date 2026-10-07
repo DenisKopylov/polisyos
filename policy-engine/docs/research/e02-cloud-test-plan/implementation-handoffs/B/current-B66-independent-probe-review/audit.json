@@ -1,0 +1,1942 @@
+{
+  "reviewed_source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+  "reviewed_source_tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+  "author_handoff_ref": {
+    "commit": "28b581626fb1567699e55fe3fc983732fb768c07",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-unknown-cost-red.json",
+    "bytes": 12083,
+    "sha256": "904b3a02724411b2f8898d44a30e979d287b69061bed80889f185b21e57888e0",
+    "git_blob": "7175fb531310d135bdc9d2f7bfbb01197da66ce5"
+  },
+  "test_input_ref": {
+    "commit": "882b543ed7e9127abd777753811ff7a3a9c0857c",
+    "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+    "bytes": 12147,
+    "sha256": "8f4c01c0ad0e21dc93aee2ba88472a80e0d50486ae07ff1adb28286b6cb740e2",
+    "git_blob": "bf8d7c6963e217d3df01e6f87b26c9ec6c662888"
+  },
+  "author_actual_complete_refs": [
+    {
+      "commit": "28b581626fb1567699e55fe3fc983732fb768c07",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-unknown-cost-red-evidence/native.txt",
+      "bytes": 99500,
+      "sha256": "21fad5970ce6ec686940cd991b3af355ac3dba93464d33ee83cd759af2fe06cf",
+      "git_blob": "473612f7de51439187dd96b41556ce15e37d2ff4"
+    },
+    {
+      "commit": "28b581626fb1567699e55fe3fc983732fb768c07",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-unknown-cost-red-evidence/native.xml",
+      "bytes": 12769,
+      "sha256": "efc7904e572dde884ecee7d6c3b49711d9c1efaa8a936710127e79fc24a41ae6",
+      "git_blob": "519033ba50af5a4798120ca6e659cd9b290860d1"
+    },
+    {
+      "commit": "28b581626fb1567699e55fe3fc983732fb768c07",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-unknown-cost-red-evidence/native.json",
+      "bytes": 4927,
+      "sha256": "4fa1a14b859d9baad597b283b007c1ec0053e98cee7ac4d84fbaff6ba2e586c8",
+      "git_blob": "7e10eec4b94ed1552ff7acde2faac3cb389775a4"
+    },
+    {
+      "commit": "28b581626fb1567699e55fe3fc983732fb768c07",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-unknown-cost-red-evidence/run-native.source.txt",
+      "bytes": 3667,
+      "sha256": "75c88091125b2a0a7aee4e2d3312a7ef745bbb1af2ac50539607980f2f434b43",
+      "git_blob": "c041fec7861bcdad4b1f5a4d77a1dd3b9b2785af"
+    },
+    {
+      "commit": "28b581626fb1567699e55fe3fc983732fb768c07",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-unknown-cost-red-evidence/all-case-quantities.json",
+      "bytes": 32819,
+      "sha256": "a92141698b24a695207ee7f66b4c75ab965c401542de930c028da2f1fce1db41",
+      "git_blob": "c8702a702ef9866c71c9ab7a287c10eb2d6a729a"
+    },
+    {
+      "commit": "28b581626fb1567699e55fe3fc983732fb768c07",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-unknown-cost-red-evidence/index.json",
+      "bytes": 1314,
+      "sha256": "022726e43c279723089f4b85afdc031c2130c470e9ac7ca8a1149609982ce3a9",
+      "git_blob": "34c384b07e89d36e5e3f00787f3141089f6f839f"
+    }
+  ],
+  "author_index_shape_keys": [
+    "files"
+  ],
+  "author_index_recomputed_refs": [
+    {
+      "commit": "28b581626fb1567699e55fe3fc983732fb768c07",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-unknown-cost-red-evidence/all-case-quantities.json",
+      "bytes": 32819,
+      "sha256": "a92141698b24a695207ee7f66b4c75ab965c401542de930c028da2f1fce1db41",
+      "git_blob": "c8702a702ef9866c71c9ab7a287c10eb2d6a729a"
+    },
+    {
+      "commit": "28b581626fb1567699e55fe3fc983732fb768c07",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-unknown-cost-red-evidence/native.json",
+      "bytes": 4927,
+      "sha256": "4fa1a14b859d9baad597b283b007c1ec0053e98cee7ac4d84fbaff6ba2e586c8",
+      "git_blob": "7e10eec4b94ed1552ff7acde2faac3cb389775a4"
+    },
+    {
+      "commit": "28b581626fb1567699e55fe3fc983732fb768c07",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-unknown-cost-red-evidence/native.txt",
+      "bytes": 99500,
+      "sha256": "21fad5970ce6ec686940cd991b3af355ac3dba93464d33ee83cd759af2fe06cf",
+      "git_blob": "473612f7de51439187dd96b41556ce15e37d2ff4"
+    },
+    {
+      "commit": "28b581626fb1567699e55fe3fc983732fb768c07",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-unknown-cost-red-evidence/native.xml",
+      "bytes": 12769,
+      "sha256": "efc7904e572dde884ecee7d6c3b49711d9c1efaa8a936710127e79fc24a41ae6",
+      "git_blob": "519033ba50af5a4798120ca6e659cd9b290860d1"
+    },
+    {
+      "commit": "28b581626fb1567699e55fe3fc983732fb768c07",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-unknown-cost-red-evidence/run-native.source.txt",
+      "bytes": 3667,
+      "sha256": "75c88091125b2a0a7aee4e2d3312a7ef745bbb1af2ac50539607980f2f434b43",
+      "git_blob": "c041fec7861bcdad4b1f5a4d77a1dd3b9b2785af"
+    }
+  ],
+  "full_actual_case_denominator": 16,
+  "independent_quantities_join_rows": [
+    {
+      "native_case": {
+        "classname": "",
+        "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[False-sdk-missing-usage]",
+        "outcome": "FAIL",
+        "failure_message": "AssertionError: {'actual_acks': [{'durability': 'ledger', 'event_id': 'llm-producer:b63c06f80ba645c7b5970f55258bc169', 'receipts': [{'...kens': 2, 'temperature': 0.0, 'user': 'nonempty actual request'}}], 'cache_entries': 1, 'caller_cancelled': False, ...}\nassert False\n +  where False = isinstance(_ProducerGatewayResponse(content='actual completed response', usage=GatewayUsage(prompt_tokens=0, completion_tokens=0,...0f0b67abed6c57c4ebce3fa14767a56c4d4c5f9818e58d4', 'provider_call': True, 'usage_origin': 'provider'}}, tool_calls=None), LLMAccountingError)"
+      },
+      "profile": "sdk-missing-usage",
+      "caller_cancelled": false,
+      "physical_provider_work": [
+        {
+          "call": 1,
+          "request": {
+            "max_tokens": 2,
+            "temperature": 0.0,
+            "user": "nonempty actual request"
+          }
+        }
+      ],
+      "input_normalization": {
+        "completion_tokens": 0,
+        "cost_usd": null,
+        "prompt_tokens": 0,
+        "raw_is_none": false,
+        "response_type": "GatewayLLMResponse"
+      },
+      "reserved_before_completion": "0.0000225",
+      "event": {
+        "amount": "0.0",
+        "cost_origin": "estimated",
+        "event_id": "llm-producer:b63c06f80ba645c7b5970f55258bc169",
+        "kind": "provider",
+        "payload_digest": "sha256:ff02bb86489653ae2dddb78abe0a487da436173462c4adfa9f788475fa29b57b"
+      },
+      "actual_ack": {
+        "durability": "ledger",
+        "event_id": "llm-producer:b63c06f80ba645c7b5970f55258bc169",
+        "receipts": [
+          {
+            "amount": "0.0",
+            "committed_at": "2026-10-06T19:44:40.294241Z",
+            "event_id": "llm-producer:b63c06f80ba645c7b5970f55258bc169:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+            "key": "run",
+            "payload_digest": "1908f1dacc7bf7a7fc036e15778b0b0e44fedef19c309ed20a236c8b8365aa4f",
+            "provider": "synthetic-operation",
+            "revision": 2
+          }
+        ],
+        "status": "committed"
+      },
+      "fresh_readback": {
+        "state": {
+          "limits": {
+            "run": {
+              "key": "run",
+              "max_usd": "10",
+              "soft_limit_usd": null
+            }
+          },
+          "provider_spent": {
+            "synthetic-operation": "0.0"
+          },
+          "reserved": {
+            "run": "0"
+          },
+          "spent": {
+            "run": "0.0"
+          }
+        },
+        "receipt": {
+          "amount": "0.0",
+          "committed_at": "2026-10-06T19:44:40.294241Z",
+          "event_id": "llm-producer:b63c06f80ba645c7b5970f55258bc169:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+          "key": "run",
+          "payload_digest": "1908f1dacc7bf7a7fc036e15778b0b0e44fedef19c309ed20a236c8b8365aa4f",
+          "provider": "synthetic-operation",
+          "revision": 2
+        }
+      },
+      "cache_entries": 1,
+      "result_exception": null,
+      "grade": "actual_successfully_decoded_unknown_amount_escape"
+    },
+    {
+      "native_case": {
+        "classname": "",
+        "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[False-sdk-invalid-usage]",
+        "outcome": "FAIL",
+        "failure_message": "AssertionError: {'actual_acks': [{'durability': 'ledger', 'event_id': 'llm-producer:30439d460fa74afc9d1fcc986fd9295c', 'receipts': [{'...kens': 2, 'temperature': 0.0, 'user': 'nonempty actual request'}}], 'cache_entries': 1, 'caller_cancelled': False, ...}\nassert False\n +  where False = isinstance(_ProducerGatewayResponse(content='actual completed response', usage=GatewayUsage(prompt_tokens=0, completion_tokens=0,...8c4dab36a60d1eed8c6e198d1d8168c6c66f292eba17dd7', 'provider_call': True, 'usage_origin': 'provider'}}, tool_calls=None), LLMAccountingError)"
+      },
+      "profile": "sdk-invalid-usage",
+      "caller_cancelled": false,
+      "physical_provider_work": [
+        {
+          "call": 1,
+          "request": {
+            "max_tokens": 2,
+            "temperature": 0.0,
+            "user": "nonempty actual request"
+          }
+        }
+      ],
+      "input_normalization": {
+        "completion_tokens": 0,
+        "cost_usd": null,
+        "prompt_tokens": 0,
+        "raw_is_none": false,
+        "response_type": "GatewayLLMResponse"
+      },
+      "reserved_before_completion": "0.0000225",
+      "event": {
+        "amount": "0.0",
+        "cost_origin": "estimated",
+        "event_id": "llm-producer:30439d460fa74afc9d1fcc986fd9295c",
+        "kind": "provider",
+        "payload_digest": "sha256:e8c3cece1cf529efe41cd1ba894d2560356ee92621bfc7c5c9349c6478b2009d"
+      },
+      "actual_ack": {
+        "durability": "ledger",
+        "event_id": "llm-producer:30439d460fa74afc9d1fcc986fd9295c",
+        "receipts": [
+          {
+            "amount": "0.0",
+            "committed_at": "2026-10-06T19:44:40.343806Z",
+            "event_id": "llm-producer:30439d460fa74afc9d1fcc986fd9295c:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+            "key": "run",
+            "payload_digest": "3818419abd93fb74e2ce00d365a30fd53fcf12ec2508e88581fff7f4d88117fb",
+            "provider": "synthetic-operation",
+            "revision": 2
+          }
+        ],
+        "status": "committed"
+      },
+      "fresh_readback": {
+        "state": {
+          "limits": {
+            "run": {
+              "key": "run",
+              "max_usd": "10",
+              "soft_limit_usd": null
+            }
+          },
+          "provider_spent": {
+            "synthetic-operation": "0.0"
+          },
+          "reserved": {
+            "run": "0"
+          },
+          "spent": {
+            "run": "0.0"
+          }
+        },
+        "receipt": {
+          "amount": "0.0",
+          "committed_at": "2026-10-06T19:44:40.343806Z",
+          "event_id": "llm-producer:30439d460fa74afc9d1fcc986fd9295c:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+          "key": "run",
+          "payload_digest": "3818419abd93fb74e2ce00d365a30fd53fcf12ec2508e88581fff7f4d88117fb",
+          "provider": "synthetic-operation",
+          "revision": 2
+        }
+      },
+      "cache_entries": 1,
+      "result_exception": null,
+      "grade": "actual_successfully_decoded_unknown_amount_escape"
+    },
+    {
+      "native_case": {
+        "classname": "",
+        "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[False-raw-none-default-usage]",
+        "outcome": "FAIL",
+        "failure_message": "AssertionError: {'actual_acks': [{'durability': 'ledger', 'event_id': 'llm-producer:a8e2a5b5ed2f4e12adae70b6070163b7', 'receipts': [{'...kens': 2, 'temperature': 0.0, 'user': 'nonempty actual request'}}], 'cache_entries': 1, 'caller_cancelled': False, ...}\nassert False\n +  where False = isinstance(_ProducerGatewayResponse(content='actual completed response', usage=GatewayUsage(prompt_tokens=0, completion_tokens=0,...e0cae06ef8e8332057e0f103e544a5a299a9f12d6735adc', 'provider_call': True, 'usage_origin': 'provider'}}, tool_calls=None), LLMAccountingError)"
+      },
+      "profile": "raw-none-default-usage",
+      "caller_cancelled": false,
+      "physical_provider_work": [
+        {
+          "call": 1,
+          "request": {
+            "max_tokens": 2,
+            "temperature": 0.0,
+            "user": "nonempty actual request"
+          }
+        }
+      ],
+      "input_normalization": {
+        "completion_tokens": 0,
+        "cost_usd": null,
+        "prompt_tokens": 0,
+        "raw_is_none": true,
+        "response_type": "GatewayLLMResponse"
+      },
+      "reserved_before_completion": "0.0000225",
+      "event": {
+        "amount": "0.0",
+        "cost_origin": "estimated",
+        "event_id": "llm-producer:a8e2a5b5ed2f4e12adae70b6070163b7",
+        "kind": "provider",
+        "payload_digest": "sha256:83eac39eaaa01d3834939788591a85de307c07e5ace3ff52e823eb42e852ca77"
+      },
+      "actual_ack": {
+        "durability": "ledger",
+        "event_id": "llm-producer:a8e2a5b5ed2f4e12adae70b6070163b7",
+        "receipts": [
+          {
+            "amount": "0.0",
+            "committed_at": "2026-10-06T19:44:40.375071Z",
+            "event_id": "llm-producer:a8e2a5b5ed2f4e12adae70b6070163b7:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+            "key": "run",
+            "payload_digest": "c0334de36854e63afbfd01c687759ddb362b4dfe956912323cb21d9e54944ee7",
+            "provider": "synthetic-operation",
+            "revision": 2
+          }
+        ],
+        "status": "committed"
+      },
+      "fresh_readback": {
+        "state": {
+          "limits": {
+            "run": {
+              "key": "run",
+              "max_usd": "10",
+              "soft_limit_usd": null
+            }
+          },
+          "provider_spent": {
+            "synthetic-operation": "0.0"
+          },
+          "reserved": {
+            "run": "0"
+          },
+          "spent": {
+            "run": "0.0"
+          }
+        },
+        "receipt": {
+          "amount": "0.0",
+          "committed_at": "2026-10-06T19:44:40.375071Z",
+          "event_id": "llm-producer:a8e2a5b5ed2f4e12adae70b6070163b7:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+          "key": "run",
+          "payload_digest": "c0334de36854e63afbfd01c687759ddb362b4dfe956912323cb21d9e54944ee7",
+          "provider": "synthetic-operation",
+          "revision": 2
+        }
+      },
+      "cache_entries": 1,
+      "result_exception": null,
+      "grade": "actual_successfully_decoded_unknown_amount_escape"
+    },
+    {
+      "native_case": {
+        "classname": "",
+        "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[False-none-response]",
+        "outcome": "FAIL",
+        "failure_message": "AssertionError: {'actual_acks': [{'durability': 'ledger', 'event_id': 'llm-producer:06ce751645574e6db1be09167b7fbd2e', 'receipts': [{'...kens': 2, 'temperature': 0.0, 'user': 'nonempty actual request'}}], 'cache_entries': 0, 'caller_cancelled': False, ...}\nassert False\n +  where False = isinstance(AttributeError(\"'NoneType' object has no attribute 'content'\"), LLMAccountingError)"
+      },
+      "profile": "none-response",
+      "caller_cancelled": false,
+      "physical_provider_work": [
+        {
+          "call": 1,
+          "request": {
+            "max_tokens": 2,
+            "temperature": 0.0,
+            "user": "nonempty actual request"
+          }
+        }
+      ],
+      "input_normalization": {
+        "completion_tokens": 0,
+        "cost_usd": null,
+        "prompt_tokens": 0,
+        "raw_is_none": true,
+        "response_type": "NoneType"
+      },
+      "reserved_before_completion": "0.0000225",
+      "event": {
+        "amount": "0.0",
+        "cost_origin": "estimated",
+        "event_id": "llm-producer:06ce751645574e6db1be09167b7fbd2e",
+        "kind": "provider",
+        "payload_digest": "sha256:875e15c7cbcc07781c5cd8ba7d119c64983c225dc258153503dbdeadb7103a1d"
+      },
+      "actual_ack": {
+        "durability": "ledger",
+        "event_id": "llm-producer:06ce751645574e6db1be09167b7fbd2e",
+        "receipts": [
+          {
+            "amount": "0.0",
+            "committed_at": "2026-10-06T19:44:40.405575Z",
+            "event_id": "llm-producer:06ce751645574e6db1be09167b7fbd2e:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+            "key": "run",
+            "payload_digest": "8b8e4cb8df9b2eb7ada805c8d057c721c2c3a8264a6e22a514230812a7eb8383",
+            "provider": "unknown",
+            "revision": 2
+          }
+        ],
+        "status": "committed"
+      },
+      "fresh_readback": {
+        "state": {
+          "limits": {
+            "run": {
+              "key": "run",
+              "max_usd": "10",
+              "soft_limit_usd": null
+            }
+          },
+          "provider_spent": {
+            "unknown": "0.0"
+          },
+          "reserved": {
+            "run": "0"
+          },
+          "spent": {
+            "run": "0.0"
+          }
+        },
+        "receipt": {
+          "amount": "0.0",
+          "committed_at": "2026-10-06T19:44:40.405575Z",
+          "event_id": "llm-producer:06ce751645574e6db1be09167b7fbd2e:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+          "key": "run",
+          "payload_digest": "8b8e4cb8df9b2eb7ada805c8d057c721c2c3a8264a6e22a514230812a7eb8383",
+          "provider": "unknown",
+          "revision": 2
+        }
+      },
+      "cache_entries": 0,
+      "result_exception": "AttributeError",
+      "grade": "malformed_completed_response_separately_bounded"
+    },
+    {
+      "native_case": {
+        "classname": "",
+        "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[True-sdk-missing-usage]",
+        "outcome": "FAIL",
+        "failure_message": "AssertionError: {'actual_acks': [{'durability': 'ledger', 'event_id': 'llm-producer:50ebfdc11b57469b858cd0d9570609ff', 'receipts': [{'...okens': 2, 'temperature': 0.0, 'user': 'nonempty actual request'}}], 'cache_entries': 1, 'caller_cancelled': True, ...}\nassert False\n +  where False = isinstance(_ProducerGatewayResponse(content='actual completed response', usage=GatewayUsage(prompt_tokens=0, completion_tokens=0,...05015275a703826f7c7ca9ba79f2bf57580fc5cb81452b1', 'provider_call': True, 'usage_origin': 'provider'}}, tool_calls=None), LLMAccountingError)"
+      },
+      "profile": "sdk-missing-usage",
+      "caller_cancelled": true,
+      "physical_provider_work": [
+        {
+          "call": 1,
+          "request": {
+            "max_tokens": 2,
+            "temperature": 0.0,
+            "user": "nonempty actual request"
+          }
+        }
+      ],
+      "input_normalization": {
+        "completion_tokens": 0,
+        "cost_usd": null,
+        "prompt_tokens": 0,
+        "raw_is_none": false,
+        "response_type": "GatewayLLMResponse"
+      },
+      "reserved_before_completion": "0.0000225",
+      "event": {
+        "amount": "0.0",
+        "cost_origin": "estimated",
+        "event_id": "llm-producer:50ebfdc11b57469b858cd0d9570609ff",
+        "kind": "provider",
+        "payload_digest": "sha256:55a3b373ca01b53546f6d4e49db2591e6f4022fc3297c7bd2b013ae43710216c"
+      },
+      "actual_ack": {
+        "durability": "ledger",
+        "event_id": "llm-producer:50ebfdc11b57469b858cd0d9570609ff",
+        "receipts": [
+          {
+            "amount": "0.0",
+            "committed_at": "2026-10-06T19:44:40.435368Z",
+            "event_id": "llm-producer:50ebfdc11b57469b858cd0d9570609ff:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+            "key": "run",
+            "payload_digest": "29eceae44698b6c0e2781ac13c47d029d4beb0d6ec07b556fcdea25ba6c72772",
+            "provider": "synthetic-operation",
+            "revision": 2
+          }
+        ],
+        "status": "committed"
+      },
+      "fresh_readback": {
+        "state": {
+          "limits": {
+            "run": {
+              "key": "run",
+              "max_usd": "10",
+              "soft_limit_usd": null
+            }
+          },
+          "provider_spent": {
+            "synthetic-operation": "0.0"
+          },
+          "reserved": {
+            "run": "0"
+          },
+          "spent": {
+            "run": "0.0"
+          }
+        },
+        "receipt": {
+          "amount": "0.0",
+          "committed_at": "2026-10-06T19:44:40.435368Z",
+          "event_id": "llm-producer:50ebfdc11b57469b858cd0d9570609ff:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+          "key": "run",
+          "payload_digest": "29eceae44698b6c0e2781ac13c47d029d4beb0d6ec07b556fcdea25ba6c72772",
+          "provider": "synthetic-operation",
+          "revision": 2
+        }
+      },
+      "cache_entries": 1,
+      "result_exception": null,
+      "grade": "actual_successfully_decoded_unknown_amount_escape"
+    },
+    {
+      "native_case": {
+        "classname": "",
+        "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[True-sdk-invalid-usage]",
+        "outcome": "FAIL",
+        "failure_message": "AssertionError: {'actual_acks': [{'durability': 'ledger', 'event_id': 'llm-producer:4d4812f8a5cb48a59a0191165587641a', 'receipts': [{'...okens': 2, 'temperature': 0.0, 'user': 'nonempty actual request'}}], 'cache_entries': 1, 'caller_cancelled': True, ...}\nassert False\n +  where False = isinstance(_ProducerGatewayResponse(content='actual completed response', usage=GatewayUsage(prompt_tokens=0, completion_tokens=0,...2c1165b3a8e4ecfb711278450dcad7c4b7d49d08ec7634e', 'provider_call': True, 'usage_origin': 'provider'}}, tool_calls=None), LLMAccountingError)"
+      },
+      "profile": "sdk-invalid-usage",
+      "caller_cancelled": true,
+      "physical_provider_work": [
+        {
+          "call": 1,
+          "request": {
+            "max_tokens": 2,
+            "temperature": 0.0,
+            "user": "nonempty actual request"
+          }
+        }
+      ],
+      "input_normalization": {
+        "completion_tokens": 0,
+        "cost_usd": null,
+        "prompt_tokens": 0,
+        "raw_is_none": false,
+        "response_type": "GatewayLLMResponse"
+      },
+      "reserved_before_completion": "0.0000225",
+      "event": {
+        "amount": "0.0",
+        "cost_origin": "estimated",
+        "event_id": "llm-producer:4d4812f8a5cb48a59a0191165587641a",
+        "kind": "provider",
+        "payload_digest": "sha256:e9a0e9423618c517e10f7361084ad13ea6ec91e7504a85e3165abfec428492c2"
+      },
+      "actual_ack": {
+        "durability": "ledger",
+        "event_id": "llm-producer:4d4812f8a5cb48a59a0191165587641a",
+        "receipts": [
+          {
+            "amount": "0.0",
+            "committed_at": "2026-10-06T19:44:40.467518Z",
+            "event_id": "llm-producer:4d4812f8a5cb48a59a0191165587641a:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+            "key": "run",
+            "payload_digest": "fda640ae50c399460de6c32074e3571f1a424ce60078ed59c54e708f89e2b0ec",
+            "provider": "synthetic-operation",
+            "revision": 2
+          }
+        ],
+        "status": "committed"
+      },
+      "fresh_readback": {
+        "state": {
+          "limits": {
+            "run": {
+              "key": "run",
+              "max_usd": "10",
+              "soft_limit_usd": null
+            }
+          },
+          "provider_spent": {
+            "synthetic-operation": "0.0"
+          },
+          "reserved": {
+            "run": "0"
+          },
+          "spent": {
+            "run": "0.0"
+          }
+        },
+        "receipt": {
+          "amount": "0.0",
+          "committed_at": "2026-10-06T19:44:40.467518Z",
+          "event_id": "llm-producer:4d4812f8a5cb48a59a0191165587641a:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+          "key": "run",
+          "payload_digest": "fda640ae50c399460de6c32074e3571f1a424ce60078ed59c54e708f89e2b0ec",
+          "provider": "synthetic-operation",
+          "revision": 2
+        }
+      },
+      "cache_entries": 1,
+      "result_exception": null,
+      "grade": "actual_successfully_decoded_unknown_amount_escape"
+    },
+    {
+      "native_case": {
+        "classname": "",
+        "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[True-raw-none-default-usage]",
+        "outcome": "FAIL",
+        "failure_message": "AssertionError: {'actual_acks': [{'durability': 'ledger', 'event_id': 'llm-producer:136825346226422f82d491c25c77b65d', 'receipts': [{'...okens': 2, 'temperature': 0.0, 'user': 'nonempty actual request'}}], 'cache_entries': 1, 'caller_cancelled': True, ...}\nassert False\n +  where False = isinstance(_ProducerGatewayResponse(content='actual completed response', usage=GatewayUsage(prompt_tokens=0, completion_tokens=0,...70cfd2c88d685dc77e9b577ad215fc97f7220f9d918e52b', 'provider_call': True, 'usage_origin': 'provider'}}, tool_calls=None), LLMAccountingError)"
+      },
+      "profile": "raw-none-default-usage",
+      "caller_cancelled": true,
+      "physical_provider_work": [
+        {
+          "call": 1,
+          "request": {
+            "max_tokens": 2,
+            "temperature": 0.0,
+            "user": "nonempty actual request"
+          }
+        }
+      ],
+      "input_normalization": {
+        "completion_tokens": 0,
+        "cost_usd": null,
+        "prompt_tokens": 0,
+        "raw_is_none": true,
+        "response_type": "GatewayLLMResponse"
+      },
+      "reserved_before_completion": "0.0000225",
+      "event": {
+        "amount": "0.0",
+        "cost_origin": "estimated",
+        "event_id": "llm-producer:136825346226422f82d491c25c77b65d",
+        "kind": "provider",
+        "payload_digest": "sha256:ca19c2beb6ed79017b926a64f4cb4d348e240948ea3c721de06349206dd3002b"
+      },
+      "actual_ack": {
+        "durability": "ledger",
+        "event_id": "llm-producer:136825346226422f82d491c25c77b65d",
+        "receipts": [
+          {
+            "amount": "0.0",
+            "committed_at": "2026-10-06T19:44:40.498248Z",
+            "event_id": "llm-producer:136825346226422f82d491c25c77b65d:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+            "key": "run",
+            "payload_digest": "8de374e04b5ed70cb32dd07ecfe59aa7e7dcce9b0925e288d8e1e54cdc2945b0",
+            "provider": "synthetic-operation",
+            "revision": 2
+          }
+        ],
+        "status": "committed"
+      },
+      "fresh_readback": {
+        "state": {
+          "limits": {
+            "run": {
+              "key": "run",
+              "max_usd": "10",
+              "soft_limit_usd": null
+            }
+          },
+          "provider_spent": {
+            "synthetic-operation": "0.0"
+          },
+          "reserved": {
+            "run": "0"
+          },
+          "spent": {
+            "run": "0.0"
+          }
+        },
+        "receipt": {
+          "amount": "0.0",
+          "committed_at": "2026-10-06T19:44:40.498248Z",
+          "event_id": "llm-producer:136825346226422f82d491c25c77b65d:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+          "key": "run",
+          "payload_digest": "8de374e04b5ed70cb32dd07ecfe59aa7e7dcce9b0925e288d8e1e54cdc2945b0",
+          "provider": "synthetic-operation",
+          "revision": 2
+        }
+      },
+      "cache_entries": 1,
+      "result_exception": null,
+      "grade": "actual_successfully_decoded_unknown_amount_escape"
+    },
+    {
+      "native_case": {
+        "classname": "",
+        "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[True-none-response]",
+        "outcome": "FAIL",
+        "failure_message": "AssertionError: {'actual_acks': [{'durability': 'ledger', 'event_id': 'llm-producer:0a9bddd8344c40cb982713f229aba207', 'receipts': [{'...okens': 2, 'temperature': 0.0, 'user': 'nonempty actual request'}}], 'cache_entries': 0, 'caller_cancelled': True, ...}\nassert False\n +  where False = isinstance(AttributeError(\"'NoneType' object has no attribute 'content'\"), LLMAccountingError)"
+      },
+      "profile": "none-response",
+      "caller_cancelled": true,
+      "physical_provider_work": [
+        {
+          "call": 1,
+          "request": {
+            "max_tokens": 2,
+            "temperature": 0.0,
+            "user": "nonempty actual request"
+          }
+        }
+      ],
+      "input_normalization": {
+        "completion_tokens": 0,
+        "cost_usd": null,
+        "prompt_tokens": 0,
+        "raw_is_none": true,
+        "response_type": "NoneType"
+      },
+      "reserved_before_completion": "0.0000225",
+      "event": {
+        "amount": "0.0",
+        "cost_origin": "estimated",
+        "event_id": "llm-producer:0a9bddd8344c40cb982713f229aba207",
+        "kind": "provider",
+        "payload_digest": "sha256:ac549921e6bd8aa36b131eba0503aec0f9fc184d3a9f0adc9afba080ad4602d8"
+      },
+      "actual_ack": {
+        "durability": "ledger",
+        "event_id": "llm-producer:0a9bddd8344c40cb982713f229aba207",
+        "receipts": [
+          {
+            "amount": "0.0",
+            "committed_at": "2026-10-06T19:44:40.528093Z",
+            "event_id": "llm-producer:0a9bddd8344c40cb982713f229aba207:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+            "key": "run",
+            "payload_digest": "ec614c44b63fc711137122f9e671eae9dd1d994d52e78795d7341b1133684206",
+            "provider": "unknown",
+            "revision": 2
+          }
+        ],
+        "status": "committed"
+      },
+      "fresh_readback": {
+        "state": {
+          "limits": {
+            "run": {
+              "key": "run",
+              "max_usd": "10",
+              "soft_limit_usd": null
+            }
+          },
+          "provider_spent": {
+            "unknown": "0.0"
+          },
+          "reserved": {
+            "run": "0"
+          },
+          "spent": {
+            "run": "0.0"
+          }
+        },
+        "receipt": {
+          "amount": "0.0",
+          "committed_at": "2026-10-06T19:44:40.528093Z",
+          "event_id": "llm-producer:0a9bddd8344c40cb982713f229aba207:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+          "key": "run",
+          "payload_digest": "ec614c44b63fc711137122f9e671eae9dd1d994d52e78795d7341b1133684206",
+          "provider": "unknown",
+          "revision": 2
+        }
+      },
+      "cache_entries": 0,
+      "result_exception": "AttributeError",
+      "grade": "malformed_completed_response_separately_bounded"
+    },
+    {
+      "native_case": {
+        "classname": "",
+        "name": "test_known_usage_and_price_preserve_legitimate_charge_controls[False-reported-positive]",
+        "outcome": "PASS",
+        "failure_message": null
+      },
+      "profile": "reported-positive",
+      "caller_cancelled": false,
+      "physical_provider_work": [
+        {
+          "call": 1,
+          "request": {
+            "max_tokens": 2,
+            "temperature": 0.0,
+            "user": "nonempty actual request"
+          }
+        }
+      ],
+      "input_normalization": {
+        "completion_tokens": 3,
+        "cost_usd": 0.02,
+        "prompt_tokens": 7,
+        "raw_is_none": true,
+        "response_type": "GatewayLLMResponse"
+      },
+      "reserved_before_completion": "0.0000225",
+      "event": {
+        "amount": "0.02",
+        "cost_origin": "reported",
+        "event_id": "llm-producer:d89c9588b66a41c0aec405f8bd0a6c26",
+        "kind": "provider",
+        "payload_digest": "sha256:2c23cdc13853444970ca74858fba76b9abc24bae9bd80293348c8900d0be8366"
+      },
+      "actual_ack": {
+        "durability": "ledger",
+        "event_id": "llm-producer:d89c9588b66a41c0aec405f8bd0a6c26",
+        "receipts": [
+          {
+            "amount": "0.02",
+            "committed_at": "2026-10-06T19:44:40.560323Z",
+            "event_id": "llm-producer:d89c9588b66a41c0aec405f8bd0a6c26:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+            "key": "run",
+            "payload_digest": "fe6706e9c0eb80db89eb6e13b94d6614f29464c9e9251aef2ef7a03a81396529",
+            "provider": "synthetic-operation",
+            "revision": 2
+          }
+        ],
+        "status": "committed"
+      },
+      "fresh_readback": {
+        "state": {
+          "limits": {
+            "run": {
+              "key": "run",
+              "max_usd": "10",
+              "soft_limit_usd": null
+            }
+          },
+          "provider_spent": {
+            "synthetic-operation": "0.02"
+          },
+          "reserved": {
+            "run": "0"
+          },
+          "spent": {
+            "run": "0.02"
+          }
+        },
+        "receipt": {
+          "amount": "0.02",
+          "committed_at": "2026-10-06T19:44:40.560323Z",
+          "event_id": "llm-producer:d89c9588b66a41c0aec405f8bd0a6c26:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+          "key": "run",
+          "payload_digest": "fe6706e9c0eb80db89eb6e13b94d6614f29464c9e9251aef2ef7a03a81396529",
+          "provider": "synthetic-operation",
+          "revision": 2
+        }
+      },
+      "cache_entries": 1,
+      "result_exception": null,
+      "grade": "actual_known_cost_control"
+    },
+    {
+      "native_case": {
+        "classname": "",
+        "name": "test_known_usage_and_price_preserve_legitimate_charge_controls[False-reported-zero]",
+        "outcome": "PASS",
+        "failure_message": null
+      },
+      "profile": "reported-zero",
+      "caller_cancelled": false,
+      "physical_provider_work": [
+        {
+          "call": 1,
+          "request": {
+            "max_tokens": 2,
+            "temperature": 0.0,
+            "user": "nonempty actual request"
+          }
+        }
+      ],
+      "input_normalization": {
+        "completion_tokens": 0,
+        "cost_usd": 0.0,
+        "prompt_tokens": 0,
+        "raw_is_none": true,
+        "response_type": "GatewayLLMResponse"
+      },
+      "reserved_before_completion": "0.0000225",
+      "event": {
+        "amount": "0.0",
+        "cost_origin": "reported",
+        "event_id": "llm-producer:605ce6b43e73415399d3e2d8f7ff5d05",
+        "kind": "provider",
+        "payload_digest": "sha256:935f2e20bc0a8595a0367afa48d576b88757eb9bc5ab3ce1a1517a2aa09e681e"
+      },
+      "actual_ack": {
+        "durability": "ledger",
+        "event_id": "llm-producer:605ce6b43e73415399d3e2d8f7ff5d05",
+        "receipts": [
+          {
+            "amount": "0.0",
+            "committed_at": "2026-10-06T19:44:40.586498Z",
+            "event_id": "llm-producer:605ce6b43e73415399d3e2d8f7ff5d05:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+            "key": "run",
+            "payload_digest": "ec1cec5b34688ac1a3b97601dba2f7ba72363993c4733655f6d694b6e5262e18",
+            "provider": "synthetic-operation",
+            "revision": 2
+          }
+        ],
+        "status": "committed"
+      },
+      "fresh_readback": {
+        "state": {
+          "limits": {
+            "run": {
+              "key": "run",
+              "max_usd": "10",
+              "soft_limit_usd": null
+            }
+          },
+          "provider_spent": {
+            "synthetic-operation": "0.0"
+          },
+          "reserved": {
+            "run": "0"
+          },
+          "spent": {
+            "run": "0.0"
+          }
+        },
+        "receipt": {
+          "amount": "0.0",
+          "committed_at": "2026-10-06T19:44:40.586498Z",
+          "event_id": "llm-producer:605ce6b43e73415399d3e2d8f7ff5d05:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+          "key": "run",
+          "payload_digest": "ec1cec5b34688ac1a3b97601dba2f7ba72363993c4733655f6d694b6e5262e18",
+          "provider": "synthetic-operation",
+          "revision": 2
+        }
+      },
+      "cache_entries": 1,
+      "result_exception": null,
+      "grade": "actual_known_cost_control"
+    },
+    {
+      "native_case": {
+        "classname": "",
+        "name": "test_known_usage_and_price_preserve_legitimate_charge_controls[False-priced-known-usage]",
+        "outcome": "PASS",
+        "failure_message": null
+      },
+      "profile": "priced-known-usage",
+      "caller_cancelled": false,
+      "physical_provider_work": [
+        {
+          "call": 1,
+          "request": {
+            "max_tokens": 2,
+            "temperature": 0.0,
+            "user": "nonempty actual request"
+          }
+        }
+      ],
+      "input_normalization": {
+        "completion_tokens": 3,
+        "cost_usd": null,
+        "prompt_tokens": 7,
+        "raw_is_none": false,
+        "response_type": "GatewayLLMResponse"
+      },
+      "reserved_before_completion": "0.0000225",
+      "event": {
+        "amount": "0.0000475",
+        "cost_origin": "estimated",
+        "event_id": "llm-producer:84884a2f312340e39d238a9d7664762a",
+        "kind": "provider",
+        "payload_digest": "sha256:d3a477761087abdaf9c2ac39797ac4dfa4cede54959bdf10f1d36070ebdfc535"
+      },
+      "actual_ack": {
+        "durability": "ledger",
+        "event_id": "llm-producer:84884a2f312340e39d238a9d7664762a",
+        "receipts": [
+          {
+            "amount": "0.0000475",
+            "committed_at": "2026-10-06T19:44:40.612636Z",
+            "event_id": "llm-producer:84884a2f312340e39d238a9d7664762a:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+            "key": "run",
+            "payload_digest": "ea0873517e229bf4b364a847f2664fd8f215f23803a51380a69865ea181d6251",
+            "provider": "synthetic-operation",
+            "revision": 2
+          }
+        ],
+        "status": "committed"
+      },
+      "fresh_readback": {
+        "state": {
+          "limits": {
+            "run": {
+              "key": "run",
+              "max_usd": "10",
+              "soft_limit_usd": null
+            }
+          },
+          "provider_spent": {
+            "synthetic-operation": "0.0000475"
+          },
+          "reserved": {
+            "run": "0"
+          },
+          "spent": {
+            "run": "0.0000475"
+          }
+        },
+        "receipt": {
+          "amount": "0.0000475",
+          "committed_at": "2026-10-06T19:44:40.612636Z",
+          "event_id": "llm-producer:84884a2f312340e39d238a9d7664762a:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+          "key": "run",
+          "payload_digest": "ea0873517e229bf4b364a847f2664fd8f215f23803a51380a69865ea181d6251",
+          "provider": "synthetic-operation",
+          "revision": 2
+        }
+      },
+      "cache_entries": 1,
+      "result_exception": null,
+      "grade": "actual_known_cost_control"
+    },
+    {
+      "native_case": {
+        "classname": "",
+        "name": "test_known_usage_and_price_preserve_legitimate_charge_controls[False-priced-free-usage]",
+        "outcome": "PASS",
+        "failure_message": null
+      },
+      "profile": "priced-free-usage",
+      "caller_cancelled": false,
+      "physical_provider_work": [
+        {
+          "call": 1,
+          "request": {
+            "max_tokens": 2,
+            "temperature": 0.0,
+            "user": "nonempty actual request"
+          }
+        }
+      ],
+      "input_normalization": {
+        "completion_tokens": 3,
+        "cost_usd": null,
+        "prompt_tokens": 7,
+        "raw_is_none": false,
+        "response_type": "GatewayLLMResponse"
+      },
+      "reserved_before_completion": "0.0",
+      "event": {
+        "amount": "0.0",
+        "cost_origin": "estimated",
+        "event_id": "llm-producer:5712564c709340b4ad64f703d393b2fe",
+        "kind": "provider",
+        "payload_digest": "sha256:632eab854d7b85c19a88e3141a877d4ac6baef8da03afb2a11632e99bc114974"
+      },
+      "actual_ack": {
+        "durability": "ledger",
+        "event_id": "llm-producer:5712564c709340b4ad64f703d393b2fe",
+        "receipts": [
+          {
+            "amount": "0.0",
+            "committed_at": "2026-10-06T19:44:40.638694Z",
+            "event_id": "llm-producer:5712564c709340b4ad64f703d393b2fe:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+            "key": "run",
+            "payload_digest": "ab97d9f8385815db2a7956be14a8f374fa1cc270f542ec91368fe6e739aebf94",
+            "provider": "synthetic-operation",
+            "revision": 2
+          }
+        ],
+        "status": "committed"
+      },
+      "fresh_readback": {
+        "state": {
+          "limits": {
+            "run": {
+              "key": "run",
+              "max_usd": "10",
+              "soft_limit_usd": null
+            }
+          },
+          "provider_spent": {
+            "synthetic-operation": "0.0"
+          },
+          "reserved": {
+            "run": "0.0"
+          },
+          "spent": {
+            "run": "0.0"
+          }
+        },
+        "receipt": {
+          "amount": "0.0",
+          "committed_at": "2026-10-06T19:44:40.638694Z",
+          "event_id": "llm-producer:5712564c709340b4ad64f703d393b2fe:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+          "key": "run",
+          "payload_digest": "ab97d9f8385815db2a7956be14a8f374fa1cc270f542ec91368fe6e739aebf94",
+          "provider": "synthetic-operation",
+          "revision": 2
+        }
+      },
+      "cache_entries": 1,
+      "result_exception": null,
+      "grade": "actual_known_cost_control"
+    },
+    {
+      "native_case": {
+        "classname": "",
+        "name": "test_known_usage_and_price_preserve_legitimate_charge_controls[True-reported-positive]",
+        "outcome": "PASS",
+        "failure_message": null
+      },
+      "profile": "reported-positive",
+      "caller_cancelled": true,
+      "physical_provider_work": [
+        {
+          "call": 1,
+          "request": {
+            "max_tokens": 2,
+            "temperature": 0.0,
+            "user": "nonempty actual request"
+          }
+        }
+      ],
+      "input_normalization": {
+        "completion_tokens": 3,
+        "cost_usd": 0.02,
+        "prompt_tokens": 7,
+        "raw_is_none": true,
+        "response_type": "GatewayLLMResponse"
+      },
+      "reserved_before_completion": "0.0000225",
+      "event": {
+        "amount": "0.02",
+        "cost_origin": "reported",
+        "event_id": "llm-producer:3452f64a712846e1aaa8705501763cb2",
+        "kind": "provider",
+        "payload_digest": "sha256:011c58ca161018f6ae2ff1584641794b7d00ca18543e54ab056cae9ed2a076d1"
+      },
+      "actual_ack": {
+        "durability": "ledger",
+        "event_id": "llm-producer:3452f64a712846e1aaa8705501763cb2",
+        "receipts": [
+          {
+            "amount": "0.02",
+            "committed_at": "2026-10-06T19:44:40.664736Z",
+            "event_id": "llm-producer:3452f64a712846e1aaa8705501763cb2:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+            "key": "run",
+            "payload_digest": "d4cd8e393fcb4f75cdacf6c8fa6a4cc5004a5d853641834f53625b6c64cc61b9",
+            "provider": "synthetic-operation",
+            "revision": 2
+          }
+        ],
+        "status": "committed"
+      },
+      "fresh_readback": {
+        "state": {
+          "limits": {
+            "run": {
+              "key": "run",
+              "max_usd": "10",
+              "soft_limit_usd": null
+            }
+          },
+          "provider_spent": {
+            "synthetic-operation": "0.02"
+          },
+          "reserved": {
+            "run": "0"
+          },
+          "spent": {
+            "run": "0.02"
+          }
+        },
+        "receipt": {
+          "amount": "0.02",
+          "committed_at": "2026-10-06T19:44:40.664736Z",
+          "event_id": "llm-producer:3452f64a712846e1aaa8705501763cb2:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+          "key": "run",
+          "payload_digest": "d4cd8e393fcb4f75cdacf6c8fa6a4cc5004a5d853641834f53625b6c64cc61b9",
+          "provider": "synthetic-operation",
+          "revision": 2
+        }
+      },
+      "cache_entries": 1,
+      "result_exception": null,
+      "grade": "actual_known_cost_control"
+    },
+    {
+      "native_case": {
+        "classname": "",
+        "name": "test_known_usage_and_price_preserve_legitimate_charge_controls[True-reported-zero]",
+        "outcome": "PASS",
+        "failure_message": null
+      },
+      "profile": "reported-zero",
+      "caller_cancelled": true,
+      "physical_provider_work": [
+        {
+          "call": 1,
+          "request": {
+            "max_tokens": 2,
+            "temperature": 0.0,
+            "user": "nonempty actual request"
+          }
+        }
+      ],
+      "input_normalization": {
+        "completion_tokens": 0,
+        "cost_usd": 0.0,
+        "prompt_tokens": 0,
+        "raw_is_none": true,
+        "response_type": "GatewayLLMResponse"
+      },
+      "reserved_before_completion": "0.0000225",
+      "event": {
+        "amount": "0.0",
+        "cost_origin": "reported",
+        "event_id": "llm-producer:b1838730b60c47e2810aee84e4229925",
+        "kind": "provider",
+        "payload_digest": "sha256:61bb7032e225aeed75b9c083300db5fa7dacf581b847e0db664361326931a09c"
+      },
+      "actual_ack": {
+        "durability": "ledger",
+        "event_id": "llm-producer:b1838730b60c47e2810aee84e4229925",
+        "receipts": [
+          {
+            "amount": "0.0",
+            "committed_at": "2026-10-06T19:44:40.690981Z",
+            "event_id": "llm-producer:b1838730b60c47e2810aee84e4229925:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+            "key": "run",
+            "payload_digest": "699087b03cf2ce9b1111a06cefe6a149cfe2a7428c102ff311a1b9979acdacd4",
+            "provider": "synthetic-operation",
+            "revision": 2
+          }
+        ],
+        "status": "committed"
+      },
+      "fresh_readback": {
+        "state": {
+          "limits": {
+            "run": {
+              "key": "run",
+              "max_usd": "10",
+              "soft_limit_usd": null
+            }
+          },
+          "provider_spent": {
+            "synthetic-operation": "0.0"
+          },
+          "reserved": {
+            "run": "0"
+          },
+          "spent": {
+            "run": "0.0"
+          }
+        },
+        "receipt": {
+          "amount": "0.0",
+          "committed_at": "2026-10-06T19:44:40.690981Z",
+          "event_id": "llm-producer:b1838730b60c47e2810aee84e4229925:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+          "key": "run",
+          "payload_digest": "699087b03cf2ce9b1111a06cefe6a149cfe2a7428c102ff311a1b9979acdacd4",
+          "provider": "synthetic-operation",
+          "revision": 2
+        }
+      },
+      "cache_entries": 1,
+      "result_exception": null,
+      "grade": "actual_known_cost_control"
+    },
+    {
+      "native_case": {
+        "classname": "",
+        "name": "test_known_usage_and_price_preserve_legitimate_charge_controls[True-priced-known-usage]",
+        "outcome": "PASS",
+        "failure_message": null
+      },
+      "profile": "priced-known-usage",
+      "caller_cancelled": true,
+      "physical_provider_work": [
+        {
+          "call": 1,
+          "request": {
+            "max_tokens": 2,
+            "temperature": 0.0,
+            "user": "nonempty actual request"
+          }
+        }
+      ],
+      "input_normalization": {
+        "completion_tokens": 3,
+        "cost_usd": null,
+        "prompt_tokens": 7,
+        "raw_is_none": false,
+        "response_type": "GatewayLLMResponse"
+      },
+      "reserved_before_completion": "0.0000225",
+      "event": {
+        "amount": "0.0000475",
+        "cost_origin": "estimated",
+        "event_id": "llm-producer:2a1261edd94841d3884a6e1c728cad93",
+        "kind": "provider",
+        "payload_digest": "sha256:dcc0705fba3926944438b5b14d70459b60c5e8906f4f988e7d92343795ff0308"
+      },
+      "actual_ack": {
+        "durability": "ledger",
+        "event_id": "llm-producer:2a1261edd94841d3884a6e1c728cad93",
+        "receipts": [
+          {
+            "amount": "0.0000475",
+            "committed_at": "2026-10-06T19:44:40.717075Z",
+            "event_id": "llm-producer:2a1261edd94841d3884a6e1c728cad93:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+            "key": "run",
+            "payload_digest": "6c93471aa8e5d3a9c5a15ffb22503d6e7eec6f5624c7f9ab71b1c1a9f51c946b",
+            "provider": "synthetic-operation",
+            "revision": 2
+          }
+        ],
+        "status": "committed"
+      },
+      "fresh_readback": {
+        "state": {
+          "limits": {
+            "run": {
+              "key": "run",
+              "max_usd": "10",
+              "soft_limit_usd": null
+            }
+          },
+          "provider_spent": {
+            "synthetic-operation": "0.0000475"
+          },
+          "reserved": {
+            "run": "0"
+          },
+          "spent": {
+            "run": "0.0000475"
+          }
+        },
+        "receipt": {
+          "amount": "0.0000475",
+          "committed_at": "2026-10-06T19:44:40.717075Z",
+          "event_id": "llm-producer:2a1261edd94841d3884a6e1c728cad93:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+          "key": "run",
+          "payload_digest": "6c93471aa8e5d3a9c5a15ffb22503d6e7eec6f5624c7f9ab71b1c1a9f51c946b",
+          "provider": "synthetic-operation",
+          "revision": 2
+        }
+      },
+      "cache_entries": 1,
+      "result_exception": null,
+      "grade": "actual_known_cost_control"
+    },
+    {
+      "native_case": {
+        "classname": "",
+        "name": "test_known_usage_and_price_preserve_legitimate_charge_controls[True-priced-free-usage]",
+        "outcome": "PASS",
+        "failure_message": null
+      },
+      "profile": "priced-free-usage",
+      "caller_cancelled": true,
+      "physical_provider_work": [
+        {
+          "call": 1,
+          "request": {
+            "max_tokens": 2,
+            "temperature": 0.0,
+            "user": "nonempty actual request"
+          }
+        }
+      ],
+      "input_normalization": {
+        "completion_tokens": 3,
+        "cost_usd": null,
+        "prompt_tokens": 7,
+        "raw_is_none": false,
+        "response_type": "GatewayLLMResponse"
+      },
+      "reserved_before_completion": "0.0",
+      "event": {
+        "amount": "0.0",
+        "cost_origin": "estimated",
+        "event_id": "llm-producer:e36476fad0ed453ab6f6667e7d2a39fa",
+        "kind": "provider",
+        "payload_digest": "sha256:7980b3022b0a4e75746e9b383ae505fcb2c4eb66f11f98637bec80cd8f38834a"
+      },
+      "actual_ack": {
+        "durability": "ledger",
+        "event_id": "llm-producer:e36476fad0ed453ab6f6667e7d2a39fa",
+        "receipts": [
+          {
+            "amount": "0.0",
+            "committed_at": "2026-10-06T19:44:40.742800Z",
+            "event_id": "llm-producer:e36476fad0ed453ab6f6667e7d2a39fa:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+            "key": "run",
+            "payload_digest": "19bd0cf480d62b87560bdbb907456c7cf34718d594160a9f5c84dcebf487b225",
+            "provider": "synthetic-operation",
+            "revision": 2
+          }
+        ],
+        "status": "committed"
+      },
+      "fresh_readback": {
+        "state": {
+          "limits": {
+            "run": {
+              "key": "run",
+              "max_usd": "10",
+              "soft_limit_usd": null
+            }
+          },
+          "provider_spent": {
+            "synthetic-operation": "0.0"
+          },
+          "reserved": {
+            "run": "0.0"
+          },
+          "spent": {
+            "run": "0.0"
+          }
+        },
+        "receipt": {
+          "amount": "0.0",
+          "committed_at": "2026-10-06T19:44:40.742800Z",
+          "event_id": "llm-producer:e36476fad0ed453ab6f6667e7d2a39fa:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+          "key": "run",
+          "payload_digest": "19bd0cf480d62b87560bdbb907456c7cf34718d594160a9f5c84dcebf487b225",
+          "provider": "synthetic-operation",
+          "revision": 2
+        }
+      },
+      "cache_entries": 1,
+      "result_exception": null,
+      "grade": "actual_known_cost_control"
+    }
+  ],
+  "independently_recomputed_counts": {
+    "PASS": 8,
+    "FAIL": 8,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "all16_actual_origins_eight_source_module_refs": [
+    {
+      "module": "polisyos.core.llm.response",
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/src/polisyos/core/llm/response.py",
+      "bytes": 7635,
+      "sha256": "04778d8fe0dd2cb6e29a9547865321afb92e8355fbbffd602f5d4e276948f6af",
+      "git_blob": "947105fccabb40710f563e3e57d71ed06e7f0bb3"
+    },
+    {
+      "module": "polisyos.core.llm.settlement",
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/src/polisyos/core/llm/settlement.py",
+      "bytes": 8687,
+      "sha256": "c2d9ee2d061898a7b4f31181cd9ef23ebf193c467ad4bb18785dcd435f189c3b",
+      "git_blob": "c2c631442a3ecf7587425445565d723598eaba81"
+    },
+    {
+      "module": "polisyos.core.llm.traced_client",
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/src/polisyos/core/llm/traced_client.py",
+      "bytes": 35161,
+      "sha256": "1d604c7d24f254017e4b69ba304f207d364c0a7e6dd1c0408ffce7e39e05c30a",
+      "git_blob": "da043259222ebeccf48e4fa8270a56fd2aa9bd62"
+    },
+    {
+      "module": "polisyos.scientist.orchestration.llm.budget_enforcer",
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+      "bytes": 28432,
+      "sha256": "dd6a95c397d7fac287cc26ff1f18c37e4d18c0b1abb152bd04f43f9a0efcd61e",
+      "git_blob": "ac98ed93e6c48d8f409f10e37d8133bd676a0569"
+    },
+    {
+      "module": "polisyos.scientist.orchestration.llm.prompt_cache",
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+      "bytes": 37271,
+      "sha256": "5a5e011522d661e6da34cab1c15c00e77b4cf9549da52240b77f64e8db779462",
+      "git_blob": "b1e91052c288df38bfa451cdee6a0436d4836b35"
+    },
+    {
+      "module": "polisyos.scientist.orchestration.llm.gateway_client",
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+      "bytes": 28121,
+      "sha256": "43ddf80278eef25a761bfcba103947d34769d4d32a9b804cb480c9b25c639da7",
+      "git_blob": "52005eecef61a6ed0b727a7a444e28cf3acfa1e4"
+    },
+    {
+      "module": "polisyos.scientist.orchestration.engine.budget_ledger",
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "bytes": 26353,
+      "sha256": "0f3787add5620fe4c1c62a7c1c5dba2d3c7c48f685c16c9a6f4d48230731b83f",
+      "git_blob": "48908cebc44656fc6b22105d8d7a99d3acf915b6"
+    },
+    {
+      "module": "polisyos.scientist.orchestration.engine.budget_middleware",
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+      "bytes": 6067,
+      "sha256": "7473c899326ced68354b9acb46d7b9d7b77deabe762d9c8743840aa4fe5faef0",
+      "git_blob": "4dcf43321044bd9bf9a0c579417af8ba29344945"
+    }
+  ],
+  "source_contract_refs": [
+    {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/src/polisyos/core/observability/pricing.py",
+      "bytes": 2148,
+      "sha256": "3a0920548c07468519635b3e9f1dc9c579d8e423739b4b83a001e73d032fe311",
+      "git_blob": "68b79e01df6d9c66dd6a4558a2d89c8246144e9c"
+    },
+    {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/src/polisyos/core/llm/README.md",
+      "bytes": 3466,
+      "sha256": "06447dfdb0023cf0e8794da2c673fdac4571c662ef729b7b89f46410931e1d2d",
+      "git_blob": "c42e89793edac0ce75b6c49107fc77082d7f14fd"
+    },
+    {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/README.md",
+      "bytes": 3940,
+      "sha256": "37ca3c82ed258f655f7a6ccd219b693f57b86f8d5b8c4973a6b4c089956ca1ab",
+      "git_blob": "5bd4656cb9531409581784cad4b8905e3646a565"
+    },
+    {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+      "bytes": 9508,
+      "sha256": "e7df151746213f3d7df9fda50b80a8e76f955f9444b9f627c6751fc0772cce68",
+      "git_blob": "311b66e54dea6c49c4a295121f3ece57aa4a30b9"
+    }
+  ],
+  "canonical_criterion": {
+    "commit": "dd9584728bd96f204983615216efdbc58117e713",
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "bytes": 1336380,
+    "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+    "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+    "line_start": 1689,
+    "line_end": 1708,
+    "full_card_utf8": "## B66. Ответ из локального кэша повторно несёт исходную стоимость как стоимость нового вызова\n\n*Восстановленный источник: Library-S02/U44. Уровень подтверждения не повышен.*\n\n**Происхождение:** C03-03. Исторический C03 альтернативной Library-ветки; не новый C05.\n\n**Приоритет:** Высокий для достоверного учёта при включённом кэше. **Охват:** S–M.\n\n**Наблюдение.** Фабрика помещает CachingLLMClient внутрь TracedLLMClient. Freeze/thaw кэша сохраняет исходные usage, cost_usd и request_id. На cache hit возвращается такой ответ с маркером в raw. Нормализатор LLMResponseData не переносит этот маркер, а tracing снова записывает tokens/cost как успешный вызов. Если raw=None, даже маркер hit этим путём не создаётся.\n\nВ локальной модели два одинаковых запроса вызвали provider один раз; его условная стоимость 0,02, но сумма двух событий метрик составила 0,04. Это не реальный счёт и не доказательство двойного списания денег. Подключение именно этих событий к бюджетному enforcement в данном проходе не доказано. Установлено искажение смысла телеметрии и потенциальный источник ошибочных решений о стоимости.\n\n**Минимальное исправление.** Сохранить исходное usage как происхождение артефакта, а текущий способ получения и текущие приращения расхода передавать отдельно. Локальный hit не является новым billable provider call; у него могут быть собственные затраты чтения/хранения/CPU. Ссылка на исходную попытку должна отличаться от идентичности текущего потребления. Передать это различие через нормализатор, tracing, observer и фактических потребителей расходов.\n\n**Приёмочная проверка.** Один miss и несколько hits дают один реальный provider-event и отдельные события reuse; исходное usage не теряется, суммарный фактический расход не дублируется. Повторный настоящий вызов после expiry учитывается снова. Нельзя обнулить неизвестную стоимость сети только потому, что поле raw отсутствует.\n\n**Граница и стоимость.** Средний по числу границ, небольшой по новой механике ремонт; отдельная финансовая система не нужна. Проверка C03 моделирует ключ/DTO и порядок передачи, не запускает исходную фабрику и проектную canonical-сериализацию. Не называем сохранённый ответ независимым новым экспериментом.\n\n**Прямые ссылки на основания:** [C03.N01](https://github.com/DenisKopylov/polisyos/blob/5fd3ebcc15637e98bbd4938de5d62ee5004504a8/policy-engine/src/polisyos/core/llm/traced_client.py) · [C03.N04](https://github.com/DenisKopylov/polisyos/blob/5fd3ebcc15637e98bbd4938de5d62ee5004504a8/policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py) · [C03.N05](https://github.com/DenisKopylov/polisyos/blob/5fd3ebcc15637e98bbd4938de5d62ee5004504a8/policy-engine/src/polisyos/scientist/orchestration/llm/factory.py) · [C03.N06](https://github.com/DenisKopylov/polisyos/blob/5fd3ebcc15637e98bbd4938de5d62ee5004504a8/policy-engine/src/polisyos/core/llm/response.py).\n\n",
+    "full_card_sha256": "397fc3ab86c9c5243288fde7c7396afd3146df75bf74bb39973870a9d22c47a5"
+  },
+  "baseline_navigation": {
+    "cells": [
+      {
+        "id": "F01-P026",
+        "job": "F01",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "state": "PASS",
+        "collected": "24",
+        "calls": "24",
+        "call_pass": "24",
+        "call_failed": "0",
+        "setup_error": "0",
+        "teardown_error": "0",
+        "skip": "0",
+        "xfail": "0",
+        "xpass": "0",
+        "collection_skip": "0",
+        "collection_error": "0",
+        "wall_s": "1.81",
+        "rss_kib": "98192",
+        "receipt_status": "valid_bound",
+        "source_file": "received/F01.txt",
+        "source_line": "143",
+        "extra_json": "{}"
+      },
+      {
+        "id": "F03-P066",
+        "job": "F03",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+        "state": "PASS",
+        "collected": "13",
+        "calls": "13",
+        "call_pass": "13",
+        "call_failed": "0",
+        "setup_error": "0",
+        "teardown_error": "0",
+        "skip": "0",
+        "xfail": "0",
+        "xpass": "0",
+        "collection_skip": "0",
+        "collection_error": "0",
+        "wall_s": "1.08",
+        "rss_kib": "89096.0",
+        "receipt_status": "valid_bound",
+        "source_file": "received/F03.txt",
+        "source_line": "196",
+        "extra_json": "{}"
+      },
+      {
+        "id": "F03-P091",
+        "job": "F03",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+        "state": "PASS",
+        "collected": "8",
+        "calls": "8",
+        "call_pass": "8",
+        "call_failed": "0",
+        "setup_error": "0",
+        "teardown_error": "0",
+        "skip": "0",
+        "xfail": "0",
+        "xpass": "0",
+        "collection_skip": "0",
+        "collection_error": "0",
+        "wall_s": "1.35",
+        "rss_kib": "96640.0",
+        "receipt_status": "valid_bound",
+        "source_file": "received/F03.txt",
+        "source_line": "221",
+        "extra_json": "{}"
+      },
+      {
+        "id": "F05-P047",
+        "job": "F05",
+        "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "state": "PASS",
+        "collected": "16",
+        "calls": "16",
+        "call_pass": "16",
+        "call_failed": "0",
+        "setup_error": "0",
+        "teardown_error": "0",
+        "skip": "0",
+        "xfail": "0",
+        "xpass": "0",
+        "collection_skip": "0",
+        "collection_error": "0",
+        "wall_s": "1.6",
+        "rss_kib": "110596",
+        "receipt_status": "valid_reconciled",
+        "source_file": "received/F05.txt",
+        "source_line": "457",
+        "extra_json": "{}"
+      },
+      {
+        "id": "F07-P027",
+        "job": "F07",
+        "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "state": "PASS",
+        "collected": "24",
+        "calls": "24",
+        "call_pass": "24",
+        "call_failed": "0",
+        "setup_error": "0",
+        "teardown_error": "0",
+        "skip": "0",
+        "xfail": "0",
+        "xpass": "0",
+        "collection_skip": "0",
+        "collection_error": "0",
+        "wall_s": "1.668851613998413",
+        "rss_kib": "110980.0",
+        "receipt_status": "valid",
+        "source_file": "received/F07.txt",
+        "source_line": "33",
+        "extra_json": "{}"
+      },
+      {
+        "id": "F07-P084",
+        "job": "F07",
+        "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+        "state": "PASS",
+        "collected": "8",
+        "calls": "8",
+        "call_pass": "8",
+        "call_failed": "0",
+        "setup_error": "0",
+        "teardown_error": "0",
+        "skip": "0",
+        "xfail": "0",
+        "xpass": "0",
+        "collection_skip": "0",
+        "collection_error": "0",
+        "wall_s": "1.569864273071289",
+        "rss_kib": "111512.0",
+        "receipt_status": "valid",
+        "source_file": "received/F07.txt",
+        "source_line": "90",
+        "extra_json": "{}"
+      },
+      {
+        "id": "F10-P031",
+        "job": "F10",
+        "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "state": "PASS",
+        "collected": "16",
+        "calls": "16",
+        "call_pass": "16",
+        "call_failed": "0",
+        "setup_error": "0",
+        "teardown_error": "0",
+        "skip": "0",
+        "xfail": "0",
+        "xpass": "0",
+        "collection_skip": "0",
+        "collection_error": "0",
+        "wall_s": "3.69",
+        "rss_kib": "120512",
+        "receipt_status": "valid_reconciled",
+        "source_file": "received/F10.txt",
+        "source_line": "151",
+        "extra_json": "{}"
+      },
+      {
+        "id": "F13-P104",
+        "job": "F13",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+        "state": "PASS",
+        "collected": "8",
+        "calls": "8",
+        "call_pass": "8",
+        "call_failed": "0",
+        "setup_error": "0",
+        "teardown_error": "0",
+        "skip": "0",
+        "xfail": "0",
+        "xpass": "0",
+        "collection_skip": "0",
+        "collection_error": "0",
+        "wall_s": "1.3",
+        "rss_kib": "118468",
+        "receipt_status": "valid_reconciled",
+        "source_file": "received/F13.txt",
+        "source_line": "231",
+        "extra_json": "{}"
+      },
+      {
+        "id": "F15-P032",
+        "job": "F15",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "state": "PASS",
+        "collected": "24",
+        "calls": "24",
+        "call_pass": "24",
+        "call_failed": "0",
+        "setup_error": "0",
+        "teardown_error": "0",
+        "skip": "0",
+        "xfail": "0",
+        "xpass": "0",
+        "collection_skip": "0",
+        "collection_error": "0",
+        "wall_s": "1.53",
+        "rss_kib": "112148",
+        "receipt_status": "valid",
+        "source_file": "received/F15.txt",
+        "source_line": "187",
+        "extra_json": "{\"reason\":\"null\"}"
+      }
+    ],
+    "routes": [
+      {
+        "finding_id": "B66",
+        "unit": "B",
+        "cell_id": "F01-P026",
+        "source_status": "partial",
+        "route_grade": "candidate_unverified",
+        "source_ref": "research_main",
+        "semantic_adequacy": "not_established",
+        "canonical_route": "../full-run/finding-routes.json#B66"
+      },
+      {
+        "finding_id": "B66",
+        "unit": "B",
+        "cell_id": "F03-P066",
+        "source_status": "partial",
+        "route_grade": "candidate_unverified",
+        "source_ref": "research_main",
+        "semantic_adequacy": "not_established",
+        "canonical_route": "../full-run/finding-routes.json#B66"
+      },
+      {
+        "finding_id": "B66",
+        "unit": "B",
+        "cell_id": "F03-P091",
+        "source_status": "partial",
+        "route_grade": "candidate_unverified",
+        "source_ref": "research_main",
+        "semantic_adequacy": "not_established",
+        "canonical_route": "../full-run/finding-routes.json#B66"
+      },
+      {
+        "finding_id": "B66",
+        "unit": "B",
+        "cell_id": "F05-P047",
+        "source_status": "partial",
+        "route_grade": "candidate_unverified",
+        "source_ref": "e02_execution_base",
+        "semantic_adequacy": "not_established",
+        "canonical_route": "../full-run/finding-routes.json#B66"
+      },
+      {
+        "finding_id": "B66",
+        "unit": "B",
+        "cell_id": "F07-P027",
+        "source_status": "partial",
+        "route_grade": "candidate_unverified",
+        "source_ref": "e02_head",
+        "semantic_adequacy": "not_established",
+        "canonical_route": "../full-run/finding-routes.json#B66"
+      },
+      {
+        "finding_id": "B66",
+        "unit": "B",
+        "cell_id": "F07-P084",
+        "source_status": "partial",
+        "route_grade": "candidate_unverified",
+        "source_ref": "e02_head",
+        "semantic_adequacy": "not_established",
+        "canonical_route": "../full-run/finding-routes.json#B66"
+      },
+      {
+        "finding_id": "B66",
+        "unit": "B",
+        "cell_id": "F10-P031",
+        "source_status": "partial",
+        "route_grade": "candidate_unverified",
+        "source_ref": "main",
+        "semantic_adequacy": "not_established",
+        "canonical_route": "../full-run/finding-routes.json#B66"
+      },
+      {
+        "finding_id": "B66",
+        "unit": "B",
+        "cell_id": "F13-P104",
+        "source_status": "partial",
+        "route_grade": "candidate_unverified",
+        "source_ref": "integration_head",
+        "semantic_adequacy": "not_established",
+        "canonical_route": "../full-run/finding-routes.json#B66"
+      },
+      {
+        "finding_id": "B66",
+        "unit": "B",
+        "cell_id": "F15-P032",
+        "source_status": "partial",
+        "route_grade": "candidate_unverified",
+        "source_ref": "integration_head",
+        "semantic_adequacy": "not_established",
+        "canonical_route": "../full-run/finding-routes.json#B66"
+      }
+    ],
+    "basis": [
+      {
+        "finding_id": "B66",
+        "bundle_ids": [
+          "LLM-01"
+        ],
+        "recorded_ledger_status": "partial",
+        "route_grade": "candidate_unverified",
+        "semantic_adequacy": "not_established",
+        "discriminator_ref": "bundle-catalog.md#llm-01; owner:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/LLM-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b; finding:B66",
+        "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@69780761ae091d8fcc6ab8778c7f5f7227eeef0b#B66",
+        "assigned_routes": [
+          {
+            "job": "F01",
+            "ref": "research_main",
+            "cell_ids": [
+              "F01-P026"
+            ]
+          },
+          {
+            "job": "F03",
+            "ref": "research_main",
+            "cell_ids": [
+              "F03-P066",
+              "F03-P091"
+            ]
+          },
+          {
+            "job": "F05",
+            "ref": "e02_execution_base",
+            "cell_ids": [
+              "F05-P047"
+            ]
+          },
+          {
+            "job": "F07",
+            "ref": "e02_head",
+            "cell_ids": [
+              "F07-P027",
+              "F07-P084"
+            ]
+          },
+          {
+            "job": "F10",
+            "ref": "main",
+            "cell_ids": [
+              "F10-P031"
+            ]
+          },
+          {
+            "job": "F13",
+            "ref": "integration_head",
+            "cell_ids": [
+              "F13-P104"
+            ]
+          },
+          {
+            "job": "F15",
+            "ref": "integration_head",
+            "cell_ids": [
+              "F15-P032"
+            ]
+          }
+        ]
+      }
+    ],
+    "matching_cells": 9,
+    "shared_full_job_environment_input_closure": {
+      "ref": {
+        "commit": "1f944c4324c675e7566f750b15695360c1b27c81",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/baseline-source-context.json",
+        "bytes": 755695,
+        "sha256": "729661c36beeb6532dd78de52374034baa5920b1ef5cb7cfa909318cca5a7014",
+        "git_blob": "3c780f4a92e83e623ac1d6bf84ab0e2cb8b5f07d"
+      },
+      "field": "source_job_contexts",
+      "note": "The same7received source jobs/environment/manifest headers apply to exact9B66route cells. This pointer shares source metadata only; B65card/runtime is not claimed as B66proof."
+    }
+  },
+  "source_test_review_verdict": "PASS finite oracle premise/source/custody; DD native resultFAIL8 preserved, no production closure",
+  "defining_positive_vs_unknown_rule": "costNone/rawNone alone is not unknown if actual trusted reported usage with configured pricing establishes an estimate; explicit reported zero and configured free usage remain legitimate. Six decoded absent/invalid/default telemetry cases have no trusted usage/cost yet ACKknown0/cache1.",
+  "source_scope": "Full defining test and full source chain response/settlement/Traced/enforcer/ledger/middleware/pricing/Gateway/cache were read. Optional spans/metrics are test stubs; effectful settlement observer calls original actual method. This is not a live network/invoice proof or production dataset test.",
+  "runtime_by_reviewer": false,
+  "root_mutations": false,
+  "closure_ids": []
+}

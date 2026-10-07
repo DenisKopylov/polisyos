@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/workspace/e02-B-current-coordination/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-cohort-selector.py", line 823, in <module>
+    main()
+    ~~~~^^
+  File "/workspace/e02-B-current-coordination/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-cohort-selector.py", line 515, in main
+    raise ValueError("Every absent selector needs a reviewed map or explicit UNRUN")
+ValueError: Every absent selector needs a reviewed map or explicit UNRUN

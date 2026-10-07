@@ -1,0 +1,51 @@
+--- policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-independent-review/presence-resume-original.py
++++ policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/presence-resume-owned-review.py
+@@ -1,6 +1,8 @@
++import argparse,inspect
++_arg=argparse.ArgumentParser();_arg.add_argument('--target',required=True);_arg.add_argument('--out',required=True);args=_arg.parse_args()
+ import importlib.abc,importlib.util,hashlib,json,pathlib,subprocess,sys,types,asyncio,logging,os
+ from decimal import Decimal
+-repo=pathlib.Path('/workspace/e02-B-current-execution-state');sha='1bd1fd11b683bbade5411a71b02706ea206b149d'
++repo=pathlib.Path('/workspace/e02-B-current-execution-state');sha=args.target
+ source_prefix='policy-engine/src/'
+ paths=subprocess.check_output(['git','ls-tree','-r','--name-only',sha,'--','policy-engine/src/polisyos'],cwd=repo,text=True).splitlines()
+ module_paths={}
+@@ -43,7 +45,7 @@
+ from polisyos.scientist.orchestration.engine.async_executor import AsyncWorkflowExecutor
+ from polisyos.scientist.orchestration.engine.workflow_spec import WorkflowSpec,NodeInvocation
+ from polisyos.scientist.orchestration.engine.checkpoint import CASCheckpointHook,resolve_latest_checkpoint,resume_from_checkpoint,compute_workflow_fingerprint,WorkflowMismatchError
+-out=pathlib.Path('/workspace/e02-B-current-runtime/_build/e02-current-runtime/sta-review/presence-resume-oracle-v5');out.mkdir(parents=True,exist_ok=True)
++out=pathlib.Path(args.out);out.mkdir(parents=True,exist_ok=True)
+ identities={}
+ def metadata(name):
+  return ComponentMetadata(component_id=ComponentId.parse('scientist.independent_'+name+'@1.0.0'),kind=ComponentKind.SCIENTIST_NODE,abi_targets={'world_abi':'1.x'},display_name='Independent '+name,description='Actual state semantic consumer',capabilities=Capability.SCIENTIST_NODE)
+@@ -53,7 +55,8 @@
+ writer=NodeResultCache(store,run.run_manifest.run_id);rows=[];calls=0;refs=[]
+ for label,params in [('missing_leaf',{'options':{},'neighbor':{'queue':['kept']}}),('null_leaf',{'options':{'threshold':None},'neighbor':{'queue':['kept']}}),('zero',{'options':{'threshold':0},'neighbor':{'queue':['kept']}}),('false',{'options':{'threshold':False},'neighbor':{'queue':['kept']}}),('empty_list',{'options':{'threshold':[]},'neighbor':{'queue':['kept']}})]:
+  base=state_for(params,run.run_manifest.run_id);key=compute_idempotency_key(spec,base);assert writer.get(key) is None
+- branch=branch_state(base,write_paths=spec.state_writes)
++ expected_native_effective=base.params.get('options',{}).get('threshold',5)
++ branch=branch_state(base,write_paths=spec.state_writes,**({'enforce_write_scope':True} if 'enforce_write_scope' in inspect.signature(branch_state).parameters else {}))
+  effective=branch.state.params.get('options',{}).get('threshold',5)
+  calls+=1;branch.state.params['effective']=effective
+  evidence=store.put_json({'label':label,'effective':effective},PutOptions(kind='scientist.independent_presence',media_type='application/json'))
+@@ -66,9 +69,9 @@
+   merged=merge_parallel_outcomes(base,{'method':loaded},{'method':spec.state_writes}).state
+   result_ref=store.put_json(merged.model_dump(mode='python'),PutOptions(kind='scientist.independent_presence_merge',media_type='application/json'))
+   assert store.verify(result_ref).ok
+-  actual=json.loads(store.get_bytes(result_ref))['params']['effective'];assert type(actual) is type(effective) and actual==effective
++  actual=json.loads(store.get_bytes(result_ref))['params']['effective'];assert type(actual) is type(expected_native_effective) and actual==expected_native_effective
+   assert merged.params['neighbor']=={'queue':['kept']} and merged.budgets['neighbor_reserved_usd']==Decimal('19')
+-  effect_json=json.loads(store.get_bytes(loaded.artifacts[0]));assert type(effect_json['effective']) is type(effective) and effect_json['effective']==effective
++  effect_json=json.loads(store.get_bytes(loaded.artifacts[0]));assert type(effect_json['effective']) is type(expected_native_effective) and effect_json['effective']==expected_native_effective
+   run.emit('independent.presence','PRESENCE_CACHE_CONSUMED',outputs=[ref,evidence],metrics={'matched':1})
+   profiles.append({'profile':profile,'effective':actual,'python_type':type(actual).__name__,'artifact_payload_utf8':store.get_bytes(evidence).decode(),'neighbor_reserved_usd':str(merged.budgets['neighbor_reserved_usd']),'merged_result_ref':result_ref.model_dump(mode='json'),'merged_result_bytes':store.get_bytes(result_ref).decode()})
+  rows.append({'label':label,'key':key,'payload':compute_idempotency_payload(spec,base),'cache_ref':ref.model_dump(mode='json'),'artifact_ref':evidence.model_dump(mode='json'),'cache_bytes':store.get_bytes(ref).decode(),'profiles':profiles})
+@@ -128,6 +131,6 @@
+ assert invalid_rejection and [n.calls for n in nodes]==[1,2,2]
+ assert all(store2.verify(ref).ok for node in nodes for ref in node.refs)
+ resume={'pass':True,'original_workflow_fingerprint':original_fp,'heads':heads,'provider_calls_final':[n.calls for n in nodes],'result_params':third.state.params,'reserved_usd':str(third.state.budgets['neighbor_reserved_usd']),'completed_reopen_nodes':len(reopened_complete.report.nodes),'changed_query_rejection':invalid_rejection,'trace_utf8':run2.trace_path.read_text()}
+-packet={'target_sha':sha,'target_tree':'185dc1e866579d48712580bd62b39aff83529158','source_identity':loaded_git_sources,'source_loading':'All imported canonical polisyos Python modules loaded from exact1bd Git objects; third-party runtime from explicit shared venv; repository resource paths from admitted EXE lane, no source edits/checkout' ,'python':sys.executable,'presence_B62':presence,'double_resume_B70':resume,'pass':True}
++packet={'target_sha':sha,'target_tree':subprocess.check_output(['git','rev-parse',sha+'^{tree}'],cwd=repo,text=True).strip(),'source_identity':loaded_git_sources,'source_loading':'All imported canonical polisyos Python modules loaded from exact target Git objects; third-party runtime from explicit shared venv; repository resource paths from admitted EXE lane, no source edits/checkout' ,'python':sys.executable,'producer_profile':'Owned True keyword where supported; previous API declared write_paths. Effective semantic value/type compared with original public typed method input, then actual JSON artifact/state payloads, not private mutable-view class names.','presence_B62':presence,'double_resume_B70':resume,'pass':True}
+ encoded=json.loads(to_canonical_bytes(packet,CanonSpec(forbid_floats=False)))
+ (out/'receipt.json').write_text(json.dumps(encoded,indent=2)+'\n');print(json.dumps(encoded,indent=2))

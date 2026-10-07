@@ -1,0 +1,282 @@
+{
+  "b38_source_equivalence": {
+    "all_same_blob": true,
+    "b38_candidate": "4f71e8bbd95225c8d857b2123f7f2fe9fcc5071d",
+    "checkpoint10_candidate": "acdc3536f93f085d665a7b53460935525373d015",
+    "paths": [
+      {
+        "b38_candidate_blob": "e78a69642d69c21827bd73d688533ad40ca18295",
+        "checkpoint10_blob": "e78a69642d69c21827bd73d688533ad40ca18295",
+        "path": "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+        "same_blob": true
+      },
+      {
+        "b38_candidate_blob": "9584c2a30ef59cd0dbdfdad1186bc0d2c9032c6f",
+        "checkpoint10_blob": "9584c2a30ef59cd0dbdfdad1186bc0d2c9032c6f",
+        "path": "policy-engine/src/polisyos/runtime/http/services/control_worker.py",
+        "same_blob": true
+      },
+      {
+        "b38_candidate_blob": "29ffd7803891e5df9e6b2e97fc8f0776e40c4334",
+        "checkpoint10_blob": "29ffd7803891e5df9e6b2e97fc8f0776e40c4334",
+        "path": "policy-engine/tests/unit/runtime/http/test_control_plane_store.py",
+        "same_blob": true
+      }
+    ]
+  },
+  "candidate": {
+    "archive_root": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/checkpoint10-consumers-acdc",
+    "blob_and_mode_mismatches": 0,
+    "product_root": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/checkpoint10-consumers-acdc/policy-engine",
+    "sha": "acdc3536f93f085d665a7b53460935525373d015",
+    "tracked_entries": 13777,
+    "tree": "ff7cc9e6bb2cb0d826d977e7298020ee7af6e5cc"
+  },
+  "disk": {
+    "available_bytes_after_test_harness": 27520978944,
+    "available_gib_after_archive_before_test": 25.548,
+    "available_gib_after_test_df": 25.63,
+    "available_gib_after_test_harness": 25.631,
+    "available_gib_before_archive": 26.005,
+    "available_kib_after_archive_before_test": 26789280,
+    "available_kib_after_test_df": 26874608,
+    "available_kib_before_archive": 27268336
+  },
+  "environment": {
+    "environment_variables": {
+      "PATH": "/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/deniskopylov/.antigravity/antigravity/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0IKaEzY:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources:/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS",
+      "PYTEST_ADDOPTS": "",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/checkpoint10-consumers-acdc/policy-engine/src",
+      "VIRTUAL_ENV": null
+    },
+    "interpreter": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "no_installs": true,
+    "packages": {
+      "anyio": "4.12.0",
+      "fastapi": "0.128.6",
+      "httpx": "0.28.1",
+      "psycopg": null,
+      "pydantic": "2.12.5",
+      "pytest": "9.0.2",
+      "sqlalchemy": null,
+      "starlette": "0.52.1"
+    },
+    "platform": "darwin",
+    "production_data_used": false,
+    "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]"
+  },
+  "imports": {
+    "pre_post_runtime_module_origins_stable": true,
+    "pre_post_source_hashes_stable": true,
+    "product_runtime_modules_resolved_to_candidate": true,
+    "source_hashes_after": {
+      "release-fragments/unreleased/2026-10-06-e02-current-handler-publication.toml": {
+        "bytes": 1514,
+        "sha256": "8438e6ab76cd3939f456599c7c82dbf9f0bcefeb87e8faac130110152a058f85"
+      },
+      "src/polisyos/core/artifacts/manifest.py": {
+        "bytes": 12758,
+        "sha256": "fb1fb68e18b80ba83ee2aa6b94a011386ede96bc75c492123bb4de3bec45639d"
+      },
+      "src/polisyos/core/artifacts/store.py": {
+        "bytes": 173575,
+        "sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324"
+      },
+      "src/polisyos/core/artifacts/write_contract.py": {
+        "bytes": 1137,
+        "sha256": "434ffb9075f9a84b14352f5626803d7be8f69e586520e844cde2632b7aa236ef"
+      },
+      "src/polisyos/runtime/http/errors.py": {
+        "bytes": 23650,
+        "sha256": "bdbdc71b506420b0beae77a186066cecd7cfa52cee614eca38d4f61b88580ba6"
+      },
+      "src/polisyos/runtime/http/resilience.py": {
+        "bytes": 15123,
+        "sha256": "aa060253ec9474db1446b7b048730be2284300a1378b87d9cd3dc9969d3b34a0"
+      },
+      "src/polisyos/runtime/http/services/control/run_lifecycle.py": {
+        "bytes": 347497,
+        "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9"
+      },
+      "src/polisyos/runtime/http/services/control_plane_store.py": {
+        "bytes": 209996,
+        "sha256": "af813a2b87c0500bc2c0499813c9170a6a8033d92f860fe5556b72088e6721f6"
+      },
+      "src/polisyos/runtime/http/services/control_worker.py": {
+        "bytes": 13613,
+        "sha256": "4b319c7b70d0664c2039676dc7424f71468faa9df2b45f95c605cc38831f9b5c"
+      },
+      "src/polisyos/runtime/quality/event_log.py": {
+        "bytes": 8268,
+        "sha256": "dd477cbcc88ab5a464976285d72736c82a5ff9180681a44827f01b76fead3b28"
+      },
+      "tests/_helpers/policy_design_case_projection.py": {
+        "bytes": 2717,
+        "sha256": "4e8514c7c9e9a52d62c174e3ec24fc608bcdacaee6572e81d2b7f75229c05234"
+      },
+      "tests/unit/runtime/http/test_control_plane_store.py": {
+        "bytes": 81515,
+        "sha256": "a21c740a7c4c038e3fbc1af90a45dd69d09710461a5c4ecb2cef601afb79cdb0"
+      }
+    },
+    "source_hashes_before": {
+      "release-fragments/unreleased/2026-10-06-e02-current-handler-publication.toml": {
+        "bytes": 1514,
+        "sha256": "8438e6ab76cd3939f456599c7c82dbf9f0bcefeb87e8faac130110152a058f85"
+      },
+      "src/polisyos/core/artifacts/manifest.py": {
+        "bytes": 12758,
+        "sha256": "fb1fb68e18b80ba83ee2aa6b94a011386ede96bc75c492123bb4de3bec45639d"
+      },
+      "src/polisyos/core/artifacts/store.py": {
+        "bytes": 173575,
+        "sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324"
+      },
+      "src/polisyos/core/artifacts/write_contract.py": {
+        "bytes": 1137,
+        "sha256": "434ffb9075f9a84b14352f5626803d7be8f69e586520e844cde2632b7aa236ef"
+      },
+      "src/polisyos/runtime/http/errors.py": {
+        "bytes": 23650,
+        "sha256": "bdbdc71b506420b0beae77a186066cecd7cfa52cee614eca38d4f61b88580ba6"
+      },
+      "src/polisyos/runtime/http/resilience.py": {
+        "bytes": 15123,
+        "sha256": "aa060253ec9474db1446b7b048730be2284300a1378b87d9cd3dc9969d3b34a0"
+      },
+      "src/polisyos/runtime/http/services/control/run_lifecycle.py": {
+        "bytes": 347497,
+        "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9"
+      },
+      "src/polisyos/runtime/http/services/control_plane_store.py": {
+        "bytes": 209996,
+        "sha256": "af813a2b87c0500bc2c0499813c9170a6a8033d92f860fe5556b72088e6721f6"
+      },
+      "src/polisyos/runtime/http/services/control_worker.py": {
+        "bytes": 13613,
+        "sha256": "4b319c7b70d0664c2039676dc7424f71468faa9df2b45f95c605cc38831f9b5c"
+      },
+      "src/polisyos/runtime/quality/event_log.py": {
+        "bytes": 8268,
+        "sha256": "dd477cbcc88ab5a464976285d72736c82a5ff9180681a44827f01b76fead3b28"
+      },
+      "tests/_helpers/policy_design_case_projection.py": {
+        "bytes": 2717,
+        "sha256": "4e8514c7c9e9a52d62c174e3ec24fc608bcdacaee6572e81d2b7f75229c05234"
+      },
+      "tests/unit/runtime/http/test_control_plane_store.py": {
+        "bytes": 81515,
+        "sha256": "a21c740a7c4c038e3fbc1af90a45dd69d09710461a5c4ecb2cef601afb79cdb0"
+      }
+    },
+    "test_helper_origin_note": {
+      "candidate_path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/checkpoint10-consumers-acdc/policy-engine/tests/_helpers/policy_design_case_projection.py",
+      "candidate_sha256": "4e8514c7c9e9a52d62c174e3ec24fc608bcdacaee6572e81d2b7f75229c05234",
+      "identical_bytes_to_candidate": true,
+      "imported_path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/tests/_helpers/policy_design_case_projection.py",
+      "imported_sha256": "4e8514c7c9e9a52d62c174e3ec24fc608bcdacaee6572e81d2b7f75229c05234",
+      "module": "tests._helpers.policy_design_case_projection",
+      "under_candidate": false
+    }
+  },
+  "integration_checkout": {
+    "branch": "codex/e02-integration",
+    "head": "acdc3536f93f085d665a7b53460935525373d015",
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos",
+    "status": "clean before and after test run"
+  },
+  "limits": {
+    "findings_closed": false,
+    "postgresql_backend": "UNRUN; this selector exercises local SQLite tests, no PostgreSQL-backed consumer acceptance is implied",
+    "psycopg": null,
+    "sqlalchemy": null
+  },
+  "receipts": {
+    "checkpoint10-consumers-acdc-archive-verification.json": {
+      "bytes": 417,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/checkpoint10-consumers-acdc-archive-verification.json",
+      "sha256": "ab3d4c9ff98bc1569a12787d899689bd5ff10525941da4872c8e76e863bfa57d"
+    },
+    "checkpoint10-consumers-acdc-b38-source-equivalence.json": {
+      "bytes": 976,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/checkpoint10-consumers-acdc-b38-source-equivalence.json",
+      "sha256": "b405c6f3869f92b6948b25d0cbbe75018aeb4f7039296768f07375ba3e0eda4f"
+    },
+    "checkpoint10-consumers-acdc-command.json": {
+      "bytes": 2349,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/checkpoint10-consumers-acdc-command.json",
+      "sha256": "a28cc3394ed2fbd91648fbcd39dec85a9b497853e1b9bfed95873ef7a2ea39cf"
+    },
+    "checkpoint10-consumers-acdc-preflight.json": {
+      "bytes": 7952,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/checkpoint10-consumers-acdc-preflight.json",
+      "sha256": "a1851d5a8e82750c8a8fd31763d6c6659f405e49b3434d6a29df8149d2cac77b"
+    },
+    "checkpoint10-consumers-acdc-result.json": {
+      "bytes": 14120,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/checkpoint10-consumers-acdc-result.json",
+      "sha256": "9cdb60f6aa4a291936688e5378c06e403526456cf9616f285c7af1b4fb27a50f"
+    },
+    "checkpoint10-consumers-acdc-run-preflight.json": {
+      "bytes": 9194,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/checkpoint10-consumers-acdc-run-preflight.json",
+      "sha256": "012209743762a5d3a8eb18b8299fe07c8dc20aa385291a60a002c56e84c47c45"
+    },
+    "checkpoint10-consumers-acdc.junit.xml": {
+      "bytes": 10258,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/checkpoint10-consumers-acdc.junit.xml",
+      "sha256": "33bf1e2c953aeff1239219b4ed48dcb6348f66a7b091c216cfa47629f1264920"
+    },
+    "checkpoint10-consumers-acdc.stderr": {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/checkpoint10-consumers-acdc.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "checkpoint10-consumers-acdc.stdout": {
+      "bytes": 622,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/checkpoint10-consumers-acdc.stdout",
+      "sha256": "8f6f12fa2bea61f1d83925c735a07e71bb8dfaa27409591bba00781b67c09e96"
+    },
+    "run-checkpoint10-consumers-acdc.py": {
+      "bytes": 5964,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/run-checkpoint10-consumers-acdc.py",
+      "sha256": "55399a4e31fc712c9d241872874b1eccadcefde9846f920ec83b880912e79bcb"
+    }
+  },
+  "selector": {
+    "argv": [
+      "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-o",
+      "addopts=",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "tests/unit/runtime/http/test_control_plane_store.py",
+      "--junitxml",
+      "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/checkpoint10-consumers-acdc.junit.xml",
+      "--basetemp",
+      "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/tmp-checkpoint10-consumers-acdc"
+    ],
+    "child_system_seconds": 2.099,
+    "child_user_seconds": 18.713,
+    "command": "PYTHONPATH=src python -m pytest -o addopts= -q -p no:cacheprovider tests/unit/runtime/http/test_control_plane_store.py",
+    "exit_code": 0,
+    "harness_wall_seconds": 22.841,
+    "max_child_rss_approx_mib": 975.5,
+    "max_child_rss_bytes": 1022853120,
+    "pytest_counts": {
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "tests": 59
+    },
+    "pytest_wall_seconds_from_junit": "2.571",
+    "status": "pass",
+    "timeout_seconds": 300,
+    "warning": "PytestConfigWarning: Unknown config option: cache_dir (non-failing)"
+  },
+  "task": "One bounded affected-consumer wave on checkpoint 10; finding closure not claimed"
+}

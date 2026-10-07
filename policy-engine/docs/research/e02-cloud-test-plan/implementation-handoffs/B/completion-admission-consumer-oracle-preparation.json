@@ -1,0 +1,121 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "completion-admission-consumer-oracle-preparation",
+  "bundle_ids": [
+    "DUR-01",
+    "LLM-01"
+  ],
+  "scope_qualification": "Independent operational completion/admission oracle preparation only; no runtime or criterion verdict before integrated lower/upper freeze. Canonical ledger/middleware/enforcer sources remain read-only.",
+  "closure_ids": [],
+  "proposed_criterion_ids": [],
+  "slice_base_sha": "2c3a94daaac973594512d0e3e30f6de419234300",
+  "implementation_commits": [
+    "3711bfb9421f0143b1df8fac28f71565a325cf80",
+    "fd6cbed998954aa3e76217c724f0cd0331ee0a03",
+    "3e4517df0ff01bd807032724a0629edde2b5f3c8"
+  ],
+  "candidate_sha": "3e4517df0ff01bd807032724a0629edde2b5f3c8",
+  "candidate_tree_sha": "ce2244cca1fb399d585fe5c37ebe30ed3b25f30c",
+  "branch": "codex/e02-B-current-cas-generation",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/42",
+  "owner": "CAS leaf, different author from DUR lower and ADAPTER upper; test-only independent consumer oracle",
+  "changed_paths": [
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py"
+  ],
+  "source_changed_paths": [],
+  "test_changed_paths": [
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py"
+  ],
+  "baseline_cells": [],
+  "baseline_qualification": "No historical baseline or DD case summary is promoted to evidence of the new completion API. Prior DD native FAIL remains in cas-successor-native-consumer-audit.json.",
+  "checks": [
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m ruff check tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py",
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "3e4517df0ff01bd807032724a0629edde2b5f3c8",
+      "actual_checkout_sha_at_execution": "fd6cbed998954aa3e76217c724f0cd0331ee0a03",
+      "environment": "Existing shared contributor executable, no sync/environment mutation",
+      "input_closure": {
+        "precommit_test_overlay": {
+          "commit": "3e4517df0ff01bd807032724a0629edde2b5f3c8",
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py",
+          "bytes": 15779,
+          "sha256": "6fe756dd9d5527341d8672f1ca33ec5cc648f419cf94c61ce16db34f158c358d"
+        },
+        "profile": "Canonical own pyproject.toml Ruff test scope; no product imports/runtime"
+      },
+      "outcome": "PASS",
+      "output": "All checks passed!\n"
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m ruff format --check tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py",
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "3e4517df0ff01bd807032724a0629edde2b5f3c8",
+      "actual_checkout_sha_at_execution": "fd6cbed998954aa3e76217c724f0cd0331ee0a03",
+      "environment": "Existing shared contributor executable; no sync",
+      "input_closure": {
+        "precommit_test_overlay": {
+          "commit": "3e4517df0ff01bd807032724a0629edde2b5f3c8",
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py",
+          "bytes": 15779,
+          "sha256": "6fe756dd9d5527341d8672f1ca33ec5cc648f419cf94c61ce16db34f158c358d"
+        }
+      },
+      "outcome": "PASS",
+      "output": "1 file already formatted\n"
+    },
+    {
+      "command": "Pending exact integrated lower/upper candidate native command; no pytest/collection executed",
+      "target_sha": null,
+      "environment": "UNRUN: actual immutable lower/upper source/env/input projection must be fixed before execution",
+      "input_closure": {
+        "independent_test": {
+          "commit": "3e4517df0ff01bd807032724a0629edde2b5f3c8",
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py",
+          "bytes": 15779,
+          "sha256": "6fe756dd9d5527341d8672f1ca33ec5cc648f419cf94c61ce16db34f158c358d"
+        },
+        "lower_frozen_notice_sha": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+        "lower_frozen_notice_tree": "038b0012692a7fc12ca58aea91724f3a85c83b6e",
+        "upper_frozen_sha": null,
+        "grade": "Owner supplied immutable lower notice; source/test/profile reconciliation and integrated runtime are not yet established"
+      },
+      "outcome": "UNRUN",
+      "output": "Awaiting actual integrated lower/upper freeze; no runtime claim."
+    }
+  ],
+  "property": {
+    "statement": "Actual pre-provider atomic intent publication failure must admit no physical effect; actual post-effect completion publication failure retains discoverable intent and prevents another physical call through both a live sibling and fresh process consumers.",
+    "runtime_path": [
+      "real FileBudgetLedger -> BudgetMiddleware -> LLMBudgetEnforcer -> TracedLLMClient -> unconditional append/fsync provider fixture effect -> actual ledger staged snapshot fsync/replace fault -> same-live original middleware sibling -> two fresh OSprocess ledger/middleware/enforcer consumers"
+    ],
+    "proxy_divergence": "A constructor field, arbitrary settlement exception or provider spy count could be green while another middleware/enforcer reissues real work. Physical append/fsync is unconditional and never checks admission to authorize its own effect; genuine faulted staged snapshot and retained full old record are required by the oracle.",
+    "negative_controls": [
+      "Actual staged snapshot admit_provider_intent file fsync and before-replace faults, sync invoke and async generate: provider0/no effect file/no committed intent or reserved/spent mutation.",
+      "After physical effect, actual transition_completion file fsync and before-replace faults: staged known provider completion cannot publish, old full provider_in_flight intent remains discoverable with exact bytes.",
+      "A different enforcer sharing original initialized middleware/live epoch must refuse; two fresh OSprocesses with new FileBudgetLedger/middleware/enforcer epoch must also refuse without another physical append.",
+      "Genuine reported-zero completion/fresh process positive and two same-live concurrent provider calls positive prevent blanket refusal from satisfying the oracle."
+    ],
+    "counterfactual_state": "Not executed; any property-removal control requires frozen actual API and retained original output."
+  },
+  "predicate_basis": "not_established",
+  "claim_grade": "Static prepared test semantics only; behavioral predicates remain not_established until genuine native execution and independent source/input review.",
+  "per_premise_basis": {
+    "native_body_entered": "not_established",
+    "named_publication_fault_reached": "not_established",
+    "provider_physical_effect": "not_established",
+    "old_intent_reopened_and_consumed": "not_established",
+    "lower_owner_contract_notice": "consumer_asserted",
+    "upper_source_freeze": "not_established"
+  },
+  "capability_state_or_finding_state": "independent semantic_test_prepared; native UNRUN pending integrated source freeze; no closure",
+  "limitations_and_next_owner": [
+    "DUR freezes lower and ADAPTER freezes upper; root supplies admitted exact integrated source/checkpoint/profile before native.",
+    "Provider is a bounded local physical filesystem/process fixture; no external billing/status/invoice/institutional owner claim.",
+    "Ledger/enforcer production remains read-only for this author. No helpers/new checkout/worktree, no numerical/process quota, no native/gate/collection run yet.",
+    "One test file only plus this docs handoff; public law and canonical wire schema not modified.",
+    "Original DD native and global gate FAIL remains preserved. No inherited/disjoint waiver or source claim from preparation."
+  ],
+  "created_at_utc": "2026-10-06T20:32:14.952047+00:00"
+}

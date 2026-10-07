@@ -1,0 +1,1 @@
+Initial exploratory JSON emission failed after the first parser invocation because internal source maps have tuple keys. Exact terminal exception: TypeError: keys must be str, int, float, bool or None, not tuple. No pytest or product command ran; this is not the deciding discriminator output.

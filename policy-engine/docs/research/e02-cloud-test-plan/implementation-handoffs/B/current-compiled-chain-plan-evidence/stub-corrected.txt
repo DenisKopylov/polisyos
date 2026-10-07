@@ -1,0 +1,8 @@
+Canonical helper selected target: polisyos.foundry.methods.components.composer
+Generating type stubs for Foundry Methods public API ...
+
+  Processing polisyos.foundry.methods.components.composer ...
+  stubgen -> /tmp/foundry_stubs_d022yl73/polisyos/foundry/methods/components/composer.pyi
+  Wrote -> /workspace/e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/components/composer.pyi
+
+Stubs generated. Run 'mypy --strict polisyos.foundry.methods' to validate.

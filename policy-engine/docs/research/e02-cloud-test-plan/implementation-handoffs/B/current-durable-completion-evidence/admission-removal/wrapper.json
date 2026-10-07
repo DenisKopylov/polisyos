@@ -1,0 +1,55 @@
+{
+  "target_sha": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+  "target_tree": "038b0012692a7fc12ca58aea91724f3a85c83b6e",
+  "mode": "admission-removal",
+  "cwd": "/workspace/e02-B-current-durability/policy-engine",
+  "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+  "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+  "PYTHONPATH": "/workspace/e02-B-current-durability/policy-engine/src:/workspace/e02-B-current-durability/policy-engine",
+  "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+  "removed_numeric_caps": {},
+  "source_sha256_before": {
+    "src/polisyos/scientist/orchestration/engine/budget.py": "76adb290dd270a7a8ce6fb0823bf1f035c00673f3662abf7cb35ca13d8209516",
+    "src/polisyos/scientist/orchestration/engine/budget_ledger.py": "312f31fd3fd6062124b3124a526e4997f6d05e3d79b9c5ce0ec968dec5a41efe",
+    "src/polisyos/scientist/orchestration/engine/budget_middleware.py": "6ad7d0eddbfa7aef9f6f32de5c35505047016367a8b6aa54edbdba99eba3c0f8",
+    "tests/unit/scientist/orchestration/engine/test_budget.py": "fed7ad30c7621dab538ae552b5bcb557c56be2eff0b5e4cf325022dcb19690d4",
+    "tests/unit/scientist/orchestration/engine/test_budget_middleware.py": "f9a037cc70ab8c8b8eb61a5c26c2e16809d6fc20a8b438d819d69512a77b1bbc",
+    "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py": "3a21ea963a4bc3e2fcdb3f62daf1456ae69153ef2f3d990cb7d56a7e9b48b8cc",
+    "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py": "2cd4013df96e19c5620ad8d05cf6d79151f0c532eb00b1d4638ea6975bec8a01",
+    "tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py": "3da9f7887b520884b1d4b3a320965452f95ec1aafa519118bed5aca096811e73",
+    "tests/unit/scientist/orchestration/engine/test_budget_completion_obligations.py": "e014ebecd3342c76e4e3d529d32fe0a72a0708b49f90375e59792526a077116d"
+  },
+  "source_sha256_after": {
+    "src/polisyos/scientist/orchestration/engine/budget.py": "76adb290dd270a7a8ce6fb0823bf1f035c00673f3662abf7cb35ca13d8209516",
+    "src/polisyos/scientist/orchestration/engine/budget_ledger.py": "312f31fd3fd6062124b3124a526e4997f6d05e3d79b9c5ce0ec968dec5a41efe",
+    "src/polisyos/scientist/orchestration/engine/budget_middleware.py": "6ad7d0eddbfa7aef9f6f32de5c35505047016367a8b6aa54edbdba99eba3c0f8",
+    "tests/unit/scientist/orchestration/engine/test_budget.py": "fed7ad30c7621dab538ae552b5bcb557c56be2eff0b5e4cf325022dcb19690d4",
+    "tests/unit/scientist/orchestration/engine/test_budget_middleware.py": "f9a037cc70ab8c8b8eb61a5c26c2e16809d6fc20a8b438d819d69512a77b1bbc",
+    "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py": "3a21ea963a4bc3e2fcdb3f62daf1456ae69153ef2f3d990cb7d56a7e9b48b8cc",
+    "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py": "2cd4013df96e19c5620ad8d05cf6d79151f0c532eb00b1d4638ea6975bec8a01",
+    "tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py": "3da9f7887b520884b1d4b3a320965452f95ec1aafa519118bed5aca096811e73",
+    "tests/unit/scientist/orchestration/engine/test_budget_completion_obligations.py": "e014ebecd3342c76e4e3d529d32fe0a72a0708b49f90375e59792526a077116d"
+  },
+  "head_before": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+  "head_after": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+  "source_unchanged": true,
+  "execution_overlay": "in-memory method replacements printed by child; no file/source edits",
+  "checks": [
+    {
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/tmp/e02-B-dur-completion-frozen-run.source.txt",
+        "admission-removal",
+        "/tmp/e02-B-dur-completion-frozen-admission-removal-9f2a",
+        "--child"
+      ],
+      "exit_code": 1,
+      "wall_seconds": 1.372263028009911,
+      "output": "/tmp/e02-B-dur-completion-frozen-admission-removal-9f2a/native.txt",
+      "output_sha256": "733edb85fd70186f124309932576af3711527c2971a7ec5ad237cb980b7c6fef",
+      "output_bytes": 23284
+    }
+  ],
+  "max_rss_kib": 45460,
+  "filesystem_fixture": "task-isolated /tmp tmpfs; process interruption/atomic publication, not disk power-loss attestation"
+}

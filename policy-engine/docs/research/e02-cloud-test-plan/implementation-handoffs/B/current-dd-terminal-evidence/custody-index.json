@@ -1,0 +1,107 @@
+{
+  "schema": "policyos.e02.output_custody.v1",
+  "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+  "source_tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+  "copied_outputs": [
+    {
+      "source": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-B-cohort.txt",
+        "bytes": 3267622,
+        "sha256": "3d3ac32f7a36c9af45e2fcb0605641977794dbad4b9146143baf4fcb0c52b30e"
+      },
+      "tracked_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dd-terminal-evidence/native.stdout.txt",
+      "secret_pattern_counts": {
+        "credential_uri": 0,
+        "private_key": 0,
+        "github_token": 0,
+        "bearer_value": 0
+      }
+    },
+    {
+      "source": {
+        "path": "/tmp/e02-B-successor-final/raw/review/successor-final-B-cohort.xml",
+        "bytes": 3168754,
+        "sha256": "c61a02426c844ea6e3de05d0853fa939e1ce6cad9b5d31e1b8c5e8a65fa78cf7"
+      },
+      "tracked_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dd-terminal-evidence/native.junit.xml",
+      "secret_pattern_counts": {
+        "credential_uri": 0,
+        "private_key": 0,
+        "github_token": 0,
+        "bearer_value": 0
+      }
+    },
+    {
+      "source": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-B-cohort.json",
+        "bytes": 2866,
+        "sha256": "bec139fa5bfc2c15a12e4deac7bb3c8bc7eb414fe1ed1bb71d7a093e429bf111"
+      },
+      "tracked_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dd-terminal-evidence/native.execution.json",
+      "secret_pattern_counts": {
+        "credential_uri": 0,
+        "private_key": 0,
+        "github_token": 0,
+        "bearer_value": 0
+      }
+    },
+    {
+      "source": {
+        "path": "/tmp/e02-B-successor-final/raw/review/successor-final-B-cohort-profile.json",
+        "bytes": 20483,
+        "sha256": "4efb2a6adb5f2d4c51c3598f831f1b8edc71fc4d9f10211b0d5b75a3f3bede83"
+      },
+      "tracked_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dd-terminal-evidence/native.profile.json",
+      "secret_pattern_counts": {
+        "credential_uri": 0,
+        "private_key": 0,
+        "github_token": 0,
+        "bearer_value": 0
+      }
+    },
+    {
+      "source": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-case-partition.json",
+        "bytes": 2818,
+        "sha256": "2459ac837c8d7b1539d4a9e8070e4edbe7bd666b143c3576daf28df27a36b2c9"
+      },
+      "tracked_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dd-terminal-evidence/case-partition.execution.json",
+      "secret_pattern_counts": {
+        "credential_uri": 0,
+        "private_key": 0,
+        "github_token": 0,
+        "bearer_value": 0
+      }
+    },
+    {
+      "source": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-case-partition.txt",
+        "bytes": 2149,
+        "sha256": "8a7871cde47ffedeb9e54c1b0888feed75a7458d20c78538965f2c6bfdd966ec"
+      },
+      "tracked_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dd-terminal-evidence/case-partition.stdout.txt",
+      "secret_pattern_counts": {
+        "credential_uri": 0,
+        "private_key": 0,
+        "github_token": 0,
+        "bearer_value": 0
+      }
+    },
+    {
+      "source": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-all-changed-ruff.txt",
+        "bytes": 2911509,
+        "sha256": "fbd0d530a76b9eed40e2908c5272f4489fc1c045e03efc3658128f2f9d74ad6b"
+      },
+      "tracked_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dd-terminal-evidence/ruff.stdout.txt",
+      "secret_pattern_counts": {
+        "credential_uri": 0,
+        "private_key": 0,
+        "github_token": 0,
+        "bearer_value": 0
+      }
+    }
+  ],
+  "original_bytes_preserved": true,
+  "directories_moved_or_deleted": false
+}

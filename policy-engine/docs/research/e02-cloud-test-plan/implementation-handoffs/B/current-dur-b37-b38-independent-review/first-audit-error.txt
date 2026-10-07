@@ -1,0 +1,9 @@
+Tool-returned stderr from the first metadata-only audit invocation, exit 1.
+Command: python3 /tmp/e02-dur-published-review/audit.py > /tmp/e02-dur-published-review/full-stdout.json
+Cwd: /workspace/e02-B-current-cas-generation
+Traceback (most recent call last):
+  File "/tmp/e02-dur-published-review/audit.py", line 146, in <module>
+    assert meta['metadata']['source'] == cell['source_sha'], (cell['id'], 'job source')
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^
+KeyError: 'source'
+The redirected stdout was empty. This is a metadata parser error, not product runtime evidence.

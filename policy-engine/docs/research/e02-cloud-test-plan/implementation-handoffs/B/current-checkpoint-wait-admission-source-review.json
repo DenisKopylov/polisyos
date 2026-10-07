@@ -1,0 +1,230 @@
+{
+  "schema": "policyos.e02.independent_source_review.v1",
+  "unit": "B",
+  "reviewer": "/root/cmp_res_probe; independent of EXE author",
+  "status": "source_review_nonblocking_finite_profile",
+  "review_role": "Delta-only source/contract/test-premise review; no product import, collection, runtime, native test or gate executed by reviewer.",
+  "closure_ids": [],
+  "finding_ids": [],
+  "formal_e02_closure": false,
+  "P41_inherited_status": "not_established",
+  "base_sha": "6d2cfbfff5d8ca34cc61a95fe751707da4d89f8a",
+  "base_tree": "eae52c9304e3a48b0f81f16ffc279cbb39c1f9b8",
+  "target_sha": "84e40e5f83054a1f1c6c60d2fbacd53fa6c71497",
+  "target_tree": "21ea656dcc31d414db5183d6a59b5d57deff8a40",
+  "implementation_commits": [
+    "84e40e5f83054a1f1c6c60d2fbacd53fa6c71497"
+  ],
+  "complete_changed_paths": [
+    "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py"
+  ],
+  "prior_review": {
+    "receipt_path": "/workspace/e02-B-current-composition/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-source-review.json",
+    "receipt_commit": "da924a4cbac8db9bc461e9c5ef3513c838bdf9ba",
+    "bytes": 103714,
+    "sha256": "c95c5781a92b31e174a5101d7b3b9face078eb804a529ea2dbdb1bcdd0cb7c7f",
+    "unchanged_independent_runtime_target": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+    "independent_packet_commit": "df07c6e7e586f29a990f4b3b2685f2b54e9945f6",
+    "independent_packet_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-candidate.json",
+    "qualification": "Independent6af long1PASS+short6PASS and removal4 materialFAIL remain bound to6af. They are not84e runtime results."
+  },
+  "changed_file_bindings": [
+    {
+      "base": {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+        "source_sha": "6d2cfbfff5d8ca34cc61a95fe751707da4d89f8a",
+        "blob_oid": "40eeedd7144942f5d8a52894ed85fdea52d2bdb8",
+        "bytes": 98271,
+        "sha256": "9666c6b8da3967d4cc486f6271d3478cc7abd870ae0117df8946e9a168756db7"
+      },
+      "candidate": {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+        "source_sha": "84e40e5f83054a1f1c6c60d2fbacd53fa6c71497",
+        "blob_oid": "8c5eee05114f1d932a42d8bacd68f080e65f7c91",
+        "bytes": 99236,
+        "sha256": "9640210bbe273c3ce14898ac4683539298198b6628898e5d5c057ccc4eee7cdd"
+      }
+    },
+    {
+      "base": {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py",
+        "source_sha": "6d2cfbfff5d8ca34cc61a95fe751707da4d89f8a",
+        "blob_oid": "f619c5cfb6b92180f62bf1ea57f87661983f5141",
+        "bytes": 16159,
+        "sha256": "e37eb7ca949e14a5c270b7bcd42033a63b1d1f172ce40e5fa8494471e2f35556"
+      },
+      "candidate": {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py",
+        "source_sha": "84e40e5f83054a1f1c6c60d2fbacd53fa6c71497",
+        "blob_oid": "7086c4ec612db237c4ad6dc27e6fb228656219dc",
+        "bytes": 20042,
+        "sha256": "3db521987208d8c01f2931a7b40f5c4da6746e0ad16b33c228bc35d84c984994"
+      }
+    },
+    {
+      "base": {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+        "source_sha": "6d2cfbfff5d8ca34cc61a95fe751707da4d89f8a",
+        "blob_oid": "78724bc3c646ae63b7472d86adb64bc7fa0ee683",
+        "bytes": 17473,
+        "sha256": "2506acfd6cf23511fe59b71c0e56de150b11d1d0e3f83163fbe28135cbc89174"
+      },
+      "candidate": {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+        "source_sha": "84e40e5f83054a1f1c6c60d2fbacd53fa6c71497",
+        "blob_oid": "d96ef006d33b273c5e1d320a154ab738fcf86d1f",
+        "bytes": 18169,
+        "sha256": "88f9f7396627a53587be19fd1a5e4859c9bf15c36df272239dea8f354eea0d2c"
+      }
+    }
+  ],
+  "source_context_bindings": [
+    {
+      "path": "policy-engine/src/polisyos/common/async_tools.py",
+      "source_sha": "84e40e5f83054a1f1c6c60d2fbacd53fa6c71497",
+      "blob_oid": "d6255d4fcfa1d63693c700d752458ccffb081530",
+      "bytes": 11846,
+      "sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+      "source_sha": "84e40e5f83054a1f1c6c60d2fbacd53fa6c71497",
+      "blob_oid": "f4793e795874e0c5a000f1c37684e9f6ef727506",
+      "bytes": 105281,
+      "sha256": "8f35644ea00699c1022df32a71cc1ffd8a37c042a5d12f0f76c7ce8a20e5b7b1"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/async_store.py",
+      "source_sha": "84e40e5f83054a1f1c6c60d2fbacd53fa6c71497",
+      "blob_oid": "1111ad75ed6632d87280e5699845811ec355bfbb",
+      "bytes": 7518,
+      "sha256": "875c3ddc24dd7248000c24f3384ec04907c145c3ca01a183a53eff24f90d5078"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+      "source_sha": "84e40e5f83054a1f1c6c60d2fbacd53fa6c71497",
+      "blob_oid": "8c5eee05114f1d932a42d8bacd68f080e65f7c91",
+      "bytes": 99236,
+      "sha256": "9640210bbe273c3ce14898ac4683539298198b6628898e5d5c057ccc4eee7cdd"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+      "source_sha": "84e40e5f83054a1f1c6c60d2fbacd53fa6c71497",
+      "blob_oid": "d96ef006d33b273c5e1d320a154ab738fcf86d1f",
+      "bytes": 18169,
+      "sha256": "88f9f7396627a53587be19fd1a5e4859c9bf15c36df272239dea8f354eea0d2c"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py",
+      "source_sha": "84e40e5f83054a1f1c6c60d2fbacd53fa6c71497",
+      "blob_oid": "7086c4ec612db237c4ad6dc27e6fb228656219dc",
+      "bytes": 20042,
+      "sha256": "3db521987208d8c01f2931a7b40f5c4da6746e0ad16b33c228bc35d84c984994"
+    },
+    {
+      "path": "policy-engine/pytest.ini",
+      "source_sha": "84e40e5f83054a1f1c6c60d2fbacd53fa6c71497",
+      "blob_oid": "f6b18091a37290d7b5c375b3aef44ffebc0a293a",
+      "bytes": 1021,
+      "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+    },
+    {
+      "path": "policy-engine/pyproject.toml",
+      "source_sha": "84e40e5f83054a1f1c6c60d2fbacd53fa6c71497",
+      "blob_oid": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "bytes": 11007,
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+    }
+  ],
+  "complete_delta": {
+    "bytes": 10352,
+    "sha256": "892dd9d387cf790b593839a9cdda3aedbe92b45e2dc9595becd3f86a634c9d8c",
+    "literal_utf8": "diff --git a/policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py b/policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py\nindex 40eeedd71..8c5eee051 100644\n--- a/policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py\n+++ b/policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py\n@@ -15,6 +15,7 @@ from copy import deepcopy\n from dataclasses import dataclass\n from datetime import UTC, datetime, timedelta\n from pathlib import Path\n+from threading import Lock\n from typing import TYPE_CHECKING, Any, Literal, Protocol, Self, cast\n \n from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator\n@@ -168,10 +169,21 @@ async def _run_checkpoint_blocking[T](\n     if publication_budget is None:\n         return cast(\"T\", await run_blocking_async(func, *args, **kwargs))\n     remaining = publication_budget.remaining_seconds(operation)\n+    admission_lock = Lock()\n+    worker_entered = False\n+    wait_cancelled = False\n \n     def admitted_call() -> T:\n+        nonlocal worker_entered\n         # A queued worker cannot enter after its original caller has expired.\n-        publication_budget.require_active(operation)\n+        with admission_lock:\n+            if wait_cancelled:\n+                raise asyncio.CancelledError(\n+                    f\"checkpoint wait cancelled; execution_state=not_admitted; \"\n+                    f\"publication_operation={operation}\"\n+                )\n+            publication_budget.require_active(operation)\n+            worker_entered = True\n         return func(*args, **kwargs)\n \n     try:\n@@ -180,6 +192,16 @@ async def _run_checkpoint_blocking[T](\n             timeout_seconds=remaining,\n             unbounded=remaining is None,\n         )\n+    except asyncio.CancelledError as exc:\n+        # Close admission before reporting a queued cancellation. An admitted\n+        # synchronous operation can still complete physically after this wait.\n+        with admission_lock:\n+            wait_cancelled = True\n+            execution_state = \"unknown\" if worker_entered else \"not_admitted\"\n+        raise asyncio.CancelledError(\n+            f\"checkpoint wait cancelled; execution_state={execution_state}; \"\n+            f\"publication_operation={operation}\"\n+        ) from exc\n     except TimeoutError:\n         # Keep an on-time backend TimeoutError distinct from owner expiry.\n         publication_budget.require_active(operation, execution_state=\"unknown\")\ndiff --git a/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py b/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py\nindex f619c5cfb..7086c4ec6 100644\n--- a/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py\n+++ b/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py\n@@ -185,6 +185,98 @@ async def test_cancelled_checkpoint_cannot_adopt_reused_executor_owner(tmp_path,\n     assert len(node.refs) == 1 and FileSystemCAS(store.root).verify(node.refs[0]).ok\n \n \n+@pytest.mark.asyncio\n+async def test_entered_native_head_cancel_reports_unknown_and_completes_generation(\n+    tmp_path, monkeypatch\n+):\n+    store = FileSystemCAS(tmp_path / \"cas\")\n+    ctx, node, workflow, executor = _setup(store)\n+    hook = checkpoint.CASCheckpointHook(store=store, run_dir=ctx.run.trace_path.parent)\n+    executor._checkpoint_hook = hook\n+    entered, release, finished = threading.Event(), threading.Event(), threading.Event()\n+    original = checkpoint.os.replace\n+\n+    def held_replace(source, target):\n+        if Path(target).name != checkpoint.CHECKPOINT_HEAD_FILENAME:\n+            return original(source, target)\n+        entered.set()\n+        try:\n+            assert release.wait(5)\n+            return original(source, target)\n+        finally:\n+            finished.set()\n+\n+    monkeypatch.setattr(checkpoint.os, \"replace\", held_replace)\n+    task = asyncio.create_task(\n+        executor.execute(workflow, ExperimentState(run_id=\"R_deadline\", params={\"seed\": 7}))\n+    )\n+    try:\n+        assert await asyncio.to_thread(entered.wait, 5)\n+        before = _events(ctx)\n+        task.cancel()\n+        with pytest.raises(asyncio.CancelledError, match=\"execution_state=unknown\") as failure:\n+            await task\n+        assert \"publication_operation=checkpoint_head\" in str(failure.value)\n+        assert task.cancelling() == 1 and node.calls == 1\n+        assert not (ctx.run.trace_path.parent / checkpoint.CHECKPOINT_HEAD_FILENAME).exists()\n+        assert ctx.run.run_manifest.outputs == [] and _events(ctx) == before\n+    finally:\n+        release.set()\n+        assert await asyncio.to_thread(finished.wait, 5)\n+        for _ in range(500):\n+            if (ctx.run.trace_path.parent / checkpoint.CHECKPOINT_HISTORY_FILENAME).exists():\n+                break\n+            await asyncio.sleep(0.002)\n+    _verified_generation(store, ctx.run.trace_path.parent)\n+    assert hook._sequence == 0 and not any(row[\"event\"] == \"RUN_FINALIZED\" for row in _events(ctx))\n+    assert ctx.run.run_manifest.outputs == []\n+    assert FileSystemCAS(store.root).verify(node.refs[0]).ok\n+\n+\n+@pytest.mark.asyncio\n+async def test_queued_native_cas_cancel_reports_not_admitted_without_publication(\n+    tmp_path, monkeypatch\n+):\n+    store, ctx, _, _, _, hook, kwargs = await _native_input(tmp_path)\n+    before = {str(identity) for identity in store.iter_artifact_ids()}\n+    # This private product executor has one physical slot to distinguish a real\n+    # queued operation. It does not restrict cloud tests or other executor pools.\n+    pool = async_tools._SharedExecutor(max_workers=1)\n+    occupied, release = threading.Event(), threading.Event()\n+\n+    def hold_slot():\n+        occupied.set()\n+        assert release.wait(5)\n+\n+    blocker = pool.submit(hold_slot)\n+    assert await asyncio.to_thread(occupied.wait, 5)\n+    monkeypatch.setattr(async_tools, \"_get_shared_executor\", lambda: pool)\n+\n+    async def publish():\n+        return await hook.on_node_complete_with_budget_async(\n+            publication_budget=_budget(None), **kwargs\n+        )\n+\n+    task = asyncio.create_task(publish())\n+    try:\n+        for _ in range(500):\n+            if pool._work_queue.qsize() > 0:\n+                break\n+            await asyncio.sleep(0.002)\n+        assert pool._work_queue.qsize() == 1\n+        task.cancel()\n+        with pytest.raises(asyncio.CancelledError, match=\"execution_state=not_admitted\") as failure:\n+            await task\n+        assert \"publication_operation=checkpoint_artifact\" in str(failure.value)\n+    finally:\n+        release.set()\n+        await asyncio.to_thread(blocker.result, 5)\n+        await asyncio.to_thread(pool.shutdown, wait=True)\n+    assert {str(identity) for identity in store.iter_artifact_ids()} == before\n+    assert not (ctx.run.trace_path.parent / checkpoint.CHECKPOINT_HEAD_FILENAME).exists()\n+    assert not (ctx.run.trace_path.parent / checkpoint.CHECKPOINT_HISTORY_FILENAME).exists()\n+\n+\n @pytest.mark.asyncio\n @pytest.mark.parametrize(\"mode\", [\"deadline\", \"cancel\"])\n async def test_real_head_fsync_fence_keeps_previous_generation(tmp_path, monkeypatch, mode):\ndiff --git a/policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py b/policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py\nindex 78724bc3c..d96ef006d 100644\n--- a/policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py\n+++ b/policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py\n@@ -384,10 +384,12 @@ async def test_entered_mutable_publication_is_unacknowledged_unknown_not_rollbac\n \n @pytest.mark.asyncio\n async def test_suppressed_checkpoint_cancellation_cannot_admit_new_owner_publication(tmp_path):\n+    from polisyos.core.canon import from_canonical_bytes\n     from polisyos.scientist.orchestration.engine.checkpoint import (\n         CASCheckpointHook,\n         resolve_latest_checkpoint,\n     )\n+    from polisyos.scientist.orchestration.engine.idempotency import NodeCacheEntry, NodeResultCache\n \n     store = FileSystemCAS(tmp_path / \"cas\")\n     ctx, node, workflow, executor = _setup(store)\n@@ -413,20 +415,30 @@ async def test_suppressed_checkpoint_cancellation_cannot_admit_new_owner_publica\n     await asyncio.wait_for(entered.wait(), 5)\n     before = _events(ctx)\n     task.cancel()\n-    with pytest.raises(asyncio.CancelledError, match=\"execution_state=unknown\"):\n+    with pytest.raises(asyncio.CancelledError, match=\"execution_state=not_admitted\"):\n         await task\n     assert task.cancelling() == 1\n-    assert completed == [\"cancelled\", \"physically_completed\"]\n+    assert completed == [\"cancelled\"]\n     assert node.calls == 1\n     assert _events(ctx) == before\n     assert ctx.run.run_manifest.outputs == []\n     reopened = FileSystemCAS(store.root)\n     resolved = resolve_latest_checkpoint(reopened, \"R_deadline\")\n-    assert resolved is not None\n-    head, dto = resolved\n-    assert reopened.verify(head.checkpoint_ref).ok\n-    assert dto.metadata.completed_nodes == [\"compute\"]\n-    assert dto.state[\"params\"] == {\"seed\": 7, \"result\": 14}\n-    assert len(dto.metadata.cache_entry_refs) == 1\n-    assert reopened.verify(dto.metadata.cache_entry_refs[0]).ok\n+    assert resolved is None\n+    assert not (ctx.run.trace_path.parent / \"checkpoint_head.json\").exists()\n+    assert not (ctx.run.trace_path.parent / \"checkpoint_history.json\").exists()\n+    cache_refs = [\n+        ArtifactRef.model_validate(ref)\n+        for row in before\n+        if row[\"event\"] == \"NODE_CACHE_STORE\"\n+        for ref in row[\"refs\"][\"outputs\"]\n+    ]\n+    assert len(cache_refs) == 1 and reopened.verify(cache_refs[0]).ok\n+    entry = NodeCacheEntry.model_validate(from_canonical_bytes(reopened.get_bytes(cache_refs[0])))\n+    assert entry.run_id == \"R_deadline\" and entry.node_id == str(node.spec.metadata.component_id)\n+    cache = NodeResultCache(reopened, \"R_deadline\")\n+    assert cache.load_entry(cache_refs[0])\n+    cached = cache.get(entry.idempotency_key)\n+    assert cached is not None and cached.state.params == {\"seed\": 7, \"result\": 14}\n+    assert cached.artifacts == node.refs\n     assert reopened.verify(node.refs[0]).ok\n"
+  },
+  "code_review": [
+    {
+      "property": "Queued cancellation must close owned backend admission before reporting not_admitted.",
+      "source": "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py:169-207",
+      "predicate_grade": "recomputed_from_complete_source_delta",
+      "assessment": "A local threading.Lock orders worker admission against cancellation handling. Cancellation sets wait_cancelled under the same lock; a queued worker checks it before original budget predicates and before invoking func. Cancellation that loses to admitted_call sees worker_entered=True and reports unknown conservatively. The synchronous callable runs outside the lock, so physical completion is not falsely promised or prevented."
+    },
+    {
+      "property": "Original owner budget and ContextVar lineage must remain unchanged.",
+      "predicate_grade": "independently_reconciled_source_bytes",
+      "assessment": "The only production delta is Lock import and local admission/classification in _run_checkpoint_blocking. Captured original task/cancelling baseline, owner seed, deadline, native store policy min-join, token reset, worker context propagation and legacy/opt-in dynamic dispatch are unchanged. AsyncExecutor and async store are byte-identical to6d. No separate authority or per-phase timeout is introduced."
+    },
+    {
+      "property": "Preserve cancellation type while qualifying backend entry.",
+      "predicate_grade": "recomputed_from_complete_source_delta",
+      "assessment": "The wrapper raises asyncio.CancelledError from the original caught CancelledError, with publication_operation and execution_state. Exact exception object/message identity is not preserved; the contract here is CancelledError type plus operation/admission state. No exception swallowing, task uncancel, success ACK or physical worker stop is added. worker_entered is a conservative admitted-call quantity, not proof every downstream filesystem primitive has entered."
+    },
+    {
+      "property": "Entered head generation must remain recoverable while caller receives no ACK.",
+      "predicate_grade": "recomputed_from_canonical_source",
+      "assessment": "Existing update_checkpoint_head guards before temp creation and after temp fsync, then os.replace, directory fsync and append_checkpoint_history without a fresh budget refusal between entered replacement and required history. New classification changes no writer protocol. Real filesystem failure may still interrupt physical completion; no guarantee against arbitrary I/O error or power loss is inferred."
+    }
+  ],
+  "actual_test_source_review": [
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py",
+      "case": "test_entered_native_head_cancel_reports_unknown_and_completes_generation",
+      "assessment": "Actual executor/producer/cache/CAS hook path; barrier is inside actual os.replace after its original-budget fence. Before rescue: cancellation unknown/checkpoint_head, producer1, no head yet, no run outputs/event delta. After releasing genuine replace: fresh CAS resolves frontier compute/value14 and linked history; hook sequence remains0, no RUN_FINALIZED and node output ref verifies. Source-only review of meaningful consumer assertions; runtime UNRUN by reviewer."
+    },
+    {
+      "case": "test_queued_native_cas_cancel_reports_not_admitted_without_publication",
+      "assessment": "Occupies a private product _SharedExecutor capacity1 solely to construct an actual queued canonical CAS operation. This fixture capacity is not a cloud process/thread quota. Poll asserts actual queue size1 before cancellation; final physical pool drain/shutdown precedes unchanged artifact-ID set and absent head/history checks. It exercises owned helper admission, not a marker. No collection/runtime result imported."
+    },
+    {
+      "case": "test_suppressed_checkpoint_cancellation_cannot_admit_new_owner_publication",
+      "assessment": "Legacy hook catches cancellation before entering canonical CAS; copied original publication context refuses synchronous delegate before CAS publication. Corrected expectation not_admitted/completed=[cancelled], producer1, original audit/event and run-output assertions retained. Actual reopened CAS validates original node ref and emitted cache entry, then fresh NodeResultCache loads and reads seed7/result14/artifacts. It preserves upstream successful effect while refusing a later head/history publication. It does not stand in for the separate entered-os.replace case."
+    }
+  ],
+  "root_owned_companion_review": {
+    "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
+    "observed_root_head": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+    "observed_root_tree": "072fe84b882f50e5ed3aa593c0bf0a647b52cdac",
+    "bytes": 11950,
+    "sha256": "50cae60eeff77dca2c57d92af4c48e2ad060c882164485c2e152287256e21336",
+    "tracked_status": "",
+    "complete_delta_literal": "",
+    "qualification": "Observed root-owned working-tree companion bytes; not an immutable future commit claim.",
+    "assessment": "The17-line paragraph correctly identifies BudgetedAsyncCheckpointHook as additive public_experimental adjunct, original caller/token budget propagation, legacy delegating hooks, explicit adapter min-join, opaque native async own policies, queued not_admitted versus admitted unknown, head post-fsync/pre-replace fence and completion after replacement enters. Publication budget grants no institutional/artifact authority. It says physical entered I/O is not rolled back; it does not promise arbitrary backend preemption. Completion wording is bounded by ordinary actual I/O failures.",
+    "accepted_immutable_companion_source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+    "accepted_immutable_companion_tree": "072fe84b882f50e5ed3aa593c0bf0a647b52cdac",
+    "immutable_readback_qualification": "After receipt construction, complete committed4ff README bytes were read and their SHA256 matched observed reviewed working bytes exactly. No new source or future runtime claim."
+  },
+  "checks": [
+    {
+      "command": "/usr/bin/git show/diff/rev-parse; complete canonical source and actual fixture assertions read without executing them",
+      "target_sha": "84e40e5f83054a1f1c6c60d2fbacd53fa6c71497",
+      "environment": "Read-only standard-library metadata inspection on existing admitted worktrees; no production imports or tests.",
+      "input_closure": "Exact3changed Git paths plus enumerated canonical context and previously published source review.",
+      "outcome": "PASS",
+      "grade": "source_review_only",
+      "output": "No blocking source issue found within declared queued/admitted original-owner profile."
+    },
+    {
+      "command": "Reviewer native tests, collection and gates",
+      "target_sha": "84e40e5f83054a1f1c6c60d2fbacd53fa6c71497",
+      "outcome": "UNRUN",
+      "output": "Explicitly not authorized/requested; author/root independent runtime retains its own exact source/input binding."
+    }
+  ],
+  "finite_limits": [
+    "No84e native/wholecohort/verification PASS is attested by this reviewer.",
+    "No physical interruption, rollback, arbitrary async backend policy compatibility, force-kill/XLA, power-loss durability or institutional authority claim.",
+    "Local lock inspection plus existing canonical code is source-grade evidence; measured actual scheduling/runtime output belongs to author/root/DUR packets.",
+    "A separately launched future candidate and future outputs require their own exact source/environment/input proof."
+  ],
+  "next_owner": "Root merges accepted exact84e and sole-owned README companion, reads exact author outputs, freezes successor and runs its one affected fullwave. Existing global RED and P41 not_established remain; no inherited waiver.",
+  "body_changed_by_reviewer": false,
+  "protected_A_C_source_edits": false,
+  "receipt_builder": {
+    "path": "/workspace/e02-B-current-composition/.polisyos/e02-B-current-composition/checkpoint-final-review/build_review.py",
+    "sha256": "075cd5abeae10de30962dad14a485989522d7d0275cb9e7a02adbacb4385857b",
+    "literal_utf8": "from __future__ import annotations\nimport hashlib, json, subprocess\nfrom pathlib import Path\nOWN=Path('/workspace/e02-B-current-composition')\nEXE=Path('/workspace/e02-B-current-execution-state')\nROOT=Path('/workspace/e02-B-current-coordination')\nBASE='6d2cfbfff5d8ca34cc61a95fe751707da4d89f8a'\nTARGET='84e40e5f83054a1f1c6c60d2fbacd53fa6c71497'\nPREFIX='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/'\nCP='policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py'\nREADME='policy-engine/src/polisyos/scientist/orchestration/engine/README.md'\ndef git(repo,*args): return subprocess.check_output(['/usr/bin/git','-C',str(repo),*args])\ndef digest(data):return hashlib.sha256(data).hexdigest()\ndef binding(repo,sha,path):\n    data=git(repo,'show',sha+':'+path)\n    return {'path':path,'source_sha':sha,'blob_oid':git(repo,'rev-parse',sha+':'+path).decode().strip(),'bytes':len(data),'sha256':digest(data)}\npaths=git(EXE,'diff','--name-only',BASE,TARGET).decode().splitlines()\ndelta=git(EXE,'diff',BASE,TARGET,'--',*paths)\nprior=OWN/(PREFIX+'current-checkpoint-publication-budget-source-review.json')\nreadme_data=(ROOT/README).read_bytes()\nreadme_delta=git(ROOT,'diff','HEAD','--',README)\ncontext=['policy-engine/src/polisyos/common/async_tools.py','policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py','policy-engine/src/polisyos/core/artifacts/async_store.py',CP,'policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py','policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py','policy-engine/pytest.ini','policy-engine/pyproject.toml']\nj={\n'schema':'policyos.e02.independent_source_review.v1','unit':'B','reviewer':'/root/cmp_res_probe; independent of EXE author','status':'source_review_nonblocking_finite_profile','review_role':'Delta-only source/contract/test-premise review; no product import, collection, runtime, native test or gate executed by reviewer.','closure_ids':[],'finding_ids':[],'formal_e02_closure':False,'P41_inherited_status':'not_established',\n'base_sha':BASE,'base_tree':git(EXE,'rev-parse',BASE+'^{tree}').decode().strip(),'target_sha':TARGET,'target_tree':git(EXE,'rev-parse',TARGET+'^{tree}').decode().strip(),'implementation_commits':[TARGET],'complete_changed_paths':paths,\n'prior_review':{'receipt_path':str(prior),'receipt_commit':'da924a4cbac8db9bc461e9c5ef3513c838bdf9ba','bytes':len(prior.read_bytes()),'sha256':digest(prior.read_bytes()),'unchanged_independent_runtime_target':'6af060e952ae1561065f2a70668a790f5f6edcd5','independent_packet_commit':'df07c6e7e586f29a990f4b3b2685f2b54e9945f6','independent_packet_path':PREFIX+'current-checkpoint-deadline-independent-candidate.json','qualification':'Independent6af long1PASS+short6PASS and removal4 materialFAIL remain bound to6af. They are not84e runtime results.'},\n'changed_file_bindings':[{'base':binding(EXE,BASE,p),'candidate':binding(EXE,TARGET,p)} for p in paths],\n'source_context_bindings':[binding(EXE,TARGET,p) for p in context],\n'complete_delta':{'bytes':len(delta),'sha256':digest(delta),'literal_utf8':delta.decode()},\n'code_review':[\n{'property':'Queued cancellation must close owned backend admission before reporting not_admitted.','source':CP+':169-207','predicate_grade':'recomputed_from_complete_source_delta','assessment':'A local threading.Lock orders worker admission against cancellation handling. Cancellation sets wait_cancelled under the same lock; a queued worker checks it before original budget predicates and before invoking func. Cancellation that loses to admitted_call sees worker_entered=True and reports unknown conservatively. The synchronous callable runs outside the lock, so physical completion is not falsely promised or prevented.'},\n{'property':'Original owner budget and ContextVar lineage must remain unchanged.','predicate_grade':'independently_reconciled_source_bytes','assessment':'The only production delta is Lock import and local admission/classification in _run_checkpoint_blocking. Captured original task/cancelling baseline, owner seed, deadline, native store policy min-join, token reset, worker context propagation and legacy/opt-in dynamic dispatch are unchanged. AsyncExecutor and async store are byte-identical to6d. No separate authority or per-phase timeout is introduced.'},\n{'property':'Preserve cancellation type while qualifying backend entry.','predicate_grade':'recomputed_from_complete_source_delta','assessment':'The wrapper raises asyncio.CancelledError from the original caught CancelledError, with publication_operation and execution_state. Exact exception object/message identity is not preserved; the contract here is CancelledError type plus operation/admission state. No exception swallowing, task uncancel, success ACK or physical worker stop is added. worker_entered is a conservative admitted-call quantity, not proof every downstream filesystem primitive has entered.'},\n{'property':'Entered head generation must remain recoverable while caller receives no ACK.','predicate_grade':'recomputed_from_canonical_source','assessment':'Existing update_checkpoint_head guards before temp creation and after temp fsync, then os.replace, directory fsync and append_checkpoint_history without a fresh budget refusal between entered replacement and required history. New classification changes no writer protocol. Real filesystem failure may still interrupt physical completion; no guarantee against arbitrary I/O error or power loss is inferred.'}\n],\n'actual_test_source_review':[\n{'path':paths[1] if len(paths)>1 else None,'case':'test_entered_native_head_cancel_reports_unknown_and_completes_generation','assessment':'Actual executor/producer/cache/CAS hook path; barrier is inside actual os.replace after its original-budget fence. Before rescue: cancellation unknown/checkpoint_head, producer1, no head yet, no run outputs/event delta. After releasing genuine replace: fresh CAS resolves frontier compute/value14 and linked history; hook sequence remains0, no RUN_FINALIZED and node output ref verifies. Source-only review of meaningful consumer assertions; runtime UNRUN by reviewer.'},\n{'case':'test_queued_native_cas_cancel_reports_not_admitted_without_publication','assessment':'Occupies a private product _SharedExecutor capacity1 solely to construct an actual queued canonical CAS operation. This fixture capacity is not a cloud process/thread quota. Poll asserts actual queue size1 before cancellation; final physical pool drain/shutdown precedes unchanged artifact-ID set and absent head/history checks. It exercises owned helper admission, not a marker. No collection/runtime result imported.'},\n{'case':'test_suppressed_checkpoint_cancellation_cannot_admit_new_owner_publication','assessment':'Legacy hook catches cancellation before entering canonical CAS; copied original publication context refuses synchronous delegate before CAS publication. Corrected expectation not_admitted/completed=[cancelled], producer1, original audit/event and run-output assertions retained. Actual reopened CAS validates original node ref and emitted cache entry, then fresh NodeResultCache loads and reads seed7/result14/artifacts. It preserves upstream successful effect while refusing a later head/history publication. It does not stand in for the separate entered-os.replace case.'}\n],\n'root_owned_companion_review':{'path':str(ROOT/README),'observed_root_head':git(ROOT,'rev-parse','HEAD').decode().strip(),'observed_root_tree':git(ROOT,'rev-parse','HEAD^{tree}').decode().strip(),'bytes':len(readme_data),'sha256':digest(readme_data),'tracked_status':git(ROOT,'status','--porcelain','--',README).decode().strip(),'complete_delta_literal':readme_delta.decode(),'qualification':'Observed root-owned working-tree companion bytes; not an immutable future commit claim.','assessment':'The17-line paragraph correctly identifies BudgetedAsyncCheckpointHook as additive public_experimental adjunct, original caller/token budget propagation, legacy delegating hooks, explicit adapter min-join, opaque native async own policies, queued not_admitted versus admitted unknown, head post-fsync/pre-replace fence and completion after replacement enters. Publication budget grants no institutional/artifact authority. It says physical entered I/O is not rolled back; it does not promise arbitrary backend preemption. Completion wording is bounded by ordinary actual I/O failures.'},\n'checks':[{'command':'/usr/bin/git show/diff/rev-parse; complete canonical source and actual fixture assertions read without executing them','target_sha':TARGET,'environment':'Read-only standard-library metadata inspection on existing admitted worktrees; no production imports or tests.','input_closure':'Exact3changed Git paths plus enumerated canonical context and previously published source review.','outcome':'PASS','grade':'source_review_only','output':'No blocking source issue found within declared queued/admitted original-owner profile.'},{'command':'Reviewer native tests, collection and gates','target_sha':TARGET,'outcome':'UNRUN','output':'Explicitly not authorized/requested; author/root independent runtime retains its own exact source/input binding.'}],\n'finite_limits':['No84e native/wholecohort/verification PASS is attested by this reviewer.','No physical interruption, rollback, arbitrary async backend policy compatibility, force-kill/XLA, power-loss durability or institutional authority claim.','Local lock inspection plus existing canonical code is source-grade evidence; measured actual scheduling/runtime output belongs to author/root/DUR packets.','A separately launched future candidate and future outputs require their own exact source/environment/input proof.'],\n'next_owner':'Root merges accepted exact84e and sole-owned README companion, reads exact author outputs, freezes successor and runs its one affected fullwave. Existing global RED and P41 not_established remain; no inherited waiver.',\n'body_changed_by_reviewer':False,'protected_A_C_source_edits':False,\n'receipt_builder':{'path':str(Path(__file__).resolve()),'sha256':digest(Path(__file__).read_bytes()),'literal_utf8':Path(__file__).read_text(),'qualification':'Standard-library source/custody serialization only; no product import or execution.'}\n}\nassert paths==[CP,'policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py','policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py']\nassert git(EXE,'show',BASE+':'+context[1])==git(EXE,'show',TARGET+':'+context[1])\nout=OWN/(PREFIX+'current-checkpoint-wait-admission-source-review.json')\nwith out.open('x') as f:json.dump(j,f,ensure_ascii=False,indent=2);f.write('\\n')\ndata=out.read_bytes(); print(json.dumps({'path':str(out),'bytes':len(data),'sha256':digest(data),'target':TARGET,'status':j['status']},indent=2))\n",
+    "qualification": "Standard-library source/custody serialization only; no product import or execution."
+  }
+}

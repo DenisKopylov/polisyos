@@ -13,17 +13,21 @@ delegate directly to ``node.execute()`` with minimal overhead.
 from __future__ import annotations
 
 import asyncio
+import base64
 import contextvars
+import ctypes
 import dataclasses
+import json
 import logging
 import multiprocessing as mp
 import os
 import queue
 import random
 import signal
+import sys
 import threading
 import time
-from concurrent.futures import TimeoutError as FuturesTimeoutError
+from concurrent.futures import wait
 from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
 from typing import TYPE_CHECKING, Any, Literal
@@ -48,6 +52,7 @@ from polisyos.scientist.orchestration.engine.protocol import (
     NodeOutcome,
     decode_node_outcome,
 )
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.state_branching import branch_state
 
 if TYPE_CHECKING:
@@ -55,14 +60,13 @@ if TYPE_CHECKING:
 
     from polisyos.scientist.orchestration.engine.circuit_breaker import CircuitBreaker
     from polisyos.scientist.orchestration.engine.context import ExecutionContext
-    from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 _logger = logging.getLogger(__name__)
 
-# A process timeout bounds node computation.  Queue delivery is a separate,
-# short grace period: a worker may have exited while its multiprocessing.Queue
-# feeder is still flushing a result.  Keeping the windows distinct prevents a
-# large result from consuming an unbounded extension of the node deadline.
+# Node computation has one deadline; framed result delivery has one finite
+# window from the actual completion mark. Parent and supervisor drain while
+# their producer runs. No Queue feeder or blocking partial-frame read can
+# silently extend that window.
 _PROCESS_RESULT_POLL_S = 0.01
 _PROCESS_GROUP_READY_S = 0.05
 _PROCESS_DELIVERY_GRACE_S = 1.0
@@ -77,6 +81,249 @@ class _WorkerDeliveryTimeout(Exception):
     """The worker finished, but its result was not delivered in bounded time."""
 
 
+class _WorkerResultChannel:
+    """One framed Pipe, drained without blocking on a partial result frame."""
+
+    def __init__(self, context: Any) -> None:
+        self._reader, self._writer = context.Pipe(duplex=False)
+        try:
+            os.set_blocking(self._reader.fileno(), False)
+            self._buffer = bytearray()
+            self._size: int | None = None
+        except BaseException:
+            self.close()
+            raise
+
+    def put(self, value: Any) -> None:
+        status, data = value
+        binary = isinstance(data, bytes)
+        wire = {
+            "status": status,
+            "encoding": "bytes" if binary else "json",
+            "payload": base64.b64encode(data).decode("ascii") if binary else data,
+        }
+        payload = json.dumps(wire, separators=(",", ":")).encode("utf-8")
+        view = memoryview(len(payload).to_bytes(8, "big") + payload)
+        while view:
+            written = os.write(self._writer.fileno(), view)
+            view = view[written:]
+
+    def get_nowait(self) -> tuple[str, Any]:
+        try:
+            chunk = os.read(self._reader.fileno(), 65536)
+        except BlockingIOError:
+            chunk = None
+        if chunk:
+            self._buffer.extend(chunk)
+        if self._size is None and len(self._buffer) >= 8:
+            self._size = int.from_bytes(self._buffer[:8], "big")
+            del self._buffer[:8]
+        if self._size is not None and len(self._buffer) >= self._size:
+            wire = json.loads(self._buffer[: self._size])
+            if not isinstance(wire, dict) or wire.get("encoding") not in {"bytes", "json"}:
+                raise ValueError("invalid worker result envelope")
+            data = wire["payload"]
+            if wire["encoding"] == "bytes":
+                data = base64.b64decode(data, validate=True)
+            status = wire["status"]
+            if not isinstance(status, str):
+                raise ValueError("invalid worker result status")
+            return status, data
+        if chunk == b"":
+            raise EOFError("worker result channel closed before a complete frame")
+        raise queue.Empty
+
+    def get(self, *, timeout: float) -> tuple[str, Any]:
+        deadline = time.monotonic() + timeout
+        while True:
+            try:
+                return self.get_nowait()
+            except queue.Empty:
+                if time.monotonic() >= deadline:
+                    raise
+                time.sleep(min(0.001, max(0.0, deadline - time.monotonic())))
+
+    def close_reader(self) -> None:
+        self._reader.close()
+
+    def close_writer(self) -> None:
+        self._writer.close()
+
+    def close(self) -> None:
+        self.close_reader()
+        self.close_writer()
+
+    def join_thread(self) -> None:
+        # No Queue feeder thread exists on this transport.
+        pass
+
+
+def _enable_child_subreaper() -> None:
+    """Set Linux ownership only in the separate supervisor process."""
+    libc = ctypes.CDLL(None, use_errno=True)
+    if libc.prctl(36, 1, 0, 0, 0) != 0:  # PR_SET_CHILD_SUBREAPER
+        error = ctypes.get_errno()
+        raise OSError(error, os.strerror(error))
+
+
+def _kernel_parent_pid(pid: int) -> int | None:
+    try:
+        with open(f"/proc/{pid}/stat", encoding="ascii") as stream:
+            # The command field may itself contain spaces and parentheses.
+            return int(stream.read().rsplit(")", 1)[1].split()[1])
+    except (OSError, ValueError, IndexError):
+        return None
+
+
+def _owned_child_pids() -> tuple[int, ...]:
+    """Read kernel PPID; /proc task/children is optional on Linux kernels."""
+    parent = os.getpid()
+    with os.scandir("/proc") as entries:
+        return tuple(
+            int(entry.name)
+            for entry in entries
+            if entry.name.isdecimal() and _kernel_parent_pid(int(entry.name)) == parent
+        )
+
+
+def _kill_owned_child(pid: int) -> None:
+    """Pin Linux identity through libc even when Python omits pidfd wrappers."""
+    libc = ctypes.CDLL(None, use_errno=True)
+    descriptor = libc.pidfd_open(pid, 0)
+    if descriptor < 0:
+        error = ctypes.get_errno()
+        if error == 3:  # ESRCH: already gone.
+            return
+        raise OSError(error, os.strerror(error))
+    try:
+        if _kernel_parent_pid(pid) == os.getpid():
+            if libc.pidfd_send_signal(descriptor, int(signal.SIGKILL), None, 0) < 0:
+                error = ctypes.get_errno()
+                if error != 3:
+                    raise OSError(error, os.strerror(error))
+    finally:
+        os.close(descriptor)
+
+
+def _reap_owned_children() -> bool:
+    """Kill and reap adopted descendants, including new-session grandchildren."""
+    deadline = time.monotonic() + _PROCESS_CLEANUP_GRACE_S * 0.75
+    while True:
+        while True:
+            try:
+                pid, _ = os.waitpid(-1, os.WNOHANG)
+            except ChildProcessError:
+                return True
+            if pid == 0:
+                break
+        children = _owned_child_pids()
+        for pid in children:
+            _kill_owned_child(pid)
+        if time.monotonic() >= deadline:
+            return False
+        time.sleep(0.001)
+
+
+def _node_execute_supervisor(
+    node: Any,
+    ctx: Any,
+    state: Any,
+    result_channel: Any,
+    group_ready: Any,
+    completion_time: Any,
+    compute_deadline: float,
+    cleanup_complete: Any,
+) -> None:
+    """Own one real node process and reap it before exposing its result."""
+    result_channel.close_reader()
+    if sys.platform != "linux":
+        # The established group boundary remains available; native non-Linux
+        # descendant reaping is not established by this Linux supervisor.
+        _node_execute_worker(node, ctx, state, result_channel, group_ready, completion_time)
+        result_channel.close_writer()
+        return
+    stopped = False
+    child_channel: _WorkerResultChannel | None = None
+    payload: tuple[str, Any] | None = None
+
+    def stop(_signum: int, _frame: Any) -> None:
+        nonlocal stopped
+        stopped = True
+
+    try:
+        os.setsid()
+        _enable_child_subreaper()
+        signal.signal(signal.SIGTERM, stop)
+        group_ready.set()
+        child_channel = _WorkerResultChannel(mp.get_context("fork"))
+        worker_pid = os.fork()
+        if worker_pid == 0:
+            result_channel.close_writer()
+            child_channel.close_reader()
+            signal.signal(signal.SIGTERM, signal.SIG_DFL)
+            try:
+                try:
+                    _node_execute_worker(node, ctx, state, child_channel, None, completion_time)
+                except (SystemExit, KeyboardInterrupt) as exc:
+                    completion_time.value = time.monotonic()
+                    code = exc.code if isinstance(exc, SystemExit) else None
+                    if code is not None and not isinstance(code, (int, str)):
+                        child_channel.put(
+                            (
+                                "error",
+                                {
+                                    "message": "SystemExit code is unsupported by the process control contract",
+                                    "category": "fatal",
+                                    "code": "node.control_unsupported",
+                                },
+                            )
+                        )
+                    else:
+                        child_channel.put(
+                            (
+                                "control",
+                                {
+                                    "kind": "SystemExit"
+                                    if isinstance(exc, SystemExit)
+                                    else "KeyboardInterrupt",
+                                    "code": code,
+                                },
+                            )
+                        )
+                child_channel.close_writer()
+            finally:
+                os._exit(0)
+        child_channel.close_writer()
+        while not stopped:
+            deadline = (
+                float(completion_time.value) + _PROCESS_DELIVERY_GRACE_S
+                if completion_time.value > 0
+                else compute_deadline
+            )
+            if time.monotonic() >= deadline:
+                break
+            try:
+                payload = child_channel.get_nowait()
+                break
+            except queue.Empty:
+                time.sleep(0.001)
+            except EOFError:
+                break
+    except _RETRY_RUNTIME_ERRORS as exc:
+        completion_time.value = time.monotonic()
+        payload = ("error", _worker_error_payload(exc))
+    finally:
+        clean = _reap_owned_children()
+        cleanup_complete.value = clean
+        if child_channel is not None:
+            child_channel.close()
+    if not clean:
+        payload = ("cleanup_incomplete", "owned kernel descendants were not reaped")
+    if payload is not None and not stopped:
+        result_channel.put(payload)
+    result_channel.close_writer()
+
+
 @dataclasses.dataclass
 class _WorkerLifecycle:
     """Shared state for one forked worker's compute and cleanup lifetimes."""
@@ -84,6 +331,7 @@ class _WorkerLifecycle:
     compute_deadline: float
     completion_time: Any
     process_group_id: int | None = None
+    cleanup_complete: Any = None
 
     def completed_before_deadline(self) -> bool:
         """Return whether the worker marked node execution complete in time."""
@@ -158,14 +406,17 @@ class _AttemptAuthority:
     denied.  This is a local authority boundary, not a process sandbox.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, deadline_monotonic: float | None = None) -> None:
         self._lock = threading.RLock()
         self._active = True
+        self._deadline = deadline_monotonic
 
     def invoke(self, operation: Any, *args: Any, **kwargs: Any) -> Any:
         """Run one authorized operation, or deny it after revocation."""
         with self._lock:
-            if not self._active:
+            if not self._active or (
+                self._deadline is not None and time.monotonic() >= self._deadline
+            ):
                 return None
             return operation(*args, **kwargs)
 
@@ -195,10 +446,7 @@ class _AttemptFacade:
             return lambda *args, **kwargs: self._authority.invoke(
                 value,
                 *(_unwrap_manifest_value(arg) for arg in args),
-                **{
-                    key: _unwrap_manifest_value(item)
-                    for key, item in kwargs.items()
-                },
+                **{key: _unwrap_manifest_value(item) for key, item in kwargs.items()},
             )
         return value
 
@@ -233,10 +481,7 @@ class _AttemptCollectionFacade:
                 self._authority.invoke(
                     value,
                     *(_unwrap_manifest_value(arg) for arg in args),
-                    **{
-                        key: _unwrap_manifest_value(item)
-                        for key, item in kwargs.items()
-                    },
+                    **{key: _unwrap_manifest_value(item) for key, item in kwargs.items()},
                 ),
                 self._authority,
             )
@@ -251,8 +496,7 @@ class _AttemptCollectionFacade:
             )
         if callable(value) and name == "values":
             return lambda *args, **kwargs: (
-                _wrap_manifest_value(item, self._authority)
-                for item in value(*args, **kwargs)
+                _wrap_manifest_value(item, self._authority) for item in value(*args, **kwargs)
             )
         if callable(value) and name == "copy":
             return lambda *args, **kwargs: _wrap_manifest_value(
@@ -264,9 +508,7 @@ class _AttemptCollectionFacade:
         return _wrap_manifest_value(self._target[key], self._authority)
 
     def __setitem__(self, key: Any, value: Any) -> None:
-        self._authority.invoke(
-            self._target.__setitem__, key, _unwrap_manifest_value(value)
-        )
+        self._authority.invoke(self._target.__setitem__, key, _unwrap_manifest_value(value))
 
     def __delitem__(self, key: Any) -> None:
         self._authority.invoke(self._target.__delitem__, key)
@@ -298,10 +540,7 @@ class _AttemptModelFacade:
             return lambda *args, **kwargs: _wrap_manifest_value(
                 value(
                     *(_unwrap_manifest_value(arg) for arg in args),
-                    **{
-                        key: _unwrap_manifest_value(item)
-                        for key, item in kwargs.items()
-                    },
+                    **{key: _unwrap_manifest_value(item) for key, item in kwargs.items()},
                 ),
                 self._authority,
             )
@@ -382,9 +621,7 @@ class _AttemptRunFacade(_AttemptFacade):
                     value = None
                 else:
                     write_methods = (
-                        _STORE_WRITE_METHODS
-                        if name == "store"
-                        else _TRACE_WRITE_METHODS
+                        _STORE_WRITE_METHODS if name == "store" else _TRACE_WRITE_METHODS
                     )
                     value = _AttemptFacade(
                         target_value,
@@ -448,9 +685,7 @@ def _build_attempt_context(target: Any, authority: _AttemptAuthority) -> Any:
     try:
         return dataclasses.replace(target, **replacements)
     except (TypeError, ValueError) as exc:
-        raise RuntimeError(
-            "failed to preserve ExecutionContext type for timed attempt"
-        ) from exc
+        raise RuntimeError("failed to preserve ExecutionContext type for timed attempt") from exc
 
 
 class RetryPolicy(BaseModel):
@@ -484,11 +719,7 @@ def _retry_write_paths(node: Any) -> tuple[str, ...]:
     if isinstance(raw_paths, str):
         raw_paths = (raw_paths,)
     try:
-        return tuple(
-            path
-            for path in raw_paths
-            if isinstance(path, str) and path.strip()
-        )
+        return tuple(path for path in raw_paths if isinstance(path, str) and path.strip())
     except TypeError:
         return ()
 
@@ -510,37 +741,132 @@ def _typed_error_category(exc: BaseException) -> str | None:
     return normalized if normalized in {"transient", "fatal", "validation"} else None
 
 
-def _should_retry_exception(exc: BaseException, policy: RetryPolicy) -> bool:
-    """Apply the same retry policy to raised and returned node errors.
-
-    Explicit PolicyOS categories take precedence over the coarse shared
-    classifier.  Built-in contract failures are also terminal; transient and
-    unknown runtime failures retain the established ``node.exception`` retry
-    route and its policy ceiling.
-    """
-    # Import lazily because ``runner.protocol`` imports ``RetryPolicy``.  A
-    # module-level import would make the direct ``engine.retry`` import enter
-    # ``runner.__init__`` while ``RetryPolicy`` is still being defined.
+def _exception_category(exc: BaseException) -> str:
+    """Use the canonical classifier once, before an exception crosses IPC."""
     from polisyos.scientist.orchestration.engine.runner.error_classifier import (
-        RemoteErrorCategory,
         classify_remote_error,
     )
 
-    typed_category = _typed_error_category(exc)
-    if typed_category in {"fatal", "validation"}:
-        return False
-    if typed_category == "transient":
-        category = RemoteErrorCategory.TRANSIENT
-    else:
-        category = classify_remote_error(exc)
-    if category is RemoteErrorCategory.FATAL:
-        return False
+    category = _typed_error_category(exc)
+    if category in {"fatal", "validation"}:
+        return "fatal"
+    if category == "transient":
+        return "transient"
     if isinstance(exc, (AssertionError, AttributeError, LookupError)):
-        return False
-    error_code = getattr(exc, "code", None)
-    if not isinstance(error_code, str) or not error_code:
-        error_code = "node.exception"
-    return error_code in policy.retry_on
+        return "fatal"
+    return str(classify_remote_error(exc).value)
+
+
+def _exception_code(exc: BaseException) -> str:
+    code = getattr(exc, "code", None)
+    return code if isinstance(code, str) and code else "node.exception"
+
+
+def _should_retry_exception(exc: BaseException, policy: RetryPolicy) -> bool:
+    """Apply the same semantic category/code on direct, thread and IPC routes."""
+    return _exception_category(exc) != "fatal" and _exception_code(exc) in policy.retry_on
+
+
+def _worker_control_error(payload: Any) -> BaseException:
+    """Restore only the two built-in process control exceptions, without guessing."""
+    if not isinstance(payload, dict):
+        return _WorkerNodeError(
+            message="invalid worker control envelope",
+            category="fatal",
+            code="node.control_protocol",
+        )
+    if payload.get("kind") == "KeyboardInterrupt":
+        return KeyboardInterrupt()
+    if payload.get("kind") == "SystemExit" and (
+        payload.get("code") is None or isinstance(payload.get("code"), (int, str))
+    ):
+        return SystemExit(payload.get("code"))
+    return _WorkerNodeError(
+        message="invalid worker control envelope", category="fatal", code="node.control_protocol"
+    )
+
+
+class _WorkerNodeError(RuntimeError):
+    """Carry typed retry semantics without reconstructing arbitrary exceptions."""
+
+    def __init__(
+        self,
+        *,
+        message: str,
+        category: str,
+        code: str,
+        known_spend: dict[str, Decimal] | None = None,
+    ) -> None:
+        super().__init__(message)
+        self.category = category
+        self.code = code
+        self.known_spend = known_spend
+
+
+class _CompletedAttemptError(RuntimeError):
+    """Deliver only known completed-failure spend beside the original local error."""
+
+    def __init__(self, error: BaseException, known_spend: dict[str, Decimal]) -> None:
+        super().__init__(str(error))
+        self.error = error
+        self.category = _exception_category(error)
+        self.code = _exception_code(error)
+        self.known_spend = known_spend
+
+
+def _worker_error_payload(
+    exc: BaseException, *, known_spend: dict[str, Decimal] | None = None, run_id: str | None = None
+) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "message": f"{type(exc).__name__}: {exc}",
+        "category": _exception_category(exc),
+        "code": _exception_code(exc),
+    }
+    if known_spend is not None:
+        from polisyos.scientist.orchestration.engine.runner.serialization import (
+            serialize_state_safe,
+        )
+
+        if run_id is None:
+            raise ValueError("known failed-spend projection requires its run identity")
+        projection = ExperimentState(run_id=run_id, budgets=known_spend)
+        wire, _ = serialize_state_safe(projection)
+        payload["known_spend_state_v1"] = base64.b64encode(wire).decode("ascii")
+    return payload
+
+
+def _worker_node_error(payload: Any, *, expected_run_id: str | None = None) -> _WorkerNodeError:
+    if (
+        not isinstance(payload, dict)
+        or payload.get("category") not in {"fatal", "transient", "unknown"}
+        or not isinstance(payload.get("code"), str)
+        or not payload["code"]
+        or not isinstance(payload.get("message"), str)
+    ):
+        raise ValueError("invalid typed node error payload")
+    known_spend = None
+    if "known_spend_state_v1" in payload:
+        from polisyos.scientist.orchestration.engine.runner.serialization import (
+            deserialize_state_safe,
+        )
+
+        encoded = payload["known_spend_state_v1"]
+        if not isinstance(encoded, str):
+            raise ValueError("invalid known failed-spend wire payload")
+        projection = deserialize_state_safe(base64.b64decode(encoded, validate=True))
+        if expected_run_id is not None and projection.run_id != expected_run_id:
+            raise ValueError("failed-spend projection run identity mismatch")
+        known_spend = _spend_snapshot(projection)
+        if set(known_spend) != set(projection.budgets) or any(
+            value <= 0 for value in known_spend.values()
+        ):
+            raise ValueError("invalid known failed-spend quantity")
+    return _WorkerNodeError(
+        message=payload["message"],
+        category=payload["category"],
+        code=payload["code"],
+        known_spend=known_spend,
+    )
 
 
 def _spend_snapshot(state: ExperimentState) -> dict[str, Decimal]:
@@ -564,14 +890,24 @@ def _spend_delta(
     attempt_state: ExperimentState,
 ) -> dict[str, Decimal]:
     """Return positive spend added by one attempt relative to its baseline."""
-    before = _spend_snapshot(baseline)
-    after = _spend_snapshot(attempt_state)
+    return _spend_changes(_spend_snapshot(baseline), _spend_snapshot(attempt_state))
+
+
+def _spend_changes(before: dict[str, Decimal], after: dict[str, Decimal]) -> dict[str, Decimal]:
     delta: dict[str, Decimal] = {}
     for key, value in after.items():
         change = value - before.get(key, Decimal(0))
         if change > 0:
             delta[key] = change
     return delta
+
+
+def _execute_capture_failure(node: Any, ctx: Any, state: ExperimentState) -> NodeOutcome:
+    before = _spend_snapshot(state)
+    try:
+        return node.execute(ctx, state)
+    except _RETRY_RUNTIME_ERRORS as exc:
+        raise _CompletedAttemptError(exc, _spend_changes(before, _spend_snapshot(state))) from exc
 
 
 def _accumulate_spend(
@@ -758,6 +1094,45 @@ def _apply_bounded_liveness_retry_ceiling(
     return retry_policy.model_copy(update={"max_retries": resolved.retry_ceiling})
 
 
+def _invocation_deadline(timeout_s: float | None, deadline_monotonic: float | None) -> float | None:
+    """Resolve one immutable budget before admission or the first attempt."""
+    configured = time.monotonic() + timeout_s if timeout_s is not None else None
+    if configured is None:
+        return deadline_monotonic
+    return configured if deadline_monotonic is None else min(configured, deadline_monotonic)
+
+
+def _deadline_error(execution_state: str) -> NodeTimeoutError:
+    return NodeTimeoutError(
+        "Node invocation deadline expired",
+        code="node.timeout",
+        details={"execution_state": execution_state},
+    )
+
+
+def _remaining_deadline(
+    deadline: float | None, *, execution_state: str = "not_admitted"
+) -> float | None:
+    if deadline is None:
+        return None
+    remaining = deadline - time.monotonic()
+    if remaining <= 0:
+        raise _deadline_error(execution_state)
+    return remaining
+
+
+def _retry_delay_sync(delay: float, deadline: float | None) -> None:
+    remaining = _remaining_deadline(deadline, execution_state="retry_not_admitted")
+    time.sleep(delay if remaining is None else min(delay, remaining))
+    _remaining_deadline(deadline, execution_state="retry_not_admitted")
+
+
+async def _retry_delay_async(delay: float, deadline: float | None) -> None:
+    remaining = _remaining_deadline(deadline, execution_state="retry_not_admitted")
+    await asyncio.sleep(delay if remaining is None else min(delay, remaining))
+    _remaining_deadline(deadline, execution_state="retry_not_admitted")
+
+
 def execute_with_retry_sync(
     node: Any,
     ctx: ExecutionContext,
@@ -768,20 +1143,23 @@ def execute_with_retry_sync(
     alias: str,
     circuit_breaker: CircuitBreaker | None = None,
     liveness_config: BoundedLivenessConfig | Mapping[str, Any] | None = None,
+    deadline_monotonic: float | None = None,
 ) -> NodeOutcome:
     """Sync retry wrapper for ``WorkflowExecutor``.
 
-    * Timeout: runs ``node.execute`` in a thread with
-      ``concurrent.futures.Future.result(timeout=...)``.
-    * Retry: loops up to ``max_retries``, exponential backoff via ``time.sleep()``.
+    One monotonic deadline covers admission, attempts, backoff and publication.
+    Process computation retains a separate bounded drain window; publication
+    still checks the original invocation deadline. An absent deadline is unbounded.
     """
+    deadline = _invocation_deadline(timeout_s, deadline_monotonic)
+    _remaining_deadline(deadline)
     retry_policy = _apply_bounded_liveness_retry_ceiling(
         alias=alias,
         retry_policy=retry_policy,
         liveness_config=liveness_config,
     )
     # Fast path — no retry, no timeout
-    if retry_policy.max_retries == 0 and timeout_s is None and circuit_breaker is None:
+    if retry_policy.max_retries == 0 and deadline is None and circuit_breaker is None:
         return node.execute(ctx, state)
 
     last_outcome: NodeOutcome | None = None
@@ -789,28 +1167,35 @@ def execute_with_retry_sync(
     node_id = str((getattr(node, "spec", None) and node.spec.metadata.component_id) or alias)
 
     for attempt in range(retry_policy.max_retries + 1):
+        try:
+            remaining = _remaining_deadline(deadline)
+        except NodeTimeoutError:
+            _merge_spend(state, failed_spend)
+            raise
         # Circuit breaker check
         if circuit_breaker is not None and not circuit_breaker.allow_request():
             raise CircuitBreakerOpenError(
                 f"Circuit breaker '{circuit_breaker.name}' is open for node {alias}",
             )
 
-        attempt_state = (
-            _fresh_retry_state(state, node)
-            if retry_policy.max_retries > 0
-            else state
-        )
+        attempt_state = _fresh_retry_state(state, node) if retry_policy.max_retries > 0 else state
         try:
-            if timeout_s is not None:
+            if remaining is not None:
                 outcome = _execute_with_timeout_sync(
                     node,
                     ctx,
                     attempt_state,
-                    timeout_s=timeout_s,
+                    timeout_s=remaining,
+                    deadline_monotonic=deadline,
                 )
             else:
                 outcome = node.execute(ctx, attempt_state)
 
+            try:
+                _remaining_deadline(deadline, execution_state="completed_publication_rejected")
+            except NodeTimeoutError:
+                _accumulate_spend(failed_spend, _spend_delta(state, outcome.state))
+                raise
             if outcome.status != "fail":
                 _merge_spend(outcome.state, failed_spend)
                 if circuit_breaker is not None:
@@ -840,21 +1225,39 @@ def execute_with_retry_sync(
                     delay=delay,
                     spend=attempt_spend,
                 )
-                time.sleep(delay)
+                _retry_delay_sync(delay, deadline)
                 continue
 
             _merge_spend(outcome.state, failed_spend)
             return outcome
 
-        except (NodeTimeoutError, CircuitBreakerOpenError):
+        except NodeTimeoutError:
+            _merge_spend(state, failed_spend)
+            raise
+        except CircuitBreakerOpenError:
             raise
         except KeyboardInterrupt:
             raise
         except _RETRY_RUNTIME_ERRORS as exc:
+            original_error = exc.error if isinstance(exc, _CompletedAttemptError) else exc
+            captured_spend = (
+                exc.known_spend
+                if isinstance(exc, (_CompletedAttemptError, _WorkerNodeError))
+                else None
+            )
+            attempt_spend = (
+                captured_spend if captured_spend is not None else _spend_delta(state, attempt_state)
+            )
+            _accumulate_spend(failed_spend, attempt_spend)
+            try:
+                _remaining_deadline(
+                    deadline, execution_state="completed_error_publication_rejected"
+                )
+            except NodeTimeoutError:
+                _merge_spend(state, failed_spend)
+                raise
             if circuit_breaker is not None:
                 circuit_breaker.record_failure()
-            attempt_spend = _spend_delta(state, attempt_state)
-            _accumulate_spend(failed_spend, attempt_spend)
             if attempt < retry_policy.max_retries and _should_retry_exception(
                 exc,
                 retry_policy,
@@ -874,7 +1277,11 @@ def execute_with_retry_sync(
                     delay=delay,
                     spend=attempt_spend,
                 )
-                time.sleep(delay)
+                try:
+                    _retry_delay_sync(delay, deadline)
+                except NodeTimeoutError:
+                    _merge_spend(state, failed_spend)
+                    raise
                 continue
 
             _merge_spend(state, failed_spend)
@@ -882,7 +1289,7 @@ def execute_with_retry_sync(
                 ctx,
                 alias,
                 node_id,
-                exc,
+                original_error,
                 attempts=attempt + 1,
                 policy=retry_policy,
             )
@@ -896,7 +1303,7 @@ def execute_with_retry_sync(
                 )
             raise RetryExhaustedError(
                 f"Node {alias}: all {retry_policy.max_retries} retries exhausted",
-            ) from exc
+            ) from original_error
 
     # Should not reach here, but for safety:
     if last_outcome is not None:
@@ -906,40 +1313,93 @@ def execute_with_retry_sync(
     )
 
 
+def _submit_thread_attempt(
+    node: Any, ctx: Any, state: ExperimentState, deadline: float
+) -> tuple[Any, _AttemptAuthority, list[float]]:
+    authority = _AttemptAuthority(deadline)
+    worker_ctx = _build_attempt_context(ctx, authority)
+    worker_state = state.model_copy(deep=True)
+    completed = [0.0]
+
+    def invoke() -> NodeOutcome:
+        _remaining_deadline(deadline)
+        try:
+            return _execute_capture_failure(node, worker_ctx, worker_state)
+        finally:
+            completed[0] = time.monotonic()
+
+    context = contextvars.copy_context()
+    future = get_shared_executor().submit(context.run, invoke)
+    return future, authority, completed
+
+
+def _thread_deadline_error(future: Any) -> NodeTimeoutError:
+    cancelled = future.cancel()
+    return _deadline_error("not_started" if cancelled else "external_outcome_unknown")
+
+
 def _execute_with_timeout_sync(
     node: Any,
     ctx: ExecutionContext,
     state: ExperimentState,
     *,
     timeout_s: float,
+    deadline_monotonic: float | None = None,
 ) -> NodeOutcome:
-    authority = _AttemptAuthority()
-    worker_ctx = _build_attempt_context(ctx, authority)
-    worker_state = state.model_copy(deep=True)
+    deadline = _invocation_deadline(timeout_s, deadline_monotonic)
+    assert deadline is not None
+    _remaining_deadline(deadline)
     if _can_use_forked_timeout_worker():
+        authority = _AttemptAuthority(deadline)
         return _execute_with_timeout_process(
             node,
-            worker_ctx,
-            worker_state,
+            _build_attempt_context(ctx, authority),
+            state.model_copy(deep=True),
             timeout_s=timeout_s,
             authority=authority,
+            deadline_monotonic=deadline,
         )
 
-    context = contextvars.copy_context()
-    future = get_shared_executor().submit(
-        context.run,
-        node.execute,
-        worker_ctx,
-        worker_state,
-    )
+    future, authority, completed = _submit_thread_attempt(node, ctx, state, deadline)
     try:
-        return future.result(timeout=timeout_s)
-    except FuturesTimeoutError:
+        done, _ = wait([future], timeout=_remaining_deadline(deadline))
+        if not done or completed[0] > deadline:
+            raise _thread_deadline_error(future)
+        # Retrieve outside timeout handling: provider TimeoutError keeps its category.
+        return future.result()
+    except BaseException:
         future.cancel()
+        raise
+    finally:
         authority.revoke()
-        raise NodeTimeoutError(
-            f"Node exceeded timeout of {timeout_s}s",
-        ) from None
+
+
+async def _execute_with_timeout_thread_async(
+    node: Any,
+    ctx: ExecutionContext,
+    state: ExperimentState,
+    *,
+    timeout_s: float,
+    deadline_monotonic: float | None = None,
+) -> NodeOutcome:
+    deadline = _invocation_deadline(timeout_s, deadline_monotonic)
+    assert deadline is not None
+    _remaining_deadline(deadline)
+    future, authority, completed = _submit_thread_attempt(node, ctx, state, deadline)
+    wrapped = asyncio.wrap_future(future)
+    try:
+        done, _ = await asyncio.wait([wrapped], timeout=_remaining_deadline(deadline))
+        if not done or completed[0] > deadline:
+            raise _thread_deadline_error(future)
+        return wrapped.result()
+    except BaseException:
+        # The actual concurrent Future is cancelled before handing ownership back;
+        # asyncio's deferred cancellation callback cannot admit a queued late job.
+        future.cancel()
+        wrapped.add_done_callback(_consume_finished_task)
+        raise
+    finally:
+        authority.revoke()
 
 
 def _can_use_forked_timeout_worker() -> bool:
@@ -949,9 +1409,10 @@ def _can_use_forked_timeout_worker() -> bool:
         return False
 
 
-def _delivery_deadline() -> float:
-    """Return a bounded deadline for Queue feeder delivery."""
-    return time.monotonic() + _PROCESS_DELIVERY_GRACE_S
+def _delivery_deadline(completion_time: Any = None) -> float:
+    """Keep a single bounded delivery window from actual compute completion."""
+    completed_at = float(completion_time.value) if completion_time is not None else time.monotonic()
+    return completed_at + _PROCESS_DELIVERY_GRACE_S
 
 
 def _completion_before_deadline(
@@ -1036,6 +1497,7 @@ def _wait_for_owned_process_group_exit(process_group_id: int | None) -> bool:
 def _terminate_owned_process(
     process: mp.Process,
     process_group_id: int | None,
+    cleanup_complete: Any = None,
 ) -> bool:
     """Terminate one worker and any descendants in its owned process group."""
     _signal_owned_process_group(process_group_id, signal.SIGTERM)
@@ -1052,6 +1514,8 @@ def _terminate_owned_process(
     if not group_clean:
         _signal_owned_process_group(process_group_id, signal.SIGKILL)
         group_clean = _wait_for_owned_process_group_exit(process_group_id)
+    if cleanup_complete is not None:
+        return not process.is_alive() and bool(cleanup_complete.value)
     if process_group_id is None:
         # A direct Process handle proves only worker termination; descendant
         # absence is not established without the owned-group handshake.
@@ -1063,7 +1527,8 @@ def _close_worker_process(process: mp.Process) -> None:
     """Release process resources after the owned process has stopped."""
     if process.is_alive():
         return
-    process.join(timeout=0.0)
+    if process.pid is not None:
+        process.join(timeout=0.0)
     process.close()
 
 
@@ -1075,12 +1540,12 @@ def _close_result_queue(result_queue: Any) -> None:
 
 def _drain_result_sync(
     process: mp.Process,
-    result_queue: mp.Queue[Any],
+    result_queue: Any,
     *,
     compute_deadline: float,
     completion_time: Any = None,
 ) -> tuple[str, Any]:
-    """Receive a worker result without joining before Queue drain."""
+    """Receive a result while its producer runs, without partial-frame blocking."""
     while process.is_alive() and not _completion_before_deadline(
         completion_time,
         compute_deadline,
@@ -1089,9 +1554,9 @@ def _drain_result_sync(
         if remaining <= 0:
             raise _WorkerComputeTimeout
         try:
-            result = result_queue.get(
-                timeout=min(_PROCESS_RESULT_POLL_S, remaining)
-            )
+            result = result_queue.get(timeout=min(_PROCESS_RESULT_POLL_S, remaining))
+        except EOFError:
+            raise _WorkerComputeTimeout from None
         except queue.Empty:
             continue
         if not _completion_before_deadline(completion_time, compute_deadline):
@@ -1101,13 +1566,13 @@ def _drain_result_sync(
     if not _completion_before_deadline(completion_time, compute_deadline):
         raise _WorkerComputeTimeout
 
-    delivery_deadline = _delivery_deadline()
+    delivery_deadline = _delivery_deadline(completion_time)
     while time.monotonic() < delivery_deadline:
         remaining = delivery_deadline - time.monotonic()
         try:
-            return result_queue.get(
-                timeout=min(_PROCESS_RESULT_POLL_S, remaining)
-            )
+            return result_queue.get(timeout=min(_PROCESS_RESULT_POLL_S, remaining))
+        except EOFError:
+            raise _WorkerDeliveryTimeout from None
         except queue.Empty:
             continue
     raise _WorkerDeliveryTimeout
@@ -1115,7 +1580,7 @@ def _drain_result_sync(
 
 async def _drain_result_async(
     process: mp.Process,
-    result_queue: mp.Queue[Any],
+    result_queue: Any,
     *,
     compute_deadline: float,
     completion_time: Any = None,
@@ -1127,6 +1592,8 @@ async def _drain_result_async(
     ):
         try:
             result = result_queue.get_nowait()
+        except EOFError:
+            raise _WorkerComputeTimeout from None
         except queue.Empty:
             remaining = compute_deadline - time.monotonic()
             if remaining <= 0:
@@ -1140,10 +1607,12 @@ async def _drain_result_async(
     if not _completion_before_deadline(completion_time, compute_deadline):
         raise _WorkerComputeTimeout
 
-    delivery_deadline = _delivery_deadline()
+    delivery_deadline = _delivery_deadline(completion_time)
     while time.monotonic() < delivery_deadline:
         try:
             return result_queue.get_nowait()
+        except EOFError:
+            raise _WorkerDeliveryTimeout from None
         except queue.Empty:
             remaining = delivery_deadline - time.monotonic()
             await asyncio.sleep(min(_PROCESS_RESULT_POLL_S, remaining))
@@ -1165,9 +1634,7 @@ async def _join_worker_until_async(process: mp.Process, *, deadline: float) -> N
         if deadline - time.monotonic() <= 0:
             raise _WorkerDeliveryTimeout
         process.join(timeout=0.0)
-        await asyncio.sleep(
-            min(_PROCESS_RESULT_POLL_S, max(0.0, deadline - time.monotonic()))
-        )
+        await asyncio.sleep(min(_PROCESS_RESULT_POLL_S, max(0.0, deadline - time.monotonic())))
 
 
 def _worker_timeout_error(
@@ -1176,7 +1643,16 @@ def _worker_timeout_error(
     cleanup_complete: bool,
 ) -> NodeTimeoutError:
     suffix = "" if cleanup_complete else "; owned process cleanup incomplete"
-    return NodeTimeoutError(f"Node exceeded timeout of {timeout_s}s{suffix}")
+    return NodeTimeoutError(
+        f"Node exceeded timeout of {timeout_s}s{suffix}",
+        code="node.timeout",
+        details={
+            "execution_state": "owned_processes_reaped"
+            if cleanup_complete
+            else "external_outcome_unknown",
+            "cleanup_complete": cleanup_complete,
+        },
+    )
 
 
 def _execute_with_timeout_process(
@@ -1186,23 +1662,39 @@ def _execute_with_timeout_process(
     *,
     timeout_s: float,
     authority: _AttemptAuthority | None = None,
+    deadline_monotonic: float | None = None,
 ) -> NodeOutcome:
-    authority = authority or _AttemptAuthority()
+    deadline = _invocation_deadline(timeout_s, deadline_monotonic)
+    authority = authority or _AttemptAuthority(deadline)
     mp_ctx = mp.get_context("fork")
-    result_queue: mp.Queue[Any] = mp_ctx.Queue(maxsize=1)
-    group_ready = mp_ctx.Event()
-    completion_time = mp_ctx.Value("d", 0.0)
-    process = mp_ctx.Process(
-        target=_node_execute_worker,
-        args=(node, ctx, state, result_queue, group_ready, completion_time),
-        daemon=True,
-    )
-    lifecycle = _WorkerLifecycle(
-        compute_deadline=time.monotonic() + timeout_s,
-        completion_time=completion_time,
-    )
+    result_queue: _WorkerResultChannel | None = None
+    process: Any = None
+    lifecycle: _WorkerLifecycle | None = None
     try:
+        result_queue = _WorkerResultChannel(mp_ctx)
+        group_ready = mp_ctx.Event()
+        completion_time = mp_ctx.Value("d", 0.0)
+        lifecycle = _WorkerLifecycle(
+            compute_deadline=deadline if deadline is not None else time.monotonic() + timeout_s,
+            completion_time=completion_time,
+            cleanup_complete=mp_ctx.Value("b", False),
+        )
+        process = mp_ctx.Process(
+            target=_node_execute_supervisor,
+            args=(
+                node,
+                ctx,
+                state,
+                result_queue,
+                group_ready,
+                completion_time,
+                lifecycle.compute_deadline,
+                lifecycle.cleanup_complete,
+            ),
+            daemon=True,
+        )
         process.start()
+        result_queue.close_writer()
         lifecycle.process_group_id = _owned_process_group_id(
             process,
             group_ready,
@@ -1214,11 +1706,12 @@ def _execute_with_timeout_process(
             compute_deadline=lifecycle.compute_deadline,
             completion_time=lifecycle.completion_time,
         )
-        _join_worker_until(process, deadline=_delivery_deadline())
+        _join_worker_until(process, deadline=_delivery_deadline(lifecycle.completion_time))
     except _WorkerComputeTimeout:
         cleanup_complete = _terminate_owned_process(
             process,
             lifecycle.process_group_id,
+            lifecycle.cleanup_complete,
         )
         authority.revoke()
         raise _worker_timeout_error(
@@ -1229,20 +1722,27 @@ def _execute_with_timeout_process(
         cleanup_complete = _terminate_owned_process(
             process,
             lifecycle.process_group_id,
+            lifecycle.cleanup_complete,
         )
         authority.revoke()
-        cleanup_suffix = (
-            "" if cleanup_complete else "; owned process cleanup incomplete"
-        )
+        if not cleanup_complete:
+            raise _worker_timeout_error(timeout_s, cleanup_complete=False) from exc
+        cleanup_suffix = ""
         raise RuntimeError(
             "Node timeout worker result delivery exceeded bounded grace "
             f"(exitcode={process.exitcode}{cleanup_suffix})"
         ) from exc
     finally:
-        if process.is_alive():
-            _terminate_owned_process(process, lifecycle.process_group_id)
-        _close_worker_process(process)
-        _close_result_queue(result_queue)
+        authority.revoke()
+        if process is not None:
+            if process.is_alive():
+                assert lifecycle is not None
+                _terminate_owned_process(
+                    process, lifecycle.process_group_id, lifecycle.cleanup_complete
+                )
+            _close_worker_process(process)
+        if result_queue is not None:
+            _close_result_queue(result_queue)
 
     if status == "ok":
         from polisyos.scientist.orchestration.engine.runner.serialization import deserialize_outcome
@@ -1253,7 +1753,11 @@ def _execute_with_timeout_process(
             return deserialize_outcome(payload)
         return decode_node_outcome(payload)
     if status == "error":
-        raise RuntimeError(str(payload))
+        raise _worker_node_error(payload, expected_run_id=state.run_id)
+    if status == "control":
+        raise _worker_control_error(payload)
+    if status == "cleanup_incomplete":
+        raise _worker_timeout_error(timeout_s, cleanup_complete=False)
     raise RuntimeError(f"Node timeout worker returned invalid status: {status!r}")
 
 
@@ -1264,26 +1768,42 @@ async def _execute_with_timeout_process_async(
     *,
     timeout_s: float,
     authority: _AttemptAuthority | None = None,
+    deadline_monotonic: float | None = None,
 ) -> NodeOutcome:
+    deadline = _invocation_deadline(timeout_s, deadline_monotonic)
     if authority is None:
-        authority = _AttemptAuthority()
+        authority = _AttemptAuthority(deadline)
         ctx = _build_attempt_context(ctx, authority)
         state = state.model_copy(deep=True)
     mp_ctx = mp.get_context("fork")
-    result_queue: mp.Queue[Any] = mp_ctx.Queue(maxsize=1)
-    group_ready = mp_ctx.Event()
-    completion_time = mp_ctx.Value("d", 0.0)
-    process = mp_ctx.Process(
-        target=_node_execute_worker,
-        args=(node, ctx, state, result_queue, group_ready, completion_time),
-        daemon=True,
-    )
-    lifecycle = _WorkerLifecycle(
-        compute_deadline=time.monotonic() + timeout_s,
-        completion_time=completion_time,
-    )
+    result_queue: _WorkerResultChannel | None = None
+    process: Any = None
+    lifecycle: _WorkerLifecycle | None = None
     try:
+        result_queue = _WorkerResultChannel(mp_ctx)
+        group_ready = mp_ctx.Event()
+        completion_time = mp_ctx.Value("d", 0.0)
+        lifecycle = _WorkerLifecycle(
+            compute_deadline=deadline if deadline is not None else time.monotonic() + timeout_s,
+            completion_time=completion_time,
+            cleanup_complete=mp_ctx.Value("b", False),
+        )
+        process = mp_ctx.Process(
+            target=_node_execute_supervisor,
+            args=(
+                node,
+                ctx,
+                state,
+                result_queue,
+                group_ready,
+                completion_time,
+                lifecycle.compute_deadline,
+                lifecycle.cleanup_complete,
+            ),
+            daemon=True,
+        )
         process.start()
+        result_queue.close_writer()
         lifecycle.process_group_id = _owned_process_group_id(
             process,
             group_ready,
@@ -1295,11 +1815,14 @@ async def _execute_with_timeout_process_async(
             compute_deadline=lifecycle.compute_deadline,
             completion_time=lifecycle.completion_time,
         )
-        await _join_worker_until_async(process, deadline=_delivery_deadline())
+        await _join_worker_until_async(
+            process, deadline=_delivery_deadline(lifecycle.completion_time)
+        )
     except _WorkerComputeTimeout:
         cleanup_complete = _terminate_owned_process(
             process,
             lifecycle.process_group_id,
+            lifecycle.cleanup_complete,
         )
         authority.revoke()
         raise _worker_timeout_error(
@@ -1310,20 +1833,27 @@ async def _execute_with_timeout_process_async(
         cleanup_complete = _terminate_owned_process(
             process,
             lifecycle.process_group_id,
+            lifecycle.cleanup_complete,
         )
         authority.revoke()
-        cleanup_suffix = (
-            "" if cleanup_complete else "; owned process cleanup incomplete"
-        )
+        if not cleanup_complete:
+            raise _worker_timeout_error(timeout_s, cleanup_complete=False) from exc
+        cleanup_suffix = ""
         raise RuntimeError(
             "Node timeout worker result delivery exceeded bounded grace "
             f"(exitcode={process.exitcode}{cleanup_suffix})"
         ) from exc
     finally:
-        if process.is_alive():
-            _terminate_owned_process(process, lifecycle.process_group_id)
-        _close_worker_process(process)
-        _close_result_queue(result_queue)
+        authority.revoke()
+        if process is not None:
+            if process.is_alive():
+                assert lifecycle is not None
+                _terminate_owned_process(
+                    process, lifecycle.process_group_id, lifecycle.cleanup_complete
+                )
+            _close_worker_process(process)
+        if result_queue is not None:
+            _close_result_queue(result_queue)
 
     if status == "ok":
         from polisyos.scientist.orchestration.engine.runner.serialization import deserialize_outcome
@@ -1334,11 +1864,15 @@ async def _execute_with_timeout_process_async(
             return deserialize_outcome(payload)
         return decode_node_outcome(payload)
     if status == "error":
-        raise RuntimeError(str(payload))
+        raise _worker_node_error(payload, expected_run_id=state.run_id)
+    if status == "control":
+        raise _worker_control_error(payload)
+    if status == "cleanup_incomplete":
+        raise _worker_timeout_error(timeout_s, cleanup_complete=False)
     raise RuntimeError(f"Node timeout worker returned invalid status: {status!r}")
 
 
-def _consume_finished_task(task: asyncio.Task[Any]) -> None:
+def _consume_finished_task(task: asyncio.Future[Any]) -> None:
     """Consume a detached attempt result so timeout cleanup is observable only once."""
     try:
         task.exception()
@@ -1352,31 +1886,48 @@ async def _execute_with_timeout_async(
     state: ExperimentState,
     *,
     timeout_s: float,
+    deadline_monotonic: float | None = None,
 ) -> NodeOutcome:
-    """Run an async attempt with a revocable authority boundary."""
-    authority = _AttemptAuthority()
+    """Wait for completion without confusing a provider exception with expiry."""
+    deadline = _invocation_deadline(timeout_s, deadline_monotonic)
+    assert deadline is not None
+    authority = _AttemptAuthority(deadline)
     worker_ctx = _build_attempt_context(ctx, authority)
     worker_state = state.model_copy(deep=True)
-    task = asyncio.create_task(node.execute_async(worker_ctx, worker_state))
+    completed = [0.0]
+
+    async def invoke() -> NodeOutcome:
+        _remaining_deadline(deadline)
+        before = _spend_snapshot(worker_state)
+        try:
+            return await node.execute_async(worker_ctx, worker_state)
+        except _RETRY_RUNTIME_ERRORS as exc:
+            raise _CompletedAttemptError(
+                exc, _spend_changes(before, _spend_snapshot(worker_state))
+            ) from exc
+        finally:
+            completed[0] = time.monotonic()
+
+    task = asyncio.create_task(invoke())
     try:
-        return await asyncio.wait_for(asyncio.shield(task), timeout=timeout_s)
-    except TimeoutError:
-        authority.revoke()
-        task.add_done_callback(_consume_finished_task)
-        raise NodeTimeoutError(
-            f"Node exceeded timeout of {timeout_s}s",
-        ) from None
-    except asyncio.CancelledError:
-        authority.revoke()
+        done, _ = await asyncio.wait([task], timeout=_remaining_deadline(deadline))
+        if not done or completed[0] > deadline:
+            raise _deadline_error(
+                "running_external_outcome_unknown" if not done else "completed_after_deadline"
+            )
+        return task.result()
+    except BaseException:
         task.add_done_callback(_consume_finished_task)
         raise
+    finally:
+        authority.revoke()
 
 
 def _node_execute_worker(
     node: Any,
     ctx: ExecutionContext,
     state: ExperimentState,
-    result_queue: mp.Queue[Any],
+    result_queue: Any,
     group_ready: Any = None,
     completion_time: Any = None,
 ) -> None:
@@ -1397,20 +1948,19 @@ def _node_execute_worker(
                 result_queue.put(
                     (
                         "error",
-                        "failed to send result: "
-                        f"{type(send_exc).__name__}: {send_exc}",
+                        f"failed to send result: {type(send_exc).__name__}: {send_exc}",
                     )
                 )
             except _RETRY_RUNTIME_ERRORS as fallback_exc:
                 raise RuntimeError(
-                    "failed to send result: "
-                    f"{type(send_exc).__name__}: {send_exc}"
+                    f"failed to send result: {type(send_exc).__name__}: {send_exc}"
                 ) from fallback_exc
 
     def _mark_completion() -> None:
         if completion_time is not None:
             completion_time.value = time.monotonic()
 
+    before_spend = _spend_snapshot(state)
     try:
         outcome = node.execute(ctx, state)
         _mark_completion()
@@ -1425,10 +1975,22 @@ def _node_execute_worker(
             # itself fails; the parent still validates the returned wire type.
             _send("ok", outcome.model_dump(mode="python"))
         else:
-            _send("error", f"invalid node outcome: {type(outcome).__name__}")
+            _send(
+                "error",
+                _worker_error_payload(
+                    ValueError(f"invalid node outcome: {type(outcome).__name__}")
+                ),
+            )
     except _RETRY_RUNTIME_ERRORS as exc:
         _mark_completion()
-        _send("error", f"{type(exc).__name__}: {exc}")
+        _send(
+            "error",
+            _worker_error_payload(
+                exc,
+                known_spend=_spend_changes(before_spend, _spend_snapshot(state)),
+                run_id=state.run_id,
+            ),
+        )
 
 
 async def execute_with_retry_async(
@@ -1442,12 +2004,16 @@ async def execute_with_retry_async(
     circuit_breaker: CircuitBreaker | None = None,
     retry_stats: dict[str, int] | None = None,
     liveness_config: BoundedLivenessConfig | Mapping[str, Any] | None = None,
+    deadline_monotonic: float | None = None,
 ) -> NodeOutcome:
     """Async retry wrapper for ``AsyncWorkflowExecutor``.
 
-    * Timeout: a bounded async task or worker with a revocable attempt authority.
-    * Retry: loop + ``asyncio.sleep()``.
+    One monotonic deadline covers admission, attempts, backoff and publication.
+    Provider TimeoutError retains its category; owner expiry is terminal.
+    An unconfigured sync bridge explicitly opts into unbounded execution.
     """
+    deadline = _invocation_deadline(timeout_s, deadline_monotonic)
+    _remaining_deadline(deadline)
     retry_policy = _apply_bounded_liveness_retry_ceiling(
         alias=alias,
         retry_policy=retry_policy,
@@ -1461,58 +2027,78 @@ async def execute_with_retry_async(
     )
 
     async def _invoke(attempt_state: ExperimentState) -> NodeOutcome:
+        remaining = _remaining_deadline(deadline)
         if _has_async:
-            if timeout_s is None:
+            if remaining is None:
                 return await node.execute_async(ctx, attempt_state)
             return await _execute_with_timeout_async(
                 node,
                 ctx,
                 attempt_state,
-                timeout_s=timeout_s,
+                timeout_s=remaining,
+                deadline_monotonic=deadline,
             )
-        if timeout_s is not None:
+        if remaining is not None:
             if _can_use_forked_timeout_worker():
                 return await _execute_with_timeout_process_async(
                     node,
                     ctx,
                     attempt_state,
-                    timeout_s=timeout_s,
+                    timeout_s=remaining,
+                    deadline_monotonic=deadline,
                 )
-            return await run_blocking_async(
-                _execute_with_timeout_sync,
+            return await _execute_with_timeout_thread_async(
                 node,
                 ctx,
                 attempt_state,
-                timeout_s=timeout_s,
-                timeout_seconds=timeout_s,
+                timeout_s=remaining,
+                deadline_monotonic=deadline,
             )
-        return await run_blocking_async(node.execute, ctx, attempt_state)
+        authority = _AttemptAuthority()
+        worker_ctx = _build_attempt_context(ctx, authority)
+        worker_state = attempt_state.model_copy(deep=True)
+        try:
+            return await run_blocking_async(
+                _execute_capture_failure, node, worker_ctx, worker_state, unbounded=True
+            )
+        finally:
+            authority.revoke()
 
     # Fast path
-    if retry_policy.max_retries == 0 and timeout_s is None and circuit_breaker is None:
+    if retry_policy.max_retries == 0 and deadline is None and circuit_breaker is None:
         if retry_stats is not None:
             retry_stats["attempts"] = 1
-        return await _invoke(state)
+        try:
+            return await _invoke(state)
+        except _CompletedAttemptError as exc:
+            _merge_spend(state, exc.known_spend)
+            raise exc.error from None
 
     last_outcome: NodeOutcome | None = None
     failed_spend: dict[str, Decimal] = {}
     node_id = str((getattr(node, "spec", None) and node.spec.metadata.component_id) or alias)
 
     for attempt in range(retry_policy.max_retries + 1):
+        try:
+            remaining = _remaining_deadline(deadline)
+        except NodeTimeoutError:
+            _merge_spend(state, failed_spend)
+            raise
         # Circuit breaker check
         if circuit_breaker is not None and not circuit_breaker.allow_request():
             raise CircuitBreakerOpenError(
                 f"Circuit breaker '{circuit_breaker.name}' is open for node {alias}",
             )
 
-        attempt_state = (
-            _fresh_retry_state(state, node)
-            if retry_policy.max_retries > 0
-            else state
-        )
+        attempt_state = _fresh_retry_state(state, node) if retry_policy.max_retries > 0 else state
         try:
             outcome = await _invoke(attempt_state)
 
+            try:
+                _remaining_deadline(deadline, execution_state="completed_publication_rejected")
+            except NodeTimeoutError:
+                _accumulate_spend(failed_spend, _spend_delta(state, outcome.state))
+                raise
             if outcome.status != "fail":
                 _merge_spend(outcome.state, failed_spend)
                 if circuit_breaker is not None:
@@ -1543,7 +2129,7 @@ async def execute_with_retry_async(
                     delay=delay,
                     spend=attempt_spend,
                 )
-                await asyncio.sleep(delay)
+                await _retry_delay_async(delay, deadline)
                 continue
 
             if retry_stats is not None:
@@ -1551,16 +2137,34 @@ async def execute_with_retry_async(
             _merge_spend(outcome.state, failed_spend)
             return outcome
 
-        except (NodeTimeoutError, CircuitBreakerOpenError):
+        except NodeTimeoutError:
+            _merge_spend(state, failed_spend)
+            raise
+        except CircuitBreakerOpenError:
             raise
         except asyncio.CancelledError:
             _logger.info("Node %s cancelled during attempt %d", alias, attempt)
             raise
         except _RETRY_RUNTIME_ERRORS as exc:
+            original_error = exc.error if isinstance(exc, _CompletedAttemptError) else exc
+            captured_spend = (
+                exc.known_spend
+                if isinstance(exc, (_CompletedAttemptError, _WorkerNodeError))
+                else None
+            )
+            attempt_spend = (
+                captured_spend if captured_spend is not None else _spend_delta(state, attempt_state)
+            )
+            _accumulate_spend(failed_spend, attempt_spend)
+            try:
+                _remaining_deadline(
+                    deadline, execution_state="completed_error_publication_rejected"
+                )
+            except NodeTimeoutError:
+                _merge_spend(state, failed_spend)
+                raise
             if circuit_breaker is not None:
                 circuit_breaker.record_failure()
-            attempt_spend = _spend_delta(state, attempt_state)
-            _accumulate_spend(failed_spend, attempt_spend)
             if attempt < retry_policy.max_retries and _should_retry_exception(
                 exc,
                 retry_policy,
@@ -1580,7 +2184,11 @@ async def execute_with_retry_async(
                     delay=delay,
                     spend=attempt_spend,
                 )
-                await asyncio.sleep(delay)
+                try:
+                    await _retry_delay_async(delay, deadline)
+                except NodeTimeoutError:
+                    _merge_spend(state, failed_spend)
+                    raise
                 continue
 
             if retry_stats is not None:
@@ -1590,7 +2198,7 @@ async def execute_with_retry_async(
                 ctx,
                 alias,
                 node_id,
-                exc,
+                original_error,
                 attempts=attempt + 1,
                 policy=retry_policy,
             )
@@ -1604,7 +2212,7 @@ async def execute_with_retry_async(
                 )
             raise RetryExhaustedError(
                 f"Node {alias}: all {retry_policy.max_retries} retries exhausted",
-            ) from exc
+            ) from original_error
 
     if last_outcome is not None:  # pragma: no cover
         return last_outcome

@@ -1,0 +1,52 @@
+{"argv": ["/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python", "-m", "pytest", "-vv", "-p", "plan_origins", "-p", "removal_preparation", "tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py::test_cold_warm_preparation_preserves_independent_seeded_numerical_repetitions[True-True]", "--basetemp", "/tmp/e02-B-reopened-compiled-plan-b8ea465a0e86/pytest", "-o", "cache_dir=/tmp/e02-B-reopened-compiled-plan-b8ea465a0e86/cache", "--junitxml=/tmp/e02-B-reopened-compiled-plan-b8ea465a0e86/native.xml"], "cwd": "/workspace/e02-B-current-cas-generation/policy-engine", "source": {"head": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640", "tree": "8909428c4fe4a03b6d481ed5e34f942b59f07318", "status": ""}, "tests": {"head": "5a3f466b0457ed4afbda53381617762a34cb05ed", "tree": "0100344d597dc0c4fa8b08270883de40d8b51abc", "status": ""}}
+============================= test session starts ==============================
+platform linux -- Python 3.14.2, pytest-9.0.2, pluggy-1.6.0 -- /workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python
+cachedir: /tmp/e02-B-reopened-compiled-plan-b8ea465a0e86/cache
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/workspace/e02-B-current-cas-generation/policy-engine/_cache/hypothesis'))
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/e02-B-current-cas-generation/policy-engine
+configfile: pytest.ini
+plugins: benchmark-5.2.3, hypothesis-6.151.2, anyio-4.12.0, langsmith-0.6.0, asyncio-1.3.0, xdist-3.8.0, jaxtyping-0.3.4
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 1 item
+
+tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py::test_cold_warm_preparation_preserves_independent_seeded_numerical_repetitions[True-True] FAILED [100%]
+
+=================================== FAILURES ===================================
+_ test_cold_warm_preparation_preserves_independent_seeded_numerical_repetitions[True-True] _
+
+tmp_path = PosixPath('/tmp/e02-B-reopened-compiled-plan-b8ea465a0e86/pytest/test_cold_warm_preparation_pre0')
+jit = True, infer_shapes = True
+
+    @pytest.mark.parametrize("jit", [False, True])
+    @pytest.mark.parametrize("infer_shapes", [False, True])
+    def test_cold_warm_preparation_preserves_independent_seeded_numerical_repetitions(
+        tmp_path: Path, jit: bool, infer_shapes: bool
+    ) -> None:
+        state = _state()
+        compiler, chain, producer, reducer = _owner(scale=0.5)
+        observations: dict[str, Any] = {"jit": jit, "infer_shapes": infer_shapes, "repetitions": []}
+        with _body_observer() as calls:
+            cold = compiler.compile_chain(chain, state, jit=jit, infer_shapes=infer_shapes)
+            warm = compiler.compile_chain(chain, state, jit=jit, infer_shapes=infer_shapes)
+>           assert calls == {"draw": 0, "reduce": 0}
+E           AssertionError: assert {'draw': 1, 'reduce': 1} == {'draw': 0, 'reduce': 0}
+E             
+E             Differing items:
+E             {'reduce': 1} != {'reduce': 0}
+E             {'draw': 1} != {'draw': 0}
+E             
+E             Full diff:
+E               {...
+E             
+E             ...Full output truncated (9 lines hidden), use '-vv' to show
+
+tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py:167: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 21:25:51 [info     ] method_registered              backend=jax fqn=tests.independent_preparation.draw@1.0.0 lazy=False namespace=tests.independent_preparation override=False tags=[] version=1.0.0
+2026-10-06 21:25:51 [info     ] method_registered              backend=jax fqn=tests.independent_preparation.reduce@1.0.0 lazy=False namespace=tests.independent_preparation override=False tags=[] version=1.0.0
+- generated xml file: /tmp/e02-B-reopened-compiled-plan-b8ea465a0e86/native.xml -
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py::test_cold_warm_preparation_preserves_independent_seeded_numerical_repetitions[True-True]
+============================== 1 failed in 1.88s ===============================

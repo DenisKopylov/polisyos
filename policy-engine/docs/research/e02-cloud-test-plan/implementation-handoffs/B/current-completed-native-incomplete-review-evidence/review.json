@@ -1,0 +1,214 @@
+{
+  "schema": "policyos.e02.completed_native_incomplete_review.v1",
+  "target_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+  "target_tree_sha": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+  "author": "independent EXE reviewer of root execution evidence; no mechanism/source acceptance",
+  "operation": "Read complete original bytes/JSON/XML and specific anchored stdout observations; no generic 27-check parser, aliases, restamping, gates, pytest collection/runtime, project imports, helpers or reruns.",
+  "verdict": "Metadata reconciliation PASS; root full250 cohort EXECUTED then SIGKILL/incomplete; affected47 terminal actual FAIL806PASS/1scientificFAIL.",
+  "full_cohort": {
+    "execution": "EXECUTED, interrupted by SIGKILL; final native partition NOT_ESTABLISHED",
+    "exit_code": -9,
+    "wall_s": 486.20474443299463,
+    "max_rss_kib": 1289484,
+    "whole_files": 250,
+    "collected_items": 3882,
+    "collection_reports": 406,
+    "inventory_state": "collection_finished_runtime_pending",
+    "persisted_runtime_phase_reports": 0,
+    "missing_terminal_artifacts": [
+      "/dev/shm/e02-B-completed-final-1862c021df74/native.xml",
+      "session_exitstatus",
+      "git_at_finish",
+      "module_origin_snapshot"
+    ],
+    "visible_stdout_rows": 1322,
+    "visible_stdout_labels": {
+      "PASSED": 1290,
+      "FAILED": 16,
+      "ERROR": 16
+    },
+    "last_complete_visible_row": [
+      "tests/unit/runtime/http/test_authorization_audience_denials.py::test_public_principal_is_denied_expert_operation_server_side",
+      "ERROR"
+    ],
+    "last_started_line": "tests/unit/runtime/http/test_authorization_audience_denials.py::test_hidden_client_action_remains_denied_when_called_directly ",
+    "qualification": "Visible labels are distinct stdout observations, not complete per-node phases or a terminal partition. Missing rows are not classified UNRUN/PASS/FAIL/ERROR. No historical DD grades or 27-check conclusions imported."
+  },
+  "affected_consumers": {
+    "execution": "EXECUTED; terminal complete native FAIL",
+    "whole_files": 47,
+    "collected_items": 807,
+    "cases": {
+      "PASS": 806,
+      "FAIL": 1
+    },
+    "runtime_phase_reports": 2421,
+    "phase_counts": [
+      {
+        "when": "call",
+        "outcome": "failed",
+        "count": 1
+      },
+      {
+        "when": "call",
+        "outcome": "passed",
+        "count": 806
+      },
+      {
+        "when": "setup",
+        "outcome": "passed",
+        "count": 807
+      },
+      {
+        "when": "teardown",
+        "outcome": "passed",
+        "count": 807
+      }
+    ],
+    "exit_code": 1,
+    "wall_s": 186.9752695250063,
+    "max_rss_kib": 1189464,
+    "stdout_pytest_s": 178.45,
+    "stdout_warning_count": 15,
+    "xml_suite_attributes": [
+      {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "1",
+        "skipped": "0",
+        "tests": "807",
+        "time": "175.637",
+        "timestamp": "2026-10-06T22:36:02.425457+00:00",
+        "hostname": "b878f4efbdfc"
+      }
+    ],
+    "failure_id": "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py::test_scenario_adversary_fallback_and_execution",
+    "qualification": "Actual scientific vulnerabilities[] assertion remains FAIL, with no inherited P41 attribution, fixture weakening or product disposition inferred by this execution audit. This targeted47 wave is not the full250 B cohort.",
+    "observed_module_entries": 4891,
+    "observed_file_backends": 4688,
+    "captured_canonical_Git_byte_matches": 1705,
+    "canonical_mismatches": 0,
+    "observed_backend_scopes": {
+      "standard_library_file": 285,
+      "repository_untracked_or_ignored_file": 2698,
+      "repository_tracked_file": 1705
+    },
+    "module_boundary": "Fixture/data/resource/backend/service reads are unmeasured, never an empty set. Hook-time loaded modules only, not all transient/child imports or complete resource/backend read sets."
+  },
+  "input_binding": {
+    "root_before": {
+      "sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+      "branch": "refs/heads/codex/e02-B-current-coordination",
+      "tracked_status": ""
+    },
+    "root_after": {
+      "sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+      "branch": "refs/heads/codex/e02-B-current-coordination",
+      "tracked_status": ""
+    },
+    "selected_union_source_modules": 268,
+    "source_git_bytes": "268 union input modules independently match exact1862 Git blobs; both argfiles match actual top-level test_paths and inventory selectors250/47.",
+    "source_profile_schema": "Top-level selector_path/test_paths in cohort and top-level test_paths in affected; no inputs field. Generic parser UNRUN; no equivalent alias claimed.",
+    "raw_objects": [
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort.json",
+        "bytes": 2858,
+        "sha256": "128df0057719f39a62fc303c4c267fc04a1db4d34a1e67d2b49523bdef889d97",
+        "stable_during_read": true
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort-profile.json",
+        "bytes": 21086,
+        "sha256": "306f134d1c709a33b1e195f62775ce226fee61f9addeda95fbc3dd1151158f58",
+        "stable_during_read": true
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort-inventory.json",
+        "bytes": 4445184,
+        "sha256": "5904954da6fb919cf693d485fe665777b1f43cd5aa0419b244111a5ab93b46d4",
+        "stable_during_read": true
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort.txt",
+        "bytes": 172778,
+        "sha256": "2f1ccd3ec853f830617b714cd7041ac18f7ce6b22ed7c70cfe4ac90a4dbbc84b",
+        "stable_during_read": true
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-affected-consumers.json",
+        "bytes": 2929,
+        "sha256": "d4ba231338db6d83de3829de20cd9592ec791596ea0f26651ba0e38d67b3cd43",
+        "stable_during_read": true
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-affected-consumers-profile.json",
+        "bytes": 16353,
+        "sha256": "9f1559932776fcf0f215a15399b9f4329fc54a6bcd68aa2711a57523724fe9f1",
+        "stable_during_read": true
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-affected-consumers-inventory.json",
+        "bytes": 9437835,
+        "sha256": "84d780ee59743bcafa9b5148fe4c028ec8ed98de71cc9791000b75ee4c646478",
+        "stable_during_read": true
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-affected-consumers.txt",
+        "bytes": 1673745,
+        "sha256": "05ca33cf103234b77d78b37ce4f5731d5e14d14895bf2223a6b77e8df41e3b49",
+        "stable_during_read": true
+      },
+      {
+        "path": "/dev/shm/e02-B-completed-final-1862c021df74/whole-files.args",
+        "bytes": 14447,
+        "sha256": "e3658cfd86315cd27e62ab180a5a88604a6637754e559c78fbb1c4304274db8a",
+        "stable_during_read": true
+      },
+      {
+        "path": "/dev/shm/e02-B-completed-affected-1862c021df74-bound/whole-files.args",
+        "bytes": 2917,
+        "sha256": "458d1f6100b18f667989312d72fc9f019a7e9b2d3a9cca2baff03202de01c973",
+        "stable_during_read": true
+      },
+      {
+        "path": "/dev/shm/e02-B-completed-affected-1862c021df74-bound/native.xml",
+        "bytes": 151979,
+        "sha256": "e7952cf7c945b460e4511a526b0e38c4d9bc7bce54fe57c1e2c0ce1ad4d8c872",
+        "stable_during_read": true
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-selector.json",
+        "bytes": 1450744,
+        "sha256": "738f7becb550dd7a39dcd549f303a588eee8542ab8d382373544a46f3d9b5cc3",
+        "stable_during_read": true
+      }
+    ]
+  },
+  "failure_qualification": "Scientific result has empty vulnerabilities and actual assertion at test_phase_b_policy_workers.py:286 remains FAIL. This audit supplies no scientific-rule fix, rollback/timing remedy or inherited P41 attribution.",
+  "full_stdout_qualification": "1290 PASSED16 FAILED16 ERROR are1322 distinct visible labels within3882 collected IDs, not complete terminal grades. The final started ID has no status. 0 persisted phase reports is a collection checkpoint limitation, not proof runtime never ran.",
+  "environment_qualification": "Root lexical194 environment, original wheel/PG profile and six cap-name absence are in immutable observed profiles. No reviewer backend invocation. Hooks only capture loaded module origins at session finish; no full transient/child/service/resource readset.",
+  "cgroup_qualification": "Specific after-sample recorded in audit result; aggregate shared cgroup events do not establish the individual SIGKILL victim cause, ordering or OOM attribution.",
+  "closure_ids": [],
+  "predicate_basis": "independently_reconciled",
+  "predicate_qualifications": {
+    "finite_byte_and_completed_XML_phase_reconciliation": "independently_reconciled",
+    "partial_stdout_visible_labels": "recomputed",
+    "full3882_terminal_partition": "not_established",
+    "generic27_parser": "not_established",
+    "individual_SIGKILL_cause": "not_established",
+    "finding_closure": "not_established"
+  },
+  "root_original_output_delivery": {
+    "state": "pending root Git custody publication",
+    "committed_path_placeholder": "ROOT_OUTPUT_CUSTODY_PATH_NOT_YET_SUPPLIED",
+    "commit_sha": null,
+    "qualification": "Exact absolute paths@SHA are recorded now. No future path/SHA or transferred deciding-byte custody is invented. Root will publish complete originals once, peer does not duplicate them."
+  },
+  "next_owner": [
+    "root: preserve actual interrupted status; do not derive final3882 partition/27 checks/closure from stdout or DD history.",
+    "root: publish complete original native selector/inventory/stdout/XML/profile/wrapper/affected-driver custody; this packet commits only independent review driver/result/index.",
+    "root/G: read full affected scientificFAIL without attribution to an inherited candidate; choose any further verification explicitly on its exact source/input profile."
+  ]
+}

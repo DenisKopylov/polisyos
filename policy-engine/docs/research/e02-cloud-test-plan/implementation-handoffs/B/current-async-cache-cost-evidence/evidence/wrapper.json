@@ -1,0 +1,31 @@
+{
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "-I",
+    "-B",
+    "/tmp/e02-B52-cache-cost-c043/evidence/child.source.txt"
+  ],
+  "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+  "target_sha": "c0431c5b0e8dd71f758ec956b4de271910cef19a",
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+    "POLISYOS_METRICS_PORT": "0",
+    "E02_EXPECTED_SOURCE": "c0431c5b0e8dd71f758ec956b4de271910cef19a",
+    "E02_PRODUCT_ROOT": "/workspace/e02-B-current-execution-state"
+  },
+  "python_lexical": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+  "no_process_cpu_worker_caps": true,
+  "waited_pid": 502680,
+  "exit_code": 0,
+  "wall_seconds": 36.577239464,
+  "max_rss_kib": 664476,
+  "source_head_before": "c0431c5b0e8dd71f758ec956b4de271910cef19a",
+  "source_head_after": "c0431c5b0e8dd71f758ec956b4de271910cef19a",
+  "source_clean_after": true,
+  "stdout": {
+    "path": "/tmp/e02-B52-cache-cost-c043/evidence/native.txt",
+    "bytes": 2325,
+    "sha256": "fa50cf72fe6197b9217a675ca7effc4b6d300aa26aebdb6c0224f8fbfae98540"
+  },
+  "xml": "/tmp/e02-B52-cache-cost-c043/evidence/native.xml"
+}

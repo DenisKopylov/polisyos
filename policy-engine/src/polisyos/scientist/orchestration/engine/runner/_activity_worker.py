@@ -87,6 +87,7 @@ async def run_node_in_worker(payload: dict[str, Any]) -> bytes:
         state = branch_state(
             state,
             write_paths=getattr(node.spec, "state_writes", ()),
+            enforce_write_scope=True,
         ).state
 
         # Execute with retry/timeout under a child span

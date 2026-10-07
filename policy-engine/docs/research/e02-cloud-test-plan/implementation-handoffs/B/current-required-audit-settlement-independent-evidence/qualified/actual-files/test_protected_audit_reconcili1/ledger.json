@@ -1,0 +1,144 @@
+{
+  "schema_version": "1.1",
+  "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+  "coordination_mode": "shared_posix_file_lock",
+  "ledger_id": "ledger:9c55562ff8431c1d",
+  "revision": 6,
+  "updated_at": "2026-10-06T19:44:25.497400Z",
+  "last_writer": {
+    "host_id": "b878f4efbdfc",
+    "writer_id": "b878f4efbdfc:421680:ledger.json",
+    "pid": 421680
+  },
+  "recent_mutations": [
+    {
+      "revision": 0,
+      "operation": "bootstrap",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:421680:ledger.json",
+        "pid": 421680
+      },
+      "committed_at": "2026-10-06T19:44:25.486948Z"
+    },
+    {
+      "revision": 1,
+      "operation": "reserve",
+      "key": "run",
+      "amount": "0.00015000000000000001",
+      "applied_amount": "0.00015000000000000001",
+      "reserved": true,
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:421680:ledger.json",
+        "pid": 421680
+      },
+      "committed_at": "2026-10-06T19:44:25.488454Z"
+    },
+    {
+      "revision": 2,
+      "operation": "settle_spend",
+      "key": "run",
+      "amount": "0.02",
+      "applied_amount": "0.02",
+      "provider": "physical-test-provider",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:421680:ledger.json",
+        "pid": 421680
+      },
+      "committed_at": "2026-10-06T19:44:25.489917Z"
+    },
+    {
+      "revision": 3,
+      "operation": "release",
+      "key": "run",
+      "amount": "0.00015000000000000001",
+      "applied_amount": "0.00015000000000000001",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:421680:ledger.json",
+        "pid": 421680
+      },
+      "committed_at": "2026-10-06T19:44:25.491000Z"
+    },
+    {
+      "revision": 4,
+      "operation": "reserve",
+      "key": "run",
+      "amount": "0.00015000000000000001",
+      "applied_amount": "0.00015000000000000001",
+      "reserved": true,
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:421680:ledger.json",
+        "pid": 421680
+      },
+      "committed_at": "2026-10-06T19:44:25.494138Z"
+    },
+    {
+      "revision": 5,
+      "operation": "settle_spend",
+      "key": "run",
+      "amount": "0.02",
+      "applied_amount": "0.02",
+      "provider": "physical-test-provider",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:421680:ledger.json",
+        "pid": 421680
+      },
+      "committed_at": "2026-10-06T19:44:25.495795Z"
+    },
+    {
+      "revision": 6,
+      "operation": "release",
+      "key": "run",
+      "amount": "0.00015000000000000001",
+      "applied_amount": "0.00015000000000000001",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:421680:ledger.json",
+        "pid": 421680
+      },
+      "committed_at": "2026-10-06T19:44:25.497394Z"
+    }
+  ],
+  "state": {
+    "limits": {
+      "run": {
+        "key": "run",
+        "max_usd": "10"
+      }
+    },
+    "spent": {
+      "run": "0.04"
+    },
+    "provider_spent": {
+      "physical-test-provider": "0.04"
+    },
+    "reserved": {
+      "run": "0"
+    }
+  },
+  "spend_receipts": {
+    "llm-producer:cc3c8ba2176c47e486ec63961adff930:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be": {
+      "event_id": "llm-producer:cc3c8ba2176c47e486ec63961adff930:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+      "payload_digest": "bd5cd3c389a2843bd3a97a5db00163aa3d5077b6abec708a93c2a19de0d89abe",
+      "key": "run",
+      "amount": "0.02",
+      "provider": "physical-test-provider",
+      "revision": 2,
+      "committed_at": "2026-10-06T19:44:25.489666Z"
+    },
+    "llm-producer:1fe1ccb2c6e84d9c8ac282fe72f1d4ff:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be": {
+      "event_id": "llm-producer:1fe1ccb2c6e84d9c8ac282fe72f1d4ff:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+      "payload_digest": "319fd0c86cac5b082c39edf7e4b792916988dce58ab992c0e924cde82d35e416",
+      "key": "run",
+      "amount": "0.02",
+      "provider": "physical-test-provider",
+      "revision": 5,
+      "committed_at": "2026-10-06T19:44:25.495477Z"
+    }
+  }
+}

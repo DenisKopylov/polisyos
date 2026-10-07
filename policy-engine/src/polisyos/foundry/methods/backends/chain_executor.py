@@ -31,7 +31,7 @@ from polisyos.foundry.methods.backends.runtime_fingerprint import (
     runtime_stack_for,
     safe_version,
 )
-from polisyos.foundry.methods.base import ComputeBackend, _stable_digest
+from polisyos.foundry.methods.base import ComputeBackend, MethodSignature, _stable_digest
 from polisyos.foundry.methods.components.io import (
     dematerialize_method_output,
     materialize_method_input,
@@ -176,6 +176,17 @@ class ChainExecutionResult:
     final_state: Any
     node_results: tuple[tuple[UUID, MethodResult], ...]
     reproducibility_contract: Mapping[str, Any] = field(default_factory=dict)
+    missing_history_node_ids: tuple[UUID, ...] = ()
+    history_provenance_complete: bool = True
+
+    @property
+    def history_complete(self) -> bool:
+        """Require original records and their explicit complete provenance."""
+        return (
+            self.history_provenance_complete is True
+            and not self.missing_history_node_ids
+            and all("history_incomplete" not in result.warnings for _, result in self.node_results)
+        )
 
     @property
     def total_wall_time_ms(self) -> float:
@@ -361,6 +372,36 @@ def _make_fused_kernel_key(
         "dynamic_names_b": dynamic_names_b,
     }
     return _stable_digest(payload)
+
+
+def collect_chain_node_inputs(
+    chain: Any,
+    node_id: UUID,
+    registry: Any,
+    node_slot_outputs: Mapping[UUID, Mapping[str, Any]],
+    fx_rate_provider: FxRateProvider | None,
+    current_state: Any,
+    signature: MethodSignature,
+    current_context: Any,
+    params_per_node: Mapping[UUID, Mapping[str, Any]] | None,
+) -> tuple[type, Any, MethodSignature, dict[str, Any]]:
+    """Delegate internal compiled-consumer admission to the canonical collector.
+
+    This is an internal Foundry seam, not a stable external execution API. It
+    resolves occurrence-bound slots, adapters, materialization and the existing
+    static→dynamic→override payload order without duplicating that algorithm.
+    """
+    return _collect_node_inputs(
+        chain,
+        node_id,
+        registry,
+        node_slot_outputs,
+        fx_rate_provider,
+        current_state,
+        signature,
+        current_context,
+        params_per_node,
+    )
 
 
 def _collect_node_inputs(
@@ -1010,6 +1051,11 @@ def _adapt_execution_context(
         source_backend=source_backend,
         target_backend=target_backend,
     )
+
+
+def merge_chain_execution_context(previous_state: Any, output: Any) -> Any:
+    """Delegate internal compiled context accumulation to the executor owner."""
+    return _merge_execution_context(previous_state, output)
 
 
 def _merge_execution_context(previous_state: Any, output: Any) -> Any:

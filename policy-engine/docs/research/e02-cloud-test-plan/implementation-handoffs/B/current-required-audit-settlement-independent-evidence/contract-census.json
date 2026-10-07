@@ -1,0 +1,133 @@
+{
+  "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+  "source_tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+  "refs": [
+    {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/src/polisyos/core/security/audit_protocol.py",
+      "bytes": 997,
+      "sha256": "af87aaf57f6fecf097efaa131e49cb97d93a7692e4d098d11ec4e1ca7bd50a66",
+      "git_blob": "8376a3e476272b649c02d39b57ca1e62ef0d0a12"
+    },
+    {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/src/polisyos/core/security/audit_log_adapter.py",
+      "bytes": 2917,
+      "sha256": "e2f1a1ddafa681bdfda7f151e5c3603be2fd29bf58084f642b7cbf004ffc6f14",
+      "git_blob": "18b74346ce1bd3313526f260deabfaa10ef1d37d"
+    },
+    {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/src/polisyos/core/security/audit_sink.py",
+      "bytes": 14861,
+      "sha256": "edbd457fe7da614834767484b350c906b7f37f531ed0b38fcf153e280415b576",
+      "git_blob": "7ca64fc28be8e36edc3c6ad46d9c4ac8ec6e9fac"
+    },
+    {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/src/polisyos/core/security/audit_models.py",
+      "bytes": 4287,
+      "sha256": "c9006d8058ab735ef95283007e09358138826f894faa617dccfdc8481b0d4dc5",
+      "git_blob": "4396c884f267cbbb70eb49eda5d56200ca7d89fa"
+    },
+    {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/src/polisyos/core/security/audit_verifier.py",
+      "bytes": 3243,
+      "sha256": "a48f8e4eadfa8deefe842518dd7e13b5480a86921f39cf5ccafc02e084e0ab55",
+      "git_blob": "203795297cbad90dfa64d78015b246b9c6f31f6c"
+    },
+    {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/src/polisyos/core/security/README.md",
+      "bytes": 2924,
+      "sha256": "2c23ed91aa17c6d35eaeb5c7394cb58a44dbddd234570411c5c71e02ac7a265b",
+      "git_blob": "f72b3a5a205bd12e55200f93489e3fe006d1eab1"
+    },
+    {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/src/polisyos/core/llm/README.md",
+      "bytes": 3466,
+      "sha256": "06447dfdb0023cf0e8794da2c673fdac4571c662ef729b7b89f46410931e1d2d",
+      "git_blob": "c42e89793edac0ce75b6c49107fc77082d7f14fd"
+    },
+    {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/README.md",
+      "bytes": 3940,
+      "sha256": "37ca3c82ed258f655f7a6ccd219b693f57b86f8d5b8c4973a6b4c089956ca1ab",
+      "git_blob": "5bd4656cb9531409581784cad4b8905e3646a565"
+    },
+    {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/src/polisyos/scientist/policy_design/adversary.py",
+      "bytes": 15332,
+      "sha256": "e80592034b0dd93ae9a5fb0e1f22f5f92620f8e57059a7ce796f75b68cd759c7",
+      "git_blob": "11ac91e6e7a68453b2d322c448a1812dac1ff4cb"
+    },
+    {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/src/polisyos/scientist/policy_design/translator.py",
+      "bytes": 15582,
+      "sha256": "a9cc4245e836c2276bc9d115582bd150fcff2f355158b8fde16cb6b9e7bce9a1",
+      "git_blob": "6b3bac9e054559146050e44634dd41a3445b5061"
+    },
+    {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/pyproject.toml",
+      "bytes": 11007,
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c"
+    },
+    {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/uv.lock",
+      "bytes": 779204,
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+      "git_blob": "85f1fb2150a4da454fee02108565381d44f56730"
+    },
+    {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/pytest.ini",
+      "bytes": 1021,
+      "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+      "git_blob": "f6b18091a37290d7b5c375b3aef44ffebc0a293a"
+    },
+    {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/conftest.py",
+      "bytes": 9664,
+      "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+      "git_blob": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168"
+    },
+    {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "AGENTS.md",
+      "bytes": 22656,
+      "sha256": "35b1e1bf610b8a19b417cb35d6f0c7afca341c4c8c9bbc1574400c38f24b7d50",
+      "git_blob": "94173d77ab34173f12883ee6575db4a461f6df98"
+    },
+    {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/CONTRIBUTING.md",
+      "bytes": 10553,
+      "sha256": "1c9ea84e5fa0d8f05517287523d47d71128742ad02a5d20ce326163d21754783",
+      "git_blob": "ac70f96fa6a0c0bd6b810e10f33b409dea2a78bf"
+    },
+    {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md",
+      "bytes": 20260,
+      "sha256": "8519f95eb0ff2ec2c64caa4497eb58b957fe7cd47a0a6955bad98a2c20795d3b",
+      "git_blob": "b9f1a717049d9e30f68bf291e3f8321013abf83e"
+    }
+  ],
+  "complete_literal_source_consumer_search": {
+    "command": "git grep -n -E ChainedAuditLog|audit_log=|LLMBudgetEnforcer\\( -- policy-engine/src/polisyos",
+    "output": "policy-engine/src/polisyos/core/security/audit_log_adapter.py:26:class ChainedAuditLog:\npolicy-engine/src/polisyos/fabric/world/query.py:304:        audit_log=audit_log,\npolicy-engine/src/polisyos/fabric/world/query.py:349:        audit_log=audit_log,\npolicy-engine/src/polisyos/fabric/world/query.py:393:        audit_log=audit_log,\npolicy-engine/src/polisyos/scientist/policy_design/adversary.py:127:            llm_client = LLMBudgetEnforcer(\npolicy-engine/src/polisyos/scientist/policy_design/translator.py:199:            llm_client = LLMBudgetEnforcer(\n",
+    "role": "Complete literal consumer denominator, not complete dynamic invocation/authority graph."
+  },
+  "mandatory_profile": "Explicit supplied ChainedAuditLog with actual ChainedAuditSink durable synchronous LocalJsonlBackend, not NoopAuditLog permitted by protocol. No universal claim for every AuditLog argument.",
+  "production_reachability_limit": "Native LLM ScenarioAdversaryWorker/PolicyTranslatorWorker constructors omit audit_log; mandatory protected deployment wiring is not established by this public supported-profile witness.",
+  "amount_vs_audit": "Reported provider amount .02 is known and exact local FileBudgetLedger receipt persists. This witness concerns missing protected COMMITTED audit plus unblocked next action; it does not call amount unknown, duplicate external billing, or lack ledger durability."
+}

@@ -1,0 +1,128 @@
+{
+  "schema": "policyos.e02.native_input_preflight.v1",
+  "unit": "B",
+  "role": "independent read-only source/tool/service readiness; no execution-admission or finding closure",
+  "source_snapshot": {
+    "sha": "8c3f0efe0a0ef72dab8c62ef4395daaafc39a327",
+    "tree": "5148eb9164a7ae94c89fb8e9b6ea9064eb34e55a",
+    "status": "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-frozen-wave.py\n",
+    "branch": "codex/e02-B-current-coordination",
+    "role": "read-only metadata/tool source snapshot; finalwhole-sourcefreeze not supplied/not claimed"
+  },
+  "predicate_basis": "recomputed",
+  "full_wave_state": "UNRUN; upcoming freeze not yet supplied",
+  "source_scope": "Six inspected tracked launcher/admission/capture/projection/observer inputs match initialc722 and checkpoint8c3f. Twelve exacttrackedinputbytebindings in observedjson. Rootpreparing newcontinuation-frozen-wave.py is untracked at checkpoint, not a frozen input.",
+  "observed_output": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json",
+    "bytes": 14827,
+    "sha256": "f0fff4d6164970b24a958629e59da3f3886f76398c5e72eaa289c40058f4269c"
+  },
+  "ready_inputs": {
+    "supported_toolchain": "Python3.14.2 / uv0.9.21 / Node22.22.0 / explicitcachedpnpm10.33.2 actualversion commandsPASS",
+    "OPA": "ActualOPA1.21.1 executable+fullbinaryhash exists; prepend /tmp/e02-B-opa-latest-preparation-1db95544/bin to rootchildPATH, ambientopa absent. No new retrieval/service.",
+    "tokenizer": "Canonicalcl100k_base cache1681126B officialSHA223921... verifiedactualread, no download/reconstruction/mockedestimate.",
+    "PG_files": "PreservedPG17 data0700 and privateDSN0600 uid1000, opaque nonemptycredentials. Loader/library/postgres/pg_ctl version works. psycopg3.3.2 withlibpq18 actualimport fromtaskonlyroot.",
+    "environment": "Base194 distributions unchanged; taskPGoverlay exposes196. Basehatchlingabsent intentionally: wheelbuildenv installs pinned1.27.0; no dependencyinstallation performed now."
+  },
+  "issues_before_root_freeze": [
+    {
+      "issue": "preparedwheelbelongs1862",
+      "actual_fact": "Existingprofile hasSOURCE_SHA1862 and would be rejected by bind_verification_inputs for futurecandidate",
+      "next_action": "Build one freshactualwheel from cleanattached finalrootSHA and fresh /tmp taskroot, retain9phaseoutputs; only then supply exactgenerated7fieldprofile."
+    },
+    {
+      "issue": "PGstopped",
+      "actual_fact": "Actualpg_ctlstatus exit3/no server; postmaster.pid absent and 127.0.0.1:45483 connectionrefused111",
+      "next_action": "Root revalidate UID/data/port ownership, startpreserveddata with supplied historicalserverargv plusICU_DATA; recordnewPID/ctime/port and actualreadiness. No initdb/rerunstartscript or deleteoldartifacts."
+    },
+    {
+      "issue": "observercopystale",
+      "actual_fact": "Ignoredtools copy20488B SHA2766137... differs from tracked22420B SHA869afd5e... optionalreportjournal. Oldretrycaller exactbyteguard refuses.",
+      "next_action": "Root bind/copy exacttrackedobserver forfrozenSHA before execution; new freshabsoluteGitignoredinventory/reportjournal paths. Prefixonlyneverfullcompletion."
+    },
+    {
+      "issue": "oldnativeoutputnamesoccupied",
+      "actual_fact": "Trackedrun_successor fullnative uses fixedsuccessor-final selector/outputnames; ignoredfilebackedretry alsofixedtag. Earlieroutputs remain preserved.",
+      "next_action": "Prepare source-specific unique namespace/selector/fullargv in root-owned newcaller beforefreeze; include allpaths and joinactualcasephases, no marker/deselection shortcut."
+    },
+    {
+      "issue": "resourcecapacity_not_established",
+      "actual_fact": "07:54:56UTC cgroup16.4099GB/17.1799GB, Swap0/Shmem12.09GB; overlayuserfree457461760B,/tmp2424414208B. HistoricalOOMcounters are not cause attribution fornewchecks.",
+      "next_action": "Root must establish adequate actualretainedFS/memory prerequisite for fullnative+gates; currentmeasurements do not prove fit. No quota/deletion/cleanup is authorized or performed bythispreflight."
+    },
+    {
+      "issue": "architecturecache/isolatedbuilddependencyreadiness",
+      "actual_fact": "ExistingexternalUVcache directory/marker available; offlinepackagecompleteness and packagefetch/build areUNRUN",
+      "next_action": "Use explicit /home/agent/.cache/uv with freshsource-derived generated workspace; retainedmarker is not offline/import-closure authority. Use launcher actualphase outputs todecidereadiness."
+    }
+  ],
+  "planned_wheel_command_not_executed": [
+    "<ROOT194_PYTHON>",
+    "/workspace/e02-B-current-coordination/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-evidence/launcher.py",
+    "--source-root",
+    "/workspace/e02-B-current-coordination/policy-engine",
+    "--source-sha",
+    "<EXACT_FINAL_SHA>",
+    "--test-path",
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/common/test_async_tools_installed_wheel.py",
+    "--test-sha256",
+    "eb24cd99386a0856f5d6f7639c751bd6b019b6dfdf0be605d64caeeb64a51702",
+    "--consumer-sha256",
+    "9c2dccab7a3d22313f96eea4131062c16d2008c7b5a9bfdf716003ac2eb86b09",
+    "--task-root",
+    "<UNUSED_ABSOLUTE_TMP_TASK_ROOT>",
+    "--python",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "--uv",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv"
+  ],
+  "wheel_launcher_preconditions": "Remove six ambientnumericcaps before invocation;sourcecleanattached andheld acrossall9phases, no currentSHA alias tooldwheel. Launcher suppresses PYTHONPATH/HOME/VIRTUAL_ENV/pytestinjection, creates taskenvs, preserveswheelandalloutputs. Oneoutercase+8installedchildren are separatecounts, not9outercases.",
+  "planned_PG_start_argv_not_executed": [
+    "/tmp/e02-B38-pg-evidence/oci/rootfs/usr/local/bin/postgres",
+    "-D",
+    "/tmp/e02-B38-pg-evidence/native-data-v2",
+    "-h",
+    "127.0.0.1",
+    "-p",
+    "45483",
+    "-k",
+    "/tmp/e02-B38-pg-evidence/native-socket-v2",
+    "-c",
+    "dynamic_library_path=/tmp/e02-B38-pg-evidence/oci/rootfs/usr/local/lib/postgresql"
+  ],
+  "planned_PG_input_only": {
+    "ICU_DATA": "/tmp/e02-B38-pg-evidence/oci/rootfs/usr/share/icu/78.1",
+    "E02_B38_POSTGRES_DSN_FILE": "/tmp/e02-B38-pg-evidence/postgres-dsn",
+    "E02_B38_POSTGRES_DRIVER_ROOT": "/tmp/e02-B38-pg-profile",
+    "scope": "Actualstart readiness/port custody remainsrootaction; no publiccredentialvalue/digest."
+  },
+  "gate_pointers": {
+    "tracked_gate_launcher": "final-root-evidence/run_completed_quality.py@8c3f",
+    "call": [
+      "<ROOT194_PYTHON>",
+      "<TRACKED_GATE_LAUNCHER>",
+      "--sha",
+      "<EXACT_FINAL_SHA>",
+      "--gate",
+      "<oneof8>",
+      "--scratch",
+      "<UNUSED_ABSOLUTE_OUTSIDE_CHECKOUT_PATH>"
+    ],
+    "architecture_extra": [
+      "--architecture-uv-cache-dir",
+      "/home/agent/.cache/uv"
+    ],
+    "verify_parity_inputs": "Both call bind_verification_inputs: fresh7fieldwheelprofile +opaqueprivateDSNfile +taskPGdriverroot. Verification/parity sharedlastmile outputs andpnpm lock require sequential fixture ownership peractualsource; no artificialprocessquota.",
+    "capture": "capture_frozen.py exclusive .txt/.json +wait4setup/status/sourceheadguards; fullmoderateoutputs required, exitcode is notperfindingclosure."
+  },
+  "not_performed": [
+    "wheelbuild/install",
+    "service start/shutdown/SQL",
+    "pytest collection/native/gates",
+    "rootcheckout edits",
+    "dependencyinstallation",
+    "cleanup/Trash/deletion",
+    "resource/thread/CPU quota"
+  ],
+  "next_owner": "root freezes/admitsexactnewsource andexecutesone actual fullcohort +gates; G receives exact source/input and actualoutcomes, notthisreadinesssummary as PASS/P41 waiver."
+}

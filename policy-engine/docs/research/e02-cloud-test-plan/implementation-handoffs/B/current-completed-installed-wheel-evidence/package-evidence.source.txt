@@ -1,0 +1,101 @@
+import hashlib
+import json
+import re
+import shutil
+import subprocess
+import xml.etree.ElementTree as ET
+import zipfile
+from pathlib import Path
+
+repo=Path('/workspace/e02-B-current-runtime')
+root=Path('/workspace/e02-B-current-coordination')
+source='1862c021df74a5c5815bc5cd21a20e61b30132b6'
+tree='f765043b27b96a1fbb0795aa600db9bd94df0e36'
+task=Path('/tmp/e02-B-la057-final-1862c021df74-run')
+folder=Path('policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B')
+out=repo/folder/'current-completed-installed-wheel-evidence'
+out.mkdir()
+
+def git(*args):return subprocess.check_output(['/usr/bin/git','-C',str(repo),*args])
+def ref(at,path):
+ b=git('show',at+':'+str(path))
+ return {'source_ref':at+':'+str(path),'git_blob':git('rev-parse',at+':'+str(path)).decode().strip(),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()}
+
+def dump(name,value):(out/name).write_text(json.dumps(value,indent=2)+'\n')
+
+phases=['build-venv','installed-venv','build-dependencies','wheel-build','wheel-install','consumer-dependencies','build-environment','consumer-environment','native']
+records=[]
+for phase in phases:
+ r=json.loads((task/(phase+'.json')).read_bytes());b=(task/(phase+'.txt')).read_bytes()
+ assert r['source']=={'head':source,'tree':tree,'status':''}
+ assert r['exit']==0 and r['output_sha256']==hashlib.sha256(b).hexdigest() and r['output_bytes']==len(b)
+ records.append(r)
+ for suffix in ['.json','.txt']:shutil.copyfile(task/(phase+suffix),out/(phase+suffix))
+for name in ['profile.json','cohort-input-environment.json','native.xml','baseline-query.txt']:
+ shutil.copyfile(task/name,out/name)
+child=task/'pytest-scratch/test_installed_wheel_consumers0'
+for suffix in ['.txt','.xml','-wrapper.json']:
+ shutil.copyfile(child/('installed-child'+suffix),out/('installed-child'+suffix))
+shutil.copyfile('/tmp/e02-B-la057-final-1862c021df74-launcher.txt',out/'launcher-full.txt')
+for name,directory in [('build',task/'build-env'),('installed',task/'installed-env')]:
+ shutil.copyfile(directory/'pyvenv.cfg',out/(name+'-pyvenv.cfg.txt'))
+profile=json.loads((task/'profile.json').read_bytes());seven=json.loads((task/'cohort-input-environment.json').read_bytes())
+assert profile['source_before']==profile['source_after']=={'head':source,'tree':tree,'status':''}
+assert len(seven)==7 and seven['E02_LA057_SOURCE_SHA']==source
+wheel=Path(profile['wheel']);wheel_bytes=wheel.read_bytes()
+assert hashlib.sha256(wheel_bytes).hexdigest()==profile['wheel_sha256']
+site=Path(seven['E02_LA057_INSTALLED_SITE'])
+modules=[]
+with zipfile.ZipFile(wheel) as archive:
+ for member in ['polisyos/__init__.py','polisyos/common/__init__.py','polisyos/common/async_tools.py']:
+  rel='policy-engine/src/'+member;actual=(site/member).read_bytes();frozen=git('show',source+':'+rel)
+  assert archive.read(member)==actual==frozen==(root/rel).read_bytes()
+  modules.append({'module':member.removesuffix('.py').replace('/','.'),'wheel_member':member,'actual_installed_path':str(site/member),'source':ref(source,rel),'actual_bytes':len(actual),'actual_sha256':hashlib.sha256(actual).hexdigest(),'wheel_source_installed_actual_equal':True})
+stdout=(child/'installed-child.txt').read_text();origin=json.loads(stdout.splitlines()[0]);assert origin['source_sha']==source and origin['wheel_sha256']==profile['wheel_sha256']
+assert len(origin['modules'])==3
+for row in origin['modules']:
+ assert row['sha256']==next(m['actual_sha256'] for m in modules if m['wheel_member']==row['wheel_member'])
+ assert Path(row['origin'])==site/row['wheel_member']
+observations=[]
+for line in stdout.splitlines()[1:]:
+ start=line.find('{')
+ if start>=0:
+  row=json.loads(line[start:])
+  if 'observation' in row:observations.append(row)
+assert any(row.get('observation')=='cooperative-timeout-finally' and sorted(row['actual'])==['child-finally','outer-finally'] for row in observations)
+assert {row['inside_loop'] for row in observations if row.get('observation')=='caller-cancellation-finally' and row['actual']==['finally']}=={False,True}
+dump('module-byte-bindings.json',{'source_sha':source,'source_tree':tree,'actual_child_origin_record':origin,'independently_recomputed_three_module_bytes':modules,'actual_printed_effect_observations':observations,'scope':'Complete3 module source/wheel/installed binding plus actual printed cooperative cleanup; not all wheel modules or arbitrary external consumers'})
+counts={};rows={}
+for scope,path in [('outer',task/'native.xml'),('child',child/'installed-child.xml')]:
+ cases=[];ct={}
+ for case in ET.fromstring(path.read_bytes()).iter('testcase'):
+  outcome='ERROR' if case.find('error') is not None else 'FAIL' if case.find('failure') is not None else 'SKIP' if case.find('skipped') is not None else 'PASS'
+  ct[outcome]=ct.get(outcome,0)+1;cases.append({'name':case.get('name'),'state':outcome,'xml_attributes':case.attrib})
+ counts[scope]=ct;rows[scope]=cases
+assert counts=={'outer':{'PASS':1},'child':{'PASS':8}}
+wrapper=json.loads((child/'installed-child-wrapper.json').read_bytes());assert wrapper['exit']==0
+assert [r['name'] for r in rows['child']]==[r['name'] for r in wrapper['actual_consumer_cases']]
+baseline=json.loads((task/'baseline-query.txt').read_bytes());assert baseline['matching_cells']==baseline['displayed_cells']==10 and baseline['raw_archives_received']==0
+criterion_path='policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md'
+criterion=git('show',source+':'+criterion_path);capture=re.search(rb'<!-- SOURCE_BEGIN LA:LA-057 -->(.*?)<!-- SOURCE_END LA:LA-057 -->',criterion,re.S).group(1)
+assert hashlib.sha256(capture).hexdigest()=='2afe404aaaa4e0abb4dce006674af34f61ca3269d1e0b9e516b788bb42c8ac57'
+dump('case-quantities.json',{'source_sha':source,'source_tree':tree,'phase_count':len(records),'phase_exit_counts':{'0':len(records)},'outer_counts':counts['outer'],'child_counts':counts['child'],'cases':rows,'sum_is_not_cohort_denominator':'One outer dispatch plus8 isolated children are separate populations, never9 source-cohort items','known_source_assertions':{'generic_consumers':['direct','alias','facade','star_reflection'],'type_parameters':'Four distinct actual function.__type_params__, explicit annotation namespace get_type_hints identity; no module T/TypeVar','context':'Actual asserted request-A, request-B, None across running-loop bridge and run_blocking_async; scope resetNone','timeout':'Printed actual parent and child finally, abandoned real task.cancelled assertion','caller_cancellation':'Both before/inside running event loop, real finally observed after CancelledError'},'baseline_cells':[row['id'] for row in baseline['cells']],'baseline_grade':baseline['grade'],'baseline_roles':'Ten exact source-SHA/ref/job-context/input closures are navigation, not this installed-wheel runtime evidence','canonical_criterion':{'source':ref(source,criterion_path),'marker':'LA:LA-057','raw_capture_bytes':len(capture),'raw_capture_sha256':hashlib.sha256(capture).hexdigest(),'digest_convention':'Regex capture between SOURCE_BEGIN/SOURCE_END excludes markers and preserves all whitespace'},'closure_ids':[],'actual_root_full_cohort':'UNRUN_BY_THIS_LEAF'} )
+inputs=[folder/'current-installed-wheel-independent-evidence/launcher.py',Path('policy-engine/tests/unit/common/test_async_tools_installed_wheel.py'),Path('policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py'),Path('policy-engine/pyproject.toml'),Path('policy-engine/uv.lock'),Path(criterion_path)]
+refs=[]
+for rel in inputs:
+ assert (root/rel).read_bytes()==git('show',source+':'+str(rel));refs.append(ref(source,rel))
+results=Path('policy-engine/docs/research/e02-cloud-test-plan/results')
+for rel in [results/'query.py',results/'cells.tsv',results/'routes.tsv',results/'sources.json',*[results/'received'/f'{job}.txt' for job in ['F01','F03','F05','F06','F09','F10','F15']]]:
+ refs.append(ref(source,rel))
+tools=[]
+for lexical in ['/workspace/polisyos/policy-engine/.venv/bin/python','/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv']:
+ p=Path(lexical);actual=p.resolve(strict=True);b=actual.read_bytes();tools.append({'lexical_path':str(p),'resolved_path':str(actual),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest(),'basis':'Actual supplied toolchain, no Git executable-origin assertion'})
+dump('input-and-environment.json',{'source_sha':source,'source_tree':tree,'input_refs':refs,'toolchain':tools,'build_environment':json.loads((task/'build-environment.txt').read_text()),'consumer_environment':json.loads((task/'consumer-environment.txt').read_text()),'isolation':'Launcher removes PYTHONPATH/PYTHONHOME/VIRTUAL_ENV/PYTEST_ADDOPTS/PYTEST_PLUGINS, child Python-I-B, no conftest, importlib, devnull ini, disabled plugin autoload','wheel_identity':{'path':str(wheel),'bytes':len(wheel_bytes),'sha256':profile['wheel_sha256'],'availability':'Large realwheel remainslocal; G availability not_established until exactartifact transfer/rebuild'},'retained_task_root':str(task),'seven_field_profile':seven,'no_numeric_caps':'No task-created process/thread quotas or pytest selection filters; complete independent8-case file executes','limitations':['Build transitive dependency versions actually observed, not all independently pinned; exact future wheel reproducibility not claimed','Complete actual3-module identities, not all wheel source/files','Root wholecohort+quality required gates separate; no exit-only finding closure']})
+launcher_argv=['/workspace/polisyos/policy-engine/.venv/bin/python','-B',str(root/folder/'current-installed-wheel-independent-evidence/launcher.py'),'--source-root',str(root/'policy-engine'),'--source-sha',source,'--test-path',str(root/'policy-engine/tests/unit/common/test_async_tools_installed_wheel.py'),'--test-sha256','eb24cd99386a0856f5d6f7639c751bd6b019b6dfdf0be605d64caeeb64a51702','--consumer-sha256','9c2dccab7a3d22313f96eea4131062c16d2008c7b5a9bfdf716003ac2eb86b09','--task-root',str(task),'--python','/workspace/polisyos/policy-engine/.venv/bin/python','--uv','/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv']
+dump('executed-launcher.json',{'argv':launcher_argv,'cwd':str(repo),'exit':0,'outer_shell_capture':'/tmp/e02-B-la057-final-1862c021df74-launcher.txt','initial_admission':'Actual attached root1862/tree f765 clean, originallauncherhash cba1... and unusedtask checked before launch','path_prefixes':['/tmp/e02-B-opa-latest-preparation-1db95544/bin','/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin','/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin'],'baseline_query':{'argv':['/workspace/polisyos/policy-engine/.venv/bin/python','-B','policy-engine/docs/research/e02-cloud-test-plan/results/query.py','--finding','LA-057','--details','--job-context'],'cwd':str(root),'exit':0,'grade':'Metadata navigation only, not an extra native/build phase'},'phases':phases,'role':'RUN writer executes independently authored frozenDUR consumer; own product author does not independently declare formal closure'})
+shutil.copyfile(__file__,out/'package-evidence.source.txt')
+items=[]
+for path in sorted(out.iterdir()):
+ b=path.read_bytes();items.append({'path':path.relative_to(repo).as_posix(),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()})
+dump('index.json',{'files':items,'count':len(items),'bytes':sum(row['bytes'] for row in items),'scope':'All9full phase stdout/wrappers, launcher/output/profiles/config, outerXML/childfull3, source/environment/quantities/baseline and packaginginput; large wheel/cache/privateenv retainedlocal'})
+print(json.dumps({'files':len(items)+1,'indexed_payloads':len(items),'indexed_bytes':sum(row['bytes'] for row in items),'source':source,'phase_count':len(records),'outer':counts['outer'],'child':counts['child']}))

@@ -1,0 +1,83 @@
+"""Immutable Git and stdlib AST census; never import the quality launcher."""
+import ast
+import hashlib
+import json
+import platform
+import subprocess
+import sys
+
+REPO = "/workspace/polisyos"
+BASE = "be836dd71d7dff6dbdb070a48bf7c12c4f557df6"
+TARGET = "107a8e18f6678db837f0b95300d177405b8e960f"
+WORKER = "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd"
+EVIDENCE = "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/"
+SCRIPT = EVIDENCE + "run_completed_quality.py"
+README = EVIDENCE + "completed-quality-README.md"
+
+def git(*args):
+    return subprocess.check_output(["git", "-C", REPO, *args])
+
+def read(sha, path):
+    data = git("show", f"{sha}:{path}")
+    return data, {"source_sha": sha, "path": path, "bytes": len(data),
+                  "sha256": hashlib.sha256(data).hexdigest(),
+                  "git_blob": git("rev-parse", f"{sha}:{path}").decode().strip()}
+
+old_data, old_identity = read(BASE, SCRIPT)
+new_data, new_identity = read(TARGET, SCRIPT)
+old_tree = ast.parse(old_data)
+new_tree = ast.parse(new_data)
+
+def constant(tree, name):
+    return next(node for node in tree.body if isinstance(node, ast.Assign)
+                and any(isinstance(n, ast.Name) and n.id == name for n in node.targets))
+
+old_groups = ast.literal_eval(constant(old_tree, "MYPY_GROUPS").value)
+new_groups = ast.literal_eval(constant(new_tree, "MYPY_GROUPS").value)
+added = {k: v for k, v in new_groups.items() if k not in old_groups}
+expected = (
+    "scientist/policy_design/_llm_accounting.py",
+    "scientist/policy_design/adversary.py",
+    "scientist/policy_design/translator.py",
+)
+assert added == {"policy_design_workers": expected}
+assert all(new_groups[k] == v for k, v in old_groups.items())
+assert sum(map(len, old_groups.values())) == 12
+assert sum(map(len, new_groups.values())) == 15
+assert len({p for v in new_groups.values() for p in v}) == 15
+
+def strip_target_constant(tree):
+    node = constant(tree, "MYPY_GROUPS")
+    tree.body.remove(node)
+    return ast.dump(tree, include_attributes=False)
+
+assert strip_target_constant(old_tree) == strip_target_constant(new_tree)
+parent = git("rev-parse", TARGET + "^").decode().strip()
+changed = git("diff", "--name-only", parent, TARGET).decode().splitlines()
+assert sorted(changed) == sorted([SCRIPT, README])
+assert read(parent, SCRIPT)[0] == old_data
+assert read(parent, README)[0] == read(BASE, README)[0]
+functions = [node.name for node in new_tree.body if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))]
+gates = ast.literal_eval(constant(new_tree, "GATES").value)
+assert len(gates) == 8
+worker_inputs = []
+for relative in expected:
+    data, identity = read(WORKER, "policy-engine/src/polisyos/" + relative)
+    ast.parse(data, filename=identity["path"])
+    worker_inputs.append(identity)
+print(json.dumps({
+    "mode": "Immutable Git + stdlib AST; no launcher imports/helpers/queries/runtime/gates",
+    "environment": {"python": sys.executable, "version": sys.version, "platform": platform.platform(),
+                    "git": git("--version").decode().strip()},
+    "source_base": BASE, "source_target": TARGET, "actual_target_parent": parent,
+    "target_tree": git("rev-parse", TARGET + "^{tree}").decode().strip(),
+    "exact_target_parent_changed_paths": changed,
+    "source_inputs": [old_identity, new_identity, read(TARGET, README)[1]],
+    "new_group": added, "old_target_count": 12, "new_target_count": 15,
+    "all_prior_group_values_equal": True,
+    "full_module_ast_equal_after_removing_only_MYPY_GROUPS": True,
+    "all_unchanged_function_names": functions, "all_unchanged_gates": gates,
+    "named_worker_inputs_available_in_separate_owner_checkpoint": worker_inputs,
+    "qualification": "Future root must merge worker owner and exact launcher; tracked_read admission refuses any missing actual target. Separate4b availability is not final root completeness or actual mypy PASS.",
+    "reviewer_native_collection_mypy_quality_build": "UNRUN",
+}, indent=2))

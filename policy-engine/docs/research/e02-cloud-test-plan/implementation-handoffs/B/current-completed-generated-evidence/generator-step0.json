@@ -1,0 +1,44 @@
+{
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+    "run",
+    "--no-sync",
+    "--extra",
+    "runtime",
+    "--extra",
+    "ml",
+    "python",
+    "tools/ops_runners/runtime/export_runtime_openapi.py",
+    "--output",
+    "/dev/shm/e02-B-completed-generated-8142b14162f6/after.json",
+    "--scratch-root",
+    "/dev/shm/e02-B-completed-generated-8142b14162f6/runtime-cas"
+  ],
+  "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+  "head": "8142b14162f6417045ccbc560588da4341ac93ce",
+  "tree": "c9089aea682ca12a44633cb8e114c8d95a662780",
+  "head_after": "8142b14162f6417045ccbc560588da4341ac93ce",
+  "wall_s": 57.09763233900594,
+  "process_rusage_maxrss_kib": 1189828,
+  "exit_code": 0,
+  "exec_setup_error": null,
+  "harness_state": "EXECUTED",
+  "output_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-generated-step0-8142b14162f6.txt",
+  "output_sha256": "7d863b87367ac61d16b2e76d72ade0f70e7831e3a7d8cbc7c387b1db2c8be928",
+  "source_environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "LANG": "C.UTF-8",
+    "POLISYOS_METRICS_PORT": "0",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+    "E02_B_PROPERTY_REMOVAL": null,
+    "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+    "UV_NO_SYNC": "1",
+    "E02_B_COHORT_INVENTORY_PATH": null
+  },
+  "limitations": [
+    "Combined stdout/stderr; no separate stream-count claim.",
+    "Source boundary is HEAD identity; the launcher checks initial cleanliness.",
+    "RSS is wait4 child rusage, not an aggregate of independently concurrent gates."
+  ]
+}

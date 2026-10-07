@@ -1,0 +1,95 @@
+{
+  "artifacts": [
+    {
+      "bytes": 37,
+      "path": "/tmp/e02-B-reopened-compiled-plan-b8ea465a0e86/cache/.gitignore",
+      "sha256": "3ed731b65d06150c138e2dadb0be0697550888a6b47eb8c45ecc9adba8b8e9bd"
+    },
+    {
+      "bytes": 191,
+      "path": "/tmp/e02-B-reopened-compiled-plan-b8ea465a0e86/cache/CACHEDIR.TAG",
+      "sha256": "37dc88ef9a0abeddbe81053a6dd8fdfb13afb613045ea1eb4a5c815a74a3bde4"
+    },
+    {
+      "bytes": 302,
+      "path": "/tmp/e02-B-reopened-compiled-plan-b8ea465a0e86/cache/README.md",
+      "sha256": "73fd6fccdd802c419a6b2d983d6c3173b7da97558ac4b589edec2dfe443db9ad"
+    },
+    {
+      "bytes": 175,
+      "path": "/tmp/e02-B-reopened-compiled-plan-b8ea465a0e86/cache/v/cache/lastfailed",
+      "sha256": "9ff8ddd1d236b15ac3badd72ef70f4774253ffbfd0dfc01d9ed7d00696582530"
+    },
+    {
+      "bytes": 169,
+      "path": "/tmp/e02-B-reopened-compiled-plan-b8ea465a0e86/cache/v/cache/nodeids",
+      "sha256": "a41db361ab17e4df0ca368669d66eff89dd1d42cbcab57e5428f1ba96970d93a"
+    },
+    {
+      "bytes": 70376,
+      "path": "/tmp/e02-B-reopened-compiled-plan-b8ea465a0e86/module-origins.jsonl",
+      "sha256": "2230a10dbac76bdc961496485178b30a180d4fb0d921008220ab1b1152faa0a2"
+    },
+    {
+      "bytes": 4518,
+      "path": "/tmp/e02-B-reopened-compiled-plan-b8ea465a0e86/native-stdout.txt",
+      "sha256": "1861bcd797764c69d827ce199733c05cbef4614bca6000dadc8cadc6f35f7f0e"
+    },
+    {
+      "bytes": 2120,
+      "path": "/tmp/e02-B-reopened-compiled-plan-b8ea465a0e86/native.xml",
+      "sha256": "4fd0f625633560d5b9561aed501302db2c8605da21df1a69e8ddf1c9597a86ba"
+    },
+    {
+      "bytes": 2176,
+      "path": "/tmp/e02-B-reopened-compiled-plan-b8ea465a0e86/phases.jsonl",
+      "sha256": "b19d7be5fca85efd89e9bc7b9869defed7e59212c078daddc3cc0b65a42d95e5"
+    },
+    {
+      "bytes": 15853,
+      "path": "/tmp/e02-B-reopened-compiled-plan-b8ea465a0e86/profile.json",
+      "sha256": "c2ac0d7ce922c1f5e2e37b8ba2d7dd6345d05b1e5b6659fa57a25ef958f79b51"
+    },
+    {
+      "bytes": 310,
+      "path": "/tmp/e02-B-reopened-compiled-plan-b8ea465a0e86/property-removal-effects.jsonl",
+      "sha256": "0ec9de77c52ff2c1694015008c85b3e6f005d8e5cc1a9517a50114d4779d1d55"
+    }
+  ],
+  "counts": {
+    "actual_cases": 1,
+    "error": 0,
+    "failed": 1,
+    "passed": 0,
+    "skipped": 0
+  },
+  "elapsed_seconds": 4.553490543999942,
+  "finished_utc": "2026-10-06T21:25:54Z",
+  "returncode": 1,
+  "rusage_exact_pytest_pid": {
+    "maxrss_kib": 298884,
+    "pid": 524784,
+    "system_seconds": 0.6467569999999999,
+    "user_seconds": 3.893022
+  },
+  "source_checkout_after": {
+    "head": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+    "status": "",
+    "tree": "8909428c4fe4a03b6d481ed5e34f942b59f07318"
+  },
+  "source_checkout_before": {
+    "head": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+    "status": "",
+    "tree": "8909428c4fe4a03b6d481ed5e34f942b59f07318"
+  },
+  "test_checkout_after": {
+    "head": "5a3f466b0457ed4afbda53381617762a34cb05ed",
+    "status": "",
+    "tree": "0100344d597dc0c4fa8b08270883de40d8b51abc"
+  },
+  "test_checkout_before": {
+    "head": "5a3f466b0457ed4afbda53381617762a34cb05ed",
+    "status": "",
+    "tree": "0100344d597dc0c4fa8b08270883de40d8b51abc"
+  }
+}

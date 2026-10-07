@@ -1,0 +1,582 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-checkpoint-short-budget-independent-baseline",
+  "reviewer": "dur_probe (canonical EXE writer is a different agent)",
+  "closure_ids": [],
+  "finding_ids": [
+    "B40",
+    "B52"
+  ],
+  "bundle_ids": [
+    "RUN-01",
+    "EXE-01"
+  ],
+  "slice_base_sha": "19ccca2062d807b85eeda3d53c5f523c5b0d1024",
+  "implementation_commits": [
+    "6419cf76e49ab3e14bdf4d63057b549abc1193d2"
+  ],
+  "candidate_tree_sha": "986dbe527605c84729459756abbbdb421355e099",
+  "branch": "codex/e02-B-current-durability",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/43",
+  "changed_paths": [
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py"
+  ],
+  "production_changed_paths": [],
+  "baseline_cells": [],
+  "baseline_navigation": {
+    "git_sha": "99af508a5282854f3e609c5a94bc19ac55893dde",
+    "source_environment_input_refs": "results/{cells.tsv,events.jsonl,sources.json}; full-run/finding-routes.json",
+    "prior_resolved_check_index": {
+      "git_sha": "69592e5ca095011bfd724a01da1e1f44cfb9f9d4",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-independent-adjudication.json",
+      "locators": [
+        "#findings/B40",
+        "#findings/B52",
+        "#check_index"
+      ]
+    },
+    "meaning": "Navigation only; this new behavioral failure is established by actual456 execution, not baseline summary."
+  },
+  "canonical_source": {
+    "sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+    "card_path_template": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/{bundle_id}.md",
+    "digest_convention_qualification": {
+      "sha": "c0259ced95d65e5ae76ece2e1fc3ce3d49af0723",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-canonical-criterion-digest-qualification.json"
+    }
+  },
+  "criteria": [
+    {
+      "finding_id": "B40",
+      "bundle_id": "RUN-01",
+      "criterion": "One visible effective deadline covers queue/startup/retry/I/O/publication across sync/async forms and rejects late current writes.",
+      "canonical_criterion": {
+        "line_begin": 72,
+        "line_end": 91,
+        "source_block_sha256": "0f1f3de7c6168147385cad77e0eb9c8e974e6b51c28dd7bf6cc1533f5f655ed9"
+      }
+    },
+    {
+      "finding_id": "B52",
+      "bundle_id": "EXE-01",
+      "criterion": "Real cache read/write/recovery leaves independent coroutine responsive, shares absolute deadline and quarantines late cancelled cache publication.",
+      "canonical_criterion": {
+        "line_begin": 73,
+        "line_end": 90,
+        "source_block_sha256": "e4af31d50bb9263c6744fd0aef0e1fe452faa29181bb42294e0c1e0d4c441885"
+      }
+    }
+  ],
+  "long_counterexample": {
+    "sha": "19ccca2062d807b85eeda3d53c5f523c5b0d1024",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-baseline.json",
+    "test_sha": "fc29953ce1e50721ee31228d2ad72cd190486754",
+    "meaning": "Original35shead/60sworkflow materialFAIL and all prior deciding bytes remain unchanged."
+  },
+  "execution_source": {
+    "sha": "456f34938731b1ef11555d8333d011d3552574ec",
+    "tree": "d3bae9a9502b701e2ed73d9ffab07ba6a0883502",
+    "head_after": "456f34938731b1ef11555d8333d011d3552574ec",
+    "source_origins": {
+      "polisyos.common.async_tools": {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/common/async_tools.py",
+        "sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564"
+      },
+      "polisyos.core.artifacts.async_store": {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/artifacts/async_store.py",
+        "sha256": "875c3ddc24dd7248000c24f3384ec04907c145c3ca01a183a53eff24f90d5078"
+      },
+      "polisyos.scientist.orchestration.engine.async_executor": {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+        "sha256": "dddb447458dcce7090c0ada437a93a6863d4c87be99da80c140069da3c004002"
+      },
+      "polisyos.scientist.orchestration.engine.checkpoint": {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+        "sha256": "4712314f04747f9c29f601c71adb681cd921a6f89e4f7d426ab4850a11cb2b21"
+      }
+    },
+    "source_qualification": "Own committed test is executed against immutable root456 source. Conftest disabled because own ancestry inserts ownsrc; only built-in pytest fixtures are used. Initial wrong-source guard ERROR retained separately."
+  },
+  "checks": [
+    {
+      "id": "short-base456",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-s",
+        "--noconftest",
+        "/workspace/e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py",
+        "-c",
+        "/workspace/e02-B-current-coordination/policy-engine/pytest.ini",
+        "-o",
+        "addopts=",
+        "--basetemp",
+        "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/checkpoint-deadline-oracle/short-base456/pytest-scratch-first",
+        "--junitxml",
+        "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/checkpoint-deadline-oracle/short-base456/native.xml"
+      ],
+      "target_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "tree": "d3bae9a9502b701e2ed73d9ffab07ba6a0883502",
+      "head_after": "456f34938731b1ef11555d8333d011d3552574ec",
+      "environment": {
+        "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "E02_ORACLE_PRODUCT_ROOT": "/workspace/e02-B-current-coordination/policy-engine",
+        "caps_absent": [
+          "OMP_NUM_THREADS",
+          "MKL_NUM_THREADS",
+          "OPENBLAS_NUM_THREADS",
+          "NUMEXPR_NUM_THREADS",
+          "VECLIB_MAXIMUM_THREADS",
+          "BLIS_NUM_THREADS"
+        ],
+        "conftest": "disabled because own ancestry prepends ownsrc; only built-in pytest fixtures used"
+      },
+      "input_closure": "One healthy real registered async producer/CAS/head control, then2soriginalworkflowbudget actualcheckpointartifact/head-tempfsync/head-return/GC-history-read Event barriers andcallerCancel; all physical delegatesreal, freshCAS/head/history/workerreservation observations beforeassertions. ActualGC history contains3completeCAScheckpointfixtureinputs; no productiondataset orDB.",
+      "test_input": {
+        "path": "/workspace/e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py",
+        "sha256": "46688c0307f20d6a247a80b39cdc65f0d0e561be00e59896b0fa2069a2eba273",
+        "bytes": 11039
+      },
+      "supporting_input": {
+        "path": "/workspace/e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py",
+        "sha256": "05623df2c82e8538591a262daca17bd0bd27f196c106a8a8552b95c8de9fbd58",
+        "git_sha": "fc29953ce1e50721ee31228d2ad72cd190486754"
+      },
+      "outcome": "ERROR",
+      "actual_exit": 2,
+      "actual_junit_counts": {
+        "cases": 1,
+        "failures": 0,
+        "errors": 1,
+        "skipped": 0,
+        "passed": 0
+      },
+      "wall_s": 1.149660518989549,
+      "process_rusage_maxrss_kib": 85480,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/short-base456/native.txt",
+      "output_sha256": "e06965d6b78cd59fa300228a7e0c3c99f524cecc1a46af24111b4ac812c9091c",
+      "output_bytes": 1179,
+      "wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/short-base456/native-wrapper.json",
+      "xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/short-base456/native.xml",
+      "meaning": "Collection ERROR: wrong absolute native sibling import; no runtime property established."
+    },
+    {
+      "id": "short-base456-relative",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-s",
+        "--noconftest",
+        "/workspace/e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py",
+        "-c",
+        "/workspace/e02-B-current-coordination/policy-engine/pytest.ini",
+        "-o",
+        "addopts=",
+        "--basetemp",
+        "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/checkpoint-deadline-oracle/short-base456-relative/pytest-scratch-first",
+        "--junitxml",
+        "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/checkpoint-deadline-oracle/short-base456-relative/native.xml"
+      ],
+      "target_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "tree": "d3bae9a9502b701e2ed73d9ffab07ba6a0883502",
+      "head_after": "456f34938731b1ef11555d8333d011d3552574ec",
+      "environment": {
+        "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "E02_ORACLE_PRODUCT_ROOT": "/workspace/e02-B-current-coordination/policy-engine",
+        "caps_absent": [
+          "OMP_NUM_THREADS",
+          "MKL_NUM_THREADS",
+          "OPENBLAS_NUM_THREADS",
+          "NUMEXPR_NUM_THREADS",
+          "VECLIB_MAXIMUM_THREADS",
+          "BLIS_NUM_THREADS"
+        ],
+        "conftest": "disabled because own ancestry prepends ownsrc; only built-in pytest fixtures used"
+      },
+      "input_closure": "One healthy real registered async producer/CAS/head control, then2soriginalworkflowbudget actualcheckpointartifact/head-tempfsync/head-return/GC-history-read Event barriers andcallerCancel; all physical delegatesreal, freshCAS/head/history/workerreservation observations beforeassertions. ActualGC history contains3completeCAScheckpointfixtureinputs; no productiondataset orDB.",
+      "test_input": {
+        "path": "/workspace/e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py",
+        "sha256": "965c94f4dc0ce9ef423d817db5fa8d331aa4fca44322b522f03503ef1a19ccea",
+        "bytes": 11041
+      },
+      "supporting_input": {
+        "path": "/workspace/e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py",
+        "sha256": "05623df2c82e8538591a262daca17bd0bd27f196c106a8a8552b95c8de9fbd58",
+        "git_sha": "fc29953ce1e50721ee31228d2ad72cd190486754"
+      },
+      "outcome": "FAIL",
+      "actual_exit": 1,
+      "actual_junit_counts": {
+        "cases": 6,
+        "failures": 5,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 1
+      },
+      "wall_s": 29.25550878699869,
+      "process_rusage_maxrss_kib": 704388,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/short-base456-relative/native.txt",
+      "output_sha256": "63be74c9568cdaa5a0cbc5969874834bd2b73dde2d9ef79dedecc87337a829f1",
+      "output_bytes": 55967,
+      "wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/short-base456-relative/native-wrapper.json",
+      "xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/short-base456-relative/native.xml",
+      "meaning": "Actual native1PASS5FAIL. Three call-phase recording TypeError failures from mappingproxy JSON serialization, one GC barrier-not-entered call TimeoutError and one material caller-cancel/late-head failure. The four bad recording/premise cases are semantically not_established, not reclassified into native setup/teardownERROR counts."
+    },
+    {
+      "id": "short-base456-final",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-s",
+        "--noconftest",
+        "/workspace/e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py",
+        "-c",
+        "/workspace/e02-B-current-coordination/policy-engine/pytest.ini",
+        "-o",
+        "addopts=",
+        "--basetemp",
+        "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/checkpoint-deadline-oracle/short-base456-final/pytest-scratch-first",
+        "--junitxml",
+        "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/checkpoint-deadline-oracle/short-base456-final/native.xml"
+      ],
+      "target_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "tree": "d3bae9a9502b701e2ed73d9ffab07ba6a0883502",
+      "head_after": "456f34938731b1ef11555d8333d011d3552574ec",
+      "environment": {
+        "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "E02_ORACLE_PRODUCT_ROOT": "/workspace/e02-B-current-coordination/policy-engine",
+        "caps_absent": [
+          "OMP_NUM_THREADS",
+          "MKL_NUM_THREADS",
+          "OPENBLAS_NUM_THREADS",
+          "NUMEXPR_NUM_THREADS",
+          "VECLIB_MAXIMUM_THREADS",
+          "BLIS_NUM_THREADS"
+        ],
+        "conftest": "disabled because own ancestry prepends ownsrc; only built-in pytest fixtures used"
+      },
+      "input_closure": "One healthy real registered async producer/CAS/head control, then2soriginalworkflowbudget actualcheckpointartifact/head-tempfsync/head-return/GC-history-read Event barriers andcallerCancel; all physical delegatesreal, freshCAS/head/history/workerreservation observations beforeassertions. ActualGC history contains3completeCAScheckpointfixtureinputs; no productiondataset orDB.",
+      "test_input": {
+        "path": "/workspace/e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py",
+        "sha256": "b9e2005611669331441083aac3740f506bc6415f8b02bb01fb2d8310b5a7a57a",
+        "bytes": 11173
+      },
+      "supporting_input": {
+        "path": "/workspace/e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py",
+        "sha256": "05623df2c82e8538591a262daca17bd0bd27f196c106a8a8552b95c8de9fbd58",
+        "git_sha": "fc29953ce1e50721ee31228d2ad72cd190486754"
+      },
+      "outcome": "FAIL",
+      "actual_exit": 1,
+      "actual_junit_counts": {
+        "cases": 6,
+        "failures": 3,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 3
+      },
+      "wall_s": 20.89508473800379,
+      "process_rusage_maxrss_kib": 703652,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/short-base456-final/native.txt",
+      "output_sha256": "ffaa826ee1d3b4d22352f185b7fcb7010b27cb08c1da46d51d98fbaa12982547",
+      "output_bytes": 41568,
+      "wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/short-base456-final/native-wrapper.json",
+      "xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/short-base456-final/native.xml",
+      "meaning": "Corrected observer/input, actual3PASS3materialFAIL: deadline and cancellation after actualheadtempfsync permitlatehead; GC expired actualhistoryread permitslatehistorytrim4→2. Healthy/immutableartifact/ontimehead-return controlsPASS."
+    }
+  ],
+  "corrected_input_delta": {
+    "import": "5962 forwards absolute native sibling import to same-package relative import; healthy fc299 byte unchanged.",
+    "recording": "6419 converts immutable exception.details mapping to JSON-compatible dict.",
+    "gc_reachability": "6419 gates actual Path.read_text primitive used by canonical load_checkpoint_history; original read_bytes gate did not enter and is not evidence of GC behavior.",
+    "property_assertions": "All original no-late-head/no-late-GC/preserve-on-time-head/unknown/reservation assertions retained."
+  },
+  "actual_observations": [
+    {
+      "answer": 7,
+      "completed_nodes": [
+        "answer"
+      ],
+      "producer_calls": 1,
+      "report_status": "ok",
+      "verified": true
+    },
+    {
+      "accepted_result": false,
+      "budget_seconds": 2,
+      "counts_after_physical_return": {
+        "checkpoint_put": 1,
+        "gc_entered": 0,
+        "head_replace": 0
+      },
+      "counts_at_return": {
+        "checkpoint_put": 1,
+        "gc_entered": 0,
+        "head_replace": 0
+      },
+      "error_details": {
+        "execution_state": "unknown",
+        "publication_operation": "checkpoint"
+      },
+      "error_type": "WorkflowTimeoutError",
+      "head_after_physical_return": false,
+      "head_at_return": false,
+      "history_entries": 0,
+      "history_unchanged_after_gc_read": null,
+      "physical_finished_at_return": false,
+      "physical_workers_after": 0,
+      "physical_workers_at_return": 1,
+      "producer_calls": 1,
+      "reserved_jobs_after": 0,
+      "reserved_jobs_at_return": 1,
+      "stage": "artifact",
+      "stop": "deadline"
+    },
+    {
+      "accepted_result": false,
+      "budget_seconds": 2,
+      "checkpoint_verified": true,
+      "counts_after_physical_return": {
+        "checkpoint_put": 1,
+        "gc_entered": 0,
+        "head_replace": 1
+      },
+      "counts_at_return": {
+        "checkpoint_put": 1,
+        "gc_entered": 0,
+        "head_replace": 0
+      },
+      "error_details": {
+        "execution_state": "unknown",
+        "publication_operation": "checkpoint"
+      },
+      "error_type": "WorkflowTimeoutError",
+      "head_after_physical_return": true,
+      "head_at_return": false,
+      "history_entries": 1,
+      "history_unchanged_after_gc_read": null,
+      "physical_finished_at_return": false,
+      "physical_workers_after": 0,
+      "physical_workers_at_return": 1,
+      "producer_calls": 1,
+      "reopened_answer": 7,
+      "reserved_jobs_after": 0,
+      "reserved_jobs_at_return": 1,
+      "stage": "head_fsync",
+      "stop": "deadline"
+    },
+    {
+      "accepted_result": false,
+      "budget_seconds": 2,
+      "checkpoint_verified": true,
+      "counts_after_physical_return": {
+        "checkpoint_put": 1,
+        "gc_entered": 0,
+        "head_replace": 1
+      },
+      "counts_at_return": {
+        "checkpoint_put": 1,
+        "gc_entered": 0,
+        "head_replace": 0
+      },
+      "error_details": null,
+      "error_type": "CancelledError",
+      "head_after_physical_return": true,
+      "head_at_return": false,
+      "history_entries": 1,
+      "history_unchanged_after_gc_read": null,
+      "physical_finished_at_return": false,
+      "physical_workers_after": 0,
+      "physical_workers_at_return": 1,
+      "producer_calls": 1,
+      "reopened_answer": 7,
+      "reserved_jobs_after": 0,
+      "reserved_jobs_at_return": 1,
+      "stage": "head_fsync",
+      "stop": "cancel"
+    },
+    {
+      "accepted_result": false,
+      "budget_seconds": 2,
+      "checkpoint_verified": true,
+      "counts_after_physical_return": {
+        "checkpoint_put": 1,
+        "gc_entered": 0,
+        "head_replace": 1
+      },
+      "counts_at_return": {
+        "checkpoint_put": 1,
+        "gc_entered": 0,
+        "head_replace": 1
+      },
+      "error_details": {
+        "execution_state": "unknown",
+        "publication_operation": "checkpoint"
+      },
+      "error_type": "WorkflowTimeoutError",
+      "head_after_physical_return": true,
+      "head_at_return": true,
+      "history_entries": 1,
+      "history_unchanged_after_gc_read": null,
+      "physical_finished_at_return": false,
+      "physical_workers_after": 0,
+      "physical_workers_at_return": 1,
+      "producer_calls": 1,
+      "reopened_answer": 7,
+      "reserved_jobs_after": 0,
+      "reserved_jobs_at_return": 1,
+      "stage": "head_return",
+      "stop": "deadline"
+    },
+    {
+      "accepted_result": false,
+      "budget_seconds": 2,
+      "checkpoint_verified": true,
+      "counts_after_physical_return": {
+        "checkpoint_put": 1,
+        "gc_entered": 1,
+        "head_replace": 1
+      },
+      "counts_at_return": {
+        "checkpoint_put": 1,
+        "gc_entered": 1,
+        "head_replace": 1
+      },
+      "error_details": {
+        "execution_state": "unknown",
+        "publication_operation": "checkpoint"
+      },
+      "error_type": "WorkflowTimeoutError",
+      "head_after_physical_return": true,
+      "head_at_return": true,
+      "history_entries": 2,
+      "history_unchanged_after_gc_read": false,
+      "physical_finished_at_return": false,
+      "physical_workers_after": 0,
+      "physical_workers_at_return": 1,
+      "producer_calls": 1,
+      "reopened_answer": 7,
+      "reserved_jobs_after": 0,
+      "reserved_jobs_at_return": 1,
+      "stage": "gc_read",
+      "stop": "deadline"
+    }
+  ],
+  "property": {
+    "statement": "Expiry/caller cancellation revokes admission of new head/GC publication while retaining the already-entered real worker until completion; an already-published head remains valid and is not rolled back.",
+    "runtime_path": [
+      "genuine registered async producer",
+      "actual FileSystemCAS checkpoint write",
+      "real checkpoint head tempfile fsync/os.replace/history",
+      "canonical GC Path.read_text and atomic history writer",
+      "workflow typed refusal, freshCAS/head/history and finite worker reservation observer"
+    ],
+    "proxy_divergence": "Caller refusal and correct post-await guard alone do not prove publication admission was revoked. On456 real delayedheadfsync publishes a fresh head after owner expiry/cancel, and real delayedGC historyread trims history4→2 after expiry.",
+    "negative_controls": [
+      "Original deadline at actual headtempfsync; callerCancel at that same actual primitive; original deadline at actual GC historytextread.",
+      "Entered immutable CAS write may complete after expiry but no head is admitted (PASS); on-time real head with delayedreturn survives, and no new GC is entered (PASS).",
+      "Healthy unmodified real consumer verifies answer7/completed[answer]/singleproducer (PASS)."
+    ],
+    "authority_purpose": "Only finite local publication consumer law; no scientific truth, institutional budget or external effect authority supplied by fixture."
+  },
+  "predicate_basis": "recomputed",
+  "predicate_quantities": {
+    "fixture_inputs": {
+      "basis": "consumer_asserted",
+      "scope": "Registered synthetic node, answer7, configured20s healthy/2s short budgets and Event barriers are declared test inputs; no institutional grant."
+    },
+    "source_identity": {
+      "basis": "recomputed",
+      "scope": "Four actual same-child root456 module origins and content hashes checked before behavior."
+    },
+    "runtime_observations": {
+      "basis": "recomputed",
+      "scope": "DUR executes actual producer/artifact/publication/reopen and typed refusal measurements; each assertion observes finite fixture state."
+    },
+    "private_worker_counters": {
+      "basis": "recomputed",
+      "scope": "Finite isolated child observations of canonical shared executor physical/reservation counters at return and after delegate completion; not a universal physical ownership theorem."
+    }
+  },
+  "capability_state_or_finding_state": "ACTUAL_BASELINE_FAILURE; canonical EXE repair and unchanged-input candidate replay pending; closure[]",
+  "finding_dispositions": [
+    {
+      "finding_id": "B40",
+      "status": "open",
+      "reason": "Actual original-budget publication class fails on456; independent candidate/source/cohort acceptance pending, not a permanent harmless scope limit."
+    },
+    {
+      "finding_id": "B52",
+      "status": "open",
+      "reason": "Actual original-budget publication class fails on456; independent candidate/source/cohort acceptance pending, not a permanent harmless scope limit."
+    }
+  ],
+  "limitations_and_next_owner": [
+    "EXE sole production owner repairs artifact→head→GC absolute budget/owner admission; CMP reads immutable source; DUR replays exact fc299 long and corrected6419 six short inputs.",
+    "Already-entered I/O may finish; immutable late artifact or already-published valid head is not accepted workflow success. Physical publication uncertainty remains typedunknown; never pretend rollback.",
+    "Recording/premise draft failures are preserved with their actual native counts and semantic not_established classification.",
+    "Root/G alone applies final finding/code acceptance after exact successor inputs and integrated cohort."
+  ],
+  "evidence_files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/short-base456/native.txt",
+      "sha256": "e06965d6b78cd59fa300228a7e0c3c99f524cecc1a46af24111b4ac812c9091c",
+      "bytes": 1179
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/short-base456/native.xml",
+      "sha256": "d8b0144c1ed018aa36fc2aa039a6852de5e50fb234dbaa3e11e6b57031cfa150",
+      "bytes": 1182
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/short-base456/native-wrapper.json",
+      "sha256": "34d3e82eb19331bb4ed93e836a6b457c2abd19ca399875e7f6c1ccc8959a1293",
+      "bytes": 3072
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/short-base456-relative/native.txt",
+      "sha256": "63be74c9568cdaa5a0cbc5969874834bd2b73dde2d9ef79dedecc87337a829f1",
+      "bytes": 55967
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/short-base456-relative/native.xml",
+      "sha256": "3dfe73092fe692dc23b544f72c10bdd803e5a0090bd38e9666bc8425d341ff64",
+      "bytes": 54293
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/short-base456-relative/native-wrapper.json",
+      "sha256": "26af9c06f79173efde2afb9277fd0da626569f41276081c098d073b92ae94fa4",
+      "bytes": 3101
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/short-base456-final/native.txt",
+      "sha256": "ffaa826ee1d3b4d22352f185b7fcb7010b27cb08c1da46d51d98fbaa12982547",
+      "bytes": 41568
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/short-base456-final/native.xml",
+      "sha256": "c02a760d92979567db558c145a57eccbd9bfc1de4129672b2bc97c9d51ae16b5",
+      "bytes": 33511
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/short-base456-final/native-wrapper.json",
+      "sha256": "566dabcd499c5e62829b633d5821b07c8f5488c0cf2b53fa09582e4a2574aefe",
+      "bytes": 3092
+    }
+  ],
+  "worktree_admission": {
+    "create": "/workspace/e02-B-current-admission/durability-create.json",
+    "resume": "/workspace/e02-B-current-admission/durability-resume.json",
+    "qualification": "Existing admitted attached lane; no new checkout/tree."
+  }
+}

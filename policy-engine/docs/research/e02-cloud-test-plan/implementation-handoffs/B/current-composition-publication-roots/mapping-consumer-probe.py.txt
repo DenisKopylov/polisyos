@@ -1,0 +1,22 @@
+import hashlib,json,pathlib,uuid
+import numpy as np
+import polisyos.foundry.methods.backends.checkpointing as module
+records=[]
+root=pathlib.Path('_build/e02-B-current-composition/raw')
+for label,key in [('integer',1),('boolean',True),('null',None),('reserved_tag','__npy_ref__')]:
+ fixture=root/('mapping-consumer-'+uuid.uuid4().hex);fixture.mkdir()
+ if fixture.is_dir():
+  path=pathlib.Path(fixture)/'selected.json'
+  module.ChainCheckpoint('mapping',[],[],{'arr':np.array([1.0])}).save(path)
+  previous=path.read_bytes()
+  nested={key:np.array([2.0])} if label!='reserved_tag' else {'__npy_ref__':'ordinary user label','arr':np.array([2.0])}
+  module.ChainCheckpoint('mapping',[],[],{'nested':[nested]}).save(path)
+  record={'fixture':str(path.parent.resolve()),'case':label,'save_acknowledged':True,'selected_pointer_changed':path.read_bytes()!=previous,'original_key_type':type(key).__name__}
+  try:
+   restored=module.ChainCheckpoint.load(path).intermediate_state['nested'][0]
+  except module.CheckpointLoadError as error:
+   assert label=='reserved_tag';record.update(consumer_refusal=type(error).__name__,message=str(error))
+  else:
+   restored_key=next(iter(restored));record.update(restored_key=restored_key,restored_key_type=type(restored_key).__name__,value=restored[restored_key].tolist());assert type(restored_key) is str and type(key) is not str
+  records.append(record)
+print(json.dumps({'property':'Unrestricted mapping roundtrip is FALSE on this candidate; requested finite string-key/reserved-tag refusal boundary not enforced before acknowledged publication','module_path':module.__file__,'module_sha256':hashlib.sha256(pathlib.Path(module.__file__).read_bytes()).hexdigest(),'actual_consumers':records},indent=2))

@@ -1,0 +1,76 @@
+{
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "ruff",
+    "format",
+    "--check",
+    "src/polisyos/foundry/methods/artifacts/_chain.py",
+    "src/polisyos/foundry/methods/artifacts/parts.py",
+    "src/polisyos/foundry/methods/components/composer.py",
+    "src/polisyos/foundry/methods/components/composer.pyi",
+    "tools/devx/foundry/generate_stubs.py",
+    "tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py"
+  ],
+  "cwd": "/workspace/e02-B-current-composition/policy-engine",
+  "environment": {
+    "PYTHONPATH": "src",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "POLISYOS_METRICS_PORT": "0",
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback"
+  },
+  "caps_absent": true,
+  "start": "2026-10-06T21:27:15.347525+00:00",
+  "end": "2026-10-06T21:27:15.389559+00:00",
+  "wall_seconds": 0.04204559326171875,
+  "exit_code": 0,
+  "raw_wait_status": 0,
+  "rusage": {
+    "maxrss_kib": 15232,
+    "user_seconds": 0.026289999999999997,
+    "system_seconds": 0.017543
+  },
+  "source_before": {
+    "head": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+    "tree": "8909428c4fe4a03b6d481ed5e34f942b59f07318",
+    "status": "",
+    "files": {
+      "policy-engine/src/polisyos/foundry/methods/artifacts/_method.py": "89d11c480c8ccb563251d5c9e1bfa2919aeb8f52a91344f8086c73d5f01ab6f0",
+      "policy-engine/src/polisyos/foundry/methods/artifacts/_records.py": "00581f80f2fed76e28262dc7a44f42961630986687614adb39a11fe7f3ca12b3",
+      "policy-engine/src/polisyos/foundry/methods/artifacts/parts.py": "5e897d5bf6ca57ecda7a3fcca4c2480206a9c1fa6d889c735cbe0d9ce53c2092",
+      "policy-engine/src/polisyos/foundry/methods/artifacts/__init__.py": "79a2f5203ae44074bc81e1fe6074adf23b1942960bbe62527b16772c1d827670",
+      "policy-engine/src/polisyos/foundry/methods/artifacts/_evidence.py": "8e2f98d7ec77e9c44d5b150857e775750727a31dee69ca10694adf9518a466f7",
+      "policy-engine/src/polisyos/foundry/methods/artifacts/_chain.py": "6b6a46c9a585f05fc39a62737c501cab9d0536e349867752d1e79becbc75b51c",
+      "policy-engine/src/polisyos/foundry/methods/artifacts/_fingerprint.py": "69718adeb434cb860fdefd6f59e244f9fc0f7d7e0b1fabbeb78ff065e737f0c1",
+      "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py": "5687fea7a29fb35a6093d2baa3f0a0c12674552dd4c29ee7867e096e19cee35d",
+      "policy-engine/src/polisyos/foundry/methods/components/composer.py": "0e3baea23e3c4804668d4e1116409c1c1522f1a15e507c317389b947b31c3c68",
+      "policy-engine/src/polisyos/foundry/methods/components/composer.pyi": "c380973bd774965e21d516dff62233ee4af9a76423c4be9eddfb838c9a7af3ac",
+      "policy-engine/tools/devx/foundry/generate_stubs.py": "62bb6024d115cc253a25f6ba952cd1f4794fbccb6635dc7bdc51405ccc38890f",
+      "policy-engine/tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py": "07057da879f17797318fd14b7bc1f2bd3a1645d12cfa873e4ac71b1f2a149c00"
+    }
+  },
+  "source_after": {
+    "head": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+    "tree": "8909428c4fe4a03b6d481ed5e34f942b59f07318",
+    "status": "",
+    "files": {
+      "policy-engine/src/polisyos/foundry/methods/artifacts/_method.py": "89d11c480c8ccb563251d5c9e1bfa2919aeb8f52a91344f8086c73d5f01ab6f0",
+      "policy-engine/src/polisyos/foundry/methods/artifacts/_records.py": "00581f80f2fed76e28262dc7a44f42961630986687614adb39a11fe7f3ca12b3",
+      "policy-engine/src/polisyos/foundry/methods/artifacts/parts.py": "5e897d5bf6ca57ecda7a3fcca4c2480206a9c1fa6d889c735cbe0d9ce53c2092",
+      "policy-engine/src/polisyos/foundry/methods/artifacts/__init__.py": "79a2f5203ae44074bc81e1fe6074adf23b1942960bbe62527b16772c1d827670",
+      "policy-engine/src/polisyos/foundry/methods/artifacts/_evidence.py": "8e2f98d7ec77e9c44d5b150857e775750727a31dee69ca10694adf9518a466f7",
+      "policy-engine/src/polisyos/foundry/methods/artifacts/_chain.py": "6b6a46c9a585f05fc39a62737c501cab9d0536e349867752d1e79becbc75b51c",
+      "policy-engine/src/polisyos/foundry/methods/artifacts/_fingerprint.py": "69718adeb434cb860fdefd6f59e244f9fc0f7d7e0b1fabbeb78ff065e737f0c1",
+      "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py": "5687fea7a29fb35a6093d2baa3f0a0c12674552dd4c29ee7867e096e19cee35d",
+      "policy-engine/src/polisyos/foundry/methods/components/composer.py": "0e3baea23e3c4804668d4e1116409c1c1522f1a15e507c317389b947b31c3c68",
+      "policy-engine/src/polisyos/foundry/methods/components/composer.pyi": "c380973bd774965e21d516dff62233ee4af9a76423c4be9eddfb838c9a7af3ac",
+      "policy-engine/tools/devx/foundry/generate_stubs.py": "62bb6024d115cc253a25f6ba952cd1f4794fbccb6635dc7bdc51405ccc38890f",
+      "policy-engine/tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py": "07057da879f17797318fd14b7bc1f2bd3a1645d12cfa873e4ac71b1f2a149c00"
+    }
+  },
+  "stdout": {
+    "path": "/dev/shm/e02-B-cmp-b43-freeze/format-9ce.txt",
+    "bytes": 26,
+    "sha256": "ef7d13d02214e98ca902b05257cdbe6a8e84f3b4714508efdc19766460b54209"
+  }
+}

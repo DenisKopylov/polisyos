@@ -1,0 +1,1 @@
+{"report": "/tmp/e02-B-current-execution-state/terminal456-gate-audit.json", "gate_counts": {"FAIL": 8}}

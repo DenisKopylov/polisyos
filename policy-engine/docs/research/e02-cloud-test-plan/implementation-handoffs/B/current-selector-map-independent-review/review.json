@@ -1,0 +1,353 @@
+{
+  "schema": "policyos.e02.foreign_selector_map_independent_review.v1",
+  "created_at_utc": "2026-10-06T19:52:52.631935+00:00",
+  "reviewer": "/root/cas_probe",
+  "decision": "NONBLOCKING for source-only mapping labels and declared preconditions",
+  "source_target": {
+    "sha": "dd9584728bd96f204983615216efdbc58117e713",
+    "tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e"
+  },
+  "map_target": {
+    "sha": "e50bcdc2913305ac52adc7b6313fd3cc502950cf",
+    "tree": "64686b4279b7b2d8dd037d62e9bb3b1ab9c1bc3f"
+  },
+  "old_map": {
+    "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-equivalents.json",
+    "git_blob": "6c21c1a371c5f37aa0ce1aeb6eac4065b570baac",
+    "bytes": 21891,
+    "sha256": "2c916a62658080fc836e3c49778e9ceb60bd60bbd0fc908b2d5bad1ebc5b9358"
+  },
+  "new_map": {
+    "source_sha": "e50bcdc2913305ac52adc7b6313fd3cc502950cf",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-equivalents.json",
+    "git_blob": "6f468b78c851408f2dfda5e48483a2b309227742",
+    "bytes": 49833,
+    "sha256": "28cd03084e8ce77f913c5f8de1aefbfdbf99148c8702c531df900a5fe50b5863"
+  },
+  "actual_own_head_at_metadata_execution": "1f330782463d6ec69befab02bd98322296a983c7",
+  "scope": {
+    "keys": 15,
+    "changed_values": 14,
+    "unchanged_values": [
+      "tests/unit/foundry/methods/test_compiler_e02.py"
+    ],
+    "candidate_ids_changed_only": [
+      "B14",
+      "B148",
+      "B149",
+      "B150",
+      "B151",
+      "B153",
+      "B24",
+      "B37",
+      "B40",
+      "B51",
+      "B52",
+      "B55",
+      "B57",
+      "B58",
+      "B59",
+      "B60",
+      "B62",
+      "B67",
+      "B68",
+      "B69",
+      "B72",
+      "B73",
+      "B77",
+      "B87",
+      "B89",
+      "B90",
+      "B91",
+      "B92",
+      "B93",
+      "B95",
+      "LA-057"
+    ],
+    "candidate_id_count_changed_only": 31,
+    "review_criteria_count_including_held_B61": 32,
+    "canonical_bundle_count": 13,
+    "candidate_rows_changed_values": 72,
+    "distinct_literal_function_bodies": 68,
+    "named_absent_changed": [
+      "tests/integration/scientist/test_async_cache_recovery.py",
+      "tests/integration/scientist/test_execution_state_replay.py",
+      "tests/unit/core/artifacts/test_import_tenant_context.py",
+      "tests/unit/core/artifacts/test_transfer_output_paths.py",
+      "tests/unit/core/artifacts/test_transfer_publication.py",
+      "tests/unit/remediation/test_dur_01.py",
+      "tests/unit/remediation/test_exe_01.py",
+      "tests/unit/remediation/test_llm_02.py",
+      "tests/unit/remediation/test_net_01.py",
+      "tests/unit/remediation/test_net_02.py",
+      "tests/unit/remediation/test_run_01.py",
+      "tests/unit/remediation/test_run_02.py",
+      "tests/unit/remediation/test_sta_01.py",
+      "tests/unit/remediation/test_sta_02.py"
+    ],
+    "incidental_absent": [
+      "tests/arbitrary/test_canonical_absent.py",
+      "tests/arbitrary/test_incidental_absent.py",
+      "tests/arbitrary/test_present.py",
+      "tests/controlled/nested/test_second.py",
+      "tests/controlled/secondary_test.py",
+      "tests/controlled/test_first.py",
+      "tests/outside/test_outside.py"
+    ],
+    "all_absent": 21
+  },
+  "read_basis": "All fourteen changed map values, all thirty-two literal canonical criterion blocks (including held B61), and all sixty-eight distinct DD function bodies were read. Exact raw canonical lines, thirteen card identities, manifest, source function AST/class resolution and body hashes were independently reconciled. This statement is a source-reading basis, not a native effect verdict.",
+  "row_reviews": [
+    {
+      "named_selector": "tests/integration/scientist/test_async_cache_recovery.py",
+      "source_only_decision": "NONBLOCKING_label_and_precondition_correspondence",
+      "finding_ids": [
+        "B51",
+        "B52",
+        "B57"
+      ],
+      "candidate_descriptor_rows": 3,
+      "defining_quantity": "B52/B57 actual off-loop cold trace/checkpoint intake and real operation replay; B51 read budget versus exhausted compute budget.",
+      "bounded_preconditions_and_negative_caveats": "The physical read must actually enter before the late-read/cancel assertion; this review establishes source precondition shape, not that this premise entered or passed in current DD runtime.",
+      "runtime_outcome": "NOT_ADJUDICATED",
+      "original_named_status": "UNRUN_absent_at_DD",
+      "residual_preserved": true
+    },
+    {
+      "named_selector": "tests/integration/scientist/test_execution_state_replay.py",
+      "source_only_decision": "NONBLOCKING_label_and_precondition_correspondence",
+      "finding_ids": [
+        "B52",
+        "B57",
+        "B58",
+        "B72",
+        "B73",
+        "B77"
+      ],
+      "candidate_descriptor_rows": 7,
+      "defining_quantity": "B57 explicit same-value write plus unrelated-current preservation; B58 delete/null/no-write; B72 native skip width/frontier/reopened resume; B73 checkpoint/compensation and retained output; B77 native dependencies/readiness with actual CAS lineage.",
+      "bounded_preconditions_and_negative_caveats": "B73 stop is a _SimulatedWorkerStopError after canonical tier checkpoint and a fresh spawned resume; it is not producer SIGKILL. B72 tests the named native skip widths, not every conditional skip law. Compensation does not erase external CAS effects.",
+      "runtime_outcome": "NOT_ADJUDICATED",
+      "original_named_status": "UNRUN_absent_at_DD",
+      "residual_preserved": true
+    },
+    {
+      "named_selector": "tests/unit/core/artifacts/test_import_tenant_context.py",
+      "source_only_decision": "NONBLOCKING_label_and_precondition_correspondence",
+      "finding_ids": [
+        "B148",
+        "B150",
+        "B151",
+        "B153"
+      ],
+      "candidate_descriptor_rows": 7,
+      "defining_quantity": "B148 pre-stage foreign/unbound/cell admission and same-owner true no-op; B150 profile/ref agreement and first-writer history; B151 damaged duplicate put plus operator repair and missing-sidecar positives; B153 bounded actual owner leases.",
+      "bounded_preconditions_and_negative_caveats": "CAS author review is confined to descriptor/body correspondence, not independent acceptance of own mechanics. B148 normative authority decision stays HELD. B153 pressure uses 3000 actual artifact_lease acquisitions, not 3000 put calls or whole-system RSS; its active-stripe exclusion is explicit.",
+      "runtime_outcome": "NOT_ADJUDICATED",
+      "original_named_status": "UNRUN_absent_at_DD",
+      "residual_preserved": true
+    },
+    {
+      "named_selector": "tests/unit/core/artifacts/test_transfer_output_paths.py",
+      "source_only_decision": "NONBLOCKING_label_and_precondition_correspondence",
+      "finding_ids": [
+        "B149"
+      ],
+      "candidate_descriptor_rows": 1,
+      "defining_quantity": "B149 same logical destination, exact new inventory and stable old-generation readback, including include_manifests switch.",
+      "bounded_preconditions_and_negative_caveats": "Generation inventory is separate from B148 ownership law. Supported-platform scope and old/new package readback do not imply universal OS, powerloss or hostile-filesystem proof.",
+      "runtime_outcome": "NOT_ADJUDICATED",
+      "original_named_status": "UNRUN_absent_at_DD",
+      "residual_preserved": true
+    },
+    {
+      "named_selector": "tests/unit/core/artifacts/test_transfer_publication.py",
+      "source_only_decision": "NONBLOCKING_label_and_precondition_correspondence",
+      "finding_ids": [
+        "B149"
+      ],
+      "candidate_descriptor_rows": 2,
+      "defining_quantity": "B149 actual child interruption after the publication syscall and real fsync fault retain full old/new readable package boundaries.",
+      "bounded_preconditions_and_negative_caveats": "The child process is explicitly stopped after reaching the real publication boundary. This finite syscall fault model does not assert durability after a failed acknowledgement or multi-host behavior.",
+      "runtime_outcome": "NOT_ADJUDICATED",
+      "original_named_status": "UNRUN_absent_at_DD",
+      "residual_preserved": true
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_dur_01.py",
+      "source_only_decision": "NONBLOCKING_label_and_precondition_correspondence",
+      "finding_ids": [
+        "B37"
+      ],
+      "candidate_descriptor_rows": 4,
+      "defining_quantity": "B37 cold public mutation/bootstrap refusal, malformed snapshots, cold/warm real process publication faults and four writer/one reader middleware consumers.",
+      "bounded_preconditions_and_negative_caveats": "Five named fault stages times cold/warm include four actual kill cases, not ten kills. Concurrent fixture counts are property inputs, not a cloud process quota. Full required-wire controls remain distinct.",
+      "runtime_outcome": "NOT_ADJUDICATED",
+      "original_named_status": "UNRUN_absent_at_DD",
+      "residual_preserved": true
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_exe_01.py",
+      "source_only_decision": "NONBLOCKING_label_and_precondition_correspondence",
+      "finding_ids": [
+        "B51",
+        "B52",
+        "B55"
+      ],
+      "candidate_descriptor_rows": 5,
+      "defining_quantity": "B55 queued fail-fast admission, B52 completed verified cache storage/trace, B51 read-vs-compute cache budget, and B55 explicit queued waiters/slot/frontier controls.",
+      "bounded_preconditions_and_negative_caveats": "The legacy max_parallelism=1 body is not event-gated and does not exercise external cancellation; the separate native queued test observes two real semaphore waiters and has fail_fast/continue/cancel modes. No claim all B55 clauses passed.",
+      "runtime_outcome": "NOT_ADJUDICATED",
+      "original_named_status": "UNRUN_absent_at_DD",
+      "residual_preserved": true
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_llm_02.py",
+      "source_only_decision": "NONBLOCKING_label_and_precondition_correspondence",
+      "finding_ids": [
+        "B67",
+        "B68"
+      ],
+      "candidate_descriptor_rows": 4,
+      "defining_quantity": "B67 functional exact-owner actor/epoch/CAS-ref authorization; B67/B68 revocation while waiting; B68 incompatible budget owners and four shared callers with settled producer.",
+      "bounded_preconditions_and_negative_caveats": "Injected functional permission owner and real cache/budget consumers do not establish an institutional deployment grant or atomic cross-owner revocation law. Unknown acknowledgement/custom-cache/backend residuals stay explicit.",
+      "runtime_outcome": "NOT_ADJUDICATED",
+      "original_named_status": "UNRUN_absent_at_DD",
+      "residual_preserved": true
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_net_01.py",
+      "source_only_decision": "NONBLOCKING_label_and_precondition_correspondence",
+      "finding_ids": [
+        "B87",
+        "B89",
+        "B90"
+      ],
+      "candidate_descriptor_rows": 5,
+      "defining_quantity": "B90 whole acquire budget for connect/health, B89 suppressed late handle cleanup and retained permit on failed disconnect, B87 actual process_stream_dataset plus retained direct session retry.",
+      "bounded_preconditions_and_negative_caveats": "The C-owned process consumer is a real negative oracle whose actual FAIL remains retained elsewhere; source availability is not a pass. Direct session second close is a different retained owner and cannot supply a missing process consumer retry owner.",
+      "runtime_outcome": "NOT_ADJUDICATED",
+      "original_named_status": "UNRUN_absent_at_DD",
+      "residual_preserved": true
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_net_02.py",
+      "source_only_decision": "NONBLOCKING_label_and_precondition_correspondence",
+      "finding_ids": [
+        "B91",
+        "B92",
+        "B93"
+      ],
+      "candidate_descriptor_rows": 12,
+      "defining_quantity": "B91 fractional pacing, explicit unit capacity rates and impossible weighted refusal/cancel accounting; B92 stale CLOSED/HALF_OPEN generations and original error; B93 live registry/cooldown/OPEN protection.",
+      "bounded_preconditions_and_negative_caveats": "Two controlled-clock acquires measure the specified delay, not a production long-term frequency benchmark. Impossible tokens=2 is not feasible weighted pacing. Named cooldown/OPEN controls do not alone cover all half-open/retirement/pressure clauses; no protected-ledger authority law is invented for B93.",
+      "runtime_outcome": "NOT_ADJUDICATED",
+      "original_named_status": "UNRUN_absent_at_DD",
+      "residual_preserved": true
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_run_01.py",
+      "source_only_decision": "NONBLOCKING_label_and_precondition_correspondence",
+      "finding_ids": [
+        "B14",
+        "B40",
+        "B69",
+        "B95",
+        "LA-057"
+      ],
+      "candidate_descriptor_rows": 7,
+      "defining_quantity": "B69 physical done-callback capacity/re-entrancy, B14/B40 queued attempt no entry, explicit None timeout, B95 real attempt-file context/retry, original owner head budgets, and LA-057 installed-wheel outer consumer.",
+      "bounded_preconditions_and_negative_caveats": "Entered synchronous I/O remains physically owned until return; new phases/head/GC admissions are separately fenced. Context propagation is not new authority. LA-057 one outer pytest case invokes an explicitly installed -I/-B child with eight cases and seven required environment inputs; these denominators are separate.",
+      "runtime_outcome": "NOT_ADJUDICATED",
+      "original_named_status": "UNRUN_absent_at_DD",
+      "residual_preserved": true
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_run_02.py",
+      "source_only_decision": "NONBLOCKING_label_and_precondition_correspondence",
+      "finding_ids": [
+        "B24"
+      ],
+      "candidate_descriptor_rows": 5,
+      "defining_quantity": "B24 actual Linux owned child/grandchild supervision, sync/async timeout and caller cancellation, small/large fork drain, failed-send and serialization failure.",
+      "bounded_preconditions_and_negative_caveats": "Linux subreaper and available fork are explicit finite platform predicates. Controlled broken result queue exercises canonical _node_execute_worker but is not a claim all real kernel channels were tested.",
+      "runtime_outcome": "NOT_ADJUDICATED",
+      "original_named_status": "UNRUN_absent_at_DD",
+      "residual_preserved": true
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_sta_01.py",
+      "source_only_decision": "NONBLOCKING_label_and_precondition_correspondence",
+      "finding_ids": [
+        "B57",
+        "B58",
+        "B59"
+      ],
+      "candidate_descriptor_rows": 6,
+      "defining_quantity": "B59 declared nested leaf/snapshot isolation, B57 explicit write intent, B58 delete/null and protected-index refusal, and actual failed nested branch/live neighbor/basis readback.",
+      "bounded_preconditions_and_negative_caveats": "Rollback means accepted working state/frontier; failed branch and neighbor CAS artifacts remain readable external effects. Labels do not claim generic external side-effect rollback.",
+      "runtime_outcome": "NOT_ADJUDICATED",
+      "original_named_status": "UNRUN_absent_at_DD",
+      "residual_preserved": true
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_sta_02.py",
+      "source_only_decision": "NONBLOCKING_label_and_precondition_correspondence",
+      "finding_ids": [
+        "B60",
+        "B62"
+      ],
+      "candidate_descriptor_rows": 4,
+      "defining_quantity": "B60 real old-bundle revalidation for changed request and matching exact CAS bundle without current live SKG inputs; B62 direct key presence and native five-shape fresh CAS replay.",
+      "bounded_preconditions_and_negative_caveats": "The matching reuse fixture explicitly removes skg_db_path and skg_index_dir. It cannot establish B61 actually-consumed mutable SKG version binding. B61 remains HELD/local-G consumer decision; pathname/hash/scalar evidence is not substituted.",
+      "runtime_outcome": "NOT_ADJUDICATED",
+      "original_named_status": "UNRUN_absent_at_DD",
+      "residual_preserved": true
+    }
+  ],
+  "independence": {
+    "foreign_mapping": "CMP authored correction; this reviewer did not edit map/selector or foreign source/tests.",
+    "own_CAS_exception": "CAS author checks correspondence of CAS descriptor labels to literal bodies only; no independent acceptance of own CAS mechanics or criterion closure."
+  },
+  "important_corrections": [
+    "Cache-hit with exhausted compute/read distinction is B51; queued fail-fast after semaphore is B55.",
+    "Explicit same-value write and unrelated replay are B57; delete/null/no-write are B58; deep nested isolation is B59; native skip/frontier/resume is B72.",
+    "B93 names preservation of stateful protection during pressure/TTL; no unrelated institutional ledger authority is manufactured.",
+    "B60 reuse without live SKG input does not establish B61 source identity."
+  ],
+  "runtime_projection_boundary": "Native DD source/selector uses original map2c916, reviewed map28cd is a separate immutable metadata correction. Source-only body correspondence never establishes runtime acceptance or new selector-set equality; CMP owns the finite actual SET comparison. CAS author is not independently accepting own CAS mechanics in this map review.",
+  "missing_named_selectors": {
+    "changed_fourteen": "UNRUN, absent Git paths at DD; candidate source bodies do not create original named files.",
+    "incidental_seven": [
+      "tests/arbitrary/test_canonical_absent.py",
+      "tests/arbitrary/test_incidental_absent.py",
+      "tests/arbitrary/test_present.py",
+      "tests/controlled/nested/test_second.py",
+      "tests/controlled/secondary_test.py",
+      "tests/controlled/test_first.py",
+      "tests/outside/test_outside.py"
+    ],
+    "all_twenty_one": "UNRUN retained; no selector/collection/native rerun."
+  },
+  "claims": {
+    "metadata_read_only": true,
+    "native_execution": false,
+    "collection": false,
+    "gates": false,
+    "product_edits": false,
+    "selector_edits": false,
+    "root_changes": false,
+    "static_runtime_case_count": null,
+    "runtime_acceptance": null,
+    "closure_ids": []
+  },
+  "remaining_owners": [
+    "CMP owns finite actual236 selector SET/admission comparison and terminal per-case reconciliation; this reviewer did not duplicate it.",
+    "Root/G owns actual DD cohort source/input/effect and formal all60 adjudication, including held B148 and B61.",
+    "A owns appointed all-confirmations signature publisher integration for B154; no CLI/integrity importer proxy upgrades it.",
+    "C owns process stream cleanup/retry consumer for B87; its retained real FAIL is not erased by source-only mapping.",
+    "LA-057 packaging/child module origins and external compatibility require actual complete current inputs/outputs, not this descriptor review."
+  ],
+  "baseline_qualification": "No historical runtime cell or baseline summary is promoted to evidence. This task audits source-only mapping metadata, not baseline/new criterion behavior."
+}

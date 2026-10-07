@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="44.595" timestamp="2026-10-06T11:43:30.792372+00:00" hostname="b878f4efbdfc"><testcase classname="tests.integration.scientist.test_res_03_real_simulation_route" name="test_res_03_real_simulation_later_failure_reaches_user_route" time="20.512"><failure message="ValueError: catalog_fetch_source_unreadable">tmp_path = PosixPath('/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/res03-real-route-061-tmp/test_res_03_real_simulation_la0')
+request = &lt;FixtureRequest for &lt;Function test_res_03_real_simulation_later_failure_reaches_user_route&gt;&gt;
+
+    def test_res_03_real_simulation_later_failure_reaches_user_route(
+        tmp_path,
+        request: pytest.FixtureRequest,
+    ) -&gt; None:
+        """Persist a real simulation, then expose the later failure and invalidation."""
+        store = _TenantScopedCAS(tmp_path / "cas", tenant_id=_TENANT_ID, cell_id=_CELL_ID)
+        run_id = "R_res03_real_route"
+    
+        with tenant_scope(None, tenant_id=_TENANT_ID, cell_id=_CELL_ID):
+            registry_bundle = build_default_registry_bundle(store)
+            trinity, data_snapshot_ref = _build_real_trinity(store, registry_bundle.bundle_ref)
+            trinity_ref = store.put_json(
+                trinity,
+                PutOptions(
+                    kind="ir.trinity_bundle",
+                    media_type="application/json",
+                    schema=SchemaInfo(
+                        name="polisyos.ir.TrinityBundle",
+                        version=trinity.schema_version,
+                    ),
+                ),
+            )
+            state = ExperimentState(
+                run_id=run_id,
+                inputs={
+                    "trinity_bundle_ref": trinity_ref,
+                    "registry_bundle_ref": registry_bundle.bundle_ref,
+                    "data_snapshot_ref": data_snapshot_ref,
+                },
+                params={
+                    # The state-snapshot compatibility path loads the source state
+                    # verbatim.  Bind one real slot so the persisted bound snapshot
+                    # has distinct bytes before CAS adds its input lineage profile.
+                    "foundry_input_binding_rules": [
+                        FoundryInputBindingRule(
+                            binding_id="res03.fixture_tax_rate",
+                            source_path="fixture.tax_rate",
+                            target_slot_id="global.tax_rate",
+                            default_value=Decimal("0.1"),
+                            notes=["test fixture makes bound snapshot distinct"],
+                        )
+                    ]
+                },
+            )
+    
+            later_failure = _LaterFailureNode()
+            dependent = _DependentNode()
+            independent = _IndependentSiblingNode()
+            registry: NodeRegistry = build_registry_with_builtin_nodes(include_discovered_nodes=False)
+            registry.register(later_failure)
+            registry.register(dependent)
+            registry.register(independent)
+    
+            ctx = build_execution_context(
+                store,
+                registry_bundle.bundle_ref,
+                run_id=run_id,
+                foundry=DefaultFoundryPort(),
+            )
+            result = WorkflowExecutor(ctx, registry).execute(_build_workflow(), state)
+    
+        records = {record.alias: record for record in result.report.nodes}
+        simulation_ref = result.state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF]
+        simulation_manifest = store.get_manifest(simulation_ref.artifact_id)
+        simulation_result = SimulationResult.model_validate(
+            from_canonical_bytes(store.get_bytes(simulation_ref.artifact_id))
+        )
+    
+        assert result.report.status == "fail"
+        assert simulation_result.exec_plan_ref is not None
+        assert records["run_simulation"].status == "ok"
+        assert records["later_failure"].status == "fail"
+        assert records["later_failure"].error is not None
+        assert records["later_failure"].error.code == "res03.later_failure"
+        assert records["later_failure"].error.details["scope"]["simulation_result_ref"] == str(
+            simulation_ref.artifact_id
+        )
+        assert records["dependent_after_failure"].status == "skip"
+        assert records["dependent_after_failure"].skip_reason == "upstream_failed"
+        assert not records["dependent_after_failure"].artifacts
+        assert records["independent_sibling"].status == "ok"
+        assert later_failure.seen_simulation_ref == simulation_ref
+        assert independent.seen_simulation_ref == simulation_ref
+        assert result.state.params["res03_independent_ran"] is True
+        assert "res03_dependent_output" not in result.state.params
+    
+        input_roles = {item.role for item in simulation_manifest.inputs}
+        assert {
+            "exec_plan",
+            "input.input_bindings_ref",
+            "input.data_snapshot_ref",
+            "input.bound_state_snapshot_ref",
+            "state_snapshot",
+        } &lt;= input_roles
+    
+        app = create_runtime_api_app(
+            cas_root=store.root,
+            core_runs_root=store.root / "runs",
+            allow_unscoped_artifacts=True,
+            allow_fixture_identity=True,
+            enable_security_middlewares=False,
+        )
+        client_lifecycle = ExitStack()
+        request.addfinalizer(client_lifecycle.close)
+&gt;       client = client_lifecycle.enter_context(TestClient(app, raise_server_exceptions=False))
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/integration/scientist/test_res_03_real_simulation_route.py:505: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:530: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/testclient.py:688: in __enter__
+    portal.call(self.wait_startup)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/anyio/from_thread.py:326: in call
+    return cast(T_Retval, self.start_task_soon(func, *args).result())
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/concurrent/futures/_base.py:450: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/concurrent/futures/_base.py:395: in __get_result
+    raise self._exception
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/anyio/from_thread.py:257: in _call_func
+    retval = await retval_or_awaitable
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/testclient.py:723: in wait_startup
+    await receive()
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/testclient.py:714: in receive
+    self.task.result()
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/concurrent/futures/_base.py:443: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/concurrent/futures/_base.py:395: in __get_result
+    raise self._exception
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/anyio/from_thread.py:257: in _call_func
+    retval = await retval_or_awaitable
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/testclient.py:704: in lifespan
+    await self.app(scope, self.stream_receive.receive, self.stream_send.send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/applications.py:1138: in __call__
+    await super().__call__(scope, receive, send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/applications.py:107: in __call__
+    await self.middleware_stack(scope, receive, send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/middleware/errors.py:151: in __call__
+    await self.app(scope, receive, send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/middleware/base.py:103: in __call__
+    await self.app(scope, receive, send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/middleware/base.py:103: in __call__
+    await self.app(scope, receive, send)
+src/polisyos/runtime/http/authz_middleware.py:568: in __call__
+    await self._app(scope, receive, send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/middleware/base.py:103: in __call__
+    await self.app(scope, receive, send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/middleware/gzip.py:19: in __call__
+    await self.app(scope, receive, send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/middleware/base.py:103: in __call__
+    await self.app(scope, receive, send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/middleware/exceptions.py:49: in __call__
+    await self.app(scope, receive, send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/middleware/asyncexitstack.py:18: in __call__
+    await self.app(scope, receive, send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/routing.py:716: in __call__
+    await self.middleware_stack(scope, receive, send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/routing.py:725: in app
+    await self.lifespan(scope, receive, send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/routing.py:694: in lifespan
+    async with self.lifespan_context(app) as maybe_state:
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/http/app.py:261: in _runtime_lifespan
+    await runtime_container.startup(app)
+src/polisyos/runtime/http/container.py:387: in startup
+    control_service = ControlPlaneService(
+src/polisyos/runtime/http/services/control/run_lifecycle.py:2232: in __init__
+    self._retrieval_catalog = catalog_read_api.DatasetCatalogGraph(
+src/polisyos/data_forge/domains/catalog/knowledge/search.py:257: in __init__
+    self._store = DatasetCatalogStore(
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:138: in __init__
+    self._session_source_identities = self._fetch_source_identities()
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:982: in _fetch_source_identities
+    identify(self._db_path),
+    ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/workspace/e02-B-current-composition/policy-engine/production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb')
+
+    def identify(path: Path) -&gt; CatalogContentIdentity:
+        if not path.is_file():
+&gt;           raise ValueError("catalog_fetch_source_unreadable")
+E           ValueError: catalog_fetch_source_unreadable
+
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:966: ValueError</failure></testcase></testsuite></testsuites>

@@ -1,0 +1,118 @@
+"""Read immutable source and resolve preparation prefixes without importing pytest."""
+
+from __future__ import annotations
+
+import argparse
+import ast
+import hashlib
+import json
+import subprocess
+
+PREPARATION = "7fc0246063e0c1b34ee4334397242b12e2d6dd26"
+PREFIX = "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/"
+GROUPS = (
+    "b66_current_consumer_prefixes",
+    "supporting_durable_owner_prefixes",
+    "b67_owner_contract_prefixes",
+    "b68_scoped_flight_prefixes",
+)
+ADDITIONAL = (
+    "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+    "policy-engine/src/polisyos/core/observability/pricing.py",
+    "policy-engine/src/polisyos/scientist/policy_design/adversary.py",
+    "policy-engine/src/polisyos/scientist/policy_design/translator.py",
+)
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--repo", required=True)
+    parser.add_argument("--source-sha", required=True)
+    args = parser.parse_args()
+
+    def git(*argv: str) -> bytes:
+        return subprocess.check_output(["git", "-C", args.repo, *argv])
+
+    def source(ref: str, path: str) -> bytes:
+        return git("show", f"{ref}:{path}")
+
+    identity_path = (
+        PREFIX + "current-b66-proof-preparation-evidence/source-identities.json"
+    )
+    plan_path = PREFIX + "current-b66-proof-preparation-evidence/proof-plan.json"
+    identities = json.loads(source(PREPARATION, identity_path))
+    plan = json.loads(source(PREPARATION, plan_path))
+    old_sha = identities["source_snapshot_sha"]
+    files = []
+    paths = sorted({row["path"] for row in identities["files"]} | set(ADDITIONAL))
+    for path in paths:
+        data = source(args.source_sha, path)
+        files.append(
+            {
+                "path": path,
+                "bytes": len(data),
+                "sha256": hashlib.sha256(data).hexdigest(),
+                "byte_equal_to_preparation_source": data == source(old_sha, path),
+            }
+        )
+
+    resolved = []
+    for group in GROUPS:
+        for original in plan[group]:
+            row = dict(original)
+            parts = row["nodeid_prefix"].split("::")
+            path = "policy-engine/" + parts[0]
+            data = source(args.source_sha, path)
+            text = data.decode()
+            body = ast.parse(text).body
+            definition = None
+            for name in parts[1:]:
+                matches = [node for node in body if getattr(node, "name", None) == name]
+                if len(matches) != 1:
+                    raise ValueError(f"cannot resolve exact source definition: {parts}")
+                definition = matches[0]
+                body = getattr(definition, "body", [])
+            if definition is None:
+                raise ValueError("prefix has no test definition")
+            segment = ast.get_source_segment(text, definition)
+            if segment is None:
+                raise ValueError("source segment is unavailable")
+            row["group"] = group
+            row["definition_source"] = {
+                "path": path,
+                "line": definition.lineno,
+                "end_line": definition.end_lineno,
+                "body_sha256": hashlib.sha256(segment.encode()).hexdigest(),
+                "module_sha256": hashlib.sha256(data).hexdigest(),
+            }
+            row["future_outcome"] = (
+                "UNKNOWN until fresh terminal case phases are joined"
+            )
+            resolved.append(row)
+
+    print(
+        json.dumps(
+            {
+                "schema": "policyos.e02.b66-source-prefix-inspection.v1",
+                "source_sha": args.source_sha,
+                "source_tree": git("rev-parse", args.source_sha + "^{tree}")
+                .decode()
+                .strip(),
+                "preparation_ref": PREPARATION,
+                "preparation_source_sha": old_sha,
+                "mode": "stdlib Git/AST/hash only; no production or pytest imports",
+                "source_files": files,
+                "source_prefixes": resolved,
+                "counts_are_navigation_only": True,
+                "native_case_denominator": "UNKNOWN; requires actual session.items",
+                "runtime_or_collection_executed": False,
+                "formal_closure_ids": [],
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+    )
+
+
+if __name__ == "__main__":
+    main()

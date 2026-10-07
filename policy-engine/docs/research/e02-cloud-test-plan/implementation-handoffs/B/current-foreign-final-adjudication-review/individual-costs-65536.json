@@ -1,0 +1,2050 @@
+[
+  {
+    "ordinal": 0,
+    "warm": false,
+    "workflow_started_ns": 118846487104189,
+    "workflow_finished_ns": 118846543959191,
+    "workflow_return_cost_ns": 56855002,
+    "loop_thread_id": 140020497430400,
+    "neighbour_timer_samples": [
+      {
+        "scheduled_ns": 118846489093880,
+        "resumed_ns": 118846489415452,
+        "lateness_ns": 321572
+      },
+      {
+        "scheduled_ns": 118846491416594,
+        "resumed_ns": 118846493132699,
+        "lateness_ns": 1716105
+      },
+      {
+        "scheduled_ns": 118846495134252,
+        "resumed_ns": 118846495831603,
+        "lateness_ns": 697351
+      },
+      {
+        "scheduled_ns": 118846497833106,
+        "resumed_ns": 118846498003365,
+        "lateness_ns": 170259
+      },
+      {
+        "scheduled_ns": 118846500004687,
+        "resumed_ns": 118846504585507,
+        "lateness_ns": 4580820
+      },
+      {
+        "scheduled_ns": 118846506586439,
+        "resumed_ns": 118846506729881,
+        "lateness_ns": 143442
+      },
+      {
+        "scheduled_ns": 118846508730993,
+        "resumed_ns": 118846508879081,
+        "lateness_ns": 148088
+      },
+      {
+        "scheduled_ns": 118846510879983,
+        "resumed_ns": 118846510997190,
+        "lateness_ns": 117207
+      },
+      {
+        "scheduled_ns": 118846512998062,
+        "resumed_ns": 118846513099432,
+        "lateness_ns": 101370
+      },
+      {
+        "scheduled_ns": 118846515100193,
+        "resumed_ns": 118846515201103,
+        "lateness_ns": 100910
+      },
+      {
+        "scheduled_ns": 118846517201734,
+        "resumed_ns": 118846517300539,
+        "lateness_ns": 98805
+      },
+      {
+        "scheduled_ns": 118846519301140,
+        "resumed_ns": 118846519595022,
+        "lateness_ns": 293882
+      },
+      {
+        "scheduled_ns": 118846521595944,
+        "resumed_ns": 118846521710218,
+        "lateness_ns": 114274
+      },
+      {
+        "scheduled_ns": 118846523710830,
+        "resumed_ns": 118846524090052,
+        "lateness_ns": 379222
+      },
+      {
+        "scheduled_ns": 118846526090824,
+        "resumed_ns": 118846526396660,
+        "lateness_ns": 305836
+      },
+      {
+        "scheduled_ns": 118846528397662,
+        "resumed_ns": 118846528599170,
+        "lateness_ns": 201508
+      },
+      {
+        "scheduled_ns": 118846530600102,
+        "resumed_ns": 118846531470776,
+        "lateness_ns": 870674
+      },
+      {
+        "scheduled_ns": 118846533471958,
+        "resumed_ns": 118846533722028,
+        "lateness_ns": 250070
+      },
+      {
+        "scheduled_ns": 118846535722999,
+        "resumed_ns": 118846543976704,
+        "lateness_ns": 8253705
+      }
+    ],
+    "cache_io_samples": [
+      {
+        "operation": "put",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 118846506474807,
+        "finished_ns": 118846524495840,
+        "thread_id": 140017494103744,
+        "serialized_bytes": 199085,
+        "sha256": "4a0a00096ff121a52d1f8662c9f4f42c87f2200624ba20f2f7f800bb4455f0b0"
+      }
+    ],
+    "serialized_cache_put_bytes": 199085,
+    "cache_read_bytes": 0,
+    "native_node_completed_metrics": [
+      {
+        "alias": "compute",
+        "node_id": "scientist.cache_cost_oracle@1.0.0",
+        "workflow_id": "cache_cost_profile",
+        "status": "ok",
+        "duration_ms": 26,
+        "cache_hit": false,
+        "retry_count": 0
+      }
+    ],
+    "actual_provider_calls": 1
+  },
+  {
+    "ordinal": 1,
+    "warm": true,
+    "workflow_started_ns": 118846549209511,
+    "workflow_finished_ns": 118846609780763,
+    "workflow_return_cost_ns": 60571252,
+    "loop_thread_id": 140020497430400,
+    "neighbour_timer_samples": [
+      {
+        "scheduled_ns": 118846551198911,
+        "resumed_ns": 118846551692190,
+        "lateness_ns": 493279
+      },
+      {
+        "scheduled_ns": 118846553693282,
+        "resumed_ns": 118846554426758,
+        "lateness_ns": 733476
+      },
+      {
+        "scheduled_ns": 118846556427820,
+        "resumed_ns": 118846556786977,
+        "lateness_ns": 359157
+      },
+      {
+        "scheduled_ns": 118846558787909,
+        "resumed_ns": 118846558932430,
+        "lateness_ns": 144521
+      },
+      {
+        "scheduled_ns": 118846560933292,
+        "resumed_ns": 118846561045910,
+        "lateness_ns": 112618
+      },
+      {
+        "scheduled_ns": 118846563047013,
+        "resumed_ns": 118846563153272,
+        "lateness_ns": 106259
+      },
+      {
+        "scheduled_ns": 118846565153943,
+        "resumed_ns": 118846565263701,
+        "lateness_ns": 109758
+      },
+      {
+        "scheduled_ns": 118846567264512,
+        "resumed_ns": 118846567379388,
+        "lateness_ns": 114876
+      },
+      {
+        "scheduled_ns": 118846569380430,
+        "resumed_ns": 118846569596323,
+        "lateness_ns": 215893
+      },
+      {
+        "scheduled_ns": 118846571597365,
+        "resumed_ns": 118846571719243,
+        "lateness_ns": 121878
+      },
+      {
+        "scheduled_ns": 118846573720125,
+        "resumed_ns": 118846574269610,
+        "lateness_ns": 549485
+      },
+      {
+        "scheduled_ns": 118846576270472,
+        "resumed_ns": 118846577268245,
+        "lateness_ns": 997773
+      },
+      {
+        "scheduled_ns": 118846579269316,
+        "resumed_ns": 118846579374995,
+        "lateness_ns": 105679
+      },
+      {
+        "scheduled_ns": 118846581375666,
+        "resumed_ns": 118846581491085,
+        "lateness_ns": 115419
+      },
+      {
+        "scheduled_ns": 118846583491927,
+        "resumed_ns": 118846583592956,
+        "lateness_ns": 101029
+      },
+      {
+        "scheduled_ns": 118846585593527,
+        "resumed_ns": 118846585707681,
+        "lateness_ns": 114154
+      },
+      {
+        "scheduled_ns": 118846587708533,
+        "resumed_ns": 118846588060715,
+        "lateness_ns": 352182
+      },
+      {
+        "scheduled_ns": 118846590062448,
+        "resumed_ns": 118846590416080,
+        "lateness_ns": 353632
+      },
+      {
+        "scheduled_ns": 118846592416961,
+        "resumed_ns": 118846592921790,
+        "lateness_ns": 504829
+      },
+      {
+        "scheduled_ns": 118846594922732,
+        "resumed_ns": 118846595050011,
+        "lateness_ns": 127279
+      },
+      {
+        "scheduled_ns": 118846597050912,
+        "resumed_ns": 118846598096437,
+        "lateness_ns": 1045525
+      },
+      {
+        "scheduled_ns": 118846600097569,
+        "resumed_ns": 118846600323222,
+        "lateness_ns": 225653
+      },
+      {
+        "scheduled_ns": 118846602324164,
+        "resumed_ns": 118846609803025,
+        "lateness_ns": 7478861
+      }
+    ],
+    "cache_io_samples": [
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 118846557360528,
+        "finished_ns": 118846570361098,
+        "thread_id": 140017494103744,
+        "serialized_bytes": 199085,
+        "sha256": "4a0a00096ff121a52d1f8662c9f4f42c87f2200624ba20f2f7f800bb4455f0b0"
+      },
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 118846575523362,
+        "finished_ns": 118846588814617,
+        "thread_id": 140017494103744,
+        "serialized_bytes": 199085,
+        "sha256": "4a0a00096ff121a52d1f8662c9f4f42c87f2200624ba20f2f7f800bb4455f0b0"
+      }
+    ],
+    "serialized_cache_put_bytes": 0,
+    "cache_read_bytes": 398170,
+    "native_node_completed_metrics": [
+      {
+        "alias": "compute",
+        "node_id": "scientist.cache_cost_oracle@1.0.0",
+        "workflow_id": "cache_cost_profile",
+        "status": "ok",
+        "duration_ms": 17,
+        "cache_hit": true,
+        "retry_count": 0
+      }
+    ],
+    "actual_provider_calls": 1
+  },
+  {
+    "ordinal": 2,
+    "warm": true,
+    "workflow_started_ns": 118846615079574,
+    "workflow_finished_ns": 118846676291137,
+    "workflow_return_cost_ns": 61211563,
+    "loop_thread_id": 140020497430400,
+    "neighbour_timer_samples": [
+      {
+        "scheduled_ns": 118846617070036,
+        "resumed_ns": 118846617375480,
+        "lateness_ns": 305444
+      },
+      {
+        "scheduled_ns": 118846619376662,
+        "resumed_ns": 118846620429020,
+        "lateness_ns": 1052358
+      },
+      {
+        "scheduled_ns": 118846622430091,
+        "resumed_ns": 118846622589789,
+        "lateness_ns": 159698
+      },
+      {
+        "scheduled_ns": 118846624590721,
+        "resumed_ns": 118846625100361,
+        "lateness_ns": 509640
+      },
+      {
+        "scheduled_ns": 118846627101443,
+        "resumed_ns": 118846627208504,
+        "lateness_ns": 107061
+      },
+      {
+        "scheduled_ns": 118846629209335,
+        "resumed_ns": 118846629320150,
+        "lateness_ns": 110815
+      },
+      {
+        "scheduled_ns": 118846631320982,
+        "resumed_ns": 118846631441698,
+        "lateness_ns": 120716
+      },
+      {
+        "scheduled_ns": 118846633442650,
+        "resumed_ns": 118846633555882,
+        "lateness_ns": 113232
+      },
+      {
+        "scheduled_ns": 118846635556744,
+        "resumed_ns": 118846635712356,
+        "lateness_ns": 155612
+      },
+      {
+        "scheduled_ns": 118846637713217,
+        "resumed_ns": 118846637839845,
+        "lateness_ns": 126628
+      },
+      {
+        "scheduled_ns": 118846639840717,
+        "resumed_ns": 118846640516146,
+        "lateness_ns": 675429
+      },
+      {
+        "scheduled_ns": 118846642517048,
+        "resumed_ns": 118846643552684,
+        "lateness_ns": 1035636
+      },
+      {
+        "scheduled_ns": 118846645553666,
+        "resumed_ns": 118846645669754,
+        "lateness_ns": 116088
+      },
+      {
+        "scheduled_ns": 118846647670695,
+        "resumed_ns": 118846647807334,
+        "lateness_ns": 136639
+      },
+      {
+        "scheduled_ns": 118846649808206,
+        "resumed_ns": 118846649927327,
+        "lateness_ns": 119121
+      },
+      {
+        "scheduled_ns": 118846651928129,
+        "resumed_ns": 118846652051440,
+        "lateness_ns": 123311
+      },
+      {
+        "scheduled_ns": 118846654052472,
+        "resumed_ns": 118846654182518,
+        "lateness_ns": 130046
+      },
+      {
+        "scheduled_ns": 118846656183350,
+        "resumed_ns": 118846656330837,
+        "lateness_ns": 147487
+      },
+      {
+        "scheduled_ns": 118846658331748,
+        "resumed_ns": 118846658576408,
+        "lateness_ns": 244660
+      },
+      {
+        "scheduled_ns": 118846660577299,
+        "resumed_ns": 118846660895715,
+        "lateness_ns": 318416
+      },
+      {
+        "scheduled_ns": 118846662896617,
+        "resumed_ns": 118846663629296,
+        "lateness_ns": 732679
+      },
+      {
+        "scheduled_ns": 118846665630248,
+        "resumed_ns": 118846665797030,
+        "lateness_ns": 166782
+      },
+      {
+        "scheduled_ns": 118846667797962,
+        "resumed_ns": 118846668079171,
+        "lateness_ns": 281209
+      },
+      {
+        "scheduled_ns": 118846670080072,
+        "resumed_ns": 118846676317056,
+        "lateness_ns": 6236984
+      }
+    ],
+    "cache_io_samples": [
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 118846623429435,
+        "finished_ns": 118846636712553,
+        "thread_id": 140017494103744,
+        "serialized_bytes": 199085,
+        "sha256": "4a0a00096ff121a52d1f8662c9f4f42c87f2200624ba20f2f7f800bb4455f0b0"
+      },
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 118846641866281,
+        "finished_ns": 118846654792119,
+        "thread_id": 140017494103744,
+        "serialized_bytes": 199085,
+        "sha256": "4a0a00096ff121a52d1f8662c9f4f42c87f2200624ba20f2f7f800bb4455f0b0"
+      }
+    ],
+    "serialized_cache_put_bytes": 0,
+    "cache_read_bytes": 398170,
+    "native_node_completed_metrics": [
+      {
+        "alias": "compute",
+        "node_id": "scientist.cache_cost_oracle@1.0.0",
+        "workflow_id": "cache_cost_profile",
+        "status": "ok",
+        "duration_ms": 17,
+        "cache_hit": true,
+        "retry_count": 0
+      }
+    ],
+    "actual_provider_calls": 1
+  },
+  {
+    "ordinal": 3,
+    "warm": true,
+    "workflow_started_ns": 118846681656222,
+    "workflow_finished_ns": 118846741395704,
+    "workflow_return_cost_ns": 59739482,
+    "loop_thread_id": 140020497430400,
+    "neighbour_timer_samples": [
+      {
+        "scheduled_ns": 118846683645983,
+        "resumed_ns": 118846684260142,
+        "lateness_ns": 614159
+      },
+      {
+        "scheduled_ns": 118846686261545,
+        "resumed_ns": 118846687103778,
+        "lateness_ns": 842233
+      },
+      {
+        "scheduled_ns": 118846689104830,
+        "resumed_ns": 118846689264219,
+        "lateness_ns": 159389
+      },
+      {
+        "scheduled_ns": 118846691265251,
+        "resumed_ns": 118846691875197,
+        "lateness_ns": 609946
+      },
+      {
+        "scheduled_ns": 118846693876189,
+        "resumed_ns": 118846693978831,
+        "lateness_ns": 102642
+      },
+      {
+        "scheduled_ns": 118846695979603,
+        "resumed_ns": 118846696043252,
+        "lateness_ns": 63649
+      },
+      {
+        "scheduled_ns": 118846698043883,
+        "resumed_ns": 118846698142097,
+        "lateness_ns": 98214
+      },
+      {
+        "scheduled_ns": 118846700142608,
+        "resumed_ns": 118846700234751,
+        "lateness_ns": 92143
+      },
+      {
+        "scheduled_ns": 118846702235362,
+        "resumed_ns": 118846702426230,
+        "lateness_ns": 190868
+      },
+      {
+        "scheduled_ns": 118846704427042,
+        "resumed_ns": 118846704528001,
+        "lateness_ns": 100959
+      },
+      {
+        "scheduled_ns": 118846706528682,
+        "resumed_ns": 118846707264365,
+        "lateness_ns": 735683
+      },
+      {
+        "scheduled_ns": 118846709265116,
+        "resumed_ns": 118846709407864,
+        "lateness_ns": 142748
+      },
+      {
+        "scheduled_ns": 118846711408846,
+        "resumed_ns": 118846711510517,
+        "lateness_ns": 101671
+      },
+      {
+        "scheduled_ns": 118846713511228,
+        "resumed_ns": 118846713612829,
+        "lateness_ns": 101601
+      },
+      {
+        "scheduled_ns": 118846715613490,
+        "resumed_ns": 118846715711424,
+        "lateness_ns": 97934
+      },
+      {
+        "scheduled_ns": 118846717712045,
+        "resumed_ns": 118846717820338,
+        "lateness_ns": 108293
+      },
+      {
+        "scheduled_ns": 118846719820939,
+        "resumed_ns": 118846719922439,
+        "lateness_ns": 101500
+      },
+      {
+        "scheduled_ns": 118846721923081,
+        "resumed_ns": 118846722168531,
+        "lateness_ns": 245450
+      },
+      {
+        "scheduled_ns": 118846724169112,
+        "resumed_ns": 118846724887893,
+        "lateness_ns": 718781
+      },
+      {
+        "scheduled_ns": 118846726888604,
+        "resumed_ns": 118846727678859,
+        "lateness_ns": 790255
+      },
+      {
+        "scheduled_ns": 118846729679981,
+        "resumed_ns": 118846730737218,
+        "lateness_ns": 1057237
+      },
+      {
+        "scheduled_ns": 118846732762466,
+        "resumed_ns": 118846732916675,
+        "lateness_ns": 154209
+      },
+      {
+        "scheduled_ns": 118846734917507,
+        "resumed_ns": 118846741421493,
+        "lateness_ns": 6503986
+      }
+    ],
+    "cache_io_samples": [
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 118846690200579,
+        "finished_ns": 118846703177613,
+        "thread_id": 140017494103744,
+        "serialized_bytes": 199085,
+        "sha256": "4a0a00096ff121a52d1f8662c9f4f42c87f2200624ba20f2f7f800bb4455f0b0"
+      },
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 118846708686238,
+        "finished_ns": 118846721544969,
+        "thread_id": 140017494103744,
+        "serialized_bytes": 199085,
+        "sha256": "4a0a00096ff121a52d1f8662c9f4f42c87f2200624ba20f2f7f800bb4455f0b0"
+      }
+    ],
+    "serialized_cache_put_bytes": 0,
+    "cache_read_bytes": 398170,
+    "native_node_completed_metrics": [
+      {
+        "alias": "compute",
+        "node_id": "scientist.cache_cost_oracle@1.0.0",
+        "workflow_id": "cache_cost_profile",
+        "status": "ok",
+        "duration_ms": 17,
+        "cache_hit": true,
+        "retry_count": 0
+      }
+    ],
+    "actual_provider_calls": 1
+  },
+  {
+    "ordinal": 4,
+    "warm": true,
+    "workflow_started_ns": 118846747036167,
+    "workflow_finished_ns": 118846807941775,
+    "workflow_return_cost_ns": 60905608,
+    "loop_thread_id": 140020497430400,
+    "neighbour_timer_samples": [
+      {
+        "scheduled_ns": 118846749026158,
+        "resumed_ns": 118846749327394,
+        "lateness_ns": 301236
+      },
+      {
+        "scheduled_ns": 118846751328486,
+        "resumed_ns": 118846752399870,
+        "lateness_ns": 1071384
+      },
+      {
+        "scheduled_ns": 118846754400871,
+        "resumed_ns": 118846754557796,
+        "lateness_ns": 156925
+      },
+      {
+        "scheduled_ns": 118846756558617,
+        "resumed_ns": 118846757124911,
+        "lateness_ns": 566294
+      },
+      {
+        "scheduled_ns": 118846759125833,
+        "resumed_ns": 118846759228094,
+        "lateness_ns": 102261
+      },
+      {
+        "scheduled_ns": 118846761228866,
+        "resumed_ns": 118846761325758,
+        "lateness_ns": 96892
+      },
+      {
+        "scheduled_ns": 118846763326369,
+        "resumed_ns": 118846763425996,
+        "lateness_ns": 99627
+      },
+      {
+        "scheduled_ns": 118846765426557,
+        "resumed_ns": 118846765528889,
+        "lateness_ns": 102332
+      },
+      {
+        "scheduled_ns": 118846767529630,
+        "resumed_ns": 118846767637573,
+        "lateness_ns": 107943
+      },
+      {
+        "scheduled_ns": 118846769638324,
+        "resumed_ns": 118846769982120,
+        "lateness_ns": 343796
+      },
+      {
+        "scheduled_ns": 118846771982831,
+        "resumed_ns": 118846773348077,
+        "lateness_ns": 1365246
+      },
+      {
+        "scheduled_ns": 118846775348758,
+        "resumed_ns": 118846776454527,
+        "lateness_ns": 1105769
+      },
+      {
+        "scheduled_ns": 118846778455609,
+        "resumed_ns": 118846778558582,
+        "lateness_ns": 102973
+      },
+      {
+        "scheduled_ns": 118846780559253,
+        "resumed_ns": 118846780662607,
+        "lateness_ns": 103354
+      },
+      {
+        "scheduled_ns": 118846782663428,
+        "resumed_ns": 118846782779205,
+        "lateness_ns": 115777
+      },
+      {
+        "scheduled_ns": 118846784779917,
+        "resumed_ns": 118846784881397,
+        "lateness_ns": 101480
+      },
+      {
+        "scheduled_ns": 118846786882078,
+        "resumed_ns": 118846787144772,
+        "lateness_ns": 262694
+      },
+      {
+        "scheduled_ns": 118846789145543,
+        "resumed_ns": 118846789262553,
+        "lateness_ns": 117010
+      },
+      {
+        "scheduled_ns": 118846791263234,
+        "resumed_ns": 118846791494107,
+        "lateness_ns": 230873
+      },
+      {
+        "scheduled_ns": 118846793495049,
+        "resumed_ns": 118846793768693,
+        "lateness_ns": 273644
+      },
+      {
+        "scheduled_ns": 118846795769575,
+        "resumed_ns": 118846796701917,
+        "lateness_ns": 932342
+      },
+      {
+        "scheduled_ns": 118846798702939,
+        "resumed_ns": 118846798813346,
+        "lateness_ns": 110407
+      },
+      {
+        "scheduled_ns": 118846800814067,
+        "resumed_ns": 118846807963005,
+        "lateness_ns": 7148938
+      }
+    ],
+    "cache_io_samples": [
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 118846755448080,
+        "finished_ns": 118846768477441,
+        "thread_id": 140017494103744,
+        "serialized_bytes": 199085,
+        "sha256": "4a0a00096ff121a52d1f8662c9f4f42c87f2200624ba20f2f7f800bb4455f0b0"
+      },
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 118846774734373,
+        "finished_ns": 118846787901033,
+        "thread_id": 140017494103744,
+        "serialized_bytes": 199085,
+        "sha256": "4a0a00096ff121a52d1f8662c9f4f42c87f2200624ba20f2f7f800bb4455f0b0"
+      }
+    ],
+    "serialized_cache_put_bytes": 0,
+    "cache_read_bytes": 398170,
+    "native_node_completed_metrics": [
+      {
+        "alias": "compute",
+        "node_id": "scientist.cache_cost_oracle@1.0.0",
+        "workflow_id": "cache_cost_profile",
+        "status": "ok",
+        "duration_ms": 17,
+        "cache_hit": true,
+        "retry_count": 0
+      }
+    ],
+    "actual_provider_calls": 1
+  },
+  {
+    "ordinal": 5,
+    "warm": true,
+    "workflow_started_ns": 118846813184871,
+    "workflow_finished_ns": 118846873000999,
+    "workflow_return_cost_ns": 59816128,
+    "loop_thread_id": 140020497430400,
+    "neighbour_timer_samples": [
+      {
+        "scheduled_ns": 118846815175794,
+        "resumed_ns": 118846815452574,
+        "lateness_ns": 276780
+      },
+      {
+        "scheduled_ns": 118846817453656,
+        "resumed_ns": 118846818561939,
+        "lateness_ns": 1108283
+      },
+      {
+        "scheduled_ns": 118846820563011,
+        "resumed_ns": 118846820672106,
+        "lateness_ns": 109095
+      },
+      {
+        "scheduled_ns": 118846822672917,
+        "resumed_ns": 118846823148931,
+        "lateness_ns": 476014
+      },
+      {
+        "scheduled_ns": 118846825149873,
+        "resumed_ns": 118846825248588,
+        "lateness_ns": 98715
+      },
+      {
+        "scheduled_ns": 118846827249450,
+        "resumed_ns": 118846827351130,
+        "lateness_ns": 101680
+      },
+      {
+        "scheduled_ns": 118846829351932,
+        "resumed_ns": 118846829448002,
+        "lateness_ns": 96070
+      },
+      {
+        "scheduled_ns": 118846831448653,
+        "resumed_ns": 118846831561084,
+        "lateness_ns": 112431
+      },
+      {
+        "scheduled_ns": 118846833561775,
+        "resumed_ns": 118846833709573,
+        "lateness_ns": 147798
+      },
+      {
+        "scheduled_ns": 118846835710394,
+        "resumed_ns": 118846835898257,
+        "lateness_ns": 187863
+      },
+      {
+        "scheduled_ns": 118846837900491,
+        "resumed_ns": 118846838574037,
+        "lateness_ns": 673546
+      },
+      {
+        "scheduled_ns": 118846840574758,
+        "resumed_ns": 118846840690445,
+        "lateness_ns": 115687
+      },
+      {
+        "scheduled_ns": 118846842691477,
+        "resumed_ns": 118846842795633,
+        "lateness_ns": 104156
+      },
+      {
+        "scheduled_ns": 118846844796404,
+        "resumed_ns": 118846844898095,
+        "lateness_ns": 101691
+      },
+      {
+        "scheduled_ns": 118846846898786,
+        "resumed_ns": 118846847006177,
+        "lateness_ns": 107391
+      },
+      {
+        "scheduled_ns": 118846849007019,
+        "resumed_ns": 118846849111315,
+        "lateness_ns": 104296
+      },
+      {
+        "scheduled_ns": 118846851112146,
+        "resumed_ns": 118846851212354,
+        "lateness_ns": 100208
+      },
+      {
+        "scheduled_ns": 118846853213096,
+        "resumed_ns": 118846853694748,
+        "lateness_ns": 481652
+      },
+      {
+        "scheduled_ns": 118846855695579,
+        "resumed_ns": 118846856189478,
+        "lateness_ns": 493899
+      },
+      {
+        "scheduled_ns": 118846858190249,
+        "resumed_ns": 118846859215906,
+        "lateness_ns": 1025657
+      },
+      {
+        "scheduled_ns": 118846861217028,
+        "resumed_ns": 118846862318228,
+        "lateness_ns": 1101200
+      },
+      {
+        "scheduled_ns": 118846864319290,
+        "resumed_ns": 118846864484370,
+        "lateness_ns": 165080
+      },
+      {
+        "scheduled_ns": 118846866485291,
+        "resumed_ns": 118846873021217,
+        "lateness_ns": 6535926
+      }
+    ],
+    "cache_io_samples": [
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 118846821479112,
+        "finished_ns": 118846834440557,
+        "thread_id": 140017494103744,
+        "serialized_bytes": 199085,
+        "sha256": "4a0a00096ff121a52d1f8662c9f4f42c87f2200624ba20f2f7f800bb4455f0b0"
+      },
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 118846840043900,
+        "finished_ns": 118846853106024,
+        "thread_id": 140017494103744,
+        "serialized_bytes": 199085,
+        "sha256": "4a0a00096ff121a52d1f8662c9f4f42c87f2200624ba20f2f7f800bb4455f0b0"
+      }
+    ],
+    "serialized_cache_put_bytes": 0,
+    "cache_read_bytes": 398170,
+    "native_node_completed_metrics": [
+      {
+        "alias": "compute",
+        "node_id": "scientist.cache_cost_oracle@1.0.0",
+        "workflow_id": "cache_cost_profile",
+        "status": "ok",
+        "duration_ms": 17,
+        "cache_hit": true,
+        "retry_count": 0
+      }
+    ],
+    "actual_provider_calls": 1
+  },
+  {
+    "ordinal": 6,
+    "warm": true,
+    "workflow_started_ns": 118846878201234,
+    "workflow_finished_ns": 118846937947203,
+    "workflow_return_cost_ns": 59745969,
+    "loop_thread_id": 140020497430400,
+    "neighbour_timer_samples": [
+      {
+        "scheduled_ns": 118846880191175,
+        "resumed_ns": 118846880569556,
+        "lateness_ns": 378381
+      },
+      {
+        "scheduled_ns": 118846882570839,
+        "resumed_ns": 118846882873738,
+        "lateness_ns": 302899
+      },
+      {
+        "scheduled_ns": 118846884874689,
+        "resumed_ns": 118846884997219,
+        "lateness_ns": 122530
+      },
+      {
+        "scheduled_ns": 118846886998041,
+        "resumed_ns": 118846887188489,
+        "lateness_ns": 190448
+      },
+      {
+        "scheduled_ns": 118846889189450,
+        "resumed_ns": 118846889288255,
+        "lateness_ns": 98805
+      },
+      {
+        "scheduled_ns": 118846891289037,
+        "resumed_ns": 118846891396478,
+        "lateness_ns": 107441
+      },
+      {
+        "scheduled_ns": 118846893397260,
+        "resumed_ns": 118846893501565,
+        "lateness_ns": 104305
+      },
+      {
+        "scheduled_ns": 118846895502387,
+        "resumed_ns": 118846895610399,
+        "lateness_ns": 108012
+      },
+      {
+        "scheduled_ns": 118846897611151,
+        "resumed_ns": 118846897709385,
+        "lateness_ns": 98234
+      },
+      {
+        "scheduled_ns": 118846899710156,
+        "resumed_ns": 118846900145033,
+        "lateness_ns": 434877
+      },
+      {
+        "scheduled_ns": 118846902145965,
+        "resumed_ns": 118846902437653,
+        "lateness_ns": 291688
+      },
+      {
+        "scheduled_ns": 118846904438415,
+        "resumed_ns": 118846904809121,
+        "lateness_ns": 370706
+      },
+      {
+        "scheduled_ns": 118846906810283,
+        "resumed_ns": 118846906930559,
+        "lateness_ns": 120276
+      },
+      {
+        "scheduled_ns": 118846908931430,
+        "resumed_ns": 118846909035596,
+        "lateness_ns": 104166
+      },
+      {
+        "scheduled_ns": 118846911036347,
+        "resumed_ns": 118846911140753,
+        "lateness_ns": 104406
+      },
+      {
+        "scheduled_ns": 118846913141515,
+        "resumed_ns": 118846913245299,
+        "lateness_ns": 103784
+      },
+      {
+        "scheduled_ns": 118846915246000,
+        "resumed_ns": 118846915361657,
+        "lateness_ns": 115657
+      },
+      {
+        "scheduled_ns": 118846917362750,
+        "resumed_ns": 118846917484989,
+        "lateness_ns": 122239
+      },
+      {
+        "scheduled_ns": 118846919485821,
+        "resumed_ns": 118846919671118,
+        "lateness_ns": 185297
+      },
+      {
+        "scheduled_ns": 118846921671980,
+        "resumed_ns": 118846921925386,
+        "lateness_ns": 253406
+      },
+      {
+        "scheduled_ns": 118846923926368,
+        "resumed_ns": 118846924173531,
+        "lateness_ns": 247163
+      },
+      {
+        "scheduled_ns": 118846926174373,
+        "resumed_ns": 118846927119158,
+        "lateness_ns": 944785
+      },
+      {
+        "scheduled_ns": 118846929120100,
+        "resumed_ns": 118846929247409,
+        "lateness_ns": 127309
+      },
+      {
+        "scheduled_ns": 118846931248241,
+        "resumed_ns": 118846937967230,
+        "lateness_ns": 6718989
+      }
+    ],
+    "cache_io_samples": [
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 118846886515015,
+        "finished_ns": 118846899497609,
+        "thread_id": 140017494103744,
+        "serialized_bytes": 199085,
+        "sha256": "4a0a00096ff121a52d1f8662c9f4f42c87f2200624ba20f2f7f800bb4455f0b0"
+      },
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 118846905279748,
+        "finished_ns": 118846918217518,
+        "thread_id": 140017494103744,
+        "serialized_bytes": 199085,
+        "sha256": "4a0a00096ff121a52d1f8662c9f4f42c87f2200624ba20f2f7f800bb4455f0b0"
+      }
+    ],
+    "serialized_cache_put_bytes": 0,
+    "cache_read_bytes": 398170,
+    "native_node_completed_metrics": [
+      {
+        "alias": "compute",
+        "node_id": "scientist.cache_cost_oracle@1.0.0",
+        "workflow_id": "cache_cost_profile",
+        "status": "ok",
+        "duration_ms": 17,
+        "cache_hit": true,
+        "retry_count": 0
+      }
+    ],
+    "actual_provider_calls": 1
+  },
+  {
+    "ordinal": 7,
+    "warm": true,
+    "workflow_started_ns": 118846943441882,
+    "workflow_finished_ns": 118847004775207,
+    "workflow_return_cost_ns": 61333325,
+    "loop_thread_id": 140020497430400,
+    "neighbour_timer_samples": [
+      {
+        "scheduled_ns": 118846945431893,
+        "resumed_ns": 118846945735123,
+        "lateness_ns": 303230
+      },
+      {
+        "scheduled_ns": 118846947736225,
+        "resumed_ns": 118846948816264,
+        "lateness_ns": 1080039
+      },
+      {
+        "scheduled_ns": 118846950817447,
+        "resumed_ns": 118846950932583,
+        "lateness_ns": 115136
+      },
+      {
+        "scheduled_ns": 118846952933414,
+        "resumed_ns": 118846953516850,
+        "lateness_ns": 583436
+      },
+      {
+        "scheduled_ns": 118846955518022,
+        "resumed_ns": 118846955630854,
+        "lateness_ns": 112832
+      },
+      {
+        "scheduled_ns": 118846957631806,
+        "resumed_ns": 118846957733065,
+        "lateness_ns": 101259
+      },
+      {
+        "scheduled_ns": 118846959733677,
+        "resumed_ns": 118846959859874,
+        "lateness_ns": 126197
+      },
+      {
+        "scheduled_ns": 118846961860515,
+        "resumed_ns": 118846961965742,
+        "lateness_ns": 105227
+      },
+      {
+        "scheduled_ns": 118846963966373,
+        "resumed_ns": 118846964047325,
+        "lateness_ns": 80952
+      },
+      {
+        "scheduled_ns": 118846966047936,
+        "resumed_ns": 118846966310880,
+        "lateness_ns": 262944
+      },
+      {
+        "scheduled_ns": 118846968311601,
+        "resumed_ns": 118846969851365,
+        "lateness_ns": 1539764
+      },
+      {
+        "scheduled_ns": 118846971852147,
+        "resumed_ns": 118846972059286,
+        "lateness_ns": 207139
+      },
+      {
+        "scheduled_ns": 118846974060328,
+        "resumed_ns": 118846974164283,
+        "lateness_ns": 103955
+      },
+      {
+        "scheduled_ns": 118846976165014,
+        "resumed_ns": 118846976264621,
+        "lateness_ns": 99607
+      },
+      {
+        "scheduled_ns": 118846978265262,
+        "resumed_ns": 118846978368486,
+        "lateness_ns": 103224
+      },
+      {
+        "scheduled_ns": 118846980369237,
+        "resumed_ns": 118846980468674,
+        "lateness_ns": 99437
+      },
+      {
+        "scheduled_ns": 118846982469215,
+        "resumed_ns": 118846982573911,
+        "lateness_ns": 104696
+      },
+      {
+        "scheduled_ns": 118846984574873,
+        "resumed_ns": 118846985144423,
+        "lateness_ns": 569550
+      },
+      {
+        "scheduled_ns": 118846987145345,
+        "resumed_ns": 118846987638881,
+        "lateness_ns": 493536
+      },
+      {
+        "scheduled_ns": 118846989639994,
+        "resumed_ns": 118846990618593,
+        "lateness_ns": 978599
+      },
+      {
+        "scheduled_ns": 118846992619835,
+        "resumed_ns": 118846992848968,
+        "lateness_ns": 229133
+      },
+      {
+        "scheduled_ns": 118846994850000,
+        "resumed_ns": 118846994967440,
+        "lateness_ns": 117440
+      },
+      {
+        "scheduled_ns": 118846996968212,
+        "resumed_ns": 118847004784575,
+        "lateness_ns": 7816363
+      }
+    ],
+    "cache_io_samples": [
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 118846951977429,
+        "finished_ns": 118846964900191,
+        "thread_id": 140017494103744,
+        "serialized_bytes": 199085,
+        "sha256": "4a0a00096ff121a52d1f8662c9f4f42c87f2200624ba20f2f7f800bb4455f0b0"
+      },
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 118846971343623,
+        "finished_ns": 118846984519348,
+        "thread_id": 140017494103744,
+        "serialized_bytes": 199085,
+        "sha256": "4a0a00096ff121a52d1f8662c9f4f42c87f2200624ba20f2f7f800bb4455f0b0"
+      }
+    ],
+    "serialized_cache_put_bytes": 0,
+    "cache_read_bytes": 398170,
+    "native_node_completed_metrics": [
+      {
+        "alias": "compute",
+        "node_id": "scientist.cache_cost_oracle@1.0.0",
+        "workflow_id": "cache_cost_profile",
+        "status": "ok",
+        "duration_ms": 17,
+        "cache_hit": true,
+        "retry_count": 0
+      }
+    ],
+    "actual_provider_calls": 1
+  },
+  {
+    "ordinal": 8,
+    "warm": true,
+    "workflow_started_ns": 118847010601118,
+    "workflow_finished_ns": 118847070144373,
+    "workflow_return_cost_ns": 59543255,
+    "loop_thread_id": 140020497430400,
+    "neighbour_timer_samples": [
+      {
+        "scheduled_ns": 118847012591540,
+        "resumed_ns": 118847012972907,
+        "lateness_ns": 381367
+      },
+      {
+        "scheduled_ns": 118847014973979,
+        "resumed_ns": 118847016053127,
+        "lateness_ns": 1079148
+      },
+      {
+        "scheduled_ns": 118847018054750,
+        "resumed_ns": 118847018148035,
+        "lateness_ns": 93285
+      },
+      {
+        "scheduled_ns": 118847020148906,
+        "resumed_ns": 118847020256759,
+        "lateness_ns": 107853
+      },
+      {
+        "scheduled_ns": 118847022257560,
+        "resumed_ns": 118847022358700,
+        "lateness_ns": 101140
+      },
+      {
+        "scheduled_ns": 118847024359411,
+        "resumed_ns": 118847024462665,
+        "lateness_ns": 103254
+      },
+      {
+        "scheduled_ns": 118847026463346,
+        "resumed_ns": 118847026573653,
+        "lateness_ns": 110307
+      },
+      {
+        "scheduled_ns": 118847028574494,
+        "resumed_ns": 118847028674452,
+        "lateness_ns": 99958
+      },
+      {
+        "scheduled_ns": 118847030675103,
+        "resumed_ns": 118847030874838,
+        "lateness_ns": 199735
+      },
+      {
+        "scheduled_ns": 118847032875830,
+        "resumed_ns": 118847033137561,
+        "lateness_ns": 261731
+      },
+      {
+        "scheduled_ns": 118847035138373,
+        "resumed_ns": 118847035245374,
+        "lateness_ns": 107001
+      },
+      {
+        "scheduled_ns": 118847037246085,
+        "resumed_ns": 118847037702002,
+        "lateness_ns": 455917
+      },
+      {
+        "scheduled_ns": 118847039702994,
+        "resumed_ns": 118847039811327,
+        "lateness_ns": 108333
+      },
+      {
+        "scheduled_ns": 118847041812168,
+        "resumed_ns": 118847041940469,
+        "lateness_ns": 128301
+      },
+      {
+        "scheduled_ns": 118847043941321,
+        "resumed_ns": 118847044074959,
+        "lateness_ns": 133638
+      },
+      {
+        "scheduled_ns": 118847046076091,
+        "resumed_ns": 118847046187099,
+        "lateness_ns": 111008
+      },
+      {
+        "scheduled_ns": 118847048187680,
+        "resumed_ns": 118847048287337,
+        "lateness_ns": 99657
+      },
+      {
+        "scheduled_ns": 118847050288169,
+        "resumed_ns": 118847050615584,
+        "lateness_ns": 327415
+      },
+      {
+        "scheduled_ns": 118847052616476,
+        "resumed_ns": 118847053425456,
+        "lateness_ns": 808980
+      },
+      {
+        "scheduled_ns": 118847055426367,
+        "resumed_ns": 118847056234596,
+        "lateness_ns": 808229
+      },
+      {
+        "scheduled_ns": 118847058235698,
+        "resumed_ns": 118847059329163,
+        "lateness_ns": 1093465
+      },
+      {
+        "scheduled_ns": 118847061330115,
+        "resumed_ns": 118847061475598,
+        "lateness_ns": 145483
+      },
+      {
+        "scheduled_ns": 118847063476479,
+        "resumed_ns": 118847070164221,
+        "lateness_ns": 6687742
+      }
+    ],
+    "cache_io_samples": [
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 118847018590404,
+        "finished_ns": 118847031699496,
+        "thread_id": 140017494103744,
+        "serialized_bytes": 199085,
+        "sha256": "4a0a00096ff121a52d1f8662c9f4f42c87f2200624ba20f2f7f800bb4455f0b0"
+      },
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 118847037017072,
+        "finished_ns": 118847050018121,
+        "thread_id": 140017494103744,
+        "serialized_bytes": 199085,
+        "sha256": "4a0a00096ff121a52d1f8662c9f4f42c87f2200624ba20f2f7f800bb4455f0b0"
+      }
+    ],
+    "serialized_cache_put_bytes": 0,
+    "cache_read_bytes": 398170,
+    "native_node_completed_metrics": [
+      {
+        "alias": "compute",
+        "node_id": "scientist.cache_cost_oracle@1.0.0",
+        "workflow_id": "cache_cost_profile",
+        "status": "ok",
+        "duration_ms": 17,
+        "cache_hit": true,
+        "retry_count": 0
+      }
+    ],
+    "actual_provider_calls": 1
+  },
+  {
+    "ordinal": 9,
+    "warm": true,
+    "workflow_started_ns": 118847076081063,
+    "workflow_finished_ns": 118847138381243,
+    "workflow_return_cost_ns": 62300180,
+    "loop_thread_id": 140020497430400,
+    "neighbour_timer_samples": [
+      {
+        "scheduled_ns": 118847078070744,
+        "resumed_ns": 118847078471867,
+        "lateness_ns": 401123
+      },
+      {
+        "scheduled_ns": 118847080472929,
+        "resumed_ns": 118847081405762,
+        "lateness_ns": 932833
+      },
+      {
+        "scheduled_ns": 118847083406704,
+        "resumed_ns": 118847083937762,
+        "lateness_ns": 531058
+      },
+      {
+        "scheduled_ns": 118847085938864,
+        "resumed_ns": 118847086086691,
+        "lateness_ns": 147827
+      },
+      {
+        "scheduled_ns": 118847088087573,
+        "resumed_ns": 118847088184615,
+        "lateness_ns": 97042
+      },
+      {
+        "scheduled_ns": 118847090185396,
+        "resumed_ns": 118847090285804,
+        "lateness_ns": 100408
+      },
+      {
+        "scheduled_ns": 118847092286385,
+        "resumed_ns": 118847092380021,
+        "lateness_ns": 93636
+      },
+      {
+        "scheduled_ns": 118847094380602,
+        "resumed_ns": 118847094478906,
+        "lateness_ns": 98304
+      },
+      {
+        "scheduled_ns": 118847096479508,
+        "resumed_ns": 118847096699982,
+        "lateness_ns": 220474
+      },
+      {
+        "scheduled_ns": 118847098700903,
+        "resumed_ns": 118847098930885,
+        "lateness_ns": 229982
+      },
+      {
+        "scheduled_ns": 118847100931807,
+        "resumed_ns": 118847101259167,
+        "lateness_ns": 327360
+      },
+      {
+        "scheduled_ns": 118847103260660,
+        "resumed_ns": 118847104325731,
+        "lateness_ns": 1065071
+      },
+      {
+        "scheduled_ns": 118847106326733,
+        "resumed_ns": 118847106463771,
+        "lateness_ns": 137038
+      },
+      {
+        "scheduled_ns": 118847108464822,
+        "resumed_ns": 118847108572374,
+        "lateness_ns": 107552
+      },
+      {
+        "scheduled_ns": 118847110573125,
+        "resumed_ns": 118847110686108,
+        "lateness_ns": 112983
+      },
+      {
+        "scheduled_ns": 118847112686979,
+        "resumed_ns": 118847112857289,
+        "lateness_ns": 170310
+      },
+      {
+        "scheduled_ns": 118847114858481,
+        "resumed_ns": 118847114995859,
+        "lateness_ns": 137378
+      },
+      {
+        "scheduled_ns": 118847116996731,
+        "resumed_ns": 118847117203368,
+        "lateness_ns": 206637
+      },
+      {
+        "scheduled_ns": 118847119204140,
+        "resumed_ns": 118847119374008,
+        "lateness_ns": 169868
+      },
+      {
+        "scheduled_ns": 118847121374670,
+        "resumed_ns": 118847121798170,
+        "lateness_ns": 423500
+      },
+      {
+        "scheduled_ns": 118847123799182,
+        "resumed_ns": 118847124183404,
+        "lateness_ns": 384222
+      },
+      {
+        "scheduled_ns": 118847126184346,
+        "resumed_ns": 118847127175068,
+        "lateness_ns": 990722
+      },
+      {
+        "scheduled_ns": 118847129176030,
+        "resumed_ns": 118847129358863,
+        "lateness_ns": 182833
+      },
+      {
+        "scheduled_ns": 118847131359795,
+        "resumed_ns": 118847138401912,
+        "lateness_ns": 7042117
+      }
+    ],
+    "cache_io_samples": [
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 118847084457709,
+        "finished_ns": 118847097438580,
+        "thread_id": 140017494103744,
+        "serialized_bytes": 199085,
+        "sha256": "4a0a00096ff121a52d1f8662c9f4f42c87f2200624ba20f2f7f800bb4455f0b0"
+      },
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 118847104815958,
+        "finished_ns": 118847117874255,
+        "thread_id": 140017494103744,
+        "serialized_bytes": 199085,
+        "sha256": "4a0a00096ff121a52d1f8662c9f4f42c87f2200624ba20f2f7f800bb4455f0b0"
+      }
+    ],
+    "serialized_cache_put_bytes": 0,
+    "cache_read_bytes": 398170,
+    "native_node_completed_metrics": [
+      {
+        "alias": "compute",
+        "node_id": "scientist.cache_cost_oracle@1.0.0",
+        "workflow_id": "cache_cost_profile",
+        "status": "ok",
+        "duration_ms": 17,
+        "cache_hit": true,
+        "retry_count": 0
+      }
+    ],
+    "actual_provider_calls": 1
+  },
+  {
+    "ordinal": 10,
+    "warm": true,
+    "workflow_started_ns": 118847144502179,
+    "workflow_finished_ns": 118847204443637,
+    "workflow_return_cost_ns": 59941458,
+    "loop_thread_id": 140020497430400,
+    "neighbour_timer_samples": [
+      {
+        "scheduled_ns": 118847146492020,
+        "resumed_ns": 118847146916427,
+        "lateness_ns": 424407
+      },
+      {
+        "scheduled_ns": 118847148917780,
+        "resumed_ns": 118847149726389,
+        "lateness_ns": 808609
+      },
+      {
+        "scheduled_ns": 118847151727491,
+        "resumed_ns": 118847151888914,
+        "lateness_ns": 161423
+      },
+      {
+        "scheduled_ns": 118847153889655,
+        "resumed_ns": 118847154594951,
+        "lateness_ns": 705296
+      },
+      {
+        "scheduled_ns": 118847156595933,
+        "resumed_ns": 118847156694347,
+        "lateness_ns": 98414
+      },
+      {
+        "scheduled_ns": 118847158695088,
+        "resumed_ns": 118847158802720,
+        "lateness_ns": 107632
+      },
+      {
+        "scheduled_ns": 118847160803562,
+        "resumed_ns": 118847160915144,
+        "lateness_ns": 111582
+      },
+      {
+        "scheduled_ns": 118847162916026,
+        "resumed_ns": 118847163018067,
+        "lateness_ns": 102041
+      },
+      {
+        "scheduled_ns": 118847165018678,
+        "resumed_ns": 118847165168449,
+        "lateness_ns": 149771
+      },
+      {
+        "scheduled_ns": 118847167169331,
+        "resumed_ns": 118847167270691,
+        "lateness_ns": 101360
+      },
+      {
+        "scheduled_ns": 118847169271282,
+        "resumed_ns": 118847169951651,
+        "lateness_ns": 680369
+      },
+      {
+        "scheduled_ns": 118847171952452,
+        "resumed_ns": 118847172272503,
+        "lateness_ns": 320051
+      },
+      {
+        "scheduled_ns": 118847174273525,
+        "resumed_ns": 118847174376609,
+        "lateness_ns": 103084
+      },
+      {
+        "scheduled_ns": 118847176377330,
+        "resumed_ns": 118847176477969,
+        "lateness_ns": 100639
+      },
+      {
+        "scheduled_ns": 118847178478660,
+        "resumed_ns": 118847178577976,
+        "lateness_ns": 99316
+      },
+      {
+        "scheduled_ns": 118847180578648,
+        "resumed_ns": 118847180677182,
+        "lateness_ns": 98534
+      },
+      {
+        "scheduled_ns": 118847182677753,
+        "resumed_ns": 118847182780395,
+        "lateness_ns": 102642
+      },
+      {
+        "scheduled_ns": 118847184781407,
+        "resumed_ns": 118847184887166,
+        "lateness_ns": 105759
+      },
+      {
+        "scheduled_ns": 118847186887817,
+        "resumed_ns": 118847187702618,
+        "lateness_ns": 814801
+      },
+      {
+        "scheduled_ns": 118847189703279,
+        "resumed_ns": 118847190512730,
+        "lateness_ns": 809451
+      },
+      {
+        "scheduled_ns": 118847192513752,
+        "resumed_ns": 118847193597159,
+        "lateness_ns": 1083407
+      },
+      {
+        "scheduled_ns": 118847195598170,
+        "resumed_ns": 118847195917320,
+        "lateness_ns": 319150
+      },
+      {
+        "scheduled_ns": 118847197918312,
+        "resumed_ns": 118847204464307,
+        "lateness_ns": 6545995
+      }
+    ],
+    "cache_io_samples": [
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 118847152961861,
+        "finished_ns": 118847165920511,
+        "thread_id": 140017494103744,
+        "serialized_bytes": 199085,
+        "sha256": "4a0a00096ff121a52d1f8662c9f4f42c87f2200624ba20f2f7f800bb4455f0b0"
+      },
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 118847171542769,
+        "finished_ns": 118847184832490,
+        "thread_id": 140017494103744,
+        "serialized_bytes": 199085,
+        "sha256": "4a0a00096ff121a52d1f8662c9f4f42c87f2200624ba20f2f7f800bb4455f0b0"
+      }
+    ],
+    "serialized_cache_put_bytes": 0,
+    "cache_read_bytes": 398170,
+    "native_node_completed_metrics": [
+      {
+        "alias": "compute",
+        "node_id": "scientist.cache_cost_oracle@1.0.0",
+        "workflow_id": "cache_cost_profile",
+        "status": "ok",
+        "duration_ms": 17,
+        "cache_hit": true,
+        "retry_count": 0
+      }
+    ],
+    "actual_provider_calls": 1
+  },
+  {
+    "ordinal": 11,
+    "warm": true,
+    "workflow_started_ns": 118847210476799,
+    "workflow_finished_ns": 118847268189653,
+    "workflow_return_cost_ns": 57712854,
+    "loop_thread_id": 140020497430400,
+    "neighbour_timer_samples": [
+      {
+        "scheduled_ns": 118847212467331,
+        "resumed_ns": 118847212780118,
+        "lateness_ns": 312787
+      },
+      {
+        "scheduled_ns": 118847214781361,
+        "resumed_ns": 118847214968231,
+        "lateness_ns": 186870
+      },
+      {
+        "scheduled_ns": 118847216969173,
+        "resumed_ns": 118847217213472,
+        "lateness_ns": 244299
+      },
+      {
+        "scheduled_ns": 118847219214273,
+        "resumed_ns": 118847219925960,
+        "lateness_ns": 711687
+      },
+      {
+        "scheduled_ns": 118847221926932,
+        "resumed_ns": 118847222026379,
+        "lateness_ns": 99447
+      },
+      {
+        "scheduled_ns": 118847224027200,
+        "resumed_ns": 118847224125815,
+        "lateness_ns": 98615
+      },
+      {
+        "scheduled_ns": 118847226126456,
+        "resumed_ns": 118847226225232,
+        "lateness_ns": 98776
+      },
+      {
+        "scheduled_ns": 118847228225843,
+        "resumed_ns": 118847228323256,
+        "lateness_ns": 97413
+      },
+      {
+        "scheduled_ns": 118847230324037,
+        "resumed_ns": 118847230619813,
+        "lateness_ns": 295776
+      },
+      {
+        "scheduled_ns": 118847232620764,
+        "resumed_ns": 118847232764745,
+        "lateness_ns": 143981
+      },
+      {
+        "scheduled_ns": 118847234765957,
+        "resumed_ns": 118847235589895,
+        "lateness_ns": 823938
+      },
+      {
+        "scheduled_ns": 118847237590817,
+        "resumed_ns": 118847237730950,
+        "lateness_ns": 140133
+      },
+      {
+        "scheduled_ns": 118847239731792,
+        "resumed_ns": 118847239860543,
+        "lateness_ns": 128751
+      },
+      {
+        "scheduled_ns": 118847241861275,
+        "resumed_ns": 118847241965690,
+        "lateness_ns": 104415
+      },
+      {
+        "scheduled_ns": 118847243966382,
+        "resumed_ns": 118847244058742,
+        "lateness_ns": 92360
+      },
+      {
+        "scheduled_ns": 118847246059644,
+        "resumed_ns": 118847246162297,
+        "lateness_ns": 102653
+      },
+      {
+        "scheduled_ns": 118847248162948,
+        "resumed_ns": 118847248289225,
+        "lateness_ns": 126277
+      },
+      {
+        "scheduled_ns": 118847250290086,
+        "resumed_ns": 118847250398249,
+        "lateness_ns": 108163
+      },
+      {
+        "scheduled_ns": 118847252398880,
+        "resumed_ns": 118847252721606,
+        "lateness_ns": 322726
+      },
+      {
+        "scheduled_ns": 118847254722458,
+        "resumed_ns": 118847254976846,
+        "lateness_ns": 254388
+      },
+      {
+        "scheduled_ns": 118847256977707,
+        "resumed_ns": 118847258128620,
+        "lateness_ns": 1150913
+      },
+      {
+        "scheduled_ns": 118847260129712,
+        "resumed_ns": 118847260263653,
+        "lateness_ns": 133941
+      },
+      {
+        "scheduled_ns": 118847262264325,
+        "resumed_ns": 118847268210041,
+        "lateness_ns": 5945716
+      }
+    ],
+    "cache_io_samples": [
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 118847218239037,
+        "finished_ns": 118847231244505,
+        "thread_id": 140017494103744,
+        "serialized_bytes": 199085,
+        "sha256": "4a0a00096ff121a52d1f8662c9f4f42c87f2200624ba20f2f7f800bb4455f0b0"
+      },
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 118847236123285,
+        "finished_ns": 118847249109169,
+        "thread_id": 140017494103744,
+        "serialized_bytes": 199085,
+        "sha256": "4a0a00096ff121a52d1f8662c9f4f42c87f2200624ba20f2f7f800bb4455f0b0"
+      }
+    ],
+    "serialized_cache_put_bytes": 0,
+    "cache_read_bytes": 398170,
+    "native_node_completed_metrics": [
+      {
+        "alias": "compute",
+        "node_id": "scientist.cache_cost_oracle@1.0.0",
+        "workflow_id": "cache_cost_profile",
+        "status": "ok",
+        "duration_ms": 17,
+        "cache_hit": true,
+        "retry_count": 0
+      }
+    ],
+    "actual_provider_calls": 1
+  },
+  {
+    "ordinal": 12,
+    "warm": true,
+    "workflow_started_ns": 118847274305008,
+    "workflow_finished_ns": 118847332594038,
+    "workflow_return_cost_ns": 58289030,
+    "loop_thread_id": 140020497430400,
+    "neighbour_timer_samples": [
+      {
+        "scheduled_ns": 118847276294709,
+        "resumed_ns": 118847276618197,
+        "lateness_ns": 323488
+      },
+      {
+        "scheduled_ns": 118847278619238,
+        "resumed_ns": 118847278866583,
+        "lateness_ns": 247345
+      },
+      {
+        "scheduled_ns": 118847280867645,
+        "resumed_ns": 118847280975507,
+        "lateness_ns": 107862
+      },
+      {
+        "scheduled_ns": 118847282976369,
+        "resumed_ns": 118847283707803,
+        "lateness_ns": 731434
+      },
+      {
+        "scheduled_ns": 118847285708745,
+        "resumed_ns": 118847285808632,
+        "lateness_ns": 99887
+      },
+      {
+        "scheduled_ns": 118847287809474,
+        "resumed_ns": 118847287910844,
+        "lateness_ns": 101370
+      },
+      {
+        "scheduled_ns": 118847289911485,
+        "resumed_ns": 118847290009379,
+        "lateness_ns": 97894
+      },
+      {
+        "scheduled_ns": 118847292010060,
+        "resumed_ns": 118847292073048,
+        "lateness_ns": 62988
+      },
+      {
+        "scheduled_ns": 118847294073709,
+        "resumed_ns": 118847294173757,
+        "lateness_ns": 100048
+      },
+      {
+        "scheduled_ns": 118847296174448,
+        "resumed_ns": 118847296267292,
+        "lateness_ns": 92844
+      },
+      {
+        "scheduled_ns": 118847298267873,
+        "resumed_ns": 118847299332815,
+        "lateness_ns": 1064942
+      },
+      {
+        "scheduled_ns": 118847301333526,
+        "resumed_ns": 118847301784473,
+        "lateness_ns": 450947
+      },
+      {
+        "scheduled_ns": 118847303785465,
+        "resumed_ns": 118847303890803,
+        "lateness_ns": 105338
+      },
+      {
+        "scheduled_ns": 118847305891454,
+        "resumed_ns": 118847305996321,
+        "lateness_ns": 104867
+      },
+      {
+        "scheduled_ns": 118847307996962,
+        "resumed_ns": 118847308044461,
+        "lateness_ns": 47499
+      },
+      {
+        "scheduled_ns": 118847310045072,
+        "resumed_ns": 118847310144839,
+        "lateness_ns": 99767
+      },
+      {
+        "scheduled_ns": 118847312145430,
+        "resumed_ns": 118847312243935,
+        "lateness_ns": 98505
+      },
+      {
+        "scheduled_ns": 118847314244626,
+        "resumed_ns": 118847314636702,
+        "lateness_ns": 392076
+      },
+      {
+        "scheduled_ns": 118847316637354,
+        "resumed_ns": 118847317191034,
+        "lateness_ns": 553680
+      },
+      {
+        "scheduled_ns": 118847319191785,
+        "resumed_ns": 118847320218815,
+        "lateness_ns": 1027030
+      },
+      {
+        "scheduled_ns": 118847322219807,
+        "resumed_ns": 118847323013258,
+        "lateness_ns": 793451
+      },
+      {
+        "scheduled_ns": 118847325014280,
+        "resumed_ns": 118847332601943,
+        "lateness_ns": 7587663
+      }
+    ],
+    "cache_io_samples": [
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 118847283071237,
+        "finished_ns": 118847296158027,
+        "thread_id": 140017494103744,
+        "serialized_bytes": 199085,
+        "sha256": "4a0a00096ff121a52d1f8662c9f4f42c87f2200624ba20f2f7f800bb4455f0b0"
+      },
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 118847301099225,
+        "finished_ns": 118847314093324,
+        "thread_id": 140017494103744,
+        "serialized_bytes": 199085,
+        "sha256": "4a0a00096ff121a52d1f8662c9f4f42c87f2200624ba20f2f7f800bb4455f0b0"
+      }
+    ],
+    "serialized_cache_put_bytes": 0,
+    "cache_read_bytes": 398170,
+    "native_node_completed_metrics": [
+      {
+        "alias": "compute",
+        "node_id": "scientist.cache_cost_oracle@1.0.0",
+        "workflow_id": "cache_cost_profile",
+        "status": "ok",
+        "duration_ms": 17,
+        "cache_hit": true,
+        "retry_count": 0
+      }
+    ],
+    "actual_provider_calls": 1
+  }
+]

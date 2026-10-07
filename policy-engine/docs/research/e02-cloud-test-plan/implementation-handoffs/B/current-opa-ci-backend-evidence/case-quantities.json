@@ -1,0 +1,721 @@
+{
+  "executed_source_sha": "8142b14162f6417045ccbc560588da4341ac93ce",
+  "executed_source_tree": "c9089aea682ca12a44633cb8e114c8d95a662780",
+  "native_case_count": 24,
+  "native_counts": {
+    "PASS": 8,
+    "ERROR": 16
+  },
+  "rows": [
+    {
+      "case_index": 0,
+      "nodeid": "tests/unit/runtime/http/test_runtime_rego_authorization_parity.py::test_rego_permission_vocabulary_matches_canonical_server_enum",
+      "xml_attributes": {
+        "classname": "tests.unit.runtime.http.test_runtime_rego_authorization_parity",
+        "name": "test_rego_permission_vocabulary_matches_canonical_server_enum",
+        "time": "0.076"
+      },
+      "state": "PASS",
+      "diagnostics": [],
+      "property_grade": "bounded actual canonical test assertions; no institutional authority proof"
+    },
+    {
+      "case_index": 1,
+      "nodeid": "tests/unit/runtime/http/test_runtime_rego_authorization_parity.py::test_human_decision_permission_and_owned_resource_match_rego",
+      "xml_attributes": {
+        "classname": "tests.unit.runtime.http.test_runtime_rego_authorization_parity",
+        "name": "test_human_decision_permission_and_owned_resource_match_rego",
+        "time": "0.894"
+      },
+      "state": "ERROR",
+      "diagnostics": [
+        {
+          "tag": "error",
+          "attributes": {
+            "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+          },
+          "full_text_sha256": "9eb8bbb325794862b07a4066e07e8b9cbf862739e63e2376851cc6e53b8e4bf6",
+          "text_bytes": 2411
+        }
+      ],
+      "property_grade": "setup premise not_established; retained literal native ERROR"
+    },
+    {
+      "case_index": 2,
+      "nodeid": "tests/unit/runtime/http/test_runtime_rego_authorization_parity.py::test_rego_action_resource_contracts_match_live_guarded_router",
+      "xml_attributes": {
+        "classname": "tests.unit.runtime.http.test_runtime_rego_authorization_parity",
+        "name": "test_rego_action_resource_contracts_match_live_guarded_router",
+        "time": "0.834"
+      },
+      "state": "ERROR",
+      "diagnostics": [
+        {
+          "tag": "error",
+          "attributes": {
+            "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+          },
+          "full_text_sha256": "b50a68feef5a69bd44d9501e5782f0ea23259ad62cf1a18436b40a31c8b7e77a",
+          "text_bytes": 2412
+        }
+      ],
+      "property_grade": "setup premise not_established; retained literal native ERROR"
+    },
+    {
+      "case_index": 3,
+      "nodeid": "tests/unit/runtime/http/test_runtime_rego_authorization_parity.py::test_runtime_opa_input_projects_exact_sealed_action_contract",
+      "xml_attributes": {
+        "classname": "tests.unit.runtime.http.test_runtime_rego_authorization_parity",
+        "name": "test_runtime_opa_input_projects_exact_sealed_action_contract",
+        "time": "0.001"
+      },
+      "state": "PASS",
+      "diagnostics": [],
+      "property_grade": "bounded actual canonical test assertions; no institutional authority proof"
+    },
+    {
+      "case_index": 4,
+      "nodeid": "tests/unit/runtime/http/test_runtime_rego_authorization_parity.py::test_runtime_middleware_sends_sealed_action_contract_to_opa",
+      "xml_attributes": {
+        "classname": "tests.unit.runtime.http.test_runtime_rego_authorization_parity",
+        "name": "test_runtime_middleware_sends_sealed_action_contract_to_opa",
+        "time": "0.883"
+      },
+      "state": "ERROR",
+      "diagnostics": [
+        {
+          "tag": "error",
+          "attributes": {
+            "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+          },
+          "full_text_sha256": "ca19a0c8858c5fe75f7db0afc06e833fdda244fbb5f99e3ff0a4a86422b92235",
+          "text_bytes": 2410
+        }
+      ],
+      "property_grade": "setup premise not_established; retained literal native ERROR"
+    },
+    {
+      "case_index": 5,
+      "nodeid": "tests/unit/runtime/http/test_runtime_rego_authorization_parity.py::test_guarded_safe_route_emits_runtime_action_opa_input",
+      "xml_attributes": {
+        "classname": "tests.unit.runtime.http.test_runtime_rego_authorization_parity",
+        "name": "test_guarded_safe_route_emits_runtime_action_opa_input",
+        "time": "0.792"
+      },
+      "state": "ERROR",
+      "diagnostics": [
+        {
+          "tag": "error",
+          "attributes": {
+            "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+          },
+          "full_text_sha256": "aae9de1cf682922a5f714e3979b252c9de444d33bc1bd18891bb113bb6a45040",
+          "text_bytes": 2405
+        }
+      ],
+      "property_grade": "setup premise not_established; retained literal native ERROR"
+    },
+    {
+      "case_index": 6,
+      "nodeid": "tests/unit/runtime/http/test_runtime_rego_authorization_parity.py::test_rego_allows_exact_guarded_human_decision_read",
+      "xml_attributes": {
+        "classname": "tests.unit.runtime.http.test_runtime_rego_authorization_parity",
+        "name": "test_rego_allows_exact_guarded_human_decision_read",
+        "time": "0.049"
+      },
+      "state": "PASS",
+      "diagnostics": [],
+      "property_grade": "bounded actual canonical test assertions; no institutional authority proof"
+    },
+    {
+      "case_index": 7,
+      "nodeid": "tests/unit/runtime/http/test_runtime_rego_authorization_parity.py::test_server_service_read_expectation_matches_rego[/api/v1/control/jobs/job-1-grants0-True]",
+      "xml_attributes": {
+        "classname": "tests.unit.runtime.http.test_runtime_rego_authorization_parity",
+        "name": "test_server_service_read_expectation_matches_rego[/api/v1/control/jobs/job-1-grants0-True]",
+        "time": "0.072"
+      },
+      "state": "PASS",
+      "diagnostics": [],
+      "property_grade": "bounded actual canonical test assertions; no institutional authority proof"
+    },
+    {
+      "case_index": 8,
+      "nodeid": "tests/unit/runtime/http/test_runtime_rego_authorization_parity.py::test_server_service_read_expectation_matches_rego[/api/v1/runs/run-1-grants1-True]",
+      "xml_attributes": {
+        "classname": "tests.unit.runtime.http.test_runtime_rego_authorization_parity",
+        "name": "test_server_service_read_expectation_matches_rego[/api/v1/runs/run-1-grants1-True]",
+        "time": "0.044"
+      },
+      "state": "PASS",
+      "diagnostics": [],
+      "property_grade": "bounded actual canonical test assertions; no institutional authority proof"
+    },
+    {
+      "case_index": 9,
+      "nodeid": "tests/unit/runtime/http/test_runtime_rego_authorization_parity.py::test_server_service_read_expectation_matches_rego[/api/v1/runs/run-1/timeline-grants2-True]",
+      "xml_attributes": {
+        "classname": "tests.unit.runtime.http.test_runtime_rego_authorization_parity",
+        "name": "test_server_service_read_expectation_matches_rego[/api/v1/runs/run-1/timeline-grants2-True]",
+        "time": "0.076"
+      },
+      "state": "PASS",
+      "diagnostics": [],
+      "property_grade": "bounded actual canonical test assertions; no institutional authority proof"
+    },
+    {
+      "case_index": 10,
+      "nodeid": "tests/unit/runtime/http/test_runtime_rego_authorization_parity.py::test_server_service_read_expectation_matches_rego[/api/v1/control/jobs/job-1-grants3-False]",
+      "xml_attributes": {
+        "classname": "tests.unit.runtime.http.test_runtime_rego_authorization_parity",
+        "name": "test_server_service_read_expectation_matches_rego[/api/v1/control/jobs/job-1-grants3-False]",
+        "time": "0.059"
+      },
+      "state": "PASS",
+      "diagnostics": [],
+      "property_grade": "bounded actual canonical test assertions; no institutional authority proof"
+    },
+    {
+      "case_index": 11,
+      "nodeid": "tests/unit/runtime/http/test_runtime_rego_authorization_parity.py::test_server_service_read_expectation_matches_rego[/api/v1/control/data/secret-grants4-False]",
+      "xml_attributes": {
+        "classname": "tests.unit.runtime.http.test_runtime_rego_authorization_parity",
+        "name": "test_server_service_read_expectation_matches_rego[/api/v1/control/data/secret-grants4-False]",
+        "time": "0.034"
+      },
+      "state": "PASS",
+      "diagnostics": [],
+      "property_grade": "bounded actual canonical test assertions; no institutional authority proof"
+    },
+    {
+      "case_index": 12,
+      "nodeid": "tests/unit/runtime/http/test_runtime_rego_authorization_parity.py::test_live_request_and_canonical_rego_agree_before_handler_side_effect",
+      "xml_attributes": {
+        "classname": "tests.unit.runtime.http.test_runtime_rego_authorization_parity",
+        "name": "test_live_request_and_canonical_rego_agree_before_handler_side_effect",
+        "time": "0.828"
+      },
+      "state": "ERROR",
+      "diagnostics": [
+        {
+          "tag": "error",
+          "attributes": {
+            "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+          },
+          "full_text_sha256": "cc1e05ea4a63faa4ad637419472457b255c273c647ffb0fb14a3db93ea29a056",
+          "text_bytes": 2420
+        }
+      ],
+      "property_grade": "setup premise not_established; retained literal native ERROR"
+    },
+    {
+      "case_index": 13,
+      "nodeid": "tests/unit/runtime/http/test_runtime_rego_authorization_parity.py::test_server_and_rego_decisions_match_for_principal_operation_resource_matrix[analyst_launch]",
+      "xml_attributes": {
+        "classname": "tests.unit.runtime.http.test_runtime_rego_authorization_parity",
+        "name": "test_server_and_rego_decisions_match_for_principal_operation_resource_matrix[analyst_launch]",
+        "time": "0.709"
+      },
+      "state": "ERROR",
+      "diagnostics": [
+        {
+          "tag": "error",
+          "attributes": {
+            "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+          },
+          "full_text_sha256": "c87e4b89b328f19273d4505df7bb51a0e6b86340b5e59ac3d90b7fb8f47f6fa3",
+          "text_bytes": 2443
+        }
+      ],
+      "property_grade": "setup premise not_established; retained literal native ERROR"
+    },
+    {
+      "case_index": 14,
+      "nodeid": "tests/unit/runtime/http/test_runtime_rego_authorization_parity.py::test_server_and_rego_decisions_match_for_principal_operation_resource_matrix[viewer_launch]",
+      "xml_attributes": {
+        "classname": "tests.unit.runtime.http.test_runtime_rego_authorization_parity",
+        "name": "test_server_and_rego_decisions_match_for_principal_operation_resource_matrix[viewer_launch]",
+        "time": "0.772"
+      },
+      "state": "ERROR",
+      "diagnostics": [
+        {
+          "tag": "error",
+          "attributes": {
+            "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+          },
+          "full_text_sha256": "3f62b135eee62c51ad8d395632aa83422b66716ec7fdb5275014c4222dd37aca",
+          "text_bytes": 2442
+        }
+      ],
+      "property_grade": "setup premise not_established; retained literal native ERROR"
+    },
+    {
+      "case_index": 15,
+      "nodeid": "tests/unit/runtime/http/test_runtime_rego_authorization_parity.py::test_server_and_rego_decisions_match_for_principal_operation_resource_matrix[admin_ingestion]",
+      "xml_attributes": {
+        "classname": "tests.unit.runtime.http.test_runtime_rego_authorization_parity",
+        "name": "test_server_and_rego_decisions_match_for_principal_operation_resource_matrix[admin_ingestion]",
+        "time": "0.680"
+      },
+      "state": "ERROR",
+      "diagnostics": [
+        {
+          "tag": "error",
+          "attributes": {
+            "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+          },
+          "full_text_sha256": "6f2701368d1110ee51718b460b6fdcc29ad8dd06d0fcddd11dcc1b566c719763",
+          "text_bytes": 2444
+        }
+      ],
+      "property_grade": "setup premise not_established; retained literal native ERROR"
+    },
+    {
+      "case_index": 16,
+      "nodeid": "tests/unit/runtime/http/test_runtime_rego_authorization_parity.py::test_server_and_rego_decisions_match_for_principal_operation_resource_matrix[admin_unscoped_resolution]",
+      "xml_attributes": {
+        "classname": "tests.unit.runtime.http.test_runtime_rego_authorization_parity",
+        "name": "test_server_and_rego_decisions_match_for_principal_operation_resource_matrix[admin_unscoped_resolution]",
+        "time": "0.721"
+      },
+      "state": "ERROR",
+      "diagnostics": [
+        {
+          "tag": "error",
+          "attributes": {
+            "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+          },
+          "full_text_sha256": "582b80f42502b6e80e3d0667899283f5010f31ff8d6d6d196a45f82573688433",
+          "text_bytes": 2454
+        }
+      ],
+      "property_grade": "setup premise not_established; retained literal native ERROR"
+    },
+    {
+      "case_index": 17,
+      "nodeid": "tests/unit/runtime/http/test_runtime_rego_authorization_parity.py::test_server_and_rego_decisions_match_for_principal_operation_resource_matrix[request_bound_resource_with_fabricated_tenant]",
+      "xml_attributes": {
+        "classname": "tests.unit.runtime.http.test_runtime_rego_authorization_parity",
+        "name": "test_server_and_rego_decisions_match_for_principal_operation_resource_matrix[request_bound_resource_with_fabricated_tenant]",
+        "time": "0.842"
+      },
+      "state": "ERROR",
+      "diagnostics": [
+        {
+          "tag": "error",
+          "attributes": {
+            "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+          },
+          "full_text_sha256": "d3ac1501a0c12e694fb723206b77c8c6641fa57e84ef23f4902a34ca74f659f7",
+          "text_bytes": 2474
+        }
+      ],
+      "property_grade": "setup premise not_established; retained literal native ERROR"
+    },
+    {
+      "case_index": 18,
+      "nodeid": "tests/unit/runtime/http/test_runtime_rego_authorization_parity.py::test_server_and_rego_decisions_match_for_principal_operation_resource_matrix[cross_tenant_launch]",
+      "xml_attributes": {
+        "classname": "tests.unit.runtime.http.test_runtime_rego_authorization_parity",
+        "name": "test_server_and_rego_decisions_match_for_principal_operation_resource_matrix[cross_tenant_launch]",
+        "time": "0.698"
+      },
+      "state": "ERROR",
+      "diagnostics": [
+        {
+          "tag": "error",
+          "attributes": {
+            "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+          },
+          "full_text_sha256": "dece3e6088f6b72955e55d293a979f96f68b5111e1717f3a8776885c01f2202a",
+          "text_bytes": 2448
+        }
+      ],
+      "property_grade": "setup premise not_established; retained literal native ERROR"
+    },
+    {
+      "case_index": 19,
+      "nodeid": "tests/unit/runtime/http/test_runtime_rego_authorization_parity.py::test_server_and_rego_decisions_match_for_principal_operation_resource_matrix[unknown_action]",
+      "xml_attributes": {
+        "classname": "tests.unit.runtime.http.test_runtime_rego_authorization_parity",
+        "name": "test_server_and_rego_decisions_match_for_principal_operation_resource_matrix[unknown_action]",
+        "time": "0.900"
+      },
+      "state": "ERROR",
+      "diagnostics": [
+        {
+          "tag": "error",
+          "attributes": {
+            "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+          },
+          "full_text_sha256": "bc30dafc065d04602f4bd5404bd6f17df1dc00782e2d48276a0f354987a9e88c",
+          "text_bytes": 2443
+        }
+      ],
+      "property_grade": "setup premise not_established; retained literal native ERROR"
+    },
+    {
+      "case_index": 20,
+      "nodeid": "tests/unit/runtime/http/test_runtime_rego_authorization_parity.py::test_server_and_rego_decisions_match_for_principal_operation_resource_matrix[malformed_action]",
+      "xml_attributes": {
+        "classname": "tests.unit.runtime.http.test_runtime_rego_authorization_parity",
+        "name": "test_server_and_rego_decisions_match_for_principal_operation_resource_matrix[malformed_action]",
+        "time": "0.745"
+      },
+      "state": "ERROR",
+      "diagnostics": [
+        {
+          "tag": "error",
+          "attributes": {
+            "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+          },
+          "full_text_sha256": "6abd71f6ab34f804b82f799833cee9aecc0eb4dbc0aae3ac2cd9f7a76a5f9e94",
+          "text_bytes": 2445
+        }
+      ],
+      "property_grade": "setup premise not_established; retained literal native ERROR"
+    },
+    {
+      "case_index": 21,
+      "nodeid": "tests/unit/runtime/http/test_runtime_rego_authorization_parity.py::test_server_and_rego_decisions_match_for_principal_operation_resource_matrix[known_action_wrong_resource]",
+      "xml_attributes": {
+        "classname": "tests.unit.runtime.http.test_runtime_rego_authorization_parity",
+        "name": "test_server_and_rego_decisions_match_for_principal_operation_resource_matrix[known_action_wrong_resource]",
+        "time": "0.691"
+      },
+      "state": "ERROR",
+      "diagnostics": [
+        {
+          "tag": "error",
+          "attributes": {
+            "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+          },
+          "full_text_sha256": "fabcf735e17a9779a6ea1c27e8c8433dbb0f3688c5d0c380c682a6809adea95b",
+          "text_bytes": 2456
+        }
+      ],
+      "property_grade": "setup premise not_established; retained literal native ERROR"
+    },
+    {
+      "case_index": 22,
+      "nodeid": "tests/unit/runtime/http/test_runtime_rego_authorization_parity.py::test_server_and_rego_decisions_match_for_principal_operation_resource_matrix[unknown_resource]",
+      "xml_attributes": {
+        "classname": "tests.unit.runtime.http.test_runtime_rego_authorization_parity",
+        "name": "test_server_and_rego_decisions_match_for_principal_operation_resource_matrix[unknown_resource]",
+        "time": "0.701"
+      },
+      "state": "ERROR",
+      "diagnostics": [
+        {
+          "tag": "error",
+          "attributes": {
+            "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+          },
+          "full_text_sha256": "3b33263d8985a55c4b02ee0091eb7479778a60513b03dc278f04ca65741b0c05",
+          "text_bytes": 2445
+        }
+      ],
+      "property_grade": "setup premise not_established; retained literal native ERROR"
+    },
+    {
+      "case_index": 23,
+      "nodeid": "tests/unit/runtime/http/test_runtime_rego_authorization_parity.py::test_server_and_rego_decisions_match_for_principal_operation_resource_matrix[unknown_authority]",
+      "xml_attributes": {
+        "classname": "tests.unit.runtime.http.test_runtime_rego_authorization_parity",
+        "name": "test_server_and_rego_decisions_match_for_principal_operation_resource_matrix[unknown_authority]",
+        "time": "0.737"
+      },
+      "state": "ERROR",
+      "diagnostics": [
+        {
+          "tag": "error",
+          "attributes": {
+            "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+          },
+          "full_text_sha256": "3d32598a018653e0ed76b7e7ef10dd126ef578b79b051f61de8821c37926476a",
+          "text_bytes": 2446
+        }
+      ],
+      "property_grade": "setup premise not_established; retained literal native ERROR"
+    }
+  ],
+  "old_dd_execution_sha": "dd9584728bd96f204983615216efdbc58117e713",
+  "old_interpretation_custody": {
+    "source_ref": "8142b14162f6417045ccbc560588da4341ac93ce:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dd-terminal-evidence/interpretation.json",
+    "git_blob": "667b43f71ae19f40c703a28dcb9aa75bd337f730",
+    "bytes": 734389,
+    "sha256": "0ece56091ba5a2af9f85f1f29960a4a02a748aebfc898e1b3e49f99f1bec41b4"
+  },
+  "old_full_json_bytes_read": 734389,
+  "old_nonpass_reason_rows": 742,
+  "exact_old_seven_to_new_join": [
+    {
+      "old_case": {
+        "nodeid": "tests/unit/runtime/http/test_runtime_rego_authorization_parity.py::test_rego_permission_vocabulary_matches_canonical_server_enum",
+        "state": "FAIL",
+        "phase_states": {
+          "setup": [
+            "PASS"
+          ],
+          "call": [
+            "FAIL"
+          ],
+          "teardown": [
+            "PASS"
+          ]
+        },
+        "junit_case_index": 2599,
+        "literal_xml_outcome": "failure",
+        "exception_type": null,
+        "message": "Failed: OPA is required for runtime authorization parity; run: opa check --strict ops/policy/policies && opa test --fail-on-empty -v ops/policy/policies",
+        "full_trace_sha256": "f36f7cbf3a9b21406789f0f3a85f8a4ad612c7d289a7840b12c7a8e0215b41c0",
+        "full_trace": "native.junit.xml testcase index above; complete bytes also in native.stdout.txt",
+        "reason_category": "required_opa_backend_unavailable",
+        "category_grade": "observed reason partition; no causal introducing-commit or finding closure decision",
+        "P41_inherited_red_basis": "not_established"
+      },
+      "new_case": {
+        "case_index": 0,
+        "nodeid": "tests/unit/runtime/http/test_runtime_rego_authorization_parity.py::test_rego_permission_vocabulary_matches_canonical_server_enum",
+        "xml_attributes": {
+          "classname": "tests.unit.runtime.http.test_runtime_rego_authorization_parity",
+          "name": "test_rego_permission_vocabulary_matches_canonical_server_enum",
+          "time": "0.076"
+        },
+        "state": "PASS",
+        "diagnostics": [],
+        "property_grade": "bounded actual canonical test assertions; no institutional authority proof"
+      }
+    },
+    {
+      "old_case": {
+        "nodeid": "tests/unit/runtime/http/test_runtime_rego_authorization_parity.py::test_rego_allows_exact_guarded_human_decision_read",
+        "state": "FAIL",
+        "phase_states": {
+          "setup": [
+            "PASS"
+          ],
+          "call": [
+            "FAIL"
+          ],
+          "teardown": [
+            "PASS"
+          ]
+        },
+        "junit_case_index": 2605,
+        "literal_xml_outcome": "failure",
+        "exception_type": null,
+        "message": "Failed: OPA is required for runtime authorization parity; run: opa check --strict ops/policy/policies && opa test --fail-on-empty -v ops/policy/policies",
+        "full_trace_sha256": "53cc01d1e1860f1477ff59f28f1ee2aa7fba493740215a101d1df15f174479cf",
+        "full_trace": "native.junit.xml testcase index above; complete bytes also in native.stdout.txt",
+        "reason_category": "required_opa_backend_unavailable",
+        "category_grade": "observed reason partition; no causal introducing-commit or finding closure decision",
+        "P41_inherited_red_basis": "not_established"
+      },
+      "new_case": {
+        "case_index": 6,
+        "nodeid": "tests/unit/runtime/http/test_runtime_rego_authorization_parity.py::test_rego_allows_exact_guarded_human_decision_read",
+        "xml_attributes": {
+          "classname": "tests.unit.runtime.http.test_runtime_rego_authorization_parity",
+          "name": "test_rego_allows_exact_guarded_human_decision_read",
+          "time": "0.049"
+        },
+        "state": "PASS",
+        "diagnostics": [],
+        "property_grade": "bounded actual canonical test assertions; no institutional authority proof"
+      }
+    },
+    {
+      "old_case": {
+        "nodeid": "tests/unit/runtime/http/test_runtime_rego_authorization_parity.py::test_server_service_read_expectation_matches_rego[/api/v1/control/jobs/job-1-grants0-True]",
+        "state": "FAIL",
+        "phase_states": {
+          "setup": [
+            "PASS"
+          ],
+          "call": [
+            "FAIL"
+          ],
+          "teardown": [
+            "PASS"
+          ]
+        },
+        "junit_case_index": 2606,
+        "literal_xml_outcome": "failure",
+        "exception_type": null,
+        "message": "Failed: OPA is required for runtime authorization parity; run: opa check --strict ops/policy/policies && opa test --fail-on-empty -v ops/policy/policies",
+        "full_trace_sha256": "9d32118b2e559fe5f96db1ddcb05d23425c360681731e6902c4e2e002604ea32",
+        "full_trace": "native.junit.xml testcase index above; complete bytes also in native.stdout.txt",
+        "reason_category": "required_opa_backend_unavailable",
+        "category_grade": "observed reason partition; no causal introducing-commit or finding closure decision",
+        "P41_inherited_red_basis": "not_established"
+      },
+      "new_case": {
+        "case_index": 7,
+        "nodeid": "tests/unit/runtime/http/test_runtime_rego_authorization_parity.py::test_server_service_read_expectation_matches_rego[/api/v1/control/jobs/job-1-grants0-True]",
+        "xml_attributes": {
+          "classname": "tests.unit.runtime.http.test_runtime_rego_authorization_parity",
+          "name": "test_server_service_read_expectation_matches_rego[/api/v1/control/jobs/job-1-grants0-True]",
+          "time": "0.072"
+        },
+        "state": "PASS",
+        "diagnostics": [],
+        "property_grade": "bounded actual canonical test assertions; no institutional authority proof"
+      }
+    },
+    {
+      "old_case": {
+        "nodeid": "tests/unit/runtime/http/test_runtime_rego_authorization_parity.py::test_server_service_read_expectation_matches_rego[/api/v1/runs/run-1-grants1-True]",
+        "state": "FAIL",
+        "phase_states": {
+          "setup": [
+            "PASS"
+          ],
+          "call": [
+            "FAIL"
+          ],
+          "teardown": [
+            "PASS"
+          ]
+        },
+        "junit_case_index": 2607,
+        "literal_xml_outcome": "failure",
+        "exception_type": null,
+        "message": "Failed: OPA is required for runtime authorization parity; run: opa check --strict ops/policy/policies && opa test --fail-on-empty -v ops/policy/policies",
+        "full_trace_sha256": "9bbaaf1158fc72195a53ffcb508353a9e1ae055d8fd36d313bf526c602c6600a",
+        "full_trace": "native.junit.xml testcase index above; complete bytes also in native.stdout.txt",
+        "reason_category": "required_opa_backend_unavailable",
+        "category_grade": "observed reason partition; no causal introducing-commit or finding closure decision",
+        "P41_inherited_red_basis": "not_established"
+      },
+      "new_case": {
+        "case_index": 8,
+        "nodeid": "tests/unit/runtime/http/test_runtime_rego_authorization_parity.py::test_server_service_read_expectation_matches_rego[/api/v1/runs/run-1-grants1-True]",
+        "xml_attributes": {
+          "classname": "tests.unit.runtime.http.test_runtime_rego_authorization_parity",
+          "name": "test_server_service_read_expectation_matches_rego[/api/v1/runs/run-1-grants1-True]",
+          "time": "0.044"
+        },
+        "state": "PASS",
+        "diagnostics": [],
+        "property_grade": "bounded actual canonical test assertions; no institutional authority proof"
+      }
+    },
+    {
+      "old_case": {
+        "nodeid": "tests/unit/runtime/http/test_runtime_rego_authorization_parity.py::test_server_service_read_expectation_matches_rego[/api/v1/runs/run-1/timeline-grants2-True]",
+        "state": "FAIL",
+        "phase_states": {
+          "setup": [
+            "PASS"
+          ],
+          "call": [
+            "FAIL"
+          ],
+          "teardown": [
+            "PASS"
+          ]
+        },
+        "junit_case_index": 2608,
+        "literal_xml_outcome": "failure",
+        "exception_type": null,
+        "message": "Failed: OPA is required for runtime authorization parity; run: opa check --strict ops/policy/policies && opa test --fail-on-empty -v ops/policy/policies",
+        "full_trace_sha256": "a8b6d1e275cf1b81d36a3b9aa9bffbe1c419c146c504b4bc2bd4a0ca6474efa2",
+        "full_trace": "native.junit.xml testcase index above; complete bytes also in native.stdout.txt",
+        "reason_category": "required_opa_backend_unavailable",
+        "category_grade": "observed reason partition; no causal introducing-commit or finding closure decision",
+        "P41_inherited_red_basis": "not_established"
+      },
+      "new_case": {
+        "case_index": 9,
+        "nodeid": "tests/unit/runtime/http/test_runtime_rego_authorization_parity.py::test_server_service_read_expectation_matches_rego[/api/v1/runs/run-1/timeline-grants2-True]",
+        "xml_attributes": {
+          "classname": "tests.unit.runtime.http.test_runtime_rego_authorization_parity",
+          "name": "test_server_service_read_expectation_matches_rego[/api/v1/runs/run-1/timeline-grants2-True]",
+          "time": "0.076"
+        },
+        "state": "PASS",
+        "diagnostics": [],
+        "property_grade": "bounded actual canonical test assertions; no institutional authority proof"
+      }
+    },
+    {
+      "old_case": {
+        "nodeid": "tests/unit/runtime/http/test_runtime_rego_authorization_parity.py::test_server_service_read_expectation_matches_rego[/api/v1/control/jobs/job-1-grants3-False]",
+        "state": "FAIL",
+        "phase_states": {
+          "setup": [
+            "PASS"
+          ],
+          "call": [
+            "FAIL"
+          ],
+          "teardown": [
+            "PASS"
+          ]
+        },
+        "junit_case_index": 2609,
+        "literal_xml_outcome": "failure",
+        "exception_type": null,
+        "message": "Failed: OPA is required for runtime authorization parity; run: opa check --strict ops/policy/policies && opa test --fail-on-empty -v ops/policy/policies",
+        "full_trace_sha256": "d9cbd86ce6429197d9a5a9c6a1a68de1db96023d6acb0906cea3a1ed34735292",
+        "full_trace": "native.junit.xml testcase index above; complete bytes also in native.stdout.txt",
+        "reason_category": "required_opa_backend_unavailable",
+        "category_grade": "observed reason partition; no causal introducing-commit or finding closure decision",
+        "P41_inherited_red_basis": "not_established"
+      },
+      "new_case": {
+        "case_index": 10,
+        "nodeid": "tests/unit/runtime/http/test_runtime_rego_authorization_parity.py::test_server_service_read_expectation_matches_rego[/api/v1/control/jobs/job-1-grants3-False]",
+        "xml_attributes": {
+          "classname": "tests.unit.runtime.http.test_runtime_rego_authorization_parity",
+          "name": "test_server_service_read_expectation_matches_rego[/api/v1/control/jobs/job-1-grants3-False]",
+          "time": "0.059"
+        },
+        "state": "PASS",
+        "diagnostics": [],
+        "property_grade": "bounded actual canonical test assertions; no institutional authority proof"
+      }
+    },
+    {
+      "old_case": {
+        "nodeid": "tests/unit/runtime/http/test_runtime_rego_authorization_parity.py::test_server_service_read_expectation_matches_rego[/api/v1/control/data/secret-grants4-False]",
+        "state": "FAIL",
+        "phase_states": {
+          "setup": [
+            "PASS"
+          ],
+          "call": [
+            "FAIL"
+          ],
+          "teardown": [
+            "PASS"
+          ]
+        },
+        "junit_case_index": 2610,
+        "literal_xml_outcome": "failure",
+        "exception_type": null,
+        "message": "Failed: OPA is required for runtime authorization parity; run: opa check --strict ops/policy/policies && opa test --fail-on-empty -v ops/policy/policies",
+        "full_trace_sha256": "e04339190fd261bb818b1ae296cfacc33d4ec44c3983772f74ef6be1f9a6f4e9",
+        "full_trace": "native.junit.xml testcase index above; complete bytes also in native.stdout.txt",
+        "reason_category": "required_opa_backend_unavailable",
+        "category_grade": "observed reason partition; no causal introducing-commit or finding closure decision",
+        "P41_inherited_red_basis": "not_established"
+      },
+      "new_case": {
+        "case_index": 11,
+        "nodeid": "tests/unit/runtime/http/test_runtime_rego_authorization_parity.py::test_server_service_read_expectation_matches_rego[/api/v1/control/data/secret-grants4-False]",
+        "xml_attributes": {
+          "classname": "tests.unit.runtime.http.test_runtime_rego_authorization_parity",
+          "name": "test_server_service_read_expectation_matches_rego[/api/v1/control/data/secret-grants4-False]",
+          "time": "0.034"
+        },
+        "state": "PASS",
+        "diagnostics": [],
+        "property_grade": "bounded actual canonical test assertions; no institutional authority proof"
+      }
+    }
+  ],
+  "grade": "Seven actual old missing-OPA rows now PASS; all16 setup ERROR retained; no fresh full-cohort or finding closure"
+}

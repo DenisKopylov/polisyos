@@ -1,0 +1,120 @@
+{
+  "records": [
+    {
+      "blob_path": "test_restored_frontier_above_n0/cas/artifacts/sha256/32/f9/32f91f0f8df61e3fd56f62a05975c65eb6263b8198a733f56d86f27d21a46c05.blob",
+      "content_sha256": "32f91f0f8df61e3fd56f62a05975c65eb6263b8198a733f56d86f27d21a46c05",
+      "checkpoint_id": "stream.jsonl:budget-oracle:default:0",
+      "lifecycle_state": "active",
+      "dedupe_keys": [
+        "_message_id:event-1",
+        "_message_id:event-2"
+      ],
+      "session_values": [
+        1,
+        2
+      ],
+      "operator_ordinal": 0,
+      "processing_cap": 3,
+      "full_blob": "fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/32/f9/32f91f0f8df61e3fd56f62a05975c65eb6263b8198a733f56d86f27d21a46c05.blob"
+    },
+    {
+      "blob_path": "test_restored_frontier_above_n0/cas/artifacts/sha256/44/67/4467468c50237d904a269e3f2b4c93683c59f57cfe651560e121bb992c8d3275.blob",
+      "content_sha256": "4467468c50237d904a269e3f2b4c93683c59f57cfe651560e121bb992c8d3275",
+      "checkpoint_id": "stream.jsonl:budget-oracle:default:0",
+      "lifecycle_state": "paused",
+      "dedupe_keys": [
+        "_message_id:event-1",
+        "_message_id:event-2"
+      ],
+      "session_values": [
+        1,
+        2
+      ],
+      "operator_ordinal": 0,
+      "processing_cap": 3,
+      "full_blob": "fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/44/67/4467468c50237d904a269e3f2b4c93683c59f57cfe651560e121bb992c8d3275.blob"
+    },
+    {
+      "blob_path": "test_restored_frontier_above_n0/cas/artifacts/sha256/7e/3d/7e3d141329c2957782ed69fd3758599331a4e60e54ce9e560bbfb6b61db72ec1.blob",
+      "content_sha256": "7e3d141329c2957782ed69fd3758599331a4e60e54ce9e560bbfb6b61db72ec1",
+      "checkpoint_id": "stream.jsonl:budget-oracle:default:1",
+      "lifecycle_state": "closed",
+      "dedupe_keys": [
+        "_message_id:event-1",
+        "_message_id:event-2",
+        "_message_id:event-3"
+      ],
+      "session_values": [],
+      "operator_ordinal": 2,
+      "processing_cap": 1,
+      "full_blob": "fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/7e/3d/7e3d141329c2957782ed69fd3758599331a4e60e54ce9e560bbfb6b61db72ec1.blob"
+    },
+    {
+      "blob_path": "test_restored_frontier_above_n0/cas/artifacts/sha256/a3/f0/a3f0e93a9df789988d897dd65ce03b323726796027a0c7b1e3298b39c0363245.blob",
+      "content_sha256": "a3f0e93a9df789988d897dd65ce03b323726796027a0c7b1e3298b39c0363245",
+      "checkpoint_id": "stream.jsonl:budget-oracle:default:0",
+      "lifecycle_state": "paused",
+      "dedupe_keys": [
+        "_message_id:event-1",
+        "_message_id:event-2"
+      ],
+      "session_values": [
+        1,
+        2
+      ],
+      "operator_ordinal": 0,
+      "processing_cap": 3,
+      "full_blob": "fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/a3/f0/a3f0e93a9df789988d897dd65ce03b323726796027a0c7b1e3298b39c0363245.blob"
+    },
+    {
+      "blob_path": "test_restored_frontier_above_n0/cas/artifacts/sha256/bd/a6/bda6a04c3d1bfad2bf068e8c8c8ca4da093c5f8f41acbaeb4e1b026864025791.blob",
+      "content_sha256": "bda6a04c3d1bfad2bf068e8c8c8ca4da093c5f8f41acbaeb4e1b026864025791",
+      "checkpoint_id": "stream.jsonl:budget-oracle:default:1",
+      "lifecycle_state": "paused",
+      "dedupe_keys": [
+        "_message_id:event-1",
+        "_message_id:event-2",
+        "_message_id:event-3"
+      ],
+      "session_values": [],
+      "operator_ordinal": 2,
+      "processing_cap": 1,
+      "full_blob": "fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/bd/a6/bda6a04c3d1bfad2bf068e8c8c8ca4da093c5f8f41acbaeb4e1b026864025791.blob"
+    },
+    {
+      "blob_path": "test_restored_frontier_above_n0/cas/artifacts/sha256/ce/d1/ced1121ca60498184ee4a6fd1832166a13a482f54c987d114ccc5e592945e5bf.blob",
+      "content_sha256": "ced1121ca60498184ee4a6fd1832166a13a482f54c987d114ccc5e592945e5bf",
+      "checkpoint_id": "stream.jsonl:budget-oracle:default:1",
+      "lifecycle_state": "paused",
+      "dedupe_keys": [
+        "_message_id:event-1",
+        "_message_id:event-2",
+        "_message_id:event-3"
+      ],
+      "session_values": [
+        3
+      ],
+      "operator_ordinal": 1,
+      "processing_cap": 1,
+      "full_blob": "fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/ce/d1/ced1121ca60498184ee4a6fd1832166a13a482f54c987d114ccc5e592945e5bf.blob"
+    },
+    {
+      "blob_path": "test_restored_frontier_above_n0/cas/artifacts/sha256/f3/91/f391a96e7534d34d246fb25cd8dcaea9efbad080e277c7742b1c6c470daa09c9.blob",
+      "content_sha256": "f391a96e7534d34d246fb25cd8dcaea9efbad080e277c7742b1c6c470daa09c9",
+      "checkpoint_id": "stream.jsonl:budget-oracle:default:1",
+      "lifecycle_state": "active",
+      "dedupe_keys": [
+        "_message_id:event-1",
+        "_message_id:event-2",
+        "_message_id:event-3"
+      ],
+      "session_values": [
+        3
+      ],
+      "operator_ordinal": 1,
+      "processing_cap": 1,
+      "full_blob": "fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/f3/91/f391a96e7534d34d246fb25cd8dcaea9efbad080e277c7742b1c6c470daa09c9.blob"
+    }
+  ],
+  "meaning": "Independent stdlib full JSON parsing of retained actual blob bytes verifies original cap3 two-row frontier and subsequent cap1 closed frontier coexist. Native source-level before-effects failure is deciding; no additional guarded public CAS read or pointer atomicity proof is claimed by this metadata parser."
+}

@@ -1,0 +1,217 @@
+{
+  "input_sha": "8ea92be02458941e4bf8a1d1c16f2fbeee60f26c",
+  "runtime_source_sha": "a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9",
+  "xml_cases": [
+    {
+      "native_xml_attributes": {
+        "classname": "",
+        "name": "test_protected_audit_reconciliation_precedes_next_provider[healthy-sync-invoke]",
+        "time": "0.102"
+      },
+      "native_grade": "PASS",
+      "input_context_nodeid": "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py::test_protected_audit_reconciliation_precedes_next_provider[healthy-sync-invoke]",
+      "diagnostic_message": null,
+      "full_native_diagnostic": null,
+      "qualification": "Actual full native case PASS with genuine protected local sink and ledger effects."
+    },
+    {
+      "native_xml_attributes": {
+        "classname": "",
+        "name": "test_protected_audit_reconciliation_precedes_next_provider[healthy-async-generate]",
+        "time": "0.080"
+      },
+      "native_grade": "PASS",
+      "input_context_nodeid": "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py::test_protected_audit_reconciliation_precedes_next_provider[healthy-async-generate]",
+      "diagnostic_message": null,
+      "full_native_diagnostic": null,
+      "qualification": "Actual full native case PASS with genuine protected local sink and ledger effects."
+    },
+    {
+      "native_xml_attributes": {
+        "classname": "",
+        "name": "test_protected_audit_reconciliation_precedes_next_provider[protected-commit-fault-sync-invoke]",
+        "time": "0.036"
+      },
+      "native_grade": "PASS",
+      "input_context_nodeid": "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py::test_protected_audit_reconciliation_precedes_next_provider[protected-commit-fault-sync-invoke]",
+      "diagnostic_message": null,
+      "full_native_diagnostic": null,
+      "qualification": "Actual full native case PASS with genuine protected local sink and ledger effects."
+    },
+    {
+      "native_xml_attributes": {
+        "classname": "",
+        "name": "test_protected_audit_reconciliation_precedes_next_provider[protected-commit-fault-async-generate]",
+        "time": "0.038"
+      },
+      "native_grade": "PASS",
+      "input_context_nodeid": "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py::test_protected_audit_reconciliation_precedes_next_provider[protected-commit-fault-async-generate]",
+      "diagnostic_message": null,
+      "full_native_diagnostic": null,
+      "qualification": "Actual full native case PASS with genuine protected local sink and ledger effects."
+    },
+    {
+      "native_xml_attributes": {
+        "classname": "",
+        "name": "test_real_budget_refusal_audit_restores_exact_act_without_provider_or_charge[healthy]",
+        "time": "0.006"
+      },
+      "native_grade": "PASS",
+      "input_context_nodeid": "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py::test_real_budget_refusal_audit_restores_exact_act_without_provider_or_charge[healthy]",
+      "diagnostic_message": null,
+      "full_native_diagnostic": null,
+      "qualification": "Actual full native case PASS with genuine protected local sink and ledger effects."
+    },
+    {
+      "native_xml_attributes": {
+        "classname": "",
+        "name": "test_real_budget_refusal_audit_restores_exact_act_without_provider_or_charge[protected-exceeded-fault]",
+        "time": "0.015"
+      },
+      "native_grade": "PASS",
+      "input_context_nodeid": "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py::test_real_budget_refusal_audit_restores_exact_act_without_provider_or_charge[protected-exceeded-fault]",
+      "diagnostic_message": null,
+      "full_native_diagnostic": null,
+      "qualification": "Actual full native case PASS with genuine protected local sink and ledger effects."
+    },
+    {
+      "native_xml_attributes": {
+        "classname": "",
+        "name": "test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RESERVED-sync-invoke]",
+        "time": "0.055"
+      },
+      "native_grade": "PASS",
+      "input_context_nodeid": "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py::test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RESERVED-sync-invoke]",
+      "diagnostic_message": null,
+      "full_native_diagnostic": null,
+      "qualification": "Actual full native case PASS with genuine protected local sink and ledger effects."
+    },
+    {
+      "native_xml_attributes": {
+        "classname": "",
+        "name": "test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RESERVED-async-generate]",
+        "time": "0.058"
+      },
+      "native_grade": "PASS",
+      "input_context_nodeid": "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py::test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RESERVED-async-generate]",
+      "diagnostic_message": null,
+      "full_native_diagnostic": null,
+      "qualification": "Actual full native case PASS with genuine protected local sink and ledger effects."
+    },
+    {
+      "native_xml_attributes": {
+        "classname": "",
+        "name": "test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_CHECK-sync-invoke]",
+        "time": "0.064"
+      },
+      "native_grade": "PASS",
+      "input_context_nodeid": "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py::test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_CHECK-sync-invoke]",
+      "diagnostic_message": null,
+      "full_native_diagnostic": null,
+      "qualification": "Actual full native case PASS with genuine protected local sink and ledger effects."
+    },
+    {
+      "native_xml_attributes": {
+        "classname": "",
+        "name": "test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_CHECK-async-generate]",
+        "time": "0.065"
+      },
+      "native_grade": "PASS",
+      "input_context_nodeid": "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py::test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_CHECK-async-generate]",
+      "diagnostic_message": null,
+      "full_native_diagnostic": null,
+      "qualification": "Actual full native case PASS with genuine protected local sink and ledger effects."
+    },
+    {
+      "native_xml_attributes": {
+        "classname": "",
+        "name": "test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RELEASED-sync-invoke]",
+        "time": "0.096"
+      },
+      "native_grade": "PASS",
+      "input_context_nodeid": "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py::test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RELEASED-sync-invoke]",
+      "diagnostic_message": null,
+      "full_native_diagnostic": null,
+      "qualification": "Actual full native case PASS with genuine protected local sink and ledger effects."
+    },
+    {
+      "native_xml_attributes": {
+        "classname": "",
+        "name": "test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RELEASED-async-generate]",
+        "time": "0.094"
+      },
+      "native_grade": "PASS",
+      "input_context_nodeid": "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py::test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RELEASED-async-generate]",
+      "diagnostic_message": null,
+      "full_native_diagnostic": null,
+      "qualification": "Actual full native case PASS with genuine protected local sink and ledger effects."
+    },
+    {
+      "native_xml_attributes": {
+        "classname": "",
+        "name": "test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_COMMITTED-sync-invoke]",
+        "time": "0.091"
+      },
+      "native_grade": "PASS",
+      "input_context_nodeid": "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py::test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_COMMITTED-sync-invoke]",
+      "diagnostic_message": null,
+      "full_native_diagnostic": null,
+      "qualification": "Actual full native case PASS with genuine protected local sink and ledger effects."
+    },
+    {
+      "native_xml_attributes": {
+        "classname": "",
+        "name": "test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_COMMITTED-async-generate]",
+        "time": "0.091"
+      },
+      "native_grade": "PASS",
+      "input_context_nodeid": "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py::test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_COMMITTED-async-generate]",
+      "diagnostic_message": null,
+      "full_native_diagnostic": null,
+      "qualification": "Actual full native case PASS with genuine protected local sink and ledger effects."
+    },
+    {
+      "native_xml_attributes": {
+        "classname": "",
+        "name": "test_retained_protected_act_wrong_binding_refuses_before_filesystem_effect[event-id]",
+        "time": "0.033"
+      },
+      "native_grade": "PASS",
+      "input_context_nodeid": "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py::test_retained_protected_act_wrong_binding_refuses_before_filesystem_effect[event-id]",
+      "diagnostic_message": null,
+      "full_native_diagnostic": null,
+      "qualification": "Actual full native case PASS with genuine protected local sink and ledger effects."
+    },
+    {
+      "native_xml_attributes": {
+        "classname": "",
+        "name": "test_retained_protected_act_wrong_binding_refuses_before_filesystem_effect[payload]",
+        "time": "0.034"
+      },
+      "native_grade": "PASS",
+      "input_context_nodeid": "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py::test_retained_protected_act_wrong_binding_refuses_before_filesystem_effect[payload]",
+      "diagnostic_message": null,
+      "full_native_diagnostic": null,
+      "qualification": "Actual full native case PASS with genuine protected local sink and ledger effects."
+    },
+    {
+      "native_xml_attributes": {
+        "classname": "",
+        "name": "test_retained_protected_act_wrong_binding_refuses_before_filesystem_effect[log-owner]",
+        "time": "0.035"
+      },
+      "native_grade": "PASS",
+      "input_context_nodeid": "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py::test_retained_protected_act_wrong_binding_refuses_before_filesystem_effect[log-owner]",
+      "diagnostic_message": null,
+      "full_native_diagnostic": null,
+      "qualification": "Actual full native case PASS with genuine protected local sink and ledger effects."
+    }
+  ],
+  "actual_counts": {
+    "PASS": 17,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0,
+    "cases": 17
+  }
+}

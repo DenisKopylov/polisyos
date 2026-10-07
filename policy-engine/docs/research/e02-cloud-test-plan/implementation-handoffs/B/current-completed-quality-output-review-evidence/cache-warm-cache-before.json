@@ -1,0 +1,612 @@
+{
+  "cache_root": "/home/agent/.cache/uv",
+  "ownership": "existing shared cache; restoration explicitly authorized, not task-exclusive",
+  "files": [
+    {
+      "path": ".gitignore",
+      "bytes": 1
+    },
+    {
+      "path": ".lock",
+      "bytes": 0
+    },
+    {
+      "path": "CACHEDIR.TAG",
+      "bytes": 43
+    },
+    {
+      "path": "archive-v0/3U9cwfskGdQvupkiqoI3J/psycopg_binary/__init__.py",
+      "bytes": 402
+    },
+    {
+      "path": "archive-v0/3U9cwfskGdQvupkiqoI3J/psycopg_binary/_psycopg.c",
+      "bytes": 4772974
+    },
+    {
+      "path": "archive-v0/3U9cwfskGdQvupkiqoI3J/psycopg_binary/_psycopg.cpython-314-x86_64-linux-gnu.so",
+      "bytes": 742953
+    },
+    {
+      "path": "archive-v0/3U9cwfskGdQvupkiqoI3J/psycopg_binary/_psycopg.pyi",
+      "bytes": 3191
+    },
+    {
+      "path": "archive-v0/3U9cwfskGdQvupkiqoI3J/psycopg_binary/_uuid.py",
+      "bytes": 798
+    },
+    {
+      "path": "archive-v0/3U9cwfskGdQvupkiqoI3J/psycopg_binary/pq.c",
+      "bytes": 1795895
+    },
+    {
+      "path": "archive-v0/3U9cwfskGdQvupkiqoI3J/psycopg_binary/pq.cpython-314-x86_64-linux-gnu.so",
+      "bytes": 325281
+    },
+    {
+      "path": "archive-v0/3U9cwfskGdQvupkiqoI3J/psycopg_binary/py.typed",
+      "bytes": 0
+    },
+    {
+      "path": "archive-v0/3U9cwfskGdQvupkiqoI3J/psycopg_binary/types/numutils.c",
+      "bytes": 6034
+    },
+    {
+      "path": "archive-v0/3U9cwfskGdQvupkiqoI3J/psycopg_binary/version.py",
+      "bytes": 246
+    },
+    {
+      "path": "archive-v0/3U9cwfskGdQvupkiqoI3J/psycopg_binary-3.3.2.dist-info/METADATA",
+      "bytes": 2658
+    },
+    {
+      "path": "archive-v0/3U9cwfskGdQvupkiqoI3J/psycopg_binary-3.3.2.dist-info/RECORD",
+      "bytes": 2905
+    },
+    {
+      "path": "archive-v0/3U9cwfskGdQvupkiqoI3J/psycopg_binary-3.3.2.dist-info/WHEEL",
+      "bytes": 151
+    },
+    {
+      "path": "archive-v0/3U9cwfskGdQvupkiqoI3J/psycopg_binary-3.3.2.dist-info/licenses/LICENSE.txt",
+      "bytes": 7652
+    },
+    {
+      "path": "archive-v0/3U9cwfskGdQvupkiqoI3J/psycopg_binary-3.3.2.dist-info/top_level.txt",
+      "bytes": 15
+    },
+    {
+      "path": "archive-v0/3U9cwfskGdQvupkiqoI3J/psycopg_binary.libs/libcom_err-2abe824b.so.2.1",
+      "bytes": 17497
+    },
+    {
+      "path": "archive-v0/3U9cwfskGdQvupkiqoI3J/psycopg_binary.libs/libcrypt-a115dc8d.so.1",
+      "bytes": 202033
+    },
+    {
+      "path": "archive-v0/3U9cwfskGdQvupkiqoI3J/psycopg_binary.libs/libcrypto-2a5143d4.so.3",
+      "bytes": 6502241
+    },
+    {
+      "path": "archive-v0/3U9cwfskGdQvupkiqoI3J/psycopg_binary.libs/libgssapi_krb5-497db0c6.so.2.2",
+      "bytes": 345209
+    },
+    {
+      "path": "archive-v0/3U9cwfskGdQvupkiqoI3J/psycopg_binary.libs/libk5crypto-b1f99d5c.so.3.1",
+      "bytes": 219953
+    },
+    {
+      "path": "archive-v0/3U9cwfskGdQvupkiqoI3J/psycopg_binary.libs/libkeyutils-dfe70bd6.so.1.5",
+      "bytes": 17913
+    },
+    {
+      "path": "archive-v0/3U9cwfskGdQvupkiqoI3J/psycopg_binary.libs/libkrb5-fcafa220.so.3.3",
+      "bytes": 1018953
+    },
+    {
+      "path": "archive-v0/3U9cwfskGdQvupkiqoI3J/psycopg_binary.libs/libkrb5support-d0bcff84.so.0.1",
+      "bytes": 76873
+    },
+    {
+      "path": "archive-v0/3U9cwfskGdQvupkiqoI3J/psycopg_binary.libs/liblber-1ca05b8b.so.2.0.200",
+      "bytes": 60977
+    },
+    {
+      "path": "archive-v0/3U9cwfskGdQvupkiqoI3J/psycopg_binary.libs/libldap-957a14d7.so.2.0.200",
+      "bytes": 451417
+    },
+    {
+      "path": "archive-v0/3U9cwfskGdQvupkiqoI3J/psycopg_binary.libs/libpcre-9513aab5.so.1.2.0",
+      "bytes": 406817
+    },
+    {
+      "path": "archive-v0/3U9cwfskGdQvupkiqoI3J/psycopg_binary.libs/libpq-2be5f14a.so.5.18",
+      "bytes": 416049
+    },
+    {
+      "path": "archive-v0/3U9cwfskGdQvupkiqoI3J/psycopg_binary.libs/libsasl2-84219a89.so.3.0.0",
+      "bytes": 134753
+    },
+    {
+      "path": "archive-v0/3U9cwfskGdQvupkiqoI3J/psycopg_binary.libs/libselinux-0922c95c.so.1",
+      "bytes": 178337
+    },
+    {
+      "path": "archive-v0/3U9cwfskGdQvupkiqoI3J/psycopg_binary.libs/libssl-4a840876.so.3",
+      "bytes": 1147337
+    },
+    {
+      "path": "archive-v0/lEAkj3RKr_Aamhmd/uv/__init__.py",
+      "bytes": 778
+    },
+    {
+      "path": "archive-v0/lEAkj3RKr_Aamhmd/uv/__main__.py",
+      "bytes": 1181
+    },
+    {
+      "path": "archive-v0/lEAkj3RKr_Aamhmd/uv/_find_uv.py",
+      "bytes": 3139
+    },
+    {
+      "path": "archive-v0/lEAkj3RKr_Aamhmd/uv/py.typed",
+      "bytes": 0
+    },
+    {
+      "path": "archive-v0/lEAkj3RKr_Aamhmd/uv-0.9.21.data/scripts/uv",
+      "bytes": 55184128
+    },
+    {
+      "path": "archive-v0/lEAkj3RKr_Aamhmd/uv-0.9.21.data/scripts/uvx",
+      "bytes": 360144
+    },
+    {
+      "path": "archive-v0/lEAkj3RKr_Aamhmd/uv-0.9.21.dist-info/METADATA",
+      "bytes": 11956
+    },
+    {
+      "path": "archive-v0/lEAkj3RKr_Aamhmd/uv-0.9.21.dist-info/RECORD",
+      "bytes": 842
+    },
+    {
+      "path": "archive-v0/lEAkj3RKr_Aamhmd/uv-0.9.21.dist-info/WHEEL",
+      "bytes": 126
+    },
+    {
+      "path": "archive-v0/lEAkj3RKr_Aamhmd/uv-0.9.21.dist-info/licenses/LICENSE-APACHE",
+      "bytes": 11357
+    },
+    {
+      "path": "archive-v0/lEAkj3RKr_Aamhmd/uv-0.9.21.dist-info/licenses/LICENSE-MIT",
+      "bytes": 1077
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/__init__.py",
+      "bytes": 3423
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/_acompat.py",
+      "bytes": 2238
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/_adapters_map.py",
+      "bytes": 10969
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/_capabilities.py",
+      "bytes": 5398
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/_cmodule.py",
+      "bytes": 872
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/_column.py",
+      "bytes": 3026
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/_compat.py",
+      "bytes": 1398
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/_connection_base.py",
+      "bytes": 24130
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/_connection_info.py",
+      "bytes": 6680
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/_conninfo_attempts.py",
+      "bytes": 3501
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/_conninfo_attempts_async.py",
+      "bytes": 3590
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/_conninfo_utils.py",
+      "bytes": 3164
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/_copy.py",
+      "bytes": 9735
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/_copy_async.py",
+      "bytes": 9974
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/_copy_base.py",
+      "bytes": 13879
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/_cursor_base.py",
+      "bytes": 22768
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/_dns.py",
+      "bytes": 7852
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/_encodings.py",
+      "bytes": 4074
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/_enums.py",
+      "bytes": 1691
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/_oids.py",
+      "bytes": 1875
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/_pipeline.py",
+      "bytes": 2165
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/_pipeline_async.py",
+      "bytes": 2108
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/_pipeline_base.py",
+      "bytes": 6669
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/_preparing.py",
+      "bytes": 6282
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/_py_transformer.py",
+      "bytes": 11903
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/_queries.py",
+      "bytes": 15734
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/_server_cursor.py",
+      "bytes": 4662
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/_server_cursor_async.py",
+      "bytes": 4711
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/_server_cursor_base.py",
+      "bytes": 7537
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/_struct.py",
+      "bytes": 2000
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/_tpc.py",
+      "bytes": 3529
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/_transformer.py",
+      "bytes": 451
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/_tstrings.py",
+      "bytes": 5598
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/_typeinfo.py",
+      "bytes": 10665
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/_typemod.py",
+      "bytes": 2498
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/_tz.py",
+      "bytes": 1186
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/_wrappers.py",
+      "bytes": 3126
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/abc.py",
+      "bytes": 7694
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/adapt.py",
+      "bytes": 5195
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/client_cursor.py",
+      "bytes": 2681
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/connection.py",
+      "bytes": 19615
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/connection_async.py",
+      "bytes": 21863
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/conninfo.py",
+      "bytes": 4471
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/copy.py",
+      "bytes": 806
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/crdb/__init__.py",
+      "bytes": 439
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/crdb/_types.py",
+      "bytes": 7270
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/crdb/connection.py",
+      "bytes": 2758
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/cursor.py",
+      "bytes": 11116
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/cursor_async.py",
+      "bytes": 11426
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/dbapi20.py",
+      "bytes": 3309
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/errors.py",
+      "bytes": 46355
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/generators.py",
+      "bytes": 12702
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/postgres.py",
+      "bytes": 6413
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/pq/__init__.py",
+      "bytes": 3998
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/pq/_debug.py",
+      "bytes": 3099
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/pq/_enums.py",
+      "bytes": 6004
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/pq/_pq_ctypes.py",
+      "bytes": 22497
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/pq/_pq_ctypes.pyi",
+      "bytes": 10320
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/pq/abc.py",
+      "bytes": 8095
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/pq/misc.py",
+      "bytes": 6727
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/pq/pq_ctypes.py",
+      "bytes": 42415
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/py.typed",
+      "bytes": 0
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/raw_cursor.py",
+      "bytes": 1159
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/rows.py",
+      "bytes": 7841
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/sql.py",
+      "bytes": 19109
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/transaction.py",
+      "bytes": 10060
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/types/__init__.py",
+      "bytes": 181
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/types/array.py",
+      "bytes": 15375
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/types/bool.py",
+      "bytes": 1163
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/types/composite.py",
+      "bytes": 18318
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/types/datetime.py",
+      "bytes": 25531
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/types/enum.py",
+      "bytes": 7235
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/types/hstore.py",
+      "bytes": 7076
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/types/json.py",
+      "bytes": 9711
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/types/multirange.py",
+      "bytes": 17629
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/types/net.py",
+      "bytes": 6856
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/types/none.py",
+      "bytes": 666
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/types/numeric.py",
+      "bytes": 15490
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/types/numpy.py",
+      "bytes": 3273
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/types/range.py",
+      "bytes": 21469
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/types/shapely.py",
+      "bytes": 2594
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/types/string.py",
+      "bytes": 7629
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/types/uuid.py",
+      "bytes": 1657
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/version.py",
+      "bytes": 232
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg/waiting.py",
+      "bytes": 13978
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg-3.3.2.dist-info/METADATA",
+      "bytes": 4310
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg-3.3.2.dist-info/RECORD",
+      "bytes": 7070
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg-3.3.2.dist-info/WHEEL",
+      "bytes": 91
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg-3.3.2.dist-info/licenses/LICENSE.txt",
+      "bytes": 7652
+    },
+    {
+      "path": "archive-v0/u6FFqZxm582zNf8rHZT1X/psycopg-3.3.2.dist-info/top_level.txt",
+      "bytes": 8
+    },
+    {
+      "path": "interpreter-v4/7a5cc39b273030ae/4696f1edfce78fde.msgpack",
+      "bytes": 1978
+    },
+    {
+      "path": "interpreter-v4/7a5cc39b273030ae/c6186f20977435f8.msgpack",
+      "bytes": 1770
+    },
+    {
+      "path": "interpreter-v4/7a5cc39b273030ae/eacd2c0f89c80ff8.msgpack",
+      "bytes": 1684
+    },
+    {
+      "path": "sdists-v9/.git",
+      "bytes": 0
+    },
+    {
+      "path": "sdists-v9/.gitignore",
+      "bytes": 0
+    },
+    {
+      "path": "sdists-v9/editable/28c4c1144b184729/.lock",
+      "bytes": 0
+    },
+    {
+      "path": "simple-v18/pypi/psycopg-binary.rkyv",
+      "bytes": 1940672
+    },
+    {
+      "path": "simple-v18/pypi/psycopg.rkyv",
+      "bytes": 65216
+    },
+    {
+      "path": "simple-v25/pypi/uv.rkyv",
+      "bytes": 1689016
+    },
+    {
+      "path": "wheels-v5/pypi/psycopg/3.3.2-py3-none-any.http",
+      "bytes": 560
+    },
+    {
+      "path": "wheels-v5/pypi/psycopg-binary/3.3.2-cp314-cp314-manylinux2014_x86_64.manylinux_2_17_x86_64.http",
+      "bytes": 658
+    },
+    {
+      "path": "wheels-v6/pypi/uv/0.9.21-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.http",
+      "bytes": 734
+    },
+    {
+      "path": "wheels-v6/pypi/uv/0.9.21-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.lock",
+      "bytes": 0
+    },
+    {
+      "path": "wheels-v6/pypi/uv/0.9.21-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.msgpack",
+      "bytes": 596
+    }
+  ],
+  "regular_file_count": 148,
+  "regular_bytes": 78866862,
+  "markers": [
+    {
+      "path": "/home/agent/.cache/uv/CACHEDIR.TAG",
+      "bytes": 43,
+      "sha256": "5953156d7e0c564a427251316eaf26f8870e6483ae2197f916b630e4f93e31ae"
+    },
+    {
+      "path": "/home/agent/.cache/uv/.gitignore",
+      "bytes": 1,
+      "sha256": "684888c0ebb17f374298b65ee2807526c066094c701bcc7ebbe1c1095f494fc1"
+    }
+  ]
+}

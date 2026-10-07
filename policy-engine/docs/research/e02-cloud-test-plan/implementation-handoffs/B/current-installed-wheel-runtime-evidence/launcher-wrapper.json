@@ -1,0 +1,47 @@
+{
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "-I",
+    "-B",
+    "/workspace/e02-B-current-coordination/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-evidence/launcher.py",
+    "--source-root",
+    "/workspace/e02-B-current-coordination/policy-engine",
+    "--source-sha",
+    "dd9584728bd96f204983615216efdbc58117e713",
+    "--test-path",
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/common/test_async_tools_installed_wheel.py",
+    "--test-sha256",
+    "eb24cd99386a0856f5d6f7639c751bd6b019b6dfdf0be605d64caeeb64a51702",
+    "--consumer-sha256",
+    "9c2dccab7a3d22313f96eea4131062c16d2008c7b5a9bfdf716003ac2eb86b09",
+    "--task-root",
+    "/tmp/e02-B-la057-final-dd9584728bd9",
+    "--python",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "--uv",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv"
+  ],
+  "cwd": "/workspace/e02-B-current-coordination",
+  "start_utc": "2026-10-06T19:08:57.173762+00:00",
+  "end_utc": "2026-10-06T19:09:10.998763+00:00",
+  "exit": 0,
+  "wall_s": 13.825022814999102,
+  "maxrss_kib_linux": 50012,
+  "source_before": {
+    "head": "dd9584728bd96f204983615216efdbc58117e713",
+    "tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+    "branch": "codex/e02-B-current-coordination",
+    "status": ""
+  },
+  "source_after": {
+    "head": "dd9584728bd96f204983615216efdbc58117e713",
+    "tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+    "branch": "codex/e02-B-current-coordination",
+    "status": ""
+  },
+  "output": "/tmp/e02-B-la057-final-dd9584728bd9-driver/launcher.txt",
+  "output_bytes": 11795,
+  "output_sha256": "466f2bfb6e20db959d371b14b27d2e8a71143da5b96613ead6c794f5d333dacb",
+  "task_root": "/tmp/e02-B-la057-final-dd9584728bd9",
+  "driver_sha256": "159e1abdc60da5899d5fb427d8c87e3e4de51548afd3ad65f80f4af1d0eb3867"
+}

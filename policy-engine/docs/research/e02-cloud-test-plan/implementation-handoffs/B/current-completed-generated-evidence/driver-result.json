@@ -1,0 +1,78 @@
+{
+  "source_sha": "8142b14162f6417045ccbc560588da4341ac93ce",
+  "source_tree": "c9089aea682ca12a44633cb8e114c8d95a662780",
+  "recipe_source": "/workspace/e02-B-current-coordination/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion.json",
+  "recipe_source_sha256": "e44763629c7bbe7fc6086bf6588df6dff10441e81b9c4c3ee327414f60d477d3",
+  "scratch": "/dev/shm/e02-B-completed-generated-8142b14162f6",
+  "commands": [
+    [
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+      "run",
+      "--no-sync",
+      "--extra",
+      "runtime",
+      "--extra",
+      "ml",
+      "python",
+      "tools/ops_runners/runtime/export_runtime_openapi.py",
+      "--output",
+      "/dev/shm/e02-B-completed-generated-8142b14162f6/after.json",
+      "--scratch-root",
+      "/dev/shm/e02-B-completed-generated-8142b14162f6/runtime-cas"
+    ],
+    [
+      "corepack",
+      "pnpm",
+      "--dir",
+      "/workspace/e02-B-current-coordination/policy-engine/packages/runtime-api-client",
+      "exec",
+      "openapi-typescript",
+      "/workspace/e02-B-current-coordination/policy-engine/schemas/runtime_api_v1.openapi.json",
+      "-o",
+      "/workspace/e02-B-current-coordination/policy-engine/packages/runtime-api-client/types.ts"
+    ],
+    [
+      "node",
+      "packages/runtime-api-client/scripts/normalize-recursive-openapi-types.mjs",
+      "--types",
+      "/workspace/e02-B-current-coordination/policy-engine/packages/runtime-api-client/types.ts"
+    ],
+    [
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+      "tools/ops_runners/runtime/generate_runtime_client.py",
+      "--openapi",
+      "/workspace/e02-B-current-coordination/policy-engine/schemas/runtime_api_v1.openapi.json",
+      "--out-ts",
+      "/dev/shm/e02-B-completed-generated-8142b14162f6/runtimeApiClient.ts",
+      "--out-js",
+      "/dev/shm/e02-B-completed-generated-8142b14162f6/runtimeApiClient.js"
+    ],
+    [
+      "node",
+      "packages/runtime-api-client/scripts/canonicalize-runtime-client.mjs",
+      "--openapi",
+      "/workspace/e02-B-current-coordination/policy-engine/schemas/runtime_api_v1.openapi.json",
+      "--client",
+      "/dev/shm/e02-B-completed-generated-8142b14162f6/runtimeApiClient.ts",
+      "--out-ts",
+      "/workspace/e02-B-current-coordination/policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+      "--runtime-js",
+      "/dev/shm/e02-B-completed-generated-8142b14162f6/runtimeApiClient.js",
+      "--out-js",
+      "/workspace/e02-B-current-coordination/policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.js"
+    ]
+  ],
+  "driver_sha256": "7dd297750d40e9e8de5862bd82d6869911fbbc69d41038ef10ff9dbc13c5e32c",
+  "before_outputs": {
+    "policy-engine/schemas/runtime_api_v1.openapi.json": "9c57673ed7731f7902105b089316539af9746553a6f1f4411876ca82bd6de693",
+    "policy-engine/packages/runtime-api-client/types.ts": "5a4d52d41451aabf77939840914a9c4c0c9d80e67333333138156e790dc867a4",
+    "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts": "e0f56c8964c2c0902b62875fca8d5a245f1a1727a808a28ef80500aacb06c1cd",
+    "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.js": "69a861c8e33251ca48fb87757c4d3000ef519c2bd110590c79e0b7f4dd5d5506"
+  },
+  "after_outputs": {
+    "policy-engine/schemas/runtime_api_v1.openapi.json": "5309d53ad805a8a1cdefab108d5f8c1bc867a640ffeb03f646fe5bd6baa7d4a3",
+    "policy-engine/packages/runtime-api-client/types.ts": "5a4d52d41451aabf77939840914a9c4c0c9d80e67333333138156e790dc867a4",
+    "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts": "e0f56c8964c2c0902b62875fca8d5a245f1a1727a808a28ef80500aacb06c1cd",
+    "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.js": "69a861c8e33251ca48fb87757c4d3000ef519c2bd110590c79e0b7f4dd5d5506"
+  }
+}

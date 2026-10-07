@@ -1,0 +1,13 @@
+{
+  "payload_bytes": 65536,
+  "cold_workflow_return_cost_ns": 53632106,
+  "warm_observations": 12,
+  "neighbour_observations": 280,
+  "neighbour_wait_p95_ns": 3594116,
+  "neighbour_wait_p99_ns": 7445936,
+  "warm_workflow_return_cost_p95_ns": 72293586,
+  "warm_workflow_return_cost_p99_ns": 72293586,
+  "serialized_cache_put_bytes": 199085,
+  "raw_individual_measurements": "/tmp/e02-B52-cache-cost-c043/fixtures/test_real_async_cache_costs_an1/individual-costs.json",
+  "qualification": "Finite 1KiB/64KiB workloads, injected12ms actual-cache-I/O delay; empirical nearest-rank statistics, no SLA or general speedup claim. Workflow hit return includes recovery/read/apply/state/report/finalize, not only disk read. CPU/GIL timing not isolated."
+}

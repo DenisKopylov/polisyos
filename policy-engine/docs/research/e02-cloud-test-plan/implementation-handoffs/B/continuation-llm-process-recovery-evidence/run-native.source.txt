@@ -1,0 +1,16 @@
+import hashlib,json,os,pathlib,platform,resource,subprocess,time
+repo=pathlib.Path('/workspace/e02-B-current-durability');raw=repo/'.polisyos/e02-B-current/raw/continuation-20261007/dur-diagnosis';raw.mkdir(parents=True,exist_ok=True)
+exe='/workspace/polisyos/policy-engine/.venv/bin/python'
+sha=subprocess.check_output(['git','-C',str(repo),'rev-parse','HEAD'],text=True).strip();tree=subprocess.check_output(['git','-C',str(repo),'rev-parse','HEAD^{tree}'],text=True).strip()
+env=dict(os.environ);caps=['OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','NUMEXPR_NUM_THREADS','VECLIB_MAXIMUM_THREADS','BLIS_NUM_THREADS']
+for k in caps:env.pop(k,None)
+env.update(PYTHONPATH=str(repo/'policy-engine/src')+':'+str(repo/'policy-engine'),PYTEST_DISABLE_PLUGIN_AUTOLOAD='1',PYTHONDONTWRITEBYTECODE='1')
+argv=[exe,'-m','pytest','-c','/dev/null','--noconftest','-o','addopts=','-vv','-s','tests/unit/scientist/orchestration/engine/test_budget_llm_process_recovery.py','--basetemp','/tmp/e02-dur-process-f4e842223-native','--junitxml',str(raw/'native.xml')]
+profile={'source_sha':sha,'tree':tree,'argv':argv,'cwd':str(repo/'policy-engine'),'python':subprocess.check_output([exe,'-VV'],text=True).strip(),'platform':platform.platform(),'removed_numeric_caps':caps,'numeric_caps_effective':{k:env.get(k) for k in caps},'source_before':subprocess.check_output(['git','-C',str(repo),'status','--porcelain'],text=True),'disk_before':{p:dict(zip(['size','used','available'],__import__('shutil').disk_usage(p))) for p in ['/workspace','/tmp']},'environment':{k:env.get(k) for k in ['PYTHONPATH','PYTEST_DISABLE_PLUGIN_AUTOLOAD','PYTHONDONTWRITEBYTECODE','TIKTOKEN_CACHE_DIR']}}
+(raw/'profile.json').write_text(json.dumps(profile,indent=2)+'\n')
+t=time.monotonic()
+with (raw/'native.txt').open('wb') as out:p=subprocess.run(argv,cwd=profile['cwd'],env=env,stdout=out,stderr=subprocess.STDOUT)
+ru=resource.getrusage(resource.RUSAGE_CHILDREN)
+profile.update(exit_code=p.returncode,wall_seconds=time.monotonic()-t,maxrss_kib=ru.ru_maxrss,source_after_sha=subprocess.check_output(['git','-C',str(repo),'rev-parse','HEAD'],text=True).strip(),source_after_status=subprocess.check_output(['git','-C',str(repo),'status','--porcelain'],text=True),disk_after={p:dict(zip(['size','used','available'],__import__('shutil').disk_usage(p))) for p in ['/workspace','/tmp']})
+(raw/'wrapper.json').write_text(json.dumps(profile,indent=2)+'\n')
+print(json.dumps(profile,indent=2))

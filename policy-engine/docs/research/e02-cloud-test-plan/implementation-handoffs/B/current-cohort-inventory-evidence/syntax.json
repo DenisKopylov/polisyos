@@ -1,0 +1,35 @@
+{
+  "id": "syntax",
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "-c",
+    "from pathlib import Path; p=Path(\"docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py\"); compile(p.read_bytes(), str(p), \"exec\"); print(\"Syntax compile PASS; no plugin import, collection or tests executed\")"
+  ],
+  "target_sha": "a27bf39edd7248baf000f1be35d9bcbf5be92f2f",
+  "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+  "environment": {
+    "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+    "platform": "linux",
+    "tool_versions": {
+      "pytest": "9.0.2",
+      "ruff": "0.14.10",
+      "mypy": "1.19.1"
+    },
+    "numerical_process_worker_quota": "none imposed"
+  },
+  "input_closure": {
+    "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py",
+    "source_sha256": "1ced9505e9526023b013330d6f18a4930d25da19f7dae5b5d29ebf4eb2976c00",
+    "source_bytes": 20450,
+    "pytest_api_profile": "9.0.2 source signatures inspected; plugin not imported/executed"
+  },
+  "outcome": "PASS",
+  "returncode": 0,
+  "wall_seconds": 0.03305488599289674,
+  "output": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory-evidence/syntax.txt",
+    "sha256": "12f6dc0045b0bb28a51b35e54a4469c99dbd5503cddfd60978046d97d5600acb",
+    "bytes": 68
+  }
+}

@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_quality.py", line 405, in <module>
+    main()
+    ~~~~^^
+  File "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_quality.py", line 264, in main
+    tree = require_source(args.sha)
+  File "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_quality.py", line 64, in require_source
+    raise ValueError("Supply an exact lowercase hexadecimal source SHA")
+ValueError: Supply an exact lowercase hexadecimal source SHA

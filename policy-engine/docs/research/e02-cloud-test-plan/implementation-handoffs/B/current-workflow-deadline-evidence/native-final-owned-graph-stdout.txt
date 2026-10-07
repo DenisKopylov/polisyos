@@ -1,0 +1,2428 @@
+FFFFFFFFFFFFFFFFFFFFFFFF................................................ [ 70%]
+..............................                                           [100%]
+=================================== FAILURES ===================================
+_ test_structural_list_intents_reopen_and_preserve_exact_native_rows[no_shift] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-owned-graph/tmp/test_structural_list_intents_r0')
+case = 'no_shift'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("case", list(_CASES))
+    async def test_structural_list_intents_reopen_and_preserve_exact_native_rows(tmp_path, case):
+        cas = tmp_path / "cas"
+        store = FileSystemCAS(cas)
+        bundle = build_default_registry_bundle(store).bundle_ref
+        node = _ListNode(case)
+        registry = NodeRegistry()
+        registry.register(node)
+        workflow = WorkflowSpec(
+            workflow_id="native_list_ownership",
+            nodes=[NodeInvocation(alias="list", node_id=node.spec.metadata.component_id)],
+        )
+        expected = _CASES[case]
+        for warm in (False, True):
+            reopened = FileSystemCAS(cas)
+            run = RunContext.start(reopened, bundle, run_id="R_list_ownership")
+            initial_rows = [{"id": "b", "v": 1}, {"id": "c", "v": 2}]
+            shared_dict = {"v": 1}
+            state = ExperimentState(
+                run_id="R_list_ownership",
+                params={
+                    "x": 2,
+                    "rows": initial_rows,
+                    "unrelated": "new" if warm else "old",
+                    "others": initial_rows if case == "initial_list_alias" else [],
+                    "numeric": {"0": {"v": 9}},
+                    **(
+                        {"left": shared_dict, "right": shared_dict}
+                        if case == "initial_dict_alias"
+                        else {}
+                    ),
+                },
+                budgets={"neighbor_reserved_usd": Decimal("11") if warm else Decimal("7")},
+            )
+            # The DTO validates top-level dict/list values independently.  These
+            # native assignments establish the actual supported in-memory aliases
+            # before the executor branch, rather than assuming validation kept them.
+            if case == "initial_dict_alias":
+                state.params["left"] = state.params["right"] = shared_dict
+                assert state.params["left"] is state.params["right"]
+            if case in {"initial_list_alias", "initial_list_alias_pop"}:
+                state.params["others"] = state.params["rows"]
+                assert state.params["rows"] is state.params["others"]
+            before = state.model_dump(mode="json")
+            result = await AsyncWorkflowExecutor(
+                ExecutionContext(store=reopened, run=run, logger=logging.getLogger("list-owner")),
+                registry,
+            ).execute(workflow, state)
+            assert result.report.status == "ok"
+            assert result.state.params["rows"] == expected
+            expected_others = (
+                expected
+                if case in {"initial_list_alias", "initial_list_alias_pop"}
+                else ([{"id": "b", "v": 5}] if case == "reparent_alias" else [])
+            )
+            expected_aliases = (
+                {"left": {"v": 5}, "right": {"v": 5}}
+                if case == "initial_dict_alias"
+                else {"slot": {"id": "b", "v": 5}}
+                if case == "dict_reparent_alias"
+                else {}
+            )
+            assert result.state.params["others"] == expected_others
+            assert "neighbor_alias" not in result.state.params
+            assert result.state.params["numeric"] == {"0": {"v": 4 if case == "numeric_dict" else 9}}
+            assert result.state.params["unrelated"] == state.params["unrelated"]
+            assert (
+                result.state.budgets["neighbor_reserved_usd"] == state.budgets["neighbor_reserved_usd"]
+            )
+            assert state.model_dump(mode="json") == before
+            assert node.calls == 1
+            effect = result.report.nodes[0].artifacts[0]
+            assert reopened.verify(effect).ok
+            assert json.loads(reopened.get_bytes(effect)) == {
+                "case": case,
+                "rows": expected,
+                "others": expected_others,
+                "aliases": expected_aliases,
+            }
+            assert reopened.verify(result.run_ref).ok
+            records = [json.loads(line) for line in run.trace_path.read_text().splitlines()]
+            stores = [event for event in records if event["event"] == "NODE_CACHE_STORE"]
+            assert len(stores) == 1
+            cache_ref = ArtifactRef.model_validate(stores[0]["refs"]["outputs"][0])
+            assert reopened.verify(cache_ref).ok
+            entry = json.loads(reopened.get_bytes(cache_ref))
+            assert entry["outcome_payload"]["state"]["params"]["rows"] == expected
+            assert len([event for event in records if event["event"] == "NODE_CACHE_HIT"]) == int(warm)
+            public_journal = mutation_journal_for_state(result.state)
+>           assert public_journal is None or not public_journal.enforce_write_scope
+E           AssertionError: assert (StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True) is None or not True)
+E            +  where True = StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True).enforce_write_scope
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py:294: AssertionError
+_ test_structural_list_intents_reopen_and_preserve_exact_native_rows[insert_existing] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-owned-graph/tmp/test_structural_list_intents_r1')
+case = 'insert_existing'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("case", list(_CASES))
+    async def test_structural_list_intents_reopen_and_preserve_exact_native_rows(tmp_path, case):
+        cas = tmp_path / "cas"
+        store = FileSystemCAS(cas)
+        bundle = build_default_registry_bundle(store).bundle_ref
+        node = _ListNode(case)
+        registry = NodeRegistry()
+        registry.register(node)
+        workflow = WorkflowSpec(
+            workflow_id="native_list_ownership",
+            nodes=[NodeInvocation(alias="list", node_id=node.spec.metadata.component_id)],
+        )
+        expected = _CASES[case]
+        for warm in (False, True):
+            reopened = FileSystemCAS(cas)
+            run = RunContext.start(reopened, bundle, run_id="R_list_ownership")
+            initial_rows = [{"id": "b", "v": 1}, {"id": "c", "v": 2}]
+            shared_dict = {"v": 1}
+            state = ExperimentState(
+                run_id="R_list_ownership",
+                params={
+                    "x": 2,
+                    "rows": initial_rows,
+                    "unrelated": "new" if warm else "old",
+                    "others": initial_rows if case == "initial_list_alias" else [],
+                    "numeric": {"0": {"v": 9}},
+                    **(
+                        {"left": shared_dict, "right": shared_dict}
+                        if case == "initial_dict_alias"
+                        else {}
+                    ),
+                },
+                budgets={"neighbor_reserved_usd": Decimal("11") if warm else Decimal("7")},
+            )
+            # The DTO validates top-level dict/list values independently.  These
+            # native assignments establish the actual supported in-memory aliases
+            # before the executor branch, rather than assuming validation kept them.
+            if case == "initial_dict_alias":
+                state.params["left"] = state.params["right"] = shared_dict
+                assert state.params["left"] is state.params["right"]
+            if case in {"initial_list_alias", "initial_list_alias_pop"}:
+                state.params["others"] = state.params["rows"]
+                assert state.params["rows"] is state.params["others"]
+            before = state.model_dump(mode="json")
+            result = await AsyncWorkflowExecutor(
+                ExecutionContext(store=reopened, run=run, logger=logging.getLogger("list-owner")),
+                registry,
+            ).execute(workflow, state)
+            assert result.report.status == "ok"
+            assert result.state.params["rows"] == expected
+            expected_others = (
+                expected
+                if case in {"initial_list_alias", "initial_list_alias_pop"}
+                else ([{"id": "b", "v": 5}] if case == "reparent_alias" else [])
+            )
+            expected_aliases = (
+                {"left": {"v": 5}, "right": {"v": 5}}
+                if case == "initial_dict_alias"
+                else {"slot": {"id": "b", "v": 5}}
+                if case == "dict_reparent_alias"
+                else {}
+            )
+            assert result.state.params["others"] == expected_others
+            assert "neighbor_alias" not in result.state.params
+            assert result.state.params["numeric"] == {"0": {"v": 4 if case == "numeric_dict" else 9}}
+            assert result.state.params["unrelated"] == state.params["unrelated"]
+            assert (
+                result.state.budgets["neighbor_reserved_usd"] == state.budgets["neighbor_reserved_usd"]
+            )
+            assert state.model_dump(mode="json") == before
+            assert node.calls == 1
+            effect = result.report.nodes[0].artifacts[0]
+            assert reopened.verify(effect).ok
+            assert json.loads(reopened.get_bytes(effect)) == {
+                "case": case,
+                "rows": expected,
+                "others": expected_others,
+                "aliases": expected_aliases,
+            }
+            assert reopened.verify(result.run_ref).ok
+            records = [json.loads(line) for line in run.trace_path.read_text().splitlines()]
+            stores = [event for event in records if event["event"] == "NODE_CACHE_STORE"]
+            assert len(stores) == 1
+            cache_ref = ArtifactRef.model_validate(stores[0]["refs"]["outputs"][0])
+            assert reopened.verify(cache_ref).ok
+            entry = json.loads(reopened.get_bytes(cache_ref))
+            assert entry["outcome_payload"]["state"]["params"]["rows"] == expected
+            assert len([event for event in records if event["event"] == "NODE_CACHE_HIT"]) == int(warm)
+            public_journal = mutation_journal_for_state(result.state)
+>           assert public_journal is None or not public_journal.enforce_write_scope
+E           AssertionError: assert (StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True) is None or not True)
+E            +  where True = StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True).enforce_write_scope
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py:294: AssertionError
+_ test_structural_list_intents_reopen_and_preserve_exact_native_rows[insert_new] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-owned-graph/tmp/test_structural_list_intents_r2')
+case = 'insert_new'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("case", list(_CASES))
+    async def test_structural_list_intents_reopen_and_preserve_exact_native_rows(tmp_path, case):
+        cas = tmp_path / "cas"
+        store = FileSystemCAS(cas)
+        bundle = build_default_registry_bundle(store).bundle_ref
+        node = _ListNode(case)
+        registry = NodeRegistry()
+        registry.register(node)
+        workflow = WorkflowSpec(
+            workflow_id="native_list_ownership",
+            nodes=[NodeInvocation(alias="list", node_id=node.spec.metadata.component_id)],
+        )
+        expected = _CASES[case]
+        for warm in (False, True):
+            reopened = FileSystemCAS(cas)
+            run = RunContext.start(reopened, bundle, run_id="R_list_ownership")
+            initial_rows = [{"id": "b", "v": 1}, {"id": "c", "v": 2}]
+            shared_dict = {"v": 1}
+            state = ExperimentState(
+                run_id="R_list_ownership",
+                params={
+                    "x": 2,
+                    "rows": initial_rows,
+                    "unrelated": "new" if warm else "old",
+                    "others": initial_rows if case == "initial_list_alias" else [],
+                    "numeric": {"0": {"v": 9}},
+                    **(
+                        {"left": shared_dict, "right": shared_dict}
+                        if case == "initial_dict_alias"
+                        else {}
+                    ),
+                },
+                budgets={"neighbor_reserved_usd": Decimal("11") if warm else Decimal("7")},
+            )
+            # The DTO validates top-level dict/list values independently.  These
+            # native assignments establish the actual supported in-memory aliases
+            # before the executor branch, rather than assuming validation kept them.
+            if case == "initial_dict_alias":
+                state.params["left"] = state.params["right"] = shared_dict
+                assert state.params["left"] is state.params["right"]
+            if case in {"initial_list_alias", "initial_list_alias_pop"}:
+                state.params["others"] = state.params["rows"]
+                assert state.params["rows"] is state.params["others"]
+            before = state.model_dump(mode="json")
+            result = await AsyncWorkflowExecutor(
+                ExecutionContext(store=reopened, run=run, logger=logging.getLogger("list-owner")),
+                registry,
+            ).execute(workflow, state)
+            assert result.report.status == "ok"
+            assert result.state.params["rows"] == expected
+            expected_others = (
+                expected
+                if case in {"initial_list_alias", "initial_list_alias_pop"}
+                else ([{"id": "b", "v": 5}] if case == "reparent_alias" else [])
+            )
+            expected_aliases = (
+                {"left": {"v": 5}, "right": {"v": 5}}
+                if case == "initial_dict_alias"
+                else {"slot": {"id": "b", "v": 5}}
+                if case == "dict_reparent_alias"
+                else {}
+            )
+            assert result.state.params["others"] == expected_others
+            assert "neighbor_alias" not in result.state.params
+            assert result.state.params["numeric"] == {"0": {"v": 4 if case == "numeric_dict" else 9}}
+            assert result.state.params["unrelated"] == state.params["unrelated"]
+            assert (
+                result.state.budgets["neighbor_reserved_usd"] == state.budgets["neighbor_reserved_usd"]
+            )
+            assert state.model_dump(mode="json") == before
+            assert node.calls == 1
+            effect = result.report.nodes[0].artifacts[0]
+            assert reopened.verify(effect).ok
+            assert json.loads(reopened.get_bytes(effect)) == {
+                "case": case,
+                "rows": expected,
+                "others": expected_others,
+                "aliases": expected_aliases,
+            }
+            assert reopened.verify(result.run_ref).ok
+            records = [json.loads(line) for line in run.trace_path.read_text().splitlines()]
+            stores = [event for event in records if event["event"] == "NODE_CACHE_STORE"]
+            assert len(stores) == 1
+            cache_ref = ArtifactRef.model_validate(stores[0]["refs"]["outputs"][0])
+            assert reopened.verify(cache_ref).ok
+            entry = json.loads(reopened.get_bytes(cache_ref))
+            assert entry["outcome_payload"]["state"]["params"]["rows"] == expected
+            assert len([event for event in records if event["event"] == "NODE_CACHE_HIT"]) == int(warm)
+            public_journal = mutation_journal_for_state(result.state)
+>           assert public_journal is None or not public_journal.enforce_write_scope
+E           AssertionError: assert (StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True) is None or not True)
+E            +  where True = StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True).enforce_write_scope
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py:294: AssertionError
+_ test_structural_list_intents_reopen_and_preserve_exact_native_rows[pop_shift] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-owned-graph/tmp/test_structural_list_intents_r3')
+case = 'pop_shift'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("case", list(_CASES))
+    async def test_structural_list_intents_reopen_and_preserve_exact_native_rows(tmp_path, case):
+        cas = tmp_path / "cas"
+        store = FileSystemCAS(cas)
+        bundle = build_default_registry_bundle(store).bundle_ref
+        node = _ListNode(case)
+        registry = NodeRegistry()
+        registry.register(node)
+        workflow = WorkflowSpec(
+            workflow_id="native_list_ownership",
+            nodes=[NodeInvocation(alias="list", node_id=node.spec.metadata.component_id)],
+        )
+        expected = _CASES[case]
+        for warm in (False, True):
+            reopened = FileSystemCAS(cas)
+            run = RunContext.start(reopened, bundle, run_id="R_list_ownership")
+            initial_rows = [{"id": "b", "v": 1}, {"id": "c", "v": 2}]
+            shared_dict = {"v": 1}
+            state = ExperimentState(
+                run_id="R_list_ownership",
+                params={
+                    "x": 2,
+                    "rows": initial_rows,
+                    "unrelated": "new" if warm else "old",
+                    "others": initial_rows if case == "initial_list_alias" else [],
+                    "numeric": {"0": {"v": 9}},
+                    **(
+                        {"left": shared_dict, "right": shared_dict}
+                        if case == "initial_dict_alias"
+                        else {}
+                    ),
+                },
+                budgets={"neighbor_reserved_usd": Decimal("11") if warm else Decimal("7")},
+            )
+            # The DTO validates top-level dict/list values independently.  These
+            # native assignments establish the actual supported in-memory aliases
+            # before the executor branch, rather than assuming validation kept them.
+            if case == "initial_dict_alias":
+                state.params["left"] = state.params["right"] = shared_dict
+                assert state.params["left"] is state.params["right"]
+            if case in {"initial_list_alias", "initial_list_alias_pop"}:
+                state.params["others"] = state.params["rows"]
+                assert state.params["rows"] is state.params["others"]
+            before = state.model_dump(mode="json")
+            result = await AsyncWorkflowExecutor(
+                ExecutionContext(store=reopened, run=run, logger=logging.getLogger("list-owner")),
+                registry,
+            ).execute(workflow, state)
+            assert result.report.status == "ok"
+            assert result.state.params["rows"] == expected
+            expected_others = (
+                expected
+                if case in {"initial_list_alias", "initial_list_alias_pop"}
+                else ([{"id": "b", "v": 5}] if case == "reparent_alias" else [])
+            )
+            expected_aliases = (
+                {"left": {"v": 5}, "right": {"v": 5}}
+                if case == "initial_dict_alias"
+                else {"slot": {"id": "b", "v": 5}}
+                if case == "dict_reparent_alias"
+                else {}
+            )
+            assert result.state.params["others"] == expected_others
+            assert "neighbor_alias" not in result.state.params
+            assert result.state.params["numeric"] == {"0": {"v": 4 if case == "numeric_dict" else 9}}
+            assert result.state.params["unrelated"] == state.params["unrelated"]
+            assert (
+                result.state.budgets["neighbor_reserved_usd"] == state.budgets["neighbor_reserved_usd"]
+            )
+            assert state.model_dump(mode="json") == before
+            assert node.calls == 1
+            effect = result.report.nodes[0].artifacts[0]
+            assert reopened.verify(effect).ok
+            assert json.loads(reopened.get_bytes(effect)) == {
+                "case": case,
+                "rows": expected,
+                "others": expected_others,
+                "aliases": expected_aliases,
+            }
+            assert reopened.verify(result.run_ref).ok
+            records = [json.loads(line) for line in run.trace_path.read_text().splitlines()]
+            stores = [event for event in records if event["event"] == "NODE_CACHE_STORE"]
+            assert len(stores) == 1
+            cache_ref = ArtifactRef.model_validate(stores[0]["refs"]["outputs"][0])
+            assert reopened.verify(cache_ref).ok
+            entry = json.loads(reopened.get_bytes(cache_ref))
+            assert entry["outcome_payload"]["state"]["params"]["rows"] == expected
+            assert len([event for event in records if event["event"] == "NODE_CACHE_HIT"]) == int(warm)
+            public_journal = mutation_journal_for_state(result.state)
+>           assert public_journal is None or not public_journal.enforce_write_scope
+E           AssertionError: assert (StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True) is None or not True)
+E            +  where True = StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True).enforce_write_scope
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py:294: AssertionError
+_ test_structural_list_intents_reopen_and_preserve_exact_native_rows[remove_shift] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-owned-graph/tmp/test_structural_list_intents_r4')
+case = 'remove_shift'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("case", list(_CASES))
+    async def test_structural_list_intents_reopen_and_preserve_exact_native_rows(tmp_path, case):
+        cas = tmp_path / "cas"
+        store = FileSystemCAS(cas)
+        bundle = build_default_registry_bundle(store).bundle_ref
+        node = _ListNode(case)
+        registry = NodeRegistry()
+        registry.register(node)
+        workflow = WorkflowSpec(
+            workflow_id="native_list_ownership",
+            nodes=[NodeInvocation(alias="list", node_id=node.spec.metadata.component_id)],
+        )
+        expected = _CASES[case]
+        for warm in (False, True):
+            reopened = FileSystemCAS(cas)
+            run = RunContext.start(reopened, bundle, run_id="R_list_ownership")
+            initial_rows = [{"id": "b", "v": 1}, {"id": "c", "v": 2}]
+            shared_dict = {"v": 1}
+            state = ExperimentState(
+                run_id="R_list_ownership",
+                params={
+                    "x": 2,
+                    "rows": initial_rows,
+                    "unrelated": "new" if warm else "old",
+                    "others": initial_rows if case == "initial_list_alias" else [],
+                    "numeric": {"0": {"v": 9}},
+                    **(
+                        {"left": shared_dict, "right": shared_dict}
+                        if case == "initial_dict_alias"
+                        else {}
+                    ),
+                },
+                budgets={"neighbor_reserved_usd": Decimal("11") if warm else Decimal("7")},
+            )
+            # The DTO validates top-level dict/list values independently.  These
+            # native assignments establish the actual supported in-memory aliases
+            # before the executor branch, rather than assuming validation kept them.
+            if case == "initial_dict_alias":
+                state.params["left"] = state.params["right"] = shared_dict
+                assert state.params["left"] is state.params["right"]
+            if case in {"initial_list_alias", "initial_list_alias_pop"}:
+                state.params["others"] = state.params["rows"]
+                assert state.params["rows"] is state.params["others"]
+            before = state.model_dump(mode="json")
+            result = await AsyncWorkflowExecutor(
+                ExecutionContext(store=reopened, run=run, logger=logging.getLogger("list-owner")),
+                registry,
+            ).execute(workflow, state)
+            assert result.report.status == "ok"
+            assert result.state.params["rows"] == expected
+            expected_others = (
+                expected
+                if case in {"initial_list_alias", "initial_list_alias_pop"}
+                else ([{"id": "b", "v": 5}] if case == "reparent_alias" else [])
+            )
+            expected_aliases = (
+                {"left": {"v": 5}, "right": {"v": 5}}
+                if case == "initial_dict_alias"
+                else {"slot": {"id": "b", "v": 5}}
+                if case == "dict_reparent_alias"
+                else {}
+            )
+            assert result.state.params["others"] == expected_others
+            assert "neighbor_alias" not in result.state.params
+            assert result.state.params["numeric"] == {"0": {"v": 4 if case == "numeric_dict" else 9}}
+            assert result.state.params["unrelated"] == state.params["unrelated"]
+            assert (
+                result.state.budgets["neighbor_reserved_usd"] == state.budgets["neighbor_reserved_usd"]
+            )
+            assert state.model_dump(mode="json") == before
+            assert node.calls == 1
+            effect = result.report.nodes[0].artifacts[0]
+            assert reopened.verify(effect).ok
+            assert json.loads(reopened.get_bytes(effect)) == {
+                "case": case,
+                "rows": expected,
+                "others": expected_others,
+                "aliases": expected_aliases,
+            }
+            assert reopened.verify(result.run_ref).ok
+            records = [json.loads(line) for line in run.trace_path.read_text().splitlines()]
+            stores = [event for event in records if event["event"] == "NODE_CACHE_STORE"]
+            assert len(stores) == 1
+            cache_ref = ArtifactRef.model_validate(stores[0]["refs"]["outputs"][0])
+            assert reopened.verify(cache_ref).ok
+            entry = json.loads(reopened.get_bytes(cache_ref))
+            assert entry["outcome_payload"]["state"]["params"]["rows"] == expected
+            assert len([event for event in records if event["event"] == "NODE_CACHE_HIT"]) == int(warm)
+            public_journal = mutation_journal_for_state(result.state)
+>           assert public_journal is None or not public_journal.enforce_write_scope
+E           AssertionError: assert (StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True) is None or not True)
+E            +  where True = StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True).enforce_write_scope
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py:294: AssertionError
+_ test_structural_list_intents_reopen_and_preserve_exact_native_rows[delete_slice] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-owned-graph/tmp/test_structural_list_intents_r5')
+case = 'delete_slice'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("case", list(_CASES))
+    async def test_structural_list_intents_reopen_and_preserve_exact_native_rows(tmp_path, case):
+        cas = tmp_path / "cas"
+        store = FileSystemCAS(cas)
+        bundle = build_default_registry_bundle(store).bundle_ref
+        node = _ListNode(case)
+        registry = NodeRegistry()
+        registry.register(node)
+        workflow = WorkflowSpec(
+            workflow_id="native_list_ownership",
+            nodes=[NodeInvocation(alias="list", node_id=node.spec.metadata.component_id)],
+        )
+        expected = _CASES[case]
+        for warm in (False, True):
+            reopened = FileSystemCAS(cas)
+            run = RunContext.start(reopened, bundle, run_id="R_list_ownership")
+            initial_rows = [{"id": "b", "v": 1}, {"id": "c", "v": 2}]
+            shared_dict = {"v": 1}
+            state = ExperimentState(
+                run_id="R_list_ownership",
+                params={
+                    "x": 2,
+                    "rows": initial_rows,
+                    "unrelated": "new" if warm else "old",
+                    "others": initial_rows if case == "initial_list_alias" else [],
+                    "numeric": {"0": {"v": 9}},
+                    **(
+                        {"left": shared_dict, "right": shared_dict}
+                        if case == "initial_dict_alias"
+                        else {}
+                    ),
+                },
+                budgets={"neighbor_reserved_usd": Decimal("11") if warm else Decimal("7")},
+            )
+            # The DTO validates top-level dict/list values independently.  These
+            # native assignments establish the actual supported in-memory aliases
+            # before the executor branch, rather than assuming validation kept them.
+            if case == "initial_dict_alias":
+                state.params["left"] = state.params["right"] = shared_dict
+                assert state.params["left"] is state.params["right"]
+            if case in {"initial_list_alias", "initial_list_alias_pop"}:
+                state.params["others"] = state.params["rows"]
+                assert state.params["rows"] is state.params["others"]
+            before = state.model_dump(mode="json")
+            result = await AsyncWorkflowExecutor(
+                ExecutionContext(store=reopened, run=run, logger=logging.getLogger("list-owner")),
+                registry,
+            ).execute(workflow, state)
+            assert result.report.status == "ok"
+            assert result.state.params["rows"] == expected
+            expected_others = (
+                expected
+                if case in {"initial_list_alias", "initial_list_alias_pop"}
+                else ([{"id": "b", "v": 5}] if case == "reparent_alias" else [])
+            )
+            expected_aliases = (
+                {"left": {"v": 5}, "right": {"v": 5}}
+                if case == "initial_dict_alias"
+                else {"slot": {"id": "b", "v": 5}}
+                if case == "dict_reparent_alias"
+                else {}
+            )
+            assert result.state.params["others"] == expected_others
+            assert "neighbor_alias" not in result.state.params
+            assert result.state.params["numeric"] == {"0": {"v": 4 if case == "numeric_dict" else 9}}
+            assert result.state.params["unrelated"] == state.params["unrelated"]
+            assert (
+                result.state.budgets["neighbor_reserved_usd"] == state.budgets["neighbor_reserved_usd"]
+            )
+            assert state.model_dump(mode="json") == before
+            assert node.calls == 1
+            effect = result.report.nodes[0].artifacts[0]
+            assert reopened.verify(effect).ok
+            assert json.loads(reopened.get_bytes(effect)) == {
+                "case": case,
+                "rows": expected,
+                "others": expected_others,
+                "aliases": expected_aliases,
+            }
+            assert reopened.verify(result.run_ref).ok
+            records = [json.loads(line) for line in run.trace_path.read_text().splitlines()]
+            stores = [event for event in records if event["event"] == "NODE_CACHE_STORE"]
+            assert len(stores) == 1
+            cache_ref = ArtifactRef.model_validate(stores[0]["refs"]["outputs"][0])
+            assert reopened.verify(cache_ref).ok
+            entry = json.loads(reopened.get_bytes(cache_ref))
+            assert entry["outcome_payload"]["state"]["params"]["rows"] == expected
+            assert len([event for event in records if event["event"] == "NODE_CACHE_HIT"]) == int(warm)
+            public_journal = mutation_journal_for_state(result.state)
+>           assert public_journal is None or not public_journal.enforce_write_scope
+E           AssertionError: assert (StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True) is None or not True)
+E            +  where True = StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True).enforce_write_scope
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py:294: AssertionError
+_ test_structural_list_intents_reopen_and_preserve_exact_native_rows[set_slice] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-owned-graph/tmp/test_structural_list_intents_r6')
+case = 'set_slice'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("case", list(_CASES))
+    async def test_structural_list_intents_reopen_and_preserve_exact_native_rows(tmp_path, case):
+        cas = tmp_path / "cas"
+        store = FileSystemCAS(cas)
+        bundle = build_default_registry_bundle(store).bundle_ref
+        node = _ListNode(case)
+        registry = NodeRegistry()
+        registry.register(node)
+        workflow = WorkflowSpec(
+            workflow_id="native_list_ownership",
+            nodes=[NodeInvocation(alias="list", node_id=node.spec.metadata.component_id)],
+        )
+        expected = _CASES[case]
+        for warm in (False, True):
+            reopened = FileSystemCAS(cas)
+            run = RunContext.start(reopened, bundle, run_id="R_list_ownership")
+            initial_rows = [{"id": "b", "v": 1}, {"id": "c", "v": 2}]
+            shared_dict = {"v": 1}
+            state = ExperimentState(
+                run_id="R_list_ownership",
+                params={
+                    "x": 2,
+                    "rows": initial_rows,
+                    "unrelated": "new" if warm else "old",
+                    "others": initial_rows if case == "initial_list_alias" else [],
+                    "numeric": {"0": {"v": 9}},
+                    **(
+                        {"left": shared_dict, "right": shared_dict}
+                        if case == "initial_dict_alias"
+                        else {}
+                    ),
+                },
+                budgets={"neighbor_reserved_usd": Decimal("11") if warm else Decimal("7")},
+            )
+            # The DTO validates top-level dict/list values independently.  These
+            # native assignments establish the actual supported in-memory aliases
+            # before the executor branch, rather than assuming validation kept them.
+            if case == "initial_dict_alias":
+                state.params["left"] = state.params["right"] = shared_dict
+                assert state.params["left"] is state.params["right"]
+            if case in {"initial_list_alias", "initial_list_alias_pop"}:
+                state.params["others"] = state.params["rows"]
+                assert state.params["rows"] is state.params["others"]
+            before = state.model_dump(mode="json")
+            result = await AsyncWorkflowExecutor(
+                ExecutionContext(store=reopened, run=run, logger=logging.getLogger("list-owner")),
+                registry,
+            ).execute(workflow, state)
+            assert result.report.status == "ok"
+            assert result.state.params["rows"] == expected
+            expected_others = (
+                expected
+                if case in {"initial_list_alias", "initial_list_alias_pop"}
+                else ([{"id": "b", "v": 5}] if case == "reparent_alias" else [])
+            )
+            expected_aliases = (
+                {"left": {"v": 5}, "right": {"v": 5}}
+                if case == "initial_dict_alias"
+                else {"slot": {"id": "b", "v": 5}}
+                if case == "dict_reparent_alias"
+                else {}
+            )
+            assert result.state.params["others"] == expected_others
+            assert "neighbor_alias" not in result.state.params
+            assert result.state.params["numeric"] == {"0": {"v": 4 if case == "numeric_dict" else 9}}
+            assert result.state.params["unrelated"] == state.params["unrelated"]
+            assert (
+                result.state.budgets["neighbor_reserved_usd"] == state.budgets["neighbor_reserved_usd"]
+            )
+            assert state.model_dump(mode="json") == before
+            assert node.calls == 1
+            effect = result.report.nodes[0].artifacts[0]
+            assert reopened.verify(effect).ok
+            assert json.loads(reopened.get_bytes(effect)) == {
+                "case": case,
+                "rows": expected,
+                "others": expected_others,
+                "aliases": expected_aliases,
+            }
+            assert reopened.verify(result.run_ref).ok
+            records = [json.loads(line) for line in run.trace_path.read_text().splitlines()]
+            stores = [event for event in records if event["event"] == "NODE_CACHE_STORE"]
+            assert len(stores) == 1
+            cache_ref = ArtifactRef.model_validate(stores[0]["refs"]["outputs"][0])
+            assert reopened.verify(cache_ref).ok
+            entry = json.loads(reopened.get_bytes(cache_ref))
+            assert entry["outcome_payload"]["state"]["params"]["rows"] == expected
+            assert len([event for event in records if event["event"] == "NODE_CACHE_HIT"]) == int(warm)
+            public_journal = mutation_journal_for_state(result.state)
+>           assert public_journal is None or not public_journal.enforce_write_scope
+E           AssertionError: assert (StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True) is None or not True)
+E            +  where True = StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True).enforce_write_scope
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py:294: AssertionError
+_ test_structural_list_intents_reopen_and_preserve_exact_native_rows[reverse] __
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-owned-graph/tmp/test_structural_list_intents_r7')
+case = 'reverse'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("case", list(_CASES))
+    async def test_structural_list_intents_reopen_and_preserve_exact_native_rows(tmp_path, case):
+        cas = tmp_path / "cas"
+        store = FileSystemCAS(cas)
+        bundle = build_default_registry_bundle(store).bundle_ref
+        node = _ListNode(case)
+        registry = NodeRegistry()
+        registry.register(node)
+        workflow = WorkflowSpec(
+            workflow_id="native_list_ownership",
+            nodes=[NodeInvocation(alias="list", node_id=node.spec.metadata.component_id)],
+        )
+        expected = _CASES[case]
+        for warm in (False, True):
+            reopened = FileSystemCAS(cas)
+            run = RunContext.start(reopened, bundle, run_id="R_list_ownership")
+            initial_rows = [{"id": "b", "v": 1}, {"id": "c", "v": 2}]
+            shared_dict = {"v": 1}
+            state = ExperimentState(
+                run_id="R_list_ownership",
+                params={
+                    "x": 2,
+                    "rows": initial_rows,
+                    "unrelated": "new" if warm else "old",
+                    "others": initial_rows if case == "initial_list_alias" else [],
+                    "numeric": {"0": {"v": 9}},
+                    **(
+                        {"left": shared_dict, "right": shared_dict}
+                        if case == "initial_dict_alias"
+                        else {}
+                    ),
+                },
+                budgets={"neighbor_reserved_usd": Decimal("11") if warm else Decimal("7")},
+            )
+            # The DTO validates top-level dict/list values independently.  These
+            # native assignments establish the actual supported in-memory aliases
+            # before the executor branch, rather than assuming validation kept them.
+            if case == "initial_dict_alias":
+                state.params["left"] = state.params["right"] = shared_dict
+                assert state.params["left"] is state.params["right"]
+            if case in {"initial_list_alias", "initial_list_alias_pop"}:
+                state.params["others"] = state.params["rows"]
+                assert state.params["rows"] is state.params["others"]
+            before = state.model_dump(mode="json")
+            result = await AsyncWorkflowExecutor(
+                ExecutionContext(store=reopened, run=run, logger=logging.getLogger("list-owner")),
+                registry,
+            ).execute(workflow, state)
+            assert result.report.status == "ok"
+            assert result.state.params["rows"] == expected
+            expected_others = (
+                expected
+                if case in {"initial_list_alias", "initial_list_alias_pop"}
+                else ([{"id": "b", "v": 5}] if case == "reparent_alias" else [])
+            )
+            expected_aliases = (
+                {"left": {"v": 5}, "right": {"v": 5}}
+                if case == "initial_dict_alias"
+                else {"slot": {"id": "b", "v": 5}}
+                if case == "dict_reparent_alias"
+                else {}
+            )
+            assert result.state.params["others"] == expected_others
+            assert "neighbor_alias" not in result.state.params
+            assert result.state.params["numeric"] == {"0": {"v": 4 if case == "numeric_dict" else 9}}
+            assert result.state.params["unrelated"] == state.params["unrelated"]
+            assert (
+                result.state.budgets["neighbor_reserved_usd"] == state.budgets["neighbor_reserved_usd"]
+            )
+            assert state.model_dump(mode="json") == before
+            assert node.calls == 1
+            effect = result.report.nodes[0].artifacts[0]
+            assert reopened.verify(effect).ok
+            assert json.loads(reopened.get_bytes(effect)) == {
+                "case": case,
+                "rows": expected,
+                "others": expected_others,
+                "aliases": expected_aliases,
+            }
+            assert reopened.verify(result.run_ref).ok
+            records = [json.loads(line) for line in run.trace_path.read_text().splitlines()]
+            stores = [event for event in records if event["event"] == "NODE_CACHE_STORE"]
+            assert len(stores) == 1
+            cache_ref = ArtifactRef.model_validate(stores[0]["refs"]["outputs"][0])
+            assert reopened.verify(cache_ref).ok
+            entry = json.loads(reopened.get_bytes(cache_ref))
+            assert entry["outcome_payload"]["state"]["params"]["rows"] == expected
+            assert len([event for event in records if event["event"] == "NODE_CACHE_HIT"]) == int(warm)
+            public_journal = mutation_journal_for_state(result.state)
+>           assert public_journal is None or not public_journal.enforce_write_scope
+E           AssertionError: assert (StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True) is None or not True)
+E            +  where True = StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True).enforce_write_scope
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py:294: AssertionError
+___ test_structural_list_intents_reopen_and_preserve_exact_native_rows[sort] ___
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-owned-graph/tmp/test_structural_list_intents_r8')
+case = 'sort'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("case", list(_CASES))
+    async def test_structural_list_intents_reopen_and_preserve_exact_native_rows(tmp_path, case):
+        cas = tmp_path / "cas"
+        store = FileSystemCAS(cas)
+        bundle = build_default_registry_bundle(store).bundle_ref
+        node = _ListNode(case)
+        registry = NodeRegistry()
+        registry.register(node)
+        workflow = WorkflowSpec(
+            workflow_id="native_list_ownership",
+            nodes=[NodeInvocation(alias="list", node_id=node.spec.metadata.component_id)],
+        )
+        expected = _CASES[case]
+        for warm in (False, True):
+            reopened = FileSystemCAS(cas)
+            run = RunContext.start(reopened, bundle, run_id="R_list_ownership")
+            initial_rows = [{"id": "b", "v": 1}, {"id": "c", "v": 2}]
+            shared_dict = {"v": 1}
+            state = ExperimentState(
+                run_id="R_list_ownership",
+                params={
+                    "x": 2,
+                    "rows": initial_rows,
+                    "unrelated": "new" if warm else "old",
+                    "others": initial_rows if case == "initial_list_alias" else [],
+                    "numeric": {"0": {"v": 9}},
+                    **(
+                        {"left": shared_dict, "right": shared_dict}
+                        if case == "initial_dict_alias"
+                        else {}
+                    ),
+                },
+                budgets={"neighbor_reserved_usd": Decimal("11") if warm else Decimal("7")},
+            )
+            # The DTO validates top-level dict/list values independently.  These
+            # native assignments establish the actual supported in-memory aliases
+            # before the executor branch, rather than assuming validation kept them.
+            if case == "initial_dict_alias":
+                state.params["left"] = state.params["right"] = shared_dict
+                assert state.params["left"] is state.params["right"]
+            if case in {"initial_list_alias", "initial_list_alias_pop"}:
+                state.params["others"] = state.params["rows"]
+                assert state.params["rows"] is state.params["others"]
+            before = state.model_dump(mode="json")
+            result = await AsyncWorkflowExecutor(
+                ExecutionContext(store=reopened, run=run, logger=logging.getLogger("list-owner")),
+                registry,
+            ).execute(workflow, state)
+            assert result.report.status == "ok"
+            assert result.state.params["rows"] == expected
+            expected_others = (
+                expected
+                if case in {"initial_list_alias", "initial_list_alias_pop"}
+                else ([{"id": "b", "v": 5}] if case == "reparent_alias" else [])
+            )
+            expected_aliases = (
+                {"left": {"v": 5}, "right": {"v": 5}}
+                if case == "initial_dict_alias"
+                else {"slot": {"id": "b", "v": 5}}
+                if case == "dict_reparent_alias"
+                else {}
+            )
+            assert result.state.params["others"] == expected_others
+            assert "neighbor_alias" not in result.state.params
+            assert result.state.params["numeric"] == {"0": {"v": 4 if case == "numeric_dict" else 9}}
+            assert result.state.params["unrelated"] == state.params["unrelated"]
+            assert (
+                result.state.budgets["neighbor_reserved_usd"] == state.budgets["neighbor_reserved_usd"]
+            )
+            assert state.model_dump(mode="json") == before
+            assert node.calls == 1
+            effect = result.report.nodes[0].artifacts[0]
+            assert reopened.verify(effect).ok
+            assert json.loads(reopened.get_bytes(effect)) == {
+                "case": case,
+                "rows": expected,
+                "others": expected_others,
+                "aliases": expected_aliases,
+            }
+            assert reopened.verify(result.run_ref).ok
+            records = [json.loads(line) for line in run.trace_path.read_text().splitlines()]
+            stores = [event for event in records if event["event"] == "NODE_CACHE_STORE"]
+            assert len(stores) == 1
+            cache_ref = ArtifactRef.model_validate(stores[0]["refs"]["outputs"][0])
+            assert reopened.verify(cache_ref).ok
+            entry = json.loads(reopened.get_bytes(cache_ref))
+            assert entry["outcome_payload"]["state"]["params"]["rows"] == expected
+            assert len([event for event in records if event["event"] == "NODE_CACHE_HIT"]) == int(warm)
+            public_journal = mutation_journal_for_state(result.state)
+>           assert public_journal is None or not public_journal.enforce_write_scope
+E           AssertionError: assert (StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True) is None or not True)
+E            +  where True = StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True).enforce_write_scope
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py:294: AssertionError
+_ test_structural_list_intents_reopen_and_preserve_exact_native_rows[repeat_alias] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-owned-graph/tmp/test_structural_list_intents_r9')
+case = 'repeat_alias'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("case", list(_CASES))
+    async def test_structural_list_intents_reopen_and_preserve_exact_native_rows(tmp_path, case):
+        cas = tmp_path / "cas"
+        store = FileSystemCAS(cas)
+        bundle = build_default_registry_bundle(store).bundle_ref
+        node = _ListNode(case)
+        registry = NodeRegistry()
+        registry.register(node)
+        workflow = WorkflowSpec(
+            workflow_id="native_list_ownership",
+            nodes=[NodeInvocation(alias="list", node_id=node.spec.metadata.component_id)],
+        )
+        expected = _CASES[case]
+        for warm in (False, True):
+            reopened = FileSystemCAS(cas)
+            run = RunContext.start(reopened, bundle, run_id="R_list_ownership")
+            initial_rows = [{"id": "b", "v": 1}, {"id": "c", "v": 2}]
+            shared_dict = {"v": 1}
+            state = ExperimentState(
+                run_id="R_list_ownership",
+                params={
+                    "x": 2,
+                    "rows": initial_rows,
+                    "unrelated": "new" if warm else "old",
+                    "others": initial_rows if case == "initial_list_alias" else [],
+                    "numeric": {"0": {"v": 9}},
+                    **(
+                        {"left": shared_dict, "right": shared_dict}
+                        if case == "initial_dict_alias"
+                        else {}
+                    ),
+                },
+                budgets={"neighbor_reserved_usd": Decimal("11") if warm else Decimal("7")},
+            )
+            # The DTO validates top-level dict/list values independently.  These
+            # native assignments establish the actual supported in-memory aliases
+            # before the executor branch, rather than assuming validation kept them.
+            if case == "initial_dict_alias":
+                state.params["left"] = state.params["right"] = shared_dict
+                assert state.params["left"] is state.params["right"]
+            if case in {"initial_list_alias", "initial_list_alias_pop"}:
+                state.params["others"] = state.params["rows"]
+                assert state.params["rows"] is state.params["others"]
+            before = state.model_dump(mode="json")
+            result = await AsyncWorkflowExecutor(
+                ExecutionContext(store=reopened, run=run, logger=logging.getLogger("list-owner")),
+                registry,
+            ).execute(workflow, state)
+            assert result.report.status == "ok"
+            assert result.state.params["rows"] == expected
+            expected_others = (
+                expected
+                if case in {"initial_list_alias", "initial_list_alias_pop"}
+                else ([{"id": "b", "v": 5}] if case == "reparent_alias" else [])
+            )
+            expected_aliases = (
+                {"left": {"v": 5}, "right": {"v": 5}}
+                if case == "initial_dict_alias"
+                else {"slot": {"id": "b", "v": 5}}
+                if case == "dict_reparent_alias"
+                else {}
+            )
+            assert result.state.params["others"] == expected_others
+            assert "neighbor_alias" not in result.state.params
+            assert result.state.params["numeric"] == {"0": {"v": 4 if case == "numeric_dict" else 9}}
+            assert result.state.params["unrelated"] == state.params["unrelated"]
+            assert (
+                result.state.budgets["neighbor_reserved_usd"] == state.budgets["neighbor_reserved_usd"]
+            )
+            assert state.model_dump(mode="json") == before
+            assert node.calls == 1
+            effect = result.report.nodes[0].artifacts[0]
+            assert reopened.verify(effect).ok
+            assert json.loads(reopened.get_bytes(effect)) == {
+                "case": case,
+                "rows": expected,
+                "others": expected_others,
+                "aliases": expected_aliases,
+            }
+            assert reopened.verify(result.run_ref).ok
+            records = [json.loads(line) for line in run.trace_path.read_text().splitlines()]
+            stores = [event for event in records if event["event"] == "NODE_CACHE_STORE"]
+            assert len(stores) == 1
+            cache_ref = ArtifactRef.model_validate(stores[0]["refs"]["outputs"][0])
+            assert reopened.verify(cache_ref).ok
+            entry = json.loads(reopened.get_bytes(cache_ref))
+            assert entry["outcome_payload"]["state"]["params"]["rows"] == expected
+            assert len([event for event in records if event["event"] == "NODE_CACHE_HIT"]) == int(warm)
+            public_journal = mutation_journal_for_state(result.state)
+>           assert public_journal is None or not public_journal.enforce_write_scope
+E           AssertionError: assert (StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True) is None or not True)
+E            +  where True = StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True).enforce_write_scope
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py:294: AssertionError
+_ test_structural_list_intents_reopen_and_preserve_exact_native_rows[negative_set] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-owned-graph/tmp/test_structural_list_intents_r10')
+case = 'negative_set'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("case", list(_CASES))
+    async def test_structural_list_intents_reopen_and_preserve_exact_native_rows(tmp_path, case):
+        cas = tmp_path / "cas"
+        store = FileSystemCAS(cas)
+        bundle = build_default_registry_bundle(store).bundle_ref
+        node = _ListNode(case)
+        registry = NodeRegistry()
+        registry.register(node)
+        workflow = WorkflowSpec(
+            workflow_id="native_list_ownership",
+            nodes=[NodeInvocation(alias="list", node_id=node.spec.metadata.component_id)],
+        )
+        expected = _CASES[case]
+        for warm in (False, True):
+            reopened = FileSystemCAS(cas)
+            run = RunContext.start(reopened, bundle, run_id="R_list_ownership")
+            initial_rows = [{"id": "b", "v": 1}, {"id": "c", "v": 2}]
+            shared_dict = {"v": 1}
+            state = ExperimentState(
+                run_id="R_list_ownership",
+                params={
+                    "x": 2,
+                    "rows": initial_rows,
+                    "unrelated": "new" if warm else "old",
+                    "others": initial_rows if case == "initial_list_alias" else [],
+                    "numeric": {"0": {"v": 9}},
+                    **(
+                        {"left": shared_dict, "right": shared_dict}
+                        if case == "initial_dict_alias"
+                        else {}
+                    ),
+                },
+                budgets={"neighbor_reserved_usd": Decimal("11") if warm else Decimal("7")},
+            )
+            # The DTO validates top-level dict/list values independently.  These
+            # native assignments establish the actual supported in-memory aliases
+            # before the executor branch, rather than assuming validation kept them.
+            if case == "initial_dict_alias":
+                state.params["left"] = state.params["right"] = shared_dict
+                assert state.params["left"] is state.params["right"]
+            if case in {"initial_list_alias", "initial_list_alias_pop"}:
+                state.params["others"] = state.params["rows"]
+                assert state.params["rows"] is state.params["others"]
+            before = state.model_dump(mode="json")
+            result = await AsyncWorkflowExecutor(
+                ExecutionContext(store=reopened, run=run, logger=logging.getLogger("list-owner")),
+                registry,
+            ).execute(workflow, state)
+            assert result.report.status == "ok"
+            assert result.state.params["rows"] == expected
+            expected_others = (
+                expected
+                if case in {"initial_list_alias", "initial_list_alias_pop"}
+                else ([{"id": "b", "v": 5}] if case == "reparent_alias" else [])
+            )
+            expected_aliases = (
+                {"left": {"v": 5}, "right": {"v": 5}}
+                if case == "initial_dict_alias"
+                else {"slot": {"id": "b", "v": 5}}
+                if case == "dict_reparent_alias"
+                else {}
+            )
+            assert result.state.params["others"] == expected_others
+            assert "neighbor_alias" not in result.state.params
+            assert result.state.params["numeric"] == {"0": {"v": 4 if case == "numeric_dict" else 9}}
+            assert result.state.params["unrelated"] == state.params["unrelated"]
+            assert (
+                result.state.budgets["neighbor_reserved_usd"] == state.budgets["neighbor_reserved_usd"]
+            )
+            assert state.model_dump(mode="json") == before
+            assert node.calls == 1
+            effect = result.report.nodes[0].artifacts[0]
+            assert reopened.verify(effect).ok
+            assert json.loads(reopened.get_bytes(effect)) == {
+                "case": case,
+                "rows": expected,
+                "others": expected_others,
+                "aliases": expected_aliases,
+            }
+            assert reopened.verify(result.run_ref).ok
+            records = [json.loads(line) for line in run.trace_path.read_text().splitlines()]
+            stores = [event for event in records if event["event"] == "NODE_CACHE_STORE"]
+            assert len(stores) == 1
+            cache_ref = ArtifactRef.model_validate(stores[0]["refs"]["outputs"][0])
+            assert reopened.verify(cache_ref).ok
+            entry = json.loads(reopened.get_bytes(cache_ref))
+            assert entry["outcome_payload"]["state"]["params"]["rows"] == expected
+            assert len([event for event in records if event["event"] == "NODE_CACHE_HIT"]) == int(warm)
+            public_journal = mutation_journal_for_state(result.state)
+>           assert public_journal is None or not public_journal.enforce_write_scope
+E           AssertionError: assert (StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True) is None or not True)
+E            +  where True = StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True).enforce_write_scope
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py:294: AssertionError
+_ test_structural_list_intents_reopen_and_preserve_exact_native_rows[sparse_null_delete] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-owned-graph/tmp/test_structural_list_intents_r11')
+case = 'sparse_null_delete'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("case", list(_CASES))
+    async def test_structural_list_intents_reopen_and_preserve_exact_native_rows(tmp_path, case):
+        cas = tmp_path / "cas"
+        store = FileSystemCAS(cas)
+        bundle = build_default_registry_bundle(store).bundle_ref
+        node = _ListNode(case)
+        registry = NodeRegistry()
+        registry.register(node)
+        workflow = WorkflowSpec(
+            workflow_id="native_list_ownership",
+            nodes=[NodeInvocation(alias="list", node_id=node.spec.metadata.component_id)],
+        )
+        expected = _CASES[case]
+        for warm in (False, True):
+            reopened = FileSystemCAS(cas)
+            run = RunContext.start(reopened, bundle, run_id="R_list_ownership")
+            initial_rows = [{"id": "b", "v": 1}, {"id": "c", "v": 2}]
+            shared_dict = {"v": 1}
+            state = ExperimentState(
+                run_id="R_list_ownership",
+                params={
+                    "x": 2,
+                    "rows": initial_rows,
+                    "unrelated": "new" if warm else "old",
+                    "others": initial_rows if case == "initial_list_alias" else [],
+                    "numeric": {"0": {"v": 9}},
+                    **(
+                        {"left": shared_dict, "right": shared_dict}
+                        if case == "initial_dict_alias"
+                        else {}
+                    ),
+                },
+                budgets={"neighbor_reserved_usd": Decimal("11") if warm else Decimal("7")},
+            )
+            # The DTO validates top-level dict/list values independently.  These
+            # native assignments establish the actual supported in-memory aliases
+            # before the executor branch, rather than assuming validation kept them.
+            if case == "initial_dict_alias":
+                state.params["left"] = state.params["right"] = shared_dict
+                assert state.params["left"] is state.params["right"]
+            if case in {"initial_list_alias", "initial_list_alias_pop"}:
+                state.params["others"] = state.params["rows"]
+                assert state.params["rows"] is state.params["others"]
+            before = state.model_dump(mode="json")
+            result = await AsyncWorkflowExecutor(
+                ExecutionContext(store=reopened, run=run, logger=logging.getLogger("list-owner")),
+                registry,
+            ).execute(workflow, state)
+            assert result.report.status == "ok"
+            assert result.state.params["rows"] == expected
+            expected_others = (
+                expected
+                if case in {"initial_list_alias", "initial_list_alias_pop"}
+                else ([{"id": "b", "v": 5}] if case == "reparent_alias" else [])
+            )
+            expected_aliases = (
+                {"left": {"v": 5}, "right": {"v": 5}}
+                if case == "initial_dict_alias"
+                else {"slot": {"id": "b", "v": 5}}
+                if case == "dict_reparent_alias"
+                else {}
+            )
+            assert result.state.params["others"] == expected_others
+            assert "neighbor_alias" not in result.state.params
+            assert result.state.params["numeric"] == {"0": {"v": 4 if case == "numeric_dict" else 9}}
+            assert result.state.params["unrelated"] == state.params["unrelated"]
+            assert (
+                result.state.budgets["neighbor_reserved_usd"] == state.budgets["neighbor_reserved_usd"]
+            )
+            assert state.model_dump(mode="json") == before
+            assert node.calls == 1
+            effect = result.report.nodes[0].artifacts[0]
+            assert reopened.verify(effect).ok
+            assert json.loads(reopened.get_bytes(effect)) == {
+                "case": case,
+                "rows": expected,
+                "others": expected_others,
+                "aliases": expected_aliases,
+            }
+            assert reopened.verify(result.run_ref).ok
+            records = [json.loads(line) for line in run.trace_path.read_text().splitlines()]
+            stores = [event for event in records if event["event"] == "NODE_CACHE_STORE"]
+            assert len(stores) == 1
+            cache_ref = ArtifactRef.model_validate(stores[0]["refs"]["outputs"][0])
+            assert reopened.verify(cache_ref).ok
+            entry = json.loads(reopened.get_bytes(cache_ref))
+            assert entry["outcome_payload"]["state"]["params"]["rows"] == expected
+            assert len([event for event in records if event["event"] == "NODE_CACHE_HIT"]) == int(warm)
+            public_journal = mutation_journal_for_state(result.state)
+>           assert public_journal is None or not public_journal.enforce_write_scope
+E           AssertionError: assert (StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True) is None or not True)
+E            +  where True = StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True).enforce_write_scope
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py:294: AssertionError
+__ test_structural_list_intents_reopen_and_preserve_exact_native_rows[orphan] __
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-owned-graph/tmp/test_structural_list_intents_r12')
+case = 'orphan'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("case", list(_CASES))
+    async def test_structural_list_intents_reopen_and_preserve_exact_native_rows(tmp_path, case):
+        cas = tmp_path / "cas"
+        store = FileSystemCAS(cas)
+        bundle = build_default_registry_bundle(store).bundle_ref
+        node = _ListNode(case)
+        registry = NodeRegistry()
+        registry.register(node)
+        workflow = WorkflowSpec(
+            workflow_id="native_list_ownership",
+            nodes=[NodeInvocation(alias="list", node_id=node.spec.metadata.component_id)],
+        )
+        expected = _CASES[case]
+        for warm in (False, True):
+            reopened = FileSystemCAS(cas)
+            run = RunContext.start(reopened, bundle, run_id="R_list_ownership")
+            initial_rows = [{"id": "b", "v": 1}, {"id": "c", "v": 2}]
+            shared_dict = {"v": 1}
+            state = ExperimentState(
+                run_id="R_list_ownership",
+                params={
+                    "x": 2,
+                    "rows": initial_rows,
+                    "unrelated": "new" if warm else "old",
+                    "others": initial_rows if case == "initial_list_alias" else [],
+                    "numeric": {"0": {"v": 9}},
+                    **(
+                        {"left": shared_dict, "right": shared_dict}
+                        if case == "initial_dict_alias"
+                        else {}
+                    ),
+                },
+                budgets={"neighbor_reserved_usd": Decimal("11") if warm else Decimal("7")},
+            )
+            # The DTO validates top-level dict/list values independently.  These
+            # native assignments establish the actual supported in-memory aliases
+            # before the executor branch, rather than assuming validation kept them.
+            if case == "initial_dict_alias":
+                state.params["left"] = state.params["right"] = shared_dict
+                assert state.params["left"] is state.params["right"]
+            if case in {"initial_list_alias", "initial_list_alias_pop"}:
+                state.params["others"] = state.params["rows"]
+                assert state.params["rows"] is state.params["others"]
+            before = state.model_dump(mode="json")
+            result = await AsyncWorkflowExecutor(
+                ExecutionContext(store=reopened, run=run, logger=logging.getLogger("list-owner")),
+                registry,
+            ).execute(workflow, state)
+            assert result.report.status == "ok"
+            assert result.state.params["rows"] == expected
+            expected_others = (
+                expected
+                if case in {"initial_list_alias", "initial_list_alias_pop"}
+                else ([{"id": "b", "v": 5}] if case == "reparent_alias" else [])
+            )
+            expected_aliases = (
+                {"left": {"v": 5}, "right": {"v": 5}}
+                if case == "initial_dict_alias"
+                else {"slot": {"id": "b", "v": 5}}
+                if case == "dict_reparent_alias"
+                else {}
+            )
+            assert result.state.params["others"] == expected_others
+            assert "neighbor_alias" not in result.state.params
+            assert result.state.params["numeric"] == {"0": {"v": 4 if case == "numeric_dict" else 9}}
+            assert result.state.params["unrelated"] == state.params["unrelated"]
+            assert (
+                result.state.budgets["neighbor_reserved_usd"] == state.budgets["neighbor_reserved_usd"]
+            )
+            assert state.model_dump(mode="json") == before
+            assert node.calls == 1
+            effect = result.report.nodes[0].artifacts[0]
+            assert reopened.verify(effect).ok
+            assert json.loads(reopened.get_bytes(effect)) == {
+                "case": case,
+                "rows": expected,
+                "others": expected_others,
+                "aliases": expected_aliases,
+            }
+            assert reopened.verify(result.run_ref).ok
+            records = [json.loads(line) for line in run.trace_path.read_text().splitlines()]
+            stores = [event for event in records if event["event"] == "NODE_CACHE_STORE"]
+            assert len(stores) == 1
+            cache_ref = ArtifactRef.model_validate(stores[0]["refs"]["outputs"][0])
+            assert reopened.verify(cache_ref).ok
+            entry = json.loads(reopened.get_bytes(cache_ref))
+            assert entry["outcome_payload"]["state"]["params"]["rows"] == expected
+            assert len([event for event in records if event["event"] == "NODE_CACHE_HIT"]) == int(warm)
+            public_journal = mutation_journal_for_state(result.state)
+>           assert public_journal is None or not public_journal.enforce_write_scope
+E           AssertionError: assert (StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True) is None or not True)
+E            +  where True = StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True).enforce_write_scope
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py:294: AssertionError
+_ test_structural_list_intents_reopen_and_preserve_exact_native_rows[reinsert] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-owned-graph/tmp/test_structural_list_intents_r13')
+case = 'reinsert'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("case", list(_CASES))
+    async def test_structural_list_intents_reopen_and_preserve_exact_native_rows(tmp_path, case):
+        cas = tmp_path / "cas"
+        store = FileSystemCAS(cas)
+        bundle = build_default_registry_bundle(store).bundle_ref
+        node = _ListNode(case)
+        registry = NodeRegistry()
+        registry.register(node)
+        workflow = WorkflowSpec(
+            workflow_id="native_list_ownership",
+            nodes=[NodeInvocation(alias="list", node_id=node.spec.metadata.component_id)],
+        )
+        expected = _CASES[case]
+        for warm in (False, True):
+            reopened = FileSystemCAS(cas)
+            run = RunContext.start(reopened, bundle, run_id="R_list_ownership")
+            initial_rows = [{"id": "b", "v": 1}, {"id": "c", "v": 2}]
+            shared_dict = {"v": 1}
+            state = ExperimentState(
+                run_id="R_list_ownership",
+                params={
+                    "x": 2,
+                    "rows": initial_rows,
+                    "unrelated": "new" if warm else "old",
+                    "others": initial_rows if case == "initial_list_alias" else [],
+                    "numeric": {"0": {"v": 9}},
+                    **(
+                        {"left": shared_dict, "right": shared_dict}
+                        if case == "initial_dict_alias"
+                        else {}
+                    ),
+                },
+                budgets={"neighbor_reserved_usd": Decimal("11") if warm else Decimal("7")},
+            )
+            # The DTO validates top-level dict/list values independently.  These
+            # native assignments establish the actual supported in-memory aliases
+            # before the executor branch, rather than assuming validation kept them.
+            if case == "initial_dict_alias":
+                state.params["left"] = state.params["right"] = shared_dict
+                assert state.params["left"] is state.params["right"]
+            if case in {"initial_list_alias", "initial_list_alias_pop"}:
+                state.params["others"] = state.params["rows"]
+                assert state.params["rows"] is state.params["others"]
+            before = state.model_dump(mode="json")
+            result = await AsyncWorkflowExecutor(
+                ExecutionContext(store=reopened, run=run, logger=logging.getLogger("list-owner")),
+                registry,
+            ).execute(workflow, state)
+            assert result.report.status == "ok"
+            assert result.state.params["rows"] == expected
+            expected_others = (
+                expected
+                if case in {"initial_list_alias", "initial_list_alias_pop"}
+                else ([{"id": "b", "v": 5}] if case == "reparent_alias" else [])
+            )
+            expected_aliases = (
+                {"left": {"v": 5}, "right": {"v": 5}}
+                if case == "initial_dict_alias"
+                else {"slot": {"id": "b", "v": 5}}
+                if case == "dict_reparent_alias"
+                else {}
+            )
+            assert result.state.params["others"] == expected_others
+            assert "neighbor_alias" not in result.state.params
+            assert result.state.params["numeric"] == {"0": {"v": 4 if case == "numeric_dict" else 9}}
+            assert result.state.params["unrelated"] == state.params["unrelated"]
+            assert (
+                result.state.budgets["neighbor_reserved_usd"] == state.budgets["neighbor_reserved_usd"]
+            )
+            assert state.model_dump(mode="json") == before
+            assert node.calls == 1
+            effect = result.report.nodes[0].artifacts[0]
+            assert reopened.verify(effect).ok
+            assert json.loads(reopened.get_bytes(effect)) == {
+                "case": case,
+                "rows": expected,
+                "others": expected_others,
+                "aliases": expected_aliases,
+            }
+            assert reopened.verify(result.run_ref).ok
+            records = [json.loads(line) for line in run.trace_path.read_text().splitlines()]
+            stores = [event for event in records if event["event"] == "NODE_CACHE_STORE"]
+            assert len(stores) == 1
+            cache_ref = ArtifactRef.model_validate(stores[0]["refs"]["outputs"][0])
+            assert reopened.verify(cache_ref).ok
+            entry = json.loads(reopened.get_bytes(cache_ref))
+            assert entry["outcome_payload"]["state"]["params"]["rows"] == expected
+            assert len([event for event in records if event["event"] == "NODE_CACHE_HIT"]) == int(warm)
+            public_journal = mutation_journal_for_state(result.state)
+>           assert public_journal is None or not public_journal.enforce_write_scope
+E           AssertionError: assert (StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True) is None or not True)
+E            +  where True = StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True).enforce_write_scope
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py:294: AssertionError
+_ test_structural_list_intents_reopen_and_preserve_exact_native_rows[append_alias] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-owned-graph/tmp/test_structural_list_intents_r14')
+case = 'append_alias'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("case", list(_CASES))
+    async def test_structural_list_intents_reopen_and_preserve_exact_native_rows(tmp_path, case):
+        cas = tmp_path / "cas"
+        store = FileSystemCAS(cas)
+        bundle = build_default_registry_bundle(store).bundle_ref
+        node = _ListNode(case)
+        registry = NodeRegistry()
+        registry.register(node)
+        workflow = WorkflowSpec(
+            workflow_id="native_list_ownership",
+            nodes=[NodeInvocation(alias="list", node_id=node.spec.metadata.component_id)],
+        )
+        expected = _CASES[case]
+        for warm in (False, True):
+            reopened = FileSystemCAS(cas)
+            run = RunContext.start(reopened, bundle, run_id="R_list_ownership")
+            initial_rows = [{"id": "b", "v": 1}, {"id": "c", "v": 2}]
+            shared_dict = {"v": 1}
+            state = ExperimentState(
+                run_id="R_list_ownership",
+                params={
+                    "x": 2,
+                    "rows": initial_rows,
+                    "unrelated": "new" if warm else "old",
+                    "others": initial_rows if case == "initial_list_alias" else [],
+                    "numeric": {"0": {"v": 9}},
+                    **(
+                        {"left": shared_dict, "right": shared_dict}
+                        if case == "initial_dict_alias"
+                        else {}
+                    ),
+                },
+                budgets={"neighbor_reserved_usd": Decimal("11") if warm else Decimal("7")},
+            )
+            # The DTO validates top-level dict/list values independently.  These
+            # native assignments establish the actual supported in-memory aliases
+            # before the executor branch, rather than assuming validation kept them.
+            if case == "initial_dict_alias":
+                state.params["left"] = state.params["right"] = shared_dict
+                assert state.params["left"] is state.params["right"]
+            if case in {"initial_list_alias", "initial_list_alias_pop"}:
+                state.params["others"] = state.params["rows"]
+                assert state.params["rows"] is state.params["others"]
+            before = state.model_dump(mode="json")
+            result = await AsyncWorkflowExecutor(
+                ExecutionContext(store=reopened, run=run, logger=logging.getLogger("list-owner")),
+                registry,
+            ).execute(workflow, state)
+            assert result.report.status == "ok"
+            assert result.state.params["rows"] == expected
+            expected_others = (
+                expected
+                if case in {"initial_list_alias", "initial_list_alias_pop"}
+                else ([{"id": "b", "v": 5}] if case == "reparent_alias" else [])
+            )
+            expected_aliases = (
+                {"left": {"v": 5}, "right": {"v": 5}}
+                if case == "initial_dict_alias"
+                else {"slot": {"id": "b", "v": 5}}
+                if case == "dict_reparent_alias"
+                else {}
+            )
+            assert result.state.params["others"] == expected_others
+            assert "neighbor_alias" not in result.state.params
+            assert result.state.params["numeric"] == {"0": {"v": 4 if case == "numeric_dict" else 9}}
+            assert result.state.params["unrelated"] == state.params["unrelated"]
+            assert (
+                result.state.budgets["neighbor_reserved_usd"] == state.budgets["neighbor_reserved_usd"]
+            )
+            assert state.model_dump(mode="json") == before
+            assert node.calls == 1
+            effect = result.report.nodes[0].artifacts[0]
+            assert reopened.verify(effect).ok
+            assert json.loads(reopened.get_bytes(effect)) == {
+                "case": case,
+                "rows": expected,
+                "others": expected_others,
+                "aliases": expected_aliases,
+            }
+            assert reopened.verify(result.run_ref).ok
+            records = [json.loads(line) for line in run.trace_path.read_text().splitlines()]
+            stores = [event for event in records if event["event"] == "NODE_CACHE_STORE"]
+            assert len(stores) == 1
+            cache_ref = ArtifactRef.model_validate(stores[0]["refs"]["outputs"][0])
+            assert reopened.verify(cache_ref).ok
+            entry = json.loads(reopened.get_bytes(cache_ref))
+            assert entry["outcome_payload"]["state"]["params"]["rows"] == expected
+            assert len([event for event in records if event["event"] == "NODE_CACHE_HIT"]) == int(warm)
+            public_journal = mutation_journal_for_state(result.state)
+>           assert public_journal is None or not public_journal.enforce_write_scope
+E           AssertionError: assert (StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True) is None or not True)
+E            +  where True = StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True).enforce_write_scope
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py:294: AssertionError
+_ test_structural_list_intents_reopen_and_preserve_exact_native_rows[reparent_alias] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-owned-graph/tmp/test_structural_list_intents_r15')
+case = 'reparent_alias'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("case", list(_CASES))
+    async def test_structural_list_intents_reopen_and_preserve_exact_native_rows(tmp_path, case):
+        cas = tmp_path / "cas"
+        store = FileSystemCAS(cas)
+        bundle = build_default_registry_bundle(store).bundle_ref
+        node = _ListNode(case)
+        registry = NodeRegistry()
+        registry.register(node)
+        workflow = WorkflowSpec(
+            workflow_id="native_list_ownership",
+            nodes=[NodeInvocation(alias="list", node_id=node.spec.metadata.component_id)],
+        )
+        expected = _CASES[case]
+        for warm in (False, True):
+            reopened = FileSystemCAS(cas)
+            run = RunContext.start(reopened, bundle, run_id="R_list_ownership")
+            initial_rows = [{"id": "b", "v": 1}, {"id": "c", "v": 2}]
+            shared_dict = {"v": 1}
+            state = ExperimentState(
+                run_id="R_list_ownership",
+                params={
+                    "x": 2,
+                    "rows": initial_rows,
+                    "unrelated": "new" if warm else "old",
+                    "others": initial_rows if case == "initial_list_alias" else [],
+                    "numeric": {"0": {"v": 9}},
+                    **(
+                        {"left": shared_dict, "right": shared_dict}
+                        if case == "initial_dict_alias"
+                        else {}
+                    ),
+                },
+                budgets={"neighbor_reserved_usd": Decimal("11") if warm else Decimal("7")},
+            )
+            # The DTO validates top-level dict/list values independently.  These
+            # native assignments establish the actual supported in-memory aliases
+            # before the executor branch, rather than assuming validation kept them.
+            if case == "initial_dict_alias":
+                state.params["left"] = state.params["right"] = shared_dict
+                assert state.params["left"] is state.params["right"]
+            if case in {"initial_list_alias", "initial_list_alias_pop"}:
+                state.params["others"] = state.params["rows"]
+                assert state.params["rows"] is state.params["others"]
+            before = state.model_dump(mode="json")
+            result = await AsyncWorkflowExecutor(
+                ExecutionContext(store=reopened, run=run, logger=logging.getLogger("list-owner")),
+                registry,
+            ).execute(workflow, state)
+            assert result.report.status == "ok"
+            assert result.state.params["rows"] == expected
+            expected_others = (
+                expected
+                if case in {"initial_list_alias", "initial_list_alias_pop"}
+                else ([{"id": "b", "v": 5}] if case == "reparent_alias" else [])
+            )
+            expected_aliases = (
+                {"left": {"v": 5}, "right": {"v": 5}}
+                if case == "initial_dict_alias"
+                else {"slot": {"id": "b", "v": 5}}
+                if case == "dict_reparent_alias"
+                else {}
+            )
+            assert result.state.params["others"] == expected_others
+            assert "neighbor_alias" not in result.state.params
+            assert result.state.params["numeric"] == {"0": {"v": 4 if case == "numeric_dict" else 9}}
+            assert result.state.params["unrelated"] == state.params["unrelated"]
+            assert (
+                result.state.budgets["neighbor_reserved_usd"] == state.budgets["neighbor_reserved_usd"]
+            )
+            assert state.model_dump(mode="json") == before
+            assert node.calls == 1
+            effect = result.report.nodes[0].artifacts[0]
+            assert reopened.verify(effect).ok
+            assert json.loads(reopened.get_bytes(effect)) == {
+                "case": case,
+                "rows": expected,
+                "others": expected_others,
+                "aliases": expected_aliases,
+            }
+            assert reopened.verify(result.run_ref).ok
+            records = [json.loads(line) for line in run.trace_path.read_text().splitlines()]
+            stores = [event for event in records if event["event"] == "NODE_CACHE_STORE"]
+            assert len(stores) == 1
+            cache_ref = ArtifactRef.model_validate(stores[0]["refs"]["outputs"][0])
+            assert reopened.verify(cache_ref).ok
+            entry = json.loads(reopened.get_bytes(cache_ref))
+            assert entry["outcome_payload"]["state"]["params"]["rows"] == expected
+            assert len([event for event in records if event["event"] == "NODE_CACHE_HIT"]) == int(warm)
+            public_journal = mutation_journal_for_state(result.state)
+>           assert public_journal is None or not public_journal.enforce_write_scope
+E           AssertionError: assert (StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True) is None or not True)
+E            +  where True = StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True).enforce_write_scope
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py:294: AssertionError
+_ test_structural_list_intents_reopen_and_preserve_exact_native_rows[unauthorized_alias] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-owned-graph/tmp/test_structural_list_intents_r16')
+case = 'unauthorized_alias'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("case", list(_CASES))
+    async def test_structural_list_intents_reopen_and_preserve_exact_native_rows(tmp_path, case):
+        cas = tmp_path / "cas"
+        store = FileSystemCAS(cas)
+        bundle = build_default_registry_bundle(store).bundle_ref
+        node = _ListNode(case)
+        registry = NodeRegistry()
+        registry.register(node)
+        workflow = WorkflowSpec(
+            workflow_id="native_list_ownership",
+            nodes=[NodeInvocation(alias="list", node_id=node.spec.metadata.component_id)],
+        )
+        expected = _CASES[case]
+        for warm in (False, True):
+            reopened = FileSystemCAS(cas)
+            run = RunContext.start(reopened, bundle, run_id="R_list_ownership")
+            initial_rows = [{"id": "b", "v": 1}, {"id": "c", "v": 2}]
+            shared_dict = {"v": 1}
+            state = ExperimentState(
+                run_id="R_list_ownership",
+                params={
+                    "x": 2,
+                    "rows": initial_rows,
+                    "unrelated": "new" if warm else "old",
+                    "others": initial_rows if case == "initial_list_alias" else [],
+                    "numeric": {"0": {"v": 9}},
+                    **(
+                        {"left": shared_dict, "right": shared_dict}
+                        if case == "initial_dict_alias"
+                        else {}
+                    ),
+                },
+                budgets={"neighbor_reserved_usd": Decimal("11") if warm else Decimal("7")},
+            )
+            # The DTO validates top-level dict/list values independently.  These
+            # native assignments establish the actual supported in-memory aliases
+            # before the executor branch, rather than assuming validation kept them.
+            if case == "initial_dict_alias":
+                state.params["left"] = state.params["right"] = shared_dict
+                assert state.params["left"] is state.params["right"]
+            if case in {"initial_list_alias", "initial_list_alias_pop"}:
+                state.params["others"] = state.params["rows"]
+                assert state.params["rows"] is state.params["others"]
+            before = state.model_dump(mode="json")
+            result = await AsyncWorkflowExecutor(
+                ExecutionContext(store=reopened, run=run, logger=logging.getLogger("list-owner")),
+                registry,
+            ).execute(workflow, state)
+            assert result.report.status == "ok"
+            assert result.state.params["rows"] == expected
+            expected_others = (
+                expected
+                if case in {"initial_list_alias", "initial_list_alias_pop"}
+                else ([{"id": "b", "v": 5}] if case == "reparent_alias" else [])
+            )
+            expected_aliases = (
+                {"left": {"v": 5}, "right": {"v": 5}}
+                if case == "initial_dict_alias"
+                else {"slot": {"id": "b", "v": 5}}
+                if case == "dict_reparent_alias"
+                else {}
+            )
+            assert result.state.params["others"] == expected_others
+            assert "neighbor_alias" not in result.state.params
+            assert result.state.params["numeric"] == {"0": {"v": 4 if case == "numeric_dict" else 9}}
+            assert result.state.params["unrelated"] == state.params["unrelated"]
+            assert (
+                result.state.budgets["neighbor_reserved_usd"] == state.budgets["neighbor_reserved_usd"]
+            )
+            assert state.model_dump(mode="json") == before
+            assert node.calls == 1
+            effect = result.report.nodes[0].artifacts[0]
+            assert reopened.verify(effect).ok
+            assert json.loads(reopened.get_bytes(effect)) == {
+                "case": case,
+                "rows": expected,
+                "others": expected_others,
+                "aliases": expected_aliases,
+            }
+            assert reopened.verify(result.run_ref).ok
+            records = [json.loads(line) for line in run.trace_path.read_text().splitlines()]
+            stores = [event for event in records if event["event"] == "NODE_CACHE_STORE"]
+            assert len(stores) == 1
+            cache_ref = ArtifactRef.model_validate(stores[0]["refs"]["outputs"][0])
+            assert reopened.verify(cache_ref).ok
+            entry = json.loads(reopened.get_bytes(cache_ref))
+            assert entry["outcome_payload"]["state"]["params"]["rows"] == expected
+            assert len([event for event in records if event["event"] == "NODE_CACHE_HIT"]) == int(warm)
+            public_journal = mutation_journal_for_state(result.state)
+>           assert public_journal is None or not public_journal.enforce_write_scope
+E           AssertionError: assert (StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True) is None or not True)
+E            +  where True = StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True).enforce_write_scope
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py:294: AssertionError
+_ test_structural_list_intents_reopen_and_preserve_exact_native_rows[cycle_refusal] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-owned-graph/tmp/test_structural_list_intents_r17')
+case = 'cycle_refusal'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("case", list(_CASES))
+    async def test_structural_list_intents_reopen_and_preserve_exact_native_rows(tmp_path, case):
+        cas = tmp_path / "cas"
+        store = FileSystemCAS(cas)
+        bundle = build_default_registry_bundle(store).bundle_ref
+        node = _ListNode(case)
+        registry = NodeRegistry()
+        registry.register(node)
+        workflow = WorkflowSpec(
+            workflow_id="native_list_ownership",
+            nodes=[NodeInvocation(alias="list", node_id=node.spec.metadata.component_id)],
+        )
+        expected = _CASES[case]
+        for warm in (False, True):
+            reopened = FileSystemCAS(cas)
+            run = RunContext.start(reopened, bundle, run_id="R_list_ownership")
+            initial_rows = [{"id": "b", "v": 1}, {"id": "c", "v": 2}]
+            shared_dict = {"v": 1}
+            state = ExperimentState(
+                run_id="R_list_ownership",
+                params={
+                    "x": 2,
+                    "rows": initial_rows,
+                    "unrelated": "new" if warm else "old",
+                    "others": initial_rows if case == "initial_list_alias" else [],
+                    "numeric": {"0": {"v": 9}},
+                    **(
+                        {"left": shared_dict, "right": shared_dict}
+                        if case == "initial_dict_alias"
+                        else {}
+                    ),
+                },
+                budgets={"neighbor_reserved_usd": Decimal("11") if warm else Decimal("7")},
+            )
+            # The DTO validates top-level dict/list values independently.  These
+            # native assignments establish the actual supported in-memory aliases
+            # before the executor branch, rather than assuming validation kept them.
+            if case == "initial_dict_alias":
+                state.params["left"] = state.params["right"] = shared_dict
+                assert state.params["left"] is state.params["right"]
+            if case in {"initial_list_alias", "initial_list_alias_pop"}:
+                state.params["others"] = state.params["rows"]
+                assert state.params["rows"] is state.params["others"]
+            before = state.model_dump(mode="json")
+            result = await AsyncWorkflowExecutor(
+                ExecutionContext(store=reopened, run=run, logger=logging.getLogger("list-owner")),
+                registry,
+            ).execute(workflow, state)
+            assert result.report.status == "ok"
+            assert result.state.params["rows"] == expected
+            expected_others = (
+                expected
+                if case in {"initial_list_alias", "initial_list_alias_pop"}
+                else ([{"id": "b", "v": 5}] if case == "reparent_alias" else [])
+            )
+            expected_aliases = (
+                {"left": {"v": 5}, "right": {"v": 5}}
+                if case == "initial_dict_alias"
+                else {"slot": {"id": "b", "v": 5}}
+                if case == "dict_reparent_alias"
+                else {}
+            )
+            assert result.state.params["others"] == expected_others
+            assert "neighbor_alias" not in result.state.params
+            assert result.state.params["numeric"] == {"0": {"v": 4 if case == "numeric_dict" else 9}}
+            assert result.state.params["unrelated"] == state.params["unrelated"]
+            assert (
+                result.state.budgets["neighbor_reserved_usd"] == state.budgets["neighbor_reserved_usd"]
+            )
+            assert state.model_dump(mode="json") == before
+            assert node.calls == 1
+            effect = result.report.nodes[0].artifacts[0]
+            assert reopened.verify(effect).ok
+            assert json.loads(reopened.get_bytes(effect)) == {
+                "case": case,
+                "rows": expected,
+                "others": expected_others,
+                "aliases": expected_aliases,
+            }
+            assert reopened.verify(result.run_ref).ok
+            records = [json.loads(line) for line in run.trace_path.read_text().splitlines()]
+            stores = [event for event in records if event["event"] == "NODE_CACHE_STORE"]
+            assert len(stores) == 1
+            cache_ref = ArtifactRef.model_validate(stores[0]["refs"]["outputs"][0])
+            assert reopened.verify(cache_ref).ok
+            entry = json.loads(reopened.get_bytes(cache_ref))
+            assert entry["outcome_payload"]["state"]["params"]["rows"] == expected
+            assert len([event for event in records if event["event"] == "NODE_CACHE_HIT"]) == int(warm)
+            public_journal = mutation_journal_for_state(result.state)
+>           assert public_journal is None or not public_journal.enforce_write_scope
+E           AssertionError: assert (StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True) is None or not True)
+E            +  where True = StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True).enforce_write_scope
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py:294: AssertionError
+_ test_structural_list_intents_reopen_and_preserve_exact_native_rows[custom_mutable_refusal] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-owned-graph/tmp/test_structural_list_intents_r18')
+case = 'custom_mutable_refusal'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("case", list(_CASES))
+    async def test_structural_list_intents_reopen_and_preserve_exact_native_rows(tmp_path, case):
+        cas = tmp_path / "cas"
+        store = FileSystemCAS(cas)
+        bundle = build_default_registry_bundle(store).bundle_ref
+        node = _ListNode(case)
+        registry = NodeRegistry()
+        registry.register(node)
+        workflow = WorkflowSpec(
+            workflow_id="native_list_ownership",
+            nodes=[NodeInvocation(alias="list", node_id=node.spec.metadata.component_id)],
+        )
+        expected = _CASES[case]
+        for warm in (False, True):
+            reopened = FileSystemCAS(cas)
+            run = RunContext.start(reopened, bundle, run_id="R_list_ownership")
+            initial_rows = [{"id": "b", "v": 1}, {"id": "c", "v": 2}]
+            shared_dict = {"v": 1}
+            state = ExperimentState(
+                run_id="R_list_ownership",
+                params={
+                    "x": 2,
+                    "rows": initial_rows,
+                    "unrelated": "new" if warm else "old",
+                    "others": initial_rows if case == "initial_list_alias" else [],
+                    "numeric": {"0": {"v": 9}},
+                    **(
+                        {"left": shared_dict, "right": shared_dict}
+                        if case == "initial_dict_alias"
+                        else {}
+                    ),
+                },
+                budgets={"neighbor_reserved_usd": Decimal("11") if warm else Decimal("7")},
+            )
+            # The DTO validates top-level dict/list values independently.  These
+            # native assignments establish the actual supported in-memory aliases
+            # before the executor branch, rather than assuming validation kept them.
+            if case == "initial_dict_alias":
+                state.params["left"] = state.params["right"] = shared_dict
+                assert state.params["left"] is state.params["right"]
+            if case in {"initial_list_alias", "initial_list_alias_pop"}:
+                state.params["others"] = state.params["rows"]
+                assert state.params["rows"] is state.params["others"]
+            before = state.model_dump(mode="json")
+            result = await AsyncWorkflowExecutor(
+                ExecutionContext(store=reopened, run=run, logger=logging.getLogger("list-owner")),
+                registry,
+            ).execute(workflow, state)
+            assert result.report.status == "ok"
+            assert result.state.params["rows"] == expected
+            expected_others = (
+                expected
+                if case in {"initial_list_alias", "initial_list_alias_pop"}
+                else ([{"id": "b", "v": 5}] if case == "reparent_alias" else [])
+            )
+            expected_aliases = (
+                {"left": {"v": 5}, "right": {"v": 5}}
+                if case == "initial_dict_alias"
+                else {"slot": {"id": "b", "v": 5}}
+                if case == "dict_reparent_alias"
+                else {}
+            )
+            assert result.state.params["others"] == expected_others
+            assert "neighbor_alias" not in result.state.params
+            assert result.state.params["numeric"] == {"0": {"v": 4 if case == "numeric_dict" else 9}}
+            assert result.state.params["unrelated"] == state.params["unrelated"]
+            assert (
+                result.state.budgets["neighbor_reserved_usd"] == state.budgets["neighbor_reserved_usd"]
+            )
+            assert state.model_dump(mode="json") == before
+            assert node.calls == 1
+            effect = result.report.nodes[0].artifacts[0]
+            assert reopened.verify(effect).ok
+            assert json.loads(reopened.get_bytes(effect)) == {
+                "case": case,
+                "rows": expected,
+                "others": expected_others,
+                "aliases": expected_aliases,
+            }
+            assert reopened.verify(result.run_ref).ok
+            records = [json.loads(line) for line in run.trace_path.read_text().splitlines()]
+            stores = [event for event in records if event["event"] == "NODE_CACHE_STORE"]
+            assert len(stores) == 1
+            cache_ref = ArtifactRef.model_validate(stores[0]["refs"]["outputs"][0])
+            assert reopened.verify(cache_ref).ok
+            entry = json.loads(reopened.get_bytes(cache_ref))
+            assert entry["outcome_payload"]["state"]["params"]["rows"] == expected
+            assert len([event for event in records if event["event"] == "NODE_CACHE_HIT"]) == int(warm)
+            public_journal = mutation_journal_for_state(result.state)
+>           assert public_journal is None or not public_journal.enforce_write_scope
+E           AssertionError: assert (StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True) is None or not True)
+E            +  where True = StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True).enforce_write_scope
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py:294: AssertionError
+_ test_structural_list_intents_reopen_and_preserve_exact_native_rows[numeric_dict] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-owned-graph/tmp/test_structural_list_intents_r19')
+case = 'numeric_dict'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("case", list(_CASES))
+    async def test_structural_list_intents_reopen_and_preserve_exact_native_rows(tmp_path, case):
+        cas = tmp_path / "cas"
+        store = FileSystemCAS(cas)
+        bundle = build_default_registry_bundle(store).bundle_ref
+        node = _ListNode(case)
+        registry = NodeRegistry()
+        registry.register(node)
+        workflow = WorkflowSpec(
+            workflow_id="native_list_ownership",
+            nodes=[NodeInvocation(alias="list", node_id=node.spec.metadata.component_id)],
+        )
+        expected = _CASES[case]
+        for warm in (False, True):
+            reopened = FileSystemCAS(cas)
+            run = RunContext.start(reopened, bundle, run_id="R_list_ownership")
+            initial_rows = [{"id": "b", "v": 1}, {"id": "c", "v": 2}]
+            shared_dict = {"v": 1}
+            state = ExperimentState(
+                run_id="R_list_ownership",
+                params={
+                    "x": 2,
+                    "rows": initial_rows,
+                    "unrelated": "new" if warm else "old",
+                    "others": initial_rows if case == "initial_list_alias" else [],
+                    "numeric": {"0": {"v": 9}},
+                    **(
+                        {"left": shared_dict, "right": shared_dict}
+                        if case == "initial_dict_alias"
+                        else {}
+                    ),
+                },
+                budgets={"neighbor_reserved_usd": Decimal("11") if warm else Decimal("7")},
+            )
+            # The DTO validates top-level dict/list values independently.  These
+            # native assignments establish the actual supported in-memory aliases
+            # before the executor branch, rather than assuming validation kept them.
+            if case == "initial_dict_alias":
+                state.params["left"] = state.params["right"] = shared_dict
+                assert state.params["left"] is state.params["right"]
+            if case in {"initial_list_alias", "initial_list_alias_pop"}:
+                state.params["others"] = state.params["rows"]
+                assert state.params["rows"] is state.params["others"]
+            before = state.model_dump(mode="json")
+            result = await AsyncWorkflowExecutor(
+                ExecutionContext(store=reopened, run=run, logger=logging.getLogger("list-owner")),
+                registry,
+            ).execute(workflow, state)
+            assert result.report.status == "ok"
+            assert result.state.params["rows"] == expected
+            expected_others = (
+                expected
+                if case in {"initial_list_alias", "initial_list_alias_pop"}
+                else ([{"id": "b", "v": 5}] if case == "reparent_alias" else [])
+            )
+            expected_aliases = (
+                {"left": {"v": 5}, "right": {"v": 5}}
+                if case == "initial_dict_alias"
+                else {"slot": {"id": "b", "v": 5}}
+                if case == "dict_reparent_alias"
+                else {}
+            )
+            assert result.state.params["others"] == expected_others
+            assert "neighbor_alias" not in result.state.params
+            assert result.state.params["numeric"] == {"0": {"v": 4 if case == "numeric_dict" else 9}}
+            assert result.state.params["unrelated"] == state.params["unrelated"]
+            assert (
+                result.state.budgets["neighbor_reserved_usd"] == state.budgets["neighbor_reserved_usd"]
+            )
+            assert state.model_dump(mode="json") == before
+            assert node.calls == 1
+            effect = result.report.nodes[0].artifacts[0]
+            assert reopened.verify(effect).ok
+            assert json.loads(reopened.get_bytes(effect)) == {
+                "case": case,
+                "rows": expected,
+                "others": expected_others,
+                "aliases": expected_aliases,
+            }
+            assert reopened.verify(result.run_ref).ok
+            records = [json.loads(line) for line in run.trace_path.read_text().splitlines()]
+            stores = [event for event in records if event["event"] == "NODE_CACHE_STORE"]
+            assert len(stores) == 1
+            cache_ref = ArtifactRef.model_validate(stores[0]["refs"]["outputs"][0])
+            assert reopened.verify(cache_ref).ok
+            entry = json.loads(reopened.get_bytes(cache_ref))
+            assert entry["outcome_payload"]["state"]["params"]["rows"] == expected
+            assert len([event for event in records if event["event"] == "NODE_CACHE_HIT"]) == int(warm)
+            public_journal = mutation_journal_for_state(result.state)
+>           assert public_journal is None or not public_journal.enforce_write_scope
+E           AssertionError: assert (StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True) is None or not True)
+E            +  where True = StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True).enforce_write_scope
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py:294: AssertionError
+_ test_structural_list_intents_reopen_and_preserve_exact_native_rows[initial_dict_alias] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-owned-graph/tmp/test_structural_list_intents_r20')
+case = 'initial_dict_alias'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("case", list(_CASES))
+    async def test_structural_list_intents_reopen_and_preserve_exact_native_rows(tmp_path, case):
+        cas = tmp_path / "cas"
+        store = FileSystemCAS(cas)
+        bundle = build_default_registry_bundle(store).bundle_ref
+        node = _ListNode(case)
+        registry = NodeRegistry()
+        registry.register(node)
+        workflow = WorkflowSpec(
+            workflow_id="native_list_ownership",
+            nodes=[NodeInvocation(alias="list", node_id=node.spec.metadata.component_id)],
+        )
+        expected = _CASES[case]
+        for warm in (False, True):
+            reopened = FileSystemCAS(cas)
+            run = RunContext.start(reopened, bundle, run_id="R_list_ownership")
+            initial_rows = [{"id": "b", "v": 1}, {"id": "c", "v": 2}]
+            shared_dict = {"v": 1}
+            state = ExperimentState(
+                run_id="R_list_ownership",
+                params={
+                    "x": 2,
+                    "rows": initial_rows,
+                    "unrelated": "new" if warm else "old",
+                    "others": initial_rows if case == "initial_list_alias" else [],
+                    "numeric": {"0": {"v": 9}},
+                    **(
+                        {"left": shared_dict, "right": shared_dict}
+                        if case == "initial_dict_alias"
+                        else {}
+                    ),
+                },
+                budgets={"neighbor_reserved_usd": Decimal("11") if warm else Decimal("7")},
+            )
+            # The DTO validates top-level dict/list values independently.  These
+            # native assignments establish the actual supported in-memory aliases
+            # before the executor branch, rather than assuming validation kept them.
+            if case == "initial_dict_alias":
+                state.params["left"] = state.params["right"] = shared_dict
+                assert state.params["left"] is state.params["right"]
+            if case in {"initial_list_alias", "initial_list_alias_pop"}:
+                state.params["others"] = state.params["rows"]
+                assert state.params["rows"] is state.params["others"]
+            before = state.model_dump(mode="json")
+            result = await AsyncWorkflowExecutor(
+                ExecutionContext(store=reopened, run=run, logger=logging.getLogger("list-owner")),
+                registry,
+            ).execute(workflow, state)
+            assert result.report.status == "ok"
+            assert result.state.params["rows"] == expected
+            expected_others = (
+                expected
+                if case in {"initial_list_alias", "initial_list_alias_pop"}
+                else ([{"id": "b", "v": 5}] if case == "reparent_alias" else [])
+            )
+            expected_aliases = (
+                {"left": {"v": 5}, "right": {"v": 5}}
+                if case == "initial_dict_alias"
+                else {"slot": {"id": "b", "v": 5}}
+                if case == "dict_reparent_alias"
+                else {}
+            )
+            assert result.state.params["others"] == expected_others
+            assert "neighbor_alias" not in result.state.params
+            assert result.state.params["numeric"] == {"0": {"v": 4 if case == "numeric_dict" else 9}}
+            assert result.state.params["unrelated"] == state.params["unrelated"]
+            assert (
+                result.state.budgets["neighbor_reserved_usd"] == state.budgets["neighbor_reserved_usd"]
+            )
+            assert state.model_dump(mode="json") == before
+            assert node.calls == 1
+            effect = result.report.nodes[0].artifacts[0]
+            assert reopened.verify(effect).ok
+            assert json.loads(reopened.get_bytes(effect)) == {
+                "case": case,
+                "rows": expected,
+                "others": expected_others,
+                "aliases": expected_aliases,
+            }
+            assert reopened.verify(result.run_ref).ok
+            records = [json.loads(line) for line in run.trace_path.read_text().splitlines()]
+            stores = [event for event in records if event["event"] == "NODE_CACHE_STORE"]
+            assert len(stores) == 1
+            cache_ref = ArtifactRef.model_validate(stores[0]["refs"]["outputs"][0])
+            assert reopened.verify(cache_ref).ok
+            entry = json.loads(reopened.get_bytes(cache_ref))
+            assert entry["outcome_payload"]["state"]["params"]["rows"] == expected
+            assert len([event for event in records if event["event"] == "NODE_CACHE_HIT"]) == int(warm)
+            public_journal = mutation_journal_for_state(result.state)
+>           assert public_journal is None or not public_journal.enforce_write_scope
+E           AssertionError: assert (StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True) is None or not True)
+E            +  where True = StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True).enforce_write_scope
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py:294: AssertionError
+_ test_structural_list_intents_reopen_and_preserve_exact_native_rows[initial_list_alias] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-owned-graph/tmp/test_structural_list_intents_r21')
+case = 'initial_list_alias'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("case", list(_CASES))
+    async def test_structural_list_intents_reopen_and_preserve_exact_native_rows(tmp_path, case):
+        cas = tmp_path / "cas"
+        store = FileSystemCAS(cas)
+        bundle = build_default_registry_bundle(store).bundle_ref
+        node = _ListNode(case)
+        registry = NodeRegistry()
+        registry.register(node)
+        workflow = WorkflowSpec(
+            workflow_id="native_list_ownership",
+            nodes=[NodeInvocation(alias="list", node_id=node.spec.metadata.component_id)],
+        )
+        expected = _CASES[case]
+        for warm in (False, True):
+            reopened = FileSystemCAS(cas)
+            run = RunContext.start(reopened, bundle, run_id="R_list_ownership")
+            initial_rows = [{"id": "b", "v": 1}, {"id": "c", "v": 2}]
+            shared_dict = {"v": 1}
+            state = ExperimentState(
+                run_id="R_list_ownership",
+                params={
+                    "x": 2,
+                    "rows": initial_rows,
+                    "unrelated": "new" if warm else "old",
+                    "others": initial_rows if case == "initial_list_alias" else [],
+                    "numeric": {"0": {"v": 9}},
+                    **(
+                        {"left": shared_dict, "right": shared_dict}
+                        if case == "initial_dict_alias"
+                        else {}
+                    ),
+                },
+                budgets={"neighbor_reserved_usd": Decimal("11") if warm else Decimal("7")},
+            )
+            # The DTO validates top-level dict/list values independently.  These
+            # native assignments establish the actual supported in-memory aliases
+            # before the executor branch, rather than assuming validation kept them.
+            if case == "initial_dict_alias":
+                state.params["left"] = state.params["right"] = shared_dict
+                assert state.params["left"] is state.params["right"]
+            if case in {"initial_list_alias", "initial_list_alias_pop"}:
+                state.params["others"] = state.params["rows"]
+                assert state.params["rows"] is state.params["others"]
+            before = state.model_dump(mode="json")
+            result = await AsyncWorkflowExecutor(
+                ExecutionContext(store=reopened, run=run, logger=logging.getLogger("list-owner")),
+                registry,
+            ).execute(workflow, state)
+            assert result.report.status == "ok"
+            assert result.state.params["rows"] == expected
+            expected_others = (
+                expected
+                if case in {"initial_list_alias", "initial_list_alias_pop"}
+                else ([{"id": "b", "v": 5}] if case == "reparent_alias" else [])
+            )
+            expected_aliases = (
+                {"left": {"v": 5}, "right": {"v": 5}}
+                if case == "initial_dict_alias"
+                else {"slot": {"id": "b", "v": 5}}
+                if case == "dict_reparent_alias"
+                else {}
+            )
+            assert result.state.params["others"] == expected_others
+            assert "neighbor_alias" not in result.state.params
+            assert result.state.params["numeric"] == {"0": {"v": 4 if case == "numeric_dict" else 9}}
+            assert result.state.params["unrelated"] == state.params["unrelated"]
+            assert (
+                result.state.budgets["neighbor_reserved_usd"] == state.budgets["neighbor_reserved_usd"]
+            )
+            assert state.model_dump(mode="json") == before
+            assert node.calls == 1
+            effect = result.report.nodes[0].artifacts[0]
+            assert reopened.verify(effect).ok
+            assert json.loads(reopened.get_bytes(effect)) == {
+                "case": case,
+                "rows": expected,
+                "others": expected_others,
+                "aliases": expected_aliases,
+            }
+            assert reopened.verify(result.run_ref).ok
+            records = [json.loads(line) for line in run.trace_path.read_text().splitlines()]
+            stores = [event for event in records if event["event"] == "NODE_CACHE_STORE"]
+            assert len(stores) == 1
+            cache_ref = ArtifactRef.model_validate(stores[0]["refs"]["outputs"][0])
+            assert reopened.verify(cache_ref).ok
+            entry = json.loads(reopened.get_bytes(cache_ref))
+            assert entry["outcome_payload"]["state"]["params"]["rows"] == expected
+            assert len([event for event in records if event["event"] == "NODE_CACHE_HIT"]) == int(warm)
+            public_journal = mutation_journal_for_state(result.state)
+>           assert public_journal is None or not public_journal.enforce_write_scope
+E           AssertionError: assert (StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True) is None or not True)
+E            +  where True = StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True).enforce_write_scope
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py:294: AssertionError
+_ test_structural_list_intents_reopen_and_preserve_exact_native_rows[initial_list_alias_pop] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-owned-graph/tmp/test_structural_list_intents_r22')
+case = 'initial_list_alias_pop'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("case", list(_CASES))
+    async def test_structural_list_intents_reopen_and_preserve_exact_native_rows(tmp_path, case):
+        cas = tmp_path / "cas"
+        store = FileSystemCAS(cas)
+        bundle = build_default_registry_bundle(store).bundle_ref
+        node = _ListNode(case)
+        registry = NodeRegistry()
+        registry.register(node)
+        workflow = WorkflowSpec(
+            workflow_id="native_list_ownership",
+            nodes=[NodeInvocation(alias="list", node_id=node.spec.metadata.component_id)],
+        )
+        expected = _CASES[case]
+        for warm in (False, True):
+            reopened = FileSystemCAS(cas)
+            run = RunContext.start(reopened, bundle, run_id="R_list_ownership")
+            initial_rows = [{"id": "b", "v": 1}, {"id": "c", "v": 2}]
+            shared_dict = {"v": 1}
+            state = ExperimentState(
+                run_id="R_list_ownership",
+                params={
+                    "x": 2,
+                    "rows": initial_rows,
+                    "unrelated": "new" if warm else "old",
+                    "others": initial_rows if case == "initial_list_alias" else [],
+                    "numeric": {"0": {"v": 9}},
+                    **(
+                        {"left": shared_dict, "right": shared_dict}
+                        if case == "initial_dict_alias"
+                        else {}
+                    ),
+                },
+                budgets={"neighbor_reserved_usd": Decimal("11") if warm else Decimal("7")},
+            )
+            # The DTO validates top-level dict/list values independently.  These
+            # native assignments establish the actual supported in-memory aliases
+            # before the executor branch, rather than assuming validation kept them.
+            if case == "initial_dict_alias":
+                state.params["left"] = state.params["right"] = shared_dict
+                assert state.params["left"] is state.params["right"]
+            if case in {"initial_list_alias", "initial_list_alias_pop"}:
+                state.params["others"] = state.params["rows"]
+                assert state.params["rows"] is state.params["others"]
+            before = state.model_dump(mode="json")
+            result = await AsyncWorkflowExecutor(
+                ExecutionContext(store=reopened, run=run, logger=logging.getLogger("list-owner")),
+                registry,
+            ).execute(workflow, state)
+            assert result.report.status == "ok"
+            assert result.state.params["rows"] == expected
+            expected_others = (
+                expected
+                if case in {"initial_list_alias", "initial_list_alias_pop"}
+                else ([{"id": "b", "v": 5}] if case == "reparent_alias" else [])
+            )
+            expected_aliases = (
+                {"left": {"v": 5}, "right": {"v": 5}}
+                if case == "initial_dict_alias"
+                else {"slot": {"id": "b", "v": 5}}
+                if case == "dict_reparent_alias"
+                else {}
+            )
+            assert result.state.params["others"] == expected_others
+            assert "neighbor_alias" not in result.state.params
+            assert result.state.params["numeric"] == {"0": {"v": 4 if case == "numeric_dict" else 9}}
+            assert result.state.params["unrelated"] == state.params["unrelated"]
+            assert (
+                result.state.budgets["neighbor_reserved_usd"] == state.budgets["neighbor_reserved_usd"]
+            )
+            assert state.model_dump(mode="json") == before
+            assert node.calls == 1
+            effect = result.report.nodes[0].artifacts[0]
+            assert reopened.verify(effect).ok
+            assert json.loads(reopened.get_bytes(effect)) == {
+                "case": case,
+                "rows": expected,
+                "others": expected_others,
+                "aliases": expected_aliases,
+            }
+            assert reopened.verify(result.run_ref).ok
+            records = [json.loads(line) for line in run.trace_path.read_text().splitlines()]
+            stores = [event for event in records if event["event"] == "NODE_CACHE_STORE"]
+            assert len(stores) == 1
+            cache_ref = ArtifactRef.model_validate(stores[0]["refs"]["outputs"][0])
+            assert reopened.verify(cache_ref).ok
+            entry = json.loads(reopened.get_bytes(cache_ref))
+            assert entry["outcome_payload"]["state"]["params"]["rows"] == expected
+            assert len([event for event in records if event["event"] == "NODE_CACHE_HIT"]) == int(warm)
+            public_journal = mutation_journal_for_state(result.state)
+>           assert public_journal is None or not public_journal.enforce_write_scope
+E           AssertionError: assert (StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True) is None or not True)
+E            +  where True = StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True).enforce_write_scope
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py:294: AssertionError
+_ test_structural_list_intents_reopen_and_preserve_exact_native_rows[dict_reparent_alias] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-owned-graph/tmp/test_structural_list_intents_r23')
+case = 'dict_reparent_alias'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("case", list(_CASES))
+    async def test_structural_list_intents_reopen_and_preserve_exact_native_rows(tmp_path, case):
+        cas = tmp_path / "cas"
+        store = FileSystemCAS(cas)
+        bundle = build_default_registry_bundle(store).bundle_ref
+        node = _ListNode(case)
+        registry = NodeRegistry()
+        registry.register(node)
+        workflow = WorkflowSpec(
+            workflow_id="native_list_ownership",
+            nodes=[NodeInvocation(alias="list", node_id=node.spec.metadata.component_id)],
+        )
+        expected = _CASES[case]
+        for warm in (False, True):
+            reopened = FileSystemCAS(cas)
+            run = RunContext.start(reopened, bundle, run_id="R_list_ownership")
+            initial_rows = [{"id": "b", "v": 1}, {"id": "c", "v": 2}]
+            shared_dict = {"v": 1}
+            state = ExperimentState(
+                run_id="R_list_ownership",
+                params={
+                    "x": 2,
+                    "rows": initial_rows,
+                    "unrelated": "new" if warm else "old",
+                    "others": initial_rows if case == "initial_list_alias" else [],
+                    "numeric": {"0": {"v": 9}},
+                    **(
+                        {"left": shared_dict, "right": shared_dict}
+                        if case == "initial_dict_alias"
+                        else {}
+                    ),
+                },
+                budgets={"neighbor_reserved_usd": Decimal("11") if warm else Decimal("7")},
+            )
+            # The DTO validates top-level dict/list values independently.  These
+            # native assignments establish the actual supported in-memory aliases
+            # before the executor branch, rather than assuming validation kept them.
+            if case == "initial_dict_alias":
+                state.params["left"] = state.params["right"] = shared_dict
+                assert state.params["left"] is state.params["right"]
+            if case in {"initial_list_alias", "initial_list_alias_pop"}:
+                state.params["others"] = state.params["rows"]
+                assert state.params["rows"] is state.params["others"]
+            before = state.model_dump(mode="json")
+            result = await AsyncWorkflowExecutor(
+                ExecutionContext(store=reopened, run=run, logger=logging.getLogger("list-owner")),
+                registry,
+            ).execute(workflow, state)
+            assert result.report.status == "ok"
+            assert result.state.params["rows"] == expected
+            expected_others = (
+                expected
+                if case in {"initial_list_alias", "initial_list_alias_pop"}
+                else ([{"id": "b", "v": 5}] if case == "reparent_alias" else [])
+            )
+            expected_aliases = (
+                {"left": {"v": 5}, "right": {"v": 5}}
+                if case == "initial_dict_alias"
+                else {"slot": {"id": "b", "v": 5}}
+                if case == "dict_reparent_alias"
+                else {}
+            )
+            assert result.state.params["others"] == expected_others
+            assert "neighbor_alias" not in result.state.params
+            assert result.state.params["numeric"] == {"0": {"v": 4 if case == "numeric_dict" else 9}}
+            assert result.state.params["unrelated"] == state.params["unrelated"]
+            assert (
+                result.state.budgets["neighbor_reserved_usd"] == state.budgets["neighbor_reserved_usd"]
+            )
+            assert state.model_dump(mode="json") == before
+            assert node.calls == 1
+            effect = result.report.nodes[0].artifacts[0]
+            assert reopened.verify(effect).ok
+            assert json.loads(reopened.get_bytes(effect)) == {
+                "case": case,
+                "rows": expected,
+                "others": expected_others,
+                "aliases": expected_aliases,
+            }
+            assert reopened.verify(result.run_ref).ok
+            records = [json.loads(line) for line in run.trace_path.read_text().splitlines()]
+            stores = [event for event in records if event["event"] == "NODE_CACHE_STORE"]
+            assert len(stores) == 1
+            cache_ref = ArtifactRef.model_validate(stores[0]["refs"]["outputs"][0])
+            assert reopened.verify(cache_ref).ok
+            entry = json.loads(reopened.get_bytes(cache_ref))
+            assert entry["outcome_payload"]["state"]["params"]["rows"] == expected
+            assert len([event for event in records if event["event"] == "NODE_CACHE_HIT"]) == int(warm)
+            public_journal = mutation_journal_for_state(result.state)
+>           assert public_journal is None or not public_journal.enforce_write_scope
+E           AssertionError: assert (StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True) is None or not True)
+E            +  where True = StateMutationJournal(isolated_fields=('inputs', 'artifacts_index', 'reports_index', 'params', 'budgets', 'causal_metho...op=None, step=None, target_presence='missing', target_kind='missing', operation_group=None)], enforce_write_scope=True).enforce_write_scope
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py:294: AssertionError
+=========================== short test summary info ============================
+FAILED policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py::test_structural_list_intents_reopen_and_preserve_exact_native_rows[no_shift]
+FAILED policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py::test_structural_list_intents_reopen_and_preserve_exact_native_rows[insert_existing]
+FAILED policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py::test_structural_list_intents_reopen_and_preserve_exact_native_rows[insert_new]
+FAILED policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py::test_structural_list_intents_reopen_and_preserve_exact_native_rows[pop_shift]
+FAILED policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py::test_structural_list_intents_reopen_and_preserve_exact_native_rows[remove_shift]
+FAILED policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py::test_structural_list_intents_reopen_and_preserve_exact_native_rows[delete_slice]
+FAILED policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py::test_structural_list_intents_reopen_and_preserve_exact_native_rows[set_slice]
+FAILED policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py::test_structural_list_intents_reopen_and_preserve_exact_native_rows[reverse]
+FAILED policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py::test_structural_list_intents_reopen_and_preserve_exact_native_rows[sort]
+FAILED policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py::test_structural_list_intents_reopen_and_preserve_exact_native_rows[repeat_alias]
+FAILED policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py::test_structural_list_intents_reopen_and_preserve_exact_native_rows[negative_set]
+FAILED policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py::test_structural_list_intents_reopen_and_preserve_exact_native_rows[sparse_null_delete]
+FAILED policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py::test_structural_list_intents_reopen_and_preserve_exact_native_rows[orphan]
+FAILED policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py::test_structural_list_intents_reopen_and_preserve_exact_native_rows[reinsert]
+FAILED policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py::test_structural_list_intents_reopen_and_preserve_exact_native_rows[append_alias]
+FAILED policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py::test_structural_list_intents_reopen_and_preserve_exact_native_rows[reparent_alias]
+FAILED policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py::test_structural_list_intents_reopen_and_preserve_exact_native_rows[unauthorized_alias]
+FAILED policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py::test_structural_list_intents_reopen_and_preserve_exact_native_rows[cycle_refusal]
+FAILED policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py::test_structural_list_intents_reopen_and_preserve_exact_native_rows[custom_mutable_refusal]
+FAILED policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py::test_structural_list_intents_reopen_and_preserve_exact_native_rows[numeric_dict]
+FAILED policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py::test_structural_list_intents_reopen_and_preserve_exact_native_rows[initial_dict_alias]
+FAILED policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py::test_structural_list_intents_reopen_and_preserve_exact_native_rows[initial_list_alias]
+FAILED policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py::test_structural_list_intents_reopen_and_preserve_exact_native_rows[initial_list_alias_pop]
+FAILED policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py::test_structural_list_intents_reopen_and_preserve_exact_native_rows[dict_reparent_alias]

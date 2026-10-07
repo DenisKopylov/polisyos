@@ -1,0 +1,15 @@
+command: /Users/deniskopylov/.codex/worktrees/e02-a-compiler-full/polisyos/policy-engine/_build/e02-A-full-queue/compiler_retirement/raw/5650b7aed7991606d62cd8510b377698a778ce39/run-pinned-uv-0.9.21/pytest-basetemp/test_installed_wheel_keeps_act0/venv/bin/python -S -c <origin probe>
+cwd: /Users/deniskopylov/.codex/worktrees/e02-a-compiler-full/polisyos/policy-engine/_build/e02-A-full-queue/compiler_retirement/raw/5650b7aed7991606d62cd8510b377698a778ce39/run-pinned-uv-0.9.21/pytest-basetemp/test_installed_wheel_keeps_act0/outside-checkout
+returncode: 1
+root_dependency_paths: ('/Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages',)
+stdout:
+
+stderr:
+Traceback (most recent call last):
+  File "<string>", line 32, in <module>
+    assert compiler.construct_for_legacy_family(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    ) == ('employment_status',)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

@@ -1,0 +1,2 @@
+{"ts":"2026-10-06T14:45:41Z","run_id":"R_deadline","phase":"core","event":"RUN_STARTED","run_terminality":"non_terminal","refs":{"inputs":[],"outputs":[]},"metrics":{},"warnings":[],"errors":[]}
+{"ts":"2026-10-06T14:45:41Z","run_id":"R_deadline","phase":"core","event":"RUN_INPUT_ADDED","refs":{"inputs":[{"artifact_id":"sha256:d50dcf8412f814fb5b845f9d842a4d68ee8bcb20d649a00eacda45f5a791eac9","kind":"scientist.workflow_spec","media_type":"application/json"}],"outputs":[]},"metrics":{},"warnings":[],"errors":[]}

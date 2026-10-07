@@ -1,0 +1,2041 @@
+{
+  "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+  "source_tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+  "root_head_clean_before_after": true,
+  "mode": "Complete delivered JSON read plus immutable Git/stdlib AST and TSV reconciliation; no selector main/derive/pytest/collection/native/gates",
+  "environment": {
+    "python": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "version": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "git": "git version 2.52.0"
+  },
+  "raw_input_pins": [
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-selector.json",
+      "bytes": 1450744,
+      "sha256": "738f7becb550dd7a39dcd549f303a588eee8542ab8d382373544a46f3d9b5cc3"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-selector-lineage.json",
+      "source_git_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "sha256": "eb53f9d22ffc54b0a4d9de694011eb9fa5a9dbe62ad3bcb03a66b8a3102e3347",
+      "bytes": 63775375,
+      "grade": "ignored full lineage; compact census/source Git refs are authoritative"
+    }
+  ],
+  "canonical_denominator": {
+    "bundles": 25,
+    "findings": 60,
+    "bundle_ids": [
+      "CAS-01",
+      "CAS-02",
+      "CAS-03",
+      "CMP-01",
+      "CMP-02",
+      "CMP-03",
+      "DUR-01",
+      "DUR-02",
+      "EXE-01",
+      "EXE-02",
+      "JIT-01",
+      "LLM-01",
+      "LLM-02",
+      "NET-01",
+      "NET-02",
+      "RES-01",
+      "RES-02",
+      "RES-03",
+      "RES-04",
+      "RUN-01",
+      "RUN-02",
+      "RUN-03",
+      "STA-01",
+      "STA-02",
+      "WIRE-01"
+    ],
+    "finding_ids": [
+      "B13",
+      "B14",
+      "B148",
+      "B149",
+      "B150",
+      "B151",
+      "B152",
+      "B153",
+      "B154",
+      "B155",
+      "B24",
+      "B37",
+      "B38",
+      "B39",
+      "B40",
+      "B42",
+      "B43",
+      "B44",
+      "B45",
+      "B46",
+      "B47",
+      "B48",
+      "B49",
+      "B50",
+      "B51",
+      "B52",
+      "B53",
+      "B55",
+      "B57",
+      "B58",
+      "B59",
+      "B60",
+      "B61",
+      "B62",
+      "B63",
+      "B64",
+      "B65",
+      "B66",
+      "B67",
+      "B68",
+      "B69",
+      "B70",
+      "B71",
+      "B72",
+      "B73",
+      "B74",
+      "B75",
+      "B76",
+      "B77",
+      "B78",
+      "B87",
+      "B89",
+      "B90",
+      "B91",
+      "B92",
+      "B93",
+      "B94",
+      "B95",
+      "B96",
+      "LA-057"
+    ],
+    "route_rows": 561,
+    "deduplicated_route_cells": 189
+  },
+  "unique_Git_identity_objects_reconciled": 687,
+  "whole_files": 250,
+  "selected_filename_list_sha256": "02a7b6084fdc276fcb6c397ff0470e06667f5966b851ad833ddbb9916a067621",
+  "changed_test_modules": [
+    "policy-engine/tests/integration/scientist/test_checkpoint_resume.py",
+    "policy-engine/tests/integration/scientist/test_parallel_tier_compensation_oracle.py",
+    "policy-engine/tests/unit/common/test_async_tools.py",
+    "policy-engine/tests/unit/common/test_async_tools_installed_wheel.py",
+    "policy-engine/tests/unit/core/artifacts/test_batch_completion_admission.py",
+    "policy-engine/tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py",
+    "policy-engine/tests/unit/core/artifacts/test_import_admission_noop.py",
+    "policy-engine/tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+    "policy-engine/tests/unit/core/artifacts/test_put_consumer_oracle.py",
+    "policy-engine/tests/unit/core/artifacts/test_put_integrity_retry.py",
+    "policy-engine/tests/unit/core/artifacts/test_transfer_generation_publication.py",
+    "policy-engine/tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+    "policy-engine/tests/unit/core/artifacts/test_verification_snapshot_report.py",
+    "policy-engine/tests/unit/fabric/connectors/test_pool_e02.py",
+    "policy-engine/tests/unit/fabric/connectors/test_resilience_e02.py",
+    "policy-engine/tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py",
+    "policy-engine/tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py",
+    "policy-engine/tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py",
+    "policy-engine/tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+    "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+    "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+    "policy-engine/tests/unit/foundry/methods/components/test_composition_e02.py",
+    "policy-engine/tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py",
+    "policy-engine/tests/unit/foundry/methods/test_compiler_e02.py",
+    "policy-engine/tests/unit/foundry/methods/test_compiler_leader_termination_e02.py",
+    "policy-engine/tests/unit/foundry/methods/test_linker.py",
+    "policy-engine/tests/unit/remediation/test_cas_02.py",
+    "policy-engine/tests/unit/remediation/test_cas_03.py",
+    "policy-engine/tests/unit/remediation/test_dur_02_process.py",
+    "policy-engine/tests/unit/remediation/test_jit_01.py",
+    "policy-engine/tests/unit/remediation/test_llm_01.py",
+    "policy-engine/tests/unit/remediation/test_res_01.py",
+    "policy-engine/tests/unit/remediation/test_res_04.py",
+    "policy-engine/tests/unit/remediation/test_wire_01.py",
+    "policy-engine/tests/unit/runtime/http/test_control_plane_store.py",
+    "policy-engine/tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py",
+    "policy-engine/tests/unit/scientist/agent/test_drafter_accounting_owner_oracle.py",
+    "policy-engine/tests/unit/scientist/agent/test_optional_spend_projection_boundary.py",
+    "policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_cost_oracle.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_completion_obligations.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_native_execution_admission.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_resume_artifact_requirements.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+    "policy-engine/tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+    "policy-engine/tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+    "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+    "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+    "policy-engine/tests/unit/scientist/orchestration/llm/test_protected_audit_admission_e02.py",
+    "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py",
+    "policy-engine/tests/unit/scientist/orchestration/llm/test_shared_flight_completion_independent_e02.py",
+    "policy-engine/tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+    "policy-engine/tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+    "policy-engine/tests/unit/scientist/policy_design/test_worker_accounting_admission_e02.py",
+    "policy-engine/tests/unit/scientist/policy_design/test_worker_accounting_boundary_e02.py"
+  ],
+  "changed_helpers": [
+    "policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py",
+    "policy-engine/tests/unit/core/artifacts/batch_duplicate_worker.py",
+    "policy-engine/tests/unit/core/artifacts/snapshot_special_path_worker.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/_retry_setup_probe.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/fixtures/remote_scope_worker.py"
+  ],
+  "phase0_whole_files": [
+    "policy-engine/tests/unit/core/phase0/test_artifact_export_import.py",
+    "policy-engine/tests/unit/core/phase0/test_artifact_graph.py",
+    "policy-engine/tests/unit/core/phase0/test_artifact_store.py",
+    "policy-engine/tests/unit/core/phase0/test_audit_export_verify.py",
+    "policy-engine/tests/unit/core/phase0/test_audit_manifest_compat.py",
+    "policy-engine/tests/unit/core/phase0/test_canon_json.py",
+    "policy-engine/tests/unit/core/phase0/test_cli.py",
+    "policy-engine/tests/unit/core/phase0/test_cli_resume.py",
+    "policy-engine/tests/unit/core/phase0/test_cli_signing.py",
+    "policy-engine/tests/unit/core/phase0/test_decorators.py",
+    "policy-engine/tests/unit/core/phase0/test_environment_manifest.py",
+    "policy-engine/tests/unit/core/phase0/test_logs.py",
+    "policy-engine/tests/unit/core/phase0/test_metric_validation_cli.py",
+    "policy-engine/tests/unit/core/phase0/test_metrics.py",
+    "policy-engine/tests/unit/core/phase0/test_observability.py",
+    "policy-engine/tests/unit/core/phase0/test_phase0_quality_validation_contract.py",
+    "policy-engine/tests/unit/core/phase0/test_propagation.py",
+    "policy-engine/tests/unit/core/phase0/test_provenance_contract_shims.py",
+    "policy-engine/tests/unit/core/phase0/test_registry_bundle.py",
+    "policy-engine/tests/unit/core/phase0/test_run_context.py",
+    "policy-engine/tests/unit/core/phase0/test_signing.py",
+    "policy-engine/tests/unit/core/phase0/test_store_signing.py",
+    "policy-engine/tests/unit/core/phase0/test_tracer.py",
+    "policy-engine/tests/unit/core/phase0/test_workspace_commands.py",
+    "policy-engine/tests/unit/core/phase0/test_worktree_admission.py"
+  ],
+  "HTTP_whole_file_count": 108,
+  "focus_current_producer_consumer_whole_files": [
+    "policy-engine/tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py",
+    "policy-engine/tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py",
+    "policy-engine/tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_cost_oracle.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+    "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py",
+    "policy-engine/tests/unit/scientist/orchestration/llm/test_shared_flight_completion_independent_e02.py",
+    "policy-engine/tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+    "policy-engine/tests/unit/scientist/policy_design/test_worker_accounting_admission_e02.py",
+    "policy-engine/tests/unit/scientist/policy_design/test_worker_accounting_boundary_e02.py"
+  ],
+  "worker_literal_matrix": {
+    "axes": {
+      "worker_kind": [
+        "adversary",
+        "translator"
+      ],
+      "profile": [
+        "configured-unknown",
+        "configured-known",
+        "raw-only",
+        "mixed",
+        "ledgerless",
+        "unbudgeted-known",
+        "active-loop-raw"
+      ]
+    },
+    "cartesian_inputs": 14,
+    "grade": "Static named input matrix only; no collected case count or PASS"
+  },
+  "all_21_absent_UNRUN": [
+    {
+      "named_selector": "tests/arbitrary/test_canonical_absent.py",
+      "state": "UNRUN_named_selector_absent",
+      "required_by_canonical_plan": false,
+      "has_reviewed_equivalence_map": false,
+      "equivalent_candidate_selectors": []
+    },
+    {
+      "named_selector": "tests/arbitrary/test_incidental_absent.py",
+      "state": "UNRUN_named_selector_absent",
+      "required_by_canonical_plan": false,
+      "has_reviewed_equivalence_map": false,
+      "equivalent_candidate_selectors": []
+    },
+    {
+      "named_selector": "tests/arbitrary/test_present.py",
+      "state": "UNRUN_named_selector_absent",
+      "required_by_canonical_plan": false,
+      "has_reviewed_equivalence_map": false,
+      "equivalent_candidate_selectors": []
+    },
+    {
+      "named_selector": "tests/controlled/nested/test_second.py",
+      "state": "UNRUN_named_selector_absent",
+      "required_by_canonical_plan": false,
+      "has_reviewed_equivalence_map": false,
+      "equivalent_candidate_selectors": []
+    },
+    {
+      "named_selector": "tests/controlled/secondary_test.py",
+      "state": "UNRUN_named_selector_absent",
+      "required_by_canonical_plan": false,
+      "has_reviewed_equivalence_map": false,
+      "equivalent_candidate_selectors": []
+    },
+    {
+      "named_selector": "tests/controlled/test_first.py",
+      "state": "UNRUN_named_selector_absent",
+      "required_by_canonical_plan": false,
+      "has_reviewed_equivalence_map": false,
+      "equivalent_candidate_selectors": []
+    },
+    {
+      "named_selector": "tests/integration/scientist/test_async_cache_recovery.py",
+      "state": "UNRUN_named_selector_absent",
+      "required_by_canonical_plan": true,
+      "has_reviewed_equivalence_map": true,
+      "equivalent_candidate_selectors": [
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_cold_seed_is_off_loop_and_replays_real_operations",
+          "finding_ids": [
+            "B52",
+            "B57"
+          ],
+          "source_property": "Cold trace/checkpoint seed loads actual CAS operations off the event loop and replays the journal onto current unrelated state without a new producer call. This is B52 IO and B57 replay, not B51 exhausted-compute admission or B55 fail-fast.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_cold_seed_is_off_loop_and_replays_real_operations",
+            "selector": "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_cold_seed_is_off_loop_and_replays_real_operations",
+            "line": 189,
+            "end_line": 233,
+            "source_sha256": "9d5969006334c1156e48cd56061640ea717e319efda4b3d91de7bcf78bac3c27"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+            "git_blob": "93e6a0c49e34e9d5f756df8ecd69248fb7c0f3a1",
+            "sha256": "e798e0546ac1b461e603ea43e7d9feb9de5526c45e90362a96a17faf1c4cb972",
+            "bytes": 20275
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_cold_seed_late_read_cannot_publish_cache",
+          "finding_ids": [
+            "B52"
+          ],
+          "source_property": "After deadline/cancellation return, held physical read completes but cannot mutate executor cache.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_cold_seed_late_read_cannot_publish_cache",
+            "selector": "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_cold_seed_late_read_cannot_publish_cache",
+            "line": 239,
+            "end_line": 271,
+            "source_sha256": "5725d6f792332df2d003725a8f13da0f94d6fd603f3a7aad19d4a9f72ac91dc0"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+            "git_blob": "93e6a0c49e34e9d5f756df8ecd69248fb7c0f3a1",
+            "sha256": "e798e0546ac1b461e603ea43e7d9feb9de5526c45e90362a96a17faf1c4cb972",
+            "bytes": 20275
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_recovery_respects_read_budget_and_warm_hit_skips_compute_budget",
+          "finding_ids": [
+            "B51"
+          ],
+          "source_property": "Actual cold trace/checkpoint recovery reuses an existing result with exhausted compute budget, charges/obeys read budget, and refuses an exhausted read budget before the physical target read; producer quantity remains the initial call.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_recovery_respects_read_budget_and_warm_hit_skips_compute_budget",
+            "selector": "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_recovery_respects_read_budget_and_warm_hit_skips_compute_budget",
+            "line": 311,
+            "end_line": 341,
+            "source_sha256": "381720cd56016cb180376ac1c73de29b01dfb4f69351e8bef6d3bd4ea29fc98e"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+            "git_blob": "93e6a0c49e34e9d5f756df8ecd69248fb7c0f3a1",
+            "sha256": "e798e0546ac1b461e603ea43e7d9feb9de5526c45e90362a96a17faf1c4cb972",
+            "bytes": 20275
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        }
+      ]
+    },
+    {
+      "named_selector": "tests/integration/scientist/test_execution_state_replay.py",
+      "state": "UNRUN_named_selector_absent",
+      "required_by_canonical_plan": true,
+      "has_reviewed_equivalence_map": true,
+      "equivalent_candidate_selectors": [
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_cold_seed_is_off_loop_and_replays_real_operations",
+          "finding_ids": [
+            "B52",
+            "B57"
+          ],
+          "source_property": "Real CAS cold seed, actual off-loop read and caller context, operation replay preserves unrelated current state and null; node executes once.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_cold_seed_is_off_loop_and_replays_real_operations",
+            "selector": "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_cold_seed_is_off_loop_and_replays_real_operations",
+            "line": 189,
+            "end_line": 233,
+            "source_sha256": "9d5969006334c1156e48cd56061640ea717e319efda4b3d91de7bcf78bac3c27"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+            "git_blob": "93e6a0c49e34e9d5f756df8ecd69248fb7c0f3a1",
+            "sha256": "e798e0546ac1b461e603ea43e7d9feb9de5526c45e90362a96a17faf1c4cb972",
+            "bytes": 20275
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_state_merge.py::TestMergeParallelOutcomes::test_replay_preserves_unrelated_changes_and_reapplies_same_value_write",
+          "finding_ids": [
+            "B57"
+          ],
+          "source_property": "Canonical journal merge replays an explicit same-value write over a changed current value and preserves an unrelated current field. It does not decide skip/completed frontier B72.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_replay_preserves_unrelated_changes_and_reapplies_same_value_write",
+            "selector": "tests/unit/scientist/orchestration/engine/test_state_merge.py::TestMergeParallelOutcomes::test_replay_preserves_unrelated_changes_and_reapplies_same_value_write",
+            "line": 174,
+            "end_line": 196,
+            "source_sha256": "9f48cee2109677533e1d79a2830f5b27a51285cd06ff2e5a5d8feca65ea0a33d"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py",
+            "git_blob": "645e30fa190a9f66b77b468adb6ceb5826213ce7",
+            "sha256": "44597a58ee34d703db68f189d03b6e7a99a5d7bbe7a9352ac8876241537e1648",
+            "bytes": 15169
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_state_merge.py::TestMergeParallelOutcomes::test_replay_distinguishes_delete_null_and_no_write",
+          "finding_ids": [
+            "B58"
+          ],
+          "source_property": "Canonical journal merge distinguishes an allowed params deletion, explicit null and absent write; no-write retains the current value. It does not decide skip/completed frontier B72.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_replay_distinguishes_delete_null_and_no_write",
+            "selector": "tests/unit/scientist/orchestration/engine/test_state_merge.py::TestMergeParallelOutcomes::test_replay_distinguishes_delete_null_and_no_write",
+            "line": 200,
+            "end_line": 228,
+            "source_sha256": "b35fd02ca1230dbe710003d63c3243ddfed1b1f86f1d59b3e954a5a4e856502b"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py",
+            "git_blob": "645e30fa190a9f66b77b468adb6ceb5826213ce7",
+            "sha256": "44597a58ee34d703db68f189d03b6e7a99a5d7bbe7a9352ac8876241537e1648",
+            "bytes": 15169
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_native_execution_admission.py::test_native_skip_width_preserves_frontier_and_reopened_resume_meaning",
+          "finding_ids": [
+            "B72"
+          ],
+          "source_property": "Actual native skip alone/with a parallel neighbor preserves skip status and durable completed frontier; fresh CAS resume re-executes skipped work, preserves committed suffix/cache artifacts and their exact attempt meaning.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_native_skip_width_preserves_frontier_and_reopened_resume_meaning",
+            "selector": "tests/unit/scientist/orchestration/engine/test_native_execution_admission.py::test_native_skip_width_preserves_frontier_and_reopened_resume_meaning",
+            "line": 356,
+            "end_line": 414,
+            "source_sha256": "6adfc1f37a6e1ab74daf3b51de95150e0fec83e62b95599e7f9ca23a1a97d12e"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_native_execution_admission.py",
+            "git_blob": "4110da19c4dc012fd5033324d96e7467c0a40381",
+            "sha256": "df6d564625a63469388d1f5da63c6d0db7f35e4173b86f21aa19ca529adcbe18",
+            "bytes": 19724
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/integration/scientist/test_checkpoint_resume.py::test_parallel_tier_checkpoint_survives_stop_without_reapplying_any_peer",
+          "finding_ids": [
+            "B73"
+          ],
+          "source_property": "A deliberate logical stop immediately after actual atomic tier publication is consumed by a fresh spawned resume process: both peer effects and completed aliases agree, peers execute zero further times and only suffix executes. This fixture is not a kernel kill of the original executor.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_parallel_tier_checkpoint_survives_stop_without_reapplying_any_peer",
+            "selector": "tests/integration/scientist/test_checkpoint_resume.py::test_parallel_tier_checkpoint_survives_stop_without_reapplying_any_peer",
+            "line": 778,
+            "end_line": 849,
+            "source_sha256": "1f46ff54d4f5c83f5a7342d61240e3c61b4601c5450836774ce9d8273a686338"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/integration/scientist/test_checkpoint_resume.py",
+            "git_blob": "82a92d8923e0db8ec8717b410f74cb42591e5451",
+            "sha256": "c94e36b922f539c2256eefe1ad653b2c99c9fc73895c598b05c8034cdaf3bea2",
+            "bytes": 68820
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/integration/scientist/test_parallel_tier_compensation_oracle.py::test_parallel_compensation_matches_committed_frontier_and_retained_output",
+          "finding_ids": [
+            "B73"
+          ],
+          "source_property": "Real A-ok/B-fail fail_fast and continue consumers compare returned state, fresh verified CAS checkpoint frontier, compensation event, retained output/cache/seed refs and resume producer counts. External effects are retained evidence, not physical rollback.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_parallel_compensation_matches_committed_frontier_and_retained_output",
+            "selector": "tests/integration/scientist/test_parallel_tier_compensation_oracle.py::test_parallel_compensation_matches_committed_frontier_and_retained_output",
+            "line": 142,
+            "end_line": 282,
+            "source_sha256": "c309070a0fb70f8df6283c8f90fae0209dcf298db77f678b2958aaa89b29f85b"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/integration/scientist/test_parallel_tier_compensation_oracle.py",
+            "git_blob": "2d8fa0276a32ae2cc956443af834fbc18ee5861e",
+            "sha256": "6e51e94a9c352d2452e2c79b5ab71001cbf98f1d78154ac8e9e759e97144f4b7",
+            "bytes": 12237
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_native_execution_admission.py::test_native_readiness_preserves_real_inputs_methods_and_artifact_lineage",
+          "finding_ids": [
+            "B77"
+          ],
+          "source_property": "Event-gated real A/B/C registry nodes admit independent C after A while B waits; a real dependency on B restores waiting and overlapping read/write scope refuses unsafe admission. Actual C inputs, producer quantities, seed and manifest lineage are asserted.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_native_readiness_preserves_real_inputs_methods_and_artifact_lineage",
+            "selector": "tests/unit/scientist/orchestration/engine/test_native_execution_admission.py::test_native_readiness_preserves_real_inputs_methods_and_artifact_lineage",
+            "line": 247,
+            "end_line": 333,
+            "source_sha256": "1f252a75f0aae90b18ad5fe810ef80998f2699ddda50df5e284059abedb2ca17"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_native_execution_admission.py",
+            "git_blob": "4110da19c4dc012fd5033324d96e7467c0a40381",
+            "sha256": "df6d564625a63469388d1f5da63c6d0db7f35e4173b86f21aa19ca529adcbe18",
+            "bytes": 19724
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        }
+      ]
+    },
+    {
+      "named_selector": "tests/outside/test_outside.py",
+      "state": "UNRUN_named_selector_absent",
+      "required_by_canonical_plan": false,
+      "has_reviewed_equivalence_map": false,
+      "equivalent_candidate_selectors": []
+    },
+    {
+      "named_selector": "tests/unit/core/artifacts/test_import_tenant_context.py",
+      "state": "UNRUN_named_selector_absent",
+      "required_by_canonical_plan": true,
+      "has_reviewed_equivalence_map": true,
+      "equivalent_candidate_selectors": [
+        {
+          "selector": "tests/unit/core/artifacts/test_import_admission_noop.py::test_scoped_import_refuses_before_any_stage_or_claim",
+          "finding_ids": [
+            "B148"
+          ],
+          "source_property": "Real exact/directory/archive foreign or unbound import refuses before filesystem staging/claim and preserves receiving bytes, under the fixture-supplied exact tenant/cell owner premise. This import admission case does not establish B150 put profile identity or B151 damaged duplicate put.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_scoped_import_refuses_before_any_stage_or_claim",
+            "selector": "tests/unit/core/artifacts/test_import_admission_noop.py::test_scoped_import_refuses_before_any_stage_or_claim",
+            "line": 57,
+            "end_line": 91,
+            "source_sha256": "1ad5396bac1cd6d76d5bd78259f20219e19c202f66a1a92169aa3d8345874be0"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/core/artifacts/test_import_admission_noop.py",
+            "git_blob": "facd74807e31c44f95cd13a657a001da5438f8e9",
+            "sha256": "44b8e5d352da4ada1cc4a66b9f824776e38582d28424c408474769a6c0bb14a3",
+            "bytes": 14387
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/core/artifacts/test_import_admission_noop.py::test_exact_same_owner_import_is_a_real_noop",
+          "finding_ids": [
+            "B148"
+          ],
+          "source_property": "Same fixture-supplied exact owner reimport preserves receiving generation bytes and its readable exact view after reopen, without staging. It is an import no-op control, not a proof of every first-writer put profile.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_exact_same_owner_import_is_a_real_noop",
+            "selector": "tests/unit/core/artifacts/test_import_admission_noop.py::test_exact_same_owner_import_is_a_real_noop",
+            "line": 96,
+            "end_line": 127,
+            "source_sha256": "4ab4d7ee3c2a9db145eb7c7d05c85eaa300994dfb183dac0256b356616674674"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/core/artifacts/test_import_admission_noop.py",
+            "git_blob": "facd74807e31c44f95cd13a657a001da5438f8e9",
+            "sha256": "44b8e5d352da4ada1cc4a66b9f824776e38582d28424c408474769a6c0bb14a3",
+            "bytes": 14387
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/remediation/test_cas_01.py::test_distinct_profiles_get_honest_views_of_one_blob",
+          "finding_ids": [
+            "B150"
+          ],
+          "source_property": "Actual same-byte puts with distinct kind/media/schema/producer/selected-input profiles return refs matching the exact persisted manifest view, keep the historical ID-only first-writer view, and preserve both readable byte views and repeat selected profile.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_distinct_profiles_get_honest_views_of_one_blob",
+            "selector": "tests/unit/remediation/test_cas_01.py::test_distinct_profiles_get_honest_views_of_one_blob",
+            "line": 196,
+            "end_line": 254,
+            "source_sha256": "a1df69001db8db042ff132239bfbd6a1bf9344a0631048cfb449e707d64e227e"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/remediation/test_cas_01.py",
+            "git_blob": "9b9898162c7f32190af9b17be8a4706b57c5782f",
+            "sha256": "2f5e579c9522fac98b8b1e727a12f3b3f3ab89fab6dd2827fd44d67bce8d94df",
+            "bytes": 48119
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/remediation/test_cas_01.py::test_reuse_with_same_profile_preserves_first_manifest_and_ref",
+          "finding_ids": [
+            "B150"
+          ],
+          "source_property": "Actual same-profile duplicate put returns the identical ref and unchanged first manifest; this is the positive compatible-reuse control.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_reuse_with_same_profile_preserves_first_manifest_and_ref",
+            "selector": "tests/unit/remediation/test_cas_01.py::test_reuse_with_same_profile_preserves_first_manifest_and_ref",
+            "line": 257,
+            "end_line": 274,
+            "source_sha256": "fa15b77ca2a74d2c97e69a34a39b0aada999617d480238d8a09aec83a03bd947"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/remediation/test_cas_01.py",
+            "git_blob": "9b9898162c7f32190af9b17be8a4706b57c5782f",
+            "sha256": "2f5e579c9522fac98b8b1e727a12f3b3f3ab89fab6dd2827fd44d67bce8d94df",
+            "bytes": 48119
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/core/artifacts/test_put_integrity_retry.py::test_duplicate_put_refuses_damage_before_exact_repair_and_reopened_retry",
+          "finding_ids": [
+            "B151"
+          ],
+          "source_property": "Actual duplicate put refuses same-size corrupt blob, short blob or wrong selected byte-size manifest before ACK and preserves damage; controlled exact retained-byte/metadata repair then permits exact-profile retry and fresh CAS readback.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_duplicate_put_refuses_damage_before_exact_repair_and_reopened_retry",
+            "selector": "tests/unit/core/artifacts/test_put_integrity_retry.py::test_duplicate_put_refuses_damage_before_exact_repair_and_reopened_retry",
+            "line": 39,
+            "end_line": 87,
+            "source_sha256": "a83bbaac0a53cecbada9033dd3527a30d157cd0a8ee7c21913fa653ac4d619ae"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/core/artifacts/test_put_integrity_retry.py",
+            "git_blob": "b334e3c6a9096672ace78aad280ae8e1877461aa",
+            "sha256": "1bb168058fbae8b00094c0cdec0f322bbfb5b9768ef4bafc0d5bc9f946327da7",
+            "bytes": 5011
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/core/artifacts/test_put_integrity_retry.py::test_duplicate_put_restores_a_missing_sidecar_and_reopens_its_exact_view",
+          "finding_ids": [
+            "B151"
+          ],
+          "source_property": "Actual duplicate put reconstructs a missing default/selected sidecar, preserves the other sidecar and exact blob, and returns the exact selected/default ref consumed after reopen.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_duplicate_put_restores_a_missing_sidecar_and_reopens_its_exact_view",
+            "selector": "tests/unit/core/artifacts/test_put_integrity_retry.py::test_duplicate_put_restores_a_missing_sidecar_and_reopens_its_exact_view",
+            "line": 91,
+            "end_line": 117,
+            "source_sha256": "a5d14aabf3512d5fa9359b145b580b5c66d948bfba10b99a663f7940525558cf"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/core/artifacts/test_put_integrity_retry.py",
+            "git_blob": "b334e3c6a9096672ace78aad280ae8e1877461aa",
+            "sha256": "1bb168058fbae8b00094c0cdec0f322bbfb5b9768ef4bafc0d5bc9f946327da7",
+            "bytes": 5011
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/remediation/test_cas_01.py::test_lock_registry_is_bounded_without_evicting_active_waiters",
+          "finding_ids": [
+            "B153"
+          ],
+          "source_property": "Three thousand actual artifact_lease acquisitions on synthetic distinct IDs use only the existing finite owner lock pool while a real same-ID holder/waiter remain excluded. The live-stripe and per-ID-pool removal ports preserve marker table shape while falsifying exclusion/resident quantity; this is not 3000 CAS puts or RSS evidence.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_lock_registry_is_bounded_without_evicting_active_waiters",
+            "selector": "tests/unit/remediation/test_cas_01.py::test_lock_registry_is_bounded_without_evicting_active_waiters",
+            "line": 772,
+            "end_line": 944,
+            "source_sha256": "c4fcd78a1d3e16bc765e23da15ffc84d58ab66cb8d9f666ff35899fc1d2adcfa"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/remediation/test_cas_01.py",
+            "git_blob": "9b9898162c7f32190af9b17be8a4706b57c5782f",
+            "sha256": "2f5e579c9522fac98b8b1e727a12f3b3f3ab89fab6dd2827fd44d67bce8d94df",
+            "bytes": 48119
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        }
+      ]
+    },
+    {
+      "named_selector": "tests/unit/core/artifacts/test_transfer_output_paths.py",
+      "state": "UNRUN_named_selector_absent",
+      "required_by_canonical_plan": true,
+      "has_reviewed_equivalence_map": true,
+      "equivalent_candidate_selectors": [
+        {
+          "selector": "tests/unit/core/artifacts/test_transfer_generation_publication.py::test_same_destination_retains_complete_history_and_exact_new_inventory",
+          "finding_ids": [
+            "B149"
+          ],
+          "source_property": "Actual directory/archive export reuses one destination, preserves complete prior generation and mode, emits an exact new inventory and reimports the declared content. Import readback supports export closure; it does not establish B148 institutional admission law.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_same_destination_retains_complete_history_and_exact_new_inventory",
+            "selector": "tests/unit/core/artifacts/test_transfer_generation_publication.py::test_same_destination_retains_complete_history_and_exact_new_inventory",
+            "line": 103,
+            "end_line": 123,
+            "source_sha256": "75c49bc35312de6a6e4798f188985294775db9c17ab89703520587dc664c48c8"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/core/artifacts/test_transfer_generation_publication.py",
+            "git_blob": "b1d912b4d742d635194a6876e3a612eb86f28205",
+            "sha256": "8996cc5b02bf74aeda4d1ec36adb30cdf14bd9030c242f3425baad678b23d861",
+            "bytes": 23917
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        }
+      ]
+    },
+    {
+      "named_selector": "tests/unit/core/artifacts/test_transfer_publication.py",
+      "state": "UNRUN_named_selector_absent",
+      "required_by_canonical_plan": true,
+      "has_reviewed_equivalence_map": true,
+      "equivalent_candidate_selectors": [
+        {
+          "selector": "tests/unit/core/artifacts/test_transfer_generation_publication.py::test_process_interruption_after_each_publication_syscall_leaves_a_complete_generation",
+          "finding_ids": [
+            "B149"
+          ],
+          "source_property": "Actual spawned export process pauses after publication syscalls; kernel termination leaves complete readable new and prior generations with import readback. This is export B149, not every B148 package-admission predicate.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_process_interruption_after_each_publication_syscall_leaves_a_complete_generation",
+            "selector": "tests/unit/core/artifacts/test_transfer_generation_publication.py::test_process_interruption_after_each_publication_syscall_leaves_a_complete_generation",
+            "line": 279,
+            "end_line": 322,
+            "source_sha256": "a4c32be84d3f33cae1bfffbe769eb6a04fe8f72e7194ec59dcb28b9d7b182767"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/core/artifacts/test_transfer_generation_publication.py",
+            "git_blob": "b1d912b4d742d635194a6876e3a612eb86f28205",
+            "sha256": "8996cc5b02bf74aeda4d1ec36adb30cdf14bd9030c242f3425baad678b23d861",
+            "bytes": 23917
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/core/artifacts/test_transfer_generation_publication.py::test_streamed_write_failure_preserves_old_generation_and_no_false_inventory",
+          "finding_ids": [
+            "B149"
+          ],
+          "source_property": "Actual export file-fsync failure before publication preserves old generation bytes, removes staging and reimports old content without a false inventory. This is an export refusal control, not a corrupt-import acceptance test.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_streamed_write_failure_preserves_old_generation_and_no_false_inventory",
+            "selector": "tests/unit/core/artifacts/test_transfer_generation_publication.py::test_streamed_write_failure_preserves_old_generation_and_no_false_inventory",
+            "line": 127,
+            "end_line": 149,
+            "source_sha256": "f449c0758f825293d7499c77dbd733b48fcc27ac2de6a5f9b7d308fded52cb19"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/core/artifacts/test_transfer_generation_publication.py",
+            "git_blob": "b1d912b4d742d635194a6876e3a612eb86f28205",
+            "sha256": "8996cc5b02bf74aeda4d1ec36adb30cdf14bd9030c242f3425baad678b23d861",
+            "bytes": 23917
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        }
+      ]
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_dur_01.py",
+      "state": "UNRUN_named_selector_absent",
+      "required_by_canonical_plan": true,
+      "has_reviewed_equivalence_map": true,
+      "equivalent_candidate_selectors": [
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py::test_cold_record_spend_requires_bootstrap_across_processes",
+          "finding_ids": [
+            "B37"
+          ],
+          "source_property": "Actual fresh ledger subprocess mutation refuses absent bootstrap; actual middleware refuses without publishing unlimited state.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_cold_record_spend_requires_bootstrap_across_processes",
+            "selector": "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py::test_cold_record_spend_requires_bootstrap_across_processes",
+            "line": 217,
+            "end_line": 224,
+            "source_sha256": "ada8b4d3dd888a2660123fc5c6dfaaf21411043438d831a10c60e85cb4b9c7db"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+            "git_blob": "0d96cf6d054a24e4676352d48de8d03edea22379",
+            "sha256": "3a21ea963a4bc3e2fcdb3f62daf1456ae69153ef2f3d990cb7d56a7e9b48b8cc",
+            "bytes": 16904
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py::test_malformed_existing_ledger_is_not_rebootstrapped",
+          "finding_ids": [
+            "B37"
+          ],
+          "source_property": "Malformed existing file refuses all actual mutations and preserves exact bytes.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_malformed_existing_ledger_is_not_rebootstrapped",
+            "selector": "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py::test_malformed_existing_ledger_is_not_rebootstrapped",
+            "line": 237,
+            "end_line": 244,
+            "source_sha256": "e37f1eac2c1d334d05962b4522a951992a150d67f51d881f4008c96e49a28cb4"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+            "git_blob": "0d96cf6d054a24e4676352d48de8d03edea22379",
+            "sha256": "3a21ea963a4bc3e2fcdb3f62daf1456ae69153ef2f3d990cb7d56a7e9b48b8cc",
+            "bytes": 16904
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py::test_process_publication_fault_reopens_complete_or_requires_recovery",
+          "finding_ids": [
+            "B37"
+          ],
+          "source_property": "Real subprocess fsync/replace/kill fault distinguishes absent cold publication from complete old/new reopened snapshot.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_process_publication_fault_reopens_complete_or_requires_recovery",
+            "selector": "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py::test_process_publication_fault_reopens_complete_or_requires_recovery",
+            "line": 327,
+            "end_line": 358,
+            "source_sha256": "60de21ba621c3f7d30deedf66d431bda446dc89dd57108411da8951787d58383"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+            "git_blob": "0d96cf6d054a24e4676352d48de8d03edea22379",
+            "sha256": "3a21ea963a4bc3e2fcdb3f62daf1456ae69153ef2f3d990cb7d56a7e9b48b8cc",
+            "bytes": 16904
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py::test_concurrent_real_middleware_processes_preserve_spend_and_exhausted_cap",
+          "finding_ids": [
+            "B37"
+          ],
+          "source_property": "Four real writer processes and concurrent reader use native ledger/middleware, final spend/provider spend100 and exhausted cap.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_concurrent_real_middleware_processes_preserve_spend_and_exhausted_cap",
+            "selector": "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py::test_concurrent_real_middleware_processes_preserve_spend_and_exhausted_cap",
+            "line": 361,
+            "end_line": 399,
+            "source_sha256": "3193ae06ea39394bcbcc95fbc8d00607e97c6c59ad3cd3fb0695d3d34047e7e7"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+            "git_blob": "0d96cf6d054a24e4676352d48de8d03edea22379",
+            "sha256": "3a21ea963a4bc3e2fcdb3f62daf1456ae69153ef2f3d990cb7d56a7e9b48b8cc",
+            "bytes": 16904
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        }
+      ]
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_exe_01.py",
+      "state": "UNRUN_named_selector_absent",
+      "required_by_canonical_plan": true,
+      "has_reviewed_equivalence_map": true,
+      "equivalent_candidate_selectors": [
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_async_executor.py::TestAsyncFailFastAdmission::test_fail_fast_rechecks_cancellation_after_semaphore_acquire",
+          "finding_ids": [
+            "B55"
+          ],
+          "source_property": "Actual max-parallelism1 fail-fast executor refuses queued successor node bodies after the first actual node fails; no event-gated or outside-caller cancellation claim from this body.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_fail_fast_rechecks_cancellation_after_semaphore_acquire",
+            "selector": "tests/unit/scientist/orchestration/engine/test_async_executor.py::TestAsyncFailFastAdmission::test_fail_fast_rechecks_cancellation_after_semaphore_acquire",
+            "line": 717,
+            "end_line": 774,
+            "source_sha256": "37eb87362fbc654b15bb666a331a98d9eea2a15a55ac69c807c798def006c153"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py",
+            "git_blob": "5fe7458c29f4c2ec00a1bd21f941e87cb7977680",
+            "sha256": "68a3e35f641ef68333e8c7b2c604d7d154447e705a0430081ddf348f9b7f8f2b",
+            "bytes": 30571
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_cold_seed_late_read_cannot_publish_cache",
+          "finding_ids": [
+            "B52"
+          ],
+          "source_property": "Real late CAS worker after deadline/cancellation cannot publish executor cache.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_cold_seed_late_read_cannot_publish_cache",
+            "selector": "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_cold_seed_late_read_cannot_publish_cache",
+            "line": 239,
+            "end_line": 271,
+            "source_sha256": "5725d6f792332df2d003725a8f13da0f94d6fd603f3a7aad19d4a9f72ac91dc0"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+            "git_blob": "93e6a0c49e34e9d5f756df8ecd69248fb7c0f3a1",
+            "sha256": "e798e0546ac1b461e603ea43e7d9feb9de5526c45e90362a96a17faf1c4cb972",
+            "bytes": 20275
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_publication_trace_requires_completed_verified_storage",
+          "finding_ids": [
+            "B52"
+          ],
+          "source_property": "Actual completed verified CAS storage, trace and fresh reopen decide cache publication; deadline/cancellation/corruption cannot emit successful cache consumption. This is B52 storage admission, not B55 fail-fast semaphore admission.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_publication_trace_requires_completed_verified_storage",
+            "selector": "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_publication_trace_requires_completed_verified_storage",
+            "line": 464,
+            "end_line": 521,
+            "source_sha256": "984d028e14c41256d284a46ebd53b6eeed1c8fff5eb4119c7ba17401d30c50b7"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+            "git_blob": "93e6a0c49e34e9d5f756df8ecd69248fb7c0f3a1",
+            "sha256": "e798e0546ac1b461e603ea43e7d9feb9de5526c45e90362a96a17faf1c4cb972",
+            "bytes": 20275
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_async_executor.py::TestAsyncCacheBoundaries::test_cache_hit_reads_with_exhausted_compute_budget_but_miss_does_not",
+          "finding_ids": [
+            "B51"
+          ],
+          "source_property": "A real previously populated cache hit succeeds with exhausted compute budget and no new producer call; exhausted read budget refuses the hit, and a miss with exhausted compute budget refuses instead of computing.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_cache_hit_reads_with_exhausted_compute_budget_but_miss_does_not",
+            "selector": "tests/unit/scientist/orchestration/engine/test_async_executor.py::TestAsyncCacheBoundaries::test_cache_hit_reads_with_exhausted_compute_budget_but_miss_does_not",
+            "line": 398,
+            "end_line": 466,
+            "source_sha256": "76907558fd29015cf9b2f6fde71acb229e2ecc160ddcb34b35ba7d8f53c194bd"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py",
+            "git_blob": "5fe7458c29f4c2ec00a1bd21f941e87cb7977680",
+            "sha256": "68a3e35f641ef68333e8c7b2c604d7d154447e705a0430081ddf348f9b7f8f2b",
+            "bytes": 30571
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_native_execution_admission.py::test_native_queued_admission_preserves_slots_and_completed_prefix",
+          "finding_ids": [
+            "B55"
+          ],
+          "source_property": "Real occupied native semaphore has two actually observed waiters; fail_fast/caller cancellation dispatch zero queued bodies, continue dispatches both, slots/waiters settle, completed seed frontier/CAS effects remain correct even with telemetry failure.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_native_queued_admission_preserves_slots_and_completed_prefix",
+            "selector": "tests/unit/scientist/orchestration/engine/test_native_execution_admission.py::test_native_queued_admission_preserves_slots_and_completed_prefix",
+            "line": 160,
+            "end_line": 242,
+            "source_sha256": "131420ce931d01284bbf872b16ebb6146011041dc668274bb13b06c6ce50318d"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_native_execution_admission.py",
+            "git_blob": "4110da19c4dc012fd5033324d96e7467c0a40381",
+            "sha256": "df6d564625a63469388d1f5da63c6d0db7f35e4173b86f21aa19ca529adcbe18",
+            "bytes": 19724
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        }
+      ]
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_llm_02.py",
+      "state": "UNRUN_named_selector_absent",
+      "required_by_canonical_plan": true,
+      "has_reviewed_equivalence_map": true,
+      "equivalent_candidate_selectors": [
+        {
+          "selector": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_actual_owner_permission_rechecked_actor_epoch_and_exact_cas_ref",
+          "finding_ids": [
+            "B67"
+          ],
+          "source_property": "Actual scoped CAS source and functional owner decision recheck actor/epoch/exact content before reuse.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_actual_owner_permission_rechecked_actor_epoch_and_exact_cas_ref",
+            "selector": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_actual_owner_permission_rechecked_actor_epoch_and_exact_cas_ref",
+            "line": 601,
+            "end_line": 624,
+            "source_sha256": "9effe10b298e287ff0893adf3cb60d60bb438ab55bca14ace5c36e581553614f"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+            "git_blob": "e1ece585ee96f735db431cffaa870494721ca9e1",
+            "sha256": "576f2d1328f4346de00685898aacd6c90932847110b3bda7ad47dc0b690afb2d",
+            "bytes": 48893
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_owner_revocation_while_follower_waits_prevents_shared_consumption",
+          "finding_ids": [
+            "B67",
+            "B68"
+          ],
+          "source_property": "Gated actual follower refuses revoked owner decision before consuming shared result.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_owner_revocation_while_follower_waits_prevents_shared_consumption",
+            "selector": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_owner_revocation_while_follower_waits_prevents_shared_consumption",
+            "line": 628,
+            "end_line": 648,
+            "source_sha256": "2d11cdb9701491e986237ebeba026770f8f3ada1644b546bd619d2c2e5f69756"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+            "git_blob": "e1ece585ee96f735db431cffaa870494721ca9e1",
+            "sha256": "576f2d1328f4346de00685898aacd6c90932847110b3bda7ad47dc0b690afb2d",
+            "bytes": 48893
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_different_actual_budget_owners_cannot_join_first_owners_flight",
+          "finding_ids": [
+            "B68"
+          ],
+          "source_property": "Real distinct persistent budget owners cannot join first owner flight; each own physical producer settles actual ledger.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_different_actual_budget_owners_cannot_join_first_owners_flight",
+            "selector": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_different_actual_budget_owners_cannot_join_first_owners_flight",
+            "line": 503,
+            "end_line": 520,
+            "source_sha256": "acd989bbffb6c774bce22dc8c58c591831441b13559ab13f717e8c5cbf27607a"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+            "git_blob": "e1ece585ee96f735db431cffaa870494721ca9e1",
+            "sha256": "576f2d1328f4346de00685898aacd6c90932847110b3bda7ad47dc0b690afb2d",
+            "bytes": 48893
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_four_actual_budget_consumers_share_one_settled_producer_after_initiator_cancel",
+          "finding_ids": [
+            "B68"
+          ],
+          "source_property": "Four actual same-owner requests enter the canonical cache; initiator cancellation leaves one physical provider, three delivered followers, one settled persistent ledger charge/no reservation, and one cache entry.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_four_actual_budget_consumers_share_one_settled_producer_after_initiator_cancel",
+            "selector": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_four_actual_budget_consumers_share_one_settled_producer_after_initiator_cancel",
+            "line": 439,
+            "end_line": 474,
+            "source_sha256": "07f8a8e48f543f8274f4b1cab42202908b34912dfe6f7811d8ab024527ab75fa"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+            "git_blob": "e1ece585ee96f735db431cffaa870494721ca9e1",
+            "sha256": "576f2d1328f4346de00685898aacd6c90932847110b3bda7ad47dc0b690afb2d",
+            "bytes": 48893
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        }
+      ]
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_net_01.py",
+      "state": "UNRUN_named_selector_absent",
+      "required_by_canonical_plan": true,
+      "has_reviewed_equivalence_map": true,
+      "equivalent_candidate_selectors": [
+        {
+          "selector": "tests/unit/fabric/connectors/test_pool_e02.py::test_whole_acquisition_budget_rejects_late_handle",
+          "finding_ids": [
+            "B90"
+          ],
+          "source_property": "Real gated connect/health returns after absolute admission budget; no handle publish and actual ownership cleanup.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_whole_acquisition_budget_rejects_late_handle",
+            "selector": "tests/unit/fabric/connectors/test_pool_e02.py::test_whole_acquisition_budget_rejects_late_handle",
+            "line": 62,
+            "end_line": 84,
+            "source_sha256": "247aaae17d2bc81e46723f28a666403a898e3bea5cb31475d955625909146da2"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/fabric/connectors/test_pool_e02.py",
+            "git_blob": "477268cb87a178c6d246a750f8acdbb89ab55491",
+            "sha256": "a9ec798fc3e2e36c2e99c171526c3fa7a00027947f3f8776513de8b717bb11bf",
+            "bytes": 10635
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/fabric/connectors/test_pool_e02.py::test_cancelled_caller_cannot_receive_suppressed_late_handle",
+          "finding_ids": [
+            "B89",
+            "B90"
+          ],
+          "source_property": "Caller cancel before deadline plus suppressing actual connect/health cannot deliver handle; disconnect and physical permit settle exactly once.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_cancelled_caller_cannot_receive_suppressed_late_handle",
+            "selector": "tests/unit/fabric/connectors/test_pool_e02.py::test_cancelled_caller_cannot_receive_suppressed_late_handle",
+            "line": 282,
+            "end_line": 298,
+            "source_sha256": "3523f2a7196c71712f0de9ad3111e066a7c07e3091ad83185b363188fffe8174"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/fabric/connectors/test_pool_e02.py",
+            "git_blob": "477268cb87a178c6d246a750f8acdbb89ab55491",
+            "sha256": "a9ec798fc3e2e36c2e99c171526c3fa7a00027947f3f8776513de8b717bb11bf",
+            "bytes": 10635
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/fabric/connectors/test_pool_e02.py::test_persistent_disconnect_failure_retains_exactly_one_permit",
+          "finding_ids": [
+            "B89"
+          ],
+          "source_property": "Actual failed pool disconnect retains a pending cleanup owner and one occupied permit until real retry. This pool case is B89 lifecycle support, not B87 served streaming subscribe/checkpoint/rewind/close cleanup.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_persistent_disconnect_failure_retains_exactly_one_permit",
+            "selector": "tests/unit/fabric/connectors/test_pool_e02.py::test_persistent_disconnect_failure_retains_exactly_one_permit",
+            "line": 194,
+            "end_line": 217,
+            "source_sha256": "d7c5e2a7252ed1a38e0d0885d4f3cb575b358e26e4a1602b2575e03de543ca77"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/fabric/connectors/test_pool_e02.py",
+            "git_blob": "477268cb87a178c6d246a750f8acdbb89ab55491",
+            "sha256": "a9ec798fc3e2e36c2e99c171526c3fa7a00027947f3f8776513de8b717bb11bf",
+            "bytes": 10635
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership",
+          "finding_ids": [
+            "B87"
+          ],
+          "source_property": "Actual JSONL connector, C-created pool, CAS CursorStore and process_stream_dataset exercise healthy/subscribe/checkpoint-read/rewind/caller-cancel/startup-retry/disconnect-fault boundaries. Assertions decide whether the production registry retry clears exact pending handles before final observer rescue. A real FAIL remains a B\u2192C consumer gap, never waived by pool PASS.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_process_file_stream_cleanup_ownership",
+            "selector": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership",
+            "line": 154,
+            "end_line": 272,
+            "source_sha256": "3f8c78075f495cde48bec3a323099cb8f0fae284ea873ed6a006a535f6b5708a"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py",
+            "git_blob": "37513f22c75e7bc07904751292eb05dae8c8aeb8",
+            "sha256": "57a93345d81860b0de51fcd4fc494c82f7b4f2ef845f9253659b6e41d54bc6f9",
+            "bytes": 12269
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_direct_file_session_second_close_finishes_pending_cleanup",
+          "finding_ids": [
+            "B87"
+          ],
+          "source_property": "Actual retained StreamingSourceSession retries a transient failed disconnect on second close, confirms handle cleanup and permit once, and tolerates repeated close. This retained direct-session control does not establish process consumer ownership after it drops the session.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_direct_file_session_second_close_finishes_pending_cleanup",
+            "selector": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_direct_file_session_second_close_finishes_pending_cleanup",
+            "line": 276,
+            "end_line": 312,
+            "source_sha256": "457812837713af027c419afb2d3cba2ec08d51429b64a94abd114f92b9b38915"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py",
+            "git_blob": "37513f22c75e7bc07904751292eb05dae8c8aeb8",
+            "sha256": "57a93345d81860b0de51fcd4fc494c82f7b4f2ef845f9253659b6e41d54bc6f9",
+            "bytes": 12269
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        }
+      ]
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_net_02.py",
+      "state": "UNRUN_named_selector_absent",
+      "required_by_canonical_plan": true,
+      "has_reviewed_equivalence_map": true,
+      "equivalent_candidate_selectors": [
+        {
+          "selector": "tests/unit/fabric/connectors/test_resilience.py::test_rate_limiter_sub_unit_rate_accepts_unit_request_and_preserves_pacing",
+          "finding_ids": [
+            "B91"
+          ],
+          "source_property": "Actual fractional monotonic refill eventually admits ordinary unit request with exact pacing.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_rate_limiter_sub_unit_rate_accepts_unit_request_and_preserves_pacing",
+            "selector": "tests/unit/fabric/connectors/test_resilience.py::test_rate_limiter_sub_unit_rate_accepts_unit_request_and_preserves_pacing",
+            "line": 582,
+            "end_line": 611,
+            "source_sha256": "bf57f2e3ad9cf1d0c55e52164c24d03f4fd302013c82e0ae200becf5824ebd6a"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+            "git_blob": "4907e921e867a383243c6380b5ca682c435fedc6",
+            "sha256": "66a7b774c2e7250d15e8dbc55b065d65f9498d11539b70c2de7090fb8ccc4c73",
+            "bytes": 29464
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/fabric/connectors/test_resilience.py::test_circuit_breaker_late_closed_success_does_not_claim_new_half_open_generation",
+          "finding_ids": [
+            "B92"
+          ],
+          "source_property": "Late actual prior-generation producer success cannot claim current half-open generation.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_circuit_breaker_late_closed_success_does_not_claim_new_half_open_generation",
+            "selector": "tests/unit/fabric/connectors/test_resilience.py::test_circuit_breaker_late_closed_success_does_not_claim_new_half_open_generation",
+            "line": 696,
+            "end_line": 743,
+            "source_sha256": "ec0d8eea5b93169930107eb25676fb705f769e1aca30a06fcb8fd9dfeb8bbc35"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+            "git_blob": "4907e921e867a383243c6380b5ca682c435fedc6",
+            "sha256": "66a7b774c2e7250d15e8dbc55b065d65f9498d11539b70c2de7090fb8ccc4c73",
+            "bytes": 29464
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/fabric/connectors/test_resilience_e02.py::test_live_provider_owns_neutral_refilled_limiter_under_pressure",
+          "finding_ids": [
+            "B93"
+          ],
+          "source_property": "Actual live operation protects keyed neutral/refilled regulator through bounded registry pressure and lease removal falsifier.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_live_provider_owns_neutral_refilled_limiter_under_pressure",
+            "selector": "tests/unit/fabric/connectors/test_resilience_e02.py::test_live_provider_owns_neutral_refilled_limiter_under_pressure",
+            "line": 20,
+            "end_line": 52,
+            "source_sha256": "7f31739ab848a2f034d937e028c83c4e54929859a5751cd77298d8f5ccf61f85"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/fabric/connectors/test_resilience_e02.py",
+            "git_blob": "76c81fa6a75eb11587b6012c7eb239cd9f6d7fd4",
+            "sha256": "20d6d959e58d65e676945766f3be4ceb32c5c5bc5d134659138e55c64a813049",
+            "bytes": 6312
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/fabric/connectors/test_resilience.py::test_rate_limiter_single_capacity_keeps_declared_long_term_rate",
+          "finding_ids": [
+            "B91"
+          ],
+          "source_property": "Actual limiter with controlled monotonic clock and unit capacity admits two requests at declared rates 0.1/0.2/1/2 with exact 10/5/1/0.5 refill delay; service rate is not rounded to one.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_rate_limiter_single_capacity_keeps_declared_long_term_rate",
+            "selector": "tests/unit/fabric/connectors/test_resilience.py::test_rate_limiter_single_capacity_keeps_declared_long_term_rate",
+            "line": 620,
+            "end_line": 650,
+            "source_sha256": "6cfd021a40210ceec629d48c7f6aaef0ec9183e99fcbbe7dbe83de6e96b236a4"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+            "git_blob": "4907e921e867a383243c6380b5ca682c435fedc6",
+            "sha256": "66a7b774c2e7250d15e8dbc55b065d65f9498d11539b70c2de7090fb8ccc4c73",
+            "bytes": 29464
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/fabric/connectors/test_resilience.py::test_rate_limiter_rejects_weight_above_capacity_without_waiting",
+          "finding_ids": [
+            "B91"
+          ],
+          "source_property": "Actual impossible weighted request typed-refuses rather than waiting forever; this does not by itself exercise feasible weighted pacing.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_rate_limiter_rejects_weight_above_capacity_without_waiting",
+            "selector": "tests/unit/fabric/connectors/test_resilience.py::test_rate_limiter_rejects_weight_above_capacity_without_waiting",
+            "line": 654,
+            "end_line": 659,
+            "source_sha256": "e01fca7eec34fe85bc6f37a893c86c3ade1ff567a73a2882d2b078b22d7b9044"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+            "git_blob": "4907e921e867a383243c6380b5ca682c435fedc6",
+            "sha256": "66a7b774c2e7250d15e8dbc55b065d65f9498d11539b70c2de7090fb8ccc4c73",
+            "bytes": 29464
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/fabric/connectors/test_resilience.py::test_rate_limiter_cancellation_does_not_consume_unacquired_request",
+          "finding_ids": [
+            "B91"
+          ],
+          "source_property": "Cancellation of an actual throttled acquire preserves the one already successful request count and does not account an unacquired request.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_rate_limiter_cancellation_does_not_consume_unacquired_request",
+            "selector": "tests/unit/fabric/connectors/test_resilience.py::test_rate_limiter_cancellation_does_not_consume_unacquired_request",
+            "line": 663,
+            "end_line": 692,
+            "source_sha256": "76ad764086fba1175e7877c20e9aeb6225ba43310cb2446d6843004fa7424cee"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+            "git_blob": "4907e921e867a383243c6380b5ca682c435fedc6",
+            "sha256": "66a7b774c2e7250d15e8dbc55b065d65f9498d11539b70c2de7090fb8ccc4c73",
+            "bytes": 29464
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/fabric/connectors/test_resilience.py::test_circuit_breaker_late_closed_failure_preserves_original_error",
+          "finding_ids": [
+            "B92"
+          ],
+          "source_property": "An Event-gated old CLOSED producer failure reaches the caller as its original OSError while the current half-open probe keeps ownership and can close its own generation.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_circuit_breaker_late_closed_failure_preserves_original_error",
+            "selector": "tests/unit/fabric/connectors/test_resilience.py::test_circuit_breaker_late_closed_failure_preserves_original_error",
+            "line": 747,
+            "end_line": 795,
+            "source_sha256": "e311e201a227d6f4f0a0f24963a1025b867c04a9409155261b8f4c480cb0abdf"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+            "git_blob": "4907e921e867a383243c6380b5ca682c435fedc6",
+            "sha256": "66a7b774c2e7250d15e8dbc55b065d65f9498d11539b70c2de7090fb8ccc4c73",
+            "bytes": 29464
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/fabric/connectors/test_resilience.py::test_circuit_breaker_stale_half_open_token_does_not_steal_new_generation",
+          "finding_ids": [
+            "B92"
+          ],
+          "source_property": "Actual stale half-open token completion cannot consume a new generation; current probe alone changes that generation.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_circuit_breaker_stale_half_open_token_does_not_steal_new_generation",
+            "selector": "tests/unit/fabric/connectors/test_resilience.py::test_circuit_breaker_stale_half_open_token_does_not_steal_new_generation",
+            "line": 798,
+            "end_line": 843,
+            "source_sha256": "e5379b462507dbc7d4fd022d073e42af735d6c34309e9fbf014db5eecd7b7dd2"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+            "git_blob": "4907e921e867a383243c6380b5ca682c435fedc6",
+            "sha256": "66a7b774c2e7250d15e8dbc55b065d65f9498d11539b70c2de7090fb8ccc4c73",
+            "bytes": 29464
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/fabric/connectors/test_resilience.py::test_bounded_registry_pressure_preserves_rate_limit_cooldown",
+          "finding_ids": [
+            "B93"
+          ],
+          "source_property": "Actual Retry-After cooldown survives registry pressure and preserves the required 300-second controlled-clock wait rather than a fresh unthrottled limiter.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_bounded_registry_pressure_preserves_rate_limit_cooldown",
+            "selector": "tests/unit/fabric/connectors/test_resilience.py::test_bounded_registry_pressure_preserves_rate_limit_cooldown",
+            "line": 847,
+            "end_line": 880,
+            "source_sha256": "982e9486ad9899353b445d96f6568ecd88f4a8f866e4a7b4af9a0f362fac034a"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+            "git_blob": "4907e921e867a383243c6380b5ca682c435fedc6",
+            "sha256": "66a7b774c2e7250d15e8dbc55b065d65f9498d11539b70c2de7090fb8ccc4c73",
+            "bytes": 29464
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/fabric/connectors/test_resilience.py::test_bounded_registry_ttl_preserves_rate_limit_cooldown",
+          "finding_ids": [
+            "B93"
+          ],
+          "source_property": "Actual active Retry-After cooldown survives TTL expiry and consumes only remaining delay; cleanup cannot construct a fresh unrestricted limiter.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_bounded_registry_ttl_preserves_rate_limit_cooldown",
+            "selector": "tests/unit/fabric/connectors/test_resilience.py::test_bounded_registry_ttl_preserves_rate_limit_cooldown",
+            "line": 884,
+            "end_line": 917,
+            "source_sha256": "a0dff39653796e3d206c739c789915482d74e290d50117fa5fb54fbb15da7a4a"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+            "git_blob": "4907e921e867a383243c6380b5ca682c435fedc6",
+            "sha256": "66a7b774c2e7250d15e8dbc55b065d65f9498d11539b70c2de7090fb8ccc4c73",
+            "bytes": 29464
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/fabric/connectors/test_resilience.py::test_bounded_registry_pressure_preserves_open_circuit_state",
+          "finding_ids": [
+            "B93"
+          ],
+          "source_property": "Actual OPEN breaker remains OPEN across keyed registry pressure instead of reset to a new CLOSED breaker.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_bounded_registry_pressure_preserves_open_circuit_state",
+            "selector": "tests/unit/fabric/connectors/test_resilience.py::test_bounded_registry_pressure_preserves_open_circuit_state",
+            "line": 920,
+            "end_line": 948,
+            "source_sha256": "249f13eb8a17f453480efb36b12c9a99647b06eb392da72697f4ed4f3e20fd65"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+            "git_blob": "4907e921e867a383243c6380b5ca682c435fedc6",
+            "sha256": "66a7b774c2e7250d15e8dbc55b065d65f9498d11539b70c2de7090fb8ccc4c73",
+            "bytes": 29464
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/fabric/connectors/test_resilience_e02.py::test_actual_provider_cancel_or_error_releases_only_its_registry_lease",
+          "finding_ids": [
+            "B93"
+          ],
+          "source_property": "Actual decorator-owned provider cancellation/error retires its exact registry lease; retained live regulator admission is coupled to real provider lifetime.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_actual_provider_cancel_or_error_releases_only_its_registry_lease",
+            "selector": "tests/unit/fabric/connectors/test_resilience_e02.py::test_actual_provider_cancel_or_error_releases_only_its_registry_lease",
+            "line": 86,
+            "end_line": 107,
+            "source_sha256": "249fd032ced5c9139606d7e05db77058e6ebf6e56264c9a002c50e462cb9774b"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/fabric/connectors/test_resilience_e02.py",
+            "git_blob": "76c81fa6a75eb11587b6012c7eb239cd9f6d7fd4",
+            "sha256": "20d6d959e58d65e676945766f3be4ceb32c5c5bc5d134659138e55c64a813049",
+            "bytes": 6312
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        }
+      ]
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_run_01.py",
+      "state": "UNRUN_named_selector_absent",
+      "required_by_canonical_plan": true,
+      "has_reviewed_equivalence_map": true,
+      "equivalent_candidate_selectors": [
+        {
+          "selector": "tests/unit/common/test_async_tools.py::test_done_callbacks_hold_physical_capacity_and_refuse_nested_work",
+          "finding_ids": [
+            "B69"
+          ],
+          "source_property": "Four actual finished futures keep four physical callback workers busy; nested work is refused before executing, real shutdown drains.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_done_callbacks_hold_physical_capacity_and_refuse_nested_work",
+            "selector": "tests/unit/common/test_async_tools.py::test_done_callbacks_hold_physical_capacity_and_refuse_nested_work",
+            "line": 156,
+            "end_line": 193,
+            "source_sha256": "2edc66aff2b18a9dbc1b3c672d13d6aa493426d55d5f8b8603472c60f14cfa92"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/common/test_async_tools.py",
+            "git_blob": "4dd24b39596e86ff2292db550958f9f7d13729ae",
+            "sha256": "d93dbdd1b577c207e89520d2bfc2385fe738953743abab40bc75c1c24bbd7ca5",
+            "bytes": 15730
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_retry.py::test_queued_async_thread_attempt_never_enters_body_after_termination",
+          "finding_ids": [
+            "B14",
+            "B40"
+          ],
+          "source_property": "Actual saturated executor queued attempt cannot start physical body after caller deadline/cancellation.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_queued_async_thread_attempt_never_enters_body_after_termination",
+            "selector": "tests/unit/scientist/orchestration/engine/test_retry.py::test_queued_async_thread_attempt_never_enters_body_after_termination",
+            "line": 1672,
+            "end_line": 1727,
+            "source_sha256": "26a3455093271ed989b6996b7ef3c357ca1e16a4df528dafdeae8c5bc0d73fc7"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+            "git_blob": "ae7769be8d7de15cbeb9fb93d2e3a783d5240f3a",
+            "sha256": "b7039c547aef21cdd2c12923b371da4196326555a85ff579acc9c7da6e95d139",
+            "bytes": 79749
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_retry.py::test_unconfigured_sync_bridge_has_no_implicit_timeout",
+          "finding_ids": [
+            "B40"
+          ],
+          "source_property": "Actual canonical retry async bridge with timeout None executes a synchronous node longer than the deliberately small helper default and returns success; unconfigured upper policy is not silently recapped below.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_unconfigured_sync_bridge_has_no_implicit_timeout",
+            "selector": "tests/unit/scientist/orchestration/engine/test_retry.py::test_unconfigured_sync_bridge_has_no_implicit_timeout",
+            "line": 1600,
+            "end_line": 1620,
+            "source_sha256": "240892eaa407341873ffcb60d85140921a6cf11ddd56ab7dac091c1f6dfaaa47"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+            "git_blob": "ae7769be8d7de15cbeb9fb93d2e3a783d5240f3a",
+            "sha256": "b7039c547aef21cdd2c12923b371da4196326555a85ff579acc9c7da6e95d139",
+            "bytes": 79749
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_retry.py::test_canonical_retry_boundary_uses_actual_attempt_files",
+          "finding_ids": [
+            "B95"
+          ],
+          "source_property": "Actual direct, async-sync, forced thread/fork and genuine async retry routes write the captured ContextVar to physical attempt files while preserving error category and retry quantity. This marker context proves propagation, not new authority or arbitrary process-envelope semantics.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_canonical_retry_boundary_uses_actual_attempt_files",
+            "selector": "tests/unit/scientist/orchestration/engine/test_retry.py::test_canonical_retry_boundary_uses_actual_attempt_files",
+            "line": 1503,
+            "end_line": 1560,
+            "source_sha256": "7a732b244b2fe63cf167b44183197fb8acc0358102b82aea717bc3eafe32b102"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+            "git_blob": "ae7769be8d7de15cbeb9fb93d2e3a783d5240f3a",
+            "sha256": "b7039c547aef21cdd2c12923b371da4196326555a85ff579acc9c7da6e95d139",
+            "bytes": 79749
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py::test_real_atomic_head_35_seconds_fits_original_60_second_workflow",
+          "finding_ids": [
+            "B40"
+          ],
+          "source_property": "Actual canonical async producer\u2192FileSystemCAS\u2192CASCheckpointHook delays the real atomic head replace for 35 seconds under the original 60-second workflow budget; fresh CAS frontier/value and one producer decide removal of hidden 30-second recap.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_real_atomic_head_35_seconds_fits_original_60_second_workflow",
+            "selector": "tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py::test_real_atomic_head_35_seconds_fits_original_60_second_workflow",
+            "line": 111,
+            "end_line": 170,
+            "source_sha256": "fe1c0628bba14d5391534be2e9f6f5a35bfd50b3c5dd0f67e9ac96002614d4c3"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py",
+            "git_blob": "7e9001ea39ae8e7b737b8f84ecb525a24e617a5d",
+            "sha256": "05623df2c82e8538591a262daca17bd0bd27f196c106a8a8552b95c8de9fbd58",
+            "bytes": 7565
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py::test_original_budget_refuses_new_phases_and_retains_entered_io",
+          "finding_ids": [
+            "B40",
+            "B14"
+          ],
+          "source_property": "Actual artifact/head-temp-fsync/head-return/GC-read barriers distinguish owner expiry/cancellation from physical completion: no fresh expired head/GC publication, already-published valid head preserved, actual workers/reservations retire separately.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_original_budget_refuses_new_phases_and_retains_entered_io",
+            "selector": "tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py::test_original_budget_refuses_new_phases_and_retains_entered_io",
+            "line": 67,
+            "end_line": 260,
+            "source_sha256": "7a3d952727522422825f3fd7ed37de91f45a64a2534a651c8e12051beacde7b3"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py",
+            "git_blob": "d5552c9e1be4dc1ba28cf61df3a57ca814024241",
+            "sha256": "b9e2005611669331441083aac3740f506bc6415f8b02bb01fb2d8310b5a7a57a",
+            "bytes": 11173
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/common/test_async_tools_installed_wheel.py::test_installed_wheel_consumers_in_isolated_child",
+          "finding_ids": [
+            "LA-057"
+          ],
+          "source_property": "One ordinary outer source-cohort case invokes the explicitly supplied installed-wheel interpreter with -I/-B and runs the whole eight-case non-testfilename child consumer with exact wheel/site/source/body pins, retaining full child stdout/XML before assertions. Outer one and child eight are distinct denominators; this is packaging/bridge/type-identity consumer input, not a normal second collection of the helper.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_installed_wheel_consumers_in_isolated_child",
+            "selector": "tests/unit/common/test_async_tools_installed_wheel.py::test_installed_wheel_consumers_in_isolated_child",
+            "line": 28,
+            "end_line": 120,
+            "source_sha256": "6a5f3904c2e8bd80c8824ccf7a411398ad2cb2bf080d5e61477a458880748055"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/common/test_async_tools_installed_wheel.py",
+            "git_blob": "7c8835f08c9d837e10af0274b3cf306b58acde94",
+            "sha256": "eb24cd99386a0856f5d6f7639c751bd6b019b6dfdf0be605d64caeeb64a51702",
+            "bytes": 4870
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        }
+      ]
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_run_02.py",
+      "state": "UNRUN_named_selector_absent",
+      "required_by_canonical_plan": true,
+      "has_reviewed_equivalence_map": true,
+      "equivalent_candidate_selectors": [
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_retry.py::test_owned_supervisor_reaps_real_new_session_grandchild",
+          "finding_ids": [
+            "B24"
+          ],
+          "source_property": "Actual kernel child/new-session grandchild effect files and supervisor ownership, success/timeout sync/async reap all owned PIDs without mutating caller subreaper.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_owned_supervisor_reaps_real_new_session_grandchild",
+            "selector": "tests/unit/scientist/orchestration/engine/test_retry.py::test_owned_supervisor_reaps_real_new_session_grandchild",
+            "line": 1329,
+            "end_line": 1356,
+            "source_sha256": "83c3377e23d823d73d8b58a7093dca958524b615f88b7493c234ed447bcfca86"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+            "git_blob": "ae7769be8d7de15cbeb9fb93d2e3a783d5240f3a",
+            "sha256": "b7039c547aef21cdd2c12923b371da4196326555a85ff579acc9c7da6e95d139",
+            "bytes": 79749
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_retry.py::test_owned_supervisor_reaps_tree_on_async_caller_cancellation",
+          "finding_ids": [
+            "B24"
+          ],
+          "source_property": "Actual caller cancellation after grandchild effects owns/reaps complete process tree.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_owned_supervisor_reaps_tree_on_async_caller_cancellation",
+            "selector": "tests/unit/scientist/orchestration/engine/test_retry.py::test_owned_supervisor_reaps_tree_on_async_caller_cancellation",
+            "line": 1360,
+            "end_line": 1386,
+            "source_sha256": "3090fadcc134446b3471209b8256ed981bea614b250fe33f5897c7f8f7f332eb"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+            "git_blob": "ae7769be8d7de15cbeb9fb93d2e3a783d5240f3a",
+            "sha256": "b7039c547aef21cdd2c12923b371da4196326555a85ff579acc9c7da6e95d139",
+            "bytes": 79749
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_retry.py::test_fork_transport_drains_small_and_large_outcomes",
+          "finding_ids": [
+            "B24"
+          ],
+          "source_property": "Real sync/async fork result transport drains small/large payloads while the producer is alive and returns exact payload, rather than joining before pipe drain.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_fork_transport_drains_small_and_large_outcomes",
+            "selector": "tests/unit/scientist/orchestration/engine/test_retry.py::test_fork_transport_drains_small_and_large_outcomes",
+            "line": 1003,
+            "end_line": 1014,
+            "source_sha256": "c0c58be9fa7f54f5053f40cf24cd77e009f06150688233bc5edb825a350c9a80"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+            "git_blob": "ae7769be8d7de15cbeb9fb93d2e3a783d5240f3a",
+            "sha256": "b7039c547aef21cdd2c12923b371da4196326555a85ff579acc9c7da6e95d139",
+            "bytes": 79749
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_retry.py::test_worker_send_failure_is_fail_closed",
+          "finding_ids": [
+            "B24"
+          ],
+          "source_property": "Actual worker result-send failure through a deliberately broken result-queue port raises explicit failure instead of a false successful ACK; native kernel channel failures remain separately qualified.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_worker_send_failure_is_fail_closed",
+            "selector": "tests/unit/scientist/orchestration/engine/test_retry.py::test_worker_send_failure_is_fail_closed",
+            "line": 1028,
+            "end_line": 1035,
+            "source_sha256": "355611a0401fc6ce487c8f7228fe4fb374e396995c1e34e5b0fa9f2f2e7b4315"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+            "git_blob": "ae7769be8d7de15cbeb9fb93d2e3a783d5240f3a",
+            "sha256": "b7039c547aef21cdd2c12923b371da4196326555a85ff579acc9c7da6e95d139",
+            "bytes": 79749
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_retry.py::test_serialization_failure_is_not_reported_as_success",
+          "finding_ids": [
+            "B24"
+          ],
+          "source_property": "Real process wrapper reports outcome serialization TypeError as failure rather than a successful transport receipt.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_serialization_failure_is_not_reported_as_success",
+            "selector": "tests/unit/scientist/orchestration/engine/test_retry.py::test_serialization_failure_is_not_reported_as_success",
+            "line": 1048,
+            "end_line": 1056,
+            "source_sha256": "3ee48271a673de791767183db72d830418885b86c4b50013e1ef394516efb9ef"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+            "git_blob": "ae7769be8d7de15cbeb9fb93d2e3a783d5240f3a",
+            "sha256": "b7039c547aef21cdd2c12923b371da4196326555a85ff579acc9c7da6e95d139",
+            "bytes": 79749
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        }
+      ]
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_sta_01.py",
+      "state": "UNRUN_named_selector_absent",
+      "required_by_canonical_plan": true,
+      "has_reviewed_equivalence_map": true,
+      "equivalent_candidate_selectors": [
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_state_branching.py::test_branch_state_deeply_isolates_nested_elements_of_declared_leaf",
+          "finding_ids": [
+            "B59"
+          ],
+          "source_property": "Mutation of nested list element under actual declared branch path does not mutate baseline.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_branch_state_deeply_isolates_nested_elements_of_declared_leaf",
+            "selector": "tests/unit/scientist/orchestration/engine/test_state_branching.py::test_branch_state_deeply_isolates_nested_elements_of_declared_leaf",
+            "line": 106,
+            "end_line": 119,
+            "source_sha256": "84a686d677e8e16f169dac468047c62dec56a8d5df2b4afd1d9c53805cb5ca3b"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_state_branching.py",
+            "git_blob": "e0d4c98e6f3d33eddc70a4affe7c1a0f89908357",
+            "sha256": "4b2cffae6377f20558002a5895d91a6a3812c427f8c348284c6c5cf753a1fa65",
+            "bytes": 8098
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_state_branching.py::test_snapshot_state_deep_clones_mutable_state_surfaces",
+          "finding_ids": [
+            "B59"
+          ],
+          "source_property": "Actual snapshot deep-clones params/causal-method nested lists and preserves baseline after mutations. This isolation supports B59; it does not decide B57 write intent or B58 delete/null/no-write semantics.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_snapshot_state_deep_clones_mutable_state_surfaces",
+            "selector": "tests/unit/scientist/orchestration/engine/test_state_branching.py::test_snapshot_state_deep_clones_mutable_state_surfaces",
+            "line": 137,
+            "end_line": 149,
+            "source_sha256": "5e64f37cd022fc1551e12d5c2acc3a60ab1125265613967e3b826bf8f7063109"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_state_branching.py",
+            "git_blob": "e0d4c98e6f3d33eddc70a4affe7c1a0f89908357",
+            "sha256": "4b2cffae6377f20558002a5895d91a6a3812c427f8c348284c6c5cf753a1fa65",
+            "bytes": 8098
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_state_merge.py::TestMergeParallelOutcomes::test_replay_preserves_unrelated_changes_and_reapplies_same_value_write",
+          "finding_ids": [
+            "B57"
+          ],
+          "source_property": "Actual canonical branch journal merge explicitly reapplies a same-value declared write over changed current state and retains unrelated current data; state deepcopy alone cannot establish this write intent.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_replay_preserves_unrelated_changes_and_reapplies_same_value_write",
+            "selector": "tests/unit/scientist/orchestration/engine/test_state_merge.py::TestMergeParallelOutcomes::test_replay_preserves_unrelated_changes_and_reapplies_same_value_write",
+            "line": 174,
+            "end_line": 196,
+            "source_sha256": "9f48cee2109677533e1d79a2830f5b27a51285cd06ff2e5a5d8feca65ea0a33d"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py",
+            "git_blob": "645e30fa190a9f66b77b468adb6ceb5826213ce7",
+            "sha256": "44597a58ee34d703db68f189d03b6e7a99a5d7bbe7a9352ac8876241537e1648",
+            "bytes": 15169
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_state_merge.py::TestMergeParallelOutcomes::test_replay_distinguishes_delete_null_and_no_write",
+          "finding_ids": [
+            "B58"
+          ],
+          "source_property": "Actual canonical branch/merge consumer keeps delete, null and no-write distinct instead of inferring every changed state from a shallow snapshot.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_replay_distinguishes_delete_null_and_no_write",
+            "selector": "tests/unit/scientist/orchestration/engine/test_state_merge.py::TestMergeParallelOutcomes::test_replay_distinguishes_delete_null_and_no_write",
+            "line": 200,
+            "end_line": 228,
+            "source_sha256": "b35fd02ca1230dbe710003d63c3243ddfed1b1f86f1d59b3e954a5a4e856502b"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py",
+            "git_blob": "645e30fa190a9f66b77b468adb6ceb5826213ce7",
+            "sha256": "44597a58ee34d703db68f189d03b6e7a99a5d7bbe7a9352ac8876241537e1648",
+            "bytes": 15169
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_state_merge.py::TestMergeParallelOutcomes::test_replay_rejects_deletion_from_protected_index",
+          "finding_ids": [
+            "B58"
+          ],
+          "source_property": "Actual branch records a protected artifacts-index deletion and canonical merge refuses it, while the separate params delete/null/no-write control establishes permitted deletion.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_replay_rejects_deletion_from_protected_index",
+            "selector": "tests/unit/scientist/orchestration/engine/test_state_merge.py::TestMergeParallelOutcomes::test_replay_rejects_deletion_from_protected_index",
+            "line": 232,
+            "end_line": 242,
+            "source_sha256": "5a9b8b7260100a7733cf9312363c2f265dccfdff62fc1cce5261e5f170e34071"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py",
+            "git_blob": "645e30fa190a9f66b77b468adb6ceb5826213ce7",
+            "sha256": "44597a58ee34d703db68f189d03b6e7a99a5d7bbe7a9352ac8876241537e1648",
+            "bytes": 15169
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_native_execution_admission.py::test_native_failed_nested_branch_does_not_leak_to_live_neighbor_or_basis",
+          "finding_ids": [
+            "B59"
+          ],
+          "source_property": "Actual declared nested branch mutates list and row then fails while a live native neighbor consumes baseline; both real CAS effect artifacts survive but original/current state and durable frontier retain the correct uncommitted basis.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_native_failed_nested_branch_does_not_leak_to_live_neighbor_or_basis",
+            "selector": "tests/unit/scientist/orchestration/engine/test_native_execution_admission.py::test_native_failed_nested_branch_does_not_leak_to_live_neighbor_or_basis",
+            "line": 418,
+            "end_line": 488,
+            "source_sha256": "cca1719829ea69df85532775a062aa092e0ba0f8d0442fb028673dd2fd5087a5"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_native_execution_admission.py",
+            "git_blob": "4110da19c4dc012fd5033324d96e7467c0a40381",
+            "sha256": "df6d564625a63469388d1f5da63c6d0db7f35e4173b86f21aa19ca529adcbe18",
+            "bytes": 19724
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        }
+      ]
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_sta_02.py",
+      "state": "UNRUN_named_selector_absent",
+      "required_by_canonical_plan": true,
+      "has_reviewed_equivalence_map": true,
+      "equivalent_candidate_selectors": [
+        {
+          "selector": "tests/unit/scientist/methods/causal/test_resolve_parameters_node.py::test_existing_bundle_is_revalidated_for_changed_request",
+          "finding_ids": [
+            "B60"
+          ],
+          "source_property": "Actual CAS parameter bundle used by causal node is rejected/recomputed for changed target request.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_existing_bundle_is_revalidated_for_changed_request",
+            "selector": "tests/unit/scientist/methods/causal/test_resolve_parameters_node.py::test_existing_bundle_is_revalidated_for_changed_request",
+            "line": 161,
+            "end_line": 211,
+            "source_sha256": "fa3e283d5425fe94584a7aba773e3e4d50d1c531334262b6b14872af138af65e"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py",
+            "git_blob": "06821330d929bc5643421745cbef58c5e3d2e838",
+            "sha256": "daaacc64978a18d4e76af2eb120b0f0146ea4779a4a3aa19683319a5a84de93c",
+            "bytes": 21415
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/scientist/methods/causal/test_resolve_parameters_node.py::test_matching_bundle_reuses_without_reinvoking_selector",
+          "finding_ids": [
+            "B60"
+          ],
+          "source_property": "Same request consumes the exact persisted CAS bundle without invoking ParameterSelector after the fixture deliberately removes live SKG path/index inputs. This explicitly admitted operational reuse premise is not actual live SKG version binding B61.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_matching_bundle_reuses_without_reinvoking_selector",
+            "selector": "tests/unit/scientist/methods/causal/test_resolve_parameters_node.py::test_matching_bundle_reuses_without_reinvoking_selector",
+            "line": 214,
+            "end_line": 261,
+            "source_sha256": "169dd21f90ec44e852258af086c31a59c342522cb45e758dab607ed14358b433"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py",
+            "git_blob": "06821330d929bc5643421745cbef58c5e3d2e838",
+            "sha256": "daaacc64978a18d4e76af2eb120b0f0146ea4779a4a3aa19683319a5a84de93c",
+            "bytes": 21415
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_idempotency.py::test_idempotency_key_preserves_presence_and_nested_missing_semantics",
+          "finding_ids": [
+            "B62"
+          ],
+          "source_property": "Actual canonical idempotency key distinguishes absent, null and nested missing consumer input.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_idempotency_key_preserves_presence_and_nested_missing_semantics",
+            "selector": "tests/unit/scientist/orchestration/engine/test_idempotency.py::test_idempotency_key_preserves_presence_and_nested_missing_semantics",
+            "line": 154,
+            "end_line": 178,
+            "source_sha256": "97a581c8faadfbcf639c51a628639e676087853bfbee5377998e7f1bf88f4473"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_idempotency.py",
+            "git_blob": "ac99313f5b20011f3e0987d4f04ff2cdaef09b16",
+            "sha256": "7089614efb8797b91f9d093a6839bc8f26522e732c871e7d83e4009d78c0ec51",
+            "bytes": 30145
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py::test_five_distinct_presence_inputs_reopen_and_replay_only_their_native_result",
+          "finding_ids": [
+            "B62"
+          ],
+          "source_property": "Actual native producer, cache, fresh CAS reopen and replay distinguish missing/null/zero/False/empty-list by value and type while preserving unrelated current state; each cold shape computes once and only its exact result replays.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "definition": {
+            "name": "test_five_distinct_presence_inputs_reopen_and_replay_only_their_native_result",
+            "selector": "tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py::test_five_distinct_presence_inputs_reopen_and_replay_only_their_native_result",
+            "line": 63,
+            "end_line": 111,
+            "source_sha256": "53b52861fc5c7779fc2a568ae7c28f7644cf98342e94cfac78df1daecc90db92"
+          },
+          "module_identity": {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+            "git_blob": "9da3011fd50602ec0e97c57519dd0323a6fc892b",
+            "sha256": "fba2beb39298c54788516a69fa8a5ba8bdabc47fdf6f51a772825f866110366e",
+            "bytes": 5301
+          },
+          "execution_state": "UNRUN_at_this_draft_snapshot; body review only, not collection or PASS"
+        }
+      ]
+    }
+  ],
+  "descriptor_counts_only": {
+    "top_receipts": 141,
+    "native_argv_lineage_rows": 5038,
+    "deduplicated_native_descriptor_refs": 393,
+    "static_script_rows": 556,
+    "all_recorded_historical_command_lineage_rows": 40999,
+    "unresolved_native_option_grammar_rows": 50,
+    "grade": "input lineage counts only; none is a case count or PASS"
+  },
+  "unresolved50_grade": "All argfile references explicit unresolved; no inferred selectors/cases/absence claim",
+  "mapping": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-equivalents.json",
+    "bytes": 49833,
+    "sha256": "28cd03084e8ce77f913c5f8de1aefbfdbf99148c8702c531df900a5fe50b5863"
+  },
+  "reviewer_runtime": "UNRUN"
+}

@@ -1,0 +1,96 @@
+--- historical83a9
++++ qualified-typed-alias-owned-entry
+@@ -59,13 +59,24 @@
+ bundle=build_default_registry_bundle(store)
+ run=RunContext.start(store,bundle.bundle_ref,run_id='R_independent_STA')
+ spec=NodeSpec(metadata=ComponentMetadata(component_id=ComponentId.parse('scientist.independent_sta@1.0.0'),kind=ComponentKind.SCIENTIST_NODE,abi_targets={'world_abi':'1.x'},display_name='STA semantic oracle',description='Actual journal/cache consumer',capabilities=Capability.SCIENTIST_NODE),state_reads=['params.x'],state_writes=['params'])
++import inspect
++_owned_flag_supported='enforce_write_scope' in inspect.signature(branch_state).parameters
++def producer_branch(state, *, write_paths):
++ if _owned_flag_supported:return branch_state(state,write_paths=write_paths,enforce_write_scope=True)
++ return branch_state(state,write_paths=write_paths)
+ rows=[];public_result=[]
+ def replay_case(name,mutate,initial,current_params,expected):
+  base=ExperimentState(run_id='R_independent_STA',params=initial,budgets={'neighbor_reserved_usd':Decimal('7')})
++ constructor_alias_identity=None
++ if name=='initial_shared_dict_alias':
++  constructor_alias_identity=base.params['left'] is base.params['right']
++  base.params['right']=base.params['left']
++  assert base.params['left'] is base.params['right']
++ input_alias_identity=(base.params['left'] is base.params['right']) if name=='initial_shared_dict_alias' else None
+  retained=state_bytes(base)
+  sibling=branch_state(base,write_paths=('params',)).state
+  sibling_before=state_bytes(sibling)
+- branch=branch_state(base,write_paths=('params',))
++ branch=producer_branch(base,write_paths=('params',))
+  mutate(branch.state.params)
+  assert state_bytes(base)==retained and state_bytes(sibling)==sibling_before
+  producer_params=branch.state.model_dump(mode='json')['params']
+@@ -78,10 +89,14 @@
+  assert store.verify(ref).ok
+  payload=store.get_bytes(ref)
+  entry=from_canonical_bytes(payload)
+- current=ExperimentState(run_id=base.run_id,params=current_params,budgets={'neighbor_reserved_usd':Decimal('11')})
+- current_before=state_bytes(current)
++ current_fixture=copy.deepcopy(current_params)
+  results=[]
+  for profile,reader in [('warm',writer),('reopened',NodeResultCache(FileSystemCAS(store.root),base.run_id))]:
++  current=ExperimentState(run_id=base.run_id,params=copy.deepcopy(current_fixture),budgets={'neighbor_reserved_usd':Decimal('11')})
++  if name=='initial_shared_dict_alias':
++   current.params['right']=current.params['left']
++   assert current.params['left'] is current.params['right']
++  current_before=state_bytes(current)
+   if profile=='reopened': assert reader.load_entry(ref)
+   loaded=reader.get(key)
+   assert loaded is not None
+@@ -90,13 +105,13 @@
+   except Exception as exc:
+    results.append({'profile':profile,'error':{'type':type(exc).__name__,'message':str(exc)},'pass':False,'reserved_usd':str(current.budgets['neighbor_reserved_usd']),'base_bytes_unchanged':state_bytes(current)==current_before})
+    continue
+-  assert state_bytes(current)==current_before
++  current_base_retained=state_bytes(current)==current_before
+   result_ref=store.put_json(snapshot_state(merged.state).model_dump(mode='python'),PutOptions(kind='scientist.independent_sta_result',media_type='application/json'))
+   assert store.verify(result_ref).ok
+   physical=json.loads(store.get_bytes(result_ref))
+   actual=physical['params']
+   run.emit('independent.STA','STA_RESULT',outputs=[result_ref],metrics={'matched':int(actual==expected)})
+-  results.append({'profile':profile,'actual':actual,'expected':expected,'pass':actual==expected,'reserved_usd':str(merged.state.budgets['neighbor_reserved_usd']),'result_ref':result_ref.model_dump(mode='json'),'result_bytes':store.get_bytes(result_ref).decode()})
++  results.append({'profile':profile,'actual':actual,'expected':expected,'pass':actual==expected and current_base_retained,'current_base_wire_unchanged':current_base_retained,'reserved_usd':str(merged.state.budgets['neighbor_reserved_usd']),'result_ref':result_ref.model_dump(mode='json'),'result_bytes':store.get_bytes(result_ref).decode()})
+   if name=='same_value_scalar' and profile=='warm':
+    before=state_bytes(merged.state)
+    try:
+@@ -105,7 +120,7 @@
+     postactual=json.loads(store.get_bytes(postref))['params'];public_result.append({'pass':postactual['post']=={'values':[3,4]},'actual':postactual,'result_ref':postref.model_dump(mode='json'),'result_bytes':store.get_bytes(postref).decode()})
+    except Exception as exc:public_result.append({'pass':False,'error':{'type':type(exc).__name__,'message':str(exc)},'wire_unchanged_after_rejection':state_bytes(merged.state)==before})
+ 
+- rows.append({'case':name,'producer_params':producer_params,'expected_native_python_values':expected_native,'producer_matches_native_python':producer_matches_native,'cache_ref':ref.model_dump(mode='json'),'cache_sha256':hashlib.sha256(payload).hexdigest(),'cache_bytes':payload.decode(),'operations':entry['state_mutations'],'base_and_sibling_unchanged':True,'current_base_unchanged':True,'results':results,'pass':producer_matches_native and all(x['pass'] and x['reserved_usd']=='11' for x in results)})
++ rows.append({'case':name,'producer_params':producer_params,'constructor_alias_identity_before_fixture':constructor_alias_identity,'actual_alias_identity_before_branch':input_alias_identity,'expected_native_python_values':expected_native,'producer_matches_native_python':producer_matches_native,'cache_ref':ref.model_dump(mode='json'),'cache_sha256':hashlib.sha256(payload).hexdigest(),'cache_bytes':payload.decode(),'operations':entry['state_mutations'],'base_and_sibling_unchanged':True,'current_base_unchanged':all(x.get('current_base_wire_unchanged',x.get('base_bytes_unchanged',False)) for x in results),'results':results,'pass':producer_matches_native and all(x['pass'] and x['reserved_usd']=='11' for x in results)})
+ 
+ def standard():return {'x':2,'rows':[{'id':'a','v':1},{'id':'b','v':2}],'neighbor':{'queue':['kept'],'v':7},'scalar':7}
+ def pop_append(p):
+@@ -124,7 +139,7 @@
+  inp=initial();current=initial();current['neighbor']={'queue':['current'],'v':13};expected=initial();mutate(expected);expected['neighbor']={'queue':['current'],'v':13}
+  replay_case(name,mutate,inp,current,expected)
+ base=ExperimentState(run_id='R_independent_STA',params=standard(),budgets={'neighbor_reserved_usd':Decimal('17')})
+-branch=branch_state(base,write_paths=('params.rows',));before=state_bytes(branch.state);base_before=state_bytes(base)
++branch=producer_branch(base,write_paths=('params.rows',));before=state_bytes(branch.state);base_before=state_bytes(base)
+ evidence=store.put_bytes(base_before,PutOptions(kind='scientist.independent_retained_state',media_type='application/octet-stream'));evidence_before=store.get_bytes(evidence)
+ try:branch.state.params['neighbor']['v']=99;rejection=None
+ except Exception as exc:rejection={'type':type(exc).__name__,'message':str(exc),'code':getattr(exc,'code',None)}
+@@ -134,7 +149,7 @@
+ base=ExperimentState(run_id='R_independent_STA',params={'safe':1},artifacts_index={'evidence':artifact},budgets={'neighbor_reserved_usd':Decimal('13')})
+ retained=state_bytes(base)
+ retained_artifact=store.get_bytes(artifact)
+-branch=branch_state(base,write_paths=('params','artifacts_index'))
++branch=producer_branch(base,write_paths=('params','artifacts_index'))
+ branch.state.params['safe']=2
+ del branch.state.artifacts_index['evidence']
+ try:
+@@ -160,6 +175,6 @@
+    result_ref=store.put_json(snapshot_state(result).model_dump(mode='python'),PutOptions(kind='scientist.independent_legacy_scalar_result',media_type='application/json'));assert store.verify(result_ref).ok
+    actual=json.loads(store.get_bytes(result_ref))['params'];row.update({'actual':actual,'result_ref':result_ref.model_dump(mode='json'),'result_bytes':store.get_bytes(result_ref).decode(),'reserved_usd':str(result.budgets['neighbor_reserved_usd'])});row['pass']=row['pass'] and actual['scalar']==7 and actual['neighbor']=={'queue':['current'],'v':13} and result.budgets['neighbor_reserved_usd']==Decimal('31')
+   legacy.append(row)
+-packet={'target_sha':sha,'target_tree':subprocess.check_output(['git','rev-parse',sha+'^{tree}'],cwd=repo,text=True).strip(),'source_identity':loaded_git_sources,'source_loading':'All canonical imported Python modules loaded from exact Git target; third-party venv/resource paths are separately supplied from admitted EXE lane. No new checkout or source/tests edits.','python':sys.executable,'cases':rows,'undeclared_neighbor':undeclared,'public_result_edit':public_result,'legacy_input':legacy_input,'legacy':legacy,'pass':all(x['pass'] for x in rows) and undeclared['pass'] and len(public_result)==1 and public_result[0]['pass'] and all(x['pass'] for x in legacy),'trace_bytes':run.trace_path.read_text()}
++packet={'target_sha':sha,'target_tree':subprocess.check_output(['git','rev-parse',sha+'^{tree}'],cwd=repo,text=True).strip(),'source_identity':loaded_git_sources,'producer_authority_requested':True,'producer_api_profile':'explicit enforce_write_scope=True' if _owned_flag_supported else 'prior API declared write_paths producer entry (keyword not present)','source_loading':'All canonical imported Python modules loaded from exact Git target; third-party venv/resource paths are separately supplied from admitted EXE lane. No new checkout or source/tests edits.','python':sys.executable,'cases':rows,'undeclared_neighbor':undeclared,'public_result_edit':public_result,'legacy_input':legacy_input,'legacy':legacy,'pass':all(x['pass'] for x in rows) and undeclared['pass'] and len(public_result)==1 and public_result[0]['pass'] and all(x['pass'] for x in legacy),'trace_bytes':run.trace_path.read_text()}
+ (out/'receipt.json').write_text(json.dumps(packet,indent=2)+'\n')
+ print(json.dumps(packet,indent=2))

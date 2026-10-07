@@ -1,0 +1,293 @@
+{
+  "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+  "source_tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+  "argv": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "-m",
+    "pytest",
+    "-vv",
+    "-s",
+    "-p",
+    "current_cohort_inventory",
+    "@/dev/shm/e02-B-completed-affected-1862c021df74-bound/whole-files.args",
+    "--continue-on-collection-errors",
+    "--basetemp",
+    "/dev/shm/e02-B-completed-affected-1862c021df74-bound/pytest",
+    "-o",
+    "cache_dir=/dev/shm/e02-B-completed-affected-1862c021df74-bound/cache",
+    "--junitxml",
+    "/dev/shm/e02-B-completed-affected-1862c021df74-bound/native.xml"
+  ],
+  "whole_file_count": 47,
+  "test_paths": [
+    "tests/unit/core/test_llm_core.py",
+    "tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py",
+    "tests/unit/foundry/methods/test_artifacts.py",
+    "tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py",
+    "tests/unit/foundry/methods/test_composer.py",
+    "tests/unit/foundry/methods/test_composer_hardening.py",
+    "tests/unit/remediation/test_cmp_01.py",
+    "tests/unit/remediation/test_llm_01.py",
+    "tests/unit/scientist/agent/test_critic_factory.py",
+    "tests/unit/scientist/agent/test_drafter_constitution.py",
+    "tests/unit/scientist/agent/test_drafter_factory.py",
+    "tests/unit/scientist/agent/test_drafter_formatting.py",
+    "tests/unit/scientist/agent/test_drafter_llm.py",
+    "tests/unit/scientist/agent/test_drafter_models.py",
+    "tests/unit/scientist/agent/test_drafter_parsing.py",
+    "tests/unit/scientist/agent/test_drafter_passes.py",
+    "tests/unit/scientist/agent/test_response_healing.py",
+    "tests/unit/scientist/mirror_contracts/test_budget_ledger.py",
+    "tests/unit/scientist/orchestration/engine/test_async_cache_cost_oracle.py",
+    "tests/unit/scientist/orchestration/engine/test_budget.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_completion_obligations.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py",
+    "tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py",
+    "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+    "tests/unit/scientist/orchestration/llm/test_builtin_profiles.py",
+    "tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+    "tests/unit/scientist/orchestration/llm/test_factory.py",
+    "tests/unit/scientist/orchestration/llm/test_fallback_router.py",
+    "tests/unit/scientist/orchestration/llm/test_gateway_client_retry.py",
+    "tests/unit/scientist/orchestration/llm/test_llm_cycle_preflight.py",
+    "tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+    "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+    "tests/unit/scientist/orchestration/llm/test_prompt_sanitization.py",
+    "tests/unit/scientist/orchestration/llm/test_protected_audit_admission_e02.py",
+    "tests/unit/scientist/orchestration/llm/test_provider_quality.py",
+    "tests/unit/scientist/orchestration/llm/test_provider_verification.py",
+    "tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py",
+    "tests/unit/scientist/orchestration/llm/test_shared_flight_completion_independent_e02.py",
+    "tests/unit/scientist/orchestration/llm/test_streaming.py",
+    "tests/unit/scientist/orchestration/llm/test_token_estimator.py",
+    "tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+    "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+    "tests/unit/scientist/policy_design/test_worker_accounting_admission_e02.py",
+    "tests/unit/scientist/policy_design/test_worker_accounting_boundary_e02.py"
+  ],
+  "whole_file_identities": [
+    {
+      "path": "policy-engine/tests/unit/core/test_llm_core.py",
+      "sha256": "5de4046006fb35942a30eb161d7e403d6eceee7067c22deae8bbec1972c5da5d"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py",
+      "sha256": "07057da879f17797318fd14b7bc1f2bd3a1645d12cfa873e4ac71b1f2a149c00"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/test_artifacts.py",
+      "sha256": "a71b81fcbfa54e81a8188ebcdcd5e4bd12b765c510949b14dc35ec4d7eeb1f2b"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py",
+      "sha256": "46eefd6f29e0b417e96e746e4d0c0ac1ef8dffe6715b9361aa1b49284f75664c"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/test_composer.py",
+      "sha256": "0aa58ad4447e7a35b2512dae8056c01e0ff9151bcabb82879b74c0a37da9a926"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/test_composer_hardening.py",
+      "sha256": "88a67c39f5a8fa57f4c9a1c5c552321fbcfe5235370776f3b3eeace0cacffa56"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_cmp_01.py",
+      "sha256": "1430274f7228fccb77a5c29832d31d65b30e22740f9b622ef6553f63efe59a16"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+      "sha256": "b247897d69ec0c990aeb94700db0d471a46890e77ea6f181190e3eaa40d7b5de"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/agent/test_critic_factory.py",
+      "sha256": "c14556a2ee22053b6685d9b409db41ca636826a0a8a5ff57ac4a1c48c1185d1d"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/agent/test_drafter_constitution.py",
+      "sha256": "4ef04ce6c5749171956579b004f0353d853e8b0e8cfb8b2abdac297664f05def"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/agent/test_drafter_factory.py",
+      "sha256": "a980d32e78c13cca947a2162ad5f335c46ac679f49846277a037d586bc08dadf"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/agent/test_drafter_formatting.py",
+      "sha256": "c5bc08312d351dfb184611264292229631f792f42e6a47b9a71ab15d076b9f3c"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/agent/test_drafter_llm.py",
+      "sha256": "62e29fac63c46fa9964df55813a72ea4a980ffac24d01973d2b42e68772dffc6"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/agent/test_drafter_models.py",
+      "sha256": "0352363d87414965e096d3d2ff42a06873d55331f048220dbef5a9f2547b91ab"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/agent/test_drafter_parsing.py",
+      "sha256": "3418b70909086c58dda8ed8082668a65e345a55632e322b7ce2f42e8bab47ccf"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/agent/test_drafter_passes.py",
+      "sha256": "9fe8c23a811a8ecb6ed31f9e5adc8aa189543bf513f1580b14f6c1ebe77ae87e"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/agent/test_response_healing.py",
+      "sha256": "d0d34fc4bb86a1c4c928e305cf27026e6a19f39784c6b37b30554b683b799ea1"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/mirror_contracts/test_budget_ledger.py",
+      "sha256": "27b668a1baad69ccd6ba840118a59141ff01bb1a78ef95834c87854e09ab4d82"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_cost_oracle.py",
+      "sha256": "22925ca45c128fec913cb16417ddd2349b6127704e45da50cf335e2fdf8dc7c8"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget.py",
+      "sha256": "fed7ad30c7621dab538ae552b5bcb557c56be2eff0b5e4cf325022dcb19690d4"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_completion_obligations.py",
+      "sha256": "e014ebecd3342c76e4e3d529d32fe0a72a0708b49f90375e59792526a077116d"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+      "sha256": "3a21ea963a4bc3e2fcdb3f62daf1456ae69153ef2f3d990cb7d56a7e9b48b8cc"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+      "sha256": "2cd4013df96e19c5620ad8d05cf6d79151f0c532eb00b1d4638ea6975bec8a01"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+      "sha256": "f9a037cc70ab8c8b8eb61a5c26c2e16809d6fc20a8b438d819d69512a77b1bbc"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py",
+      "sha256": "3da9f7887b520884b1d4b3a320965452f95ec1aafa519118bed5aca096811e73"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py",
+      "sha256": "7cf7fa2666eb9d7a2d504d0273cfe4e0fabf9c1a0676416001babeee723ebab6"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+      "sha256": "8736dff32a452af960f0de1ac944106a9f7939751527a50d94e204330d0b7821"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_builtin_profiles.py",
+      "sha256": "d917a0f037137e78202e3fe966393d7fa74873a55e9deb56046c38d9c8d4b1e1"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+      "sha256": "bad07ae1d13e7df68db4fb1a4c864003d6715fec21ab07ae1ad1f4417a0a70b9"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_factory.py",
+      "sha256": "0c9582814b5e82cce3c45ad48025af72c663be2ee0759a60862b62ccf9a1c301"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_fallback_router.py",
+      "sha256": "c7e6b03e654c0d695638a63427b1f37fc6265893b300fd0e4d30bd825cfaee20"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_client_retry.py",
+      "sha256": "d0f8081646f625d27bd2c9eb3ea75e2a530f1c02ef3ca9dc44943bda02abe154"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_llm_cycle_preflight.py",
+      "sha256": "7a03e49b0830d0319b6a032ebc308043c037a5fc5a6cce0732adc481e79464cb"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "sha256": "8e2a53ddf3245f983a8f030f4b07767d9be729d5a7e523c58a61cc3ddb1105fb"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+      "sha256": "576f2d1328f4346de00685898aacd6c90932847110b3bda7ad47dc0b690afb2d"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_sanitization.py",
+      "sha256": "733452c3d753d3f66464152c7b11628b8a57cbb2ed12387375127d50a5ca09b0"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_protected_audit_admission_e02.py",
+      "sha256": "b2f169797b06613024bbd3665fc0c502bb82eb86eb26a9e115cf12b7982865f9"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_provider_quality.py",
+      "sha256": "a55d222dfb55ed6fcb4c9c8428f7a09aabc5f9cd32119285d5dcae3881d4be17"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_provider_verification.py",
+      "sha256": "23aa7cb1b143a1fcac5606d80ee99f67abbe4ef4253259dfc175baecbfe5aca9"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py",
+      "sha256": "b21c5ffbc777e708f7426674acb599f0bca9bbebea47837a95d2abaf242fe949"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_shared_flight_completion_independent_e02.py",
+      "sha256": "988cda48feb5c8bdd4451cd3d9b798f47598050d37375cdebcb4b479284cff0e"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_streaming.py",
+      "sha256": "1463a241bcc378be1e12415d25bd648b2e1acb9267d52fe590723e6414014c9f"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_token_estimator.py",
+      "sha256": "9498c519bf18e350e3764486bf448bb0a57f91b9b1db5a312ae4247db37b9996"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+      "sha256": "9b42cb92d53718bdd73e488cc425f5df5a7f332a952d1f9f7cc227a17533d8b1"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+      "sha256": "7f7bd9d73237ddc63dfda0dd5ebceb5a442215ebe19978db68b84e9edaad69f3"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/policy_design/test_worker_accounting_admission_e02.py",
+      "sha256": "d374fd3b01165efd691fb8620e75da5a063c90c59e7645825cfe6b2e25a292ea"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/policy_design/test_worker_accounting_boundary_e02.py",
+      "sha256": "bb171bf9a96bc0780eb27be2e229e8c986ef18fdae5ca10fc6b950b42ee34aa6"
+    }
+  ],
+  "selection_basis": "whole34 predecessor affected consumers + every PASS compiled plan runtime wholefile + seven new worker/flight/audit/admission/cache files; targeted wave, NOT fullB cohort",
+  "verification_inputs": {
+    "installed_wheel_profile": "/tmp/e02-B-la057-final-1862c021df74-run/cohort-input-environment.json",
+    "installed_wheel_profile_sha256": "009c6b38467f697b7c4c3972ee3a81fb374c066c2ae29b7bde6807711f0f74f3",
+    "installed_wheel_inputs": {
+      "E02_LA057_WHEEL_PATH": "/tmp/e02-B-la057-final-1862c021df74-run/wheels/policy_engine-0.1.0-py3-none-any.whl",
+      "E02_LA057_INSTALLED_SITE": "/tmp/e02-B-la057-final-1862c021df74-run/installed-env/lib/python3.14/site-packages",
+      "E02_LA057_SOURCE_ROOT": "/workspace/e02-B-current-coordination/policy-engine",
+      "E02_LA057_SOURCE_SHA": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "E02_LA057_INSTALLED_PYTHON": "/tmp/e02-B-la057-final-1862c021df74-run/installed-env/bin/python",
+      "E02_LA057_CONSUMER_SHA256": "9c2dccab7a3d22313f96eea4131062c16d2008c7b5a9bfdf716003ac2eb86b09",
+      "E02_LA057_OUTER_TEST_SHA256": "eb24cd99386a0856f5d6f7639c751bd6b019b6dfdf0be605d64caeeb64a51702"
+    },
+    "wheel_sha256": "a9b7d921724a176b725222ca609f93d241fc83c244ec8aba996a3b0588912449",
+    "postgres_private_dsn_file": "/tmp/e02-B38-pg-evidence/postgres-dsn",
+    "postgres_driver_root": "/tmp/e02-B38-pg-profile",
+    "postgres_driver_distribution_profile": "Task-only psycopg and psycopg-binary 3.3.2; inherited 194-distribution environment unchanged",
+    "postgres_dsn_values": "Private credentials passed only to actual fixture consumers; omitted from public profiles",
+    "postgres_existing_optional_native_profile": "POLISYOS_TEST_PG_DSN supplied and POLISYOS_DS9_REQUIRE_PG=1; unavailable backend is a failure, not a silent skip"
+  },
+  "inventory": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-affected-consumers-inventory.json",
+  "scratch": "/dev/shm/e02-B-completed-affected-1862c021df74-bound",
+  "environment": {
+    "PYTHONPATH": "/tmp/e02-B38-pg-profile:/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools",
+    "PATH": "/tmp/e02-B-opa-latest-preparation-1db95544/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+    "UV_NO_SYNC": "1",
+    "POLISYOS_METRICS_PORT": "0",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache"
+  },
+  "CPU_worker_process_thread_quotas_added": false,
+  "driver_sha256": "75721676506947d8ae604ee0b1c504374fda3ab1b95b053de5131bca781a2c4d"
+}

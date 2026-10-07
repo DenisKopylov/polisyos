@@ -228,6 +228,7 @@ class Specialization:
     jit_enabled: bool = True
     vmap_axis: int | None = None
     donate_argnums: tuple[int, ...] = ()
+    implementation_hash: str = ""
 
     def __hash__(self) -> int:  # pragma: no cover - trivial
         return hash(
@@ -239,6 +240,7 @@ class Specialization:
                 self.jit_enabled,
                 self.vmap_axis,
                 self.donate_argnums,
+                self.implementation_hash,
             )
         )
 
@@ -253,6 +255,7 @@ class Specialization:
             and self.jit_enabled == other.jit_enabled
             and self.vmap_axis == other.vmap_axis
             and self.donate_argnums == other.donate_argnums
+            and self.implementation_hash == other.implementation_hash
         )
 
     @property
@@ -270,6 +273,7 @@ class Specialization:
             f"jit={self.jit_enabled}",
             f"vmap={self.vmap_axis}",
             f"donate={','.join(str(i) for i in self.donate_argnums)}",
+            f"implementation={self.implementation_hash}",
         ]
         combined = "|".join(components)
         return truncated_hash(combined, length=32)
@@ -380,6 +384,7 @@ def build_specialization(
     jit_enabled: bool = True,
     vmap_axis: int | None = None,
     donate_argnums: tuple[int, ...] = (),
+    implementation_hash: str = "",
 ) -> Specialization:
     """
     Build specialization from runtime context.
@@ -394,6 +399,7 @@ def build_specialization(
         jit_enabled=jit_enabled,
         vmap_axis=vmap_axis,
         donate_argnums=donate_argnums,
+        implementation_hash=implementation_hash,
     )
 
 

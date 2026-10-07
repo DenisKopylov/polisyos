@@ -1,0 +1,58 @@
+{
+  "source_sha": "e56bd6aae203256dca4687b828353d3cced76671",
+  "source_tree": "136d279ec9aecd2fbf56e87bd83160b3d5e48ab9",
+  "source_binding": "tracked HEAD plus exact input-closure bytes; draft status is recorded separately",
+  "driver_sha256": "fa4f9cd526ae7ef8bc5f1336c69ddf6f3eaa2aa19c2ff444eb24eb0e34016e6a",
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "policy-engine/tests/unit/remediation/test_res_01.py",
+    "--junitxml=/workspace/e02-B-current-execution-state/_build/current-execution-state/native-res01-upgrade/cohort.xml",
+    "--basetemp=/workspace/e02-B-current-execution-state/_build/current-execution-state/native-res01-upgrade/tmp"
+  ],
+  "cwd": "/workspace/e02-B-current-execution-state",
+  "environment": {
+    "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "POLISYOS_METRICS_PORT": "0",
+    "details": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-res01-upgrade/environment.json",
+    "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"
+  },
+  "input_closure": {
+    "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-res01-upgrade/input-closure.json",
+    "sha256": "49fe45d4fc676e04f08c8a0495d7924cf2d70355728b71fd0906e3ebfe2b5cba",
+    "paths": 2732,
+    "fixture_inputs": "Exact test code, isolated basetemp/cas/run paths, no production data"
+  },
+  "start_utc": "2026-10-06T10:50:25.086534+00:00",
+  "end_utc": "2026-10-06T10:50:39.467646+00:00",
+  "wall_s": 14.274669824008015,
+  "max_rss_kib": 653752,
+  "exit": 0,
+  "source_unchanged": true,
+  "outputs": [
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-res01-upgrade/cohort.xml",
+      "sha256": "6228768ffbe4e3f3e3c8407108008232072059549715e46a62a5f3df185f495f",
+      "bytes": 1820
+    },
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-res01-upgrade/environment.json",
+      "sha256": "5ffa6944b3cd7f42880bd9fa98950bc744b01e033fb89a5dbc6013f5493afce8",
+      "bytes": 9887
+    },
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-res01-upgrade/input-closure.json",
+      "sha256": "49fe45d4fc676e04f08c8a0495d7924cf2d70355728b71fd0906e3ebfe2b5cba",
+      "bytes": 519010
+    },
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-res01-upgrade/native.txt",
+      "sha256": "08faea39fd19189f6544839f505d91d76ecb1367e219f5db362cdf22916ef869",
+      "bytes": 80
+    }
+  ]
+}

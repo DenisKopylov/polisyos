@@ -1,0 +1,50 @@
+{
+  "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+  "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "observed_installed_versions": {
+    "pytest": "9.0.2",
+    "pydantic": "2.12.5",
+    "numpy": "2.3.5",
+    "cloudpickle": "not_installed",
+    "msgpack": "not_installed"
+  },
+  "version_observation_role": "Observed at evidence packaging, final environment custody; output packets separately record actual interpreter. No claim that this current observation alone establishes every historical installed dependency.",
+  "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+    "POLISYOS_METRICS_PORT": "0"
+  },
+  "source_profiles": {
+    "journal": "Four defining canonical modules asserted equal exact Git source before runtime; other dependencies normal-imported from admitted EXE lane; no immutable whole-checkout claim.",
+    "legacy_live": "Three defining canonical modules asserted equal exact Git3b81 before runtime; legacy input comes solely from committed41b6 JSON, not old ignored CAS.",
+    "presence_resume": "All1141 imported canonical Python modules compiled from exact target Git objects via explicit importlib loader; each SHA captured in complete output. Third-party runtime and package resource paths from existing admitted EXE lane. Source-origin Git target is distinct from filesystem resource custody."
+  },
+  "config_refs": {
+    "policy-engine/pyproject.toml": {
+      "at_source_sha": "3b81bf197be10e20208f8d1925fd8d63eca74da9",
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "bytes": 11007,
+      "same_as_original": true,
+      "actual_bytes_match_at_packaging": true,
+      "purpose": "final_snapshot_custody; pytest/conftest not invoked by these standalone drivers"
+    },
+    "policy-engine/uv.lock": {
+      "at_source_sha": "3b81bf197be10e20208f8d1925fd8d63eca74da9",
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+      "bytes": 779204,
+      "same_as_original": true,
+      "actual_bytes_match_at_packaging": true,
+      "purpose": "final_snapshot_custody; pytest/conftest not invoked by these standalone drivers"
+    },
+    "policy-engine/tests/conftest.py": {
+      "at_source_sha": "3b81bf197be10e20208f8d1925fd8d63eca74da9",
+      "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+      "bytes": 9664,
+      "same_as_original": true,
+      "actual_bytes_match_at_packaging": true,
+      "purpose": "final_snapshot_custody; pytest/conftest not invoked by these standalone drivers"
+    }
+  },
+  "source_and_resource_custody": "EXE author changed only two production .py files between1bd and3b81. Other production/source resources unchanged in that Git diff. Resource paths supplied from existing admitted lane; this is not a pre-execution read-census of every resource. No new checkout, source/test edit, venv sync or ignored prior candidate input."
+}

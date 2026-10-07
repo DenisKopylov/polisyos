@@ -1,0 +1,30 @@
+id = "2026-10-06-e02-b-openapi-example-freshness"
+title = "Refresh the Runtime API confidence-ledger example dependency pins"
+type = "changed"
+component = "runtime-api"
+owner = "team-runtime"
+summary = "The canonical OpenAPI exporter refreshes the existing confidence-ledger-risk-spend example against the consulted source dependency basis."
+evidence = ["schemas/runtime_api_v1.openapi.json", "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-openapi-independent-review.json", "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/full-recursive-diff.json"]
+compatibility = "All 573 schemas, 111 route paths and 113 operations retain their complete contracts. Only the existing example dependency count, coherent projection/replay pins and worker receipt identities change."
+change_class = "schema-openapi-abi"
+surface_classification = "public_stable: Runtime API OpenAPI example metadata"
+migration = "Regenerate the registered runtime API client family from the refreshed snapshot; callers require no wire or route migration."
+api = "The schema version, route contracts and measured confidence-ledger payload are unchanged."
+limitations = "Example freshness does not establish endpoint authorization, promotion authority, production data admission, or acceptance of other required gates."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = true
+migration_docs = ["packages/runtime-api-client/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-b-confidence-ledger-example-freshness"
+change_class = "schema-openapi-abi"
+impact = "internal"
+surface = "public_stable: existing confidence-ledger example dependency metadata"
+owner = "team-runtime"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "Refresh the source dependency and replay identities in the existing example while preserving its complete wire contract and measured payload."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = ["packages/runtime-api-client/README.md"]
+runbook_docs = []

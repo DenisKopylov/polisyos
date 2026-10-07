@@ -1,0 +1,58 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+__ test_completed_provider_error_cannot_emit_retry_after_publication_deadline __
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-185/test_completed_provider_error_0')
+state = ExperimentState(schema_version='1.3', run_id='test-run', inputs={}, artifacts_index={}, reports_index={}, params={}, b...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+
+    def test_completed_provider_error_cannot_emit_retry_after_publication_deadline(tmp_path, state):
+        from polisyos.core.trace.record import TraceRecord
+        from polisyos.core.trace.sink import JsonlTraceSink
+        from polisyos.scientist.orchestration.engine.context import ExecutionContext
+    
+        trace_path = tmp_path / "trace.jsonl"
+        run = RunContext(
+            store=MagicMock(),
+            trace=JsonlTraceSink(trace_path),
+            run_manifest=RunManifest(
+                run_id="R_late_error",
+                registry_bundle=ArtifactRef(
+                    artifact_id="sha256:" + "0" * 64, kind="registry", media_type="application/json"
+                ),
+            ),
+        )
+        context = ExecutionContext(store=run.store, run=run, logger=MagicMock())
+    
+        class Node:
+            async def execute_async(self, passed_ctx, passed_state):
+                # The provider finishes on time. Its consumer wakes only after this
+                # real event-loop callback has consumed the publication budget.
+                asyncio.get_running_loop().call_soon(_time.sleep, 0.04)
+                raise ConnectionError("provider completed before blocked delivery")
+    
+        with pytest.raises(NodeTimeoutError):
+            asyncio.run(
+                execute_with_retry_async(
+                    Node(),
+                    context,
+                    state,
+                    retry_policy=RetryPolicy(max_retries=1, backoff_base_s=0.1),
+                    timeout_s=0.01,
+                    alias="late-error",
+                )
+            )
+        records = (
+            [TraceRecord.model_validate_json(line) for line in trace_path.read_text().splitlines()]
+            if trace_path.exists()
+            else []
+        )
+>       assert [record for record in records if record.event == "NODE_RETRY"] == []
+E       AssertionError: assert [TraceRecord(...], errors=[])] == []
+E         
+E         Left contains one more item: TraceRecord(ts=datetime.datetime(2026, 10, 6, 11, 13, 13, tzinfo=TzInfo(0)), run_id='R_late_error', phase='scientist.n...refs=TraceRefs(inputs=[], outputs=[]), metrics={'attempt': 1, 'delay_s': 0.026774230064696605}, warnings=[], errors=[])
+E         Use -v to get more diff
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1904: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/orchestration/engine/test_retry.py::test_completed_provider_error_cannot_emit_retry_after_publication_deadline
+1 failed, 120 deselected in 0.59s

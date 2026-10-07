@@ -1,0 +1,846 @@
+{
+  "state": "session_finished",
+  "items": [
+    {
+      "nodeid": "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_stale_bound_worker_cannot_mutate_any_table[running]",
+      "collection_path": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py",
+      "definition_location": [
+        "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py",
+        183,
+        "test_postgres_stale_bound_worker_cannot_mutate_any_table[running]"
+      ]
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_stale_bound_worker_cannot_mutate_any_table[completed]",
+      "collection_path": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py",
+      "definition_location": [
+        "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py",
+        183,
+        "test_postgres_stale_bound_worker_cannot_mutate_any_table[completed]"
+      ]
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_current_worker_publishes_coherent_terminal_generation[completed]",
+      "collection_path": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py",
+      "definition_location": [
+        "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py",
+        283,
+        "test_postgres_current_worker_publishes_coherent_terminal_generation[completed]"
+      ]
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_current_worker_publishes_coherent_terminal_generation[failed]",
+      "collection_path": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py",
+      "definition_location": [
+        "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py",
+        283,
+        "test_postgres_current_worker_publishes_coherent_terminal_generation[failed]"
+      ]
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_real_statement_fault_rolls_back_all_terminal_rows[event-completed]",
+      "collection_path": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py",
+      "definition_location": [
+        "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py",
+        323,
+        "test_postgres_real_statement_fault_rolls_back_all_terminal_rows[event-completed]"
+      ]
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_real_statement_fault_rolls_back_all_terminal_rows[event-failed]",
+      "collection_path": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py",
+      "definition_location": [
+        "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py",
+        323,
+        "test_postgres_real_statement_fault_rolls_back_all_terminal_rows[event-failed]"
+      ]
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_real_statement_fault_rolls_back_all_terminal_rows[outbox-completed]",
+      "collection_path": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py",
+      "definition_location": [
+        "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py",
+        323,
+        "test_postgres_real_statement_fault_rolls_back_all_terminal_rows[outbox-completed]"
+      ]
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_real_statement_fault_rolls_back_all_terminal_rows[outbox-failed]",
+      "collection_path": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py",
+      "definition_location": [
+        "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py",
+        323,
+        "test_postgres_real_statement_fault_rolls_back_all_terminal_rows[outbox-failed]"
+      ]
+    }
+  ],
+  "collection_reports": [
+    {
+      "nodeid": "",
+      "outcome": "passed",
+      "longrepr": null
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py",
+      "outcome": "passed",
+      "longrepr": null
+    }
+  ],
+  "phase_reports": [
+    {
+      "nodeid": "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_stale_bound_worker_cannot_mutate_any_table[running]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.07343517000845168,
+      "wasxfail": null,
+      "properties": [
+        [
+          "postgres_identity",
+          "[\"PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit\", \"postgres\", \"127.0.0.1/32\", 45483]"
+        ],
+        [
+          "postgres_schema",
+          "e02_b38_a27dfe2ef7ce429491cdcbc9969df5df"
+        ],
+        [
+          "driver_version",
+          "3.3.2"
+        ],
+        [
+          "driver_origin",
+          "/tmp/e02-B38-pg-profile/psycopg/__init__.py"
+        ],
+        [
+          "table_denominator",
+          "[\"control_dead_letter_jobs\", \"control_diagnostic_events\", \"control_job_events\", \"control_job_progress\", \"control_jobs\", \"control_outbox_events\", \"control_worker_leases\", \"runtime_acquisition_action_heads\", \"runtime_human_decision_reservations\", \"runtime_scenario_heads\", \"runtime_step_up_replays\"]"
+        ]
+      ],
+      "longrepr": null
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_stale_bound_worker_cannot_mutate_any_table[running]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 48.91878536398872,
+      "wasxfail": null,
+      "properties": [
+        [
+          "postgres_identity",
+          "[\"PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit\", \"postgres\", \"127.0.0.1/32\", 45483]"
+        ],
+        [
+          "postgres_schema",
+          "e02_b38_a27dfe2ef7ce429491cdcbc9969df5df"
+        ],
+        [
+          "driver_version",
+          "3.3.2"
+        ],
+        [
+          "driver_origin",
+          "/tmp/e02-B38-pg-profile/psycopg/__init__.py"
+        ],
+        [
+          "table_denominator",
+          "[\"control_dead_letter_jobs\", \"control_diagnostic_events\", \"control_job_events\", \"control_job_progress\", \"control_jobs\", \"control_outbox_events\", \"control_worker_leases\", \"runtime_acquisition_action_heads\", \"runtime_human_decision_reservations\", \"runtime_scenario_heads\", \"runtime_step_up_replays\"]"
+        ],
+        [
+          "stale_rejected_inlets",
+          "[\"complete\", \"fail\", \"progress\", \"manifest\", \"current_record\", \"upsert\", \"event\", \"outbox\", \"child_event\", \"child_outbox\", \"create\", \"mark_running\", \"lease_next\", \"scenario\", \"step_up\", \"human_reservation\", \"worker_heartbeat\", \"worker_release\"]"
+        ],
+        [
+          "unchanged_rows_after_each_rejection",
+          true
+        ]
+      ],
+      "longrepr": null
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_stale_bound_worker_cannot_mutate_any_table[running]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.0002485870063537732,
+      "wasxfail": null,
+      "properties": [
+        [
+          "postgres_identity",
+          "[\"PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit\", \"postgres\", \"127.0.0.1/32\", 45483]"
+        ],
+        [
+          "postgres_schema",
+          "e02_b38_a27dfe2ef7ce429491cdcbc9969df5df"
+        ],
+        [
+          "driver_version",
+          "3.3.2"
+        ],
+        [
+          "driver_origin",
+          "/tmp/e02-B38-pg-profile/psycopg/__init__.py"
+        ],
+        [
+          "table_denominator",
+          "[\"control_dead_letter_jobs\", \"control_diagnostic_events\", \"control_job_events\", \"control_job_progress\", \"control_jobs\", \"control_outbox_events\", \"control_worker_leases\", \"runtime_acquisition_action_heads\", \"runtime_human_decision_reservations\", \"runtime_scenario_heads\", \"runtime_step_up_replays\"]"
+        ],
+        [
+          "stale_rejected_inlets",
+          "[\"complete\", \"fail\", \"progress\", \"manifest\", \"current_record\", \"upsert\", \"event\", \"outbox\", \"child_event\", \"child_outbox\", \"create\", \"mark_running\", \"lease_next\", \"scenario\", \"step_up\", \"human_reservation\", \"worker_heartbeat\", \"worker_release\"]"
+        ],
+        [
+          "unchanged_rows_after_each_rejection",
+          true
+        ]
+      ],
+      "longrepr": null
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_stale_bound_worker_cannot_mutate_any_table[completed]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.07637804800469894,
+      "wasxfail": null,
+      "properties": [
+        [
+          "postgres_identity",
+          "[\"PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit\", \"postgres\", \"127.0.0.1/32\", 45483]"
+        ],
+        [
+          "postgres_schema",
+          "e02_b38_67150013b5ca456b8e3ccfd70d10149e"
+        ],
+        [
+          "driver_version",
+          "3.3.2"
+        ],
+        [
+          "driver_origin",
+          "/tmp/e02-B38-pg-profile/psycopg/__init__.py"
+        ],
+        [
+          "table_denominator",
+          "[\"control_dead_letter_jobs\", \"control_diagnostic_events\", \"control_job_events\", \"control_job_progress\", \"control_jobs\", \"control_outbox_events\", \"control_worker_leases\", \"runtime_acquisition_action_heads\", \"runtime_human_decision_reservations\", \"runtime_scenario_heads\", \"runtime_step_up_replays\"]"
+        ]
+      ],
+      "longrepr": null
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_stale_bound_worker_cannot_mutate_any_table[completed]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 46.36572651400638,
+      "wasxfail": null,
+      "properties": [
+        [
+          "postgres_identity",
+          "[\"PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit\", \"postgres\", \"127.0.0.1/32\", 45483]"
+        ],
+        [
+          "postgres_schema",
+          "e02_b38_67150013b5ca456b8e3ccfd70d10149e"
+        ],
+        [
+          "driver_version",
+          "3.3.2"
+        ],
+        [
+          "driver_origin",
+          "/tmp/e02-B38-pg-profile/psycopg/__init__.py"
+        ],
+        [
+          "table_denominator",
+          "[\"control_dead_letter_jobs\", \"control_diagnostic_events\", \"control_job_events\", \"control_job_progress\", \"control_jobs\", \"control_outbox_events\", \"control_worker_leases\", \"runtime_acquisition_action_heads\", \"runtime_human_decision_reservations\", \"runtime_scenario_heads\", \"runtime_step_up_replays\"]"
+        ],
+        [
+          "stale_rejected_inlets",
+          "[\"complete\", \"fail\", \"progress\", \"manifest\", \"current_record\", \"upsert\", \"event\", \"outbox\", \"child_event\", \"child_outbox\", \"create\", \"mark_running\", \"lease_next\", \"scenario\", \"step_up\", \"human_reservation\", \"worker_heartbeat\", \"worker_release\"]"
+        ],
+        [
+          "unchanged_rows_after_each_rejection",
+          true
+        ]
+      ],
+      "longrepr": null
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_stale_bound_worker_cannot_mutate_any_table[completed]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00018259399803355336,
+      "wasxfail": null,
+      "properties": [
+        [
+          "postgres_identity",
+          "[\"PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit\", \"postgres\", \"127.0.0.1/32\", 45483]"
+        ],
+        [
+          "postgres_schema",
+          "e02_b38_67150013b5ca456b8e3ccfd70d10149e"
+        ],
+        [
+          "driver_version",
+          "3.3.2"
+        ],
+        [
+          "driver_origin",
+          "/tmp/e02-B38-pg-profile/psycopg/__init__.py"
+        ],
+        [
+          "table_denominator",
+          "[\"control_dead_letter_jobs\", \"control_diagnostic_events\", \"control_job_events\", \"control_job_progress\", \"control_jobs\", \"control_outbox_events\", \"control_worker_leases\", \"runtime_acquisition_action_heads\", \"runtime_human_decision_reservations\", \"runtime_scenario_heads\", \"runtime_step_up_replays\"]"
+        ],
+        [
+          "stale_rejected_inlets",
+          "[\"complete\", \"fail\", \"progress\", \"manifest\", \"current_record\", \"upsert\", \"event\", \"outbox\", \"child_event\", \"child_outbox\", \"create\", \"mark_running\", \"lease_next\", \"scenario\", \"step_up\", \"human_reservation\", \"worker_heartbeat\", \"worker_release\"]"
+        ],
+        [
+          "unchanged_rows_after_each_rejection",
+          true
+        ]
+      ],
+      "longrepr": null
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_current_worker_publishes_coherent_terminal_generation[completed]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.06119907500396948,
+      "wasxfail": null,
+      "properties": [
+        [
+          "postgres_identity",
+          "[\"PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit\", \"postgres\", \"127.0.0.1/32\", 45483]"
+        ],
+        [
+          "postgres_schema",
+          "e02_b38_17d03aa818fa4803a7a144264a9173e6"
+        ],
+        [
+          "driver_version",
+          "3.3.2"
+        ],
+        [
+          "driver_origin",
+          "/tmp/e02-B38-pg-profile/psycopg/__init__.py"
+        ],
+        [
+          "table_denominator",
+          "[\"control_dead_letter_jobs\", \"control_diagnostic_events\", \"control_job_events\", \"control_job_progress\", \"control_jobs\", \"control_outbox_events\", \"control_worker_leases\", \"runtime_acquisition_action_heads\", \"runtime_human_decision_reservations\", \"runtime_scenario_heads\", \"runtime_step_up_replays\"]"
+        ]
+      ],
+      "longrepr": null
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_current_worker_publishes_coherent_terminal_generation[completed]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 22.306605044999742,
+      "wasxfail": null,
+      "properties": [
+        [
+          "postgres_identity",
+          "[\"PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit\", \"postgres\", \"127.0.0.1/32\", 45483]"
+        ],
+        [
+          "postgres_schema",
+          "e02_b38_17d03aa818fa4803a7a144264a9173e6"
+        ],
+        [
+          "driver_version",
+          "3.3.2"
+        ],
+        [
+          "driver_origin",
+          "/tmp/e02-B38-pg-profile/psycopg/__init__.py"
+        ],
+        [
+          "table_denominator",
+          "[\"control_dead_letter_jobs\", \"control_diagnostic_events\", \"control_job_events\", \"control_job_progress\", \"control_jobs\", \"control_outbox_events\", \"control_worker_leases\", \"runtime_acquisition_action_heads\", \"runtime_human_decision_reservations\", \"runtime_scenario_heads\", \"runtime_step_up_replays\"]"
+        ]
+      ],
+      "longrepr": null
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_current_worker_publishes_coherent_terminal_generation[completed]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.0001345229975413531,
+      "wasxfail": null,
+      "properties": [
+        [
+          "postgres_identity",
+          "[\"PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit\", \"postgres\", \"127.0.0.1/32\", 45483]"
+        ],
+        [
+          "postgres_schema",
+          "e02_b38_17d03aa818fa4803a7a144264a9173e6"
+        ],
+        [
+          "driver_version",
+          "3.3.2"
+        ],
+        [
+          "driver_origin",
+          "/tmp/e02-B38-pg-profile/psycopg/__init__.py"
+        ],
+        [
+          "table_denominator",
+          "[\"control_dead_letter_jobs\", \"control_diagnostic_events\", \"control_job_events\", \"control_job_progress\", \"control_jobs\", \"control_outbox_events\", \"control_worker_leases\", \"runtime_acquisition_action_heads\", \"runtime_human_decision_reservations\", \"runtime_scenario_heads\", \"runtime_step_up_replays\"]"
+        ]
+      ],
+      "longrepr": null
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_current_worker_publishes_coherent_terminal_generation[failed]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.06189665100828279,
+      "wasxfail": null,
+      "properties": [
+        [
+          "postgres_identity",
+          "[\"PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit\", \"postgres\", \"127.0.0.1/32\", 45483]"
+        ],
+        [
+          "postgres_schema",
+          "e02_b38_73a0d5d157f148408addd8bee59d3ee4"
+        ],
+        [
+          "driver_version",
+          "3.3.2"
+        ],
+        [
+          "driver_origin",
+          "/tmp/e02-B38-pg-profile/psycopg/__init__.py"
+        ],
+        [
+          "table_denominator",
+          "[\"control_dead_letter_jobs\", \"control_diagnostic_events\", \"control_job_events\", \"control_job_progress\", \"control_jobs\", \"control_outbox_events\", \"control_worker_leases\", \"runtime_acquisition_action_heads\", \"runtime_human_decision_reservations\", \"runtime_scenario_heads\", \"runtime_step_up_replays\"]"
+        ]
+      ],
+      "longrepr": null
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_current_worker_publishes_coherent_terminal_generation[failed]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 22.45193308700982,
+      "wasxfail": null,
+      "properties": [
+        [
+          "postgres_identity",
+          "[\"PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit\", \"postgres\", \"127.0.0.1/32\", 45483]"
+        ],
+        [
+          "postgres_schema",
+          "e02_b38_73a0d5d157f148408addd8bee59d3ee4"
+        ],
+        [
+          "driver_version",
+          "3.3.2"
+        ],
+        [
+          "driver_origin",
+          "/tmp/e02-B38-pg-profile/psycopg/__init__.py"
+        ],
+        [
+          "table_denominator",
+          "[\"control_dead_letter_jobs\", \"control_diagnostic_events\", \"control_job_events\", \"control_job_progress\", \"control_jobs\", \"control_outbox_events\", \"control_worker_leases\", \"runtime_acquisition_action_heads\", \"runtime_human_decision_reservations\", \"runtime_scenario_heads\", \"runtime_step_up_replays\"]"
+        ]
+      ],
+      "longrepr": null
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_current_worker_publishes_coherent_terminal_generation[failed]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00019173100008629262,
+      "wasxfail": null,
+      "properties": [
+        [
+          "postgres_identity",
+          "[\"PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit\", \"postgres\", \"127.0.0.1/32\", 45483]"
+        ],
+        [
+          "postgres_schema",
+          "e02_b38_73a0d5d157f148408addd8bee59d3ee4"
+        ],
+        [
+          "driver_version",
+          "3.3.2"
+        ],
+        [
+          "driver_origin",
+          "/tmp/e02-B38-pg-profile/psycopg/__init__.py"
+        ],
+        [
+          "table_denominator",
+          "[\"control_dead_letter_jobs\", \"control_diagnostic_events\", \"control_job_events\", \"control_job_progress\", \"control_jobs\", \"control_outbox_events\", \"control_worker_leases\", \"runtime_acquisition_action_heads\", \"runtime_human_decision_reservations\", \"runtime_scenario_heads\", \"runtime_step_up_replays\"]"
+        ]
+      ],
+      "longrepr": null
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_real_statement_fault_rolls_back_all_terminal_rows[event-completed]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0638675649970537,
+      "wasxfail": null,
+      "properties": [
+        [
+          "postgres_identity",
+          "[\"PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit\", \"postgres\", \"127.0.0.1/32\", 45483]"
+        ],
+        [
+          "postgres_schema",
+          "e02_b38_d8745bb22f8e4b25b9fac0baa05a9c26"
+        ],
+        [
+          "driver_version",
+          "3.3.2"
+        ],
+        [
+          "driver_origin",
+          "/tmp/e02-B38-pg-profile/psycopg/__init__.py"
+        ],
+        [
+          "table_denominator",
+          "[\"control_dead_letter_jobs\", \"control_diagnostic_events\", \"control_job_events\", \"control_job_progress\", \"control_jobs\", \"control_outbox_events\", \"control_worker_leases\", \"runtime_acquisition_action_heads\", \"runtime_human_decision_reservations\", \"runtime_scenario_heads\", \"runtime_step_up_replays\"]"
+        ]
+      ],
+      "longrepr": null
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_real_statement_fault_rolls_back_all_terminal_rows[event-completed]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.10871173700434156,
+      "wasxfail": null,
+      "properties": [
+        [
+          "postgres_identity",
+          "[\"PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit\", \"postgres\", \"127.0.0.1/32\", 45483]"
+        ],
+        [
+          "postgres_schema",
+          "e02_b38_d8745bb22f8e4b25b9fac0baa05a9c26"
+        ],
+        [
+          "driver_version",
+          "3.3.2"
+        ],
+        [
+          "driver_origin",
+          "/tmp/e02-B38-pg-profile/psycopg/__init__.py"
+        ],
+        [
+          "table_denominator",
+          "[\"control_dead_letter_jobs\", \"control_diagnostic_events\", \"control_job_events\", \"control_job_progress\", \"control_jobs\", \"control_outbox_events\", \"control_worker_leases\", \"runtime_acquisition_action_heads\", \"runtime_human_decision_reservations\", \"runtime_scenario_heads\", \"runtime_step_up_replays\"]"
+        ]
+      ],
+      "longrepr": null
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_real_statement_fault_rolls_back_all_terminal_rows[event-completed]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.0001420070038875565,
+      "wasxfail": null,
+      "properties": [
+        [
+          "postgres_identity",
+          "[\"PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit\", \"postgres\", \"127.0.0.1/32\", 45483]"
+        ],
+        [
+          "postgres_schema",
+          "e02_b38_d8745bb22f8e4b25b9fac0baa05a9c26"
+        ],
+        [
+          "driver_version",
+          "3.3.2"
+        ],
+        [
+          "driver_origin",
+          "/tmp/e02-B38-pg-profile/psycopg/__init__.py"
+        ],
+        [
+          "table_denominator",
+          "[\"control_dead_letter_jobs\", \"control_diagnostic_events\", \"control_job_events\", \"control_job_progress\", \"control_jobs\", \"control_outbox_events\", \"control_worker_leases\", \"runtime_acquisition_action_heads\", \"runtime_human_decision_reservations\", \"runtime_scenario_heads\", \"runtime_step_up_replays\"]"
+        ]
+      ],
+      "longrepr": null
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_real_statement_fault_rolls_back_all_terminal_rows[event-failed]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0621350790024735,
+      "wasxfail": null,
+      "properties": [
+        [
+          "postgres_identity",
+          "[\"PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit\", \"postgres\", \"127.0.0.1/32\", 45483]"
+        ],
+        [
+          "postgres_schema",
+          "e02_b38_51789b0c13064f2392d934136a98d80a"
+        ],
+        [
+          "driver_version",
+          "3.3.2"
+        ],
+        [
+          "driver_origin",
+          "/tmp/e02-B38-pg-profile/psycopg/__init__.py"
+        ],
+        [
+          "table_denominator",
+          "[\"control_dead_letter_jobs\", \"control_diagnostic_events\", \"control_job_events\", \"control_job_progress\", \"control_jobs\", \"control_outbox_events\", \"control_worker_leases\", \"runtime_acquisition_action_heads\", \"runtime_human_decision_reservations\", \"runtime_scenario_heads\", \"runtime_step_up_replays\"]"
+        ]
+      ],
+      "longrepr": null
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_real_statement_fault_rolls_back_all_terminal_rows[event-failed]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.11435024499951396,
+      "wasxfail": null,
+      "properties": [
+        [
+          "postgres_identity",
+          "[\"PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit\", \"postgres\", \"127.0.0.1/32\", 45483]"
+        ],
+        [
+          "postgres_schema",
+          "e02_b38_51789b0c13064f2392d934136a98d80a"
+        ],
+        [
+          "driver_version",
+          "3.3.2"
+        ],
+        [
+          "driver_origin",
+          "/tmp/e02-B38-pg-profile/psycopg/__init__.py"
+        ],
+        [
+          "table_denominator",
+          "[\"control_dead_letter_jobs\", \"control_diagnostic_events\", \"control_job_events\", \"control_job_progress\", \"control_jobs\", \"control_outbox_events\", \"control_worker_leases\", \"runtime_acquisition_action_heads\", \"runtime_human_decision_reservations\", \"runtime_scenario_heads\", \"runtime_step_up_replays\"]"
+        ]
+      ],
+      "longrepr": null
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_real_statement_fault_rolls_back_all_terminal_rows[event-failed]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00013552499876823276,
+      "wasxfail": null,
+      "properties": [
+        [
+          "postgres_identity",
+          "[\"PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit\", \"postgres\", \"127.0.0.1/32\", 45483]"
+        ],
+        [
+          "postgres_schema",
+          "e02_b38_51789b0c13064f2392d934136a98d80a"
+        ],
+        [
+          "driver_version",
+          "3.3.2"
+        ],
+        [
+          "driver_origin",
+          "/tmp/e02-B38-pg-profile/psycopg/__init__.py"
+        ],
+        [
+          "table_denominator",
+          "[\"control_dead_letter_jobs\", \"control_diagnostic_events\", \"control_job_events\", \"control_job_progress\", \"control_jobs\", \"control_outbox_events\", \"control_worker_leases\", \"runtime_acquisition_action_heads\", \"runtime_human_decision_reservations\", \"runtime_scenario_heads\", \"runtime_step_up_replays\"]"
+        ]
+      ],
+      "longrepr": null
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_real_statement_fault_rolls_back_all_terminal_rows[outbox-completed]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.06136857299134135,
+      "wasxfail": null,
+      "properties": [
+        [
+          "postgres_identity",
+          "[\"PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit\", \"postgres\", \"127.0.0.1/32\", 45483]"
+        ],
+        [
+          "postgres_schema",
+          "e02_b38_0c0b2c05f0404ea6a2819103307ea30e"
+        ],
+        [
+          "driver_version",
+          "3.3.2"
+        ],
+        [
+          "driver_origin",
+          "/tmp/e02-B38-pg-profile/psycopg/__init__.py"
+        ],
+        [
+          "table_denominator",
+          "[\"control_dead_letter_jobs\", \"control_diagnostic_events\", \"control_job_events\", \"control_job_progress\", \"control_jobs\", \"control_outbox_events\", \"control_worker_leases\", \"runtime_acquisition_action_heads\", \"runtime_human_decision_reservations\", \"runtime_scenario_heads\", \"runtime_step_up_replays\"]"
+        ]
+      ],
+      "longrepr": null
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_real_statement_fault_rolls_back_all_terminal_rows[outbox-completed]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.10925511800451204,
+      "wasxfail": null,
+      "properties": [
+        [
+          "postgres_identity",
+          "[\"PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit\", \"postgres\", \"127.0.0.1/32\", 45483]"
+        ],
+        [
+          "postgres_schema",
+          "e02_b38_0c0b2c05f0404ea6a2819103307ea30e"
+        ],
+        [
+          "driver_version",
+          "3.3.2"
+        ],
+        [
+          "driver_origin",
+          "/tmp/e02-B38-pg-profile/psycopg/__init__.py"
+        ],
+        [
+          "table_denominator",
+          "[\"control_dead_letter_jobs\", \"control_diagnostic_events\", \"control_job_events\", \"control_job_progress\", \"control_jobs\", \"control_outbox_events\", \"control_worker_leases\", \"runtime_acquisition_action_heads\", \"runtime_human_decision_reservations\", \"runtime_scenario_heads\", \"runtime_step_up_replays\"]"
+        ]
+      ],
+      "longrepr": null
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_real_statement_fault_rolls_back_all_terminal_rows[outbox-completed]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00013957299233879894,
+      "wasxfail": null,
+      "properties": [
+        [
+          "postgres_identity",
+          "[\"PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit\", \"postgres\", \"127.0.0.1/32\", 45483]"
+        ],
+        [
+          "postgres_schema",
+          "e02_b38_0c0b2c05f0404ea6a2819103307ea30e"
+        ],
+        [
+          "driver_version",
+          "3.3.2"
+        ],
+        [
+          "driver_origin",
+          "/tmp/e02-B38-pg-profile/psycopg/__init__.py"
+        ],
+        [
+          "table_denominator",
+          "[\"control_dead_letter_jobs\", \"control_diagnostic_events\", \"control_job_events\", \"control_job_progress\", \"control_jobs\", \"control_outbox_events\", \"control_worker_leases\", \"runtime_acquisition_action_heads\", \"runtime_human_decision_reservations\", \"runtime_scenario_heads\", \"runtime_step_up_replays\"]"
+        ]
+      ],
+      "longrepr": null
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_real_statement_fault_rolls_back_all_terminal_rows[outbox-failed]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.06014718300139066,
+      "wasxfail": null,
+      "properties": [
+        [
+          "postgres_identity",
+          "[\"PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit\", \"postgres\", \"127.0.0.1/32\", 45483]"
+        ],
+        [
+          "postgres_schema",
+          "e02_b38_8b315c2394bd4f549f5483177eb1368a"
+        ],
+        [
+          "driver_version",
+          "3.3.2"
+        ],
+        [
+          "driver_origin",
+          "/tmp/e02-B38-pg-profile/psycopg/__init__.py"
+        ],
+        [
+          "table_denominator",
+          "[\"control_dead_letter_jobs\", \"control_diagnostic_events\", \"control_job_events\", \"control_job_progress\", \"control_jobs\", \"control_outbox_events\", \"control_worker_leases\", \"runtime_acquisition_action_heads\", \"runtime_human_decision_reservations\", \"runtime_scenario_heads\", \"runtime_step_up_replays\"]"
+        ]
+      ],
+      "longrepr": null
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_real_statement_fault_rolls_back_all_terminal_rows[outbox-failed]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.11014020000584424,
+      "wasxfail": null,
+      "properties": [
+        [
+          "postgres_identity",
+          "[\"PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit\", \"postgres\", \"127.0.0.1/32\", 45483]"
+        ],
+        [
+          "postgres_schema",
+          "e02_b38_8b315c2394bd4f549f5483177eb1368a"
+        ],
+        [
+          "driver_version",
+          "3.3.2"
+        ],
+        [
+          "driver_origin",
+          "/tmp/e02-B38-pg-profile/psycopg/__init__.py"
+        ],
+        [
+          "table_denominator",
+          "[\"control_dead_letter_jobs\", \"control_diagnostic_events\", \"control_job_events\", \"control_job_progress\", \"control_jobs\", \"control_outbox_events\", \"control_worker_leases\", \"runtime_acquisition_action_heads\", \"runtime_human_decision_reservations\", \"runtime_scenario_heads\", \"runtime_step_up_replays\"]"
+        ]
+      ],
+      "longrepr": null
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_real_statement_fault_rolls_back_all_terminal_rows[outbox-failed]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.0002814690087689087,
+      "wasxfail": null,
+      "properties": [
+        [
+          "postgres_identity",
+          "[\"PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit\", \"postgres\", \"127.0.0.1/32\", 45483]"
+        ],
+        [
+          "postgres_schema",
+          "e02_b38_8b315c2394bd4f549f5483177eb1368a"
+        ],
+        [
+          "driver_version",
+          "3.3.2"
+        ],
+        [
+          "driver_origin",
+          "/tmp/e02-B38-pg-profile/psycopg/__init__.py"
+        ],
+        [
+          "table_denominator",
+          "[\"control_dead_letter_jobs\", \"control_diagnostic_events\", \"control_job_events\", \"control_job_progress\", \"control_jobs\", \"control_outbox_events\", \"control_worker_leases\", \"runtime_acquisition_action_heads\", \"runtime_human_decision_reservations\", \"runtime_scenario_heads\", \"runtime_step_up_replays\"]"
+        ]
+      ],
+      "longrepr": null
+    }
+  ],
+  "sessionfinish_exit_argument": 0,
+  "pytest_main_return": 0,
+  "qualification": "hook argument is not outer actual child wait status"
+}

@@ -1,0 +1,18 @@
+.........................F                                               [100%]
+=================================== FAILURES ===================================
+___ test_nullable_wire_omissions_preserve_exhausted_budget_across_processes ____
+
+tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/pytest-oracle-draft/test_nullable_wire_omissions_p0')
+
+    def test_nullable_wire_omissions_preserve_exhausted_budget_across_processes(tmp_path: Path) -> None:
+        path = tmp_path / "budget.json"
+        snapshot = _real_snapshot(path)
+        for name in ("ledger_id", "last_writer"):
+            snapshot.pop(name)
+>       snapshot["state"]["limits"]["run"].pop("soft_limit_usd")
+E       KeyError: 'soft_limit_usd'
+
+tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py:138: KeyError
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py::test_nullable_wire_omissions_preserve_exhausted_budget_across_processes
+1 failed, 25 passed in 5.22s

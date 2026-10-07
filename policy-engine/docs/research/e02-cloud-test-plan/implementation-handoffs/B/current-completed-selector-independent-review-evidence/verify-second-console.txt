@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/workspace/e02-B-current-execution-state/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-selector-independent-review-evidence/verify.source.txt", line 129, in <module>
+    assert digest(excerpt) == definition["source_sha256"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

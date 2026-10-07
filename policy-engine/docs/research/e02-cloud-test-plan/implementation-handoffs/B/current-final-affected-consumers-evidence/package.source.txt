@@ -1,0 +1,99 @@
+"""Publish complete observed cases/phases with lossless column dictionaries."""
+import hashlib
+import json
+import subprocess
+from pathlib import Path
+
+ROOT = Path('/workspace/e02-B-current-coordination')
+LANE = Path('/workspace/e02-B-current-adapters')
+RAW = ROOT / '.polisyos/e02-B-current/raw/affected-10e-20261006'
+DEST = LANE / 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence'
+SOURCE = '10e812a98d5f7f3997e7d0aa44de43dc90eb022c'
+BASE = 'd539717f2720ef4f202e6cb265e23b99cb4a5018'
+assert subprocess.check_output(['git','rev-parse','HEAD'],cwd=LANE,text=True).strip() == BASE
+assert not subprocess.check_output(['git','status','--porcelain','--untracked-files=no'],cwd=LANE,text=True)
+DEST.mkdir()
+
+def ident(path):
+    data = path.read_bytes()
+    return {'path':str(path), 'bytes':len(data), 'sha256':hashlib.sha256(data).hexdigest()}
+
+def read(name):
+    return json.loads((RAW/name).read_bytes())
+
+def write(name,obj):
+    with (DEST/name).open('x') as f:
+        json.dump(obj,f,ensure_ascii=False,separators=(',',':'));f.write('\n')
+
+def lossless_table(rows):
+    names = sorted(set().union(*(r.keys() for r in rows)))
+    columns = []
+    encoded = [[None]*len(names) for _ in rows]
+    for column_index,name in enumerate(names):
+        values = []
+        ids = {}
+        for row_index,row in enumerate(rows):
+            present = name in row
+            value = row.get(name)
+            token = json.dumps([present,value],ensure_ascii=False,sort_keys=True,separators=(',',':'))
+            if token not in ids:
+                ids[token] = len(values);values.append({'present':present,'value':value})
+            encoded[row_index][column_index] = ids[token]
+        columns.append({'name':name,'values':values})
+    result = {'columns':columns,'rows':encoded}
+    decoded = [{c['name']:c['values'][index]['value'] for c,index in zip(columns,row,strict=True) if c['values'][index]['present']} for row in encoded]
+    assert decoded == rows
+    return {'schema':'policyos.e02.lossless_json_row_table.v1','row_count':len(rows),'decoding':'For each row and each column, index column.values; include name:value only if present=true. Exact JSON types and absent keys are preserved.','table':result,'canonical_decoded_rows_sha256':hashlib.sha256(json.dumps(rows,sort_keys=True,separators=(',',':'),ensure_ascii=False).encode()).hexdigest(),'lossless_decode_equal':True}
+
+inv=read('inventory.json');part=read('case-partition.json');wrapper=read('wrapper.json');profile=read('execution-profile.json');proposal=read('selector-proposal.json');projection=read('all-prod-test-content-projection.json')
+assert inv['state']=='session_finished' and part['parse_state']=='COMPLETE' and all(part['reconciliation_checks'].values())
+assert part['source_sha']==SOURCE and wrapper['actual_exit_code']==0
+for name in ('native.xml','wrapper.json','execution-profile.json','source-before.json','source-after.json','selector-proposal.json','selectors.args','parser-wrapper.json','parser-profile.json','parser-selectors.json','parser-capture.json','parser.txt','capture.source.txt','prepare-parser-inputs.source.txt','package.source.txt'):
+    (DEST/name).write_bytes((RAW/name).read_bytes())
+raw=RAW/'native.txt';data=raw.read_bytes()
+write('native.txt.json',{'schema':'policyos.e02.lossless_utf8_wrapper.v1','original':ident(raw),'encoding':'UTF-8','text':data.decode('utf-8'),'lossless_encode_equal':data.decode('utf-8').encode('utf-8')==data})
+write('all-cases.json',lossless_table(part['cases']))
+write('all-runtime-phases.json',lossless_table(inv['runtime_phase_reports']))
+write('all-session-items.json',lossless_table(inv['session_items_before_execution']))
+write('all-collection-reports.json',{'collection_reports':inv['collection_reports'],'deselected_items':inv['deselected_items'],'xdist_worker_collection_reports':inv['xdist_worker_collection_reports']})
+write('case-partition-summary.json',{k:v for k,v in part.items() if k not in ('cases','junit')})
+write('all-junit-case-joins.json',part['junit'])
+large={n:ident(RAW/n) for n in ('inventory.json','case-partition.json','all-prod-test-content-projection.json')}
+write('large-raw-availability.json',{'artifacts':large,'availability_to_local_G':'not_established: ignored VM paths are not Git transfer; full deciding native stdout/JUnit and all case/phase/collection rows are separately committed. Hook-time full module census requires original raw transfer or exact rerun.','exact_rerun':'Run capture.source.txt against exact source10e with declared profile/35 argsfile; run unchanged3cd parser using prepare-parser-inputs.source.txt aliases after native completion. Root owned checkout may be recreated by G under its admission protocol; fixture/runtime paths adjusted and recorded, outputs new source-bound identities.'})
+write('source-content-projection-summary.json',{'actual_execution_head':SOURCE,'content_only_reference':projection['content_reference_only'],'entry_count':projection['entry_count'],'mismatch_count':projection['mismatch_count'],'comparison_method':projection['comparison_method'],'canonical_entries_sha256':hashlib.sha256(json.dumps(projection['entries'],sort_keys=True,separators=(',',':')).encode()).hexdigest(),'exact_raw':large['all-prod-test-content-projection.json'],'recompute_argv':['git','ls-tree','-r',SOURCE,'--','policy-engine/src','policy-engine/tests','policy-engine/product'],'reference_recompute_argv':['git','ls-tree','-r',projection['content_reference_only'],'--','policy-engine/src','policy-engine/tests','policy-engine/product'],'execution_identity_is_not_reference':True})
+backend=inv['module_origin_snapshot']['observed_file_backends']
+selected={r['path'] for r in read('source-before.json')['declared_disk_inputs']}
+origins=[r for r in backend if r.get('repository_path') in selected or r['path'].endswith('/_pytest/junitxml.py') or r['path'].endswith('/current_cohort_inventory.py')]
+write('deciding-module-origins.json',{'hook_time_origin_summary':part['module_origin_summary'],'explicit_selected_backing_files':origins,'boundary':part['module_origin_summary']['boundary'],'full_hook_time_module_census':large['inventory.json']})
+engine='policy-engine/tests/unit/scientist/orchestration/engine/'
+rem='policy-engine/tests/unit/remediation/'
+paths=profile['wholefile_inputs']
+groups={
+'EXE-01':[p for p in paths if any(t in p for t in ('test_async_','test_native_execution_admission','test_workflow_deadline','test_cache_reference','test_native_state_cache'))],
+'EXE-02':[rem+'test_exe_02.py'],
+'STA-01':[engine+'test_native_list_journal.py',engine+'test_state_branching.py',engine+'test_state_merge.py',engine+'test_native_state_cache_semantics.py',engine+'runner/test_state_merge.py'],
+'STA-02':[engine+'test_cache_reference_custody.py',engine+'test_resume_artifact_requirements.py',engine+'test_native_state_cache_semantics.py'],
+'RES-01':[rem+'test_res_01.py'],
+'RES-02':[rem+'test_res_02.py']+[p for p in paths if 'checkpoint' in p],
+'RES-04':[rem+'test_res_04.py',engine+'runner/test_distributed_tier.py','policy-engine/tests/integration/scientist/test_parallel_tier_compensation_oracle.py'],
+'WIRE-01':[rem+'test_wire_01.py',engine+'runner/test_serialization.py',engine+'runner/test_serialization_e02.py',engine+'runner/test_activity_worker.py',engine+'runner/test_distributed_tier.py',engine+'runner/test_state_merge.py'],
+'RUN-03':[rem+'test_run_03.py',engine+'test_retry.py'],
+'DUR-02':[rem+'test_dur_02.py',rem+'test_dur_02_process.py'],
+'DUR-01':[engine+'test_budget_middleware.py'],
+}
+coverage=json.loads(subprocess.check_output(['git','show',SOURCE+':policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json'],cwd=ROOT))
+findings=[]
+for row in coverage['findings']:
+    bundle=row.get('primary_bundle')
+    if row.get('unit')!='B' or bundle not in groups:
+        continue
+    sels=groups[bundle]
+    indices=[n for n,c in enumerate(part['cases']) if 'policy-engine/'+c['location'][0] in sels]
+    findings.append({'finding_id':row['id'],'bundle_id':bundle,'canonical_criterion_refs':row['criterion_refs'],'wholefile_selectors':sels,'observed_case_indices':indices,'scope':'Affected-consumer execution evidence only; criterion adequacy/semantic permission/finding closure belongs to root independent manual adjudication.','criterion_specific_limitation':('B61 semantic data_record owner contract remains held; executing references does not supply missing law.' if row['id']=='B61' else 'This wave excludes PostgreSQL HTTP oracle; B38 separate published actual8 evidence. No physical external reconciliation is established for B78.' if bundle=='DUR-02' else 'No marker/path/count alone is used as criterion admission.')})
+write('affected-consumer-criterion-joins.json',{'source_sha':SOURCE,'scope':'Broad affected consumer group joins, not defining-case predicate classification. Exact bodies/code are Git-pinned; root resolves sufficient per-finding predicates separately.','findings':findings,'source_to_consumer_trace':proposal['selection_basis'],'wholefiles':proposal['whole_files'],'supplemental_wholefiles':[r['path'] for r in proposal['whole_files'] if not r['canonical_current_selector']]})
+write('execution-contract.json',{'source_sha':SOURCE,'source_tree':part['source_tree'],'native_summary':'712 passed,48 warnings in424.44s; wait4 exit0 wall432.167027994s/RSS1026224KiB.','collection_and_phases':part['denominators'],'counts':part['case_counts'],'reconciliation_checks':part['reconciliation_checks'],'explicit_caps':profile['child_cap_environment'],'no_quota_added':profile['no_cpu_worker_process_thread_cap_added'],'source_guard':wrapper['declared_disk_bytes_stable'],'observer_exit_boundary':part['session']['exit_boundary'],'module_origin_boundary':part['module_origin_summary']['boundary'],'negative_controls':'Existing selected defining/adversarial native bodies were executed wholefile with no filtering; this verification-only slice makes no new mechanism removal or finding-closure claim.','no_PG':True,'no_production_dataset':True,'public_surface_reviewed':'Evidence-only. No production source, test, public API, facade, schema or generated surface changed.'})
+index=[]
+for p in sorted(DEST.iterdir()):
+    r=ident(p);r['path']=str(p.relative_to(LANE));index.append(r)
+write('index.json',{'schema':'policyos.e02.evidence_index.v1','files':index,'file_count':len(index),'payload_bytes':sum(r['bytes'] for r in index),'source_sha':SOURCE,'implementation_base':BASE})
+print(json.dumps({'files':len(index),'payload_bytes':sum(r['bytes'] for r in index),'dest':str(DEST),'cases':len(part['cases']),'phases':len(inv['runtime_phase_reports']),'criterion_join_findings':len(findings)}))

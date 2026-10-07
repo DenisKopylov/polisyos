@@ -1,0 +1,66 @@
+"""Finish-only metadata enrichment; no product/test imports or executions."""
+import collections
+import hashlib
+import json
+import platform
+import subprocess
+import sys
+from pathlib import Path
+
+OWN=Path('/workspace/e02-B-current-cas-generation')
+ROOT=Path('/workspace/e02-B-current-coordination')
+RAW=ROOT/'.polisyos/e02-B-current/raw/review'
+BASE=OWN/'.polisyos/e02-B-current/raw/successor-cas-consumer-audit'
+SHA='dd9584728bd96f204983615216efdbc58117e713'
+TREE='7bf4be4a117762c8d37d4babcc214a2b28c2113e'
+def h(b):return hashlib.sha256(b).hexdigest()
+def file(p):
+ b=p.read_bytes();return {'path':str(p),'bytes':len(b),'sha256':h(b)}
+def g(*a):return subprocess.check_output(['git',*a],cwd=OWN)
+def source(p):
+ b=g('show',SHA+':'+p);return {'source_sha':SHA,'path':p,'git_blob':g('rev-parse',SHA+':'+p).decode().strip(),'bytes':len(b),'sha256':h(b)}
+x=json.loads((BASE/'final-audit.json').read_bytes())
+inv=json.loads(Path(x['artifacts']['inventory']['path']).read_bytes())
+phases=collections.defaultdict(list)
+for row in inv['runtime_phase_reports']:phases[row['nodeid']].append(row)
+def classify(rows):
+ if any(r['outcome']=='failed' and r['when'] in {'setup','teardown'} for r in rows):return 'ERROR'
+ calls=[r for r in rows if r['when']=='call']
+ if calls:
+  c=calls[-1].get('classification',calls[-1]['outcome'])
+  return {'passed':'PASS','failed':'FAIL','skipped':'SKIP','xfail':'XFAIL','xpass':'XPASS','strict_xpass':'STRICT_XPASS'}[c]
+ return 'SKIP' if any(r['outcome']=='skipped' for r in rows) else 'UNRUN'
+counts=dict(collections.Counter(classify(phases[r['nodeid']]) for r in inv['session_items_before_execution']))
+assert counts=={'PASS':2880,'FAIL':140,'ERROR':600,'SKIP':2}
+wrappers=[]
+for tag in ['B-cohort','production-invocation','runtime-api','verify-uncapped','parity-uncapped','all-changed-ruff','all-changed-format','architecture']:
+ p=RAW/('successor-final-'+tag+'.json');b=p.read_bytes();r=json.loads(b)
+ assert r['head']==r['head_after']==SHA and r['tree']==TREE and r['harness_state']=='EXECUTED' and r['exec_setup_error'] is None
+ q=Path(r['output_path']);assert h(q.read_bytes())==r['output_sha256']
+ wrappers.append({'tag':tag,'wrapper':file(p),'actual_wrapper':r,'stdout':file(q)})
+assert wrappers[0]['actual_wrapper']['command']==x['native_profile']['argv']
+assert wrappers[0]['actual_wrapper']['cwd']==x['native_profile']['cwd']
+additional=[
+ 'policy-engine/src/polisyos/runtime/http/services/control/evaluation_safety.py',
+ 'policy-engine/src/polisyos/core/artifacts/ids.py',
+ 'policy-engine/src/polisyos/core/artifacts/manifest.py',
+ 'policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py',
+ 'policy-engine/tests/_helpers/runtime_http.py',
+ 'policy-engine/tests/unit/runtime/http/test_control_service_di.py',
+ 'policy-engine/src/polisyos/core/artifacts/README.md',
+ 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-signature-publisher-contract.json',
+ 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failed-snapshot-report-followup.json',
+ 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cas-failure-snapshot-successor-review.json',
+ 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cas-typed-ports-independent-review/review.json',
+ 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports.json',
+ 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json',
+ 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-transfer.json',
+ 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-admission.json',
+ 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-completion.json',
+]
+identity=[]
+for path in ['policy-engine/src/polisyos/core/artifacts/store.py','policy-engine/src/polisyos/core/artifacts/_transfer_ops.py','policy-engine/tests/unit/core/artifacts/test_verification_failure_snapshot_report.py']:
+ a=g('show','5ece606ee1c1016c1133a1e81bbf852574a64a48:'+path);b=g('show',SHA+':'+path);assert a==b;identity.append({'current':source(path),'prior_approved_source':'5ece606ee1c1016c1133a1e81bbf852574a64a48','same_bytes':True})
+thirdparty=ROOT/'.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pydantic/root_model.py'
+result={'schema':'policyos.e02.cas_native_consumer_supplement.v1','role':'Metadata and source-byte reconciliation only','source_sha':SHA,'tree':TREE,'own_head':g('rev-parse','HEAD').decode().strip(),'environment':{'executable':sys.executable,'python':sys.version,'platform':platform.platform()},'primary_completed_audit':file(BASE/'final-audit.json'),'actual_global_counts':counts,'actual_global_phase_count':len(inv['runtime_phase_reports']),'actual_session_testsfailed':inv['session_testsfailed'],'actual_global_exitstatus':inv['session_exitstatus'],'all_eight_wrappers':wrappers,'additional_source_inputs':[source(p) for p in additional],'accepted_CAS_source_byte_projection':identity,'actual_dependency_source':file(thirdparty),'known_locator_correction':'Primary final audit PASS was unchanged. An ancillary stdin summary then incorrectly tried the absent TMP native wrapper after computing global counts; FileNotFoundError was retained as metadata-only locator error. The actual wrapper is ROOT/review/successor-final-B-cohort.json, separately verified here. No native retry occurred.','claims':{'new_native':False,'new_collection':False,'new_gates':False,'root_changes':False,'product_changes':False,'formal_closure_ids':[]}}
+print(json.dumps(result,indent=2,ensure_ascii=False,allow_nan=False))

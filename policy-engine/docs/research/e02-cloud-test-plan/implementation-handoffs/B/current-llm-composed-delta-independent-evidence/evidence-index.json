@@ -1,0 +1,35 @@
+{
+  "schema": "policyos.e02.evidence_index.v1",
+  "objects": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-composed-delta-independent-evidence/README.md",
+      "bytes": 967,
+      "sha256": "cda43a6d0d73f2f6a159e3a1e2cbe0b31f6bfa3113d3a406c0a071d733d868ad"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-composed-delta-independent-evidence/capture-summary.json",
+      "bytes": 40895,
+      "sha256": "bf0c6ad6566c4c670a93a0ba62a845db99c9e5dabe1f39f47d79488c74a0defc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-composed-delta-independent-evidence/capture.txt",
+      "bytes": 247,
+      "sha256": "7a4d2a6b282372faaa6a6e80e3df9afe7873275fcfa4c4043955b4170a97714a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-composed-delta-independent-evidence/initial-capture-error.txt",
+      "bytes": 689,
+      "sha256": "be0f81bc605f51e27657379e1fd15792eb94be88ea391573455063a04a900521"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-composed-delta-independent-evidence/review.json",
+      "bytes": 7803,
+      "sha256": "a08fd776eedf589b3d2e33645e4efdbc1bba719a99e258280df93bfb7279813a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-composed-delta-independent-evidence/review.source.txt",
+      "bytes": 8645,
+      "sha256": "dbb943fb1beae8a30959f7a2b2e8ed7ff7b37d89681452d7a4bad129d4936238"
+    }
+  ]
+}

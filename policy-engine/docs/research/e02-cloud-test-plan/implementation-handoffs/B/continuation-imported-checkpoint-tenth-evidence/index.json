@@ -1,0 +1,81 @@
+{
+  "payload_count": 15,
+  "payload_bytes": 508789,
+  "files": {
+    "native/native.xml": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/native/native.xml",
+      "bytes": 997,
+      "sha256": "d9324305685c39b803a5a6a51b4834301e732195a3229ea7a824a65999ddceec"
+    },
+    "native/wrapper.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/native/wrapper.json",
+      "bytes": 1527,
+      "sha256": "9a6f6b6aaa55732713823a9e4d6eccbc424b75c4ddfad93a28a433f03b66a61b"
+    },
+    "native/profile.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/native/profile.json",
+      "bytes": 46556,
+      "sha256": "5569da0b88be11e4a34ad602c165a023d286b970e6ec742186cb0a15ccd7999c"
+    },
+    "native/physical-fixtures.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/native/physical-fixtures.json",
+      "bytes": 287380,
+      "sha256": "e380f2a62acb141b2571c01c97e8b2473c88626570e2271876dd6f15a8303d25"
+    },
+    "native/native.stdout.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/native/native.stdout.json",
+      "bytes": 8362,
+      "sha256": "563c86245407ef3c77d71415af501ccd765709275a0249cb11e6322c1b9f3552"
+    },
+    "removal/native.xml": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/removal/native.xml",
+      "bytes": 1239,
+      "sha256": "daff2d6d069946c4fa4923d53466f93fb63f563c426c1e6bcd533d6913b0e44d"
+    },
+    "removal/wrapper.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/removal/wrapper.json",
+      "bytes": 1530,
+      "sha256": "b579af2728c05a10ea38886c0e938d2b8921971298fc4698c34deb9a1ff97bf2"
+    },
+    "removal/profile.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/removal/profile.json",
+      "bytes": 44126,
+      "sha256": "2824e974f7379f0f23fe840ad22f1f0f289e530b78a3e0756f27a95512a1f7e8"
+    },
+    "removal/physical-fixtures.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/removal/physical-fixtures.json",
+      "bytes": 92621,
+      "sha256": "15054302c0d4c27862e1511fddb82b7a648afd874046fedd9f2b82650b6bd950"
+    },
+    "removal/native.stdout.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/removal/native.stdout.json",
+      "bytes": 5205,
+      "sha256": "8e1c3601a7a5c6a82d7aacae5fad1d856afa376bf196fc42e1750c2efea1ed1f"
+    },
+    "run-checkpoint.source.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/run-checkpoint.source.txt",
+      "bytes": 9168,
+      "sha256": "f5099e0b9ac5cf4861d93d2b8f2d7d1bc8c55c258d7164fff5c4e5e1e66075c7"
+    },
+    "projection-input.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/projection-input.json",
+      "bytes": 712,
+      "sha256": "378ead77b138af7355d34573ac755cfba320762ab7e224a0dd21f5c87bbf099a"
+    },
+    "configuration-custody.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/configuration-custody.json",
+      "bytes": 3641,
+      "sha256": "b0e5d57cd47131da9c33ef85c4a849709e02164c8b8b1512d796efef4ada193c"
+    },
+    "resources-after.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/resources-after.json",
+      "bytes": 2067,
+      "sha256": "f76303f7d02c6cf9440644f3351db53f9683db3692c9a0c30822a5c0c1a0399b"
+    },
+    "review.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/review.json",
+      "bytes": 3658,
+      "sha256": "4cfcf66379cdcc08e67ed9f2112971a5ea8be0eadb5966bf732060a7ff7732b2"
+    }
+  }
+}

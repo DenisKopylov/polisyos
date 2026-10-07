@@ -1,0 +1,150 @@
+from pathlib import Path
+import collections
+import hashlib
+import json
+import re
+import subprocess
+import xml.etree.ElementTree as ET
+
+ROOT = Path('/workspace/e02-B-current-coordination')
+RAW = ROOT / '.polisyos/e02-B-current/raw'
+TMP = Path('/tmp/e02-B-successor-final/raw/review')
+OUT = ROOT / 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dd-terminal-evidence'
+SOURCE = 'dd9584728bd96f204983615216efdbc58117e713'
+TREE = '7bf4be4a117762c8d37d4babcc214a2b28c2113e'
+
+def git(*args):
+    return subprocess.check_output(['git', *args], cwd=ROOT, text=True).strip()
+
+def identity(path):
+    payload = path.read_bytes()
+    return {'path': str(path), 'bytes': len(payload), 'sha256': hashlib.sha256(payload).hexdigest()}
+
+assert git('rev-parse', 'HEAD') == SOURCE
+assert git('rev-parse', 'HEAD^{tree}') == TREE
+assert git('symbolic-ref', '--short', 'HEAD') == 'codex/e02-B-current-coordination'
+assert not git('status', '--porcelain')
+partition_path = RAW / 'successor-final-dd958-case-partition.json'
+partition = json.loads(partition_path.read_text())
+assert partition['source_sha'] == SOURCE and partition['source_tree'] == TREE
+assert partition['parse_state'] == 'COMPLETE'
+assert len(partition['reconciliation_checks']) == 27
+assert all(partition['reconciliation_checks'].values())
+assert partition['case_counts'] == {'PASS': 2880, 'FAIL': 140, 'ERROR': 600, 'XFAIL': 0, 'SKIP': 2, 'UNRUN': 0}
+assert len(partition['cases']) == 3622
+assert partition['denominators']['distinct_collection_files'] == 236
+
+copies = {
+    'native.stdout.txt': RAW / 'review/successor-final-B-cohort.txt',
+    'native.junit.xml': TMP / 'successor-final-B-cohort.xml',
+    'native.execution.json': RAW / 'review/successor-final-B-cohort.json',
+    'native.profile.json': TMP / 'successor-final-B-cohort-profile.json',
+    'case-partition.execution.json': RAW / 'review/successor-final-case-partition.json',
+    'case-partition.stdout.txt': RAW / 'review/successor-final-case-partition.txt',
+    'ruff.stdout.txt': RAW / 'review/successor-final-all-changed-ruff.txt',
+}
+secret_patterns = {
+    'credential_uri': rb'(?:postgres(?:ql)?|https?)://[^\s/@:]+:[^\s/@]+@',
+    'private_key': rb'-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----',
+    'github_token': rb'\b(?:ghp_|github_pat_)[A-Za-z0-9_]{20,}',
+    'bearer_value': rb'(?i)bearer\s+[A-Za-z0-9_.-]{30,}',
+}
+OUT.mkdir(parents=True, exist_ok=False)
+copied = []
+for name, path in copies.items():
+    before = identity(path)
+    payload = path.read_bytes()
+    scan = {key: len(re.findall(pattern, payload)) for key, pattern in secret_patterns.items()}
+    assert not any(scan.values()), (name, scan)
+    destination = OUT / name
+    destination.write_bytes(payload)
+    after = identity(path)
+    target = identity(destination)
+    assert before == after
+    assert target['bytes'] == before['bytes'] and target['sha256'] == before['sha256']
+    copied.append({'source': before, 'tracked_destination': str(destination.relative_to(ROOT)), 'secret_pattern_counts': scan})
+
+xml_cases = list(ET.parse(copies['native.junit.xml']).getroot().iter('testcase'))
+assert len(xml_cases) == len(partition['cases'])
+rows = []
+counts = collections.Counter()
+for case in partition['cases']:
+    if case['state'] not in {'FAIL', 'ERROR', 'SKIP'}:
+        continue
+    indices = case['junit_representation_indexes']
+    assert len(indices) == 1
+    element = xml_cases[indices[0]]
+    outcomes = [child for child in element if child.tag in {'failure', 'error', 'skipped'}]
+    assert len(outcomes) == 1
+    outcome = outcomes[0]
+    message = outcome.get('message', '')
+    trace = outcome.text or ''
+    basis_text = message + '\n' + trace
+    if case['state'] == 'SKIP':
+        category = 'named_catalog_service_or_recompute_input_absent'
+    elif 'catalog_fetch_source_unreadable' in basis_text:
+        category = 'catalog_fetch_source_unreadable'
+    elif 'l6_control_artifact_missing' in basis_text:
+        category = 'l6_control_artifact_missing'
+    elif 'test_runtime_rego_authorization_parity.py' in case['nodeid'] and 'OPA' in basis_text:
+        category = 'required_opa_backend_unavailable'
+    elif 'test_restored_frontier_above_new_cap_refuses_before_consumer_effects' in case['nodeid']:
+        category = 'C_restored_cap_consumer_effects_before_refusal'
+    elif 'test_process_file_stream_cleanup_ownership[process-disconnect-failure]' in case['nodeid']:
+        category = 'C_old_handle_cleanup_obligation_not_reconciled'
+    else:
+        category = 'other_call_failure_requires_exact_consumer_adjudication'
+    counts[(case['state'], category)] += 1
+    rows.append({
+        'nodeid': case['nodeid'], 'state': case['state'],
+        'phase_states': case['phase_states'], 'junit_case_index': indices[0],
+        'literal_xml_outcome': outcome.tag, 'exception_type': outcome.get('type'),
+        'message': message, 'full_trace_sha256': hashlib.sha256(trace.encode()).hexdigest(),
+        'full_trace': 'native.junit.xml testcase index above; complete bytes also in native.stdout.txt',
+        'reason_category': category,
+        'category_grade': 'observed reason partition; no causal introducing-commit or finding closure decision',
+        'P41_inherited_red_basis': 'not_established',
+    })
+assert len(rows) == 742
+assert counts[('ERROR', 'catalog_fetch_source_unreadable')] == 559
+assert counts[('ERROR', 'l6_control_artifact_missing')] == 41
+assert counts[('FAIL', 'catalog_fetch_source_unreadable')] == 110
+assert counts[('FAIL', 'l6_control_artifact_missing')] == 2
+assert counts[('FAIL', 'required_opa_backend_unavailable')] == 7
+assert counts[('FAIL', 'C_restored_cap_consumer_effects_before_refusal')] == 1
+assert counts[('FAIL', 'C_old_handle_cleanup_obligation_not_reconciled')] == 1
+assert counts[('FAIL', 'other_call_failure_requires_exact_consumer_adjudication')] == 19
+assert counts[('SKIP', 'named_catalog_service_or_recompute_input_absent')] == 2
+
+untransferred = [
+    RAW / 'review/successor-final-B-cohort-inventory.json',
+    RAW / 'successor-final-selector.json',
+    RAW / 'successor-final-selector-lineage.json',
+    partition_path,
+    TMP / 'successor-final-production-invocation.full.json',
+]
+raw_refs = [identity(path) for path in untransferred if path.exists()]
+report = {
+    'schema': 'policyos.e02.terminal_native_interpretation.v1',
+    'source_sha': SOURCE, 'source_tree': TREE,
+    'predicate_basis': 'independently_reconciled',
+    'claim_grade': 'complete literal native-result/reason interpretation, not finding admission',
+    'native_denominators': partition['denominators'], 'native_case_counts': partition['case_counts'],
+    'native_session': partition['session'], 'phase_event_counts': partition['phase_event_counts'],
+    'collection_event_counts': partition['collection_event_counts'],
+    'all_27_reconciliation_checks': partition['reconciliation_checks'],
+    'nonpass_reason_counts': [dict(state=state, reason_category=category, cases=count) for (state, category), count in sorted(counts.items())],
+    'nonpass_reason_rows': rows,
+    'absent_named_selectors': partition['absent_named_selectors'],
+    'module_origin_summary': partition['module_origin_summary'],
+    'unresolved_by_construction': partition['unresolved_by_construction'],
+    'raw_not_transferred': raw_refs,
+    'raw_availability_for_G': 'not_established; exact rerun required for an admission depending on unavailable bytes',
+    'post_source_change_qualification': 'This entire native execution targets DD only. Later source repairs require affected consumer replays and a separately recorded frozen-candidate cohort; no old result is promoted to a new SHA.',
+    'finding_closure_ids': [],
+}
+(OUT / 'interpretation.json').write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n')
+(OUT / 'custody-index.json').write_text(json.dumps({'schema': 'policyos.e02.output_custody.v1', 'source_sha': SOURCE, 'source_tree': TREE, 'copied_outputs': copied, 'original_bytes_preserved': True, 'directories_moved_or_deleted': False}, indent=2) + '\n')
+(OUT / 'README.md').write_text('Complete actual DD native stdout/JUnit and full Ruff output. The interpreter execution is retained; its recomputable 6.96 MB partition remains ignored and is cited by hash. The report adds a complete literal failure-reason classification, without claiming inherited provenance or finding closure. Runtime source DD remains distinct from the later evidence commit and future repair candidate. Full original fixture forests and working environments remain in place because this cloud has no native Trash.\n')
+(OUT / 'instrument.source.txt').write_bytes(Path(__file__).read_bytes())
+print(json.dumps({'source_sha': SOURCE, 'source_tree': TREE, 'copied_output_count': len(copied), 'reason_rows': len(rows), 'reason_counts': report['nonpass_reason_counts'], 'tracked_evidence_paths': [str(path.relative_to(ROOT)) for path in sorted(OUT.iterdir())], 'output_bytes': sum(path.stat().st_size for path in OUT.iterdir())}, indent=2))

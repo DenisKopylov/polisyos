@@ -1,0 +1,90 @@
+{
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-optional-spend-projection-evidence/actual-observations.json",
+      "bytes": 10742,
+      "sha256": "2471c6009a852329966e116682387822bc75be98678782a42bf9ed94618c7c9a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-optional-spend-projection-evidence/criterion-contexts.txt",
+      "bytes": 8910,
+      "sha256": "1e536a5bdcccd7e0f847328de1ac8e6dc740becfc20453435ffe9c0bb80b9f0d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-optional-spend-projection-evidence/criterion-refs.json",
+      "bytes": 601,
+      "sha256": "9e1de6b70631a61ce3f2aad4a7ae7caa5caab2ca9d4d6de7d0d6bd4be9d3a48b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-optional-spend-projection-evidence/local-G-route-input-contract.json",
+      "bytes": 5051,
+      "sha256": "b43d6c344ab0b4be05f2e8554effe9b34e9a788736ed5dbf99221c7810d83a38"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-optional-spend-projection-evidence/local-G-route-request.json",
+      "bytes": 533,
+      "sha256": "1ef1bef705cce970ccc3c61518a15173b3fef665de8346fffb75882c46383e81"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-optional-spend-projection-evidence/native.txt",
+      "bytes": 11137,
+      "sha256": "ed71e0fc4e3cb2e0dc5a7703b7f0fed90c2e48c94f8588953d09266cc4c4a36a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-optional-spend-projection-evidence/native.xml",
+      "bytes": 3614,
+      "sha256": "225cf42312c835a9c0793a7a00aa9fb5f880becd131dba30f1dcf599d1d8b214"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-optional-spend-projection-evidence/package-initial.source.txt",
+      "bytes": 10840,
+      "sha256": "a8dc73da6bbc720115f277bd6e353946c93ba38c6bed23d4034c04ad3934e440"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-optional-spend-projection-evidence/package.source.txt",
+      "bytes": 11080,
+      "sha256": "7c95b084d444c973c49b745f03e8cfade11c8ffb2c7b6fdd45917af8091326e8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-optional-spend-projection-evidence/physical-inputs/test_optional_projection_prese0/physical-provider.jsonl",
+      "bytes": 46,
+      "sha256": "67c7084e43814274120b6ca6221aaabce1e48012a080344cac6b7cabc21ef1d4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-optional-spend-projection-evidence/physical-inputs/test_optional_projection_prese1/physical-provider.jsonl",
+      "bytes": 46,
+      "sha256": "67c7084e43814274120b6ca6221aaabce1e48012a080344cac6b7cabc21ef1d4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-optional-spend-projection-evidence/physical-inputs/test_optional_projection_prese2/physical-provider.jsonl",
+      "bytes": 46,
+      "sha256": "67c7084e43814274120b6ca6221aaabce1e48012a080344cac6b7cabc21ef1d4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-optional-spend-projection-evidence/physical-inputs/test_optional_projection_presecurrent/physical-provider.jsonl",
+      "bytes": 46,
+      "sha256": "67c7084e43814274120b6ca6221aaabce1e48012a080344cac6b7cabc21ef1d4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-optional-spend-projection-evidence/run-oracle.source.txt",
+      "bytes": 3484,
+      "sha256": "bac904284a6b563cb625c1a1950ef8b27faef725e5c7cd3520d96bffba1491fc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-optional-spend-projection-evidence/source-contexts.txt",
+      "bytes": 25493,
+      "sha256": "b1e379666cf5ae0be02ee0f4bd96197929dfed53323dc53657598785d55a198a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-optional-spend-projection-evidence/source-custody.json",
+      "bytes": 13792,
+      "sha256": "e582ac7989c460059464d7e97388e4e872b67bf433a3a14ee2fb9d289a1472d9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-optional-spend-projection-evidence/wrapper.json",
+      "bytes": 2757,
+      "sha256": "86e3270361c748250f7d260faedba8536379a53389566a564f75e47efbdf7eae"
+    }
+  ],
+  "bytes": 108218
+}

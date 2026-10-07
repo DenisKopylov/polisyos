@@ -1,0 +1,42 @@
+{
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "-m",
+    "pytest",
+    "-vv",
+    "tests/unit/core/phase0",
+    "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+    "tests/unit/core/artifacts/test_verification_snapshot_report.py",
+    "tests/unit/core/artifacts/test_cas_integrity_report.py",
+    "tests/unit/core/artifacts/test_storage_protocol_boundaries.py",
+    "tests/unit/core/artifacts/test_signed_evidence.py",
+    "tests/unit/core/artifacts/test_batch_completion_admission.py",
+    "tests/unit/runtime/quality/test_chronology_proof.py",
+    "--basetemp=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/final-followup-affected-pytest",
+    "--junitxml=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/final-followup-affected.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+  "target_sha": "836c4f2e39345fcc9a4bbcd63e21076e01feb6a7",
+  "target_tree": "b477043e14ee8dfb4e068722c8a8395e7935fcc1",
+  "exit_code": 2,
+  "wall_s": 27.154021519992966,
+  "maxrss_kib": 859232,
+  "environment": {
+    "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+    "POLISYOS_METRICS_PORT": "0",
+    "numerical_caps": "all6absent"
+  },
+  "outputs": [
+    {
+      "path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/final-followup-affected.txt",
+      "bytes": 2212,
+      "sha256": "e5835b493dbca53fdb83c8c73d3a53fc8e1a89f8daaf14e61d02c99f6eabb37b"
+    },
+    {
+      "path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/final-followup-affected.xml",
+      "bytes": 986,
+      "sha256": "9ad0664e454af8216962e19a275dd4c4f89ad1a7e5d65b26a765ad5057fb6093"
+    }
+  ]
+}

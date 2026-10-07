@@ -1,0 +1,100 @@
+import datetime
+import hashlib
+import json
+import shutil
+import xml.etree.ElementTree as ET
+from pathlib import Path
+
+ROOT = Path('/workspace/e02-B-current-cas-generation')
+BASE = Path('policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence')
+DEST = ROOT / BASE
+HERE = Path(__file__).resolve().parent
+DEST.mkdir(parents=True, exist_ok=True)
+RUNS = [
+    ('first-f563', 'fce1b198228c'),
+    ('second-e69', '3849170cd3eb'),
+    ('final-9ce', '31cd17fe6c7a'),
+    ('removal-plan', '61c1037763cd'),
+    ('removal-preparation', 'b8ea465a0e86'),
+    ('removal-seed', 'a489c1a67492'),
+]
+transfers = []
+checks = []
+
+
+def custody(path):
+    content = path.read_bytes()
+    return {'path': str(path.relative_to(ROOT)), 'bytes': len(content), 'sha256': hashlib.sha256(content).hexdigest()}
+
+
+for label, suffix in RUNS:
+    original = Path('/tmp/e02-B-reopened-compiled-plan-' + suffix)
+    for path in sorted(original.rglob('*')):
+        relative = path.relative_to(original)
+        if not path.is_file() or path.is_symlink() or 'cache' in relative.parts or path.suffix == '.pyc':
+            continue
+        target = DEST / label / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(path, target)
+        assert target.read_bytes() == path.read_bytes()
+        transfers.append({'original_path': str(path), 'source_mode': oct(path.stat().st_mode), **custody(target)})
+    profile = json.loads((original / 'profile.json').read_text())
+    result = json.loads((original / 'result.json').read_text())
+    cases = []
+    for case in ET.parse(original / 'native.xml').getroot().iter('testcase'):
+        error = case.find('error')
+        failure = case.find('failure')
+        skip = case.find('skipped')
+        outcome = 'ERROR' if error is not None else 'FAIL' if failure is not None else 'SKIP' if skip is not None else 'PASS'
+        item = {'classname': case.get('classname'), 'name': case.get('name'), 'duration_seconds': case.get('time'), 'outcome': outcome}
+        if failure is not None or error is not None:
+            element = failure if failure is not None else error
+            item['message'] = element.get('message')
+        cases.append(item)
+    phases = [json.loads(line) for line in (original / 'phases.jsonl').read_text().splitlines()]
+    checks.append({'label': label, 'source_checkout': profile['source_checkout_before'], 'source_after': result['source_checkout_after'], 'test_checkout': profile['test_checkout_before'], 'test_after': result['test_checkout_after'], 'argv': profile['argv'], 'cwd': profile['cwd'], 'counts': result['counts'], 'returncode': result['returncode'], 'elapsed_seconds': result['elapsed_seconds'], 'actual_phase_count': len(phases), 'actual_cases': cases, 'profile': str(BASE / label / 'profile.json'), 'stdout': str(BASE / label / 'native-stdout.txt'), 'xml': str(BASE / label / 'native.xml'), 'result': str(BASE / label / 'result.json'), 'module_origins': str(BASE / label / 'module-origins.jsonl'), 'phases': str(BASE / label / 'phases.jsonl')})
+
+for name in ('plan_run.py', 'plan_origins.py', 'removal_plan.py', 'removal_preparation.py', 'removal_seed.py', 'publish-plan.py'):
+    target = DEST / 'literal-instruments' / (name + '.txt')
+    target.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(HERE / name, target)
+    transfers.append({'original_path': str(HERE / name), 'source_mode': oct((HERE / name).stat().st_mode), **custody(target)})
+for path in sorted((HERE / 'plan-static').iterdir()):
+    target = DEST / 'static' / path.name
+    target.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(path, target)
+    transfers.append({'original_path': str(path), 'source_mode': oct(path.stat().st_mode), **custody(target)})
+
+observations = {
+    'schema': 'policyos.e02.independent_compiled_plan_consumer_observations.v1',
+    'created_utc': datetime.datetime.now(datetime.UTC).isoformat(),
+    'predicate_basis': 'recomputed',
+    'checks': checks,
+    'artifact_transfers': transfers,
+    'first_failure_attribution': {
+        'first-f563': {'source_producer_gap': 'Seven genuine store_compiled_chain_plan positives refused at load because producer returned manifest_profile_sha256=None, before scientific bodies.', 'own_fixture_input_gap': 'Three damaged-wire raw put fixtures also supplied an unselected ref and did not reach intended typed graph errors.', 'actual_counts': '6PASS10FAIL; all failures preserved; no property-removal attempted before defining B43 inlet.'},
+        'second-e69': {'source_producer_repair': 'Actual guarded-manifest/public-profile producer now works; two compiler numerical profiles, two physical parallel profiles and all three selected-wire graph errors reached their defining predicates.', 'own_fixture_input_gap': 'Three heterogeneous JAX profiles used a fresh registry with a default JaxRunner owning the unrelated global compiler and failed MethodNotFoundError before numerical body.', 'actual_counts': '13PASS3FAIL; source e69 clean before/after; completed before subsequent source annotation commit9ce.'},
+        'final-9ce': {'own_input_correction': 'Public JaxRunner(MethodCompiler(registry=registry)) registered on a real MethodDispatcher; existing public execute_heterogeneous_chain consumes the same restored chain. No mock, global registry patch, assertion or canonical guard change.', 'actual_counts': '16PASS; actual15owned cases plus one reused native unknown-shape refusal.'},
+    },
+    'defining_runtime_properties': {
+        'B43': ['Actual MethodComposer.build frozen ordering-only effective graph with no data-flow edge persisted through guarded CAS and reopened through actual CompiledChainPlan loader.', 'Actual arithmetic through sequential/async/auto plus compiled nonjit/jit uses the restored graph, exact static scale0.5 and dynamic seed23/offset0.75; expected17.144009055176273 is independent NumPy/Python transformation of real seeded JAX primitive.', 'Independent required+sibling bodies synchronize on a real two-thread barrier after reopen in async/auto; required29, sibling3, dependent36 and staticwindow20 observed.', 'Malformed persisted predecessor deletion/missing occurrence/cycle refs bind the actual stored manifest and fail at the intended canonical graph inlet before scientific bodies.'],
+        'B53': ['Four actual jit/infer cold-warm numeric repetition cases, separate numericalwarmup2 and reused real unknown-shape refusal replayed on9ce.', 'Static specialization and dynamicseed repetitions11/23/47/11 produce independently checked numerical outputs; preparation records zero scientific body entries.'],
+    },
+    'defining_removal_results': {
+        'plan': 'After genuine guardedCASload, in-memory drop only effective predecessors/successors while retaining nodes/wire/ABI/parameters/order/markers; actual async body result0.0 fails unchanged numerical expectation17.144009055176273. Full actual ref/wirehash/numeric arrays and changed node-result order recorded.',
+        'preparation': 'Original compilation followed by real numerical execution during preparation twice; totals16.244426727294922 recorded; unchanged zero-scientific-preparation assertion fails.',
+        'seed': 'Only explicit seed overrides forced to11 during actual compiled execution; requested23 retained in output; all4draws differ from independent expectedseed23 and original numerical assertion fails.',
+    },
+    'qualifications': [
+        'Independent test/metadata author does not independently accept canonical Foundry production; CMP is sole canonical producer writer and root owns current-candidate formal adjudication.',
+        'Reference production checkpoints f563/e69/9ce belong to actual CMP checkout. Independent tracked test executes from own separate SHA0e621/98afd/5a3f. Every loaded polisyos module origin and Git bytes checked at collection/session finish; source and test checkout SHA/tree/clean state matched before/after.',
+        'Final16PASS retained12soft output-validation warnings; no claim to strict scientific-output schema health, scientific validity, RNG distribution validation, historical implementation identity, cache-result/prefix authority or full Ray deployment readiness.',
+        'Actual numerical RNG primitive is JAX. The independent oracle recomputes its numerical transformation with NumPy/Python and does not independently validate JAX randomness law.',
+        'Fresh CAS instances/current registry reconstruct a cold actual chain within the same OS process; no process/powerloss/multihost recovery claim inferred from this B43 profile.',
+        'Known six canonical numerical thread cap variables removed from child environment, no numerical processquota. Barrier timeout5 is the bounded real fixture scheduling condition, not a cloud processquota.',
+        'Original source failures/input-premise failures and source/test corrections kept separately; original full DD native/global gate FAIL remains historical and no P41 inheritance waiver established.',
+        'Every original unique tmp fixture remains in place; moderate exact regular deciding files copied, symlink current aliases/pytest cache excluded without cleanup or input mutation.',
+    ],
+}
+(DEST / 'observations.json').write_text(json.dumps(observations, indent=2, sort_keys=True) + '\n')
+print(json.dumps({'artifact_count': len(transfers) + 1, 'artifact_bytes': sum(item['bytes'] for item in transfers) + (DEST / 'observations.json').stat().st_size, 'observations': custody(DEST / 'observations.json')}))

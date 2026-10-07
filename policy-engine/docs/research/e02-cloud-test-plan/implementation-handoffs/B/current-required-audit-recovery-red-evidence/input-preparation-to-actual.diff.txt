@@ -1,0 +1,126 @@
+diff --git a/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py b/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py
+index 8d3c357a7..22b3f59a4 100644
+--- a/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py
++++ b/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py
+@@ -253,6 +253,7 @@ class _RequiredAuditResolver:
+         if (
+             entry.compute_hash() != entry.entry_hash
+             or entry.chain_id != "B65:retained-owner"
++            or entry.actor.identity != obligation.actor
+             or entry.resource.id != obligation.run_id
+             or entry.correlation.run_id != obligation.run_id
+             or json.dumps(actual_payload, sort_keys=True)
+@@ -291,6 +292,10 @@ class _RequiredAuditResolver:
+ 
+ def _recovery_fixture(tmp_path: Path, action: str) -> tuple[Any, ...]:
+     audit_path = tmp_path / "original-protected.jsonl"
++    # A real empty JSONL target makes the first RESERVED fault occur in the
++    # unchanged backend append, after the actual sink has created its entry.
++    # Without it the test's prefix-preserving rename would fail beforehand.
++    audit_path.touch(exist_ok=False)
+     ledger_path = tmp_path / "original-ledger.json"
+     provider = _PhysicalProvider(tmp_path / "original-provider.jsonl")
+     initial = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("10"))})
+@@ -343,6 +348,29 @@ def test_same_protected_owner_replays_exact_missing_act_before_unblocking(
+         assert error.event["required_audit_status"] == "pending"
+         assert obligation.action == action
+         assert error.cause is audit.failure and isinstance(error.cause, IsADirectoryError)
++        original_metadata = json.dumps(dict(obligation.metadata), sort_keys=True)
++        original_digest = obligation.payload_digest
++        detached_metadata = dict(obligation.metadata)
++        if "budget_keys" in detached_metadata:
++            detached_metadata["budget_keys"].append("different-caller-key")
++        else:
++            detached_metadata["payload_digest"] = "sha256:" + "0" * 64
++        print(
++            "B65_DETACHED_METADATA "
++            + json.dumps(
++                {
++                    "route": route,
++                    "action": action,
++                    "original_metadata": json.loads(original_metadata),
++                    "mutated_caller_view": detached_metadata,
++                    "retained_metadata": dict(obligation.metadata),
++                    "original_digest": original_digest,
++                    "retained_digest": obligation.payload_digest,
++                }
++            )
++        )
++        assert json.dumps(dict(obligation.metadata), sort_keys=True) == original_metadata
++        assert obligation.payload_digest == original_digest
+         initial_calls = len(provider.responses)
+         assert initial_calls == (0 if action == "BUDGET_RESERVED" else 1)
+         if initial_calls:
+@@ -355,9 +383,54 @@ def test_same_protected_owner_replays_exact_missing_act_before_unblocking(
+             assert error.response is None and obligation.event is None
+             assert obligation.charge_ack is None
+             assert not before.spend_receipts
++            assert before.state.reserved["run"] > Decimal("0")
++        assert before.completion_obligations
+         with pytest.raises(LLMAccountingError):
+             _call(enforcer, route)
+         assert len(provider.responses) == initial_calls
++        # A new constructor reopens the actual ledger with a distinct live
++        # owner epoch. It must discover the persisted obligation, even though
++        # this owner has never seen the original in-memory accounting error.
++        reopened_initial = BudgetState(
++            limits={"run": BudgetLimit(key="run", max_usd=Decimal("10"))}
++        )
++        reopened = LLMBudgetEnforcer(
++            client=TracedLLMClient(provider, model_name="default", run_id="B65-owner-recovery"),
++            budget_state=reopened_initial,
++            budget_keys=["run"],
++            budget_middleware=BudgetMiddleware(
++                reopened_initial, ledger=FileBudgetLedger(ledger_path)
++            ),
++            audit_log=audit,
++            audit_reconciler=resolver,
++            run_id="B65-owner-recovery",
++        )
++        ledger_before_reopened_call = ledger_path.read_bytes()
++        audit_before_reopened_call = audit_path.read_bytes()
++        with pytest.raises(LLMAccountingError) as reopened_error:
++            _call(reopened, route)
++        retained = reopened_error.value.event["completion_obligation"]
++        print(
++            "B65_REOPENED_PENDING "
++            + json.dumps(
++                {
++                    "route": route,
++                    "action": action,
++                    "provider_calls": len(provider.responses),
++                    "retained_completion": retained.model_dump(mode="json"),
++                    "audit_bytes_unchanged": audit_path.read_bytes() == audit_before_reopened_call,
++                    "ledger_bytes_unchanged": ledger_path.read_bytes()
++                    == ledger_before_reopened_call,
++                    "fresh_ledger": FileBudgetLedger(ledger_path)
++                    .snapshot()
++                    .model_dump(mode="json"),
++                }
++            )
++        )
++        assert retained.obligation_id in before.completion_obligations
++        assert audit_path.read_bytes() == audit_before_reopened_call
++        assert ledger_path.read_bytes() == ledger_before_reopened_call
++        assert len(provider.responses) == initial_calls
+         ack = enforcer.reconcile_required_audit(obligation.act_id)
+         after = FileBudgetLedger(ledger_path).snapshot()
+         print(
+@@ -378,6 +451,8 @@ def test_same_protected_owner_replays_exact_missing_act_before_unblocking(
+         )
+         assert after.state.spent == before.state.spent
+         assert after.spend_receipts == before.spend_receipts
++        assert after.state.reserved.get("run", Decimal("0")) == Decimal("0")
++        assert not after.completion_obligations
+         assert len(provider.responses) == initial_calls
+         assert resolver.calls == resolver.writes == 1
+         if obligation.charge_ack is not None:
+@@ -385,7 +460,7 @@ def test_same_protected_owner_replays_exact_missing_act_before_unblocking(
+         else:
+             assert ack.status == "unmanaged"
+         assert ChainVerifier().verify_jsonl_file(audit_path).chain_intact
+-        result = _call(enforcer, route)
++        result = _call(reopened, route)
+         assert producer_settlement(result).ack.status == "committed"
+         assert len(provider.responses) == initial_calls + 1
+         print(

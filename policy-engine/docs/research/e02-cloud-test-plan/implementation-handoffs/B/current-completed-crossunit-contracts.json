@@ -1,0 +1,1393 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-completed-crossunit-contracts",
+  "owner": "/root/cmp_res_probe",
+  "closure_ids": [],
+  "finding_ids": [
+    "B13",
+    "B65",
+    "B66",
+    "B87",
+    "B154"
+  ],
+  "criterion_ids": [
+    "B13",
+    "B65",
+    "B66",
+    "B87",
+    "B154"
+  ],
+  "referenced_C_owned_criteria": [
+    "B82",
+    "B84",
+    "B85"
+  ],
+  "bundle_ids": [
+    "RES-03",
+    "LLM-01",
+    "NET-01",
+    "CAS-03"
+  ],
+  "slice_base_sha": "955985d91775ef9b45fba72cf43baf7e1f520568",
+  "implementation_commits": [
+    "b07dcce3e354350efa6b5a4e46b7bed5d4462ee1",
+    "85f0f0afd7abd62114074311ec90e7387ac27a38"
+  ],
+  "implementation_sha": "85f0f0afd7abd62114074311ec90e7387ac27a38",
+  "candidate_tree_sha": "7d82a9e9229d16c922b707a9ac81f9f387dbac33",
+  "branch": "codex/e02-B-current-composition",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/45",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-evidence/canonical-criteria.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-evidence/contracts.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-evidence/historical-outcome-boundaries.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-evidence/index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-evidence/local-G-inputs-and-commands.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-evidence/package.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-evidence/source-contexts.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-evidence/source-inputs.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/B154-existing-publisher-contract.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/case-and-property-join.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/driver.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/final-consumer-source-contexts.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/final-local-G-contract.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/final-source-inputs.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixture-inventory.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/ownership/transactions/locks/stripe-03.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/ownership/transactions/locks/stripe-05.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/ownership/transactions/locks/stripe-08.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/ownership/transactions/locks/stripe-12.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/ownership/transactions/locks/stripe-18.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/ownership/transactions/locks/stripe-24.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/ownership/transactions/locks/stripe-38.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/ownership/transactions/locks/stripe-42.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/ownership/transactions/locks/stripe-45.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/ownership/transactions/locks/stripe-46.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/ownership/transactions/locks/stripe-48.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/ownership/transactions/locks/stripe-49.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/ownership/transactions/locks/stripe-60.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/ownership/transactions/root.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/1f/d4/1fd4176d9b0c1e3f96619f3bab1d97bf6c91f14102a02f2c653039eaca23426e.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/1f/d4/1fd4176d9b0c1e3f96619f3bab1d97bf6c91f14102a02f2c653039eaca23426e.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/1f/d4/1fd4176d9b0c1e3f96619f3bab1d97bf6c91f14102a02f2c653039eaca23426e.view.2c29f467d57d656ee7ea8977fa70972f296c1eb8706535dc9ceae6e09133e8c4.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/28/56/28568a6a2e0bde5658e1d82123633897c1a57672495c37395cbd89c2faa6604c.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/28/56/28568a6a2e0bde5658e1d82123633897c1a57672495c37395cbd89c2faa6604c.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/28/56/28568a6a2e0bde5658e1d82123633897c1a57672495c37395cbd89c2faa6604c.view.2c29f467d57d656ee7ea8977fa70972f296c1eb8706535dc9ceae6e09133e8c4.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/2f/ed/2fed3afcb95eeae5e8b2988b441fd52f97814db7c82122b96b1a65097e873458.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/2f/ed/2fed3afcb95eeae5e8b2988b441fd52f97814db7c82122b96b1a65097e873458.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/2f/ed/2fed3afcb95eeae5e8b2988b441fd52f97814db7c82122b96b1a65097e873458.view.0975f84226ab988bb25bae586706735dfe3d90d7bf32f1788ddf23e15652cb72.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/32/3e/323e187adc6c7c0d903a47b4ef1fad0d41b5664b104d9f8f69eb70a59cd4c53c.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/32/3e/323e187adc6c7c0d903a47b4ef1fad0d41b5664b104d9f8f69eb70a59cd4c53c.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/32/3e/323e187adc6c7c0d903a47b4ef1fad0d41b5664b104d9f8f69eb70a59cd4c53c.view.2c29f467d57d656ee7ea8977fa70972f296c1eb8706535dc9ceae6e09133e8c4.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/40/29/4029dc71ffa5846947b2399af21d4f04b48e4bd4e43fdb479e7794e8d23a5e83.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/40/29/4029dc71ffa5846947b2399af21d4f04b48e4bd4e43fdb479e7794e8d23a5e83.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/40/29/4029dc71ffa5846947b2399af21d4f04b48e4bd4e43fdb479e7794e8d23a5e83.view.0975f84226ab988bb25bae586706735dfe3d90d7bf32f1788ddf23e15652cb72.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/46/0f/460f5e35ff8de36d129a3e36e3eca20f2c808cd176e973eac56d58f6faf8827c.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/46/0f/460f5e35ff8de36d129a3e36e3eca20f2c808cd176e973eac56d58f6faf8827c.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/46/0f/460f5e35ff8de36d129a3e36e3eca20f2c808cd176e973eac56d58f6faf8827c.view.71579a394d92c1f2e2f2773b67f3270396e13a48b99b9c78e3af24af7acd4a74.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/6b/54/6b548cc3b24dbf1db68f50a2c537208a6ce3c74a5816627ef07f00ee0446cd6d.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/6b/54/6b548cc3b24dbf1db68f50a2c537208a6ce3c74a5816627ef07f00ee0446cd6d.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/6b/54/6b548cc3b24dbf1db68f50a2c537208a6ce3c74a5816627ef07f00ee0446cd6d.view.71579a394d92c1f2e2f2773b67f3270396e13a48b99b9c78e3af24af7acd4a74.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/6b/e6/6be6cfcb342cc70e1d0033a14c1074f97cda8d4a5a76e1fb8f6ea80a60665708.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/6b/e6/6be6cfcb342cc70e1d0033a14c1074f97cda8d4a5a76e1fb8f6ea80a60665708.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/6b/e6/6be6cfcb342cc70e1d0033a14c1074f97cda8d4a5a76e1fb8f6ea80a60665708.view.0975f84226ab988bb25bae586706735dfe3d90d7bf32f1788ddf23e15652cb72.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/7d/81/7d818314cab2f50645495f59b3da8977caf853a7d90b285929b9a3070f208aa6.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/7d/81/7d818314cab2f50645495f59b3da8977caf853a7d90b285929b9a3070f208aa6.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/7d/81/7d818314cab2f50645495f59b3da8977caf853a7d90b285929b9a3070f208aa6.view.2c29f467d57d656ee7ea8977fa70972f296c1eb8706535dc9ceae6e09133e8c4.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/7d/c5/7dc55b2b49296bc15723156c1bfa59b1f3bae3a46e18fe8f37792b9e19b57c05.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/7d/c5/7dc55b2b49296bc15723156c1bfa59b1f3bae3a46e18fe8f37792b9e19b57c05.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/7d/c5/7dc55b2b49296bc15723156c1bfa59b1f3bae3a46e18fe8f37792b9e19b57c05.view.2c29f467d57d656ee7ea8977fa70972f296c1eb8706535dc9ceae6e09133e8c4.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/86/42/8642a0e1c469a96c5a502abc98519661beb174586380a37cc3f345cc55e68e2d.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/86/42/8642a0e1c469a96c5a502abc98519661beb174586380a37cc3f345cc55e68e2d.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/86/42/8642a0e1c469a96c5a502abc98519661beb174586380a37cc3f345cc55e68e2d.view.2c29f467d57d656ee7ea8977fa70972f296c1eb8706535dc9ceae6e09133e8c4.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/96/77/9677a9fd6d3314bc161d5551a1dc32f81b95f5665280eebc741145a54f12e852.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/96/77/9677a9fd6d3314bc161d5551a1dc32f81b95f5665280eebc741145a54f12e852.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/96/77/9677a9fd6d3314bc161d5551a1dc32f81b95f5665280eebc741145a54f12e852.view.2c29f467d57d656ee7ea8977fa70972f296c1eb8706535dc9ceae6e09133e8c4.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/a5/5b/a55b051b16d5860c650bbf6864595e028d01a8234315be21960bddaedb8e5830.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/a5/5b/a55b051b16d5860c650bbf6864595e028d01a8234315be21960bddaedb8e5830.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/a5/5b/a55b051b16d5860c650bbf6864595e028d01a8234315be21960bddaedb8e5830.view.3528225e039f9b6da63b35d07e6e0acbd17448bf751b3685a8aaf127fdf8789a.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/bc/e6/bce6cd0ffe2377e73670ad3c281acd3f3b260ff3ba04d9c4bc390701819044ea.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/bc/e6/bce6cd0ffe2377e73670ad3c281acd3f3b260ff3ba04d9c4bc390701819044ea.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/bc/e6/bce6cd0ffe2377e73670ad3c281acd3f3b260ff3ba04d9c4bc390701819044ea.view.2c29f467d57d656ee7ea8977fa70972f296c1eb8706535dc9ceae6e09133e8c4.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/df/bd/dfbd69211eccc38873cc70e9eaf6b05335c8c5d11c74e8b560df564cfa60f885.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/df/bd/dfbd69211eccc38873cc70e9eaf6b05335c8c5d11c74e8b560df564cfa60f885.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/df/bd/dfbd69211eccc38873cc70e9eaf6b05335c8c5d11c74e8b560df564cfa60f885.view.479ad2376bd069ac120343122c0d25dd37bc23bdd75fe6ad4784277e54e7aff2.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/ec/0d/ec0df6b4fe089e65535d944b8b3f03d297b6cac3d7dc242d06e264e70fee1631.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/ec/0d/ec0df6b4fe089e65535d944b8b3f03d297b6cac3d7dc242d06e264e70fee1631.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/ec/0d/ec0df6b4fe089e65535d944b8b3f03d297b6cac3d7dc242d06e264e70fee1631.view.0975f84226ab988bb25bae586706735dfe3d90d7bf32f1788ddf23e15652cb72.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/fa/40/fa40e924e8f0a75bfbacf3d8dc2754dd542ba957f5b1e56b3f922d0e06d84e30.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/fa/40/fa40e924e8f0a75bfbacf3d8dc2754dd542ba957f5b1e56b3f922d0e06d84e30.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/artifacts/sha256/fa/40/fa40e924e8f0a75bfbacf3d8dc2754dd542ba957f5b1e56b3f922d0e06d84e30.view.2c29f467d57d656ee7ea8977fa70972f296c1eb8706535dc9ceae6e09133e8c4.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/cursor_index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/cursor_index.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/partition_state_index.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/stream_checkpoint_index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/cas/stream_checkpoint_index.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_admitted_recovery_emits_t0/events.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_direct_file_session_secon0/events.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean0/cas/artifacts/ownership/transactions/locks/stripe-02.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean0/cas/artifacts/ownership/transactions/locks/stripe-12.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean0/cas/artifacts/ownership/transactions/locks/stripe-15.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean0/cas/artifacts/ownership/transactions/locks/stripe-16.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean0/cas/artifacts/ownership/transactions/locks/stripe-24.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean0/cas/artifacts/ownership/transactions/locks/stripe-28.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean0/cas/artifacts/ownership/transactions/locks/stripe-32.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean0/cas/artifacts/ownership/transactions/locks/stripe-42.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean0/cas/artifacts/ownership/transactions/locks/stripe-52.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean0/cas/artifacts/ownership/transactions/root.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean0/cas/artifacts/sha256/36/d5/36d53c3dc5d101aac67b641aeb94e092f1f2917af20a6b48d96d67072fb5c1b4.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean0/cas/artifacts/sha256/36/d5/36d53c3dc5d101aac67b641aeb94e092f1f2917af20a6b48d96d67072fb5c1b4.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean0/cas/artifacts/sha256/36/d5/36d53c3dc5d101aac67b641aeb94e092f1f2917af20a6b48d96d67072fb5c1b4.view.2c29f467d57d656ee7ea8977fa70972f296c1eb8706535dc9ceae6e09133e8c4.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean0/cas/artifacts/sha256/4a/2f/4a2f1e5866bbac928d2d07d742b7077cfbe19f3f01bf9f423fe6104b9d931882.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean0/cas/artifacts/sha256/4a/2f/4a2f1e5866bbac928d2d07d742b7077cfbe19f3f01bf9f423fe6104b9d931882.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean0/cas/artifacts/sha256/4a/2f/4a2f1e5866bbac928d2d07d742b7077cfbe19f3f01bf9f423fe6104b9d931882.view.2c29f467d57d656ee7ea8977fa70972f296c1eb8706535dc9ceae6e09133e8c4.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean0/cas/artifacts/sha256/5c/7c/5c7ca4201377aadb23c12e9ca993bbc8c9848b541578c9aad75a6af2c211c96a.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean0/cas/artifacts/sha256/5c/7c/5c7ca4201377aadb23c12e9ca993bbc8c9848b541578c9aad75a6af2c211c96a.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean0/cas/artifacts/sha256/5c/7c/5c7ca4201377aadb23c12e9ca993bbc8c9848b541578c9aad75a6af2c211c96a.view.71579a394d92c1f2e2f2773b67f3270396e13a48b99b9c78e3af24af7acd4a74.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean0/cas/artifacts/sha256/7f/48/7f484e8dc7c637ff860410c86400a18d607bc9f49b4b6ce10874fa88b4e00e90.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean0/cas/artifacts/sha256/7f/48/7f484e8dc7c637ff860410c86400a18d607bc9f49b4b6ce10874fa88b4e00e90.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean0/cas/artifacts/sha256/7f/48/7f484e8dc7c637ff860410c86400a18d607bc9f49b4b6ce10874fa88b4e00e90.view.2c29f467d57d656ee7ea8977fa70972f296c1eb8706535dc9ceae6e09133e8c4.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean0/cas/artifacts/sha256/85/88/858893d95e016460844bba2f5e5fb39fa6e15a164ccc2c0f02bd832dab58768f.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean0/cas/artifacts/sha256/85/88/858893d95e016460844bba2f5e5fb39fa6e15a164ccc2c0f02bd832dab58768f.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean0/cas/artifacts/sha256/85/88/858893d95e016460844bba2f5e5fb39fa6e15a164ccc2c0f02bd832dab58768f.view.92dbfffec3942a3446d67e83817f58b61158db3410be0eea021cb67abf7b99db.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean0/cas/artifacts/sha256/98/35/983524d0bb0a6a48d6bd241b1b7576d77a8a333018c086e8f0076b321a214e1c.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean0/cas/artifacts/sha256/98/35/983524d0bb0a6a48d6bd241b1b7576d77a8a333018c086e8f0076b321a214e1c.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean0/cas/artifacts/sha256/98/35/983524d0bb0a6a48d6bd241b1b7576d77a8a333018c086e8f0076b321a214e1c.view.92dbfffec3942a3446d67e83817f58b61158db3410be0eea021cb67abf7b99db.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean0/cas/artifacts/sha256/b7/d0/b7d01073330023e1ae633b298c29b46034a5ed2555674d9e1fa602b6c4db308c.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean0/cas/artifacts/sha256/b7/d0/b7d01073330023e1ae633b298c29b46034a5ed2555674d9e1fa602b6c4db308c.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean0/cas/artifacts/sha256/b7/d0/b7d01073330023e1ae633b298c29b46034a5ed2555674d9e1fa602b6c4db308c.view.0975f84226ab988bb25bae586706735dfe3d90d7bf32f1788ddf23e15652cb72.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean0/cas/artifacts/sha256/d3/8c/d38c6b371f626b00a3560569da36b0c0f3a5830cabc8f6e875f4cd33338e86a0.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean0/cas/artifacts/sha256/d3/8c/d38c6b371f626b00a3560569da36b0c0f3a5830cabc8f6e875f4cd33338e86a0.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean0/cas/artifacts/sha256/d3/8c/d38c6b371f626b00a3560569da36b0c0f3a5830cabc8f6e875f4cd33338e86a0.view.0975f84226ab988bb25bae586706735dfe3d90d7bf32f1788ddf23e15652cb72.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean0/cas/artifacts/sha256/f5/64/f5642f0982692f28bf17a6491ca20d3a8e39353b16a82a69102488865e617258.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean0/cas/artifacts/sha256/f5/64/f5642f0982692f28bf17a6491ca20d3a8e39353b16a82a69102488865e617258.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean0/cas/artifacts/sha256/f5/64/f5642f0982692f28bf17a6491ca20d3a8e39353b16a82a69102488865e617258.view.2c29f467d57d656ee7ea8977fa70972f296c1eb8706535dc9ceae6e09133e8c4.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean0/cas/cursor_index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean0/cas/cursor_index.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean0/cas/partition_state_index.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean0/cas/stream_checkpoint_index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean0/cas/stream_checkpoint_index.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean0/events.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean1/cas/artifacts/ownership/transactions/root.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean1/cas/cursor_index.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean1/cas/partition_state_index.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean1/cas/stream_checkpoint_index.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean1/events.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean2/cas/artifacts/ownership/transactions/root.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean2/cas/cursor_index.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean2/cas/partition_state_index.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean2/cas/stream_checkpoint_index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean2/cas/stream_checkpoint_index.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean2/events.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean3/cas/artifacts/ownership/transactions/locks/stripe-20.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean3/cas/artifacts/ownership/transactions/root.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean3/cas/artifacts/sha256/71/1f/711f8f59e68c522ced4fc6f0a64e0b5990d98c83cf2055e1df36c7fb644d8014.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean3/cas/artifacts/sha256/71/1f/711f8f59e68c522ced4fc6f0a64e0b5990d98c83cf2055e1df36c7fb644d8014.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean3/cas/artifacts/sha256/71/1f/711f8f59e68c522ced4fc6f0a64e0b5990d98c83cf2055e1df36c7fb644d8014.view.2c29f467d57d656ee7ea8977fa70972f296c1eb8706535dc9ceae6e09133e8c4.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean3/cas/cursor_index.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean3/cas/partition_state_index.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean3/cas/stream_checkpoint_index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean3/cas/stream_checkpoint_index.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean3/events.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean4/cas/artifacts/ownership/transactions/root.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean4/cas/cursor_index.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean4/cas/partition_state_index.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean4/cas/stream_checkpoint_index.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean4/events.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean5/cas/artifacts/ownership/transactions/root.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean5/cas/cursor_index.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean5/cas/partition_state_index.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean5/cas/stream_checkpoint_index.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean5/events.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean6/cas/artifacts/ownership/transactions/locks/stripe-15.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean6/cas/artifacts/ownership/transactions/locks/stripe-23.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean6/cas/artifacts/ownership/transactions/locks/stripe-28.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean6/cas/artifacts/ownership/transactions/locks/stripe-42.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean6/cas/artifacts/ownership/transactions/locks/stripe-49.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean6/cas/artifacts/ownership/transactions/locks/stripe-51.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean6/cas/artifacts/ownership/transactions/locks/stripe-55.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean6/cas/artifacts/ownership/transactions/root.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean6/cas/artifacts/sha256/04/3d/043d159d0dbb2cb05b85161acf27016e6c6718766eb96f2cda27b8cd31241eb3.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean6/cas/artifacts/sha256/04/3d/043d159d0dbb2cb05b85161acf27016e6c6718766eb96f2cda27b8cd31241eb3.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean6/cas/artifacts/sha256/04/3d/043d159d0dbb2cb05b85161acf27016e6c6718766eb96f2cda27b8cd31241eb3.view.0975f84226ab988bb25bae586706735dfe3d90d7bf32f1788ddf23e15652cb72.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean6/cas/artifacts/sha256/27/71/277193f0f2f695ae192e1c0713d3870055df67d417b7fe880ffb10c2469866f1.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean6/cas/artifacts/sha256/27/71/277193f0f2f695ae192e1c0713d3870055df67d417b7fe880ffb10c2469866f1.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean6/cas/artifacts/sha256/27/71/277193f0f2f695ae192e1c0713d3870055df67d417b7fe880ffb10c2469866f1.view.2c29f467d57d656ee7ea8977fa70972f296c1eb8706535dc9ceae6e09133e8c4.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean6/cas/artifacts/sha256/50/23/5023ed3250586e47617fdf36d273f136efa62ec4f268fb413186a675ee11f8d7.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean6/cas/artifacts/sha256/50/23/5023ed3250586e47617fdf36d273f136efa62ec4f268fb413186a675ee11f8d7.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean6/cas/artifacts/sha256/50/23/5023ed3250586e47617fdf36d273f136efa62ec4f268fb413186a675ee11f8d7.view.2c29f467d57d656ee7ea8977fa70972f296c1eb8706535dc9ceae6e09133e8c4.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean6/cas/artifacts/sha256/5c/7c/5c7ca4201377aadb23c12e9ca993bbc8c9848b541578c9aad75a6af2c211c96a.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean6/cas/artifacts/sha256/5c/7c/5c7ca4201377aadb23c12e9ca993bbc8c9848b541578c9aad75a6af2c211c96a.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean6/cas/artifacts/sha256/5c/7c/5c7ca4201377aadb23c12e9ca993bbc8c9848b541578c9aad75a6af2c211c96a.view.71579a394d92c1f2e2f2773b67f3270396e13a48b99b9c78e3af24af7acd4a74.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean6/cas/artifacts/sha256/6f/4f/6f4f8c75c58608007c38d05641d80ff9376b30e632bda317e3d2ab7696599baa.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean6/cas/artifacts/sha256/6f/4f/6f4f8c75c58608007c38d05641d80ff9376b30e632bda317e3d2ab7696599baa.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean6/cas/artifacts/sha256/6f/4f/6f4f8c75c58608007c38d05641d80ff9376b30e632bda317e3d2ab7696599baa.view.0975f84226ab988bb25bae586706735dfe3d90d7bf32f1788ddf23e15652cb72.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean6/cas/artifacts/sha256/79/b4/79b46299666f58350fef656a9acf3acc51a8173c536d54f52d8a177d30ed5837.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean6/cas/artifacts/sha256/79/b4/79b46299666f58350fef656a9acf3acc51a8173c536d54f52d8a177d30ed5837.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean6/cas/artifacts/sha256/79/b4/79b46299666f58350fef656a9acf3acc51a8173c536d54f52d8a177d30ed5837.view.2c29f467d57d656ee7ea8977fa70972f296c1eb8706535dc9ceae6e09133e8c4.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean6/cas/artifacts/sha256/85/88/858893d95e016460844bba2f5e5fb39fa6e15a164ccc2c0f02bd832dab58768f.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean6/cas/artifacts/sha256/85/88/858893d95e016460844bba2f5e5fb39fa6e15a164ccc2c0f02bd832dab58768f.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean6/cas/artifacts/sha256/85/88/858893d95e016460844bba2f5e5fb39fa6e15a164ccc2c0f02bd832dab58768f.view.92dbfffec3942a3446d67e83817f58b61158db3410be0eea021cb67abf7b99db.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean6/cas/artifacts/sha256/98/35/983524d0bb0a6a48d6bd241b1b7576d77a8a333018c086e8f0076b321a214e1c.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean6/cas/artifacts/sha256/98/35/983524d0bb0a6a48d6bd241b1b7576d77a8a333018c086e8f0076b321a214e1c.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean6/cas/artifacts/sha256/98/35/983524d0bb0a6a48d6bd241b1b7576d77a8a333018c086e8f0076b321a214e1c.view.92dbfffec3942a3446d67e83817f58b61158db3410be0eea021cb67abf7b99db.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean6/cas/artifacts/sha256/b1/69/b169a56a7ca30e3cd29efceb7384dc364d961a2974fd2576e6575c3556ce66d7.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean6/cas/artifacts/sha256/b1/69/b169a56a7ca30e3cd29efceb7384dc364d961a2974fd2576e6575c3556ce66d7.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean6/cas/artifacts/sha256/b1/69/b169a56a7ca30e3cd29efceb7384dc364d961a2974fd2576e6575c3556ce66d7.view.2c29f467d57d656ee7ea8977fa70972f296c1eb8706535dc9ceae6e09133e8c4.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean6/cas/cursor_index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean6/cas/cursor_index.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean6/cas/partition_state_index.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean6/cas/stream_checkpoint_index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean6/cas/stream_checkpoint_index.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_process_file_stream_clean6/events.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/ownership/transactions/locks/stripe-01.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/ownership/transactions/locks/stripe-02.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/ownership/transactions/locks/stripe-05.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/ownership/transactions/locks/stripe-09.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/ownership/transactions/locks/stripe-11.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/ownership/transactions/locks/stripe-17.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/ownership/transactions/locks/stripe-22.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/ownership/transactions/locks/stripe-28.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/ownership/transactions/locks/stripe-45.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/ownership/transactions/locks/stripe-49.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/ownership/transactions/locks/stripe-53.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/ownership/transactions/locks/stripe-57.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/ownership/transactions/locks/stripe-63.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/ownership/transactions/root.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/0c/c7/0cc71fbef387e2449ac6dbf2fe5263eea785dc0708cf08faefb7141c508492f9.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/0c/c7/0cc71fbef387e2449ac6dbf2fe5263eea785dc0708cf08faefb7141c508492f9.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/0c/c7/0cc71fbef387e2449ac6dbf2fe5263eea785dc0708cf08faefb7141c508492f9.view.5049830982d843b0e244d70a11b63ce8a70737a600e85207ed26fe1aadc97133.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/2a/b5/2ab50826dad8bc97f630ad5206a4b5d1e165369e04a6cab3a74c785b5b084f71.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/2a/b5/2ab50826dad8bc97f630ad5206a4b5d1e165369e04a6cab3a74c785b5b084f71.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/2a/b5/2ab50826dad8bc97f630ad5206a4b5d1e165369e04a6cab3a74c785b5b084f71.view.0975f84226ab988bb25bae586706735dfe3d90d7bf32f1788ddf23e15652cb72.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/32/f9/32f91f0f8df61e3fd56f62a05975c65eb6263b8198a733f56d86f27d21a46c05.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/32/f9/32f91f0f8df61e3fd56f62a05975c65eb6263b8198a733f56d86f27d21a46c05.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/32/f9/32f91f0f8df61e3fd56f62a05975c65eb6263b8198a733f56d86f27d21a46c05.view.2c29f467d57d656ee7ea8977fa70972f296c1eb8706535dc9ceae6e09133e8c4.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/44/67/4467468c50237d904a269e3f2b4c93683c59f57cfe651560e121bb992c8d3275.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/44/67/4467468c50237d904a269e3f2b4c93683c59f57cfe651560e121bb992c8d3275.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/44/67/4467468c50237d904a269e3f2b4c93683c59f57cfe651560e121bb992c8d3275.view.2c29f467d57d656ee7ea8977fa70972f296c1eb8706535dc9ceae6e09133e8c4.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/59/76/5976195e975effdcb085e8cbecaae4d6af829cabe2b73ef2caaa0dbae47a6942.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/59/76/5976195e975effdcb085e8cbecaae4d6af829cabe2b73ef2caaa0dbae47a6942.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/59/76/5976195e975effdcb085e8cbecaae4d6af829cabe2b73ef2caaa0dbae47a6942.view.0975f84226ab988bb25bae586706735dfe3d90d7bf32f1788ddf23e15652cb72.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/6b/54/6b548cc3b24dbf1db68f50a2c537208a6ce3c74a5816627ef07f00ee0446cd6d.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/6b/54/6b548cc3b24dbf1db68f50a2c537208a6ce3c74a5816627ef07f00ee0446cd6d.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/6b/54/6b548cc3b24dbf1db68f50a2c537208a6ce3c74a5816627ef07f00ee0446cd6d.view.71579a394d92c1f2e2f2773b67f3270396e13a48b99b9c78e3af24af7acd4a74.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/7e/3d/7e3d141329c2957782ed69fd3758599331a4e60e54ce9e560bbfb6b61db72ec1.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/7e/3d/7e3d141329c2957782ed69fd3758599331a4e60e54ce9e560bbfb6b61db72ec1.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/7e/3d/7e3d141329c2957782ed69fd3758599331a4e60e54ce9e560bbfb6b61db72ec1.view.2c29f467d57d656ee7ea8977fa70972f296c1eb8706535dc9ceae6e09133e8c4.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/8c/12/8c126e9314f1be0b4dd76a0384a702c86c388ded27dc68b9fdf4d8d72ac282d6.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/8c/12/8c126e9314f1be0b4dd76a0384a702c86c388ded27dc68b9fdf4d8d72ac282d6.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/8c/12/8c126e9314f1be0b4dd76a0384a702c86c388ded27dc68b9fdf4d8d72ac282d6.view.71579a394d92c1f2e2f2773b67f3270396e13a48b99b9c78e3af24af7acd4a74.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/a3/f0/a3f0e93a9df789988d897dd65ce03b323726796027a0c7b1e3298b39c0363245.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/a3/f0/a3f0e93a9df789988d897dd65ce03b323726796027a0c7b1e3298b39c0363245.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/a3/f0/a3f0e93a9df789988d897dd65ce03b323726796027a0c7b1e3298b39c0363245.view.2c29f467d57d656ee7ea8977fa70972f296c1eb8706535dc9ceae6e09133e8c4.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/bd/a6/bda6a04c3d1bfad2bf068e8c8c8ca4da093c5f8f41acbaeb4e1b026864025791.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/bd/a6/bda6a04c3d1bfad2bf068e8c8c8ca4da093c5f8f41acbaeb4e1b026864025791.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/bd/a6/bda6a04c3d1bfad2bf068e8c8c8ca4da093c5f8f41acbaeb4e1b026864025791.view.2c29f467d57d656ee7ea8977fa70972f296c1eb8706535dc9ceae6e09133e8c4.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/ce/d1/ced1121ca60498184ee4a6fd1832166a13a482f54c987d114ccc5e592945e5bf.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/ce/d1/ced1121ca60498184ee4a6fd1832166a13a482f54c987d114ccc5e592945e5bf.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/ce/d1/ced1121ca60498184ee4a6fd1832166a13a482f54c987d114ccc5e592945e5bf.view.2c29f467d57d656ee7ea8977fa70972f296c1eb8706535dc9ceae6e09133e8c4.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/d5/d8/d5d84c60736f17e9b82f8b4c6b6faf347d970b2d4091b118195be3929b0cb40b.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/d5/d8/d5d84c60736f17e9b82f8b4c6b6faf347d970b2d4091b118195be3929b0cb40b.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/d5/d8/d5d84c60736f17e9b82f8b4c6b6faf347d970b2d4091b118195be3929b0cb40b.view.0975f84226ab988bb25bae586706735dfe3d90d7bf32f1788ddf23e15652cb72.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/e7/f4/e7f47b28475c5a469c1ab97ccc74fe677a626874d84181b47bf635120d03505c.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/e7/f4/e7f47b28475c5a469c1ab97ccc74fe677a626874d84181b47bf635120d03505c.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/e7/f4/e7f47b28475c5a469c1ab97ccc74fe677a626874d84181b47bf635120d03505c.view.3528225e039f9b6da63b35d07e6e0acbd17448bf751b3685a8aaf127fdf8789a.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/f3/91/f391a96e7534d34d246fb25cd8dcaea9efbad080e277c7742b1c6c470daa09c9.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/f3/91/f391a96e7534d34d246fb25cd8dcaea9efbad080e277c7742b1c6c470daa09c9.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/artifacts/sha256/f3/91/f391a96e7534d34d246fb25cd8dcaea9efbad080e277c7742b1c6c470daa09c9.view.2c29f467d57d656ee7ea8977fa70972f296c1eb8706535dc9ceae6e09133e8c4.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/cursor_index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/cursor_index.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/partition_state_index.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/stream_checkpoint_index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/cas/stream_checkpoint_index.lock",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixtures/test_restored_frontier_above_n0/events.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/observer.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/package.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/result.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/retained-checkpoint-content.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/run.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/test_pool_stream_budget_oracle.py.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/test_stream_pool_cleanup_oracle.py.source.txt"
+  ],
+  "baseline_cells": [],
+  "baseline_source_ref_and_input_closure": {
+    "grade": "historical source report/current prior receipts navigation only; no new baseline query/runtime replay",
+    "source_card": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "sha": "198076863e143dea9f89f02734b13d50dae3eed5"
+    },
+    "prior_receipt_navigation": [
+      {
+        "receipt": {
+          "source_sha": "c9909f984c6ab4ca76ac220bfe7d0f830c6194e0",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-pool-stream-contract.json",
+          "git_blob": "a90d4f45c8ece2ac5d0b51278cc308237930fd09",
+          "bytes": 31456,
+          "sha256": "0cc234162e7130e97beaec7e808a74f26fa48b8152a8fa6e1d50accee701b3fa"
+        },
+        "slice": "current-pool-stream-contract",
+        "literal_prior_outcome": "1PASS1FAIL actual final466, capacity-before-effects refusal fails",
+        "qualifier": "Immutable previous observation, not a runtime result on this snapshot, selected owner successor, or final future candidate."
+      },
+      {
+        "receipt": {
+          "source_sha": "c9909f984c6ab4ca76ac220bfe7d0f830c6194e0",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-consumer-portable.json",
+          "git_blob": "bd9e90bd9be756ee72b0a8b5b87fb8f702186ed4",
+          "bytes": 17494,
+          "sha256": "13ca21897bbb2f01efe6efdf896d74d8c988a509a8d9c86b2b258d198c8afca9"
+        },
+        "slice": "current-stream-cleanup-consumer-portable",
+        "literal_prior_outcome": "7PASS1FAIL actual product205/own724, process-failed-close owner escape",
+        "qualifier": "Immutable previous observation, not a runtime result on this snapshot, selected owner successor, or final future candidate."
+      },
+      {
+        "receipt": {
+          "source_sha": "c9909f984c6ab4ca76ac220bfe7d0f830c6194e0",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-optional-spend-projection-boundary.json",
+          "git_blob": "27d215c86a00ea3359f9da5d01903913d6e41e74",
+          "bytes": 17779,
+          "sha256": "06fe970bfb85b274a62741ce57b001a52d0971751cfac61fd32c652033635804"
+        },
+        "slice": "current-optional-spend-projection-boundary",
+        "literal_prior_outcome": "1FAIL unknown/2PASS reported.02/0 actual a2 helper only",
+        "qualifier": "Immutable previous observation, not a runtime result on this snapshot, selected owner successor, or final future candidate."
+      },
+      {
+        "receipt": {
+          "source_sha": "c9909f984c6ab4ca76ac220bfe7d0f830c6194e0",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03.json",
+          "git_blob": "71ac15a4b8d9b52342da926e8cc5ba23ab21f275",
+          "bytes": 16760,
+          "sha256": "9590b0863dd781194dab34bb52f39b24c1d88657f9d6fc2f2458958b377c4731"
+        },
+        "slice": "current-composition-res03-cloud-stop",
+        "literal_prior_outcome": "actual061 whole1FAIL before served consumer; true earlier successful simulation/later failure prefix and054 artifact readback preserved",
+        "qualifier": "Immutable previous observation, not a runtime result on this snapshot, selected owner successor, or final future candidate."
+      }
+    ],
+    "historical_optional_forward_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-optional-spend-projection-boundary.json@97d0684c1f2765fc67d40331a8a2602a08c1f2e0",
+    "qualification": "Exact earlier cell/source/environment/input records remain in prior canonical receipts; no baseline PASS/red establishes this preparation or a new code fix."
+  },
+  "checks": [
+    {
+      "name": "finite_source_and_input_identity_preparation",
+      "command": [
+        "python3",
+        "/dev/shm/e02-B-crossunit-preparation/package.py"
+      ],
+      "target_sha": "c9909f984c6ab4ca76ac220bfe7d0f830c6194e0",
+      "environment": {
+        "executed_cwd": "/workspace/e02-B-current-composition",
+        "executed_reader": "python3 standard library + Git only; no product import, native, test collection, parser replay or gates",
+        "capture_qualification": "Initial package did not record interpreter executable/version; current metadata-writing interpreter is not substituted as an original runtime environment claim."
+      },
+      "input_closure": {
+        "literal_instrument": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-evidence/package.source.txt@b07dcce3e354350efa6b5a4e46b7bed5d4462ee1",
+        "source_identity": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-evidence/source-inputs.json@b07dcce3e354350efa6b5a4e46b7bed5d4462ee1",
+        "finite_declared_inputs": "Five complete protected source paths at198 and snapshot, eleven exact individual B selected source-file projections, seven named existing native/command/request inputs, seven full canonical criterion blocks, four historical deciding receipt contents. Not full transitive import/network/resource/scientific/production-data closure."
+      },
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-evidence/source-inputs.json@b07dcce3e354350efa6b5a4e46b7bed5d4462ee1",
+      "qualification": "PASS means recomputed exact immutable source identities and five full-file equalities, not runtime acceptance. Four selected upper files differ from integrated snapshot and are explicitly not integrated-projection authority."
+    },
+    {
+      "name": "final1862_independent_whole_C_stream_consumers",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-B",
+        "/dev/shm/e02-B-crossunit-final-1862/driver.py"
+      ],
+      "native_pytest_arguments": [
+        "-vv",
+        "-s",
+        "-o",
+        "addopts=",
+        "-o",
+        "cache_dir=/dev/shm/e02-B-crossunit-final-1862/actual-iacgffbo/cache",
+        "--basetemp=/dev/shm/e02-B-crossunit-final-1862/actual-iacgffbo/pytest",
+        "--junitxml=/dev/shm/e02-B-crossunit-final-1862/actual-iacgffbo/native.xml",
+        "tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py",
+        "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py"
+      ],
+      "target_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "target_tree_sha": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "variables": {
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+          "UV_NO_SYNC": "1",
+          "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools",
+          "POLISYOS_METRICS_PORT": "0",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "E02_ORACLE_PRODUCT_ROOT": "/workspace/e02-B-current-coordination/policy-engine",
+          "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+          "E02_CROSSUNIT_FINAL_ROOT": "/workspace/e02-B-current-coordination",
+          "E02_CROSSUNIT_FINAL_SHA": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+          "E02_CROSSUNIT_FINAL_OUT": "/dev/shm/e02-B-crossunit-final-1862/actual-iacgffbo",
+          "PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "XLA_FLAGS": null
+        },
+        "actual_python": {
+          "executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+          "prefix": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+          "base_prefix": "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu"
+        },
+        "pytest_version": "9.0.2",
+        "interpreter_lexical_path_preserved": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "conftest_profile": "Actual final root pytest.ini/tests.conftest and installed native plugins; addopts overridden empty to keep two whole files/full stdout, no selection/-k/xfail/cohortcap. Native fixture caches explicitly isolated. Hypothesis conftest declares existing root ignored cache; no hypothesis property cases run."
+      },
+      "input_closure": {
+        "root_declared_full_files": "result.json source_before/source_after contains15 exact named source/config/conftest/lock/test hashes/Git blobs; all unchanged.",
+        "actual_current_process_module_origins": "observer.json233 filebacked polisyos modules,43 named hook censuses,0 mismatches; excludes dynamic/in-memory/native/sharedlib/child/resource/network completeness.",
+        "literal_drivers": [
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/driver.source.txt@85f0f0afd7abd62114074311ec90e7387ac27a38",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/run.source.txt@85f0f0afd7abd62114074311ec90e7387ac27a38"
+        ],
+        "native_test_inputs": [
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py",
+            "bytes": 8699,
+            "sha256": "e1d4fca7abf7934f38bd789c5dcb6c4a461ba59a4e65a731bdff9104630e512d",
+            "git_blob": "7ddc6b5bbe7b09c8db0ccaecf75852d9cee252a7"
+          },
+          {
+            "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "path": "policy-engine/tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py",
+            "bytes": 12269,
+            "sha256": "57a93345d81860b0de51fcd4fc494c82f7b4f2ef845f9253659b6e41d54bc6f9",
+            "git_blob": "37513f22c75e7bc07904751292eb05dae8c8aeb8"
+          }
+        ],
+        "complete_generated_regular_fixture_files": 249,
+        "fixture_bytes": 163569,
+        "fixture_inventory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixture-inventory.json@85f0f0afd7abd62114074311ec90e7387ac27a38",
+        "fixture_scope": "Real toy3event JSONL/session/cap3→1or3, actual FileSystemCAS/CursorStore/window manifests and2row file EventStreamConnector cleanup; actual original fixtures retained, all249 regular file bytes committed, symlinks recorded/notfollowed. No production dataset/secrets/external DB/port.",
+        "unique_scratch": "/dev/shm/e02-B-crossunit-final-1862/actual-iacgffbo",
+        "numeric_process_thread_caps": null
+      },
+      "outcome": "FAIL",
+      "actual_exit_code": 1,
+      "native_case_counts": {
+        "PASS": 8,
+        "FAIL": 2,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "exact_native_case_denominator": 10,
+      "phase_denominator": 30,
+      "zero_collection_errors": true,
+      "strict_xfail_xpass": {
+        "XFAIL": 0,
+        "XPASS": 0
+      },
+      "wall_seconds": 5.528598213000805,
+      "resource_method": "direct wait4 child rusage, Linux maxrssKiB",
+      "resources": {
+        "user_seconds": 4.271784,
+        "system_seconds": 0.976135,
+        "max_rss_kib": 210044
+      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/native.txt@85f0f0afd7abd62114074311ec90e7387ac27a38",
+      "output_sha256": "739f1f5905edb0ed3ef7e603ee35cc4a04072f0105b94d634ab03308f506a764",
+      "output_bytes": 47027,
+      "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/native.xml@85f0f0afd7abd62114074311ec90e7387ac27a38",
+      "observer": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/observer.json@85f0f0afd7abd62114074311ec90e7387ac27a38",
+      "wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/result.json@85f0f0afd7abd62114074311ec90e7387ac27a38",
+      "source_input_unchanged": true,
+      "qualification": "Complete targeted independent10 result, separate from root incomplete SIGKILL cohort or806 affected-family report. Both consumer failures preserved; no C/A edits or current/future global closure."
+    }
+  ],
+  "property": {
+    "statement": "Exact final1862 B producer contracts are joined to real protected C stream consumers: healthy restarted windows/lineage/restart exhaustion and direct retained-session cleanup pass, while restored frontier above new capacity and finished-process pending cleanup ownership fail materially. Typed A/G partial result, monetary knowledge and all-confirmations publication contracts remain exact-source/local-input obligations rather than unexecuted served authority.",
+    "runtime_path": [
+      "B canonical pool acquisition/deadline/pending physical owner -> C actual session/restart/operator/cursor/window/cleanup consumer",
+      "B real Foundry simulation -> persisted SimulationResult/state/report -> A lifecycle/debug/workflow/error consumer under G-admitted local catalog/data/scope",
+      "B optional Traced provider event preserving None/known0/origin/reuse -> A response_shapes/nl_pipeline projection and actual next-variant admission",
+      "B original workflow budget -> canonical checkpoint/CAS immutable artifact/head/history/GC and typed not_admitted/unknown outcome",
+      "B initialized ledger/issuer/enforcer obligations -> completion consumer/resolver with exact event/run/owner epoch/all-key/receipt identity"
+    ],
+    "proxy_divergence": "Actual final1862 over-cap restart records acquire/release/acquire/poll/poll/poll/commit/poll/flush/commit/release instead of refusing before effects; real cap3 healthy control still emits[1,2]then[3]once and finalrestartempty. Failed process disconnect has semaphore1 free and release1 while one physical handle remains unconfirmed with registry owner0; a fresh production stream creates a second simultaneous handle. Only observer rescue after measurements clears old obligation, which cannot establish production ownership. Historical optionalA unknownNone→0 remains separately actuala2/helper-only, not a final1862 runtime assertion.",
+    "negative_controls": [
+      "Cap3 persisted2row session frontier then cap1 restart: C-owned typed refusal before poll/flush/commit or separately admitted owner contract; healthy cap3 emits[1,2]then[3]once, third restart empty.",
+      "Failed process disconnect must retain production cleanup owner through actual retry/shutdown; observer rescue after measurement cannot prove cleanup.",
+      "B13 later failure after real successful simulation; fifteen actual served scope/binding/ref/schema/integrity negatives remain unrun after catalog startup stop.",
+      "Unknown cost versus reported.02 versus reported0 preserve epistemic meaning; real next-variant admission is not inferred from helper assertion.",
+      "Queued checkpoint cancellation is not_admitted; entered physical IO may complete later and is unknown rather than ACK or fabricated rollback."
+    ],
+    "authority_purpose": "Internal typed consumer handoff; A/C retain canonical policy/source ownership, G retains local acquired production/input/authority admission. No crossunit owner decision or publication grant."
+  },
+  "predicate_basis": "recomputed",
+  "predicate_basis_by_quantity": {
+    "final_exit_JUnit_phase_join_source_module_fixture_bytes": "recomputed",
+    "final_cap3_healthy_windows_lineage_third_restart": "consumer_asserted",
+    "final_cap1_real_consumer_effect_events": "recomputed",
+    "final_process_registry_owner_permit_vs_physical_handle": "recomputed",
+    "historical_A_optional_and_B13_cloud_stop": "independently_reconciled",
+    "A_G_served_production_signature_publication_and_global_closure": "not_established"
+  },
+  "capability_state_or_finding_state": "CURRENT_FINAL1862_C_CONSUMER_VIOLATIONS; targeted10 complete8PASS2FAIL, protected five files198-byte-equal, exact typed C/G handoff ready. B13 actual served route/production, optional A served spend and B154 appointed all-confirmations publisher remain UNRUN/consumer_missing. closure_ids=[]; no global closure.",
+  "selected_source_points": {
+    "integrated_snapshot": {
+      "sha": "c9909f984c6ab4ca76ac220bfe7d0f830c6194e0",
+      "tree": "347b84ed67f84cae8715ccbc69d87ec358006548",
+      "role": "Read-only pre-final root source snapshot, NOT final frozen native/gate candidate."
+    },
+    "protected_initial": {
+      "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8"
+    },
+    "selected_upper_owner": {
+      "sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96",
+      "tree": "b2e13011d78a871f7f7ee6a7cc00444d479d2f95",
+      "role": "Published upper producer contract; not assumed integrated into snapshot or runtime-tested here."
+    },
+    "selected_lower_owner": {
+      "sha": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+      "tree": "038b0012692a7fc12ca58aea91724f3a85c83b6e"
+    },
+    "selected_checkpoint_owner": {
+      "sha": "bc958e8efface67193a1347e867cc7567dbfc8bc",
+      "tree": "5fcdbe9777dd727113c1115031cc77dcfc5d438c"
+    },
+    "final_root_candidate": {
+      "sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+      "role": "Parent actual final freeze; independent whole two C consumer files completed on exactly this source."
+    },
+    "final_root_native_outcomes": "Targeted10=8PASS2FAIL0ERROR0SKIP; full root cohort completeness is separate/not established here."
+  },
+  "contracts": [
+    {
+      "id": "B-to-C-restored-capacity-frontier",
+      "criterion_ids": [
+        "B82",
+        "B84",
+        "B85"
+      ],
+      "owner": "C; B provides pool/CAS/async bridge contract only",
+      "input": "Actual three JSONL event rows: event-1@0,event-2@1,event-3@5; chunk2,SESSION gap2,size60; cap3 persists pending two rows and contributor raw-CAS refs. Reopen same cursor/CAS with cap1.",
+      "required_boundary": "C must reconcile restored operator capacity before any recovery poll, flush, or cursor/output commit; reject with an explicit typed compatible refusal or establish C-owned supported capacity/spill contract. B does not choose that policy or close its C-owned criteria.",
+      "negative": "Default PAUSE cannot make restored2rows fit cap1; source rewind before operator restore may itself poll. Preserve committed checkpoint/operator/contributor bytes and lease accounting on refusal.",
+      "positive": "Cap3 retry emits [1,2] then[3] exactly once with actual contributor refs; a third fresh restart emits no duplicate windows. No forced premature SESSION flush to obtain smaller memory.",
+      "historical": "current-pool-stream-contract.json actual466 two cases1PASS1FAIL; literal native rerun remains pending final root packet.",
+      "final_source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "final_actual_outcome": "FAIL: exact effects sequence in case-and-property-join; later nonnull-error/counter/pointer assertions not reached",
+      "final_positive": "PASS whole real cap3 repeated-recovery/lineage/third-restart control"
+    },
+    {
+      "id": "B-to-C-disconnect-owner-retention",
+      "criterion_ids": [
+        "B87"
+      ],
+      "owner": "C process/session consumer; B pool/registry physical cleanup mechanism",
+      "input": "Actual EventStreamConnector-derived real file provider. First process cleanup disconnect refuses once, canonical pool retains unconfirmed physical handle.",
+      "required_boundary": "Retain a production-reachable cleanup owner until disconnect confirmation, preserve primary exception, release each successful acquisition once. Repeated close/retry must reach that same physical obligation; available semaphore capacity is a separate quantity.",
+      "negative": "After process_stream_dataset returns cleanup failure, production registry shutdown/retry and fresh session must not lose the pending old pool/physical handle. Observer-only pool.close after measurements is rescue, not owner proof; do not invent B authority to mutate C.",
+      "positive": "Healthy/subscribe/checkpoint/rewind/caller-cancel/startup-fault and explicitly retained-session second close remain distinct controls. File connector /proc FD0 does not prove no real network handle leakage.",
+      "historical": "current-stream-cleanup-consumer-portable.json actual205 source/724 fixture7PASS1FAIL; no current/future consumer PASS inherited.",
+      "final_source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "final_actual_outcome": "FAIL process-disconnect-failure: pending1 physicalhandle1 permit1 registryowner0 afteractualshutdown; freshhandles2. Other seven whole cleanup/direct-session controls PASS.",
+      "next_owner": "C retains/transfers actual production cleanup owner and defines retry/refusal contract; B does not edit protected streaming or invent alternative owner law."
+    },
+    {
+      "id": "B-to-A-G-partial-simulation-result",
+      "criterion_ids": [
+        "B13"
+      ],
+      "owner": "A alone generation/lifecycle consumers; G local acquired runtime/catalog profile",
+      "input": "Actual native Trinity/registry/DataSnapshot global.tax_rate0.1 with5agents2firms; earlier successful run_simulation -> CAS result/state/report, later explicit failure, dependent upstream_failed skip, independent sibling success.",
+      "required_boundary": "Serve the intact simulation as a content-bound non-authoritative candidate with valid run/node/scope/ref/schema/error binding even though later work fails; invalidate only dependent conclusions when their common basis is false.",
+      "negative": "Fifteen named binding/scope/ref/schema/integrity refusals from canonical whole test remain unrun after cloud startup stop, never made acceptable by CAS artifact presence alone.",
+      "cloud_stop": "TestClient.__enter__ ValueError catalog_fetch_source_unreadable before HTTP route. Full local production catalog and configured acquisition overlay remain read-only/local; no empty catalog substitution.",
+      "historical": "actual061 whole1FAIL, successful real producer prefix and054 readback only. Existing six selected blob/manifest fixtures carry no selected profile; no invented served provenance.",
+      "final_source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "final_runtime_outcome": "UNRUN in this targeted C replay; earlier actual outcomes stay literal historical source-bound observations."
+    },
+    {
+      "id": "B-to-A-G-optional-monetary-knowledge",
+      "criterion_ids": [
+        "B65",
+        "B66"
+      ],
+      "owner": "A response_shapes/nl_pipeline projection and admission policy; B producer preserves known/missing/invalid separately",
+      "input": "One real filesystem provider request percase -> actual Traced optional observer -> actual A _sum_call_events, unknown usage=None/no cost versus reported0.02 and reported0.0 with tokens7/3.",
+      "required_boundary": "Unknown physical cost None/cost_origin unknown cannot gain known-zero spend/admission meaning from arithmetic aggregation. Explicit reported zero remains legitimate; A/G chooses its supported unknown projection/admission contract.",
+      "negative": "A _sum_call_events(event.cost_usd or0.0), _delta_usage numeric cost and nl_pipeline run_budget_spent +=float(variant.cost_usd or0.0) lose knowledge; only _sum_call_events ran in historical counterexample. Actual second variant/job/served-budget behavior remains unrun.",
+      "positive": "Reported.02 and reported0 helper controls passed historical a2. Cache current reuse charge0 requires actual producer/cache issuer provenance, not provider raw marker or constructor defaults; expiry is a new physical event.",
+      "historical": "97d canonical forward-property receipt preserves actual a2 1FAIL2PASS and full filesystem/event/origin outputs. New selected a697 source is read only here, not replayed.",
+      "final_source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "final_runtime_outcome": "UNRUN in this targeted C replay; earlier actual outcomes stay literal historical source-bound observations."
+    },
+    {
+      "id": "B-checkpoint-completion-budget-consumer",
+      "criterion_ids": [
+        "B14",
+        "B52",
+        "B73"
+      ],
+      "owner": "B EXE canonical checkpoint/CAS bridge; A may consume typed workflow outcome but cannot turn uncertainty into ACK",
+      "input": "Original absolute workflow budget/owner cancellation propagates through canonical hook/artifact/head/GC; legacy fixed-signature hooks preserve original ContextVar by delegation.",
+      "required_boundary": "Before-entry cancellation refuses not_admitted; entered blocking IO may still complete physically and must report unknown without ACK or fabricated rollback. Once head os.replace enters, required canonical fsync/history completion may finish unbudgeted; GC guards actual read-to-write boundary.",
+      "negative": "No fresh default30s reset across phases or resumed suppressed cancellation; retain physical worker/reservation ownership until delegate exits; arbitrary external nondelegating hooks are outside demonstrated propagation.",
+      "historical": "Existing independent df07 packet actual6af long1PASS/short6PASS +4 removal materialFAIL; later84/bc source qualified separately. No native outcome rerun by this source-only packet.",
+      "final_source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "final_runtime_outcome": "UNRUN in this targeted C replay; earlier actual outcomes stay literal historical source-bound observations."
+    },
+    {
+      "id": "B-mandatory-accounting-consumer-premise",
+      "criterion_ids": [
+        "B65",
+        "B66"
+      ],
+      "owner": "B typed issuer/enforcer/FileBudgetLedger; A served run must explicitly admit a supported mandatory profile if relying on it",
+      "input": "FileLedger strict1.2 completion DTO binds obligation/eventdigest/run/PID owner epoch/all budget keys/reserved amounts/phase/known receipt IDs/action; initialized producer intent precedes physical work.",
+      "required_boundary": "Known explicit0 is distinct from None; unresolved cost/receipt/protected audit obligations block dependent expenses/reuse according to actual bound owner and independently verified receipts. Optional call_observer factory route alone is not initialized mandatory enforcement.",
+      "negative": "Reopened/new PID owner cannot declare old physical request unentered or erase unknown with0; malformed/foreign receipt or fabricated provider raw cache marker cannot certify settled work.",
+      "historical": "Lower9f/selected uppera697 source contracts only in this packet; separate owner/independent native receipts and future integrated root wave remain distinct.",
+      "final_source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "final_runtime_outcome": "UNRUN in this targeted C replay; earlier actual outcomes stay literal historical source-bound observations."
+    },
+    {
+      "id": "B-to-A-G-all-confirmations-signature-publisher",
+      "criterion_ids": [
+        "B154"
+      ],
+      "owner": "A/G appointed actual publication consumer, current required population/trust/time/authorization law; B canonical typed report/predicate only",
+      "final_source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "current_status": "consumer_missing; no new publication runtime executed",
+      "producer": "FileSystemCAS.verify_all_signatures(...exactrequiredrefs...)-> fresh in-process BulkVerificationReport",
+      "consumer": "report.require_complete_valid(required_refs) before durable publication only where actual owner already requires all confirmations. No appointment/authority inferred from this typed report.",
+      "negative": "Local corrupt2VALID1ERROR, missingactualrow despite validcounter, selected/default substitution, global/cancel aborted retain finished items: refuse publication under an existing all-confirmations law.",
+      "actual_source_input": "B154-existing-publisher-contract.json@85f0f0afd7abd62114074311ec90e7387ac27a38",
+      "exact_G_candidate": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "no_semantic_waiver": "B148 cross-tenant law remains HELD; do not relax scoped CAS or ratify owner law to make A human-exposure fixtures green."
+    }
+  ],
+  "deciding_evidence": {
+    "implementation_sha": "b07dcce3e354350efa6b5a4e46b7bed5d4462ee1",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-evidence",
+    "index_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-evidence/index.json",
+    "index_sha256": "29b92c9570cbd71d805d55e9bcd2b8aad7daec2dd175c52f8a2134b648d953e6",
+    "complete_files_including_index": 8,
+    "all_indexed_objects_hash_size_recomputed": true
+  },
+  "local_G_contract": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/final-local-G-contract.json@85f0f0afd7abd62114074311ec90e7387ac27a38",
+  "final_candidate_and_native_join": {
+    "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+    "tree_sha": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+    "literal_test_inputs": [
+      {
+        "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "path": "policy-engine/tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py",
+        "bytes": 8699,
+        "sha256": "e1d4fca7abf7934f38bd789c5dcb6c4a461ba59a4e65a731bdff9104630e512d",
+        "git_blob": "7ddc6b5bbe7b09c8db0ccaecf75852d9cee252a7"
+      },
+      {
+        "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "path": "policy-engine/tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py",
+        "bytes": 12269,
+        "sha256": "57a93345d81860b0de51fcd4fc494c82f7b4f2ef845f9253659b6e41d54bc6f9",
+        "git_blob": "37513f22c75e7bc07904751292eb05dae8c8aeb8"
+      }
+    ],
+    "native_case_outcomes": [
+      {
+        "nodeid": "tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py::test_restored_frontier_above_new_cap_refuses_before_consumer_effects",
+        "phase_reports": [
+          {
+            "nodeid": "tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py::test_restored_frontier_above_new_cap_refuses_before_consumer_effects",
+            "when": "setup",
+            "outcome": "passed",
+            "duration": 0.027760346012655646,
+            "wasxfail": null
+          },
+          {
+            "nodeid": "tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py::test_restored_frontier_above_new_cap_refuses_before_consumer_effects",
+            "when": "call",
+            "outcome": "failed",
+            "duration": 0.2579016740055522,
+            "wasxfail": null
+          },
+          {
+            "nodeid": "tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py::test_restored_frontier_above_new_cap_refuses_before_consumer_effects",
+            "when": "teardown",
+            "outcome": "passed",
+            "duration": 0.0006147639942355454,
+            "wasxfail": null
+          }
+        ],
+        "case_outcome": "FAIL"
+      },
+      {
+        "nodeid": "tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py::test_admitted_recovery_emits_two_sessions_once_with_original_lineage",
+        "phase_reports": [
+          {
+            "nodeid": "tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py::test_admitted_recovery_emits_two_sessions_once_with_original_lineage",
+            "when": "setup",
+            "outcome": "passed",
+            "duration": 0.02196960200672038,
+            "wasxfail": null
+          },
+          {
+            "nodeid": "tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py::test_admitted_recovery_emits_two_sessions_once_with_original_lineage",
+            "when": "call",
+            "outcome": "passed",
+            "duration": 0.24788881999847945,
+            "wasxfail": null
+          },
+          {
+            "nodeid": "tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py::test_admitted_recovery_emits_two_sessions_once_with_original_lineage",
+            "when": "teardown",
+            "outcome": "passed",
+            "duration": 0.0004116640047868714,
+            "wasxfail": null
+          }
+        ],
+        "case_outcome": "PASS"
+      },
+      {
+        "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[healthy]",
+        "phase_reports": [
+          {
+            "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[healthy]",
+            "when": "setup",
+            "outcome": "passed",
+            "duration": 0.022882766992552206,
+            "wasxfail": null
+          },
+          {
+            "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[healthy]",
+            "when": "call",
+            "outcome": "passed",
+            "duration": 0.05293587800406385,
+            "wasxfail": null
+          },
+          {
+            "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[healthy]",
+            "when": "teardown",
+            "outcome": "passed",
+            "duration": 0.000258695989032276,
+            "wasxfail": null
+          }
+        ],
+        "case_outcome": "PASS"
+      },
+      {
+        "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[subscribe-failure]",
+        "phase_reports": [
+          {
+            "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[subscribe-failure]",
+            "when": "setup",
+            "outcome": "passed",
+            "duration": 0.0220942460000515,
+            "wasxfail": null
+          },
+          {
+            "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[subscribe-failure]",
+            "when": "call",
+            "outcome": "passed",
+            "duration": 0.006533939013024792,
+            "wasxfail": null
+          },
+          {
+            "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[subscribe-failure]",
+            "when": "teardown",
+            "outcome": "passed",
+            "duration": 0.00023221599985845387,
+            "wasxfail": null
+          }
+        ],
+        "case_outcome": "PASS"
+      },
+      {
+        "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[checkpoint-read-failure]",
+        "phase_reports": [
+          {
+            "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[checkpoint-read-failure]",
+            "when": "setup",
+            "outcome": "passed",
+            "duration": 0.02235693701368291,
+            "wasxfail": null
+          },
+          {
+            "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[checkpoint-read-failure]",
+            "when": "call",
+            "outcome": "passed",
+            "duration": 0.007155528001021594,
+            "wasxfail": null
+          },
+          {
+            "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[checkpoint-read-failure]",
+            "when": "teardown",
+            "outcome": "passed",
+            "duration": 0.000241864996496588,
+            "wasxfail": null
+          }
+        ],
+        "case_outcome": "PASS"
+      },
+      {
+        "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[rewind-failure]",
+        "phase_reports": [
+          {
+            "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[rewind-failure]",
+            "when": "setup",
+            "outcome": "passed",
+            "duration": 0.021741841002949513,
+            "wasxfail": null
+          },
+          {
+            "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[rewind-failure]",
+            "when": "call",
+            "outcome": "passed",
+            "duration": 0.011579136989894323,
+            "wasxfail": null
+          },
+          {
+            "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[rewind-failure]",
+            "when": "teardown",
+            "outcome": "passed",
+            "duration": 0.00023776700254529715,
+            "wasxfail": null
+          }
+        ],
+        "case_outcome": "PASS"
+      },
+      {
+        "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[caller-cancel]",
+        "phase_reports": [
+          {
+            "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[caller-cancel]",
+            "when": "setup",
+            "outcome": "passed",
+            "duration": 0.022089785008574836,
+            "wasxfail": null
+          },
+          {
+            "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[caller-cancel]",
+            "when": "call",
+            "outcome": "passed",
+            "duration": 0.00676035501237493,
+            "wasxfail": null
+          },
+          {
+            "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[caller-cancel]",
+            "when": "teardown",
+            "outcome": "passed",
+            "duration": 0.0002573039964772761,
+            "wasxfail": null
+          }
+        ],
+        "case_outcome": "PASS"
+      },
+      {
+        "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[startup-owner-retry]",
+        "phase_reports": [
+          {
+            "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[startup-owner-retry]",
+            "when": "setup",
+            "outcome": "passed",
+            "duration": 0.02166210999712348,
+            "wasxfail": null
+          },
+          {
+            "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[startup-owner-retry]",
+            "when": "call",
+            "outcome": "passed",
+            "duration": 0.00620906800031662,
+            "wasxfail": null
+          },
+          {
+            "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[startup-owner-retry]",
+            "when": "teardown",
+            "outcome": "passed",
+            "duration": 0.00021237900364212692,
+            "wasxfail": null
+          }
+        ],
+        "case_outcome": "PASS"
+      },
+      {
+        "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[process-disconnect-failure]",
+        "phase_reports": [
+          {
+            "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[process-disconnect-failure]",
+            "when": "setup",
+            "outcome": "passed",
+            "duration": 0.02230940799927339,
+            "wasxfail": null
+          },
+          {
+            "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[process-disconnect-failure]",
+            "when": "call",
+            "outcome": "failed",
+            "duration": 0.052083475995459594,
+            "wasxfail": null
+          },
+          {
+            "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[process-disconnect-failure]",
+            "when": "teardown",
+            "outcome": "passed",
+            "duration": 0.0003088709927396849,
+            "wasxfail": null
+          }
+        ],
+        "case_outcome": "FAIL"
+      },
+      {
+        "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_direct_file_session_second_close_finishes_pending_cleanup",
+        "phase_reports": [
+          {
+            "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_direct_file_session_second_close_finishes_pending_cleanup",
+            "when": "setup",
+            "outcome": "passed",
+            "duration": 0.022560771001735702,
+            "wasxfail": null
+          },
+          {
+            "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_direct_file_session_second_close_finishes_pending_cleanup",
+            "when": "call",
+            "outcome": "passed",
+            "duration": 0.0011642790050245821,
+            "wasxfail": null
+          },
+          {
+            "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_direct_file_session_second_close_finishes_pending_cleanup",
+            "when": "teardown",
+            "outcome": "passed",
+            "duration": 0.0004710369976237416,
+            "wasxfail": null
+          }
+        ],
+        "case_outcome": "PASS"
+      }
+    ],
+    "status": "TARGETED_FINAL1862_TERMINAL_8PASS_2FAIL",
+    "full_cohort_status": "Root reported incomplete SIGKILL cohort; not parsed/joined by this leaf. Targeted10 is a distinct independent namespace, not full-cohort repair/PASS."
+  },
+  "limitations_and_next_owner": [
+    "A alone changes generation_cycle/run_lifecycle/response_shapes/nl_pipeline contracts; C alone changes streaming. This metadata changes none of their source files or caller policy/authority.",
+    "C B82/B84/B85 are referenced for capacity/recovery/lineage acceptance, never reassigned as B87 closure. The historical root pool-stream receipt routesB87; this preparation explicitly narrows its capacity quantity to C-owned criteria.",
+    "Historical pool466, cleanup205/724, optionala2 and simulation061/054 each retain own exact sources/cases/input closure and failure/stop; no prior PASS/FAIL becomes current/future integrated evidence.",
+    "The process cleanup oracle uses real file connector handles and owner reachability; /procFD zero is not a descriptor/network capacity guarantee.",
+    "A served catalog/data route remains cloud-limited. Full production catalog/overlay/datasets stay local read-only; no real served artifact provenance fabricated before TestClient startup.",
+    "Local G request context={} is only prepared DTO shape; G must independently acquire production context/catalog/route authorization and exact input identities before issuing local work. Credentials are not printed or committed.",
+    "B selected uppera697 optional cost contract is source-read only here. Mandatory ledger/required-accounting is a distinct initialized operational profile; A optional observer route cannot nominally inherit its billing certainty.",
+    "Existing local replay wrapper resolves interpreter and permits reuse output directory. G must independently verify resolved supported dependency prefix and fresh absent outputs/symlinks before invocation; no unleased old wrapper edit or nominal environment claim.",
+    "Root/G owns final all60 adjudication and combined consumer/native acceptance. Source readiness and literal prior failures are retained without global closure.",
+    "This forward packet executes exactly two whole C-native files once under actual root194 profile; no new broad tests/gates or source edits. Root sourceHEAD/tree/status/15 declared input hashes remained unchanged.",
+    "Over-cap FAIL occurs at before-effects assertion; later failure-present/lease-counter/unchanged-pointer checks are UNRUN in that case. Retained blobs independently show initialcap3 two rows and subsequentcap1 closed frontier, not a standalone atomicity/guarded-read proof.",
+    "Final file-backed current-process233module census at43 hooks is finite. No universal import/network/data/native-library/child closure, invoice authority, all streamwindow modes or descriptor leakage claim.",
+    "Actualroot conftest declares existing ignored hypothesis cache despite no hypothesis test cases; percase CAS/JSONL/cursor/cache/basetemp/JUnit/outputs are separate scratch. No worker/process/thread numerical quotas.",
+    "A/G final local production candidate is literal1862/treef765. EarlierB13 producer061/054 and optionala2 1FAIL2PASS are not replayed here; production catalog/overlay/route authority stay local/read-only and any absence remains typed cloud limit.",
+    "B154 remains appointed all-confirmations consumer_missing, no institutional law/publication role invented. Five A/C whole source files remain198-byte-equal; no protected edits.",
+    "P41 inherited red NOT_ESTABLISHED: no exactslice-base replay/disjoint complete input denominator. Both actual current consumer FAILs remain FAIL, not xfail/waiver."
+  ],
+  "created_at_utc": "2026-10-06T23:05:45.245979+00:00",
+  "production_source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+  "production_source_tree_sha": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+  "final_source_custody": {
+    "final_root_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+    "final_root_tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+    "protected_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "five_protected_full_file_equalities": [
+      {
+        "base": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+          "bytes": 578822,
+          "sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44",
+          "git_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33"
+        },
+        "final": {
+          "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+          "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+          "bytes": 578822,
+          "sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44",
+          "git_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33"
+        },
+        "byte_equal": true,
+        "protected_owner": "A"
+      },
+      {
+        "base": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+          "bytes": 347497,
+          "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9",
+          "git_blob": "85d24cf2c2233a570ccf1274c6436df7c5aaa218"
+        },
+        "final": {
+          "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+          "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+          "bytes": 347497,
+          "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9",
+          "git_blob": "85d24cf2c2233a570ccf1274c6436df7c5aaa218"
+        },
+        "byte_equal": true,
+        "protected_owner": "A"
+      },
+      {
+        "base": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/src/polisyos/runtime/http/services/control/response_shapes.py",
+          "bytes": 34752,
+          "sha256": "b129c35c13a7bb021497f667979a0c8604f6c49a8b13a2e3dd44f668034f678b",
+          "git_blob": "448dff30bfdcfbef812ff09eb0472438f49b3d4e"
+        },
+        "final": {
+          "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+          "path": "policy-engine/src/polisyos/runtime/http/services/control/response_shapes.py",
+          "bytes": 34752,
+          "sha256": "b129c35c13a7bb021497f667979a0c8604f6c49a8b13a2e3dd44f668034f678b",
+          "git_blob": "448dff30bfdcfbef812ff09eb0472438f49b3d4e"
+        },
+        "byte_equal": true,
+        "protected_owner": "A"
+      },
+      {
+        "base": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+          "bytes": 427462,
+          "sha256": "e73f044870901509f76f73a20e7ea34919029d1d60e3557cf3b507981256b6bd",
+          "git_blob": "4956678ca4ec4253cdf96e103ff83e7226e192da"
+        },
+        "final": {
+          "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+          "path": "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+          "bytes": 427462,
+          "sha256": "e73f044870901509f76f73a20e7ea34919029d1d60e3557cf3b507981256b6bd",
+          "git_blob": "4956678ca4ec4253cdf96e103ff83e7226e192da"
+        },
+        "byte_equal": true,
+        "protected_owner": "A"
+      },
+      {
+        "base": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+          "bytes": 108192,
+          "sha256": "aaa69447dca6eb011a21e2385abad9a91b796d0f90689d1ab7b93e88ffa9e5c3",
+          "git_blob": "0915a4e9bc52ed97048d7e9f135ab8d3dfccbff6"
+        },
+        "final": {
+          "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+          "path": "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+          "bytes": 108192,
+          "sha256": "aaa69447dca6eb011a21e2385abad9a91b796d0f90689d1ab7b93e88ffa9e5c3",
+          "git_blob": "0915a4e9bc52ed97048d7e9f135ab8d3dfccbff6"
+        },
+        "byte_equal": true,
+        "protected_owner": "C"
+      }
+    ],
+    "selected_B_current_source": [
+      {
+        "final": {
+          "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+          "path": "policy-engine/src/polisyos/fabric/connectors/pool.py",
+          "bytes": 43461,
+          "sha256": "0efa56aab0b99ae5213be8f5e5e44bc3f5ffb935382b878ed0858cbbaa7ece35",
+          "git_blob": "850659c2e09aa6a23aa7f3f0daebb88637fd9e29"
+        },
+        "prior_preparation_snapshot": {
+          "source_sha": "c9909f984c6ab4ca76ac220bfe7d0f830c6194e0",
+          "path": "policy-engine/src/polisyos/fabric/connectors/pool.py",
+          "bytes": 43461,
+          "sha256": "0efa56aab0b99ae5213be8f5e5e44bc3f5ffb935382b878ed0858cbbaa7ece35",
+          "git_blob": "850659c2e09aa6a23aa7f3f0daebb88637fd9e29"
+        },
+        "bytes_equal": true,
+        "last_source_commit": "e46cb5cd28baf204e69f556dcfea41889ed0ad35"
+      },
+      {
+        "final": {
+          "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+          "path": "policy-engine/src/polisyos/fabric/connectors/_registry_lifecycle.py",
+          "bytes": 29359,
+          "sha256": "50871b4cae9d88a6426e9036572e58893f7fe9bec257be8d50e6244c00e42b31",
+          "git_blob": "71d21e8f8d4517c602efc2662106f35d45f0ebc4"
+        },
+        "prior_preparation_snapshot": {
+          "source_sha": "c9909f984c6ab4ca76ac220bfe7d0f830c6194e0",
+          "path": "policy-engine/src/polisyos/fabric/connectors/_registry_lifecycle.py",
+          "bytes": 29359,
+          "sha256": "50871b4cae9d88a6426e9036572e58893f7fe9bec257be8d50e6244c00e42b31",
+          "git_blob": "71d21e8f8d4517c602efc2662106f35d45f0ebc4"
+        },
+        "bytes_equal": true,
+        "last_source_commit": "5b8b1cf488f386493f29ec8ee5184246236c7c9c"
+      },
+      {
+        "final": {
+          "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+          "bytes": 99224,
+          "sha256": "4c47817a7c9df15450ba3269b66672f8c4d588bafc8345efb1bdb8dba5d4c9f6",
+          "git_blob": "d8e35255f19c1b04c21be0eec63991a4f4985646"
+        },
+        "prior_preparation_snapshot": {
+          "source_sha": "c9909f984c6ab4ca76ac220bfe7d0f830c6194e0",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+          "bytes": 99224,
+          "sha256": "4c47817a7c9df15450ba3269b66672f8c4d588bafc8345efb1bdb8dba5d4c9f6",
+          "git_blob": "d8e35255f19c1b04c21be0eec63991a4f4985646"
+        },
+        "bytes_equal": true,
+        "last_source_commit": "bc958e8efface67193a1347e867cc7567dbfc8bc"
+      },
+      {
+        "final": {
+          "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "bytes": 105281,
+          "sha256": "8f35644ea00699c1022df32a71cc1ffd8a37c042a5d12f0f76c7ce8a20e5b7b1",
+          "git_blob": "f4793e795874e0c5a000f1c37684e9f6ef727506"
+        },
+        "prior_preparation_snapshot": {
+          "source_sha": "c9909f984c6ab4ca76ac220bfe7d0f830c6194e0",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "bytes": 105281,
+          "sha256": "8f35644ea00699c1022df32a71cc1ffd8a37c042a5d12f0f76c7ce8a20e5b7b1",
+          "git_blob": "f4793e795874e0c5a000f1c37684e9f6ef727506"
+        },
+        "bytes_equal": true,
+        "last_source_commit": "6af060e952ae1561065f2a70668a790f5f6edcd5"
+      },
+      {
+        "final": {
+          "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+          "bytes": 59381,
+          "sha256": "312f31fd3fd6062124b3124a526e4997f6d05e3d79b9c5ce0ec968dec5a41efe",
+          "git_blob": "edc20aeef614fa3486868b04fc4be03ace992893"
+        },
+        "prior_preparation_snapshot": {
+          "source_sha": "c9909f984c6ab4ca76ac220bfe7d0f830c6194e0",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+          "bytes": 59381,
+          "sha256": "312f31fd3fd6062124b3124a526e4997f6d05e3d79b9c5ce0ec968dec5a41efe",
+          "git_blob": "edc20aeef614fa3486868b04fc4be03ace992893"
+        },
+        "bytes_equal": true,
+        "last_source_commit": "9f2a31c8869525ecf55fa55d0f5b08027c09a988"
+      },
+      {
+        "final": {
+          "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+          "bytes": 10751,
+          "sha256": "6ad7d0eddbfa7aef9f6f32de5c35505047016367a8b6aa54edbdba99eba3c0f8",
+          "git_blob": "596731c164fc1ad264b4f157f74b58cf73f7c513"
+        },
+        "prior_preparation_snapshot": {
+          "source_sha": "c9909f984c6ab4ca76ac220bfe7d0f830c6194e0",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+          "bytes": 10751,
+          "sha256": "6ad7d0eddbfa7aef9f6f32de5c35505047016367a8b6aa54edbdba99eba3c0f8",
+          "git_blob": "596731c164fc1ad264b4f157f74b58cf73f7c513"
+        },
+        "bytes_equal": true,
+        "last_source_commit": "9f2a31c8869525ecf55fa55d0f5b08027c09a988"
+      },
+      {
+        "final": {
+          "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+          "path": "policy-engine/src/polisyos/core/llm/response.py",
+          "bytes": 8621,
+          "sha256": "9964c5183108f47143cec32b0beb8b65aa4de6df706757b3a1f02be1c77b0581",
+          "git_blob": "33c7b310aef734b31c2ed2e61fe28d6525524b97"
+        },
+        "prior_preparation_snapshot": {
+          "source_sha": "c9909f984c6ab4ca76ac220bfe7d0f830c6194e0",
+          "path": "policy-engine/src/polisyos/core/llm/response.py",
+          "bytes": 7635,
+          "sha256": "04778d8fe0dd2cb6e29a9547865321afb92e8355fbbffd602f5d4e276948f6af",
+          "git_blob": "947105fccabb40710f563e3e57d71ed06e7f0bb3"
+        },
+        "bytes_equal": false,
+        "last_source_commit": "82c044aa4fa611ba4860da0a327dc3d521fc408c"
+      },
+      {
+        "final": {
+          "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+          "path": "policy-engine/src/polisyos/core/llm/settlement.py",
+          "bytes": 21507,
+          "sha256": "6d680b37b3107322ec79e56d6e7959b6605c5af22be641d6305f65bc495f78a7",
+          "git_blob": "a21bca5b1280069d6852bad0b5437d9783925886"
+        },
+        "prior_preparation_snapshot": {
+          "source_sha": "c9909f984c6ab4ca76ac220bfe7d0f830c6194e0",
+          "path": "policy-engine/src/polisyos/core/llm/settlement.py",
+          "bytes": 8687,
+          "sha256": "c2d9ee2d061898a7b4f31181cd9ef23ebf193c467ad4bb18785dcd435f189c3b",
+          "git_blob": "c2c631442a3ecf7587425445565d723598eaba81"
+        },
+        "bytes_equal": false,
+        "last_source_commit": "b138b0d10237d4704c1cf59dec502be4b745b3a1"
+      },
+      {
+        "final": {
+          "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+          "path": "policy-engine/src/polisyos/core/llm/traced_client.py",
+          "bytes": 37572,
+          "sha256": "f982028c7533dacac0df93475177bd840857768744ebf0bfd8c2181af912b81a",
+          "git_blob": "df786193b548215d84b4e7b1707c73272416d618"
+        },
+        "prior_preparation_snapshot": {
+          "source_sha": "c9909f984c6ab4ca76ac220bfe7d0f830c6194e0",
+          "path": "policy-engine/src/polisyos/core/llm/traced_client.py",
+          "bytes": 35161,
+          "sha256": "1d604c7d24f254017e4b69ba304f207d364c0a7e6dd1c0408ffce7e39e05c30a",
+          "git_blob": "da043259222ebeccf48e4fa8270a56fd2aa9bd62"
+        },
+        "bytes_equal": false,
+        "last_source_commit": "b138b0d10237d4704c1cf59dec502be4b745b3a1"
+      },
+      {
+        "final": {
+          "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+          "bytes": 27826,
+          "sha256": "df2db47dfb56639242cbb14edff4740c2c177ea6400d435a89d2deafa4ee4c8c",
+          "git_blob": "235b7e1b9008bb60323a464b10563d8d76520e78"
+        },
+        "prior_preparation_snapshot": {
+          "source_sha": "c9909f984c6ab4ca76ac220bfe7d0f830c6194e0",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+          "bytes": 28121,
+          "sha256": "43ddf80278eef25a761bfcba103947d34769d4d32a9b804cb480c9b25c639da7",
+          "git_blob": "52005eecef61a6ed0b727a7a444e28cf3acfa1e4"
+        },
+        "bytes_equal": false,
+        "last_source_commit": "a697a8312ff00edfcc766f9906dbcd2252cfcf96"
+      },
+      {
+        "final": {
+          "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+          "bytes": 9508,
+          "sha256": "e7df151746213f3d7df9fda50b80a8e76f955f9444b9f627c6751fc0772cce68",
+          "git_blob": "311b66e54dea6c49c4a295121f3ece57aa4a30b9"
+        },
+        "prior_preparation_snapshot": {
+          "source_sha": "c9909f984c6ab4ca76ac220bfe7d0f830c6194e0",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+          "bytes": 9508,
+          "sha256": "e7df151746213f3d7df9fda50b80a8e76f955f9444b9f627c6751fc0772cce68",
+          "git_blob": "311b66e54dea6c49c4a295121f3ece57aa4a30b9"
+        },
+        "bytes_equal": true,
+        "last_source_commit": "db88c2e2860d89c52477ce1bad61dc535b355440"
+      },
+      {
+        "final": {
+          "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+          "path": "policy-engine/src/polisyos/core/artifacts/signing.py",
+          "bytes": 30675,
+          "sha256": "2b58237eddbafa61bb6bd7a41b5e7f2cf96553c92406f1edf4cbbf236934261d",
+          "git_blob": "8aa4cdd46dc9de873df15b977ed6576eb11bb30f"
+        },
+        "prior_preparation_snapshot": {
+          "source_sha": "c9909f984c6ab4ca76ac220bfe7d0f830c6194e0",
+          "path": "policy-engine/src/polisyos/core/artifacts/signing.py",
+          "bytes": 30675,
+          "sha256": "2b58237eddbafa61bb6bd7a41b5e7f2cf96553c92406f1edf4cbbf236934261d",
+          "git_blob": "8aa4cdd46dc9de873df15b977ed6576eb11bb30f"
+        },
+        "bytes_equal": true,
+        "last_source_commit": "441f79f173df5e0d2a08c161120e634bb0e4f5aa"
+      }
+    ],
+    "native_and_local_G_named_inputs": [
+      {
+        "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "path": "policy-engine/tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py",
+        "bytes": 8699,
+        "sha256": "e1d4fca7abf7934f38bd789c5dcb6c4a461ba59a4e65a731bdff9104630e512d",
+        "git_blob": "7ddc6b5bbe7b09c8db0ccaecf75852d9cee252a7"
+      },
+      {
+        "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "path": "policy-engine/tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py",
+        "bytes": 12269,
+        "sha256": "57a93345d81860b0de51fcd4fc494c82f7b4f2ef845f9253659b6e41d54bc6f9",
+        "git_blob": "37513f22c75e7bc07904751292eb05dae8c8aeb8"
+      },
+      {
+        "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "path": "policy-engine/tests/integration/scientist/test_res_03_real_simulation_route.py",
+        "bytes": 39751,
+        "sha256": "38fa5c5a098c67a2fa8b30fcbfa90eb989177b817c5a66f81bfedc1aa64eb76d",
+        "git_blob": "71987b5a1f52c7ca8ddb4033b306d2d6fc0a6492"
+      },
+      {
+        "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "path": "policy-engine/tests/unit/scientist/agent/test_optional_spend_projection_boundary.py",
+        "bytes": 4969,
+        "sha256": "5ccda8945edba376e1acab693c0042de704883abff7bb9d26f9a7264aa9fe3dc",
+        "git_blob": "e40f76de777d1c47d2fdc51a3ed799babf9f12c0"
+      },
+      {
+        "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "path": "policy-engine/tests/unit/core/artifacts/test_batch_completion_admission.py",
+        "bytes": 14133,
+        "sha256": "2ba68f1c9b0524ea648aef179ae63bdb20d6633571064d533282eadb51599503",
+        "git_blob": "c493db7680df69132ef36f14e951f001f0f993e9"
+      },
+      {
+        "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-signature-publisher-contract.json",
+        "bytes": 5415,
+        "sha256": "a7c05409125b4717241b327f98c149152897ee4ea80e282d9de55302fae45cae",
+        "git_blob": "2bc684de21d4b6680c5481c2e69a6f87b9fd1c53"
+      }
+    ],
+    "actual_module_custody": {
+      "filebacked_polisyos_modules": 233,
+      "named_hook_censuses": 43,
+      "mismatches": 0,
+      "path_and_Git_hash_details": "observer.json"
+    },
+    "scope": "Exact finite declared source, current-process module and generated-fixture byte closure; no full production data/network/native libraries/in-memory/custom loader/child-module denominator."
+  },
+  "final_deciding_evidence": {
+    "implementation_sha": "85f0f0afd7abd62114074311ec90e7387ac27a38",
+    "candidate_tree_sha": "7d82a9e9229d16c922b707a9ac81f9f387dbac33",
+    "directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence",
+    "index_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/index.json",
+    "index_sha256": "18fa46705d1c1b468824762fb78bb40ad3f224f8667f3aa3d8ba04ca60cc100c",
+    "regular_artifact_count_including_index": 267,
+    "regular_artifact_bytes_including_index": 1958646,
+    "all_indexed_committed_Git_hashes_sizes_recomputed": true,
+    "full_stdout": {
+      "bytes": 47027,
+      "sha256": "739f1f5905edb0ed3ef7e603ee35cc4a04072f0105b94d634ab03308f506a764"
+    },
+    "full_JUnit": {
+      "bytes": 15453,
+      "sha256": "b4b60fd6c986cbd3a2d454cbdfd5ac5d0a2294941b27583f4faec17cb0fc7958"
+    }
+  },
+  "metadata_forward_history": {
+    "prior_receipt_sha": "d259f913e1a08236bd51943f0bbf82134017a293",
+    "prior_property_status": "Source-only preparation c990/selecteduppera697; historical native evidence preserved at that immutable receipt.",
+    "change": "Bind actual final1862 complete targeted C-native replay and exact A/G local contracts/source identity; all prior source-only contexts and historical raw remain literal, no retroactive PASS."
+  }
+}

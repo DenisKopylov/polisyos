@@ -1,0 +1,7 @@
+{
+  "whole_files": [
+    "tests/unit/scientist/orchestration/llm/test_gateway_client.py",
+    "tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py"
+  ],
+  "scope": "Header-value typed narrowing successor; actual gateway and parser/financial knowledge consumers only. Earlier full34 stays31-targeted."
+}

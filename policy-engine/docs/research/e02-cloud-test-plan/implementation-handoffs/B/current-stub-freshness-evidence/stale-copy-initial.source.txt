@@ -1,0 +1,33 @@
+from __future__ import annotations
+
+import hashlib
+import json
+import pathlib
+import tempfile
+
+from tools.devx.foundry import generate_stubs
+
+def hashes(paths):
+    return {str(path): hashlib.sha256(path.read_bytes()).hexdigest() for path in paths}
+
+original_map = dict(generate_stubs.OUTPUT_MAP)
+original_before = hashes(original_map.values())
+scratch = pathlib.Path(tempfile.mkdtemp(prefix='e02-stale-stubs-'))
+copied = {}
+for index, (module, target) in enumerate(original_map.items()):
+    copy = scratch / str(index) / target.name
+    copy.parent.mkdir()
+    copy.write_bytes(target.read_bytes())
+    copied[module] = copy
+stale = copied[next(iter(copied))]
+stale.write_bytes(stale.read_bytes() + b'# deliberately stale expected companion; all original definitions retained\n')
+before = hashes(copied.values())
+generate_stubs.OUTPUT_MAP = copied
+result = generate_stubs.main(['--check'])
+after = hashes(copied.values())
+original_after = hashes(original_map.values())
+print('STUB_STALE_COPY_OBSERVATION ' + json.dumps({'scratch': str(scratch), 'expected_refusal_exit': result, 'copied_before': before, 'copied_after': after, 'original_before': original_before, 'original_after': original_after}, sort_keys=True))
+assert before == after, 'readonly check repaired its expected input'
+assert original_before == original_after, 'readonly check changed repository outputs'
+assert result == 1, 'stale expected bytes were accepted'
+raise SystemExit(result)

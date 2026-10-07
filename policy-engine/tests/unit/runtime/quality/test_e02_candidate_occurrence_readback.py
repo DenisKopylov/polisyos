@@ -24,6 +24,9 @@ from polisyos.runtime.http.services.control.generation_cycle import (
     COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION,
     CompiledRecursiveGenerationCycleRun,
 )
+from polisyos.runtime.quality.design_axes.coupling_composition import (
+    derive_recursive_design_graph,
+)
 from polisyos.runtime.quality.epoch_validity_cascade import (
     PromotionCandidateOccurrenceStatement,
 )
@@ -41,7 +44,6 @@ from polisyos.runtime.quality.open_world_risk import (
 from polisyos.runtime.quality.recursive_generation_cycle import (
     RecursiveCycleBudget,
     RecursiveGenerationCycleController,
-    derive_recursive_design_graph,
 )
 from tests.unit.runtime.quality.test_generation_cycle import (
     REPO_ROOT,

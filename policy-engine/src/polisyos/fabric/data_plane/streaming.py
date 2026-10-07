@@ -345,12 +345,14 @@ class StreamingSourceSession:
         pool: ConnectionPool[Any],
         request: FetchRequest,
         partition_key: str = "default",
+        registry: ConnectorRegistry | None = None,
     ) -> None:
         self.connector_id = connector_id
         self.dataset_id = dataset_id
         self.partition_key = partition_key
         self.pool = pool
         self.request = request
+        self._registry = registry
         self.connector: Any | None = None
         self.handle: Any | None = None
         self._generator: AsyncIterator[DataChunk[Any]] | None = None
@@ -395,6 +397,7 @@ class StreamingSourceSession:
             pool=pool,
             request=request or FetchRequest(dataset_id=dataset_id),
             partition_key=partition_key,
+            registry=resolved_registry,
         )
         try:
             await session.subscribe()
@@ -410,18 +413,7 @@ class StreamingSourceSession:
                     f"stream session startup cleanup remains pending after retry: {cleanup_exc!r}"
                 )
             if session._cleanup_pending or session.handle is not None:
-                retain_pending_cleanup = getattr(
-                    resolved_registry,
-                    "_retain_pending_startup_cleanup",
-                    None,
-                )
-                if callable(retain_pending_cleanup):
-                    try:
-                        retain_pending_cleanup(connector_id, session.pool)
-                    except BaseException as transfer_exc:
-                        exc.add_note(
-                            f"stream session startup owner transfer failed: {transfer_exc!r}"
-                        )
+                session._retain_cleanup_owner(exc)
             raise
         return session
 
@@ -609,29 +601,45 @@ class StreamingSourceSession:
         ):
             await self.connector.resume_stream(self.handle)
 
+    def _retain_cleanup_owner(self, error: BaseException) -> None:
+        """Keep the exact private pool reachable by the registry's retry owner."""
+        if self._registry is None:
+            # Directly constructed sessions retain their caller-owned pool.
+            return
+        try:
+            self._registry._retain_pending_startup_cleanup(self.connector_id, self.pool)
+        except BaseException as transfer_exc:
+            error.add_note(f"stream session cleanup owner transfer failed: {transfer_exc!r}")
+
     async def close(self) -> None:
-        """Release the current stream handle and close owned pool resources."""
+        """Close owned resources or retain them for production cleanup retry."""
         async with self._close_lock:
             if self._closed and not self._cleanup_pending:
                 return
-            if (
-                self.connector is not None
-                and self.handle is not None
-                and hasattr(
-                    self.connector,
-                    "close_stream",
-                )
-                and not self._stream_close_complete
-                and not self._cleanup_pending
-            ):
-                await self.connector.close_stream(self.handle)
-                self._stream_close_complete = True
+            try:
+                if (
+                    self.connector is not None
+                    and self.handle is not None
+                    and hasattr(self.connector, "close_stream")
+                    and not self._stream_close_complete
+                    and not self._cleanup_pending
+                ):
+                    await self.connector.close_stream(self.handle)
+                    self._stream_close_complete = True
 
-            if self.handle is not None:
-                await self.pool.release(self.handle)
-                self.connector = None
-                self.handle = None
-            await self.pool.close_all()
+                if self.handle is not None:
+                    await self.pool.release(self.handle)
+                    self.connector = None
+                    self.handle = None
+                await self.pool.close_all()
+            except BaseException as exc:
+                # Failure and cancellation must leave the same pool/handle under
+                # an owner after the process consumer has unwound. No replacement
+                # handle, permit release or observer rescue completes this cleanup.
+                self._closed = False
+                self._cleanup_pending = True
+                self._retain_cleanup_owner(exc)
+                raise
             self._closed = True
             self._cleanup_pending = False
             self.connector = None

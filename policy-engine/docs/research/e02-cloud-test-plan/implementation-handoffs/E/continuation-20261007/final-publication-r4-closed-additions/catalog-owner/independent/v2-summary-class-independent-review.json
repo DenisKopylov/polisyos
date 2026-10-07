@@ -1,0 +1,204 @@
+{
+  "schema": "policyos.e02.independent_catalog_summary_class_review.v2",
+  "outcome": "GO",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "review_scope": "Evidence-only current summary/ref/source/footprint admission and effective removal, reusing unchanged prior native mechanism/source/CAS independent GO.",
+  "specification": "PASS bounded admission class",
+  "engineering_quality": "PASS bounded pure observer utility",
+  "environment": {
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "rootenv_or_packages_mutated": false
+  },
+  "fixed_author_inputs_before": [
+    {
+      "path": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/publication-selection.json",
+      "bytes": 29522,
+      "sha256": "e441715f8effb36bc3197fde4f7f21c2cdcbfa1ac4ec03329a2bc382fe3a1ddd"
+    },
+    {
+      "path": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/owner-ready-catalog-fixture-packet.json",
+      "bytes": 32614,
+      "sha256": "5feed21c81a8e01a68c074571d46182fe3eda1f5fea7f6007db8f06fafa12b80"
+    },
+    {
+      "path": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/validate_closed_catalog_packet.py",
+      "bytes": 6181,
+      "sha256": "558ea2ebbc183da3d2e1bd6981f9671585931c6ebae7f290c5ba9511e3d44052"
+    },
+    {
+      "path": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/validate_closed_catalog_packet_v2.py",
+      "bytes": 15716,
+      "sha256": "bdfba9995c408064c21e9bd7e779b7ad8705f4100f17c34592ebe41afd1b24c7"
+    },
+    {
+      "path": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/evidence-summary-correction-v2.json",
+      "bytes": 9808,
+      "sha256": "f9ec38a0d6e1ad714cbc19d1bb87625fd967c9d809033ebc6a59a5cc917b67ce"
+    },
+    {
+      "path": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/publication-selection-v2-pending-review.json",
+      "bytes": 40516,
+      "sha256": "23ffe777140f4361e8a889b5adc6acf6f13fa75777be2ab6cfb6c526dcfb03df"
+    }
+  ],
+  "fixed_author_inputs_after": [
+    {
+      "path": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/publication-selection.json",
+      "bytes": 29522,
+      "sha256": "e441715f8effb36bc3197fde4f7f21c2cdcbfa1ac4ec03329a2bc382fe3a1ddd"
+    },
+    {
+      "path": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/owner-ready-catalog-fixture-packet.json",
+      "bytes": 32614,
+      "sha256": "5feed21c81a8e01a68c074571d46182fe3eda1f5fea7f6007db8f06fafa12b80"
+    },
+    {
+      "path": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/validate_closed_catalog_packet.py",
+      "bytes": 6181,
+      "sha256": "558ea2ebbc183da3d2e1bd6981f9671585931c6ebae7f290c5ba9511e3d44052"
+    },
+    {
+      "path": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/validate_closed_catalog_packet_v2.py",
+      "bytes": 15716,
+      "sha256": "bdfba9995c408064c21e9bd7e779b7ad8705f4100f17c34592ebe41afd1b24c7"
+    },
+    {
+      "path": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/evidence-summary-correction-v2.json",
+      "bytes": 9808,
+      "sha256": "f9ec38a0d6e1ad714cbc19d1bb87625fd967c9d809033ebc6a59a5cc917b67ce"
+    },
+    {
+      "path": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/publication-selection-v2-pending-review.json",
+      "bytes": 40516,
+      "sha256": "23ffe777140f4361e8a889b5adc6acf6f13fa75777be2ab6cfb6c526dcfb03df"
+    }
+  ],
+  "author_inputs_unchanged": true,
+  "verified_selected_logical_asset_rows": 114,
+  "commands": [
+    {
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/validate_closed_catalog_packet_v2.py",
+        "--base",
+        "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007",
+        "--packet",
+        "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/owner-ready-catalog-fixture-packet.json"
+      ],
+      "exit_code": 0,
+      "stdout": {
+        "path": "/tmp/e02-E-native-catalog-packet-independent-64d/v2-independent-normal.stdout.json",
+        "bytes": 6376,
+        "sha256": "9cfb10d3f54230b1cd3dc70510a11321f04c1b6fa3c7076c4b50d85f760ad4c2"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-native-catalog-packet-independent-64d/v2-independent-normal.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "same_author_output_bytes": true,
+      "checks": 21,
+      "structured_claims": 65
+    },
+    {
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/tmp/e02-E-native-catalog-packet-independent-64d/review_v2_summary_class.py",
+        "--probe"
+      ],
+      "exit_code": 0,
+      "stdout": {
+        "path": "/tmp/e02-E-native-catalog-packet-independent-64d/v2-removal-normal.stdout.json",
+        "bytes": 2211,
+        "sha256": "207e75954ccd9d35fb4311258fc86a444b76cd07a9f0900f426d33df124a9793"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-native-catalog-packet-independent-64d/v2-removal-normal.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "actual_three_current_refusals": 3,
+      "removed_required_refusals": 0,
+      "effective_removal": true
+    },
+    {
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "-B",
+        "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/validate_closed_catalog_packet_v2.py",
+        "--base",
+        "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007",
+        "--packet",
+        "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/owner-ready-catalog-fixture-packet.json"
+      ],
+      "exit_code": 0,
+      "stdout": {
+        "path": "/tmp/e02-E-native-catalog-packet-independent-64d/v2-independent-optimized.stdout.json",
+        "bytes": 6376,
+        "sha256": "9cfb10d3f54230b1cd3dc70510a11321f04c1b6fa3c7076c4b50d85f760ad4c2"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-native-catalog-packet-independent-64d/v2-independent-optimized.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "same_author_output_bytes": true,
+      "checks": 21,
+      "structured_claims": 65
+    },
+    {
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "-B",
+        "/tmp/e02-E-native-catalog-packet-independent-64d/review_v2_summary_class.py",
+        "--probe"
+      ],
+      "exit_code": 0,
+      "stdout": {
+        "path": "/tmp/e02-E-native-catalog-packet-independent-64d/v2-removal-optimized.stdout.json",
+        "bytes": 2211,
+        "sha256": "a971e1e08fea1be588781646cb519bc500efcc5974f4a82ac3e8e58015b6088f"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-native-catalog-packet-independent-64d/v2-removal-optimized.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "actual_three_current_refusals": 3,
+      "removed_required_refusals": 0,
+      "effective_removal": true
+    }
+  ],
+  "property_path": "validate -> admit_summary_claims -> typed_equal / read_record / fixed read-only Git diff and numstat",
+  "predicate_basis": {
+    "native_numeric_and_binding_claims": "independently_reconciled",
+    "raw_ref_integrity": "recomputed",
+    "actual_patch_footprint": "recomputed",
+    "narrative_owner_and_concurrency_limits": "consumer_asserted",
+    "production_or_verifier_authority": "not_established"
+  },
+  "P37_basis_frozen": true,
+  "P40_class_repair": "Full structured summary class: types/denominators/numeric flags/refs/source/environment/patch footprint, not a single observation-count plug.",
+  "native_checks_repeated": false,
+  "finding_closure": false,
+  "owner_helper_patch_accepted": false,
+  "remaining_owner": "Canonical A runtime fixture owner accepts/applies helper patch, honors same-process factory-construction serialization or provides typed injection; A/G then measure full native HTTP/browser/CI successors. DataForge semantic owners retain source/schema authority.",
+  "limitations": [
+    "15 original source references and exact original native/overlay receipts were independently reviewed in prior native-owner-packet-review.json; no source/application execution repeated.",
+    "Process-global constructor patch remains a fixture-only owner consideration; prose matching confers no concurrency guarantee.",
+    "Full native HTTP historical FAIL and metadata ds_observations=0 remain unchanged; CSV3 rows are separate persisted native CAS inputs, without invented catalog join.",
+    "This source-specific observer reads absolute receipt paths and fixed Git source objects. Published archive reconstruction must retain those refs or provide an explicitly rebound receipt."
+  ],
+  "prior_native_GO": {
+    "path": "/tmp/e02-E-native-catalog-packet-independent-64d/native-owner-packet-review.json",
+    "bytes": 13629,
+    "sha256": "630a3eabe3e5c1d25b2a80596db1d8f10a5c38b4f2dc1fb9a4b45ad3e1b122f0"
+  }
+}

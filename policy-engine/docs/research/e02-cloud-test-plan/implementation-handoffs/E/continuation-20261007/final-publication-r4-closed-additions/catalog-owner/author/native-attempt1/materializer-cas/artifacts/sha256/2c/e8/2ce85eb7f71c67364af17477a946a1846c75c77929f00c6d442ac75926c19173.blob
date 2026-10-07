@@ -1,0 +1,1 @@
+{"notes":["local generic CSV fixture; no production/history/decision authority"],"sources":[{"artifact_id":"sha256:5f9649d1de923451e4e293bdbb1dae79372aa921b55fde581faf02f110e94f87","kind":"fabric.data_payload","media_type":"application/json"}],"transforms":[]}

@@ -1,0 +1,88 @@
+from __future__ import annotations
+
+import argparse
+import copy
+import hashlib
+import json
+from pathlib import Path
+
+
+def require(value: object, message: str) -> None:
+    if not value:
+        raise ValueError(message)
+
+
+def load_checked(base: Path, record: dict[str, object]) -> dict[str, object]:
+    relative = record["path"]
+    require(isinstance(relative, str) and bool(relative) and Path(relative).parts and not Path(relative).is_absolute() and ".." not in Path(relative).parts, "invalid_record_path")
+    raw = (base / relative).read_bytes()
+    require(record["bytes"] == len(raw) and record["sha256"] == hashlib.sha256(raw).hexdigest(), "capture_integrity_mismatch")
+    return json.loads(raw)
+
+
+def validate(base: Path, packet: dict[str, object]) -> None:
+    source = "64d7444a18c55df7b88b71b7699a2f1b25ca24bd"
+    tree = "aef23574d3162abb19bf5a1c67d02624ff9d4d1d"
+    require(packet["source_sha"] == source and packet["tree_sha"] == tree, "source_binding_mismatch")
+    receipts = {key: load_checked(base, record) for key, record in packet["receipts"].items()}
+    for value in receipts.values():
+        require(value["source_sha"] == source and value["tree_sha"] == tree and value["source_immutable"] is True, "native_source_identity_mismatch")
+    native = receipts["native_positive"]
+    require(native["result"] == "PASS" and len(native["controls"]) == 8, "native_control_denominator_changed")
+    counts = native["fixture_catalog"]["counts"]
+    require((counts["ds_datasets"], counts["ds_distributions"], counts["ds_metric_bindings"], counts["ds_schema_profiles"], counts["ds_observations"]) == (9, 9, 13, 6, 0), "catalog_denominator_or_authority_changed")
+    consumed = native["controls"]["native_dashboard_fixture_startup"]
+    require(consumed["health"]["status_code"] == 200 and consumed["runs_surface"]["status_code"] == 200 and consumed["bound_run_id"] == "R_run_paper_bound_001", "native_HTTP_positive_missing")
+    require(consumed["binding"]["baseline"]["content_sha256"] == "sha256:" + native["fixture_catalog"]["sha256"], "consumed_catalog_bytes_mismatch")
+    rows = native["controls"]["native_csv_snapshot_fresh_readback"]["rows"]
+    expected_rows = [{"row_id": "row_a", "country_code": "UA", "year": 2020, "value": 1}, {"row_id": "row_b", "country_code": "UA", "year": 2021, "value": 2}, {"row_id": "row_c", "country_code": "UA", "year": 2022, "value": 4}]
+    require(rows == expected_rows, "snapshot_row_oracle_mismatch")
+    for key, reason in (("missing_source_native_reader", "catalog_fetch_source_unreadable"), ("wrong_profile_refusal", "catalog_fetch_target_not_admitted"), ("wrong_dataset_refusal", "catalog_fetch_target_not_admitted"), ("changed_source_stale_session_refusal", "catalog_fetch_read_session_stale"), ("changed_source_old_binding_refusal", "catalog_fetch_binding_mismatch")):
+        require(native["controls"][key]["outcome"] == "PASS" and native["controls"][key]["reason"] == reason, "native_refusal_missing")
+    require(receipts["missing_native_startup"]["control"]["reason"] == "catalog_fetch_source_unreadable", "missing_startup_not_refused")
+    healthy = receipts["owner_overlay_healthy"]
+    require(healthy["mode"] == "healthy" and healthy["outcome"] == "PASS" and healthy["positive"]["health_status"] == 200 and healthy["positive"]["runs_status"] == 200 and healthy["positive"]["bound_run_id"] == "R_run_paper_bound_001", "actual_patch_positive_missing")
+    for key, mode in (("owner_overlay_removed_route", "removed-route"), ("owner_overlay_fake_producer", "fake-producer")):
+        result = receipts[key]
+        require(result["mode"] == mode and result["outcome"] == "PASS" and result["positive"] is None and result["refusal"]["reason"] == "catalog_fetch_source_unreadable", "overlay_property_discriminator_missing")
+    require(len(receipts["owner_overlay_fake_producer"]["fake_callbacks"]) == 2, "fake_producer_not_reached")
+    require(packet["native_full_HTTP"]["original_outcome"] == "FAIL" and packet["native_full_HTTP"]["catalog_error_count"] == 413 and packet["native_full_HTTP"]["statuses"] == {"errors": 347, "failed": 66}, "original_HTTP_denominator_changed")
+    require(packet["finding_closure"] is False and packet["browser_cases_executed"] is False and packet["overlay_is_committed_implementation"] is False, "scope_or_authority_upgrade")
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--base", type=Path, required=True)
+    parser.add_argument("--packet", type=Path, required=True)
+    args = parser.parse_args()
+    base = args.base.resolve()
+    packet = json.loads(args.packet.read_text())
+    validate(base, packet)
+    results = [{"name": "healthy_closed_native_packet", "outcome": "PASS"}]
+    mutations = {
+        "corrupt_capture_hash": lambda p: p["receipts"]["native_positive"].update(sha256="0" * 64),
+        "corrupt_capture_size": lambda p: p["receipts"]["native_positive"].update(bytes=1),
+        "wrong_source": lambda p: p.update(source_sha="0" * 40),
+        "wrong_tree": lambda p: p.update(tree_sha="0" * 40),
+        "invalid_path_none": lambda p: p["receipts"]["native_positive"].update(path=None),
+        "invalid_path_parent": lambda p: p["receipts"]["native_positive"].update(path="../receipt.json"),
+        "scope_upgrade": lambda p: p.update(finding_closure=True),
+        "browser_upgrade": lambda p: p.update(browser_cases_executed=True),
+        "implementation_upgrade": lambda p: p.update(overlay_is_committed_implementation=True),
+        "wrong_HTTP_count": lambda p: p["native_full_HTTP"].update(catalog_error_count=414),
+        "wrong_HTTP_outcome": lambda p: p["native_full_HTTP"].update(original_outcome="PASS"),
+    }
+    for name, mutate in mutations.items():
+        corrupt = copy.deepcopy(packet)
+        mutate(corrupt)
+        try:
+            validate(base, corrupt)
+        except ValueError as exc:
+            results.append({"name": name, "outcome": "PASS", "reason": str(exc)})
+        else:
+            raise ValueError(f"corrupt_packet_accepted:{name}")
+    print(json.dumps({"outcome": "PASS", "checks": len(results), "controls": results}, indent=2))
+
+
+if __name__ == "__main__":
+    main()

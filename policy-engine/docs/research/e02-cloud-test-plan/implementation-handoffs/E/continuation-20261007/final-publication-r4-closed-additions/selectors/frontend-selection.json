@@ -1,0 +1,529 @@
+{
+  "schema": "policyos.e02.E.required_native_frontend_retry_publication_selection.v1",
+  "candidate_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "candidate_tree_sha": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "assets": [
+    {
+      "source_path": "/tmp/e02-E-frontend-retry-analysis-64d/close-required-normal-v2.stderr.txt",
+      "portable_path": "review/close-required-normal-v2.stderr.txt",
+      "role": "current-observer/source-or-output",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-frontend-retry-analysis-64d/close-required-normal-v2.stdout.txt",
+      "portable_path": "review/close-required-normal-v2.stdout.txt",
+      "role": "current-observer/source-or-output",
+      "bytes": 315,
+      "sha256": "605cb7ca1a59a91cafaae8732101f729ace51b9e0caaf810c4893b7ccd9bf657"
+    },
+    {
+      "source_path": "/tmp/e02-E-frontend-retry-analysis-64d/close-required-normal.stderr.txt",
+      "portable_path": "review/close-required-normal.stderr.txt",
+      "role": "historical-observer-ERROR-ps-empty-exit1-handling",
+      "bytes": 1001,
+      "sha256": "7e61ec6acdaa0e864a76a61e253f027fd9611952d9a1c41e5cb8b5e1d39302de"
+    },
+    {
+      "source_path": "/tmp/e02-E-frontend-retry-analysis-64d/close-required-optimized-v2.stdout.txt",
+      "portable_path": "review/close-required-optimized-v2.stdout.txt",
+      "role": "current-observer/source-or-output",
+      "bytes": 318,
+      "sha256": "ca956fb39a5c8ea6b99a79f56f1ca61b589f49afd27f2e5f53f1391f1088be41"
+    },
+    {
+      "source_path": "/tmp/e02-E-frontend-retry-analysis-64d/close_required_retry_packet.attempt1-ERROR.py.txt",
+      "portable_path": "review/close_required_retry_packet.attempt1-ERROR.py.txt",
+      "role": "historical-observer-ERROR-literal-source",
+      "bytes": 11248,
+      "sha256": "0a1b6799f096dd122f4ca77e28a5b91a127d5bf9240525ae49efe4473fe87045"
+    },
+    {
+      "source_path": "/tmp/e02-E-frontend-retry-analysis-64d/close_required_retry_packet.py",
+      "portable_path": "review/close_required_retry_packet.py.txt",
+      "role": "current-observer/source-or-output",
+      "bytes": 11347,
+      "sha256": "c37f1852db580e5204853fb0d141a6e6d2987d7c7854d3062e2b211e20e52af9"
+    },
+    {
+      "source_path": "/tmp/e02-E-frontend-retry-analysis-64d/closed-ports.stdout.txt",
+      "portable_path": "review/closed-ports.stdout.txt",
+      "role": "current-observer/source-or-output",
+      "bytes": 64,
+      "sha256": "14f4ea5bdea2bd6f8d856ec28619243555e53de100d4bca155a751876e97a843"
+    },
+    {
+      "source_path": "/tmp/e02-E-frontend-retry-analysis-64d/closed-processes.stdout.txt",
+      "portable_path": "review/closed-processes.stdout.txt",
+      "role": "current-observer/source-or-output",
+      "bytes": 34,
+      "sha256": "5c1e8f8b0af884404305369e4eba9db14b127a9881ad29d7041ebb9ab2f8a008"
+    },
+    {
+      "source_path": "/tmp/e02-E-frontend-retry-analysis-64d/execute_required_a11y_attempt2.py",
+      "portable_path": "review/execute_required_a11y_attempt2.py.txt",
+      "role": "current-observer/source-or-output",
+      "bytes": 5751,
+      "sha256": "608326adb51d8e293d844e3b5babd299975b7580728ddfc1fd6eb9071f2452e0"
+    },
+    {
+      "source_path": "/tmp/e02-E-frontend-retry-analysis-64d/inspect-storybook-normal.stdout.txt",
+      "portable_path": "review/inspect-storybook-normal.stdout.txt",
+      "role": "current-observer/source-or-output",
+      "bytes": 261,
+      "sha256": "47fe6f953e0353a4360d84b4dd8fd83726ae3e18c92ac14e569fb963053606e8"
+    },
+    {
+      "source_path": "/tmp/e02-E-frontend-retry-analysis-64d/inspect-storybook-optimized.stdout.txt",
+      "portable_path": "review/inspect-storybook-optimized.stdout.txt",
+      "role": "current-observer/source-or-output",
+      "bytes": 264,
+      "sha256": "47c5dc0cb10320f53c50a104d0869479d90ebeaaf6ac2e09c5cded5704faf31f"
+    },
+    {
+      "source_path": "/tmp/e02-E-frontend-retry-analysis-64d/inspect_storybook_retry.py",
+      "portable_path": "review/inspect_storybook_retry.py.txt",
+      "role": "current-observer/source-or-output",
+      "bytes": 6621,
+      "sha256": "0a1f4e9d8fdcf4f0167ff406078e70c744bcf7aa6d162283e6567912eabaeb90"
+    },
+    {
+      "source_path": "/tmp/e02-E-frontend-retry-analysis-64d/required-native-retry-closeout-normal.json",
+      "portable_path": "review/required-native-retry-closeout-normal.json",
+      "role": "current-observer/source-or-output",
+      "bytes": 15822,
+      "sha256": "dc69a4f73348adc43aab71aafa70bf6f7e9431c902756029c63b9ae25180f38c"
+    },
+    {
+      "source_path": "/tmp/e02-E-frontend-retry-analysis-64d/required-native-retry-closeout-optimized.json",
+      "portable_path": "review/required-native-retry-closeout-optimized.json",
+      "role": "current-observer/source-or-output",
+      "bytes": 15822,
+      "sha256": "d208b31119e676c5a862a52eb52d380ba2dbad6c55d268c2c4073ba7e1717510"
+    },
+    {
+      "source_path": "/tmp/e02-E-frontend-retry-analysis-64d/select_closed_native_retry_publication.py",
+      "portable_path": "review/select_closed_native_retry_publication.py.txt",
+      "role": "current-observer/source-or-output",
+      "bytes": 6573,
+      "sha256": "94c331757029ce730164e16ea7c9dde15cfb819fb05f73c95ef29f876cf7aaf3"
+    },
+    {
+      "source_path": "/tmp/e02-E-frontend-retry-analysis-64d/storybook-retry-review-normal.json",
+      "portable_path": "review/storybook-retry-review-normal.json",
+      "role": "current-observer/source-or-output",
+      "bytes": 39725,
+      "sha256": "f2e1cc98ca5d00790d2a15169c2c7764f422ada420bfe35d2ffbadd324005890"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frontend-stage-readonly-r4/prepare_required_frontend_retries.py",
+      "portable_path": "preparation/prepare_required_frontend_retries.py.txt",
+      "role": "prepared-native-support/source-or-output",
+      "bytes": 8855,
+      "sha256": "c8e60ea839598db3e09d778066c3f82ae09ba8c1ea0c7b39bbabad56eb067c90"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frontend-stage-readonly-r4/prepare-required-retries.stdout.txt",
+      "portable_path": "preparation/prepare-required-retries.stdout.txt",
+      "role": "prepared-native-support/source-or-output",
+      "bytes": 239,
+      "sha256": "a8ae238337a3386b898df57059e57acd6635dcece323b9cb242a0ca6c2c71ef1"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frontend-stage-readonly-r4/required-retry-native-support-observer.mjs.txt",
+      "portable_path": "preparation/required-retry-native-support-observer.mjs.txt",
+      "role": "prepared-native-support/source-or-output",
+      "bytes": 1215,
+      "sha256": "e8ee358ccd7887aa1436b0f0305e7d468860369844a714bdd3eae2827885e5a0"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frontend-stage-readonly-r4/required-retry-native-support.stdout.txt",
+      "portable_path": "preparation/required-retry-native-support.stdout.txt",
+      "role": "prepared-native-support/source-or-output",
+      "bytes": 1286,
+      "sha256": "1b823d81e04515e2cfed20fd6ac48add0f7457bf196db59e42a0f473aa260396"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frontend-stage-readonly-r4/execute_required_frontend_retry.py",
+      "portable_path": "preparation/execute_required_frontend_retry.py.txt",
+      "role": "prepared-native-support/source-or-output",
+      "bytes": 5095,
+      "sha256": "d30bb06d63de16b12eea710ae99d42a3e74788b6a24cacb47a3847d352844c3d"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/required-retry-preparation.json",
+      "portable_path": "preparation/required-retry-preparation.json",
+      "role": "complete-preparation",
+      "bytes": 11264,
+      "sha256": "eaebb1da76e95a7d1540284d93e4c5cd3941fbfa9c6f8a37dbae7a174b4c869f"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/storybook/launch.json",
+      "portable_path": "storybook/launch.json",
+      "role": "current-complete-native-capture",
+      "bytes": 4990,
+      "sha256": "08027effa967d93b554384ab967d82cf8e9e9897d2fd627417632dc0bc0dd0d3"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/storybook/completion.json",
+      "portable_path": "storybook/completion.json",
+      "role": "current-complete-native-capture",
+      "bytes": 1260,
+      "sha256": "59c904d76132c52238265463002d7fe89e4c67b04afbef783650e3c600f7d6bc"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/storybook/launcher.stdout.txt",
+      "portable_path": "storybook/launcher.stdout.txt",
+      "role": "current-complete-native-capture",
+      "bytes": 1176,
+      "sha256": "4dc8e4580f57765a8df0d5b8d23a5bbaaffa63b5de0bad883b5a8f93aaf5dbb3"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/storybook/capture.stdout.txt",
+      "portable_path": "storybook/capture.stdout.txt",
+      "role": "current-complete-native-capture",
+      "bytes": 561,
+      "sha256": "aa416b87a2b16fc3c8049687aeec745ecf6a0c179b222624d88e2f4be81c2b20"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/storybook/checks/storybook-full-native-retry/storybook-full-native-retry.json",
+      "portable_path": "storybook/checks/storybook-full-native-retry.json",
+      "role": "complete-native-receipt-or-stdout",
+      "bytes": 8778,
+      "sha256": "dbc605446e66b1248d2938303924183c1e7f97a71dad22c0dacd2f6dd33e1bcb"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/storybook/checks/storybook-full-native-retry/storybook-full-native-retry.stdout.txt",
+      "portable_path": "storybook/checks/storybook-full-native-retry.stdout.txt",
+      "role": "complete-native-receipt-or-stdout",
+      "bytes": 9844,
+      "sha256": "1eaa888e0b899d7652079c6dadf25b5c7e5e974db7df880d94466c4e1c92d7fe"
+    },
+    {
+      "source_path": "/tmp/e02-E-a11y-full-native-retry-64d-20261007-r2/a11y/launch.json",
+      "portable_path": "a11y-attempt2/launch.json",
+      "role": "current-complete-native-capture",
+      "bytes": 4499,
+      "sha256": "c475e6e1882363296bfbacd589120eeff9e404e4a2166b1cd10af45da1be670e"
+    },
+    {
+      "source_path": "/tmp/e02-E-a11y-full-native-retry-64d-20261007-r2/a11y/completion.json",
+      "portable_path": "a11y-attempt2/completion.json",
+      "role": "current-complete-native-capture",
+      "bytes": 1141,
+      "sha256": "8d20585537034cc2a8bde6b0172820a0c35976b64035fab9b581d4fd911e23ea"
+    },
+    {
+      "source_path": "/tmp/e02-E-a11y-full-native-retry-64d-20261007-r2/a11y/launcher.stdout.txt",
+      "portable_path": "a11y-attempt2/launcher.stdout.txt",
+      "role": "current-complete-native-capture",
+      "bytes": 1057,
+      "sha256": "40056e312861c701ad2b2427555c70e3c5abc1698a7f03d896897de7b7a8af53"
+    },
+    {
+      "source_path": "/tmp/e02-E-a11y-full-native-retry-64d-20261007-r2/a11y/capture.stdout.txt",
+      "portable_path": "a11y-attempt2/capture.stdout.txt",
+      "role": "current-complete-native-capture",
+      "bytes": 152,
+      "sha256": "67d63700ad087476fff20fb09fbbd26066587df07b6469fbccbba3bf26723aeb"
+    },
+    {
+      "source_path": "/tmp/e02-E-a11y-full-native-retry-64d-20261007-r2/a11y/checks/a11y-full-native-retry/a11y-full-native-retry.json",
+      "portable_path": "a11y-attempt2/checks/a11y-full-native-retry.json",
+      "role": "complete-native-receipt-or-stdout",
+      "bytes": 8124,
+      "sha256": "75161bd3f3d370ca168d4dac011c216d7c53867825cb2569b7c0b96a4ce70c81"
+    },
+    {
+      "source_path": "/tmp/e02-E-a11y-full-native-retry-64d-20261007-r2/a11y/checks/a11y-full-native-retry/a11y-full-native-retry.stdout.txt",
+      "portable_path": "a11y-attempt2/checks/a11y-full-native-retry.stdout.txt",
+      "role": "complete-native-receipt-or-stdout",
+      "bytes": 13880,
+      "sha256": "daf7c673ff203831bdd008ff31c8884af81d85b53c09a27ac8f65fef48a92a52"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/storybook/storybook.junit.xml",
+      "portable_path": "storybook/storybook.junit.xml",
+      "role": "complete-native-JUnit",
+      "bytes": 15322,
+      "sha256": "e5dce3ce283dbcba582621af2606c183bc9f18525e76628cbd1ff4f3add19d77"
+    },
+    {
+      "source_path": "/tmp/e02-E-a11y-full-native-retry-64d-20261007-r2/a11y/read-only-state/a11y-after.stdout.txt",
+      "portable_path": "a11y-attempt2/read-only-state/a11y-after.stdout.txt",
+      "role": "historical-phase-transition-probe: component controller already closed; not a native stage failure",
+      "bytes": 1598,
+      "sha256": "f1d734bf6c7cff0bb69ca3c5b2e5386372fe4b403b741be4750a2294843ed38d"
+    },
+    {
+      "source_path": "/tmp/e02-E-a11y-full-native-retry-64d-20261007-r2/a11y/read-only-state/a11y-current-bootstrap-observation.json",
+      "portable_path": "a11y-attempt2/read-only-state/a11y-current-bootstrap-observation.json",
+      "role": "historical-phase-transition-probe: component controller already closed; not a native stage failure",
+      "bytes": 18359,
+      "sha256": "1177b04ddf56da48188249c2ed939fc858e9968f9ccb3ec69b5186dde5e3246a"
+    },
+    {
+      "source_path": "/tmp/e02-E-a11y-full-native-retry-64d-20261007-r2/a11y/read-only-state/a11y-native-orchestrator-observation.json",
+      "portable_path": "a11y-attempt2/read-only-state/a11y-native-orchestrator-observation.json",
+      "role": "historical-phase-transition-probe: component controller already closed; not a native stage failure",
+      "bytes": 871,
+      "sha256": "9a296a87b0f26535a67d654448630339cc2048d072f9f750a15cf18f782ee384"
+    },
+    {
+      "source_path": "/tmp/e02-E-a11y-full-native-retry-64d-20261007-r2/a11y/read-only-state/native-state.stdout.txt",
+      "portable_path": "a11y-attempt2/read-only-state/native-state.stdout.txt",
+      "role": "historical-phase-transition-probe: component controller already closed; not a native stage failure",
+      "bytes": 209,
+      "sha256": "1bd2b94b60e2b09c47ca38595ddba3daa3bc8a8387cffdc2c20d1a0f6a70c004"
+    },
+    {
+      "source_path": "/tmp/e02-E-a11y-full-native-retry-64d-20261007-r2/a11y/read-only-state/observation.stdout.txt",
+      "portable_path": "a11y-attempt2/read-only-state/observation.stdout.txt",
+      "role": "historical-phase-transition-probe: component controller already closed; not a native stage failure",
+      "bytes": 496,
+      "sha256": "0e7c78824673826999bb98c93353b167c421b42fb7373497f5b0039e11ce304b"
+    },
+    {
+      "source_path": "/tmp/e02-E-a11y-full-native-retry-64d-20261007-r2/a11y/read-only-state/observe_a11y_current.py",
+      "portable_path": "a11y-attempt2/read-only-state/observe_a11y_current.py.txt",
+      "role": "historical-phase-transition-probe: component controller already closed; not a native stage failure",
+      "bytes": 10059,
+      "sha256": "955544ff37f3813c74631b8af03dea293c29cc2359b27e837302df12b3259602"
+    },
+    {
+      "source_path": "/tmp/e02-E-a11y-full-native-retry-64d-20261007-r2/a11y/read-only-state/observe_a11y_native_state.mjs",
+      "portable_path": "a11y-attempt2/read-only-state/observe_a11y_native_state.mjs.txt",
+      "role": "historical-phase-transition-probe: component controller already closed; not a native stage failure",
+      "bytes": 4886,
+      "sha256": "ab2f8700546bd4994479ea53867052a5e23ba2877b1f84a0ef4e379061e3de7c"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/a11y/launch.json",
+      "portable_path": "a11y-attempt1-ENOSPC/launch.json",
+      "role": "observer-ERROR-native-command-UNRUN-before-Popen",
+      "bytes": 4082,
+      "sha256": "97e3370830decd6543bef13e5ee681325f4cb8746c1ef3189a5c4fee4a168aee"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/a11y/completion.json",
+      "portable_path": "a11y-attempt1-ENOSPC/completion.json",
+      "role": "observer-ERROR-native-command-UNRUN-before-Popen",
+      "bytes": 976,
+      "sha256": "81ce5bd3c386a94418ce66d1816eebd5bfad012525e54ea6defad272319934cd"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/a11y/launcher.stdout.txt",
+      "portable_path": "a11y-attempt1-ENOSPC/launcher.stdout.txt",
+      "role": "observer-ERROR-native-command-UNRUN-before-Popen",
+      "bytes": 908,
+      "sha256": "5583d822eb246e1619ff36e4d9d893a98be5f75ee535a6b52e4fac6badf338f0"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/a11y/capture.stderr.txt",
+      "portable_path": "a11y-attempt1-ENOSPC/capture.stderr.txt",
+      "role": "observer-ERROR-native-command-UNRUN-before-Popen",
+      "bytes": 1591,
+      "sha256": "d27a57f4af2f4b84a2c55549fd8daf52c0cbe1ba159d01843ef0ac339e59d39b"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/storybook-stalled-interruption-64d/before-signal.json",
+      "portable_path": "original-storybook-interruption/before-signal.json",
+      "role": "historical-owned-root-SIGINT-provenance",
+      "bytes": 1715,
+      "sha256": "dcf4f21957ae003890edf8075d6aa694de2cb7dbefffae04987e7ebb7c0818d6"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/storybook-stalled-interruption-64d/signal-sent.json",
+      "portable_path": "original-storybook-interruption/signal-sent.json",
+      "role": "historical-owned-root-SIGINT-provenance",
+      "bytes": 133,
+      "sha256": "2d0ea54ab8e694129e81c72b124c299b10f797a2b4a4eec4239682fd901414bd"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-22/checks/standalone-ci-22/standalone-ci-22.json",
+      "portable_path": "original-storybook-interruption/standalone-ci-22.json",
+      "role": "historical-nativeFAIL130-casecounts-null",
+      "bytes": 8224,
+      "sha256": "7aedac4f6cf783fda0f85134a9d988654c0e4ea8873193ba2bc87d7de1615dfe"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-22/checks/standalone-ci-22/standalone-ci-22.stdout.txt",
+      "portable_path": "original-storybook-interruption/standalone-ci-22.stdout.txt",
+      "role": "historical-nativeFAIL130-casecounts-null",
+      "bytes": 3873,
+      "sha256": "c60251d1c698135b290e92b1eda70cc8f66c36865285c50d231874d371997bdb"
+    }
+  ],
+  "identical_byte_aliases": [
+    {
+      "source_path": "/tmp/e02-E-frontend-retry-analysis-64d/close-required-normal.stdout.txt",
+      "portable_path": "review/close-required-normal.stdout.txt",
+      "role": "historical-observer-ERROR-ps-empty-exit1-handling",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "same_bytes_as": "review/close-required-normal-v2.stderr.txt"
+    },
+    {
+      "source_path": "/tmp/e02-E-frontend-retry-analysis-64d/close-required-optimized-v2.stderr.txt",
+      "portable_path": "review/close-required-optimized-v2.stderr.txt",
+      "role": "current-observer/source-or-output",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "same_bytes_as": "review/close-required-normal-v2.stderr.txt"
+    },
+    {
+      "source_path": "/tmp/e02-E-frontend-retry-analysis-64d/close-required-optimized.stderr.txt",
+      "portable_path": "review/close-required-optimized.stderr.txt",
+      "role": "historical-observer-ERROR-ps-empty-exit1-handling",
+      "bytes": 1001,
+      "sha256": "7e61ec6acdaa0e864a76a61e253f027fd9611952d9a1c41e5cb8b5e1d39302de",
+      "same_bytes_as": "review/close-required-normal.stderr.txt"
+    },
+    {
+      "source_path": "/tmp/e02-E-frontend-retry-analysis-64d/close-required-optimized.stdout.txt",
+      "portable_path": "review/close-required-optimized.stdout.txt",
+      "role": "historical-observer-ERROR-ps-empty-exit1-handling",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "same_bytes_as": "review/close-required-normal-v2.stderr.txt"
+    },
+    {
+      "source_path": "/tmp/e02-E-frontend-retry-analysis-64d/inspect-storybook-normal.stderr.txt",
+      "portable_path": "review/inspect-storybook-normal.stderr.txt",
+      "role": "current-observer/source-or-output",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "same_bytes_as": "review/close-required-normal-v2.stderr.txt"
+    },
+    {
+      "source_path": "/tmp/e02-E-frontend-retry-analysis-64d/inspect-storybook-optimized.stderr.txt",
+      "portable_path": "review/inspect-storybook-optimized.stderr.txt",
+      "role": "current-observer/source-or-output",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "same_bytes_as": "review/close-required-normal-v2.stderr.txt"
+    },
+    {
+      "source_path": "/tmp/e02-E-frontend-retry-analysis-64d/storybook-retry-review-optimized.json",
+      "portable_path": "review/storybook-retry-review-optimized.json",
+      "role": "current-observer/source-or-output",
+      "bytes": 39725,
+      "sha256": "f2e1cc98ca5d00790d2a15169c2c7764f422ada420bfe35d2ffbadd324005890",
+      "same_bytes_as": "review/storybook-retry-review-normal.json"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frontend-stage-readonly-r4/prepare-required-retries.stderr.txt",
+      "portable_path": "preparation/prepare-required-retries.stderr.txt",
+      "role": "prepared-native-support/source-or-output",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "same_bytes_as": "review/close-required-normal-v2.stderr.txt"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frontend-stage-readonly-r4/required-retry-native-support.stderr.txt",
+      "portable_path": "preparation/required-retry-native-support.stderr.txt",
+      "role": "prepared-native-support/source-or-output",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "same_bytes_as": "review/close-required-normal-v2.stderr.txt"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/storybook/launcher.stderr.txt",
+      "portable_path": "storybook/launcher.stderr.txt",
+      "role": "current-complete-native-capture",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "same_bytes_as": "review/close-required-normal-v2.stderr.txt"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/storybook/capture.stderr.txt",
+      "portable_path": "storybook/capture.stderr.txt",
+      "role": "current-complete-native-capture",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "same_bytes_as": "review/close-required-normal-v2.stderr.txt"
+    },
+    {
+      "source_path": "/tmp/e02-E-a11y-full-native-retry-64d-20261007-r2/a11y/launcher.stderr.txt",
+      "portable_path": "a11y-attempt2/launcher.stderr.txt",
+      "role": "current-complete-native-capture",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "same_bytes_as": "review/close-required-normal-v2.stderr.txt"
+    },
+    {
+      "source_path": "/tmp/e02-E-a11y-full-native-retry-64d-20261007-r2/a11y/capture.stderr.txt",
+      "portable_path": "a11y-attempt2/capture.stderr.txt",
+      "role": "current-complete-native-capture",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "same_bytes_as": "review/close-required-normal-v2.stderr.txt"
+    },
+    {
+      "source_path": "/tmp/e02-E-a11y-full-native-retry-64d-20261007-r2/a11y/read-only-state/a11y-before.stdout.txt",
+      "portable_path": "a11y-attempt2/read-only-state/a11y-before.stdout.txt",
+      "role": "historical-phase-transition-probe: component controller already closed; not a native stage failure",
+      "bytes": 1598,
+      "sha256": "f1d734bf6c7cff0bb69ca3c5b2e5386372fe4b403b741be4750a2294843ed38d",
+      "same_bytes_as": "a11y-attempt2/read-only-state/a11y-after.stdout.txt"
+    },
+    {
+      "source_path": "/tmp/e02-E-a11y-full-native-retry-64d-20261007-r2/a11y/read-only-state/native-state.stderr.txt",
+      "portable_path": "a11y-attempt2/read-only-state/native-state.stderr.txt",
+      "role": "historical-phase-transition-probe: component controller already closed; not a native stage failure",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "same_bytes_as": "review/close-required-normal-v2.stderr.txt"
+    },
+    {
+      "source_path": "/tmp/e02-E-a11y-full-native-retry-64d-20261007-r2/a11y/read-only-state/observation.stderr.txt",
+      "portable_path": "a11y-attempt2/read-only-state/observation.stderr.txt",
+      "role": "historical-phase-transition-probe: component controller already closed; not a native stage failure",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "same_bytes_as": "review/close-required-normal-v2.stderr.txt"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/a11y/launcher.stderr.txt",
+      "portable_path": "a11y-attempt1-ENOSPC/launcher.stderr.txt",
+      "role": "observer-ERROR-native-command-UNRUN-before-Popen",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "same_bytes_as": "review/close-required-normal-v2.stderr.txt"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/a11y/capture.stdout.txt",
+      "portable_path": "a11y-attempt1-ENOSPC/capture.stdout.txt",
+      "role": "observer-ERROR-native-command-UNRUN-before-Popen",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "same_bytes_as": "review/close-required-normal-v2.stderr.txt"
+    }
+  ],
+  "unique_assets": 50,
+  "logical_assets": 68,
+  "unique_bytes": 271884,
+  "logical_bytes": 314208,
+  "closed_complete_output_rehash": true,
+  "source_reference_policy": "Native source/config/library inputs pinned by exactGit64d/blob/hash and literal scoped excerpts; no node_modules/environment/profile copies.",
+  "scope": {
+    "original_storybook": "RootSIGINT nativeFAIL130/countsnull/sourceimmutable; no authored-case failures inferred",
+    "storybook_required_retry": "NativeFAIL1;37 authored casesPASS/1 import-failure synthetic row;45suites29empty;separateunhandlediframe/CORS error",
+    "a11y_attempt1": "ObserverERROR ENOSPC before nativePopen; nativecommandUNRUN",
+    "a11y_required_retry": "NativeFAIL1;3designPASS/components87files161casesPASS/pagesattempted webServerFAIL catalog_fetch_source_unreadable before case execution",
+    "phase_probe_race": "Read-only confidence-browser probe raced completed components and attemptedpages; controller absence/ECONNREFUSED do not establish a bootstrap failure",
+    "canonical_owner": "Frontend/runtime fixture producer with DataForge reader throughG; preserve source identity refusal, supply admitted generic fixture input",
+    "P41": "not_established; no inherited/environmental causal waiver",
+    "finding_closure": false,
+    "ROOT_environment_changes_by_this_leaf": false
+  },
+  "private_or_repeatable_exclusions": [
+    "Complete private Gitconfig snapshots hash-only in native receipts",
+    "Active/repeatable browser profiles/TMPDIR/cache excluded",
+    "No source-code or production datasets deleted/copied",
+    "Own current builder stdout is excluded until its capture closes"
+  ],
+  "cleanup_candidates": [
+    "Only terminal isolated browser profiles/TMPDIR and compiled repeatable outputs after no active users; native deciding outputs/source kept"
+  ]
+}

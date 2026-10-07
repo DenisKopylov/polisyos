@@ -1,0 +1,154 @@
+"""Read-only PID/socket/HTTP/source observation; never execute a browser/test RPC."""
+from __future__ import annotations
+
+from datetime import datetime, timezone
+import hashlib
+import http.client
+import json
+import os
+from pathlib import Path
+import socket
+import subprocess
+import time
+
+REPO = Path('/workspace/e02-E-continuation-20261006')
+ENGINE = REPO / 'policy-engine'
+OUT = Path('/tmp/e02-E-a11y-full-native-retry-64d-20261007-r2/a11y/read-only-state')
+SOURCE = '64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+TREE = 'aef23574d3162abb19bf5a1c67d02624ff9d4d1d'
+STAGE = Path('/tmp/e02-E-a11y-full-native-retry-64d-20261007-r2/a11y/checks/a11y-full-native-retry')
+STDOUT = STAGE / 'a11y-full-native-retry.stdout.txt'
+FINAL = STAGE / 'a11y-full-native-retry.json'
+PID = 532820
+PORT = 63315
+
+def binding(path: Path):
+    body = path.read_bytes()
+    return {'source_path': str(path), 'bytes': len(body), 'sha256': hashlib.sha256(body).hexdigest()}
+
+def git_source(relative: str):
+    body = subprocess.check_output(['/usr/bin/git', 'show', f'{SOURCE}:{relative}'], cwd=REPO)
+    if (REPO / relative).read_bytes() != body:
+        raise ValueError(f'Current tracked source differs: {relative}')
+    return {'source_sha': SOURCE, 'path': relative, 'bytes': len(body), 'sha256': hashlib.sha256(body).hexdigest()}
+
+def proc_record(pid):
+    root = Path('/proc') / str(pid)
+    raw = (root / 'stat').read_text()
+    fields = raw[raw.rfind(')') + 2:].split()
+    args = (root / 'cmdline').read_bytes().replace(b'\x00', b' ').decode(errors='replace').strip()
+    sockets = []
+    for path in (root / 'fd').iterdir():
+        try:
+            target = path.readlink().as_posix()
+            if target.startswith('socket:['):
+                sockets.append({'fd': path.name, 'inode': target[8:-1]})
+        except (FileNotFoundError, PermissionError):
+            continue
+    return {'pid': pid, 'ppid': int(fields[1]), 'state': fields[0], 'utime_ticks': int(fields[11]), 'stime_ticks': int(fields[12]), 'start_ticks': int(fields[19]), 'rss_pages': int(fields[21]), 'args': args, 'wchan': (root / 'wchan').read_text().strip(), 'sockets': sockets}
+
+def process_tree():
+    all_parents = {}
+    for path in Path('/proc').iterdir():
+        if path.name.isdecimal():
+            try:
+                raw = (path / 'stat').read_text()
+                all_parents[int(path.name)] = int(raw[raw.rfind(')') + 2:].split()[1])
+            except (FileNotFoundError, ProcessLookupError):
+                continue
+    children = {PID}
+    while True:
+        updated = children | {pid for pid, parent in all_parents.items() if parent in children}
+        if children == updated:
+            break
+        children = updated
+    records = []
+    for pid in sorted(children):
+        try:
+            records.append(proc_record(pid))
+        except (FileNotFoundError, ProcessLookupError):
+            continue
+    return records
+
+def address(raw, ipv6):
+    host, port = raw.split(':')
+    if ipv6:
+        body = bytes.fromhex(host)
+        host = socket.inet_ntop(socket.AF_INET6, b''.join(body[i:i + 4][::-1] for i in range(0, 16, 4)))
+    else:
+        host = socket.inet_ntop(socket.AF_INET, bytes.fromhex(host)[::-1])
+    return {'host': host, 'port': int(port, 16)}
+
+def socket_snapshot(records):
+    owners = {}
+    for row in records:
+        for descriptor in row['sockets']:
+            owners.setdefault(descriptor['inode'], []).append({'pid': row['pid'], 'fd': descriptor['fd']})
+    rows = []
+    for name in ['tcp', 'tcp6']:
+        for line in (Path('/proc/net') / name).read_text().splitlines()[1:]:
+            fields = line.split()
+            local = address(fields[1], name == 'tcp6')
+            remote = address(fields[2], name == 'tcp6')
+            inode = fields[9]
+            if inode in owners or local['port'] == PORT or remote['port'] == PORT:
+                rows.append({'family': name, 'local': local, 'remote': remote, 'state_hex': fields[3], 'tx_queue_hex': fields[4].split(':')[0], 'rx_queue_hex': fields[4].split(':')[1], 'inode': inode, 'owners': owners.get(inode, [])})
+    return rows
+
+def stdout_snapshot(label):
+    body = STDOUT.read_bytes()
+    path = OUT / f'a11y-{label}.stdout.txt'
+    path.write_bytes(body)
+    stat = STDOUT.stat()
+    return {'capture': binding(path), 'original_path': str(STDOUT), 'original_mtime_ns': stat.st_mtime_ns, 'seconds_since_mtime': time.time() - stat.st_mtime, 'final_receipt_present': FINAL.exists()}
+
+def static_http(path, label):
+    # Only GET static content. Never call websocket, test session, runner or RPC endpoint.
+    start = time.monotonic()
+    conn = http.client.HTTPConnection('::1', PORT, timeout=10)
+    result = {'method': 'GET', 'host': '[::1]', 'port': PORT, 'path': path, 'timeout_seconds': 10, 'purpose': 'Native static HTTP responsiveness only, not browser navigation or test execution'}
+    try:
+        conn.request('GET', path, headers={'Connection': 'close'})
+        response = conn.getresponse()
+        body = response.read(262145)
+        if len(body) > 262144:
+            raise ValueError('Static probe body exceeded bounded capture')
+        captured = OUT / f'a11y-http-{label}.body.txt'
+        captured.write_bytes(body)
+        result.update(status=response.status, reason=response.reason, headers=response.getheaders(), complete_body=binding(captured))
+    except (OSError, ValueError, http.client.HTTPException) as exc:
+        result.update(error_type=type(exc).__name__, error=str(exc), limitation='This single static request failure cannot identify the browser awaited phase')
+    finally:
+        conn.close()
+    result['wall_seconds'] = time.monotonic() - start
+    return result
+
+def native_excerpt(pattern, ranges):
+    matches = list((ENGINE / 'node_modules/.pnpm').glob(pattern))
+    if len(matches) != 1:
+        raise ValueError(f'Ambiguous installed source: {pattern}: {matches}')
+    path = matches[0]
+    lines = path.read_text().splitlines()
+    return {'input': binding(path), 'excerpts': [{'first_line': first, 'last_line': last, 'literal_text': '\n'.join(lines[first - 1:last])} for first, last in ranges]}
+
+started = datetime.now(timezone.utc).isoformat()
+before_time = time.monotonic()
+before = process_tree()
+before_stdout = stdout_snapshot('before')
+before_sockets = socket_snapshot(before)
+probes = [static_http('/', 'root'), static_http('/@vite/client', 'vite-client')]
+native = [
+    native_excerpt('vitest@4.1.5_*/node_modules/vitest/dist/chunks/cli-api.Cjt90eJu.js', [(450, 481), (2520, 2564), (10944, 10958)]),
+    native_excerpt('@vitest+browser-playwright@4.1.5_*/node_modules/@vitest/browser-playwright/dist/index.js', [(1138, 1145)]),
+    native_excerpt('@vitest+browser@4.1.5_*/node_modules/@vitest/browser/dist/index.js', [(3008, 3037)]),
+    native_excerpt('vitest@4.1.5_*/node_modules/vitest/dist/chunks/constants.CPYnjOGj.js', [(1, 5)]),
+]
+after = process_tree()
+after_stdout = stdout_snapshot('after')
+elapsed = time.monotonic() - before_time
+old_by_pid = {row['pid']: row for row in before}
+cpu_delta = [{'pid': row['pid'], 'cpu_tick_delta': row['utime_ticks'] + row['stime_ticks'] - old_by_pid[row['pid']]['utime_ticks'] - old_by_pid[row['pid']]['stime_ticks'], 'elapsed_seconds': elapsed, 'ticks_per_second': os.sysconf('SC_CLK_TCK')} for row in after if row['pid'] in old_by_pid]
+configs = [git_source('policy-engine/apps/runtime-dashboard/' + path) for path in ['package.json', 'vitest.a11y.config.ts', 'vitest.config.ts', 'vitest.confidence-ledger-browser.config.ts']]
+report = {'schema': 'policyos.e02.E.a11y_current_bootstrap_readonly.v1', 'source_sha': SOURCE, 'source_tree': TREE, 'started_UTC': started, 'finished_UTC': datetime.now(timezone.utc).isoformat(), 'reviewer': '/root/lint_r4', 'process_root': PID, 'process_before': before, 'process_after': after, 'cpu_delta': cpu_delta, 'socket_before': before_sockets, 'socket_after': socket_snapshot(after), 'stdout_before': before_stdout, 'stdout_after': after_stdout, 'static_http_probes': probes, 'config_inputs': configs, 'installed_native_inputs': native, 'owner': {'runtime_dashboard': 'team-frontend / @frontend-owners (@UI via G)', 'canonical_reviewer': '@DenisKopylov'}, 'check_state': 'Pending native command; no completed a11y receipt at observations if final_receipt_present is false', 'conclusion': {'established': ['Native Playwright provider passes timeout=0 to goto; navigation has no configured deadline', 'Native 60,000ms browser-connect timer governs orchestrator WS only and clears on connected; pool awaits BOTH session and navigation promises before runNextTest', 'Actual static HTTP and process/socket response observations are measured separately'], 'not_established': ['Actual JavaScript awaited stack is not observed; neither a specific goto wait nor a transform/pool wait is conclusively identified', 'HTTP liveness does not prove browser render, resource load or case completion', 'Port fallback and CSS warnings do not establish the cause of the current stall', 'No causal OOM/CPU quota/cache-collision attribution or inherited PASS/FAIL waiver']}, 'next_owner_result': 'Frontend/@UI owner reads current controller/browser wait phase and native navigation contract; root retains original running stdout/final receipt and schedules any exact full-script retry only after shared writers close.', 'forbidden_actions_performed': {'browser_launch': False, 'test_execution': False, 'websocket_or_RPC_call': False, 'source_patch': False, 'kill_or_interrupt': False, 'timeout_or_cap_change': False}}
+(OUT / 'a11y-current-bootstrap-observation.json').write_text(json.dumps(report, indent=2) + '\n')
+print(json.dumps({'report': str(OUT / 'a11y-current-bootstrap-observation.json'), 'processes': len(before), 'HTTP': [{'path': row['path'], 'status': row.get('status'), 'error': row.get('error'), 'wall_seconds': row['wall_seconds']} for row in probes], 'stdout_same': before_stdout['capture']['sha256'] == after_stdout['capture']['sha256'], 'final_receipt_present': after_stdout['final_receipt_present'], 'observation_elapsed_seconds': elapsed}))

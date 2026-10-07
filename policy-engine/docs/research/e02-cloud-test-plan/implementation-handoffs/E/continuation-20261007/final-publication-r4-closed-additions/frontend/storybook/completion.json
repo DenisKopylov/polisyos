@@ -1,0 +1,27 @@
+{
+  "schema": "policyos.e02.E.required_frontend_native_capture_completion.v1",
+  "job": "storybook-full-native-retry",
+  "finished_UTC": "2026-10-07T10:46:33.460880+00:00",
+  "capturer_exit": 1,
+  "capture_stdout": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/storybook/capture.stdout.txt",
+    "bytes": 561,
+    "sha256": "aa416b87a2b16fc3c8049687aeec745ecf6a0c179b222624d88e2f4be81c2b20"
+  },
+  "capture_stderr": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/storybook/capture.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "native_receipt": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/storybook/checks/storybook-full-native-retry/storybook-full-native-retry.json",
+    "bytes": 8778,
+    "sha256": "dbc605446e66b1248d2938303924183c1e7f97a71dad22c0dacd2f6dd33e1bcb"
+  },
+  "launch": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/storybook/launch.json",
+    "bytes": 4990,
+    "sha256": "08027effa967d93b554384ab967d82cf8e9e9897d2fd627417632dc0bc0dd0d3"
+  },
+  "source_candidate": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd"
+}

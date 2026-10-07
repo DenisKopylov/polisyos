@@ -1,0 +1,14 @@
+{
+  "owned_probe_children_active": [],
+  "root_backend_excluded_from_own_cleanup": true,
+  "cleanup_performed": false,
+  "native_root_source_unchanged": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "root_status_observation": "?? policy-engine/apps/runtime-dashboard/src/features/runs/export/__screenshots__/\n?? policy-engine/architecture/policy_design_case/production_data_substrate_registry_contract_unregistered_probe.json\n",
+  "selected_fixture_cache_namespaces": [
+    "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/native-attempt1/cache",
+    "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/missing-startup/cache",
+    "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/owner-overlay-healthy/cache",
+    "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/owner-overlay-removed-route/cache",
+    "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/owner-overlay-fake-producer-r2/cache"
+  ]
+}

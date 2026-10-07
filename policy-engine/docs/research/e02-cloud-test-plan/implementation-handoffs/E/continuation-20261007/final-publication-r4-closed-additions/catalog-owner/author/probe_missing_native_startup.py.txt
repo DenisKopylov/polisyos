@@ -1,0 +1,70 @@
+from __future__ import annotations
+
+import argparse
+import importlib.util
+import json
+import os
+import sys
+from pathlib import Path
+
+from probe_native_catalog_fixture import SOURCE, TREE, source_inputs
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--repo", type=Path, required=True)
+    parser.add_argument("--output", type=Path, required=True)
+    args = parser.parse_args()
+    repo, output = args.repo.resolve(), args.output.resolve()
+    inputs = source_inputs(repo)
+    output.mkdir(parents=True, exist_ok=False)
+    product = repo / "policy-engine"
+    for root in (product, product / "src", product / "tests"):
+        sys.path.insert(0, str(root))
+    os.environ["POLISYOS_CACHE_HOME"] = str(output / "cache")
+    os.environ["POLISYOS_METRICS_PORT"] = "0"
+    from polisyos.runtime.quality import substrate_registry
+
+    source_path = product / "apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py"
+    spec = importlib.util.spec_from_file_location("native_fixture_server_missing", source_path)
+    if spec is None or spec.loader is None:
+        raise ValueError("fixture_module_missing")
+    fixture_server = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(fixture_server)
+    configured = substrate_registry.default_substrate_catalog_paths(product)
+    if configured.l1_dcat_path.is_file():
+        raise ValueError("original_missing_input_precondition_changed")
+    result = None
+    try:
+        fixture_server._build_dashboard_fixture_env(
+            output / "native-api",
+            include_run_paper_fixtures=True,
+            include_bound_run_paper_fixture=True,
+            include_test_client=False,
+        )
+    except ValueError as exc:
+        if str(exc) != "catalog_fetch_source_unreadable":
+            raise
+        result = {
+            "outcome": "PASS",
+            "native_startup_outcome": "refused",
+            "reason": str(exc),
+            "type": type(exc).__name__,
+            "missing_path": str(configured.l1_dcat_path),
+            "path_is_file": False,
+            "property_removal": "Only the positive scoped catalog-path fixture inlet is absent. Same immutable existing full dashboard builder flags; native strict reader refuses before an app can serve.",
+        }
+    finally:
+        from _helpers.runtime_http import close_registered_runtime_api_envs
+        close_registered_runtime_api_envs()
+    if result is None:
+        raise ValueError("missing_native_startup_accepted")
+    if source_inputs(repo) != inputs:
+        raise ValueError("source_changed_during_missing_control")
+    receipt = {"source_sha": SOURCE, "tree_sha": TREE, "source_immutable": True, "source_inputs": inputs, "control": result}
+    (output / "receipt.json").write_text(json.dumps(receipt, indent=2) + "\n")
+    print(json.dumps(result, indent=2))
+
+
+if __name__ == "__main__":
+    main()

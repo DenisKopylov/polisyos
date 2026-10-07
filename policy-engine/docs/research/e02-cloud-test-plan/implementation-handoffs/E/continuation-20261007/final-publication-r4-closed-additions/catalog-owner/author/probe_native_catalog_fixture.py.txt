@@ -1,0 +1,258 @@
+from __future__ import annotations
+
+import argparse
+import asyncio
+import hashlib
+import importlib.metadata
+import importlib.util
+import json
+import os
+import subprocess
+import sys
+import threading
+from dataclasses import replace
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
+
+
+SOURCE = "64d7444a18c55df7b88b71b7699a2f1b25ca24bd"
+TREE = "aef23574d3162abb19bf5a1c67d02624ff9d4d1d"
+INPUTS = (
+    "policy-engine/apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py",
+    "policy-engine/tests/_helpers/runtime_http.py",
+    "policy-engine/tests/unit/runtime/http/test_human_decision_api.py",
+    "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+    "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+    "policy-engine/src/polisyos/runtime/quality/substrate_registry.py",
+    "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/graph_builder.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/search.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/overlay.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/types.py",
+    "policy-engine/src/polisyos/fabric/connectors/reference/static_csv.py",
+    "policy-engine/src/polisyos/fabric/data_plane/orchestrator.py",
+    "policy-engine/src/polisyos/core/contracts/fabric.py",
+)
+
+
+def require(value: object, message: str) -> None:
+    if not value:
+        raise ValueError(message)
+
+
+def hash_bytes(raw: bytes) -> str:
+    return hashlib.sha256(raw).hexdigest()
+
+
+def git(repo: Path, *args: str) -> bytes:
+    return subprocess.check_output(["git", "-C", str(repo), *args])
+
+
+def source_inputs(repo: Path) -> list[dict[str, object]]:
+    require(git(repo, "rev-parse", "HEAD").decode().strip() == SOURCE, "source_head_changed")
+    require(git(repo, "rev-parse", f"{SOURCE}^{{tree}}").decode().strip() == TREE, "source_tree_changed")
+    result = []
+    for relative in INPUTS:
+        raw = git(repo, "show", f"{SOURCE}:{relative}")
+        require((repo / relative).read_bytes() == raw, f"physical_source_changed:{relative}")
+        result.append({"path": relative, "source_sha": SOURCE, "size": len(raw), "sha256": hash_bytes(raw)})
+    return result
+
+
+def refusal(call, expected: str) -> dict[str, object]:
+    try:
+        call()
+    except ValueError as exc:
+        require(expected in str(exc), f"wrong_refusal:{exc}")
+        return {"outcome": "PASS", "type": type(exc).__name__, "reason": str(exc)}
+    raise ValueError(f"required_refusal_missing:{expected}")
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--repo", type=Path, required=True)
+    parser.add_argument("--output", type=Path, required=True)
+    args = parser.parse_args()
+    repo, output = args.repo.resolve(), args.output.resolve()
+    output.mkdir(parents=True, exist_ok=False)
+    inputs = source_inputs(repo)
+    product = repo / "policy-engine"
+    for root in (product, product / "src", product / "tests"):
+        sys.path.insert(0, str(root))
+    os.environ["POLISYOS_CACHE_HOME"] = str(output / "cache")
+    os.environ["POLISYOS_METRICS_PORT"] = "0"
+
+    import duckdb
+    import pytest
+    from fastapi.testclient import TestClient
+    from polisyos.core import artifacts, canon
+    from polisyos.core.artifacts.async_store import AsyncArtifactStoreAdapter
+    from polisyos.core.contracts.fabric import DataSnapshot, EvidenceBundle, EvidenceBundleRef
+    from polisyos.data_forge.read_api import catalog as catalog_api
+    from polisyos.fabric.connectors.base import ConnectionConfig, FetchRequest
+    from polisyos.fabric.connectors.reference.static_csv import StaticCSVConnector
+    from polisyos.fabric.data_plane.orchestrator import _build_snapshot_from_evidence_async
+    from polisyos.runtime.quality import substrate_registry
+
+    spec = importlib.util.spec_from_file_location(
+        "native_fixture_server", product / "apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py"
+    )
+    require(spec is not None and spec.loader is not None, "fixture_module_missing")
+    fixture_server = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(fixture_server)
+
+    catalog_root = output / "catalog"
+    graph = catalog_api.build_slice0_fixture_catalog_graph(catalog_root)
+    graph.close()
+    db_path = catalog_root / "catalog.duckdb"
+    db_raw = db_path.read_bytes()
+    configured = substrate_registry.default_substrate_catalog_paths(product)
+    missing_path = output / "absent-catalog.duckdb"
+    controls = {}
+    controls["missing_source_native_reader"] = refusal(
+        lambda: catalog_api.DatasetCatalogGraph(missing_path, missing_path.parent),
+        "catalog_fetch_source_unreadable",
+    )
+    con = duckdb.connect(str(db_path), read_only=True)
+    try:
+        tables = con.execute("SHOW TABLES").fetchall()
+        counts = {name: con.execute(f'SELECT COUNT(*) FROM "{name}"').fetchone()[0] for (name,) in tables}
+        profiles = con.execute("SELECT * FROM ds_schema_profiles ORDER BY dataset_id").fetchdf()
+        profile_rows = profiles.to_dict(orient="records")
+        columns = {name: con.execute(f'DESCRIBE "{name}"').fetchall() for (name,) in tables}
+    finally:
+        con.close()
+    # The canonical fixture includes actual catalog metadata, not observations or source authority.
+    require(counts["ds_datasets"] == 9 and counts["ds_distributions"] == 9, "fixture_row_denominator_changed")
+    native = catalog_api.DatasetCatalogGraph(db_path, catalog_root)
+    request = dict(metric_id="msme_credit_access", connector_id="worldbank.wdi", request_dataset_id="IC.FRM.ACCS.ZS", profile_id="worldbank", filters={})
+    try:
+        binding = native.bind_fetch_target(**request)
+        require(binding.baseline.content_sha256 == f"sha256:{hash_bytes(db_raw)}", "baseline_digest_mismatch")
+        controls["wrong_profile_refusal"] = refusal(
+            lambda: native.bind_fetch_target(**{**request, "profile_id": "wrong_profile"}),
+            "catalog_fetch_target_not_admitted",
+        )
+        controls["wrong_dataset_refusal"] = refusal(
+            lambda: native.bind_fetch_target(**{**request, "request_dataset_id": "not-the-source"}),
+            "catalog_fetch_target_not_admitted",
+        )
+        persisted = output / "catalog-fetch-binding.json"
+        persisted.write_text(binding.model_dump_json(indent=2))
+    finally:
+        native.close()
+    reopened = catalog_api.DatasetCatalogGraph(db_path, catalog_root)
+    try:
+        restored = catalog_api.CatalogFetchBinding.model_validate_json(persisted.read_text())
+        require(reopened.verify_fetch_binding(restored) == binding, "fresh_native_binding_mismatch")
+        controls["fresh_resolver_binding"] = {"outcome": "PASS", "binding": binding.model_dump(mode="json")}
+        # Replace this scratch file after a concrete session is open; old bytes remain in the receipt.
+        replacement = output / "changed-catalog.duckdb"
+        replacement.write_bytes(db_raw)
+        changed = duckdb.connect(str(replacement))
+        try:
+            changed.execute("UPDATE ds_datasets SET title = title || ' changed' WHERE id = ?", [binding.target.catalog_dataset_id])
+            changed.execute("CHECKPOINT")
+        finally:
+            changed.close()
+        replacement.replace(db_path)
+        controls["changed_source_stale_session_refusal"] = refusal(
+            lambda: reopened.bind_fetch_target(**request), "catalog_fetch_read_session_stale"
+        )
+    finally:
+        reopened.close()
+    changed_reader = catalog_api.DatasetCatalogGraph(db_path, catalog_root)
+    try:
+        controls["changed_source_old_binding_refusal"] = refusal(
+            lambda: changed_reader.verify_fetch_binding(binding), "catalog_fetch_binding_mismatch"
+        )
+    finally:
+        changed_reader.close()
+    # Restore only the scratch fixture bytes; production and tracked files are never altered.
+    db_path.write_bytes(db_raw)
+
+    # Actual local transport/source rows -> native StaticCSV schema/version -> existing snapshot producer.
+    csv_raw = b"row_id,country_code,year,value\nrow_a,UA,2020,1\nrow_b,UA,2021,2\nrow_c,UA,2022,4\n"
+    expected_rows = [dict(row_id="row_a", country_code="UA", year=2020, value=1), dict(row_id="row_b", country_code="UA", year=2021, value=2), dict(row_id="row_c", country_code="UA", year=2022, value=4)]
+    (output / "source-rows.csv").write_bytes(csv_raw)
+    requests = []
+    class Handler(BaseHTTPRequestHandler):
+        def do_GET(self):
+            requests.append({"method": "GET", "path": self.path})
+            self.send_response(200)
+            self.send_header("Content-Type", "text/csv")
+            self.send_header("Content-Length", str(len(csv_raw)))
+            self.end_headers()
+            self.wfile.write(csv_raw)
+        def log_message(self, format, *args):
+            return
+    server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    url = f"http://127.0.0.1:{server.server_address[1]}/source-rows.csv"
+    async def fetch_actual():
+        connector = StaticCSVConnector()
+        handle = await connector.connect(ConnectionConfig(url=url))
+        try:
+            result = await connector.fetch(handle, FetchRequest(dataset_id="e02_catalog_fixture_rows"))
+            return result, await connector.get_dataset_schema(handle, "e02_catalog_fixture_rows")
+        finally:
+            await connector.disconnect(handle)
+    try:
+        fetched, source_schema = asyncio.run(fetch_actual())
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join()
+    actual_rows = fetched.data.to_dict(orient="records")
+    require(actual_rows == expected_rows and fetched.row_count == 3, "native_csv_row_oracle_mismatch")
+    cas_root = output / "materializer-cas"
+    cas = artifacts.FileSystemCAS(cas_root)
+    data_ref = cas.put_json(actual_rows, artifacts.PutOptions(kind="fabric.data_payload", media_type="application/json"), canon_spec=canon.CanonSpec(forbid_floats=False))
+    schema_ref = cas.put_json(source_schema, artifacts.PutOptions(kind="fabric.data_schema", media_type="application/json"), canon_spec=canon.CanonSpec(forbid_floats=False))
+    evidence = EvidenceBundle(sources=[data_ref], notes=["local generic CSV fixture; no production/history/decision authority"])
+    evidence_art = cas.put_json(evidence, artifacts.PutOptions(kind="fabric.evidence_bundle", media_type="application/json"), canon_spec=canon.CanonSpec(forbid_floats=False))
+    evidence_ref = EvidenceBundleRef(artifact_id=evidence_art.artifact_id)
+    snapshot_ref = asyncio.run(_build_snapshot_from_evidence_async(store=AsyncArtifactStoreAdapter(cas), evidence_ref=evidence_ref, datasets_fetched=1, source="e02_local_catalog_fixture"))
+    require(snapshot_ref is not None, "native_snapshot_missing")
+    fresh_cas = artifacts.FileSystemCAS(cas_root)
+    snapshot = DataSnapshot.model_validate(canon.from_canonical_bytes(fresh_cas.get_bytes(snapshot_ref.artifact_id)))
+    require(canon.from_canonical_bytes(fresh_cas.get_bytes(snapshot.data_ref.artifact_id)) == expected_rows, "snapshot_row_readback_mismatch")
+    require(snapshot.evidence_ref == evidence_ref and snapshot.quality_report_ref is not None, "snapshot_links_missing")
+    controls["native_csv_snapshot_fresh_readback"] = {"outcome": "PASS", "rows": actual_rows, "request_calls": requests, "result_metadata": fetched.model_dump(mode="json", exclude={"data"}), "schema": source_schema, "schema_ref": schema_ref.model_dump(mode="json"), "snapshot": snapshot.model_dump(mode="json"), "snapshot_ref": snapshot_ref.model_dump(mode="json"), "limitation": "Existing snapshot producer does not attach data_schema_ref; separately persisted schema_ref is reported, not silently upgraded. Catalog fixture metadata and local CSV snapshot are separate fixture inputs, not joined production observations."}
+
+    original_paths = substrate_registry.default_substrate_catalog_paths
+    selected_roots = []
+    def fixture_paths(root):
+        selected_roots.append(str(Path(root).resolve()))
+        return replace(original_paths(root), l1_dcat_path=db_path) if Path(root).resolve() == product.resolve() else original_paths(root)
+    env = None
+    try:
+        with pytest.MonkeyPatch.context() as patch:
+            patch.setattr(substrate_registry, "default_substrate_catalog_paths", fixture_paths)
+            env = fixture_server._build_dashboard_fixture_env(output / "native-api", include_run_paper_fixtures=True, include_bound_run_paper_fixture=True, include_test_client=False)
+            service = env["app"].state._control_service
+            selected_graph = service._retrieval_catalog
+            require(type(selected_graph) is catalog_api.DatasetCatalogGraph, "strict_catalog_owner_replaced")
+            consumed = selected_graph.bind_fetch_target(**request)
+            require(consumed.baseline == binding.baseline, "configured_native_catalog_not_consumed")
+            with TestClient(env["app"]) as client:
+                health = client.get("/health")
+                runs = client.get("/api/v1/runs", headers={"X-Tenant-ID": str(env["tenant_a"]), "X-Cell-ID": str(env["cell_a"])})
+                require(health.status_code == 200, "fixture_health_not_ready")
+            controls["native_dashboard_fixture_startup"] = {"outcome": "PASS", "source_root": str(service._repo_root), "configured_paths_calls": selected_roots, "catalog_type": f"{type(selected_graph).__module__}.{type(selected_graph).__name__}", "binding": consumed.model_dump(mode="json"), "health": {"status_code": health.status_code, "payload": health.json()}, "runs_surface": {"status_code": runs.status_code, "payload": runs.json()}, "bound_run_id": env.get("run_paper_bound_run_id"), "limitation": "Startup/readback wiring witness only; fixture flags or counters establish no decision/production/history authority. Browser page/a11y cases were not run."}
+    finally:
+        from _helpers.runtime_http import close_runtime_api_env, close_registered_runtime_api_envs
+        if env is not None:
+            close_runtime_api_env(env)
+        close_registered_runtime_api_envs()
+    inputs_after = source_inputs(repo)
+    require(inputs_after == inputs, "source_inputs_changed_during_probe")
+    report = {"source_sha": SOURCE, "tree_sha": TREE, "source_inputs": inputs, "source_immutable": True, "configured_baseline": {"path": str(configured.l1_dcat_path), "is_file": configured.l1_dcat_path.is_file()}, "fixture_catalog": {"path": str(db_path), "sha256": hash_bytes(db_raw), "size": len(db_raw), "counts": counts, "columns": columns, "profile_rows": profile_rows}, "controls": controls, "environment": {"executable": sys.executable, "python": sys.version, "cwd": str(Path.cwd()), "packages": sorted([{"name": d.metadata["Name"], "version": d.version} for d in importlib.metadata.distributions()], key=lambda d: d["name"].lower()), "overrides": {"POLISYOS_CACHE_HOME": os.environ["POLISYOS_CACHE_HOME"], "POLISYOS_METRICS_PORT": "0"}}, "result": "PASS", "authority_limits": ["No production dataset or source law copied", "No strict store bypass/new API", "No frontend/A/DataForge source changes", "Standalone local CSV snapshot is not attached to existing catalog metadata as an invented source join", "No finding closure or full frontend gate PASS claim"]}
+    (output / "receipt.json").write_text(json.dumps(report, indent=2, default=lambda x: x.tolist() if hasattr(x, "tolist") else str(x)) + "\n")
+    print(json.dumps({"outcome": "PASS", "controls": len(controls), "receipt": str(output / "receipt.json")}, indent=2))
+
+
+if __name__ == "__main__":
+    main()

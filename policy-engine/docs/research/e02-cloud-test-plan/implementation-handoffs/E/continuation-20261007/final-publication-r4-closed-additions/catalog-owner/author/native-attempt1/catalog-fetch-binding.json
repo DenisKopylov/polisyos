@@ -1,0 +1,41 @@
+{
+  "schema_version": "polisyos.data_forge.catalog_fetch_binding.v1",
+  "baseline": {
+    "source_path": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/native-attempt1/catalog/catalog.duckdb",
+    "content_sha256": "sha256:5c3f95237d9212b2eb2189280de683ef287857d6a50f49b67455ff34f58d70de",
+    "byte_size": 6303744
+  },
+  "overlay_path": null,
+  "overlay": null,
+  "metric_id": "msme_credit_access",
+  "connector_id": "worldbank.wdi",
+  "request_dataset_id": "IC.FRM.ACCS.ZS",
+  "profile_id": "worldbank",
+  "requested_filters": {},
+  "binding": {
+    "metric_id": "msme_credit_access",
+    "catalog_dataset_id": "catalog://worldbank/enterprise-surveys/ukraine/msme-credit-access",
+    "distribution_id": "dist-worldbank-ua-msme-credit",
+    "connector_id": "worldbank.wdi",
+    "profile_id": "worldbank",
+    "request_dataset_id": "IC.FRM.ACCS.ZS",
+    "confidence": 0.9200000166893005,
+    "metric_inference_confidence": 0.0,
+    "default_filters": {},
+    "execution_tier": "transport_ready",
+    "source": "worldbank",
+    "title": "Ukraine MSME credit access World Bank firm measurement"
+  },
+  "target": {
+    "catalog_dataset_id": "catalog://worldbank/enterprise-surveys/ukraine/msme-credit-access",
+    "connector_id": "worldbank.wdi",
+    "profile_id": "worldbank",
+    "request_dataset_id": "IC.FRM.ACCS.ZS",
+    "distribution_id": "dist-worldbank-ua-msme-credit",
+    "connector_params": {},
+    "default_filters": {},
+    "machine_readable": true,
+    "parser_supported": true
+  },
+  "predicate_basis": "recomputed"
+}

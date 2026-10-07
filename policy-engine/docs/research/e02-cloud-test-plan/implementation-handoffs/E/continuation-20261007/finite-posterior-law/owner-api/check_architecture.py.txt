@@ -1,0 +1,87 @@
+"""Independent exact full changed-Python census and native selected collector replay."""
+import ast
+from collections import Counter
+import dataclasses
+import hashlib
+import importlib.util
+import json
+from pathlib import Path
+import subprocess
+import sys
+from unittest.mock import patch
+
+ROOT=Path('/workspace/e02-E-mc-20261006')
+OUT=Path('/tmp/e02-E-MC-public-api-review-ca17-20261007')
+BASE='64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+FINAL='ca17a489559eb574285bb1c7291cc3c56a9e29da'
+def require(v,reason):
+ if not v:raise ValueError(reason)
+def git(*argv):
+ r=subprocess.run(['/usr/bin/git','-C',str(ROOT),*argv],capture_output=True)
+ require(r.returncode==0,r.stderr.decode());return r.stdout
+
+def imports(data):
+ rows=[]
+ for n in ast.walk(ast.parse(data.decode())):
+  if isinstance(n,ast.ImportFrom) and n.module and n.module.startswith('polisyos.'):
+   rows.append({'module':n.module,'names':[[x.name,x.asname] for x in n.names],'line':n.lineno})
+  elif isinstance(n,ast.Import):
+   for x in n.names:
+    if x.name.startswith('polisyos.'):rows.append({'module':x.name,'names':[[x.name,x.asname]],'line':n.lineno})
+ return rows
+
+def importkey(row):return json.dumps({'module':row['module'],'names':row['names']},sort_keys=True)
+paths=git('diff','--name-only',BASE,FINAL,'--').decode().splitlines()
+python=[x for x in paths if x.endswith('.py')]
+require(len(paths)==24 and len(python)==12,'full actual denominator')
+rows=[]
+for name in python:
+ new=git('show',FINAL+':'+name)
+ old=git('show',BASE+':'+name) if git('ls-tree','--name-only',BASE,'--',name) else b''
+ before,after=imports(old),imports(new)
+ x,y=Counter(importkey(r) for r in before),Counter(importkey(r) for r in after)
+ rows.append({'path':name,'role':'product_source' if name.startswith('policy-engine/src/') else 'tests','base':{'bytes':len(old),'sha256':hashlib.sha256(old).hexdigest()},'candidate':{'bytes':len(new),'sha256':hashlib.sha256(new).hexdigest()},'before_imports':before,'candidate_imports':after,'added_imports':[json.loads(k) for k,n in (y-x).items() for _ in range(n)],'removed_imports':[json.loads(k) for k,n in (x-y).items() for _ in range(n)],'physical_equal_candidate':(ROOT/name).read_bytes()==new})
+require(all(x['physical_equal_candidate'] for x in rows),'frozen actual source must match')
+product=[x['path'] for x in rows if x['role']=='product_source']
+require(len(product)==7,'complete actual product denominator')
+companions=['policy-engine/pyproject.toml','policy-engine/tools/devx/architecture/guardrails.py','policy-engine/architecture/public_surface/contract.toml','policy-engine/architecture/baselines/imports/deep_import.json']
+measurements=[]
+for label,ref in [('base',BASE),('candidate',FINAL)]:
+ fixture=OUT/'architecture-fixtures'/label/'policy-engine'
+ for name in [*companions,*python]:
+  if not git('ls-tree','--name-only',ref,'--',name):continue
+  f=fixture/name.removeprefix('policy-engine/');f.parent.mkdir(parents=True,exist_ok=True);f.write_bytes(git('show',ref+':'+name))
+ path=fixture/'tools/devx/architecture/guardrails.py'
+ spec=importlib.util.spec_from_file_location('independent_mc_'+label,path)
+ module=importlib.util.module_from_spec(spec);sys.modules[spec.name]=module;spec.loader.exec_module(module)
+ module.REPO_ROOT=fixture;module.SRC_ROOT=fixture/'src'
+ policies=module._parse_public_surface(fixture/'architecture/public_surface/contract.toml')
+ baseline=fixture/'architecture/baselines/imports/deep_import.json'
+ edges=module.collect_deep_import_edges(policies)
+ violations=module._check_deep_import_creep(baseline_path=baseline,current_edges=edges)
+ measurements.append({'role':label,'source':ref,'prepared_python_paths':python,'native_product_paths':product,'native_complete_edges':[dataclasses.asdict(x) for x in edges],'native_complete_violations':[dataclasses.asdict(x) for x in violations],'tests_ignored_by_native_source_selector':sorted(set(python)-set(product))})
+ if label=='candidate':current,current_root,current_policies,current_baseline=module,fixture,policies,baseline
+oldedges={(x['source_module'],x['target_module']) for x in measurements[0]['native_complete_edges']}
+newedges={(x['source_module'],x['target_module']) for x in measurements[1]['native_complete_edges']}
+require(len(oldedges)==len(newedges)==3 and oldedges==newedges,'actual selected native edge comparison')
+probe=current_root/'src/polisyos/scientist/nodes/builtins/simulate/independent_public_profile_probe.py';probe.parent.mkdir(parents=True,exist_ok=True)
+controls=[]
+for name,body,expected in [
+ ('admitted_analytics','from polisyos.ir.analytics import posterior_sampling_cdf as DeclaredPublicCDF\n',False),
+ ('present_but_private_same_alias','from polisyos.ir.analytics.posterior_summary import posterior_sampling_cdf as DeclaredPublicCDF\n',True)]:
+ probe.write_text('# Same public marker and alias in both cases.\n'+body)
+ edges=current.collect_deep_import_edges(current_policies)
+ v=current._check_deep_import_creep(baseline_path=current_baseline,current_edges=edges)
+ got=[x for x in v if x.source_file==str(probe.relative_to(current_root))] if v and hasattr(v[0],'source_file') else [x for x in v if x.source_module.endswith('independent_public_profile_probe')]
+ require(bool(got)==expected,'actual native import admission missed '+name)
+ controls.append({'case':name,'discriminator':'PASS','expected_violation':expected,'actual_full_violations':[dataclasses.asdict(x) for x in v],'source_sha256':hashlib.sha256(probe.read_bytes()).hexdigest()})
+with patch.object(current,'_maybe_add_deep_import',lambda **kw:None):
+ removed=current.collect_deep_import_edges(current_policies)
+ v=current._check_deep_import_creep(baseline_path=current_baseline,current_edges=removed)
+require(not v,'effective collector removal fixture')
+controls.append({'case':'collector_property_removed_with_same_alias_source','discriminator':'PASS','expected_required_negative':'FAIL','mutant_re_admits_private_import':True,'actual_edges':len(removed),'actual_violations':len(v)})
+for name in companions:
+ require(git('show',BASE+':'+name)==git('show',FINAL+':'+name),'guard contract/baseline changed')
+result={'schema':'policyos.e02.MC.independent_selected_architecture.v1','base':BASE,'candidate':FINAL,'tree':git('rev-parse',FINAL+'^{tree}').decode().strip(),'full_changed_path_count':len(paths),'full_changed_python_count':len(python),'product_source_count':len(product),'test_count':len(python)-len(product),'full_import_census':rows,'native_actual_path':['collect_deep_import_edges','_check_deep_import_creep'],'measurements':measurements,'controls':controls,'new_native_product_edges':sorted(newedges-oldedges),'baseline_and_contract_unchanged':True,'source_did_not_change':all((ROOT/r['path']).read_bytes()==git('show',FINAL+':'+r['path']) for r in rows),'native_internal_test_API_boundaries':[{'module':'polisyos.foundry.calibration.uncertainty_adapter','symbol':'summarize_bayesian_calibration_posterior','next_owner':'Calibration/Core API canonical facade owner','public_alias_claimed':False},{'module':'polisyos.foundry.uncertainty.monte_carlo','symbol':'MonteCarloPropagator','next_owner':'Foundry API canonical facade owner','public_alias_claimed':False}],'classification':'Selected product collector PASS with full12-source/test census; native fixture-only two API boundaries remain owner-ready, not public-consumer wiring or full architecture PASS. New DTO typing blocker is separate.','P41_inherited_red':'not_established','numeric_or_global_wave_repeated':False,'ROOT_environment_or_source_modified':False}
+(OUT/'architecture-review.json').write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps({'full_paths':len(paths),'Python':len(python),'product':len(product),'tests':len(python)-len(product),'native_deep_edges':len(newedges),'new_edges':len(newedges-oldedges),'negative_removal_controls':len(controls),'source_unchanged':result['source_did_not_change']}))

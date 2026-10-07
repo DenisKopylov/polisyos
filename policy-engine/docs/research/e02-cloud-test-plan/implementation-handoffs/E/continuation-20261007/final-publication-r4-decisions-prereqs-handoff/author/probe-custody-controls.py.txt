@@ -1,0 +1,35 @@
+import copy,hashlib,json,subprocess,sys
+from pathlib import Path
+S=Path('/tmp/e02-E-decisions-prereqs-publication-r4-stage');OUT=S/'author-cli-controls';OUT.mkdir(exist_ok=True)
+M=json.loads((S/'manifest.json').read_text());SCRIPT=S/'copy-decisions-prereqs.py.txt';metadata=['copy-decisions-prereqs.py.txt','build-stage.py.txt','README.md','qualification.json','build.stdout.json','build.stderr.txt','resume-admission.json','resume-admission.stderr.txt']
+def case(name,data,script=SCRIPT):
+ p=OUT/name;p.mkdir();(p/'payload').symlink_to(S/'payload',target_is_directory=True)
+ for n in metadata:(p/n).write_bytes((S/n).read_bytes())
+ (p/'manifest.json').write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n')
+ argv=[sys.executable,str(script),'--manifest',str(p/'manifest.json'),'--destination-root',str(p/'destination')]
+ with (p/'stdout.txt').open('wb') as out,(p/'stderr.txt').open('wb') as err:r=subprocess.run(argv,stdout=out,stderr=err)
+ return {'case':name,'argv':argv,'exit_code':r.returncode,'destination_created':(p/'destination').exists(),'stdout':str(p/'stdout.txt'),'stderr':str(p/'stderr.txt')}
+results=[case('healthy',copy.deepcopy(M))]
+mods={}
+x=copy.deepcopy(M);x['canonical_copies'][0]['source_sha256']='0'*64;mods['carrier_digest']=x
+x=copy.deepcopy(M);x['canonical_copies'][0]['source_bytes']+=1;mods['carrier_size']=x
+x=copy.deepcopy(M);x['selection_inputs'][0]['sha256']='0'*64;mods['selector_digest']=x
+x=copy.deepcopy(M);x['selection_inputs'].pop();mods['selector_omission']=x
+x=copy.deepcopy(M);x['logical_sources'].pop();mods['qualifier_omission']=x
+x=copy.deepcopy(M);x['qualification']['frozen54']['accountable_owner_decisions_accepted_by_this_carrier']=True;mods['false_frozen_closure_claim']=x
+x=copy.deepcopy(M);x['qualification']['separate_source_slice']['G_formal_finding_closure']=True;mods['false_ca17_closure_claim']=x
+zeros=[n for n,r in enumerate(M['logical_sources']) if r['family']=='frozen54' and r['member_class']=='identical_byte_aliases' and r['source_bytes']==0]
+if len(zeros)<2:raise ValueError('distinct alias control')
+x=copy.deepcopy(M);x['logical_sources'][zeros[0]]=copy.deepcopy(x['logical_sources'][zeros[1]]);mods['same_body_alias_substitution']=x
+for name,data in mods.items():results.append(case(name,data))
+# Predicate-only removal, same manifest bytes/counts/markers as the failed alias control.
+s=SCRIPT.read_text();needle="if got!=want:raise ValueError('exact selected member Counter')"
+if s.count(needle)!=1:raise ValueError('unique class predicate')
+removed=OUT/'exact-counter-removal.py.txt';removed.write_text(s.replace(needle,"if False:raise ValueError('exact selected member Counter')"))
+removal=case('effective_counter_removal',mods['same_body_alias_substitution'],removed)
+if results[0]['exit_code']!=0:raise ValueError('healthy CLI')
+if any(r['exit_code']!=1 or r['destination_created'] for r in results[1:]):raise ValueError('negative did not refuse before write')
+if removal['exit_code']!=0 or not removal['destination_created']:raise ValueError('ineffective property removal')
+receipt={'schema':'policyos.e02.decisions_prereqs_author_actual_custody_controls.v1','manifest_sha256':hashlib.sha256((S/'manifest.json').read_bytes()).hexdigest(),'copier_sha256':hashlib.sha256(SCRIPT.read_bytes()).hexdigest(),'controls':results,'negative_count':len(results)-1,'removal':removal|{'defining_property_outcome':'FAIL','marker_preserved':True,'reason':'One required raw frozen54 alias identity is replaced by another equal-body occurrence. Counts/content/markers stay intact; the exact Counter alone detects lost source membership.'},'source_numeric_gate_execution':False,'ROOT_written':False}
+(S/'author-custody-controls.json').write_text(json.dumps(receipt,indent=2)+'\n')
+print(json.dumps({'healthy':'PASS','negative_count':len(results)-1,'negatives':'REFUSED before destination','effective_counter_removal':'accepted incorrect membership, defining propertyFAIL','source_numeric_gate_execution':False}))

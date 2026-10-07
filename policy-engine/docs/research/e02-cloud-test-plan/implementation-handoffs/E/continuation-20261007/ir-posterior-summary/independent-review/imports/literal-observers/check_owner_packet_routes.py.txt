@@ -1,0 +1,59 @@
+"""Record remaining historical export packet and explicit native adapter boundary."""
+from __future__ import annotations
+import argparse
+import ast
+import hashlib
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+p=argparse.ArgumentParser()
+p.add_argument('--candidate',required=True)
+p.add_argument('--repo',required=True)
+p.add_argument('--packet',required=True)
+p.add_argument('--output',required=True)
+a=p.parse_args()
+lane=Path(a.repo)
+def read(path):
+    return subprocess.check_output(['/usr/bin/git','-C',str(lane),'show',a.candidate+':'+path])
+def literal(path,name):
+    for node in ast.parse(read(path)).body:
+        targets=node.targets if isinstance(node,ast.Assign) else [node.target] if isinstance(node,ast.AnnAssign) else []
+        if any(isinstance(target,ast.Name) and target.id==name for target in targets):
+            return ast.literal_eval(node.value)
+    raise AssertionError('actual facade mapping absent: '+name)
+packet_path=Path(a.packet)
+packet=json.loads(packet_path.read_text())
+ir=literal('policy-engine/src/polisyos/ir/api.py','ANALYTICS_FACADE_EXPORTS')
+foundry=literal('policy-engine/src/polisyos/foundry/execute/__init__.py','_LAZY_IMPORTS')
+rows=[]
+for owner in packet['owners']:
+    mapping=ir if owner['admitted_entrypoint']=='polisyos.ir.analytics' else foundry
+    for name,fqn in owner['required_existing_exports'].items():
+        target=mapping.get(name)
+        rows.append({'name':name,'native_definition':fqn,'entrypoint':owner['admitted_entrypoint'],
+                     'present_same_native_mapping':target is not None and '.'.join(target)==fqn,
+                     'canonical_writer':owner['canonical_writer']})
+code = ('import sys,json; sys.path.insert(0,'+repr(str(lane/'policy-engine/src'))+'); '
+        'from polisyos.core import artifacts as core_artifacts; '
+        'print(json.dumps({"fresh_root_only_ir_adapter_attribute":hasattr(core_artifacts,"ir_adapter"),'
+        '"fresh_artifacts_definition":core_artifacts.__file__}))')
+probe=subprocess.run([sys.executable,'-c',code],capture_output=True,check=False)
+if probe.returncode or probe.stderr:
+    raise AssertionError('fresh Core export probe failed: '+probe.stderr.decode())
+actual=json.loads(probe.stdout)
+if actual['fresh_root_only_ir_adapter_attribute']:
+    raise AssertionError('Core adapter public admission changed; reclassify owner seam')
+result={'schema':'policyos.e02.independent_ir_historical_owner_packet_status.v1','candidate':a.candidate,
+        'historical_owner_packet_source':packet['source_sha'],
+        'historical_packet':{'path':str(packet_path),'bytes':packet_path.stat().st_size,'sha256':hashlib.sha256(packet_path.read_bytes()).hexdigest()},
+        'rows':rows,'Core_native_test_seam':{'fresh_interpreter_command':[sys.executable,'-c',code],
+        'stdout':probe.stdout.decode(),'stderr':probe.stderr.decode(),'exit_code':probe.returncode,'observations':actual,
+        'admission':'Root explicitly confirmed honest test-only native Core adapter seam plus Core owner packet. No public export or Core shared-file lease was granted.',
+        'canonical_writer':'Core/API owner @core-owners, @platform-owners; enforceable reviewer @DenisKopylov',
+        'minimal_input':'Choose native test-only seam admission or add typed ir_adapter module export through existing Core artifacts facade with its API/inventory companions.',
+        'next_verifiable_result':'Core owner disposition/export commit plus fresh-interpreter identity and actual IR-protocol CAS adapter roundtrip/refusal tests.'},
+        'limits':'Immutable mapping status and fresh module availability only. Scoped B201/B202 appointment does not admit the other legacy aliases or Core adapter. Runtime law/transport remain independent oracle/criteria scope.'}
+Path(a.output).write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps(result,indent=2))

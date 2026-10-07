@@ -217,6 +217,7 @@ __all__ = [
     "PosteriorParameterBinding",
     "PosteriorSummaryContext",
     "PosteriorSummaryProfile",
+    "PosteriorSummaryProfileV2",
     "ProblemConstraintSpec",
     "ProblemDomain",
     "ProblemFrame",
@@ -475,6 +476,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "PosteriorSummaryContext": (
         "polisyos.ir.analytics.posterior_summary",
         "PosteriorSummaryContext",
+    ),
+    "PosteriorSummaryProfileV2": (
+        "polisyos.ir.analytics.posterior_summary",
+        "PosteriorSummaryProfileV2",
     ),
     "PosteriorSummaryProfile": (
         "polisyos.ir.analytics.posterior_summary",

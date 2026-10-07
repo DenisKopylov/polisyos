@@ -1,0 +1,148 @@
+"""Admit only two reproducible old environments; preserve all source and receipts."""
+from __future__ import annotations
+import hashlib
+import importlib.metadata as metadata
+import json
+import os
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+OUTPUT = Path('/tmp/e02-E-capacity-cleanup-20261007-doe')
+CANDIDATES = [Path('/workspace/e02-E-cal-20261006/policy-engine/.venv'), Path('/workspace/e02-E-ddm-20261006/policy-engine/.venv')]
+PROTECTED = ['/workspace/e02-E-continuation-20261006/policy-engine/.venv', '/workspace/e02-E-doe-20261006/policy-engine/.venv', '/workspace/.polisyos-environment']
+
+
+def identity(path: Path) -> dict:
+    data = path.read_bytes()
+    return {'path': str(path), 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
+
+
+def write(path: Path, value: dict) -> None:
+    with path.open('x') as handle:
+        handle.write(json.dumps(value, ensure_ascii=False, indent=2) + '\n')
+
+
+def filesystem() -> dict:
+    stat = os.statvfs('/workspace')
+    return {'observed_unix': time.time(), 'total_bytes': stat.f_blocks * stat.f_frsize, 'free_bytes': stat.f_bfree * stat.f_frsize, 'available_bytes': stat.f_bavail * stat.f_frsize}
+
+
+def proc_scan() -> dict:
+    rows, exclusions, errors, matches = [], [], [], []
+    prefixes = [str(p) for p in CANDIDATES]
+    for path in Path('/proc').iterdir():
+        if not path.name.isdecimal():
+            continue
+        try:
+            status = (path / 'status').read_text()
+            uid = int(next(x for x in status.splitlines() if x.startswith('Uid:')).split()[1])
+            state = next(x for x in status.splitlines() if x.startswith('State:')).split()[1]
+            if state == 'Z':
+                continue
+            argv = [x.decode(errors='replace') for x in (path / 'cmdline').read_bytes().split(b'\0') if x]
+            if uid != os.getuid():
+                exclusions.append({'pid': int(path.name), 'uid': uid, 'argv0': argv[0] if argv else None, 'reason': 'Privileged infrastructure daemon outside complete live agent UID scope; no host-wide environ/maps visibility asserted.'})
+                continue
+            evidence = []
+            cwd = os.readlink(path / 'cwd')
+            if any(cwd == p or cwd.startswith(p + '/') for p in prefixes):
+                evidence.append({'kind': 'cwd', 'value': cwd})
+            for arg in argv:
+                if any(p in arg for p in prefixes):
+                    evidence.append({'kind': 'cmdline target argument', 'value': arg})
+            for item in (path / 'environ').read_bytes().split(b'\0'):
+                if item.startswith((b'VIRTUAL_ENV=', b'UV_PROJECT_ENVIRONMENT=', b'PYTHONPATH=')) and any(p.encode() in item for p in prefixes):
+                    evidence.append({'kind': 'selected environment target', 'value': item.decode(errors='replace')})
+            for line in (path / 'maps').read_text().splitlines():
+                if any(p + '/' in line for p in prefixes):
+                    evidence.append({'kind': 'mapped file', 'value': line.split()[-1]})
+            for descriptor in (path / 'fd').iterdir():
+                try:
+                    target = os.readlink(descriptor)
+                    if any(target == p or target.startswith(p + '/') for p in prefixes):
+                        evidence.append({'kind': 'open file', 'value': target})
+                except FileNotFoundError:
+                    pass
+            row = {'pid': int(path.name), 'uid': uid, 'argv0': argv[0] if argv else None, 'cwd': cwd, 'target_evidence': evidence}
+            rows.append(row)
+            if evidence:
+                matches.append(row)
+        except (FileNotFoundError, ProcessLookupError):
+            pass
+        except PermissionError as error:
+            errors.append({'pid': int(path.name), 'error': str(error)})
+    return {'observed_unix': time.time(), 'agent_uid': os.getuid(), 'candidate_prefixes': prefixes, 'live_agent_process_count': len(rows), 'active_users': matches, 'unreadable_agent_processes': errors, 'privileged_infrastructure_exclusions': exclusions, 'observations': rows}
+
+
+manifests = []
+for path in CANDIDATES:
+    if path.is_symlink() or not path.is_dir() or path.resolve() != path or path.name != '.venv':
+        raise ValueError('Only actual exact old environment directories admitted')
+    if any(str(path) == p or str(path).startswith(p + '/') or p.startswith(str(path) + '/') for p in PROTECTED):
+        raise ValueError('Protected environment overlaps deletion candidate')
+    product = path.parent
+    leaf = product.parent
+    interpreter = product / '.venv/bin/python'
+    py_version = subprocess.check_output([str(interpreter), '-c', 'import sys,json; print(json.dumps({"version":sys.version,"prefix":sys.prefix,"base_prefix":sys.base_prefix,"executable":sys.executable}))'], text=True)
+    site_dirs = list((path / 'lib').glob('python*/site-packages'))
+    if len(site_dirs) != 1:
+        raise ValueError('Unambiguous declared site-packages required')
+    packages = []
+    for dist in metadata.distributions(path=[str(site_dirs[0])]):
+        files = []
+        info = Path(dist._path)
+        if not info.is_relative_to(path):
+            raise ValueError('Installed distribution metadata escapes old environment')
+        for source in sorted(info.rglob('*')):
+            if source.is_file():
+                data = source.read_bytes()
+                destination = OUTPUT / path.parent.parent.name / 'distinfo-metadata' / info.name / source.relative_to(info)
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                with destination.open('xb') as handle:
+                    handle.write(data)
+                files.append({**identity(source), 'saved_path': str(destination)})
+        packages.append({'name': dist.metadata.get('Name'), 'version': dist.version, 'metadata_path': str(info), 'requires': dist.requires, 'entry_points': [{'name': e.name, 'group': e.group, 'value': e.value} for e in dist.entry_points], 'complete_metadata_files': files})
+    packages.sort(key=lambda d: d['name'].casefold())
+    tree = []
+    total_size, allocated, unique_allocated = 0, 0, 0
+    for source in sorted(path.rglob('*')):
+        stat = source.lstat()
+        entry = {'relative_path': str(source.relative_to(path)), 'mode': stat.st_mode, 'size': stat.st_size, 'allocated_bytes': stat.st_blocks * 512, 'hardlink_count': stat.st_nlink, 'device': stat.st_dev, 'inode': stat.st_ino}
+        if source.is_symlink():
+            entry['symlink_target'] = os.readlink(source)
+        elif source.is_file():
+            total_size += stat.st_size
+            allocated += stat.st_blocks * 512
+            if stat.st_nlink == 1:
+                unique_allocated += stat.st_blocks * 512
+        tree.append(entry)
+    source_refs = []
+    for name in ('pyproject.toml', 'uv.lock'):
+        source = product / name
+        data = source.read_bytes()
+        dest = OUTPUT / leaf.name / name
+        with dest.open('xb') as handle:
+            handle.write(data)
+        source_refs.append({**identity(source), 'saved_path': str(dest)})
+    manifests.append({'candidate': str(path), 'kind': 'reproducible installed old Oct6 environment only', 'leaf_preserved': str(leaf), 'source_HEAD': subprocess.check_output(['git', '-C', str(leaf), 'rev-parse', 'HEAD'], text=True).strip(), 'source_tree': subprocess.check_output(['git', '-C', str(leaf), 'rev-parse', 'HEAD^{tree}'], text=True).strip(), 'tracked_status': subprocess.check_output(['git', '-C', str(leaf), 'status', '--porcelain', '--untracked-files=no'], text=True), 'interpreter': json.loads(py_version), 'pyvenv_cfg': identity(path / 'pyvenv.cfg'), 'package_count': len(packages), 'packages': packages, 'complete_path_inventory': tree, 'file_logical_bytes': total_size, 'allocated_bytes_including_shared_hardlinks': allocated, 'unique_hardlink1_allocated_bytes_lower_bound': unique_allocated, 'reproduce_source_inputs': source_refs, 'reproduce_recipe': 'Use the preserved exact source HEAD/tree, pyproject and uv.lock with repo-declared lint/test/runtime/ml extras and Python3.14.7; actual full package metadata and artifact RECORD/versions are saved. No source checkout, new environment or replay is performed during cleanup.'})
+    cfg = path / 'pyvenv.cfg'
+    with (OUTPUT / leaf.name / 'pyvenv.cfg').open('xb') as handle:
+        handle.write(cfg.read_bytes())
+receipts = []
+for name in ('cal-environment.json', 'ddm-native.json', 'ddm-native.log', 'ddm-removal-quantity-final.json', 'ddm-removal-quantity-final.log', 'ddm-removal-source-final.json', 'ddm-removal-source-final.log'):
+    source = Path('/workspace/e02-E-20261006-receipts') / name
+    if source.is_file():
+        destination = OUTPUT / 'saved-deciding-receipts' / name
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        with destination.open('xb') as handle:
+            handle.write(source.read_bytes())
+        receipts.append({**identity(source), 'saved_path': str(destination), 'original_preserved': True})
+scan = proc_scan()
+if scan['active_users'] or scan['unreadable_agent_processes']:
+    write(OUTPUT / 'predelete-refusal.json', {'manifests': manifests, 'process_scan': scan, 'receipts': receipts, 'deleted': False})
+    raise ValueError('Active/unknown agent users block environment deletion')
+result = {'schema': 'policyos.e02.cloud_reproducible_environment_cleanup_admission.v1', 'authorization': 'Explicit cloud capacity cleanup assigned by root: permanent removal of unused repeatable old environments is permitted; local Trash-only rule is not applied to cloud.', 'readiness': 'ADMITTED exact two old .venv directories only; no deletion executed yet', 'created_unix': time.time(), 'filesystem_before': filesystem(), 'candidates': manifests, 'complete_live_agent_process_scan': scan, 'saved_deciding_receipts': receipts, 'protected_prefixes': PROTECTED, 'never_delete': ['code/docs/.git/Git registrations/production/unique source inputs/deciding outputs/current stages/four prefetched wheels/source clones'], 'source_preserved': True, 'external_unique_outputs_preserved': True}
+write(OUTPUT / 'cleanup-admission.json', result)
+print(json.dumps({'admission': str(OUTPUT / 'cleanup-admission.json'), 'candidates': [{'path': r['candidate'], 'packages': r['package_count'], 'allocated': r['allocated_bytes_including_shared_hardlinks'], 'unique_lower_bound': r['unique_hardlink1_allocated_bytes_lower_bound']} for r in manifests], 'active_users': scan['active_users'], 'unreadable_agent_processes': scan['unreadable_agent_processes'], 'filesystem_before': result['filesystem_before']}, indent=2))

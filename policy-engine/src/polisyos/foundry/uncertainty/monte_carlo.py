@@ -69,7 +69,11 @@ class _QMCExecutionSummary:
 
 @dataclass(frozen=True)
 class _EmpiricalJointSpec:
-    """Describe an aligned empirical law shared by input carriers."""
+    """Describe an aligned law; probabilities stores canonical binary ratio weights.
+
+    Every random/Sobol/Halton backend uses the common finite-U inverse transform.
+    The stored array need not sum to one; it is never supplied to random choice.
+    """
 
     names: tuple[str, ...]
     sample_axis: str
@@ -359,7 +363,7 @@ def _empirical_indices_from_uniform(
     uniform_samples: np.ndarray,
     probabilities: np.ndarray,
 ) -> np.ndarray:
-    """Map one QMC coordinate to aligned empirical row indices."""
+    """Map any admitted finite uniform coordinate to exact-ratio paired buckets."""
     uniforms = admit_unit_uniform(uniform_samples)
     cumulative = empirical_cdf(probabilities)
     return np.searchsorted(cumulative, uniforms, side="right")
@@ -1345,6 +1349,10 @@ class MonteCarloPropagator:
                     )
                     metadata["empirical_joint_id"] = joint_sample_id
                     metadata["empirical_joint_identity_status"] = "declared_non_authoritative"
+                    metadata["empirical_probability_convention"] = "exact_binary_weight_ratios"
+                    metadata["empirical_sampling_approximation"] = (
+                        "finite_uniform_mesh_discretization"
+                    )
                 if parametric_fit_names:
                     metadata["parametric_fit_payload_used"] = True
                     metadata["parametric_fit_inputs"] = list(parametric_fit_names)
@@ -1413,6 +1421,8 @@ class MonteCarloPropagator:
                     )
                     notes["empirical_joint_id"] = joint_sample_id
                     notes["empirical_joint_identity_status"] = "declared_non_authoritative"
+                    notes["empirical_probability_convention"] = "exact_binary_weight_ratios"
+                    notes["empirical_sampling_approximation"] = "finite_uniform_mesh_discretization"
                 assumptions = ["empirical_push_forward"]
                 if sample_axis != "draw":
                     assumptions.append("source_axis_preserved")

@@ -1,0 +1,97 @@
+"""Copy closed source-frozen outputs, keeping historical observer bytes unchanged."""
+from __future__ import annotations
+import hashlib
+import json
+import subprocess
+from pathlib import Path, PurePosixPath
+
+LEAF = Path('/workspace/e02-E-doe-20261006')
+PREFIX = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d'
+DEST = LEAF / PREFIX
+SOURCE_SHA = '64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+SOURCE_TREE = 'aef23574d3162abb19bf5a1c67d02624ff9d4d1d'
+BASE = '43f6bb54e316ce1308d53ba75c6e27e40171e364'
+SCRATCH = Path('/workspace/e02-E-pr38-r3-receipts/doe-r4/dispatch-preparation-20261007')
+CI08 = Path('/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007')
+CANONICAL = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/validate_review_copies.py'
+if subprocess.check_output(['git', '-C', str(LEAF), 'rev-parse', 'HEAD'], text=True).strip() != BASE:
+    raise ValueError('Published admitted leaf base differs')
+if subprocess.check_output(['git', '-C', str(LEAF), 'status', '--porcelain', '--untracked-files=no']):
+    raise ValueError('Tracked leaf must be clean before bounded publication')
+if DEST.exists():
+    raise ValueError('Refuse replacing publication catalog')
+selection_paths = [(SCRATCH / 'successor-21-publication-selection-64d.json', '21-nonshared'), (CI08 / 'publication-selection-v2.json', 'ci08-existing-doe-environment')]
+copies = []
+
+
+def copy(source: Path, relative: str, role: str, expected: dict | None = None) -> None:
+    path = PurePosixPath(relative)
+    if path.is_absolute() or '..' in path.parts or relative != path.as_posix() or not path.parts:
+        raise ValueError('Invalid bounded publication destination')
+    if source.is_symlink() or not source.is_file():
+        raise ValueError('Source must be closed regular input')
+    data = source.read_bytes()
+    digest = hashlib.sha256(data).hexdigest()
+    if expected and (len(data) != expected['bytes'] or digest != expected['sha256']):
+        raise ValueError('Selected closed source bytes changed: ' + str(source))
+    target = DEST / relative
+    target.parent.mkdir(parents=True, exist_ok=True)
+    with target.open('xb') as handle:
+        handle.write(data)
+    copies.append({'source_path': str(source), 'copied_path': PREFIX + '/' + relative, 'bytes': len(data), 'sha256': digest, 'role': role})
+
+
+for source, subdir in selection_paths:
+    selection = json.loads(source.read_text())
+    if selection['candidate_sha'] != SOURCE_SHA or selection['candidate_tree_sha'] != SOURCE_TREE:
+        raise ValueError('Execution source SHA/tree differs')
+    expected_count = 122 if subdir == '21-nonshared' else 37
+    if selection['asset_count'] != expected_count or len(selection['files']) != expected_count:
+        raise ValueError('Bounded asset denominator differs')
+    if sum(row['bytes'] for row in selection['files']) != selection['asset_bytes']:
+        raise ValueError('Closed declared asset total differs')
+    for row in selection['files']:
+        copy(Path(row['path']), subdir + '/' + row['destination'], row['role'], row)
+    copy(source, subdir + '/closed-source-selection.json', 'Original closed source-selection input; absolute source paths are historical identity, copied_path index is portable.')
+copy(CI08 / 'publication-selection.json', 'ci08-existing-doe-environment/historical-open-capture-selection.json', 'Historical publication observer ERROR only: one then-open builder stdout hash. Current v2 copied index/bytes control publication; this original is not a healthy current asset manifest.')
+copy(CI08 / 'environment-lease-closed.json', 'ci08-existing-doe-environment/environment-lease-closed.json', 'Actual post-completion complete live agent-UID zero-active-user proof; privileged infrastructure exclusions retained.')
+copy(Path('/workspace/e02-E-pr38-r3-receipts/source-freeze-64d7444a.json'), 'source-freeze-64d7444a.json', 'Root immutable source-freeze observation; publication leaf remains isolated.')
+for name in ('publish-successors-leaf-resume-admission.json', 'publish-successors-leaf-resume-admission.stderr.txt'):
+    copy(SCRATCH / name, 'publication-admission/' + name, 'Exact admitted resume branch/path read-only doctor output.')
+canonical = LEAF / CANONICAL
+exact = subprocess.check_output(['git', '-C', str(LEAF), 'show', SOURCE_SHA + ':' + CANONICAL])
+if canonical.read_bytes() != exact:
+    raise ValueError('Canonical copy validator source differs from frozen Git')
+copy(canonical, 'validate_review_copies.py.txt', 'Exact existing fixed canonical copy validator source at ROOT64d; archived literal bytes, no new active Python/API.')
+copy(Path(__file__), 'materialize_successor_packets.py.txt', 'Literal used bounded materializer; source hashes admitted before byte-exact publication.')
+if len({row['copied_path'] for row in copies}) != len(copies):
+    raise ValueError('Duplicate portable copied asset')
+index = {'schema': 'e02.E.portable-review-copy-index.v1', 'source_candidate_sha': SOURCE_SHA, 'source_candidate_tree_sha': SOURCE_TREE,
+         'publication_base_sha': BASE, 'file_count': len(copies), 'total_bytes': sum(row['bytes'] for row in copies), 'index_self_excluded': True, 'files': copies,
+         'required_selections': {'21_nonshared_assets': 122, 'ci08_alternate_env_assets': 37},
+         'history': 'Frozen native receipts and source selections are byte-exact. Original CI08 open-capture selection stays historical ERROR; v2 current selection and portable copies remain truthful. Source_path never rewritten to portable copied_path.',
+         'excluded': 'Full private Git config, environment bytes, 4.24MB tracked-source inventory, 13MB unrolled dispatch, generated cache/site/build catalogs and root-owned16selectors. Exact SHA/tree/recipes and native moderate deciding outputs are retained.',
+         'limitations': 'Current publication custody does not establish workflow PASS or finding closure. Canonical fail-fast/deferred observations are separate from standalone actual outcomes.'}
+with (DEST / 'portable-copy-index.json').open('x') as handle:
+    handle.write(json.dumps(index, ensure_ascii=False, indent=2) + '\n')
+readme = '''# Frozen E successors and full native CI08
+
+The execution source is `64d7444a18c55df7b88b71b7699a2f1b25ca24bd`, tree `aef23574d3162abb19bf5a1c67d02624ff9d4d1d`. These documents publish completed observations; no product, generator, schema, active Python utility or original finding disposition changes.
+
+The 21 assigned independent nonshared constituents are terminal: 7 PASS and 14 FAIL. Their complete native receipts, command stdout/stderr, environment and source/input identities are under `21-nonshared/`. The CI07 debt-ledger PASS is the actual `--report-only` exit outcome; its full text reports ledger drift and unresolved closure signals. It does not establish ledger health. Canonical workflow fail-fast UNRUN remains a separate observation.
+
+The complete CI08 selector is observed in the already-existing isolated DoE environment, with ROOT source/cwd/PYTHONPATH unchanged. Seven native `--no-deps` editable installs add exactly seven packages (177 to 184), then fresh native discovery runs six component probes and one governance pass. All eight smoke-test cases pass. ROOT environment distribution records remain 203 to 203, unchanged; protected numerical dist-info metadata matches before and after. Full before/after snapshots, installed editable refs/entry points/RECORD/WHEEL, source51 identity and JUnit are under `ci08-existing-doe-environment/`. The original deferred ROOT-env invocation remains UNRUN; this equivalent full-selector observation explicitly records its different existing interpreter/environment.
+
+The initial host-wide inactivity observer refused privileged daemon visibility; the scoped complete agent-UID observer excludes those infrastructure daemons explicitly. An initial dispatcher inlet requested a nonexistent conftest and refused before any native install callback. The first publication observer bound one still-open stdout; its initial selection is historical ERROR, with current closed v2 selection separate. Those original bytes are retained.
+
+`portable-copy-index.json` covers all copied assets, exact total and source-to-copy identities; the index excludes its own future identity. `validate_review_copies.py.txt` is the unchanged fixed canonical validator from the frozen source. Load that archive only after checking it against its immutable Git blob, then call `validate(root, index["files"], publication_commit)` using the actual immutable publication SHA supplied in the separate handoff. Its healthy current-Git/readback check and corrupt digest/size/path/unpublished controls do not rerun any native selector.
+
+Full raw inventories are reproducible from exact frozen `git ls-tree -rz --long`; private Git configuration stays excluded. Current environments and deciding outputs remain protected; no cleanup is performed by this publication. Existing historical finding statuses and owner decisions are preserved.
+'''
+with (DEST / 'README.md').open('x') as handle:
+    handle.write(readme)
+for row in copies:
+    data = (LEAF / row['copied_path']).read_bytes()
+    if len(data) != row['bytes'] or hashlib.sha256(data).hexdigest() != row['sha256']:
+        raise ValueError('Materialized copy differs')
+print(json.dumps({'source_candidate_sha': SOURCE_SHA, 'source_candidate_tree_sha': SOURCE_TREE, 'publication_base_sha': BASE, 'copied_assets': len(copies), 'bytes': index['total_bytes'], 'packet': str(DEST)}, indent=2))

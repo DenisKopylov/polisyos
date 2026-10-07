@@ -1,0 +1,63 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-forecast-canon-public-route-64d-20261007/probe_route_property_removal.py", line 20, in <module>
+    try:fn(store,obj)
+        ~~^^^^^^^^^^^
+  File "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/calibration/forecast_bridge.py", line 669, in persist_empirical_calibration_evidence
+    payload = put_json_artifact(
+        store,
+    ...<5 lines>...
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+  File "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/ir/artifacts/io.py", line 44, in put_json_artifact
+    ref = store.put_json(
+        payload,
+        opts=to_store_put_options(options),
+        canon_spec=canon_spec,
+    )
+  File "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/core/artifacts/store.py", line 2460, in put_json
+    data = to_canonical_bytes(obj, canon_spec)
+  File "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/core/canon/canon_json.py", line 40, in to_canonical_bytes
+    return _to_canonical_bytes(
+        obj,
+    ...<2 lines>...
+        canonical_types=_CANONICAL_TYPES,
+    )
+  File "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/common/canonical.py", line 232, in to_canonical_bytes
+    canon_obj = _canonicalize_obj(
+        obj,
+    ...<2 lines>...
+        canonical_types=canonical_types,
+    )
+  File "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/common/canonical.py", line 200, in _canonicalize_obj
+    return _canonicalize_mapping(
+        obj,
+    ...<3 lines>...
+        canonical_types=canonical_types,
+    )
+  File "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/common/canonical.py", line 108, in _canonicalize_mapping
+    out[key] = _canonicalize_obj(
+               ~~~~~~~~~~~~~~~~~^
+        value,
+        ^^^^^^
+    ...<3 lines>...
+        canonical_types=canonical_types,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/common/canonical.py", line 193, in _canonicalize_obj
+    _raise_violation(violation_type, "float forbidden in canonical JSON")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/common/canonical.py", line 67, in _raise_violation
+    raise violation_type(message)
+polisyos.core.canon.canon_json.CanonViolation: float forbidden in canonical JSON
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/tmp/e02-E-forecast-canon-public-route-64d-20261007/probe_route_property_removal.py", line 22, in <module>
+    require('Float values forbidden' in str(e),'unexpected refusal');controls.append({'control':'actual_public_name_present_finite_float_property_removed:'+name,'outcome':'PASS','healthy_public_route_expected':'PASS','mutant_runtime_persistence':'FAIL','refusal':str(e),'requested_factory_config':calls[-1],'public_class_or_original_reader_removed':False})
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-forecast-canon-public-route-64d-20261007/probe_route_property_removal.py", line 10, in require
+    if not v:raise ValueError(message)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: unexpected refusal

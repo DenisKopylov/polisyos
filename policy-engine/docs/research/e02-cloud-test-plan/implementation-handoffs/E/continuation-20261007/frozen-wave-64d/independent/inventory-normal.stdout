@@ -1,0 +1,1 @@
+{"outcome": "PASS", "healthy_denominator": [22, 54, 55], "retained_marker_unit": "E", "actual_finding_removed": "B100", "negative_refusal": "Complete E inventory differs: (22, 53, 55)", "assert_statements_required": false}

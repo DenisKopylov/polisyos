@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-decisions-prereqs-publication-r4-stage/build-handoff.py.txt", line 51, in <module>
+    copy(a['source_path'],'independent/'+target,'literal independent immutable Git custody, typed metadata controls and effective predicate removal',{k:a[k] for k in ('bytes','sha256')})
+         ~^^^^^^^^^^^^^^^
+KeyError: 'source_path'

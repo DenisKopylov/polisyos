@@ -1,0 +1,176 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "E",
+  "slice": "stdout-document-role-and-historical-source-custody-20261007",
+  "bundle_ids": [],
+  "closure_ids": [],
+  "slice_base_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "slice_base_tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "implementation_commits": [
+    "b4af26cfba78b2a196d1578bea2ee6357b43452f",
+    "1186ce5bf60f11ceaafe395f626cee1096d0b878"
+  ],
+  "candidate_sha": "1186ce5bf60f11ceaafe395f626cee1096d0b878",
+  "candidate_tree_sha": "e580359680641ff27cb39344d240393b57e8852b",
+  "branch": "codex/e02-E-doe-20261006",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/38",
+  "canonical_writer": "E publication/archive metadata; active product/source/schema/generator/shared root files unchanged",
+  "changed_paths": [
+    "M\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/copy-index.json",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/exact-Git-inputs/build_final.py.txt",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/exact-Git-inputs/validate.py.txt",
+    "R100\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/independent-recompute-attempt1.stdout.json\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/independent-recompute-attempt1.stdout.txt",
+    "R100\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/independent-recompute-attempt2.stdout.json\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/independent-recompute-attempt2.stdout.txt",
+    "R100\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/independent-recompute-attempt3.stdout.json\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/independent-recompute-attempt3.stdout.txt",
+    "R100\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/independent-recompute-attempt4.stdout.json\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/independent-recompute-attempt4.stdout.txt",
+    "M\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/portable-copy-index.json",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.attempt1-used.py.txt",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.attempt2-used.py.txt",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.attempt3-used.py.txt",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.attempt4-used.py.txt",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.attempt5-used.py.txt",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.attempt6-used.py.txt",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.py.txt",
+    "M\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-publication-assembly.json",
+    "M\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-review-refbindings.json",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/stdout-document-role-correction/current-publication-map.json"
+  ],
+  "classification": "Internal publication metadata and exact historical text archives; no product API/IR/numerical contract change",
+  "property": {
+    "actual_producer": "Four executed historical observer failures emitted empty stdout; their stderr/inputs and immutable source refs stay unchanged.",
+    "artifact": "Current .stdout.txt paths preserve exact0B; nine .py.txt archives preserve236018B of exact e9 executed source. Current active .py helpers remain byte-equal b4.",
+    "bridge_consumer": "Current49/51 copy/portable reader paths and86 projected staged refs bind actual bytes, sizes and Git objects. Native reference_scan_text no longer attempts JSON decoding of empty stdout.",
+    "historical_reader": "Old source_path/source_index and observation snapshots/census are immutable and retain their recorded old names/refs for Git replay."
+  },
+  "predicate_basis": "recomputed",
+  "predicate_details": [
+    "Complete49/51 rows,9 source archives and current index cascade are recomputed from actual opened bytes and exact Git blobs.",
+    "Markers, hash presence and row counts do not establish result truth or any authority.",
+    "Current archival source .py.txt files are not executed as active helpers; canonical current helpers remain separately available."
+  ],
+  "checks": {
+    "author_bounded_controls": {
+      "outcome": "PASS",
+      "count": 29,
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/stdout-document-role-correction/author/cascade-controls-final-v4-1186.json"
+    },
+    "independent_current_custody": {
+      "outcome": "PASS",
+      "count": 215,
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/stdout-document-role-correction/independent/1186ce5b/independent-review.json",
+      "scope": "Bounded publication custody; actual canonical byte-reader and corruption/removal controls; no global/finding closure."
+    },
+    "full_native_inventory": {
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "source_immutable": true,
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/stdout-document-role-correction/native/zero-json-candidate-1186/checks/last-mile-inventory/last-mile-inventory.json",
+      "command": [
+        "/workspace/.polisyos-environment/uv/bin/uv",
+        "run",
+        "--no-sync",
+        "python",
+        "tools/quality/validation/repository_last_mile_inventory.py",
+        "--json-output",
+        "/workspace/e02-E-pr38-r3-receipts/doe-r4/zero-json-candidate-1186/inventory.json",
+        "--check"
+      ],
+      "cwd": "/workspace/e02-E-doe-20261006/policy-engine"
+    }
+  },
+  "input_identity": {
+    "full_source_candidate": "1186ce5bf60f11ceaafe395f626cee1096d0b878",
+    "historical_original_source": "e9cb425e4dfe888720f93eb84f1667f24a8a92c4",
+    "historical_failure_graph": "40refs/7byte-equal64d inputs; complete original Git search retained",
+    "source_environment": {
+      "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+      "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+      "cpu_count": 5,
+      "packages": {
+        "numpy": "2.3.5",
+        "scipy": "1.16.3",
+        "jax": "0.8.2",
+        "SALib": "1.5.2",
+        "pydantic": "2.12.5",
+        "pytest": "9.0.2",
+        "ruff": "0.14.10",
+        "pytest-xdist": "3.8.0"
+      },
+      "selected_variables": {
+        "UV_NO_SYNC": "1",
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+        "PYTHONPATH": "/workspace/e02-E-doe-20261006/policy-engine:/workspace/e02-E-doe-20261006/policy-engine/src",
+        "TMPDIR": "/workspace/e02-E-pr38-r3-receipts/doe-r4/zero-json-candidate-1186/environment-tmp",
+        "RUFF_CACHE_DIR": null,
+        "PATH": "/run/codex-environment/codex-home/tmp/arg0/codex-arg01gKa79:/opt/codex/codex-path:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "COREPACK_HOME": null,
+        "PLAYWRIGHT_BROWSERS_PATH": null,
+        "UV_CACHE_DIR": null,
+        "PNPM_HOME": null,
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "BLIS_NUM_THREADS": null,
+        "XLA_FLAGS": null,
+        "JAX_PLATFORMS": null,
+        "JAX_ENABLE_X64": null,
+        "POLISYOS_METRICS_PORT": null,
+        "POLISYOS_PYTEST_WORKERS": null,
+        "POLISYOS_PYTEST_DIST": null,
+        "PYTEST_ADDOPTS": null
+      }
+    }
+  },
+  "independent_review": {
+    "reviewer": "/root/lint_r4",
+    "disposition": "GO",
+    "target_sha": "1186ce5bf60f11ceaafe395f626cee1096d0b878",
+    "target_tree": "e580359680641ff27cb39344d240393b57e8852b",
+    "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/stdout-document-role-correction/independent/1186ce5b/independent-review.json",
+    "scope": "GO for the bounded source-role/custody repair; global gate and finding decisions remain separate"
+  },
+  "remaining_checks_and_owners": [
+    {
+      "boundary": "Canonical full last-mile inventory --check remains baseline drift after parsing succeeds",
+      "owner": "G and canonical team-quality/team-frontend/baseline writers",
+      "next_result": "Review complete26finding inventory against committed baseline on exact candidate; independently disposition LM001/007/011/023/025. No baseline or scanner exceptions were modified."
+    },
+    {
+      "boundary": "b4→1186 LM025141→142 adds archived historical exact-Git-inputs/build_final.py.txt as a frontend mention",
+      "owner": "Canonical document-reference and inventory owners via G",
+      "next_result": "Decide established archived-source reference role or accept the explicit inventory delta with source bytes preserved; output exact recomputing command/result. This E-origin delta is not waived as foreign/inherited."
+    }
+  ],
+  "finding_status_changes": 0,
+  "finding_policy": "No historical partial/held/closed/open finding is reclassified by this publication repair; code/custody acceptance is separate.",
+  "limitations": [
+    "Full native inventory is FAIL baseline drift, not full CI PASS.",
+    "Exact64d/b4 full49/51 predicate reproduces nine old-byte/current-source aliases; repaired current predicate is0/0 mismatches. This bounded provenance does not establish inherited attribution for other global gates.",
+    "No production data/history, evaluator law or semantic authority is synthesized."
+  ],
+  "receipt_assets": {
+    "portable_index": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/stdout-document-role-correction/portable-copy-index.json",
+    "records": 57,
+    "bytes": 1012814
+  },
+  "pattern_pass": [
+    "P01",
+    "P02",
+    "P10",
+    "P27",
+    "P31",
+    "P35",
+    "P36",
+    "P37",
+    "P38",
+    "P40",
+    "P41"
+  ],
+  "cleanup_candidates": [
+    "Scratch archive-byte corruption fixture only after deciding receipt saved and no active users; current verification/envs preserved. User-authorized cloud cleanup differs from local nativeTrash policy."
+  ],
+  "future_sha_self_reference": false
+}

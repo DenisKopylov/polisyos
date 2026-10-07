@@ -1,0 +1,29 @@
+{
+  "outcome": "CHANGE_REQUIRED concrete failing cases",
+  "candidate": "2c0fb5e26172129ab3ae032c24b35ed2ced6c80f",
+  "tree": "237320d4c5db41330b3d61ff6611f0de8e64549f",
+  "receipt": {
+    "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-candidate-results.json",
+    "bytes": 29453,
+    "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+  },
+  "counts": {
+    "PASS": 30,
+    "FAIL": 2
+  },
+  "failed_cases": [
+    {
+      "id": "exact_boundary_sorted_quantile_[1e-20, 0.5, 0.5]",
+      "outcome": "FAIL",
+      "error": "ValueError('positive posterior category has no finite-U bucket')",
+      "traceback": "Traceback (most recent call last):\n  File \"/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent_candidate_review.py\", line 53, in case\n    try:detail=fn();cases.append({'id':name,'outcome':'PASS','detail':detail})\n               ~~^^\n  File \"/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent_candidate_review.py\", line 96, in boundary\n    mean,median,interval=posterior_summary_functionals_v2(samples,tuple(canonical),.9)\n                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/e02-E-mc-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py\", line 301, in posterior_summary_functionals_v2\n    posterior_sampling_cdf(sorted_weights)\n    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^\n  File \"/workspace/e02-E-mc-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py\", line 224, in posterior_sampling_cdf\n    raise ValueError(\"positive posterior category has no finite-U bucket\")\nValueError: positive posterior category has no finite-U bucket\n"
+    },
+    {
+      "id": "fresh_CAS_forged_alignment_shared_admission_removal",
+      "outcome": "FAIL",
+      "error": "AttributeError(\"'UncertaintyEnvelopeRef' object has no attribute 'hex'\")",
+      "traceback": "Traceback (most recent call last):\n  File \"/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent_candidate_review.py\", line 53, in case\n    try:detail=fn();cases.append({'id':name,'outcome':'PASS','detail':detail})\n               ~~^^\n  File \"/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent_candidate_review.py\", line 162, in fresh_forgery_and_removal\n    changed=UncertaintyEnvelope.model_validate(raw);ref=persist_uncertainty_envelope(store,changed);require(store.verify(ref).ok,'forged_CAS_not_integrity_valid')\n                                                                                                            ~~~~~~~~~~~~^^^^^\n  File \"/workspace/e02-E-mc-20261006/policy-engine/src/polisyos/core/artifacts/store.py\", line 384, in wrapped\n    with self._coordinator.artifact_lease(aid, exclusive=False):\n         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/contextlib.py\", line 141, in __enter__\n    return next(self.gen)\n  File \"/workspace/e02-E-mc-20261006/policy-engine/src/polisyos/core/artifacts/ownership.py\", line 239, in artifact_lease\n    existing = active.get(artifact_id.hex)\n                          ^^^^^^^^^^^^^^^\n  File \"/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py\", line 1026, in __getattr__\n    raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')\nAttributeError: 'UncertaintyEnvelopeRef' object has no attribute 'hex'\n"
+    }
+  ],
+  "source_unchanged": true
+}

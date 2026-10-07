@@ -1,0 +1,254 @@
+"""Select literal closed current54 evidence separately from later running gate attempts."""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import sys
+from collections import Counter
+from pathlib import Path
+from typing import Any
+
+ROOT = Path("/workspace/e02-E-pr38-r3-receipts")
+CHECKOUT = Path("/workspace/e02-E-continuation-20261006")
+# Existing read-only evidence is admitted by exact pinned hashes; this creates no tmp file.
+TEMP = Path("/tmp")  # noqa: S108
+SOURCE = "64d7444a18c55df7b88b71b7699a2f1b25ca24bd"
+TREE = "aef23574d3162abb19bf5a1c67d02624ff9d4d1d"
+JOINED = ROOT / "criteria-r4/current-all-54-source-wave-update-v2.json"
+JOINED_HASH = "9ce6df09fe956cb4fc3c55021649ceb4fbc92fb89b341dc4e4a66b08f8778872"
+AUTHORIZATION = (
+    "Важное уточненние. Работая в облаке ти можешь если требуеться удалять уже не "
+    "нужние результати тестов или созданние оркежунния. Деректива об работе через "
+    "корзину отоситься лишь к локлаьной работе. В остальном продолжай работу"
+)
+
+
+def require(condition: bool, reason: str) -> None:
+    if not condition:
+        raise ValueError(reason)
+
+
+def read(path: Path) -> dict[str, Any]:
+    value = json.loads(path.read_bytes())
+    require(isinstance(value, dict), "object input required")
+    return value
+
+
+def record(path: Path) -> dict[str, Any]:
+    data = path.read_bytes()
+    return {"path": str(path), "bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()}
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--output", type=Path, required=True)
+    args = parser.parse_args()
+    require(not args.output.exists(), "append-only selection required")
+    require(record(JOINED)["sha256"] == JOINED_HASH, "immutable joined input drift")
+    joined = read(JOINED)
+    require(joined["frozen_source"]["sha"] == SOURCE, "source mismatch")
+    require(joined["frozen_source"]["tree"] == TREE, "tree mismatch")
+    require(len(joined["rows"]) == 54 and len(joined["bundles"]) == 22, "54/22 domain")
+    require(sum(len(v["bundle_ids"]) for v in joined["rows"]) == 55, "55 links")
+    require(
+        Counter(v["historical_ledger_status"] for v in joined["rows"])
+        == Counter({"partial": 49, "held": 4, "closed": 1}),
+        "historical ledger mismatch",
+    )
+    require(
+        Counter(v["proposed_finding_outcome"] for v in joined["rows"])
+        == Counter({"closed": 43, "limited": 9, "held": 2}),
+        "owner proposal mismatch",
+    )
+    assets: dict[str, dict[str, Any]] = {}
+
+    def add(path: Path, portable: str, role: str, expected: dict[str, Any] | None = None) -> None:
+        actual = record(path)
+        if expected is not None:
+            require(
+                actual["bytes"] == expected["bytes"] and actual["sha256"] == expected["sha256"],
+                "selected exact input drift: " + str(path),
+            )
+        require(
+            "backend-prereq-r4/workspace14-declared-deps-retry" not in str(path), "running input"
+        )
+        require("current-supplement" not in path.name, "later current supplement is separate")
+        if path.suffix == ".py":
+            portable += ".txt"
+        require(portable not in assets, "duplicate portable path")
+        assets[portable] = {
+            "source_path": str(path),
+            "portable_path": portable,
+            "role": role,
+            **actual,
+        }
+
+    add(
+        JOINED,
+        "current/current-all-54-source-wave-update-v2.json",
+        "current-closed-owner-wave-join",
+    )
+    for key, ref in joined["input_records"].items():
+        add(Path(ref["path"]), "inputs/" + key + ".json", "immutable-join-input:" + key, ref)
+    for ref in joined["prior_input_records"]:
+        add(Path(ref["path"]), "prior-inputs/" + Path(ref["path"]).name, "bounded-owner-basis", ref)
+    original = joined["original_54_input"]
+    add(
+        CHECKOUT / original["path"],
+        "historical-e9/all-54-update.json",
+        "complete-original54-historical-ledger-and-criterion-input",
+        original,
+    )
+    selections = [
+        (
+            ROOT / "criteria-r4/current-prewave-publication-selection.json",
+            "prewave",
+            "selection",
+        ),
+        (
+            ROOT / "criteria-r4/final-builder-preparation-publication-selection.json",
+            "join-guard-preparation",
+            "files",
+        ),
+        (
+            TEMP / "e02-E-criteria-decision-independent-64d/publication-selection.json",
+            "independent-original-criteria",
+            "rows",
+        ),
+        (
+            ROOT / "final-join-independent/independent-final-join-publication-selection-v1.json",
+            "independent-current54-join",
+            "complete_deciding_assets",
+        ),
+    ]
+    for path, group, rows_key in selections:
+        selection = read(path)
+        add(path, group + "/publication-selection.json", "closed-input-selection")
+        for ordinal, ref in enumerate(selection[rows_key]):
+            path = Path(ref.get("source_path", ref.get("path")))
+            name = ref.get("portable_path", ref.get("portable_relative", path.name))
+            add(path, group + "/" + str(ordinal).zfill(2) + "/" + name, group, ref)
+    direct = [
+        (ROOT / "criteria-r4/build-current-37-selector-index.py.txt", "37-index-builder"),
+        (TEMP / "e02-E-criteria-r4-current54-v2/build-current-owner-v2.py.txt", "owner-v2-builder"),
+        (
+            TEMP / "e02-E-criteria-r4-current54-v2/join-final-all-54-current-v2.py.txt",
+            "join-v2-builder",
+        ),
+        (ROOT / "criteria-r4/validate-current-all-54-v2.py.txt", "recomputing-v2-validator"),
+        (ROOT / "criteria-r4/check-attempt-receipt-admission.py.txt", "attempt-admission-controls"),
+    ]
+    for path, role in direct:
+        add(path, "builders/" + path.name, role)
+    for folder, stem in [
+        (ROOT / "criteria-r4", "current-all-54-source-wave-update-v2"),
+        (ROOT / "criteria-r4", "current-37-index-v5"),
+        (TEMP / "e02-E-criteria-r4-current54-v2", "build-current-owner-v2"),
+        (ROOT / "criteria-r4", "current54-recomputing-validation-normal"),
+        (ROOT / "criteria-r4", "current54-recomputing-validation-optimized"),
+        (ROOT / "criteria-r4", "attempt-admission-capacity-restored-normal"),
+        (ROOT / "criteria-r4", "attempt-admission-capacity-restored-optimized"),
+    ]:
+        for suffix in [".stdout.txt", ".stderr.txt"]:
+            add(
+                folder / (stem + suffix),
+                "commands/" + stem + suffix,
+                "complete-closed-command-output",
+            )
+    for name in [
+        "current54-recomputing-validation-normal.json",
+        "current54-recomputing-validation-optimized.json",
+        "attempt-admission-normal.json",
+        "attempt-admission-optimized.json",
+    ]:
+        add(ROOT / "criteria-r4" / name, "controls/" + name, "actual-normal-or-optimized-negative")
+    for path in [
+        ROOT / "backend-prereq-r4/offline-install-20261007-r1/install-execution.json",
+        ROOT / "backend-prereq-r4/offline-install-20261007-r1/environment-after.json",
+        ROOT / "backend-prereq-r4/offline-install-20261007-r1/metadata-delta.json",
+        TEMP / "e02-E-backend-prereq-observation-20261007-1110.json",
+    ]:
+        add(path, "environment/" + path.name, "separate-closed-root203-to207-environment-lineage")
+    cleanup_refs = [
+        ROOT / "cloud-cleanup-r4/cleanup-publication-receipt.json",
+        TEMP / "e02-E-capacity-cleanup-20261007-doe/cleanup-summary.json",
+        TEMP / "e02-E-capacity-cleanup-20261007-doe/closed-ci11-generated-site/cleanup-result.json",
+    ]
+    for ordinal, path in enumerate(cleanup_refs):
+        add(
+            path,
+            "current-cleanup/" + str(ordinal) + "/" + path.name,
+            "closed-cloud-authorized-action",
+        )
+    add(Path(__file__), "builders/" + Path(__file__).name, "literal-selection-builder")
+    unique: dict[tuple[int, str], str] = {}
+    unique_assets = []
+    aliases = []
+    for portable, ref in assets.items():
+        identity = (ref["bytes"], ref["sha256"])
+        if identity in unique:
+            aliases.append({**ref, "same_bytes_as": unique[identity]})
+        else:
+            unique[identity] = portable
+            unique_assets.append(ref)
+    result = {
+        "schema": "policyos.e02.E.closed_current54_publication_selection.v1",
+        "source": SOURCE,
+        "tree": TREE,
+        "assets": unique_assets,
+        "identical_byte_aliases": aliases,
+        "unique_assets": len(unique_assets),
+        "logical_assets": len(assets),
+        "unique_bytes": sum(v["bytes"] for v in unique_assets),
+        "logical_bytes": sum(v["bytes"] for v in assets.values()),
+        "original_owner_source_Git_refs": joined["source_inputs"],
+        "original_full54_Git_ref": original,
+        "current_labels": {
+            "prewave": (
+                "Individual owner criterion decisions; current scoped IR decisions, not test counts"
+            ),
+            "original_wave": "64d actual common wave;1549 native cases1541PASS8AFAIL",
+            "initial37": "Original closed selector disposition21FAIL15PASS1UNRUN",
+            "later_checks": "Separate supplemental layer; running fullbackend excluded",
+        },
+        "decisions": {
+            "historical_ledger": {"partial": 49, "held": 4, "closed": 1},
+            "E_bounded_owner_proposals": {"closed": 43, "limited": 9, "held": 2},
+            "formal_G_intake_separate": True,
+            "formal_ledger_changed": False,
+        },
+        "current_cleanup_qualification": {
+            "historical_V1_V2_cleanup_text_preserved": True,
+            "user_authorization_verbatim": AUTHORIZATION,
+            "current_rule": (
+                "Cloud unused repeatable environments/results may be deleted after saved evidence "
+                "and no-active-users proof. Local cleanup uses native Trash; never empty Trash."
+            ),
+            "closed_current_ten_child_actions": (
+                "Earlier4/tmpfs + later5/overlay + separateCI11site1"
+            ),
+            "cleanup_receipt_refs": [record(path) for path in cleanup_refs],
+            "resource_scope": (
+                "Distinct filesystems/times; no summed RAM claim or blanket cause attribution"
+            ),
+        },
+        "copy_protocol": (
+            "Copy each unique literal asset; resolve identical-byte aliases via this index"
+        ),
+        "private_raw_exclusions": [
+            "Production datasets and unique user inputs",
+            "Git private configuration bodies and reproducible environments",
+            "Running backend stdout/JUnit/receipts and final supplemental packet",
+        ],
+        "selection_builder": record(Path(__file__)),
+        "ROOT_code_or_environment_mutated": False,
+        "native_checks_reexecuted": False,
+    }
+    args.output.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n")
+    sys.stdout.write(json.dumps(record(args.output), indent=2) + "\n")
+
+
+if __name__ == "__main__":
+    main()

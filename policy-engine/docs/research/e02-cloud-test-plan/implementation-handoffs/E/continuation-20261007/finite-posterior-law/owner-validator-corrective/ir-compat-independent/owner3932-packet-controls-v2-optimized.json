@@ -1,0 +1,225 @@
+{
+  "schema": "policyos.e02.E.corrective_typed_whole_summary_controls.v2",
+  "candidate": "3932cded22a29254a7dfced99723e147d6fea7cb",
+  "tree": "8d19c30199666cf97dd3934f60d772baa3071f7e",
+  "optimized": true,
+  "outcome": "PASS",
+  "scope": "Packet verification only; no source/math/native/generator rerun.",
+  "historical_V1_19_controls_limited": true,
+  "cases": [
+    {
+      "case": "healthy complete current raw/Git/typed admission",
+      "outcome": "PASS"
+    },
+    {
+      "case": [
+        "projection",
+        [
+          "runtime_schema_components"
+        ]
+      ],
+      "outcome": "PASS",
+      "actual_refusal": "JSON field value mismatch at $/runtime_schema_components"
+    },
+    {
+      "case": [
+        "projection",
+        [
+          "changed_generated_companions",
+          0,
+          "projected_sha256"
+        ]
+      ],
+      "outcome": "PASS",
+      "actual_refusal": "JSON field value mismatch at policy-engine/architecture/public_surface/inventory.json/projected_sha256"
+    },
+    {
+      "case": [
+        "owner",
+        [
+          "historical_ledger_preserved",
+          "closed"
+        ]
+      ],
+      "outcome": "PASS",
+      "actual_refusal": "JSON field type mismatch at $/frozen_E_owner_decision/historical_ledger_preserved/closed"
+    },
+    {
+      "case": [
+        "owner",
+        [
+          "property_paths_and_native_consumers",
+          0,
+          "sha256"
+        ]
+      ],
+      "outcome": "PASS",
+      "actual_refusal": "JSON field value mismatch at policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py/sha256"
+    },
+    {
+      "case": [
+        "projection",
+        [
+          "changed_generated_companions",
+          0,
+          "old_bytes"
+        ]
+      ],
+      "outcome": "PASS",
+      "actual_refusal": "JSON field type mismatch at policy-engine/architecture/public_surface/inventory.json/old_bytes"
+    },
+    {
+      "case": [
+        "projection",
+        [
+          "changed_generated_companions",
+          0,
+          "projected_bytes"
+        ]
+      ],
+      "outcome": "PASS",
+      "actual_refusal": "JSON field value mismatch at policy-engine/architecture/public_surface/inventory.json/projected_bytes"
+    },
+    {
+      "case": [
+        "projection",
+        [
+          "existing_DoE184_environment_metadata_unchanged"
+        ]
+      ],
+      "outcome": "PASS",
+      "actual_refusal": "JSON field value mismatch at $/existing_DoE184_environment_metadata_unchanged"
+    },
+    {
+      "case": [
+        "projection",
+        [
+          "old99IR_keys_retained"
+        ]
+      ],
+      "outcome": "PASS",
+      "actual_refusal": "old keys retained"
+    },
+    {
+      "case": [
+        "owner",
+        [
+          "property_paths_and_native_consumers",
+          1,
+          "bytes"
+        ]
+      ],
+      "outcome": "PASS",
+      "actual_refusal": "JSON field type mismatch at policy-engine/src/polisyos/ir/analytics/posterior_summary.py/bytes"
+    },
+    {
+      "case": [
+        "owner",
+        [
+          "property_paths_and_native_consumers",
+          1,
+          "revision"
+        ]
+      ],
+      "outcome": "PASS",
+      "actual_refusal": "native consumer source revision"
+    },
+    {
+      "case": [
+        "owner",
+        [
+          "rows",
+          0,
+          "original_criterion",
+          "lines",
+          0
+        ]
+      ],
+      "outcome": "PASS",
+      "actual_refusal": "criterion typed lines"
+    },
+    {
+      "case": [
+        "projection",
+        [
+          "patch_check",
+          "exit_code"
+        ]
+      ],
+      "outcome": "PASS",
+      "actual_refusal": "JSON field type mismatch at $/closed_projection_claims/patch_check/exit_code"
+    },
+    {
+      "case": [
+        "owner",
+        [
+          "ROOT64d_current_proposals_preserved",
+          "open"
+        ]
+      ],
+      "outcome": "PASS",
+      "actual_refusal": "ROOT technical open preservation"
+    },
+    {
+      "case": [
+        "owner",
+        [
+          "exact_supported_law_semantics",
+          "compression"
+        ]
+      ],
+      "outcome": "PASS",
+      "actual_refusal": "JSON field value mismatch at $/frozen_E_owner_decision/exact_supported_law_semantics/compression"
+    },
+    {
+      "case": [
+        "actual_claim_admission_removal",
+        "projection",
+        [
+          "runtime_schema_components"
+        ]
+      ],
+      "outcome": "PASS",
+      "divergence": "V1 admits corrupt summary after only actual V2 claim guard removal"
+    },
+    {
+      "case": [
+        "actual_claim_admission_removal",
+        "projection",
+        [
+          "changed_generated_companions",
+          0,
+          "projected_sha256"
+        ]
+      ],
+      "outcome": "PASS",
+      "divergence": "V1 admits corrupt summary after only actual V2 claim guard removal"
+    },
+    {
+      "case": [
+        "actual_claim_admission_removal",
+        "owner",
+        [
+          "historical_ledger_preserved",
+          "closed"
+        ]
+      ],
+      "outcome": "PASS",
+      "divergence": "V1 admits corrupt summary after only actual V2 claim guard removal"
+    },
+    {
+      "case": [
+        "actual_claim_admission_removal",
+        "owner",
+        [
+          "property_paths_and_native_consumers",
+          0,
+          "sha256"
+        ]
+      ],
+      "outcome": "PASS",
+      "divergence": "V1 admits corrupt summary after only actual V2 claim guard removal"
+    }
+  ],
+  "independent_peer_four_actual_escapes_preserved": true
+}

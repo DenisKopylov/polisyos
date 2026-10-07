@@ -1,0 +1,1 @@
+{"checks": 10, "all_passed": true, "jobs": 2, "executed": false, "original_exit": 130, "native_screenshot_path": "/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/storybook/screenshots/src/exact.test.ts/control.png"}

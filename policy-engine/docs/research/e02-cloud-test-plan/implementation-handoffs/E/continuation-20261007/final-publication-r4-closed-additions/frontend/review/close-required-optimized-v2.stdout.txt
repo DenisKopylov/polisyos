@@ -1,0 +1,1 @@
+{"all_passed": true, "controls": 23, "native_storybook": "FAIL1", "native_a11y": "FAIL1", "components": "87files161casesPASS", "pages": "ATTEMPTED setupFAIL; case outcomesunmeasured", "browser_ROOT_env_lease": "CLOSED", "output": "/tmp/e02-E-frontend-retry-analysis-64d/required-native-retry-closeout-optimized.json"}

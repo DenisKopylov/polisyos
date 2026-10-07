@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/launch-retry.py.txt", line 21, in <module>
+    assert maximum-current >= 2400000000, 'observed interrupted-backend resource prerequisite not met'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: observed interrupted-backend resource prerequisite not met

@@ -1,0 +1,73 @@
+{
+  "schema": "policyos.e02.E.prewave-packet-custody.v1",
+  "source": {
+    "sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+    "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+    "root_checkout": "/workspace/e02-E-continuation-20261006"
+  },
+  "full_packet": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-prewave-all-54-owner-dispositions.json",
+    "bytes": 305737,
+    "sha256": "c618be1881cac757c1ebcfc532591e908392659deb707a51c5a68f7c4896d38d"
+  },
+  "summary": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-prewave-owner-decisions-summary.json",
+    "bytes": 35512,
+    "sha256": "24912ce99b76d14831faa03f38592ecfb3956c65bb74aa53c5c05fd6a5be226c"
+  },
+  "inputs": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/individual-dispositions.json",
+      "bytes": 85823,
+      "sha256": "816e1dacd1d77c40b067f779691e8e7bef5fab95faa3a0459c15aaad389d497f"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/B193-independent-original-disposition.json",
+      "bytes": 37973,
+      "sha256": "2384db375b90ed7dcd3ab6e88fefccd0f2cffbeacfe93e1356d178df0019abf5"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/B193-final-affected-verification-700f9d5a.json",
+      "bytes": 4167,
+      "sha256": "9cbf49f50b7c0fec2a3fbf4a55ed7b08d69ed643bd6f1cc0af9263336ac9b4d2"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/B201-B202-independent-original-dispositions-700f9d5a.json",
+      "bytes": 30900,
+      "sha256": "686ab5877a8f2147ab94388ae8cb5596c02f9cf9a4c5aedda62d54353c7b19f9"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/source-freeze-64d7444a.json",
+      "bytes": 3424,
+      "sha256": "41b408e310e4a2b3bf2771ec41298024fd30e5f276bdb455493f33550a0041c2"
+    }
+  ],
+  "positive_and_corrupt_controls": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-prewave-validation-normal.stdout.json",
+      "bytes": 1820,
+      "sha256": "e56a961049864e225dc9d58bef833653699f175f48d1819a47a6f318772bedfb"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-prewave-validation-optimized.stdout.json",
+      "bytes": 1820,
+      "sha256": "9ced811541ef36e3849ab6efe5a000bf54fbb00b18b01af37e25e081a3fb8746"
+    }
+  ],
+  "commands": {
+    "builder": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python /workspace/e02-E-pr38-r3-receipts/criteria-r4/build-prewave-dispositions.py.txt",
+    "normal": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python /workspace/e02-E-pr38-r3-receipts/criteria-r4/validate-prewave-dispositions.py.txt",
+    "optimized": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python -O /workspace/e02-E-pr38-r3-receipts/criteria-r4/validate-prewave-dispositions.py.txt",
+    "Ruff": "ruff check --stdin-filename <matching .py name> < <archived .py.txt> from actual policy-engine cwd; both pass",
+    "format": "ruff format --check --stdin-filename <matching .py name> < <archived .py.txt> from actual policy-engine cwd; both pass"
+  },
+  "scope": "Structural custody/denominator/corrupt-field verification by packet builder; parent independently reviews owner decisions and wave bindings. No source code edits or numeric repeats.",
+  "observer_correction": {
+    "first_builder": "TypeError: adjacent parenthesized literal chunks became a call during literal-preserving line splitting; no product code or packet was produced",
+    "correction": "Concatenate the two preserved B100 text literals in one expression; successful output is separate and initial stdout/stderr are preserved",
+    "product_defect": false
+  },
+  "current_wave": "UNRUN in this prewave publication; root execution may be in progress, but no outcome is asserted without independent recomputation",
+  "formal_ledger_change": false,
+  "no_source_writes": true
+}

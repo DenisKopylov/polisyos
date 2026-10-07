@@ -1,0 +1,1125 @@
+........................................................................ [ 17%]
+........................................................................ [ 34%]
+..................F..................................................... [ 52%]
+........................................................................ [ 69%]
+......................................FFFFFFFF.................FFFF..... [ 87%]
+....................................................                     [100%]
+=================================== FAILURES ===================================
+__ test_positive_atoms_and_zero_mass_boundaries[weights1-uniforms1-expected1] __
+
+weights = [0.5, 5e-11, 0.49999999995], uniforms = [0.5, 0.500000000025]
+expected = [1, 1]
+
+    @pytest.mark.parametrize(
+        ("weights", "uniforms", "expected"),
+        [
+            ([5e-11, 1 - 5e-11], [0, 2.5e-11], [0, 0]),
+            ([0.5, 5e-11, 0.5 - 5e-11], [0.5, 0.5 + 2.5e-11], [1, 1]),
+            ([1 - 5e-11, 5e-11], [1 - 2.5e-11, np.nextafter(1.0, 0.0)], [1, 1]),
+            ([0, 0.5, 0, 0.5, 0], [0, np.nextafter(0.5, 0), 0.5, np.nextafter(1.0, 0)], [1, 1, 3, 3]),
+        ],
+    )
+    def test_positive_atoms_and_zero_mass_boundaries(weights, uniforms, expected):
+        probabilities = admit_empirical_weights(weights, len(weights))
+>       assert _empirical_indices_from_uniform(np.array(uniforms), probabilities).tolist() == expected
+E       assert [0, 1] == [1, 1]
+E         
+E         At index 0 diff: 0 != 1
+E         Use -v to get more diff
+
+tests/unit/foundry/uncertainty/test_finite_empirical_law.py:183: AssertionError
+___ test_non_real_numeric_domains_refuse_before_projection[weights-values0] ____
+
+values = array([0.5+0.1j, 0.5-0.1j]), inlet = 'weights'
+
+    @pytest.mark.parametrize(
+        "values",
+        [
+            np.array([0.5 + 0.1j, 0.5 - 0.1j]),
+            np.array([0.5 + 0j, 0.5 + 0j]),
+            np.array([0.5 + 0.1j, 0.5 - 0.1j], dtype=object),
+            np.array(["0.5", "0.5"]),
+        ],
+    )
+    @pytest.mark.parametrize("inlet", ["weights", "cdf", "uniform", "range", "pilot"])
+    def test_non_real_numeric_domains_refuse_before_projection(values, inlet):
+        plan = BoundedIIDMeanPlan(metric_id="y", pilot_samples=2)
+        call = {
+            "weights": lambda: admit_empirical_weights(values, 2),
+            "cdf": lambda: empirical_cdf(values),
+            "uniform": lambda: admit_unit_uniform(values),
+            "range": lambda: admit_float32_range(values),
+            "pilot": lambda: frozen_bernstein_budget(values, plan),
+        }[inlet]
+        with warnings.catch_warnings(record=True) as observed:
+            warnings.simplefilter("always")
+            with pytest.raises(ValueError, match="real numeric"):
+>               call()
+
+tests/unit/foundry/uncertainty/test_sampling_real_domain.py:45: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/foundry/uncertainty/test_sampling_real_domain.py:36: in <lambda>
+    "weights": lambda: admit_empirical_weights(values, 2),
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/uncertainty/sampling_admission.py:118: in admit_empirical_weights
+    return canonicalize_posterior_weights(weights, sample_count)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/ir/analytics/posterior_summary.py:242: in canonicalize_posterior_weights
+    original = _finite_weights(weights)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+values = array([0.5+0.1j, 0.5-0.1j])
+
+    def _finite_weights(values: object) -> np.ndarray:
+        raw = np.asarray(values, dtype=object)
+        if (
+            raw.ndim != 1
+            or not raw.size
+            or any(
+                isinstance(value, (bool, np.bool_)) or not isinstance(value, numbers.Real)
+                for value in raw
+            )
+        ):
+>           raise ValueError("posterior weights require finite real non-bool values")
+E           ValueError: posterior weights require finite real non-bool values
+
+src/polisyos/ir/analytics/posterior_summary.py:175: ValueError
+
+During handling of the above exception, another exception occurred:
+
+values = array([0.5+0.1j, 0.5-0.1j]), inlet = 'weights'
+
+    @pytest.mark.parametrize(
+        "values",
+        [
+            np.array([0.5 + 0.1j, 0.5 - 0.1j]),
+            np.array([0.5 + 0j, 0.5 + 0j]),
+            np.array([0.5 + 0.1j, 0.5 - 0.1j], dtype=object),
+            np.array(["0.5", "0.5"]),
+        ],
+    )
+    @pytest.mark.parametrize("inlet", ["weights", "cdf", "uniform", "range", "pilot"])
+    def test_non_real_numeric_domains_refuse_before_projection(values, inlet):
+        plan = BoundedIIDMeanPlan(metric_id="y", pilot_samples=2)
+        call = {
+            "weights": lambda: admit_empirical_weights(values, 2),
+            "cdf": lambda: empirical_cdf(values),
+            "uniform": lambda: admit_unit_uniform(values),
+            "range": lambda: admit_float32_range(values),
+            "pilot": lambda: frozen_bernstein_budget(values, plan),
+        }[inlet]
+        with warnings.catch_warnings(record=True) as observed:
+            warnings.simplefilter("always")
+>           with pytest.raises(ValueError, match="real numeric"):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AssertionError: Regex pattern did not match.
+E             Expected regex: 'real numeric'
+E             Actual message: 'posterior weights require finite real non-bool values'
+
+tests/unit/foundry/uncertainty/test_sampling_real_domain.py:44: AssertionError
+___ test_non_real_numeric_domains_refuse_before_projection[weights-values1] ____
+
+values = array([0.5+0.j, 0.5+0.j]), inlet = 'weights'
+
+    @pytest.mark.parametrize(
+        "values",
+        [
+            np.array([0.5 + 0.1j, 0.5 - 0.1j]),
+            np.array([0.5 + 0j, 0.5 + 0j]),
+            np.array([0.5 + 0.1j, 0.5 - 0.1j], dtype=object),
+            np.array(["0.5", "0.5"]),
+        ],
+    )
+    @pytest.mark.parametrize("inlet", ["weights", "cdf", "uniform", "range", "pilot"])
+    def test_non_real_numeric_domains_refuse_before_projection(values, inlet):
+        plan = BoundedIIDMeanPlan(metric_id="y", pilot_samples=2)
+        call = {
+            "weights": lambda: admit_empirical_weights(values, 2),
+            "cdf": lambda: empirical_cdf(values),
+            "uniform": lambda: admit_unit_uniform(values),
+            "range": lambda: admit_float32_range(values),
+            "pilot": lambda: frozen_bernstein_budget(values, plan),
+        }[inlet]
+        with warnings.catch_warnings(record=True) as observed:
+            warnings.simplefilter("always")
+            with pytest.raises(ValueError, match="real numeric"):
+>               call()
+
+tests/unit/foundry/uncertainty/test_sampling_real_domain.py:45: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/foundry/uncertainty/test_sampling_real_domain.py:36: in <lambda>
+    "weights": lambda: admit_empirical_weights(values, 2),
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/uncertainty/sampling_admission.py:118: in admit_empirical_weights
+    return canonicalize_posterior_weights(weights, sample_count)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/ir/analytics/posterior_summary.py:242: in canonicalize_posterior_weights
+    original = _finite_weights(weights)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+values = array([0.5+0.j, 0.5+0.j])
+
+    def _finite_weights(values: object) -> np.ndarray:
+        raw = np.asarray(values, dtype=object)
+        if (
+            raw.ndim != 1
+            or not raw.size
+            or any(
+                isinstance(value, (bool, np.bool_)) or not isinstance(value, numbers.Real)
+                for value in raw
+            )
+        ):
+>           raise ValueError("posterior weights require finite real non-bool values")
+E           ValueError: posterior weights require finite real non-bool values
+
+src/polisyos/ir/analytics/posterior_summary.py:175: ValueError
+
+During handling of the above exception, another exception occurred:
+
+values = array([0.5+0.j, 0.5+0.j]), inlet = 'weights'
+
+    @pytest.mark.parametrize(
+        "values",
+        [
+            np.array([0.5 + 0.1j, 0.5 - 0.1j]),
+            np.array([0.5 + 0j, 0.5 + 0j]),
+            np.array([0.5 + 0.1j, 0.5 - 0.1j], dtype=object),
+            np.array(["0.5", "0.5"]),
+        ],
+    )
+    @pytest.mark.parametrize("inlet", ["weights", "cdf", "uniform", "range", "pilot"])
+    def test_non_real_numeric_domains_refuse_before_projection(values, inlet):
+        plan = BoundedIIDMeanPlan(metric_id="y", pilot_samples=2)
+        call = {
+            "weights": lambda: admit_empirical_weights(values, 2),
+            "cdf": lambda: empirical_cdf(values),
+            "uniform": lambda: admit_unit_uniform(values),
+            "range": lambda: admit_float32_range(values),
+            "pilot": lambda: frozen_bernstein_budget(values, plan),
+        }[inlet]
+        with warnings.catch_warnings(record=True) as observed:
+            warnings.simplefilter("always")
+>           with pytest.raises(ValueError, match="real numeric"):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AssertionError: Regex pattern did not match.
+E             Expected regex: 'real numeric'
+E             Actual message: 'posterior weights require finite real non-bool values'
+
+tests/unit/foundry/uncertainty/test_sampling_real_domain.py:44: AssertionError
+___ test_non_real_numeric_domains_refuse_before_projection[weights-values2] ____
+
+values = array([(0.5+0.1j), (0.5-0.1j)], dtype=object), inlet = 'weights'
+
+    @pytest.mark.parametrize(
+        "values",
+        [
+            np.array([0.5 + 0.1j, 0.5 - 0.1j]),
+            np.array([0.5 + 0j, 0.5 + 0j]),
+            np.array([0.5 + 0.1j, 0.5 - 0.1j], dtype=object),
+            np.array(["0.5", "0.5"]),
+        ],
+    )
+    @pytest.mark.parametrize("inlet", ["weights", "cdf", "uniform", "range", "pilot"])
+    def test_non_real_numeric_domains_refuse_before_projection(values, inlet):
+        plan = BoundedIIDMeanPlan(metric_id="y", pilot_samples=2)
+        call = {
+            "weights": lambda: admit_empirical_weights(values, 2),
+            "cdf": lambda: empirical_cdf(values),
+            "uniform": lambda: admit_unit_uniform(values),
+            "range": lambda: admit_float32_range(values),
+            "pilot": lambda: frozen_bernstein_budget(values, plan),
+        }[inlet]
+        with warnings.catch_warnings(record=True) as observed:
+            warnings.simplefilter("always")
+            with pytest.raises(ValueError, match="real numeric"):
+>               call()
+
+tests/unit/foundry/uncertainty/test_sampling_real_domain.py:45: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/foundry/uncertainty/test_sampling_real_domain.py:36: in <lambda>
+    "weights": lambda: admit_empirical_weights(values, 2),
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/uncertainty/sampling_admission.py:118: in admit_empirical_weights
+    return canonicalize_posterior_weights(weights, sample_count)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/ir/analytics/posterior_summary.py:242: in canonicalize_posterior_weights
+    original = _finite_weights(weights)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+values = array([(0.5+0.1j), (0.5-0.1j)], dtype=object)
+
+    def _finite_weights(values: object) -> np.ndarray:
+        raw = np.asarray(values, dtype=object)
+        if (
+            raw.ndim != 1
+            or not raw.size
+            or any(
+                isinstance(value, (bool, np.bool_)) or not isinstance(value, numbers.Real)
+                for value in raw
+            )
+        ):
+>           raise ValueError("posterior weights require finite real non-bool values")
+E           ValueError: posterior weights require finite real non-bool values
+
+src/polisyos/ir/analytics/posterior_summary.py:175: ValueError
+
+During handling of the above exception, another exception occurred:
+
+values = array([(0.5+0.1j), (0.5-0.1j)], dtype=object), inlet = 'weights'
+
+    @pytest.mark.parametrize(
+        "values",
+        [
+            np.array([0.5 + 0.1j, 0.5 - 0.1j]),
+            np.array([0.5 + 0j, 0.5 + 0j]),
+            np.array([0.5 + 0.1j, 0.5 - 0.1j], dtype=object),
+            np.array(["0.5", "0.5"]),
+        ],
+    )
+    @pytest.mark.parametrize("inlet", ["weights", "cdf", "uniform", "range", "pilot"])
+    def test_non_real_numeric_domains_refuse_before_projection(values, inlet):
+        plan = BoundedIIDMeanPlan(metric_id="y", pilot_samples=2)
+        call = {
+            "weights": lambda: admit_empirical_weights(values, 2),
+            "cdf": lambda: empirical_cdf(values),
+            "uniform": lambda: admit_unit_uniform(values),
+            "range": lambda: admit_float32_range(values),
+            "pilot": lambda: frozen_bernstein_budget(values, plan),
+        }[inlet]
+        with warnings.catch_warnings(record=True) as observed:
+            warnings.simplefilter("always")
+>           with pytest.raises(ValueError, match="real numeric"):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AssertionError: Regex pattern did not match.
+E             Expected regex: 'real numeric'
+E             Actual message: 'posterior weights require finite real non-bool values'
+
+tests/unit/foundry/uncertainty/test_sampling_real_domain.py:44: AssertionError
+___ test_non_real_numeric_domains_refuse_before_projection[weights-values3] ____
+
+values = array(['0.5', '0.5'], dtype='<U3'), inlet = 'weights'
+
+    @pytest.mark.parametrize(
+        "values",
+        [
+            np.array([0.5 + 0.1j, 0.5 - 0.1j]),
+            np.array([0.5 + 0j, 0.5 + 0j]),
+            np.array([0.5 + 0.1j, 0.5 - 0.1j], dtype=object),
+            np.array(["0.5", "0.5"]),
+        ],
+    )
+    @pytest.mark.parametrize("inlet", ["weights", "cdf", "uniform", "range", "pilot"])
+    def test_non_real_numeric_domains_refuse_before_projection(values, inlet):
+        plan = BoundedIIDMeanPlan(metric_id="y", pilot_samples=2)
+        call = {
+            "weights": lambda: admit_empirical_weights(values, 2),
+            "cdf": lambda: empirical_cdf(values),
+            "uniform": lambda: admit_unit_uniform(values),
+            "range": lambda: admit_float32_range(values),
+            "pilot": lambda: frozen_bernstein_budget(values, plan),
+        }[inlet]
+        with warnings.catch_warnings(record=True) as observed:
+            warnings.simplefilter("always")
+            with pytest.raises(ValueError, match="real numeric"):
+>               call()
+
+tests/unit/foundry/uncertainty/test_sampling_real_domain.py:45: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/foundry/uncertainty/test_sampling_real_domain.py:36: in <lambda>
+    "weights": lambda: admit_empirical_weights(values, 2),
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/uncertainty/sampling_admission.py:118: in admit_empirical_weights
+    return canonicalize_posterior_weights(weights, sample_count)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/ir/analytics/posterior_summary.py:242: in canonicalize_posterior_weights
+    original = _finite_weights(weights)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+values = array(['0.5', '0.5'], dtype='<U3')
+
+    def _finite_weights(values: object) -> np.ndarray:
+        raw = np.asarray(values, dtype=object)
+        if (
+            raw.ndim != 1
+            or not raw.size
+            or any(
+                isinstance(value, (bool, np.bool_)) or not isinstance(value, numbers.Real)
+                for value in raw
+            )
+        ):
+>           raise ValueError("posterior weights require finite real non-bool values")
+E           ValueError: posterior weights require finite real non-bool values
+
+src/polisyos/ir/analytics/posterior_summary.py:175: ValueError
+
+During handling of the above exception, another exception occurred:
+
+values = array(['0.5', '0.5'], dtype='<U3'), inlet = 'weights'
+
+    @pytest.mark.parametrize(
+        "values",
+        [
+            np.array([0.5 + 0.1j, 0.5 - 0.1j]),
+            np.array([0.5 + 0j, 0.5 + 0j]),
+            np.array([0.5 + 0.1j, 0.5 - 0.1j], dtype=object),
+            np.array(["0.5", "0.5"]),
+        ],
+    )
+    @pytest.mark.parametrize("inlet", ["weights", "cdf", "uniform", "range", "pilot"])
+    def test_non_real_numeric_domains_refuse_before_projection(values, inlet):
+        plan = BoundedIIDMeanPlan(metric_id="y", pilot_samples=2)
+        call = {
+            "weights": lambda: admit_empirical_weights(values, 2),
+            "cdf": lambda: empirical_cdf(values),
+            "uniform": lambda: admit_unit_uniform(values),
+            "range": lambda: admit_float32_range(values),
+            "pilot": lambda: frozen_bernstein_budget(values, plan),
+        }[inlet]
+        with warnings.catch_warnings(record=True) as observed:
+            warnings.simplefilter("always")
+>           with pytest.raises(ValueError, match="real numeric"):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AssertionError: Regex pattern did not match.
+E             Expected regex: 'real numeric'
+E             Actual message: 'posterior weights require finite real non-bool values'
+
+tests/unit/foundry/uncertainty/test_sampling_real_domain.py:44: AssertionError
+_____ test_non_real_numeric_domains_refuse_before_projection[cdf-values0] ______
+
+values = array([0.5+0.1j, 0.5-0.1j]), inlet = 'cdf'
+
+    @pytest.mark.parametrize(
+        "values",
+        [
+            np.array([0.5 + 0.1j, 0.5 - 0.1j]),
+            np.array([0.5 + 0j, 0.5 + 0j]),
+            np.array([0.5 + 0.1j, 0.5 - 0.1j], dtype=object),
+            np.array(["0.5", "0.5"]),
+        ],
+    )
+    @pytest.mark.parametrize("inlet", ["weights", "cdf", "uniform", "range", "pilot"])
+    def test_non_real_numeric_domains_refuse_before_projection(values, inlet):
+        plan = BoundedIIDMeanPlan(metric_id="y", pilot_samples=2)
+        call = {
+            "weights": lambda: admit_empirical_weights(values, 2),
+            "cdf": lambda: empirical_cdf(values),
+            "uniform": lambda: admit_unit_uniform(values),
+            "range": lambda: admit_float32_range(values),
+            "pilot": lambda: frozen_bernstein_budget(values, plan),
+        }[inlet]
+        with warnings.catch_warnings(record=True) as observed:
+            warnings.simplefilter("always")
+            with pytest.raises(ValueError, match="real numeric"):
+>               call()
+
+tests/unit/foundry/uncertainty/test_sampling_real_domain.py:45: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/foundry/uncertainty/test_sampling_real_domain.py:37: in <lambda>
+    "cdf": lambda: empirical_cdf(values),
+                   ^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/uncertainty/sampling_admission.py:113: in empirical_cdf
+    return posterior_sampling_cdf(probabilities)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/ir/analytics/posterior_summary.py:220: in posterior_sampling_cdf
+    array = _finite_weights(weights)
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+values = array([0.5+0.1j, 0.5-0.1j])
+
+    def _finite_weights(values: object) -> np.ndarray:
+        raw = np.asarray(values, dtype=object)
+        if (
+            raw.ndim != 1
+            or not raw.size
+            or any(
+                isinstance(value, (bool, np.bool_)) or not isinstance(value, numbers.Real)
+                for value in raw
+            )
+        ):
+>           raise ValueError("posterior weights require finite real non-bool values")
+E           ValueError: posterior weights require finite real non-bool values
+
+src/polisyos/ir/analytics/posterior_summary.py:175: ValueError
+
+During handling of the above exception, another exception occurred:
+
+values = array([0.5+0.1j, 0.5-0.1j]), inlet = 'cdf'
+
+    @pytest.mark.parametrize(
+        "values",
+        [
+            np.array([0.5 + 0.1j, 0.5 - 0.1j]),
+            np.array([0.5 + 0j, 0.5 + 0j]),
+            np.array([0.5 + 0.1j, 0.5 - 0.1j], dtype=object),
+            np.array(["0.5", "0.5"]),
+        ],
+    )
+    @pytest.mark.parametrize("inlet", ["weights", "cdf", "uniform", "range", "pilot"])
+    def test_non_real_numeric_domains_refuse_before_projection(values, inlet):
+        plan = BoundedIIDMeanPlan(metric_id="y", pilot_samples=2)
+        call = {
+            "weights": lambda: admit_empirical_weights(values, 2),
+            "cdf": lambda: empirical_cdf(values),
+            "uniform": lambda: admit_unit_uniform(values),
+            "range": lambda: admit_float32_range(values),
+            "pilot": lambda: frozen_bernstein_budget(values, plan),
+        }[inlet]
+        with warnings.catch_warnings(record=True) as observed:
+            warnings.simplefilter("always")
+>           with pytest.raises(ValueError, match="real numeric"):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AssertionError: Regex pattern did not match.
+E             Expected regex: 'real numeric'
+E             Actual message: 'posterior weights require finite real non-bool values'
+
+tests/unit/foundry/uncertainty/test_sampling_real_domain.py:44: AssertionError
+_____ test_non_real_numeric_domains_refuse_before_projection[cdf-values1] ______
+
+values = array([0.5+0.j, 0.5+0.j]), inlet = 'cdf'
+
+    @pytest.mark.parametrize(
+        "values",
+        [
+            np.array([0.5 + 0.1j, 0.5 - 0.1j]),
+            np.array([0.5 + 0j, 0.5 + 0j]),
+            np.array([0.5 + 0.1j, 0.5 - 0.1j], dtype=object),
+            np.array(["0.5", "0.5"]),
+        ],
+    )
+    @pytest.mark.parametrize("inlet", ["weights", "cdf", "uniform", "range", "pilot"])
+    def test_non_real_numeric_domains_refuse_before_projection(values, inlet):
+        plan = BoundedIIDMeanPlan(metric_id="y", pilot_samples=2)
+        call = {
+            "weights": lambda: admit_empirical_weights(values, 2),
+            "cdf": lambda: empirical_cdf(values),
+            "uniform": lambda: admit_unit_uniform(values),
+            "range": lambda: admit_float32_range(values),
+            "pilot": lambda: frozen_bernstein_budget(values, plan),
+        }[inlet]
+        with warnings.catch_warnings(record=True) as observed:
+            warnings.simplefilter("always")
+            with pytest.raises(ValueError, match="real numeric"):
+>               call()
+
+tests/unit/foundry/uncertainty/test_sampling_real_domain.py:45: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/foundry/uncertainty/test_sampling_real_domain.py:37: in <lambda>
+    "cdf": lambda: empirical_cdf(values),
+                   ^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/uncertainty/sampling_admission.py:113: in empirical_cdf
+    return posterior_sampling_cdf(probabilities)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/ir/analytics/posterior_summary.py:220: in posterior_sampling_cdf
+    array = _finite_weights(weights)
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+values = array([0.5+0.j, 0.5+0.j])
+
+    def _finite_weights(values: object) -> np.ndarray:
+        raw = np.asarray(values, dtype=object)
+        if (
+            raw.ndim != 1
+            or not raw.size
+            or any(
+                isinstance(value, (bool, np.bool_)) or not isinstance(value, numbers.Real)
+                for value in raw
+            )
+        ):
+>           raise ValueError("posterior weights require finite real non-bool values")
+E           ValueError: posterior weights require finite real non-bool values
+
+src/polisyos/ir/analytics/posterior_summary.py:175: ValueError
+
+During handling of the above exception, another exception occurred:
+
+values = array([0.5+0.j, 0.5+0.j]), inlet = 'cdf'
+
+    @pytest.mark.parametrize(
+        "values",
+        [
+            np.array([0.5 + 0.1j, 0.5 - 0.1j]),
+            np.array([0.5 + 0j, 0.5 + 0j]),
+            np.array([0.5 + 0.1j, 0.5 - 0.1j], dtype=object),
+            np.array(["0.5", "0.5"]),
+        ],
+    )
+    @pytest.mark.parametrize("inlet", ["weights", "cdf", "uniform", "range", "pilot"])
+    def test_non_real_numeric_domains_refuse_before_projection(values, inlet):
+        plan = BoundedIIDMeanPlan(metric_id="y", pilot_samples=2)
+        call = {
+            "weights": lambda: admit_empirical_weights(values, 2),
+            "cdf": lambda: empirical_cdf(values),
+            "uniform": lambda: admit_unit_uniform(values),
+            "range": lambda: admit_float32_range(values),
+            "pilot": lambda: frozen_bernstein_budget(values, plan),
+        }[inlet]
+        with warnings.catch_warnings(record=True) as observed:
+            warnings.simplefilter("always")
+>           with pytest.raises(ValueError, match="real numeric"):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AssertionError: Regex pattern did not match.
+E             Expected regex: 'real numeric'
+E             Actual message: 'posterior weights require finite real non-bool values'
+
+tests/unit/foundry/uncertainty/test_sampling_real_domain.py:44: AssertionError
+_____ test_non_real_numeric_domains_refuse_before_projection[cdf-values2] ______
+
+values = array([(0.5+0.1j), (0.5-0.1j)], dtype=object), inlet = 'cdf'
+
+    @pytest.mark.parametrize(
+        "values",
+        [
+            np.array([0.5 + 0.1j, 0.5 - 0.1j]),
+            np.array([0.5 + 0j, 0.5 + 0j]),
+            np.array([0.5 + 0.1j, 0.5 - 0.1j], dtype=object),
+            np.array(["0.5", "0.5"]),
+        ],
+    )
+    @pytest.mark.parametrize("inlet", ["weights", "cdf", "uniform", "range", "pilot"])
+    def test_non_real_numeric_domains_refuse_before_projection(values, inlet):
+        plan = BoundedIIDMeanPlan(metric_id="y", pilot_samples=2)
+        call = {
+            "weights": lambda: admit_empirical_weights(values, 2),
+            "cdf": lambda: empirical_cdf(values),
+            "uniform": lambda: admit_unit_uniform(values),
+            "range": lambda: admit_float32_range(values),
+            "pilot": lambda: frozen_bernstein_budget(values, plan),
+        }[inlet]
+        with warnings.catch_warnings(record=True) as observed:
+            warnings.simplefilter("always")
+            with pytest.raises(ValueError, match="real numeric"):
+>               call()
+
+tests/unit/foundry/uncertainty/test_sampling_real_domain.py:45: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/foundry/uncertainty/test_sampling_real_domain.py:37: in <lambda>
+    "cdf": lambda: empirical_cdf(values),
+                   ^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/uncertainty/sampling_admission.py:113: in empirical_cdf
+    return posterior_sampling_cdf(probabilities)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/ir/analytics/posterior_summary.py:220: in posterior_sampling_cdf
+    array = _finite_weights(weights)
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+values = array([(0.5+0.1j), (0.5-0.1j)], dtype=object)
+
+    def _finite_weights(values: object) -> np.ndarray:
+        raw = np.asarray(values, dtype=object)
+        if (
+            raw.ndim != 1
+            or not raw.size
+            or any(
+                isinstance(value, (bool, np.bool_)) or not isinstance(value, numbers.Real)
+                for value in raw
+            )
+        ):
+>           raise ValueError("posterior weights require finite real non-bool values")
+E           ValueError: posterior weights require finite real non-bool values
+
+src/polisyos/ir/analytics/posterior_summary.py:175: ValueError
+
+During handling of the above exception, another exception occurred:
+
+values = array([(0.5+0.1j), (0.5-0.1j)], dtype=object), inlet = 'cdf'
+
+    @pytest.mark.parametrize(
+        "values",
+        [
+            np.array([0.5 + 0.1j, 0.5 - 0.1j]),
+            np.array([0.5 + 0j, 0.5 + 0j]),
+            np.array([0.5 + 0.1j, 0.5 - 0.1j], dtype=object),
+            np.array(["0.5", "0.5"]),
+        ],
+    )
+    @pytest.mark.parametrize("inlet", ["weights", "cdf", "uniform", "range", "pilot"])
+    def test_non_real_numeric_domains_refuse_before_projection(values, inlet):
+        plan = BoundedIIDMeanPlan(metric_id="y", pilot_samples=2)
+        call = {
+            "weights": lambda: admit_empirical_weights(values, 2),
+            "cdf": lambda: empirical_cdf(values),
+            "uniform": lambda: admit_unit_uniform(values),
+            "range": lambda: admit_float32_range(values),
+            "pilot": lambda: frozen_bernstein_budget(values, plan),
+        }[inlet]
+        with warnings.catch_warnings(record=True) as observed:
+            warnings.simplefilter("always")
+>           with pytest.raises(ValueError, match="real numeric"):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AssertionError: Regex pattern did not match.
+E             Expected regex: 'real numeric'
+E             Actual message: 'posterior weights require finite real non-bool values'
+
+tests/unit/foundry/uncertainty/test_sampling_real_domain.py:44: AssertionError
+_____ test_non_real_numeric_domains_refuse_before_projection[cdf-values3] ______
+
+values = array(['0.5', '0.5'], dtype='<U3'), inlet = 'cdf'
+
+    @pytest.mark.parametrize(
+        "values",
+        [
+            np.array([0.5 + 0.1j, 0.5 - 0.1j]),
+            np.array([0.5 + 0j, 0.5 + 0j]),
+            np.array([0.5 + 0.1j, 0.5 - 0.1j], dtype=object),
+            np.array(["0.5", "0.5"]),
+        ],
+    )
+    @pytest.mark.parametrize("inlet", ["weights", "cdf", "uniform", "range", "pilot"])
+    def test_non_real_numeric_domains_refuse_before_projection(values, inlet):
+        plan = BoundedIIDMeanPlan(metric_id="y", pilot_samples=2)
+        call = {
+            "weights": lambda: admit_empirical_weights(values, 2),
+            "cdf": lambda: empirical_cdf(values),
+            "uniform": lambda: admit_unit_uniform(values),
+            "range": lambda: admit_float32_range(values),
+            "pilot": lambda: frozen_bernstein_budget(values, plan),
+        }[inlet]
+        with warnings.catch_warnings(record=True) as observed:
+            warnings.simplefilter("always")
+            with pytest.raises(ValueError, match="real numeric"):
+>               call()
+
+tests/unit/foundry/uncertainty/test_sampling_real_domain.py:45: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/foundry/uncertainty/test_sampling_real_domain.py:37: in <lambda>
+    "cdf": lambda: empirical_cdf(values),
+                   ^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/uncertainty/sampling_admission.py:113: in empirical_cdf
+    return posterior_sampling_cdf(probabilities)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/ir/analytics/posterior_summary.py:220: in posterior_sampling_cdf
+    array = _finite_weights(weights)
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+values = array(['0.5', '0.5'], dtype='<U3')
+
+    def _finite_weights(values: object) -> np.ndarray:
+        raw = np.asarray(values, dtype=object)
+        if (
+            raw.ndim != 1
+            or not raw.size
+            or any(
+                isinstance(value, (bool, np.bool_)) or not isinstance(value, numbers.Real)
+                for value in raw
+            )
+        ):
+>           raise ValueError("posterior weights require finite real non-bool values")
+E           ValueError: posterior weights require finite real non-bool values
+
+src/polisyos/ir/analytics/posterior_summary.py:175: ValueError
+
+During handling of the above exception, another exception occurred:
+
+values = array(['0.5', '0.5'], dtype='<U3'), inlet = 'cdf'
+
+    @pytest.mark.parametrize(
+        "values",
+        [
+            np.array([0.5 + 0.1j, 0.5 - 0.1j]),
+            np.array([0.5 + 0j, 0.5 + 0j]),
+            np.array([0.5 + 0.1j, 0.5 - 0.1j], dtype=object),
+            np.array(["0.5", "0.5"]),
+        ],
+    )
+    @pytest.mark.parametrize("inlet", ["weights", "cdf", "uniform", "range", "pilot"])
+    def test_non_real_numeric_domains_refuse_before_projection(values, inlet):
+        plan = BoundedIIDMeanPlan(metric_id="y", pilot_samples=2)
+        call = {
+            "weights": lambda: admit_empirical_weights(values, 2),
+            "cdf": lambda: empirical_cdf(values),
+            "uniform": lambda: admit_unit_uniform(values),
+            "range": lambda: admit_float32_range(values),
+            "pilot": lambda: frozen_bernstein_budget(values, plan),
+        }[inlet]
+        with warnings.catch_warnings(record=True) as observed:
+            warnings.simplefilter("always")
+>           with pytest.raises(ValueError, match="real numeric"):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AssertionError: Regex pattern did not match.
+E             Expected regex: 'real numeric'
+E             Actual message: 'posterior weights require finite real non-bool values'
+
+tests/unit/foundry/uncertainty/test_sampling_real_domain.py:44: AssertionError
+___ test_nonzero_real_support_cannot_be_admitted_as_zero[weights-longdouble] ___
+
+representation = 'longdouble', inlet = 'weights'
+
+    @pytest.mark.parametrize("representation", ["longdouble", "fraction"])
+    @pytest.mark.parametrize("inlet", ["weights", "cdf", "uniform", "range", "pilot"])
+    def test_nonzero_real_support_cannot_be_admitted_as_zero(representation, inlet):
+        tiny = np.longdouble("1e-400") if representation == "longdouble" else Fraction(1, 10**400)
+        if tiny == 0:
+            pytest.skip("platform longdouble does not represent this positive fixture")
+        values = np.array([tiny, 1], dtype=np.longdouble if representation == "longdouble" else object)
+        plan = BoundedIIDMeanPlan(metric_id="y", pilot_samples=2)
+        call = {
+            "weights": lambda: admit_empirical_weights(values, 2),
+            "cdf": lambda: empirical_cdf(values),
+            "uniform": lambda: admit_unit_uniform(values),
+            "range": lambda: admit_float32_range(values),
+            "pilot": lambda: frozen_bernstein_budget(values, plan),
+        }[inlet]
+        assert values[0] > 0 and float(values[0]) == 0
+        with pytest.raises(ValueError, match="nonzero sampling support"):
+>           call()
+
+tests/unit/foundry/uncertainty/test_sampling_real_domain.py:83: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/foundry/uncertainty/test_sampling_real_domain.py:75: in <lambda>
+    "weights": lambda: admit_empirical_weights(values, 2),
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/uncertainty/sampling_admission.py:118: in admit_empirical_weights
+    return canonicalize_posterior_weights(weights, sample_count)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/ir/analytics/posterior_summary.py:242: in canonicalize_posterior_weights
+    original = _finite_weights(weights)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+values = array([1.e-400, 1.e+000], dtype=float128)
+
+    def _finite_weights(values: object) -> np.ndarray:
+        raw = np.asarray(values, dtype=object)
+        if (
+            raw.ndim != 1
+            or not raw.size
+            or any(
+                isinstance(value, (bool, np.bool_)) or not isinstance(value, numbers.Real)
+                for value in raw
+            )
+        ):
+            raise ValueError("posterior weights require finite real non-bool values")
+        array = np.asarray(raw, dtype=np.float64)
+        if (
+            not np.all(np.isfinite(array))
+            or np.any(array < 0)
+            or not np.any(array > 0)
+            or np.any((raw != 0) & (array == 0))
+        ):
+>           raise ValueError("posterior weights exceed positive finite float64 support")
+E           ValueError: posterior weights exceed positive finite float64 support
+
+src/polisyos/ir/analytics/posterior_summary.py:183: ValueError
+
+During handling of the above exception, another exception occurred:
+
+representation = 'longdouble', inlet = 'weights'
+
+    @pytest.mark.parametrize("representation", ["longdouble", "fraction"])
+    @pytest.mark.parametrize("inlet", ["weights", "cdf", "uniform", "range", "pilot"])
+    def test_nonzero_real_support_cannot_be_admitted_as_zero(representation, inlet):
+        tiny = np.longdouble("1e-400") if representation == "longdouble" else Fraction(1, 10**400)
+        if tiny == 0:
+            pytest.skip("platform longdouble does not represent this positive fixture")
+        values = np.array([tiny, 1], dtype=np.longdouble if representation == "longdouble" else object)
+        plan = BoundedIIDMeanPlan(metric_id="y", pilot_samples=2)
+        call = {
+            "weights": lambda: admit_empirical_weights(values, 2),
+            "cdf": lambda: empirical_cdf(values),
+            "uniform": lambda: admit_unit_uniform(values),
+            "range": lambda: admit_float32_range(values),
+            "pilot": lambda: frozen_bernstein_budget(values, plan),
+        }[inlet]
+        assert values[0] > 0 and float(values[0]) == 0
+>       with pytest.raises(ValueError, match="nonzero sampling support"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'nonzero sampling support'
+E         Actual message: 'posterior weights exceed positive finite float64 support'
+
+tests/unit/foundry/uncertainty/test_sampling_real_domain.py:82: AssertionError
+____ test_nonzero_real_support_cannot_be_admitted_as_zero[weights-fraction] ____
+
+representation = 'fraction', inlet = 'weights'
+
+    @pytest.mark.parametrize("representation", ["longdouble", "fraction"])
+    @pytest.mark.parametrize("inlet", ["weights", "cdf", "uniform", "range", "pilot"])
+    def test_nonzero_real_support_cannot_be_admitted_as_zero(representation, inlet):
+        tiny = np.longdouble("1e-400") if representation == "longdouble" else Fraction(1, 10**400)
+        if tiny == 0:
+            pytest.skip("platform longdouble does not represent this positive fixture")
+        values = np.array([tiny, 1], dtype=np.longdouble if representation == "longdouble" else object)
+        plan = BoundedIIDMeanPlan(metric_id="y", pilot_samples=2)
+        call = {
+            "weights": lambda: admit_empirical_weights(values, 2),
+            "cdf": lambda: empirical_cdf(values),
+            "uniform": lambda: admit_unit_uniform(values),
+            "range": lambda: admit_float32_range(values),
+            "pilot": lambda: frozen_bernstein_budget(values, plan),
+        }[inlet]
+        assert values[0] > 0 and float(values[0]) == 0
+        with pytest.raises(ValueError, match="nonzero sampling support"):
+>           call()
+
+tests/unit/foundry/uncertainty/test_sampling_real_domain.py:83: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/foundry/uncertainty/test_sampling_real_domain.py:75: in <lambda>
+    "weights": lambda: admit_empirical_weights(values, 2),
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/uncertainty/sampling_admission.py:118: in admit_empirical_weights
+    return canonicalize_posterior_weights(weights, sample_count)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/ir/analytics/posterior_summary.py:242: in canonicalize_posterior_weights
+    original = _finite_weights(weights)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+values = array([Fraction(1, 100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000...00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000),
+       1], dtype=object)
+
+    def _finite_weights(values: object) -> np.ndarray:
+        raw = np.asarray(values, dtype=object)
+        if (
+            raw.ndim != 1
+            or not raw.size
+            or any(
+                isinstance(value, (bool, np.bool_)) or not isinstance(value, numbers.Real)
+                for value in raw
+            )
+        ):
+            raise ValueError("posterior weights require finite real non-bool values")
+        array = np.asarray(raw, dtype=np.float64)
+        if (
+            not np.all(np.isfinite(array))
+            or np.any(array < 0)
+            or not np.any(array > 0)
+            or np.any((raw != 0) & (array == 0))
+        ):
+>           raise ValueError("posterior weights exceed positive finite float64 support")
+E           ValueError: posterior weights exceed positive finite float64 support
+
+src/polisyos/ir/analytics/posterior_summary.py:183: ValueError
+
+During handling of the above exception, another exception occurred:
+
+representation = 'fraction', inlet = 'weights'
+
+    @pytest.mark.parametrize("representation", ["longdouble", "fraction"])
+    @pytest.mark.parametrize("inlet", ["weights", "cdf", "uniform", "range", "pilot"])
+    def test_nonzero_real_support_cannot_be_admitted_as_zero(representation, inlet):
+        tiny = np.longdouble("1e-400") if representation == "longdouble" else Fraction(1, 10**400)
+        if tiny == 0:
+            pytest.skip("platform longdouble does not represent this positive fixture")
+        values = np.array([tiny, 1], dtype=np.longdouble if representation == "longdouble" else object)
+        plan = BoundedIIDMeanPlan(metric_id="y", pilot_samples=2)
+        call = {
+            "weights": lambda: admit_empirical_weights(values, 2),
+            "cdf": lambda: empirical_cdf(values),
+            "uniform": lambda: admit_unit_uniform(values),
+            "range": lambda: admit_float32_range(values),
+            "pilot": lambda: frozen_bernstein_budget(values, plan),
+        }[inlet]
+        assert values[0] > 0 and float(values[0]) == 0
+>       with pytest.raises(ValueError, match="nonzero sampling support"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'nonzero sampling support'
+E         Actual message: 'posterior weights exceed positive finite float64 support'
+
+tests/unit/foundry/uncertainty/test_sampling_real_domain.py:82: AssertionError
+_____ test_nonzero_real_support_cannot_be_admitted_as_zero[cdf-longdouble] _____
+
+representation = 'longdouble', inlet = 'cdf'
+
+    @pytest.mark.parametrize("representation", ["longdouble", "fraction"])
+    @pytest.mark.parametrize("inlet", ["weights", "cdf", "uniform", "range", "pilot"])
+    def test_nonzero_real_support_cannot_be_admitted_as_zero(representation, inlet):
+        tiny = np.longdouble("1e-400") if representation == "longdouble" else Fraction(1, 10**400)
+        if tiny == 0:
+            pytest.skip("platform longdouble does not represent this positive fixture")
+        values = np.array([tiny, 1], dtype=np.longdouble if representation == "longdouble" else object)
+        plan = BoundedIIDMeanPlan(metric_id="y", pilot_samples=2)
+        call = {
+            "weights": lambda: admit_empirical_weights(values, 2),
+            "cdf": lambda: empirical_cdf(values),
+            "uniform": lambda: admit_unit_uniform(values),
+            "range": lambda: admit_float32_range(values),
+            "pilot": lambda: frozen_bernstein_budget(values, plan),
+        }[inlet]
+        assert values[0] > 0 and float(values[0]) == 0
+        with pytest.raises(ValueError, match="nonzero sampling support"):
+>           call()
+
+tests/unit/foundry/uncertainty/test_sampling_real_domain.py:83: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/foundry/uncertainty/test_sampling_real_domain.py:76: in <lambda>
+    "cdf": lambda: empirical_cdf(values),
+                   ^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/uncertainty/sampling_admission.py:113: in empirical_cdf
+    return posterior_sampling_cdf(probabilities)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/ir/analytics/posterior_summary.py:220: in posterior_sampling_cdf
+    array = _finite_weights(weights)
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+values = array([1.e-400, 1.e+000], dtype=float128)
+
+    def _finite_weights(values: object) -> np.ndarray:
+        raw = np.asarray(values, dtype=object)
+        if (
+            raw.ndim != 1
+            or not raw.size
+            or any(
+                isinstance(value, (bool, np.bool_)) or not isinstance(value, numbers.Real)
+                for value in raw
+            )
+        ):
+            raise ValueError("posterior weights require finite real non-bool values")
+        array = np.asarray(raw, dtype=np.float64)
+        if (
+            not np.all(np.isfinite(array))
+            or np.any(array < 0)
+            or not np.any(array > 0)
+            or np.any((raw != 0) & (array == 0))
+        ):
+>           raise ValueError("posterior weights exceed positive finite float64 support")
+E           ValueError: posterior weights exceed positive finite float64 support
+
+src/polisyos/ir/analytics/posterior_summary.py:183: ValueError
+
+During handling of the above exception, another exception occurred:
+
+representation = 'longdouble', inlet = 'cdf'
+
+    @pytest.mark.parametrize("representation", ["longdouble", "fraction"])
+    @pytest.mark.parametrize("inlet", ["weights", "cdf", "uniform", "range", "pilot"])
+    def test_nonzero_real_support_cannot_be_admitted_as_zero(representation, inlet):
+        tiny = np.longdouble("1e-400") if representation == "longdouble" else Fraction(1, 10**400)
+        if tiny == 0:
+            pytest.skip("platform longdouble does not represent this positive fixture")
+        values = np.array([tiny, 1], dtype=np.longdouble if representation == "longdouble" else object)
+        plan = BoundedIIDMeanPlan(metric_id="y", pilot_samples=2)
+        call = {
+            "weights": lambda: admit_empirical_weights(values, 2),
+            "cdf": lambda: empirical_cdf(values),
+            "uniform": lambda: admit_unit_uniform(values),
+            "range": lambda: admit_float32_range(values),
+            "pilot": lambda: frozen_bernstein_budget(values, plan),
+        }[inlet]
+        assert values[0] > 0 and float(values[0]) == 0
+>       with pytest.raises(ValueError, match="nonzero sampling support"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'nonzero sampling support'
+E         Actual message: 'posterior weights exceed positive finite float64 support'
+
+tests/unit/foundry/uncertainty/test_sampling_real_domain.py:82: AssertionError
+______ test_nonzero_real_support_cannot_be_admitted_as_zero[cdf-fraction] ______
+
+representation = 'fraction', inlet = 'cdf'
+
+    @pytest.mark.parametrize("representation", ["longdouble", "fraction"])
+    @pytest.mark.parametrize("inlet", ["weights", "cdf", "uniform", "range", "pilot"])
+    def test_nonzero_real_support_cannot_be_admitted_as_zero(representation, inlet):
+        tiny = np.longdouble("1e-400") if representation == "longdouble" else Fraction(1, 10**400)
+        if tiny == 0:
+            pytest.skip("platform longdouble does not represent this positive fixture")
+        values = np.array([tiny, 1], dtype=np.longdouble if representation == "longdouble" else object)
+        plan = BoundedIIDMeanPlan(metric_id="y", pilot_samples=2)
+        call = {
+            "weights": lambda: admit_empirical_weights(values, 2),
+            "cdf": lambda: empirical_cdf(values),
+            "uniform": lambda: admit_unit_uniform(values),
+            "range": lambda: admit_float32_range(values),
+            "pilot": lambda: frozen_bernstein_budget(values, plan),
+        }[inlet]
+        assert values[0] > 0 and float(values[0]) == 0
+        with pytest.raises(ValueError, match="nonzero sampling support"):
+>           call()
+
+tests/unit/foundry/uncertainty/test_sampling_real_domain.py:83: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/foundry/uncertainty/test_sampling_real_domain.py:76: in <lambda>
+    "cdf": lambda: empirical_cdf(values),
+                   ^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/uncertainty/sampling_admission.py:113: in empirical_cdf
+    return posterior_sampling_cdf(probabilities)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/ir/analytics/posterior_summary.py:220: in posterior_sampling_cdf
+    array = _finite_weights(weights)
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+values = array([Fraction(1, 100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000...00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000),
+       1], dtype=object)
+
+    def _finite_weights(values: object) -> np.ndarray:
+        raw = np.asarray(values, dtype=object)
+        if (
+            raw.ndim != 1
+            or not raw.size
+            or any(
+                isinstance(value, (bool, np.bool_)) or not isinstance(value, numbers.Real)
+                for value in raw
+            )
+        ):
+            raise ValueError("posterior weights require finite real non-bool values")
+        array = np.asarray(raw, dtype=np.float64)
+        if (
+            not np.all(np.isfinite(array))
+            or np.any(array < 0)
+            or not np.any(array > 0)
+            or np.any((raw != 0) & (array == 0))
+        ):
+>           raise ValueError("posterior weights exceed positive finite float64 support")
+E           ValueError: posterior weights exceed positive finite float64 support
+
+src/polisyos/ir/analytics/posterior_summary.py:183: ValueError
+
+During handling of the above exception, another exception occurred:
+
+representation = 'fraction', inlet = 'cdf'
+
+    @pytest.mark.parametrize("representation", ["longdouble", "fraction"])
+    @pytest.mark.parametrize("inlet", ["weights", "cdf", "uniform", "range", "pilot"])
+    def test_nonzero_real_support_cannot_be_admitted_as_zero(representation, inlet):
+        tiny = np.longdouble("1e-400") if representation == "longdouble" else Fraction(1, 10**400)
+        if tiny == 0:
+            pytest.skip("platform longdouble does not represent this positive fixture")
+        values = np.array([tiny, 1], dtype=np.longdouble if representation == "longdouble" else object)
+        plan = BoundedIIDMeanPlan(metric_id="y", pilot_samples=2)
+        call = {
+            "weights": lambda: admit_empirical_weights(values, 2),
+            "cdf": lambda: empirical_cdf(values),
+            "uniform": lambda: admit_unit_uniform(values),
+            "range": lambda: admit_float32_range(values),
+            "pilot": lambda: frozen_bernstein_budget(values, plan),
+        }[inlet]
+        assert values[0] > 0 and float(values[0]) == 0
+>       with pytest.raises(ValueError, match="nonzero sampling support"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'nonzero sampling support'
+E         Actual message: 'posterior weights exceed positive finite float64 support'
+
+tests/unit/foundry/uncertainty/test_sampling_real_domain.py:82: AssertionError
+=============================== warnings summary ===============================
+tests/unit/foundry/uncertainty/test_delta.py::TestDeltaMethodPropagator::test_delta_linear_fn_exact
+tests/unit/foundry/uncertainty/test_delta.py::TestDeltaMethodPropagator::test_delta_multi_output
+  /workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/api_util.py:83: DeprecationWarning: Passing arguments 'a', 'a_min' or 'a_max' to jax.numpy.clip is deprecated. Please use 'arr', 'min' or 'max' respectively instead.
+    ans = f(*py_args, **py_kwargs)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/uncertainty/test_finite_empirical_law.py::test_positive_atoms_and_zero_mass_boundaries[weights1-uniforms1-expected1]
+FAILED tests/unit/foundry/uncertainty/test_sampling_real_domain.py::test_non_real_numeric_domains_refuse_before_projection[weights-values0]
+FAILED tests/unit/foundry/uncertainty/test_sampling_real_domain.py::test_non_real_numeric_domains_refuse_before_projection[weights-values1]
+FAILED tests/unit/foundry/uncertainty/test_sampling_real_domain.py::test_non_real_numeric_domains_refuse_before_projection[weights-values2]
+FAILED tests/unit/foundry/uncertainty/test_sampling_real_domain.py::test_non_real_numeric_domains_refuse_before_projection[weights-values3]
+FAILED tests/unit/foundry/uncertainty/test_sampling_real_domain.py::test_non_real_numeric_domains_refuse_before_projection[cdf-values0]
+FAILED tests/unit/foundry/uncertainty/test_sampling_real_domain.py::test_non_real_numeric_domains_refuse_before_projection[cdf-values1]
+FAILED tests/unit/foundry/uncertainty/test_sampling_real_domain.py::test_non_real_numeric_domains_refuse_before_projection[cdf-values2]
+FAILED tests/unit/foundry/uncertainty/test_sampling_real_domain.py::test_non_real_numeric_domains_refuse_before_projection[cdf-values3]
+FAILED tests/unit/foundry/uncertainty/test_sampling_real_domain.py::test_nonzero_real_support_cannot_be_admitted_as_zero[weights-longdouble]
+FAILED tests/unit/foundry/uncertainty/test_sampling_real_domain.py::test_nonzero_real_support_cannot_be_admitted_as_zero[weights-fraction]
+FAILED tests/unit/foundry/uncertainty/test_sampling_real_domain.py::test_nonzero_real_support_cannot_be_admitted_as_zero[cdf-longdouble]
+FAILED tests/unit/foundry/uncertainty/test_sampling_real_domain.py::test_nonzero_real_support_cannot_be_admitted_as_zero[cdf-fraction]

@@ -1,0 +1,136 @@
+{
+  "schema": "policyos.e02.remaining_forecast_canon_edge_existing_public_route.v1",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "runtime_probe": {
+    "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/native-public-route.json",
+    "bytes": 44283,
+    "sha256": "b62d9348bd0328bce98d1db97a38f13b0349ea7f2f4e5d35968fc71ec7f507cb"
+  },
+  "observer": {
+    "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/probe_public_spec.py",
+    "bytes": 10734,
+    "sha256": "20911af5f9378be77f594ef9cbe73f149ff556d0c88c358f9746e39bb7efebe0"
+  },
+  "stdout": {
+    "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/native.stdout.json",
+    "bytes": 346,
+    "sha256": "873c895f39f1eb1e83bd6e44fb772d2d6677cf7c2571c649b9bf25ba999a62cc"
+  },
+  "stderr": {
+    "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/native.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "minimum_E_only_patch": {
+    "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/E-forecast-existing-core-canon.patch",
+    "bytes": 1328,
+    "sha256": "460310a1862fd9782d2e3f8d128ec1995cd02fb83f9f68978ebc8ecf7bfaa53f"
+  },
+  "apply_check": {
+    "argv": [
+      "git",
+      "apply",
+      "--check",
+      "/tmp/e02-E-forecast-canon-public-route-64d-20261007/E-forecast-existing-core-canon.patch"
+    ],
+    "cwd": "/workspace/e02-E-continuation-20261006",
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "",
+    "applied": false
+  },
+  "complete_write_footprint": [
+    "policy-engine/src/polisyos/calibration/forecast_bridge.py"
+  ],
+  "canonical_writer": "E Forecast bridge/FRC source writer; this one config-factory route uses an already public curated Core module, no generic IR/Core export admission needed.",
+  "actual_runtime_property": "Both actual persist_empirical_calibration_evidence and persist_forecast_candidate_receipt use existing configuredCAS; oldIRspec/publicCoreSpec yield identical payload bytes, refs and manifest canon profile, then actual fresh FRC readers preserve typed result.",
+  "negative_cases": [
+    "actual NaN writer refused",
+    "integrity-valid wrong manifest kind refused",
+    "integrity-valid wrong manifest schema refused",
+    "integrity-valid raw shape refused",
+    "integrity-valid encoded NaN refused by typed fresh reader",
+    "Core extra float_hex tag is accepted by generic Core decoder and refused by current IR decoder; this is a bounded config route, not replacing the decoder"
+  ],
+  "source_identity_scope": [
+    {
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "bytes": 81721,
+      "sha256": "274ebed54ea54eaa1fee1d1da0355dc7df3c0abcfd27adda1b9066e7437e43c6"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/__init__.py",
+      "bytes": 11696,
+      "sha256": "1de32f3c3db8f9a052975a3ffc44d9189b765748b5569f83ec20d4386677cc40"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/canon/__init__.py",
+      "bytes": 606,
+      "sha256": "e33a7486224d5e15cd418ac4dab69bb38ac6b1593d739a4b7ac24ea4d477dfb3"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/canon/canon_json.py",
+      "bytes": 1882,
+      "sha256": "c5e60f4d47bc4fc5347809545609716c0ce030dfc6c3e3deee61d8ad5a086c95"
+    },
+    {
+      "path": "policy-engine/src/polisyos/common/canonical.py",
+      "bytes": 10154,
+      "sha256": "89394b9a3b39c07e56cf672329176c2dda4feff8c6c375190f4065a5da123f41"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/__init__.py",
+      "bytes": 3273,
+      "sha256": "bf4757743e4618d1576f62a1a34a4469f0988b6f42a8708554f9b2696ba10a7f"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "bytes": 173575,
+      "sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/artifacts/__init__.py",
+      "bytes": 1915,
+      "sha256": "0ed2e21568bd6e97323957da0a8970ca172b64a61a8b77e8ed6cb773bb550134"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+      "bytes": 1857,
+      "sha256": "e876f8d65572ef11992a5ba7336decffea966af7e5b6df12a48ec7dae25b08f3"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/artifacts/contracts.py",
+      "bytes": 6659,
+      "sha256": "9caecf307c06ca3efe13b7b234d10e860e734bfd415823e3cd6650f3d0ed1c9b"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/model_layer/canon.py",
+      "bytes": 2555,
+      "sha256": "4b3a32301664c15a70300ca7f99bc14467602ce38d1bfd300e57503aab57043b"
+    },
+    {
+      "path": "policy-engine/architecture/public_surface/contract.toml",
+      "bytes": 19715,
+      "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6"
+    }
+  ],
+  "minimal_E_tests": [
+    "Existing configuredETS\u2192separate evidence/candidate\u2192fresh consumers selectors plus forged-kind/schema/raw/NaN controls from probe, after applying the source route.",
+    "Verify product AST has no IRmodel_layer.canon import and both persistence callsites actually resolve existing public core_canon.CanonSpec.",
+    "Effective route-removal negative: retain facade names but replace CanonSpec factory with default forbid_floats=True; actual finite evidence/candidate persistence must refuse.",
+    "Run affected Ruff/format/typechecks; classes are nominally distinct sibling dataclasses though their current shared-field contract is runtime-compatible. Preserve all required selectors; no global check claimed from this probe."
+  ],
+  "next_owner": "E root dispatches source application/review to canonical E Forecast bridge writer; G accepts code separately. Existing IR forecast-bundle loader/writer export packet remains owned by IR API/Public surface owner.",
+  "remaining_separate_owner_packet": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/forecast-api-owner/packet.json",
+    "scope": "Existing load/persist_forecasting_uncertainty_bundle aliases and genericIR API lease; no other owner debt is waived by CanonSpec factory reuse."
+  },
+  "source_or_foreign_facade_modified": false,
+  "generated_or_exception_baseline_modified": false,
+  "architecture_or_static_full_wave_repeated": false,
+  "ROOT_environment_or_interpreter_used": false,
+  "numeric_ETS_or_test_wave_repeated": false,
+  "finding_closure": false,
+  "limitation": "Only read-only source proof and isolated-process module-binding overlay on existing synthetic nativeETS artifacts. No implementation source commit, full typecheck or current architecture PASS. Native production history is irrelevant to this bounded config factory reuse and remains local."
+}

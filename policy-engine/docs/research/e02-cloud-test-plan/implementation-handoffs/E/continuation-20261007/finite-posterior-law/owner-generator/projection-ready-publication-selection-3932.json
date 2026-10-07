@@ -1,0 +1,79 @@
+{
+  "schema": "policyos.e02.E.canonical_generator_ready_publication_selection.v1",
+  "scope": "Closed ca17 complete103 projection and actual3932 runtime dependency delta; schemas/full manifest reused only under independent equality proof. Exact direct tracked final patch and original-row disposition are subsequent companion layers.",
+  "candidate": "3932cded22a29254a7dfced99723e147d6fea7cb",
+  "tree": "8d19c30199666cf97dd3934f60d772baa3071f7e",
+  "assets": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/generator-packet.json",
+      "bytes": 101005,
+      "sha256": "7673b9a04f5d4a836332908aa072851a168b2ede81cd8625738b14e32d7cc69f"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/canonical-generated-full.patch",
+      "bytes": 44060,
+      "sha256": "c520ef71779abaa557976cf95819c2f3264378c93cb4a9d10be18d77b754df3a"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator_packet-ca17.py.txt",
+      "bytes": 14585,
+      "sha256": "020a2b3d507a6979ddce32289a6d567abe33ddb5084105f2508c6d60158a257d"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489.stdout.txt",
+      "bytes": 101005,
+      "sha256": "7673b9a04f5d4a836332908aa072851a168b2ede81cd8625738b14e32d7cc69f"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-3932cded/runtime-delta-receipt.json",
+      "bytes": 41949,
+      "sha256": "ab52fc0067553452862218d640165c2158f459b62a53e3aaf52cdbf8de2ae228"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-3932cded/runtime-projection-delta.patch",
+      "bytes": 5583,
+      "sha256": "824dd02c8d44f93947309ebdc1f9e7446e9f6011834d49da26d95b11f024c1a2"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/runtime_projection_3932.py.txt",
+      "bytes": 8393,
+      "sha256": "957fcd73d35d8804222c35c9938cf0895789531646759de85a4310fbb9b5b4a5"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/runtime-export.stderr.txt",
+      "bytes": 6755,
+      "sha256": "3150fa5a2b511a30d485ae1c009921359f648095339bbf96f2ac289819509c56"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/runtime-export.stdout.txt",
+      "bytes": 121,
+      "sha256": "7aed3934381b587b4865878bd6b9b3028a6fc4d0f88e7a28aed75c343276cfea"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-3932cded/runtime-export.stderr.txt",
+      "bytes": 6755,
+      "sha256": "ebdc3914129f20e2c8279221c517cc046badff3e54e5e98d92b6e62c80c98ac9"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-3932cded/runtime-export.stdout.txt",
+      "bytes": 103,
+      "sha256": "aa1909f366c6819ef14263c567a31a5dd96614fdd0901d4cae1275fef60ae8d5"
+    }
+  ],
+  "capability_state": "surface_missing",
+  "global_gate_pass": false,
+  "ROOT_source_changed": false,
+  "new_environment": false,
+  "raw_large_ignored_inputs": [
+    "generator-ca17a489/projected/ full103 schema outputs",
+    "generator-3932cded/runtime_api_v1.openapi.json",
+    "mc-joint-law-r5/dto-schemas-before.json",
+    "mc-joint-law-r5/dto-schemas-after.json"
+  ],
+  "qualification": "Full103 JSON schemas are byte-equal ca17 to3932. Canonical runtime regenerated at3932 because source dependency hash changed. ca17 raw check_outcome GENERATED_PACKET_ONLY is preserved scope metadata, not a canonical outcome claim."
+}

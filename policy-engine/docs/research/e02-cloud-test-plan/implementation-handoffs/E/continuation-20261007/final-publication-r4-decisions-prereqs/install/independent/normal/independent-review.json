@@ -1,0 +1,610 @@
+{
+  "schema": "policyos.e02.independent_closed_install_custody.v1",
+  "verdict": "GO bounded closed evidence utility/custody",
+  "mode": "normal",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "utility": {
+    "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/validate_closed_install.py",
+    "bytes": 24184,
+    "sha256": "2bca3cb0116a30e2fdfc46e3045d3c3057b0de1627c771f16570bde12e07035e"
+  },
+  "input_index": {
+    "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/input-index.json",
+    "bytes": 10648,
+    "sha256": "38ff6845c0b8cc7a61bd359a2d0de8af7529090c7db9150336f2c5fe9e35877c"
+  },
+  "packet": {
+    "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/closed-install-custody.json",
+    "bytes": 12804,
+    "sha256": "8b1e16abe34bdd5971e350823571194083ee156f6969a893a88d7600a96cc110"
+  },
+  "copied_inputs": [
+    {
+      "key": "historical-selection",
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/publication-selection.json",
+      "bytes": 2486,
+      "sha256": "a1ffe97ab1eb7bf83a4835cb15f03e7d5cd05ec4fde24a839ea941e540e73299",
+      "stored_at": "inputs/historical-selection.json"
+    },
+    {
+      "key": "recipe",
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/minimum-declared-dependency-admission-and-retry.json",
+      "bytes": 11894,
+      "sha256": "4098541e4753242a62d29c40758e98dea70d9406dec26ec47569d51179347f99",
+      "stored_at": "inputs/recipe.json"
+    },
+    {
+      "key": "artifacts",
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/admitted-dependency-artifacts.json",
+      "bytes": 3938,
+      "sha256": "b5d2470a6dc28030488b3f9a3a91839c52fed7b31193e25171b39aa354c7feae",
+      "stored_at": "inputs/artifacts.json"
+    },
+    {
+      "key": "requirements",
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/minimum-declared-dependencies.requirements.txt",
+      "bytes": 406,
+      "sha256": "8c04f2b1cea4fac78dafdf548e2b5cad9a0658e360895ad216613cbb8f0967e1",
+      "stored_at": "inputs/requirements.txt"
+    },
+    {
+      "key": "observer",
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/observe-root-environment.py.txt",
+      "bytes": 6616,
+      "sha256": "93e9a2f50ff64ecd6432e78de6a8f28d9d57daf123a32d407a2071e066106d64",
+      "stored_at": "inputs/observer.txt"
+    },
+    {
+      "key": "historical-observation",
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/root-environment-before-read-only.json",
+      "bytes": 84697,
+      "sha256": "c1173ca53947224fac54a1fdb8582cf4ed94b01e7f96a235c1a01babc94e3d0d",
+      "stored_at": "inputs/historical-observation.json"
+    },
+    {
+      "key": "historical-observer-stdout",
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/root-environment-observer.stdout.txt",
+      "bytes": 205,
+      "sha256": "dd9df4c26d2d5318709faec67eb0f98f741a74811564fa32c9989b1845d0954f",
+      "stored_at": "inputs/historical-observer-stdout.txt"
+    },
+    {
+      "key": "historical-observer-stderr",
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/root-environment-observer.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_at": "inputs/historical-observer-stderr.txt"
+    },
+    {
+      "key": "a11y-old-admission",
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/a11y-shared-state-and-retry-packet.json",
+      "bytes": 8132,
+      "sha256": "efcc40be3465b5357762debf75feca233720a2db79ba6d239c7405033a92bc32",
+      "stored_at": "inputs/a11y-old-admission.json"
+    },
+    {
+      "key": "readiness",
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/offline-four-dependency-install-readiness-v2.json",
+      "bytes": 4841,
+      "sha256": "5cea2ba06e4d63507c3409472351b06c55575268f6307ecd4b45d680fe132a3f",
+      "stored_at": "inputs/readiness.json"
+    },
+    {
+      "key": "wheels-receipt",
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/admitted-wheels-receipt.json",
+      "bytes": 2110,
+      "sha256": "a7d3a068eb867e602dd18b97c9eb1359e64123743bd2678516081e4dcf5d43a8",
+      "stored_at": "inputs/wheels-receipt.json"
+    },
+    {
+      "key": "prefetch-source",
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/prefetch-admitted-wheels.py.txt",
+      "bytes": 3550,
+      "sha256": "a614585fde1d0128c2a7c07a6efa106dd1eee9a87b62d82101b6882ff88e42ac",
+      "stored_at": "inputs/prefetch-source.txt"
+    },
+    {
+      "key": "admission-refusal",
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/cal05-existing-environment-admission-refusal.json",
+      "bytes": 4570,
+      "sha256": "528485453d3c8bb31de651be2360cb08cb31045ac5c3fbd7d01745c2948db2da",
+      "stored_at": "inputs/admission-refusal.json"
+    },
+    {
+      "key": "fresh-before",
+      "path": "/tmp/e02-E-backend-prereq-observation-20261007-1110.json",
+      "bytes": 69302,
+      "sha256": "25a99b2fd9f6316a9bd2617c9ecc7e130ee213b182e69378b6518ed9e0e26dc4",
+      "stored_at": "inputs/fresh-before.json"
+    },
+    {
+      "key": "after",
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/offline-install-20261007-r1/environment-after.json",
+      "bytes": 70628,
+      "sha256": "9f06f84e71752e44f272c56a0845d61e90149a54b03cdb1bc7999a5045c29af3",
+      "stored_at": "inputs/after.json"
+    },
+    {
+      "key": "install",
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/offline-install-20261007-r1/install-execution.json",
+      "bytes": 2857,
+      "sha256": "b9f262deaf2a01f13a6f072e31cfcac59673bc3ad6bd83271097823a81b10167",
+      "stored_at": "inputs/install.json"
+    },
+    {
+      "key": "delta",
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/offline-install-20261007-r1/metadata-delta.json",
+      "bytes": 1740,
+      "sha256": "01e311f58d25e4919d1a09ed447819d0a23d8cfd8e790e6f95701a119a5e3c29",
+      "stored_at": "inputs/delta.json"
+    },
+    {
+      "key": "install-stdout",
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/offline-install-20261007-r1/install.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_at": "inputs/install-stdout.txt"
+    },
+    {
+      "key": "install-stderr",
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/offline-install-20261007-r1/install.stderr.txt",
+      "bytes": 186,
+      "sha256": "a87cd7ac5f911b8b58ba0ac8b4ce0866c2952860dc337b7d61a467b43155deff",
+      "stored_at": "inputs/install-stderr.txt"
+    },
+    {
+      "key": "preflight",
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/offline-install-20261007-r1/native-preflight.json",
+      "bytes": 1376,
+      "sha256": "89748aa91c3031fb476954db62017cff95f37fd344e4916e605f269476477b22",
+      "stored_at": "inputs/preflight.json"
+    },
+    {
+      "key": "preflight-source",
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/offline-install-20261007-r1/actual-backend-preflight.py.txt",
+      "bytes": 790,
+      "sha256": "d2ee08ac1a54e146342ed330624821b3b998b4506b3b99b34cf70955c06995b5",
+      "stored_at": "inputs/preflight-source.txt"
+    },
+    {
+      "key": "preflight-stdout",
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/offline-install-20261007-r1/native-preflight.stdout.txt",
+      "bytes": 324,
+      "sha256": "06e00139ffe3cd6140976e4aea91ad47497358acc03b8b91e22057d21788b42d",
+      "stored_at": "inputs/preflight-stdout.txt"
+    },
+    {
+      "key": "preflight-stderr",
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/offline-install-20261007-r1/native-preflight.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_at": "inputs/preflight-stderr.txt"
+    },
+    {
+      "key": "pyvenv-config",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/pyvenv.cfg",
+      "bytes": 194,
+      "sha256": "2babae500cfeb9d798df4241f91104fd98a1f968dd54b8462273da6900c4fc3a",
+      "stored_at": "inputs/pyvenv-config.txt"
+    },
+    {
+      "key": "original-workspace14",
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-14/checks/standalone-workspace-14/standalone-workspace-14.json",
+      "bytes": 9171,
+      "sha256": "93a201207a8a946509bf10858b7ccfc682ec65c279f9a1e7b633576c0d2b5b5d",
+      "stored_at": "inputs/original-workspace14.json"
+    },
+    {
+      "key": "original-workspace14-stdout",
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-14/checks/standalone-workspace-14/standalone-workspace-14.stdout.txt",
+      "bytes": 2434,
+      "sha256": "5c8c9c03402dd36e9d4147e0f160822d72a42b098f88c1f42fc6b352bd3c7fca",
+      "stored_at": "inputs/original-workspace14-stdout.txt"
+    },
+    {
+      "key": "publication",
+      "path": "/workspace/e02-E-pr38-r3-receipts/root-source-publication-64d/receipt.json",
+      "bytes": 2586,
+      "sha256": "f812546291cdb5eb9dc80cc202d2087c82c04f352c0339e63b84d2d886d2a77b",
+      "stored_at": "inputs/publication.json"
+    },
+    {
+      "key": "publication-before-correction",
+      "path": "/workspace/e02-E-pr38-r3-receipts/root-source-publication-64d/receipt-before-timestamp-correction.json.txt",
+      "bytes": 1628,
+      "sha256": "542e2b5f75393b2f9503b388a6e0646d6325f21ff42fe465f8a6ad26707f5828",
+      "stored_at": "inputs/publication-before-correction.txt"
+    },
+    {
+      "key": "publication-stdout",
+      "path": "/workspace/e02-E-pr38-r3-receipts/root-source-publication-64d/push-tool-combined.stdout.txt",
+      "bytes": 601,
+      "sha256": "2f384dea0553a415dd21fb86074d602866e8ce345b01bc17b9565c678421a8f9",
+      "stored_at": "inputs/publication-stdout.txt"
+    },
+    {
+      "key": "physical-metadata",
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/physical-metadata-read-only.json",
+      "bytes": 65326,
+      "sha256": "d1af2266f084f05154bd71c88246c660fe059cf5f67ffc3c194c9506574d6b25",
+      "stored_at": "inputs/physical-metadata.json"
+    },
+    {
+      "key": "wheel-readback",
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/external-wheel-readback.json",
+      "bytes": 3472,
+      "sha256": "0c6e45747e981659c8df62d5c1330209cc62876734a07175c852be7bc4e31f60",
+      "stored_at": "inputs/wheel-readback.json"
+    },
+    {
+      "key": "source-readback",
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/source-input-readback.json",
+      "bytes": 3244,
+      "sha256": "f184ad9f842484ac7192374ecbbf36ac10cb4ff12c3256b06e68f61ef79008b5",
+      "stored_at": "inputs/source-readback.json"
+    }
+  ],
+  "input_count": 32,
+  "input_bytes": 369304,
+  "structured_claims": 194,
+  "actual_closed_metadata": {
+    "before_count": 203,
+    "after_count": 207,
+    "all_before_rows_unchanged": true,
+    "added": [
+      {
+        "name": "hatchling",
+        "version": "1.27.0",
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/hatchling-1.27.0.dist-info/METADATA",
+        "bytes": 3812,
+        "sha256": "a224ea37d2658f75ccf569e61d849ff7e9297cdac2396022278e82a47b9fed3e"
+      },
+      {
+        "name": "immutabledict",
+        "version": "4.2.2",
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/immutabledict-4.2.2.dist-info/METADATA",
+        "bytes": 3506,
+        "sha256": "a7420cb9a3fff63567977f171e698a18c01c9808e382655bbd731ff9a81eb2b9"
+      },
+      {
+        "name": "ortools",
+        "version": "9.15.6755",
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/ortools-9.15.6755.dist-info/METADATA",
+        "bytes": 3337,
+        "sha256": "fb373ef11eed8e84ba0b59675ec06489ff6d317f6b2a773396e1f6ad8cd0b598"
+      },
+      {
+        "name": "trove-classifiers",
+        "version": "2026.9.21.13",
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/trove_classifiers-2026.9.21.13.dist-info/METADATA",
+        "bytes": 2350,
+        "sha256": "ca7e96493232b21f92aeccf456b2e01f1d4dbcaa8e17a9e1b5e6f03c6eb7461f"
+      }
+    ],
+    "actual_physical_after_207_hashes_rebound": true,
+    "protected_versions": {
+      "numpy": "2.3.5",
+      "scipy": "1.16.3",
+      "jax": "0.8.2",
+      "jaxlib": "0.8.2",
+      "salib": "1.5.2"
+    }
+  },
+  "wheels": [
+    {
+      "name": "hatchling",
+      "version": "1.27.0",
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/admitted-wheels/hatchling-1.27.0-py3-none-any.whl",
+      "bytes": 75794,
+      "sha256": "d3a2f3567c4f926ea39849cdf924c7e99e6686c9c8e288ae1037c8fa2a5d937b",
+      "metadata_sha256": "a224ea37d2658f75ccf569e61d849ff7e9297cdac2396022278e82a47b9fed3e"
+    },
+    {
+      "name": "ortools",
+      "version": "9.15.6755",
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/admitted-wheels/ortools-9.15.6755-cp314-cp314-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl",
+      "bytes": 29843939,
+      "sha256": "7181183cdcafe2b0d83ca5505b65048c7953dc7b5ad479361dded607964cc1b3",
+      "metadata_sha256": "fb373ef11eed8e84ba0b59675ec06489ff6d317f6b2a773396e1f6ad8cd0b598"
+    },
+    {
+      "name": "immutabledict",
+      "version": "4.2.2",
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/admitted-wheels/immutabledict-4.2.2-py3-none-any.whl",
+      "bytes": 4736,
+      "sha256": "97c31d098a2c850e93a958badeef765e4736ed7942ec73e439facd764a3a7217",
+      "metadata_sha256": "a7420cb9a3fff63567977f171e698a18c01c9808e382655bbd731ff9a81eb2b9"
+    },
+    {
+      "name": "trove-classifiers",
+      "version": "2026.9.21.13",
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/admitted-wheels/trove_classifiers-2026.9.21.13-py3-none-any.whl",
+      "bytes": 14232,
+      "sha256": "8b1ff4f9c191b1040b71c37f1e445ab99732911e3cd91de52838453a854d7a17",
+      "metadata_sha256": "ca7e96493232b21f92aeccf456b2e01f1d4dbcaa8e17a9e1b5e6f03c6eb7461f"
+    }
+  ],
+  "wheel_count": 4,
+  "wheel_bytes": 29938701,
+  "source_companions": [
+    {
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/pyproject.toml",
+      "bytes": 11007,
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "command": [
+        "git",
+        "show",
+        "64d7444a18c55df7b88b71b7699a2f1b25ca24bd:policy-engine/pyproject.toml"
+      ],
+      "physical_matches": true
+    },
+    {
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/uv.lock",
+      "bytes": 779204,
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+      "git_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+      "command": [
+        "git",
+        "show",
+        "64d7444a18c55df7b88b71b7699a2f1b25ca24bd:policy-engine/uv.lock"
+      ],
+      "physical_matches": true
+    },
+    {
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/tests/repo_quality/tools/test_hatch_packaging.py",
+      "bytes": 10509,
+      "sha256": "865dff75b7cdb7a8794bd6d8e2f46e1a8cb44fc48ca433ae91eebac5c9e6b2be",
+      "git_blob": "45816a271031b26bca1fe7ba2c943f2dc4f17ec7",
+      "command": [
+        "git",
+        "show",
+        "64d7444a18c55df7b88b71b7699a2f1b25ca24bd:policy-engine/tests/repo_quality/tools/test_hatch_packaging.py"
+      ],
+      "physical_matches": true
+    },
+    {
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/tests/unit/runtime/quality/test_depth_n_universality.py",
+      "bytes": 206513,
+      "sha256": "0b0fc48c58c2bcd7ef295144553771f05c73f2b1dfb4f78cd779b0b6602bf6e6",
+      "git_blob": "abe29bea6cc8f35beba0baec7d16a89bd523131e",
+      "command": [
+        "git",
+        "show",
+        "64d7444a18c55df7b88b71b7699a2f1b25ca24bd:policy-engine/tests/unit/runtime/quality/test_depth_n_universality.py"
+      ],
+      "physical_matches": true
+    },
+    {
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/tools/quality/validation/universality_preflight.py",
+      "bytes": 4164,
+      "sha256": "bdb0328f31459a4891394f2b4b095bc11d7b70c504e30dce65650d8ebaf69200",
+      "git_blob": "6b9d213db976819532d4721d6677475f284c02fa",
+      "command": [
+        "git",
+        "show",
+        "64d7444a18c55df7b88b71b7699a2f1b25ca24bd:policy-engine/tools/quality/validation/universality_preflight.py"
+      ],
+      "physical_matches": true
+    },
+    {
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/src/polisyos/__init__.py",
+      "bytes": 24,
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c",
+      "git_blob": "a1b746537b78f1e2e6c5e8f288df8174fb936906",
+      "command": [
+        "git",
+        "show",
+        "64d7444a18c55df7b88b71b7699a2f1b25ca24bd:policy-engine/src/polisyos/__init__.py"
+      ],
+      "physical_matches": true
+    }
+  ],
+  "healthy": {
+    "check_outcome": "PASS",
+    "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+    "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+    "summary_receipt": {
+      "structured_claims": 194,
+      "claim_sha256": "562be6bf77beb70460b1ef7c2f0471dc813839b93329b090f9fdee4e12644f77"
+    },
+    "input_denominator": {
+      "files": 32,
+      "bytes": 369304,
+      "source_paths": 6
+    },
+    "native_executed": false,
+    "environment_mutated": false,
+    "global_backend_result_established": false,
+    "finding_closure": false
+  },
+  "controls": [
+    {
+      "name": "false_distribution_count",
+      "outcome": "PASS refusal",
+      "reason": "summary_mismatch",
+      "raw_install_PASS_marker": "PASS"
+    },
+    {
+      "name": "false_protected_version",
+      "outcome": "PASS refusal",
+      "reason": "summary_mismatch",
+      "raw_install_PASS_marker": "PASS"
+    },
+    {
+      "name": "false_global_quiescence",
+      "outcome": "PASS refusal",
+      "reason": "summary_mismatch",
+      "raw_install_PASS_marker": "PASS"
+    },
+    {
+      "name": "false_input_denominator",
+      "outcome": "PASS refusal",
+      "reason": "summary_mismatch",
+      "raw_install_PASS_marker": "PASS"
+    },
+    {
+      "name": "false_original_workspace_PASS",
+      "outcome": "PASS refusal",
+      "reason": "summary_mismatch",
+      "raw_install_PASS_marker": "PASS"
+    },
+    {
+      "name": "typed_bool_exit_code",
+      "outcome": "PASS refusal",
+      "reason": "summary_mismatch",
+      "raw_install_PASS_marker": "PASS"
+    },
+    {
+      "name": "false_native_global_backend",
+      "outcome": "PASS refusal",
+      "reason": "summary_mismatch",
+      "raw_install_PASS_marker": "PASS"
+    },
+    {
+      "name": "false_source_identity",
+      "outcome": "PASS refusal",
+      "reason": "summary_mismatch",
+      "raw_install_PASS_marker": "PASS"
+    },
+    {
+      "name": "copied_byte_corruption",
+      "outcome": "PASS refusal",
+      "reason": "input custody:recipe",
+      "git_callback_count": 0
+    },
+    {
+      "name": "missing_required_input_retallied",
+      "outcome": "PASS refusal",
+      "reason": "complete input class",
+      "git_callback_count": 0
+    },
+    {
+      "name": "effective_summary_removal_false_distribution_count",
+      "observer_outcome": "PASS discriminator",
+      "defining_property_outcome": "FAIL",
+      "actual_reader_result": {
+        "check_outcome": "PASS",
+        "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+        "summary_receipt": {
+          "structured_claims": 194,
+          "claim_sha256": "562be6bf77beb70460b1ef7c2f0471dc813839b93329b090f9fdee4e12644f77"
+        },
+        "input_denominator": {
+          "files": 32,
+          "bytes": 369304,
+          "source_paths": 6
+        },
+        "native_executed": false,
+        "environment_mutated": false,
+        "global_backend_result_established": false,
+        "finding_closure": false
+      },
+      "raw_install_PASS_marker": "PASS"
+    },
+    {
+      "name": "effective_summary_removal_false_protected_version",
+      "observer_outcome": "PASS discriminator",
+      "defining_property_outcome": "FAIL",
+      "actual_reader_result": {
+        "check_outcome": "PASS",
+        "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+        "summary_receipt": {
+          "structured_claims": 194,
+          "claim_sha256": "562be6bf77beb70460b1ef7c2f0471dc813839b93329b090f9fdee4e12644f77"
+        },
+        "input_denominator": {
+          "files": 32,
+          "bytes": 369304,
+          "source_paths": 6
+        },
+        "native_executed": false,
+        "environment_mutated": false,
+        "global_backend_result_established": false,
+        "finding_closure": false
+      },
+      "raw_install_PASS_marker": "PASS"
+    },
+    {
+      "name": "effective_summary_removal_false_global_quiescence",
+      "observer_outcome": "PASS discriminator",
+      "defining_property_outcome": "FAIL",
+      "actual_reader_result": {
+        "check_outcome": "PASS",
+        "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+        "summary_receipt": {
+          "structured_claims": 194,
+          "claim_sha256": "562be6bf77beb70460b1ef7c2f0471dc813839b93329b090f9fdee4e12644f77"
+        },
+        "input_denominator": {
+          "files": 32,
+          "bytes": 369304,
+          "source_paths": 6
+        },
+        "native_executed": false,
+        "environment_mutated": false,
+        "global_backend_result_established": false,
+        "finding_closure": false
+      },
+      "raw_install_PASS_marker": "PASS"
+    },
+    {
+      "name": "effective_summary_removal_false_input_denominator",
+      "observer_outcome": "PASS discriminator",
+      "defining_property_outcome": "FAIL",
+      "actual_reader_result": {
+        "check_outcome": "PASS",
+        "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+        "summary_receipt": {
+          "structured_claims": 194,
+          "claim_sha256": "562be6bf77beb70460b1ef7c2f0471dc813839b93329b090f9fdee4e12644f77"
+        },
+        "input_denominator": {
+          "files": 32,
+          "bytes": 369304,
+          "source_paths": 6
+        },
+        "native_executed": false,
+        "environment_mutated": false,
+        "global_backend_result_established": false,
+        "finding_closure": false
+      },
+      "raw_install_PASS_marker": "PASS"
+    }
+  ],
+  "read_only_git_callback_count": 182,
+  "callback_command_kinds": [
+    "hash-object",
+    "rev-parse",
+    "show"
+  ],
+  "ROOT_before": {
+    "head": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+    "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+    "tracked_status": ""
+  },
+  "ROOT_after": {
+    "head": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+    "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+    "tracked_status": ""
+  },
+  "environment_or_native_interpreter_imports": false,
+  "installer_or_backend_or_preflight_repeated": false,
+  "unconditional_all_process_quiescence_established": false,
+  "native_install_and_preflight_markers_are_bounded": true,
+  "historical_UNRUN_pending_and_workspace14_FAIL_preserved": true,
+  "current_RUNNING_workspace14_result_inferred": false,
+  "global_ci_or_finding_closure": false,
+  "scope": "Independent literal saved inputs, four ignored wheel bytes, all203 unchanged METADATA→207, six source refs, typed evidence-reader and effective summary predicate removal only. No native repeat, environment/source mutation or scientific/institutional authority."
+}

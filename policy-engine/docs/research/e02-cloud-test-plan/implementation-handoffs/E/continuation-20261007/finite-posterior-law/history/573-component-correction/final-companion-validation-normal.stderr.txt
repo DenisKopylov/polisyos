@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/validate-final-companions.py.txt", line 25, in <module>
+    h=json.loads((d/'final-companions.json').read_text());healthy=validate(h);controls=[]
+                                                                  ^^^^^^^^^^^
+  File "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/validate-final-companions.py.txt", line 17, in validate
+    gen=json.loads(ref(h['qualified_canonical_projection']));need(gen['candidate']==h['candidate'] and gen['tree']==h['tree'],'generator_source');need(gen['canonical_full_ABI_count']==103 and gen['full_public_packages']==20 and gen['public_families']==13 and gen['runtime_schema_components']==1494,'complete_actual_registry_counts')
+                                                                                                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/validate-final-companions.py.txt", line 6, in need
+    if not v:raise ValueError(m)
+             ^^^^^^^^^^^^^^^^^^^
+ValueError: complete_actual_registry_counts

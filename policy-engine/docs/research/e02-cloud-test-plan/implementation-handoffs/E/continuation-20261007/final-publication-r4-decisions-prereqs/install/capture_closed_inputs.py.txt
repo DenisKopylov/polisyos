@@ -1,0 +1,75 @@
+"""Read closed dependency receipts and actual metadata/wheels; never import ROOT packages."""
+import hashlib,json,sys,subprocess,zipfile,time
+from email.parser import BytesParser
+from pathlib import Path
+
+OUT=Path('/tmp/e02-E-declared-prereq-custody-64d-20261007')
+ROOT=Path('/workspace/e02-E-continuation-20261006')
+R=Path('/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4')
+SOURCE='64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+TREE='aef23574d3162abb19bf5a1c67d02624ff9d4d1d'
+def require(v,reason):
+ if not v: raise ValueError(reason)
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+def ref(path):
+ raw=path.read_bytes();return {'path':str(path),'bytes':len(raw),'sha256':sha(raw)}
+def write(name,v):
+ path=OUT/name;require(not path.exists(),'append-only output');path.write_text(json.dumps(v,indent=2)+'\n');return ref(path)
+files={
+ 'historical-selection':R/'publication-selection.json',
+ 'recipe':R/'minimum-declared-dependency-admission-and-retry.json',
+ 'artifacts':R/'admitted-dependency-artifacts.json',
+ 'requirements':R/'minimum-declared-dependencies.requirements.txt',
+ 'observer':R/'observe-root-environment.py.txt',
+ 'historical-observation':R/'root-environment-before-read-only.json',
+ 'historical-observer-stdout':R/'root-environment-observer.stdout.txt',
+ 'historical-observer-stderr':R/'root-environment-observer.stderr.txt',
+ 'a11y-old-admission':R/'a11y-shared-state-and-retry-packet.json',
+ 'readiness':R/'offline-four-dependency-install-readiness-v2.json',
+ 'wheels-receipt':R/'admitted-wheels-receipt.json',
+ 'prefetch-source':R/'prefetch-admitted-wheels.py.txt',
+ 'admission-refusal':R/'cal05-existing-environment-admission-refusal.json',
+ 'fresh-before':Path('/tmp/e02-E-backend-prereq-observation-20261007-1110.json'),
+ 'after':R/'offline-install-20261007-r1/environment-after.json',
+ 'install':R/'offline-install-20261007-r1/install-execution.json',
+ 'delta':R/'offline-install-20261007-r1/metadata-delta.json',
+ 'install-stdout':R/'offline-install-20261007-r1/install.stdout.txt',
+ 'install-stderr':R/'offline-install-20261007-r1/install.stderr.txt',
+ 'preflight':R/'offline-install-20261007-r1/native-preflight.json',
+ 'preflight-source':R/'offline-install-20261007-r1/actual-backend-preflight.py.txt',
+ 'preflight-stdout':R/'offline-install-20261007-r1/native-preflight.stdout.txt',
+ 'preflight-stderr':R/'offline-install-20261007-r1/native-preflight.stderr.txt',
+ 'pyvenv-config':ROOT/'policy-engine/.venv/pyvenv.cfg',
+ 'original-workspace14':Path('/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-14/checks/standalone-workspace-14/standalone-workspace-14.json'),
+ 'original-workspace14-stdout':Path('/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-14/checks/standalone-workspace-14/standalone-workspace-14.stdout.txt'),
+ 'publication':Path('/workspace/e02-E-pr38-r3-receipts/root-source-publication-64d/receipt.json'),
+ 'publication-before-correction':Path('/workspace/e02-E-pr38-r3-receipts/root-source-publication-64d/receipt-before-timestamp-correction.json.txt'),
+ 'publication-stdout':Path('/workspace/e02-E-pr38-r3-receipts/root-source-publication-64d/push-tool-combined.stdout.txt'),
+}
+start=time.time()
+physical=[]
+for path in sorted((ROOT/'policy-engine/.venv/lib/python3.14/site-packages').glob('*.dist-info/METADATA')):
+ raw=path.read_bytes();parsed=BytesParser().parsebytes(raw);physical.append({'name':str(parsed['Name']),'version':str(parsed['Version']),**ref(path)})
+physical_ref=write('physical-metadata-read-only.json',{'schema':'policyos.e02.closed_metadata_readback.v1','started_unix':start,'finished_unix':time.time(),'inspector_python':sys.version,'metadata':physical,'count':len(physical),'framed_sha256':sha(json.dumps(physical,sort_keys=True,separators=(',',':')).encode()),'native_interpreter_executed':False,'packages_imported':False,'environment_mutated':False,'process_quiescence_observed':False})
+files['physical-metadata']=Path(physical_ref['path'])
+wheel_rows=[]
+for row in json.loads(files['wheels-receipt'].read_text())['outputs']:
+ path=Path(row['wheel']['path']);require(ref(path)==row['wheel'],'wheel exact hash/size')
+ with zipfile.ZipFile(path) as archive:
+  entries=[n for n in archive.namelist() if n.endswith('.dist-info/METADATA')];require(len(entries)==1,'one wheel metadata');raw=archive.read(entries[0]);m=BytesParser().parsebytes(raw)
+  wheel_entries=[n for n in archive.namelist() if n.endswith('.dist-info/WHEEL')];require(len(wheel_entries)==1,'one wheel ABI record');abi=archive.read(wheel_entries[0]).decode()
+ wheel_rows.append({'name':str(m['Name']),'version':str(m['Version']),'wheel':row['wheel'],'metadata_member':entries[0],'metadata_bytes':len(raw),'metadata_sha256':sha(raw),'requires_dist':m.get_all('Requires-Dist'),'requires_python':m['Requires-Python'],'wheel_abi':abi})
+wheel_ref=write('external-wheel-readback.json',{'schema':'policyos.e02.closed_ignored_wheel_readback.v1','rows':wheel_rows,'count':len(wheel_rows),'total_bytes':sum(x['wheel']['bytes'] for x in wheel_rows),'packages_imported':False,'payloads_copied':False,'environment_mutated':False})
+files['wheel-readback']=Path(wheel_ref['path'])
+paths=['policy-engine/pyproject.toml','policy-engine/uv.lock','policy-engine/tests/repo_quality/tools/test_hatch_packaging.py','policy-engine/tests/unit/runtime/quality/test_depth_n_universality.py','policy-engine/tools/quality/validation/universality_preflight.py','policy-engine/src/polisyos/__init__.py']
+source_rows=[]
+for path in paths:
+ cmd=['git','show',SOURCE+':'+path];raw=subprocess.check_output(cmd,cwd=ROOT);require(raw==(ROOT/path).read_bytes(),'immutable source physical blob');source_rows.append({'source_sha':SOURCE,'path':path,'bytes':len(raw),'sha256':sha(raw),'git_blob':subprocess.check_output(['git','rev-parse',SOURCE+':'+path],cwd=ROOT,text=True).strip(),'command':cmd,'physical_matches':True})
+require(subprocess.check_output(['git','rev-parse',SOURCE+'^{tree}'],cwd=ROOT,text=True).strip()==TREE,'tree exact')
+sourceref=write('source-input-readback.json',{'schema':'policyos.e02.closed_prerequisite_source_readback.v1','source':SOURCE,'tree':TREE,'rows':source_rows,'source_mutated':False,'runtime_executed':False})
+files['source-readback']=Path(sourceref['path'])
+index=[]
+for key,path in files.items():
+ raw=path.read_bytes();suffix='.txt' if path.name.endswith('.txt') or key=='pyvenv-config' else '.json';dest=OUT/'inputs'/(key+suffix);dest.parent.mkdir(exist_ok=True);require(not dest.exists(),'fresh destination');dest.write_bytes(raw);index.append({'key':key,**ref(path),'stored_at':str(dest.relative_to(OUT))})
+write('input-index.json',{'schema':'policyos.e02.closed_dependency_input_index.v1','files':index,'total_bytes':sum(r['bytes'] for r in index),'source':SOURCE,'tree':TREE,'external_payloads':{'copied':False,'wheel_count':len(wheel_rows),'wheel_bytes':sum(x['wheel']['bytes'] for x in wheel_rows)},'capture_environment':{'python':sys.version,'executable':sys.executable},'scope':'Closed literal receipt copies and read-only metadata/Git/wheel hashes. No ROOT package import, native/backend command, environment mutation or source write.'})
+print(json.dumps({'input_rows':len(index),'total_bytes':sum(x['bytes'] for x in index),'source_paths':len(source_rows),'physical_metadata_count':len(physical),'wheel_count':len(wheel_rows),'wheel_bytes':sum(x['wheel']['bytes'] for x in wheel_rows)}))

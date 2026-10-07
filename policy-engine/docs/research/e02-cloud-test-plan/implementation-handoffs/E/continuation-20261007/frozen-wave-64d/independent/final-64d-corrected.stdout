@@ -1,0 +1,1 @@
+{"source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd", "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d", "disposition": "GO for receipt integrity and recomputed observations", "job_denominator": 15, "case_denominator": 1549, "case_outcome_counts": {"PASS": 1541, "FAIL": 8}, "finding_denominator": 54, "issues": []}

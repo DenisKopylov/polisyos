@@ -1,0 +1,30 @@
+
+==================================== ERRORS ====================================
+______ ERROR collecting tests/repo_quality/tools/test_hatch_packaging.py _______
+ImportError while importing test module '/workspace/e02-E-continuation-20261006/policy-engine/tests/repo_quality/tools/test_hatch_packaging.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+tests/repo_quality/tools/test_hatch_packaging.py:18: in <module>
+    from hatchling.builders.sdist import SdistBuilder
+E   ModuleNotFoundError: No module named 'hatchling'
+___ ERROR collecting tests/unit/runtime/quality/test_depth_n_universality.py ___
+tests/unit/runtime/quality/test_depth_n_universality.py:32: in <module>
+    assert_universality_preflight(REPO_ROOT)
+tools/quality/validation/universality_preflight.py:111: in assert_universality_preflight
+    raise CgSubstrateUnavailableError(
+E   tools.quality.validation.universality_preflight.CgSubstrateUnavailableError: cg_substrate_unavailable:ortools_cp_sat:ModuleNotFoundError
+=============================== warnings summary ===============================
+tests/unit/scientist/governance/test_confidence_pass.py:17
+  /workspace/e02-E-continuation-20261006/policy-engine/tests/unit/scientist/governance/test_confidence_pass.py:17: DeprecationWarning: polisyos.scientist.governance.profiles is deprecated; use polisyos.core.governance.profiles
+    from polisyos.scientist.governance.profiles import ValidationProfile
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+SKIPPED [1] tests/integration/scientist/test_workflow_tracing.py:26: Set POLISYOS_RUN_INTEGRATION=1 to run integration tracing
+SKIPPED [1] tests/unit/core/security/test_rls_isolation.py:7: could not import 'psycopg': No module named 'psycopg'
+SKIPPED [1] tests/unit/scientist/orchestration/engine/locks/test_dynamodb_lock.py:10: could not import 'boto3': No module named 'boto3'
+SKIPPED [1] tests/unit/scientist/orchestration/engine/runner/test_temporal_runner.py:10: could not import 'temporalio': No module named 'temporalio'
+ERROR tests/repo_quality/tools/test_hatch_packaging.py
+ERROR tests/unit/runtime/quality/test_depth_n_universality.py - tools.quality...
+!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
+4 skipped, 296 deselected, 1 warning, 2 errors in 2146.21s (0:35:46)

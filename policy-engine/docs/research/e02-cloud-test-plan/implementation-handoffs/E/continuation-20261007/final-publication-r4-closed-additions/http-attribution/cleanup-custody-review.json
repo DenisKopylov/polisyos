@@ -1,0 +1,473 @@
+{
+  "schema": "policyos.e02.independent_cleanup_custody_review.v1",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "reviewer": "oracle_r4/read-only",
+  "decision": "GO bounded custody",
+  "authorization": "Latest root/user explicitly authorized permanent cloud cleanup; reviewer only reads, never removes.",
+  "publication_selection": {
+    "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/publication-selection.json",
+    "bytes": 5755,
+    "sha256": "2f702525f55ebcf5723e186d0e469974fb1115eb6241b8d7649e7c4aa631c574"
+  },
+  "complete_moderate_assets": [
+    {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/prepare_cleanup.py",
+      "bytes": 10603,
+      "sha256": "5de7f84194dbbdea08645289b1b89b031c273f788f0f72bbcb100a33ecb98d76"
+    },
+    {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/execute_cleanup.py",
+      "bytes": 7582,
+      "sha256": "7796c4f58b5b2c44f6bd63d37f45d576cca7e18b7452c3443e71f1a9f7bb61a1"
+    },
+    {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed_architecture_cleanup.py",
+      "bytes": 10325,
+      "sha256": "34b043af9d52932467cefa0f2b628e854dd72eb56bb5f5834fa49e79d8ebc608"
+    },
+    {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed_ci02_fixture_cleanup.py",
+      "bytes": 10976,
+      "sha256": "adb23966acdc1d0993325ad589c08f47cb946a90b540c9d9c74b7d8ab7209e67"
+    },
+    {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/build_cleanup_summary.py",
+      "bytes": 7246,
+      "sha256": "aceb504741e5696018f1679da60035da3752330d82f13e661c9c4378e59b4608"
+    },
+    {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/prepare-cleanup.stdout.txt",
+      "bytes": 664,
+      "sha256": "d730ecc1c74ceae571b825e4a2f972d31f58bcd59cc6a206274deafbed1ff279"
+    },
+    {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/prepare-cleanup.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/execute-cleanup.stdout.txt",
+      "bytes": 531,
+      "sha256": "847a6e9e03648fb8f5566c0f95fd82510b54e4ee462e36cea5ced9f25c586acf"
+    },
+    {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/execute-cleanup.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-cleanup.stdout.txt",
+      "bytes": 751,
+      "sha256": "ede7cd7066253834d40f24a30219429dbb9305c805b332ca03adec07b83b3729"
+    },
+    {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-cleanup.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-ci02-fixture-cleanup.stdout.txt",
+      "bytes": 757,
+      "sha256": "94c40e4bcace27860c56f4b66774296c6a8ec9b5d2e9868cb31f3438076e7e2c"
+    },
+    {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-ci02-fixture-cleanup.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/cleanup-result.json",
+      "bytes": 3280,
+      "sha256": "755d26739e907bf6a0745d3534c946f733855871d71868bc79b2be846f5e6565"
+    },
+    {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture/cleanup-result.json",
+      "bytes": 2510,
+      "sha256": "13e642efcb081ca180c719d5d5fd1dd427ad6e87c1a95942eff9bcf615f28a9f"
+    },
+    {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-ci02-fixtures/cleanup-result.json",
+      "bytes": 1447,
+      "sha256": "13d5f920c9c6ea8d0d5adb726515d4a057bdad5dfa4bfcc7da982e1b2bcbc3d0"
+    },
+    {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/deletion-e02-E-cal-20261006.json",
+      "bytes": 695,
+      "sha256": "fce3a4c466fcff4a4506745c8812e4ea7d7af12d0fd69f4f5f6b8b0e490c46ff"
+    },
+    {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/deletion-e02-E-ddm-20261006.json",
+      "bytes": 702,
+      "sha256": "a0808bf5c673e7a267e28b8fdd4a5b071f768962b6b127c91392fddbac4682c1"
+    },
+    {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/immediate-e02-E-cal-20261006.json",
+      "bytes": 1512,
+      "sha256": "b4227fbb43ec8670782ac3d05a1ad6ba67b0c297daca5a8883d7e4b0dcc02c10"
+    },
+    {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/immediate-e02-E-ddm-20261006.json",
+      "bytes": 1512,
+      "sha256": "d84cab9d53bb9fbf0a8fcbb1d6db220f8c01dd18ecfe60cbc5d1340490ad1972"
+    },
+    {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture/deletion-architecture-retained.json",
+      "bytes": 702,
+      "sha256": "efcade5bc8b62c42efc7526d1746db54ba8355dc1cc08ac10bbfa7be645142d6"
+    },
+    {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture/deletion-full-architecture-retained.json",
+      "bytes": 707,
+      "sha256": "b3f142923c291af71283b3ffb44e2abd88344b339fcc9d7435fcd7dfa9c37cc6"
+    },
+    {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture/immediate-architecture-retained.json",
+      "bytes": 1636,
+      "sha256": "9540377acbfa588e270c80c36465f004f508d738fb7159a94e58047a6ec56271"
+    },
+    {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture/immediate-full-architecture-retained.json",
+      "bytes": 1637,
+      "sha256": "905655aee88466d0ba192be1d54db0c8a232293ec527ddda970e10701653fa17"
+    },
+    {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-ci02-fixtures/immediate-process-proof.json",
+      "bytes": 1509,
+      "sha256": "40c2c3488a46300be4d46dac0b75a111c2adc8a0c6b381ba519d5161102f46c5"
+    },
+    {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/cleanup-summary.json",
+      "bytes": 9852,
+      "sha256": "cd89e6ce848f6fa23e565f97822ad17eb4d1fe98df119212bde7968348f85438"
+    }
+  ],
+  "moderate_count": 26,
+  "moderate_bytes": 77136,
+  "large_retained_inputs_verified": [
+    {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/cleanup-admission.json",
+      "bytes": 20448341,
+      "sha256": "4212cf996f2133d5804ab206c66b97d721a252b4f3782151cbb1e1f7499c0e1d"
+    },
+    {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/delete-preflight.json",
+      "bytes": 606838,
+      "sha256": "b3d63e5e3388fcd058561ad6198216156eb5cbd030a5477b7b532cce4664f57a"
+    },
+    {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture/cleanup-admission.json",
+      "bytes": 11933593,
+      "sha256": "9bf8e7de76cf0cebd2df9a45d39f059191449e6b036f97c393f5cc6f02919de3"
+    },
+    {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-ci02-fixtures/cleanup-admission.json",
+      "bytes": 78150245,
+      "sha256": "db8a2dd371e619d29c2f24d4cf276c4c5c9f3d62dc0714ddc9f1f714f7513375"
+    },
+    {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-ci02-fixtures/closed-ci02-pytest-base.tar.gz",
+      "bytes": 92547993,
+      "sha256": "56b94b6379b4c08c91f458c6df6fae269c16c4503574d5567383e6d4fa702d09"
+    }
+  ],
+  "exact_five_deleted_children": [
+    "/workspace/e02-E-cal-20261006/policy-engine/.venv",
+    "/workspace/e02-E-ddm-20261006/policy-engine/.venv",
+    "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/full-architecture-retained/environment",
+    "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/architecture-retained/environment",
+    "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/pytest-base"
+  ],
+  "immediate_fresh_pre_action_proofs": [
+    {
+      "candidate": "/workspace/e02-E-cal-20261006/policy-engine/.venv",
+      "proof": {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/immediate-e02-E-cal-20261006.json",
+        "bytes": 1512,
+        "sha256": "b4227fbb43ec8670782ac3d05a1ad6ba67b0c297daca5a8883d7e4b0dcc02c10"
+      },
+      "proof_age_seconds": 0.00015974044799804688,
+      "active_users": [],
+      "unreadable_agent_processes": [],
+      "agent_uid": 1000,
+      "live_agent_process_count": 5,
+      "privileged_infrastructure_exclusions": [
+        {
+          "pid": 199,
+          "uid": 0,
+          "argv0": "/usr/local/bin/dockerd",
+          "reason": "Privileged infrastructure daemon outside complete live agent UID scope; no host-wide environ/maps visibility asserted."
+        },
+        {
+          "pid": 250,
+          "uid": 0,
+          "argv0": "containerd",
+          "reason": "Privileged infrastructure daemon outside complete live agent UID scope; no host-wide environ/maps visibility asserted."
+        }
+      ],
+      "currently_absent": true
+    },
+    {
+      "candidate": "/workspace/e02-E-ddm-20261006/policy-engine/.venv",
+      "proof": {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/immediate-e02-E-ddm-20261006.json",
+        "bytes": 1512,
+        "sha256": "d84cab9d53bb9fbf0a8fcbb1d6db220f8c01dd18ecfe60cbc5d1340490ad1972"
+      },
+      "proof_age_seconds": 0.00017905235290527344,
+      "active_users": [],
+      "unreadable_agent_processes": [],
+      "agent_uid": 1000,
+      "live_agent_process_count": 5,
+      "privileged_infrastructure_exclusions": [
+        {
+          "pid": 199,
+          "uid": 0,
+          "argv0": "/usr/local/bin/dockerd",
+          "reason": "Privileged infrastructure daemon outside complete live agent UID scope; no host-wide environ/maps visibility asserted."
+        },
+        {
+          "pid": 250,
+          "uid": 0,
+          "argv0": "containerd",
+          "reason": "Privileged infrastructure daemon outside complete live agent UID scope; no host-wide environ/maps visibility asserted."
+        }
+      ],
+      "currently_absent": true
+    },
+    {
+      "candidate": "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/full-architecture-retained/environment",
+      "proof": {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture/immediate-full-architecture-retained.json",
+        "bytes": 1637,
+        "sha256": "905655aee88466d0ba192be1d54db0c8a232293ec527ddda970e10701653fa17"
+      },
+      "proof_age_seconds": 0.00015974044799804688,
+      "active_users": [],
+      "unreadable_agent_processes": [],
+      "agent_uid": 1000,
+      "live_agent_process_count": 5,
+      "privileged_infrastructure_exclusions": [
+        {
+          "pid": 199,
+          "uid": 0,
+          "argv0": "/usr/local/bin/dockerd",
+          "reason": "Privileged infrastructure daemon outside complete live agent UID scope; no host-wide environ/maps visibility asserted."
+        },
+        {
+          "pid": 250,
+          "uid": 0,
+          "argv0": "containerd",
+          "reason": "Privileged infrastructure daemon outside complete live agent UID scope; no host-wide environ/maps visibility asserted."
+        }
+      ],
+      "currently_absent": true
+    },
+    {
+      "candidate": "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/architecture-retained/environment",
+      "proof": {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture/immediate-architecture-retained.json",
+        "bytes": 1636,
+        "sha256": "9540377acbfa588e270c80c36465f004f508d738fb7159a94e58047a6ec56271"
+      },
+      "proof_age_seconds": 0.0001633167266845703,
+      "active_users": [],
+      "unreadable_agent_processes": [],
+      "agent_uid": 1000,
+      "live_agent_process_count": 5,
+      "privileged_infrastructure_exclusions": [
+        {
+          "pid": 199,
+          "uid": 0,
+          "argv0": "/usr/local/bin/dockerd",
+          "reason": "Privileged infrastructure daemon outside complete live agent UID scope; no host-wide environ/maps visibility asserted."
+        },
+        {
+          "pid": 250,
+          "uid": 0,
+          "argv0": "containerd",
+          "reason": "Privileged infrastructure daemon outside complete live agent UID scope; no host-wide environ/maps visibility asserted."
+        }
+      ],
+      "currently_absent": true
+    },
+    {
+      "candidate": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/pytest-base",
+      "proof": {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-ci02-fixtures/immediate-process-proof.json",
+        "bytes": 1509,
+        "sha256": "40c2c3488a46300be4d46dac0b75a111c2adc8a0c6b381ba519d5161102f46c5"
+      },
+      "proof_age_seconds": 2.354612350463867,
+      "active_users": [],
+      "unreadable_agent_processes": [],
+      "agent_uid": 1000,
+      "live_agent_process_count": 5,
+      "privileged_infrastructure_exclusions": [
+        {
+          "pid": 199,
+          "uid": 0,
+          "argv0": "/usr/local/bin/dockerd",
+          "reason": "Privileged infrastructure daemon outside complete live agent UID scope; no host-wide environ/maps visibility asserted."
+        },
+        {
+          "pid": 250,
+          "uid": 0,
+          "argv0": "containerd",
+          "reason": "Privileged infrastructure daemon outside complete live agent UID scope; no host-wide environ/maps visibility asserted."
+        }
+      ],
+      "currently_absent": true
+    }
+  ],
+  "fresh_independent_agent_scope_readback": {
+    "path": "/tmp/e02-E-http-error-independent-64d/fresh-agent-process-readback.json",
+    "bytes": 1783,
+    "sha256": "742d691e9480aea2bf20d1ce832b5ecc01cb413a69ee660bad7bcd5eca2e5517"
+  },
+  "original_http_outputs_and_saved_copies": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/checks/standalone-ci-02/standalone-ci-02.json",
+      "bytes": 9044,
+      "sha256": "90d0c3c172507dfc8079522f930adcd5f238ff3ee27b4e182db7d9974d9ee2c0"
+    },
+    {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-ci02-fixtures/standalone-ci-02.json",
+      "bytes": 9044,
+      "sha256": "90d0c3c172507dfc8079522f930adcd5f238ff3ee27b4e182db7d9974d9ee2c0"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/checks/standalone-ci-02/standalone-ci-02.stdout.txt",
+      "bytes": 2165621,
+      "sha256": "eabc9cab8ea803353f1c7287c11bbb466f6b6a2e305adb5abfb3dc03c3a64a9e"
+    },
+    {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-ci02-fixtures/standalone-ci-02.stdout.txt",
+      "bytes": 2165621,
+      "sha256": "eabc9cab8ea803353f1c7287c11bbb466f6b6a2e305adb5abfb3dc03c3a64a9e"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/checks/standalone-ci-02/pytest.xml",
+      "bytes": 2421172,
+      "sha256": "b94c3b86ca8edb3b059714e68492faaf31cc2a05297006279201a62dac202c30"
+    },
+    {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-ci02-fixtures/pytest.xml",
+      "bytes": 2421172,
+      "sha256": "b94c3b86ca8edb3b059714e68492faaf31cc2a05297006279201a62dac202c30"
+    }
+  ],
+  "original_http_counts_unchanged": {
+    "cases": 1585,
+    "passed": 675,
+    "failed": 81,
+    "errors": 827,
+    "skipped": 2
+  },
+  "original_http_outcome_unchanged": "FAIL",
+  "retained_archive": {
+    "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-ci02-fixtures/closed-ci02-pytest-base.tar.gz",
+    "bytes": 92547993,
+    "sha256": "56b94b6379b4c08c91f458c6df6fae269c16c4503574d5567383e6d4fa702d09"
+  },
+  "archive_member_inventory": {
+    "admission": {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-ci02-fixtures/cleanup-admission.json",
+      "bytes": 78150245,
+      "sha256": "db8a2dd371e619d29c2f24d4cf276c4c5c9f3d62dc0714ddc9f1f714f7513375"
+    },
+    "count": 192219,
+    "kinds": {
+      "directory": 78745,
+      "native_tmp_path_generated_fixture_or_source_overlay": 112760,
+      "symlink_not_followed": 714
+    },
+    "regular_file_logical_bytes": 3139744323
+  },
+  "actual_pre_deletion_member_verification": {
+    "source": {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed_ci02_fixture_cleanup.py",
+      "bytes": 10976,
+      "sha256": "adb23966acdc1d0993325ad589c08f47cb946a90b540c9d9c74b7d8ab7209e67"
+    },
+    "recorded_result": {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-ci02-fixtures/cleanup-result.json",
+      "bytes": 1447,
+      "sha256": "13d5f920c9c6ea8d0d5adb726515d4a057bdad5dfa4bfcc7da982e1b2bcbc3d0"
+    },
+    "exact_count_match": true,
+    "property": "Actual retained archive verifier checks exact member denominator, member kinds/symlink targets, every regular member byte count and SHA before deletion. Reviewer independently streamed retained compressed hash and admission; intentionally did not decompress/reverify3.65GB again."
+  },
+  "saved_repeatability_and_generated_output_checks": {
+    "checked_refs": 4623,
+    "checked_bytes": 38508444,
+    "complete_checked_ref_frame_sha256": "e974c25d50ac7024c7e7d8a9d31bbee8ca5a1a2754c5911595282d793b4c2951",
+    "package_denominators": [
+      174,
+      164,
+      159,
+      159
+    ],
+    "retained": true
+  },
+  "filesystem_observation": {
+    "first_admission": {
+      "observed_unix": 1791370235.124678,
+      "total_bytes": 33770192896,
+      "free_bytes": 1723920384,
+      "available_bytes": 0
+    },
+    "last_closed": {
+      "observed_unix": 1791370631.7467825,
+      "total_bytes": 33770192896,
+      "free_bytes": 5687611392,
+      "available_bytes": 3952848896
+    },
+    "old_environment_observed_free_delta_bytes": 118845440,
+    "closed_architecture_observed_free_delta_bytes": 20140032,
+    "CI02_observed_free_delta_bytes": 3824709632,
+    "sum_observed_per_action_free_delta_bytes": 3963695104,
+    "last_available_bytes": 3952848896,
+    "measurement_scope": "Actual statvfs snapshots at each action; observed filesystem changes can include concurrent external writes. Apparent du/hardlink allocation is not claimed as recovered capacity."
+  },
+  "filesystem_scope": "Observed statvfs per-action delta; concurrent writes and hardlink effects prevent exclusive recovered-capacity attribution.",
+  "protected_metadata_scope": "Original cleanup pre/post metadata equality recorded by actual action. Current protected packages may have subsequent explicitly authorized installs; no current snapshot is misrepresented as original action equivalence.",
+  "no_host_wide_process_visibility_claim": true,
+  "no_test_gate_rerun": true,
+  "no_source_interpreter_package_mutation": true,
+  "no_archive_decompression": true,
+  "corrupt_controls": [
+    {
+      "control": "active_user",
+      "outcome": "rejected",
+      "reason": "Unknown or active agent process"
+    },
+    {
+      "control": "unknown_agent_process",
+      "outcome": "rejected",
+      "reason": "Unknown or active agent process"
+    },
+    {
+      "control": "late_proof",
+      "outcome": "rejected",
+      "reason": "Immediate process proof is not pre-action/fresh"
+    },
+    {
+      "control": "uncovered_candidate",
+      "outcome": "rejected",
+      "reason": "Immediate scanner did not cover exact candidate"
+    },
+    {
+      "control": "retained_archive_digest",
+      "outcome": "rejected",
+      "reason": "Retained compressed archive byte identity mismatch"
+    },
+    {
+      "control": "retained_archive_size",
+      "outcome": "rejected",
+      "reason": "Retained compressed archive byte identity mismatch"
+    }
+  ],
+  "P41": "not_established",
+  "finding_closure": false
+}

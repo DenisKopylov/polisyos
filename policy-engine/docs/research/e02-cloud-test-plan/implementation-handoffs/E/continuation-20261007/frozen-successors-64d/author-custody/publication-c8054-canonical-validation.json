@@ -1,0 +1,86 @@
+{
+  "schema": "policyos.e02.current_git_successor_copy_validation.v1",
+  "candidate_sha": "c8054bb2f055fae5f94012773ab4d2efad8cfab7",
+  "candidate_tree_sha": "ad4563952e75e3a4ab6b094283ef8007594533df",
+  "base_sha": "43f6bb54e316ce1308d53ba75c6e27e40171e364",
+  "execution_source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "copied_count": 168,
+  "copied_bytes": 2501235,
+  "mandatory_selected_source_count": 159,
+  "healthy_current_and_git": "PASS",
+  "corrupt_controls": [
+    {
+      "field": "sha256",
+      "value": "0000000000000000000000000000000000000000000000000000000000000000",
+      "outcome": "PASS",
+      "native_refusal": "Review digest mismatch: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-01/standalone-workspace-01.json"
+    },
+    {
+      "field": "sha256",
+      "value": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "outcome": "PASS",
+      "native_refusal": "Review digest declaration invalid: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-01/standalone-workspace-01.json"
+    },
+    {
+      "field": "bytes",
+      "value": -1,
+      "outcome": "PASS",
+      "native_refusal": "Review size declaration invalid: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-01/standalone-workspace-01.json"
+    },
+    {
+      "field": "bytes",
+      "value": true,
+      "outcome": "PASS",
+      "native_refusal": "Review size declaration invalid: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-01/standalone-workspace-01.json"
+    },
+    {
+      "field": "copied_path",
+      "value": "../outside",
+      "outcome": "PASS",
+      "native_refusal": "Review copy must be repository relative"
+    },
+    {
+      "field": "copied_path",
+      "value": "/tmp/outside",
+      "outcome": "PASS",
+      "native_refusal": "Review copy must be repository relative"
+    },
+    {
+      "field": "copied_path",
+      "value": "-outside",
+      "outcome": "PASS",
+      "native_refusal": "Review copy must be repository relative"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "historical": false,
+      "outcome": "PASS",
+      "native_refusal": "Review revision or copy is unavailable in Git"
+    },
+    {
+      "revision": "--all",
+      "historical": false,
+      "outcome": "PASS",
+      "native_refusal": "Review revision must be a Git revision, never an option"
+    },
+    {
+      "revision": "c8054bb2f055",
+      "historical": true,
+      "outcome": "PASS",
+      "native_refusal": "Historical replay requires an exact immutable commit SHA"
+    }
+  ],
+  "actual_canonical_validator": {
+    "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/validate_review_copies.py",
+    "bytes": 5518,
+    "sha256": "23a36b48fa09682c8ce82fe2ed6ed434c997f35fc47ce022930fc5dda5a9edde",
+    "archive_byte_equal": true
+  },
+  "index": {
+    "path": "/workspace/e02-E-doe-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/portable-copy-index.json",
+    "bytes": 94712,
+    "sha256": "850e48149d8500e831e10652c01fc42a502a1c304afe3b6c5d6a6bd1cce0779e"
+  },
+  "no_native_selector_repeated": true,
+  "authority": "Document custody only; native check outcomes and original owner/finding decisions remain separate."
+}

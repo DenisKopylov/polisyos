@@ -1,0 +1,9 @@
+from pathlib import Path
+import argparse, hashlib, json, subprocess
+from polisyos.schemas.abi_models import ABI_MODELS
+from tools.quality.diagnostics.gen_schema import _generate_model_schema, _resolve_class
+p=argparse.ArgumentParser();p.add_argument('--output',required=True);a=p.parse_args()
+rows=[{'abi_key':e.abi_key,'fqn':e.fqn,'schema':_generate_model_schema(_resolve_class(e.fqn))} for e in ABI_MODELS]
+result={'head':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'ABI_count':len(rows),'schemas':rows}
+with Path(a.output).open('x') as f:json.dump(result,f,indent=2,sort_keys=True);f.write('\n')
+print(json.dumps({'output':a.output,'ABI_count':len(rows),'sha256':hashlib.sha256(Path(a.output).read_bytes()).hexdigest()}))

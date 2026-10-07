@@ -1,0 +1,411 @@
+{
+  "schema": "policyos.e02.static_lazy_facade_callsite_packet.v1",
+  "candidate": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "created_at": "2026-10-07T10:14:13.162330+00:00",
+  "overall_static": "FAIL20changed/new uninvoked candidates +91new-unresolved; zero lost_path flags. Original full output retained.",
+  "complete_eight_IR_helper_facade_bindings": {
+    "admit_posterior_summary_profiles": [
+      "polisyos.ir.analytics.posterior_summary",
+      "admit_posterior_summary_profiles"
+    ],
+    "load_posterior_summary_envelope": [
+      "polisyos.ir.analytics.posterior_summary",
+      "load_posterior_summary_envelope"
+    ],
+    "posterior_carrier_content_hash": [
+      "polisyos.ir.analytics.posterior_summary",
+      "posterior_carrier_content_hash"
+    ],
+    "posterior_joint_carrier_digest": [
+      "polisyos.ir.analytics.posterior_summary",
+      "posterior_joint_carrier_digest"
+    ],
+    "posterior_nominal_mean": [
+      "polisyos.ir.analytics.posterior_summary",
+      "posterior_nominal_mean"
+    ],
+    "posterior_summary_functionals": [
+      "polisyos.ir.analytics.posterior_summary",
+      "posterior_summary_functionals"
+    ],
+    "read_posterior_summary_profile": [
+      "polisyos.ir.analytics.posterior_summary",
+      "read_posterior_summary_profile"
+    ],
+    "validate_raw_posterior_summary_envelope": [
+      "polisyos.ir.analytics.posterior_summary",
+      "validate_raw_posterior_summary_envelope"
+    ]
+  },
+  "complete_selected_producer_consumer_call_sites": [
+    {
+      "function": "posterior_summary_functionals",
+      "source_path": "src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "line": 290,
+      "source_scope": "summarize_bayesian_calibration_posterior",
+      "actual_AST_call": "posterior_summary_functionals(tuple((float(value) for value in draws)), probabilities, credible_mass)",
+      "curated_native_binding": [
+        "polisyos.ir.analytics.posterior_summary",
+        "posterior_summary_functionals"
+      ],
+      "canonical_static_model": "Uninvoked public-helper candidate despite explicit source call through curated lazy metadata; root reachability/runtime remains independently unmeasured"
+    },
+    {
+      "function": "posterior_carrier_content_hash",
+      "source_path": "src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "line": 379,
+      "source_scope": "summarize_bayesian_calibration_posterior",
+      "actual_AST_call": "posterior_carrier_content_hash(envelope.distribution_payload)",
+      "curated_native_binding": [
+        "polisyos.ir.analytics.posterior_summary",
+        "posterior_carrier_content_hash"
+      ],
+      "canonical_static_model": "Uninvoked public-helper candidate despite explicit source call through curated lazy metadata; root reachability/runtime remains independently unmeasured"
+    },
+    {
+      "function": "posterior_joint_carrier_digest",
+      "source_path": "src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "line": 41,
+      "source_scope": "joint_carrier_digest",
+      "actual_AST_call": "posterior_joint_carrier_digest(names, envelopes, draw_ids)",
+      "curated_native_binding": [
+        "polisyos.ir.analytics.posterior_summary",
+        "posterior_joint_carrier_digest"
+      ],
+      "canonical_static_model": "Uninvoked public-helper candidate despite explicit source call through curated lazy metadata; root reachability/runtime remains independently unmeasured"
+    },
+    {
+      "function": "admit_posterior_summary_profiles",
+      "source_path": "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "line": 134,
+      "source_scope": "PropagateUncertaintyNode.execute",
+      "actual_AST_call": "admit_posterior_summary_profiles(input_envelopes)",
+      "curated_native_binding": [
+        "polisyos.ir.analytics.posterior_summary",
+        "admit_posterior_summary_profiles"
+      ],
+      "canonical_static_model": "Uninvoked public-helper candidate despite explicit source call through curated lazy metadata; root reachability/runtime remains independently unmeasured"
+    },
+    {
+      "function": "posterior_nominal_mean",
+      "source_path": "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "line": 137,
+      "source_scope": "PropagateUncertaintyNode.execute",
+      "actual_AST_call": "posterior_nominal_mean(env, parameter_name=name)",
+      "curated_native_binding": [
+        "polisyos.ir.analytics.posterior_summary",
+        "posterior_nominal_mean"
+      ],
+      "canonical_static_model": "Uninvoked public-helper candidate despite explicit source call through curated lazy metadata; root reachability/runtime remains independently unmeasured"
+    },
+    {
+      "function": "load_posterior_summary_envelope",
+      "source_path": "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "line": 202,
+      "source_scope": "PropagateUncertaintyNode.execute",
+      "actual_AST_call": "load_uncertainty_envelope(ctx.store, ref)",
+      "curated_native_binding": [
+        "polisyos.ir.analytics.posterior_summary",
+        "load_posterior_summary_envelope"
+      ],
+      "canonical_static_model": "Uninvoked public-helper candidate despite explicit source call through curated lazy metadata; root reachability/runtime remains independently unmeasured"
+    },
+    {
+      "function": "load_posterior_summary_envelope",
+      "source_path": "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "line": 326,
+      "source_scope": "_collect_input_envelopes",
+      "actual_AST_call": "load_uncertainty_envelope(ctx.store, snapshot.uncertainty_envelope_ref)",
+      "curated_native_binding": [
+        "polisyos.ir.analytics.posterior_summary",
+        "load_posterior_summary_envelope"
+      ],
+      "canonical_static_model": "Uninvoked public-helper candidate despite explicit source call through curated lazy metadata; root reachability/runtime remains independently unmeasured"
+    },
+    {
+      "function": "load_posterior_summary_envelope",
+      "source_path": "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "line": 347,
+      "source_scope": "_collect_input_envelopes",
+      "actual_AST_call": "load_uncertainty_envelope(ctx.store, ref)",
+      "curated_native_binding": [
+        "polisyos.ir.analytics.posterior_summary",
+        "load_posterior_summary_envelope"
+      ],
+      "canonical_static_model": "Uninvoked public-helper candidate despite explicit source call through curated lazy metadata; root reachability/runtime remains independently unmeasured"
+    },
+    {
+      "function": "load_posterior_summary_envelope",
+      "source_path": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "line": 239,
+      "source_scope": "_reconcile_welfare_empirical_rows",
+      "actual_AST_call": "load_uncertainty_envelope(store, ref)",
+      "curated_native_binding": [
+        "polisyos.ir.analytics.posterior_summary",
+        "load_posterior_summary_envelope"
+      ],
+      "canonical_static_model": "Uninvoked public-helper candidate despite explicit source call through curated lazy metadata; root reachability/runtime remains independently unmeasured"
+    },
+    {
+      "function": "load_posterior_summary_envelope",
+      "source_path": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "line": 1060,
+      "source_scope": "_collect_input_envelopes",
+      "actual_AST_call": "load_uncertainty_envelope(ctx.store, snapshot.uncertainty_envelope_ref)",
+      "curated_native_binding": [
+        "polisyos.ir.analytics.posterior_summary",
+        "load_posterior_summary_envelope"
+      ],
+      "canonical_static_model": "Uninvoked public-helper candidate despite explicit source call through curated lazy metadata; root reachability/runtime remains independently unmeasured"
+    },
+    {
+      "function": "load_posterior_summary_envelope",
+      "source_path": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "line": 1087,
+      "source_scope": "_collect_input_envelopes",
+      "actual_AST_call": "load_uncertainty_envelope(ctx.store, ref)",
+      "curated_native_binding": [
+        "polisyos.ir.analytics.posterior_summary",
+        "load_posterior_summary_envelope"
+      ],
+      "canonical_static_model": "Uninvoked public-helper candidate despite explicit source call through curated lazy metadata; root reachability/runtime remains independently unmeasured"
+    },
+    {
+      "function": "load_posterior_summary_envelope",
+      "source_path": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "line": 1142,
+      "source_scope": "_collect_input_envelopes",
+      "actual_AST_call": "load_uncertainty_envelope(ctx.store, ref)",
+      "curated_native_binding": [
+        "polisyos.ir.analytics.posterior_summary",
+        "load_posterior_summary_envelope"
+      ],
+      "canonical_static_model": "Uninvoked public-helper candidate despite explicit source call through curated lazy metadata; root reachability/runtime remains independently unmeasured"
+    },
+    {
+      "function": "validate_raw_posterior_summary_envelope",
+      "source_path": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "line": 1150,
+      "source_scope": "_collect_input_envelopes",
+      "actual_AST_call": "validate_raw_posterior_summary_envelope(value, parameter_name=name)",
+      "curated_native_binding": [
+        "polisyos.ir.analytics.posterior_summary",
+        "validate_raw_posterior_summary_envelope"
+      ],
+      "canonical_static_model": "Uninvoked public-helper candidate despite explicit source call through curated lazy metadata; root reachability/runtime remains independently unmeasured"
+    },
+    {
+      "function": "admit_posterior_summary_profiles",
+      "source_path": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "line": 1162,
+      "source_scope": "_collect_input_envelopes",
+      "actual_AST_call": "admit_posterior_summary_profiles(envelopes)",
+      "curated_native_binding": [
+        "polisyos.ir.analytics.posterior_summary",
+        "admit_posterior_summary_profiles"
+      ],
+      "canonical_static_model": "Uninvoked public-helper candidate despite explicit source call through curated lazy metadata; root reachability/runtime remains independently unmeasured"
+    },
+    {
+      "function": "posterior_nominal_mean",
+      "source_path": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "line": 1847,
+      "source_scope": "_build_simulation_fn",
+      "actual_AST_call": "posterior_nominal_mean(available_envelopes.envelopes[param_name], parameter_name=param_name)",
+      "curated_native_binding": [
+        "polisyos.ir.analytics.posterior_summary",
+        "posterior_nominal_mean"
+      ],
+      "canonical_static_model": "Uninvoked public-helper candidate despite explicit source call through curated lazy metadata; root reachability/runtime remains independently unmeasured"
+    },
+    {
+      "function": "posterior_nominal_mean",
+      "source_path": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "line": 1858,
+      "source_scope": "_build_simulation_fn",
+      "actual_AST_call": "posterior_nominal_mean(env, parameter_name=param_name)",
+      "curated_native_binding": [
+        "polisyos.ir.analytics.posterior_summary",
+        "posterior_nominal_mean"
+      ],
+      "canonical_static_model": "Uninvoked public-helper candidate despite explicit source call through curated lazy metadata; root reachability/runtime remains independently unmeasured"
+    },
+    {
+      "function": "posterior_carrier_content_hash",
+      "source_path": "src/polisyos/ir/analytics/posterior_summary.py",
+      "line": 267,
+      "source_scope": "read_posterior_summary_profile",
+      "actual_AST_call": "posterior_carrier_content_hash(carrier)",
+      "curated_native_binding": [
+        "polisyos.ir.analytics.posterior_summary",
+        "posterior_carrier_content_hash"
+      ],
+      "canonical_static_model": "Uninvoked public-helper candidate despite explicit source call through curated lazy metadata; root reachability/runtime remains independently unmeasured"
+    },
+    {
+      "function": "posterior_summary_functionals",
+      "source_path": "src/polisyos/ir/analytics/posterior_summary.py",
+      "line": 275,
+      "source_scope": "read_posterior_summary_profile",
+      "actual_AST_call": "posterior_summary_functionals(carrier.samples, profile.probabilities, profile.credible_mass)",
+      "curated_native_binding": [
+        "polisyos.ir.analytics.posterior_summary",
+        "posterior_summary_functionals"
+      ],
+      "canonical_static_model": "Uninvoked public-helper candidate despite explicit source call through curated lazy metadata; root reachability/runtime remains independently unmeasured"
+    },
+    {
+      "function": "posterior_joint_carrier_digest",
+      "source_path": "src/polisyos/ir/analytics/posterior_summary.py",
+      "line": 287,
+      "source_scope": "read_posterior_summary_profile",
+      "actual_AST_call": "posterior_joint_carrier_digest(list(profile.parameter_order), {profile.parameter_name: envelope}, list(profile.draw_ids))",
+      "curated_native_binding": [
+        "polisyos.ir.analytics.posterior_summary",
+        "posterior_joint_carrier_digest"
+      ],
+      "canonical_static_model": "Uninvoked public-helper candidate despite explicit source call through curated lazy metadata; root reachability/runtime remains independently unmeasured"
+    },
+    {
+      "function": "read_posterior_summary_profile",
+      "source_path": "src/polisyos/ir/analytics/posterior_summary.py",
+      "line": 306,
+      "source_scope": "admit_posterior_summary_profiles",
+      "actual_AST_call": "read_posterior_summary_profile(env)",
+      "curated_native_binding": [
+        "polisyos.ir.analytics.posterior_summary",
+        "read_posterior_summary_profile"
+      ],
+      "canonical_static_model": "Uninvoked public-helper candidate despite explicit source call through curated lazy metadata; root reachability/runtime remains independently unmeasured"
+    },
+    {
+      "function": "posterior_joint_carrier_digest",
+      "source_path": "src/polisyos/ir/analytics/posterior_summary.py",
+      "line": 328,
+      "source_scope": "admit_posterior_summary_profiles",
+      "actual_AST_call": "posterior_joint_carrier_digest(list(profile.parameter_order), envelopes, list(profile.draw_ids))",
+      "curated_native_binding": [
+        "polisyos.ir.analytics.posterior_summary",
+        "posterior_joint_carrier_digest"
+      ],
+      "canonical_static_model": "Uninvoked public-helper candidate despite explicit source call through curated lazy metadata; root reachability/runtime remains independently unmeasured"
+    },
+    {
+      "function": "read_posterior_summary_profile",
+      "source_path": "src/polisyos/ir/analytics/posterior_summary.py",
+      "line": 354,
+      "source_scope": "posterior_nominal_mean",
+      "actual_AST_call": "read_posterior_summary_profile(envelope)",
+      "curated_native_binding": [
+        "polisyos.ir.analytics.posterior_summary",
+        "read_posterior_summary_profile"
+      ],
+      "canonical_static_model": "Uninvoked public-helper candidate despite explicit source call through curated lazy metadata; root reachability/runtime remains independently unmeasured"
+    },
+    {
+      "function": "validate_raw_posterior_summary_envelope",
+      "source_path": "src/polisyos/ir/analytics/posterior_summary.py",
+      "line": 430,
+      "source_scope": "load_posterior_summary_envelope",
+      "actual_AST_call": "validate_raw_posterior_summary_envelope(raw)",
+      "curated_native_binding": [
+        "polisyos.ir.analytics.posterior_summary",
+        "validate_raw_posterior_summary_envelope"
+      ],
+      "canonical_static_model": "Uninvoked public-helper candidate despite explicit source call through curated lazy metadata; root reachability/runtime remains independently unmeasured"
+    }
+  ],
+  "source_refs": [
+    {
+      "path": "src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "sha256": "a585cf69fd9b6492bf20e1ab835bd9a3678958db95358231919a0e05c7f13779",
+      "bytes": 17116,
+      "matches_independently_reviewed_source700": true
+    },
+    {
+      "path": "src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "sha256": "692481d93c0c95471897a5b8fd8a3b955bff25e0409dd3088abaeb09a920bd44",
+      "bytes": 23932,
+      "matches_independently_reviewed_source700": true
+    },
+    {
+      "path": "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "sha256": "a77d35527d03e3c8d25ef33678ecd988c547941353d810460055f1a3eb043e41",
+      "bytes": 20893,
+      "matches_independently_reviewed_source700": true
+    },
+    {
+      "path": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "sha256": "3e0690590297b52e1fc69b3e52812eba8d3c3c2e73469bc498bba0deca52be23",
+      "bytes": 193138,
+      "matches_independently_reviewed_source700": true
+    },
+    {
+      "path": "src/polisyos/ir/analytics/posterior_summary.py",
+      "sha256": "0e6b8f25eab56fc0f5f782effc9960f2fe449da559009422adfe5737525bb43e",
+      "bytes": 19970,
+      "matches_independently_reviewed_source700": true
+    }
+  ],
+  "native_identity_review": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/independent-ir-review-700.json",
+    "sha256": "6bf238d1837987f116e9b04493c442d5345438536c2b5fa36c0b4861b03fd742",
+    "bytes": 73767,
+    "reuse_basis": "Exact source bytes identical700\u219264d. Prior independently executed identity + fake-name/property-removal controls remain a frozen observation, not new default/served evidence."
+  },
+  "owner_queue": [
+    {
+      "symbols": [
+        "build_model_registry_record",
+        "evaluate_registry_gate",
+        "rebind_calibration_validity",
+        "DriftAndDegradationMonitor.evaluate_window"
+      ],
+      "owner": "E DDM + real registry/monitor/feed/R2 deployment-purpose owners",
+      "remaining": "Library tests/reopen/veto are separate from live feed/purpose/signoff and default native monitoring call. No source caller is established for evaluate_registry_gate/rebind/evaluate_window by this instrument; retain exact unmeasured consumer boundary and original local recipes."
+    },
+    {
+      "symbols": [
+        "put_calibration_config",
+        "put_calibration_report",
+        "summarize_bayesian_calibration_posterior"
+      ],
+      "owner": "E Calibration producer + configured actual source/fit/noise/target join and consumer owner forB197",
+      "remaining": "Fresh synthetic native configured CAS/adapter consumers may prove generic mechanism; actual B197 source fit/noise/target inputs still separately held until supplied. Lazy public producer API entries are not CLI roots."
+    },
+    {
+      "symbols": [
+        "admit_posterior_summary_profiles",
+        "load_posterior_summary_envelope",
+        "posterior_carrier_content_hash",
+        "posterior_joint_carrier_digest",
+        "posterior_nominal_mean",
+        "posterior_summary_functionals",
+        "read_posterior_summary_profile",
+        "validate_raw_posterior_summary_envelope"
+      ],
+      "owner": "E scoped B201/B202 producer/reader + C/F actual consumers and IR/public generator companions throughG",
+      "remaining": "Source facade calls and prior native fresh reader witnesses are pinned here; source-law dependent computations require resolved bound law. No direct CLI path by this static proxy. Public generated inventory/ABI companions separately remain owner-ready."
+    },
+    {
+      "symbols": [
+        "SensitivityBridge.analyze_search_space"
+      ],
+      "owner": "E existing DoE bridge + D default Search runtime consumer",
+      "remaining": "Native transform/analyzer and artifact/reader negatives already reviewed; actual default Search ranking/reopen consumer belongsD, notB100 gate."
+    },
+    {
+      "symbols": [
+        "bootstrap_metric",
+        "PredictionEvaluator.evaluate",
+        "TrustScorer.compute",
+        "persist_forecast_owner_request"
+      ],
+      "owner": "E BKT/FRC native APIs + canonical workflow/default A verifier owners",
+      "remaining": "Bootstrap defined statistic and native replay/ETS scoped witnesses separate from production history/trust equivalence profiles. No fake caller or weakened binding; G read-only scoped factual recipes remain where original criteria need actual history."
+    }
+  ],
+  "P41": "not_established; current full static delta is not exact prior-base full runtime or global gate replay",
+  "scope_limit": "Call-site source existence is not execution. Prior immutable runtime positive/negative receipts must be read individually; this AST packet does not confer authority or finding closure. E code acceptance and original owner finding decisions remain separate."
+}

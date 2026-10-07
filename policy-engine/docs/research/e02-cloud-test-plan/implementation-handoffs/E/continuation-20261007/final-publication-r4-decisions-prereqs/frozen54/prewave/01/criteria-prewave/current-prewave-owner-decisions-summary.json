@@ -1,0 +1,815 @@
+{
+  "schema": "policyos.e02.E.current-prewave-summary.v1",
+  "full_packet": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-prewave-all-54-owner-dispositions.json",
+    "bytes": 305737,
+    "sha256": "c618be1881cac757c1ebcfc532591e908392659deb707a51c5a68f7c4896d38d"
+  },
+  "frozen_source": {
+    "sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+    "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+    "root_checkout": "/workspace/e02-E-continuation-20261006"
+  },
+  "complete_denominator": {
+    "bundles": 22,
+    "findings": 54,
+    "finding_bundle_links": 55
+  },
+  "historical_ledger": {
+    "partial": 49,
+    "held": 4,
+    "closed": 1
+  },
+  "proposed_finding_counts": {
+    "closed": 43,
+    "limited": 9,
+    "held": 2,
+    "open": 0
+  },
+  "individual_decision_counts": {
+    "new_bounded_acceptances": 42,
+    "retained_prior_closed": 1,
+    "pending": 11,
+    "rejected": 0
+  },
+  "formal_ledger_change": false,
+  "rows": [
+    {
+      "id": "B32",
+      "bundle_ids": [
+        "FRC-01"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "pending",
+      "proposed_finding_outcome": "limited",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/0",
+      "next_owner": "A"
+    },
+    {
+      "id": "B97",
+      "bundle_ids": [
+        "DOE-01"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "accepted",
+      "proposed_finding_outcome": "closed",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/1",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate"
+    },
+    {
+      "id": "B98",
+      "bundle_ids": [
+        "DOE-01"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "accepted",
+      "proposed_finding_outcome": "closed",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/2",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate"
+    },
+    {
+      "id": "B99",
+      "bundle_ids": [
+        "DOE-01"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "accepted",
+      "proposed_finding_outcome": "closed",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/3",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate"
+    },
+    {
+      "id": "B100",
+      "bundle_ids": [
+        "DOE-02"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "accepted",
+      "proposed_finding_outcome": "closed",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/4",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate"
+    },
+    {
+      "id": "B101",
+      "bundle_ids": [
+        "DOE-02"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "accepted",
+      "proposed_finding_outcome": "closed",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/5",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate"
+    },
+    {
+      "id": "B102",
+      "bundle_ids": [
+        "DOE-03"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "accepted",
+      "proposed_finding_outcome": "closed",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/6",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate"
+    },
+    {
+      "id": "B103",
+      "bundle_ids": [
+        "DOE-03"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "accepted",
+      "proposed_finding_outcome": "closed",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/7",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate"
+    },
+    {
+      "id": "B104",
+      "bundle_ids": [
+        "DOE-03"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "accepted",
+      "proposed_finding_outcome": "closed",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/8",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate"
+    },
+    {
+      "id": "B105",
+      "bundle_ids": [
+        "DOE-03"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "accepted",
+      "proposed_finding_outcome": "closed",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/9",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate"
+    },
+    {
+      "id": "B166",
+      "bundle_ids": [
+        "BKT-01"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "accepted",
+      "proposed_finding_outcome": "closed",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/10",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate"
+    },
+    {
+      "id": "B167",
+      "bundle_ids": [
+        "BKT-02"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "accepted",
+      "proposed_finding_outcome": "closed",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/11",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate"
+    },
+    {
+      "id": "B168",
+      "bundle_ids": [
+        "BKT-02"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "accepted",
+      "proposed_finding_outcome": "closed",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/12",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate"
+    },
+    {
+      "id": "B169",
+      "bundle_ids": [
+        "BKT-01"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "accepted",
+      "proposed_finding_outcome": "closed",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/13",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate"
+    },
+    {
+      "id": "B170",
+      "bundle_ids": [
+        "BKT-01"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "accepted",
+      "proposed_finding_outcome": "closed",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/14",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate"
+    },
+    {
+      "id": "B171",
+      "bundle_ids": [
+        "BKT-02"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "accepted",
+      "proposed_finding_outcome": "closed",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/15",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate"
+    },
+    {
+      "id": "B172",
+      "bundle_ids": [
+        "BKT-03"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "pending",
+      "proposed_finding_outcome": "limited",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/16",
+      "next_owner": "Scientist accountable trust-purpose/profile owner"
+    },
+    {
+      "id": "B173",
+      "bundle_ids": [
+        "BKT-03"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "pending",
+      "proposed_finding_outcome": "limited",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/17",
+      "next_owner": "Scientist accountable trust-purpose/profile owner"
+    },
+    {
+      "id": "B174",
+      "bundle_ids": [
+        "BKT-04"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "accepted",
+      "proposed_finding_outcome": "closed",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/18",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate"
+    },
+    {
+      "id": "B175",
+      "bundle_ids": [
+        "BKT-04"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "accepted",
+      "proposed_finding_outcome": "closed",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/19",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate"
+    },
+    {
+      "id": "B176",
+      "bundle_ids": [
+        "CAL-01"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "accepted",
+      "proposed_finding_outcome": "closed",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/20",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate"
+    },
+    {
+      "id": "B177",
+      "bundle_ids": [
+        "CAL-01"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "accepted",
+      "proposed_finding_outcome": "closed",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/21",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate"
+    },
+    {
+      "id": "B178",
+      "bundle_ids": [
+        "CAL-01"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "accepted",
+      "proposed_finding_outcome": "closed",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/22",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate"
+    },
+    {
+      "id": "B179",
+      "bundle_ids": [
+        "CAL-02"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "accepted",
+      "proposed_finding_outcome": "closed",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/23",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate"
+    },
+    {
+      "id": "B180",
+      "bundle_ids": [
+        "CAL-02"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "accepted",
+      "proposed_finding_outcome": "closed",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/24",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate"
+    },
+    {
+      "id": "B181",
+      "bundle_ids": [
+        "CAL-02"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "accepted",
+      "proposed_finding_outcome": "closed",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/25",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate"
+    },
+    {
+      "id": "B182",
+      "bundle_ids": [
+        "CAL-02"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "accepted",
+      "proposed_finding_outcome": "closed",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/26",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate"
+    },
+    {
+      "id": "B183",
+      "bundle_ids": [
+        "CAL-03"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "accepted",
+      "proposed_finding_outcome": "closed",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/27",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate"
+    },
+    {
+      "id": "B184",
+      "bundle_ids": [
+        "CAL-04"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "accepted",
+      "proposed_finding_outcome": "closed",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/28",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate"
+    },
+    {
+      "id": "B185",
+      "bundle_ids": [
+        "CAL-05"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "accepted",
+      "proposed_finding_outcome": "closed",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/29",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate"
+    },
+    {
+      "id": "B186",
+      "bundle_ids": [
+        "UQP-01"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "accepted",
+      "proposed_finding_outcome": "closed",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/30",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate"
+    },
+    {
+      "id": "B187",
+      "bundle_ids": [
+        "UQP-02"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "accepted",
+      "proposed_finding_outcome": "closed",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/31",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate"
+    },
+    {
+      "id": "B188",
+      "bundle_ids": [
+        "UQP-02"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "accepted",
+      "proposed_finding_outcome": "closed",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/32",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate"
+    },
+    {
+      "id": "B189",
+      "bundle_ids": [
+        "UQP-01"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "accepted",
+      "proposed_finding_outcome": "closed",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/33",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate"
+    },
+    {
+      "id": "B190",
+      "bundle_ids": [
+        "UQP-01"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "pending",
+      "proposed_finding_outcome": "limited",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/34",
+      "next_owner": "Scientist response/Jacobian/execution producer with E propagation adapter"
+    },
+    {
+      "id": "B191",
+      "bundle_ids": [
+        "UQP-01"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "accepted",
+      "proposed_finding_outcome": "closed",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/35",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate"
+    },
+    {
+      "id": "B192",
+      "bundle_ids": [
+        "UQP-02"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "accepted",
+      "proposed_finding_outcome": "closed",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/36",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate"
+    },
+    {
+      "id": "B193",
+      "bundle_ids": [
+        "UQP-03"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "accepted",
+      "proposed_finding_outcome": "closed",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/37",
+      "next_owner": "G formal intake after current frozen-wave receipt reconciliation"
+    },
+    {
+      "id": "B194",
+      "bundle_ids": [
+        "UQP-03"
+      ],
+      "historical_status": "held",
+      "owner_decision": "pending",
+      "proposed_finding_outcome": "held",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/38",
+      "next_owner": "Scientist served evaluator/domain owner and Foundry actual source-law/model issuer"
+    },
+    {
+      "id": "B195",
+      "bundle_ids": [
+        "CAL-03"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "accepted",
+      "proposed_finding_outcome": "closed",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/39",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate"
+    },
+    {
+      "id": "B196",
+      "bundle_ids": [
+        "CAL-04"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "accepted",
+      "proposed_finding_outcome": "closed",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/40",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate"
+    },
+    {
+      "id": "B197",
+      "bundle_ids": [
+        "CAL-06"
+      ],
+      "historical_status": "held",
+      "owner_decision": "pending",
+      "proposed_finding_outcome": "held",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/41",
+      "next_owner": "Foundry actual Calibrator/source-fit/noise issuer and Scientist configured welfare consumer"
+    },
+    {
+      "id": "B198",
+      "bundle_ids": [
+        "CAL-06"
+      ],
+      "historical_status": "closed",
+      "owner_decision": "accepted",
+      "proposed_finding_outcome": "closed",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/42",
+      "next_owner": "E final new-source regression; reopen only if defining-property counterexample exists"
+    },
+    {
+      "id": "B199",
+      "bundle_ids": [
+        "UQS-01"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "accepted",
+      "proposed_finding_outcome": "closed",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/43",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate"
+    },
+    {
+      "id": "B200",
+      "bundle_ids": [
+        "UQS-01"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "pending",
+      "proposed_finding_outcome": "limited",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/44",
+      "next_owner": "Foundry/Scientist information-relationship producer with E aggregator and IR contract owner"
+    },
+    {
+      "id": "B201",
+      "bundle_ids": [
+        "UQS-01"
+      ],
+      "historical_status": "held",
+      "owner_decision": "accepted",
+      "proposed_finding_outcome": "closed",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/45",
+      "next_owner": "G/canonical IR generated/public companion writers; G formal finding intake separately"
+    },
+    {
+      "id": "B202",
+      "bundle_ids": [
+        "UQS-01"
+      ],
+      "historical_status": "held",
+      "owner_decision": "accepted",
+      "proposed_finding_outcome": "closed",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/46",
+      "next_owner": "G/canonical IR generated/public companion writers; G formal finding intake separately"
+    },
+    {
+      "id": "B203",
+      "bundle_ids": [
+        "CAL-04"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "accepted",
+      "proposed_finding_outcome": "closed",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/47",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate"
+    },
+    {
+      "id": "LA-051",
+      "bundle_ids": [
+        "FRC-01",
+        "FRC-02"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "pending",
+      "proposed_finding_outcome": "limited",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/48",
+      "next_owner": "A with E ForecastOwner supplier"
+    },
+    {
+      "id": "LA-052",
+      "bundle_ids": [
+        "PCL-01"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "accepted",
+      "proposed_finding_outcome": "closed",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/49",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate"
+    },
+    {
+      "id": "LA-053",
+      "bundle_ids": [
+        "PCL-01"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "pending",
+      "proposed_finding_outcome": "limited",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/50",
+      "next_owner": "Calibration API owner and Scientist compatibility migration owner jointly"
+    },
+    {
+      "id": "LA-054",
+      "bundle_ids": [
+        "DDM-02"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "pending",
+      "proposed_finding_outcome": "limited",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/51",
+      "next_owner": "DDM applicability/live-feed/deployment-purpose owners"
+    },
+    {
+      "id": "LA-055",
+      "bundle_ids": [
+        "DDM-02"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "pending",
+      "proposed_finding_outcome": "limited",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/52",
+      "next_owner": "DDM deployment-purpose owner and identity-bound institutional R2 signoff issuer"
+    },
+    {
+      "id": "LA-056",
+      "bundle_ids": [
+        "DDM-01"
+      ],
+      "historical_status": "partial",
+      "owner_decision": "accepted",
+      "proposed_finding_outcome": "closed",
+      "current_wave_status": "UNRUN",
+      "full_row_fragment": "#/rows/53",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate"
+    }
+  ],
+  "remaining_owner_inputs": [
+    {
+      "ids": [
+        "B32"
+      ],
+      "owner": "A",
+      "minimal_inputs": "E admitted ForecastOwnerRequest/profile/source schema/unit/split/horizon/six-time-role refs and separate candidate/evidence refs in the same CAS; then A independent default/HTTP verifier.",
+      "next_verifiable_result": "Actual ETS -> persisted receipt/evidence -> A resolver recomputation -> fresh persisted grade/S6/default/HTTP decision. Missing-ref reason differs from resolved floor failure; unresolved fake mapping refuses. E packet is an implementation dependency, not missing production data.",
+      "source_existing_recipe_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/current-local-G-recipes.json@e9cb425e4dfe888720f93eb84f1667f24a8a92c4",
+      "rule": "Recipes are scoped initial inputs, not blanket prerequisites or an upper bound on criterion-supported new inputs."
+    },
+    {
+      "ids": [
+        "LA-051"
+      ],
+      "owner": "A with E ForecastOwner supplier",
+      "minimal_inputs": "Same configured CAS ForecastOwner positive/negative packet and profile/purpose/source/rule/time refs; same estimator shape with different actual holdout outcomes.",
+      "next_verifiable_result": "A source-resolved measured numerator/denominator and all bound field/time predicates changes the fresh default/HTTP result; nominal confidence alone cannot become observed calibration. Terminal causal/treatment/policy refusal remains.",
+      "source_existing_recipe_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/current-local-G-recipes.json@e9cb425e4dfe888720f93eb84f1667f24a8a92c4",
+      "rule": "Recipes are scoped initial inputs, not blanket prerequisites or an upper bound on criterion-supported new inputs."
+    },
+    {
+      "ids": [
+        "B172"
+      ],
+      "owner": "Scientist accountable trust-purpose/profile owner",
+      "minimal_inputs": "Versioned trust-grade purpose/profile; criterion-supported meaningful-bias margin/equivalence sampling/interval assumptions only where positive neutrality is requested.",
+      "next_verifiable_result": "Constant nonzero residual retains descriptive magnitude and unavailable inference cannot grant trust. Existing current diagnostics pass; owner-approved positive profile and equivalence case required before any neutrality/GradeA authority.",
+      "source_existing_recipe_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/current-local-G-recipes.json@e9cb425e4dfe888720f93eb84f1667f24a8a92c4",
+      "rule": "Recipes are scoped initial inputs, not blanket prerequisites or an upper bound on criterion-supported new inputs."
+    },
+    {
+      "ids": [
+        "B173"
+      ],
+      "owner": "Scientist accountable trust-purpose/profile owner",
+      "minimal_inputs": "Same versioned trust-purpose/profile; runtime backend identity and declared inference/equivalence use.",
+      "next_verifiable_result": "Current df2 analytic t oracle agrees p=1 and p=.12168993434632014; missing SciPy degrades honestly. Preserve partial/limited explicitly per user until profile input; never convert non-significance to equivalence.",
+      "source_existing_recipe_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/current-local-G-recipes.json@e9cb425e4dfe888720f93eb84f1667f24a8a92c4",
+      "rule": "Recipes are scoped initial inputs, not blanket prerequisites or an upper bound on criterion-supported new inputs."
+    },
+    {
+      "ids": [
+        "B190"
+      ],
+      "owner": "Scientist response/Jacobian/execution producer with E propagation adapter",
+      "minimal_inputs": "Existing actual configured model/evaluator or source-bound Jacobian; input-output axis/unit mapping and immutable model/objective/source refs, or explicitly declared affine response with content-bound provenance/units.",
+      "next_verifiable_result": "Real response or admitted Jacobian -> existing persisted response/sensitivity artifact -> configured Node propagation -> fresh read. Zero-baseline y=x-2 retains variance; partial/unresolved/fake or wrong-unit map cannot gain authority. Current params-only map is not that producer.",
+      "source_existing_recipe_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/current-local-G-recipes.json@e9cb425e4dfe888720f93eb84f1667f24a8a92c4",
+      "rule": "Recipes are scoped initial inputs, not blanket prerequisites or an upper bound on criterion-supported new inputs."
+    },
+    {
+      "ids": [
+        "B200"
+      ],
+      "owner": "Foundry/Scientist information-relationship producer with E aggregator and IR contract owner",
+      "minimal_inputs": "Content-bound information-unit relationship artifact: source identities, same/different measurement/replicate, shared data/covariance, prior/likelihood/posterior lineage, same estimand/unit.",
+      "next_verifiable_result": "Producer relationships -> CAS -> fresh aggregator: four copies remain std1; independently admitted measurements can narrow under their declared joint law. Equal values or origin strings alone cannot establish independence.",
+      "source_existing_recipe_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/current-local-G-recipes.json@e9cb425e4dfe888720f93eb84f1667f24a8a92c4",
+      "rule": "Recipes are scoped initial inputs, not blanket prerequisites or an upper bound on criterion-supported new inputs."
+    },
+    {
+      "ids": [
+        "LA-053"
+      ],
+      "owner": "Calibration API owner and Scientist compatibility migration owner jointly",
+      "minimal_inputs": "Tracked actual compatibility support window/API classification; current canonical/root/alias identity and migrated native numerical consumer corpus.",
+      "next_verifiable_result": "Owner-approved compatibility window and existing public inventory identify whether retirement is due. Until that decision retain alias; actual object/exception/native-corpus parity already passes. Do not invent arbitrary sunset or remove supported alias.",
+      "source_existing_recipe_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/current-local-G-recipes.json@e9cb425e4dfe888720f93eb84f1667f24a8a92c4",
+      "rule": "Recipes are scoped initial inputs, not blanket prerequisites or an upper bound on criterion-supported new inputs."
+    },
+    {
+      "ids": [
+        "LA-054"
+      ],
+      "owner": "DDM applicability/live-feed/deployment-purpose owners",
+      "minimal_inputs": "Exact current source report/model/detector/regime/metric/window/rule/expiry refs, complete observed invalidation feed and freshness policy; target consumer identity.",
+      "next_verifiable_result": "Current source -> distinctv2 registry -> fresh source rebind/public deployment consumer. Missing/delayed/incomplete feed, wrong subject/metric/regime, expiry and trigger retain typed refusal; historical calibration pass cannot substitute current validity.",
+      "source_existing_recipe_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/current-local-G-recipes.json@e9cb425e4dfe888720f93eb84f1667f24a8a92c4",
+      "rule": "Recipes are scoped initial inputs, not blanket prerequisites or an upper bound on criterion-supported new inputs."
+    },
+    {
+      "ids": [
+        "LA-055"
+      ],
+      "owner": "DDM deployment-purpose owner and identity-bound institutional R2 signoff issuer",
+      "minimal_inputs": "Actual observed complete current window plus source validity and independently identity-bound R2/purpose input where R2 override is exercised; explicit baseline/veto precedence.",
+      "next_verifiable_result": "Fresh persisted restriction stays veto; valid R2 issuer can exercise only admitted R2 exception; R0/R1/failed certificate and R4/R3 persisted veto cannot be overridden. Boolean signoff or synthetic [] proves only library branch, not institution/deployment authority.",
+      "source_existing_recipe_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/current-local-G-recipes.json@e9cb425e4dfe888720f93eb84f1667f24a8a92c4",
+      "rule": "Recipes are scoped initial inputs, not blanket prerequisites or an upper bound on criterion-supported new inputs."
+    },
+    {
+      "ids": [
+        "B194"
+      ],
+      "owner": "Scientist served evaluator/domain owner and Foundry actual source-law/model issuer",
+      "minimal_inputs": "Owner-admitted exact served evaluator/model/config/source/joint-law/output/domain refs in configured CAS; same-input transient retry classification only if that profile requests retries.",
+      "next_verifiable_result": "Existing dispatcher -> every addressed terminal draw outcome -> persisted report/envelope -> fresh served consumer. Requested=success+failure/refusal; success-only conditional mean remains labeled/refused for unconditional authority. Native Welfare128=92+36 is an established generic sibling, not missing served input.",
+      "source_existing_recipe_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/current-local-G-recipes.json@e9cb425e4dfe888720f93eb84f1667f24a8a92c4",
+      "rule": "Recipes are scoped initial inputs, not blanket prerequisites or an upper bound on criterion-supported new inputs."
+    },
+    {
+      "ids": [
+        "B197"
+      ],
+      "owner": "Foundry actual Calibrator/source-fit/noise issuer and Scientist configured welfare consumer",
+      "minimal_inputs": "Actual CalibratorInputs/model/objective/source-target time/unit/split join, declared likelihood/noise/fit assumptions, trainable field/tie coordinate mapping and configured CAS/report refs.",
+      "next_verifiable_result": "Real configured fit -> strict Foundry CalibrationReportv2 -> fresh existing Node/Welfare consumer. Recompute J/axis/cross-covariance/nullspace and reject wrong/Funnel kind/schema/config/objective. Generic known-noise fixture is technical positive only; factual source-fit authority remains held.",
+      "source_existing_recipe_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/current-local-G-recipes.json@e9cb425e4dfe888720f93eb84f1667f24a8a92c4",
+      "rule": "Recipes are scoped initial inputs, not blanket prerequisites or an upper bound on criterion-supported new inputs."
+    }
+  ],
+  "current_global_public_boundary": {
+    "capability_state": "surface_missing",
+    "owner": "G/canonical IR generator/public inventory writers",
+    "packet": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-700f9d5a/generator-packet.json",
+      "bytes": 6750,
+      "sha256": "e81fdcff4b6e4bf9c70a775d0821d6be4719ce74ac1e1b5617d3f8ae3eea3289"
+    },
+    "applicable_full_patch": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-700f9d5a/canonical-generated-full.patch",
+      "bytes": 27313,
+      "sha256": "3838278b4419d3d17053282e0a3f5c248ef100b6b2c3b41c34d032b499dc0580"
+    },
+    "next_result": "Review/reproduce/apply the full102-model, full20-package/13-family generated companion packet and execute actual generated/global gates after integration. E source GO is not current global/public publication GO."
+  },
+  "rule": "Current wave cases await independent receipt recomputation. These owner dispositions are not test outcomes and do not mutate the historical ledger."
+}

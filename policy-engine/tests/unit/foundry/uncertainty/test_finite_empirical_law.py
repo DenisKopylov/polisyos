@@ -109,7 +109,7 @@ def test_joint_law_corruption_is_refused_before_any_callback(method, entry, muta
     if mutation == "near_weights":
         envs = paired((0.25, 0.25, 0.5), (0.2500000000005, 0.2499999999995, 0.5))
     elif mutation == "collapse":
-        envs = paired((0.5, 1e-20, 0.5), (0.5, 1e-20, 0.5))
+        envs = paired((0.5, 0.5, 1e-20), (0.5, 0.5, 1e-20))
     elif mutation == "permuted_rows":
         payload = envs["b"].distribution_payload.model_copy(update={"samples": (5, 2, 0)})
         envs["b"] = envs["b"].model_copy(update={"distribution_payload": payload})
@@ -173,7 +173,7 @@ def test_covariance_only_uniform_law_refused_before_sampler_or_evaluator(
     ("weights", "uniforms", "expected"),
     [
         ([5e-11, 1 - 5e-11], [0, 2.5e-11], [0, 0]),
-        ([0.5, 5e-11, 0.5 - 5e-11], [0.5, 0.5 + 2.5e-11], [1, 1]),
+        ([0.5, 5e-11, 0.5 - 5e-11], [np.nextafter(0.5, 1.0), 0.5 + 2.5e-11], [1, 1]),
         ([1 - 5e-11, 5e-11], [1 - 2.5e-11, np.nextafter(1.0, 0.0)], [1, 1]),
         ([0, 0.5, 0, 0.5, 0], [0, np.nextafter(0.5, 0), 0.5, np.nextafter(1.0, 0)], [1, 1, 3, 3]),
     ],
@@ -189,9 +189,9 @@ def test_invalid_uniform_domain_refused_without_clipping(u):
         _empirical_indices_from_uniform(np.array([u]), np.array([0.5, 0.5]))
 
 
-@pytest.mark.parametrize("weights", [[0.5, 1e-20, 0.5], [1, 1e-20], [1e308, 1e-300]])
+@pytest.mark.parametrize("weights", [[0.5, 0.5, 1e-20], [1, 1e-20], [1e308, 1e-300]])
 def test_unrepresentable_positive_categories_are_explicitly_refused(weights):
-    with pytest.raises(ValueError, match="collapses|underflows"):
+    with pytest.raises(ValueError, match="finite-U bucket|changes the exact input law"):
         admit_empirical_weights(weights, len(weights))
 
 

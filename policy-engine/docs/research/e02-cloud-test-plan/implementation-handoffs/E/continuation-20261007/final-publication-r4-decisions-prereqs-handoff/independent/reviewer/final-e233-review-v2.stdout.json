@@ -1,0 +1,29 @@
+{
+  "disposition": "GO bounded DOC custody and typed exact claim admission",
+  "source_sha": "e233efcd0e5a4bb4c5b280f86a12ec7d0a264d62",
+  "source_tree": "6f541e58830bb760c2885921d58d6dfae4e6b01a",
+  "complete_DOC_files": 183,
+  "complete_DOC_bytes": 8721267,
+  "member_occurrences": 237,
+  "payload_files": 168,
+  "payload_bytes": 8218180,
+  "aliases": 69,
+  "healthy_modes": [
+    "normal",
+    "optimized"
+  ],
+  "negative_controls_per_mode": 22,
+  "effective_removals": [
+    "header",
+    "Counter",
+    "qualification"
+  ],
+  "receipt": {
+    "path": "/tmp/e02-E-decisions-prereqs-custody-independent/final-e233-v2/independent-final-custody-e233.json",
+    "bytes": 134381,
+    "sha256": "83f1cefe85c5a180405622c86ad6ff727e155fa5f50fc2b17269332b9b6a4a74"
+  },
+  "ROOT_HEAD_tree_unchanged": true,
+  "ROOT_tracked_output_status_unchanged": true,
+  "native_tests_repeated": false
+}

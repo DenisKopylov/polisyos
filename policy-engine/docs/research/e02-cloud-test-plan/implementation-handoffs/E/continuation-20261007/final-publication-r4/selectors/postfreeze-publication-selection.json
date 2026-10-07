@@ -1,0 +1,234 @@
+{
+  "schema": "policyos.e02.postfreeze_review_publication_selection.v1",
+  "deciding_final": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/postfreeze-review-final.json",
+    "bytes": 16708,
+    "sha256": "2cfe6c5cb09c4791ad98857b0b94c677ddb654ddc779063f8ce2d6047eb0904f"
+  },
+  "current_complete_deciding": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/exact-wave-gate-jobs.json",
+      "bytes": 2076,
+      "sha256": "d069b1664066740a5bcf182ad749b32eda98f035ba67602f78dc443b42d1ee5d"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/architecture-row-attribution-64d.json",
+      "bytes": 285319,
+      "sha256": "7870e168f980057377f335d6cc97a2ed632410eaab58e392b00b68a0a9ca9a69"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/architecture-baseline-delta.json",
+      "bytes": 52513,
+      "sha256": "cc5e461428a4abc8df98e96816c9bfc646d175d76826834527950b720aaaa27a"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/architecture-output-review.stdout",
+      "bytes": 4760,
+      "sha256": "13993cd38f0572386ea3243800c98ef7d6379b3acdb3510372f79b7f77eec8b0"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/architecture-output-review.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/generated-output-capture-receipt.json",
+      "bytes": 14534,
+      "sha256": "d19556e7bdd8682113e7f5cdbbbeae38964adb7461aba69b10114afcd36a1ea4"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/generated-output-capture/index.json",
+      "bytes": 12016,
+      "sha256": "288ad55ece85e895dcbddc953b13c796cd1c823e5a4726ce7ecfdd61aef393ee"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/generated-output-capture.stdout",
+      "bytes": 238,
+      "sha256": "12afabaf61e25bbde0f2158f7e7d7c7b305fbba929b1e742d4f77852531b81c2"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/generated-output-capture.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/trust-posture-complete-keyed-census.json",
+      "bytes": 71904,
+      "sha256": "86a45b02603f7567dfe678b580d654d1d4862138350b195c5637ba48c36dcc02"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/forecast-api-owner/packet.json",
+      "bytes": 15298,
+      "sha256": "1fdc4277f810fc826a052d46ed35fdf06fc8abc71109b4bfdd7157fa5763b57f"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/forecast-api-owner/historical-edge-loader-only.patch",
+      "bytes": 1257,
+      "sha256": "b9941f66776a7f4fd99f7bdd41fd5f6092c5fec0b016368ef2ee1899b65b5a2a"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/forecast-api-owner/producer-reader-pair.patch",
+      "bytes": 1928,
+      "sha256": "329965955e276b201c53929b1a09694ac49b3f23369d691a5c58c120ff38a508"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/forecast-api-owner/test_forecast_serializer_exports.py.txt",
+      "bytes": 2367,
+      "sha256": "61005cb6c5fe5e96b699b350e0bea810cf645ce8cdd3f8bcac0dde22eec86f21"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/forecast-api-owner/test-packet.json",
+      "bytes": 1731,
+      "sha256": "93f60ad738a232162566e599c8b2c15bb318b127e7c35dffcdf0f4ae5a902b2c"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/static-output-review-64d.json",
+      "bytes": 473959,
+      "sha256": "a18b81c397cc7bb4cb5764f4081b59463c1709ff894b72104fb405a6f48c192d"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/static-output-review-final.stdout",
+      "bytes": 5032,
+      "sha256": "73b3b8385d62f565f50e7290bbd5ee1e3bf47e819f9cca282c09cb313d8c571a"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/static-output-review-final.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/static-review-validator-controls.json",
+      "bytes": 4067,
+      "sha256": "b854b5c3a2486027d74512b7476a9fdf506d58ed5149efa1038d1d5337414346"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/static-review-validator.stdout",
+      "bytes": 4067,
+      "sha256": "b854b5c3a2486027d74512b7476a9fdf506d58ed5149efa1038d1d5337414346"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/static-review-validator.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/static-actual-caller-owner-packet.json",
+      "bytes": 21036,
+      "sha256": "b669673b1fb851ec86e85015adf60eff742a6422ec36823b22395ac8e9fe72b5"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/static-lazy-callers-final.stdout",
+      "bytes": 15104,
+      "sha256": "ff46e5cf59cc46313cdd1a6ac07302d29e85569b5b76eda09f0671e6e8a1360b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/static-lazy-callers-final.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/architecture-attribution-observers.json",
+      "bytes": 5057,
+      "sha256": "0e8abb7dda20d2978ce9f7f9e34837e81c7d4cf13b5dc10846f048f444ebbe4f"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/postfreeze-architecture-final.json",
+      "bytes": 13461,
+      "sha256": "e3a8beec1a366ffc70445f477b0691771427dcaf2bfc10f11bbfc18b6f7fd845"
+    }
+  ],
+  "literal_archived_observers": [
+    {
+      "executed_source_path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/inspect_static_output.py",
+      "portable_source": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/inspect_static_output.py.txt",
+        "bytes": 7624,
+        "sha256": "d99e2b7b7e4a901274f7d73bb0b0dcccb1a8a0372bee3ed4ad1f5e8cf41daa5c"
+      },
+      "bytes_preserved": true
+    },
+    {
+      "executed_source_path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/validate_static_review.py",
+      "portable_source": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/validate_static_review.py.txt",
+        "bytes": 5850,
+        "sha256": "d65a6634ebced096043db98796510c6f1efd1311deb1117b91cb8461bd28b267"
+      },
+      "bytes_preserved": true
+    },
+    {
+      "executed_source_path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/trace_static_lazy_callers.py",
+      "portable_source": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/trace_static_lazy_callers.py.txt",
+        "bytes": 6754,
+        "sha256": "594ebe9a9f9886d6768a30c85d8e7514c39fc756d208c8b4875205731724ed92"
+      },
+      "bytes_preserved": true
+    },
+    {
+      "executed_source_path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/prepare_postfreeze_architecture_publication.py",
+      "portable_source": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/prepare_postfreeze_architecture_publication.py.txt",
+        "bytes": 9229,
+        "sha256": "ca0f7fd0301a35489e716a38b33bcf26713e46ce4b8bb5ecb0a68a89026be9fb"
+      },
+      "bytes_preserved": true
+    }
+  ],
+  "historical_optional_do_not_rewrite": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/static-output-review-initial-64d.json",
+      "bytes": 473359,
+      "sha256": "dad1a6b4b50f8c1b3d0b2459d58cbf0528a3cd61328871e4ba1cf78d379ce29e"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/static-output-review.stdout",
+      "bytes": 5032,
+      "sha256": "eb38a66b1ee0d99c8234c81acdf7f5bc62b171bd5a422137384e18072553dbde"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/inspect_static_output.initial.py.txt",
+      "bytes": 7158,
+      "sha256": "c75797a00cff185e49282de8785ba08d1722d0dfd3cffdb1cfd0942a955ff1b2"
+    }
+  ],
+  "large_ignored_refs": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/raw/production-invocation.raw.json",
+      "sha256": "2db8bd7e6e2517bc18b8f0e53d4f79617802b15fdf24e8e0ba1a9b64b895a3b9",
+      "bytes": 171816130
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/trust-posture-keyed-delta.json",
+      "bytes": 2159115,
+      "sha256": "49ad898e14ee41e38f86da10a508ea2c0c51ffdd746c5c8b0debd678b42a6392"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/trust-posture-current-delta.json",
+      "bytes": 2797758,
+      "sha256": "4e8f978b4a383376007056c30fe46eb42a426a94dd9d932fc0b261b9b7f60110"
+    }
+  ],
+  "root_owned_do_not_duplicate": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/static-invocation/static-invocation.json",
+      "sha256": "58c3b82812c3c123343552c2ed53a4d746b49f1c96385f20e430e739f4eac5f3",
+      "bytes": 8422
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/static-invocation/static-invocation.stdout.txt",
+      "sha256": "651ac270c247d0e52b2d1c365a94bd563e035786078bffb7dce7a2912f6576cb",
+      "bytes": 10099
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/architecture/architecture.json",
+      "bytes": 8146,
+      "sha256": "f2fb06dd561d9cb11503d8b70903e6864fe153286725bbc8ad6087754b4786cc"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/architecture/architecture.stdout.txt",
+      "bytes": 136159,
+      "sha256": "7e4b0d4c4115b56440e6498dae639fef1329b49960b38bc3371cf6e354b33682"
+    }
+  ]
+}

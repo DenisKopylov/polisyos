@@ -1,0 +1,225 @@
+import difflib
+import hashlib
+import json
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+REPO = Path("/workspace/e02-E-mc-20261006")
+ROOT = Path("/workspace/e02-E-pr38-r3-receipts")
+WORK = ROOT / "ir-compat-independent"
+OLD = WORK / "generator-ca17a489"
+NEW = WORK / "generator-3932cded"
+SHA = "3932cded22a29254a7dfced99723e147d6fea7cb"
+BASE = "64d7444a18c55df7b88b71b7699a2f1b25ca24bd"
+TREE = "8d19c30199666cf97dd3934f60d772baa3071f7e"
+
+
+def require(condition: bool, reason: str) -> None:
+    if not condition:
+        raise ValueError(reason)
+
+
+def ref(path: Path) -> dict[str, object]:
+    body = path.read_bytes()
+    return {"path": str(path), "bytes": len(body), "sha256": hashlib.sha256(body).hexdigest()}
+
+
+def git(*args: str) -> bytes:
+    # Args are fixed read-only operations and exact pinned SHAs/paths from the complete registry.
+    return subprocess.run(  # noqa: S603
+        ["/usr/bin/git", "-C", str(REPO), *args], check=True, capture_output=True
+    ).stdout
+
+
+def write(path: Path, value: object) -> None:
+    path.write_text(json.dumps(value, indent=2) + "\n")
+
+
+old = json.loads((OLD / "generator-packet.json").read_text())
+new = json.loads((NEW / "runtime-delta-receipt.json").read_text())
+head = git("rev-parse", "HEAD").decode().strip()
+git("merge-base", "--is-ancestor", SHA, head)
+advance = git("diff", "--name-only", SHA, head).decode().splitlines()
+prefix = (
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/"
+    "continuation-20261007/finite-posterior-law/"
+)
+require(all(p.startswith(prefix) for p in advance), "non-documentation descendant drift")
+require(git("rev-parse", SHA + "^{tree}").decode().strip() == TREE, "tree drift")
+require(new["candidate"] == SHA and new["tree"] == TREE, "runtime source mismatch")
+require(new["outcome"] == "PASS" and new["exit_code"] == 0, "runtime failed")
+before = json.loads((ROOT / "mc-joint-law-r5/dto-schemas-before.json").read_text())
+after = json.loads((ROOT / "mc-joint-law-r5/dto-schemas-after.json").read_text())
+require(before == after and before["ABI_count"] == 103, "complete103 schema drift")
+require(old["complete_ABI_registry_selected"] == 103, "partial ABI registry")
+require(old["complete_ABI_resolved"] == old["complete_models_generated"] == 103, "partial models")
+model_census = []
+for row in before["schemas"]:
+    matches = []
+    for module in ["fabric", "ir"]:
+        manifest = json.loads(
+            (OLD / "projected/schemas/snapshots" / module / "_manifest.json").read_text()
+        )
+        if row["abi_key"] in manifest["models"]:
+            matches.append((module, manifest["models"][row["abi_key"]]))
+    require(len(matches) == 1, "manifest model mapping ambiguous")
+    module, entry = matches[0]
+    require(entry["fqn"] == row["fqn"], "manifest FQN drift")
+    projected = OLD / "projected/schemas/snapshots" / module / entry["schema_file"]
+    require(json.loads(projected.read_text()) == row["schema"], "projected schema drift")
+    model_census.append({"abi_key": row["abi_key"], "fqn": row["fqn"], "projected": ref(projected)})
+require(
+    len(model_census) == 103 and len({r["abi_key"] for r in model_census}) == 103,
+    "incomplete or duplicate model census",
+)
+write(
+    NEW / "complete103-model-schema-equality.json",
+    {
+        "candidate": SHA,
+        "tree": TREE,
+        "old_candidate": old["candidate"],
+        "all_complete103_before_after_equal": True,
+        "all_projected103_model_schema_values_equal": True,
+        "models": model_census,
+        "before": ref(ROOT / "mc-joint-law-r5/dto-schemas-before.json"),
+        "after": ref(ROOT / "mc-joint-law-r5/dto-schemas-after.json"),
+        "raw_header_note": "Both saved schema arrays retain historical precommit head ca17; "
+        "final3932 physical class/hash binding is supplied by independent DTO review.",
+    },
+)
+old_sources = {r["path"]: r for r in old["source_inputs"]}
+new_sources = {r["path"]: r for r in new["source_inputs"]}
+changed = [p for p in old_sources if old_sources[p]["sha256"] != new_sources[p]["sha256"]]
+require(
+    changed == ["policy-engine/src/polisyos/ir/analytics/posterior_summary.py"],
+    "unexpected generator input drift",
+)
+for path, row in new_sources.items():
+    body = git("show", SHA + ":" + path)
+    require(hashlib.sha256(body).hexdigest() == row["sha256"], "source Git binding drift")
+    require((REPO / path).read_bytes() == body, "physical source drift")
+text = (OLD / "canonical-generated-full.patch").read_text()
+parts = re.split(r"(?m)^--- ", text)
+require(parts[0] == "", "unknown patch framing")
+runtime_path = "policy-engine/schemas/runtime_api_v1.openapi.json"
+old_body = git("show", SHA + ":" + runtime_path).decode()
+new_body = (NEW / "runtime_api_v1.openapi.json").read_text()
+runtime_diff = "".join(
+    difflib.unified_diff(
+        old_body.splitlines(keepends=True),
+        new_body.splitlines(keepends=True),
+        fromfile="a/" + runtime_path,
+        tofile="b/" + runtime_path,
+    )
+)
+require(bool(runtime_diff), "runtime projection must differ from tracked stale output")
+patch_parts = []
+for part in parts[1:]:
+    if part.startswith("a/" + runtime_path + "\n"):
+        patch_parts.append(runtime_diff)
+    else:
+        patch_parts.append("--- " + part)
+require(len(patch_parts) == 9, "generated companion denominator drift")
+patch = NEW / "canonical-generated-full-final3932.patch"
+patch.write_text("".join(patch_parts))
+check = subprocess.run(  # noqa: S603 -- fixed git --check over local generated scratch patch
+    ["/usr/bin/git", "-C", str(REPO), "apply", "--check", str(patch)],
+    capture_output=True,
+    check=False,
+)
+require(check.returncode == 0, "final generated patch is not directly applicable")
+(NEW / "final-patch-check.stdout.txt").write_bytes(check.stdout)
+(NEW / "final-patch-check.stderr.txt").write_bytes(check.stderr)
+source_paths = git("diff", "--name-only", BASE, SHA).decode().splitlines()
+footprint = []
+for path in source_paths:
+    body = git("show", SHA + ":" + path)
+    footprint.append({"path": path, "bytes": len(body), "sha256": hashlib.sha256(body).hexdigest()})
+require(
+    len(footprint) == 24 and sum(r["path"].endswith(".py") for r in footprint) == 12,
+    "source footprint denominator drift",
+)
+write(
+    NEW / "full-source-footprint-3932.json",
+    {
+        "candidate": SHA,
+        "tree": TREE,
+        "base": BASE,
+        "paths": footprint,
+        "full_path_count": 24,
+        "implementation_path_count_excluding_precode_decision": 23,
+        "python_path_count": 12,
+    },
+)
+companions = []
+for row in old["changed_generated_companions"]:
+    row = dict(row)
+    if row["path"] == runtime_path:
+        row["projected_bytes"] = len(new_body.encode())
+        row["projected_sha256"] = hashlib.sha256(new_body.encode()).hexdigest()
+    companions.append(row)
+write(
+    NEW / "qualified-owner-projection-packet.json",
+    {
+        "schema": "policyos.e02.E.qualified_canonical_full_projection.v1",
+        "candidate": SHA,
+        "tree": TREE,
+        "base": BASE,
+        "outcome": "PASS",
+        "scope": (
+            "Canonical projection and direct patch applicabi"
+            "lity only; not global gate or client authority."
+        ),
+        "old_complete103_projection": ref(OLD / "generator-packet.json"),
+        "new_affected_runtime_projection": ref(NEW / "runtime-delta-receipt.json"),
+        "full103_schema_equality_census": ref(NEW / "complete103-model-schema-equality.json"),
+        "source_footprint": ref(NEW / "full-source-footprint-3932.json"),
+        "canonical_full_ABI_count": 103,
+        "IR_models": 101,
+        "fabric_models": 2,
+        "old99IR_keys_retained": True,
+        "full_public_packages": 20,
+        "public_families": 13,
+        "changed_generated_companions": companions,
+        "runtime_schema_components": 573,
+        "runtime_confidence_dependencies": 1494,
+        "runtime_source_aggregate": (
+            "2924a8116e1d1dbd7c9116ab43deedcd13a8266a0bd2382c9d46e2d7aedd5ffa"
+        ),
+        "direct_tracked_final_patch": ref(patch),
+        "patch_check": {
+            "argv": ["/usr/bin/git", "-C", str(REPO), "apply", "--check", str(patch)],
+            "exit_code": check.returncode,
+            "stdout": ref(NEW / "final-patch-check.stdout.txt"),
+            "stderr": ref(NEW / "final-patch-check.stderr.txt"),
+        },
+        "reuse_qualification": (
+            "All103 ordered model schema dictionaries equal. The only source delta is "
+            "ProfileV2 independent DTO declaration; method/function/V1 AST remains unchanged. "
+            "Canonical catalog fields/docstrings and public facade mappings remain equal. "
+            "Catalog does not render Python inheritance. Runtime is freshly exported "
+            "because dependency hash changed."
+        ),
+        "existing_DoE184_environment_metadata_unchanged": True,
+        "ROOT_source_environment_or_outputs_changed": False,
+        "shared_generated_files_changed": False,
+        "numeric_or_broad_wave_repeated": False,
+        "capability_state": "surface_missing",
+        "global_required_gate_outcome": None,
+        "next_owner": "G canonical ABI/public-surface/runtime API and client generator writers",
+        "next_result": (
+            "Fetch3932 source; run complete canonical103-model/public20-package generation "
+            "against the integration tree. Review/apply nine generated companions and run "
+            "generated runtime/client/registry/public gates. FeedbackSolveResult is an "
+            "existing canonical companion with its own owner. No hand edits or waiver."
+        ),
+        "historical_observations_preserved": (
+            "700 had102. ca17 full103 outputs and two NEW typed override errors are immutable. "
+            "3932 removes only those two new errors; the existing optional-member error "
+            "and global red remain separate."
+        ),
+    },
+)
+sys.stdout.write(json.dumps(ref(NEW / "qualified-owner-projection-packet.json"), indent=2) + "\n")

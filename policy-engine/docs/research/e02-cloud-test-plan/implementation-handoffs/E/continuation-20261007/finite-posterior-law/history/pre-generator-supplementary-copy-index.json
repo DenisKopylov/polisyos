@@ -1,0 +1,664 @@
+{
+  "schema": "policyos.e02.supplementary_publication_copy_index.v1",
+  "source_candidate": "3932cded22a29254a7dfced99723e147d6fea7cb",
+  "tree": "8d19c30199666cf97dd3934f60d772baa3071f7e",
+  "files": [
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/source-footprint-3932.json",
+      "portable_path": "typed-delta/source-footprint-3932.json",
+      "bytes": 8900,
+      "sha256": "7de554334242baa44c5c9399b93530e08e0107aa18e2f53425a97b33110230db",
+      "role": "Actual minimal DTO delta observation; schemas full raw remain ignored with exact per-model deciding hashes."
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-delta-author-proof.json",
+      "portable_path": "typed-delta/dto-delta-author-proof.json",
+      "bytes": 901,
+      "sha256": "5096f5331c6471b50c4976fc88ecc9f7c68a3b9d8765a98420f39fc23b07fcb1",
+      "role": "Actual minimal DTO delta observation; schemas full raw remain ignored with exact per-model deciding hashes."
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-all103-schema-equality.json",
+      "portable_path": "typed-delta/dto-all103-schema-equality.json",
+      "bytes": 35954,
+      "sha256": "3f5e33de1767b0bf0feae08c3b1a508da557b4f835177812ee0613fa30b42616",
+      "role": "Actual minimal DTO delta observation; schemas full raw remain ignored with exact per-model deciding hashes."
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-exact-function-source-reuse.json",
+      "portable_path": "typed-delta/dto-exact-function-source-reuse.json",
+      "bytes": 3514,
+      "sha256": "36d30e781e5b74582b907877d7b576851a82e960b05e13ae06ca5d11af8f2419",
+      "role": "Actual minimal DTO delta observation; schemas full raw remain ignored with exact per-model deciding hashes."
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-native-delta.xml",
+      "portable_path": "typed-delta/dto-native-delta.xml",
+      "bytes": 2333,
+      "sha256": "46a70c6b02b7c6ee1f7ae8685c1430478376dec309d71c79a32853c0d725c83b",
+      "role": "Actual minimal DTO delta observation; schemas full raw remain ignored with exact per-model deciding hashes."
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-native-delta.stdout.txt",
+      "portable_path": "typed-delta/dto-native-delta.stdout.txt",
+      "bytes": 80,
+      "sha256": "cfc14fd2dc11c362cccf5421245ca5ab0e9d286b54a604a80bd2dd5522f6feb9",
+      "role": "Actual minimal DTO delta observation; schemas full raw remain ignored with exact per-model deciding hashes."
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-native-delta.stderr.txt",
+      "portable_path": "typed-delta/dto-native-delta.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "Actual minimal DTO delta observation; schemas full raw remain ignored with exact per-model deciding hashes."
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-ruff.stdout.txt",
+      "portable_path": "typed-delta/dto-ruff.stdout.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "role": "Actual minimal DTO delta observation; schemas full raw remain ignored with exact per-model deciding hashes."
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-ruff.stderr.txt",
+      "portable_path": "typed-delta/dto-ruff.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "Actual minimal DTO delta observation; schemas full raw remain ignored with exact per-model deciding hashes."
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-format.stdout.txt",
+      "portable_path": "typed-delta/dto-format.stdout.txt",
+      "bytes": 25,
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+      "role": "Actual minimal DTO delta observation; schemas full raw remain ignored with exact per-model deciding hashes."
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-format.stderr.txt",
+      "portable_path": "typed-delta/dto-format.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "Actual minimal DTO delta observation; schemas full raw remain ignored with exact per-model deciding hashes."
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-schemas-before.stdout.txt",
+      "portable_path": "typed-delta/dto-schemas-before.stdout.txt",
+      "bytes": 184,
+      "sha256": "81a5b53696f6039ccafa75845de1fa5315246912871a63e63a047077b9544fcd",
+      "role": "Actual minimal DTO delta observation; schemas full raw remain ignored with exact per-model deciding hashes."
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-schemas-before.stderr.txt",
+      "portable_path": "typed-delta/dto-schemas-before.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "Actual minimal DTO delta observation; schemas full raw remain ignored with exact per-model deciding hashes."
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-schemas-after.stdout.txt",
+      "portable_path": "typed-delta/dto-schemas-after.stdout.txt",
+      "bytes": 183,
+      "sha256": "bac0cb15ff94b4549db68d95525e530a28163d342506c3eae5fd42bbe4b958c3",
+      "role": "Actual minimal DTO delta observation; schemas full raw remain ignored with exact per-model deciding hashes."
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-schemas-after.stderr.txt",
+      "portable_path": "typed-delta/dto-schemas-after.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "Actual minimal DTO delta observation; schemas full raw remain ignored with exact per-model deciding hashes."
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/capture-dto-schemas.py.txt",
+      "portable_path": "typed-delta/capture-dto-schemas.py.txt",
+      "bytes": 751,
+      "sha256": "04aaad6b87122efe0e6960597799f6b12fc8e35c921048be5b0db5a43bfa1b51",
+      "role": "Actual minimal DTO delta observation; schemas full raw remain ignored with exact per-model deciding hashes."
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/validate-handoff.py.txt",
+      "portable_path": "history/ca17-ready-custody/validate-handoff.py.txt",
+      "bytes": 5504,
+      "sha256": "79a67f3a679d680cfde55bdb5ba1bb6d3871e94cafc2485a99dd9779c30ef3a3",
+      "role": "Historical ca17-ready draft custody check, superseded final candidate includes typedDTO append."
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/handoff-validation-normal.json",
+      "portable_path": "history/ca17-ready-custody/handoff-validation-normal.json",
+      "bytes": 2227,
+      "sha256": "1a85d4a016d28a9d54475f738aecd697c6bfb063b729756428e14bbf4b792ca4",
+      "role": "Historical ca17-ready draft custody check, superseded final candidate includes typedDTO append."
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/handoff-validation-normal.stdout.txt",
+      "portable_path": "history/ca17-ready-custody/handoff-validation-normal.stdout.txt",
+      "bytes": 2227,
+      "sha256": "1a85d4a016d28a9d54475f738aecd697c6bfb063b729756428e14bbf4b792ca4",
+      "role": "Historical ca17-ready draft custody check, superseded final candidate includes typedDTO append."
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/handoff-validation-normal.stderr.txt",
+      "portable_path": "history/ca17-ready-custody/handoff-validation-normal.stderr.txt",
+      "bytes": 228,
+      "sha256": "e951fee8a0546b85742c16bd77205692a6ba2c98bbc9b0d22055ee2be1866d59",
+      "role": "Historical ca17-ready draft custody check, superseded final candidate includes typedDTO append."
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/handoff-validation-optimized.json",
+      "portable_path": "history/ca17-ready-custody/handoff-validation-optimized.json",
+      "bytes": 2227,
+      "sha256": "1a85d4a016d28a9d54475f738aecd697c6bfb063b729756428e14bbf4b792ca4",
+      "role": "Historical ca17-ready draft custody check, superseded final candidate includes typedDTO append."
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/handoff-validation-optimized.stdout.txt",
+      "portable_path": "history/ca17-ready-custody/handoff-validation-optimized.stdout.txt",
+      "bytes": 2227,
+      "sha256": "1a85d4a016d28a9d54475f738aecd697c6bfb063b729756428e14bbf4b792ca4",
+      "role": "Historical ca17-ready draft custody check, superseded final candidate includes typedDTO append."
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/handoff-validation-optimized.stderr.txt",
+      "portable_path": "history/ca17-ready-custody/handoff-validation-optimized.stderr.txt",
+      "bytes": 228,
+      "sha256": "e951fee8a0546b85742c16bd77205692a6ba2c98bbc9b0d22055ee2be1866d59",
+      "role": "Historical ca17-ready draft custody check, superseded final candidate includes typedDTO append."
+    },
+    {
+      "source_path": "/workspace/e02-E-mc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/handoff.json [original uncommitted ca17 ready draft]",
+      "portable_path": "history/handoff-ca17-ready-draft.json",
+      "bytes": 15455,
+      "sha256": "96b0263ef91d23fd210efa48ecfad4ace05e5557d74a5497ab5a3abbe176e4b2",
+      "role": "Byte-preserved old ready-draft identity, not current source publication."
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-DTO-delta-3932.json",
+      "portable_path": "independent-typed/independent-DTO-delta-3932.json",
+      "bytes": 3875,
+      "sha256": "cac40506463be01cfde7bea99b9db1286630f557e692ba02b2ccc96033749de0",
+      "role": "Independent final DTO/function-byte/nativeCAS reuse qualification; no rebrand of old33 finite-law observations."
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/review_dto_delta_3932.py.txt",
+      "portable_path": "independent-typed/review_dto_delta_3932.py.txt",
+      "bytes": 6274,
+      "sha256": "3dbb75d2586d6786e3dc90c41167c9491a7119affe17b3e6718dd6206b001944",
+      "role": "Independent final DTO/function-byte/nativeCAS reuse qualification; no rebrand of old33 finite-law observations."
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/dto3932.stdout.json",
+      "portable_path": "independent-typed/dto3932.stdout.json",
+      "bytes": 253,
+      "sha256": "e1e2153ab02ec9baa76c43d5cb85804e463443548918ee6221b3afd31bfa0f25",
+      "role": "Independent final DTO/function-byte/nativeCAS reuse qualification; no rebrand of old33 finite-law observations."
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/dto3932.stderr.txt",
+      "portable_path": "independent-typed/dto3932.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "Independent final DTO/function-byte/nativeCAS reuse qualification; no rebrand of old33 finite-law observations."
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/publication-selection-DTO-3932.json",
+      "portable_path": "independent-typed/publication-selection-DTO-3932.json",
+      "bytes": 1267,
+      "sha256": "cda3ef558826a690be8bd33276f6ad022ae56f11387c812fc0c50372f1c55bf1",
+      "role": "Independent final DTO/function-byte/nativeCAS reuse qualification; no rebrand of old33 finite-law observations."
+    },
+    {
+      "source_path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/review_dto_append.py",
+      "portable_path": "owner-api/review_dto_append.py.txt",
+      "bytes": 10509,
+      "sha256": "5840c40c0533a67e2a68506354b0cea3ffbbc9cd4ba03b8236e7b062172548e0",
+      "aliases": [
+        {
+          "source_path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/review_dto_append.py",
+          "logical_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/review_dto_append.py",
+          "stored_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/review_dto_append.py",
+          "bytes": 10509,
+          "sha256": "5840c40c0533a67e2a68506354b0cea3ffbbc9cd4ba03b8236e7b062172548e0",
+          "role": "independent bounded review, complete observation or preserved historical input"
+        }
+      ],
+      "role": "Independent architecture/import/public DTO placement and exact scoped type review; scoped type FAIL1/global not claimed."
+    },
+    {
+      "source_path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/dto-append-independent-review.json",
+      "portable_path": "owner-api/dto-append-independent-review.json",
+      "bytes": 34502,
+      "sha256": "f295adf3fae520a0f31022c15f2e8f4f4000092a5124c2a9864524fdf50c388c",
+      "aliases": [
+        {
+          "source_path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/dto-append-independent-review.json",
+          "logical_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/dto-append-independent-review.json",
+          "stored_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/dto-append-independent-review.json",
+          "bytes": 34502,
+          "sha256": "f295adf3fae520a0f31022c15f2e8f4f4000092a5124c2a9864524fdf50c388c",
+          "role": "independent bounded review, complete observation or preserved historical input"
+        }
+      ],
+      "role": "Independent architecture/import/public DTO placement and exact scoped type review; scoped type FAIL1/global not claimed."
+    },
+    {
+      "source_path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/dto-review.stdout.json",
+      "portable_path": "owner-api/dto-review.stdout.json",
+      "bytes": 393,
+      "sha256": "18cfec7c96b214b2c3074f4157a500db62ee827e901bf436db13e3733330e147",
+      "aliases": [
+        {
+          "source_path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/dto-review.stdout.json",
+          "logical_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/dto-review.stdout.json",
+          "stored_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/dto-review.stdout.json",
+          "bytes": 393,
+          "sha256": "18cfec7c96b214b2c3074f4157a500db62ee827e901bf436db13e3733330e147",
+          "role": "independent bounded review, complete observation or preserved historical input"
+        }
+      ],
+      "role": "Independent architecture/import/public DTO placement and exact scoped type review; scoped type FAIL1/global not claimed."
+    },
+    {
+      "source_path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/dto-review.stderr.txt",
+      "portable_path": "owner-api/dto-review.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "aliases": [
+        {
+          "source_path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/dto-review.stderr.txt",
+          "logical_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/dto-review.stderr.txt",
+          "stored_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/dto-review.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "role": "independent bounded review, complete observation or preserved historical input"
+        },
+        {
+          "source_path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/architecture.stderr.txt",
+          "logical_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/architecture.stderr.txt",
+          "stored_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/architecture.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "role": "independent bounded review, complete observation or preserved historical input"
+        },
+        {
+          "source_path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/base-type.stderr.txt",
+          "logical_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/base-type.stderr.txt",
+          "stored_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/base-type.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "role": "independent bounded review, complete observation or preserved historical input"
+        },
+        {
+          "source_path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/base-resolved-type.stderr.txt",
+          "logical_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/base-resolved-type.stderr.txt",
+          "stored_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/base-resolved-type.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "role": "independent bounded review, complete observation or preserved historical input"
+        },
+        {
+          "source_path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/candidate-type.stderr.txt",
+          "logical_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/candidate-type.stderr.txt",
+          "stored_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/candidate-type.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "role": "independent bounded review, complete observation or preserved historical input"
+        },
+        {
+          "source_path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/typed3932.stderr.txt",
+          "logical_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/typed3932.stderr.txt",
+          "stored_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/typed3932.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "role": "independent bounded review, complete observation or preserved historical input"
+        },
+        {
+          "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-native-delta.stderr.txt",
+          "logical_at": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-native-delta.stderr.txt",
+          "stored_at": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-native-delta.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "role": "existing author complete input, not repeated native observation"
+        }
+      ],
+      "role": "Independent architecture/import/public DTO placement and exact scoped type review; scoped type FAIL1/global not claimed."
+    },
+    {
+      "source_path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/source-qualification-3932.json",
+      "portable_path": "owner-api/source-qualification-3932.json",
+      "bytes": 8793,
+      "sha256": "e9be8494cbf87f77f6c737fc5f2eebd58c6481b2893d4dfd76891b854409f418",
+      "aliases": [
+        {
+          "source_path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/source-qualification-3932.json",
+          "logical_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/source-qualification-3932.json",
+          "stored_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/source-qualification-3932.json",
+          "bytes": 8793,
+          "sha256": "e9be8494cbf87f77f6c737fc5f2eebd58c6481b2893d4dfd76891b854409f418",
+          "role": "independent bounded review, complete observation or preserved historical input"
+        }
+      ],
+      "role": "Independent architecture/import/public DTO placement and exact scoped type review; scoped type FAIL1/global not claimed."
+    },
+    {
+      "source_path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/source-qualification-ca17.json",
+      "portable_path": "owner-api/source-qualification-ca17.json",
+      "bytes": 12621,
+      "sha256": "c88264a0f7feb577414166f67d0ab868eadd8a33f544219056403b600d608812",
+      "aliases": [
+        {
+          "source_path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/source-qualification-ca17.json",
+          "logical_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/source-qualification-ca17.json",
+          "stored_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/source-qualification-ca17.json",
+          "bytes": 12621,
+          "sha256": "c88264a0f7feb577414166f67d0ab868eadd8a33f544219056403b600d608812",
+          "role": "independent bounded review, complete observation or preserved historical input"
+        }
+      ],
+      "role": "Independent architecture/import/public DTO placement and exact scoped type review; scoped type FAIL1/global not claimed."
+    },
+    {
+      "source_path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/forecast-import-edge-scope-correction.json",
+      "portable_path": "owner-api/forecast-import-edge-scope-correction.json",
+      "bytes": 3378,
+      "sha256": "635cf79a6a1bf081bb28c710ed1d24c2fcbf31a2a1956f1e71996404cfad046c",
+      "aliases": [
+        {
+          "source_path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/forecast-import-edge-scope-correction.json",
+          "logical_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/forecast-import-edge-scope-correction.json",
+          "stored_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/forecast-import-edge-scope-correction.json",
+          "bytes": 3378,
+          "sha256": "635cf79a6a1bf081bb28c710ed1d24c2fcbf31a2a1956f1e71996404cfad046c",
+          "role": "independent bounded review, complete observation or preserved historical input"
+        }
+      ],
+      "role": "Independent architecture/import/public DTO placement and exact scoped type review; scoped type FAIL1/global not claimed."
+    },
+    {
+      "source_path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/check_architecture.py",
+      "portable_path": "owner-api/check_architecture.py.txt",
+      "bytes": 7878,
+      "sha256": "5b800af34a12014790d7b20a1adb08a24bcd87c56abf98c61aeec00f61ae1890",
+      "aliases": [
+        {
+          "source_path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/check_architecture.py",
+          "logical_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/check_architecture.py",
+          "stored_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/check_architecture.py",
+          "bytes": 7878,
+          "sha256": "5b800af34a12014790d7b20a1adb08a24bcd87c56abf98c61aeec00f61ae1890",
+          "role": "independent bounded review, complete observation or preserved historical input"
+        }
+      ],
+      "role": "Independent architecture/import/public DTO placement and exact scoped type review; scoped type FAIL1/global not claimed."
+    },
+    {
+      "source_path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/architecture-review.json",
+      "portable_path": "owner-api/architecture-review.json",
+      "bytes": 64959,
+      "sha256": "3a57aec4e9eacb329cd9273829900690e0c474502c628dabe98382960480420e",
+      "aliases": [
+        {
+          "source_path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/architecture-review.json",
+          "logical_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/architecture-review.json",
+          "stored_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/architecture-review.json",
+          "bytes": 64959,
+          "sha256": "3a57aec4e9eacb329cd9273829900690e0c474502c628dabe98382960480420e",
+          "role": "independent bounded review, complete observation or preserved historical input"
+        }
+      ],
+      "role": "Independent architecture/import/public DTO placement and exact scoped type review; scoped type FAIL1/global not claimed."
+    },
+    {
+      "source_path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/architecture.stdout.json",
+      "portable_path": "owner-api/architecture.stdout.json",
+      "bytes": 157,
+      "sha256": "630775188ac754d04e058adc14fd3860e2707e46ed3ecdaf0b9177e3a2105321",
+      "aliases": [
+        {
+          "source_path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/architecture.stdout.json",
+          "logical_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/architecture.stdout.json",
+          "stored_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/architecture.stdout.json",
+          "bytes": 157,
+          "sha256": "630775188ac754d04e058adc14fd3860e2707e46ed3ecdaf0b9177e3a2105321",
+          "role": "independent bounded review, complete observation or preserved historical input"
+        }
+      ],
+      "role": "Independent architecture/import/public DTO placement and exact scoped type review; scoped type FAIL1/global not claimed."
+    },
+    {
+      "source_path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/scoped-type-execution.json",
+      "portable_path": "owner-api/scoped-type-execution.json",
+      "bytes": 3538,
+      "sha256": "9c53fad5f9f6dd3e8dd243aeb5f0b33e8aea167d39a5e0f7124b5dfc90e2817d",
+      "aliases": [
+        {
+          "source_path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/scoped-type-execution.json",
+          "logical_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/scoped-type-execution.json",
+          "stored_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/scoped-type-execution.json",
+          "bytes": 3538,
+          "sha256": "9c53fad5f9f6dd3e8dd243aeb5f0b33e8aea167d39a5e0f7124b5dfc90e2817d",
+          "role": "independent bounded review, complete observation or preserved historical input"
+        }
+      ],
+      "role": "Independent architecture/import/public DTO placement and exact scoped type review; scoped type FAIL1/global not claimed."
+    },
+    {
+      "source_path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/scoped-type-correction.json",
+      "portable_path": "owner-api/scoped-type-correction.json",
+      "bytes": 3936,
+      "sha256": "89a8a0c02a444f74bc4d2a7d97ef552d88617eb8ba9a9e38426850d56f5c58d2",
+      "aliases": [
+        {
+          "source_path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/scoped-type-correction.json",
+          "logical_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/scoped-type-correction.json",
+          "stored_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/scoped-type-correction.json",
+          "bytes": 3936,
+          "sha256": "89a8a0c02a444f74bc4d2a7d97ef552d88617eb8ba9a9e38426850d56f5c58d2",
+          "role": "independent bounded review, complete observation or preserved historical input"
+        }
+      ],
+      "role": "Independent architecture/import/public DTO placement and exact scoped type review; scoped type FAIL1/global not claimed."
+    },
+    {
+      "source_path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/base-type.stdout.json",
+      "portable_path": "owner-api/base-type.stdout.json",
+      "bytes": 780,
+      "sha256": "fce40e22f3df0902cd4754cafbc3b05216e111c03a54da23c59f6bff1e6ad0ff",
+      "aliases": [
+        {
+          "source_path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/base-type.stdout.json",
+          "logical_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/base-type.stdout.json",
+          "stored_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/base-type.stdout.json",
+          "bytes": 780,
+          "sha256": "fce40e22f3df0902cd4754cafbc3b05216e111c03a54da23c59f6bff1e6ad0ff",
+          "role": "independent bounded review, complete observation or preserved historical input"
+        }
+      ],
+      "role": "Independent architecture/import/public DTO placement and exact scoped type review; scoped type FAIL1/global not claimed."
+    },
+    {
+      "source_path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/base-resolved-type.stdout.json",
+      "portable_path": "owner-api/base-resolved-type.stdout.json",
+      "bytes": 844,
+      "sha256": "3c2e733201331a4923c9175f5c6e4dc749165a3751300b829bf8dbc01fd2edba",
+      "aliases": [
+        {
+          "source_path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/base-resolved-type.stdout.json",
+          "logical_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/base-resolved-type.stdout.json",
+          "stored_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/base-resolved-type.stdout.json",
+          "bytes": 844,
+          "sha256": "3c2e733201331a4923c9175f5c6e4dc749165a3751300b829bf8dbc01fd2edba",
+          "role": "independent bounded review, complete observation or preserved historical input"
+        }
+      ],
+      "role": "Independent architecture/import/public DTO placement and exact scoped type review; scoped type FAIL1/global not claimed."
+    },
+    {
+      "source_path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/candidate-type.stdout.json",
+      "portable_path": "owner-api/candidate-type.stdout.json",
+      "bytes": 2390,
+      "sha256": "c123df6c3dd55ded5ff7e567faf4bc1c9758afc3cc50c468c67b52c8f9a3c153",
+      "aliases": [
+        {
+          "source_path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/candidate-type.stdout.json",
+          "logical_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/candidate-type.stdout.json",
+          "stored_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/candidate-type.stdout.json",
+          "bytes": 2390,
+          "sha256": "c123df6c3dd55ded5ff7e567faf4bc1c9758afc3cc50c468c67b52c8f9a3c153",
+          "role": "independent bounded review, complete observation or preserved historical input"
+        }
+      ],
+      "role": "Independent architecture/import/public DTO placement and exact scoped type review; scoped type FAIL1/global not claimed."
+    },
+    {
+      "source_path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/typed3932-execution.json",
+      "portable_path": "owner-api/typed3932-execution.json",
+      "bytes": 1487,
+      "sha256": "f954f176d9f348a85d8472ad0344cf222f39487265bbe7e9469d8f4460234efd",
+      "aliases": [
+        {
+          "source_path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/typed3932-execution.json",
+          "logical_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/typed3932-execution.json",
+          "stored_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/typed3932-execution.json",
+          "bytes": 1487,
+          "sha256": "f954f176d9f348a85d8472ad0344cf222f39487265bbe7e9469d8f4460234efd",
+          "role": "independent bounded review, complete observation or preserved historical input"
+        }
+      ],
+      "role": "Independent architecture/import/public DTO placement and exact scoped type review; scoped type FAIL1/global not claimed."
+    },
+    {
+      "source_path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/typed3932.stdout.json",
+      "portable_path": "owner-api/typed3932.stdout.json",
+      "bytes": 813,
+      "sha256": "60ea4dc121833cefbdb72dc76c73798aa5302660b57f29ebdd6e27c8d1b03acc",
+      "aliases": [
+        {
+          "source_path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/typed3932.stdout.json",
+          "logical_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/typed3932.stdout.json",
+          "stored_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/typed3932.stdout.json",
+          "bytes": 813,
+          "sha256": "60ea4dc121833cefbdb72dc76c73798aa5302660b57f29ebdd6e27c8d1b03acc",
+          "role": "independent bounded review, complete observation or preserved historical input"
+        }
+      ],
+      "role": "Independent architecture/import/public DTO placement and exact scoped type review; scoped type FAIL1/global not claimed."
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-delta-author-proof.json",
+      "portable_path": "owner-api/dto-delta-author-proof.json",
+      "bytes": 901,
+      "sha256": "5096f5331c6471b50c4976fc88ecc9f7c68a3b9d8765a98420f39fc23b07fcb1",
+      "aliases": [
+        {
+          "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-delta-author-proof.json",
+          "logical_at": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-delta-author-proof.json",
+          "stored_at": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-delta-author-proof.json",
+          "bytes": 901,
+          "sha256": "5096f5331c6471b50c4976fc88ecc9f7c68a3b9d8765a98420f39fc23b07fcb1",
+          "role": "existing author complete input, not repeated native observation"
+        }
+      ],
+      "role": "Independent architecture/import/public DTO placement and exact scoped type review; scoped type FAIL1/global not claimed."
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-schemas-before.json",
+      "portable_path": "owner-api/dto-schemas-before.json",
+      "bytes": 1301234,
+      "sha256": "ac9598f27e7e8b3ccfe8092bbe9e0aad1619c55b455e8d256ae928bd095699fd",
+      "aliases": [
+        {
+          "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-schemas-before.json",
+          "logical_at": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-schemas-before.json",
+          "stored_at": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-schemas-before.json",
+          "bytes": 1301234,
+          "sha256": "ac9598f27e7e8b3ccfe8092bbe9e0aad1619c55b455e8d256ae928bd095699fd",
+          "role": "existing author complete input, not repeated native observation"
+        },
+        {
+          "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-schemas-after.json",
+          "logical_at": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-schemas-after.json",
+          "stored_at": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-schemas-after.json",
+          "bytes": 1301234,
+          "sha256": "ac9598f27e7e8b3ccfe8092bbe9e0aad1619c55b455e8d256ae928bd095699fd",
+          "role": "existing author complete input, not repeated native observation"
+        }
+      ],
+      "role": "Independent architecture/import/public DTO placement and exact scoped type review; scoped type FAIL1/global not claimed."
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-native-delta.xml",
+      "portable_path": "owner-api/dto-native-delta.xml",
+      "bytes": 2333,
+      "sha256": "46a70c6b02b7c6ee1f7ae8685c1430478376dec309d71c79a32853c0d725c83b",
+      "aliases": [
+        {
+          "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-native-delta.xml",
+          "logical_at": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-native-delta.xml",
+          "stored_at": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-native-delta.xml",
+          "bytes": 2333,
+          "sha256": "46a70c6b02b7c6ee1f7ae8685c1430478376dec309d71c79a32853c0d725c83b",
+          "role": "existing author complete input, not repeated native observation"
+        }
+      ],
+      "role": "Independent architecture/import/public DTO placement and exact scoped type review; scoped type FAIL1/global not claimed."
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-native-delta.stdout.txt",
+      "portable_path": "owner-api/dto-native-delta.stdout.txt",
+      "bytes": 80,
+      "sha256": "cfc14fd2dc11c362cccf5421245ca5ab0e9d286b54a604a80bd2dd5522f6feb9",
+      "aliases": [
+        {
+          "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-native-delta.stdout.txt",
+          "logical_at": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-native-delta.stdout.txt",
+          "stored_at": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-native-delta.stdout.txt",
+          "bytes": 80,
+          "sha256": "cfc14fd2dc11c362cccf5421245ca5ab0e9d286b54a604a80bd2dd5522f6feb9",
+          "role": "existing author complete input, not repeated native observation"
+        }
+      ],
+      "role": "Independent architecture/import/public DTO placement and exact scoped type review; scoped type FAIL1/global not claimed."
+    },
+    {
+      "source_path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/publication-selection.json",
+      "portable_path": "owner-api/publication-selection.json",
+      "bytes": 15269,
+      "sha256": "c016e8888b2ffb8528d8b3fe750677173eb50cbdeae229dacf1a173189158850",
+      "aliases": [
+        {
+          "source_path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/publication-selection.json",
+          "logical_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/publication-selection.json",
+          "stored_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/publication-selection.json",
+          "bytes": 15269,
+          "sha256": "c016e8888b2ffb8528d8b3fe750677173eb50cbdeae229dacf1a173189158850",
+          "role": "Literal selection custody"
+        }
+      ],
+      "role": "Independent architecture/import/public DTO placement and exact scoped type review; scoped type FAIL1/global not claimed."
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/validate-final-handoff.py.txt",
+      "portable_path": "custody/validate-final-handoff.py.txt",
+      "bytes": 7871,
+      "sha256": "bfb6e493eae4adff4ba448a174906dd86b5ea722ef0320b9e0e7d0f267bc4bf8",
+      "role": "Current recomputing custody utility or actual published E topic before append-only publication."
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/remote-before-publication-current.stdout.txt",
+      "portable_path": "custody/remote-before-publication-current.stdout.txt",
+      "bytes": 76,
+      "sha256": "7ac7a33ca86860986672629a71a425502ebad834f2e8e2533ee0b6d168d1da8a",
+      "role": "Current recomputing custody utility or actual published E topic before append-only publication."
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/remote-before-publication-current.stderr.txt",
+      "portable_path": "custody/remote-before-publication-current.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "Current recomputing custody utility or actual published E topic before append-only publication."
+    }
+  ],
+  "file_count": 54,
+  "bytes": 1579578,
+  "scope": "Final DTO delta, independent source qualification, exact full103 schema observations and preserved prior custody draft. Sources/aliases retain actual executed observations, not a rebranded current numeric wave."
+}

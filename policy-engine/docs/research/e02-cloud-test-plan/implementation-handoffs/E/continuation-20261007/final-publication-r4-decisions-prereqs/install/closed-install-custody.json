@@ -1,0 +1,299 @@
+{
+  "schema": "policyos.e02.closed_declared_prerequisite_custody.v1",
+  "claims": {
+    "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+    "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+    "install": {
+      "check_outcome": "PASS",
+      "exit_code": 0,
+      "argv": [
+        "/workspace/.polisyos-environment/uv/bin/uv",
+        "pip",
+        "install",
+        "--python",
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "--no-deps",
+        "--require-hashes",
+        "--only-binary",
+        ":all:",
+        "--no-index",
+        "--find-links",
+        "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/admitted-wheels",
+        "--requirements",
+        "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/minimum-declared-dependencies.requirements.txt"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "started_at_utc": "2026-10-07T11:03:17.176690+00:00",
+      "finished_at_utc": "2026-10-07T11:03:17.984896+00:00",
+      "stdout": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/offline-install-20261007-r1/install.stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/offline-install-20261007-r1/install.stderr.txt",
+        "bytes": 186,
+        "sha256": "a87cd7ac5f911b8b58ba0ac8b4ce0866c2952860dc337b7d61a467b43155deff"
+      }
+    },
+    "metadata": {
+      "old_distributions": 203,
+      "current_distributions": 207,
+      "existing_metadata_changed": [],
+      "added": [
+        {
+          "name": "hatchling",
+          "version": "1.27.0",
+          "path": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/hatchling-1.27.0.dist-info/METADATA",
+          "bytes": 3812,
+          "sha256": "a224ea37d2658f75ccf569e61d849ff7e9297cdac2396022278e82a47b9fed3e"
+        },
+        {
+          "name": "immutabledict",
+          "version": "4.2.2",
+          "path": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/immutabledict-4.2.2.dist-info/METADATA",
+          "bytes": 3506,
+          "sha256": "a7420cb9a3fff63567977f171e698a18c01c9808e382655bbd731ff9a81eb2b9"
+        },
+        {
+          "name": "ortools",
+          "version": "9.15.6755",
+          "path": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/ortools-9.15.6755.dist-info/METADATA",
+          "bytes": 3337,
+          "sha256": "fb373ef11eed8e84ba0b59675ec06489ff6d317f6b2a773396e1f6ad8cd0b598"
+        },
+        {
+          "name": "trove-classifiers",
+          "version": "2026.9.21.13",
+          "path": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/trove_classifiers-2026.9.21.13.dist-info/METADATA",
+          "bytes": 2350,
+          "sha256": "ca7e96493232b21f92aeccf456b2e01f1d4dbcaa8e17a9e1b5e6f03c6eb7461f"
+        }
+      ],
+      "before_framed_sha256": "c88fe976570b4f8c4277e5edc22e7e9a131151af4243b4893590aad2f3d16692",
+      "after_framed_sha256": "80386d7038f8e7520f061e2b1ce7b97fa7eead504a6d876b7a98b4853e53a867",
+      "protected_numerical_packages": [
+        {
+          "name": "jax",
+          "version": "0.8.2",
+          "path": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax-0.8.2.dist-info/METADATA",
+          "bytes": 13409,
+          "sha256": "814bff75113dc832e236125fd9ec53390fec2d6e4494c17cb92d69c1b9509f8c"
+        },
+        {
+          "name": "jaxlib",
+          "version": "0.8.2",
+          "path": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/jaxlib-0.8.2.dist-info/METADATA",
+          "bytes": 1339,
+          "sha256": "83b52e6b98bb35a5dfb4a760174382eb7946bf67ec782f392d238aa034384960"
+        },
+        {
+          "name": "numpy",
+          "version": "2.3.5",
+          "path": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/numpy-2.3.5.dist-info/METADATA",
+          "bytes": 62117,
+          "sha256": "6002f29765e5bc1a3be4a1b92ed56b64968a0fecba73e7f81cd536d0c40f4fa3"
+        },
+        {
+          "name": "SALib",
+          "version": "1.5.2",
+          "path": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/salib-1.5.2.dist-info/METADATA",
+          "bytes": 11832,
+          "sha256": "fe5e530e9552269f51db14bcd0f0bd3b7123002d171ef06ec1ecfde3dac11dfc"
+        },
+        {
+          "name": "scipy",
+          "version": "1.16.3",
+          "path": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/scipy-1.16.3.dist-info/METADATA",
+          "bytes": 62003,
+          "sha256": "a54602d0aa61fb25ac030b1d7b0faf0c8cfec508290d4d824198d6b43647ec1b"
+        }
+      ],
+      "protected_numerical_packages_unchanged": true,
+      "physical_readback_count": 207,
+      "physical_readback_framed_sha256": "80386d7038f8e7520f061e2b1ce7b97fa7eead504a6d876b7a98b4853e53a867"
+    },
+    "environment": {
+      "root_environment": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+      "root_python_historical": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+      "observer_python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+      "version_basis": "Frozen workspace14 receipt and read-only pyvenv.cfg; installed cp314 wheel ABI checked. Native preflight did not print sys.version.",
+      "fresh_observed_owner_users": [],
+      "fresh_unreadable_live_processes": [
+        {
+          "pid": 199,
+          "error": "PermissionError"
+        },
+        {
+          "pid": 250,
+          "error": "PermissionError"
+        }
+      ],
+      "fresh_quiescent": false,
+      "after_quiescent": false,
+      "scheduler": "E root",
+      "lease_basis": "Recorded root scheduler exclusive lease and no observed owner users. Infrastructure199/250 remains unreadable; unconditional all-process quiescence is not established."
+    },
+    "artifacts": {
+      "count": 4,
+      "total_bytes": 29938701,
+      "wheel_rows": [
+        {
+          "name": "hatchling",
+          "version": "1.27.0",
+          "wheel": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/admitted-wheels/hatchling-1.27.0-py3-none-any.whl",
+            "bytes": 75794,
+            "sha256": "d3a2f3567c4f926ea39849cdf924c7e99e6686c9c8e288ae1037c8fa2a5d937b"
+          }
+        },
+        {
+          "name": "ortools",
+          "version": "9.15.6755",
+          "wheel": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/admitted-wheels/ortools-9.15.6755-cp314-cp314-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl",
+            "bytes": 29843939,
+            "sha256": "7181183cdcafe2b0d83ca5505b65048c7953dc7b5ad479361dded607964cc1b3"
+          }
+        },
+        {
+          "name": "immutabledict",
+          "version": "4.2.2",
+          "wheel": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/admitted-wheels/immutabledict-4.2.2-py3-none-any.whl",
+            "bytes": 4736,
+            "sha256": "97c31d098a2c850e93a958badeef765e4736ed7942ec73e439facd764a3a7217"
+          }
+        },
+        {
+          "name": "trove-classifiers",
+          "version": "2026.9.21.13",
+          "wheel": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/admitted-wheels/trove_classifiers-2026.9.21.13-py3-none-any.whl",
+            "bytes": 14232,
+            "sha256": "8b1ff4f9c191b1040b71c37f1e445ab99732911e3cd91de52838453a854d7a17"
+          }
+        }
+      ],
+      "payloads_copied": false,
+      "lock_exact": [
+        "ortools",
+        "immutabledict"
+      ],
+      "declared_unlocked": [
+        "hatchling",
+        "trove-classifiers"
+      ]
+    },
+    "preflight": {
+      "check_outcome": "PASS",
+      "exit_code": 0,
+      "started_at_utc": "2026-10-07T11:03:50.228030+00:00",
+      "finished_at_utc": "2026-10-07T11:04:16.051221+00:00",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-B",
+        "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/offline-install-20261007-r1/actual-backend-preflight.py.txt"
+      ],
+      "native_stdout": {
+        "sys_prefix": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+        "resolved_package": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/__init__.py",
+        "required_backend_status": "available",
+        "hatchling": [
+          "hatchling.builders.sdist",
+          "hatchling.builders.wheel"
+        ],
+        "ortools_native_optimal_value": 1
+      },
+      "script": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/offline-install-20261007-r1/actual-backend-preflight.py.txt",
+        "bytes": 790,
+        "sha256": "d2ee08ac1a54e146342ed330624821b3b998b4506b3b99b34cf70955c06995b5"
+      },
+      "stdout": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/offline-install-20261007-r1/native-preflight.stdout.txt",
+        "bytes": 324,
+        "sha256": "06e00139ffe3cd6140976e4aea91ad47497358acc03b8b91e22057d21788b42d"
+      },
+      "stderr": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/offline-install-20261007-r1/native-preflight.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native_executed_by_this_packet": false
+    },
+    "historical": {
+      "recipe_outcome": "UNRUN",
+      "readiness_outcome": "UNRUN",
+      "install_post_runtime": "pending, not an accepted backend result",
+      "delta_runtime_check_outcome": "pending",
+      "original_workspace14_outcome": "FAIL",
+      "original_workspace14_exit_code": 2,
+      "original_workspace14_counts": {
+        "cases": 6,
+        "passed": 0,
+        "failed": 0,
+        "errors": 2,
+        "skipped": 4
+      },
+      "old_selection_count": 8,
+      "old_selection_bytes": 115888
+    },
+    "source_publication": {
+      "check_outcome": "PASS",
+      "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+      "exit_code": 0,
+      "preserved_original": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/root-source-publication-64d/receipt-before-timestamp-correction.json.txt",
+        "bytes": 1628,
+        "sha256": "542e2b5f75393b2f9503b388a6e0646d6325f21ff42fe465f8a6ad26707f5828"
+      },
+      "output": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/root-source-publication-64d/push-tool-combined.stdout.txt",
+        "bytes": 601,
+        "sha256": "2f384dea0553a415dd21fb86074d602866e8ce345b01bc17b9565c678421a8f9"
+      },
+      "timestamp_correction": {
+        "preserved_original": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/root-source-publication-64d/receipt-before-timestamp-correction.json.txt",
+          "bytes": 1628,
+          "sha256": "542e2b5f75393b2f9503b388a6e0646d6325f21ff42fe465f8a6ad26707f5828"
+        },
+        "fresh_command": [
+          "git",
+          "ls-remote",
+          "origin",
+          "refs/heads/codex/e02-E-continuation-20261006"
+        ],
+        "started_at_utc": "2026-10-07T10:59:30.911716+00:00",
+        "finished_at_utc": "2026-10-07T10:59:32.246115+00:00",
+        "exit_code": 0,
+        "stdout": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd\trefs/heads/codex/e02-E-continuation-20261006\n",
+        "stderr": "",
+        "fresh_remote_source_matches": true,
+        "note": "This corrective metadata preserves original publication stdout and identifies the unsupported precise observation timestamp."
+      },
+      "original_observation_time": "not_established; prior exact timestamp was manually filled and not recorded by the native command",
+      "global_ci_pass": false,
+      "finding_closure": false
+    },
+    "scope": {
+      "source_mutated": false,
+      "environment_mutated_by_this_packet": false,
+      "native_executed_by_this_packet": false,
+      "new_environment_created": false,
+      "global_backend_result_established": false,
+      "global_ci_pass": false,
+      "finding_closure": false,
+      "backend_state_at_assignment": "RUNNING workspace14; no result inferred or backend selectors repeated",
+      "classification": "Dependency capability/custody receipt; no E original finding closure.",
+      "next_owner": "E root owns the active exact workspace14 native retry; G accepts available gate receipts separately."
+    },
+    "input_denominator": {
+      "files": 32,
+      "bytes": 369304,
+      "source_paths": 6
+    }
+  }
+}

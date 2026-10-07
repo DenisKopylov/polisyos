@@ -1,0 +1,167 @@
+"""Read-only terminal retry custody; all new outputs use exclusive creation."""
+
+import copy
+import hashlib
+import json
+import subprocess
+import tomllib
+from pathlib import Path
+
+ROOT = Path('/workspace/e02-E-continuation-20261006')
+PRODUCT = ROOT / 'policy-engine'
+OUT = Path('/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/runtime-retry-preparation')
+RETRY = Path('/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1')
+SHA = '64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+TREE = 'aef23574d3162abb19bf5a1c67d02624ff9d4d1d'
+
+
+def ref(path, role):
+    data = path.read_bytes()
+    return {'path': str(path), 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest(), 'role': role}
+
+
+def write(path, value):
+    with path.open('x') as stream:
+        stream.write(json.dumps(value, indent=2, sort_keys=True) + '\n')
+
+
+def require(condition, message):
+    if not condition:
+        raise ValueError(message)
+
+
+def whole_diff(before, after, path=''):
+    rows = []
+    if type(before) is not type(after):
+        return [{'path': path, 'before': before, 'after': after}]
+    if isinstance(before, dict):
+        for key in sorted(before.keys() | after.keys()):
+            if key not in before or key not in after:
+                rows.append({'path': path + '/' + key, 'before': before.get(key), 'after': after.get(key), 'missing_before': key not in before, 'missing_after': key not in after})
+            else:
+                rows.extend(whole_diff(before[key], after[key], path + '/' + key))
+    elif isinstance(before, list):
+        if len(before) != len(after):
+            rows.append({'path': path, 'before': before, 'after': after})
+        else:
+            for index, (left, right) in enumerate(zip(before, after)):
+                rows.extend(whole_diff(left, right, path + '/' + str(index)))
+    elif before != after:
+        rows.append({'path': path, 'before': before, 'after': after})
+    return rows
+
+
+checks = {}
+for name in ('narrow-runtime-family', 'architecture-full-retry'):
+    folder = RETRY / 'checks' / name
+    receipt_path = folder / (name + '.json')
+    receipt = json.loads(receipt_path.read_text())
+    require(receipt['candidate_sha'] == SHA and receipt['candidate_tree_sha'] == TREE, 'wrong check source')
+    require(receipt['exit_code'] == 1 and receipt['outcome'] == 'FAIL' and receipt['source_immutable'], 'wrong terminal outcome')
+    stdout_path = Path(receipt['stdout_path'])
+    stdout_ref = ref(stdout_path, 'complete actual native stdout/stderr')
+    require(stdout_ref['sha256'] == receipt['stdout_sha256'] and stdout_ref['bytes'] == receipt['stdout_bytes'], 'stdout custody')
+    checks[name] = {'receipt': ref(receipt_path, 'complete frozen command/environment/source/config receipt'), 'stdout': stdout_ref, 'argv': receipt['command'], 'cwd': receipt['cwd'], 'exit_code': receipt['exit_code'], 'outcome': receipt['outcome'], 'wall_seconds': receipt['wall_seconds'], 'source_immutable': receipt['source_immutable'], 'source_identity_before': receipt['source_identity_before'], 'source_identity_after': receipt['source_identity_after'], 'environment': receipt['environment'], 'git_config_stable': receipt['git_input_config']['stable']}
+
+full_stdout_path = Path(checks['architecture-full-retry']['stdout']['path'])
+full_stdout = full_stdout_path.read_text()
+require('UNRUN' not in full_stdout, 'required generator measurement still unavailable')
+deep_rows = [line for line in full_stdout.splitlines() if line.startswith('- New deep-import creep detected:')]
+require(len(deep_rows) == 151, 'deep-import denominator changed')
+earlier = Path('/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/architecture/architecture.stdout.txt').read_text()
+earlier_rows = [line for line in earlier.splitlines() if line.startswith('- New deep-import creep detected:')]
+require(deep_rows == earlier_rows, 'deep-import source rows differ; cannot reuse attribution')
+
+families = tomllib.loads((PRODUCT / 'architecture/generated_artifacts.toml').read_text())['family']
+outputs = []
+for family in families:
+    if not family.get('default_freshness_check'):
+        continue
+    for relative in family['outputs']:
+        actual = RETRY / 'full-architecture-retained/outputs' / family['id'] / relative
+        expected = PRODUCT / relative
+        require(actual.is_file() and expected.is_file(), 'declared generator output unavailable')
+        outputs.append({'family': family['id'], 'declared_output': relative, 'actual': ref(actual, 'complete native retained generator output; large raw remains ignored'), 'expected': ref(expected, 'unchanged committed expected output'), 'equal_bytes': actual.read_bytes() == expected.read_bytes()})
+require(len(outputs) == 6 and len({row['family'] for row in outputs}) == 4, 'full family/output denominator differs')
+schema_path = RETRY / 'full-architecture-retained/outputs/runtime-openapi-snapshot/schemas/runtime_api_v1.openapi.json'
+narrow_path = RETRY / 'architecture-retained/outputs/runtime-openapi-snapshot/schemas/runtime_api_v1.openapi.json'
+require(schema_path.read_bytes() == narrow_path.read_bytes(), 'two isolated actual renderer outputs differ')
+actual_schema = json.loads(schema_path.read_text())
+expected_schema = json.loads((PRODUCT / 'schemas/runtime_api_v1.openapi.json').read_text())
+example_path = '/api/v1/exports/governed-projections/confidence-ledger-risk-spend'
+packet = actual_schema['paths'][example_path]['get']['responses']['200']['content']['application/json']['examples']['default']['value']
+validation = packet['source']['validation']
+require(validation['status'] == 'passed' and validation['bound_dependency_count'] == 1494 and validation['issue_codes'] == [], 'actual required native owner validation did not complete')
+delta = whole_diff(expected_schema, actual_schema)
+write(OUT / 'full-render-complete-delta-v1.json', {'complete_document_differences': delta, 'difference_count': len(delta), 'actual': ref(schema_path, 'actual complete emitted schema'), 'expected': ref(PRODUCT / 'schemas/runtime_api_v1.openapi.json', 'committed expected schema'), 'scope': 'whole actual schema comparison; no source/production authority or P41 attribution'})
+
+before_signal = Path('/workspace/e02-E-pr38-r3-receipts/storybook-stalled-interruption-64d/before-signal.json')
+signal_sent = before_signal.parent / 'signal-sent.json'
+ci22 = Path('/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-22/checks/standalone-ci-22/standalone-ci-22.json')
+ci22_data = json.loads(ci22.read_text())
+require(ci22_data['exit_code'] == 130 and ci22_data['source_immutable'], 'wrong previous browser terminal receipt')
+shared = OUT / 'fresh-shared-preflight-after-ci22.json'
+shared_data = json.loads(shared.read_text())
+require(shared_data['candidate_sha'] == SHA and shared_data['candidate_tree_sha'] == TREE and shared_data['same_complete_git_visible_snapshot'], 'fresh shared source proof differs')
+require(not any('vitest' in p['argv'] or 'chrome-headless' in p['argv'] for p in shared_data['observed_active_processes']), 'fresh observed browser writer remained')
+
+result = {
+    'schema': 'policyos.e02.runtime_architecture_retry_closeout.v1',
+    'candidate_sha': SHA, 'candidate_tree_sha': TREE,
+    'checks': checks,
+    'current_full_canonical_architecture': {'outcome': 'FAIL', 'exit_code': 1, 'required_generator_unrun': 0, 'all_required_family_attempts_completed': True, 'deep_import_rows': 151, 'deep_rows_equal_frozen_wave': True, 'not_a_full_CI_PASS': True},
+    'generator_outputs': outputs,
+    'actual_confidence_example_validation': validation,
+    'actual_isolated_schema_identity_equal_narrow_full': True,
+    'source_and_semantic_bounds': 'same64d/aef source; native structural/self-hash/registry/projection validator; no expected= production-history rederivation; worker184s unchanged; no E finding closure from generator flags',
+    'old_required_runtime_UNRUN': 'historical first-wave exit2 remains unchanged; narrow and full later available measurements are FAIL for actual generated-output drift',
+    'remaining_failures': ['151 unchanged deep-import source rows', 'public inventory/reference/deep-baseline drift', 'runtime OpenAPI confidence dependency1489->1494/replay identity drift', 'trust-claim-posture committed output drift'],
+    'source_owner_attribution_reuse': {'current_rows_equal_old': True, 'receipt': ref(Path('/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/architecture-row-attribution-64d.json'), 'unchanged complete151-row owner attribution; source placement only; P41 not_established')},
+    'native_client_dashboard': 'three client + one dashboard outputs measured equal to committed; generated from committed copied OpenAPI input, not a claim they consumed new emitted confidence example',
+    'current_shared_proof': ref(shared, 'fresh observed no-browser-writer/current snapshot proof; distinct after-ci22 JSON'),
+    'current_shared_proof_context': '17,017 Git-visible paths equal across483s; old confidence PNG stable; only CI02 HTTP external-temp/read-source process lineage observed; canonical runtime+full worktree before/after mutation checks completed without escape violations',
+    'old_browser_control': {'before_signal': ref(before_signal, 'actual root-owned interruption pre-observation'), 'signal_sent': ref(signal_sent, 'actual root-owned SIGINT'), 'terminal_receipt': ref(ci22, 'old CI22 FAIL130/sourceimmutable; counts null not replaced'), 'source_cause': 'not_established; interruption is operational, no invented source failure attribution'},
+    'historical_custody_loss': {'old_json_path': str(OUT / 'fresh-shared-preflight.json'), 'old_sha256': 'ee0b4b84f7518aa87f476865a06a2e36a34c7eb3ceb6785153dd89d57ff734b1', 'old_bytes': 44035, 'old_json_available': False, 'explanation': 'observer reused scratch output filename during after-ci22 proof, overwriting earlier full JSON; old stdout/source/hash statement retained; no generator had run on that old preflight; not silently reconstructed', 'old_stdout': ref(OUT / 'shared-preflight.stdout.txt', 'historical old ee0 hash statement and observed pair summary'), 'literal_observer': ref(OUT / 'record_shared_preflight.py.txt', 'actual observer source used in both historical runs'), 'fixed_publication_recovery_search': ref(OUT / 'historical-preflight-recovery-search-v1.json', 'no byte-exact old JSON among searched fixed existing handoff copies')},
+    'exclusive_output_repair_control': ref(OUT / 'exclusive-output-controls-v1.json', 'actual fresh-write healthy + FileExistsError collision refusal, sentinel unchanged'),
+    'prepared_custody_controls_reuse': ref(OUT / 'preparation-custody-controls.json', 'healthy+9 corrupted preparation metadata refusals; scope remains metadata'),
+    'commands_and_raw': 'complete exact native argv/env/input/stdout in check receipts; all raw generator outputs retained outside Git; moderate hashes/census in current packet',
+    'next_owners': {'runtime_example_worker_dependency_projection': 'A/@runtime-owners/team-runtime + G canonical generator publisher; distinguish consulted dependency identity/root-isolated directory inputs before promotion', 'shared_public_inventory_deep_import_trust': 'G/@architecture-owners + actual151 path writers; no baseline/exception expansion', 'browser_successors': 'lint_r4/root, isolated screenshots/TMPDIR; shared lease CLOSED after full terminal snapshot', 'finding_decisions': 'accountable original owners; no closure/status automatic change'},
+    'environment_and_cleanup': {'root_environment': 'reused/read-only; no root uv sync', 'isolated_environments': 'two official canonical retained private environments provisioned offline from existing external cache, narrow then mandated full measurement; no new dependency or artificial caps', 'canonical_input_scratch': [str(RETRY / 'architecture-retained/source'), str(RETRY / 'architecture-retained/environment'), str(RETRY / 'full-architecture-retained/source'), str(RETRY / 'full-architecture-retained/environment')], 'cleanup_performed': False, 'large_unique_deciding_outputs': 'retain native output raw/hash refs through publication; no cleanup or Trash operation by this helper'},
+    'P41': 'not_established; no exact slice-base full command/input/environment replay',
+    'finding_closure': False,
+    'shared_snapshot_lease': 'CLOSED after native full check terminal; root/lint notified before browser successors launch',
+}
+write(OUT / 'runtime-retry-closeout-v1.json', result)
+
+
+def validate(value):
+    require(value['candidate_sha'] == SHA and value['candidate_tree_sha'] == TREE, 'identity')
+    require(value['checks'] == checks, 'complete command/environment/outcome/source custody')
+    require(value['generator_outputs'] == outputs, 'full6 output input denominator')
+    require(value['actual_confidence_example_validation'] == validation, 'actual native owner validation')
+    require(value['current_shared_proof'] == ref(shared, value['current_shared_proof']['role']), 'current distinct shared proof custody')
+    require(value['historical_custody_loss']['old_json_available'] is False, 'historical lost JSON silently healthy')
+    require(value['current_full_canonical_architecture']['required_generator_unrun'] == 0 and value['current_full_canonical_architecture']['outcome'] == 'FAIL', 'current measured gate outcome')
+    require(value['P41'].startswith('not_established') and value['finding_closure'] is False, 'owner/finding separation')
+
+
+validate(result)
+controls = []
+mutations = [('source_identity', lambda v: v.__setitem__('candidate_sha', '0' * 40)), ('fake_full_PASS', lambda v: v['current_full_canonical_architecture'].__setitem__('outcome', 'PASS')), ('drop_declared_output', lambda v: v['generator_outputs'].pop()), ('fake_native_validation', lambda v: v['actual_confidence_example_validation'].__setitem__('status', 'failed')), ('old_missing_json_claimed_available', lambda v: v['historical_custody_loss'].__setitem__('old_json_available', True)), ('current_ref_uses_lost_old_hash', lambda v: v['current_shared_proof'].__setitem__('sha256', 'ee0b4b84f7518aa87f476865a06a2e36a34c7eb3ceb6785153dd89d57ff734b1')), ('automatic_finding_closure', lambda v: v.__setitem__('finding_closure', True))]
+for name, mutate in mutations:
+    corrupted = copy.deepcopy(result)
+    mutate(corrupted)
+    try:
+        validate(corrupted)
+    except ValueError as exc:
+        controls.append({'name': name, 'outcome': 'PASS', 'rejection': str(exc)})
+    else:
+        raise ValueError('corrupted current receipt accepted: ' + name)
+write(OUT / 'terminal-custody-controls-v1.json', {'healthy': 'PASS', 'fresh_corrupt_controls': controls, 'scope': 'current receipt/input-denominator custody; not runtime/property authority'})
+
+selected = [OUT / name for name in ('runtime-retry-closeout-v1.json', 'full-render-complete-delta-v1.json', 'terminal-custody-controls-v1.json', 'exclusive-output-controls-v1.json', 'exclusive-output-controls.py.txt', 'exclusive-output-controls-v1.stdout.txt', 'exclusive-output-controls-v1.stderr.txt', 'fresh-shared-preflight-after-ci22.json', 'fresh-shared-snapshot-b-after-ci22.json', 'fresh-shared-snapshot-a.json', 'shared-preflight-after-ci22.stdout.txt', 'shared-preflight-after-ci22.stderr.txt', 'shared-preflight.stdout.txt', 'record_shared_preflight.py.txt', 'historical-preflight-recovery-search-v1.json', 'retry_one_native_architecture_family.py.txt', 'finalize_runtime_retry.py.txt', 'narrow-capture.stdout.txt', 'narrow-capture.stderr.txt', 'full-architecture-capture.stdout.txt', 'full-architecture-capture.stderr.txt')]
+for check in checks.values():
+    selected.extend(Path(check[key]['path']) for key in ('receipt', 'stdout'))
+rows = [ref(path, 'moderate deciding output or literal observer/native selector source') for path in selected]
+write(OUT / 'retry-publication-selection-v1.json', {'candidate_sha': SHA, 'candidate_tree_sha': TREE, 'files': rows, 'total_bytes': sum(row['bytes'] for row in rows), 'large_generated_raw': outputs, 'large_raw_publication': 'hash/size/input refs only; existing ignored native outputs retained', 'stale_old_json_presented_as_current': False, 'exact_executed_finalizer': ['python3', 'finalize_runtime_retry.py.txt'], 'cwd': str(OUT)})
+print(json.dumps({'current_closeout': ref(OUT / 'runtime-retry-closeout-v1.json', 'complete terminal current receipt'), 'publication': ref(OUT / 'retry-publication-selection-v1.json', 'moderate full current publication selection'), 'assets': len(rows), 'asset_bytes': sum(row['bytes'] for row in rows), 'full_architecture': 'FAIL1/UNRUN0', 'generator_output_count': len(outputs), 'corrupt_controls': len(controls)}, indent=2))

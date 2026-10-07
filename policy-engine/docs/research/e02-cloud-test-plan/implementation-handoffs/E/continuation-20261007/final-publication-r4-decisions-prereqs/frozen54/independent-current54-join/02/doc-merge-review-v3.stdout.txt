@@ -1,0 +1,10 @@
+{
+  "path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/doc-merge-prerequisites-v3.json",
+  "bytes": 425375,
+  "sha256": "efb44a320545b1f1c63b9ee1c382a15ebe9b5fb789802d7ab7deb024f94a0769",
+  "incoming_paths": 680,
+  "new_active_python": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary/validate.py"
+  ],
+  "post_merge_whole_python": 361
+}

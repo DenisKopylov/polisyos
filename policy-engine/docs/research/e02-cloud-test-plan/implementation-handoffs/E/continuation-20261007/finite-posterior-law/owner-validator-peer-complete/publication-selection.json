@@ -1,0 +1,203 @@
+{
+  "schema": "policyos.e02.closed_moderate_independent_publication_selection.v1",
+  "outcome": "bounded independent GO, formal G/global/finding outcomes separate",
+  "candidate": "3932cded22a29254a7dfced99723e147d6fea7cb",
+  "tree": "8d19c30199666cf97dd3934f60d772baa3071f7e",
+  "assets": [
+    {
+      "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/probe_summary_admission.py",
+      "bytes": 2168,
+      "sha256": "6214055b7f5146f0a6636528419a11729efdbbd82f480cfceb47eaf784db1f42",
+      "logical_at": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/probe_summary_admission.py",
+      "stored_at": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/probe_summary_admission.py",
+      "role": "closed independent observer/source/actual deciding output",
+      "portable_rule": "Observer .py files become passive .py.txt, retaining original literal path/hash aliases."
+    },
+    {
+      "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/summary-escape-normal.stdout.json",
+      "bytes": 2498,
+      "sha256": "6c621c90ada61bf7fba51ae183aebde057cfb7ef2fe21d1b75d11f2564b8c4d1",
+      "logical_at": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/summary-escape-normal.stdout.json",
+      "stored_at": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/summary-escape-normal.stdout.json",
+      "role": "closed independent observer/source/actual deciding output",
+      "portable_rule": "Observer .py files become passive .py.txt, retaining original literal path/hash aliases."
+    },
+    {
+      "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/summary-escape-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "logical_at": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/summary-escape-normal.stderr.txt",
+      "stored_at": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/summary-escape-normal.stderr.txt",
+      "role": "closed independent observer/source/actual deciding output",
+      "portable_rule": "Observer .py files become passive .py.txt, retaining original literal path/hash aliases."
+    },
+    {
+      "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/summary-escape-optimized.stdout.json",
+      "bytes": 2501,
+      "sha256": "5dee09f1bffcc06d3e1a4ef25e81c8ddefcb1c5ca7e71d66c554824a614f1b40",
+      "logical_at": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/summary-escape-optimized.stdout.json",
+      "stored_at": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/summary-escape-optimized.stdout.json",
+      "role": "closed independent observer/source/actual deciding output",
+      "portable_rule": "Observer .py files become passive .py.txt, retaining original literal path/hash aliases."
+    },
+    {
+      "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/summary-escape-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "logical_at": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/summary-escape-optimized.stderr.txt",
+      "stored_at": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/summary-escape-optimized.stderr.txt",
+      "role": "closed independent observer/source/actual deciding output",
+      "portable_rule": "Observer .py files become passive .py.txt, retaining original literal path/hash aliases."
+    },
+    {
+      "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/review_literal_inputs.py",
+      "bytes": 12375,
+      "sha256": "603453103df335644b14100c249f24377b14432a0300a88899baaf0108421161",
+      "logical_at": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/review_literal_inputs.py",
+      "stored_at": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/review_literal_inputs.py",
+      "role": "closed independent observer/source/actual deciding output",
+      "portable_rule": "Observer .py files become passive .py.txt, retaining original literal path/hash aliases."
+    },
+    {
+      "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/literal-review-normal.stdout.json",
+      "bytes": 14122,
+      "sha256": "876415babde8b7fd5ff826db0dba723df6de0068076a0043d6023db987b1d48f",
+      "logical_at": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/literal-review-normal.stdout.json",
+      "stored_at": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/literal-review-normal.stdout.json",
+      "role": "closed independent observer/source/actual deciding output",
+      "portable_rule": "Observer .py files become passive .py.txt, retaining original literal path/hash aliases."
+    },
+    {
+      "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/literal-review-normal.stderr.txt",
+      "bytes": 299,
+      "sha256": "84da6a9faf70c80d776486951848c3958dcd35c9ccefa70bcf53aaf39c3aea01",
+      "logical_at": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/literal-review-normal.stderr.txt",
+      "stored_at": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/literal-review-normal.stderr.txt",
+      "role": "closed independent observer/source/actual deciding output",
+      "portable_rule": "Observer .py files become passive .py.txt, retaining original literal path/hash aliases."
+    },
+    {
+      "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/literal-review-optimized.stdout.json",
+      "bytes": 14125,
+      "sha256": "6f7e93e561b6c714eb667e60c8e0bbb8f7b5bc93b1ebc472ad61354c8cc43094",
+      "logical_at": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/literal-review-optimized.stdout.json",
+      "stored_at": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/literal-review-optimized.stdout.json",
+      "role": "closed independent observer/source/actual deciding output",
+      "portable_rule": "Observer .py files become passive .py.txt, retaining original literal path/hash aliases."
+    },
+    {
+      "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/literal-review-optimized.stderr.txt",
+      "bytes": 299,
+      "sha256": "84da6a9faf70c80d776486951848c3958dcd35c9ccefa70bcf53aaf39c3aea01",
+      "logical_at": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/literal-review-optimized.stderr.txt",
+      "stored_at": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/literal-review-optimized.stderr.txt",
+      "role": "closed independent observer/source/actual deciding output",
+      "portable_rule": "Observer .py files become passive .py.txt, retaining original literal path/hash aliases."
+    },
+    {
+      "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/review_corrected_validator.py",
+      "bytes": 4656,
+      "sha256": "779ae1412575cecd4ffe16b21cba7753f27fb4efd047b3e3abd9d51ec16dc994",
+      "logical_at": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/review_corrected_validator.py",
+      "stored_at": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/review_corrected_validator.py",
+      "role": "closed independent observer/source/actual deciding output",
+      "portable_rule": "Observer .py files become passive .py.txt, retaining original literal path/hash aliases."
+    },
+    {
+      "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/corrected-review-normal.stdout.json",
+      "bytes": 5400,
+      "sha256": "e6ff9e0e81e3042e4ccf9339a81a589327e9c2c2cf0b67e31a7b99f1b6775e69",
+      "logical_at": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/corrected-review-normal.stdout.json",
+      "stored_at": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/corrected-review-normal.stdout.json",
+      "role": "closed independent observer/source/actual deciding output",
+      "portable_rule": "Observer .py files become passive .py.txt, retaining original literal path/hash aliases."
+    },
+    {
+      "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/corrected-review-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "logical_at": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/corrected-review-normal.stderr.txt",
+      "stored_at": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/corrected-review-normal.stderr.txt",
+      "role": "closed independent observer/source/actual deciding output",
+      "portable_rule": "Observer .py files become passive .py.txt, retaining original literal path/hash aliases."
+    },
+    {
+      "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/corrected-review-optimized.stdout.json",
+      "bytes": 5403,
+      "sha256": "2fafe4a9099949cbdc707da54fea737ef1eff937237462e396855aac94a52eab",
+      "logical_at": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/corrected-review-optimized.stdout.json",
+      "stored_at": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/corrected-review-optimized.stdout.json",
+      "role": "closed independent observer/source/actual deciding output",
+      "portable_rule": "Observer .py files become passive .py.txt, retaining original literal path/hash aliases."
+    },
+    {
+      "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/corrected-review-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "logical_at": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/corrected-review-optimized.stderr.txt",
+      "stored_at": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/corrected-review-optimized.stderr.txt",
+      "role": "closed independent observer/source/actual deciding output",
+      "portable_rule": "Observer .py files become passive .py.txt, retaining original literal path/hash aliases."
+    },
+    {
+      "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/author-v2-rerun-normal.stdout.json",
+      "bytes": 5487,
+      "sha256": "be54d209c5b655bff9db3331576a678e50775212894f61f58a5d59e92f99ba5d",
+      "logical_at": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/author-v2-rerun-normal.stdout.json",
+      "stored_at": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/author-v2-rerun-normal.stdout.json",
+      "role": "closed independent observer/source/actual deciding output",
+      "portable_rule": "Observer .py files become passive .py.txt, retaining original literal path/hash aliases."
+    },
+    {
+      "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/author-v2-rerun-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "logical_at": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/author-v2-rerun-normal.stderr.txt",
+      "stored_at": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/author-v2-rerun-normal.stderr.txt",
+      "role": "closed independent observer/source/actual deciding output",
+      "portable_rule": "Observer .py files become passive .py.txt, retaining original literal path/hash aliases."
+    },
+    {
+      "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/author-v2-rerun-optimized.stdout.json",
+      "bytes": 5486,
+      "sha256": "6898a6442ff32d1c83f56751a8e771407a5a3ce87feadd362c485308fc4e81b5",
+      "logical_at": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/author-v2-rerun-optimized.stdout.json",
+      "stored_at": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/author-v2-rerun-optimized.stdout.json",
+      "role": "closed independent observer/source/actual deciding output",
+      "portable_rule": "Observer .py files become passive .py.txt, retaining original literal path/hash aliases."
+    },
+    {
+      "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/author-v2-rerun-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "logical_at": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/author-v2-rerun-optimized.stderr.txt",
+      "stored_at": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/author-v2-rerun-optimized.stderr.txt",
+      "role": "closed independent observer/source/actual deciding output",
+      "portable_rule": "Observer .py files become passive .py.txt, retaining original literal path/hash aliases."
+    },
+    {
+      "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/final-peer-acceptance.json",
+      "bytes": 5761,
+      "sha256": "4da3d11f62afcb388f6bb5b89d420970a6bb988d7336a64275afeca8b1916f3b",
+      "logical_at": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/final-peer-acceptance.json",
+      "stored_at": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/final-peer-acceptance.json",
+      "role": "closed independent observer/source/actual deciding output",
+      "portable_rule": "Observer .py files become passive .py.txt, retaining original literal path/hash aliases."
+    }
+  ],
+  "asset_count": 20,
+  "logical_bytes": 80580,
+  "content_unique_count": 14,
+  "content_unique_bytes": 80281,
+  "author_original27": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/owner3932-final-append-publication-selection.json",
+    "bytes": 8318,
+    "sha256": "132dfcc8b5c78e61283796a62987fa8dcb081d491902c6a186fefd993eb9946e"
+  },
+  "author_corrective16": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/owner3932-corrective-publication-selection-v2.json",
+    "bytes": 4338,
+    "sha256": "403b7f4f82a44ff006eea5db64239829077e8a38f8a524f8520893e822ca65dd"
+  },
+  "no_raw_schema_or_numeric_duplication": true
+}

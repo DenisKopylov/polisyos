@@ -1,0 +1,87 @@
+"""Recompute prewave denominators and exercise always-on corruption guards."""
+
+from __future__ import annotations
+
+import copy
+import hashlib
+import json
+import runpy
+import sys
+from pathlib import Path
+from typing import Any
+
+BASE = Path("/workspace/e02-E-pr38-r3-receipts/criteria-r4")
+BUILDER = BASE / "build-prewave-dispositions.py.txt"
+PACKET = BASE / "current-prewave-all-54-owner-dispositions.json"
+MODULE = runpy.run_path(str(BUILDER))
+VALIDATE = MODULE["validate"]
+
+
+def require(condition: bool, reason: str) -> None:
+    if not condition:
+        raise RuntimeError(reason)
+
+
+def corrupt(packet: dict[str, Any], name: str) -> dict[str, Any]:
+    result = copy.deepcopy(packet)
+    if name == "missing row":
+        result["rows"].pop()
+    elif name == "duplicate ID":
+        result["rows"][0]["id"] = result["rows"][1]["id"]
+    elif name == "lost shared bundle link":
+        result["rows"][48]["bundle_ids"] = []
+    elif name == "historical status rewrite":
+        result["rows"][0]["historical_ledger_status"] = "closed"
+    elif name == "formal ledger mutation":
+        result["formal_ledger_change"] = True
+    elif name == "source drift":
+        result["frozen_source"]["sha"] = "f" * 40
+    elif name == "tree drift":
+        result["frozen_source"]["tree"] = "f" * 40
+    elif name == "forged current wave PASS":
+        result["rows"][1]["current_check_links"]["frozen_wave"]["status"] = "PASS"
+    elif name == "invented prewave case binding":
+        result["rows"][1]["current_check_links"]["frozen_wave"]["exact_case_bindings"] = [{}]
+    elif name == "missing original criterion":
+        result["rows"][1]["criterion_evidence"]["original_criterion_refs"] = []
+    else:
+        raise ValueError("unknown control")
+    return result
+
+
+if __name__ == "__main__":
+    packet = json.loads(PACKET.read_bytes())
+    VALIDATE(packet)
+    controls: list[dict[str, Any]] = []
+    names = [
+        "missing row",
+        "duplicate ID",
+        "lost shared bundle link",
+        "historical status rewrite",
+        "formal ledger mutation",
+        "source drift",
+        "tree drift",
+        "forged current wave PASS",
+        "invented prewave case binding",
+        "missing original criterion",
+    ]
+    for name in names:
+        try:
+            VALIDATE(corrupt(packet, name))
+        except ValueError as exc:
+            controls.append({"control": name, "status": "REFUSED", "reason": str(exc)})
+        else:
+            raise RuntimeError(f"corruption admitted: {name}")
+    require(len(controls) == 10, "control denominator")
+    output = {
+        "scope": "Structural custody validation; original-criterion review is separate",
+        "optimized": sys.flags.optimize,
+        "builder_sha256": hashlib.sha256(BUILDER.read_bytes()).hexdigest(),
+        "packet_sha256": hashlib.sha256(PACKET.read_bytes()).hexdigest(),
+        "positive": "PASS",
+        "denominator": packet["complete_denominator"],
+        "proposed_counts": packet["proposed_finding_counts"],
+        "historical_ledger": packet["historical_ledger"],
+        "controls": controls,
+    }
+    sys.stdout.write(json.dumps(output, indent=2) + "\n")

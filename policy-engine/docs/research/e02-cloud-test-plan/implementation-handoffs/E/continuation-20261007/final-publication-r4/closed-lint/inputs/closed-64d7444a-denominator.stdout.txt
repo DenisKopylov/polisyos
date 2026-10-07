@@ -1,0 +1,1 @@
+{"candidate_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd", "python_candidate_path_count": 360, "command_python_path_count": 360, "input_binding_complete": true, "global_Ruff_or_format_executed": false}

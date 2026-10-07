@@ -1,0 +1,41 @@
+{
+  "fresh_corrupt_controls": [
+    {
+      "name": "source_identity",
+      "outcome": "PASS",
+      "rejection": "identity"
+    },
+    {
+      "name": "fake_full_PASS",
+      "outcome": "PASS",
+      "rejection": "current measured gate outcome"
+    },
+    {
+      "name": "drop_declared_output",
+      "outcome": "PASS",
+      "rejection": "full6 output input denominator"
+    },
+    {
+      "name": "fake_native_validation",
+      "outcome": "PASS",
+      "rejection": "actual native owner validation"
+    },
+    {
+      "name": "old_missing_json_claimed_available",
+      "outcome": "PASS",
+      "rejection": "historical lost JSON silently healthy"
+    },
+    {
+      "name": "current_ref_uses_lost_old_hash",
+      "outcome": "PASS",
+      "rejection": "current distinct shared proof custody"
+    },
+    {
+      "name": "automatic_finding_closure",
+      "outcome": "PASS",
+      "rejection": "owner/finding separation"
+    }
+  ],
+  "healthy": "PASS",
+  "scope": "current receipt/input-denominator custody; not runtime/property authority"
+}

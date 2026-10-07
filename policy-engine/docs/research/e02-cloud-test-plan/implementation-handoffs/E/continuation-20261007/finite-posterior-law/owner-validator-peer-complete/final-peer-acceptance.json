@@ -1,0 +1,144 @@
+{
+  "schema": "policyos.e02.independent_sparse_owner_projection_acceptance.v2",
+  "outcome": "GO bounded evidence/source-original-row/projection custody",
+  "candidate": "3932cded22a29254a7dfced99723e147d6fea7cb",
+  "tree": "8d19c30199666cf97dd3934f60d772baa3071f7e",
+  "base": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "complete_publication_closure": [
+    {
+      "selection": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/owner3932-final-append-publication-selection.json",
+        "bytes": 8318,
+        "sha256": "132dfcc8b5c78e61283796a62987fa8dcb081d491902c6a186fefd993eb9946e"
+      },
+      "logical_members": 27,
+      "logical_bytes": 213205,
+      "all_member_bytes_hashes_equal": true
+    },
+    {
+      "selection": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/owner3932-corrective-publication-selection-v2.json",
+        "bytes": 4338,
+        "sha256": "403b7f4f82a44ff006eea5db64239829077e8a38f8a524f8520893e822ca65dd"
+      },
+      "logical_members": 16,
+      "logical_bytes": 62734,
+      "all_member_bytes_hashes_equal": true
+    }
+  ],
+  "source_original_projection_reviews": [
+    {
+      "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/literal-review-normal.stdout.json",
+      "bytes": 14122,
+      "sha256": "876415babde8b7fd5ff826db0dba723df6de0068076a0043d6023db987b1d48f"
+    },
+    {
+      "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/literal-review-optimized.stdout.json",
+      "bytes": 14125,
+      "sha256": "6f7e93e561b6c714eb667e60c8e0bbb8f7b5bc93b1ebc472ad61354c8cc43094"
+    }
+  ],
+  "corrective_guard_reviews": [
+    {
+      "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/corrected-review-normal.stdout.json",
+      "bytes": 5400,
+      "sha256": "e6ff9e0e81e3042e4ccf9339a81a589327e9c2c2cf0b67e31a7b99f1b6775e69"
+    },
+    {
+      "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/corrected-review-optimized.stdout.json",
+      "bytes": 5403,
+      "sha256": "2fafe4a9099949cbdc707da54fea737ef1eff937237462e396855aac94a52eab"
+    }
+  ],
+  "old_V1_false_summary_controls": [
+    {
+      "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/summary-escape-normal.stdout.json",
+      "bytes": 2498,
+      "sha256": "6c621c90ada61bf7fba51ae183aebde057cfb7ef2fe21d1b75d11f2564b8c4d1"
+    },
+    {
+      "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/summary-escape-optimized.stdout.json",
+      "bytes": 2501,
+      "sha256": "5dee09f1bffcc06d3e1a4ef25e81c8ddefcb1c5ca7e71d66c554824a614f1b40"
+    }
+  ],
+  "actual_canonical_public_input": {
+    "ref": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/architecture/public_surface/inventory.json",
+      "bytes": 223160,
+      "sha256": "1981e8a6905568dac57d86f3ca9d156c077c5e7873a5f9a6ac6ea5553e8bf2a0"
+    },
+    "packages": 20,
+    "families": 13,
+    "rule": "Raw complete input, already hash-reconstructed by ninepath patch readback, not a marker-derived count."
+  },
+  "normal_optimized_control_counts": {
+    "author_actual_V2_each": 19,
+    "independent_guard_each": 11,
+    "four_old_summary_escape_each": 4
+  },
+  "counts_and_source_qualification": {
+    "family414": "Native closed 2c0 observation, no new3932 wave claim",
+    "law33": "Qualified independent ca17 law observations and defining negative controls, no numerical repeat",
+    "DTO13": "Author working precommit DTO body exactly3932, independent source/hash/AST qualification; no separate immutable3932 numerical rerun claimed",
+    "source_paths": 24,
+    "Python_paths": 12,
+    "native_source_roles": 6,
+    "model_schema_values": 103,
+    "runtime_schema_components": 573,
+    "confidence_dependencies": 1494,
+    "full_generated_patch_paths": 9
+  },
+  "normative_owner_fields": "Typed conserved frozen E owner proposal, not scientific ratification by validator. Independent literal review binds original fragments/owner TSVs and actual defining-control pointers.",
+  "historical_ledger": {
+    "partial": 49,
+    "held": 4,
+    "closed": 1
+  },
+  "frozen_ROOT64d_proposals": {
+    "closed": 41,
+    "limited": 9,
+    "held": 2,
+    "open": 2
+  },
+  "source3932_E_proposals": {
+    "closed": 43,
+    "limited": 9,
+    "held": 2
+  },
+  "formal_G_intake": "pending",
+  "ROOT3932_integration_asserted": false,
+  "global_generation_or_backend_outcome": null,
+  "capability_state": "surface_missing",
+  "C_F_consumer_intake": "not_asserted",
+  "generic_IR_Core_or_generated_public_owner_lease": "not_transferred",
+  "ROOT_generated_29_mutable_inputs": "External active backend input drift is outside source3932 projection custody and must be separately preserved. This leaf reads immutable MC/Git, not ROOT generated files.",
+  "no_ROOT_source_environment_or_numerics_projection_mutation_or_repeat": true,
+  "peer_python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "commands": [
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "/tmp/e02-E-owner3932-packet-independent-lint-20261007/review_literal_inputs.py"
+      ],
+      "scope": "read-only literal refs/Git/source/patch checks normal; repeated -O has same body"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "/tmp/e02-E-owner3932-packet-independent-lint-20261007/review_corrected_validator.py"
+      ],
+      "scope": "actual corrected guard and specific admission removal normal; repeated -O has same body"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/validate-owner3932-packets-v2.py.txt"
+      ],
+      "scope": "literal author19 controls replay only; repeated -O byte-equivalent saved output"
+    }
+  ]
+}

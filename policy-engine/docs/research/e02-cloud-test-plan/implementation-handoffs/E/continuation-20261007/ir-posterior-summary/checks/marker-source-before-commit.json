@@ -1,0 +1,103 @@
+{
+  "base": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+  "parent_candidate": "c8616e2babe1f0674799c12f07faffa5d6bd266d",
+  "path_count": 16,
+  "python_paths": [
+    "src/polisyos/foundry/calibration/report.py",
+    "src/polisyos/foundry/calibration/uncertainty_adapter.py",
+    "src/polisyos/foundry/uncertainty/protocol.py",
+    "src/polisyos/foundry/uncertainty/sampling_admission.py",
+    "src/polisyos/ir/__init__.py",
+    "src/polisyos/ir/analytics/posterior_summary.py",
+    "src/polisyos/ir/api.py",
+    "src/polisyos/schemas/abi_models.py",
+    "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+    "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+    "tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+    "tests/unit/ir/test_posterior_summary.py",
+    "tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py",
+    "tests/unit/scientist/nodes/test_propagate_uncertainty_node.py"
+  ],
+  "footprint": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-posterior-summary-profile.toml",
+      "bytes": 1712,
+      "sha256": "b554f6d23d35ac70aa372c4560e5af7dc52e8253931c8e3d40d5cb9218826be7"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/report.py",
+      "bytes": 16300,
+      "sha256": "a8eac8e97b9c1fc9ca5b4d32daea0f174bd0afd95605faf67acbefd6675972f3"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "bytes": 17116,
+      "sha256": "a585cf69fd9b6492bf20e1ab835bd9a3678958db95358231919a0e05c7f13779"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/protocol.py",
+      "bytes": 5742,
+      "sha256": "037522acb445e0f120532832efc78b8919658c5efc6a8cd8e3b52e19061410d3"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "bytes": 23932,
+      "sha256": "692481d93c0c95471897a5b8fd8a3b955bff25e0409dd3088abaeb09a920bd44"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/__init__.py",
+      "bytes": 39304,
+      "sha256": "15f06972034343d4a341f0a126a3f566c03b6daee0366f5350505dfaf3db155c"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/README.md",
+      "bytes": 7397,
+      "sha256": "f9dd246e0449245a0396fb360f72afba14d062864a02f1aaa3352ecc29022200"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "bytes": 19970,
+      "sha256": "0e6b8f25eab56fc0f5f782effc9960f2fe449da559009422adfe5737525bb43e"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/api.py",
+      "bytes": 49444,
+      "sha256": "01a443f8e51294137cdf3a70c2eed90de570f69bd6d822742099069afd8bab8a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/schemas/abi_models.py",
+      "bytes": 27404,
+      "sha256": "ef435c7f9665279057dda175451f7f8ccabba8948fd7d6b7cd7452c31ee1d6f3"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "bytes": 20893,
+      "sha256": "a77d35527d03e3c8d25ef33678ecd988c547941353d810460055f1a3eb043e41"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "bytes": 193138,
+      "sha256": "3e0690590297b52e1fc69b3e52812eba8d3c3c2e73469bc498bba0deca52be23"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+      "bytes": 9674,
+      "sha256": "af8fa2bf5fd31ea885b14b4406dc98f281c744b73176ff8ed1e5b16df7f8992e"
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "bytes": 15782,
+      "sha256": "d28603eea55bb07a94ba73e3f923cdc13459eb061f2a57460bac7ed7dbefb83a"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py",
+      "bytes": 15822,
+      "sha256": "a7bd90fe23eb9c7a3b04940b41b3e92b9c5798376f177dcd04760465a8b842b1"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py",
+      "bytes": 16962,
+      "sha256": "6f9fd54596622f706693bd23bcbb9e067399760cb60be1d545c5fb42ae7c4a5e"
+    }
+  ]
+}

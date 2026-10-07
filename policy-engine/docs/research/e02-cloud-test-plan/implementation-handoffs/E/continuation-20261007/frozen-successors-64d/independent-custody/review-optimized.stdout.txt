@@ -1,0 +1,5 @@
+{
+  "path": "/workspace/e02-E-pr38-r3-receipts/successors-independent-r4/independent-publication-review-c8054bb2-optimized.json",
+  "bytes": 7779,
+  "sha256": "05ba025f5325eb4f32a8d6205d1eab63ddc9d32f7d1fbe77bf343887555c3378"
+}

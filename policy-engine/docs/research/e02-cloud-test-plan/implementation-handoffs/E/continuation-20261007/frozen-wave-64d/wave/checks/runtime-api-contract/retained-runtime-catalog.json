@@ -1,0 +1,40 @@
+{
+  "schema": "policyos.e02.retained_runtime_api_cli.v1",
+  "checker": "/workspace/e02-E-continuation-20261006/policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py",
+  "checker_source_sha256": "210f376a6b95310fdedcbbea3917b7e0dc8a59d176d24631772522794d6877b1",
+  "original_cli_arguments": [],
+  "actual_checker_exit_code": 1,
+  "cwd": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/tmp-env/runtime-api-contract",
+  "stage_TMPDIR": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/tmp-env/runtime-api-contract",
+  "canonical_json_capture_count": 1,
+  "openapi_captures_raw_only": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/tmp-env/runtime-api-contract/retained-runtime-openapi.raw.json",
+      "bytes": 2812414,
+      "sha256": "d627cd402e788344e209a664720d7d9988dec19fb67182a44df5a4e0125f4d7a"
+    }
+  ],
+  "temporary_directories_retained": [
+    "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/tmp-env/runtime-api-contract/runtime_client_contract_2qhnozaf"
+  ],
+  "complete_generated_client_outputs_raw_only": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/tmp-env/runtime-api-contract/runtime_client_contract_2qhnozaf/packages/runtime-api-client/canonicalRuntimeApiClient.js",
+      "bytes": 31276,
+      "sha256": "69a861c8e33251ca48fb87757c4d3000ef519c2bd110590c79e0b7f4dd5d5506"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/tmp-env/runtime-api-contract/runtime_client_contract_2qhnozaf/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+      "bytes": 108061,
+      "sha256": "e0f56c8964c2c0902b62875fca8d5a245f1a1727a808a28ef80500aacb06c1cd"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/tmp-env/runtime-api-contract/runtime_client_contract_2qhnozaf/packages/runtime-api-client/types.ts",
+      "bytes": 951543,
+      "sha256": "5a4d52d41451aabf77939840914a9c4c0c9d80e67333333138156e790dc867a4"
+    }
+  ],
+  "temporary_directory_operational_variant": "Original tempfile.TemporaryDirectory(delete=False); comparisons and returned canonical bytes unchanged",
+  "scope": "Actual canonical CLI main; no second emitter and no source/product contract edits",
+  "finding_closure": false
+}

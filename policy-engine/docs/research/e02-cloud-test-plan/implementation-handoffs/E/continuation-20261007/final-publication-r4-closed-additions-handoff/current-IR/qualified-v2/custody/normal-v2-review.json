@@ -1,0 +1,222 @@
+{
+  "outcome": "GO literal custody with append-only selector correction",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "IR_source": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+  "G_review": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+  "original_selection": {
+    "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/publication-selection.json",
+    "bytes": 3201,
+    "sha256": "b001b5e01eebd0f23a7e51c92a95728d087bec7ae6413c2096a1fcafc31be048"
+  },
+  "actual_original_denominator": {
+    "logical": 10,
+    "unique": 8,
+    "logical_bytes": 61292,
+    "unique_bytes": 51496
+  },
+  "original_metadata_corrections": [
+    "unique_assets10\u21928",
+    "unique_bytes61292\u219251496",
+    "empty observerERROR stdout role: preserve original.json bytes, portable suffix.txt"
+  ],
+  "source_bindings": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "bytes": 17116,
+      "sha256": "a585cf69fd9b6492bf20e1ab835bd9a3678958db95358231919a0e05c7f13779",
+      "700_equals_64d_equals_physical": true,
+      "git64_blob": "e28d91f65219311ec666f112d70e650f26855f90",
+      "physical_700_64d_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "bytes": 19970,
+      "sha256": "0e6b8f25eab56fc0f5f782effc9960f2fe449da559009422adfe5737525bb43e",
+      "700_equals_64d_equals_physical": true,
+      "git64_blob": "2c510c47321dd2e85d8a83f9822e8525eadf90ac",
+      "physical_700_64d_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "bytes": 23932,
+      "sha256": "692481d93c0c95471897a5b8fd8a3b955bff25e0409dd3088abaeb09a920bd44",
+      "700_equals_64d_equals_physical": true,
+      "git64_blob": "357fdf1a28902fe718181a6528034cc4c093c739",
+      "physical_700_64d_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+      "bytes": 70840,
+      "sha256": "bb84f24451cd90a51d59f1593f7798ad46caf1cbddb5c7b3bacd47edffd893c7",
+      "700_equals_64d_equals_physical": true,
+      "git64_blob": "7531a2ab9fd824e05f74e33f49a3d9f9386c57c9",
+      "physical_700_64d_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "bytes": 20893,
+      "sha256": "a77d35527d03e3c8d25ef33678ecd988c547941353d810460055f1a3eb043e41",
+      "700_equals_64d_equals_physical": true,
+      "git64_blob": "0e09fe4517a02a5e5780ad6c5cd59c53ca7e428d",
+      "physical_700_64d_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "bytes": 193138,
+      "sha256": "3e0690590297b52e1fc69b3e52812eba8d3c3c2e73469bc498bba0deca52be23",
+      "700_equals_64d_equals_physical": true,
+      "git64_blob": "3c8d7b1c1c7ae4aeffba622b6fb452388afa8687",
+      "physical_700_64d_equal": true
+    }
+  ],
+  "CAS_readback": [
+    {
+      "label": "generated_ids_same_marginals",
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/generated_ids_same_marginals-cas/artifacts/sha256/6b/b6/6bb6dcc0e57c9bae2a12eccd64b2f212d77f1d5afc277b16e706b2b54592ea01.blob",
+      "bytes": 2636,
+      "sha256": "6bb6dcc0e57c9bae2a12eccd64b2f212d77f1d5afc277b16e706b2b54592ea01",
+      "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+      "row_identity_basis": "producer_input_order",
+      "gate_eligible": false
+    },
+    {
+      "label": "generated_ids_same_marginals",
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/generated_ids_same_marginals-cas/artifacts/sha256/b1/cb/b1cb47300150f7bc69d379d2ef15703bab83ef5bd3ebea5b27c2011221aadc67.blob",
+      "bytes": 2636,
+      "sha256": "b1cb47300150f7bc69d379d2ef15703bab83ef5bd3ebea5b27c2011221aadc67",
+      "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+      "row_identity_basis": "producer_input_order",
+      "gate_eligible": false
+    },
+    {
+      "label": "generated_ids_reversed_marginals",
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/generated_ids_reversed_marginals-cas/artifacts/sha256/a4/46/a446b56443f4ec5c3a4090227c46cf9fcda1b7b3f52229a513c78730323e55ed.blob",
+      "bytes": 2636,
+      "sha256": "a446b56443f4ec5c3a4090227c46cf9fcda1b7b3f52229a513c78730323e55ed",
+      "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+      "row_identity_basis": "producer_input_order",
+      "gate_eligible": false
+    },
+    {
+      "label": "generated_ids_reversed_marginals",
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/generated_ids_reversed_marginals-cas/artifacts/sha256/f6/fb/f6fb5f18767393517c00379eca41f69502b821ee15c5b15c2c5cdfcb9e3daf48.blob",
+      "bytes": 2636,
+      "sha256": "f6fb5f18767393517c00379eca41f69502b821ee15c5b15c2c5cdfcb9e3daf48",
+      "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+      "row_identity_basis": "producer_input_order",
+      "gate_eligible": false
+    },
+    {
+      "label": "explicit_shared_ids_healthy",
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/explicit_shared_ids_healthy-cas/artifacts/sha256/06/2a/062af073068907c37495e43f204f32b8e743a3c70e6c1d68e66a5e699d1fe112.blob",
+      "bytes": 2633,
+      "sha256": "062af073068907c37495e43f204f32b8e743a3c70e6c1d68e66a5e699d1fe112",
+      "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+      "row_identity_basis": "producer_supplied_ids",
+      "gate_eligible": false
+    },
+    {
+      "label": "explicit_shared_ids_healthy",
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/explicit_shared_ids_healthy-cas/artifacts/sha256/ae/fd/aefdbc77c4a25fa2c8c05d5a9b83ad4d882612b7233d32c0185464a1031d6704.blob",
+      "bytes": 2633,
+      "sha256": "aefdbc77c4a25fa2c8c05d5a9b83ad4d882612b7233d32c0185464a1031d6704",
+      "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+      "row_identity_basis": "producer_supplied_ids",
+      "gate_eligible": false
+    },
+    {
+      "label": "finite_probability_residual",
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/finite_probability_residual-cas/artifacts/sha256/9e/e5/9ee56651abefd7cfb475a1d3b3401eb6f06fbad53cc5d2c9bf080e1eae7857f5.blob",
+      "bytes": 13717,
+      "sha256": "9ee56651abefd7cfb475a1d3b3401eb6f06fbad53cc5d2c9bf080e1eae7857f5",
+      "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+      "row_identity_basis": "producer_input_order",
+      "gate_eligible": false
+    }
+  ],
+  "native_commands": [
+    [
+      "env",
+      "PYTHONPATH=/workspace/e02-E-continuation-20261006/policy-engine/src",
+      "/workspace/e02-E-frc-20261006/policy-engine/.venv/bin/python",
+      "-B",
+      "/tmp/e02-E-ir-G855-conditions-independent-64d/probe_actual_conditions.py"
+    ],
+    [
+      "env",
+      "PYTHONPATH=/workspace/e02-E-continuation-20261006/policy-engine/src",
+      "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+      "-B",
+      "/tmp/e02-E-ir-G855-conditions-independent-64d/probe_actual_conditions.py"
+    ]
+  ],
+  "native_exit_code": "not separately captured by original probe receipts; complete script stdout/result/source guards and previous NumPy traceback retained",
+  "gold_script": {
+    "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/exact_finite_oracle.py",
+    "bytes": 3926,
+    "sha256": "52f814918934cb2f55faa883a3a74086d997400368968d20aec74cee7e0ab851"
+  },
+  "gold": {
+    "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/exact-finite-oracle.json",
+    "bytes": 6369,
+    "sha256": "9ecfbdb387d63e1db764bd6cec49b26edcddb38c3ffeac4e82cbd586b682bfdc"
+  },
+  "gold_stdout": {
+    "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/exact-oracle.stdout.json",
+    "bytes": 1481,
+    "sha256": "3bf24a8573964b22b78f68e2fe8549075e53e77116260167501f3792bed25b75"
+  },
+  "third_source_lane_tests_invoked_by_this_review": false,
+  "native_or_numerical_repeat": false,
+  "ROOT_source_environment_or_interpreter_mutated_or_used": false,
+  "finding_closure": false,
+  "technical_conditions": "Current B201/B202 two implementation conditions remain open/change-required; root-approved MC/profile bounded correction is separate and pending author/review. Historical ledger/semantic ratification not rewritten.",
+  "controls": [
+    {
+      "control": "actual_late_asset_size",
+      "outcome": "PASS",
+      "refusal": "asset_custody",
+      "Git_callback_count": 0
+    },
+    {
+      "control": "actual_late_asset_hash",
+      "outcome": "PASS",
+      "refusal": "asset_custody",
+      "Git_callback_count": 0
+    },
+    {
+      "control": "actual_late_asset_bool_size",
+      "outcome": "PASS",
+      "refusal": "selected size type",
+      "Git_callback_count": 0
+    },
+    {
+      "control": "option_source",
+      "outcome": "PASS",
+      "refusal": "full identity preflight",
+      "Git_callback_count": 0
+    },
+    {
+      "control": "late_path",
+      "outcome": "PASS",
+      "refusal": "complete six source paths",
+      "Git_callback_count": 0
+    },
+    {
+      "control": "late_hash_bool",
+      "outcome": "PASS",
+      "refusal": "full identity preflight",
+      "Git_callback_count": 0
+    }
+  ],
+  "environment": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+  },
+  "observer": {
+    "path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/review_literal_custody.py",
+    "bytes": 15427,
+    "sha256": "ebe497d988400cb4e183efbc608e7d4d8e8f40328462c161208c675f0feeda4f"
+  }
+}

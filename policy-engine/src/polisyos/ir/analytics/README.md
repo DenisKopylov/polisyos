@@ -88,3 +88,13 @@ uv run pytest tests/unit/ir/test_interoperability_bridges.py -q
 ## Last updated
 
 `2026-04-20`
+
+Profile2 (`urn:policyos:ir:bayesian-posterior-summary-profile:2`, version2.0)
+uses exact normalized ratios of idempotent power-of-two binary64 weights for
+means and quantiles. Stored ratio weights need not sum to one. Sampling cuts
+round upward for finite-U/right bucket classification; sorted quantile cuts
+round downward for finite-q/left classification. Finite uniform-mesh draws
+approximate the continuous mass law. Unreachable positive atoms refuse before
+callbacks. Multi-coordinate producers and readers require supplied shared row
+IDs; matching lengths or digest presence cannot supply that premise. Profile1
+literal display/decode/replay keeps its original functional implementation.

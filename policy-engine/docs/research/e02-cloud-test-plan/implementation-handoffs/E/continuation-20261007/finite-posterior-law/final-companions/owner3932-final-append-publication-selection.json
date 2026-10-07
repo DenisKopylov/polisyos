@@ -1,0 +1,166 @@
+{
+  "schema": "policyos.e02.E.closed_sparse_owner_and_canonical_projection_publication.v1",
+  "source": "3932cded22a29254a7dfced99723e147d6fea7cb",
+  "tree": "8d19c30199666cf97dd3934f60d772baa3071f7e",
+  "scope": "Append-only final3932 directtracked projection/qualification and sparse four original-row decisions. Read-only packet controls, not numeric rerun.",
+  "assets": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-3932cded/qualified-owner-projection-packet.json",
+      "bytes": 7773,
+      "sha256": "4e072a6c180495a39bce0341625ed7a6253403852e5c8111a08a073cdb2469d3"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-3932cded/complete103-model-schema-equality.json",
+      "bytes": 44382,
+      "sha256": "3a9b9a66147eb0b8be2418c10eff169bdc6bb793ccb386bfc2b78d43e6c10e6a"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-3932cded/full-source-footprint-3932.json",
+      "bytes": 5582,
+      "sha256": "3c77497c5fac05926bb20c0f1550622371f690cb1fce6df6b379cbbb09578eef"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-3932cded/canonical-generated-full-final3932.patch",
+      "bytes": 44060,
+      "sha256": "0afd7b4720f1d92d83524dcd10d7b08de47f7b6254667be1d707a6107e78d69e"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-3932cded/final-patch-check.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-3932cded/final-patch-check.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/qualify_projection_3932.py.txt",
+      "bytes": 10040,
+      "sha256": "b25b48ce94511ad7c972f244bb27d29621d32efae7ed28b322b609e5039b1c24"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/qualify-projection-3932.stdout.txt",
+      "bytes": 227,
+      "sha256": "59040d411bed281b9bd936bc832a346c5e7006381f2645d6d88e871120e6db34"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/qualify-projection-3932.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/qualify-projection-3932-attempt1.stderr.txt",
+      "bytes": 999,
+      "sha256": "2d01a26bb57fe2665521de72a2f744e3e24c91bf0aa1a5903cec2f9796ac3d06"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/qualify-projection-3932-attempt2.stderr.txt",
+      "bytes": 428,
+      "sha256": "1ed3123af7ef49470569e92b336172759d9b4a292a8f34916d0f972a433d4bd4"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/qualify-projection-3932-attempt3.stderr.txt",
+      "bytes": 928,
+      "sha256": "a993f6735ce747d78ff7fc1ed5c69649ecfaef2a2ce1d032089eaf0d8b94dd01"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/qualify-projection-3932-attempt4.stderr.txt",
+      "bytes": 426,
+      "sha256": "b2267d51342b1f99228b2b18fef187bf74043b44204273beb5197903b66f8785"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/sparse-original-row-decisions-3932.json",
+      "bytes": 57381,
+      "sha256": "9acba4ad109ffa6c3033cc89f83580951e245bb0f49b73677216c5d40ca85cde"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/build-sparse-owner3932.py.txt",
+      "bytes": 16845,
+      "sha256": "2526ff89c6ec189015c304790e88ba789cee3f84cab01dfbc886588df4f8b5b2"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/sparse-owner3932-build.stdout.txt",
+      "bytes": 200,
+      "sha256": "851edce9d30d114cbf4ba2579ba364b30aad997570eaeb5a835d7c5e4329732f"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/sparse-owner3932-build.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/validate-owner3932-packets.py.txt",
+      "bytes": 13024,
+      "sha256": "4e3e354f50d16e12bf2defab996cf6e97caec963b934cee243e94b435007fcdb"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/owner3932-packet-controls-normal.json",
+      "bytes": 4245,
+      "sha256": "1272ce5d467248351236b5c484bd1015ae8905ab7c8206cb40f26983ec61cb83"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/owner3932-packet-controls-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/owner3932-packet-controls-optimized.json",
+      "bytes": 4244,
+      "sha256": "5ff0ef27a449dae02f05aea4127faf98605ed73244418504da30bc2189ba9fc8"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/owner3932-packet-controls-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/owner3932-utilities-style.json",
+      "bytes": 2376,
+      "sha256": "2b6772349a46bfce33bf742d68c7ff36420f5974d4ce8fe1dbc5a765b70bef34"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/owner3932-utilities-check.stdout.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/owner3932-utilities-check.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/owner3932-utilities-format.stdout.txt",
+      "bytes": 26,
+      "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/owner3932-utilities-format.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "asset_count": 27,
+  "asset_bytes": 213205,
+  "previous_ready_publication_selection": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/projection-ready-publication-selection-3932.json",
+    "bytes": 3863,
+    "sha256": "68dc1fbbf43ff3a7d2051c1d6a06ba002fd0a6ff86576ca6cf11bfe4c8ff6eea"
+  },
+  "no_recopy_required": "The twelve earlier ready projection assets are already published at2b6146377fc084e6289a83c9fac3e818b79d8b55. This selection adds final directtracked patch and qualifies source3932; old ca17 generated patch/delta remain literal history.",
+  "outcome": "PASS",
+  "outcome_scope": "Author recomputing packet controls19 normal/19optimized, directpatchcheck0, three scoped utility Ruff/format checks. Independent projection/criterion intake separate.",
+  "global_gate_outcome": null,
+  "capability_state": "surface_missing",
+  "ROOT64d_current_B201_B202": "open",
+  "3932_B201_B202_E_bounded_original_decision": "accepted; proposedclosed on3932 only, Gformalintakepending",
+  "ROOT_backend": "Still executing original64d retry; observed generatedinputdrift29paths must be kept separate from codeHEAD. No native terminal claim.",
+  "historical_ledger_preserved": {
+    "partial": 49,
+    "held": 4,
+    "closed": 1
+  },
+  "unchanged_original54": "No full54ledger file replaced or reclassified. Existing43/9/2 historical proposals remain immutable; only sparse source-qualified current3932 layer.",
+  "large_raw_ignored": "All103 schema dictionaries and full runtime output remain ignored scratch and exacthash-bound by moderate census/projection. No raw CAS dirs or repeated numeric dump.",
+  "cleanup": "No cleanup by this packet author. User cloud authorization and prior closed cleanup receipts remain separate."
+}

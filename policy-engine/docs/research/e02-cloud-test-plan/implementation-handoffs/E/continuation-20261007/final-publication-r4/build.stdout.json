@@ -1,0 +1,99 @@
+{
+  "schema": "policyos.e02.root_final_publication_staging.v1",
+  "verification_source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "verification_tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "source_and_tree_verified_read_only": true,
+  "root_tracked_status_before": "",
+  "root_tracked_status_after": "",
+  "leaf_sha": "a5021561c7630b8a1e721e34307d30550825b07d",
+  "leaf_tree": "d84d3bc8059deb41415a65e9a611cc1470b37937",
+  "proposed_git_prefix": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4/",
+  "root_or_leaf_files_written": false,
+  "active_python_additions": false,
+  "source_test_gate_numerical_execution": false,
+  "logical_count_including_selectors": 123,
+  "logical_bytes_including_selectors": 3116238,
+  "unique_payload_files": 107,
+  "unique_payload_bytes": 3112171,
+  "deduplicated_logical_aliases": 16,
+  "destination_collision_count": 0,
+  "content_collision_count": 0,
+  "pending_not_collected": [
+    "new frontend receipts",
+    "new backend receipts",
+    "final all-54 owner closeout"
+  ],
+  "existing_leaf_carriers_to_merge": [
+    {
+      "sha": "a5021561c7630b8a1e721e34307d30550825b07d",
+      "tree": "d84d3bc8059deb41415a65e9a611cc1470b37937",
+      "scope": "common-wave/cal/IR evidence; root merge pending"
+    },
+    {
+      "sha": "7537ef95beed07d02a3b72343b082ff3b7fd14e2",
+      "tree": "46a538e5edf82f938547a23ea0b1774ded07697a",
+      "scope": "DOE evidence; exact Git object resolved from supplied short reference; root merge pending"
+    }
+  ],
+  "already_published_observation_reuse": [
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/static-invocation/static-invocation.json",
+      "immutable_git_sha": "a5021561c7630b8a1e721e34307d30550825b07d",
+      "immutable_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/static-invocation/static-invocation.json",
+      "bytes": 8422,
+      "sha256": "58c3b82812c3c123343552c2ed53a4d746b49f1c96385f20e430e739f4eac5f3",
+      "recomputed_custody": "PASS"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/static-invocation/static-invocation.stdout.txt",
+      "immutable_git_sha": "a5021561c7630b8a1e721e34307d30550825b07d",
+      "immutable_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/static-invocation/static-invocation.stdout.txt",
+      "bytes": 10099,
+      "sha256": "651ac270c247d0e52b2d1c365a94bd563e035786078bffb7dce7a2912f6576cb",
+      "recomputed_custody": "PASS"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/architecture/architecture.json",
+      "immutable_git_sha": "a5021561c7630b8a1e721e34307d30550825b07d",
+      "immutable_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/architecture/architecture.json",
+      "bytes": 8146,
+      "sha256": "f2fb06dd561d9cb11503d8b70903e6864fe153286725bbc8ad6087754b4786cc",
+      "recomputed_custody": "PASS"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/architecture/architecture.stdout.txt",
+      "immutable_git_sha": "a5021561c7630b8a1e721e34307d30550825b07d",
+      "immutable_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/architecture/architecture.stdout.txt",
+      "bytes": 136159,
+      "sha256": "7e4b0d4c4115b56440e6498dae639fef1329b49960b38bc3371cf6e354b33682",
+      "recomputed_custody": "PASS"
+    }
+  ],
+  "historical_preflight_custody_loss": {
+    "explanation": "observer reused scratch output filename during after-ci22 proof, overwriting earlier full JSON; old stdout/source/hash statement retained; no generator had run on that old preflight; not silently reconstructed",
+    "fixed_publication_recovery_search": {
+      "bytes": 902,
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/runtime-retry-preparation/historical-preflight-recovery-search-v1.json",
+      "role": "no byte-exact old JSON among searched fixed existing handoff copies",
+      "sha256": "abac5f22d0654a78355d470f22cb96d0f0412f42c7b6d7afa1be5671b3696a46"
+    },
+    "literal_observer": {
+      "bytes": 5432,
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/runtime-retry-preparation/record_shared_preflight.py.txt",
+      "role": "actual observer source used in both historical runs",
+      "sha256": "a8286632121769bf01b8b6558869514c2ebdc44d49fa26a8d6be7c133dff2139"
+    },
+    "old_bytes": 44035,
+    "old_json_available": false,
+    "old_json_path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/runtime-retry-preparation/fresh-shared-preflight.json",
+    "old_sha256": "ee0b4b84f7518aa87f476865a06a2e36a34c7eb3ceb6785153dd89d57ff734b1",
+    "old_stdout": {
+      "bytes": 391,
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/runtime-retry-preparation/shared-preflight.stdout.txt",
+      "role": "historical old ee0 hash statement and observed pair summary",
+      "sha256": "5dff14267b1f0a8c32b2e349488548c5e91c22df9cbeed0b28f2148b747dfa88"
+    }
+  },
+  "scope_limit": "Custody and proposed publication only. Ready selectors are a bounded subset; this is not a complete final gate/owner handoff or new numerical/source PASS.",
+  "metadata_self_hash_excluded": true
+}

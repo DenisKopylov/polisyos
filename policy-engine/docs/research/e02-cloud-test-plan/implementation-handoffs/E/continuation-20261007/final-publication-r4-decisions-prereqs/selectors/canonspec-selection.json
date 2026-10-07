@@ -1,0 +1,285 @@
+{
+  "schema": "policyos.e02.moderate_publication_selection.v2",
+  "status": "closed read-only observations; implementation change-required; owner API admission required",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "logical_files": 34,
+  "unique_files": 26,
+  "total_unique_bytes": 267661,
+  "files": [
+    {
+      "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/README.md",
+      "bytes": 3808,
+      "sha256": "2b64e2d28484c7c2bd12cde02f3a7ac4190bbd4bb6869fe4e0e849ba53a9c81a",
+      "logical_at": "assets/README.md",
+      "stored_at": "assets/README.md",
+      "role": "current interpretation"
+    },
+    {
+      "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typed-owner-qualification-v3.json",
+      "bytes": 16136,
+      "sha256": "03e4629bf558a4089f2849cf18559f3488e26f4412e2849c872888f0536bca1f",
+      "logical_at": "assets/typed-owner-qualification-v3.json",
+      "stored_at": "assets/typed-owner-qualification-v3.json",
+      "role": "current full typed decision"
+    },
+    {
+      "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/ir-export-proposal-v2.json",
+      "bytes": 1231,
+      "sha256": "ba483f34b5fbd7e1c64bdffae79649e395db957e1f39d1ad4f2cfea48683b0ea",
+      "logical_at": "assets/ir-export-proposal-v2.json",
+      "stored_at": "assets/ir-export-proposal-v2.json",
+      "role": "unapplied canonical-owner proposal"
+    },
+    {
+      "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/IR-owner-existing-spec-export-and-E-caller-proposal.patch",
+      "bytes": 1015,
+      "sha256": "12f527d63ff94602e6edcb5010f4a145c3d89f6e04216a5a3879b4000975481d",
+      "logical_at": "assets/IR-owner-existing-spec-export-and-E-caller-proposal.patch",
+      "stored_at": "assets/IR-owner-existing-spec-export-and-E-caller-proposal.patch",
+      "role": "unapplied two-path proposal"
+    },
+    {
+      "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/scoped-typecheck-execution.json",
+      "bytes": 4230,
+      "sha256": "fcbbc806766c6eeffe43ea200473d411f5ea7c46d3705b0a8e828788d7c186b9",
+      "logical_at": "assets/scoped-typecheck-execution.json",
+      "stored_at": "assets/scoped-typecheck-execution.json",
+      "role": "actual exact scoped commands"
+    },
+    {
+      "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-before.stdout.json",
+      "bytes": 25576,
+      "sha256": "bdab5d19bf2bdb1366b13b4dccfa3e5b4ec16b8895b156026d815d16dd28dc15",
+      "logical_at": "assets/typecheck-before.stdout.json",
+      "stored_at": "assets/typecheck-before.stdout.json",
+      "role": "full actual scoped before output"
+    },
+    {
+      "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-before.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "logical_at": "assets/typecheck-before.stderr.txt",
+      "stored_at": "assets/typecheck-before.stderr.txt",
+      "role": "full actual scoped before stderr"
+    },
+    {
+      "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-overlay.stdout.json",
+      "bytes": 27952,
+      "sha256": "870496e107bba730f59e736e0c40b2541a5bbe9127df5361bfa6b0b1911f9a88",
+      "logical_at": "assets/typecheck-overlay.stdout.json",
+      "stored_at": "assets/typecheck-overlay.stdout.json",
+      "role": "full actual scoped overlay output"
+    },
+    {
+      "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-overlay.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "logical_at": "assets/typecheck-overlay.stderr.txt",
+      "stored_at": "assets/typecheck-before.stderr.txt",
+      "role": "full actual scoped overlay stderr"
+    },
+    {
+      "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-overlay/src/polisyos/calibration/forecast_bridge.py",
+      "bytes": 81738,
+      "sha256": "a3beb073d0cc55309ae742f41dcade27507f9aa8fb7dcd8e76849a02f12aa022",
+      "logical_at": "assets/typecheck-overlay--src--polisyos--calibration--forecast_bridge.py.txt",
+      "stored_at": "assets/typecheck-overlay--src--polisyos--calibration--forecast_bridge.py.txt",
+      "role": "actual scoped three-line overlay"
+    },
+    {
+      "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/native-public-route.json",
+      "bytes": 44283,
+      "sha256": "b62d9348bd0328bce98d1db97a38f13b0349ea7f2f4e5d35968fc71ec7f507cb",
+      "logical_at": "assets/native-public-route.json",
+      "stored_at": "assets/native-public-route.json",
+      "role": "actual bounded configured CAS and six controls"
+    },
+    {
+      "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/probe_public_spec.py",
+      "bytes": 10734,
+      "sha256": "20911af5f9378be77f594ef9cbe73f149ff556d0c88c358f9746e39bb7efebe0",
+      "logical_at": "assets/probe_public_spec.py.txt",
+      "stored_at": "assets/probe_public_spec.py.txt",
+      "role": "literal actual observer"
+    },
+    {
+      "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/native.stdout.json",
+      "bytes": 346,
+      "sha256": "873c895f39f1eb1e83bd6e44fb772d2d6677cf7c2571c649b9bf25ba999a62cc",
+      "logical_at": "assets/native.stdout.json",
+      "stored_at": "assets/native.stdout.json",
+      "role": "complete observer stdout"
+    },
+    {
+      "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/native.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "logical_at": "assets/native.stderr.txt",
+      "stored_at": "assets/typecheck-before.stderr.txt",
+      "role": "complete observer stderr"
+    },
+    {
+      "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/owner-ready-public-route.json",
+      "bytes": 6745,
+      "sha256": "53caa61cbf37d411fc5021b45f67770d55e99e4d2e82fb87eb4cc254bfeed2cc",
+      "logical_at": "assets/owner-ready-public-route.json",
+      "stored_at": "assets/owner-ready-public-route.json",
+      "role": "historical runtime-only proposal"
+    },
+    {
+      "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/E-forecast-existing-core-canon.patch",
+      "bytes": 1328,
+      "sha256": "460310a1862fd9782d2e3f8d128ec1995cd02fb83f9f68978ebc8ecf7bfaa53f",
+      "logical_at": "assets/E-forecast-existing-core-canon.patch",
+      "stored_at": "assets/E-forecast-existing-core-canon.patch",
+      "role": "historical runtime-only E proposal"
+    },
+    {
+      "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/build_typed_owner_packet.py",
+      "bytes": 11798,
+      "sha256": "eaecfcef3e0dbff1edfd7176ef3955d8d3c3c778183a925919e162f6cdd211a2",
+      "logical_at": "assets/build_typed_owner_packet.py.txt",
+      "stored_at": "assets/build_typed_owner_packet.py.txt",
+      "role": "historical builder observer"
+    },
+    {
+      "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typed-owner-builder.stdout.json",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "logical_at": "assets/typed-owner-builder.stdout.txt",
+      "stored_at": "assets/typecheck-before.stderr.txt",
+      "role": "historical builder stdout"
+    },
+    {
+      "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typed-owner-builder.stderr.txt",
+      "bytes": 648,
+      "sha256": "47d2ba7867e8071fde82a47849cacd2b9b74bbb36032c7c3515c3d58800c1cf9",
+      "logical_at": "assets/typed-owner-builder.stderr.txt",
+      "stored_at": "assets/typed-owner-builder.stderr.txt",
+      "role": "historical builder ERROR"
+    },
+    {
+      "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typed-owner-qualification-v2.json",
+      "bytes": 16136,
+      "sha256": "03e4629bf558a4089f2849cf18559f3488e26f4412e2849c872888f0536bca1f",
+      "logical_at": "assets/typed-owner-qualification-v2.json",
+      "stored_at": "assets/typed-owner-qualification-v3.json",
+      "role": "historical staging qualification before builder ERROR"
+    },
+    {
+      "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/build_typed_owner_packet_v2.py",
+      "bytes": 11813,
+      "sha256": "01a9604b5ab4f35f475bab138889cfbcc26d373815b2ca342318f3a1f23fadc3",
+      "logical_at": "assets/build_typed_owner_packet_v2.py.txt",
+      "stored_at": "assets/build_typed_owner_packet_v2.py.txt",
+      "role": "current literal typed comparison/source guard observer"
+    },
+    {
+      "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typed-owner-builder-v2.stdout.json",
+      "bytes": 531,
+      "sha256": "6e1036f1e61ba0b0b5d2c28281c07e3e1519b447015b5d8e25b16cb1afea0847",
+      "logical_at": "assets/typed-owner-builder-v2.stdout.json",
+      "stored_at": "assets/typed-owner-builder-v2.stdout.json",
+      "role": "complete closed builder stdout"
+    },
+    {
+      "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typed-owner-builder-v2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "logical_at": "assets/typed-owner-builder-v2.stderr.txt",
+      "stored_at": "assets/typecheck-before.stderr.txt",
+      "role": "complete closed builder stderr"
+    },
+    {
+      "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/probe_route_property_removal.py",
+      "bytes": 2234,
+      "sha256": "24b6a0e018c71712bb0b7c56fac1b96e0e2505643bc84795fb34207d9660034c",
+      "logical_at": "assets/probe_route_property_removal.py.txt",
+      "stored_at": "assets/probe_route_property_removal.py.txt",
+      "role": "historical removal observer wrong literal"
+    },
+    {
+      "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/removal.stdout.json",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "logical_at": "assets/removal.stdout.txt",
+      "stored_at": "assets/typecheck-before.stderr.txt",
+      "role": "historical ERROR stdout"
+    },
+    {
+      "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/removal.stderr.txt",
+      "bytes": 3353,
+      "sha256": "2c7c5daede9841d977682d85288223c8497c5cece46f4d1a0773d02d8a40e5e9",
+      "logical_at": "assets/removal.stderr.txt",
+      "stored_at": "assets/removal.stderr.txt",
+      "role": "historical ERROR stderr"
+    },
+    {
+      "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/probe_route_property_removal_v2.py",
+      "bytes": 2245,
+      "sha256": "fb48800eddb8d77f105389ad0b15948eaf7c8cfd46dbb44b8e23644d7d5eef36",
+      "logical_at": "assets/probe_route_property_removal_v2.py.txt",
+      "stored_at": "assets/probe_route_property_removal_v2.py.txt",
+      "role": "historical overbroad removal observer"
+    },
+    {
+      "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/removal-v2.stdout.json",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "logical_at": "assets/removal-v2.stdout.txt",
+      "stored_at": "assets/typecheck-before.stderr.txt",
+      "role": "historical ERROR stdout"
+    },
+    {
+      "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/removal-v2.stderr.txt",
+      "bytes": 322,
+      "sha256": "3b6791dcd1241b1a75ea166a5be7a7095046e25f342c016dd5fa5eab57ace93b",
+      "logical_at": "assets/removal-v2.stderr.txt",
+      "stored_at": "assets/removal-v2.stderr.txt",
+      "role": "historical ERROR stderr"
+    },
+    {
+      "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/removal-observer-correction-v2.json",
+      "bytes": 2288,
+      "sha256": "951c778c646b86f47bd728d938544645791b0d9ebe0b827d98eb83fa32aa8a43",
+      "logical_at": "assets/removal-observer-correction-v2.json",
+      "stored_at": "assets/removal-observer-correction-v2.json",
+      "role": "historical observer correction attempt"
+    },
+    {
+      "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/probe_route_property_removal_v3.py",
+      "bytes": 2751,
+      "sha256": "d44521285e954d3b3a939bf81907d7657cce5ad258da9e9cad1a9d0403856915",
+      "logical_at": "assets/probe_route_property_removal_v3.py.txt",
+      "stored_at": "assets/probe_route_property_removal_v3.py.txt",
+      "role": "current literal removal observer"
+    },
+    {
+      "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/removal-v3.stdout.json",
+      "bytes": 1435,
+      "sha256": "2430a4de3b1f3c8f83b037a384028af2e4428a3d40cd8984930883cff97029b2",
+      "logical_at": "assets/removal-v3.stdout.json",
+      "stored_at": "assets/removal-v3.stdout.json",
+      "role": "complete current removal stdout"
+    },
+    {
+      "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/removal-v3.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "logical_at": "assets/removal-v3.stderr.txt",
+      "stored_at": "assets/typecheck-before.stderr.txt",
+      "role": "complete current removal stderr"
+    },
+    {
+      "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/removal-observer-correction-v3.json",
+      "bytes": 3121,
+      "sha256": "9aed3919618bd430cbdcef9976ece7c11291fb9918b476a3fabd679f63d7849d",
+      "logical_at": "assets/removal-observer-correction-v3.json",
+      "stored_at": "assets/removal-observer-correction-v3.json",
+      "role": "current correction and full ERROR history"
+    }
+  ],
+  "replay": "Restore passive observers/overlay to exact bytes in fresh scratch using logical aliases. Full actual stdout and canonical code/config/baseline Git refs are preserved; no need to repeat a global wave. Current scoped source and generic IR export proposal remain unapplied. Original synthetic94-file CAS99,788B inventory is in native receipt; original mathematical producer not rerun.",
+  "limits": "Runtime-only public Core route is not nominally assignable; private cross-root edge remains open pending canonical Core/IR API admission. Both exact scoped checks FAIL, two new argument errors. Old observer ERRORs and runtime-only proposal are historical. No native/global/finding closure or independent review of this author observer asserted."
+}

@@ -1,0 +1,81 @@
+from __future__ import annotations
+import copy
+from datetime import datetime,timezone
+import hashlib,json
+from pathlib import Path
+
+S=Path('/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution')
+W=Path('/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007')
+
+def ref(p):
+ b=p.read_bytes();return {'path':str(p),'sha256':hashlib.sha256(b).hexdigest(),'bytes':len(b)}
+
+actual=json.loads((W/'raw/production-invocation.raw.json').read_text())
+stdout=json.loads((W/'checks/static-invocation/static-invocation.stdout.txt').read_text())
+check=json.loads((W/'checks/static-invocation/static-invocation.json').read_text())
+review=json.loads((S/'static-output-review-64d.json').read_text())
+expected={(kind,name) for kind,names in [('regression',actual['regressions']),('new_unresolved_by_construction',actual['new_unresolved_by_construction'])] for name in names}
+
+class Refusal(ValueError):pass
+
+def require(condition,reason):
+ if not condition:raise Refusal(reason)
+
+def check_complete_rows(r):
+ got={(x['kind'],x['symbol']) for x in r['exceptional_rows']}
+ require(len(got)==len(r['exceptional_rows']),'duplicate_exceptional_row')
+ require(got==expected,'exceptional_row_denominator_mismatch')
+ for row in r['exceptional_rows']:
+  require(row['exact_static_record']==actual['mechanisms'][row['symbol']],'actual_static_record_mismatch')
+
+def validate(r):
+ require(r['candidate']==check['candidate_sha'],'candidate_mismatch')
+ require(r['tree']==check['candidate_tree_sha'],'tree_mismatch')
+ require(r['comparison_base']==actual['base'],'base_mismatch')
+ require(r['denominator']==actual['denominator'],'full_input_mapping_mismatch')
+ require(r['canonical_check_receipt']==ref(W/'checks/static-invocation/static-invocation.json'),'canonical_check_ref_mismatch')
+ require(r['canonical_stdout']==ref(W/'checks/static-invocation/static-invocation.stdout.txt'),'canonical_stdout_ref_mismatch')
+ require(r['complete_raw_receipt']==ref(W/'raw/production-invocation.raw.json'),'raw_graph_ref_mismatch')
+ require(r['runtime_invocation_established'] is False,'static_proxy_runtime_authority_forbidden')
+ require(check['source_immutable'] is True and check['head_at_end']==r['candidate'],'source_bracket_not_established')
+ require(r['counts']['mechanisms']==len(actual['mechanisms']),'mechanism_count_mismatch')
+ require(r['counts']['static_regressions']==len(actual['regressions']),'regression_count_mismatch')
+ require(r['counts']['new_unresolved']==len(actual['new_unresolved_by_construction']),'unresolved_count_mismatch')
+ require(stdout['regressions']==actual['regressions'],'actual_stdout_regression_mismatch')
+ require(stdout['new_unresolved_by_construction']==actual['new_unresolved_by_construction'],'actual_stdout_unresolved_mismatch')
+ require(r['canonical_outcome']=='FAIL' and r['exit_code']==1,'actual_failure_outcome_mismatch')
+ check_complete_rows(r)
+ return 'PASS'
+
+healthy=validate(review)
+controls=[]
+def control(name,mutation):
+ case=copy.deepcopy(review);mutation(case)
+ # Field corruption has a freshly recomputed integrity-valid JSON digest; names/markers remain.
+ b=json.dumps(case,sort_keys=True).encode()
+ try:validate(case)
+ except Refusal as e:result={'name':name,'outcome':'PASS negative refused','reason':str(e),'forged_payload_sha256':hashlib.sha256(b).hexdigest()}
+ else:raise AssertionError('corruption accepted: '+name)
+ controls.append(result)
+control('complete_input_denominator',lambda r:r['denominator'].__setitem__('current_files',5939))
+control('substituted_old_input_digest',lambda r:r['denominator'].__setitem__('current_sha256',r['denominator']['base_sha256']))
+control('omitted_actual_exceptional_row_markers_counts_preserved',lambda r:r['exceptional_rows'].pop())
+control('forged_actual_caller_list',lambda r:r['exceptional_rows'][0]['exact_static_record'].__setitem__('source_callers',[]))
+control('source_tree_mismatch',lambda r:r.__setitem__('tree','0'*40))
+control('proxy_promoted_to_runtime_authority',lambda r:r.__setitem__('runtime_invocation_established',True))
+control('failed_check_relabelled_pass',lambda r:r.__setitem__('canonical_outcome','PASS'))
+control('forged_graph_hash',lambda r:r['complete_raw_receipt'].__setitem__('sha256','0'*64))
+
+case=copy.deepcopy(review);case['exceptional_rows'].pop()
+original=check_complete_rows
+check_complete_rows=lambda r:None
+try:
+ validate(case)
+ try:require(False,'expected omitted-row refusal absent')
+ except Refusal as e:removal={'property':'complete exceptional rows and exact actual record comparison','outcome':'FAIL expected independent negative assertion; discriminator PASS','reason':str(e),'metadata_names_markers_preserved':True,'validator_property_disabled':True,'other_checks_still_executed':True}
+ else:raise AssertionError('expected independent assertion failure missing')
+finally:check_complete_rows=original
+
+result={'schema':'policyos.e02.static_review_validator_controls.v1','candidate':review['candidate'],'tree':review['tree'],'created_at':datetime.now(timezone.utc).isoformat(),'property':'Exact complete111exceptional rows and actual static records/hash-bound canonical input mappings/check outputs. This validates analysis evidence, not runtime execution or finding closure.','healthy':healthy,'actual_rows':len(expected),'corruption_controls':controls,'property_removal':removal,'inputs':[ref(S/'static-output-review-64d.json'),ref(W/'checks/static-invocation/static-invocation.json'),ref(W/'checks/static-invocation/static-invocation.stdout.txt'),ref(W/'raw/production-invocation.raw.json')],'operation':'Existing complete canonical outputs only. No graph/checker rerun or source mutation. Forged cases exist only as in-memory fresh-integrity JSON, not product artifacts.','P41':'not_established'}
+(S/'static-review-validator-controls.json').write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps(result,indent=2))

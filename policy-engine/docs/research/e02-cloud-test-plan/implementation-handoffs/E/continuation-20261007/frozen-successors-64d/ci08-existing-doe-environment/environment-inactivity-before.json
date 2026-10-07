@@ -1,0 +1,183 @@
+{
+  "schema": "policyos.e02.existing_environment_inactivity.v1",
+  "observed_unix": 1791368658.7293537,
+  "observer_pid": 521080,
+  "target_environment": "/workspace/e02-E-doe-20261006/policy-engine/.venv",
+  "root_environment": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+  "distinct_realpaths": true,
+  "live_processes_scanned": 22,
+  "active_users": [],
+  "unreadable_live_processes": [
+    {
+      "pid": 199,
+      "error": "[Errno 13] Permission denied: '/proc/199/environ'"
+    },
+    {
+      "pid": 250,
+      "error": "[Errno 13] Permission denied: '/proc/250/environ'"
+    }
+  ],
+  "evidence_sources": [
+    "/proc/*/cmdline argv0",
+    "/proc/*/environ selected environment keys",
+    "/proc/*/maps",
+    "/proc/*/fd symlink targets"
+  ],
+  "complete_live_process_observations": [
+    {
+      "pid": 1,
+      "argv0": "tail",
+      "evidence": [],
+      "mapped_files": [],
+      "open_files": []
+    },
+    {
+      "pid": 2,
+      "argv0": "/usr/local/bin/caas-prefix-transfer-server",
+      "evidence": [],
+      "mapped_files": [],
+      "open_files": []
+    },
+    {
+      "pid": 515,
+      "argv0": "/opt/codex/bin/codex",
+      "evidence": [],
+      "mapped_files": [],
+      "open_files": []
+    },
+    {
+      "pid": 496652,
+      "argv0": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "evidence": [],
+      "mapped_files": [],
+      "open_files": []
+    },
+    {
+      "pid": 497199,
+      "argv0": "/workspace/.polisyos-environment/uv/bin/uv",
+      "evidence": [],
+      "mapped_files": [],
+      "open_files": []
+    },
+    {
+      "pid": 497206,
+      "argv0": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "evidence": [],
+      "mapped_files": [],
+      "open_files": []
+    },
+    {
+      "pid": 498289,
+      "argv0": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "evidence": [],
+      "mapped_files": [],
+      "open_files": []
+    },
+    {
+      "pid": 498466,
+      "argv0": "npm run test:storybook",
+      "evidence": [],
+      "mapped_files": [],
+      "open_files": []
+    },
+    {
+      "pid": 498494,
+      "argv0": "sh",
+      "evidence": [],
+      "mapped_files": [],
+      "open_files": []
+    },
+    {
+      "pid": 498495,
+      "argv0": "node",
+      "evidence": [],
+      "mapped_files": [],
+      "open_files": []
+    },
+    {
+      "pid": 498535,
+      "argv0": "/workspace/e02-E-continuation-20261006/policy-engine/node_modules/.pnpm/@esbuild+linux-x64@0.27.7/node_modules/@esbuild/linux-x64/bin/esbuild",
+      "evidence": [],
+      "mapped_files": [],
+      "open_files": []
+    },
+    {
+      "pid": 498720,
+      "argv0": "/workspace/e02-E-continuation-20261006/policy-engine/node_modules/.pnpm/@esbuild+linux-x64@0.25.12/node_modules/@esbuild/linux-x64/bin/esbuild",
+      "evidence": [],
+      "mapped_files": [],
+      "open_files": []
+    },
+    {
+      "pid": 498938,
+      "argv0": "/home/agent/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell",
+      "evidence": [],
+      "mapped_files": [],
+      "open_files": []
+    },
+    {
+      "pid": 498944,
+      "argv0": "/home/agent/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell --type=zygote --no-zygote-sandbox --no-sandbox --headless",
+      "evidence": [],
+      "mapped_files": [],
+      "open_files": []
+    },
+    {
+      "pid": 498945,
+      "argv0": "/home/agent/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell --type=zygote --no-sandbox --headless",
+      "evidence": [],
+      "mapped_files": [],
+      "open_files": []
+    },
+    {
+      "pid": 498972,
+      "argv0": "/home/agent/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell --type=gpu-process --no-sandbox --disable-dev-shm-usage --disable-breakpad --headless --ozone-platform=headless --use-angle=swiftshader-webgl --enable-unsafe-swiftshader --gpu-preferences=UAAAAAAAAAAgAAAEAAAAAAAAAAAAAGAAAQAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAYAAAAAAAAABgAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAgAAAAAAAAA --use-gl=angle --shared-files --field-trial-handle=3,i,6104866955674305483,8864837632937417095,262144 --enable-features=CDPScreenshotNewSurface --disable-features=AutoDeElevate,AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,OptimizationHints,PaintHolding,RenderDocument,ThirdPartyStoragePartitioning,Translate --variations-seed-version --pseudonymization-salt-handle=7,i,12643835993964459489,745083611234695202,4 --trace-process-track-uuid=3190708988185955192",
+      "evidence": [],
+      "mapped_files": [],
+      "open_files": []
+    },
+    {
+      "pid": 498977,
+      "argv0": "/home/agent/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell --type=utility --utility-sub-type=network.mojom.NetworkService --lang=en-US --service-sandbox-type=none --no-sandbox --disable-dev-shm-usage --use-angle=swiftshader-webgl --use-gl=angle --mute-audio --headless=old --shared-files=v8_context_snapshot_data:100 --field-trial-handle=3,i,6104866955674305483,8864837632937417095,262144 --enable-features=CDPScreenshotNewSurface --disable-features=AutoDeElevate,AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,OptimizationHints,PaintHolding,RenderDocument,ThirdPartyStoragePartitioning,Translate --variations-seed-version --pseudonymization-salt-handle=7,i,12643835993964459489,745083611234695202,4 --trace-process-track-uuid=3190708989122997041",
+      "evidence": [],
+      "mapped_files": [],
+      "open_files": []
+    },
+    {
+      "pid": 499001,
+      "argv0": "/home/agent/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell --type=renderer --headless=old --no-sandbox --disable-dev-shm-usage --disable-back-forward-cache --disable-background-timer-throttling --disable-breakpad --enable-automation --force-color-profile=srgb --remote-debugging-pipe --allow-pre-commit-input --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --ozone-platform=headless --lang=en-US --num-raster-threads=2 --enable-main-frame-before-activation --renderer-client-id=4 --time-ticks-at-unix-epoch=-1791207382221909 --launch-time-ticks=157342629398 --shared-files=v8_context_snapshot_data:100 --field-trial-handle=3,i,6104866955674305483,8864837632937417095,262144 --enable-features=CDPScreenshotNewSurface --disable-features=AutoDeElevate,AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,OptimizationHints,PaintHolding,RenderDocument,ThirdPartyStoragePartitioning,Translate --variations-seed-version --pseudonymization-salt-handle=7,i,12643835993964459489,745083611234695202,4 --trace-process-track-uuid=3190708990060038890",
+      "evidence": [],
+      "mapped_files": [],
+      "open_files": []
+    },
+    {
+      "pid": 499009,
+      "argv0": "/home/agent/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell --type=renderer --headless=old --no-sandbox --disable-dev-shm-usage --disable-back-forward-cache --disable-background-timer-throttling --disable-breakpad --enable-automation --force-color-profile=srgb --remote-debugging-pipe --allow-pre-commit-input --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --ozone-platform=headless --disable-gpu-compositing --lang=en-US --num-raster-threads=2 --enable-main-frame-before-activation --renderer-client-id=5 --time-ticks-at-unix-epoch=-1791207382221909 --launch-time-ticks=157342678701 --shared-files=v8_context_snapshot_data:100 --field-trial-handle=3,i,6104866955674305483,8864837632937417095,262144 --enable-features=CDPScreenshotNewSurface --disable-features=AutoDeElevate,AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,OptimizationHints,PaintHolding,RenderDocument,ThirdPartyStoragePartitioning,Translate --variations-seed-version --pseudonymization-salt-handle=7,i,12643835993964459489,745083611234695202,4 --trace-process-track-uuid=3190708990997080739",
+      "evidence": [],
+      "mapped_files": [],
+      "open_files": []
+    },
+    {
+      "pid": 499011,
+      "argv0": "/home/agent/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell --type=renderer --headless=old --no-sandbox --disable-dev-shm-usage --disable-back-forward-cache --disable-background-timer-throttling --disable-breakpad --enable-automation --force-color-profile=srgb --remote-debugging-pipe --allow-pre-commit-input --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --ozone-platform=headless --disable-gpu-compositing --lang=en-US --num-raster-threads=2 --enable-main-frame-before-activation --renderer-client-id=6 --time-ticks-at-unix-epoch=-1791207382221909 --launch-time-ticks=157342758484 --shared-files=v8_context_snapshot_data:100 --field-trial-handle=3,i,6104866955674305483,8864837632937417095,262144 --enable-features=CDPScreenshotNewSurface --disable-features=AutoDeElevate,AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,OptimizationHints,PaintHolding,RenderDocument,ThirdPartyStoragePartitioning,Translate --variations-seed-version --pseudonymization-salt-handle=7,i,12643835993964459489,745083611234695202,4 --trace-process-track-uuid=3190708991934122588",
+      "evidence": [],
+      "mapped_files": [],
+      "open_files": []
+    },
+    {
+      "pid": 521078,
+      "argv0": "/bin/bash",
+      "evidence": [],
+      "mapped_files": [],
+      "open_files": []
+    },
+    {
+      "pid": 521080,
+      "argv0": "python3",
+      "evidence": [],
+      "mapped_files": [],
+      "open_files": []
+    }
+  ],
+  "exclusive_lease": "Root assigned DoE environment exclusive native editable-install lease; all DoE author tests closed and no other agent env mutation authorized."
+}

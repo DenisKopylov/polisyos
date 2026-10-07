@@ -88,8 +88,6 @@ def test_weighted_atoms_inverse_cdf_and_zero_mass_are_explicit():
         ({"x": [0, 1]}, {"weights": [1, -1]}),
         ({"x": [0, 1]}, {"weights": [True, True]}),
         ({"x": [0, 1]}, {"weights": [1, np.inf]}),
-        ({"x": [0, 1, 2]}, {"weights": [0.5, 1e-20, 0.5]}),
-        ({"x": [0, -1, 1]}, {"weights": [1e-20, 0.5, 0.5]}),
         ({"x": [0, 1]}, {"draw_ids": ["same", "same"]}),
     ],
 )
@@ -239,6 +237,7 @@ def test_identical_summaries_do_not_merge_different_persisted_atom_laws(tmp_path
             )
             if x == 0
         )
+        / sum(env.distribution_payload.weights)
         for env in readbacks
     ] == pytest.approx([0.4, 0.7])
 
@@ -267,14 +266,15 @@ def test_whole_row_reordering_preserves_functionals_changes_exact_identity(tmp_p
         )
 
 
-def test_quantile_sort_cdf_collapse_refuses_even_healthy_draw_order_law():
+def test_tiny_sorted_atom_is_kept_when_finite_uniform_boundary_exists():
     from polisyos.foundry.uncertainty import sampling_admission
 
-    probabilities = sampling_admission.admit_empirical_weights([1e-20, 0.5, 0.5], 3)
-    cumulative = sampling_admission.empirical_cdf(probabilities)
-    assert cumulative.tolist() == [1e-20, 0.5, 1]
-    with pytest.raises(ValueError, match="category collapses"):
-        summarize_bayesian_calibration_posterior({"x": [0, -1, 1]}, weights=probabilities)
+    weights = sampling_admission.admit_empirical_weights([1e-20, 0.5, 0.5], 3)
+    cumulative = sampling_admission.empirical_cdf(weights)
+    assert cumulative.tolist() == [1e-20, np.nextafter(0.5, 1.0), 1]
+    summary = summarize_bayesian_calibration_posterior({"x": [0, -1, 1]}, weights=weights)
+    assert summary.posterior_means["x"] == 0
+    assert summary.parameter_envelopes["x"].point_estimate == 0
 
 
 @pytest.mark.parametrize("bad", [True, np.bool_(True), "1.0"])

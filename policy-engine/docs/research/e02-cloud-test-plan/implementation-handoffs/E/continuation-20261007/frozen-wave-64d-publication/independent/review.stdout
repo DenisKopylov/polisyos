@@ -1,0 +1,1 @@
+{"publication_sha": "ac2682a66afd8fd5beef39d15fd82ec58e10dd6d", "publication_tree_sha": "e332ae6113ee710e0e0bf7e09299bdcc1dcc573e", "disposition": "GO for immutable DOC custody and data-validator correction", "changed_path_denominator": 93, "literal_copy_count": 90, "literal_copy_bytes": 5740884, "case_count": 1549, "case_outcomes": {"PASS": 1541, "FAIL": 8}, "issues": []}

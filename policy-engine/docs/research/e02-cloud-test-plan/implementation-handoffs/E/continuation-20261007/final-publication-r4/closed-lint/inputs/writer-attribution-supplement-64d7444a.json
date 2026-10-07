@@ -1,0 +1,417 @@
+{
+  "candidate_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "candidate_tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "original_input_receipt": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/preview-64d7444a.json",
+    "bytes": 414172,
+    "sha256": "adb62b866db34851294bb048d6e4468dfbb35551b09e1ce9020b9491f90e6c63",
+    "immutable": true
+  },
+  "supplement_kind": "Current exact source-writer clarification; neither rewriting historical attribution nor granting general public ownership",
+  "owner_authorization_basis": "Root E exact source lease notification for /root/frc_r4 cdaea067..700f9d5a; tracked scoped decision read from exact preceding commit",
+  "scope_decision": {
+    "source_sha": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-semantic-ratification/decision.json",
+    "bytes": 11548,
+    "sha256": "cec50c072d527b10dadd54c2225bfc8859985e34ce67b65469a7e43d903e17e5",
+    "canonical_owner": "E (scoped to B201/B202)",
+    "appointment": {
+      "commit": "a0ac10fc11975c345312034d0e568b4cfc330d76",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/decisions/B201-B202-E-owner-2026-10-07.json"
+    }
+  },
+  "full_source_slice_footprint": [
+    "policy-engine/release-fragments/unreleased/2026-10-07-posterior-summary-profile.toml",
+    "policy-engine/src/polisyos/foundry/calibration/report.py",
+    "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/protocol.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+    "policy-engine/src/polisyos/ir/__init__.py",
+    "policy-engine/src/polisyos/ir/analytics/README.md",
+    "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+    "policy-engine/src/polisyos/ir/api.py",
+    "policy-engine/src/polisyos/schemas/abi_models.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+    "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+    "policy-engine/tests/unit/ir/test_posterior_summary.py",
+    "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py",
+    "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py"
+  ],
+  "python_source_slice_count": 14,
+  "records": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/report.py",
+      "factual_source_writer_unit": "E",
+      "factual_source_author_agent": "/root/frc_r4",
+      "base_sha": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+      "source_sha": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+      "source_tree": "2e692d5a5dfa4cfbff78d0079c6fed3e4ba1a73f",
+      "source_blob": "c3f7eebffcc214235e01804ebafd4aeadf7f83ad",
+      "frozen_blob": "c3f7eebffcc214235e01804ebafd4aeadf7f83ad",
+      "bytes": 16300,
+      "sha256": "a8eac8e97b9c1fc9ca5b4d32daea0f174bd0afd95605faf67acbefd6675972f3",
+      "earlier_preview_writer": {
+        "writer": "E",
+        "basis": "Declared family mechanism/companion scope corroborated by full bundle-owner rows",
+        "bundles": [
+          {
+            "id": "CAL-01",
+            "unit": "E"
+          },
+          {
+            "id": "CAL-06",
+            "unit": "E"
+          },
+          {
+            "id": "FRC-01",
+            "unit": "E"
+          },
+          {
+            "id": "PCL-01",
+            "unit": "E"
+          }
+        ],
+        "canonical_product_writer": null
+      },
+      "canonical_owner_scope": "Scoped appointed E B201/B202 semantics/implementation; broader IR/shared public facade/schema ownership is not transferred"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "factual_source_writer_unit": "E",
+      "factual_source_author_agent": "/root/frc_r4",
+      "base_sha": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+      "source_sha": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+      "source_tree": "2e692d5a5dfa4cfbff78d0079c6fed3e4ba1a73f",
+      "source_blob": "e28d91f65219311ec666f112d70e650f26855f90",
+      "frozen_blob": "e28d91f65219311ec666f112d70e650f26855f90",
+      "bytes": 17116,
+      "sha256": "a585cf69fd9b6492bf20e1ab835bd9a3678958db95358231919a0e05c7f13779",
+      "earlier_preview_writer": {
+        "writer": "E",
+        "basis": "Declared family mechanism/companion scope corroborated by full bundle-owner rows",
+        "bundles": [
+          {
+            "id": "CAL-01",
+            "unit": "E"
+          },
+          {
+            "id": "CAL-06",
+            "unit": "E"
+          },
+          {
+            "id": "FRC-01",
+            "unit": "E"
+          },
+          {
+            "id": "PCL-01",
+            "unit": "E"
+          }
+        ],
+        "canonical_product_writer": null
+      },
+      "canonical_owner_scope": "Scoped appointed E B201/B202 semantics/implementation; broader IR/shared public facade/schema ownership is not transferred"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/protocol.py",
+      "factual_source_writer_unit": "E",
+      "factual_source_author_agent": "/root/frc_r4",
+      "base_sha": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+      "source_sha": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+      "source_tree": "2e692d5a5dfa4cfbff78d0079c6fed3e4ba1a73f",
+      "source_blob": "e0d7f2864beb1a9b2a04eb25a14702126b3325dc",
+      "frozen_blob": "e0d7f2864beb1a9b2a04eb25a14702126b3325dc",
+      "bytes": 5742,
+      "sha256": "037522acb445e0f120532832efc78b8919658c5efc6a8cd8e3b52e19061410d3",
+      "earlier_preview_writer": {
+        "writer": "E",
+        "basis": "Declared family mechanism/companion scope corroborated by full bundle-owner rows",
+        "bundles": [
+          {
+            "id": "UQP-01",
+            "unit": "E"
+          },
+          {
+            "id": "UQS-01",
+            "unit": "E"
+          }
+        ],
+        "canonical_product_writer": null
+      },
+      "canonical_owner_scope": "Scoped appointed E B201/B202 semantics/implementation; broader IR/shared public facade/schema ownership is not transferred"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "factual_source_writer_unit": "E",
+      "factual_source_author_agent": "/root/frc_r4",
+      "base_sha": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+      "source_sha": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+      "source_tree": "2e692d5a5dfa4cfbff78d0079c6fed3e4ba1a73f",
+      "source_blob": "357fdf1a28902fe718181a6528034cc4c093c739",
+      "frozen_blob": "357fdf1a28902fe718181a6528034cc4c093c739",
+      "bytes": 23932,
+      "sha256": "692481d93c0c95471897a5b8fd8a3b955bff25e0409dd3088abaeb09a920bd44",
+      "earlier_preview_writer": {
+        "writer": "E",
+        "basis": "Declared family mechanism/companion scope corroborated by full bundle-owner rows",
+        "bundles": [
+          {
+            "id": "UQP-01",
+            "unit": "E"
+          },
+          {
+            "id": "UQS-01",
+            "unit": "E"
+          }
+        ],
+        "canonical_product_writer": null
+      },
+      "canonical_owner_scope": "Scoped appointed E B201/B202 semantics/implementation; broader IR/shared public facade/schema ownership is not transferred"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/__init__.py",
+      "factual_source_writer_unit": "E",
+      "factual_source_author_agent": "/root/frc_r4",
+      "base_sha": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+      "source_sha": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+      "source_tree": "2e692d5a5dfa4cfbff78d0079c6fed3e4ba1a73f",
+      "source_blob": "5557f1ec06a594e99ec1d00c2178c50f0fff68b9",
+      "frozen_blob": "5557f1ec06a594e99ec1d00c2178c50f0fff68b9",
+      "bytes": 39304,
+      "sha256": "15f06972034343d4a341f0a126a3f566c03b6daee0366f5350505dfaf3db155c",
+      "earlier_preview_writer": {
+        "writer": null,
+        "canonical_product_writer": null,
+        "attribution": "not_established",
+        "basis": "Shared source or new companion requires its exact canonical writer/handoff; path appearance alone does not assign ownership"
+      },
+      "canonical_owner_scope": "Scoped appointed E B201/B202 semantics/implementation; broader IR/shared public facade/schema ownership is not transferred"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "factual_source_writer_unit": "E",
+      "factual_source_author_agent": "/root/frc_r4",
+      "base_sha": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+      "source_sha": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+      "source_tree": "2e692d5a5dfa4cfbff78d0079c6fed3e4ba1a73f",
+      "source_blob": "2c510c47321dd2e85d8a83f9822e8525eadf90ac",
+      "frozen_blob": "2c510c47321dd2e85d8a83f9822e8525eadf90ac",
+      "bytes": 19970,
+      "sha256": "0e6b8f25eab56fc0f5f782effc9960f2fe449da559009422adfe5737525bb43e",
+      "earlier_preview_writer": {
+        "writer": null,
+        "canonical_product_writer": null,
+        "attribution": "not_established",
+        "basis": "Shared source or new companion requires its exact canonical writer/handoff; path appearance alone does not assign ownership"
+      },
+      "canonical_owner_scope": "Scoped appointed E B201/B202 semantics/implementation; broader IR/shared public facade/schema ownership is not transferred"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/api.py",
+      "factual_source_writer_unit": "E",
+      "factual_source_author_agent": "/root/frc_r4",
+      "base_sha": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+      "source_sha": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+      "source_tree": "2e692d5a5dfa4cfbff78d0079c6fed3e4ba1a73f",
+      "source_blob": "cac5101dabadb09a07a7c00c7688fa1dc2f3b105",
+      "frozen_blob": "cac5101dabadb09a07a7c00c7688fa1dc2f3b105",
+      "bytes": 49444,
+      "sha256": "01a443f8e51294137cdf3a70c2eed90de570f69bd6d822742099069afd8bab8a",
+      "earlier_preview_writer": {
+        "writer": null,
+        "canonical_product_writer": null,
+        "attribution": "not_established",
+        "basis": "Shared source or new companion requires its exact canonical writer/handoff; path appearance alone does not assign ownership"
+      },
+      "canonical_owner_scope": "Scoped appointed E B201/B202 semantics/implementation; broader IR/shared public facade/schema ownership is not transferred"
+    },
+    {
+      "path": "policy-engine/src/polisyos/schemas/abi_models.py",
+      "factual_source_writer_unit": "E",
+      "factual_source_author_agent": "/root/frc_r4",
+      "base_sha": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+      "source_sha": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+      "source_tree": "2e692d5a5dfa4cfbff78d0079c6fed3e4ba1a73f",
+      "source_blob": "74ffbcabe1452878ff1c74fa9d0a660922603819",
+      "frozen_blob": "74ffbcabe1452878ff1c74fa9d0a660922603819",
+      "bytes": 27404,
+      "sha256": "ef435c7f9665279057dda175451f7f8ccabba8948fd7d6b7cd7452c31ee1d6f3",
+      "earlier_preview_writer": {
+        "writer": null,
+        "canonical_product_writer": null,
+        "attribution": "not_established",
+        "basis": "Shared source or new companion requires its exact canonical writer/handoff; path appearance alone does not assign ownership"
+      },
+      "canonical_owner_scope": "Scoped appointed E B201/B202 semantics/implementation; broader IR/shared public facade/schema ownership is not transferred"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "factual_source_writer_unit": "E",
+      "factual_source_author_agent": "/root/frc_r4",
+      "base_sha": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+      "source_sha": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+      "source_tree": "2e692d5a5dfa4cfbff78d0079c6fed3e4ba1a73f",
+      "source_blob": "0e09fe4517a02a5e5780ad6c5cd59c53ca7e428d",
+      "frozen_blob": "0e09fe4517a02a5e5780ad6c5cd59c53ca7e428d",
+      "bytes": 20893,
+      "sha256": "a77d35527d03e3c8d25ef33678ecd988c547941353d810460055f1a3eb043e41",
+      "earlier_preview_writer": {
+        "writer": "E",
+        "basis": "Declared family mechanism/companion scope corroborated by full bundle-owner rows",
+        "bundles": [
+          {
+            "id": "UQP-01",
+            "unit": "E"
+          },
+          {
+            "id": "CAL-06",
+            "unit": "E"
+          }
+        ],
+        "canonical_product_writer": null
+      },
+      "canonical_owner_scope": "Scoped appointed E B201/B202 semantics/implementation; broader IR/shared public facade/schema ownership is not transferred"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "factual_source_writer_unit": "E",
+      "factual_source_author_agent": "/root/frc_r4",
+      "base_sha": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+      "source_sha": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+      "source_tree": "2e692d5a5dfa4cfbff78d0079c6fed3e4ba1a73f",
+      "source_blob": "3c8d7b1c1c7ae4aeffba622b6fb452388afa8687",
+      "frozen_blob": "3c8d7b1c1c7ae4aeffba622b6fb452388afa8687",
+      "bytes": 193138,
+      "sha256": "3e0690590297b52e1fc69b3e52812eba8d3c3c2e73469bc498bba0deca52be23",
+      "earlier_preview_writer": {
+        "writer": "E",
+        "basis": "Declared family mechanism/companion scope corroborated by full bundle-owner rows",
+        "bundles": [
+          {
+            "id": "UQP-01",
+            "unit": "E"
+          },
+          {
+            "id": "CAL-06",
+            "unit": "E"
+          }
+        ],
+        "canonical_product_writer": null
+      },
+      "canonical_owner_scope": "Scoped appointed E B201/B202 semantics/implementation; broader IR/shared public facade/schema ownership is not transferred"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+      "factual_source_writer_unit": "E",
+      "factual_source_author_agent": "/root/frc_r4",
+      "base_sha": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+      "source_sha": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+      "source_tree": "2e692d5a5dfa4cfbff78d0079c6fed3e4ba1a73f",
+      "source_blob": "9c71d74379577609f2da636a0b8534d2483defd1",
+      "frozen_blob": "9c71d74379577609f2da636a0b8534d2483defd1",
+      "bytes": 9674,
+      "sha256": "af8fa2bf5fd31ea885b14b4406dc98f281c744b73176ff8ed1e5b16df7f8992e",
+      "earlier_preview_writer": {
+        "writer": "E",
+        "basis": "Declared family mechanism/companion scope corroborated by full bundle-owner rows",
+        "bundles": [
+          {
+            "id": "CAL-01",
+            "unit": "E"
+          },
+          {
+            "id": "CAL-06",
+            "unit": "E"
+          },
+          {
+            "id": "FRC-01",
+            "unit": "E"
+          },
+          {
+            "id": "PCL-01",
+            "unit": "E"
+          }
+        ],
+        "canonical_product_writer": null
+      },
+      "canonical_owner_scope": "Scoped appointed E B201/B202 semantics/implementation; broader IR/shared public facade/schema ownership is not transferred"
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "factual_source_writer_unit": "E",
+      "factual_source_author_agent": "/root/frc_r4",
+      "base_sha": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+      "source_sha": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+      "source_tree": "2e692d5a5dfa4cfbff78d0079c6fed3e4ba1a73f",
+      "source_blob": "126e986e347a3210df0f453a23e9c2962a78523b",
+      "frozen_blob": "126e986e347a3210df0f453a23e9c2962a78523b",
+      "bytes": 15782,
+      "sha256": "d28603eea55bb07a94ba73e3f923cdc13459eb061f2a57460bac7ed7dbefb83a",
+      "earlier_preview_writer": {
+        "writer": null,
+        "canonical_product_writer": null,
+        "attribution": "not_established",
+        "basis": "Shared source or new companion requires its exact canonical writer/handoff; path appearance alone does not assign ownership"
+      },
+      "canonical_owner_scope": "Scoped appointed E B201/B202 semantics/implementation; broader IR/shared public facade/schema ownership is not transferred"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py",
+      "factual_source_writer_unit": "E",
+      "factual_source_author_agent": "/root/frc_r4",
+      "base_sha": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+      "source_sha": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+      "source_tree": "2e692d5a5dfa4cfbff78d0079c6fed3e4ba1a73f",
+      "source_blob": "ecbf6e41d8c7ad3888209e7c9928d15fa1789758",
+      "frozen_blob": "ecbf6e41d8c7ad3888209e7c9928d15fa1789758",
+      "bytes": 15822,
+      "sha256": "a7bd90fe23eb9c7a3b04940b41b3e92b9c5798376f177dcd04760465a8b842b1",
+      "earlier_preview_writer": {
+        "writer": "E",
+        "basis": "Declared family mechanism/companion scope corroborated by full bundle-owner rows",
+        "bundles": [
+          {
+            "id": "UQP-01",
+            "unit": "E"
+          },
+          {
+            "id": "CAL-06",
+            "unit": "E"
+          }
+        ],
+        "canonical_product_writer": null
+      },
+      "canonical_owner_scope": "Scoped appointed E B201/B202 semantics/implementation; broader IR/shared public facade/schema ownership is not transferred"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py",
+      "factual_source_writer_unit": "E",
+      "factual_source_author_agent": "/root/frc_r4",
+      "base_sha": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+      "source_sha": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+      "source_tree": "2e692d5a5dfa4cfbff78d0079c6fed3e4ba1a73f",
+      "source_blob": "1810f0815b332dbe641c2317d1fd039c9c95f105",
+      "frozen_blob": "1810f0815b332dbe641c2317d1fd039c9c95f105",
+      "bytes": 16962,
+      "sha256": "6f9fd54596622f706693bd23bcbb9e067399760cb60be1d545c5fb42ae7c4a5e",
+      "earlier_preview_writer": {
+        "writer": null,
+        "canonical_product_writer": null,
+        "attribution": "not_established",
+        "basis": "Shared source or new companion requires its exact canonical writer/handoff; path appearance alone does not assign ownership"
+      },
+      "canonical_owner_scope": "Scoped appointed E B201/B202 semantics/implementation; broader IR/shared public facade/schema ownership is not transferred"
+    }
+  ],
+  "unresolved_original_preview_writer_rows": [
+    "policy-engine/src/polisyos/ir/__init__.py",
+    "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+    "policy-engine/src/polisyos/ir/api.py",
+    "policy-engine/src/polisyos/schemas/abi_models.py",
+    "policy-engine/tests/unit/ir/test_posterior_summary.py",
+    "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py"
+  ],
+  "remaining_unresolved_factual_writer_rows": [],
+  "global_checks_executed": false,
+  "finding_dispositions_changed": false
+}

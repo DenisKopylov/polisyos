@@ -33,15 +33,23 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/portable-copy-index.json",
       "records": 51,
-      "bytes": 4097412,
+      "bytes": 4098026,
       "original_index_sha256": "d24d07792368c0e9c96e754309aebea174b670b825bd649f85d1acc38e9c302b"
     }
   ],
   "review_copy_records": 67,
-  "review_copy_bytes": 4432658,
+  "review_copy_bytes": 4433272,
   "source": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
   "wave": "1441PASS4FAIL0ERROR0SKIP",
   "required_global_gates": "7FAIL;13+23UNRUN",
   "finding_status_changes": 0,
-  "rule": "No product, test, schema, architecture, canonicalharness, numeric/gate rerun or historical output rewriting. Final commit identity is obtained after commit and remote readback."
+  "rule": "No product, test, schema, architecture, canonicalharness, numeric/gate rerun or historical output rewriting. Final commit identity is obtained after commit and remote readback.",
+  "historical_original_refbinding": {
+    "repository_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+    "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-review-refbindings.json",
+    "bytes": 2233,
+    "sha256": "63dc6362551f2c3bbe389b60e73d4ef028a8d79896e5ef3708fefdeff1fba689"
+  },
+  "publication_path_correction_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/stdout-document-role-correction/current-publication-map.json",
+  "observation_scope": "Numeric/gate/owner/independent-review assertions remain historical. Current copy-group byte totals reflect only the declared publication-path/index derivative."
 }

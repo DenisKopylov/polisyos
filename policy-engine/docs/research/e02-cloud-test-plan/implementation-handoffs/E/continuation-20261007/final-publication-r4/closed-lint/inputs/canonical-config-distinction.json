@@ -1,0 +1,74 @@
+{
+  "schema": "policyos.e02.lint_selector_distinction.v1",
+  "commands": [
+    {
+      "name": "canonical",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--show-settings",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/current-consumer-trace/trace.py"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "exit_code": 0,
+      "complete_outputs": {
+        "stdout": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/canonical-settings.stdout",
+          "bytes": 115610,
+          "sha256": "d2873884a53f3aa606bccc41323f8a806da38b25ecdc11667087312b3653bebe"
+        },
+        "stderr": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/canonical-settings.stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "root_settings": [
+        "Settings path: \"/workspace/e02-E-continuation-20261006/policy-engine/ruff.toml\"",
+        "cache_dir = \"/workspace/e02-E-continuation-20261006/policy-engine/_cache/ruff\"",
+        "file_resolver.project_root = \"/workspace/e02-E-continuation-20261006/policy-engine\"",
+        "linter.project_root = \"/workspace/e02-E-continuation-20261006/policy-engine\""
+      ],
+      "scope": "One-file settings resolution only; no Ruff diagnostics or global check"
+    },
+    {
+      "name": "explicit-root-config",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--show-settings",
+        "--config",
+        "policy-engine/ruff.toml",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/current-consumer-trace/trace.py"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006",
+      "exit_code": 0,
+      "complete_outputs": {
+        "stdout": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/explicit-root-config-settings.stdout",
+          "bytes": 103060,
+          "sha256": "f4c4b979de289bce10a2f2011a1df39b5db57e6b7a3b618ef281d6e5aaa9c69c"
+        },
+        "stderr": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/explicit-root-config-settings.stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "root_settings": [
+        "Settings path: \"/workspace/e02-E-continuation-20261006/policy-engine/ruff.toml\"",
+        "cache_dir = \"/workspace/e02-E-continuation-20261006/_cache/ruff\"",
+        "file_resolver.project_root = \"/workspace/e02-E-continuation-20261006\"",
+        "linter.project_root = \"/workspace/e02-E-continuation-20261006\""
+      ],
+      "scope": "One-file settings resolution only; no Ruff diagnostics or global check"
+    }
+  ],
+  "same_settings_file": true,
+  "different_project_root_and_relative_resolution": true,
+  "global_Ruff_or_format_executed": false
+}

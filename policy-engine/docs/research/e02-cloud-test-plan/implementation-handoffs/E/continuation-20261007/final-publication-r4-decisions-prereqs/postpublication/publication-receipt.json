@@ -1,0 +1,143 @@
+{
+  "schema": "policyos.e02.closed_additions_append_only_publication_receipt.v1",
+  "observed_at_utc": "2026-10-07T12:14:58.796794+00:00",
+  "branch": "codex/e02-E-frc-20261006",
+  "worktree": "/workspace/e02-E-frc-20261006",
+  "base": "2e28bed33d179d1d0f9db4b6cbb3837d809c42c0",
+  "implementation": "737ea6b8ec43f5dff64bd5ccbb3a357b4fb6c3d5",
+  "implementation_tree": "bc06dc4ef6ec474a68b9cff5b8d61ff2b13f2acc",
+  "published_handoff": "737c9e3115abac3fefe76920b08c05e76a5bee17",
+  "published_tree": "a32e3762c3d969a4749650be7e34c8c0108a8a53",
+  "verification_source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "verification_tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "ordinary_append_only_push": {
+    "argv": [
+      "git",
+      "push",
+      "origin",
+      "HEAD:refs/heads/codex/e02-E-frc-20261006"
+    ],
+    "exit_code": 0,
+    "old_remote": "2e28bed33d179d1d0f9db4b6cbb3837d809c42c0",
+    "new_remote": "737c9e3115abac3fefe76920b08c05e76a5bee17"
+  },
+  "fresh_fetch_readback": {
+    "explicit_tracking_ref": "refs/remotes/origin/codex/e02-E-frc-20261006",
+    "tracking_commit": "737c9e3115abac3fefe76920b08c05e76a5bee17",
+    "tracking_tree": "a32e3762c3d969a4749650be7e34c8c0108a8a53",
+    "ls_remote": "ls-remote.stdout.txt",
+    "full_diff_path_count": 283,
+    "full_diff_matches_handoff": true
+  },
+  "literal_Git_readback": {
+    "receipt": "handoff-Git-readback.json",
+    "paths": 283,
+    "bytes": 3703923,
+    "handoff_copies": 118,
+    "handoff_copy_bytes": 852066,
+    "outcome": "PASS"
+  },
+  "normal_hook_actual": "handoff-commit.stderr.txt; applicable DOC hooks skip, no required check bypass",
+  "deciding_outputs": [
+    {
+      "path": "/tmp/e02-E-closed-additions-publication-r4-stage/resume-admission.json",
+      "bytes": 123184,
+      "sha256": "7e3da9f77de343a5b0dce6a693ae48bd2ae8b7f4305ffe70d358fb7bbf16157b"
+    },
+    {
+      "path": "/tmp/e02-E-closed-additions-publication-r4-stage/resume-admission.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-closed-additions-publication-r4-stage/handoff-staged-footprint.json",
+      "bytes": 24561,
+      "sha256": "62ac58561e8043d24101eb4f925a7831103f5ba344a092b84e0b22ade620d1b0"
+    },
+    {
+      "path": "/tmp/e02-E-closed-additions-publication-r4-stage/handoff-commit.stdout.txt",
+      "bytes": 26190,
+      "sha256": "53a203522017f013b16c72663c5f11a209c1d9067cccdd687c9af8d97331b826"
+    },
+    {
+      "path": "/tmp/e02-E-closed-additions-publication-r4-stage/handoff-commit.stderr.txt",
+      "bytes": 653,
+      "sha256": "ead5e15e37a02582a84aa890bded8fd2c0726640078ba9662704d73e24196b15"
+    },
+    {
+      "path": "/tmp/e02-E-closed-additions-publication-r4-stage/handoff-Git-readback.json",
+      "bytes": 93510,
+      "sha256": "b9bd804048fe75ef8459053b374c3387f2f4ed2aebc14c161c5c10092c80e42c"
+    },
+    {
+      "path": "/tmp/e02-E-closed-additions-publication-r4-stage/push.stdout.txt",
+      "bytes": 486,
+      "sha256": "256e157fd4773b43cecbf92a3c74f04ae72af7808f62a5d33fe938eac1818bb3"
+    },
+    {
+      "path": "/tmp/e02-E-closed-additions-publication-r4-stage/push.stderr.txt",
+      "bytes": 106,
+      "sha256": "0ad06f333162bf3329e523e7de9e9dc38da1012c0f2bb41ac07851313127c44f"
+    },
+    {
+      "path": "/tmp/e02-E-closed-additions-publication-r4-stage/fetch.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-closed-additions-publication-r4-stage/fetch.stderr.txt",
+      "bytes": 131,
+      "sha256": "57cb5b7dbd02e9d88ec0104e15e8977a9992c9dc87828d99b5405d690942dec7"
+    },
+    {
+      "path": "/tmp/e02-E-closed-additions-publication-r4-stage/ls-remote.stdout.txt",
+      "bytes": 163,
+      "sha256": "149a3fac1a963a61975c369af677ff940f6a131ad734f0cbd15877b197902d0e"
+    },
+    {
+      "path": "/tmp/e02-E-closed-additions-publication-r4-stage/ls-remote.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-closed-additions-publication-r4-stage/remote-commands.json",
+      "bytes": 509,
+      "sha256": "a0fa92fca4638aeae6110c07b4d6d6c5198861f54ea82ab230039950de648fc9"
+    },
+    {
+      "path": "/tmp/e02-E-closed-additions-publication-r4-stage/correct-handoff-companions.stdout.json",
+      "bytes": 1859,
+      "sha256": "ae5914c58da22889369b64b346d258525cc9e9ca6291e3e6ed190a51a55c5b10"
+    },
+    {
+      "path": "/tmp/e02-E-closed-additions-publication-r4-stage/correct-handoff-companions.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-closed-additions-custody-independent-doe/independent-final-handoff-metadata.json",
+      "bytes": 58726,
+      "sha256": "cc7c333830256c08d0c3f27fbe2f76c0568f23bf6a2eaa6f469a4d807390284e"
+    },
+    {
+      "path": "/tmp/e02-E-closed-additions-custody-independent-doe/independent-handoff-Git-delta-737c9e31.json",
+      "bytes": 48585,
+      "sha256": "2c9c7cddaae2d71a71108c555131e003c3ceababcbc66f44686185f7e25ac7e9"
+    }
+  ],
+  "root_unchanged": {
+    "head": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+    "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+    "tracked_status": ""
+  },
+  "new_active_python_paths": 0,
+  "source_tests_env_locks_numeric_gate_mutation": false,
+  "new_source_fix_or_finding_closure": false,
+  "current_IR_technical_work": {
+    "B201": "open",
+    "B202": "open"
+  },
+  "historical_ledger_and_semantic_choices": "Unchanged; actual current64d falsifiers and corrected custody companion preserved separately.",
+  "next_owner": "E root merge on safe boundary; G integration publisher; E MC author/oracle source correction; A/G canonical catalog/defaultHTTP and final global supplements.",
+  "self_reference": "Receipt identifies completed published handoff; receipt itself is external for root final supplement, no future commitSHA."
+}

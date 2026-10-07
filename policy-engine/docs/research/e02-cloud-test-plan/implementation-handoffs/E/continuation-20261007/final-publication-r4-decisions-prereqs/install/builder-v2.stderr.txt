@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-declared-prereq-custody-64d-20261007/validate_closed_install.py", line 242, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/tmp/e02-E-declared-prereq-custody-64d-20261007/validate_closed_install.py", line 239, in main
+    output=args.base/'closed-install-custody.json';require(not output.exists(),'append-only packet');output.write_text(json.dumps({'schema':'policyos.e02.closed_declared_prerequisite_custody.v1','claims':derive_claims(args.base,args.repo)},indent=2)+'\n')
+                                                                                                                                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-declared-prereq-custody-64d-20261007/validate_closed_install.py", line 164, in derive_claims
+    require(row['requires_dist']==art['requires_dist'] and row['requires_python']==art['requires_python'],'wheel declaration metadata')
+  File "/tmp/e02-E-declared-prereq-custody-64d-20261007/validate_closed_install.py", line 25, in require
+    raise ValueError(reason)
+ValueError: wheel declaration metadata

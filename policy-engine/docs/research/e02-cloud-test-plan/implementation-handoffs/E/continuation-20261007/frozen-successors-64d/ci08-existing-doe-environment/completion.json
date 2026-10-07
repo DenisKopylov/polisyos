@@ -1,0 +1,10 @@
+{
+  "candidate_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "candidate_tree_sha": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "capturer_exit_code": 0,
+  "receipt": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/checks/native-ci08-existing-doe-environment/native-ci08-existing-doe-environment.json",
+  "ending_HEAD": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "ending_tracked_status": "",
+  "ended_unix": 1791368844.711377,
+  "finding_closure": false
+}

@@ -1,0 +1,1 @@
+{"command": ["/workspace/.polisyos-environment/uv/bin/uv", "run", "--no-sync", "python", "tools/quality/validation/check_debt_ledger.py", "--check", "--report-only"], "exit_code": 0, "outcome": "PASS", "counts": null, "wall_seconds": 3592.9843294620514, "source_immutable": true}

@@ -170,6 +170,14 @@ IR_ABI_MODELS: tuple[ABIModelEntry, ...] = (
         priority=Priority.P1,
     ),
     ABIModelEntry(
+        abi_key="posterior_summary_profile_v2",
+        fqn="polisyos.ir.analytics.posterior_summary.PosteriorSummaryProfileV2",
+        module="ir",
+        schema_file="posterior_summary_profile_v2.schema.json",
+        priority=Priority.P1,
+        version_field="profile_version",
+    ),
+    ABIModelEntry(
         abi_key="posterior_summary_profile",
         fqn="polisyos.ir.analytics.posterior_summary.PosteriorSummaryProfile",
         module="ir",

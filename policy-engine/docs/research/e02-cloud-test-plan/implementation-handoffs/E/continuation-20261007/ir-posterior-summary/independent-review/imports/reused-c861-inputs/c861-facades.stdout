@@ -1,0 +1,76 @@
+{
+  "schema": "policyos.e02.independent_ir_facade_binding.v1",
+  "candidate": "c8616e2babe1f0674799c12f07faffa5d6bd266d",
+  "base": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+  "tree": "135ab8cff4026f3fa366ce997e4aa9b181441218",
+  "predicate_basis": "recomputed",
+  "root_old_mapping_count": 287,
+  "root_new_mapping_count": 290,
+  "old_root_public_names_preserved": true,
+  "analytics_old_mapping_count": 278,
+  "analytics_new_mapping_count": 290,
+  "old_analytics_mappings_preserved": true,
+  "new_root_exports": [
+    "PosteriorParameterBinding",
+    "PosteriorSummaryContext",
+    "PosteriorSummaryProfile"
+  ],
+  "new_analytics_exports": [
+    "PosteriorParameterBinding",
+    "PosteriorSamplesCarrier",
+    "PosteriorSummaryContext",
+    "PosteriorSummaryProfile",
+    "admit_posterior_summary_profiles",
+    "load_posterior_summary_envelope",
+    "posterior_carrier_content_hash",
+    "posterior_joint_carrier_digest",
+    "posterior_nominal_mean",
+    "posterior_summary_functionals",
+    "read_posterior_summary_profile",
+    "validate_raw_posterior_summary_envelope"
+  ],
+  "actual_product_caller_binding_count": 14,
+  "actual_public_calls": {
+    "internal_existing_Bayesian_producer": "polisyos.foundry.calibration.uncertainty_adapter",
+    "new_profile_instance": "PosteriorSummaryProfile",
+    "sample_ids": [
+      "r0",
+      "r1",
+      "r2"
+    ],
+    "named_mean": 2.5,
+    "observed_functionals": [
+      2.5,
+      2.0,
+      [
+        0.0,
+        4.0
+      ]
+    ],
+    "carrier_hash": "sha256:d8a6d8e29b69f9e176ad44853d5488424eec5266e2e1f944d0105a6a927a86d3",
+    "gate_eligible": false,
+    "raw_inlet": "actual admitted raw envelope accepted"
+  },
+  "present_name_identity_removal": {
+    "discriminator": "PASS",
+    "required_identity_gate": "FAIL",
+    "reason": "facade identity property absent while name and numeric observation survive",
+    "same_name": "posterior_nominal_mean",
+    "same_healthy_numeric_observation": true
+  },
+  "abi_definition_identity": {
+    "abi_key": "posterior_summary_profile",
+    "fqn": "polisyos.ir.analytics.posterior_summary.PosteriorSummaryProfile",
+    "module": "ir",
+    "schema_file": "posterior_summary_profile.schema.json",
+    "version_field": "profile_version",
+    "actual_same_class_as_root_and_analytics": true,
+    "scope": "Definition placement/identity only; generated schema, replay and public inventory remain independent criteria lease."
+  },
+  "unresolved_by_construction": [
+    "Configured CAS loader transport and raw-invalid/historical replay are independent oracle/criteria leases; architectural placement does not establish transport behavior.",
+    "These public invocation observations establish callability/binding, not independent correctness of the law, posterior quality or finding closure.",
+    "Full generated ABI/schema/public inventory/reference/release compatibility remains criteria/root gate work."
+  ],
+  "limits": "No author files or tests changed; used existing interpreter and exact admitted lane; all new public routes and new product caller bindings enumerated dynamically; old map identities were compared statically, not every optional old API imported."
+}

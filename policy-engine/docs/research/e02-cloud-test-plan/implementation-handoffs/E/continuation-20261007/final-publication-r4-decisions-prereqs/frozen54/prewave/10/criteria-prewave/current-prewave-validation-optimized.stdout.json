@@ -1,0 +1,75 @@
+{
+  "scope": "Structural custody validation; original-criterion review is separate",
+  "optimized": 1,
+  "builder_sha256": "8c889e151a532c312cd93effc45dc50497d32a2c43afafdd18afcdf8deb38062",
+  "packet_sha256": "c618be1881cac757c1ebcfc532591e908392659deb707a51c5a68f7c4896d38d",
+  "positive": "PASS",
+  "denominator": {
+    "bundles": 22,
+    "findings": 54,
+    "finding_bundle_links": 55
+  },
+  "proposed_counts": {
+    "closed": 43,
+    "limited": 9,
+    "held": 2,
+    "open": 0
+  },
+  "historical_ledger": {
+    "partial": 49,
+    "held": 4,
+    "closed": 1
+  },
+  "controls": [
+    {
+      "control": "missing row",
+      "status": "REFUSED",
+      "reason": "54 finding rows required"
+    },
+    {
+      "control": "duplicate ID",
+      "status": "REFUSED",
+      "reason": "unique finding IDs required"
+    },
+    {
+      "control": "lost shared bundle link",
+      "status": "REFUSED",
+      "reason": "55 links required"
+    },
+    {
+      "control": "historical status rewrite",
+      "status": "REFUSED",
+      "reason": "historical ledger changed"
+    },
+    {
+      "control": "formal ledger mutation",
+      "status": "REFUSED",
+      "reason": "formal ledger mutation"
+    },
+    {
+      "control": "source drift",
+      "status": "REFUSED",
+      "reason": "source identity changed"
+    },
+    {
+      "control": "tree drift",
+      "status": "REFUSED",
+      "reason": "tree identity changed"
+    },
+    {
+      "control": "forged current wave PASS",
+      "status": "REFUSED",
+      "reason": "unmeasured wave outcome asserted"
+    },
+    {
+      "control": "invented prewave case binding",
+      "status": "REFUSED",
+      "reason": "prewave case bindings invented"
+    },
+    {
+      "control": "missing original criterion",
+      "status": "REFUSED",
+      "reason": "missing criterion"
+    }
+  ]
+}

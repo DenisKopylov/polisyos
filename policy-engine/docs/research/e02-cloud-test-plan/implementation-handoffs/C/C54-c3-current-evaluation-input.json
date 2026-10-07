@@ -1,0 +1,306 @@
+{
+  "schema": "policyos.e02.c54.c3.current-evaluation-input.v2",
+  "c2_source": {
+    "commit": "c158689d692d47b6300609ac2ba5e7dac28650dc",
+    "tree": "573063f560533e73518ef87d29acc1a46959cf33",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-final-20261006-v10.json",
+    "git_blob": "61e1abe90ae5f81e37077e2dc8e92f7e4de0cb76",
+    "sha256": "38db6cac4195f210425502bd4c7fdf2884ccdb5ae42ef87170d17020a6358dcc",
+    "bytes": 322414
+  },
+  "portable_receipt_bindings": [
+    {
+      "receipt_id": "R209",
+      "historical_path_at_sha256": ".tmp/e02-C2/raw/dfi-resource-review/review.md@sha256:cae650006ba318a3e6e0d348dd8c81da9832a1b3854405ea6ac05a591a925057",
+      "portable_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/source-inputs/dfi-resource-independent-review.md",
+      "sha256": "cae650006ba318a3e6e0d348dd8c81da9832a1b3854405ea6ac05a591a925057",
+      "size_bytes": 7513,
+      "role": "independent DFI installed resource/profile review; source has no production payload",
+      "provenance_note": "Exact byte copy of the local-only R209 source cited by the frozen C2 v10 cut; the historical source path remains separate and unchanged."
+    }
+  ],
+  "base": {
+    "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8"
+  },
+  "g_snapshot": {
+    "commit": "a0ac10fc11975c345312034d0e568b4cfc330d76",
+    "tree": "ae067d9bcd96ff123b76d3b6eebef27a1736079c"
+  },
+  "g_inputs": {
+    "coverage": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "git_blob": "fa766a86b8bc6f0f60937001b7addc438fa55418",
+      "sha256": "03481f3fef76c5f6eab78a64febe95cb61d7c79555e18dcfc846c505c96d3bce",
+      "bytes": 551054
+    },
+    "allocation": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/allocation.json",
+      "git_blob": "dbf94aec21acbccf5429bb7a1d6cafd6451025c7",
+      "sha256": "a1fe5cad509e32606df9710e5cbf942313a243341f58ccb0708692204d15c253",
+      "bytes": 6607
+    },
+    "finding_owners": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+      "git_blob": "515c70d29f59f3175521642e72d04f1aaffc72d7",
+      "sha256": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722",
+      "bytes": 9504
+    },
+    "bundle_owners": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv",
+      "git_blob": "78b4385b8a9a3752d84d3389c8c4a972dd65f16b",
+      "sha256": "f587df5256ebef909b4060a588c2f947f31b173adf8d44b32e7f4eea5abd1f75",
+      "bytes": 12413
+    },
+    "common_prompt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/COMMON.md",
+      "git_blob": "d549b92b6a33efc32ffcb7c27261538f06a8e26e",
+      "sha256": "f408d34394bab5f708df7afb6f59195588b5fc394b8304434c9e2fbe2238be79",
+      "bytes": 8565
+    },
+    "c_prompt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/C.md",
+      "git_blob": "1352e9ec7ac3a77482c6df324c63744df216bf54",
+      "sha256": "e12da55ecf538f579588cd1b601e39575667ee2ed7d36ac3b5f2cf4133b31ee1",
+      "bytes": 12699
+    },
+    "integration_c_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-all-six/C.md",
+      "git_blob": "3811f1341f068125742acd6c877d266757920bb8",
+      "sha256": "3180269559c0803a4a2a999886d8f06106f50ef27cdee5c4def9e5b0570fd3f3",
+      "bytes": 12392
+    },
+    "closure_c": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/C.md",
+      "git_blob": "eb335a62bc1f8bce2cddfcf59f649980a08e88c4",
+      "sha256": "8a2697280ff17913847806fa09cfa932a6260ce5053a2d293c5f6878ccf3b990",
+      "bytes": 96417
+    }
+  },
+  "family_refresh_states": {
+    "default": {
+      "state": "c2_frozen_evidence_carried_forward",
+      "note": "Uses only the exact C2 source-family pins and handoff receipts already in the C2 v10 cut; this C3 census does not claim a fresh re-execution or new semantic review."
+    },
+    "ING": {
+      "state": "c3_source_refresh_pending",
+      "note": "The current C3 source/test delta has not yet been frozen to an immutable, hash-bound handoff in this cut. C2 receipts remain historical candidate evidence; no new PASS is inferred."
+    },
+    "CAN": {
+      "state": "c3_source_refresh_pending",
+      "note": "The current C3 source delta is still in progress and is not pinned here. C2 receipts remain historical candidate evidence; no new PASS is inferred."
+    }
+  },
+  "row_overrides": {
+    "LA-006": {
+      "state": "criterion_binding_corrected",
+      "state_note": "The C2 narrative described a present tombstone, but the exact path is absent from both pinned Git trees. This correction does not authorize removal or claim external absence.",
+      "code_outcome": "The DFK b8 handoff records the bounded source/package and installed ImportFrom audit. At both the pinned base and b8 candidate, the exact tracked mechanisms path has no entries; this C2 work did not delete an empty tombstone. The installed ImportFrom control is bounded to the selected path. The 317 nonliteral loader destinations and external consumers remain unobserved, and no public-surface removal is authorized.",
+      "evidence_refs": [
+        {
+          "receipt_id": "R16",
+          "json_pointers": [
+            "/candidate_sha",
+            "/candidate_tree_sha",
+            "/findings/1/evidence",
+            "/findings/1/missing_input",
+            "/findings/1/remaining_verification"
+          ]
+        }
+      ],
+      "git_tree_path_checks": [
+        {
+          "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+          "path": "policy-engine/src/polisyos/foundry/domain/mechanisms",
+          "tracked_entry_count": 0
+        },
+        {
+          "commit": "b8d9115cdc6a55920c1e0a3cae2e5f9092010c27",
+          "tree": "467cd6f01ec204767dc60bb939955578428bf102",
+          "path": "policy-engine/src/polisyos/foundry/domain/mechanisms",
+          "tracked_entry_count": 0
+        }
+      ],
+      "remaining_work": {
+        "mechanism": {
+          "status": "not_reassessed_in_C3",
+          "text": "The exact tracked path is absent at both pinned trees; no removal or compatibility decision is inferred."
+        },
+        "verification": {
+          "status": "bounded_tree_query_complete_external_scope_open",
+          "text": "Base and candidate trees contain zero entries under the exact path. External installed callers and the 317 nonliteral loader destinations remain unobserved."
+        },
+        "input": {
+          "status": "owner_evidence_missing",
+          "text": "No public-surface/package-consumer ruling binds an exact supported FQN and caller set; external consumers remain unobserved."
+        },
+        "decision": {
+          "status": "pending_owner_decision",
+          "owner": "C integration/package-consumer owner and public-surface owner; G for integration disposition."
+        }
+      }
+    },
+    "LA-010": {
+      "state": "criterion_binding_corrected",
+      "state_note": "The source delegation test and installed DTO/CLI probes support distinct properties and are kept separate.",
+      "code_outcome": "R14's source suite checks root migrate.py delegation to the canonical executor. Separate source CLI/readback and callable-removal checks exercise DatasetManifest behavior; the frozen installed wheel evidence covers public CLI conversion, strict DTO readback, and refusal controls, not root-script delegation. The bounded source and installed results remain distinct.",
+      "evidence_refs": [
+        {
+          "receipt_id": "R13",
+          "json_pointers": [
+            "/source_verification/0"
+          ]
+        },
+        {
+          "receipt_id": "R14",
+          "json_pointers": [
+            "/checks/0",
+            "/checks/3",
+            "/checks/6"
+          ]
+        },
+        {
+          "receipt_id": "R27",
+          "json_pointers": [
+            "/commands/4",
+            "/commands/5",
+            "/commands/8",
+            "/commands/9"
+          ]
+        },
+        {
+          "receipt_id": "R28",
+          "json_pointers": [
+            "/commands/0",
+            "/commands/1",
+            "/commands/2",
+            "/commands/3"
+          ]
+        },
+        {
+          "receipt_id": "R29",
+          "json_pointers": [
+            ""
+          ]
+        }
+      ]
+    },
+    "LA-047": {
+      "state": "criterion_binding_corrected",
+      "state_note": "The evidence is the focused source suite; installed root-layout sentinels are excluded as unrelated.",
+      "code_outcome": "R14's focused source suite includes the Common/IR profile tests for callback mutation and exceptions, version and no-op identity, cycle/chain behavior, missing edges, and duplicate registration. This is source-suite evidence only; the malformed workspace-root probes in installed R27 are unrelated and do not establish installed Common/IR semantics.",
+      "evidence_refs": [
+        {
+          "receipt_id": "R13",
+          "json_pointers": [
+            "/source_verification/0"
+          ]
+        },
+        {
+          "receipt_id": "R14",
+          "json_pointers": [
+            "/checks/0"
+          ]
+        }
+      ]
+    },
+    "LA-048": {
+      "state": "criterion_binding_corrected",
+      "state_note": "The RunManifest source CLI and reader receipts replace the DuckDB/PostgreSQL evidence that measured a different property.",
+      "code_outcome": "R14's source suite covers the RunManifest route. In the source CLI check, a nested sub/data.json reference survives persistence, strict RunManifest readback, and Runtime resolution with its original bytes; the same-basename decoy is not selected. The focused source tests also cover conflicting path aliases, missing/external objects, symlink escape, idempotence, and explicit target versions. This is source evidence only; DuckDB-to-PostgreSQL dry-run and driver probes do not test RunManifest path identity.",
+      "evidence_refs": [
+        {
+          "receipt_id": "R13",
+          "json_pointers": [
+            "/artifact_and_owner_boundaries/run_manifest"
+          ]
+        },
+        {
+          "receipt_id": "R14",
+          "json_pointers": [
+            "/checks/0",
+            "/checks/4"
+          ]
+        }
+      ]
+    },
+    "LA-049": {
+      "state": "criterion_binding_corrected",
+      "state_note": "The current-version Trinity property is source-suite evidence only; no installed Trinity route is claimed.",
+      "code_outcome": "R14's focused source suite exercises the public policy_ir route, actual Trinity model validation, current-version behavior, malformed inputs, and compatibility helpers. The installed audit does not invoke policy_ir or Trinity migration, so no installed-route claim is made. Native production admission remains outside this source-suite result.",
+      "evidence_refs": [
+        {
+          "receipt_id": "R13",
+          "json_pointers": [
+            "/source_verification/0"
+          ]
+        },
+        {
+          "receipt_id": "R14",
+          "json_pointers": [
+            "/checks/0"
+          ]
+        },
+        {
+          "receipt_id": "R27",
+          "json_pointers": [
+            "/commands"
+          ]
+        }
+      ]
+    }
+  },
+  "status_semantics": {
+    "c2_root_verdict": "Frozen C2 adjudication copied as prior context; it is not the C3 evaluation and does not set G closure.",
+    "g_formal_status": "Copied from the exact G coverage record; values remain not_adjudicated in this source cut.",
+    "c3_current_evaluation": "A source-evidence crosswalk only. C3 rows carry forward pinned C2 evidence, correct identified criterion/evidence bindings, or explicitly await a current family refresh. No C3 verdict is assigned."
+  },
+  "current_source_family_refs": {
+    "ING": {
+      "candidate_commit": "07bbb61ffa6d53709942bcda87c37daef1a04651",
+      "candidate_tree": "4bb3d7ef227f7745ab22a23f41f4618766e8b350",
+      "handoff_commit": "cf13c8db5e70a51ce5cedb35d0ad0b17ca71ed3e",
+      "handoff_tree": "72351cf7ad14a135c2d5856ec5661a06da5cb4c6",
+      "handoff_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/current-ing-cleanup-20261007.json",
+      "handoff_sha256": "82e88234b74ee5123e5ca40cf2ee419df69ea2fffd1cc97df44c9c09a0e82c40",
+      "handoff_git_blob": "985af44c38cfca8cc7d98fa28f7e4bb57a6cc554",
+      "candidate_commit_pointer": "/candidate_sha",
+      "candidate_tree_pointer": "/candidate_tree_sha",
+      "implementation_changed_paths": [
+        "policy-engine/src/polisyos/fabric/data_plane/streaming.py"
+      ],
+      "evidence_pointers": [
+        "/property",
+        "/supplemental_frozen_source_verification",
+        "/checks/0",
+        "/checks/1"
+      ],
+      "handoff_branch": "codex/e02-C-continuation-20261006",
+      "handoff_branch_pointer": "/branch"
+    },
+    "CAN": {
+      "candidate_commit": "55b45d9a5c95c3b773fc3b4d8679786b3993eb1e",
+      "candidate_tree": "70ed14e004063536ff3a12d30d14d9bdd79a4916",
+      "handoff_commit": "79cbb05c90026973a32022ca02c63877b2cde1a5",
+      "handoff_tree": "e494bbace790b9e5d15e253ac4a4834479774318",
+      "handoff_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/current-canonical-ir-20261007.json",
+      "handoff_sha256": "f724aae6ae824b9643d8ec92615fd0328ca5d914e0724b18ba5060e91d877491",
+      "handoff_git_blob": "3740eb0cf5b6e2899eaaf89e86f35449801795db",
+      "candidate_commit_pointer": "/candidate_commit",
+      "candidate_tree_pointer": "/candidate_tree_sha",
+      "implementation_changed_paths": [
+        "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+        "policy-engine/src/polisyos/ir/artifacts/io.py"
+      ],
+      "evidence_pointers": [
+        "/bounded_verdict",
+        "/property",
+        "/verification/1",
+        "/verification/5"
+      ],
+      "handoff_branch": "codex/e02-C-canon-20261006",
+      "handoff_branch_pointer": "/branch"
+    }
+  }
+}

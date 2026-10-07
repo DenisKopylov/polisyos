@@ -40,9 +40,8 @@ def _profile_declared(metadata: dict[str, Any]) -> bool:
     return (
         PROFILE_KEY in metadata
         or "posterior_summary_profile_required" in metadata
-        or metadata.get("point_functional") == "median"
-        or metadata.get("mean_functional") == "weighted_arithmetic_mean"
-        or metadata.get("interval_functional") == "equal_tail_inverse_cdf"
+        or "posterior_summary_profile_id" in metadata
+        or "posterior_summary_profile_version" in metadata
     )
 
 
@@ -256,6 +255,8 @@ def read_posterior_summary_profile(
     if (
         envelope.schema_version != "1.1"
         or envelope.metadata.get("posterior_summary_profile_required") is not True
+        or envelope.metadata.get("posterior_summary_profile_id") != profile.profile_id
+        or envelope.metadata.get("posterior_summary_profile_version") != profile.profile_version
         or envelope.gate_eligible
         or envelope.numeric_policy.mode is not NumericToleranceMode.DECIMAL_EXACT
         or envelope.interval_semantics is not IntervalSemantics.CREDIBLE_INTERVAL

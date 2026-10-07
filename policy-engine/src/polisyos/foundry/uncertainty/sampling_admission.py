@@ -20,12 +20,12 @@ from pydantic import BaseModel, ConfigDict, Field
 from polisyos.ir.analytics import (
     DistributionFamily,
     IntervalSemantics,
+    PosteriorSamplesCarrier,
     PropagationMethod,
     UncertaintyEnvelope,
     UncertaintySource,
     posterior_joint_carrier_digest,
 )
-from polisyos.ir.analytics.uncertainty import PosteriorSamplesCarrier
 
 
 def sampling_content_digest(value: Any) -> str:

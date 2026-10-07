@@ -254,14 +254,18 @@ def summarize_bayesian_calibration_posterior(
         draws = np.asarray(raw, dtype=np.float64)
         if not np.all(np.isfinite(draws)) or np.any((raw != 0) & (draws == 0)):
             raise ValueError("posterior draws exceed finite float64 representation")
-        admitted_draws[name] = draws
+        # Existing IR CAS canon uses positive zero. Admit that representation
+        # before content hashes so fresh readers see the identical finite law.
+        admitted_draws[name] = np.where(draws == 0, 0.0, draws)
     count = len(admitted_draws[names[0]])
     if any(len(draws) != count for draws in admitted_draws.values()):
         raise ValueError("posterior coordinates must share an aligned draw axis")
     raw_weights = np.ones(count) if weights is None else np.asarray(weights, dtype=object)
     if any(isinstance(value, (bool, np.bool_)) for value in raw_weights.flat):
         raise ValueError("posterior weights cannot be bool")
-    probabilities = tuple(float(value) for value in admit_empirical_weights(raw_weights, count))
+    probabilities = tuple(
+        0.0 if value == 0 else float(value) for value in admit_empirical_weights(raw_weights, count)
+    )
     ids = list(draw_ids) if draw_ids is not None else [f"draw:{i}" for i in range(count)]
     if (
         len(ids) != count
@@ -382,6 +386,8 @@ def summarize_bayesian_calibration_posterior(
             update={
                 "metadata": {
                     **envelope.metadata,
+                    "posterior_summary_profile_id": profile.profile_id,
+                    "posterior_summary_profile_version": profile.profile_version,
                     "joint_sample_id": joint_digest,
                     "joint_draw_ids": ids,
                     "joint_parameter_order": names,

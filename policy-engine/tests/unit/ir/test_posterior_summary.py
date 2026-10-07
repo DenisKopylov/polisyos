@@ -161,6 +161,46 @@ def test_named_functional_markers_cannot_fall_back_when_profile_removed(required
         posterior_nominal_mean(UncertaintyEnvelope.model_validate(raw))
 
 
+def test_v11_generic_functional_labels_are_legacy_without_new_profile_discriminator(tmp_path):
+    legacy = UncertaintyEnvelope(
+        point_estimate=0,
+        confidence_interval=(0, 0),
+        confidence_level=0.9,
+        distribution_family=DistributionFamily.BAYESIAN,
+        source=UncertaintySource.CALIBRATION,
+        distribution_payload=PosteriorSamplesCarrier(samples=(0.0,) * 99 + (100.0,)),
+        gate_eligible=False,
+        metadata={
+            "point_functional": "median",
+            "interval_functional": "equal_tail_inverse_cdf",
+            "posterior_mean": 1.0,
+            "joint_sample_id": "legacy-joint",
+        },
+    )
+    store = core_artifacts.FileSystemCAS(tmp_path)
+    ref = persist_uncertainty_envelope(store, legacy)
+    fresh = load_posterior_summary_envelope(core_artifacts.FileSystemCAS(tmp_path), ref)
+    assert fresh == legacy
+    assert posterior_nominal_mean(fresh) == 0
+    assert read_posterior_summary_profile(fresh) is None
+    assert store.get_bytes(persist_uncertainty_envelope(store, fresh).artifact_id) == (
+        store.get_bytes(ref.artifact_id)
+    )
+
+
+@pytest.mark.parametrize("weights", [None, [-0.0, 1.0]])
+def test_new_profile_signed_zero_uses_existing_canonical_cas_representation(tmp_path, weights):
+    env = summarize_bayesian_calibration_posterior(
+        {"x": [-0.0, 1.0]}, weights=weights
+    ).parameter_envelopes["x"]
+    assert not np.signbit(env.distribution_payload.samples[0])
+    assert all(not np.signbit(p) for p in env.distribution_payload.weights)
+    ref = persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), env)
+    fresh = load_posterior_summary_envelope(core_artifacts.FileSystemCAS(tmp_path), ref)
+    assert posterior_nominal_mean(fresh) == (0.5 if weights is None else 1.0)
+    assert read_posterior_summary_profile(fresh) is not None
+
+
 def test_scoped_facade_resolves_actual_profile_and_reader():
     import polisyos.ir as root
     from polisyos.ir.analytics import PosteriorSummaryProfile

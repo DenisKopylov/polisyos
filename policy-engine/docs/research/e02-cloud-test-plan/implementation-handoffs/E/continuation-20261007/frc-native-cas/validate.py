@@ -15,11 +15,66 @@ from typing import Any
 from defusedxml.ElementTree import parse
 
 
+def _admit_hash(value: object, length: int) -> None:
+    if not isinstance(value, str) or re.fullmatch(rf"[0-9a-f]{{{length}}}", value) is None:
+        raise ValueError("source identity must be an exact hexadecimal hash")
+
+
+def _admit_path(value: object) -> None:
+    if not isinstance(value, str) or not value:
+        raise ValueError("output path must be a canonical repository-relative string")
+    relative = Path(value)
+    if (
+        relative.is_absolute()
+        or not relative.parts
+        or ".." in relative.parts
+        or value != relative.as_posix()
+        or value.startswith("-")
+        or ":" in value
+        or any(character.isspace() or character == "\0" for character in value)
+    ):
+        raise ValueError("output path must be canonical and repository relative")
+
+
+def _admit_records(records: list[dict[str, Any]], key: str) -> None:
+    if not isinstance(records, list):
+        raise ValueError("output records must be a complete list")
+    paths = []
+    for record in records:
+        _admit_path(record[key])
+        paths.append(record[key])
+        if type(record["bytes"]) is not int or record["bytes"] < 0:
+            raise ValueError("output size must be a nonnegative integer")
+        _admit_hash(record["sha256"], 64)
+    if len(paths) != len(set(paths)):
+        raise ValueError("duplicate output path")
+
+
+def _admit_receipt(records: list[dict[str, Any]], receipt: dict[str, Any]) -> None:
+    _admit_records(records, "path")
+    _admit_hash(receipt["candidate_sha"], 40)
+    _admit_hash(receipt["candidate_tree_sha"], 40)
+    for check in receipt["checks"]:
+        if "junit" not in check:
+            continue
+        _admit_path(check["junit"])
+        states = check["states"]
+        if not isinstance(states, dict) or set(states) != {"PASS", "FAIL", "ERROR", "SKIP"}:
+            raise ValueError("JUnit states must name each case outcome")
+        if any(type(count) is not int or count < 0 for count in states.values()):
+            raise ValueError("JUnit state counts must be nonnegative integers")
+        if type(check["cases"]) is not int or check["cases"] < 0:
+            raise ValueError("JUnit total must be a nonnegative integer")
+        if sum(states.values()) != check["cases"]:
+            raise ValueError("JUnit state/total declarations differ")
+
+
 def validate(
     root: Path, lane: Path, records: list[dict[str, Any]], receipt: dict[str, Any]
 ) -> None:
     """Bind the complete deciding-output set and recompute each JUnit count."""
 
+    _admit_receipt(records, receipt)
     actual = {str(path.relative_to(lane)) for path in (root / "checks").iterdir() if path.is_file()}
     if len(records) != len(actual) or {record["path"] for record in records} != actual:
         raise ValueError("deciding-output denominator mismatch")
@@ -50,8 +105,6 @@ def validate(
         if states != check["states"] or len(cases) != check["cases"]:
             raise ValueError("JUnit case/state mismatch")
     candidate = receipt["candidate_sha"]
-    if not isinstance(candidate, str) or re.fullmatch(r"[0-9a-f]{40}", candidate) is None:
-        raise ValueError("candidate must be an exact SHA1 object hash")
     executable = shutil.which("git")
     if executable is None:
         raise RuntimeError("git unavailable")
@@ -67,6 +120,7 @@ def validate_independent_copies(root: Path, lane: Path) -> int:
 
     index = json.loads((root / "independent-output-copy-index.json").read_text())
     records = index["records"]
+    _admit_records(records, "published_path")
     destinations = {record["published_path"] for record in records}
     if len(destinations) != len(records):
         raise ValueError("duplicate independent output")

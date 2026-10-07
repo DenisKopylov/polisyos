@@ -1,0 +1,19 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.2, pytest-9.0.2, pluggy-1.6.0 -- /workspace/polisyos/policy-engine/.venv/bin/python
+rootdir: /dev
+configfile: null
+collecting ... collected 3 items
+
+../../../dev::test_real_two_output_getter_compiled_handles_preserve_dynamic_values[False] <- ../tmp/e02-dur-getter-oracle-5fdd09d3b772/test_independent_getter_consumer.py 2026-10-07 09:28:42 [info     ] method_registered              backend=jax fqn=tests.independent_getter_consumer.two_output_affine_difference@1.0.0 lazy=False namespace=tests.independent_getter_consumer override=False tags=[] version=1.0.0
+GETTER_NUMERIC {'jit': False, 'outputs': {'cold': {'score': [3.25, 12.25, -4.75], 'spread': [4.5, 10.0, -1.5]}, 'warm': {'score': [2.25, 0.0, 4.25], 'spread': [4.5, 10.0, -1.5]}, 'override': {'score': [5.0, 23.0, -11.0], 'spread': [4.5, 10.0, -1.5]}, 'cold_again': {'score': [3.25, 12.25, -4.75], 'spread': [4.5, 10.0, -1.5]}}, 'same_kernel': True, 'cache_stats': {'size': 1, 'max_size': 1000, 'hits': 1, 'misses': 1, 'evictions': 0, 'generation': 0, 'hit_rate': 0.5}}
+PASSED
+../../../dev::test_real_two_output_getter_compiled_handles_preserve_dynamic_values[True] <- ../tmp/e02-dur-getter-oracle-5fdd09d3b772/test_independent_getter_consumer.py 2026-10-07 09:28:42 [info     ] method_registered              backend=jax fqn=tests.independent_getter_consumer.two_output_affine_difference@1.0.0 lazy=False namespace=tests.independent_getter_consumer override=False tags=[] version=1.0.0
+GETTER_NUMERIC {'jit': True, 'outputs': {'cold': {'score': [3.25, 12.25, -4.75], 'spread': [4.5, 10.0, -1.5]}, 'warm': {'score': [2.25, 0.0, 4.25], 'spread': [4.5, 10.0, -1.5]}, 'override': {'score': [5.0, 23.0, -11.0], 'spread': [4.5, 10.0, -1.5]}, 'cold_again': {'score': [3.25, 12.25, -4.75], 'spread': [4.5, 10.0, -1.5]}}, 'same_kernel': True, 'cache_stats': {'size': 1, 'max_size': 1000, 'hits': 1, 'misses': 1, 'evictions': 0, 'generation': 0, 'hit_rate': 0.5}}
+PASSED
+../../../dev::test_real_compiler_refuses_captured_module_getter_before_physical_body <- ../tmp/e02-dur-getter-oracle-5fdd09d3b772/test_independent_getter_consumer.py 2026-10-07 09:28:43 [info     ] method_registered              backend=jax fqn=tests.independent_getter_consumer.captured_module_reflection@1.0.0 lazy=False namespace=tests.independent_getter_consumer override=False tags=[] version=1.0.0
+GETTER_REFUSAL {'type': 'CompilationError', 'reason': 'Compilation failed for tests.independent_getter_consumer.captured_module_reflection@1.0.0: source identity is unavailable for builtin_function_or_method', 'physical_body_exists': False, 'path': '/tmp/e02-dur-getter-oracle-5fdd09d3b772/fixtures-final/test_real_compiler_refuses_cap0/reflective-method-effect.txt'}
+PASSEDGETTER_ORIGINS 152 5fdd09d3b772ca84a95c0bbf13e0b3ef74018640
+
+
+---- generated xml file: /tmp/e02-dur-getter-oracle-5fdd09d3b772/native.xml ----
+============================== 3 passed in 1.74s ===============================

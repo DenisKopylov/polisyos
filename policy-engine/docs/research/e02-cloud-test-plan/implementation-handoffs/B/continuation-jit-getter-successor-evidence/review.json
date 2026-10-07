@@ -1,0 +1,21 @@
+{
+  "schema": "policyos.e02.independent_consumer_review.v1",
+  "predicate_basis": "recomputed",
+  "closure_ids": [],
+  "source": "5fdd09d3b772ca84a95c0bbf13e0b3ef74018640",
+  "tree": "ab2050dd1606edf90fa9771dce76b6a368eeff8e",
+  "actual_cases": {
+    "PASS": 3
+  },
+  "input_role": "Unchanged c60de7 test BODY from predecessor8aa; runner only changes exactsource/tree/tasknamespace. No reused runtime results.",
+  "test": {
+    "git_sha": "cc5de5db0c43f0981e821035b35d61f3d872e0a3",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/test_independent_getter_consumer.source.txt",
+    "bytes": 5272,
+    "sha256": "c60de7f76a3671961b44c830e6e1632f4be3c787ccc13eec49947e8e495b5559"
+  },
+  "observed": "Both eager/JIT vector score/spread cold/warm/dynamic override/oldhandle values PASS, actual reusedkernel; capturedmathModuleType alias typedrefusal before physicalbody effect PASS.152 loadedpolisyos sourcebackings matched new5fdd, before=afterclean.",
+  "old_source_qualification": "8aa original3PASS stays at637/cc5; initial wrongINDEX precollectionERROR and recording2FAIL1PASS stay there unchanged. This proof newly executed5fdd after generic symtable admission change.",
+  "finite_boundary": "Ordinary NamedTuple/runtimeparam publicdata selectors only; no runtime descriptor/type/source authority, unsupportedreflection transport or frame namespace repair. CMP/CAS rebound negative controls remain their independently bound packets.",
+  "next_owner": "ROOT/G actual sourceintegration/cohort/gates; CMP owns classifier. No fullB/JIT/B74formal closure or ownbudgetreview."
+}

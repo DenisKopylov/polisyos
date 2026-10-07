@@ -1,0 +1,1 @@
+'outputjson' option cannot be used with 'dependencies' option

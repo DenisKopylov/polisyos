@@ -1,0 +1,2 @@
+[codex/e02-E-doe-20261006 ecde9d2d8] fix(ir): retain legacy composition output schema
+ 2 files changed, 20 insertions(+), 2 deletions(-)

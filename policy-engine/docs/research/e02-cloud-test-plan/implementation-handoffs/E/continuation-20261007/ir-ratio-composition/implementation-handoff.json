@@ -1,0 +1,527 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "E",
+  "slice": "ir-ratio-composition",
+  "closure_ids": [
+    "B201",
+    "B202"
+  ],
+  "bundle_ids": [
+    "UQS-01"
+  ],
+  "slice_base_sha": "bfbd53a1f45795ad6901bc4bb7685237b0c3d20b",
+  "candidate_sha": "ecde9d2d8d9d13cba87420930105e378010a1acc",
+  "candidate_tree_sha": "41d52f7b26d7d10757b479f55dd412d97fa051c4",
+  "implementation_commits": [
+    "c539dba7d25b1495f80587422145cbd55e5f03e6",
+    "21a8bd8fa1decf140d8c177fbf532d63f0a2d0188",
+    "218c7bd75f29dea72d86d8c5830137ce0a2d0188",
+    "ecde9d2d8d9d13cba87420930105e378010a1acc"
+  ],
+  "branch": "codex/e02-E-doe-20261006",
+  "worktree": "/workspace/e02-E-doe-20261006",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/38",
+  "changed_paths": [
+    "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+    "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+    "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+    "policy-engine/src/polisyos/ir/analytics/README.md",
+    "policy-engine/release-fragments/unreleased/2026-10-07-posterior-ratio-composition.toml"
+  ],
+  "complete_source_footprint": [
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "source_sha": "ecde9d2d8d9d13cba87420930105e378010a1acc",
+      "git_blob": "7c77982d7a0380870d1d55e3eca77b61cbb53c4f",
+      "bytes": 94084,
+      "sha256": "5a28f2336e7903c9d67344e08f3b82176fb789e5ffaa307fc01d4341930b3c1d"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "source_sha": "ecde9d2d8d9d13cba87420930105e378010a1acc",
+      "git_blob": "48eb8c09bd2470977fb7f86258d739a80738362c",
+      "bytes": 31271,
+      "sha256": "795423c2c7c00a3299aade7dae2e21fd626d2e80cf8f58186eff03610c91b98d"
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "source_sha": "ecde9d2d8d9d13cba87420930105e378010a1acc",
+      "git_blob": "589bd5bebbc91dfc7d0156e38db131354cae387e",
+      "bytes": 14579,
+      "sha256": "955d90b702d750f1e3180f00d6c98d5d82d0a16408d3072b3061c670aa7e0f32"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/README.md",
+      "source_sha": "ecde9d2d8d9d13cba87420930105e378010a1acc",
+      "git_blob": "19c38cd8fb3df7b7475581c060c3dbab672a0981",
+      "bytes": 9186,
+      "sha256": "d4244a5bd600722fc0e14d60d16f580146b953e4f034a9d60f2b9892be26a602"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-posterior-ratio-composition.toml",
+      "source_sha": "ecde9d2d8d9d13cba87420930105e378010a1acc",
+      "git_blob": "188328cac9a37df40ffc41b936a61c5ed723d6c4",
+      "bytes": 1293,
+      "sha256": "5388bced3124c9ee26e4f3781403a2012889ff43ebebedddea95b6898daa8b54"
+    }
+  ],
+  "canonical_writer": "E appointed scoped IR composition/type writer under a670; no facade/schema/generated lease used",
+  "baseline_cells": [],
+  "baseline_navigation": "Original card and fetched c75 exact-source falsifiers; imported baseline is not current candidate PASS. This residual was discovered on the already published finite-ratio source.",
+  "source_and_decision_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-semantic-ratification/composition-and-fit-admission-20261007.json",
+      "source_sha": "a6701835f15944f860033df64fdf06c0350a972d",
+      "git_blob": "ef1abbc86326b921a5051fe756a99213d1d227c7",
+      "bytes": 7550,
+      "sha256": "58cacc839d0272983af66cd10871cc0f041a5d6fca3bde2976861a37bfc1afb7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/owner-actions.md",
+      "source_sha": "c75eb7125ae0b4b296fc469b13bba9653f1dd42d",
+      "git_blob": "d0a2017204c3ccf5159071dcfa6af2148062a626",
+      "bytes": 4784,
+      "sha256": "7e1f3292b2d861c460bab4407329966d3b4686488773e9915e26d51a86d1ef38"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/E-ratio-runtime.md",
+      "source_sha": "c75eb7125ae0b4b296fc469b13bba9653f1dd42d",
+      "git_blob": "bce81bd153e54229a0543dc9b8bc786e64e78213",
+      "bytes": 8495,
+      "sha256": "0f63d5e73bfc4309a666d075a077561f430daaeb3e81046372c4d66bf8f58815"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/E-ratio-oracle.md",
+      "source_sha": "c75eb7125ae0b4b296fc469b13bba9653f1dd42d",
+      "git_blob": "641a0675078a78191357362af244ffcc07fcb698",
+      "bytes": 8226,
+      "sha256": "fe6214ce1c9aae1b79b88f27356584ad7fc574c9cf1e81f72629f5bf7828d1d8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/E-companion-plan.md",
+      "source_sha": "c75eb7125ae0b4b296fc469b13bba9653f1dd42d",
+      "git_blob": "927ea428178452f3870a301aa6d75e11e26f4413",
+      "bytes": 12060,
+      "sha256": "3296cea2f59d4317d26fbab83ddb8c06af05e1136ea036aa354ac8d4b1766695"
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UQS-01.md",
+      "source_sha": "ecde9d2d8d9d13cba87420930105e378010a1acc",
+      "git_blob": "cf08b17c89b6ae300b432c18da7d01cbd9a1b51b",
+      "bytes": 20683,
+      "sha256": "14c375c5bfcb8175abd51fe7ff71c54016e2801282fcd4bda73af753365f5a14"
+    }
+  ],
+  "property": {
+    "statement": "Declared Profile2 is admitted before all public composition helpers; exact-ratio scalar transforms reissue carrier-bound functionals/context. Lossy projections and pullbacks clear original-law declarations. Genuine legacy output schema, reducers and callback ordering remain compatible.",
+    "runtime_path": [
+      "configured summarize_bayesian_calibration_posterior",
+      "complete carrier/Profile2/context",
+      "compress_envelope / push_forward_envelope / pull_back_envelope",
+      "persist_uncertainty_envelope into FileSystemCAS",
+      "fresh FileSystemCAS load_uncertainty_envelope + read_posterior_summary_profile"
+    ],
+    "surface": "Existing public IR composition helpers; unchanged outer schema/facade. No default generic orchestration witness.",
+    "proxy_divergence": "Finite equal 1.6e308 draws have finite exact mean while legacy sum overflows; inverse-CDF (0,1), weights 1:2, q=.34 returns atom1 while old reducer interpolates; stale copied Profile2 metadata looks present but strict fresh reader refuses carrier mismatch.",
+    "independent_oracle": "Fraction-based huge/atom/dyadic/asymmetric expected functionals, exact-base complete legacy JSON/callback replay; actual native producer/helper/CAS/fresh reader.",
+    "negative_controls": [
+      "sole_common_admission_removal_restores_unknown_callback_escape",
+      "raw_map_type_predicate_removal_bool_becomes_published_law",
+      "profile_reissue_removal_loses_named_mean_at_fresh_reader",
+      "all three helpers reject required/missing/unknown declared profiles before callbacks/publication",
+      "incomplete multi-coordinate scalar law rejects before map callbacks",
+      "bool/string/nonfinite mapped support rejects whole law",
+      "unchanged markers do not rescue forged/stale profile"
+    ],
+    "authority_purpose": "Representation/finite-law computation only; gate_eligible=false; arbitrary map unit/estimand identity and source-fit authority not inferred.",
+    "time_roles": "Parent context refs/time/purpose retained only as explicitly inherited non-authoritative lineage, parent profile hash retained; active parameter binding/context.parameters cleared for arbitrary scalar map."
+  },
+  "checks": [
+    {
+      "command": {
+        "schema": "e02-independent-composition-executed-commands:1",
+        "candidate": "ecde9d2d8d9d13cba87420930105e378010a1acc",
+        "candidate_tree": "41d52f7b26d7d10757b479f55dd412d97fa051c4",
+        "base": "bfbd53a1f45795ad6901bc4bb7685237b0c3d20b",
+        "commands": [
+          {
+            "argv": [
+              "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+              "/tmp/e02-E-ir-composition-ecde-independent-20261007/run-selectors.py"
+            ],
+            "exit_code": 0,
+            "actual_inner_argv_env_cwd": "selectors.json",
+            "stdout": "selectors.stdout.txt",
+            "stderr": "selectors.stderr.txt"
+          },
+          {
+            "argv": [
+              "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+              "/tmp/e02-E-ir-composition-ecde-independent-20261007/native-probes.py"
+            ],
+            "env": {
+              "PYTHONDONTWRITEBYTECODE": "1",
+              "PYTHONPATH": "/workspace/e02-E-doe-20261006/policy-engine/src"
+            },
+            "cwd": "/workspace",
+            "exit_code": 0,
+            "actual_control_count": 31,
+            "stdout": "native-probes.stdout.txt",
+            "stderr": "native-probes.stderr.txt"
+          },
+          {
+            "argv": [
+              "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+              "/tmp/e02-E-ir-composition-ecde-independent-20261007/source-and-type-custody.py"
+            ],
+            "exit_code": 0,
+            "scope": "read-only complete source/static-census/type receipt reconciliation; no type execution",
+            "stdout": "source-and-type-custody.stdout.txt",
+            "stderr": "source-and-type-custody.stderr.txt"
+          },
+          {
+            "argv": [
+              "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+              "/tmp/e02-E-ir-composition-ecde-independent-20261007/finalize-review.py"
+            ],
+            "exit_code": 0,
+            "scope": "read-only closed receipt/JUnit/source recomputation; no native tests repeated",
+            "stdout": "review.stdout.txt",
+            "stderr": "review.stderr.txt"
+          },
+          {
+            "argv": [
+              "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+              "-O",
+              "/tmp/e02-E-ir-composition-ecde-independent-20261007/finalize-review.py"
+            ],
+            "exit_code": 0,
+            "scope": "same read-only receipt admission; optimized interpreter retains11 pure typed refusals",
+            "stdout": "review-optimized.stdout.txt",
+            "stderr": "review-optimized.stderr.txt"
+          }
+        ],
+        "historical_observer_error": {
+          "command": "same source-and-type-custody.py initial observer",
+          "exit_code": 1,
+          "cause": "TOML root dictionary incorrectly compared against tool.basedpyright settings; corrected observer only",
+          "stdout": "historical-source-and-type-config-observer.stdout.txt",
+          "stderr": "historical-source-and-type-config-observer.stderr.txt"
+        },
+        "historical_selector_error": {
+          "exit_code": 1,
+          "cause": "Initial selector used non-existing legacy-schema-probe.stdout basename; corrected to literal legacy-schema.stdout original.",
+          "stdout": "historical-selector-filename-observer.stdout.txt",
+          "stderr": "historical-selector-filename-observer.stderr.txt"
+        },
+        "no_source_env_package_or_git_mutations": true,
+        "native_stderr_qualification": "The old exact-base reducer proxy generates the retained NumPy overflow warning; healthy current finite-law controls pass.",
+        "production_data": "none",
+        "common_wave": "UNRUN",
+        "finding_closure": false
+      },
+      "target_sha": "ecde9d2d8d9d13cba87420930105e378010a1acc",
+      "environment": "Existing DoE environment 184 packages; independent-final/selectors.json carries actual pytest argv/cwd/env and source inputs.",
+      "input_closure": "complete five source/test/README/release paths + explicit selector/env/hash refs",
+      "outcome": "PASS",
+      "output": "independent-final/review.json; complete commands/selectors/JUnit/native-probes/raw stdout/stderr"
+    },
+    {
+      "command": "Author full new test module (44 cases); original argv not separately journaled, complete XML/stdout preserved; independent exact argv/selectors above are deciding reproduction",
+      "target_sha": "ecde9d2d8d9d13cba87420930105e378010a1acc",
+      "environment": "author/environment-source-inputs.json",
+      "input_closure": [
+        "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+        "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+        "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+        "policy-engine/src/polisyos/ir/analytics/README.md",
+        "policy-engine/release-fragments/unreleased/2026-10-07-posterior-ratio-composition.toml"
+      ],
+      "outcome": "PASS",
+      "output": {
+        "cases": 44,
+        "PASS": 44,
+        "receipt": "author/pytest-ecde.xml"
+      }
+    },
+    {
+      "command": [
+        "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+        "[-O in optimized mode]",
+        "/tmp/e02-E-ir-composition-r4-20261007/composition_property_controls.py",
+        "--output",
+        "<fresh mode-specific output>"
+      ],
+      "command_role": "reproduce recipe with literal existing mode-specific receipt paths; exact property observer bytes pinned",
+      "target_sha": "ecde9d2d8d9d13cba87420930105e378010a1acc",
+      "environment": "author/environment-source-inputs.json",
+      "input_closure": "actual producer/helper and fresh configured CAS, source_inputs in each receipt",
+      "outcome": "PASS",
+      "output": [
+        {
+          "mode": "normal",
+          "cases": 20,
+          "healthy": 10,
+          "effective_removals": 10,
+          "receipt": "author/author-controls-ecde-normal/receipt.json"
+        },
+        {
+          "mode": "optimized",
+          "cases": 20,
+          "healthy": 10,
+          "effective_removals": 10,
+          "receipt": "author/author-controls-ecde-optimized/receipt.json"
+        }
+      ]
+    },
+    {
+      "command": [
+        "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "basedpyright",
+        "--project",
+        "e02-composition-ecde-type-private.json",
+        "--outputjson",
+        "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+        "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py"
+      ],
+      "cwd": "/workspace/e02-E-doe-20261006/policy-engine",
+      "target_sha": "ecde9d2d8d9d13cba87420930105e378010a1acc",
+      "environment": {
+        "PYTHONPATH": "src",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "input_closure": "Original TOML settings and unchanged original baseline; two actual absolute source files; supported same-root JSON config overrides scratch baselineFile only",
+      "outcome": "PASS",
+      "output": "author/basedpyright-ecde-receipt.json + complete stdout/stderr/config/parsed view",
+      "limitations": "Canonical-baseline-relative scoped two-file result; whole type gate and unbaselined policy UNRUN."
+    },
+    {
+      "command": "Canonical collect_deep_import_edges on complete 2702 source files plus changed source/test AST and healthy/removal cases",
+      "target_sha": "ecde9d2d8d9d13cba87420930105e378010a1acc",
+      "environment": "stdlib plus existing canonical collector, exact source inputs recorded",
+      "input_closure": "author/composition-import-collector.json",
+      "outcome": "PASS",
+      "output": "3448 raw edges before baselines/exceptions; zero changed-product deep edges; actual new test producer deep route remains owner-attributed; whole architecture UNRUN."
+    },
+    {
+      "command": "Source-owned Ruff check / format --check on both product modules + native test; closed complete stdout/stderr preserved",
+      "target_sha": "ecde9d2d8d9d13cba87420930105e378010a1acc",
+      "outcome": "PASS",
+      "output": "author/schema-ruff.stdout.txt + author/schema-format.stdout.txt",
+      "limitations": "Scoped source footprint only, no whole lint/format claim."
+    },
+    {
+      "command": "Parent final frozen seven-family defining wave and necessary final global gates",
+      "target_sha": "ecde9d2d8d9d13cba87420930105e378010a1acc",
+      "outcome": "UNRUN",
+      "output": "Prepare-only selector delta; current final merged source and parent explicit freeze/launch required. Historical31782 results are not current PASS."
+    }
+  ],
+  "predicate_basis": {
+    "source_hash_size_git_tree": "recomputed",
+    "complete_copy_custody": "recomputed",
+    "finite_ratio_functionals_and_legacy_replay": "independently_reconciled",
+    "fresh_CAS_consumer_profile_validation": "recomputed",
+    "strict_pre_callback_profile_admission": "recomputed",
+    "configured_two_file_type_and_baseline_custody": "recomputed",
+    "scoped_owner_semantics": "institutionally_supplied",
+    "inherited_unit_estimand_lineage": "consumer_asserted",
+    "actual_production_generic_orchestration": "not_established",
+    "scientific_fit_source_law_coverage_authority": "not_established",
+    "formal_finding_closure": "not_established",
+    "current_whole_gate_or_inherited_P41": "not_established"
+  },
+  "capability_state_or_finding_state": "implemented_but_not_orchestrated",
+  "capability_scope": "Generic public composition is implemented and independently verified; default external/dynamic production invocation unmeasured. This label does not deny the tested public producer\u2192CAS\u2192fresh-reader chain.",
+  "finding_disposition": {
+    "ledger_status_preserved": {
+      "B201": "held",
+      "B202": "held"
+    },
+    "historical_E_ledger": {
+      "partial": 49,
+      "held": 4,
+      "closed": 1
+    },
+    "source_disposition": "GO bounded source slice",
+    "owner_finding_acceptance": "pending separate accountable owner/original-row disposition",
+    "new_finding_closure": false
+  },
+  "independent_review": {
+    "reviewer": "/root/oracle_r4",
+    "receipt": "independent-final/review.json",
+    "receipt_sha256": "5528cfc117615c8d6ca05bead60682523c737bea4dc430b511da1cf53dc014ee",
+    "source_disposition": "GO",
+    "selected_native_cases": 54,
+    "native_fraction_CAS_controls": 31,
+    "receipt_corruption_controls_per_mode": 11
+  },
+  "historical_observations": {
+    "initial_c539": {
+      "source_review": "CHANGE_REQUIRED",
+      "cases": 36,
+      "reason": "common declared profile inlet bypass and changed legacy callback coercion order; both repaired in subsequent append"
+    },
+    "later218": {
+      "source_review": "CHANGE_REQUIRED",
+      "reason": "legacy v1.0 input returned 1.0 rather than base default1.1; repaired ecde"
+    },
+    "old_exact_replay": {
+      "source": "dee36f110824425f8f612874cb111398d9546e7d",
+      "receipt": "author/old-exact-source-replay/old-composition-falsifiers.json",
+      "role": "new Git-derived replay receipt, not reconstructed original overwritten JSON"
+    },
+    "author_overwrite": {
+      "incident": "author/old-receipt-overwrite-correction.json",
+      "candidate_body": "author/historical-overwritten-old-name-candidate-body.json",
+      "original_stdout": "author/old-falsifiers.stdout.txt",
+      "scope": "first candidate JSON had stale HEAD label and unbound physical edits; not source-qualified deciding evidence"
+    },
+    "type_sideeffects": {
+      "receipt": "author/basedpyright-baseline-sideeffect-correction.json",
+      "raw_induced_byte_refs": [
+        {
+          "path": "/tmp/e02-E-ir-composition-r4-20261007/ROOT-supported-finite-bucket-companion-merge.stdout.txt",
+          "bytes": 672904,
+          "sha256": "f3fbc05e317183035cfbd2b257c0c1ea9b6e1d886d9d352987fac8e958d767ed"
+        },
+        {
+          "path": "/tmp/e02-E-ir-composition-r4-20261007/basedpyright-ecde-baseline.json",
+          "bytes": 733805,
+          "sha256": "1ea9bf864600d6e12d2e7643c2d5a8033359a68e99bfaf7789e73e45c69186a4"
+        },
+        {
+          "path": "/tmp/e02-E-ir-composition-r4-20261007/basedpyright-final-baseline.json",
+          "bytes": 1006190,
+          "sha256": "8ceca56253ec877284553b09de0ff1295a75583a6a4fc2238ef002cf9518b6af"
+        },
+        {
+          "path": "/tmp/e02-E-ir-composition-r4-20261007/basedpyright-final-delta-baseline.json",
+          "bytes": 733805,
+          "sha256": "1ea9bf864600d6e12d2e7643c2d5a8033359a68e99bfaf7789e73e45c69186a4"
+        },
+        {
+          "path": "/tmp/e02-E-ir-composition-r4-20261007/basedpyright-final-real-sideeffect-baseline.json",
+          "bytes": 733805,
+          "sha256": "1ea9bf864600d6e12d2e7643c2d5a8033359a68e99bfaf7789e73e45c69186a4"
+        },
+        {
+          "path": "/tmp/e02-E-ir-composition-r4-20261007/basedpyright-original-baseline.json",
+          "bytes": 1006190,
+          "sha256": "8ceca56253ec877284553b09de0ff1295a75583a6a4fc2238ef002cf9518b6af"
+        },
+        {
+          "path": "/tmp/e02-E-ir-composition-r4-20261007/basedpyright-private-baseline.json",
+          "bytes": 733805,
+          "sha256": "1ea9bf864600d6e12d2e7643c2d5a8033359a68e99bfaf7789e73e45c69186a4"
+        },
+        {
+          "path": "/tmp/e02-E-ir-composition-r4-20261007/configured-basedpyright-baseline-sideeffect.json",
+          "bytes": 733805,
+          "sha256": "1ea9bf864600d6e12d2e7643c2d5a8033359a68e99bfaf7789e73e45c69186a4"
+        }
+      ],
+      "scope": "Earlier actual tracked native baseline pruning was preserved and restored; subsequent supported private configs prune scratch only. No exception/baseline widening."
+    },
+    "unsupported_config": {
+      "stdout": "author/basedpyright-private.stdout.txt",
+      "summary": "9 errors/209 warnings under unsupported .json.tmp default config; observer configuration ERROR, not canonical type PASS or inherited waiver."
+    },
+    "other_native_history": [
+      {
+        "cases": 22,
+        "PASS": 22,
+        "receipt": "author/pytest-first.xml"
+      },
+      {
+        "cases": 0,
+        "receipt": "author/pytest-affected.xml"
+      },
+      {
+        "cases": 97,
+        "PASS": 96,
+        "FAIL": 1,
+        "receipt": "author/pytest-affected-corrected.xml"
+      },
+      {
+        "cases": 97,
+        "PASS": 97,
+        "receipt": "author/pytest-final.xml"
+      },
+      {
+        "cases": 113,
+        "PASS": 113,
+        "receipt": "author/pytest-delta.xml"
+      },
+      {
+        "cases": 15,
+        "PASS": 15,
+        "receipt": "author/pytest-style-delta.xml"
+      },
+      {
+        "cases": 5,
+        "PASS": 5,
+        "receipt": "author/pytest-legacy-schema-delta.xml"
+      }
+    ]
+  },
+  "limitations_and_next_owner": [
+    "Root/E: merge immutable ecde source, finish any independently reviewed caller facade companion, then freeze actual composed source and execute one final affected seven-family defining wave; unchanged24 CAL/JAX/Hessian tests retain source-qualified historical324 observation only.",
+    "Canonical Calibration/public facade owner and architecture reviewer: new test imports the real existing producer through foundry.calibration.uncertainty_adapter; evaluate the actual admitted existing public facade and narrow export lease before companion edit. No invented depth-only or exception waiver.",
+    "Canonical generator/Core/IR public surface owners: generated API/OpenAPI/schema inventory and architecture/global gate queue remain separate; no hand-edited generated files, P41 inheritance not_established without exact base replay.",
+    "Appointed original finding owners/G: code intake and B201/B202 original criterion disposition separate; producer flags and PASS count do not ratify scientific fit/noise/source law, full joint propagation, coverage or external consumers.",
+    "Actual static5494-file census finds no direct product calls to these generic helpers outside their definitions; dynamic/external caller boundary unmeasured. No full-production evidence or synthetic authority-positive observation claimed.",
+    "Cloud cleanup candidates: only repeated scratch pytest/CAS/archive fixtures after complete receipts and no-active-user proof. Original unique outputs, source, useful docs and production inputs protected; local Trash rule remains distinct."
+  ],
+  "publication": {
+    "copy_index": "copy-index.json",
+    "literal_copy_count": 217,
+    "literal_copy_bytes": 3560125,
+    "evidence_commit_self_sha": null,
+    "source_first": true,
+    "root_source_not_written": true,
+    "selected_raw_not_copied": [
+      {
+        "path": "/tmp/e02-E-ir-composition-r4-20261007/ROOT-supported-finite-bucket-companion-merge.stdout.txt",
+        "bytes": 672904,
+        "sha256": "f3fbc05e317183035cfbd2b257c0c1ea9b6e1d886d9d352987fac8e958d767ed"
+      },
+      {
+        "path": "/tmp/e02-E-ir-composition-r4-20261007/basedpyright-ecde-baseline.json",
+        "bytes": 733805,
+        "sha256": "1ea9bf864600d6e12d2e7643c2d5a8033359a68e99bfaf7789e73e45c69186a4"
+      },
+      {
+        "path": "/tmp/e02-E-ir-composition-r4-20261007/basedpyright-final-baseline.json",
+        "bytes": 1006190,
+        "sha256": "8ceca56253ec877284553b09de0ff1295a75583a6a4fc2238ef002cf9518b6af"
+      },
+      {
+        "path": "/tmp/e02-E-ir-composition-r4-20261007/basedpyright-final-delta-baseline.json",
+        "bytes": 733805,
+        "sha256": "1ea9bf864600d6e12d2e7643c2d5a8033359a68e99bfaf7789e73e45c69186a4"
+      },
+      {
+        "path": "/tmp/e02-E-ir-composition-r4-20261007/basedpyright-final-real-sideeffect-baseline.json",
+        "bytes": 733805,
+        "sha256": "1ea9bf864600d6e12d2e7643c2d5a8033359a68e99bfaf7789e73e45c69186a4"
+      },
+      {
+        "path": "/tmp/e02-E-ir-composition-r4-20261007/basedpyright-original-baseline.json",
+        "bytes": 1006190,
+        "sha256": "8ceca56253ec877284553b09de0ff1295a75583a6a4fc2238ef002cf9518b6af"
+      },
+      {
+        "path": "/tmp/e02-E-ir-composition-r4-20261007/basedpyright-private-baseline.json",
+        "bytes": 733805,
+        "sha256": "1ea9bf864600d6e12d2e7643c2d5a8033359a68e99bfaf7789e73e45c69186a4"
+      },
+      {
+        "path": "/tmp/e02-E-ir-composition-r4-20261007/configured-basedpyright-baseline-sideeffect.json",
+        "bytes": 733805,
+        "sha256": "1ea9bf864600d6e12d2e7643c2d5a8033359a68e99bfaf7789e73e45c69186a4"
+      }
+    ]
+  }
+}

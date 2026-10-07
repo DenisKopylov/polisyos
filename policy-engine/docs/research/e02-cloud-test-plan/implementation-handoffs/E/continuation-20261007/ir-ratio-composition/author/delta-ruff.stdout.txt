@@ -1,0 +1,30 @@
+E731 Do not assign a `lambda` expression, use a `def`
+   --> tests/unit/ir/test_uncertainty_posterior_composition.py:153:5
+    |
+151 |     forged = source.model_copy(update={"metadata": metadata})
+152 |     calls = []
+153 |     func = lambda x: calls.append(x) or x
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+154 |     with pytest.raises(ValueError):
+155 |         if operation == "push":
+    |
+help: Rewrite `func` as a `def`
+
+PT012 `pytest.raises()` block should contain a single simple statement
+   --> tests/unit/ir/test_uncertainty_posterior_composition.py:154:5
+    |
+152 |       calls = []
+153 |       func = lambda x: calls.append(x) or x
+154 | /     with pytest.raises(ValueError):
+155 | |         if operation == "push":
+156 | |             push_forward_envelope(func, forged)
+157 | |         elif operation == "compress":
+158 | |             compress_envelope(forged, target="interval")
+159 | |         else:
+160 | |             pull_back_envelope(func, forged, upstream_particles=(0.0, 1.0))
+    | |___________________________________________________________________________^
+161 |       assert calls == []
+    |
+
+Found 2 errors.
+No fixes available (1 hidden fix can be enabled with the `--unsafe-fixes` option).

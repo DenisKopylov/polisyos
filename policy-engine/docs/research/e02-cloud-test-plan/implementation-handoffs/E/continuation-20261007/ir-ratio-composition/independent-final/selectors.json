@@ -1,0 +1,387 @@
+{
+  "schema": "e02-independent-affected-selectors:1",
+  "source": "ecde9d2d8d9d13cba87420930105e378010a1acc",
+  "tree": "41d52f7b26d7d10757b479f55dd412d97fa051c4",
+  "base": "bfbd53a1f45795ad6901bc4bb7685237b0c3d20b",
+  "argv": [
+    "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/ir/test_uncertainty_posterior_composition.py",
+    "tests/unit/ir/test_uncertainty.py::test_push_forward_particles_preserves_law_object",
+    "tests/unit/ir/test_uncertainty.py::test_compress_envelope_to_moments_marks_approximation",
+    "tests/unit/ir/test_uncertainty.py::test_compress_envelope_to_particles_from_parametric_fit",
+    "tests/unit/ir/test_uncertainty.py::test_pull_back_requires_extra_structure",
+    "tests/unit/ir/test_uncertainty.py::test_pull_back_with_local_inverse_returns_constraint_envelope",
+    "tests/unit/ir/test_posterior_summary.py::test_v11_unprofiled_inline_carrier_replay_is_unchanged",
+    "tests/unit/ir/test_posterior_summary.py::test_v11_generic_functional_labels_are_legacy_without_new_profile_discriminator",
+    "tests/unit/ir/test_posterior_ratio_law.py::test_literal_profile_one_decode_display_replay_is_unchanged",
+    "tests/unit/ir/test_posterior_ratio_law.py::test_hundred_atom_mean_and_finite_bucket_law_share_exact_ratios",
+    "--junitxml",
+    "/tmp/e02-E-ir-composition-ecde-independent-20261007/pytest.xml",
+    "--basetemp",
+    "/tmp/e02-E-ir-composition-ecde-independent-20261007/pytest-base",
+    "-o",
+    "cache_dir=/tmp/e02-E-ir-composition-ecde-independent-20261007/cache",
+    "--benchmark-storage=file:///tmp/e02-E-ir-composition-ecde-independent-20261007/benchmarks"
+  ],
+  "cwd": "/workspace/e02-E-doe-20261006/policy-engine",
+  "exit_code": 0,
+  "wall_seconds": 10.329518556594849,
+  "env": {
+    "PYTHONPATH": "/workspace/e02-E-doe-20261006/policy-engine/src",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "TMPDIR": "/tmp/e02-E-ir-composition-ecde-independent-20261007/tmp",
+    "UV_NO_SYNC": "1",
+    "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-doe-20261006/policy-engine/.venv",
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "XLA_FLAGS": null
+  },
+  "before": {
+    "sha": "ecde9d2d8d9d13cba87420930105e378010a1acc",
+    "tree": "41d52f7b26d7d10757b479f55dd412d97fa051c4",
+    "paths": [
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-07-posterior-ratio-composition.toml",
+        "bytes": 1293,
+        "sha256": "5388bced3124c9ee26e4f3781403a2012889ff43ebebedddea95b6898daa8b54"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/README.md",
+        "bytes": 9186,
+        "sha256": "d4244a5bd600722fc0e14d60d16f580146b953e4f034a9d60f2b9892be26a602"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+        "bytes": 31271,
+        "sha256": "795423c2c7c00a3299aade7dae2e21fd626d2e80cf8f58186eff03610c91b98d"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+        "bytes": 94084,
+        "sha256": "5a28f2336e7903c9d67344e08f3b82176fb789e5ffaa307fc01d4341930b3c1d"
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+        "bytes": 14579,
+        "sha256": "955d90b702d750f1e3180f00d6c98d5d82d0a16408d3072b3061c670aa7e0f32"
+      }
+    ],
+    "status": "?? policy-engine/e02-composition-ecde-type-private.json\n"
+  },
+  "after": {
+    "sha": "ecde9d2d8d9d13cba87420930105e378010a1acc",
+    "tree": "41d52f7b26d7d10757b479f55dd412d97fa051c4",
+    "paths": [
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-07-posterior-ratio-composition.toml",
+        "bytes": 1293,
+        "sha256": "5388bced3124c9ee26e4f3781403a2012889ff43ebebedddea95b6898daa8b54"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/README.md",
+        "bytes": 9186,
+        "sha256": "d4244a5bd600722fc0e14d60d16f580146b953e4f034a9d60f2b9892be26a602"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+        "bytes": 31271,
+        "sha256": "795423c2c7c00a3299aade7dae2e21fd626d2e80cf8f58186eff03610c91b98d"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+        "bytes": 94084,
+        "sha256": "5a28f2336e7903c9d67344e08f3b82176fb789e5ffaa307fc01d4341930b3c1d"
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+        "bytes": 14579,
+        "sha256": "955d90b702d750f1e3180f00d6c98d5d82d0a16408d3072b3061c670aa7e0f32"
+      }
+    ],
+    "status": "?? policy-engine/e02-composition-ecde-type-private.json\n"
+  },
+  "counts": {
+    "cases": 54,
+    "PASS": 54,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "cases": [
+    {
+      "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+      "name": "test_identity_push_uses_finite_ratio_mean_and_inverse_cdf_atom[samples0]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+      "name": "test_identity_push_uses_finite_ratio_mean_and_inverse_cdf_atom[samples1]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+      "name": "test_push_reissues_content_and_clears_arbitrary_map_binding",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+      "name": "test_asymmetric_push_keeps_mean_outside_equal_tail_interval",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+      "name": "test_scalar_joint_source_refuses_before_any_map_callback",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+      "name": "test_corrupt_declared_carrier_refuses_before_any_map_callback",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+      "name": "test_incomplete_profile_declaration_refuses_at_shared_inlet[push-missing]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+      "name": "test_incomplete_profile_declaration_refuses_at_shared_inlet[push-unknown]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+      "name": "test_incomplete_profile_declaration_refuses_at_shared_inlet[push-required_only]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+      "name": "test_incomplete_profile_declaration_refuses_at_shared_inlet[push-id_only]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+      "name": "test_incomplete_profile_declaration_refuses_at_shared_inlet[push-version_only]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+      "name": "test_incomplete_profile_declaration_refuses_at_shared_inlet[compress-missing]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+      "name": "test_incomplete_profile_declaration_refuses_at_shared_inlet[compress-unknown]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+      "name": "test_incomplete_profile_declaration_refuses_at_shared_inlet[compress-required_only]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+      "name": "test_incomplete_profile_declaration_refuses_at_shared_inlet[compress-id_only]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+      "name": "test_incomplete_profile_declaration_refuses_at_shared_inlet[compress-version_only]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+      "name": "test_incomplete_profile_declaration_refuses_at_shared_inlet[pull-missing]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+      "name": "test_incomplete_profile_declaration_refuses_at_shared_inlet[pull-unknown]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+      "name": "test_incomplete_profile_declaration_refuses_at_shared_inlet[pull-required_only]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+      "name": "test_incomplete_profile_declaration_refuses_at_shared_inlet[pull-id_only]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+      "name": "test_incomplete_profile_declaration_refuses_at_shared_inlet[pull-version_only]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+      "name": "test_unprofiled_invalid_map_keeps_legacy_callback_coercion_order",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+      "name": "test_unprofiled_v10_input_retains_legacy_v11_output_and_fresh_codec[push]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+      "name": "test_unprofiled_v10_input_retains_legacy_v11_output_and_fresh_codec[pull]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+      "name": "test_invalid_transformed_draw_refuses_whole_profile_publication[True]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+      "name": "test_invalid_transformed_draw_refuses_whole_profile_publication[invalid1]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+      "name": "test_invalid_transformed_draw_refuses_whole_profile_publication[1]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+      "name": "test_invalid_transformed_draw_refuses_whole_profile_publication[1j]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+      "name": "test_invalid_transformed_draw_refuses_whole_profile_publication[nan]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+      "name": "test_invalid_transformed_draw_refuses_whole_profile_publication[inf]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+      "name": "test_invalid_transformed_draw_refuses_whole_profile_publication[-inf]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+      "name": "test_law_losing_compression_clears_complete_profile_declaration[interval]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+      "name": "test_law_losing_compression_clears_complete_profile_declaration[moments]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+      "name": "test_particles_compression_preserves_exact_axis_and_profile",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+      "name": "test_complete_joint_particles_compression_preserves_fresh_group",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+      "name": "test_zero_spread_moment_projection_is_finite_non_gating",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+      "name": "test_pullback_retained_ratio_mean_is_finite_constraint_only",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+      "name": "test_pullback_selected_zero_mass_refuses_instead_of_inventing_uniform_law",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+      "name": "test_joint_digest_admits_real_carrier_before_payload_access[None]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+      "name": "test_joint_digest_admits_real_carrier_before_payload_access[payload1]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+      "name": "test_joint_digest_missing_coordinate_is_typed_refusal",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+      "name": "test_profile1_composition_keeps_legacy_functionals_and_metadata",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+      "name": "test_nonfinite_moment_projection_refuses_without_clipping",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+      "name": "test_unprofiled_particle_push_retains_legacy_mean_and_interpolation",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty",
+      "name": "test_push_forward_particles_preserves_law_object",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty",
+      "name": "test_compress_envelope_to_moments_marks_approximation",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty",
+      "name": "test_compress_envelope_to_particles_from_parametric_fit",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty",
+      "name": "test_pull_back_requires_extra_structure",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_uncertainty",
+      "name": "test_pull_back_with_local_inverse_returns_constraint_envelope",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_posterior_summary",
+      "name": "test_v11_unprofiled_inline_carrier_replay_is_unchanged",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_posterior_summary",
+      "name": "test_v11_generic_functional_labels_are_legacy_without_new_profile_discriminator",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_posterior_ratio_law",
+      "name": "test_literal_profile_one_decode_display_replay_is_unchanged",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_posterior_ratio_law",
+      "name": "test_hundred_atom_mean_and_finite_bucket_law_share_exact_ratios[100.0]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.ir.test_posterior_ratio_law",
+      "name": "test_hundred_atom_mean_and_finite_bucket_law_share_exact_ratios[1000000000000000.0]",
+      "outcome": "PASS"
+    }
+  ],
+  "scope": "New44 native producer/composition/freshCAS controls plus chosen unchanged legacy/profile controls; not fullfamily or commonwave",
+  "finding_closure": false
+}

@@ -1,0 +1,14 @@
+{
+  "source_sha": "218c7bd75f29dea72d86d8c5830137ce0a2d0188",
+  "source_tree": "25d24e62b0d9aa5775e984070c015c23445f9237",
+  "config_root": "/workspace/e02-E-doe-20261006/policy-engine",
+  "same_project_root": true,
+  "settings_equal_except_baselineFile": true,
+  "config_original_sha256": "c7921e8bf04131158f84ee1b3b28f9620ba7cc8cfa36c64cabd90478e958f1b2",
+  "config_derived_sha256": "45b1cedbfd8339ad3f8a084b2f151f01a0bc67ae8be0e0a6e44e6a2b4115c041",
+  "baseline_original_sha256": "8ceca56253ec877284553b09de0ff1295a75583a6a4fc2238ef002cf9518b6af",
+  "explicit_absolute_inputs": [
+    "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+    "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py"
+  ]
+}

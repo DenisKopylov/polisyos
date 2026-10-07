@@ -1,0 +1,6 @@
+{
+  "native_cli_sideeffect": "Configured scoped basedpyright automatically removed unrelated baseline entries; before further checks the exact slice-base Git blob was restored, and the observer-induced bytes were archived. No implementation baseline change is authorized or included.",
+  "original_sha256": "8ceca56253ec877284553b09de0ff1295a75583a6a4fc2238ef002cf9518b6af",
+  "sideeffect_sha256": "1ea9bf864600d6e12d2e7643c2d5a8033359a68e99bfaf7789e73e45c69186a4",
+  "source": "bfbd53a1f45795ad6901bc4bb7685237b0c3d20b"
+}

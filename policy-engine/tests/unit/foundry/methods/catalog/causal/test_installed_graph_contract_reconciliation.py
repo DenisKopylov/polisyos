@@ -58,7 +58,7 @@ else:
     assert ancestry==json.loads(sys.argv[4])
 origins={name:module.__file__ for name,module in sys.modules.copy().items() if name.startswith('polisyos') and getattr(module,'__file__',None)}
 assert all(Path(path).resolve().is_relative_to(site) for path in origins.values())
-print(json.dumps({'owner':str(Path(owner.__file__).resolve()),'owner_sha256':hashlib.sha256(Path(owner.__file__).read_bytes()).hexdigest(),'cas_id':ref.artifact_id,'schema_version':graph.schema_version,'edge_count':network.number_of_edges(),'edges':actual,'ancestors':ancestry,'origins':origins},sort_keys=True))
+print(json.dumps({'owner':str(Path(owner.__file__).resolve()),'owner_sha256':hashlib.sha256(Path(owner.__file__).read_bytes()).hexdigest(),'cas_id':ref.model_dump(mode='json')['artifact_id'],'schema_version':graph.schema_version,'edge_count':network.number_of_edges(),'edges':actual,'ancestors':ancestry,'origins':origins},sort_keys=True))
 """
 
 

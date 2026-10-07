@@ -1,0 +1,7 @@
+{
+  "schema": "policyos.e02.full_output_utf8.v1",
+  "encoding": "utf-8",
+  "decoded_bytes": 130,
+  "decoded_sha256": "0b0450f0170e73ab0c61e58398c2407a06ed600584242fafbb73752492c3ff8d",
+  "text": "{\"check\": \"PASS\", \"source_sha\": \"8236d9c368336a5ea20c1586f29aea7321db6536\", \"files\": 3459, \"forced_resources\": 7, \"carriers\": 28}\n"
+}

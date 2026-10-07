@@ -88,6 +88,7 @@ from polisyos.ir.analytics.estimand import (
 # PAG-specific identification (Malinsky & Spirtes 2017)
 # ---------------------------------------------------------------------------
 
+
 def _pag_id_algorithm(
     *,
     treatment: frozenset[str],

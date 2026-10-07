@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-F-continuation-20261006/graph/final-packet-review/check_final_supplemental-final.py"
+  ],
+  "cwd": "/tmp/e02-F-continuation-20261006/graph/final-packet-review/f17b9a52784d9484ef65563dc6695240629bdfc6",
+  "exit_code": 0,
+  "wall_seconds": 5.657081161989481,
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261006/graph/final-packet-review/f17b9a52784d9484ef65563dc6695240629bdfc6/supplemental-final.stdout.txt",
+    "bytes": 190,
+    "sha256": "33ff7f658a3a3da190a2a444746d47f098df35d1c5a0b8eba980ed5c5d69e26a"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261006/graph/final-packet-review/f17b9a52784d9484ef65563dc6695240629bdfc6/supplemental-final.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "replayer": {
+    "path": "/tmp/e02-F-continuation-20261006/graph/final-packet-review/check_final_supplemental-final.py",
+    "bytes": 10453,
+    "sha256": "b24655c108bcf9039113f5cb68c1b6b141ceda22c4fa127d89901ed3feb7c31c"
+  }
+}

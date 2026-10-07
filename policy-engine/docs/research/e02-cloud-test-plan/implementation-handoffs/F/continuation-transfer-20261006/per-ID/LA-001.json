@@ -1,0 +1,243 @@
+{
+  "schema": "F-original-finding-continuation-receipt/1",
+  "unit": "F",
+  "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+  "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+  "formal_G_acceptance": "not_issued",
+  "check_scope": "Actual bounded measurement is separate from unresolved original/current authority inputs.",
+  "complete_original_bound_row": {
+    "finding_id": "LA-001",
+    "primary_bundle": "FRY-01",
+    "primary_tsv_owner": {
+      "finding_id": "LA-001",
+      "unit": "F",
+      "docx_analytical_package": "P24",
+      "source_closure_owner": "FRY-01",
+      "source_bundle_ids": "FRY-01",
+      "source_status": "partial"
+    },
+    "original_source_criterion_refs": [
+      {
+        "criterion_id": "LA-001",
+        "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+        "lines": [
+          82,
+          108
+        ],
+        "bytes": 3007,
+        "sha256": "35f63e8bacf3c27cd4148db8119837ff30df91a5de9f73d52ead6e4fc73d9dd0",
+        "title": "## LA-001. Treasury: инфраструктура случайности под предметным названием",
+        "byte_binding_check": "PASS",
+        "complete_original_block": "## LA-001. Treasury: инфраструктура случайности под предметным названием\n\n**Перемещение по смысловой роли**\n\n**Статус.** Семантическое несоответствие подтверждено; удалять функцию нельзя.\n\n**Точная область:**\n\n`src/polisyos/foundry/mechanisms/treasury.py`\n\n**Что установлено и почему это legacy-кандидат.** Файл строит root_seed, node_salts и stream_salts; казначейских потоков и государственных балансов здесь нет. Это не устаревшая вычислительная формула, а живой план воспроизводимости в неподходящей предметной папке. Trinity compiler импортирует build_treasury_plan и сохраняет результат.\n\n**Что сохранить.** Весь алгоритм, включая историческую семантику root_seed=0, стабильные node IDs, формат сериализации и содержимое сохранённых планов.\n\n**Куда перенести / с чем объединить.** Предлагаемый новый файл src/polisyos/foundry/compile/randomization.py в существующей compile/. Не переносить в экономический plugin. Отдельный DTO в contracts/ нужен лишь при действительно нескольких независимых потребителях; пока допустимо оставить модель рядом с builder.\n\n**Порядок миграции.** Сначала перенести без изменения формулы, переключить compiler и tests; временный alias старого import-path — только при подтверждённой необходимости. Python-имя можно менять отдельно от schema/kind: переименование файла не требует переписывать исторические CAS-артефакты.\n\n**Приёмочная проверка.** Сравнить результаты для seed=0 и ненулевого seed, перестановки program nodes, повторной компиляции и чтения старого плана. Проверить код, конфигурации и сохранённые symbol paths; не менять digest ради косметики.\n\n**Приоритет.** Высокая ясность назначения; низкая/средняя цена переноса.\n\n**Граница вывода.** Перенос сам по себе не ускоряет численные вычисления. Полная карта downstream-readers не построена.\n\n**Основания:** E02, E39, E36.\n\n<!-- PAGEBREAK -->\n"
+      }
+    ],
+    "criterion_short_ru": "Versioned native RNG caller/compile/execute migration with historical plans",
+    "actual_consumer": "compile.api.compile → compile_trinity → TreasuryPlan → execute.api.execute → execute_program_graph → adaptive_agent",
+    "source_scope": "Treasury relocation preserves seed/IDs/salts/plans and actual RNG behavior",
+    "oracle_and_negative": "Seed0/nonzero, recompilation/permutation, unmarked historical plans, realnativekey/dispatcher; salt removal retainsmarkers and FAIL",
+    "predicate_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Treasury relocation preserves seed/IDs/salts/plans and actual RNG behavior. Independent oracle/retained-marker negative: Seed0/nonzero, recompilation/permutation, unmarked historical plans, realnativekey/dispatcher; salt removal retainsmarkers and FAIL. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+    "check": "PASS",
+    "outcome": "closed",
+    "state_role": "Explicit F ROOT recommendation on original byte-bound criterion; separate technical profile and current continuation. G formal acceptance not issued.",
+    "technical_original_criterion_recommendation": "closed",
+    "technical_historical_baseline_profile_outcome": null,
+    "technical_check": "PASS",
+    "current_continuation_outcome_recommendation": "closed",
+    "check_interpretation": "Proposed original/current criterion measurement disposition. Component-native PASSs remain on their exact source; pending owner/authority measurements are not PASS.",
+    "original_criterion_remainder": "Versioned v1 intentionally has same node draw at steps0/1; unchanged temporal law.",
+    "separate_unavailable_inputs_or_authority": "No newly commissioned fresh innovation law or real economic validity.",
+    "limit_next_owner_short_ru": "Versioned v1 intentionally has same node draw at steps0/1; unchanged temporal law.",
+    "authority_check": "UNRUN",
+    "formal_G_accepted": false,
+    "formal_ledger_acceptance": "not_issued",
+    "receipt_ref": {
+      "head": "f4fa51e6dd247cfd967450263579d67233a743d6",
+      "branch": "refs/heads/codex/e02-F-fry-20261006",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json",
+      "bytes": 77903,
+      "sha256": "ff8a8f2b2689fb9793c5ab03f29fde1412eb5fe03dae961656fad722a108176e",
+      "table": "criterion_decisions",
+      "per_id": "LA-001"
+    },
+    "implementation_sha": "63425f734946979cfc990e9cb91b00163f051898",
+    "candidate_tree_sha": "dab61c3e7a161e00837f5a128fc2768a36e9b19a",
+    "historical_421_per_id_deciding_refs": [
+      {
+        "index": 0,
+        "check_id": null,
+        "outcome": "PASS",
+        "target_sha": "03bbfe14225d64a9977b77775c200e83eb717c5f",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/native-frozen.stdout.txt"
+      },
+      {
+        "index": 1,
+        "check_id": null,
+        "outcome": "FAIL",
+        "target_sha": "03bbfe14225d64a9977b77775c200e83eb717c5f",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/executor-frozen.stdout.txt.text.json"
+      },
+      {
+        "index": 2,
+        "check_id": null,
+        "outcome": "UNRUN",
+        "target_sha": "03bbfe14225d64a9977b77775c200e83eb717c5f",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/architecture.stdout.txt"
+      },
+      {
+        "index": 3,
+        "check_id": null,
+        "outcome": "UNRUN",
+        "target_sha": "03bbfe14225d64a9977b77775c200e83eb717c5f",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/production-invocation.stdout.txt"
+      },
+      {
+        "index": 4,
+        "check_id": null,
+        "outcome": "FAIL",
+        "target_sha": "03bbfe14225d64a9977b77775c200e83eb717c5f",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/compatibility-release.stdout.txt"
+      },
+      {
+        "index": 5,
+        "check_id": null,
+        "outcome": "PASS",
+        "target_sha": "03bbfe14225d64a9977b77775c200e83eb717c5f",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/compatibility-release-scoped.stdout.txt"
+      },
+      {
+        "index": 6,
+        "check_id": null,
+        "outcome": "FAIL",
+        "target_sha": "03bbfe14225d64a9977b77775c200e83eb717c5f",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-gate-source.stdout.txt"
+      },
+      {
+        "index": 7,
+        "check_id": null,
+        "outcome": "FAIL",
+        "target_sha": "63425f734946979cfc990e9cb91b00163f051898",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-gate-final.stdout.txt"
+      },
+      {
+        "index": 8,
+        "check_id": null,
+        "outcome": "UNRUN",
+        "target_sha": "03bbfe14225d64a9977b77775c200e83eb717c5f",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-gate.stdout.txt"
+      },
+      {
+        "index": 9,
+        "check_id": null,
+        "outcome": "PASS",
+        "target_sha": "03bbfe14225d64a9977b77775c200e83eb717c5f",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/independent/fry-independent-review.json"
+      },
+      {
+        "index": 10,
+        "check_id": null,
+        "outcome": "PASS",
+        "target_sha": "63425f734946979cfc990e9cb91b00163f051898",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-only-fidelity.json"
+      },
+      {
+        "index": 11,
+        "check_id": null,
+        "outcome": "PASS",
+        "target_sha": "03bbfe14225d64a9977b77775c200e83eb717c5f",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/family-trace.json"
+      },
+      {
+        "index": 12,
+        "check_id": null,
+        "outcome": "PASS",
+        "target_sha": "03bbfe14225d64a9977b77775c200e83eb717c5f",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/installed-layout-companion-binding.json"
+      },
+      {
+        "index": 13,
+        "check_id": null,
+        "outcome": "PASS",
+        "target_sha": "63425f734946979cfc990e9cb91b00163f051898",
+        "output": "Complete committed outputs: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/ruff-check.txt; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/ruff-format.txt; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/diff-check.txt"
+      }
+    ],
+    "historical_421_owner_decision": {
+      "id": "LA-001",
+      "finding_state": "closed",
+      "check_outcome": "PASS",
+      "scope": "Original generic seed, builder serialization, recompile, permutation and historical plan compatibility, plus the selected real compiler-to-native-RNG consumer. New randomness uses an explicit version marker.",
+      "limits": "Owner candidate recommendation; G review and integration remain pending. Synthetic determinism does not establish economic or real-data validity."
+    },
+    "owner_proposals_complete": [],
+    "supplemental_receipt_registry_indices": [
+      4,
+      17,
+      26,
+      30,
+      35
+    ],
+    "current_exact_consumer_receipts": [
+      {
+        "key": "fry",
+        "git_ref": "e00dd3799cf2cdd14baf4b26e175ba1e848c3a6a",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006.json",
+        "bytes": 97248,
+        "sha256": "04fba06be549c934631ea496ae1cbf6b3698e2f235a94b61880ba540308f2cbf",
+        "implementation_commits": [
+          "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "3e1819173f0593ce93d257c3c62cdb2fa627e426"
+        ],
+        "candidate_tree_sha": "45852a68bb786a96d6d23c52cea790f13d3489d3"
+      }
+    ],
+    "canonical_owner_re_adjudication_required": "For unavailable semantic/institutional inputs only; source-bound ROOT decisions and independent reviews are carried separately.",
+    "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate; exact source8236 quality-equivalence receipt preserves prior scientific source provenance and all historical red checks separately",
+    "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+    "historical_proposal_before_ROOT_adjudication": {
+      "original_criterion_remainder": "Versioned v1 intentionally has same node draw at steps0/1; unchanged temporal law.",
+      "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate",
+      "outcome": "closed",
+      "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+      "oracle_and_negative": "Seed0/nonzero, recompilation/permutation, unmarked historical plans, realnativekey/dispatcher; salt removal retainsmarkers and FAIL",
+      "source_scope": "Treasury relocation preserves seed/IDs/salts/plans and actual RNG behavior",
+      "actual_consumer": "compile.api.compile → compile_trinity → TreasuryPlan → execute.api.execute → execute_program_graph → adaptive_agent",
+      "check": "PASS",
+      "decision_basis": null,
+      "separate_unavailable_inputs_or_authority": "No newly commissioned fresh innovation law or real economic validity.",
+      "criterion_short_ru": "Versioned native RNG caller/compile/execute migration with historical plans",
+      "technical_original_criterion_recommendation": "closed",
+      "deciding_receipt_refs": null
+    },
+    "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Treasury relocation preserves seed/IDs/salts/plans and actual RNG behavior. Independent oracle/retained-marker negative: Seed0/nonzero, recompilation/permutation, unmarked historical plans, realnativekey/dispatcher; salt removal retainsmarkers and FAIL. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+    "check_scope": "Explicit source-bound ROOT original/current criterion adjudication; exact component outcomes remain separately preserved",
+    "ROOT_deciding_refs": [
+      {
+        "git_ref": "f4fa51e6dd247cfd967450263579d67233a743d6",
+        "head": "f4fa51e6dd247cfd967450263579d67233a743d6",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json",
+        "bytes": 77903,
+        "sha256": "ff8a8f2b2689fb9793c5ab03f29fde1412eb5fe03dae961656fad722a108176e",
+        "git_blob": "12937d746fc2a65adfb6022e24ec00f61083f492",
+        "check": "PASS",
+        "origins": [
+          "ROOT_adjudication/LA-001"
+        ]
+      }
+    ],
+    "ROOT_adjudication_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/root-adjudication.json",
+      "bytes": 130025,
+      "sha256": "0fc3e6440719fc3094bb13d82a809586cf05776bcf6a4dc3807e9cbfde44126f",
+      "head": "cda9c4e57a4efc68386c5896775059abcfbe189e",
+      "git_ref": "cda9c4e57a4efc68386c5896775059abcfbe189e",
+      "json_pointer": "/rows/24"
+    }
+  },
+  "independent_packet_review_resolution": {
+    "check": "UNRUN at this immutable packet seal",
+    "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+    "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+  }
+}

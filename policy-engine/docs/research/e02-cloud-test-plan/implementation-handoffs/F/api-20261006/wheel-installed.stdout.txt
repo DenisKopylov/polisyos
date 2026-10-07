@@ -1,0 +1,9 @@
+................................................                         [100%]
+=============================== warnings summary ===============================
+../../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+48 passed, 1 deselected, 1 warning in 3.03s
+{"installed_product_modules": 921, "origin_violations": {}, "literal_imports_executed": 76, "source_sha": "729d137279b7d6334230045e420255762fe55f08"}

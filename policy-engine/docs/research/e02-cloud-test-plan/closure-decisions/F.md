@@ -1,6 +1,6 @@
 # F — текущие научные критерии, consumers и отдельная приёмка
 
-Читать вместе с [методами](method-decisions.md#methods-f) и [runtime-профилями](runtime-profiles.md#f-current-runtime). Это reconciliation опубликованных source-bound receipts, а не новый численный прогон, приёмка G или разрешение публикации причинного вывода. `closed` ниже — техническая рекомендация по указанному оригинальному критерию; authority, интеграция и полный production run принимаются отдельно. Незаконченные API/TMLE continuation packets не повышаются до PASS.
+Читать вместе с [методами](method-decisions.md#methods-f) и [runtime-профилями](runtime-profiles.md#f-current-runtime). Это reconciliation опубликованных source-bound receipts и нового installed consumer replay, а не приёмка G или разрешение публикации причинного вывода. Исходный bounded technical criterion и current continuation recommendation разделены; authority, интеграция и полный production run принимаются отдельно. Полный [current35 ledger](../implementation-handoffs/F/continuation-transfer-20261006/REPORT.md) сохраняет original bytes/owners и отдельный code SHA/tree каждого deciding component.
 
 ## Исторический G97 и текущая граница
 
@@ -8,11 +8,11 @@ G97 `97c85fae2d4505ec8248540d98b9556296244208`, tree `e77c0741d3b19acb43e07a0de2
 
 Текущий исходный знаменатель — полный `finding-owners.tsv@198076863e143dea9f89f02734b13d50dae3eed5`: **35 IDs, 17 bundles, 36 coverage bindings к 35 различным original source blocks**. Две записи LA-016 указывают на один и тот же блок LA_r09:513–539. Exact ranges/bytes/hashes находятся в [coverage.json](coverage.json); исходные B_r19/LA_r09 cards не заменяются пересказами.
 
-Сверка использует полный independent `original35-reconciliation.json` (235804 bytes, SHA-256 `95f728b758fde25591b0124bc0a2cd8b6c0acd86a61deb6d13bc07e99c4ba2a7`) и его selection/Markdown. Frozen421 `421f1dd977b237307394c68820caab4156716eb2` остаётся историческим transfer; G audit `363e7ae0cb2929a92d9667334fdc0ac3087daf5e` не переписывается задним числом. Current source supplements перечислены ниже; это не новый composed-source runtime PASS.
+Сверка использует полный independent `original35-reconciliation.json` (235804 bytes, SHA-256 `95f728b758fde25591b0124bc0a2cd8b6c0acd86a61deb6d13bc07e99c4ba2a7`) и его selection/Markdown. Frozen421 `421f1dd977b237307394c68820caab4156716eb2` остаётся историческим transfer; G audit `363e7ae0cb2929a92d9667334fdc0ac3087daf5e` не переписывается задним числом. Current source supplements перечислены ниже. Installed replay на source8236 является новым measured consumer PASS в указанном профиле; он не переносит старые scientific/authority verdicts на общий candidate.
 
 ## 35 оригинальных критериев
 
-Полная scratch proposal различает technical original criterion и current continuation: **26 closed / 8 limited / 1 held** против **21 closed / 13 limited / 1 held**. Числа относятся к полному указанному набору и не являются формальным ledger G. Для всех 35 `G_acceptance=UNRUN`. Pending API/TMLE packets требуют нового source-bound решения; сохранённые scientific waves не перезапускались.
+Рекомендации F различают technical original criterion и current continuation: **30 closed / 4 limited / 1 held** против **25 closed / 9 limited / 1 held**; измеренные checks **33 PASS / 2 UNRUN**. Числа относятся к полному указанному набору и не являются формальным ledger G. Для всех 35 formal finding acceptance G не выдана. API90c и installeda2d исполнили текущий source census и два actual consumer profiles на `8236d9c368336a5ea20c1586f29aea7321db6536` / tree `724a77c88d4e6699ffead58a5e3e3990fb88640a`. Сохранённые 160-panel/4000-RDD scientific waves не перезапускались; их прежние exact source bindings сохранены.
 
 | ID | Оригинальное свойство / current continuation recommendation | Deciding source и отдельный остаток |
 | --- | --- | --- |
@@ -24,7 +24,7 @@ G97 `97c85fae2d4505ec8248540d98b9556296244208`, tree `e77c0741d3b19acb43e07a0de2
 | B209 | Anticipation-safe full eligible horizon; limited | DID; support failure не меняет target; реальное anticipation assumption не установлено. |
 | B210 | Actual sharp CCT RBC; closed | RDD; native clean-room weights/HC0 и real external oracle; real cutoff design отдельно. |
 | B211 | O(np) weighted structures, kernels/order/SE; closed | RDD; diagonal-WLS oracle и permutation; нет измеренного whole-method speedup. |
-| B212 | Point-only backend без изготовленного CI; limited | DoWhy423 + historical installed5cd; выбранный backend реально выполнен, latest composition/authority отдельно. |
+| B212 | Point-only backend без изготовленного CI; limited | DoWhy423 + installeda2d/API90c; выбранный backend и fresh3.14 reader реально выполнены, whole Runtime authority отдельно. |
 | B213 | Actual estimand/contrast/target binding; limited | DoWhy423; selected linear ATE, не label-only универсальная mediation capability. |
 | B214 | Known reverse и explicit unresolved/cycle refusal; limited | STATIC518 + intake632; default normalizes known reverse; Scientist node canonical DAG profile, не all PAG/CPDAG types. |
 | B215 | Conditional Gaussian abduction / complete residual inverse; closed | SCM6d; posterior credible law не sampling CI, nonlinear partial posterior limited. |
@@ -38,17 +38,17 @@ G97 `97c85fae2d4505ec8248540d98b9556296244208`, tree `e77c0741d3b19acb43e07a0de2
 | B223 | Explicit comparator and same-U contrast; closed | SCM6d + ROOT3afb; model/ITE distributions не estimator CI. |
 | B224 | Replaced mechanism bypass / safe pruning; closed | SCM6d; relevant factual ancestors/shared noise не удаляются. |
 | B225 | Declared stochastic laws / stable tails; closed | SCM6d independent math.erfc, positive-tail SF differences; no same-SciPy-CDF independence claim. |
-| B54 | Fit identity / current diagnostics / immutable readers; closed | TMLE55d2; original cache criterion measured; new native report continuation pending separately. |
-| B56 | Study-wide admitted fold resource accounting; limited | Historical TMLE55d2; latest broker/study packet pending, no omitted folds or metadata cap as evidence. |
+| B54 | Fit identity / current diagnostics / immutable readers; closed | TMLE55d2 + native6c/generated27/ROOT12 + installeda2d; cache и selected common-report/CAS reader measured, no authority promotion. |
+| B56 | Study-wide admitted fold resource accounting; limited | Configured6/default15 actual MethodJob folds measured; admitted competing study/budget packet UNRUN. Existing pool attempt failed before0fits, no metadata cap as evidence. |
 | LA-001 | Treasury relocation / IDs / seeds / actual RNG; closed | Treasury03bb/63425; retained versioned v1/historical law, no unrequested new time innovation. |
 | LA-002 | Family catalog / IC certificates / reexports / supported loading; closed | FAMILY7f; real four-family service/CAS and runtime loading. Four new family→state mappings не prerequisite. |
-| LA-003 | Fiscal/labor relocation, PatchMap/masks/key/spec/compiler/replay; limited | ECO412 checks0/4/6/10/11; real relocation passes, .10 budget precision remains FAIL. |
+| LA-003 | Fiscal/labor relocation, PatchMap/masks/key/spec/compiler/replay; closed | FISCAL132 fixes actual Decimal/CAS precision with declared x64 boundary; old FAIL retained, separately reported ABM diagnostic FAIL and P41 not_established. |
 | LA-004 | DISTINCT economic models, paired regimes and deliberate divergence; closed | ECO412 checks0/4/6/8; state/units/step/taxbase/RNG/budget/outputs. Welfare norm не prerequisite. |
-| LA-007 | Exact empty id_engine.py absent, package/loaders preserved; limited | Already absent base198; API supported loader/install reconciliation pending; no new deletion claimed. |
+| LA-007 | Exact empty id_engine.py absent, package/loaders preserved; closed | Already absent base198; API90c exact current census + two installed profiles; supported finite loader/window only, unknown external callers explicit. |
 | LA-016 | Dedicated metadata/callers/flags/slots, default retirement; closed | DIAGNOSTICS0b; maintained request→registry/dispatcher/CAS, historical import explicit; same original block twice. |
 | LA-017 | Norm diff/issues/pass config/report/topic consumer migration; limited | Lex00a6 finite plan/duplicate/CAS/CLI property; full supported migration packet distinct from real-law authority. |
-| LA-019 | Exact empty causal_engine.py/interference.py absent; limited | Already absent base198; preserve nonempty packages; pending finite filename/loader/docs/install packet. |
-| LA-020 | Supported facade identity/FQN/patch/docs/install ABI; limited | API729 historical actual census/wheel/sdist; latest generic-guard packet pending, not every possible external computed importer. |
+| LA-019 | Exact empty causal_engine.py/interference.py absent; closed | Already absent base198; preserve nonempty packages; API90c actual filename/loader/docs/install packet, no new deletion. |
+| LA-020 | Supported facade identity/FQN/patch/docs/install ABI; closed | API90c current census + installeda2d actual FQN/pickle/pydoc/patch/private/reexports; computed candidates are not proven clients, 38 canonical static UNKNOWN remain red. |
 | LA-035 | Named normalized-income/budget historical baseline; held | ECO412 check15 owner packet; formula/aliases/native/JIT/grad/guards pass. Named optimizer and units/population/time/sign intent absent. |
 | LA-037 | One native IR slot owner/direct compiler/docs/install; closed | FAMILY7f + docs3e181; five identities/native patches/CAS/page; byte-identical installed owners only. |
 
@@ -56,16 +56,16 @@ G97 `97c85fae2d4505ec8248540d98b9556296244208`, tree `e77c0741d3b19acb43e07a0de2
 
 | Bundle | Current bounded path | Отдельное условие |
 | --- | --- | --- |
-| <a id="bundle-api-01"></a> API-01 | Historical API729 canonical facade/census/wheel/sdist; latest owner continuation pending. | LA-020 ABI ≠ absence of reflection; LA-007/019 exact already-absent siblings ≠ package removal. |
+| <a id="bundle-api-01"></a> API-01 | API90c current tracked/config/docs/loader census + installeda2d wheel/rebuilt-sdist consumer. | LA-020 ABI ≠ absence of reflection; explicit maintained compatibility window and unknown computed/external boundary. |
 | <a id="bundle-cau-01"></a> CAU-01 | Native standard DiD → report/CAS; DIAGNOSTICS producer + ROOT current typed-view/diagnostic readers. | B204/205/206 distinct; recomputed pretrend is not identification authority. |
 | <a id="bundle-cau-02"></a> CAU-02 | Fixed θ_sel/share IF/unit Mammen/null inversion on DID. | 160 known-DGP replicates each arm; exact retained source, no real-data/small-G guarantee. |
 | <a id="bundle-cau-03"></a> CAU-03 | Native clean-room CCT RBC → dispatcher/report/CAS/canonical fresh reader. | GPL external development oracle not product dependency; no fuzzy/selector/cluster claim. |
 | <a id="bundle-cau-04"></a> CAU-04 | Real configured Python3.12/DoWhy0.14 worker → validated Python3.14 parent/report/CAS. | Python3.14 markers remain excluded; selected ATE only, authority separate. |
 | <a id="bundle-cau-05"></a> CAU-05 | Dedicated maintained Standard route, registry/slot/flags and historical replay. | Original two LA-016 bindings refer to one card. |
 | <a id="bundle-eco-01"></a> ECO-01 | Distinct real native/plugin profiles; canonical current Gini/domain; preserved normalized baseline. | LA-004 closed finite inequivalence; LA-035 held intent, not a common Gini hold. |
-| <a id="bundle-fit-01"></a> FIT-01 | Original native fit-core/cache/reader evidence. | Latest study-wide resources/native-report continuation pending; no automatic B56 promotion. |
+| <a id="bundle-fit-01"></a> FIT-01 | Original cache plus actual common-report/EIF/TMLE MethodJob/CAS/fresh reader. | Study-wide competing workload/resources remain UNRUN; no automatic B56 promotion. |
 | <a id="bundle-fry-01"></a> FRY-01 | Real Treasury RNG; FAMILY catalog→IC certificate CAS; IR layout→compiler/patch/state/docs/install. | LA-002/037 original migration complete; no invented certificate→new kernel gate. |
-| <a id="bundle-fry-03"></a> FRY-03 | Registry spec/compiler/replay native fiscal/labor → complete PatchMap/state/CAS. | Decimal fiscal precision red visible; law/fingerprint unchanged, LA-003 limited. |
+| <a id="bundle-fry-03"></a> FRY-03 | Registry spec/compiler/replay native fiscal/labor → complete PatchMap/state/CAS; FISCAL132 actual precision. | Original law/RNG/ABI retained; explicit x64 dtype/reduction compatibility boundary, separately reported ABM diagnostic FAIL. |
 | <a id="bundle-grf-01"></a> GRF-01 | Shared static endpoint/lag admission before native separation/surgery/ID consumers. | Original unresolved CPDAG escape and malformed sibling fixture failures preserved. |
 | <a id="bundle-grf-02"></a> GRF-02 | Actual NetworkX multiedges; deeply immutable cache JSON tuples/fresh plain rows. | No live Kuzu backend or global graph completeness claim. |
 | <a id="bundle-grf-03"></a> GRF-03 | Known reverse normalization, lag-preserving export; declared static refusal. | Canonical DAG Node profile is narrower than general PAG/CPDAG completion/temporal inference. |
@@ -91,6 +91,11 @@ P41 не установлен для глобальных inherited-red ярлы
 ## Source receipts и точные ссылки
 
 Ниже `F/` означает `policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/`. Каждый Git ref — **carrier**, source/tree берутся из JSON; `/checks/n` содержит уже исполненную команду, среду, inputs, outcome и полный output ref. Этот doc update только читал receipts; научные команды не запускались заново.
+
+- **API90c**: `F/api-installed-final-20261006.json@90c72b51155321684c788cd5a03fbb70fc001d53`; 50455 bytes, SHA-256 `b01b2dd3d1083298b700beab9f4b97d7837f5172eeae4758bd902bdadaf5fa29`. Tested source `8236d9c368336a5ea20c1586f29aea7321db6536`, tree `724a77c88d4e6699ffead58a5e3e3990fb88640a`; census 16819 tracked entries, 6815 parsed Python files, 243 literal imports, 225 dynamic candidates, 753 filename/config lexical rows and 73 AST loader calls. Four runtime computed loaders remain unresolved; candidates are not actual clients.
+- **installeda2d**: `F/installed-final-consumer-20261006.json@a2d55a1942e1f56f35cf2b9772ae56b0b46de95d`; 60843 bytes, SHA-256 `4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8`. Same tested source/tree, zero own product delta. Wheel and rebuilt-sdist each 199 PASS/0SKIP/0ERROR; five source-census selectors deselected, never PASS. Eight installed retained-marker removals FAIL. Historical14 runtime warning memberships become0; 90 unsuppressed LGBM feature-name warnings each preserved. Full3459files/site and seven resources unchanged.
+- **FISCAL132**: `F/economic-fiscal-precision-continuation-20261006.json@3912782bfd55cc87f76757310c32603ecbe58cc3`; 229832 bytes, SHA-256 `540ea3357ab032df188b2b8c413aa6e8fa45ce81055e2e8f3bdcb7f3ef06979b`. Actual typed ParamDecimal/CAS/state precision; 24 complete default float32/x64-off profiles byte-identical. Separate 40 integer/lower-float cases have 30 whole-patch matches, 10 x64 subsidy dtype changes and 8 government reduction deltas; these are separately measured profiles/categories, not an additive case denominator. Separately reported ABM diagnostic FAIL remains red; selected base replay does not establish P41.
+- **ROOT8236 quality**: `F/source-quality-freeze-20261006.json@613a55a5946bdeff2dc849f2488fb88c81b01360`; 75400 bytes, SHA-256 `ba0914774ffa573f16517b3ec20fae283bc06eb749104b496c2abcd85ebd60fd`. Scoped AST/108-case compatibility and Ruff92 PASS; global format3 outside-F, CoreFeedback schema2 and production-invocation26regressions/78newUNRESOLVED FAIL preserved in full. P41 not_established.
 
 - **ECO412**: `F/economics-continuation-20261006.json@d9c48853c5ab9ad7473df204bf3a7a1995a32057`; 127652 bytes, SHA-256 `ced279a2a9ce169c271c4dedbb2ac18a27193de75dd7cd2cf80375fb633c4162`. Implementation `4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3`, tree `134aca5ad6bac87da8d2f3d18a4be0ab20652251`.
 - **CARRYc003**: `F/economic-training-dtype-continuation-20261006.json@d9c48853c5ab9ad7473df204bf3a7a1995a32057`; 58922 bytes, SHA-256 `cb9efb8452c6446d78d19225dcae4c69dadaa817810e16fcc9c8741dee8ad6c7`. Implementation `c003bd673fd672726db18773bf888357a468d901`, tree `16927b18be300fc6c1723c2af4bb8a421ccac357`.

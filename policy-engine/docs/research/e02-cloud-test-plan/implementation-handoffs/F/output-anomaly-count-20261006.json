@@ -1,0 +1,1014 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "F",
+  "slice": "output-anomaly-count-20261006",
+  "closure_ids": [],
+  "related_finding_ids": [
+    "LA-001",
+    "LA-002",
+    "LA-037"
+  ],
+  "bundle_ids": [
+    "FRY-01"
+  ],
+  "slice_base_sha": "7185572917f7a3db5e93385a176cb611b35aff42",
+  "implementation_commits": [
+    "3c152d3640f1aa9d46f4e3020cda364e25f6ef84"
+  ],
+  "candidate_tree_sha": "dc15f1956e861cd87bc0610ac03cb05d44077a17",
+  "branch": "codex/e02-F-fry-20261006",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/60",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-foundry-output-anomaly-count.toml",
+    "policy-engine/src/polisyos/foundry/methods/backends/dispatch.py",
+    "policy-engine/src/polisyos/foundry/methods/lifecycle/README.md",
+    "policy-engine/src/polisyos/foundry/methods/lifecycle/output_monitor.py",
+    "policy-engine/tests/unit/foundry/methods/backends/test_output_anomaly_count.py"
+  ],
+  "mandatory_companions": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/admission-718.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/admission-718.stdout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/admission.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/admission.stdout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/base-e00-corrected.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/base-e00-corrected.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/base-e00-corrected.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/base-e00.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/base-e00.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/capture_checks.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/diff.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/diff.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/diff.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/environment.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/format.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/format.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/format.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/fragment.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/fragment.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/fragment.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/fragment_check.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/frozen-native.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/frozen-native.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/frozen-native.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/independent/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/independent/review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/independent/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/independent/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/independent/test_independent_slots.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/initial-instrumentation-error.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/removal-broad_identity_skip.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/removal-broad_identity_skip.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/removal-broad_identity_skip.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/removal-no_consumption.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/removal-no_consumption.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/removal-no_consumption.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/removal-no_sidecars.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/removal-no_sidecars.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/removal-no_sidecars.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/removal_replay.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/ruff.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/ruff.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/ruff.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/source-audit.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/source-audit.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/source-audit.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/source_audit.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/test_output_anomaly_count.py"
+  ],
+  "content_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/admission-718.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/admission-718.stdout.json",
+      "sha256": "7cb7d6171b3aa5254b44b8b0921b4dde5e50882790ffd35e4a1bc4227c29646e",
+      "size_bytes": 147898
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/admission.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/admission.stdout.json",
+      "sha256": "03e564694215d3145390edb9e61d6824aad21568833cbcc7052e8913c1775380",
+      "size_bytes": 147898
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/base-e00-corrected.json",
+      "sha256": "8c327a008fb9635b2b3bf52ccb072617d1e2e3e2763109b9cd48e8716cad18b0",
+      "size_bytes": 1715
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/base-e00-corrected.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/base-e00-corrected.stdout.txt",
+      "sha256": "7c3926012a03b9a7ed30ac686878d1efc1802209da8cc56fd983e32d79af0b65",
+      "size_bytes": 10270
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/base-e00.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/base-e00.stdout.txt",
+      "sha256": "46895e7759698c44e1a3fb8144cc37e85306a15de684f01cd3fe4cbf55ff10df",
+      "size_bytes": 2817
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/capture_checks.py",
+      "sha256": "3c0bcb80130207046213daa3e53416060e43041f2a59ca3cb4f486573d695494",
+      "size_bytes": 3016
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/diff.json",
+      "sha256": "2c956d9db2d32ece0f3d4638a90be6ee6a82616df42ef575f04c38db919ab843",
+      "size_bytes": 1320
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/diff.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/diff.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/environment.json",
+      "sha256": "3ce41af1bbd11dce967a21d18d2f11a184a35983706ca271e61fe86cc1464c34",
+      "size_bytes": 2169
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/format.json",
+      "sha256": "1a48e9be8b90f2b18a4c547d9d14302efaee6835cfb52c131978e6b169f74c01",
+      "size_bytes": 1507
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/format.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/format.stdout.txt",
+      "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd",
+      "size_bytes": 26
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/fragment.json",
+      "sha256": "4a6a8c1498cabb2269c15072001cc765967f5f11022854dc14f7d303259bf15a",
+      "size_bytes": 1347
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/fragment.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/fragment.stdout.txt",
+      "sha256": "e5b72b9dddf1410b7fa06f94c9d5889f842a347679836c45d748f86cc6039b61",
+      "size_bytes": 109
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/fragment_check.py",
+      "sha256": "03b294c888798fc3161102ab6c6f57c2842456f03bdf68370ce89b201dca6139",
+      "size_bytes": 822
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/frozen-native.json",
+      "sha256": "72919c50bcdf17b6a5db5571b225bcb275bcc9fc95145b071c9bc0ca6253c85a",
+      "size_bytes": 1792
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/frozen-native.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/frozen-native.stdout.txt",
+      "sha256": "78bb77d8fa84b71dcad4070ee45818d7c77c17b4472391e315e5338663146739",
+      "size_bytes": 90201
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/independent/junit.xml",
+      "sha256": "d24bf15096b71b72f2bccad4c46e8b1f6f40d4b102a55cc48cbec2d7ca551075",
+      "size_bytes": 4479
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/independent/review.json",
+      "sha256": "c9c315de6343f7ce416a4939e22e9b52b0aa0f838ce061091954ea557f9c6301",
+      "size_bytes": 4579
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/independent/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/independent/stdout.txt",
+      "sha256": "7a722a0937c44afd9a89e477ca365d3b4bc9705dd280e3e708728816d69c4dfc",
+      "size_bytes": 25639
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/independent/test_independent_slots.py",
+      "sha256": "595b23c6b304abb0875d21406f86af81ff03bbf2fc323240b53c88d6ef86d26c",
+      "size_bytes": 1750
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/initial-instrumentation-error.json",
+      "sha256": "92e564d86bdee31b9b3c4fd0354375a7a6945923e44b7eeb801858839369ed28",
+      "size_bytes": 1178
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/removal-broad_identity_skip.json",
+      "sha256": "8d278cbf304876d06350e2c2796722f4df90dbdf7dfc74129ee163195ae02ac8",
+      "size_bytes": 1412
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/removal-broad_identity_skip.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/removal-broad_identity_skip.stdout.txt",
+      "sha256": "00f7b022e3b520aaa1c4e3d23476523f291b8e239b5bd1cc472e5fb20ae62a71",
+      "size_bytes": 3258
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/removal-no_consumption.json",
+      "sha256": "504c7d923970564681f4f6a35752e70cf87e2fbe73babf046d4df25230624c02",
+      "size_bytes": 1396
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/removal-no_consumption.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/removal-no_consumption.stdout.txt",
+      "sha256": "f07b7be1bdcc25c634e9ac30ef02da1865c308698374ef35c2acfcc3e9e07634",
+      "size_bytes": 6614
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/removal-no_sidecars.json",
+      "sha256": "c565d63f0f5e8d899099d7746ce27b6ae0228b2c686e2f95a67536a7d7b7c618",
+      "size_bytes": 1388
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/removal-no_sidecars.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/removal-no_sidecars.stdout.txt",
+      "sha256": "970d4ba627c8ecfd115447472dbf7ec82b9ecc5521cfd744428e70151081bba7",
+      "size_bytes": 6425
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/removal_replay.py",
+      "sha256": "ad507c5b29082b23ccfa5d6c191ed03387a9ebf401edb32e8b6e7442c46aacbb",
+      "size_bytes": 2597
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/ruff.json",
+      "sha256": "d3fa60df816c8ef6ab45e3319733c3b9c7cc1315e8b8faf6a0e1981ffecf0cad",
+      "size_bytes": 1487
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/ruff.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/ruff.stdout.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "size_bytes": 19
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/source-audit.json",
+      "sha256": "1b7b3dfe68acd7907f4b6bc2bfe926dc1b270a8a7dfcd72bba243aa01038a04f",
+      "size_bytes": 6246
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/source-audit.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/source-audit.stdout.txt",
+      "sha256": "b6735c104bfed026611085f69652c3e3eff22161a441c95d4f633bac2886aac7",
+      "size_bytes": 504
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/source_audit.py",
+      "sha256": "03e3b04ab10f3671552392921437fd81037fef38d4ea35afc4068390f6111404",
+      "size_bytes": 3087
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/test_output_anomaly_count.py",
+      "sha256": "590e6ddaa6e14a8b8d8e267041f58be915fd8754996d326c130b2336c54b38ea",
+      "size_bytes": 6783
+    }
+  ],
+  "baseline_cells": [],
+  "baseline_navigation": "New class from G checkpoint127dc owner action4; historical F08-P070/F14-P076 are navigation through prior canonical-output-monitor receipt, not this candidate evidence.",
+  "checks": [
+    {
+      "name": "base-e00-corrected",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest /tmp/e02-F-continuation-20261006/foundry/anomaly-count/test_output_anomaly_count.py -k 'nan_inf_vector and (consumed_source or distinct_sidecar)' -o addopts= -p no:cacheprovider -q -s --tb=short --basetemp=/tmp/e02-F-continuation-20261006/foundry/anomaly-count/base-e00-corrected-tmp",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "/tmp/e02-F-continuation-20261006/foundry/anomaly-count/test_output_anomaly_count.py",
+        "-k",
+        "nan_inf_vector and (consumed_source or distinct_sidecar)",
+        "-o",
+        "addopts=",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "-s",
+        "--tb=short",
+        "--basetemp=/tmp/e02-F-continuation-20261006/foundry/anomaly-count/base-e00-corrected-tmp"
+      ],
+      "target_sha": "e00dd3799cf2cdd14baf4b26e175ba1e848c3a6a",
+      "target_tree": "e3b5d33af335747d5b5aa932adc54e3b8dc62870",
+      "after_sha_tree": [
+        "e00dd3799cf2cdd14baf4b26e175ba1e848c3a6a",
+        "e3b5d33af335747d5b5aa932adc54e3b8dc62870"
+      ],
+      "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/environment.json",
+      "observed_environment": {
+        "python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-fry-20261006/policy-engine:/workspace/e02-F-fry-20261006/policy-engine/src",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "otel": "Explicit activate_foundry_instrumentation with real in-memory SDK counter. No global meter provider or external collector claimed."
+      },
+      "input_closure": "Exact frozen source plus synthetic native producers and real installed OTel SDK. Removal changes code in process memory only.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_seconds": 2.279380495005171,
+      "census": {
+        "passed": 1,
+        "failed": 4,
+        "skipped": 0,
+        "errors": 0,
+        "deselected": 15
+      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/base-e00-corrected.stdout.txt",
+      "output_refs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/base-e00-corrected.stdout.txt",
+          "sha256": "7c3926012a03b9a7ed30ac686878d1efc1802209da8cc56fd983e32d79af0b65",
+          "size_bytes": 10270
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/base-e00-corrected.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        }
+      ],
+      "expected_exit_code": 1,
+      "deciding_expectation_met": true
+    },
+    {
+      "name": "frozen-native",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest tests/unit/foundry/methods/backends/test_dispatch_output_contract.py tests/unit/foundry/methods/test_output_monitor.py tests/unit/foundry/methods/backends/test_backends.py tests/unit/foundry/methods/backends/test_output_anomaly_count.py -o addopts= -p no:cacheprovider -q -s --tb=short --basetemp=/tmp/e02-F-continuation-20261006/foundry/anomaly-count/frozen-native-tmp",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/foundry/methods/backends/test_dispatch_output_contract.py",
+        "tests/unit/foundry/methods/test_output_monitor.py",
+        "tests/unit/foundry/methods/backends/test_backends.py",
+        "tests/unit/foundry/methods/backends/test_output_anomaly_count.py",
+        "-o",
+        "addopts=",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "-s",
+        "--tb=short",
+        "--basetemp=/tmp/e02-F-continuation-20261006/foundry/anomaly-count/frozen-native-tmp"
+      ],
+      "target_sha": "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+      "target_tree": "dc15f1956e861cd87bc0610ac03cb05d44077a17",
+      "after_sha_tree": [
+        "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+        "dc15f1956e861cd87bc0610ac03cb05d44077a17"
+      ],
+      "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/environment.json",
+      "observed_environment": {
+        "python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-fry-20261006/policy-engine:/workspace/e02-F-fry-20261006/policy-engine/src",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "otel": "Native explicitactivation, actual installedSDK MeterProvider/InMemoryMetricReader counter. No external collector claimed."
+      },
+      "input_closure": "Exact frozen source plus synthetic native producers and real installed OTel SDK. Removal changes code in process memory only.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 13.666204066001228,
+      "census": {
+        "passed": 80,
+        "failed": 0,
+        "skipped": 0,
+        "errors": 0,
+        "warnings": 1
+      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/frozen-native.stdout.txt",
+      "output_refs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/frozen-native.stdout.txt",
+          "sha256": "78bb77d8fa84b71dcad4070ee45818d7c77c17b4472391e315e5338663146739",
+          "size_bytes": 90201
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/frozen-native.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        }
+      ],
+      "expected_exit_code": 0,
+      "deciding_expectation_met": true
+    },
+    {
+      "name": "removal-no_consumption",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261006/foundry/anomaly-count/removal_replay.py no_consumption",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/foundry/anomaly-count/removal_replay.py",
+        "no_consumption"
+      ],
+      "target_sha": "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+      "target_tree": "dc15f1956e861cd87bc0610ac03cb05d44077a17",
+      "after_sha_tree": [
+        "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+        "dc15f1956e861cd87bc0610ac03cb05d44077a17"
+      ],
+      "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/environment.json",
+      "observed_environment": {
+        "python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-fry-20261006/policy-engine:/workspace/e02-F-fry-20261006/policy-engine/src",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "otel": "Explicit realSDK activation and real in-memory counter; no external collector claimed."
+      },
+      "input_closure": "Exact frozen source plus synthetic native producers and real installed OTel SDK. Removal changes code in process memory only.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_seconds": 3.04782824999711,
+      "census": {
+        "failed": 2,
+        "passed": 1,
+        "deselected": 19,
+        "skipped": 0,
+        "errors": 0,
+        "warnings": 1
+      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/removal-no_consumption.stdout.txt",
+      "output_refs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/removal-no_consumption.stdout.txt",
+          "sha256": "f07b7be1bdcc25c634e9ac30ef02da1865c308698374ef35c2acfcc3e9e07634",
+          "size_bytes": 6614
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/removal-no_consumption.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        }
+      ],
+      "expected_exit_code": 1,
+      "deciding_expectation_met": true
+    },
+    {
+      "name": "removal-no_sidecars",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261006/foundry/anomaly-count/removal_replay.py no_sidecars",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/foundry/anomaly-count/removal_replay.py",
+        "no_sidecars"
+      ],
+      "target_sha": "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+      "target_tree": "dc15f1956e861cd87bc0610ac03cb05d44077a17",
+      "after_sha_tree": [
+        "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+        "dc15f1956e861cd87bc0610ac03cb05d44077a17"
+      ],
+      "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/environment.json",
+      "observed_environment": {
+        "python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-fry-20261006/policy-engine:/workspace/e02-F-fry-20261006/policy-engine/src",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "otel": "Explicit realSDK activation and real in-memory counter; no external collector claimed."
+      },
+      "input_closure": "Exact frozen source plus synthetic native producers and real installed OTel SDK. Removal changes code in process memory only.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_seconds": 2.955722718994366,
+      "census": {
+        "failed": 2,
+        "deselected": 20,
+        "skipped": 0,
+        "errors": 0,
+        "warnings": 1
+      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/removal-no_sidecars.stdout.txt",
+      "output_refs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/removal-no_sidecars.stdout.txt",
+          "sha256": "970d4ba627c8ecfd115447472dbf7ec82b9ecc5521cfd744428e70151081bba7",
+          "size_bytes": 6425
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/removal-no_sidecars.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        }
+      ],
+      "expected_exit_code": 1,
+      "deciding_expectation_met": true
+    },
+    {
+      "name": "removal-broad_identity_skip",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261006/foundry/anomaly-count/removal_replay.py broad_identity_skip",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/foundry/anomaly-count/removal_replay.py",
+        "broad_identity_skip"
+      ],
+      "target_sha": "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+      "target_tree": "dc15f1956e861cd87bc0610ac03cb05d44077a17",
+      "after_sha_tree": [
+        "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+        "dc15f1956e861cd87bc0610ac03cb05d44077a17"
+      ],
+      "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/environment.json",
+      "observed_environment": {
+        "python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-fry-20261006/policy-engine:/workspace/e02-F-fry-20261006/policy-engine/src",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "otel": "Explicit realSDK activation and real in-memory counter; no external collector claimed."
+      },
+      "input_closure": "Exact frozen source plus synthetic native producers and real installed OTel SDK. Removal changes code in process memory only.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_seconds": 3.126860588003183,
+      "census": {
+        "failed": 1,
+        "deselected": 21,
+        "skipped": 0,
+        "errors": 0,
+        "warnings": 1
+      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/removal-broad_identity_skip.stdout.txt",
+      "output_refs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/removal-broad_identity_skip.stdout.txt",
+          "sha256": "00f7b022e3b520aaa1c4e3d23476523f291b8e239b5bd1cc472e5fb20ae62a71",
+          "size_bytes": 3258
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/removal-broad_identity_skip.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        }
+      ],
+      "expected_exit_code": 1,
+      "deciding_expectation_met": true
+    },
+    {
+      "name": "ruff",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m ruff check src/polisyos/foundry/methods/backends/dispatch.py src/polisyos/foundry/methods/lifecycle/output_monitor.py tests/unit/foundry/methods/backends/test_output_anomaly_count.py",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "src/polisyos/foundry/methods/backends/dispatch.py",
+        "src/polisyos/foundry/methods/lifecycle/output_monitor.py",
+        "tests/unit/foundry/methods/backends/test_output_anomaly_count.py"
+      ],
+      "target_sha": "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+      "target_tree": "dc15f1956e861cd87bc0610ac03cb05d44077a17",
+      "after_sha_tree": [
+        "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+        "dc15f1956e861cd87bc0610ac03cb05d44077a17"
+      ],
+      "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/environment.json",
+      "observed_environment": {
+        "python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-fry-20261006/policy-engine:/workspace/e02-F-fry-20261006/policy-engine/src",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "otel": "Explicit realSDK activation and real in-memory counter; no external collector claimed."
+      },
+      "input_closure": "Exact frozen source plus synthetic native producers and real installed OTel SDK. Removal changes code in process memory only.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 0.08710755199717823,
+      "census": null,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/ruff.stdout.txt",
+      "output_refs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/ruff.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+          "size_bytes": 19
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/ruff.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        }
+      ],
+      "expected_exit_code": 0,
+      "deciding_expectation_met": true
+    },
+    {
+      "name": "format",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m ruff format --check src/polisyos/foundry/methods/backends/dispatch.py src/polisyos/foundry/methods/lifecycle/output_monitor.py tests/unit/foundry/methods/backends/test_output_anomaly_count.py",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "src/polisyos/foundry/methods/backends/dispatch.py",
+        "src/polisyos/foundry/methods/lifecycle/output_monitor.py",
+        "tests/unit/foundry/methods/backends/test_output_anomaly_count.py"
+      ],
+      "target_sha": "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+      "target_tree": "dc15f1956e861cd87bc0610ac03cb05d44077a17",
+      "after_sha_tree": [
+        "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+        "dc15f1956e861cd87bc0610ac03cb05d44077a17"
+      ],
+      "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/environment.json",
+      "observed_environment": {
+        "python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-fry-20261006/policy-engine:/workspace/e02-F-fry-20261006/policy-engine/src",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "otel": "Explicit realSDK activation and real in-memory counter; no external collector claimed."
+      },
+      "input_closure": "Exact frozen source plus synthetic native producers and real installed OTel SDK. Removal changes code in process memory only.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 0.05838057000073604,
+      "census": null,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/format.stdout.txt",
+      "output_refs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/format.stdout.txt",
+          "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd",
+          "size_bytes": 26
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/format.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        }
+      ],
+      "expected_exit_code": 0,
+      "deciding_expectation_met": true
+    },
+    {
+      "name": "fragment",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261006/foundry/anomaly-count/fragment_check.py",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/foundry/anomaly-count/fragment_check.py"
+      ],
+      "target_sha": "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+      "target_tree": "dc15f1956e861cd87bc0610ac03cb05d44077a17",
+      "after_sha_tree": [
+        "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+        "dc15f1956e861cd87bc0610ac03cb05d44077a17"
+      ],
+      "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/environment.json",
+      "observed_environment": {
+        "python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-fry-20261006/policy-engine:/workspace/e02-F-fry-20261006/policy-engine/src",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "otel": "Explicit realSDK activation and real in-memory counter; no external collector claimed."
+      },
+      "input_closure": "Exact frozen source plus synthetic native producers and real installed OTel SDK. Removal changes code in process memory only.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 0.1346206739981426,
+      "census": null,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/fragment.stdout.txt",
+      "output_refs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/fragment.stdout.txt",
+          "sha256": "e5b72b9dddf1410b7fa06f94c9d5889f842a347679836c45d748f86cc6039b61",
+          "size_bytes": 109
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/fragment.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        }
+      ],
+      "expected_exit_code": 0,
+      "deciding_expectation_met": true
+    },
+    {
+      "name": "diff",
+      "command": "git diff --check 7185572917f7a3db5e93385a176cb611b35aff42 3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+      "argv": [
+        "git",
+        "diff",
+        "--check",
+        "7185572917f7a3db5e93385a176cb611b35aff42",
+        "3c152d3640f1aa9d46f4e3020cda364e25f6ef84"
+      ],
+      "target_sha": "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+      "target_tree": "dc15f1956e861cd87bc0610ac03cb05d44077a17",
+      "after_sha_tree": [
+        "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+        "dc15f1956e861cd87bc0610ac03cb05d44077a17"
+      ],
+      "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/environment.json",
+      "observed_environment": {
+        "python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-fry-20261006/policy-engine:/workspace/e02-F-fry-20261006/policy-engine/src",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "otel": "Explicit realSDK activation and real in-memory counter; no external collector claimed."
+      },
+      "input_closure": "Exact frozen source plus synthetic native producers and real installed OTel SDK. Removal changes code in process memory only.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 0.029102590997354127,
+      "census": null,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/diff.stdout.txt",
+      "output_refs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/diff.stdout.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/diff.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        }
+      ],
+      "expected_exit_code": 0,
+      "deciding_expectation_met": true
+    },
+    {
+      "name": "initial-unactivated-instrumentation",
+      "command": "python -m pytest scratch/test_output_anomaly_count.py -k \"nan_inf_vector and (consumed_source or distinct_sidecar)\" -o addopts= -p no:cacheprovider -q -s --tb=short",
+      "target_sha": "e00dd3799cf2cdd14baf4b26e175ba1e848c3a6a",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/environment.json",
+      "input_closure": "Initial scratch test revision stopped at OTel activation assertion before native method execution. Historical scratch-body hash is not admitted current source; complete ERROR output retained.",
+      "outcome": "ERROR",
+      "exit_code": 1,
+      "census": {
+        "errors": 5,
+        "deselected": 15
+      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/base-e00.stdout.txt",
+      "output_refs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/base-e00.stdout.txt",
+          "sha256": "46895e7759698c44e1a3fb8144cc37e85306a15de684f01cd3fe4cbf55ff10df",
+          "size_bytes": 2817
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/base-e00.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        }
+      ]
+    },
+    {
+      "name": "independent-root-native-and-multislot-controls",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest -q -s tests/unit/foundry/methods/backends/test_output_anomaly_count.py /tmp/e02-F-continuation-20261006/root-monitor-review/test_independent_slots.py --junitxml=/tmp/e02-F-continuation-20261006/root-monitor-review/junit.xml",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-s",
+        "tests/unit/foundry/methods/backends/test_output_anomaly_count.py",
+        "/tmp/e02-F-continuation-20261006/root-monitor-review/test_independent_slots.py",
+        "--junitxml=/tmp/e02-F-continuation-20261006/root-monitor-review/junit.xml"
+      ],
+      "target_sha": "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+      "target_tree": "dc15f1956e861cd87bc0610ac03cb05d44077a17",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/environment.json",
+      "input_closure": "Same immutable implementation and real SDK; actual independent two-slot sameobject and emptyvector probes.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "census": {
+        "passed": 24,
+        "failed": 0,
+        "skipped": 0,
+        "errors": 0
+      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/independent/stdout.txt",
+      "output_refs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/independent/review.json",
+          "sha256": "c9c315de6343f7ce416a4939e22e9b52b0aa0f838ce061091954ea557f9c6301",
+          "size_bytes": 4579
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/independent/stdout.txt",
+          "sha256": "7a722a0937c44afd9a89e477ca365d3b4bc9705dd280e3e708728816d69c4dfc",
+          "size_bytes": 25639
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/independent/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/independent/junit.xml",
+          "sha256": "d24bf15096b71b72f2bccad4c46e8b1f6f40d4b102a55cc48cbec2d7ca551075",
+          "size_bytes": 4479
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006/independent/test_independent_slots.py",
+          "sha256": "595b23c6b304abb0875d21406f86af81ff03bbf2fc323240b53c88d6ef86d26c",
+          "size_bytes": 1750
+        }
+      ]
+    }
+  ],
+  "property": {
+    "statement": "For standard reference-preserving dematerialization, each declared canonical output contributes numeric anomaly flags once; the selected raw source contributes no duplicate flags. Every independent raw diagnostic field retains its numeric flags, even when it shares the same object or value. Bare single-slot output obeys the same rule.",
+    "runtime_path": [
+      "Actual registry resolves native method class/FQN",
+      "NUMPY pure_step produces raw payload",
+      "Canonical dematerializer creates MethodResult.slot_outputs",
+      "Dispatcher traces selected source through actual alias-table priority and identity",
+      "Monitor checks canonical slots plus independent raw diagnostics",
+      "Real warnings and active in-memory OTel SDK counter consume typed AnomalyFlag records"
+    ],
+    "proxy_divergence": "Historical ec694 key-normalization GO passed but a report alias carrying [NaN,Inf] produced four flags and counter2 per reason; object-value dedup would hide an independent diagnostic field. Current runtime probes establish one canonical flag/counter per reason and retain separate sidecar counts.",
+    "negative_controls": [
+      "No source consumption restores two raw/canonical views:2FAIL1PASS.",
+      "Removing raw diagnostics loses real sidecar anomalies:2FAIL.",
+      "Skipping every identical raw object hides an unused alias:1FAIL.",
+      "Canonical-key priority, unrelated SAMEobject sidecars, custom-copy/wrapper boundaries, multiple slots and typed empty vectors measured."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "independent_predicate_basis": "independently_reconciled",
+  "capability_state_or_finding_state": {
+    "companion_property": "closed",
+    "historical_findings": "unchanged; authoritative family/seed owner receipts remain separate",
+    "installed_final_composed_consumer": "limited"
+  },
+  "class_change": "NEW_CLASS dual-view anomaly-count; no automatic historical finding ID assignment or closure.",
+  "source_refs": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-foundry-output-anomaly-count.toml",
+      "git_sha": "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+      "git_blob": "c3b7ae9a5204bc805b78549c8b25d2d6f0c3ecf8",
+      "sha256": "4e4c85567f23f0483ab176d554dcec8540a47b1cfcd20e209cd433f48303c09d",
+      "size_bytes": 2377
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/dispatch.py",
+      "git_sha": "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+      "git_blob": "e4e5e9e2f6824b4d031731ac7d27c00dd5e72057",
+      "sha256": "51273afac6480b557a518ec7ed8c7565cceac524ce1a4b656788f86b1899f8e1",
+      "size_bytes": 39376
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/lifecycle/README.md",
+      "git_sha": "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+      "git_blob": "dde10a179a93297b2e6942334d62a1e4ca5ec6c9",
+      "sha256": "8a20012f96211f2fd6b6cd68fc8fb03647126a1c8758f11cbfa3c7f9d3c7ef2b",
+      "size_bytes": 3411
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/lifecycle/output_monitor.py",
+      "git_sha": "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+      "git_blob": "688d2f6225962d1572a09c7a4c531232e5a7b51d",
+      "sha256": "87ef51fd2f181bc64b1bbd6d5349fc8d06066bf2a384ad1ecefac1a62de02108",
+      "size_bytes": 15564
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_output_anomaly_count.py",
+      "git_sha": "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+      "git_blob": "3fe148ea7c11fcff751fbdcdb744de19ccb9f1d0",
+      "sha256": "980c2fa4225233abc2b43f6d165a459bd0a4e78859f84943a67d462732d4047a",
+      "size_bytes": 8509
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/components/io.py",
+      "git_sha": "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+      "git_blob": "ef58fdce69de184765575024b25934daf317c927",
+      "sha256": "11fd5a3c49d0beb745d3007cb123671c9a53981f1856c1c1591ad909fcb6a621",
+      "size_bytes": 7890
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/lifecycle/observability.py",
+      "git_sha": "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+      "git_blob": "827f0d153a86626e2e213391df94b982a0783aa1",
+      "sha256": "b62293e42a4a8dd0afe8188c432899fbd7971d385aae71df06a3e2d078e9b4fe",
+      "size_bytes": 9361
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_dispatch_output_contract.py",
+      "git_sha": "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+      "git_blob": "be699405347df781fe79554ff598b6a830af6741",
+      "sha256": "42167e977b859277e02d3df24c0b94b6dd840614aa65df39cdab70c883f52936",
+      "size_bytes": 8067
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/test_output_monitor.py",
+      "git_sha": "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+      "git_blob": "94a46b337636a6b45cfccf5921fd2c35b5c1aab7",
+      "sha256": "8063024023058874a8d840d7b8a45f4f668a41ad3be3b2fed5b932baaa11d271",
+      "size_bytes": 7774
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_backends.py",
+      "git_sha": "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+      "git_blob": "7039b7262aaa377e15aa32223c368490baaeff6f",
+      "sha256": "225be875ed66356acc53779e69fa28858ee3ce7b3a906cf2495d63ccedac2981",
+      "size_bytes": 23081
+    }
+  ],
+  "G_checkpoint_owner_input": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/F-delta-owner-actions-2026-10-06.md",
+    "git_sha": "127dc7ab8365d29eb656fe32c0c894f6cc971286",
+    "git_blob": "3f46f749a7c1d8c02b549e881901519b60a956ce",
+    "sha256": "dfb72de43231dcad851d18927eb92ad7e7660eae47a558052741427d6130176d",
+    "size_bytes": 10651
+  },
+  "prepatch_code_byte_equivalence": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/dispatch.py",
+      "old_sha": "e00dd3799cf2cdd14baf4b26e175ba1e848c3a6a",
+      "slice_base_sha": "7185572917f7a3db5e93385a176cb611b35aff42",
+      "equal_git_blob": "b8ba9c0d69025da47b2f60ebfb7cad59b944c53e",
+      "sha256": "3a90df93dcb75cd6bab79abbd10f57f438913bb9aed11e07074c29b38418e259",
+      "size_bytes": 37674
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/lifecycle/output_monitor.py",
+      "old_sha": "e00dd3799cf2cdd14baf4b26e175ba1e848c3a6a",
+      "slice_base_sha": "7185572917f7a3db5e93385a176cb611b35aff42",
+      "equal_git_blob": "840d95279d55f1c11446aab9a6c238fd554fe495",
+      "sha256": "e678cf8c5131318578cb38aa3cd25ef3ba895f1035b6c480322c62fd85b7bbbf",
+      "size_bytes": 14826
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_dispatch_output_contract.py",
+      "old_sha": "e00dd3799cf2cdd14baf4b26e175ba1e848c3a6a",
+      "slice_base_sha": "7185572917f7a3db5e93385a176cb611b35aff42",
+      "equal_git_blob": "be699405347df781fe79554ff598b6a830af6741",
+      "sha256": "42167e977b859277e02d3df24c0b94b6dd840614aa65df39cdab70c883f52936",
+      "size_bytes": 8067
+    }
+  ],
+  "earlier_evidence_preserved": "ec694 canonical-key/empty-array scientific GO is historical and retained; this slice adds a distinct deciding count property. The old4FAIL1PASS and initial5ERROR are preserved as their actual outcomes.",
+  "metadata_harness_history": [
+    {
+      "outcome": "ERROR",
+      "property_execution": false,
+      "full_output": "  File \"<stdin>\", line 11\n    refs=[ref(candidate,path) forpath in []] if False else [ref(candidate,path) for path in read_paths]\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nSyntaxError: invalid syntax. Perhaps you forgot a comma?\n",
+      "correction": "Corrected source_audit.py reads exact Git bytes; source-audit.stdout.txt records full5path footprint,10refs and3old/base-equal blobs."
+    }
+  ],
+  "limitations_and_next_owner": [
+    "Custom dematerialize_output copies/transforms/wrappers do not establish standard-normalizer source correspondence; both views retain conservative numeric checks. Native copy and wrapper tests explicitly measure this boundary.",
+    "Actual configured SDK counter is measured; external exporter, production OTel availability/configuration and counter naming are UNRUN.",
+    "One PytestConfigWarning Unknown cache_dir appears in native/removal runs because cacheprovider is disabled; full output preserved. It is instrumentation only, not a zero-warning claim.",
+    "Final neutral wheel/sdist DoWhy(default method parameters with explicitly configured real3.12 worker), GCM and TMLE sixfold common-report/CAS consumer wave is pending root final freeze/API build packet. Historical installed14 runtime warnings+1instrumentation warning remain a separate exact denominator, not a current PASS.",
+    "No actual admitted Runtime Node/authority or B56 common production-budget positive witness; no full production data transferred.",
+    "Full architecture/global docs/whole schema gates UNRUN on this source; no inherited-red attribution/P41 claim.",
+    "G should integrate the own implementation commit3c152 against accepted prerequisites. Base718 is carried source, not owned cumulative implementation footprint; separate handoff commit contains evidence only."
+  ],
+  "resource_measurement": {
+    "native_wall_seconds": 13.666204066001228,
+    "native_peak_rss": "not_measured",
+    "resource_caps_added": false
+  },
+  "transport": {
+    "status": "publication_pending",
+    "scientific_source": "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+    "future_receipt_head_not_self_referenced": true
+  }
+}

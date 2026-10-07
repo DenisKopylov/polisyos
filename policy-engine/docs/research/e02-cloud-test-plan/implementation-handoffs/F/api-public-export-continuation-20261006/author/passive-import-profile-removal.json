@@ -1,0 +1,30 @@
+{
+  "source_root": "/workspace/e02-F-api-20261006",
+  "target_sha": "0c6c7efaab3eba502b44bf6471e7a3c675608f2a",
+  "cwd": "/workspace/e02-F-api-20261006/policy-engine",
+  "environment": {
+    "PYTHONPATH": "src:tools:.",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-F-continuation-20261006/api/remove_passive_import_profile.py"
+  ],
+  "output_prefix": "/tmp/e02-F-continuation-20261006/api/passive-import-profile-removal",
+  "tree_sha": "17f9025202b5c94ba78f3e2a3cffdb075404eeea",
+  "source_status_before": "",
+  "elapsed_seconds": 1.4407141208648682,
+  "exit_code": 1,
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261006/api/passive-import-profile-removal.stdout",
+    "bytes": 3316,
+    "sha256": "900a2209fa9f83d49486ca694e1ce33cd6be1601e4f01f7c5197a29d88741a13"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261006/api/passive-import-profile-removal.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "source_status_after": "",
+  "artifacts": []
+}

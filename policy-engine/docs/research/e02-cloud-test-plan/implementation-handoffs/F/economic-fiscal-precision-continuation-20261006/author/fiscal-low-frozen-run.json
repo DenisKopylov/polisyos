@@ -1,0 +1,40 @@
+{
+  "source_root": "/workspace/e02-F-economics-20261006",
+  "target_sha": "1324d2fcd7b75e448ad0fa1cce128a79101df1aa",
+  "cwd": "/workspace/e02-F-economics-20261006/policy-engine",
+  "environment": {
+    "PYTHONPATH": "src:tools:.",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/lowprecision_matrix.py",
+    "lowprecision-native-frozen"
+  ],
+  "output_prefix": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/fiscal-low-frozen-run",
+  "artifact_paths": [
+    "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/lowprecision-native-frozen.json"
+  ],
+  "tree_sha": "dc4b6a932a11cba4470b9bbcf299d2d2f51b2301",
+  "source_status_before": "",
+  "elapsed_seconds": 12.136067867279053,
+  "exit_code": 0,
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/fiscal-low-frozen-run.stdout",
+    "bytes": 119,
+    "sha256": "4c1c9cc2e12e07eb46282eb73b5f97d94370136f8c2653d046216d9afe8f900c"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/fiscal-low-frozen-run.stderr",
+    "bytes": 1776,
+    "sha256": "ac8cc56f2a25551d0af60882b5e1efc917fee41dc04d4c4434e5261dbf39b1c5"
+  },
+  "source_status_after": "",
+  "artifacts": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/lowprecision-native-frozen.json",
+      "bytes": 52591,
+      "sha256": "65fe1a35f12280dca39b7aeb0b120c63aaaaf3eeadca9f5de15fed6fa12e5646"
+    }
+  ]
+}

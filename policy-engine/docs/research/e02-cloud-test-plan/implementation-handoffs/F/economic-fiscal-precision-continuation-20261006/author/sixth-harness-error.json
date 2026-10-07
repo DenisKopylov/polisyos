@@ -1,0 +1,27 @@
+{
+  "outcome": "ERROR",
+  "scope": "all canonical trace calls/source checks completed but author JSON encoder missed actual lowered Decimal; corrected explicit tagged Decimal transport only",
+  "source_unchanged": true,
+  "artifacts": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/trace_fiscal_precision.sixth.py",
+      "bytes": 11600,
+      "sha256": "83d9b08bb3684608c2ab0cf068f840002f12d3f9e26e0d1ef1a2393a5379a74f"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/fiscal-precision-trace-sixth.stdout",
+      "bytes": 1536,
+      "sha256": "0f77bc9bbdace6d9303f66b60102064d867727dbc4b8f44f6fba08476a23902d"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/fiscal-precision-trace-sixth.stderr",
+      "bytes": 1429,
+      "sha256": "5f0ff87e237611567e88dc687db81aad4cf5079c075b46dddf174f05bfea5213"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/fiscal-precision-trace-sixth-spec.json",
+      "bytes": 768,
+      "sha256": "237ae831eeb2cf78ee05236b2d991dbc20fe17620b37834a4e2ec631d2d480c2"
+    }
+  ]
+}

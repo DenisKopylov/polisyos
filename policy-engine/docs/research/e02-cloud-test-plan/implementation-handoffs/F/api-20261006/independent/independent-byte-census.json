@@ -1,0 +1,48 @@
+{
+  "source_sha": "729d137279b7d6334230045e420255762fe55f08",
+  "tree": "7ced77fdbd83e65efbd14d4bd518de2f786b1e9a",
+  "full_git_entries": 13701,
+  "manifest_sha256": "88db3c37793f9a9a4ee280959e4c8e0ec97900ce03a92b1d03cab47c92630712",
+  "python_files_independently_ast_parsed": 6441,
+  "tracked_product_files_compared_in_both_archives": 2909,
+  "archive_unique_product_entries": 2910,
+  "installed_product_files_compared": {
+    "wheel": 2910,
+    "sdist": 2910
+  },
+  "literal_imports": 76,
+  "computed_unresolved": 182,
+  "parse_failures": 0,
+  "author_installed_origin_proofs": {
+    "wheel": {
+      "source": "729d137279b7d6334230045e420255762fe55f08",
+      "loaded_product_origins": 921,
+      "literal_imports_executed": 76,
+      "deselection": "Exactly one original repository-only Git census case; all complete census imports executed separately."
+    },
+    "sdist": {
+      "source": "729d137279b7d6334230045e420255762fe55f08",
+      "loaded_product_origins": 921,
+      "literal_imports_executed": 76,
+      "deselection": "Exactly one original repository-only Git census case; all complete census imports executed separately."
+    }
+  },
+  "archive_identities": [
+    {
+      "path": "/workspace/e02-F-20261006-receipts/api/candidate-dist/policy_engine-0.1.0-py3-none-any.whl",
+      "bytes": 15018575,
+      "sha256": "fcf6fdcba77630799a2dbdacab1ac9c2ce6286605675992f0c44da74635c2231"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/api/candidate-dist/policy_engine-0.1.0.tar.gz",
+      "bytes": 65001824,
+      "sha256": "ead9321cb8e7521a5b472736d3d6826bf4633cb9fcde9d3828496059d177d9d4"
+    }
+  ],
+  "result": "PASS",
+  "limits": [
+    "Syntactic complete immutable tracked input scope only; computed alias/exec/plugin/external callers unresolved.",
+    "Third-party dependency path reused read-only; product bytes/origins independently verified, not independent dependency rebuild.",
+    "Known graph ABI/CAS witness does not admit empirical causal identification or FRY family-to-state activation."
+  ]
+}

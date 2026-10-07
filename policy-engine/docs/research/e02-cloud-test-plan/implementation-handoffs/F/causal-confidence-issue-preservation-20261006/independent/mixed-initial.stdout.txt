@@ -1,0 +1,32 @@
+[{"code": "CONFIDENCE_GATE_ELIGIBILITY_LOW", "input_value": null, "message": "Causal effect remains a non-gating candidate: current source, graph, estimand, and target identification admission has not been established.", "pass_id": "confidence", "path": ["artifacts_index", "causal_envelope_ref"], "severity": "blocker", "suggestion": "Supply the accepted identification owner and verifier binding."}, {"code": "CONFIDENCE_SIM_RESULT_LOAD_FAILED", "input_value": null, "message": "Failed to load SimulationResult: Artifact not found: eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", "pass_id": "confidence", "path": ["artifacts_index", "simulation_result_ref"], "severity": "warning", "suggestion": null}]
+.FFFF
+=================================== FAILURES ===================================
+___ test_string_simulation_id_with_offered_causal_ref_retains_blocker[json] ____
+/tmp/e02-F-continuation-20261006/foundry/confidence-review/test_mixed_refs.py:50: in test_string_simulation_id_with_offered_causal_ref_retains_blocker
+    bad_id = str(writer.put_bytes(b'\x00{', PutOptions(kind='foundry.simulation_result')).artifact_id)
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: ArtifactWriteOptions.__init__() missing 1 required positional argument: 'media_type'
+__ test_string_simulation_id_with_offered_causal_ref_retains_blocker[schema] ___
+/tmp/e02-F-continuation-20261006/foundry/confidence-review/test_mixed_refs.py:52: in test_string_simulation_id_with_offered_causal_ref_retains_blocker
+    bad_id = str(writer.put_json(False, PutOptions(kind='foundry.simulation_result')).artifact_id)
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: ArtifactWriteOptions.__init__() missing 1 required positional argument: 'media_type'
+__ test_index_bad_simulation_takes_priority_over_healthy_top_level_reference ___
+/tmp/e02-F-continuation-20261006/foundry/confidence-review/test_mixed_refs.py:68: in test_index_bad_simulation_takes_priority_over_healthy_top_level_reference
+    malformed = writer.put_json([], PutOptions(kind='foundry.simulation_result'))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: ArtifactWriteOptions.__init__() missing 1 required positional argument: 'media_type'
+__________ test_noncausal_healthy_string_reference_remains_supported ___________
+/tmp/e02-F-continuation-20261006/foundry/confidence-review/test_mixed_refs.py:84: in test_noncausal_healthy_string_reference_remains_supported
+    refs = {'simulation_result_ref': str(healthy(writer).artifact_id)}
+                                         ^^^^^^^^^^^^^^^
+/tmp/e02-F-continuation-20261006/foundry/confidence-review/test_mixed_refs.py:32: in healthy
+    plan = writer.put_json({'order': []}, PutOptions(kind='foundry.exec_plan'))
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: ArtifactWriteOptions.__init__() missing 1 required positional argument: 'media_type'
+=========================== short test summary info ============================
+FAILED ../../../tmp/e02-F-continuation-20261006/foundry/confidence-review/test_mixed_refs.py::test_string_simulation_id_with_offered_causal_ref_retains_blocker[json]
+FAILED ../../../tmp/e02-F-continuation-20261006/foundry/confidence-review/test_mixed_refs.py::test_string_simulation_id_with_offered_causal_ref_retains_blocker[schema]
+FAILED ../../../tmp/e02-F-continuation-20261006/foundry/confidence-review/test_mixed_refs.py::test_index_bad_simulation_takes_priority_over_healthy_top_level_reference
+FAILED ../../../tmp/e02-F-continuation-20261006/foundry/confidence-review/test_mixed_refs.py::test_noncausal_healthy_string_reference_remains_supported
+4 failed, 1 passed in 1.32s

@@ -354,10 +354,7 @@ class CausalGraphModel(BaseModel):
                 # Keep compact temporal edges distinguishable in the serialized
                 # representation. Static consumers must reject these edges before
                 # handing the DOT text to a backend that ignores attributes.
-                lines.append(
-                    f'  "{src}" -> "{dst}" '
-                    f'[lag="{edge.lag}", temporal="true"];'
-                )
+                lines.append(f'  "{src}" -> "{dst}" [lag="{edge.lag}", temporal="true"];')
         lines.append("}")
         return "\n".join(lines)
 
@@ -404,9 +401,7 @@ class CausalGraphModel(BaseModel):
 
         for relation, edges in grouped_edges.items():
             src, dst, mark_src, mark_dst, lag = relation
-            for ordinal, (_, edge_payload) in enumerate(
-                sorted(edges, key=lambda item: item[0])
-            ):
+            for ordinal, (_, edge_payload) in enumerate(sorted(edges, key=lambda item: item[0])):
                 # NetworkX keys are scoped to (src, dst). Typed marks and lag
                 # identify the relation class; payload ordinals separate distinct
                 # payloads and exact duplicates without hash collisions.

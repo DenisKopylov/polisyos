@@ -1,0 +1,15 @@
+{
+  "source_unchanged": true,
+  "base_source_sha": "e84acb04fbe1fbebdfa5a54f87ff0fc72640a4ef",
+  "mechanism_path": "policy-engine/src/polisyos/foundry/execute/mechanisms/fiscal.py",
+  "source_candidate_sha256": "87a367776958bd3d49ea365359fbab3f585f70051010ac7e976209dcc81d5ae4",
+  "source_candidate_bytes": 5273,
+  "patch": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/proposed-fiscal.patch",
+  "planned_unique_test": "policy-engine/tests/unit/foundry/execute/mechanisms/test_fiscal_precision.py",
+  "planned_unique_release": "policy-engine/release-fragments/unreleased/2026-10-06-economic-fiscal-calculation-dtype.toml",
+  "preserved_helper_default_dtype": "float32",
+  "constructor_storage": "preserve input floating precision at minfloat32 until state exists; still JAXscalar",
+  "computation": "rate and sectorweight materialized at corresponding actualincome dtype before arithmetic",
+  "method_schema_or_new_norm_changes": false,
+  "closure_ids": []
+}

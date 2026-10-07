@@ -1,0 +1,27 @@
+{
+  "outcome": "ERROR",
+  "scope": "author synthetic fixture invalid ID; original public ProblemFrame grammar correctly refused hyphen",
+  "source_unchanged": true,
+  "artifacts": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/trace_fiscal_precision.fourth.py",
+      "bytes": 11524,
+      "sha256": "4ee3ec989e2d7596a5b97ed0145e298342f0c8d5f4ef17bafa05118cf1f8b495"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/fiscal-precision-trace-fourth.stdout",
+      "bytes": 1536,
+      "sha256": "f7bfd83d9fb0eb1bee0767db5ded36de961a6877db5978f8a3249436a9043635"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/fiscal-precision-trace-fourth.stderr",
+      "bytes": 1322,
+      "sha256": "bff4092c222c2f6d119772fe4736edf1c9926d616c59ff709d73402808ed40dc"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/fiscal-precision-trace-fourth-spec.json",
+      "bytes": 768,
+      "sha256": "0c23f43475eae396d80692f97c0782c543b077c2744adb107da94bf8767419a8"
+    }
+  ]
+}

@@ -4,6 +4,13 @@ packages = ["src/polisyos", "tools"]
 [build.targets.wheel.force-include]
 "architecture/production_quality/method_catalog_dependency_digest_domains.toml" = "polisyos/foundry/methods/catalog/_resources/method_catalog_dependency_digest_domains.toml"
 
+"workers/dowhy-014/worker.py" = "polisyos/foundry/methods/catalog/causal/_dowhy_profile/worker.py"
+"workers/dowhy-014/protocol.py" = "polisyos/foundry/methods/catalog/causal/_dowhy_profile/protocol.py"
+"workers/dowhy-014/pyproject.toml" = "polisyos/foundry/methods/catalog/causal/_dowhy_profile/pyproject.toml"
+"workers/dowhy-014/uv.lock" = "polisyos/foundry/methods/catalog/causal/_dowhy_profile/uv.lock"
+"workers/dowhy-014/.python-version" = "polisyos/foundry/methods/catalog/causal/_dowhy_profile/.python-version"
+"workers/dowhy-014/README.md" = "polisyos/foundry/methods/catalog/causal/_dowhy_profile/README.md"
+
 [build]
 directory = "_build/dist"
 
@@ -25,4 +32,10 @@ include = [
   "mutmut.cfg",
   "pyproject.toml",
   "hatch.toml",
+  "workers/dowhy-014/worker.py",
+  "workers/dowhy-014/protocol.py",
+  "workers/dowhy-014/pyproject.toml",
+  "workers/dowhy-014/uv.lock",
+  "workers/dowhy-014/.python-version",
+  "workers/dowhy-014/README.md",
 ]

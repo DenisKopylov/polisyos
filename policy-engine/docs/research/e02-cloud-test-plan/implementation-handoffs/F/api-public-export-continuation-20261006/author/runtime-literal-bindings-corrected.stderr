@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/tmp/e02-F-continuation-20261006/api/literal_runtime_imports.py", line 10, in <module>
+    names={name:getattr(module,name) for name in row['names'] if name!='*'}
+                ~~~~~~~^^^^^^^^^^^^^
+AttributeError: module 'polisyos.foundry.methods.catalog.causal.causal_engine' has no attribute 'artifacts'

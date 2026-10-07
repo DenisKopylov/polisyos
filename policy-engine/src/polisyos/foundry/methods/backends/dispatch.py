@@ -65,6 +65,42 @@ _USD_PER_MS = {
 }
 
 
+def _consumed_raw_output_keys(
+    *,
+    method_class: type,
+    signature: MethodSignature,
+    raw_output: Any,
+    slot_outputs: Mapping[str, Any],
+) -> frozenset[str]:
+    """Identify raw sources selected by the standard output normalizer.
+
+    Selection order comes from the normalizer's alias table; identity confirms
+    that its selected value reached the slot unchanged. Custom projections may
+    copy or transform values, so their provenance is not inferred here.
+    """
+    if callable(getattr(method_class, "dematerialize_output", None)):
+        return frozenset()
+
+    from polisyos.foundry.methods.components.io import _COMMON_OUTPUT_ALIASES
+
+    slots = sorted(signature.output_slots, key=lambda item: item.name)
+    if not isinstance(raw_output, Mapping):
+        if len(slots) == 1 and slot_outputs.get(slots[0].name) is raw_output:
+            return frozenset({"output"})
+        return frozenset()
+
+    consumed: set[str] = set()
+    for slot in slots:
+        for candidate in (slot.name,) + _COMMON_OUTPUT_ALIASES.get(slot.name, ()):
+            if candidate in raw_output:
+                if slot.name in slot_outputs and slot_outputs[slot.name] is raw_output[candidate]:
+                    consumed.add(candidate)
+                # A present canonical key takes priority even if a projection
+                # produced a different value; an unused alias is still a sidecar.
+                break
+    return frozenset(consumed)
+
+
 def _infer_data_characteristics(state: Any, n_obs: int | None) -> dict[str, Any]:
     characteristics: dict[str, Any] = {}
     if n_obs is not None:
@@ -705,6 +741,12 @@ class MethodDispatcher:
             array_keys={
                 s.name for s in signature.output_slots if s.slot_type is not SlotType.SCALAR
             },
+            consumed_raw_keys=_consumed_raw_output_keys(
+                method_class=method_class,
+                signature=signature,
+                raw_output=result.output,
+                slot_outputs=result.slot_outputs,
+            ),
         )
         if flags:
             import warnings

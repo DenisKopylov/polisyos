@@ -1,0 +1,179 @@
+{
+  "schema": "policyos.e02.G_local_final_source_alignment.v1",
+  "unit": "F",
+  "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+  "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+  "branch": "codex/e02-F-api-20261006",
+  "historical_recipe": {
+    "path": "/workspace/e02-F-20261006-receipts/final-root/G-local-causal-reruns.json",
+    "bytes": 113434,
+    "sha256": "8ff0a7758c216bf66b60ac9b1b7008b6bcb37fdbe4942f35e4c9c82ab676de43",
+    "scope": "Earlier code-specific source identities/check commands remain historical; no earlier G decision erased."
+  },
+  "current_generic_receipt_git": {
+    "sha": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json",
+    "bytes": 60843,
+    "sha256": "4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8"
+  },
+  "actual_current_installed_argv": [
+    "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-env/bin/python -I /tmp/e02-F-continuation-20261006/foundry/installed-final-wave/launch_independent_wave.py /tmp/e02-F-continuation-20261006/api/installed-final-8236/installed-config.json wheel",
+    "/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-env/bin/python -I /tmp/e02-F-continuation-20261006/foundry/installed-final-wave/launch_independent_wave.py /tmp/e02-F-continuation-20261006/api/installed-final-8236/installed-config.json sdist"
+  ],
+  "current_git_test_carriers": {
+    "abi_facade": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_facade_contract.py",
+    "abi_consumers": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_facade_consumer_continuation.py",
+    "worker_profile": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_worker_profile.py",
+    "dowhy_fixture": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+    "gcm_fixture": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+    "normalized_slots": "policy-engine/tests/unit/foundry/methods/backends/test_dispatch_output_contract.py",
+    "anomaly_count": "policy-engine/tests/unit/foundry/methods/backends/test_output_anomaly_count.py",
+    "confidence_accumulation": "policy-engine/tests/unit/scientist/governance/test_confidence_issue_accumulation.py",
+    "configured_default_tmle": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_tmle_common_report.py",
+    "b220_rows": "policy-engine/tests/unit/ir/test_causal_graph_cache_rows.py",
+    "b220_performance": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_performance_primitives.py",
+    "related_id_engine": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_id_engine_extensions.py",
+    "related_causal_contracts": "policy-engine/tests/unit/foundry/methods/catalog/causal/test__causal_engine_contracts.py",
+    "related_interference_contracts": "policy-engine/tests/unit/foundry/methods/catalog/causal/test__interference_contracts.py"
+  },
+  "profile": {
+    "app_python": "3.14.7",
+    "worker_python": "3.12.14",
+    "worker_backend": "DoWhy0.14 external selected standalone",
+    "app_DoWhy_EconML": "Absent under selected3.14 markers, not positive backend witness",
+    "isolation": "Two neutral -I installed interpreters, no product source PYTHONPATH or editable .pth"
+  },
+  "requested_finding_ids": [
+    "B207",
+    "B208",
+    "B209",
+    "B212",
+    "B213",
+    "B56"
+  ],
+  "minimal_actual_owner_inputs": [
+    {
+      "role": "observational_data_ref",
+      "required": true,
+      "api": "ExperimentState.observational_data_ref",
+      "actual_value_supplied": false,
+      "owner": "Relevant source/adapter owner supplies existing local CAS source, not G-minted fixture passed as measured data.",
+      "checks": "Resolve Core artifact ID/kind/media/manifest/schema/producer/inputs and exact bytes from the actual tenant store. Direct DoWhy: GraphCausalData finite ordered matrix, unique column names, treatment/outcome/covariates and graph_dot. DiD: PanelObservationalData. ObservationMethodInputEnvelope additionally verifies exact kind/media/integrity and allowed contract ID/FQN.",
+      "scope": "Byte custody only, not causal assumptions/rights/governance."
+    },
+    {
+      "role": "execution_context",
+      "required": true,
+      "api": "ExecutionContext.eval_safety_execution_context; scientist.run_experiment(eval_safety_execution_context=...)",
+      "actual_value_supplied": false,
+      "owner": "Existing Runtime owner.",
+      "fields": [
+        "intake_ref",
+        "evaluator_owner_id",
+        "design_problem_ref",
+        "evaluation_mode",
+        "candidate_ref",
+        "world_model_record_ref",
+        "target_population_scope_ref",
+        "rule_version",
+        "intended_start_at",
+        "evaluation_input_refs",
+        "evaluation_input_provenance",
+        "eval_safety_certificate_ref",
+        "eval_safety_revision_head_ref"
+      ],
+      "checks": "Owner must match scientist.node_run_causal_evaluation@2.0.0; mode owner-resolved and not simulate_only; recomputed attempt_class non_simulation. Every input provenance recomputed or independently_reconciled. consumer_asserted/institutionally_supplied/not_established cannot pass this consumer predicate."
+    },
+    {
+      "role": "complete_actual_node_input_set",
+      "required": true,
+      "api": "_actual_causal_input_identities(state)",
+      "members": [
+        "state.observational_data_ref",
+        "state.inputs.ukraine_selected_method_contract_ref when present",
+        "state.inputs.ukraine_foundry_method_bundle_ref when present",
+        "state.artifacts_index.ukraine_foundry_intake_receipt_ref when present"
+      ],
+      "checks": "No duplicates; exact set equality with context.evaluation_input_refs and context.evaluation_input_provenance. Current node compares (str(Core artifact_id),str(Core artifact_id)) with PDC (artifact_id,content_hash), so retain native identity representation. No manufactured hash alias or omitted optional actual member."
+    },
+    {
+      "role": "fresh_consumer_challenge",
+      "required": true,
+      "api": "EvalSafetyAdmissionChallenge.fresh(consumer_component_id=node owner)",
+      "owner": "Actual consumer generates fresh nonce immediately before verification.",
+      "checks": "Fresh exact owner/nonce must reach verifier and receipt; challenge is not a reusable external ref G should fabricate/request."
+    },
+    {
+      "role": "runtime_verifier",
+      "required": true,
+      "api": "ExecutionContext.eval_safety_verifier; scientist.run_experiment(eval_safety_verifier=...)",
+      "actual_value_supplied": false,
+      "owner": "Existing Runtime EvaluationSafetyAdmissionVerifier.",
+      "dependencies": [
+        "persistence_service",
+        "current_state_resolver",
+        "authority_resolver",
+        "appointment_resolver",
+        "verifier_registry"
+      ],
+      "checks": "require_admission(context,challenge) re-resolves current CAS material, replays authority and complete revision chain, returns exact Runtime-produced privately sealed receipt. Plain JSON/model status=verified, callback boolean, copied producer marker or old serialized receipt is insufficient."
+    },
+    {
+      "role": "runtime_authority_replay_closure",
+      "required": true,
+      "api": "EvaluationSafetyReplayMaterial / EvaluationSafetyAttemptAuthorities",
+      "actual_value_supplied": false,
+      "owner": "Existing appointed Runtime/semantic/authority/verifier owners; G/F appoint no issuer.",
+      "direct_context_refs": [
+        "intake_ref",
+        "eval_safety_certificate_ref",
+        "eval_safety_revision_head_ref"
+      ],
+      "resolved_roles": [
+        "request_ref matching certificate.request_ref",
+        "decision_ref matching certificate.decision_ref",
+        "ratified mode_basis_ref/mode_basis",
+        "domain pack_ref/DomainEvalSafetyPack",
+        "semantic facet registry/full denominator receipt",
+        "actual evidence_contract_id\u2192evidence_ref for required contracts",
+        "verifier appointment: component_discovery_manifest_ref, appointing_authority_ref, appointment_verification_receipt_ref and valid time",
+        "complete certificate revision chain/current head",
+        "current decision evaluated_at and fresh revalidated_at"
+      ],
+      "checks": "Kind/schema/producer/authority identity and resolved content; exact intake/request/decision/certificate/context/source/scope/rule/time agreement; required mode/pack/facets/evidence/appointments close. Missing values cause typed blocker; not synthesized."
+    },
+    {
+      "role": "institutional_source_rights_measurement",
+      "required": "According to actual scientific/admission contract",
+      "actual_value_supplied": false,
+      "owner": "External institution/source signs its own rights, measurement/sample and version/scope; C owns adapter/content-bound ingestion and PolicyOS admission receipt, not institutional source truth.",
+      "checks": "Exact local snapshot/selected bytes, sampling units/time/population/selection and applicable rights/measurement evidence. No institutional issuer supplied here. Scientific assumptions remain explicit and grounded, not request metadata."
+    },
+    {
+      "role": "shared_admitted_study_resource",
+      "required": "B56 aggregate production rerun",
+      "actual_value_supplied": false,
+      "api": "Existing Scientist LocalWorkerPool/NodeTask admission and outer job permits",
+      "owner": "Actual study/orchestration owner supplies current admitted workload/budget and complete fold/repeat/seed/model plans. No new scheduler or artificial cloud quota.",
+      "checks": "Measure all concurrently admitted actual studies/inner folds, queue waits, active workers, elapsed/RSS, backend native thread profile, all numerical outputs/uncertainty/CAS lineage. Serial inner folds retain every planned fold/repeat/seed. Four synthetic StudyNodes are not the common production MethodJob bridge."
+    }
+  ],
+  "unavailable_exact_production_arguments": {
+    "artifact_ids": [],
+    "issuer_ids": [],
+    "source_paths": [],
+    "evaluation_rule_version": null,
+    "target_population_scope_ref": null,
+    "runtime_verifier_instance": null,
+    "production_command": null,
+    "meaning": "Intentionally unknown, not command placeholders. Actual existing owner values needed; production conclusion stays typed UNRUN. Full data remains local read-only."
+  },
+  "production_outcome": "UNRUN",
+  "closure_ids": [],
+  "limits": [
+    "Generic synthetic MethodJob/CAS/reader and installed ABI observations do not grant real-data identification or institutional source/admission/challenge authority.",
+    "Missing owner-issued realworld observational/panel/graph, admission/challenge/runtime-verifier/registry/revision/context roles must be supplied by their maintained local owners; no refs/data/issuer/placeholder commands invented.",
+    "Actual generic argv above are captured cloud paths; G reconstructs local installed profiles from exact source Git. Exact production argv remains unavailable until real owner inputs exist.",
+    "Current full invocation/quality/schema and38static completeness are separate red predicates, not promoted to PASS or inherited attribution."
+  ]
+}

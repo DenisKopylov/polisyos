@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/tmp/e02-F-continuation-20261006/graph/api-review-0c6/finish_review.py", line 104, in <module>
+    assert old['decision'] == 'BLOCK' and old['check'] == 'FAIL'
+           ~~~^^^^^^^^^^^^
+KeyError: 'decision'

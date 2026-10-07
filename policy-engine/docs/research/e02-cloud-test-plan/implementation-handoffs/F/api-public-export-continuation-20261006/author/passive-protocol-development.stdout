@@ -1,0 +1,41 @@
+........................................................................ [ 66%]
+..............F.....................                                     [100%]
+=================================== FAILURES ===================================
+_ test_passive_dependency_protocol_bindings_are_unknown_on_actual_import[__getattr__ = len\n] _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-247/test_passive_dependency_protoc2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f83a59e3700>
+declaration = '__getattr__ = len\n'
+
+    @pytest.mark.parametrize("declaration", [
+        '__getattr__ = []\n',
+        '__getattr__: list = []\n',
+        '__getattr__ = len\n',
+        'from .values import PASSIVE as __getattr__\n',
+    ])
+    def test_passive_dependency_protocol_bindings_are_unknown_on_actual_import(
+        tmp_path: Path, monkeypatch, declaration: str,
+    ) -> None:
+        facade, mapping = _fixture(tmp_path, monkeypatch)
+        (facade.parents[1] / "__init__.py").write_text('__all__ = []\n')
+        facade.with_name("values.py").write_text('PASSIVE = []\n')
+        mapping.write_text('PUBLIC_NAMES = {"StaticName": None}\n' + declaration)
+        observed = subprocess.run(
+            [sys.executable, "-I", "-c", 'import sys;sys.path.insert(0,sys.argv[1]);import polisyos.fixture', str(guardrails.SRC_ROOT)],
+            cwd=tmp_path, capture_output=True, text=True, check=False,
+        )
+>       assert observed.returncode != 0 and "TypeError" in observed.stderr
+E       AssertionError: assert (0 != 0)
+E        +  where 0 = CompletedProcess(args=['/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python', '-I', '-c', 'import sys;sy...s.fixture', '/tmp/pytest-of-agent/pytest-247/test_passive_dependency_protoc2/src'], returncode=0, stdout='', stderr='').returncode
+
+tests/repo_quality/architecture/test_public_surface_export_resolution.py:514: AssertionError
+=============================== warnings summary ===============================
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/repo_quality/architecture/test_public_surface_export_resolution.py::test_passive_dependency_protocol_bindings_are_unknown_on_actual_import[__getattr__ = len\n]
+1 failed, 107 passed, 1 warning in 25.20s

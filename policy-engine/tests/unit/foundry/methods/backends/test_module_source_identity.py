@@ -108,7 +108,16 @@ class _ReboundFieldSource:
             return {"product": len(_DATA_GETTER(state, "args", state))}
 
 
-@pytest.mark.parametrize("source", [_DynamicFieldSource, _ReboundFieldSource])
+class _GenericFieldSource:
+    signature: ClassVar = _PRODUCER_SIGNATURE
+    metadata: ClassVar = _METADATA
+
+    @staticmethod
+    def pure_step[T](state, params):
+        return {"product": _DATA_GETTER(state, "product", state)}
+
+
+@pytest.mark.parametrize("source", [_DynamicFieldSource, _ReboundFieldSource, _GenericFieldSource])
 def test_runtime_selector_or_rebinding_does_not_gain_data_field_identity(tmp_path, source):
     chain, registry = _chain()
     registry.register(source, override=True)

@@ -1,0 +1,7 @@
+........................                                                 [100%]
+=============================== warnings summary ===============================
+../../../../../../../opt/homebrew/lib/python3.14/site-packages/jax/_src/config.py:283
+  /opt/homebrew/lib/python3.14/site-packages/jax/_src/config.py:283: DeprecationWarning: Setting `jax_pmap_shmap_merge` is deprecated in JAX v0.9.0 and will be removed in JAX v0.10.0.
+    value = self._parser(value)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html

@@ -1,0 +1,40 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "-m",
+    "pytest",
+    "tests/unit/remediation/test_dfk_01.py::test_dfk_01_retired_schema_fqns_and_resources_are_absent",
+    "-q"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos/policy-engine",
+  "duration_seconds": 7.005,
+  "environment": {
+    "CODEX_CI": "1",
+    "CODEX_SHELL": "1",
+    "CODEX_VERSION": "0.160.1",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "NO_COLOR": "1",
+    "PATH": "/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0IKaEzY:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources:/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS",
+    "PWD": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos",
+    "PYTHONPATH": "src:.",
+    "TERM": "dumb"
+  },
+  "exit_code": 1,
+  "interpretation": "Expected TDD red before native Trash; each exact retired module still resolves while its source remains.",
+  "python": "3.14.0",
+  "source_sha256_after": {
+    "src/polisyos/data_forge/kernel/schemas/codegen.py": "2e4d9bf7791b0cccce090fd80afde9bb51809506a51666dfd9fde2a8ef4c685e",
+    "src/polisyos/foundry/domain/schema.py": "9795fe24efddc4cd27ceb537c82a3663d8f4052bf063b65cf7b70d4e348ee347",
+    "tests/unit/remediation/test_dfk_01.py": "68ee5783e7a232a369512c267c4e5692e4112d126e1334a3a9638c6fd67b674d"
+  },
+  "source_sha256_before": {
+    "src/polisyos/data_forge/kernel/schemas/codegen.py": "2e4d9bf7791b0cccce090fd80afde9bb51809506a51666dfd9fde2a8ef4c685e",
+    "src/polisyos/foundry/domain/schema.py": "9795fe24efddc4cd27ceb537c82a3663d8f4052bf063b65cf7b70d4e348ee347",
+    "tests/unit/remediation/test_dfk_01.py": "68ee5783e7a232a369512c267c4e5692e4112d126e1334a3a9638c6fd67b674d"
+  },
+  "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos/.tmp/e02-C5/raw/dfk/retirement-test-red-v2.stderr",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos/.tmp/e02-C5/raw/dfk/retirement-test-red-v2.stdout",
+  "stdout_sha256": "df41210d957d5737bf5f1baa2f4fc941172eff1d0e0b4ef50ddca9ac6d541989"
+}

@@ -1,0 +1,39 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "-m",
+    "pytest",
+    "tests/unit/remediation/test_dfk_01.py::test_dfk_01_census_observes_module_and_package_source_variants",
+    "-q"
+  ],
+  "branch": "codex/e02-C-dfk-lifecycle-20261007",
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos/policy-engine",
+  "duration_seconds": 9.786,
+  "environment": {
+    "CODEX_CI": "1",
+    "CODEX_SHELL": "1",
+    "CODEX_VERSION": "0.160.1",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "NO_COLOR": "1",
+    "PATH": "/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0IKaEzY:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources:/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS",
+    "PWD": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos",
+    "PYTHONPATH": "src:.",
+    "TERM": "dumb"
+  },
+  "exit_code": 0,
+  "head": "bd4e96536ac6ed3e5084b3ab924d1bd2dc668fdb",
+  "purpose": "Exercise source-candidate census and preservation rename of tracked initializer; original bytes must remain at untracked sibling while original tracked path is missing.",
+  "python": "3.14.0",
+  "source_sha256_after": {
+    "tests/unit/remediation/test_dfk_01.py": "7bacac863afa4959dc5ba3e3a350ed9763540d6f96d434b63c45bc5f8b358322"
+  },
+  "source_sha256_before": {
+    "tests/unit/remediation/test_dfk_01.py": "7bacac863afa4959dc5ba3e3a350ed9763540d6f96d434b63c45bc5f8b358322"
+  },
+  "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos/.tmp/e02-C5/raw/dfk/census-fixture-preserve-rename.stderr",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos/.tmp/e02-C5/raw/dfk/census-fixture-preserve-rename.stdout",
+  "stdout_sha256": "e03ba084480a324fa397fb24c755e0a023aee8fe8b891159edcd611c6d0be0e1",
+  "tree": "8ef2819c4542dde83112cff73e057114abee8046"
+}

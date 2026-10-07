@@ -1,0 +1,55 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "-m",
+    "pytest",
+    "tests/unit/remediation/test_dfk_01.py",
+    "tests/unit/foundry/hygiene/test_no_compat_facade_imports.py",
+    "-q"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos/policy-engine",
+  "duration_seconds": 12.929,
+  "environment": {
+    "CODEX_CI": "1",
+    "CODEX_SHELL": "1",
+    "CODEX_VERSION": "0.160.1",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "NO_COLOR": "1",
+    "PATH": "/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0IKaEzY:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources:/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS",
+    "PWD": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos",
+    "PYTHONPATH": "src:.",
+    "TERM": "dumb"
+  },
+  "exit_code": 0,
+  "previous_retired_source_sha256": {
+    "src/polisyos/data_forge/kernel/schemas/codegen.py": "2e4d9bf7791b0cccce090fd80afde9bb51809506a51666dfd9fde2a8ef4c685e",
+    "src/polisyos/foundry/domain/schema.py": "9795fe24efddc4cd27ceb537c82a3663d8f4052bf063b65cf7b70d4e348ee347"
+  },
+  "python": "3.14.0",
+  "retired_source_paths_absent_before_and_after": true,
+  "source_sha256_after": {
+    "src/polisyos/data_forge/kernel/pipeline/schemas/__init__.py": "0ab76067bbdd73818cda5d79fbac01c24c4b6f8ac03c80835ead6403ea80b9bf",
+    "src/polisyos/data_forge/kernel/schemas/__init__.py": "a1699faed4cc01753760dfe569e667526e7d5ab8e01189666df99193924844ad",
+    "src/polisyos/data_forge/kernel/schemas/codegen.py": "ABSENT",
+    "src/polisyos/foundry/domain/schema.py": "ABSENT",
+    "src/polisyos/foundry/plugins/api.py": "b24b892b9f3ba7fde2ae278c940cc6b521605201c5ef107ac7b845297189d477",
+    "tests/unit/foundry/hygiene/test_no_compat_facade_imports.py": "8597717d4d8e24d3a0fd6d882a6c7159f927e556d9448031193213986752f50a",
+    "tests/unit/remediation/test_dfk_01.py": "68ee5783e7a232a369512c267c4e5692e4112d126e1334a3a9638c6fd67b674d",
+    "tools/quality/validation/schema_fqn_census.py": "03327a7ca9cb0b2c3d34eff2119d6210b3373f0b3bb3876f6cc396dfd4070b3e"
+  },
+  "source_sha256_before": {
+    "src/polisyos/data_forge/kernel/pipeline/schemas/__init__.py": "0ab76067bbdd73818cda5d79fbac01c24c4b6f8ac03c80835ead6403ea80b9bf",
+    "src/polisyos/data_forge/kernel/schemas/__init__.py": "a1699faed4cc01753760dfe569e667526e7d5ab8e01189666df99193924844ad",
+    "src/polisyos/data_forge/kernel/schemas/codegen.py": "ABSENT",
+    "src/polisyos/foundry/domain/schema.py": "ABSENT",
+    "src/polisyos/foundry/plugins/api.py": "b24b892b9f3ba7fde2ae278c940cc6b521605201c5ef107ac7b845297189d477",
+    "tests/unit/foundry/hygiene/test_no_compat_facade_imports.py": "8597717d4d8e24d3a0fd6d882a6c7159f927e556d9448031193213986752f50a",
+    "tests/unit/remediation/test_dfk_01.py": "68ee5783e7a232a369512c267c4e5692e4112d126e1334a3a9638c6fd67b674d",
+    "tools/quality/validation/schema_fqn_census.py": "03327a7ca9cb0b2c3d34eff2119d6210b3373f0b3bb3876f6cc396dfd4070b3e"
+  },
+  "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos/.tmp/e02-C5/raw/dfk/post-trash-focused-suite.stderr",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos/.tmp/e02-C5/raw/dfk/post-trash-focused-suite.stdout",
+  "stdout_sha256": "b37c5fc734ac3832c8522128883d0e6f644ce6614e600d0a8be26fd5ae3b6d64"
+}

@@ -1,0 +1,1014 @@
+{
+  "branch": "codex/e02-C-dfk-lifecycle-20261007",
+  "bundle_ids": [
+    "DFK-01"
+  ],
+  "c4_status_snapshot": {
+    "canonical_c4_v4_table": {
+      "bytes": 671142,
+      "commit": "613cfb589df239dc0b62e0ab1a5ed60eab42c17e",
+      "git_blob": "466f4035d8634776b76cf4c6106b6bb99e003077",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-current-root-20261007-c4-v4.json",
+      "role": "underlying historical table referenced by final C4 handoff; not the final C4 handoff commit",
+      "sha256": "4c15e33ea012250934a28d80392fa8483674a5e04b5f3072b4bfc49d087faa84"
+    },
+    "final_c4_handoff": {
+      "bytes": 24445,
+      "commit": "847929e3e0cac30fb49ff61a47ecaf46d41ac94d",
+      "git_blob": "27dacfc62902e6dde7f8266151244d7b07bb82b9",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/current-c54-c4-final-handoff-20261007.json",
+      "sha256": "164e5662a0dc689f4e5f4c8dd6964b387280258642d2a954c9575ddade395f9e"
+    },
+    "formal_g_status": "not_adjudicated for all 54 C findings per final C4 handoff",
+    "prior_four_statuses": {
+      "LA-005": "held",
+      "LA-006": "limited",
+      "LA-026": "held",
+      "LA-027": "held"
+    }
+  },
+  "candidate_sha": "a13f6c1acfe15a6750d71c6e86521f119d794def",
+  "candidate_status": "source_frozen_independent_go_bounded_package_archive_unrun",
+  "candidate_tree_sha": "35d9c02156f8a27335b858bfe8053d7cbc6a54f2",
+  "candidate_worktree": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos",
+  "changed_path_denominator": {
+    "files": 8,
+    "scope": "C5 source slice only",
+    "walk": "git diff --name-only 28b04149e6477216f37c2ab2e0abfc54b8857ac6..a13f6c1acfe15a6750d71c6e86521f119d794def"
+  },
+  "checks": [
+    {
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "pytest",
+        "tests/unit/remediation/test_dfk_01.py::test_dfk_01_retired_schema_fqns_and_resources_are_absent",
+        "-q"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos/policy-engine",
+      "duration_seconds": 7.005,
+      "exit_code": 1,
+      "manifest": {
+        "bytes": 2918,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/dfk-c5-lifecycle/retirement-test-red-v2.command.json",
+        "sha256": "17293b12746fa1869be5a5e99b94b1593f78cbfe07dab9b60e5cafa02c9025d2"
+      },
+      "name": "retirement-test-red-v2",
+      "outcome": "expected_red_before_native_retirement",
+      "python": "3.14.0",
+      "source_sha256_after": {
+        "src/polisyos/data_forge/kernel/schemas/codegen.py": "2e4d9bf7791b0cccce090fd80afde9bb51809506a51666dfd9fde2a8ef4c685e",
+        "src/polisyos/foundry/domain/schema.py": "9795fe24efddc4cd27ceb537c82a3663d8f4052bf063b65cf7b70d4e348ee347",
+        "tests/unit/remediation/test_dfk_01.py": "68ee5783e7a232a369512c267c4e5692e4112d126e1334a3a9638c6fd67b674d"
+      },
+      "source_sha256_before": {
+        "src/polisyos/data_forge/kernel/schemas/codegen.py": "2e4d9bf7791b0cccce090fd80afde9bb51809506a51666dfd9fde2a8ef4c685e",
+        "src/polisyos/foundry/domain/schema.py": "9795fe24efddc4cd27ceb537c82a3663d8f4052bf063b65cf7b70d4e348ee347",
+        "tests/unit/remediation/test_dfk_01.py": "68ee5783e7a232a369512c267c4e5692e4112d126e1334a3a9638c6fd67b674d"
+      },
+      "stderr": {
+        "bytes": 0,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/dfk-c5-lifecycle/retirement-test-red-v2.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 1002,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/dfk-c5-lifecycle/retirement-test-red-v2.stdout.gz",
+        "sha256": "0010f0c910e276b38b0ecedbcaee90eb148900e066f6531886fa645b0d27030a",
+        "encoding": "gzip",
+        "uncompressed_bytes": 5161,
+        "uncompressed_sha256": "df41210d957d5737bf5f1baa2f4fc941172eff1d0e0b4ef50ddca9ac6d541989",
+        "raw_path": ".tmp/e02-C5/raw/dfk/retirement-test-red-v2.stdout"
+      },
+      "summary": "Expected TDD control: both exact retired module FQNs still resolved while their original tracked source files were present; the targeted parameterized negative test produced two failures. The exact stdout, including pytest-rendered trailing blank whitespace, is retained in the ignored raw output and as a committed gzip artifact; decompression reproduces the recorded raw SHA-256."
+    },
+    {
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "pytest",
+        "tests/unit/remediation/test_dfk_01.py",
+        "tests/unit/foundry/hygiene/test_no_compat_facade_imports.py",
+        "-q"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos/policy-engine",
+      "duration_seconds": 12.929,
+      "exit_code": 0,
+      "manifest": {
+        "bytes": 4164,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/dfk-c5-lifecycle/post-trash-focused-suite.command.json",
+        "sha256": "3c45ebad1d1b1cb4d5e50e611beae4e3b2c80ea01dc7d7f611384cb06f23cdd5"
+      },
+      "name": "post-trash-focused-suite",
+      "outcome": "pass",
+      "python": "3.14.0",
+      "source_sha256_after": {
+        "src/polisyos/data_forge/kernel/pipeline/schemas/__init__.py": "0ab76067bbdd73818cda5d79fbac01c24c4b6f8ac03c80835ead6403ea80b9bf",
+        "src/polisyos/data_forge/kernel/schemas/__init__.py": "a1699faed4cc01753760dfe569e667526e7d5ab8e01189666df99193924844ad",
+        "src/polisyos/data_forge/kernel/schemas/codegen.py": "ABSENT",
+        "src/polisyos/foundry/domain/schema.py": "ABSENT",
+        "src/polisyos/foundry/plugins/api.py": "b24b892b9f3ba7fde2ae278c940cc6b521605201c5ef107ac7b845297189d477",
+        "tests/unit/foundry/hygiene/test_no_compat_facade_imports.py": "8597717d4d8e24d3a0fd6d882a6c7159f927e556d9448031193213986752f50a",
+        "tests/unit/remediation/test_dfk_01.py": "68ee5783e7a232a369512c267c4e5692e4112d126e1334a3a9638c6fd67b674d",
+        "tools/quality/validation/schema_fqn_census.py": "03327a7ca9cb0b2c3d34eff2119d6210b3373f0b3bb3876f6cc396dfd4070b3e"
+      },
+      "source_sha256_before": {
+        "src/polisyos/data_forge/kernel/pipeline/schemas/__init__.py": "0ab76067bbdd73818cda5d79fbac01c24c4b6f8ac03c80835ead6403ea80b9bf",
+        "src/polisyos/data_forge/kernel/schemas/__init__.py": "a1699faed4cc01753760dfe569e667526e7d5ab8e01189666df99193924844ad",
+        "src/polisyos/data_forge/kernel/schemas/codegen.py": "ABSENT",
+        "src/polisyos/foundry/domain/schema.py": "ABSENT",
+        "src/polisyos/foundry/plugins/api.py": "b24b892b9f3ba7fde2ae278c940cc6b521605201c5ef107ac7b845297189d477",
+        "tests/unit/foundry/hygiene/test_no_compat_facade_imports.py": "8597717d4d8e24d3a0fd6d882a6c7159f927e556d9448031193213986752f50a",
+        "tests/unit/remediation/test_dfk_01.py": "68ee5783e7a232a369512c267c4e5692e4112d126e1334a3a9638c6fd67b674d",
+        "tools/quality/validation/schema_fqn_census.py": "03327a7ca9cb0b2c3d34eff2119d6210b3373f0b3bb3876f6cc396dfd4070b3e"
+      },
+      "stderr": {
+        "bytes": 0,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/dfk-c5-lifecycle/post-trash-focused-suite.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 536,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/dfk-c5-lifecycle/post-trash-focused-suite.stdout",
+        "sha256": "b37c5fc734ac3832c8522128883d0e6f644ce6614e600d0a8be26fd5ae3b6d64"
+      },
+      "summary": "The DFK remediation and Foundry compatibility hygiene modules exited 0; captured progress has 24 cases. The suite checks canonical schema registry/evolution/migrations, alias identity, plugin SimulationConfig, both retired FQNs/resources, mechanism registry/dispatcher, and the real agent-simulation runner."
+    },
+    {
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "pytest",
+        "tests/unit/remediation/test_dfk_01.py::test_dfk_01_census_observes_module_and_package_source_variants",
+        "-q"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos/policy-engine",
+      "duration_seconds": 9.786,
+      "exit_code": 0,
+      "manifest": {
+        "bytes": 2679,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/dfk-c5-lifecycle/census-fixture-preserve-rename.command.json",
+        "sha256": "d105cc54e4e8e2c5e70d008be68890603b49eb2d6a731bc20057d76d59341105"
+      },
+      "name": "census-fixture-preserve-rename",
+      "outcome": "pass",
+      "python": "3.14.0",
+      "source_sha256_after": {
+        "tests/unit/remediation/test_dfk_01.py": "7bacac863afa4959dc5ba3e3a350ed9763540d6f96d434b63c45bc5f8b358322"
+      },
+      "source_sha256_before": {
+        "tests/unit/remediation/test_dfk_01.py": "7bacac863afa4959dc5ba3e3a350ed9763540d6f96d434b63c45bc5f8b358322"
+      },
+      "stderr": {
+        "bytes": 0,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/dfk-c5-lifecycle/census-fixture-preserve-rename.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 536,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/dfk-c5-lifecycle/census-fixture-preserve-rename.stdout",
+        "sha256": "e03ba084480a324fa397fb24c755e0a023aee8fe8b891159edcd611c6d0be0e1"
+      },
+      "summary": "The affected actual-census test passed against final a13 test bytes. Its missing-input control renames the fixture initializer to an untracked sibling and asserts byte preservation before the census reports partial_unreadable_input."
+    },
+    {
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "ruff",
+        "check",
+        "tests/unit/remediation/test_dfk_01.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos/policy-engine",
+      "duration_seconds": 0.116,
+      "exit_code": 0,
+      "manifest": {
+        "bytes": 1967,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/dfk-c5-lifecycle/census-fixture-preserve-rename-ruff.command.json",
+        "sha256": "5e0c0659ca3d23529bfc2e705ca2df73ec5b0a570c69f900a0c78b9a0df2873b"
+      },
+      "name": "census-fixture-preserve-rename-ruff",
+      "outcome": "pass",
+      "python": "3.14.0",
+      "source_sha256_after": null,
+      "source_sha256_before": null,
+      "stderr": {
+        "bytes": 0,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/dfk-c5-lifecycle/census-fixture-preserve-rename-ruff.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 19,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/dfk-c5-lifecycle/census-fixture-preserve-rename-ruff.stdout",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      "summary": "Ruff reported All checks passed for the changed test module."
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos",
+      "duration_seconds": 0.022,
+      "exit_code": 0,
+      "manifest": {
+        "bytes": 1869,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/dfk-c5-lifecycle/census-fixture-preserve-rename-diffcheck.command.json",
+        "sha256": "c75bb26138d7772cdfee89a1eae8da8f46f65ba9f7c9e85872b93c8cc8093354"
+      },
+      "name": "census-fixture-preserve-rename-diffcheck",
+      "outcome": "pass",
+      "python": "3.14.0",
+      "source_sha256_after": null,
+      "source_sha256_before": null,
+      "stderr": {
+        "bytes": 0,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/dfk-c5-lifecycle/census-fixture-preserve-rename-diffcheck.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 0,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/dfk-c5-lifecycle/census-fixture-preserve-rename-diffcheck.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "summary": "git diff --check exited 0 with no output for the a13 delta."
+    },
+    {
+      "argv": [
+        "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "tools.ops_runners.release.check_compatibility_release_gates",
+        "--repo-root",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos/policy-engine",
+        "--fail-on-contract-errors"
+      ],
+      "exit_code": 1,
+      "manifest": {
+        "bytes": 987,
+        "commit": "341f92fb2b18e163778ab28db13b6b67a90e7d44",
+        "git_blob": "f846949af0588d22a183820a131951c30b506fd7",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/dfk-independent-review-20261007/outputs/independent-release-gate-command.json",
+        "sha256": "127657b996f6d88b866ea210bb5626ae314401c546fdb84d949c3c3a9a690092"
+      },
+      "name": "independent repository-wide compatibility-release gate",
+      "outcome": "fail_attribution_not_established",
+      "p41_attribution": "not_established",
+      "source_candidate": "bd4e96536ac6ed3e5084b3ab924d1bd2dc668fdb",
+      "source_tree": "8ef2819c4542dde83112cff73e057114abee8046",
+      "stderr": {
+        "bytes": 0,
+        "commit": "341f92fb2b18e163778ab28db13b6b67a90e7d44",
+        "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/dfk-independent-review-20261007/outputs/independent-release-gate.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 1337,
+        "commit": "341f92fb2b18e163778ab28db13b6b67a90e7d44",
+        "git_blob": "81a44851fe57d7561ef7c69156df1ed6b477879f",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/dfk-independent-review-20261007/outputs/independent-release-gate.stdout.json",
+        "sha256": "3d541cf01dfe1d92ba838a8941bf4d3b505c514f37fb1df30ab1388f1be061bd"
+      },
+      "summary": "Exit 1 for two Lex fragments; DFK release fragment had no findings/errors. P41 remains not_established because there was no exact-slice-base replay with the complete input denominator."
+    }
+  ],
+  "finalization_status": "The frozen a13 source candidate received an independent GO for bounded source implementation. All four DFK verdicts remain limited; package archive evidence is UNRUN, the release window is pending, and the separate Lex release-gate failure remains P41 not_established. No C/G finding closure is claimed.",
+  "findings": [
+    {
+      "capability_label": "verification_missing",
+      "code_outcome": "Only policy-engine/src/polisyos/foundry/domain/schema.py was retired. Post-Trash controls verify its module/resource address is absent; the plugin configuration type remains importable and canonical.",
+      "criterion_ref": {
+        "bundle_anchor_line": 65,
+        "bundle_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DFK-01.md",
+        "bundle_sha256": "1917f4628c9905461c15a606949e5bb315244773f47e4ac87e545bc8f153f866",
+        "owner_decision_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/DECISION_RECORDS.md@sha256:d6683e91b5d15a46eb57dc382ad367e379acc1135d18dd8939b677d34c53b049#C5 DFK-01 schema lifecycle decisions",
+        "source_lines": [
+          198,
+          224
+        ],
+        "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "source_sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727"
+      },
+      "evidence": [
+        "policy-engine/tests/unit/remediation/test_dfk_01.py@sha256:7bacac863afa4959dc5ba3e3a350ed9763540d6f96d434b63c45bc5f8b358322",
+        "policy-engine/tests/unit/remediation/test_dfk_01.py::test_dfk_01_retired_schema_fqns_and_resources_are_absent",
+        "policy-engine/tests/unit/remediation/test_dfk_01.py::test_dfk_01_foundry_plugin_simulation_config_remains_canonical",
+        "pre-retirement full/product local census refs in source_census"
+      ],
+      "finding_verdict": "limited",
+      "gate_basis": [
+        "recomputed",
+        "not_established"
+      ],
+      "id": "LA-005",
+      "missing_input": "The local scan and behavior controls do not establish that no external checkout or older published artifact used this FQN; candidate wheel/sdist membership was not built.",
+      "owner_decision": "The exact early DTO FQN is internal under the public-surface explicit-entrypoint contract; retire the module without moving its three DTOs and preserve the distinct plugin API SimulationConfig.",
+      "remaining_verification": "Retain the bounded internal retirement result. Do not claim blanket external/persisted identity absence; verify candidate distribution membership when a backend-enabled release lane is available."
+    },
+    {
+      "capability_label": "verification_missing",
+      "code_outcome": "The mechanisms package was already absent and remains absent. Focused tests prove the negative import/resource behavior and exercise the real mechanism registry/dispatcher and agent-simulation runner; no tombstone source was deleted.",
+      "criterion_ref": {
+        "bundle_anchor_line": 99,
+        "bundle_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DFK-01.md",
+        "bundle_sha256": "1917f4628c9905461c15a606949e5bb315244773f47e4ac87e545bc8f153f866",
+        "owner_decision_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/DECISION_RECORDS.md@sha256:d6683e91b5d15a46eb57dc382ad367e379acc1135d18dd8939b677d34c53b049#C5 DFK-01 schema lifecycle decisions",
+        "source_lines": [
+          225,
+          253
+        ],
+        "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "source_sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727"
+      },
+      "evidence": [
+        "policy-engine/tests/unit/remediation/test_dfk_01.py::test_dfk_01_mechanisms_tombstone_is_not_importable",
+        "policy-engine/tests/unit/remediation/test_dfk_01.py::test_dfk_01_canonical_foundry_mechanism_registry_resolves_and_dispatches",
+        "policy-engine/tests/unit/remediation/test_dfk_01.py::test_dfk_01_real_foundry_runner_executes_canonical_mechanism",
+        "policy-engine/tests/unit/foundry/hygiene/test_no_compat_facade_imports.py@sha256:8597717d4d8e24d3a0fd6d882a6c7159f927e556d9448031193213986752f50a"
+      ],
+      "finding_verdict": "limited",
+      "gate_basis": [
+        "recomputed",
+        "not_established"
+      ],
+      "id": "LA-006",
+      "missing_input": "No candidate wheel/sdist or installed archive probe was run; external consumers are outside the selected local source contract.",
+      "owner_decision": "Keep the exact empty mechanisms tombstone absent and preserve negative import/resource controls plus the actual canonical Foundry mechanism and simulation consumers.",
+      "remaining_verification": "Maintain the absent tombstone and exact local controls. No requirement to resolve unrelated nonliteral loader sites is added by this bounded decision; do not imply a universal external absence finding."
+    },
+    {
+      "capability_label": "verification_missing",
+      "code_outcome": "Only policy-engine/src/polisyos/data_forge/kernel/schemas/codegen.py was retired. Negative module/resource controls and canonical registry/evolution/migration tests remain; no generation capability was added.",
+      "criterion_ref": {
+        "bundle_anchor_line": 135,
+        "bundle_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DFK-01.md",
+        "bundle_sha256": "1917f4628c9905461c15a606949e5bb315244773f47e4ac87e545bc8f153f866",
+        "owner_decision_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/DECISION_RECORDS.md@sha256:d6683e91b5d15a46eb57dc382ad367e379acc1135d18dd8939b677d34c53b049#C5 DFK-01 schema lifecycle decisions",
+        "source_lines": [
+          1372,
+          1417
+        ],
+        "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "source_sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727"
+      },
+      "evidence": [
+        "policy-engine/tests/unit/remediation/test_dfk_01.py@sha256:7bacac863afa4959dc5ba3e3a350ed9763540d6f96d434b63c45bc5f8b358322",
+        "policy-engine/tests/unit/remediation/test_dfk_01.py::test_dfk_01_retired_schema_fqns_and_resources_are_absent",
+        "policy-engine/tests/unit/remediation/test_dfk_01.py::test_dfk_01_canonical_registry_evolution_and_migration_behave",
+        "canonical schema owner remains at policy-engine/src/polisyos/data_forge/kernel/schemas/__init__.py"
+      ],
+      "finding_verdict": "limited",
+      "gate_basis": [
+        "recomputed",
+        "not_established"
+      ],
+      "id": "LA-026",
+      "missing_input": "The missing generator/consumer result is local-scope evidence only; package archive membership and external import/persisted identity are not established.",
+      "owner_decision": "Retire only the no-behavior three-string GeneratedSchemaModule placeholder; do not invent a generator or replacement owner; preserve kernel.schemas registry, evolution, and migration behavior.",
+      "remaining_verification": "Keep the placeholder FQN absent and do not create a generation ABI. Run package/archive absence controls once a backend-enabled package lane is available."
+    },
+    {
+      "capability_label": "verification_missing",
+      "code_outcome": "Canonical schema owner and identity alias remain; focused identity and registry/evolution/migration checks pass. The release fragment is pending publication, so the timer has not started.",
+      "criterion_ref": {
+        "bundle_anchor_line": 188,
+        "bundle_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DFK-01.md",
+        "bundle_sha256": "1917f4628c9905461c15a606949e5bb315244773f47e4ac87e545bc8f153f866",
+        "owner_decision_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/DECISION_RECORDS.md@sha256:d6683e91b5d15a46eb57dc382ad367e379acc1135d18dd8939b677d34c53b049#C5 DFK-01 schema lifecycle decisions",
+        "source_lines": [
+          1418,
+          1465
+        ],
+        "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "source_sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727"
+      },
+      "evidence": [
+        "policy-engine/tests/unit/remediation/test_dfk_01.py::test_dfk_01_pipeline_schema_alias_preserves_canonical_identity",
+        "policy-engine/src/polisyos/data_forge/kernel/pipeline/schemas/README.md@sha256:24a7202818a37389870a2faeb0adadfa88119f8bb5b261a2b106c33e07c3d747",
+        "policy-engine/release-fragments/unreleased/2026-10-07-e02-dfk-schema-lifecycle.toml@sha256:1a960c502dcce6c2a868acbc54b87360db01a17847d893f92747b502c470e8a6"
+      ],
+      "finding_verdict": "limited",
+      "gate_basis": [
+        "recomputed",
+        "not_established"
+      ],
+      "id": "LA-027",
+      "missing_input": "Actual release N publication date and the later minor release are not available; no candidate package archive or external/persisted alias-use census exists.",
+      "owner_decision": "Keep kernel.schemas as sole logic owner. Preserve pipeline.schemas as an identity alias through the pending release-N notice window: later of next minor or 90 days after N.",
+      "remaining_verification": "Keep the alias until the documented window elapses. Release preparation must assign the actual notice date and update architecture/shims.toml before publication; no sunset date is asserted here."
+    }
+  ],
+  "findings_verdict_enum": [
+    "closed",
+    "limited",
+    "held",
+    "open"
+  ],
+  "handoff_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfk-c5-lifecycle-source-handoff.json",
+  "implementation_commits": [
+    {
+      "role": "DFK lifecycle implementation and focused controls; eight-path slice commit.",
+      "sha": "bd4e96536ac6ed3e5084b3ab924d1bd2dc668fdb",
+      "subject": "Retire incomplete DFK schema compatibility modules",
+      "tree": "8ef2819c4542dde83112cff73e057114abee8046"
+    },
+    {
+      "role": "Test-only preservation rename correction; one-path append-only delta.",
+      "sha": "a13f6c1acfe15a6750d71c6e86521f119d794def",
+      "subject": "Preserve census fixture input during missing-path probe",
+      "tree": "35d9c02156f8a27335b858bfe8053d7cbc6a54f2"
+    }
+  ],
+  "independent_review_release_gate": {
+    "argv": [
+      "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python",
+      "-m",
+      "tools.ops_runners.release.check_compatibility_release_gates",
+      "--repo-root",
+      "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos/policy-engine",
+      "--fail-on-contract-errors"
+    ],
+    "command_manifest": {
+      "bytes": 987,
+      "commit": "341f92fb2b18e163778ab28db13b6b67a90e7d44",
+      "git_blob": "f846949af0588d22a183820a131951c30b506fd7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/dfk-independent-review-20261007/outputs/independent-release-gate-command.json",
+      "sha256": "127657b996f6d88b866ea210bb5626ae314401c546fdb84d949c3c3a9a690092"
+    },
+    "dfk_fragment_result": "no DFK findings/errors",
+    "exit_code": 1,
+    "p41_attribution": "not_established",
+    "reason": "The independent reviewer did not replay this checker at the exact slice base against the complete input denominator, so the Lex failures cannot be classified as inherited or introduced by this slice.",
+    "reported_failures": [
+      "2026-08-27-lex-intervention-ownership.toml",
+      "2026-09-13-acquisition-movement.toml"
+    ],
+    "source_candidate": "bd4e96536ac6ed3e5084b3ab924d1bd2dc668fdb",
+    "source_tree": "8ef2819c4542dde83112cff73e057114abee8046",
+    "stderr": {
+      "bytes": 0,
+      "commit": "341f92fb2b18e163778ab28db13b6b67a90e7d44",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/dfk-independent-review-20261007/outputs/independent-release-gate.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stdout": {
+      "bytes": 1337,
+      "commit": "341f92fb2b18e163778ab28db13b6b67a90e7d44",
+      "git_blob": "81a44851fe57d7561ef7c69156df1ed6b477879f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/dfk-independent-review-20261007/outputs/independent-release-gate.stdout.json",
+      "sha256": "3d541cf01dfe1d92ba838a8941bf4d3b505c514f37fb1df30ab1388f1be061bd"
+    }
+  },
+  "independent_review_summary": {
+    "all_eight_slice_paths_reviewed": true,
+    "c4_reference_correction": "The final C4 handoff is the 847929e3 commit above. Its canonical v4 table is at 613cfb58; 613cfb58 is not the final C4 handoff commit.",
+    "census_count_correction": "Current C5 result is 320 unresolved nonliteral loader sites out of 878 (558 literal); 317 is a historical C4 table value.",
+    "disposition": "GO for bounded source implementation only; no finding closure and no G adjudication.",
+    "finding_recommendation": "LA-005, LA-006, LA-026 and LA-027 remain limited within the bounded local lifecycle scope; no closed status is supported.",
+    "portable_deciding_outputs": {
+      "bytes": 11659,
+      "commit": "341f92fb2b18e163778ab28db13b6b67a90e7d44",
+      "git_blob": "f5615570fd6acc895aacdc25feae064b81ec18ad",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/dfk-independent-review-20261007/outputs/outputs-manifest.json",
+      "sha256": "24d057ca3fed132c6d18efe1fd909124ef0475621f4fcea2b5b65926841c94db"
+    },
+    "reviewed_source_candidate": "a13f6c1acfe15a6750d71c6e86521f119d794def",
+    "small_outputs_count": 24
+  },
+  "lineage_context": {
+    "aggregate_main_anchor_to_candidate": {
+      "classification": "Aggregate history/background comparison only. It includes previously accepted scanner/audit-receipt commits and is not the C5 source-slice delta.",
+      "path_count": 82,
+      "paths": [
+        "policy-engine/docs/plans/active/DATA_FORGE_CONSOLIDATION_PLAN.md",
+        "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/DECISION_RECORDS.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/archive-mirror-write-tree.stderr",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/archive-mirror-write-tree.stdout",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/archive-mirror.command-results.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/build-isolation-failure.command-results.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/build-isolation-failure.stderr",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/build-isolation-failure.stdout",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/build-no-isolation.stderr",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/build-no-isolation.stdout",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/build-results.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/env-install-results.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/env-sync.stderr",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/env-sync.stdout",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/fixture-positive.stderr",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/fixture-positive.stdout.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/fixture-removal.stderr",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/fixture-removal.stdout.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/fixture-runner.stderr",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/fixture-runner.stdout",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/installed-fixture-probe.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/installed-fixture-results.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/installed-fixture.command-results.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/installed-source-census.command-results.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/installed-source-census.stderr",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/module-origin-initial.command-results.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/module-origin-initial.stderr",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/module-origin-initial.stdout",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/module-origin-probe.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/module-origin-verified.command-results.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/module-origin-verified.stderr",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/module-origin-verified.stdout.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/outside-repo-initial.command-results.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/outside-repo-initial.stderr",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/outside-repo-initial.stdout",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/outside-repo-probe.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/outside-repo-results.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/outside-repo-verified.command-results.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/outside-runner-verified.stderr",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/outside-runner-verified.stdout.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/package-census.command-results.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/package-census.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/package-census.stderr",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/package-census.stdout.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/profile-readback.stderr",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/profile-readback.stdout",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/wheel-install.stderr",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/wheel-install.stdout",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-fqn-census-final/build.stderr",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-fqn-census-final/install-replay-origin.stderr",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-fqn-census-final/installed-command-results.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-fqn-census-final/module-origins-replay.stdout",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-fqn-census-final/package-census.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-fqn-census-final/package-target-members.command.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-fqn-census-final/package-target-members.result.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-fqn-census-final/package_target_members.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/b8-command-results.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/b8-focused-tests.stderr.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/b8-focused-tests.stdout.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/b8-ruff.stderr.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/b8-ruff.stdout.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/baseline-empty.stderr.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/baseline-empty.stdout.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/focused-delta-tests.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/independent-import-diff.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/probe-metadata.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/relative-init-child-direct-positive.stderr.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/relative-init-child-direct-positive.stdout.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/removal-control.stderr.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/removal-control.stdout.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/run_importfrom_falsifier.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/schema-fqn-census-b8-final-handoff.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/schema-fqn-census-b8-handoff.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/schema-fqn-census-final-handoff.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/schema-fqn-census-handoff.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/schema-fqn-census-plan.md",
+        "policy-engine/release-fragments/unreleased/2026-10-07-e02-dfk-schema-lifecycle.toml",
+        "policy-engine/src/polisyos/data_forge/kernel/pipeline/schemas/README.md",
+        "policy-engine/src/polisyos/data_forge/kernel/schemas/codegen.py",
+        "policy-engine/src/polisyos/foundry/domain/schema.py",
+        "policy-engine/tests/unit/remediation/test_dfk_01.py",
+        "policy-engine/tools/quality/validation/schema_fqn_census.py"
+      ],
+      "walk": "git diff --name-only 198076863e143dea9f89f02734b13d50dae3eed5..a13f6c1acfe15a6750d71c6e86521f119d794def"
+    },
+    "separate_c5_intake_receipt_commit": {
+      "backend_preflight_index": {
+        "bytes": 14971,
+        "commit": "23ec3ab0b9d91bb7814fbdaa4b895a0bb06416a9",
+        "git_blob": "c42feb1861914c6dff4995baae27de61187b547d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c5-intake/outputs/environment/backend-preflight-v1/index.json",
+        "sha256": "15624a094216e620967c26f08a0e40269a513a04cba8fbaa35d3a970126ad3e2"
+      },
+      "native_preflight_receipt": {
+        "bytes": 1744,
+        "commit": "23ec3ab0b9d91bb7814fbdaa4b895a0bb06416a9",
+        "git_blob": "927300598c2c16b45d112063f087f7ca28b23240",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c5-intake/outputs/environment/dfk-native-preflight.json",
+        "sha256": "1b109d4a909e0cc759fa1ad915f4d7f3e66104e4138e7074ec58f707766814f6"
+      },
+      "native_trash_receipt": {
+        "bytes": 3041,
+        "commit": "23ec3ab0b9d91bb7814fbdaa4b895a0bb06416a9",
+        "git_blob": "db1ba59eeb4d22dcdc6c20f7d023d2de11e86474",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c5-intake/outputs/environment/dfk-native-trash-readback.json",
+        "sha256": "0ae389019c633a6a29ffe604cd538e327f2aa4fa66b3af9cfc8a9668d1fd4231"
+      },
+      "parent": "c5668bcb9ac76a55984fce0d196197dbfded1151",
+      "relation_to_candidate_branch": "Separate parent intake history; not an ancestor of the source candidate and not included as a source-slice change.",
+      "sha": "23ec3ab0b9d91bb7814fbdaa4b895a0bb06416a9",
+      "subject": "docs(c): record C5 environment and admission intake",
+      "tree": "3fe8ba434d2598811cb25e242164567161dabdb5"
+    }
+  },
+  "main_anchor_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "main_anchor_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "native_retirement": {
+    "action": "Root moved the two original regular files with FileManager.default.trashItem; readback verified source absence and exact device/inode/SHA match; Trash was not emptied.",
+    "files": [
+      {
+        "original_sha256": "9795fe24efddc4cd27ceb537c82a3663d8f4052bf063b65cf7b70d4e348ee347",
+        "path": "policy-engine/src/polisyos/foundry/domain/schema.py",
+        "source_absent": true,
+        "trash_destination": "/Users/deniskopylov/.Trash/schema.py",
+        "trash_emptied": false
+      },
+      {
+        "original_sha256": "2e4d9bf7791b0cccce090fd80afde9bb51809506a51666dfd9fde2a8ef4c685e",
+        "path": "policy-engine/src/polisyos/data_forge/kernel/schemas/codegen.py",
+        "source_absent": true,
+        "trash_destination": "/Users/deniskopylov/.Trash/codegen.py",
+        "trash_emptied": false
+      }
+    ],
+    "other_absence": "The LA-006 mechanisms package was already absent; no file from that package was moved or deleted in this slice.",
+    "receipt": {
+      "bytes": 3041,
+      "commit": "23ec3ab0b9d91bb7814fbdaa4b895a0bb06416a9",
+      "git_blob": "db1ba59eeb4d22dcdc6c20f7d023d2de11e86474",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c5-intake/outputs/environment/dfk-native-trash-readback.json",
+      "sha256": "0ae389019c633a6a29ffe604cd538e327f2aa4fa66b3af9cfc8a9668d1fd4231"
+    }
+  },
+  "package_archive_census": {
+    "candidate_sdist": "UNRUN",
+    "candidate_wheel": "UNRUN",
+    "installed_candidate_readback": "UNRUN",
+    "no_archive_claim": true,
+    "preflight_refs": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c5-intake/outputs/environment/backend-preflight-v1/index.json@sha256:15624a094216e620967c26f08a0e40269a513a04cba8fbaa35d3a970126ad3e2",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c5-intake/outputs/environment/backend-preflight-v1/012-system-python-packages.stdout.txt@sha256:becd80feea0e2c7e37a43c93540e297d02bf13f832773745cebfb4365a3d88c5",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c5-intake/outputs/environment/backend-preflight-v1/013-original-venv-packages.stdout.txt@sha256:792201fc9903d33b52df965742bfbfc59a020627030e35959ab25f1ce510c6a1",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c5-intake/outputs/environment/backend-preflight-v1/014-uv-managed-python-packages.stdout.txt@sha256:24f36d32fd16613ab06265f8960f34e57b0e1af27edf2d21401c7d23e52ed96a"
+    ],
+    "reason": "C5 environment preflight found hatchling/build unavailable in system Python, the original repository venv, and uv-managed Python. No environment was installed or changed for this worktree."
+  },
+  "pattern_pass": {
+    "closure_move": "Keep one canonical schema logic owner, retain the bounded identity alias, make source census cover module/package/resource/ImportFrom candidates, and exercise both removal and restoration controls against actual imports.",
+    "existing_risk": "Legacy FQN/import compatibility can outlive its intended owner; a string or file/line-only census can miss package initializer and ImportFrom child routes.",
+    "predicate_basis": {
+      "focused source behavior": "recomputed by targeted Python 3.14 tests from the source checkout with PYTHONPATH=src:.",
+      "independent source review": "not_established_pending",
+      "local census denominator": "recomputed for the pre-retirement working-tree overlay and explicitly scoped to selected Git-visible UTF-8 inputs",
+      "published package membership and external consumers": "not_established",
+      "source-slice path set": "recomputed from Git 28b..a13"
+    },
+    "relevant_patterns": [
+      "P06",
+      "P29",
+      "P35",
+      "P38",
+      "P41"
+    ]
+  },
+  "raw_large_artifacts": [
+    {
+      "bytes": 7405038,
+      "path": ".tmp/e02-C5/raw/dfk/full-census-v2.stdout.json",
+      "sha256": "f8621ccc45e89a2289bdea914346cb42150e40d5c00caa172111055c59175a96",
+      "status": "ignored; retained in place; not copied into Git"
+    },
+    {
+      "bytes": 6584331,
+      "path": ".tmp/e02-C5/raw/dfk/product-census-v2.stdout.json",
+      "sha256": "68e1c4243bde3a9349c4eedaa499351748fe57be3e2265842a60f8d5561ddc4c",
+      "status": "ignored; retained in place; not copied into Git"
+    }
+  ],
+  "remaining_verification": [
+    "Candidate wheel/sdist member census and installed-package readback remain UNRUN because the C5 preflight did not find the Hatchling/build backend in authorized Python environments; no install or environment mutation was done.",
+    "LA-027 release-N publication and notice-window timing remain future release work; the alias remains active.",
+    "External checkouts, historic distribution artifacts, arbitrary dynamic destinations, and persisted external class identities are not established by local source census.",
+    "The independent repository-wide compatibility-release gate reported two Lex failures. Exact-slice-base replay and complete-input disjointness were not run, so P41 attribution remains not_established; do not call the failures inherited or DFK-introduced.",
+    "The independent GO is source-only; C/G finding status remains not adjudicated and no closure is claimed."
+  ],
+  "review_status": {
+    "author_self_review": "not_claimed",
+    "independent_delta_review": "GO_FOR_BOUNDED_SOURCE_IMPLEMENTATION; NO_FINDING_CLOSURE_OR_G_ADJUDICATION",
+    "portable_deciding_outputs": {
+      "count": 24,
+      "manifest": {
+        "bytes": 11659,
+        "commit": "341f92fb2b18e163778ab28db13b6b67a90e7d44",
+        "git_blob": "f5615570fd6acc895aacdc25feae064b81ec18ad",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/dfk-independent-review-20261007/outputs/outputs-manifest.json",
+        "sha256": "24d057ca3fed132c6d18efe1fd909124ef0475621f4fcea2b5b65926841c94db"
+      }
+    },
+    "review_branch": "codex/e02-C-dfk-review-20261007",
+    "review_commit": {
+      "parent": "7a7290363bef0ed47fa045d594a159009558cf34",
+      "sha": "341f92fb2b18e163778ab28db13b6b67a90e7d44",
+      "subject": "docs(e02): retain DFK review command outputs",
+      "tree": "7d3bcc2e63209645b89913e51d7f8e180c84468b"
+    },
+    "review_json": {
+      "bytes": 19775,
+      "commit": "341f92fb2b18e163778ab28db13b6b67a90e7d44",
+      "git_blob": "682b7d0b241115afedeacd22d6ebb53c396c34f1",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/dfk-independent-review-20261007/review.json",
+      "sha256": "cb60c122917c16b52aeb1fe50844e51c4391949d1c87f684518208222d84805b"
+    },
+    "review_markdown": {
+      "bytes": 6980,
+      "commit": "341f92fb2b18e163778ab28db13b6b67a90e7d44",
+      "git_blob": "1fb375cfb91750ba66f095b38fd21eec0a00319e",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/dfk-independent-review-20261007/review.md",
+      "sha256": "d19aec1668ad99f310457fb360663d6316df523abb41be6a81627d80d5949dab"
+    },
+    "review_target": "a13f6c1acfe15a6750d71c6e86521f119d794def"
+  },
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "slice": "C5 DFK-01 schema FQN lifecycle",
+  "slice_base_sha": "28b04149e6477216f37c2ab2e0abfc54b8857ac6",
+  "slice_base_tree_sha": "715e11ef478d6c8827494e6da89ed08792708fb2",
+  "slice_changed_paths": [
+    "policy-engine/docs/plans/active/DATA_FORGE_CONSOLIDATION_PLAN.md",
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/DECISION_RECORDS.md",
+    "policy-engine/release-fragments/unreleased/2026-10-07-e02-dfk-schema-lifecycle.toml",
+    "policy-engine/src/polisyos/data_forge/kernel/pipeline/schemas/README.md",
+    "policy-engine/src/polisyos/data_forge/kernel/schemas/codegen.py",
+    "policy-engine/src/polisyos/foundry/domain/schema.py",
+    "policy-engine/tests/unit/remediation/test_dfk_01.py",
+    "policy-engine/tools/quality/validation/schema_fqn_census.py"
+  ],
+  "source_census": {
+    "corrected_count_binding": {
+      "current_c5_full_tree_and_product_root": {
+        "literal_loader_targets": 558,
+        "total_loader_sites": 878,
+        "unresolved_nonliteral_loader_destinations": 320
+      },
+      "historical_prior_c4_value": 317,
+      "interpretation": "317 is the value printed in the prior C4 table only. The controlling current C5 full-tree and product-root scan outputs each report 558 literal, 320 unresolved nonliteral, 878 total. Do not label 317 as the current C5 count or 320 as the historical C4 count.",
+      "review_receipt": {
+        "bytes": 19775,
+        "commit": "341f92fb2b18e163778ab28db13b6b67a90e7d44",
+        "git_blob": "682b7d0b241115afedeacd22d6ebb53c396c34f1",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/dfk-independent-review-20261007/review.json",
+        "sha256": "cb60c122917c16b52aeb1fe50844e51c4391949d1c87f684518208222d84805b"
+      }
+    },
+    "full_tree_pre_retirement": {
+      "command_manifest": ".tmp/e02-C5/raw/dfk/full-census-v2.command.json@sha256:14ba4bbff96c18f5390b66e2dbf199b7a4f3a3bdbc6fa89ef7b43ca223069843",
+      "output": ".tmp/e02-C5/raw/dfk/full-census-v2.stdout.json@sha256:f8621ccc45e89a2289bdea914346cb42150e40d5c00caa172111055c59175a96",
+      "output_bytes": 7405038,
+      "summary": {
+        "decoded_utf8_inputs": 13678,
+        "dynamic_loader_sites": 878,
+        "excluded_paths": 96,
+        "head_at_scan": "28b04149e6477216f37c2ab2e0abfc54b8857ac6",
+        "ignored_paths": 950,
+        "literal_dynamic_loader_sites": 558,
+        "package_artifacts": {
+          "configuration_inputs": [],
+          "configuration_observation": "package configuration not selected or not present",
+          "sdist": "UNRUN",
+          "unresolved_by_construction": [
+            "Hatch selection semantics, build backend execution, build isolation, and archive contents were not exercised."
+          ],
+          "wheel": "UNRUN"
+        },
+        "scope": {
+          "complete_verdict_scope": "enumerated Git-visible, nonignored UTF-8 text inputs only",
+          "criterion_verdict": "local_static_census_only",
+          "not_a_retirement_authorization": true
+        },
+        "selected_utf8_inputs": 13678,
+        "successful_byte_reads": 13678,
+        "target_literal_loader_hits": [
+          {
+            "line": 26,
+            "path": "policy-engine/tests/unit/foundry/hygiene/test_no_compat_facade_imports.py",
+            "target": "polisyos.foundry.domain.mechanisms"
+          },
+          {
+            "line": 168,
+            "path": "policy-engine/tests/unit/remediation/test_dfk_01.py",
+            "target": "polisyos.data_forge.kernel.pipeline.schemas"
+          },
+          {
+            "line": 235,
+            "path": "policy-engine/tests/unit/remediation/test_dfk_01.py",
+            "target": "polisyos.foundry.domain.mechanisms"
+          }
+        ],
+        "target_match_counts": {
+          "polisyos.data_forge.kernel.pipeline.schemas": 325,
+          "polisyos.data_forge.kernel.schemas.codegen": 364,
+          "polisyos.foundry.domain.mechanisms": 369,
+          "polisyos.foundry.domain.schema": 271
+        },
+        "tracked_paths": 13773,
+        "unreadable_path_count": 0,
+        "unresolved_nonliteral_loader_sites": 320,
+        "unsupported_or_ambiguous_input_count": 0,
+        "untracked_paths": 1
+      }
+    },
+    "interpretation": "These one-time full-tree and product-root census runs used the 28b source baseline with the candidate docs/test/tool overlay and both source candidates still present. They are pre-retirement; no post-retirement whole-tree census is claimed. The selected Git-visible UTF-8 denominator does not prove external consumers, arbitrary dynamic destinations, installed-wheel behavior, or archive membership. Large reports remain ignored and are cited by path and SHA-256.",
+    "product_root_pre_retirement": {
+      "command_manifest": ".tmp/e02-C5/raw/dfk/product-census-v2.command.json@sha256:a8b544749eb60751b8f2c37c6c95906adbaf4cd5e3bc5f6b22695e508049ee55",
+      "output": ".tmp/e02-C5/raw/dfk/product-census-v2.stdout.json@sha256:68e1c4243bde3a9349c4eedaa499351748fe57be3e2265842a60f8d5561ddc4c",
+      "output_bytes": 6584331,
+      "summary": {
+        "decoded_utf8_inputs": 13651,
+        "dynamic_loader_sites": 878,
+        "excluded_paths": 95,
+        "head_at_scan": "28b04149e6477216f37c2ab2e0abfc54b8857ac6",
+        "ignored_paths": 927,
+        "literal_dynamic_loader_sites": 558,
+        "package_artifacts": {
+          "configuration_inputs": [
+            "pyproject.toml",
+            "hatch.toml"
+          ],
+          "configuration_observation": {
+            "hatch_build_targets": [
+              "[build.targets.wheel]",
+              "packages = [\"src/polisyos\", \"tools\"]",
+              "[build.targets.wheel.force-include]",
+              "[build]",
+              "[build.targets.sdist]",
+              "include = ["
+            ],
+            "pyproject_build_system_and_scripts": [
+              "[build-system]",
+              "requires = [\"hatchling>=1.27.0\"]",
+              "build-backend = \"hatchling.build\"",
+              "[project.scripts]",
+              "polisy = \"polisyos.foundry.plugins.cli:main\"",
+              "polisyos = \"tools.ops_runners.runtime_cli:main\"",
+              "polisyos-causal-capabilities = \"polisyos.foundry.methods.catalog.causal.capabilities:main\"",
+              "polisyos-foundry = \"tools.ops_runners.runtime_cli:foundry_main\"",
+              "polisyos-tools = \"tools.cli:main\"",
+              "ukraine-data = \"polisyos.data_forge.domains.ukraine.cli:main\"",
+              "[project.entry-points.\"polisyos.fabric_connectors\"]",
+              "\"worldbank.wdi\" = \"polisyos.fabric.connectors.components:world_bank_connector_component\"",
+              "\"wvs.wave7\" = \"polisyos.fabric.connectors.components:wvs_connector_component\"",
+              "\"eurostat.data\" = \"polisyos.fabric.connectors.components:eurostat_connector_component\"",
+              "\"ukons.datasets\" = \"polisyos.fabric.connectors.components:ukons_connector_component\"",
+              "\"sdmx.source\" = \"polisyos.fabric.connectors.components:sdmx_connector_component\"",
+              "\"ckan.catalog\" = \"polisyos.fabric.connectors.components:ckan_catalog_connector_component\"",
+              "\"ckan.resource\" = \"polisyos.fabric.connectors.components:ckan_resource_connector_component\"",
+              "\"socrata.soda\" = \"polisyos.fabric.connectors.components:socrata_connector_component\"",
+              "\"opendatasoft.ods\" = \"polisyos.fabric.connectors.components:opendatasoft_connector_component\"",
+              "\"sparql.endpoint\" = \"polisyos.fabric.connectors.components:sparql_connector_component\"",
+              "\"rest.json\" = \"polisyos.fabric.connectors.components:rest_json_connector_component\"",
+              "[project.entry-points.\"polisyos.scientist_governance_passes\"]",
+              "\"budget\" = \"polisyos.scientist.governance.pass_entrypoints:budget_pass_factory\"",
+              "\"causal_frontier_leakage\" = \"polisyos.scientist.governance.pass_entrypoints:causal_frontier_leakage_pass_factory\"",
+              "\"checkpoint\" = \"polisyos.scientist.governance.pass_entrypoints:checkpoint_pass_factory\"",
+              "\"schema\" = \"polisyos.scientist.governance.pass_entrypoints:schema_pass_factory\"",
+              "\"privacy\" = \"polisyos.scientist.governance.pass_entrypoints:privacy_pass_factory\"",
+              "\"pii_check\" = \"polisyos.scientist.governance.pass_entrypoints:pii_check_pass_factory\"",
+              "\"freshness\" = \"polisyos.scientist.governance.pass_entrypoints:freshness_pass_factory\"",
+              "\"sutva_check\" = \"polisyos.scientist.governance.pass_entrypoints:sutva_check_pass_factory\"",
+              "\"transportability_required\" = \"polisyos.scientist.governance.pass_entrypoints:transportability_required_pass_factory\"",
+              "\"safety\" = \"polisyos.scientist.governance.pass_entrypoints:safety_pass_factory\"",
+              "\"equity\" = \"polisyos.scientist.governance.pass_entrypoints:equity_pass_factory\"",
+              "\"cross_graph_evidence\" = \"polisyos.scientist.governance.pass_entrypoints:cross_graph_evidence_pass_factory\"",
+              "\"fabric_trust\" = \"polisyos.scientist.governance.pass_entrypoints:fabric_trust_gate_pass_factory\"",
+              "\"incentive_compatibility\" = \"polisyos.scientist.governance.pass_entrypoints:incentive_compatibility_pass_factory\"",
+              "\"literature_gate\" = \"polisyos.scientist.governance.pass_entrypoints:literature_gate_pass_factory\"",
+              "\"legal\" = \"polisyos.scientist.governance.pass_entrypoints:legal_pass_factory\"",
+              "\"confidence\" = \"polisyos.scientist.governance.pass_entrypoints:confidence_pass_factory\"",
+              "\"refutation\" = \"polisyos.scientist.governance.pass_entrypoints:refutation_pass_factory\"",
+              "\"human_review_required\" = \"polisyos.scientist.governance.pass_entrypoints:human_review_required_pass_factory\"",
+              "\"quality\" = \"polisyos.scientist.governance.pass_entrypoints:quality_gate_pass_factory\"",
+              "\"normative_arbitration\" = \"polisyos.scientist.governance.pass_entrypoints:normative_arbitration_pass_factory\"",
+              "\"strategic_response\" = \"polisyos.scientist.governance.pass_entrypoints:strategic_response_pass_factory\"",
+              "[project.entry-points.\"polisyos.foundry_methods\"]",
+              "\"polisyos.foundry.builtin_catalog\" = \"polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components\"",
+              "[project.entry-points.\"polisyos.scientist_nodes\"]",
+              "# Builtins are registered through polisyos.scientist.nodes.components:builtin_node_components.",
+              "[project.entry-points.\"polisyos.data_forge_domains\"]",
+              "[project.entry-points.\"polisyos.lex_normpacks\"]",
+              "[project.entry-points.\"polisyos.runtime_middlewares\"]"
+            ]
+          },
+          "sdist": "UNRUN",
+          "selection_status": "configuration_bytes_read; archive membership unverified",
+          "unresolved_by_construction": [
+            "Hatch selection semantics, build backend execution, build isolation, and archive contents were not exercised."
+          ],
+          "wheel": "UNRUN"
+        },
+        "scope": {
+          "complete_verdict_scope": "enumerated Git-visible, nonignored UTF-8 text inputs only",
+          "criterion_verdict": "local_static_census_only",
+          "not_a_retirement_authorization": true
+        },
+        "selected_utf8_inputs": 13651,
+        "successful_byte_reads": 13651,
+        "target_literal_loader_hits": [
+          {
+            "line": 26,
+            "path": "tests/unit/foundry/hygiene/test_no_compat_facade_imports.py",
+            "target": "polisyos.foundry.domain.mechanisms"
+          },
+          {
+            "line": 168,
+            "path": "tests/unit/remediation/test_dfk_01.py",
+            "target": "polisyos.data_forge.kernel.pipeline.schemas"
+          },
+          {
+            "line": 235,
+            "path": "tests/unit/remediation/test_dfk_01.py",
+            "target": "polisyos.foundry.domain.mechanisms"
+          }
+        ],
+        "target_match_counts": {
+          "polisyos.data_forge.kernel.pipeline.schemas": 325,
+          "polisyos.data_forge.kernel.schemas.codegen": 364,
+          "polisyos.foundry.domain.mechanisms": 369,
+          "polisyos.foundry.domain.schema": 271
+        },
+        "tracked_paths": 13745,
+        "unreadable_path_count": 0,
+        "unresolved_nonliteral_loader_sites": 320,
+        "unsupported_or_ambiguous_input_count": 0,
+        "untracked_paths": 1
+      }
+    }
+  },
+  "source_decisions": {
+    "LA-005": "Retire only polisyos.foundry.domain.schema; do not move/duplicate AgentType, RegionProfile, or the early domain SimulationConfig. Keep polisyos.foundry.plugins.api.SimulationConfig canonical.",
+    "LA-006": "Keep the exact empty polisyos.foundry.domain.mechanisms tombstone absent. Preserve negative import/resource controls and positive canonical registry/dispatcher plus agent-simulation runner controls.",
+    "LA-026": "Retire only polisyos.data_forge.kernel.schemas.codegen and its three-string GeneratedSchemaModule placeholder. Add no generator or substitute descriptor; preserve kernel.schemas registry, evolution, and migration contracts.",
+    "LA-027": "Use kernel.schemas as the sole logic owner and retain pipeline.schemas as an identity-preserving alias through a notice window that begins only when release notice N is published and ends after the later of the next minor release or 90 days after N. Notice date and sunset are pending; no calendar date is claimed."
+  },
+  "source_refs": {
+    "active_consolidation_plan": {
+      "bytes": 33813,
+      "path": "policy-engine/docs/plans/active/DATA_FORGE_CONSOLIDATION_PLAN.md",
+      "sha256": "37a8f27097d1d214163e5bf95a541752f8062926ea029cb7c4e4fd208777b5f5"
+    },
+    "agent_simulation_mechanism": {
+      "bytes": 4221,
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/mechanisms.py",
+      "sha256": "5d1dc353ccde326b8c194ffb47b6926aec56ae81420fa3856fd35969317307e4"
+    },
+    "agent_simulation_runner": {
+      "bytes": 4150,
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/executor.py",
+      "sha256": "ff2d7ab4f35f215b0414b70ba1ffffe5ce8143750aa6128364e7c5f072154299"
+    },
+    "canonical_plugin_config_owner": {
+      "bytes": 13603,
+      "path": "policy-engine/src/polisyos/foundry/plugins/api.py",
+      "sha256": "b24b892b9f3ba7fde2ae278c940cc6b521605201c5ef107ac7b845297189d477"
+    },
+    "canonical_schema_owner": {
+      "bytes": 870,
+      "path": "policy-engine/src/polisyos/data_forge/kernel/schemas/__init__.py",
+      "sha256": "a1699faed4cc01753760dfe569e667526e7d5ab8e01189666df99193924844ad"
+    },
+    "census_tool": {
+      "bytes": 31035,
+      "path": "policy-engine/tools/quality/validation/schema_fqn_census.py",
+      "sha256": "03327a7ca9cb0b2c3d34eff2119d6210b3373f0b3bb3876f6cc396dfd4070b3e"
+    },
+    "decision_records": {
+      "bytes": 566740,
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/DECISION_RECORDS.md",
+      "sha256": "d6683e91b5d15a46eb57dc382ad367e379acc1135d18dd8939b677d34c53b049"
+    },
+    "dfk_regression_tests": {
+      "bytes": 33975,
+      "path": "policy-engine/tests/unit/remediation/test_dfk_01.py",
+      "sha256": "7bacac863afa4959dc5ba3e3a350ed9763540d6f96d434b63c45bc5f8b358322"
+    },
+    "foundry_compat_hygiene_test": {
+      "bytes": 765,
+      "path": "policy-engine/tests/unit/foundry/hygiene/test_no_compat_facade_imports.py",
+      "sha256": "8597717d4d8e24d3a0fd6d882a6c7159f927e556d9448031193213986752f50a"
+    },
+    "foundry_mechanism_id_registry": {
+      "bytes": 11685,
+      "path": "policy-engine/src/polisyos/foundry/_registry.py",
+      "sha256": "f9a3b8ef31a5be5a3b0010b2bc25ffb75fb6e2c5c7d567b75f1bac0c021de9a9"
+    },
+    "foundry_method_dispatcher": {
+      "bytes": 37425,
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/dispatch.py",
+      "sha256": "59b97d8eef871ce2ed5d02e846d782e9edf4a14af297751db736b8891eebc59d"
+    },
+    "pipeline_alias_readme": {
+      "bytes": 702,
+      "path": "policy-engine/src/polisyos/data_forge/kernel/pipeline/schemas/README.md",
+      "sha256": "24a7202818a37389870a2faeb0adadfa88119f8bb5b261a2b106c33e07c3d747"
+    },
+    "public_surface_contract": {
+      "bytes": 19715,
+      "path": "policy-engine/architecture/public_surface/contract.toml",
+      "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6"
+    },
+    "release_fragment": {
+      "bytes": 2695,
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-e02-dfk-schema-lifecycle.toml",
+      "sha256": "1a960c502dcce6c2a868acbc54b87360db01a17847d893f92747b502c470e8a6"
+    },
+    "shim_lifecycle_contract": {
+      "bytes": 13260,
+      "path": "policy-engine/architecture/shims.toml",
+      "sha256": "3752050d411eecc6dddf52500d009e6d081de12d2584497aa8916ffdc9e312d3"
+    }
+  }
+}

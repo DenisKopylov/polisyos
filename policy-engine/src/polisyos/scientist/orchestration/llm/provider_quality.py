@@ -4,12 +4,13 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import re
 from collections import defaultdict
 from collections.abc import Iterable, Mapping
 from datetime import UTC, datetime, timedelta
 from statistics import median
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -42,6 +43,8 @@ _LANE_KIND_ORDER = {
     "simulated": 0,
     "quarantined_live": 1,
 }
+ProviderCostStatus = Literal["known", "missing", "invalid"]
+ProviderCostOrigin = Literal["reported", "estimated", "reuse", "unknown", "mixed"]
 
 
 class ProviderModelQualityThresholds(BaseModel):
@@ -87,7 +90,15 @@ class ProviderModelQualityObservation(BaseModel):
     citation_faithfulness_valid: bool = True
     disagreement_detected: bool = False
     latency_ms: float | None = Field(default=None, ge=0.0)
-    cost_usd: float | None = Field(default=None, ge=0.0)
+    cost_usd: float | None = Field(default=None, ge=0.0, strict=True, allow_inf_nan=False)
+    estimated_cost_usd: float | None = Field(
+        default=None,
+        ge=0.0,
+        strict=True,
+        allow_inf_nan=False,
+    )
+    cost_status: ProviderCostStatus = "missing"
+    cost_origin: ProviderCostOrigin = "unknown"
     context_pressure: float | None = Field(default=None, ge=0.0, le=1.0)
     provider_error_code: str | None = None
     refusal_detected: bool = False
@@ -113,6 +124,20 @@ class ProviderModelQualityObservation(BaseModel):
             self.scenario_pack_id,
             fallback="unknown_scenario_pack",
         )
+        if self.cost_status == "known":
+            if self.cost_usd is None and not (
+                self.cost_origin == "estimated" and self.estimated_cost_usd is not None
+            ):
+                raise ValueError("known provider cost requires a numeric amount")
+            if self.cost_origin == "unknown":
+                raise ValueError("known provider cost requires a typed cost origin")
+        if (
+            self.cost_origin == "estimated"
+            and self.cost_usd is not None
+            and self.estimated_cost_usd is not None
+            and self.cost_usd != self.estimated_cost_usd
+        ):
+            raise ValueError("provider cost estimate must match its estimated amount")
         if self.provider_error_code is not None:
             self.provider_error_code = _clean_text(
                 self.provider_error_code,
@@ -165,8 +190,23 @@ class ProviderModelQualityMetrics(BaseModel):
     latency_ms_avg: float | None = None
     latency_ms_p50: float | None = None
     latency_ms_p95: float | None = None
-    cost_usd_total: float = 0.0
-    cost_usd_avg: float | None = None
+    cost_usd_total: float | None = Field(
+        default=None,
+        ge=0.0,
+        strict=True,
+        allow_inf_nan=False,
+    )
+    cost_usd_avg: float | None = Field(
+        default=None,
+        ge=0.0,
+        strict=True,
+        allow_inf_nan=False,
+    )
+    cost_status: ProviderCostStatus = "missing"
+    cost_origin: ProviderCostOrigin = "unknown"
+    cost_known_sample_count: int = 0
+    cost_missing_sample_count: int = 0
+    cost_invalid_sample_count: int = 0
     context_pressure_avg: float | None = None
     context_pressure_max: float | None = None
     provider_error_rate: float = 0.0
@@ -257,7 +297,12 @@ class ProviderModelComparisonRow(BaseModel):
     refusal_rate: float = 0.0
     degradation_rate: float = 0.0
     latency_ms_avg: float | None
-    cost_usd_avg: float | None
+    cost_usd_avg: float | None = Field(ge=0.0, strict=True, allow_inf_nan=False)
+    cost_status: ProviderCostStatus = "missing"
+    cost_origin: ProviderCostOrigin = "unknown"
+    cost_known_sample_count: int = 0
+    cost_missing_sample_count: int = 0
+    cost_invalid_sample_count: int = 0
     request_fingerprints: list[str] = Field(default_factory=list)
     drift_action: str
 
@@ -315,8 +360,13 @@ class ControlledProviderModelComparisonRow(BaseModel):
     degradation_rate: float
     latency_ms_avg: float | None
     latency_ms_p95: float | None
-    cost_usd_total: float
-    cost_usd_avg: float | None
+    cost_usd_total: float | None = Field(ge=0.0, strict=True, allow_inf_nan=False)
+    cost_usd_avg: float | None = Field(ge=0.0, strict=True, allow_inf_nan=False)
+    cost_status: ProviderCostStatus = "missing"
+    cost_origin: ProviderCostOrigin = "unknown"
+    cost_known_sample_count: int = 0
+    cost_missing_sample_count: int = 0
+    cost_invalid_sample_count: int = 0
     selected_variant_quality_avg: float | None
     request_fingerprints: list[str] = Field(default_factory=list)
     drift_action: str
@@ -452,6 +502,11 @@ def compare_provider_models(
                 degradation_rate=metrics.degradation_rate,
                 latency_ms_avg=metrics.latency_ms_avg,
                 cost_usd_avg=metrics.cost_usd_avg,
+                cost_status=metrics.cost_status,
+                cost_origin=metrics.cost_origin,
+                cost_known_sample_count=metrics.cost_known_sample_count,
+                cost_missing_sample_count=metrics.cost_missing_sample_count,
+                cost_invalid_sample_count=metrics.cost_invalid_sample_count,
                 request_fingerprints=list(entry.request_fingerprints),
                 drift_action=entry.drift_action,
             )
@@ -497,6 +552,9 @@ def build_controlled_grounding_observation(
     request_fingerprint: str | None = None,
     latency_ms: float | None = None,
     cost_usd: float | None = None,
+    estimated_cost_usd: float | None = None,
+    cost_status: ProviderCostStatus = "missing",
+    cost_origin: ProviderCostOrigin = "unknown",
     raw_evidence: Mapping[str, Any] | None = None,
 ) -> ProviderModelQualityObservation:
     """Build one observation for the controlled grounding task."""
@@ -542,6 +600,9 @@ def build_controlled_grounding_observation(
         disagreement_detected=False,
         latency_ms=latency_ms,
         cost_usd=cost_usd,
+        estimated_cost_usd=estimated_cost_usd,
+        cost_status=cost_status,
+        cost_origin=cost_origin,
         context_pressure=0.05,
         provider_error_code=None,
         refusal_detected=refusal_detected,
@@ -623,8 +684,10 @@ def build_controlled_provider_model_comparison(
                     degradation_rate=0.0,
                     latency_ms_avg=None,
                     latency_ms_p95=None,
-                    cost_usd_total=0.0,
+                    cost_usd_total=None,
                     cost_usd_avg=None,
+                    cost_status="missing",
+                    cost_origin="unknown",
                     selected_variant_quality_avg=None,
                     request_fingerprints=[],
                     drift_action="block_production_approval",
@@ -648,6 +711,11 @@ def build_controlled_provider_model_comparison(
                 latency_ms_p95=metrics.latency_ms_p95,
                 cost_usd_total=metrics.cost_usd_total,
                 cost_usd_avg=metrics.cost_usd_avg,
+                cost_status=metrics.cost_status,
+                cost_origin=metrics.cost_origin,
+                cost_known_sample_count=metrics.cost_known_sample_count,
+                cost_missing_sample_count=metrics.cost_missing_sample_count,
+                cost_invalid_sample_count=metrics.cost_invalid_sample_count,
                 selected_variant_quality_avg=metrics.selected_variant_quality_avg,
                 request_fingerprints=list(entry.request_fingerprints),
                 drift_action=entry.drift_action,
@@ -873,12 +941,12 @@ def _build_entry(
     drift_action, drift_reasons = _drift_decision(metrics, thresholds=thresholds)
     if metrics.system_confounded_sample_count:
         drift_reasons = sorted(
-            set([*drift_reasons, "system_confounded_samples_excluded"])
+            {*drift_reasons, "system_confounded_samples_excluded"}
         )
         if metrics.decision_sample_count <= 0:
             drift_action = "require_review"
             drift_reasons = sorted(
-                set([*drift_reasons, "controlled_evidence_bound_task_required"])
+                {*drift_reasons, "controlled_evidence_bound_task_required"}
             )
         elif drift_action == "approve":
             drift_action = "require_review"
@@ -915,6 +983,25 @@ def _build_entry(
     )
 
 
+def _usable_cost_amount(observation: ProviderModelQualityObservation) -> float | None:
+    """Return a cost amount only when its typed status and origin support it."""
+
+    if observation.cost_status == "invalid" or observation.cost_origin == "unknown":
+        return None
+    if observation.cost_origin == "estimated":
+        if observation.estimated_cost_usd is not None:
+            if (
+                observation.cost_usd is not None
+                and observation.cost_usd != observation.estimated_cost_usd
+            ):
+                return None
+            return observation.estimated_cost_usd
+        return observation.cost_usd if observation.cost_status == "known" else None
+    if observation.cost_status == "known":
+        return observation.cost_usd
+    return None
+
+
 def _metrics(
     observations: list[ProviderModelQualityObservation],
 ) -> ProviderModelQualityMetrics:
@@ -924,7 +1011,26 @@ def _metrics(
     ]
     decision_count = len(decision_observations)
     latencies = [item.latency_ms for item in decision_observations if item.latency_ms is not None]
-    costs = [item.cost_usd for item in decision_observations if item.cost_usd is not None]
+    cost_amounts = [_usable_cost_amount(item) for item in decision_observations]
+    costs = [amount for amount in cost_amounts if amount is not None]
+    cost_known_count = len(costs)
+    cost_invalid_count = sum(
+        1 for item in decision_observations if item.cost_status == "invalid"
+    )
+    cost_missing_count = decision_count - cost_known_count - cost_invalid_count
+    if cost_invalid_count:
+        cost_status: ProviderCostStatus = "invalid"
+    elif cost_missing_count:
+        cost_status = "missing"
+    else:
+        cost_status = "known" if decision_count else "missing"
+    cost_origins = {item.cost_origin for item in decision_observations}
+    if not cost_origins:
+        cost_origin: ProviderCostOrigin = "unknown"
+    elif len(cost_origins) == 1:
+        cost_origin = next(iter(cost_origins))
+    else:
+        cost_origin = "mixed"
     context_pressures = [
         item.context_pressure
         for item in decision_observations
@@ -935,6 +1041,19 @@ def _metrics(
         for item in decision_observations
         if item.selected_variant_quality is not None
     ]
+    cost_total: float | None = None
+    cost_average: float | None = None
+    if cost_status == "known":
+        try:
+            aggregate_cost = math.fsum(costs)
+        except (OverflowError, ValueError):
+            cost_status = "invalid"
+        else:
+            if math.isfinite(aggregate_cost):
+                cost_total = aggregate_cost
+                cost_average = aggregate_cost / len(costs)
+            else:
+                cost_status = "invalid"
     return ProviderModelQualityMetrics(
         sample_count=count,
         decision_sample_count=decision_count,
@@ -983,8 +1102,13 @@ def _metrics(
         latency_ms_avg=_avg(latencies),
         latency_ms_p50=_round_float(median(latencies)) if latencies else None,
         latency_ms_p95=_percentile(latencies, 0.95),
-        cost_usd_total=_round_float(sum(costs)) if costs else 0.0,
-        cost_usd_avg=_avg(costs),
+        cost_usd_total=cost_total,
+        cost_usd_avg=cost_average,
+        cost_status=cost_status,
+        cost_origin=cost_origin,
+        cost_known_sample_count=cost_known_count,
+        cost_missing_sample_count=cost_missing_count,
+        cost_invalid_sample_count=cost_invalid_count,
         context_pressure_avg=_avg(context_pressures),
         context_pressure_max=(
             _round_float(max(context_pressures)) if context_pressures else None
@@ -1293,6 +1417,8 @@ __all__ = [
     "ProviderModelQualityMetrics",
     "ProviderModelQualityObservation",
     "ProviderModelQualityThresholds",
+    "ProviderCostOrigin",
+    "ProviderCostStatus",
     "build_controlled_grounding_observation",
     "build_controlled_provider_model_comparison",
     "build_provider_model_quality_ledger",

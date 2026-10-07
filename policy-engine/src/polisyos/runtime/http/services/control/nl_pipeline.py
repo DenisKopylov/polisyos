@@ -10,6 +10,7 @@ import threading
 from collections.abc import Awaitable, Callable, Mapping
 from copy import deepcopy
 from datetime import UTC, datetime
+from math import fsum, isfinite
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, Protocol, Self, cast
 
@@ -1546,6 +1547,214 @@ def _performance_budget_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def _no_provider_call_cost() -> dict[str, Any]:
+    """Describe a pipeline branch that explicitly performed no provider call."""
+    return {
+        "cost_usd": 0.0,
+        "cost_status": "known",
+        "cost_origin": "unknown",
+        "cost_basis": "no_provider_call",
+        "estimated_cost_usd": None,
+        "cost_delta_usd": 0.0,
+        "cost_reconciliation_delta_usd": 0.0,
+        "cost_events": [],
+    }
+
+
+def _cost_projection_from_usage(usage: Mapping[str, Any]) -> dict[str, Any]:
+    """Project cost evidence without coercing absent or untyped amounts to zero."""
+    amount = usage.get("cost_usd")
+    estimated = usage.get("estimated_cost_usd")
+    delta = usage.get("cost_delta_usd")
+    status = usage.get("cost_status", "missing")
+    origin = usage.get("cost_origin", "unknown")
+    basis = usage.get("cost_basis", "call_event_summary")
+    estimated_amount = _finite_cost_value(estimated)
+    delta_amount = _finite_cost_value(delta, allow_negative=True)
+    validated_amount = _budget_cost_amount(
+        {
+            "cost_usd": amount,
+            "cost_status": status,
+            "cost_origin": origin,
+            "cost_basis": basis,
+        }
+    )
+    return {
+        "cost_usd": validated_amount,
+        "cost_status": status,
+        "cost_origin": origin,
+        "cost_basis": basis,
+        "estimated_cost_usd": estimated_amount,
+        "cost_delta_usd": delta_amount,
+        "cost_reconciliation_delta_usd": delta_amount,
+        "cost_events": [dict(event) for event in usage.get("cost_events", ())],
+    }
+
+
+def _finite_cost_value(value: object, *, allow_negative: bool = False) -> float | None:
+    if isinstance(value, bool) or not isinstance(value, int | float):
+        return None
+    try:
+        number = float(value)
+    except (OverflowError, TypeError, ValueError):
+        return None
+    if not isfinite(number) or (not allow_negative and number < 0):
+        return None
+    return number
+
+
+def _budget_cost_amount(variant: Mapping[str, Any]) -> float | None:
+    """Return a usable cost amount without turning unknown cost into zero.
+
+    Canonical event summaries mark a usable reported, estimated, or reuse
+    amount as known while preserving its origin. A no-call zero is admitted
+    only when this pipeline explicitly marks that no provider call occurred.
+    """
+    numeric_amount = _finite_cost_value(variant.get("cost_usd"))
+    if numeric_amount is None:
+        return None
+
+    status = variant.get("cost_status")
+    origin = variant.get("cost_origin")
+    if (
+        variant.get("cost_basis") == "no_provider_call"
+        and status == "known"
+        and numeric_amount == 0.0
+    ):
+        return numeric_amount
+    if status == "invalid" or status not in {"known", "missing"}:
+        return None
+    if origin not in {"reported", "estimated", "reuse", "mixed"}:
+        return None
+    if status == "known":
+        return numeric_amount
+    # An event-level estimate is normalized to a known numeric summary by the
+    # canonical usage aggregator. A missing aggregate, including a mixed
+    # subtotal, is incomplete and cannot advance a bounded spend counter.
+    return None
+
+
+def _aggregate_variant_costs(variants: list[Mapping[str, Any]]) -> dict[str, Any]:
+    """Aggregate variant costs while retaining unknown and estimate semantics."""
+    if not variants:
+        return {
+            "cost_usd": None,
+            "cost_status": "missing",
+            "cost_origin": "unknown",
+            "estimated_cost_usd": None,
+            "cost_delta_usd": None,
+        }
+
+    amounts: list[float] = []
+    complete = True
+    invalid = False
+    statuses: set[str] = set()
+    origins: set[str] = set()
+    estimates: list[float] = []
+    has_estimate = False
+    estimate_complete = True
+    deltas: list[float] = []
+    delta_complete = True
+    for variant in variants:
+        amount = _budget_cost_amount(variant)
+        if amount is None:
+            complete = False
+        else:
+            amounts.append(amount)
+
+        status = variant.get("cost_status")
+        origin = variant.get("cost_origin")
+        if status == "invalid":
+            invalid = True
+        if isinstance(status, str):
+            statuses.add(status)
+        else:
+            statuses.add("missing")
+        if isinstance(origin, str):
+            origins.add(origin)
+        else:
+            origins.add("unknown")
+
+        if origin in {"estimated", "mixed"}:
+            has_estimate = True
+            estimate = _finite_cost_value(variant.get("estimated_cost_usd"))
+            if estimate is None:
+                estimate_complete = False
+            else:
+                estimates.append(estimate)
+
+        delta = _finite_cost_value(variant.get("cost_delta_usd"), allow_negative=True)
+        if delta is None:
+            delta_complete = False
+        else:
+            deltas.append(delta)
+
+    total: float | None = None
+    if complete:
+        try:
+            total = fsum(amounts)
+        except (OverflowError, ValueError):
+            invalid = True
+        if total is not None and not isfinite(total):
+            invalid = True
+        if invalid:
+            total = None
+
+    estimate_total: float | None = None
+    if has_estimate and estimate_complete:
+        try:
+            estimate_total = fsum(estimates)
+        except (OverflowError, ValueError):
+            estimate_complete = False
+        if estimate_total is not None and not isfinite(estimate_total):
+            estimate_complete = False
+        if not estimate_complete:
+            estimate_total = None
+
+    delta_total: float | None = None
+    if delta_complete:
+        try:
+            delta_total = fsum(deltas)
+        except (OverflowError, ValueError):
+            delta_complete = False
+        if delta_total is not None and not isfinite(delta_total):
+            delta_complete = False
+        if not delta_complete:
+            delta_total = None
+
+    aggregate_origin = next(iter(origins)) if len(origins) == 1 else "mixed"
+    if invalid:
+        aggregate_status = "invalid"
+    elif "missing" in statuses or not complete:
+        aggregate_status = "missing"
+    elif total is None:
+        aggregate_status = "invalid"
+    else:
+        aggregate_status = "known"
+    return {
+        "cost_usd": total if aggregate_status == "known" else None,
+        "cost_status": aggregate_status,
+        "cost_origin": aggregate_origin,
+        "estimated_cost_usd": estimate_total,
+        "cost_delta_usd": delta_total,
+    }
+
+
+def _advance_run_budget(
+    *, spent: float, budget: float | None, variant: Mapping[str, Any]
+) -> tuple[float, bool]:
+    """Accumulate a completed variant and fail closed on unknown bounded spend."""
+    if budget is None:
+        return spent, False
+    amount = _budget_cost_amount(variant)
+    if amount is None:
+        return spent, True
+    updated_spent = spent + amount
+    if not isfinite(updated_spent):
+        return spent, True
+    return updated_spent, updated_spent >= budget
+
+
 def _build_run_performance_summary(variants: list[Mapping[str, Any]]) -> dict[str, Any]:
     statuses: dict[str, int] = {}
     steps_by_action: dict[str, dict[str, int]] = {}
@@ -1553,7 +1762,7 @@ def _build_run_performance_summary(variants: list[Mapping[str, Any]]) -> dict[st
     variant_rows: list[dict[str, Any]] = []
     llm_latency_ms = 0
     total_tokens = 0
-    total_cost_usd = 0.0
+    cost_summary = _aggregate_variant_costs(variants)
 
     for variant in variants:
         status = str(variant.get("status") or "unknown")
@@ -1561,7 +1770,6 @@ def _build_run_performance_summary(variants: list[Mapping[str, Any]]) -> dict[st
         latency_ms = int(variant.get("latency_ms") or 0)
         llm_latency_ms += latency_ms
         total_tokens += int(variant.get("total_tokens") or 0)
-        total_cost_usd += float(variant.get("cost_usd") or 0.0)
 
         steps = variant.get("steps")
         if isinstance(steps, list):
@@ -1591,7 +1799,12 @@ def _build_run_performance_summary(variants: list[Mapping[str, Any]]) -> dict[st
                 "latency_ms": latency_ms,
                 "steps_completed": len(steps) if isinstance(steps, list) else 0,
                 "total_tokens": int(variant.get("total_tokens") or 0),
-                "cost_usd": float(variant.get("cost_usd") or 0.0),
+                "cost_usd": variant.get("cost_usd"),
+                "cost_status": variant.get("cost_status", "missing"),
+                "cost_origin": variant.get("cost_origin", "unknown"),
+                "estimated_cost_usd": variant.get("estimated_cost_usd"),
+                "cost_delta_usd": variant.get("cost_delta_usd"),
+                "cost_basis": variant.get("cost_basis"),
             }
         )
 
@@ -1632,7 +1845,7 @@ def _build_run_performance_summary(variants: list[Mapping[str, Any]]) -> dict[st
         "llm": {
             "latency_ms": llm_latency_ms,
             "total_tokens": total_tokens,
-            "cost_usd": round(total_cost_usd, 8),
+            **cost_summary,
         },
         "steps_by_action": steps_by_action,
         "retrieval_phase_durations": retrieval_phase_durations,
@@ -5043,7 +5256,12 @@ class NaturalLanguageRunMixin:
                         "completion_tokens": 0,
                         "total_tokens": 0,
                         "latency_ms": max(0, _now_ms() - variant_started_at),
-                        "cost_usd": 0.0,
+                        **_no_provider_call_cost(),
+                        "per_model_budget_status": (
+                            "not_configured"
+                            if per_model_budget_usd is None
+                            else "within_budget"
+                        ),
                         "started_at": variant_started_iso,
                         "finished_at": datetime.now(UTC).replace(microsecond=0).isoformat(),
                         "steps": [],
@@ -5175,10 +5393,10 @@ class NaturalLanguageRunMixin:
                         raise
                     after = _sum_call_events(call_events)
                     finished = _now_ms()
-                    prompt_tokens, completion_tokens, llm_latency_ms, delta_cost = _delta_usage(
-                        before,
-                        after,
-                    )
+                    usage_delta = _delta_usage(before, after)
+                    prompt_tokens = int(usage_delta["prompt_tokens"])
+                    completion_tokens = int(usage_delta["completion_tokens"])
+                    llm_latency_ms = int(usage_delta["latency_ms"])
                     total_tokens = prompt_tokens + completion_tokens
                     step_latency = max(0, finished - started)
                     step_entry = {
@@ -5192,7 +5410,7 @@ class NaturalLanguageRunMixin:
                         "provider": provider,
                         "model_variant_id": variant_id,
                         "latency_ms": llm_latency_ms or step_latency,
-                        "cost_usd": round(delta_cost, 8),
+                        **_cost_projection_from_usage(usage_delta),
                         "token_usage": {
                             "prompt_tokens": prompt_tokens,
                             "completion_tokens": completion_tokens,
@@ -5228,7 +5446,7 @@ class NaturalLanguageRunMixin:
                         "provider": provider,
                         "model_variant_id": variant_id,
                         "latency_ms": 0,
-                        "cost_usd": 0.0,
+                        **_no_provider_call_cost(),
                         "token_usage": {
                             "prompt_tokens": 0,
                             "completion_tokens": 0,
@@ -5910,14 +6128,15 @@ class NaturalLanguageRunMixin:
                             usage_snapshot = _sum_call_events(call_events)
                             budget_remaining_ratio = None
                             if per_model_budget_usd is not None and float(per_model_budget_usd) > 0:
-                                budget_remaining_ratio = max(
-                                    0.0,
-                                    (
-                                        float(per_model_budget_usd)
-                                        - float(usage_snapshot["cost_usd"])
-                                    )
-                                    / float(per_model_budget_usd),
+                                snapshot_cost = _budget_cost_amount(
+                                    _cost_projection_from_usage(usage_snapshot)
                                 )
+                                if snapshot_cost is not None:
+                                    budget_remaining_ratio = max(
+                                        0.0,
+                                        (float(per_model_budget_usd) - snapshot_cost)
+                                        / float(per_model_budget_usd),
+                                    )
                             retrieval_quality = (
                                 1.0
                                 if retrieval_candidates_filtered == 0
@@ -6050,16 +6269,27 @@ class NaturalLanguageRunMixin:
                     if fabric_shadow_task is not None:
                         try:
                             fabric_shadow_result = await fabric_shadow_task
+                            shadow_legacy_usage = _sum_call_events(call_events)
+                            if llm_client is None:
+                                shadow_legacy_usage = {
+                                    **shadow_legacy_usage,
+                                    **_no_provider_call_cost(),
+                                }
+                            shadow_legacy_cost = _cost_projection_from_usage(
+                                shadow_legacy_usage
+                            )
                             fabric_shadow_comparison = _build_scientist_v2_shadow_comparison(
                                 legacy_status="completed",
                                 legacy_verdict=verdict,
                                 legacy_issue_count=int(issue_count),
-                                legacy_cost_usd=float(_sum_call_events(call_events)["cost_usd"]),
+                                legacy_cost_usd=shadow_legacy_cost["cost_usd"],
+                                legacy_cost_status=shadow_legacy_cost["cost_status"],
+                                legacy_cost_origin=shadow_legacy_cost["cost_origin"],
                                 legacy_prompt_tokens=int(
-                                    _sum_call_events(call_events)["prompt_tokens"]
+                                    shadow_legacy_usage["prompt_tokens"]
                                 ),
                                 legacy_completion_tokens=int(
-                                    _sum_call_events(call_events)["completion_tokens"]
+                                    shadow_legacy_usage["completion_tokens"]
                                 ),
                                 shadow_result=fabric_shadow_result,
                             )
@@ -6095,9 +6325,22 @@ class NaturalLanguageRunMixin:
                     RuntimeError,
                     TypeError,
                     ValueError,
-                ) as exc:  # pragma: no cover - defensive pipeline hardening
+                    ) as exc:  # pragma: no cover - defensive pipeline hardening
                     logger.exception("NL variant failed for model '%s': %s", model_name, exc)
                     failure_payload = _exception_failure_payload(exc)
+                    failure_usage = _sum_call_events(call_events)
+                    if llm_client is None:
+                        failure_usage = {**failure_usage, **_no_provider_call_cost()}
+                    failure_cost = _cost_projection_from_usage(failure_usage)
+                    failure_budget_amount = _budget_cost_amount(failure_cost)
+                    if per_model_budget_usd is None:
+                        failure_budget_status = "not_configured"
+                    elif failure_budget_amount is None:
+                        failure_budget_status = "unknown"
+                    elif failure_budget_amount > float(per_model_budget_usd):
+                        failure_budget_status = "exceeded"
+                    else:
+                        failure_budget_status = "within_budget"
                     return {
                         "model_variant_id": variant_id,
                         "model": model_name,
@@ -6114,11 +6357,8 @@ class NaturalLanguageRunMixin:
                             + _sum_call_events(call_events)["completion_tokens"]
                         ),
                         "latency_ms": max(0, _now_ms() - variant_started_at),
-                        "cost_usd": round(_sum_call_events(call_events)["cost_usd"], 8),
-                        "cost_reconciliation_delta_usd": round(
-                            _sum_call_events(call_events)["cost_delta_usd"],
-                            8,
-                        ),
+                        **failure_cost,
+                        "per_model_budget_status": failure_budget_status,
                         "started_at": variant_started_iso,
                         "finished_at": datetime.now(UTC).replace(microsecond=0).isoformat(),
                         "steps": steps,
@@ -6179,11 +6419,22 @@ class NaturalLanguageRunMixin:
                         notes.append(schema_note)
 
                 usage = _sum_call_events(call_events)
-                variant_cost = round(float(usage["cost_usd"]), 8)
+                if llm_client is None:
+                    usage = {**usage, **_no_provider_call_cost()}
+                cost_projection = _cost_projection_from_usage(usage)
                 status = "completed"
-                if per_model_budget_usd is not None and variant_cost > float(per_model_budget_usd):
-                    status = "budget_exceeded"
-                    notes.append("per_model_budget_exceeded")
+                per_model_budget_status = "not_configured"
+                if per_model_budget_usd is not None:
+                    budget_amount = _budget_cost_amount(cost_projection)
+                    if budget_amount is None:
+                        per_model_budget_status = "unknown"
+                        notes.append("per_model_budget_unknown")
+                    elif budget_amount > float(per_model_budget_usd):
+                        per_model_budget_status = "exceeded"
+                        status = "budget_exceeded"
+                        notes.append("per_model_budget_exceeded")
+                    else:
+                        per_model_budget_status = "within_budget"
                 if llm_client is None and model_name:
                     status = "fallback_mock"
 
@@ -6249,11 +6500,8 @@ class NaturalLanguageRunMixin:
                         "completion_tokens": int(usage["completion_tokens"]),
                         "total_tokens": int(usage["prompt_tokens"] + usage["completion_tokens"]),
                         "latency_ms": max(0, _now_ms() - variant_started_at),
-                        "cost_usd": variant_cost,
-                        "cost_reconciliation_delta_usd": round(
-                            float(usage["cost_delta_usd"]),
-                            8,
-                        ),
+                        **cost_projection,
+                        "per_model_budget_status": per_model_budget_status,
                         "trinity_bundle_ref": trinity_ref_str,
                         "final_policy_claims_ref": final_policy_claims_ref_str,
                         "final_policy_claims": final_policy_claims_report,
@@ -6327,11 +6575,8 @@ class NaturalLanguageRunMixin:
                     "completion_tokens": int(usage["completion_tokens"]),
                     "total_tokens": int(usage["prompt_tokens"] + usage["completion_tokens"]),
                     "latency_ms": max(0, _now_ms() - variant_started_at),
-                    "cost_usd": variant_cost,
-                    "cost_reconciliation_delta_usd": round(
-                        float(usage["cost_delta_usd"]),
-                        8,
-                    ),
+                    **cost_projection,
+                    "per_model_budget_status": per_model_budget_status,
                     "trinity_bundle_ref": trinity_ref_str,
                     "final_policy_claims_ref": final_policy_claims_ref_str,
                     "final_policy_claims": final_policy_claims_report,
@@ -6451,7 +6696,8 @@ class NaturalLanguageRunMixin:
                                     "completion_tokens": 0,
                                     "total_tokens": 0,
                                     "latency_ms": 0,
-                                    "cost_usd": 0.0,
+                                    **_no_provider_call_cost(),
+                                    "per_model_budget_status": "not_evaluated",
                                     "started_at": None,
                                     "finished_at": None,
                                     "steps": [],
@@ -6462,11 +6708,11 @@ class NaturalLanguageRunMixin:
                                 }
                         variant = await _run_variant(model_name, idx)
                         async with budget_lock:
-                            run_budget_spent += float(variant.get("cost_usd") or 0.0)
-                            if run_budget_usd is not None and run_budget_spent >= float(
-                                run_budget_usd
-                            ):
-                                run_budget_stop = True
+                            run_budget_spent, run_budget_stop = _advance_run_budget(
+                                spent=run_budget_spent,
+                                budget=run_budget_usd,
+                                variant=variant,
+                            )
                         return variant
 
                 tasks = [
@@ -6487,7 +6733,11 @@ class NaturalLanguageRunMixin:
                     "status": item.get("status"),
                     "verdict": item.get("verdict"),
                     "steps_completed": len(item.get("steps") or []),
-                    "cost_usd": float(item.get("cost_usd") or 0.0),
+                    "cost_usd": item.get("cost_usd"),
+                    "cost_status": item.get("cost_status", "missing"),
+                    "cost_origin": item.get("cost_origin", "unknown"),
+                    "estimated_cost_usd": item.get("estimated_cost_usd"),
+                    "cost_basis": item.get("cost_basis"),
                     "total_tokens": int(item.get("total_tokens") or 0),
                     "schema_healing_count": int(item.get("schema_healing_count") or 0),
                 }
@@ -6552,7 +6802,11 @@ class NaturalLanguageRunMixin:
                     "verdict": selected_variant.get("verdict"),
                     "selected_for_workflow": True,
                     "steps_completed": len(selected_variant.get("steps") or []),
-                    "cost_usd": float(selected_variant.get("cost_usd") or 0.0),
+                    "cost_usd": selected_variant.get("cost_usd"),
+                    "cost_status": selected_variant.get("cost_status", "missing"),
+                    "cost_origin": selected_variant.get("cost_origin", "unknown"),
+                    "estimated_cost_usd": selected_variant.get("estimated_cost_usd"),
+                    "cost_basis": selected_variant.get("cost_basis"),
                     "total_tokens": int(selected_variant.get("total_tokens") or 0),
                     "schema_healing_count": int(selected_variant.get("schema_healing_count") or 0),
                 }
@@ -7190,6 +7444,15 @@ class NaturalLanguageRunMixin:
                 domain_hint=domain_hint,
                 execution_profile=execution_profile,
             )
+            run_cost_projection = _aggregate_variant_costs(variants)
+            if run_budget_usd is None:
+                run_budget_status = "not_configured"
+            elif run_cost_projection["cost_usd"] is None:
+                run_budget_status = "unknown"
+            elif run_cost_projection["cost_usd"] >= float(run_budget_usd):
+                run_budget_status = "limit_reached"
+            else:
+                run_budget_status = "within_budget"
             state_payload = _canonicalize_numeric_payload(
                 {
                     "run_id": run_id,
@@ -7220,14 +7483,24 @@ class NaturalLanguageRunMixin:
                         "llm_completion_tokens": int(
                             selected_variant.get("completion_tokens") or 0
                         ),
-                        "llm_cost_usd": float(selected_variant.get("cost_usd") or 0.0),
-                        "llm_cost_reconciliation_delta_usd": float(
-                            selected_variant.get("cost_reconciliation_delta_usd") or 0.0
+                        "llm_cost_usd": selected_variant.get("cost_usd"),
+                        "llm_cost_status": selected_variant.get("cost_status", "missing"),
+                        "llm_cost_origin": selected_variant.get("cost_origin", "unknown"),
+                        "llm_cost_basis": selected_variant.get("cost_basis"),
+                        "llm_estimated_cost_usd": selected_variant.get("estimated_cost_usd"),
+                        "llm_cost_reconciliation_delta_usd": selected_variant.get(
+                            "cost_reconciliation_delta_usd"
                         ),
-                        "run_cost_usd": round(
-                            sum(float(item.get("cost_usd") or 0.0) for item in variants),
-                            8,
+                        "llm_cost_events": list(selected_variant.get("cost_events") or []),
+                        "llm_per_model_budget_status": selected_variant.get(
+                            "per_model_budget_status", "not_evaluated"
                         ),
+                        "run_cost_usd": run_cost_projection["cost_usd"],
+                        "run_cost_status": run_cost_projection["cost_status"],
+                        "run_cost_origin": run_cost_projection["cost_origin"],
+                        "run_estimated_cost_usd": run_cost_projection["estimated_cost_usd"],
+                        "run_cost_delta_usd": run_cost_projection["cost_delta_usd"],
+                        "run_budget_status": run_budget_status,
                         "run_performance_summary": _build_run_performance_summary(variants),
                         "metric_taxonomy_evidence": dict(metric_taxonomy_evidence),
                         "metric_taxonomy_diagnostics": list(metric_taxonomy_diagnostics),
@@ -8447,6 +8720,18 @@ class NaturalLanguageRunMixin:
                     for variant in variants:
                         model_id = str(variant.get("model") or "unknown_model")
                         provider = str(variant.get("provider") or "runtime")
+                        observation_cost = variant.get("cost_usd")
+                        observation_cost_status = variant.get("cost_status", "missing")
+                        observation_cost_origin = variant.get("cost_origin", "unknown")
+                        observation_estimated_cost = variant.get("estimated_cost_usd")
+                        if variant.get("cost_basis") == "no_provider_call":
+                            # The variant's pipeline cost is a known no-call
+                            # zero; provider-quality observations have no
+                            # provider event to characterize.
+                            observation_cost = None
+                            observation_cost_status = "missing"
+                            observation_cost_origin = "unknown"
+                            observation_estimated_cost = None
                         provider_observations.append(
                             {
                                 "lane_id": str(variant.get("model_variant_id") or model_id),
@@ -8475,7 +8760,10 @@ class NaturalLanguageRunMixin:
                                     )
                                 ),
                                 "latency_ms": float(variant.get("latency_ms") or 0.0),
-                                "cost_usd": float(variant.get("cost_usd") or 0.0),
+                                "cost_usd": observation_cost,
+                                "cost_status": observation_cost_status,
+                                "cost_origin": observation_cost_origin,
+                                "estimated_cost_usd": observation_estimated_cost,
                                 "selected_variant_quality": 1.0
                                 if variant is selected_variant
                                 and policy_grounding_matrix.get("status") == "pass"
@@ -8486,6 +8774,8 @@ class NaturalLanguageRunMixin:
                                     "final_policy_claims_ref": variant.get(
                                         "final_policy_claims_ref"
                                     ),
+                                    "cost_basis": variant.get("cost_basis"),
+                                    "cost_events": list(variant.get("cost_events") or []),
                                 },
                             }
                         )

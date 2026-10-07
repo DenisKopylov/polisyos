@@ -1,13 +1,19 @@
 from __future__ import annotations
 
 import json
+import math
 from datetime import UTC, datetime, timedelta
+
+import pytest
+from pydantic import ValidationError
 
 from polisyos.runtime.quality.scorecard import build_quality_scorecard
 from polisyos.scientist.orchestration.llm.provider_quality import (
     CONTROLLED_GROUNDING_TASK_ID,
     DEFAULT_CONTROLLED_GROUNDING_SCENARIO_PACK_ID,
     DefaultProductionModelChoice,
+    ProviderCostOrigin,
+    ProviderCostStatus,
     ProviderModelQualityObservation,
     ProviderModelQualityThresholds,
     build_controlled_grounding_observation,
@@ -36,7 +42,10 @@ def _observation(
     citation_faithfulness_valid: bool = True,
     disagreement_detected: bool = False,
     latency_ms: float = 100.0,
-    cost_usd: float = 0.0,
+    cost_usd: float | None = 0.0,
+    estimated_cost_usd: float | None = None,
+    cost_status: ProviderCostStatus = "known",
+    cost_origin: ProviderCostOrigin = "reported",
     context_pressure: float = 0.25,
     provider_error_code: str | None = None,
     selected_variant_quality: float = 0.95,
@@ -64,6 +73,9 @@ def _observation(
         disagreement_detected=disagreement_detected,
         latency_ms=latency_ms,
         cost_usd=cost_usd,
+        estimated_cost_usd=estimated_cost_usd,
+        cost_status=cost_status,
+        cost_origin=cost_origin,
         context_pressure=context_pressure,
         provider_error_code=provider_error_code,
         selected_variant_quality=selected_variant_quality,
@@ -123,9 +135,208 @@ def test_simulated_lanes_populate_provider_model_quality_metrics() -> None:
     assert metrics.disagreement_rate == 0.5
     assert metrics.latency_ms_avg == 150.0
     assert metrics.cost_usd_total == 0.0
+    assert metrics.cost_status == "known"
+    assert metrics.cost_origin == "reported"
+    assert metrics.cost_known_sample_count == 2
+    assert metrics.cost_missing_sample_count == 0
     assert metrics.context_pressure_max == 0.85
     assert metrics.provider_error_rate == 0.5
     assert metrics.selected_variant_quality_avg == 0.68
+
+
+def test_provider_cost_summary_keeps_unknowns_and_typed_origins() -> None:
+    observations = [
+        _observation(
+            model_fingerprint="legacy-scalar",
+            cost_usd=9.0,
+            cost_status="missing",
+            cost_origin="unknown",
+        ),
+        _observation(
+            model_fingerprint="partial-cost",
+            cost_usd=0.25,
+            cost_status="missing",
+            cost_origin="estimated",
+            estimated_cost_usd=0.25,
+        ),
+        _observation(
+            model_fingerprint="partial-cost",
+            cost_usd=None,
+            cost_status="missing",
+            cost_origin="unknown",
+        ),
+        _observation(
+            model_fingerprint="explicit-zero",
+            cost_usd=0.0,
+            cost_status="known",
+            cost_origin="reported",
+        ),
+        _observation(
+            model_fingerprint="estimated-cost",
+            cost_usd=None,
+            cost_status="missing",
+            cost_origin="estimated",
+            estimated_cost_usd=0.125,
+        ),
+        _observation(
+            model_fingerprint="invalid-cost",
+            cost_usd=None,
+            cost_status="invalid",
+            cost_origin="unknown",
+        ),
+    ]
+    ledger = build_provider_model_quality_ledger(observations, generated_at=NOW)
+    metrics_by_fingerprint = {
+        entry.model_fingerprint: entry.metrics for entry in ledger.entries
+    }
+
+    legacy_scalar = metrics_by_fingerprint["legacy-scalar"]
+    assert legacy_scalar.cost_status == "missing"
+    assert legacy_scalar.cost_origin == "unknown"
+    assert legacy_scalar.cost_usd_total is None
+    assert legacy_scalar.cost_usd_avg is None
+    assert legacy_scalar.cost_known_sample_count == 0
+    assert legacy_scalar.cost_missing_sample_count == 1
+
+    partial = metrics_by_fingerprint["partial-cost"]
+    assert partial.cost_status == "missing"
+    assert partial.cost_origin == "mixed"
+    assert partial.cost_usd_total is None
+    assert partial.cost_usd_avg is None
+    assert partial.cost_known_sample_count == 1
+    assert partial.cost_missing_sample_count == 1
+
+    zero = metrics_by_fingerprint["explicit-zero"]
+    assert zero.cost_status == "known"
+    assert zero.cost_origin == "reported"
+    assert zero.cost_usd_total == 0.0
+    assert zero.cost_usd_avg == 0.0
+
+    estimated = metrics_by_fingerprint["estimated-cost"]
+    assert estimated.cost_status == "known"
+    assert estimated.cost_origin == "estimated"
+    assert estimated.cost_usd_total == 0.125
+    assert estimated.cost_usd_avg == 0.125
+
+    assert legacy_scalar.drift_action == zero.drift_action
+    assert legacy_scalar.drift_reasons == zero.drift_reasons
+
+    invalid = metrics_by_fingerprint["invalid-cost"]
+    assert invalid.cost_status == "invalid"
+    assert invalid.cost_usd_total is None
+    assert invalid.cost_invalid_sample_count == 1
+
+    comparison_rows = {
+        row.model_fingerprint: row
+        for row in compare_provider_models(
+            ledger,
+            scenario_pack_id="public_golden_pack",
+        ).rankings
+    }
+    assert comparison_rows["partial-cost"].cost_status == "missing"
+    assert comparison_rows["partial-cost"].cost_origin == "mixed"
+    assert comparison_rows["partial-cost"].cost_usd_avg is None
+    assert comparison_rows["estimated-cost"].cost_status == "known"
+    assert comparison_rows["estimated-cost"].cost_origin == "estimated"
+
+
+def test_controlled_comparison_preserves_cost_completeness_and_origin() -> None:
+    choice = {
+        "provider": "fixture-provider",
+        "model_id": "fixture-model",
+        "model_fingerprint": "fixture-fingerprint",
+    }
+    observations = [
+        _controlled_observation(
+            **choice,
+            sample_index=0,
+            cost_usd=0.001,
+            cost_status="known",
+            cost_origin="reported",
+        ),
+        _controlled_observation(
+            **choice,
+            sample_index=1,
+            cost_usd=0.002,
+            cost_status="known",
+            cost_origin="estimated",
+        ),
+        _controlled_observation(
+            **choice,
+            sample_index=2,
+            cost_usd=None,
+            cost_status="missing",
+            cost_origin="unknown",
+        ),
+    ]
+
+    comparison = build_controlled_provider_model_comparison(
+        observations,
+        candidate_models=[{**choice, "usage": "candidate"}],
+        default_model_choice={**choice, "usage": "policy_drafting"},
+        generated_at=NOW,
+    )
+
+    row = comparison.rows[0]
+    assert row.cost_status == "missing"
+    assert row.cost_origin == "mixed"
+    assert row.cost_usd_total is None
+    assert row.cost_usd_avg is None
+    assert row.cost_known_sample_count == 2
+    assert row.cost_missing_sample_count == 1
+
+
+def test_provider_cost_metrics_preserve_precision_and_reject_overflow() -> None:
+    tiny_ledger = build_provider_model_quality_ledger(
+        [
+            _observation(
+                model_fingerprint="tiny-positive",
+                cost_usd=1e-10,
+                latency_ms=100.0,
+            ),
+            _observation(
+                model_fingerprint="tiny-positive",
+                cost_usd=2e-10,
+                latency_ms=101.0,
+            ),
+        ],
+        generated_at=NOW,
+    )
+    tiny_metrics = tiny_ledger.entries[0].metrics
+    assert tiny_metrics.cost_status == "known"
+    assert tiny_metrics.cost_usd_total is not None
+    assert math.isclose(tiny_metrics.cost_usd_total, 3e-10, rel_tol=1e-12)
+    assert tiny_metrics.cost_usd_avg is not None
+    assert math.isclose(tiny_metrics.cost_usd_avg, 1.5e-10, rel_tol=1e-12)
+
+    overflow_ledger = build_provider_model_quality_ledger(
+        [
+            _observation(
+                model_fingerprint="overflow",
+                cost_usd=1e308,
+                latency_ms=100.0,
+            ),
+            _observation(
+                model_fingerprint="overflow",
+                cost_usd=1e308,
+                latency_ms=101.0,
+            ),
+        ],
+        generated_at=NOW,
+    )
+    overflow_metrics = overflow_ledger.entries[0].metrics
+    assert overflow_metrics.cost_status == "invalid"
+    assert overflow_metrics.cost_usd_total is None
+    assert overflow_metrics.cost_usd_avg is None
+
+
+def test_provider_cost_amounts_reject_boolean_and_nonfinite_values() -> None:
+    for field_name in ("cost_usd", "estimated_cost_usd"):
+        for invalid_amount in (True, math.inf, math.nan):
+            payload = _observation().model_dump()
+            payload[field_name] = invalid_amount
+            with pytest.raises(ValidationError):
+                ProviderModelQualityObservation.model_validate(payload)
 
 
 def test_ledger_sanitizes_credentials_and_hidden_answers() -> None:
@@ -540,7 +751,10 @@ def _controlled_observation(
     refusal_detected: bool = False,
     degradation_behavior: str | None = None,
     latency_ms: float = 100.0,
-    cost_usd: float = 0.001,
+    cost_usd: float | None = 0.001,
+    estimated_cost_usd: float | None = None,
+    cost_status: ProviderCostStatus = "known",
+    cost_origin: ProviderCostOrigin = "reported",
 ) -> ProviderModelQualityObservation:
     request_fingerprint = (
         "sha256:"
@@ -559,6 +773,9 @@ def _controlled_observation(
         request_fingerprint=request_fingerprint,
         latency_ms=latency_ms,
         cost_usd=cost_usd,
+        estimated_cost_usd=estimated_cost_usd,
+        cost_status=cost_status,
+        cost_origin=cost_origin,
         raw_evidence={
             "request_fingerprint": request_fingerprint,
             "api_key": "sk-never-leak",

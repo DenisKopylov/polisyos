@@ -3125,6 +3125,19 @@ def test_nl_pipeline_simulated_multimodel_honors_run_budget_guard_without_networ
         core_runs_root=tmp_path / "runs",
         registry_providers=_registry_providers(),
     )
+    job_id = "job_nl_simulated_multimodel_budget"
+    service._control_store.create_job(
+        job_id=job_id,
+        kind="natural_language_run",
+        run_id="R_nl_simulated_multimodel_budget",
+        pipeline_id=None,
+        requested_execution_profile=None,
+        effective_execution_profile="dev",
+        policy_flags={},
+        capability_manifest_ref=None,
+        payload_ref=None,
+        submitted_by="tester",
+    )
 
     try:
         service._execute_nl_pipeline(
@@ -3144,8 +3157,10 @@ def test_nl_pipeline_simulated_multimodel_honors_run_budget_guard_without_networ
             stop_criteria_payload={},
             governance_constraints_payload=[],
             expected_outputs_payload=[],
+            control_job_id=job_id,
             allow_mock_fallback=False,
         )
+        record = service._control_store.get_job(job_id)
     finally:
         service.close()
 
@@ -3159,11 +3174,27 @@ def test_nl_pipeline_simulated_multimodel_honors_run_budget_guard_without_networ
     assert variants[0]["status"] == "completed"
     assert variants[0]["prompt_tokens"] > 0
     assert variants[0]["completion_tokens"] > 0
-    assert variants[0]["cost_usd"] == 0.0
+    assert variants[0]["cost_usd"] is None
+    assert variants[0]["cost_status"] == "missing"
+    assert variants[0]["cost_origin"] == "unknown"
     assert variants[1]["status"] == "skipped_budget_guard"
     assert variants[1]["notes"] == ["run_budget_guard_prevented_start"]
     assert params["run_budget_usd"] == 0.0
-    assert params["run_cost_usd"] == 0.0
+    assert params["run_cost_usd"] is None
+    assert params["run_cost_status"] == "missing"
+    assert params["run_budget_status"] == "unknown"
+    assert params["run_performance_summary"]["llm"]["cost_usd"] is None
+
+    assert record is not None
+    progress_variants = record.progress["variants"]
+    first_progress = progress_variants[variants[0]["model_variant_id"]]
+    skipped_progress = progress_variants[variants[1]["model_variant_id"]]
+    assert first_progress["cost_usd"] is None
+    assert first_progress["cost_status"] == "missing"
+    assert first_progress["cost_origin"] == "unknown"
+    assert skipped_progress["status"] == "skipped_budget_guard"
+    assert skipped_progress["cost_usd"] == 0.0
+    assert skipped_progress["cost_basis"] == "no_provider_call"
 
 
 def test_policy_grounding_fails_unadjudicated_material_model_disagreement() -> None:

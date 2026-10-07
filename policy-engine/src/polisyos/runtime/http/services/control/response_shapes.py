@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import json
+import math
 from collections.abc import Iterable, Mapping
 from datetime import UTC
 from decimal import Decimal
-from typing import Any, cast
+from typing import Any, Literal, TypedDict, cast
 
 from polisyos.core.contracts.control import (
     ControlApprovalProjection,
@@ -33,39 +34,317 @@ from polisyos.runtime.quality.source_truth import (
 _SERIOUS_EXECUTION_PROFILES = frozenset({"research", "governed", "production"})
 
 
-def _sum_call_events(events: list[dict[str, Any]]) -> dict[str, float]:
-    prompt_tokens = 0.0
-    completion_tokens = 0.0
-    latency_ms = 0.0
-    cost_usd = 0.0
-    estimated_cost_usd = 0.0
-    cost_delta_usd = 0.0
-    for event in events:
-        prompt_tokens += float(event.get("prompt_tokens") or 0)
-        completion_tokens += float(event.get("completion_tokens") or 0)
-        latency_ms += float(event.get("latency_ms") or 0)
-        cost_usd += float(event.get("cost_usd") or 0.0)
-        estimated_cost_usd += float(event.get("estimated_cost_usd") or 0.0)
-        cost_delta_usd += float(event.get("cost_delta_usd") or 0.0)
+CostStatus = Literal["known", "missing", "invalid"]
+CostOrigin = Literal["reported", "estimated", "reuse", "unknown", "mixed"]
+EventCostOrigin = Literal["reported", "estimated", "reuse", "unknown"]
+CostSourceClassification = Literal["typed", "legacy_untyped", "invalid"]
+
+
+class CallEventCostEvidence(TypedDict):
+    """Cost evidence retained for one observed LLM call event."""
+
+    cost_usd: float | None
+    cost_status: CostStatus
+    cost_origin: EventCostOrigin
+    estimated_cost_usd: float | None
+    cost_delta_usd: float | None
+    usage_status: str | None
+    usage_origin: str | None
+    source_classification: CostSourceClassification
+    provider: str | None
+    model: str | None
+    provider_call: bool | None
+    cache_hit: bool | None
+    event_identity: str | None
+    producer_event_id: str | None
+    payload_digest: str | None
+    settlement_status: str | None
+    reuse_event_id: str | None
+
+
+class CallEventUsageSummary(TypedDict):
+    """Token/latency sums and fail-closed cost projection for call events."""
+
+    prompt_tokens: float
+    completion_tokens: float
+    latency_ms: float
+    cost_usd: float | None
+    cost_status: CostStatus
+    cost_origin: CostOrigin
+    estimated_cost_usd: float | None
+    cost_delta_usd: float | None
+    cost_events: tuple[CallEventCostEvidence, ...]
+
+
+class UsageDelta(TypedDict):
+    """Per-call token/latency delta and cost evidence for appended events."""
+
+    prompt_tokens: int
+    completion_tokens: int
+    latency_ms: int
+    cost_usd: float | None
+    cost_status: CostStatus
+    cost_origin: CostOrigin
+    estimated_cost_usd: float | None
+    cost_delta_usd: float | None
+    cost_events: tuple[CallEventCostEvidence, ...]
+
+
+_COST_STATUSES = frozenset({"known", "missing", "invalid"})
+_EVENT_COST_ORIGINS = frozenset({"reported", "estimated", "reuse", "unknown"})
+
+
+def _finite_cost_number(value: object, *, allow_negative: bool = False) -> float | None:
+    if isinstance(value, bool) or not isinstance(value, (int, float, Decimal)):
+        return None
+    try:
+        number = float(value)
+    except (OverflowError, TypeError, ValueError):
+        return None
+    if not math.isfinite(number) or (not allow_negative and number < 0):
+        return None
+    if isinstance(value, Decimal) and value != 0 and number == 0:
+        return None
+    return number
+
+
+def _event_text(event: Mapping[str, Any], key: str) -> str | None:
+    value = event.get(key)
+    return value if isinstance(value, str) and value.strip() else None
+
+
+def _cost_event_evidence(event: object) -> CallEventCostEvidence:
+    source: Mapping[str, Any] = event if isinstance(event, Mapping) else {}
+    has_status = "cost_status" in source
+    has_origin = "cost_origin" in source
+    status_value = source.get("cost_status")
+    origin_value = source.get("cost_origin")
+    status: CostStatus = (
+        cast("CostStatus", status_value)
+        if isinstance(status_value, str) and status_value in _COST_STATUSES
+        else "invalid"
+    )
+    origin: EventCostOrigin = (
+        cast("EventCostOrigin", origin_value)
+        if isinstance(origin_value, str) and origin_value in _EVENT_COST_ORIGINS
+        else "unknown"
+    )
+    amount_raw = source.get("cost_usd")
+    amount = _finite_cost_number(amount_raw)
+    estimated_raw = source.get("estimated_cost_usd")
+    estimated = _finite_cost_number(estimated_raw)
+    delta_raw = source.get("cost_delta_usd")
+    delta = _finite_cost_number(delta_raw, allow_negative=True)
+    origin_amount_raw = source.get("origin_cost_usd")
+    origin_amount = _finite_cost_number(origin_amount_raw)
+    usage_status = _event_text(source, "usage_status")
+    cache_hit_value = source.get("cache_hit")
+    cache_hit = cache_hit_value if isinstance(cache_hit_value, bool) else None
+    provider_call_value = source.get("provider_call")
+    provider_call = provider_call_value if isinstance(provider_call_value, bool) else None
+
+    source_classification: CostSourceClassification = "typed"
+    normalized_amount: float | None = None
+    axes_are_complete = has_status and has_origin
+    if not axes_are_complete:
+        if has_status or has_origin or not isinstance(event, Mapping):
+            status = "invalid"
+            source_classification = "invalid"
+        else:
+            # Old scalar fields carry no source status or origin, so they cannot
+            # establish a usable amount in this projection.
+            status = "missing"
+            origin = "unknown"
+            source_classification = "legacy_untyped"
+    elif status == "invalid":
+        source_classification = "invalid"
+    elif status == "known" and origin == "reported":
+        if (
+            amount is None
+            or cache_hit is True
+            or provider_call is False
+            or ("origin_cost_usd" in source and origin_amount != amount)
+        ):
+            status = "invalid"
+        else:
+            normalized_amount = amount
+    elif status in {"known", "missing"} and origin == "reuse":
+        if amount != 0.0 or cache_hit is not True or provider_call is True:
+            status = "invalid"
+        else:
+            normalized_amount = 0.0
+    elif status == "missing" and origin == "estimated":
+        if (
+            amount is None
+            or estimated is None
+            or amount != estimated
+            or usage_status != "known"
+            or cache_hit is True
+            or provider_call is False
+        ):
+            status = "invalid"
+        else:
+            normalized_amount = amount
+    elif status == "missing" and origin == "unknown":
+        if amount_raw is not None or origin_amount_raw is not None:
+            status = "invalid"
+    else:
+        status = "invalid"
+
+    supplemental_invalid = (
+        (estimated_raw is not None and estimated is None)
+        or (delta_raw is not None and delta is None)
+        or (origin_amount_raw is not None and origin_amount is None)
+    )
+    if supplemental_invalid:
+        status = "invalid"
+    if status == "invalid":
+        source_classification = "invalid"
+        normalized_amount = None
+    usable_estimate = estimated if usage_status == "known" else None
+    usable_delta = delta if usage_status == "known" else None
+
     return {
-        "prompt_tokens": prompt_tokens,
-        "completion_tokens": completion_tokens,
-        "latency_ms": latency_ms,
-        "cost_usd": cost_usd,
-        "estimated_cost_usd": estimated_cost_usd,
-        "cost_delta_usd": cost_delta_usd,
+        "cost_usd": normalized_amount,
+        "cost_status": status,
+        "cost_origin": origin,
+        "estimated_cost_usd": usable_estimate,
+        "cost_delta_usd": usable_delta,
+        "usage_status": usage_status,
+        "usage_origin": _event_text(source, "usage_origin"),
+        "source_classification": source_classification,
+        "provider": _event_text(source, "provider"),
+        "model": _event_text(source, "model"),
+        "provider_call": provider_call,
+        "cache_hit": cache_hit,
+        "event_identity": _event_text(source, "event_identity"),
+        "producer_event_id": _event_text(source, "producer_event_id"),
+        "payload_digest": _event_text(source, "payload_digest"),
+        "settlement_status": _event_text(source, "settlement_status"),
+        "reuse_event_id": _event_text(source, "reuse_event_id"),
     }
 
 
+def _aggregate_cost_evidence(
+    evidence: tuple[CallEventCostEvidence, ...],
+) -> dict[str, Any]:
+    if not evidence:
+        return {
+            "cost_usd": None,
+            "cost_status": "missing",
+            "cost_origin": "unknown",
+            "estimated_cost_usd": None,
+            "cost_delta_usd": None,
+            "cost_events": evidence,
+        }
+
+    origins = {item["cost_origin"] for item in evidence}
+    cost_origin: CostOrigin = (
+        cast("CostOrigin", next(iter(origins))) if len(origins) == 1 else "mixed"
+    )
+    if any(item["cost_status"] == "invalid" for item in evidence):
+        cost_status: CostStatus = "invalid"
+    elif all(item["cost_usd"] is not None for item in evidence):
+        cost_status = "known"
+    else:
+        cost_status = "missing"
+
+    total: float | None = None
+    if cost_status == "known":
+        try:
+            total = math.fsum(item["cost_usd"] or 0.0 for item in evidence)
+        except (OverflowError, ValueError):
+            cost_status = "invalid"
+        if total is not None and not math.isfinite(total):
+            cost_status = "invalid"
+        if cost_status != "known":
+            total = None
+
+    estimates: float | None = None
+    if all(item["estimated_cost_usd"] is not None for item in evidence):
+        try:
+            estimates = math.fsum(item["estimated_cost_usd"] or 0.0 for item in evidence)
+        except (OverflowError, ValueError):
+            estimates = None
+        if estimates is not None and not math.isfinite(estimates):
+            estimates = None
+
+    deltas: float | None = None
+    if all(item["cost_delta_usd"] is not None for item in evidence):
+        try:
+            deltas = math.fsum(item["cost_delta_usd"] or 0.0 for item in evidence)
+        except (OverflowError, ValueError):
+            deltas = None
+        if deltas is not None and not math.isfinite(deltas):
+            deltas = None
+
+    return {
+        "cost_usd": total,
+        "cost_status": cost_status,
+        "cost_origin": cost_origin,
+        "estimated_cost_usd": estimates,
+        "cost_delta_usd": deltas,
+        "cost_events": evidence,
+    }
+
+
+def _sum_call_events(events: Iterable[object]) -> CallEventUsageSummary:
+    prompt_tokens = 0.0
+    completion_tokens = 0.0
+    latency_ms = 0.0
+    cost_evidence: list[CallEventCostEvidence] = []
+    for event in events:
+        fields = event if isinstance(event, Mapping) else {}
+        prompt_tokens += float(fields.get("prompt_tokens") or 0)
+        completion_tokens += float(fields.get("completion_tokens") or 0)
+        latency_ms += float(fields.get("latency_ms") or 0)
+        cost_evidence.append(_cost_event_evidence(event))
+    cost_summary = _aggregate_cost_evidence(tuple(cost_evidence))
+    return cast(
+        "CallEventUsageSummary",
+        {
+            "prompt_tokens": prompt_tokens,
+            "completion_tokens": completion_tokens,
+            "latency_ms": latency_ms,
+            **cost_summary,
+        },
+    )
+
+
 def _delta_usage(
-    before: dict[str, float],
-    after: dict[str, float],
-) -> tuple[int, int, int, float]:
+    before: Mapping[str, Any],
+    after: Mapping[str, Any],
+) -> UsageDelta:
     prompt = max(0, int(after["prompt_tokens"] - before["prompt_tokens"]))
     completion = max(0, int(after["completion_tokens"] - before["completion_tokens"]))
     latency = max(0, int(after["latency_ms"] - before["latency_ms"]))
-    cost = max(0.0, float(after["cost_usd"] - before["cost_usd"]))
-    return prompt, completion, latency, cost
+    before_events = before.get("cost_events")
+    after_events = after.get("cost_events")
+    if (
+        isinstance(before_events, tuple)
+        and isinstance(after_events, tuple)
+        and len(after_events) >= len(before_events)
+        and after_events[: len(before_events)] == before_events
+    ):
+        cost_summary = _aggregate_cost_evidence(after_events[len(before_events) :])
+    else:
+        cost_summary = {
+            "cost_usd": None,
+            "cost_status": "invalid",
+            "cost_origin": "unknown",
+            "estimated_cost_usd": None,
+            "cost_delta_usd": None,
+            "cost_events": (),
+        }
+    return cast(
+        "UsageDelta",
+        {
+            "prompt_tokens": prompt,
+            "completion_tokens": completion,
+            "latency_ms": latency,
+            **cost_summary,
+        },
+    )
 
 
 def _build_scientist_v2_shadow_comparison(
@@ -73,7 +352,9 @@ def _build_scientist_v2_shadow_comparison(
     legacy_status: str,
     legacy_verdict: str | None,
     legacy_issue_count: int,
-    legacy_cost_usd: float,
+    legacy_cost_usd: float | None,
+    legacy_cost_status: CostStatus,
+    legacy_cost_origin: CostOrigin,
     legacy_prompt_tokens: int,
     legacy_completion_tokens: int,
     shadow_result: object | None,
@@ -94,6 +375,11 @@ def _build_scientist_v2_shadow_comparison(
             if isinstance(item, dict) and item.get("support_state") == "supported"
         )
     shadow_citation_coverage = float(shadow_metrics.get("citation_coverage") or 0.0)
+    legacy_cost = _finite_cost_number(legacy_cost_usd)
+    if legacy_cost_status != "known" or legacy_cost is None:
+        legacy_cost = None
+        if legacy_cost_status == "known":
+            legacy_cost_status = "invalid"
     return {
         "legacy_status": legacy_status,
         "legacy_verdict": legacy_verdict,
@@ -103,7 +389,9 @@ def _build_scientist_v2_shadow_comparison(
         "shadow_issue_count": int(shadow_result_payload.get("issue_count") or 0),
         "issue_count_delta": int(shadow_result_payload.get("issue_count") or 0)
         - int(legacy_issue_count),
-        "legacy_cost_usd": float(legacy_cost_usd),
+        "legacy_cost_usd": legacy_cost,
+        "legacy_cost_status": legacy_cost_status,
+        "legacy_cost_origin": legacy_cost_origin,
         "shadow_final_score": float(shadow_metrics.get("final_score") or 0.0),
         "legacy_total_tokens": int(legacy_prompt_tokens) + int(legacy_completion_tokens),
         "shadow_citation_coverage": shadow_citation_coverage,

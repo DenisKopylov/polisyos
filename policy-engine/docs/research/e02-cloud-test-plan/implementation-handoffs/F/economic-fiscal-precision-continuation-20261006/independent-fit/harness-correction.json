@@ -1,0 +1,15 @@
+{
+  "initial_test_path": "/tmp/e02-F-continuation-20261006/fit-fiscal-review/test_fiscal_independent_initial.py",
+  "initial_test_bytes": 18806,
+  "initial_test_sha256": "1ed534409ecec12b5b924f825237b0b77234a596257fc8842aa53ad99a1eafd0",
+  "classification": "reviewer-only harness FAIL: decoded canonical ParamDecimal is Decimal, serialized wire is __decimal__; no product changes",
+  "original_native_outcome": "83PASS2FAIL17warnings",
+  "original_removal_outcome": "FAIL, same erroneous early harness assertion; not deciding property removal",
+  "second_harness_error": {
+    "retained_script": "/tmp/e02-F-continuation-20261006/fit-fiscal-review/test_fiscal_independent_wire_initial.py",
+    "bytes": 19150,
+    "sha256": "ff82395f53d11a7313b6073242898a473a7eba674ffb0ad8b69acea086ce8128",
+    "actual_wire": "Core canonical _type=decimal/value, not guessed __decimal__ marker",
+    "fix": "Derive expected wire from existing Core to_canonical_bytes owner; retain decoded Decimal and real numerical consumer oracle."
+  }
+}

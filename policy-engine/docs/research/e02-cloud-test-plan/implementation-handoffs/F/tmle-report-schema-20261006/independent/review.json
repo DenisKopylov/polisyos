@@ -1,0 +1,779 @@
+{
+  "review_type": "Independent read-only generated TMLE enum companion",
+  "decision": "GO",
+  "source_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+  "source_tree": "f241cad69761f19a5e7cf4a7e468143ebb80fb2b",
+  "slice_base_sha": "ae9f30204c84cb3f9d1bd418752145eec2a5429d",
+  "slice_base_tree": "f51724d489fcb09ee75cb2fe7c1a92c2f00210d5",
+  "implementation_changed_paths": [
+    "policy-engine/docs/reference/ir/schema-catalog.md",
+    "policy-engine/release-fragments/unreleased/2026-10-06-tmle-report-schema.toml",
+    "policy-engine/schemas/snapshots/ir/_manifest.json",
+    "policy-engine/schemas/snapshots/ir/causal_effect_report.schema.json",
+    "policy-engine/schemas/snapshots/ir/hte_result.schema.json"
+  ],
+  "full_diff_sha256": "3aa5d1cd22625678fc1f1372f86393342e19ec16cbdd11a47e345d394673d9bf",
+  "source_refs": [
+    {
+      "bytes": 42619,
+      "git_blob": "af9c90d7558721b126d374b5ab7526888d523865",
+      "git_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+      "path": "policy-engine/schemas/snapshots/ir/causal_effect_report.schema.json",
+      "sha256": "7c00c1717ce59f0c4d6d05fafca99e853c4c8bf83fb21136382a79c070e29b72"
+    },
+    {
+      "bytes": 8819,
+      "git_blob": "88e230f0e4fe6297f4ca4fbd3fbfc7e4620a1c0e",
+      "git_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+      "path": "policy-engine/schemas/snapshots/ir/hte_result.schema.json",
+      "sha256": "d18e513fce7540ee8c2e768a4c3f535cf5b31d880678357884acc41062f53575"
+    },
+    {
+      "bytes": 52447,
+      "git_blob": "5d2e6053b928c3e239abf0e35869c8e542f015ad",
+      "git_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+      "path": "policy-engine/schemas/snapshots/ir/_manifest.json",
+      "sha256": "a2491b99771ccd92ceb2e90a38445375fc615f4ae3507c887c7a2d9d6e0d222e"
+    },
+    {
+      "bytes": 1641854,
+      "git_blob": "e9333ab3f9ce6c7d51b72cc18989a7134de9d085",
+      "git_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+      "path": "policy-engine/docs/reference/ir/schema-catalog.md",
+      "sha256": "ba12e275c5c2d8c7698a47eeda37e355f0a8ebba851682a5a7535049865ccdc4"
+    },
+    {
+      "bytes": 29376,
+      "git_blob": "0672571cca924b7aed4906f5a7690a3ac0d23040",
+      "git_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+      "path": "policy-engine/docs/reference/schemas.md",
+      "sha256": "914dc3f70a4044ac4a70b7859270ca9b4d6e5247cb0603320b3c957ef586bc22"
+    },
+    {
+      "bytes": 2331,
+      "git_blob": "7609fdeb1750a3480646e7940d38779945278c17",
+      "git_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-tmle-report-schema.toml",
+      "sha256": "36ee55ae22e549a41c494db4fbe2ef6130bcb260351edaf292b990e64da193c3"
+    },
+    {
+      "bytes": 76429,
+      "git_blob": "9a0447fa7a66b45e045352377abe8e2855268781",
+      "git_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+      "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+      "sha256": "c7c6e0d382ce4d671ff1c783726a422464873bf7b3d93a602109f919222b7af7"
+    },
+    {
+      "bytes": 15286,
+      "git_blob": "e28883702f8f4390b57a53223371b0cf8ab84703",
+      "git_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+      "path": "policy-engine/src/polisyos/ir/analytics/hte.py",
+      "sha256": "7d1fa09696f57c790df0b8297317e383154e46e514995503a014bd2e926e5efa"
+    },
+    {
+      "bytes": 14857,
+      "git_blob": "cd6a59856b9bcc5e06446283b5287c4ba0f66a15",
+      "git_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+      "path": "policy-engine/src/polisyos/ir/analytics/structural_causal_model.py",
+      "sha256": "9ab530f92781aae2f00bb0151858ccca41a2c0bc93b94c0bc2da1dfaf503f6fa"
+    },
+    {
+      "bytes": 15243,
+      "git_blob": "f73b16e5a7b50d318ec527fe9c8a1ae6b1971d54",
+      "git_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+      "path": "policy-engine/schemas/snapshots/ir/structural_causal_model_spec.schema.json",
+      "sha256": "e0709ef298134086b4f57c279ac1cdd5cb173afaf1b8577a458bccca31387df4"
+    },
+    {
+      "bytes": 31756,
+      "git_blob": "06fa2013eae4b8232ba0680da2fabdadd6a8a962",
+      "git_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/treatment_effects.py",
+      "sha256": "d8d0057a48beb6cbbfb1659890af37f3e8ed78303e49ffaa0df514610689b331"
+    },
+    {
+      "bytes": 59964,
+      "git_blob": "96a9006df3f35174c549cf57b2d6b6927fbe556a",
+      "git_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+      "sha256": "cf8d32b9fd825fa2efdd169652de78164f714c7ad01f2d8fde387095111103a0"
+    },
+    {
+      "bytes": 1857,
+      "git_blob": "37a433addcec7453347e3a581a4e05c4b60d5f03",
+      "git_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+      "path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+      "sha256": "e876f8d65572ef11992a5ba7336decffea966af7e5b6df12a48ec7dae25b08f3"
+    },
+    {
+      "bytes": 2555,
+      "git_blob": "02167bbe1c34c7b6501c37a122186a5aa0ea9d90",
+      "git_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+      "path": "policy-engine/src/polisyos/ir/model_layer/canon.py",
+      "sha256": "4b3a32301664c15a70300ca7f99bc14467602ce38d1bfd300e57503aab57043b"
+    },
+    {
+      "bytes": 39552,
+      "git_blob": "5c64514b14c9d1df0f167a6a572551f3546c7019",
+      "git_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+      "path": "policy-engine/src/polisyos/ir/registry/refs.py",
+      "sha256": "4135199d208ea8970114df0d53a45b92f4e880b32451387a59de43be4987ed19"
+    },
+    {
+      "bytes": 173575,
+      "git_blob": "72127a25ff25d4a034d376ba1452f54e96914931",
+      "git_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324"
+    },
+    {
+      "bytes": 23635,
+      "git_blob": "b4c79ac48ca420425b91cbf4c47ac794a37eaba8",
+      "git_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+      "path": "policy-engine/tools/quality/diagnostics/gen_schema.py",
+      "sha256": "6d1b8f48e20853415dbd9109d0b0662f3d9ca199e2d15c36292823b2e7c1d72e"
+    },
+    {
+      "bytes": 10707,
+      "git_blob": "40cdebf82921f87b1d3bd8601291f03ad7fe635e",
+      "git_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+      "path": "policy-engine/tools/quality/diagnostics/generate_ir_reference_catalog.py",
+      "sha256": "f4b8184a1052a76f7d54a6e729757478eced3c8213b88326ca652f604a213c27"
+    }
+  ],
+  "related_finding_ids": [
+    "B54",
+    "B56"
+  ],
+  "closure_ids": [],
+  "independent_checks": [
+    {
+      "name": "native",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/test_tmle_generated_consumer.py",
+        "-o",
+        "addopts=",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "-s",
+        "--tb=short",
+        "--basetemp=/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/pytest-tmp"
+      ],
+      "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+      "source_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+      "base_sha": "ae9f30204c84cb3f9d1bd418752145eec2a5429d",
+      "environment": {
+        "python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-tmle-20261006/policy-engine/src:/workspace/e02-F-tmle-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "resource_quota_added": false
+      },
+      "exit_code": 1,
+      "wall_seconds": 18.69176509900717,
+      "outputs": {
+        "stdout": {
+          "path": "native.stdout.txt",
+          "bytes": 9745,
+          "sha256": "08821562f4c9f476a3e5be5db137db1652300eb74419f5de314873aa4b8e7fd6"
+        },
+        "stderr": {
+          "path": "native.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "retained_original_command_receipt": {
+        "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/native-harness-first.json",
+        "bytes": 1290,
+        "sha256": "f7e2b0a25045e069d5f553bbed942d4430b756c2ec0d9df7f5abb73cef49a05e"
+      },
+      "actual_output_refs": {
+        "stdout": {
+          "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/native-harness-first.stdout.txt",
+          "bytes": 9745,
+          "sha256": "08821562f4c9f476a3e5be5db137db1652300eb74419f5de314873aa4b8e7fd6"
+        },
+        "stderr": {
+          "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/native-harness-first.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "outcome": "FAIL",
+      "interpretation": "Reviewer stdout logging TypeError after native CAS/fresh-reader/schema assertions; no product defect. Original output refs retained verbatim and raw files renamed with historical suffix."
+    },
+    {
+      "name": "native-corrected",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/test_tmle_generated_consumer.py",
+        "-o",
+        "addopts=",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "-s",
+        "--tb=short",
+        "--basetemp=/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/pytest-corrected-tmp"
+      ],
+      "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+      "source_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+      "base_sha": "ae9f30204c84cb3f9d1bd418752145eec2a5429d",
+      "environment": {
+        "python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-tmle-20261006/policy-engine/src:/workspace/e02-F-tmle-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "resource_quota_added": false
+      },
+      "exit_code": 0,
+      "wall_seconds": 19.144311312993523,
+      "outputs": {
+        "stdout": {
+          "path": "native-corrected.stdout.txt",
+          "bytes": 4226,
+          "sha256": "6bb6f2bafaa8ec6853aa1ebefe5946e889c215d59b2ed8ed17f54b17e80e76e1"
+        },
+        "stderr": {
+          "path": "native-corrected.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "retained_original_command_receipt": {
+        "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/native-corrected.json",
+        "bytes": 1331,
+        "sha256": "5ed3d903199c67a0160c37811696a1b97d544df478466511a4c0dba80bed256d"
+      },
+      "actual_output_refs": {
+        "stdout": {
+          "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/native-corrected.stdout.txt",
+          "bytes": 4226,
+          "sha256": "6bb6f2bafaa8ec6853aa1ebefe5946e889c215d59b2ed8ed17f54b17e80e76e1"
+        },
+        "stderr": {
+          "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/native-corrected.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "outcome": "PASS",
+      "pytest_census": {
+        "passed": 17,
+        "failed": 0,
+        "skipped": 0,
+        "errors": 0,
+        "warnings": 0
+      },
+      "interpretation": "Actual native TMLE report and explicitly synthetic HTE typed-wire fixtures through real CAS and fresh process readers; old1.0 readers and generated schema checks."
+    },
+    {
+      "name": "removal-enum-causal_effect_report",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/remove_enum_or_hash.py",
+        "enum",
+        "causal_effect_report"
+      ],
+      "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+      "source_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+      "base_sha": "ae9f30204c84cb3f9d1bd418752145eec2a5429d",
+      "environment": {
+        "python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-tmle-20261006/policy-engine/src:/workspace/e02-F-tmle-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "resource_quota_added": false
+      },
+      "exit_code": 1,
+      "wall_seconds": 10.790272196012666,
+      "outputs": {
+        "stdout": {
+          "path": "removal-enum-causal_effect_report.stdout.txt",
+          "bytes": 6560,
+          "sha256": "6502d84fa1eb63e34bed81742596861b584786d2e8119edf90bdf8c9b6e2bc7f"
+        },
+        "stderr": {
+          "path": "removal-enum-causal_effect_report.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "retained_original_command_receipt": {
+        "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-enum-causal_effect_report.json",
+        "bytes": 1189,
+        "sha256": "7d340e6014b03b9c6730fe3fd144f1b767b13d452e34d4d3c01aaf075c49d2ae"
+      },
+      "actual_output_refs": {
+        "stdout": {
+          "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-enum-causal_effect_report.stdout.txt",
+          "bytes": 6560,
+          "sha256": "6502d84fa1eb63e34bed81742596861b584786d2e8119edf90bdf8c9b6e2bc7f"
+        },
+        "stderr": {
+          "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-enum-causal_effect_report.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "outcome": "FAIL",
+      "expected_negative": true,
+      "property_detected": true,
+      "interpretation": "Actual criterion assertion failed for removed companion property with native provider/markers retained; not counted as PASS."
+    },
+    {
+      "name": "removal-enum-hte_result",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/remove_enum_or_hash.py",
+        "enum",
+        "hte_result"
+      ],
+      "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+      "source_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+      "base_sha": "ae9f30204c84cb3f9d1bd418752145eec2a5429d",
+      "environment": {
+        "python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-tmle-20261006/policy-engine/src:/workspace/e02-F-tmle-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "resource_quota_added": false
+      },
+      "exit_code": 1,
+      "wall_seconds": 10.7925206660002,
+      "outputs": {
+        "stdout": {
+          "path": "removal-enum-hte_result.stdout.txt",
+          "bytes": 6347,
+          "sha256": "75f621b9c58deaff06a13c4f57976d3bd2cf0c79ca1d229b1e18e9a5d542e3df"
+        },
+        "stderr": {
+          "path": "removal-enum-hte_result.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "retained_original_command_receipt": {
+        "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-enum-hte_result.json",
+        "bytes": 1147,
+        "sha256": "c0bad35e776a596fe7bff7c83bf043ea5230c0cafde5bb17e43ecf0a4967d614"
+      },
+      "actual_output_refs": {
+        "stdout": {
+          "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-enum-hte_result.stdout.txt",
+          "bytes": 6347,
+          "sha256": "75f621b9c58deaff06a13c4f57976d3bd2cf0c79ca1d229b1e18e9a5d542e3df"
+        },
+        "stderr": {
+          "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-enum-hte_result.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "outcome": "FAIL",
+      "expected_negative": true,
+      "property_detected": true,
+      "interpretation": "Actual criterion assertion failed for removed companion property with native provider/markers retained; not counted as PASS."
+    },
+    {
+      "name": "removal-hash-causal_effect_report",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/remove_enum_or_hash.py",
+        "hash",
+        "causal_effect_report"
+      ],
+      "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+      "source_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+      "base_sha": "ae9f30204c84cb3f9d1bd418752145eec2a5429d",
+      "environment": {
+        "python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-tmle-20261006/policy-engine/src:/workspace/e02-F-tmle-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "resource_quota_added": false
+      },
+      "exit_code": 1,
+      "wall_seconds": 11.003221054997994,
+      "outputs": {
+        "stdout": {
+          "path": "removal-hash-causal_effect_report.stdout.txt",
+          "bytes": 3605,
+          "sha256": "1beae527f1dd28a055856f5c404f88415b2cbd3b5e9bb21b2f9b6d6e66b3c3bb"
+        },
+        "stderr": {
+          "path": "removal-hash-causal_effect_report.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "retained_original_command_receipt": {
+        "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-hash-causal_effect_report.json",
+        "bytes": 1189,
+        "sha256": "32bd19252ddc184522ad262eb36394e2455807b56ab9269ca8870fcc41b347df"
+      },
+      "actual_output_refs": {
+        "stdout": {
+          "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-hash-causal_effect_report.stdout.txt",
+          "bytes": 3605,
+          "sha256": "1beae527f1dd28a055856f5c404f88415b2cbd3b5e9bb21b2f9b6d6e66b3c3bb"
+        },
+        "stderr": {
+          "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-hash-causal_effect_report.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "outcome": "FAIL",
+      "expected_negative": true,
+      "property_detected": true,
+      "interpretation": "Actual criterion assertion failed for removed companion property with native provider/markers retained; not counted as PASS."
+    },
+    {
+      "name": "removal-hash-hte_result",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/remove_enum_or_hash.py",
+        "hash",
+        "hte_result"
+      ],
+      "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+      "source_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+      "base_sha": "ae9f30204c84cb3f9d1bd418752145eec2a5429d",
+      "environment": {
+        "python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-tmle-20261006/policy-engine/src:/workspace/e02-F-tmle-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "resource_quota_added": false
+      },
+      "exit_code": 1,
+      "wall_seconds": 10.630947323996224,
+      "outputs": {
+        "stdout": {
+          "path": "removal-hash-hte_result.stdout.txt",
+          "bytes": 3585,
+          "sha256": "1af07f439bc73a05f8b5336119829b971c237af60c2aebe1a976dd3ef3d6ba89"
+        },
+        "stderr": {
+          "path": "removal-hash-hte_result.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "retained_original_command_receipt": {
+        "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-hash-hte_result.json",
+        "bytes": 1149,
+        "sha256": "e55fd818f6bd6d8c4b4373bd74eb942d18d1f30447fd985b638ac4cb31cc9bf9"
+      },
+      "actual_output_refs": {
+        "stdout": {
+          "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-hash-hte_result.stdout.txt",
+          "bytes": 3585,
+          "sha256": "1af07f439bc73a05f8b5336119829b971c237af60c2aebe1a976dd3ef3d6ba89"
+        },
+        "stderr": {
+          "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-hash-hte_result.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "outcome": "FAIL",
+      "expected_negative": true,
+      "property_detected": true,
+      "interpretation": "Actual criterion assertion failed for removed companion property with native provider/markers retained; not counted as PASS."
+    }
+  ],
+  "source_audit": {
+    "outcome": "PASS",
+    "output": {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/source-audit.stdout.txt",
+      "bytes": 15811,
+      "sha256": "0c77e239db07daa95c9df79a34607d63a9276c85e991374a618acbe87d66c302"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/source-audit.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "environment_ref": {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/source-audit.stdout.txt",
+      "bytes": 15811,
+      "sha256": "0c77e239db07daa95c9df79a34607d63a9276c85e991374a618acbe87d66c302"
+    },
+    "criterion": "Exact5path scope; native two complete snapshots; CausalMethod37; existing description only; exact99-entry digest with97unowned rows/provenance unchanged; full canonical catalogue; old SCM1.1 retained; public stable release classification."
+  },
+  "observed_author_checks": [
+    {
+      "name": "positive",
+      "receipt": {
+        "path": "/tmp/e02-F-continuation-20261006/tmle-generated/positive.json",
+        "bytes": 996,
+        "sha256": "5e3d8dcc51cd092e34161fce9cb97a6ff792825a9e163d3f749d00372938e2f6"
+      },
+      "outputs": [
+        {
+          "path": "/tmp/e02-F-continuation-20261006/tmle-generated/positive.stdout.txt",
+          "bytes": 431,
+          "sha256": "e4d5e74bc99998295d344b970782e98d717f186f31ffd9d0ab2af20d4f5d9142"
+        },
+        {
+          "path": "/tmp/e02-F-continuation-20261006/tmle-generated/positive.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "actual_exit_code": 0,
+      "execution": "Author actual execution independently read; no reviewer duplicate full generator run."
+    },
+    {
+      "name": "enum",
+      "receipt": {
+        "path": "/tmp/e02-F-continuation-20261006/tmle-generated/enum.json",
+        "bytes": 983,
+        "sha256": "abaffd35b20aae4122932403ee17d2f7786aa6a4c0e4cee2b720006a99c0f363"
+      },
+      "outputs": [
+        {
+          "path": "/tmp/e02-F-continuation-20261006/tmle-generated/enum.stdout.txt",
+          "bytes": 429,
+          "sha256": "833fb1e3e37eee709ec60ab4cc9c2c2f9bdfbf5015c49240aadeea39a7d9bc1e"
+        },
+        {
+          "path": "/tmp/e02-F-continuation-20261006/tmle-generated/enum.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "actual_exit_code": 1,
+      "execution": "Author actual execution independently read; no reviewer duplicate full generator run."
+    },
+    {
+      "name": "hash",
+      "receipt": {
+        "path": "/tmp/e02-F-continuation-20261006/tmle-generated/hash.json",
+        "bytes": 984,
+        "sha256": "d9de2bc8a1b4ba1f4d1ab3259a079a0376391a7fafe999bd9603132ead3d1ed1"
+      },
+      "outputs": [
+        {
+          "path": "/tmp/e02-F-continuation-20261006/tmle-generated/hash.stdout.txt",
+          "bytes": 393,
+          "sha256": "10ad93906be8a8e2eaec4f9dbd7cfd08a7de0a51101e2ebc15e231e4a39586b4"
+        },
+        {
+          "path": "/tmp/e02-F-continuation-20261006/tmle-generated/hash.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "actual_exit_code": 1,
+      "execution": "Author actual execution independently read; no reviewer duplicate full generator run."
+    },
+    {
+      "name": "full",
+      "receipt": {
+        "path": "/tmp/e02-F-continuation-20261006/tmle-generated/full.json",
+        "bytes": 1051,
+        "sha256": "608c24f9fda22d55507d3cc8d827c1ebb647a88a2cb3b2d0018528e971641386"
+      },
+      "outputs": [
+        {
+          "path": "/tmp/e02-F-continuation-20261006/tmle-generated/full.stdout.txt",
+          "bytes": 263,
+          "sha256": "e00f927927d3cfc6c761f0e3a5ebd13e4f8007fdb55aeacd4821f3bf5fbd9db2"
+        },
+        {
+          "path": "/tmp/e02-F-continuation-20261006/tmle-generated/full.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "actual_exit_code": 1,
+      "execution": "Author actual execution independently read; no reviewer duplicate full generator run."
+    },
+    {
+      "name": "selected-first-debug",
+      "receipt": {
+        "path": "/tmp/e02-F-continuation-20261006/tmle-generated/selected-first-debug.json",
+        "bytes": 299,
+        "sha256": "c6b7164ed91f8170c54551435ea4d3b667d614670f3bc754bba698864774d5af"
+      },
+      "outputs": [
+        {
+          "path": "/tmp/e02-F-continuation-20261006/tmle-generated/selected-first-debug.stdout.txt",
+          "bytes": 173,
+          "sha256": "879415970b795fd1708da13c2742bc06aeebef6d06907393e7a2a642c4252497"
+        },
+        {
+          "path": "/tmp/e02-F-continuation-20261006/tmle-generated/selected-first-debug.stderr.txt",
+          "bytes": 1233,
+          "sha256": "4fd3cf80982cbc1d60cd8b0b2e2ef4ad8e625e5e13f5c468f6718fca3a34bca9"
+        }
+      ],
+      "actual_exit_code": 1,
+      "execution": "Author actual execution independently read; no reviewer duplicate full generator run."
+    }
+  ],
+  "scientific_scope": "One independently seeded bounded360-row synthetic DGP native TMLE call verifies real report serialization and regular-IID interval preservation, not population coverage. HTEResult is a supported typed wire fixture, not a new native heterogeneous TMLE producer.",
+  "retained_negative_history": "Initial reviewer4FAIL13PASS logging harness retained verbatim; corrected17PASS. Initial packaging harness ERROR mistakenly matched expected ValidationError text, corrected to reject only pytest setup/collection ERROR. Author initial selected tools-origin ERROR/FAIL retained. All four reviewer removal tests remain actual FAIL, correctly detecting removed enum/hash properties.",
+  "limitations": [
+    "Full canonical generator is actual FAIL at FeedbackSolveResult snapshot and dependent manifest; five Core ArtifactRef nested additions outside owner scope are not autofixed.",
+    "No inherited P41/global generation/architecture/docs PASS claim.",
+    "Reports retain1.0; SCM retained1.1. Old non-TMLE existing labels and explicit/omitted1.0 actual CAS readers verified, not old non-TMLE backends.",
+    "Native report numerical SUCCESS+CI remains non-gating; accepted production TMLE Node authority/intake/identification and actual common budget admission remain UNRUN/limited.",
+    "No DoWhy/EconML backend witness inferred from absence in baseline Python3.14; actual used native NumPy profile identified in environment."
+  ],
+  "source_mutations": false,
+  "grandchildren": false,
+  "resource_quota_added": false,
+  "transfer_file_policy": "Unique measured scratch outputs and replayers only; tracked snapshots/source/full generated99-model views referenced by exact Git path@SHA without copied bodies.",
+  "retained_unique_artifacts": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/test_tmle_generated_consumer.py",
+      "bytes": 11246,
+      "sha256": "c0d747992c167f8c817b3b22add43060d79ca7e131027102f2c1870cb6219ad1"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/remove_enum_or_hash.py",
+      "bytes": 1650,
+      "sha256": "1b2610475115244e3689f3f509fe2f436bd2b602ce5526ffa8a37746e19ef41a"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/run_review.py",
+      "bytes": 3443,
+      "sha256": "d13df7137aba97f16c6b877cd0be7849974773615c6f8f1b63665517881217e9"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/audit_companion.py",
+      "bytes": 6077,
+      "sha256": "4cae764fc0160b43e0f440c1baff8705aac8e0c7dcc17649d6c00bc8e9433ac2"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/finish_review.py",
+      "bytes": 7310,
+      "sha256": "6653a2f1322bc4570e23b683fdc4fc6a573cf8287319502b6cfcc2d410a885e0"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/source-paths.json",
+      "bytes": 1149,
+      "sha256": "f9f46a561aa2372e4b034b1888d67ed753b41817b903676d57e01561860cc7b8"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/harness-correction.json",
+      "bytes": 251,
+      "sha256": "03996994c9116d989d31e4ea3165a0c8a8e39eb958b18d744c4507671133ab71"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/source-audit.stdout.txt",
+      "bytes": 15811,
+      "sha256": "0c77e239db07daa95c9df79a34607d63a9276c85e991374a618acbe87d66c302"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/source-audit.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/finish-first.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/finish-first.stderr.txt",
+      "bytes": 341,
+      "sha256": "9b6a792b3cd2de648502f7362db10e80fb67177ce5eed8a5f88e9901863b4320"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/native-harness-first.json",
+      "bytes": 1290,
+      "sha256": "f7e2b0a25045e069d5f553bbed942d4430b756c2ec0d9df7f5abb73cef49a05e"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/native-harness-first.stdout.txt",
+      "bytes": 9745,
+      "sha256": "08821562f4c9f476a3e5be5db137db1652300eb74419f5de314873aa4b8e7fd6"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/native-harness-first.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/native-corrected.json",
+      "bytes": 1331,
+      "sha256": "5ed3d903199c67a0160c37811696a1b97d544df478466511a4c0dba80bed256d"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/native-corrected.stdout.txt",
+      "bytes": 4226,
+      "sha256": "6bb6f2bafaa8ec6853aa1ebefe5946e889c215d59b2ed8ed17f54b17e80e76e1"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/native-corrected.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-enum-causal_effect_report.json",
+      "bytes": 1189,
+      "sha256": "7d340e6014b03b9c6730fe3fd144f1b767b13d452e34d4d3c01aaf075c49d2ae"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-enum-causal_effect_report.stdout.txt",
+      "bytes": 6560,
+      "sha256": "6502d84fa1eb63e34bed81742596861b584786d2e8119edf90bdf8c9b6e2bc7f"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-enum-causal_effect_report.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-enum-hte_result.json",
+      "bytes": 1147,
+      "sha256": "c0bad35e776a596fe7bff7c83bf043ea5230c0cafde5bb17e43ecf0a4967d614"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-enum-hte_result.stdout.txt",
+      "bytes": 6347,
+      "sha256": "75f621b9c58deaff06a13c4f57976d3bd2cf0c79ca1d229b1e18e9a5d542e3df"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-enum-hte_result.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-hash-causal_effect_report.json",
+      "bytes": 1189,
+      "sha256": "32bd19252ddc184522ad262eb36394e2455807b56ab9269ca8870fcc41b347df"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-hash-causal_effect_report.stdout.txt",
+      "bytes": 3605,
+      "sha256": "1beae527f1dd28a055856f5c404f88415b2cbd3b5e9bb21b2f9b6d6e66b3c3bb"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-hash-causal_effect_report.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-hash-hte_result.json",
+      "bytes": 1149,
+      "sha256": "e55fd818f6bd6d8c4b4373bd74eb942d18d1f30447fd985b638ac4cb31cc9bf9"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-hash-hte_result.stdout.txt",
+      "bytes": 3585,
+      "sha256": "1af07f439bc73a05f8b5336119829b971c237af60c2aebe1a976dd3ef3d6ba89"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-hash-hte_result.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

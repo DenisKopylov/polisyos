@@ -1,0 +1,11 @@
+{
+  "raw_path": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/production-invocation-fiscal-frozen.json",
+  "raw_bytes": 170887922,
+  "raw_sha256": "77ed712c2a9da63da70edc6dca4faa44a33a30c021c319aa18f792893443a028",
+  "encoded_path": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/production-invocation-fiscal-frozen.json.xz",
+  "encoded_bytes": 3830028,
+  "encoded_sha256": "996dc14faf30b2f44e9b3ff36b6bd294cd6fa922c2ef65e86c9bcb7f1ab384a4",
+  "encoding": "xz",
+  "lossless_verified": true,
+  "elapsed_seconds": 13.408402998000383
+}

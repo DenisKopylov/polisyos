@@ -1,0 +1,27 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-F-continuation-20261006/cau/review-input-resolver.py"
+  ],
+  "cwd": "/workspace/e02-F-cau-20261006/policy-engine",
+  "source_sha": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+  "source_tree": "14ac7f7b160037fe461cfe0f1f320ee9690ef164",
+  "utc": "2026-10-06T15:27:25.477682+00:00",
+  "elapsed_s": 13.782310572001734,
+  "exit_code": 1,
+  "environment": {
+    "python": "3.14.7",
+    "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine:."
+  },
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/resolver-independent-multiview.stdout",
+    "bytes": 1526,
+    "sha256": "dbbabe72f86302d1d690cdca94cba0de73c93a92879ee70523d250dd4ae3a8cc"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/resolver-independent-multiview.stderr",
+    "bytes": 876,
+    "sha256": "06e203ff590fd1e4f04f31660e2e787ed9ca7b6860e6fac7db651782b09781e3"
+  }
+}

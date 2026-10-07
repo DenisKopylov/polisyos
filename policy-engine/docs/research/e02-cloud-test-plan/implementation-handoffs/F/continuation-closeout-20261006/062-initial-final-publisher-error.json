@@ -1,0 +1,16 @@
+{
+  "check": "ERROR",
+  "phase": "ROOT final metadata publication before any output file",
+  "command": [
+    "python3",
+    "/tmp/e02-F-continuation-20261006/publish-final-closeout.py",
+    "/tmp/e02-F-continuation-20261006/graph/final-packet-review/final-transfer-selection.json",
+    "/tmp/e02-F-continuation-20261006/graph/final-packet-review/f17b9a52784d9484ef65563dc6695240629bdfc6/final-independent-review.json"
+  ],
+  "error": "FileNotFoundError: /tmp/e02-F-continuation-20261006/graph/final-packet-review/final-transfer-selection.json",
+  "actual_selection_path": "/tmp/e02-F-continuation-20261006/graph/final-packet-review/f17b9a52784d9484ef65563dc6695240629bdfc6/final-transfer-selection.json",
+  "initial_script_bytes": 13452,
+  "initial_script_sha256": "722a325dbd1333487a44dfce05cd2b2293ae5abc71b088b1ba233c9782cd8cd0",
+  "side_effect": "Created empty own metadata destination directory before selection read; no files written, source/Git untouched. Directory is reused without deletion.",
+  "raw_stdout_stderr_file_custody": "Initial call returned full traceback in tool output; no separate original stream file was captured. This record does not claim raw stream custody or any scientific PASS."
+}

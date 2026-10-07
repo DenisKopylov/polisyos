@@ -1,0 +1,12 @@
+{
+  "files": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/fixture.stdout.gz",
+      "bytes": 73,
+      "sha256": "61ecf38b8c76c8091efa4c4f6f8c434abaf5134267fc051867f1c2a20305f642",
+      "encoding": "gzip",
+      "decoded_bytes": 53,
+      "decoded_sha256": "1ed13de98c3f6d39fdc7a62e9dabb00d12a8fcc98349f72c1e53cb12a5247eb8"
+    }
+  ]
+}

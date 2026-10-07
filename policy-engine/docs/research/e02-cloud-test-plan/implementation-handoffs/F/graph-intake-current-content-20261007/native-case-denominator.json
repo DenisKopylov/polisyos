@@ -1,0 +1,508 @@
+{
+  "candidate_sha": "3e6b47e88e0f25474df8cffa213a5e09e7b7affa",
+  "check": "PASS",
+  "total_cases": 69,
+  "counts": {
+    "tests.unit.scientist.methods.causal.test_graph_intake_current_content": 28,
+    "tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node": 9,
+    "tests.unit.scientist.nodes.builtins.causal.test_reconcile_causal_graph": 8,
+    "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation": 24
+  },
+  "cases": {
+    "tests.unit.scientist.methods.causal.test_graph_intake_current_content": [
+      {
+        "name": "test_genuine_producer_to_fresh_reader_preserves_known_relations[source_graph0-expected0]",
+        "time_s": "0.106",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_genuine_producer_to_fresh_reader_preserves_known_relations[source_graph1-expected1]",
+        "time_s": "0.095",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_genuine_producer_to_fresh_reader_preserves_known_relations[source_graph2-expected2]",
+        "time_s": "0.094",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_genuine_producer_to_fresh_reader_preserves_known_relations[source_graph3-expected3]",
+        "time_s": "0.093",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_current_real_producer_direction_supersedes_cache",
+        "time_s": "0.135",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_current_parameters_recompute_full_content",
+        "time_s": "0.095",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_supplied_bad_data_is_not_absence_or_producer_fallback[None]",
+        "time_s": "0.079",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_supplied_bad_data_is_not_absence_or_producer_fallback[malformed1]",
+        "time_s": "0.080",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_supplied_bad_data_is_not_absence_or_producer_fallback[malformed2]",
+        "time_s": "0.080",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_supplied_data_and_actual_producer_must_agree",
+        "time_s": "0.080",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_unsupported_static_profile_refuses_before_real_producer_and_node[marks0-None-pag]",
+        "time_s": "0.064",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_unsupported_static_profile_refuses_before_real_producer_and_node[marks1-None-pag]",
+        "time_s": "0.054",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_unsupported_static_profile_refuses_before_real_producer_and_node[marks2-None-pag]",
+        "time_s": "0.050",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_unsupported_static_profile_refuses_before_real_producer_and_node[marks3-None-cpdag]",
+        "time_s": "0.050",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_unsupported_static_profile_refuses_before_real_producer_and_node[marks4-1-dag]",
+        "time_s": "0.050",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_unsupported_static_profile_refuses_before_real_producer_and_node[marks5-2-dag]",
+        "time_s": "0.051",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_missing_cache_is_not_admitted_even_with_valid_current_source",
+        "time_s": "0.080",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_graph_shaped_wrong_actual_kind_is_not_admitted",
+        "time_s": "0.044",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_real_cache_without_current_basis_is_not_source_authority",
+        "time_s": "0.086",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_actual_cache_blob_corruption_is_refused",
+        "time_s": "0.092",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_supplied_malformed_sources_refuse_before_graph_admission[scm_fragment_refs-value0]",
+        "time_s": "0.042",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_supplied_malformed_sources_refuse_before_graph_admission[scm_fragment_refs-None]",
+        "time_s": "0.041",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_supplied_malformed_sources_refuse_before_graph_admission[scm_fragments-value2]",
+        "time_s": "0.041",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_supplied_malformed_sources_refuse_before_graph_admission[scm_fragments-None]",
+        "time_s": "0.041",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_supplied_malformed_sources_refuse_before_graph_admission[llm_structural_hints-None]",
+        "time_s": "0.042",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_supplied_malformed_sources_refuse_before_graph_admission[llm_structural_hints-value5]",
+        "time_s": "0.041",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_cached_graph_schema_is_actual_not_ref_label",
+        "time_s": "0.044",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_graph_body_version_must_match_actual_schema",
+        "time_s": "0.047",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      }
+    ],
+    "tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node": [
+      {
+        "name": "test_reconcile_causal_graph_node_persists_graph_and_params",
+        "time_s": "0.038",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_reconcile_causal_graph_node_skips_without_data_graph",
+        "time_s": "0.028",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_reconcile_causal_graph_node_composes_fragments_and_persists_artifacts",
+        "time_s": "0.069",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_reconcile_causal_graph_node_recomputes_content_mismatched_precomputed_alignment",
+        "time_s": "0.075",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_reconcile_causal_graph_node_updates_query_preservation_cache_without_recomposing",
+        "time_s": "0.081",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_reconcile_causal_graph_node_persists_latent_projection_certificate_artifacts",
+        "time_s": "0.088",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_reconcile_causal_graph_node_persists_negative_certificate_for_latent_hedge",
+        "time_s": "0.089",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_reconcile_causal_graph_node_persists_failure_card_bundle_for_broken_composition",
+        "time_s": "0.066",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_reconcile_causal_graph_node_rejects_disconnected_fragment_topology",
+        "time_s": "0.075",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      }
+    ],
+    "tests.unit.scientist.nodes.builtins.causal.test_reconcile_causal_graph": [
+      {
+        "name": "test_skip_when_no_data_causal_graph",
+        "time_s": "0.028",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_already_reconciled_returns_ok",
+        "time_s": "0.031",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_fail_when_reconcile_pure_step_returns_incomplete",
+        "time_s": "0.028",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_fail_when_pure_step_raises",
+        "time_s": "0.028",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_fail_when_pure_step_returns_graph_but_no_diagnostics",
+        "time_s": "0.028",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_reconcile_fragment_load_assertion_is_not_swallowed",
+        "time_s": "0.031",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_reconcile_literature_prior_assertion_is_not_swallowed",
+        "time_s": "0.031",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_reconcile_causal_graph_uses_branch_state_for_declared_outputs",
+        "time_s": "0.032",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      }
+    ],
+    "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation": [
+      {
+        "name": "test_literature_and_data_agreement_increases_combined_confidence",
+        "time_s": "0.001",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_data_wins_when_direction_conflicts_with_literature",
+        "time_s": "0.001",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_llm_only_hint_is_marked_unsupported_and_capped",
+        "time_s": "0.001",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_simple_cycle_converts_min_confidence_edge_to_lagged_edge",
+        "time_s": "0.001",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_more_than_eight_cycles_triggers_fallback_removal_warning",
+        "time_s": "0.004",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_cycle_edge_with_lag_depth_limit_is_removed",
+        "time_s": "0.001",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_triangle_conflict_produces_positive_cyclic_inconsistency_norm",
+        "time_s": "0.001",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_irreducible_conflict_triggers_expert_review_flag",
+        "time_s": "0.001",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_diagnostics_truncated_when_hard_limits_exceeded",
+        "time_s": "13.125",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_compose_scm_fragments_preserves_exact_observed_interface",
+        "time_s": "0.004",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_compose_scm_fragments_defers_when_cycle_contract_requires_review",
+        "time_s": "0.004",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_compose_scm_fragments_blocks_research_only_cycle_contracts",
+        "time_s": "0.004",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_compose_scm_fragments_allows_supported_internal_cyclic_scc",
+        "time_s": "0.004",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_compose_scm_fragments_blocks_cross_fragment_cyclic_scc",
+        "time_s": "0.004",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_compose_scm_fragments_promotes_output_to_admg_when_any_fragment_is_admg",
+        "time_s": "0.004",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_compose_scm_fragments_allows_asymmetric_output_input_stitch",
+        "time_s": "0.004",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_compose_scm_fragments_allows_chain_topology",
+        "time_s": "0.004",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_compose_scm_fragments_rejects_disconnected_fragment_topology",
+        "time_s": "0.004",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_compose_scm_fragments_rejects_unobserved_or_latent_pending_interfaces",
+        "time_s": "0.004",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_compose_scm_fragments_allows_proxy_but_marks_deferred",
+        "time_s": "0.004",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_compose_scm_fragments_promotes_human_verified_proxy_to_preserved",
+        "time_s": "0.004",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_compose_scm_fragments_blocks_explicit_incompatible_pair_labels",
+        "time_s": "0.004",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_compose_scm_fragments_defers_pending_latent_bridge_and_rejects_cycles",
+        "time_s": "0.037",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "name": "test_compose_scm_fragments_allows_human_verified_latent_bridge",
+        "time_s": "0.017",
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      }
+    ]
+  },
+  "scope": "all cases from exact four-module native command; no selector omission",
+  "warning_count": 1,
+  "warning_kind": "PytestConfigWarning unknown cache_dir with disabled cacheprovider",
+  "earlier_harness_error": "first XML aggregator indexed an Element as a dict; correction only metadata aggregation; pytest XML source unchanged; original tool transcript preserved separately"
+}

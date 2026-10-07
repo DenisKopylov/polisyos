@@ -1,0 +1,17 @@
+fatal: path 'policy-engine/src/polisyos/foundry/execute/_internal/numeric.py' does not exist in '8236d9c368336a5ea20c1586f29aea7321db6536'
+Traceback (most recent call last):
+  File "/tmp/e02-F-continuation-20261007/fit-tmle/root-economic-companion-review/audit.py", line 69, in <module>
+    copies = [binding(ref, path) for ref in (PRODUCT, SCIENCE, DOC, ROOT_OLD, head)]
+              ^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-F-continuation-20261007/fit-tmle/root-economic-companion-review/audit.py", line 32, in binding
+    body = git('show', ref + ':' + path)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-F-continuation-20261007/fit-tmle/root-economic-companion-review/audit.py", line 26, in git
+    return subprocess.check_output(['git', *args], cwd=REPO)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 466, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', 'show', '8236d9c368336a5ea20c1586f29aea7321db6536:policy-engine/src/polisyos/foundry/execute/_internal/numeric.py']' returned non-zero exit status 128.

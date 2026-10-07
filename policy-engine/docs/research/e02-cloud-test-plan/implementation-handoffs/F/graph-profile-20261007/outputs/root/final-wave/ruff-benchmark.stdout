@@ -1,0 +1,25 @@
+T201 `print` found
+   --> policy-engine/benchmarks/natural_experiments/policy_natural_experiments.py:398:9
+    |
+396 |             encoding="utf-8",
+397 |         )
+398 |         print(f"\nJSON report written to: {args.json}")
+    |         ^^^^^
+399 |
+400 |     failures = report.n_total() - report.n_passed()
+    |
+help: Remove `print`
+
+T201 `print` found
+   --> policy-engine/benchmarks/natural_experiments/policy_natural_experiments.py:402:9
+    |
+400 |     failures = report.n_total() - report.n_passed()
+401 |     if failures > 0:
+402 |         print(f"\n[FAIL] {failures} natural-experiments case(s) failed.")
+    |         ^^^^^
+403 |     return 0 if failures == 0 else 1
+    |
+help: Remove `print`
+
+Found 2 errors.
+No fixes available (2 hidden fixes can be enabled with the `--unsafe-fixes` option).

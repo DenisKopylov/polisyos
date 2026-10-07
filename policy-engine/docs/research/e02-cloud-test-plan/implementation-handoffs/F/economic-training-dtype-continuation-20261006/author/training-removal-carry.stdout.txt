@@ -1,0 +1,308 @@
+{"mode": "carry", "base_sha": "4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3", "restored_source": "policy-engine/src/polisyos/foundry/agent_sim/jit_training.py", "bytes": 21102, "sha256": "c56a598107cc83be54f892fef3f7daae1c380bd63146948cf184a9ceeed03186", "functions": ["create_jit_trainer", "create_jit_trainer_with_metrics"], "markers": "Canonical class, function names, state fields, RNG law and storage keys remain; only forward encoding/carry mechanism removed."}
+.FFFFFF.FFFFFF                                                           [100%]
+=================================== FAILURES ===================================
+_ test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters[plain-float32-float32-True] _
+tests/unit/foundry/agent_sim/test_training_dtype.py:78: in test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters
+    result = trainer(jax.random.PRNGKey(19))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3:policy-engine/src/polisyos/foundry/agent_sim/jit_training.py:254: in trainer
+    metrics_collector=carry.metrics_collector,
+                   ^^^^^^^^^^^^^^^^^^^^
+4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3:policy-engine/src/polisyos/foundry/agent_sim/jit_training.py:245: in _train_loop
+    )
+4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3:policy-engine/src/polisyos/foundry/agent_sim/jit_training.py:233: in episode_step
+    opt_state=opt_state,
+             ^^^^^^^^^^^^
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/numpy/array_methods.py:859: in set
+    return scatter._scatter_update(
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/ops/scatter.py:88: in _scatter_update
+    return internal_scatter(x, y, tuple(dynamic_idx))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/ops/scatter.py:104: in _scatter_impl
+    warnings.warn(
+E   FutureWarning: scatter inputs have incompatible types: cannot safely cast value from dtype=float64 to dtype=float32 with jax_numpy_dtype_promotion=standard. In future JAX releases this will result in an error.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters[plain-float32-float64-True] _
+tests/unit/foundry/agent_sim/test_training_dtype.py:78: in test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters
+    result = trainer(jax.random.PRNGKey(19))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3:policy-engine/src/polisyos/foundry/agent_sim/jit_training.py:254: in trainer
+    metrics_collector=carry.metrics_collector,
+                   ^^^^^^^^^^^^^^^^^^^^
+4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3:policy-engine/src/polisyos/foundry/agent_sim/jit_training.py:245: in _train_loop
+    )
+4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3:policy-engine/src/polisyos/foundry/agent_sim/jit_training.py:233: in episode_step
+    opt_state=opt_state,
+             ^^^^^^^^^^^^
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/numpy/array_methods.py:859: in set
+    return scatter._scatter_update(
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/ops/scatter.py:88: in _scatter_update
+    return internal_scatter(x, y, tuple(dynamic_idx))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/ops/scatter.py:104: in _scatter_impl
+    warnings.warn(
+E   FutureWarning: scatter inputs have incompatible types: cannot safely cast value from dtype=float64 to dtype=float32 with jax_numpy_dtype_promotion=standard. In future JAX releases this will result in an error.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters[plain-float64-float32-True] _
+tests/unit/foundry/agent_sim/test_training_dtype.py:78: in test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters
+    result = trainer(jax.random.PRNGKey(19))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3:policy-engine/src/polisyos/foundry/agent_sim/jit_training.py:254: in trainer
+    metrics_collector=carry.metrics_collector,
+                   ^^^^^^^^^^^^^^^^^^^^
+4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3:policy-engine/src/polisyos/foundry/agent_sim/jit_training.py:245: in _train_loop
+    )
+4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3:policy-engine/src/polisyos/foundry/agent_sim/jit_training.py:233: in episode_step
+    opt_state=opt_state,
+             ^^^^^^^^^^^^
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/numpy/array_methods.py:859: in set
+    return scatter._scatter_update(
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/ops/scatter.py:88: in _scatter_update
+    return internal_scatter(x, y, tuple(dynamic_idx))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/ops/scatter.py:104: in _scatter_impl
+    warnings.warn(
+E   FutureWarning: scatter inputs have incompatible types: cannot safely cast value from dtype=float64 to dtype=float32 with jax_numpy_dtype_promotion=standard. In future JAX releases this will result in an error.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters[plain-float64-float64-True] _
+tests/unit/foundry/agent_sim/test_training_dtype.py:78: in test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters
+    result = trainer(jax.random.PRNGKey(19))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3:policy-engine/src/polisyos/foundry/agent_sim/jit_training.py:254: in trainer
+    metrics_collector=carry.metrics_collector,
+                   ^^^^^^^^^^^^^^^^^^^^
+4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3:policy-engine/src/polisyos/foundry/agent_sim/jit_training.py:245: in _train_loop
+    )
+4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3:policy-engine/src/polisyos/foundry/agent_sim/jit_training.py:233: in episode_step
+    opt_state=opt_state,
+             ^^^^^^^^^^^^
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/numpy/array_methods.py:859: in set
+    return scatter._scatter_update(
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/ops/scatter.py:88: in _scatter_update
+    return internal_scatter(x, y, tuple(dynamic_idx))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/ops/scatter.py:104: in _scatter_impl
+    warnings.warn(
+E   FutureWarning: scatter inputs have incompatible types: cannot safely cast value from dtype=float64 to dtype=float32 with jax_numpy_dtype_promotion=standard. In future JAX releases this will result in an error.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters[plain-mixed-float32-True] _
+tests/unit/foundry/agent_sim/test_training_dtype.py:78: in test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters
+    result = trainer(jax.random.PRNGKey(19))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3:policy-engine/src/polisyos/foundry/agent_sim/jit_training.py:254: in trainer
+    metrics_collector=carry.metrics_collector,
+                   ^^^^^^^^^^^^^^^^^^^^
+4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3:policy-engine/src/polisyos/foundry/agent_sim/jit_training.py:245: in _train_loop
+    )
+4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3:policy-engine/src/polisyos/foundry/agent_sim/jit_training.py:233: in episode_step
+    opt_state=opt_state,
+             ^^^^^^^^^^^^
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/numpy/array_methods.py:859: in set
+    return scatter._scatter_update(
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/ops/scatter.py:88: in _scatter_update
+    return internal_scatter(x, y, tuple(dynamic_idx))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/ops/scatter.py:104: in _scatter_impl
+    warnings.warn(
+E   FutureWarning: scatter inputs have incompatible types: cannot safely cast value from dtype=float64 to dtype=float32 with jax_numpy_dtype_promotion=standard. In future JAX releases this will result in an error.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters[plain-mixed-float64-True] _
+tests/unit/foundry/agent_sim/test_training_dtype.py:78: in test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters
+    result = trainer(jax.random.PRNGKey(19))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3:policy-engine/src/polisyos/foundry/agent_sim/jit_training.py:254: in trainer
+    metrics_collector=carry.metrics_collector,
+                   ^^^^^^^^^^^^^^^^^^^^
+4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3:policy-engine/src/polisyos/foundry/agent_sim/jit_training.py:245: in _train_loop
+    )
+4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3:policy-engine/src/polisyos/foundry/agent_sim/jit_training.py:233: in episode_step
+    opt_state=opt_state,
+             ^^^^^^^^^^^^
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/numpy/array_methods.py:859: in set
+    return scatter._scatter_update(
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/ops/scatter.py:88: in _scatter_update
+    return internal_scatter(x, y, tuple(dynamic_idx))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/ops/scatter.py:104: in _scatter_impl
+    warnings.warn(
+E   FutureWarning: scatter inputs have incompatible types: cannot safely cast value from dtype=float64 to dtype=float32 with jax_numpy_dtype_promotion=standard. In future JAX releases this will result in an error.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters[metrics-float32-float32-True] _
+tests/unit/foundry/agent_sim/test_training_dtype.py:78: in test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters
+    result = trainer(jax.random.PRNGKey(19))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3:policy-engine/src/polisyos/foundry/agent_sim/jit_training.py:538: in trainer
+    final_carry, losses = jax.lax.scan(
+                                        
+4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3:policy-engine/src/polisyos/foundry/agent_sim/jit_training.py:535: in _trainer_jit
+    )
+      
+4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3:policy-engine/src/polisyos/foundry/agent_sim/jit_training.py:519: in _train_loop_with_metrics
+    _collect_and_record,
+4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3:policy-engine/src/polisyos/foundry/agent_sim/jit_training.py:482: in episode_step
+    rng_key,
+             
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/numpy/array_methods.py:859: in set
+    return scatter._scatter_update(
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/ops/scatter.py:88: in _scatter_update
+    return internal_scatter(x, y, tuple(dynamic_idx))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/ops/scatter.py:104: in _scatter_impl
+    warnings.warn(
+E   FutureWarning: scatter inputs have incompatible types: cannot safely cast value from dtype=float64 to dtype=float32 with jax_numpy_dtype_promotion=standard. In future JAX releases this will result in an error.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters[metrics-float32-float64-True] _
+tests/unit/foundry/agent_sim/test_training_dtype.py:78: in test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters
+    result = trainer(jax.random.PRNGKey(19))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3:policy-engine/src/polisyos/foundry/agent_sim/jit_training.py:538: in trainer
+    final_carry, losses = jax.lax.scan(
+                                        
+4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3:policy-engine/src/polisyos/foundry/agent_sim/jit_training.py:535: in _trainer_jit
+    )
+      
+4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3:policy-engine/src/polisyos/foundry/agent_sim/jit_training.py:519: in _train_loop_with_metrics
+    _collect_and_record,
+4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3:policy-engine/src/polisyos/foundry/agent_sim/jit_training.py:482: in episode_step
+    rng_key,
+             
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/numpy/array_methods.py:859: in set
+    return scatter._scatter_update(
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/ops/scatter.py:88: in _scatter_update
+    return internal_scatter(x, y, tuple(dynamic_idx))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/ops/scatter.py:104: in _scatter_impl
+    warnings.warn(
+E   FutureWarning: scatter inputs have incompatible types: cannot safely cast value from dtype=float64 to dtype=float32 with jax_numpy_dtype_promotion=standard. In future JAX releases this will result in an error.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters[metrics-float64-float32-True] _
+tests/unit/foundry/agent_sim/test_training_dtype.py:78: in test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters
+    result = trainer(jax.random.PRNGKey(19))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3:policy-engine/src/polisyos/foundry/agent_sim/jit_training.py:538: in trainer
+    final_carry, losses = jax.lax.scan(
+                                        
+4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3:policy-engine/src/polisyos/foundry/agent_sim/jit_training.py:535: in _trainer_jit
+    )
+      
+4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3:policy-engine/src/polisyos/foundry/agent_sim/jit_training.py:519: in _train_loop_with_metrics
+    _collect_and_record,
+4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3:policy-engine/src/polisyos/foundry/agent_sim/jit_training.py:482: in episode_step
+    rng_key,
+             
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/numpy/array_methods.py:859: in set
+    return scatter._scatter_update(
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/ops/scatter.py:88: in _scatter_update
+    return internal_scatter(x, y, tuple(dynamic_idx))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/ops/scatter.py:104: in _scatter_impl
+    warnings.warn(
+E   FutureWarning: scatter inputs have incompatible types: cannot safely cast value from dtype=float64 to dtype=float32 with jax_numpy_dtype_promotion=standard. In future JAX releases this will result in an error.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters[metrics-float64-float64-True] _
+tests/unit/foundry/agent_sim/test_training_dtype.py:78: in test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters
+    result = trainer(jax.random.PRNGKey(19))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3:policy-engine/src/polisyos/foundry/agent_sim/jit_training.py:538: in trainer
+    final_carry, losses = jax.lax.scan(
+                                        
+4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3:policy-engine/src/polisyos/foundry/agent_sim/jit_training.py:535: in _trainer_jit
+    )
+      
+4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3:policy-engine/src/polisyos/foundry/agent_sim/jit_training.py:519: in _train_loop_with_metrics
+    _collect_and_record,
+4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3:policy-engine/src/polisyos/foundry/agent_sim/jit_training.py:482: in episode_step
+    rng_key,
+             
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/numpy/array_methods.py:859: in set
+    return scatter._scatter_update(
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/ops/scatter.py:88: in _scatter_update
+    return internal_scatter(x, y, tuple(dynamic_idx))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/ops/scatter.py:104: in _scatter_impl
+    warnings.warn(
+E   FutureWarning: scatter inputs have incompatible types: cannot safely cast value from dtype=float64 to dtype=float32 with jax_numpy_dtype_promotion=standard. In future JAX releases this will result in an error.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters[metrics-mixed-float32-True] _
+tests/unit/foundry/agent_sim/test_training_dtype.py:78: in test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters
+    result = trainer(jax.random.PRNGKey(19))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3:policy-engine/src/polisyos/foundry/agent_sim/jit_training.py:538: in trainer
+    final_carry, losses = jax.lax.scan(
+                                        
+4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3:policy-engine/src/polisyos/foundry/agent_sim/jit_training.py:535: in _trainer_jit
+    )
+      
+4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3:policy-engine/src/polisyos/foundry/agent_sim/jit_training.py:519: in _train_loop_with_metrics
+    _collect_and_record,
+4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3:policy-engine/src/polisyos/foundry/agent_sim/jit_training.py:482: in episode_step
+    rng_key,
+             
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/numpy/array_methods.py:859: in set
+    return scatter._scatter_update(
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/ops/scatter.py:88: in _scatter_update
+    return internal_scatter(x, y, tuple(dynamic_idx))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/ops/scatter.py:104: in _scatter_impl
+    warnings.warn(
+E   FutureWarning: scatter inputs have incompatible types: cannot safely cast value from dtype=float64 to dtype=float32 with jax_numpy_dtype_promotion=standard. In future JAX releases this will result in an error.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters[metrics-mixed-float64-True] _
+tests/unit/foundry/agent_sim/test_training_dtype.py:78: in test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters
+    result = trainer(jax.random.PRNGKey(19))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3:policy-engine/src/polisyos/foundry/agent_sim/jit_training.py:538: in trainer
+    final_carry, losses = jax.lax.scan(
+                                        
+4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3:policy-engine/src/polisyos/foundry/agent_sim/jit_training.py:535: in _trainer_jit
+    )
+      
+4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3:policy-engine/src/polisyos/foundry/agent_sim/jit_training.py:519: in _train_loop_with_metrics
+    _collect_and_record,
+4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3:policy-engine/src/polisyos/foundry/agent_sim/jit_training.py:482: in episode_step
+    rng_key,
+             
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/numpy/array_methods.py:859: in set
+    return scatter._scatter_update(
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/ops/scatter.py:88: in _scatter_update
+    return internal_scatter(x, y, tuple(dynamic_idx))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/ops/scatter.py:104: in _scatter_impl
+    warnings.warn(
+E   FutureWarning: scatter inputs have incompatible types: cannot safely cast value from dtype=float64 to dtype=float32 with jax_numpy_dtype_promotion=standard. In future JAX releases this will result in an error.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+=============================== warnings summary ===============================
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+tests/unit/foundry/agent_sim/test_training_dtype.py: 30 warnings
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/equinox/nn/_normalisation.py:92: UserWarning: LayerNorm(elementwise_affine=...) is deprecated in favour of LayerNorm(use_weight=...) and LayerNorm(use_bias=...)
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/agent_sim/test_training_dtype.py::test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters[plain-float32-float32-True]
+FAILED tests/unit/foundry/agent_sim/test_training_dtype.py::test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters[plain-float32-float64-True]
+FAILED tests/unit/foundry/agent_sim/test_training_dtype.py::test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters[plain-float64-float32-True]
+FAILED tests/unit/foundry/agent_sim/test_training_dtype.py::test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters[plain-float64-float64-True]
+FAILED tests/unit/foundry/agent_sim/test_training_dtype.py::test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters[plain-mixed-float32-True]
+FAILED tests/unit/foundry/agent_sim/test_training_dtype.py::test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters[plain-mixed-float64-True]
+FAILED tests/unit/foundry/agent_sim/test_training_dtype.py::test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters[metrics-float32-float32-True]
+FAILED tests/unit/foundry/agent_sim/test_training_dtype.py::test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters[metrics-float32-float64-True]
+FAILED tests/unit/foundry/agent_sim/test_training_dtype.py::test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters[metrics-float64-float32-True]
+FAILED tests/unit/foundry/agent_sim/test_training_dtype.py::test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters[metrics-float64-float64-True]
+FAILED tests/unit/foundry/agent_sim/test_training_dtype.py::test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters[metrics-mixed-float32-True]
+FAILED tests/unit/foundry/agent_sim/test_training_dtype.py::test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters[metrics-mixed-float64-True]

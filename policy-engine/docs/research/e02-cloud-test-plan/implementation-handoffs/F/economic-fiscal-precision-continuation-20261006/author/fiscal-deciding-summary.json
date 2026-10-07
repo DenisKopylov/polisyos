@@ -1,0 +1,58 @@
+{
+  "source_sha": "1324d2fcd7b75e448ad0fa1cce128a79101df1aa",
+  "tree_sha": "dc4b6a932a11cba4470b9bbcf299d2d2f51b2301",
+  "baseline_sha": "e84acb04fbe1fbebdfa5a54f87ff0fc72640a4ef",
+  "native_broad": {
+    "passed": 124,
+    "failed": 1,
+    "skipped": 0,
+    "errors": 0,
+    "cases": 125,
+    "pytest_seconds": 120.483,
+    "wall_seconds": 126.3122308254242
+  },
+  "defining_new_file_cases": 64,
+  "exact_original_budget_after": {
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0,
+    "errors": 0
+  },
+  "default32_whole_profile_byte_equal_cases": 24,
+  "lower_input_cases": 40,
+  "lower_agent_values_equal": 40,
+  "lower_whole_patch_bytes_equal": 30,
+  "lower_x64_subsidy_dtype_changes": 10,
+  "lower_government_value_changes": 8,
+  "canonical_ParamDecimal_lowered_payloads_unchanged": true,
+  "native_registered_CAS_fresh_balance": 1000.0,
+  "native_CAS_imported_denominator": 937,
+  "native_CAS_imported_bytes_all_match": true,
+  "negative_controls": [
+    {
+      "mode": "early32",
+      "failed": 4,
+      "skipped": 0,
+      "errors": 0,
+      "markers_preserved": true
+    },
+    {
+      "mode": "calculation32",
+      "failed": 4,
+      "skipped": 0,
+      "errors": 0,
+      "markers_preserved": true
+    },
+    {
+      "mode": "calculation64",
+      "failed": 4,
+      "skipped": 0,
+      "errors": 0,
+      "markers_preserved": true
+    }
+  ],
+  "full_gate_claim": false,
+  "P41_inherited_status": "not_established",
+  "closure_ids": [],
+  "original_LA003_recommendation": "Technical original finite baseline/native/compiler/replay migration acceptance now closed recommendation, preserving full criterion profile and explicit numerical compatibility boundary. Root alone re-adjudicates current35; production caller suitability/Gacceptance remains unestablished. Previous precision FAIL remains historical source evidence."
+}

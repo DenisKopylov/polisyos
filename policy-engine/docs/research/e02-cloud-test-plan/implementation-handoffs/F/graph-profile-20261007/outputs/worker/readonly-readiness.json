@@ -1,0 +1,91 @@
+{
+  "schema": "policyos.e02.readonly_worker_preflight.v1",
+  "outcome": "PASS",
+  "outcome_scope": "Actual backend import/API/source binding preflight only; numerical/focused test execution is UNRUN.",
+  "slice_base_sha": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+  "slice_base_tree": "ed4a4fd6864e8b60cb45124fb8e6fa9b7c503b66",
+  "G_source_sha": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+  "G_source_tree": "f79fc5304324b92aeed741d7abdd6fc6f54a130a",
+  "source_record": {
+    "path": "/tmp/e02-F-graph-profile-20261007/worker/source-and-backend-preflight.json",
+    "bytes": 16791,
+    "sha256": "84d8e539b7d379d1cdd7c46a7a544ef109c66baaac2481ae10aeaf40def8c3ab"
+  },
+  "current_test_identity": {
+    "git_ref": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+    "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+    "git_blob": "153226bceb53e7e290be03bc9dd068140edbe667",
+    "bytes": 16846,
+    "sha256": "5a479bc577181020b229be26415ece9453d5b54c5b83188ae39b5dbe21fc17ac"
+  },
+  "full_delta": {
+    "path": "/tmp/e02-F-graph-profile-20261007/worker/old-native-to-25c.full.patch",
+    "bytes": 1260,
+    "sha256": "fa7c31aa2931bc7bba88a491a3d88a8b0654bf5d9bd532d713fc2b7f13794d2d"
+  },
+  "delta_summary": "Only fresh Python3.14 reader assertions change: gate-eligible success becomes non-gating with explicit identification-not-established reason while confidence interval/level preserved. Existing complete public builder test body is unchanged.",
+  "native_selectors": [
+    "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_public_complete_report_builder_abi_and_real_producer_invocation",
+    "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_real_worker_job_cas_fresh_python314_reader",
+    "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_real_estimate_point_only_survives_parent_cas_and_reader"
+  ],
+  "actual_worker_backend": {
+    "CausalModel_constructor_signature": "(data, treatment, outcome, graph=None, common_causes=None, instruments=None, effect_modifiers=None, estimand_type='nonparametric-ate', proceed_when_unidentifiable=False, missing_nodes_as_confounders=False, identify_vars=False, **kwargs)",
+    "estimate_effect_signature": "(self, identified_estimand, method_name=None, control_value=0, treatment_value=1, test_significance=None, evaluate_effect_strength=False, confidence_intervals=False, target_units='ate', effect_modifiers=None, fit_estimator=True, method_params=None)",
+    "executable": "/workspace/e02-F-closeout-20261006/policy-engine/workers/dowhy-014/.venv/bin/python",
+    "identify_effect_signature": "(self, estimand_type=None, method_name='default', proceed_when_unidentifiable=None, optimize_backdoor=False)",
+    "modules": {
+      "dowhy": {
+        "origin": "/workspace/e02-F-closeout-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/dowhy/__init__.py",
+        "version": "0.14"
+      },
+      "numpy": {
+        "origin": "/workspace/e02-F-closeout-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/numpy/__init__.py",
+        "version": "2.4.6"
+      },
+      "scipy": {
+        "origin": "/workspace/e02-F-closeout-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/scipy/__init__.py",
+        "version": "1.15.3"
+      },
+      "statsmodels": {
+        "origin": "/workspace/e02-F-closeout-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/statsmodels/__init__.py",
+        "version": "0.15.0"
+      }
+    },
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]"
+  },
+  "actual_parent_baseline": {
+    "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "scope": "Baseline absence is not a positive DoWhy/EconML witness.",
+    "versions": {
+      "dowhy": null,
+      "econml": null,
+      "numpy": "2.3.5",
+      "pydantic": "2.12.5",
+      "pytest": "9.0.2"
+    }
+  },
+  "runtime_source_equivalence": "All seven measured producer/worker/protocol/profile blobs byte-equal423\u219225c; this is source identity, not native PASS carry for changed test.",
+  "expected_defining_path": "Actual configured Python3.12 DoWhy estimate\u2192existing MethodJob\u2192typed report+CI or point-only\u2192CAS\u2192fresh actualPython3.14 consumer; same typed non-gating envelope. No mock or excluded optional backend substitution.",
+  "point_only_control_scope": "Existing test wraps genuine CausalModel.estimate_effect, calls original fit, then makes real returned estimator CI/SE getters returnNone; this controlled absence tests adapter disposition and does not claim backend native inference configuration/production identification.",
+  "estimand_scope": "Supported nonparametricATE/0\u21921/ATE target only, source/request/content-bound selected-profile worker. Unsupported/production graph/real data identification and policy authority remain separate.",
+  "next_required_input": {
+    "owner": "ROOT",
+    "packet": "Exact frozen candidate SHA/tree after independent reviews plus commissioning of an existing admitted source checkout/read-only isolated snapshot; no new checkout is created by this leaf.",
+    "why": "Actual tests must import exact frozen changed test/report/provider source, not mutable author checkout.",
+    "status": "UNRUN awaiting source/lane packet"
+  },
+  "ready_runner": {
+    "path": "/tmp/e02-F-graph-profile-20261007/worker/run_frozen_focused_native.py",
+    "bytes": 6445,
+    "sha256": "45eb8bb69d3ac32c5aeeed72396bf72220a7b48c09fae71a71836fe39a645f65"
+  },
+  "current_worker_python": "/workspace/e02-F-closeout-20261006/policy-engine/workers/dowhy-014/.venv/bin/python",
+  "current_parent_python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+  "run_rule": "Invoke runner once with exact commissioned candidate/checkout/interpreters. It records complete stdout/stderr/JUnit/time/env/source guards; preserves any fail/skip/error as observed. No backend sync/CPU quota/scheduler.",
+  "source_Git_environment_or_G_writes": false,
+  "main_or_history_rewrite": false,
+  "new_authority_or_formal_finding_closure": false
+}

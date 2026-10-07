@@ -1,0 +1,54 @@
+{
+  "source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+  "source_tree": "055871c409ce72e6a29619b235698aa45a6844d4",
+  "kind": "wheel",
+  "argv": [
+    "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-env/bin/python",
+    "-I",
+    "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/launch.py",
+    "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/installed-config.json",
+    "wheel"
+  ],
+  "measured_argv": [
+    "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-env/bin/python",
+    "-I",
+    "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/launch.py",
+    "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/installed-config.json",
+    "wheel"
+  ],
+  "cwd": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-consumer",
+  "environment": {
+    "PYTHONPATH": "absent",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "OMP_NUM_THREADS": "absent",
+    "OPENBLAS_NUM_THREADS": "absent",
+    "MKL_NUM_THREADS": "absent",
+    "NUMEXPR_NUM_THREADS": "absent",
+    "XLA_FLAGS": "absent",
+    "XLA_PYTHON_CLIENT_PREALLOCATE": "absent",
+    "JAX_PLATFORM_NAME": "absent",
+    "JAX_PLATFORMS": "absent",
+    "POLISYOS_DOWHY_WORKER_PYTHON": "absent"
+  },
+  "new_quota": false,
+  "parallel_profiles": 2,
+  "status": "FAIL",
+  "pid": 942497,
+  "exit_code": 1,
+  "wall_seconds": 555.1368211999943,
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-native-v2.stdout.txt",
+    "bytes": 734080,
+    "sha256": "e2c083f56aa3508fbff2e0130f207bc166cdd590c9cc5da05dcaf03cf25f0a11"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-native-v2.stderr.txt",
+    "bytes": 2688,
+    "sha256": "f27034d236d7fc1d45460de79c8a8189d7c94241d52a8b2160eb9431f4ca274f"
+  },
+  "resources": {
+    "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-resources-v2.json",
+    "bytes": 240,
+    "sha256": "b296b80dc503070ac96b5dfa4c2b4949b8d4fecf9724359401d3b052aa2bd8f3"
+  }
+}

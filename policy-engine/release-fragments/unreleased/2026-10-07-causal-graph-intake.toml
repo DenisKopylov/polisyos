@@ -1,0 +1,27 @@
+id = "2026-10-07-causal-graph-intake"
+title = "Reconcile current causal graph content before reuse"
+type = "fixed"
+component = "scientist"
+owner = "team-scientist"
+summary = "Resolve actual selected graph content, enforce consistent supported static profiles before admission, and preserve requested-but-unapplied reconciliation limitations in discovery reports."
+change_class = "internal"
+surface_classification = "internal: Scientist graph reconciliation and Foundry causal prior providers"
+compatibility = "Consistent static DAG/ADMG directed/bidirected graph paths remain supported. CPDAG/PAG/MGraph reconciliation and supplied reserved MGraph contracts under DAG/ADMG tags refuse before filtering or semantic projection, including malformed/null contracts; original artifacts retain their consumer semantics. Discovery preserves unsupported graphs and exposes an unapplied prior/hint request through existing report warnings/metadata. Presence-only cache success, malformed-input fallbacks and implicit orientation of unresolved or lagged inputs are refused. Graph wire schema 1.0 and DiscoveryPipelineReport fields are unchanged."
+migration = "Retain actual current source content and typed profiles; handle static-profile refusal and carry discovery report limitations. Do not erase a MGraph contract, endpoint uncertainty or lag to bypass intake."
+generated_client_compatibility = "not_required"
+migration_docs = ["docs/reference/scientist/causal-graph-intake.md"]
+runbook_docs = ["docs/reference/scientist/causal-graph-intake.md"]
+evidence = ["tests/unit/scientist/methods/causal/test_graph_intake_current_content.py", "tests/unit/scientist/methods/causal/test_reconcile_causal_graph_node.py", "tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py", "tests/unit/foundry/methods/catalog/causal/test_discovery_reconciliation_limitations.py"]
+
+[[compatibility_change]]
+id = "causal-graph-current-content-admission"
+change_class = "internal"
+impact = "breaking"
+surface = "internal: polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph and causal.prior.reconcile_causal_graph"
+owner = "team-scientist"
+version_owner = "team-foundry"
+deprecation_window = "not_applicable: correction of unsupported graph admission"
+release_note = "Graph intake resolves actual selected CAS content and source lineage before reuse; query-only replay reconciles the complete composition result and recomputes operational caches. Prior reconciliation, fragment composition and selected graph admission share consistent DAG/ADMG admission, refusing unsupported declared families and supplied reserved MGraph contracts before transforms/persistence. Discovery preserves unsupported graph semantics and records requested-but-unapplied reconciliation in its existing warnings/metadata."
+generated_client_compatibility = "not_required"
+migration_docs = ["docs/reference/scientist/causal-graph-intake.md"]
+runbook_docs = ["docs/reference/scientist/causal-graph-intake.md"]

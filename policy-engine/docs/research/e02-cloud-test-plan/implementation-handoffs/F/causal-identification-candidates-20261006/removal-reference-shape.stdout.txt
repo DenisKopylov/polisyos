@@ -1,0 +1,45 @@
+{"base_sha": "f460bd81b8124be58f890f59a53e2aba9e7ceb76", "candidate_sha": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6", "canonical_function": "polisyos.scientist.governance.passes.confidence_pass._resolve_causal_envelope_ref", "function_object_preserved": true, "original_code_sha256": "8f6480c221880a4a23f22e04182c61a67dfbf63ceb6fb4b7c629893e178d5bc4", "provider_path": "policy-engine/src/polisyos/scientist/governance/passes/confidence_pass.py", "provider_source_sha256": "63c43ff6299b1c753684c116eb01a651f089a1e3ac6e9df3fa97ac7abfeee934", "removal": "reference_shape", "removed_code_sha256": "efad8e0620b0d3cfcb574ee5761bd0778c2fa95977dc70ee5d4e1bb2debc71c0", "source_files_written": false}
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+_ test_unresolved_causal_input_remains_candidate_without_store_or_bytes[False] _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-185/test_unresolved_causal_input_r0')
+missing_store = False
+
+    @pytest.mark.parametrize("missing_store", [False, True])
+    def test_unresolved_causal_input_remains_candidate_without_store_or_bytes(
+        tmp_path, missing_store
+    ) -> None:
+        store = None if missing_store else FileSystemCAS(tmp_path)
+        issues = ConfidencePass().validate(
+            _context(store, {"causal_envelope_ref": "sha256:" + "c" * 64}, min_ratio=0.0)
+        )
+>       assert len(_candidate_blockers(issues)) == 1
+E       assert 0 == 1
+E        +  where 0 = len([])
+E        +    where [] = _candidate_blockers([])
+
+tests/unit/scientist/governance/test_causal_confidence_candidate.py:105: AssertionError
+_ test_unresolved_causal_input_remains_candidate_without_store_or_bytes[True] __
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-185/test_unresolved_causal_input_r1')
+missing_store = True
+
+    @pytest.mark.parametrize("missing_store", [False, True])
+    def test_unresolved_causal_input_remains_candidate_without_store_or_bytes(
+        tmp_path, missing_store
+    ) -> None:
+        store = None if missing_store else FileSystemCAS(tmp_path)
+        issues = ConfidencePass().validate(
+            _context(store, {"causal_envelope_ref": "sha256:" + "c" * 64}, min_ratio=0.0)
+        )
+>       assert len(_candidate_blockers(issues)) == 1
+E       assert 0 == 1
+E        +  where 0 = len([])
+E        +    where [] = _candidate_blockers([])
+
+tests/unit/scientist/governance/test_causal_confidence_candidate.py:105: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/governance/test_causal_confidence_candidate.py::test_unresolved_causal_input_remains_candidate_without_store_or_bytes[False]
+FAILED tests/unit/scientist/governance/test_causal_confidence_candidate.py::test_unresolved_causal_input_remains_candidate_without_store_or_bytes[True]
+2 failed in 7.98s

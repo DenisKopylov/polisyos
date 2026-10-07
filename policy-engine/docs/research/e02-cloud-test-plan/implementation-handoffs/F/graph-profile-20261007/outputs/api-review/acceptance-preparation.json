@@ -1,0 +1,283 @@
+{
+  "schema": "policyos.e02.independent_review_preparation.v1",
+  "unit": "F",
+  "reviewer": "causal_api",
+  "base_sha": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+  "base_tree": "ed4a4fd6864e8b60cb45124fb8e6fa9b7c503b66",
+  "fetched_G_checkpoint": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+  "outcome": "UNRUN",
+  "meaning": "Independent acceptance design only; new source not yet frozen or executed. No product/source/Git/site writes.",
+  "source_base_bindings": [
+    {
+      "git_ref": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+      "git_blob": "6b148f720d7fb7aa978fb46bbca722615cf433cf",
+      "bytes": 62212,
+      "sha256": "559af61ee42f294bf28fe71beca620c9ce4091bcc2ffdc38c611f3a8da83ee44"
+    },
+    {
+      "git_ref": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+      "git_blob": "70ccfd46c42253861c31210ac176e22df3119e15",
+      "bytes": 48349,
+      "sha256": "4696b3597bf23b6dab8d3170cd846151d8c6d78b5c52d8dcc21a2d54aebe1253"
+    },
+    {
+      "git_ref": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "git_blob": "b1de9ace7e2535100b94cec3efe55ca92af34b47",
+      "bytes": 41585,
+      "sha256": "85c3ab8806f708ca2cd5bfb66ec6f105c76bb944704dd75b0cdcabfae98bef3a"
+    },
+    {
+      "git_ref": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+      "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+      "git_blob": "f2635665550259d20323d29a784faf11dc8896b7",
+      "bytes": 20654,
+      "sha256": "431b0c00ddbc0c33720c1b5ee61b85493a3c4bb1759e1487d2cbe5b016456dc7"
+    },
+    {
+      "git_ref": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+      "path": "policy-engine/src/polisyos/ir/analytics/mgraph.py",
+      "git_blob": "9e7308b213ce90be5033bf8077c357c8e38617eb",
+      "bytes": 11577,
+      "sha256": "f2133e1fd2ee8abaa99154cc70032a700c55869e2c71976cc63a012c8db60497"
+    },
+    {
+      "git_ref": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+      "path": "policy-engine/tests/unit/remediation/test_grf_03.py",
+      "git_blob": "ee0fefdc86d1179b900e074f8b8960391d4d713f",
+      "bytes": 3265,
+      "sha256": "b7d1c7e736eac4ef3beedc0b1e4f7f3b6485099ec42c9cfe5468b6a359db8648"
+    }
+  ],
+  "criterion_bindings": [
+    {
+      "finding_id": "B204",
+      "per_ID_carrier": {
+        "git_ref": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B204.json",
+        "git_blob": "ff6b68f9c21930b3699ab2d66adac166d3227922",
+        "bytes": 17977,
+        "sha256": "a8b3fb41f8a690eb238a59cacaff7c3f15ac957079ef5118ed78a321ce41375f"
+      },
+      "full_original_binding_checks": [
+        {
+          "source": {
+            "criterion_id": "B204",
+            "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+            "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+            "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+            "lines": [
+              5094,
+              5105
+            ],
+            "bytes": 3579,
+            "sha256": "4604b95f70da45f417834b0b73cce792ba92c2709c35021952fc50cccb3e655a",
+            "title": "## B204. Стандартный DiD принимает отсутствие предшествующего периода за пригодный дизайн",
+            "byte_binding_check": "PASS"
+          },
+          "actual_full_excerpt_binding": {
+            "bytes": 3579,
+            "sha256": "4604b95f70da45f417834b0b73cce792ba92c2709c35021952fc50cccb3e655a"
+          },
+          "outcome": "PASS"
+        }
+      ],
+      "original_text_read": true
+    },
+    {
+      "finding_id": "B214",
+      "per_ID_carrier": {
+        "git_ref": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B214.json",
+        "git_blob": "4a1e51e4f837c0c2299ad0fcb24ffa93e02625e4",
+        "bytes": 26943,
+        "sha256": "0e14cf984e41da503c7e184d62aaeb0396483ea4e1c75cc594c44f0d4b4a3cd7"
+      },
+      "full_original_binding_checks": [
+        {
+          "source": {
+            "criterion_id": "B214",
+            "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+            "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+            "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+            "lines": [
+              5218,
+              5229
+            ],
+            "bytes": 3537,
+            "sha256": "48c1311f230c5c8f4886013cf47fec75931cde810c20feee8889c9d820dcb1ad",
+            "title": "## B214. Проекция PAG/CPDAG разворачивает известное направление и может создать цикл",
+            "byte_binding_check": "PASS"
+          },
+          "actual_full_excerpt_binding": {
+            "bytes": 3537,
+            "sha256": "48c1311f230c5c8f4886013cf47fec75931cde810c20feee8889c9d820dcb1ad"
+          },
+          "outcome": "PASS"
+        }
+      ],
+      "original_text_read": true
+    },
+    {
+      "finding_id": "LA-037",
+      "per_ID_carrier": {
+        "git_ref": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-037.json",
+        "git_blob": "691d4832b8d99ad2a5a71dfd27f7c5564efb5a31",
+        "bytes": 14768,
+        "sha256": "fe80993be60bbf30f0243a8afa87b8d94db5f57e28399144d5031699be3e5382"
+      },
+      "full_original_binding_checks": [
+        {
+          "source": {
+            "criterion_id": "LA-037",
+            "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+            "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+            "document_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+            "lines": [
+              2146,
+              2178
+            ],
+            "bytes": 5602,
+            "sha256": "79dc9efe37fc67c6b481db97f51d50a38d4aea4cff051ce0ffcf864ce049589c",
+            "title": "## LA-037. Slot layout: две последовательные compatibility-обёртки после переноса в IR",
+            "byte_binding_check": "PASS"
+          },
+          "actual_full_excerpt_binding": {
+            "bytes": 5602,
+            "sha256": "79dc9efe37fc67c6b481db97f51d50a38d4aea4cff051ce0ffcf864ce049589c"
+          },
+          "outcome": "PASS"
+        }
+      ],
+      "original_text_read": true
+    }
+  ],
+  "G_decision_inputs": [
+    {
+      "git_ref": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/README.md",
+      "git_blob": "d42828d1b3dff44abb9ac0b3cba001458b13878b",
+      "bytes": 8714,
+      "sha256": "17f724526be4d904590725b5a416f8736bd698ec37f14e73493fd1150bee1b8a"
+    },
+    {
+      "git_ref": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/B214.md",
+      "git_blob": "6585ba108ee910b2d02d5fc608cfa40c8acff392",
+      "bytes": 10002,
+      "sha256": "e69cb296a1841e91fcfa400d8f31aada70ae62001ab8cd972d684723e9f5ebca"
+    },
+    {
+      "git_ref": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/migrations.md",
+      "git_blob": "924b08fa01522915c276bfc899a1b7b44fda7bdd",
+      "bytes": 15679,
+      "sha256": "43f262670fb8dff467fa6a4eee361969e874247de4b85f1210980e7290ce31d8"
+    },
+    {
+      "git_ref": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/README.md",
+      "git_blob": "de7190388ea60d9f47812f2fcebd2ab9a3bd1f37",
+      "bytes": 2670,
+      "sha256": "246b329b9dbdf6ad72565dce6f3871114951048d99c9e3618be8766522bedeba"
+    },
+    {
+      "git_ref": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/receipt.json",
+      "git_blob": "871a82fb11f6ec983115c175bca89a443cf5fdbc",
+      "bytes": 26957,
+      "sha256": "97cbc9aba2cd526966b12de34be1494a0477b01f1063fdc11c301d9fc2476bbc"
+    },
+    {
+      "git_ref": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/probe.py",
+      "git_blob": "47e4fe4f13cd1635fd28e1b8756f7efc691970e0",
+      "bytes": 23974,
+      "sha256": "5ce7244429ec1c6cf60507f5c4ef1b3059583ea3825aaa269c00dfc7b7f21bbc"
+    },
+    {
+      "git_ref": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/mgraph-target.json",
+      "git_blob": "0322fc12fe5b7aeaa96b6936e0d2396660aee438",
+      "bytes": 2176,
+      "sha256": "9720406aeef3dc2f352764dc7ce0fdbba6bcebceb84c85fa03ed949396e7a17c"
+    },
+    {
+      "git_ref": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/outputs/mgraph-target.json",
+      "git_blob": "2d845d7e27658dca56577d915aa2ffbb4ce32afc",
+      "bytes": 10617,
+      "sha256": "6e99a3f2c30986008edf901527daac3fe8d63f2ef86f170dc11d8b5775652a6e"
+    },
+    {
+      "git_ref": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/deciding.stdout.txt",
+      "git_blob": "8ccc89a5518a2a56776588ae1ff2ab149394b1fb",
+      "bytes": 3050,
+      "sha256": "8160fecd4d7fa174c7a328b2970295a27d44c5e17ba830af72596c0417dd3197"
+    }
+  ],
+  "P40_class": "SAME_CLASS static-profile admission at graph type depth. Root shared guard widens quantity graph_type + unchanged mark/lag profile. B214 broad partial/authority decision stays limited.",
+  "canonical_implementation_proposal": {
+    "owner": "ROOT only",
+    "module": "polisyos.foundry.methods.catalog.causal.graph_reconciliation",
+    "private_shared_guard": "_validate_reconciliation_profile(graph)",
+    "quantity": "Declared graph_type in {DAG,ADMG}, then existing _validate_static_admg for endpoint+lag admission. Reconciliation-only rule; no global PAG/CPDAG rule or new identifier.",
+    "before_transform": [
+      "ReconcileCausalGraph.pure_step before confidence/edge merge/filter/rewrites",
+      "Scientist selected cache/fragment graph resolver before reuse",
+      "Scientist composed/prior result before graph persistence"
+    ],
+    "supplied_method_result": "_load_data_graph reads whole actual selected CAS ref/manifest/bytes, _extract_graph then canonical pure_step; apply same profile independent of caller-provided graph projection."
+  },
+  "acceptance_controls": [
+    {
+      "case": "native MGraph negative",
+      "oracle": "Real build_mgraph MCAR/R_X/X_star + X→Y + X↔Y revalidated confidence0.9; shared profile typed refusal before filtering, no reconciled graph published; original MGraph metadata extractor and CAS roundtrip remain correct."
+    },
+    {
+      "case": "low/absent confidence negative",
+      "oracle": "Same unsupported type with edges below cutoff or unscored must refuse before filtering; absence of survivor edge cannot erase input semantics."
+    },
+    {
+      "case": "generic unsupported declared profiles",
+      "oracle": "Every existing GraphType outside DAG/ADMG refuses in this reconcile route, including fully oriented PAG/CPDAG with valid DTO. No statement on separate supported partial-identification/projection consumers."
+    },
+    {
+      "case": "ordinary ADMG/DAG positive",
+      "oracle": "Actual registered method→Node→CAS reader; directed and bidirected bow preserved. ADMG reversed storage arrow/tail canonically swaps endpoints to same known relation; identity/metadata/diagnostics kept."
+    },
+    {
+      "case": "direct/supplied MethodResult/cache intake",
+      "oracle": "Same real Node boundary refuses unsupported supplied direct graph, actual stored MethodResult graph or selected ref/cache before graph publication; no fake authority-positive."
+    },
+    {
+      "case": "retained-marker guard removal",
+      "oracle": "In isolated subprocess replace only private type admission behavior with unchanged _validate_static_admg; leave GraphType enum, diagnostic strings/functions and source constants intact. Actual negative semantic test fails by unsupported graph being accepted/relabelled; not setup or invented field failure."
+    },
+    {
+      "case": "unchanged original graph projection",
+      "oracle": "Existing test_grf_03 reverse PAG normalization/partial CPDAG refusal preserved unchanged; no requirement to reject all partial graphs globally."
+    }
+  ],
+  "mandatory_footprint_review": [
+    "Complete frozen base→candidate diff canonical producer/Node/test/docs/release",
+    "No IR/schema/global _validate_static_admg/source/generator change outside lease",
+    "Documentation finite DAG/ADMG admission; no MGraph/PAG/CPDAG support or scientific authority claim",
+    "Existing helper consumer ABI unchanged; no public registry/facade/shim introduced"
+  ],
+  "separate_pending_reviews": {
+    "B204": "CAU frozen fixture/test-only diff; two pre periods means not_testable/insufficient_pre_periods, retain actual ATT/design admission; run only affected natural-experiment benchmark.",
+    "LA-037": "Foundry docs-only frozen diff; distinguish IR canonical owner, direct first-party compiler, explicit Foundry facade and same-object internal compatibility alias; no removal/lifecycle invention."
+  },
+  "execution": {
+    "new_candidate_tests": "UNRUN pending immutable root source freeze",
+    "worker_focused_review": "FIT independently assigned; no duplicate backend wave",
+    "broad_suites": "Not requested/repeated",
+    "formal_G_closure": "not_issued",
+    "source_receipt_acceptance": "not inferred"
+  }
+}

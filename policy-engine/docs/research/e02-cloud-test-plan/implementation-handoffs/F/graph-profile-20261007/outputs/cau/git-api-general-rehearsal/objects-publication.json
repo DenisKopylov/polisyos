@@ -1,0 +1,37 @@
+{
+  "check": "PASS",
+  "source_before": {
+    "head": "a7204961ac1028965c58224fe40e6bb3a397d8a8",
+    "tree": "936d0e79ae4fea92dfb082a98296037bdc965452",
+    "branch": "codex/e02-F-cau-20261006",
+    "status": ""
+  },
+  "source_after": {
+    "head": "a7204961ac1028965c58224fe40e6bb3a397d8a8",
+    "tree": "936d0e79ae4fea92dfb082a98296037bdc965452",
+    "branch": "codex/e02-F-cau-20261006",
+    "status": ""
+  },
+  "base": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+  "head": "a7204961ac1028965c58224fe40e6bb3a397d8a8",
+  "branch": "codex/e02-F-cau-20261006",
+  "commits": [
+    {
+      "sha": "e1c4bb28c9d5ff936ae1c047619c56cf12ba5347",
+      "already_remote": true
+    },
+    {
+      "sha": "a7204961ac1028965c58224fe40e6bb3a397d8a8",
+      "already_remote": true
+    }
+  ],
+  "api_calls": 4,
+  "branch_update": "UNRUN; caller must use force:false and exact observed expected head",
+  "no_local_git_mutation": true,
+  "no_history_rewrite": true,
+  "replayer": {
+    "path": "/tmp/e02-F-graph-profile-20261007/cau/publish_git_objects_exact.py",
+    "bytes": 7320,
+    "sha256": "2b7787fc5d4f0e1aabc49ab984156c1881ff90bbd6cfe04541ea609e8f6dcd4c"
+  }
+}

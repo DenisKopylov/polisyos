@@ -1,0 +1,1337 @@
+{
+  "scope": "fullsource compactnavigation only; no backend/PASSinference",
+  "items": [
+    {
+      "name": "F-full",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--unit",
+        "F",
+        "--limit",
+        "1000"
+      ],
+      "exit": 0,
+      "matching": 118,
+      "states": {
+        "FAILED": 3,
+        "PASS": 115
+      },
+      "cells": [
+        {
+          "id": "F01-P016",
+          "job": "F01",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+          "state": "PASS",
+          "receipt_status": "valid_bound"
+        },
+        {
+          "id": "F01-P019",
+          "job": "F01",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_twin_network_query.py",
+          "state": "PASS",
+          "receipt_status": "valid_bound"
+        },
+        {
+          "id": "F01-P025",
+          "job": "F01",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/remediation/test_scm_02.py",
+          "state": "FAILED",
+          "receipt_status": "valid_bound"
+        },
+        {
+          "id": "F01-P042",
+          "job": "F01",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/ir/test_causal_graph_contract.py",
+          "state": "PASS",
+          "receipt_status": "valid_bound"
+        },
+        {
+          "id": "F01-P063",
+          "job": "F01",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/foundry/contracts/test_layout.py",
+          "state": "PASS",
+          "receipt_status": "valid_bound"
+        },
+        {
+          "id": "F01-P067",
+          "job": "F01",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_did.py",
+          "state": "PASS",
+          "receipt_status": "valid_bound"
+        },
+        {
+          "id": "F01-P076",
+          "job": "F01",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test__causal_engine_contracts.py",
+          "state": "PASS",
+          "receipt_status": "valid_bound"
+        },
+        {
+          "id": "F01-P089",
+          "job": "F01",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/remediation/test_api_01.py",
+          "state": "PASS",
+          "receipt_status": "valid_bound"
+        },
+        {
+          "id": "F01-P101",
+          "job": "F01",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/remediation/test_fry_03.py",
+          "state": "PASS",
+          "receipt_status": "valid_bound"
+        },
+        {
+          "id": "F01-P109",
+          "job": "F01",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/remediation/test_fit_01.py",
+          "state": "PASS",
+          "receipt_status": "valid_bound"
+        },
+        {
+          "id": "F01-P115",
+          "job": "F01",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/remediation/test_cau_05.py",
+          "state": "PASS",
+          "receipt_status": "valid_bound"
+        },
+        {
+          "id": "F01-P137",
+          "job": "F01",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/lex/simulator/test_engine.py",
+          "state": "PASS",
+          "receipt_status": "valid_bound"
+        },
+        {
+          "id": "F02-P009",
+          "job": "F02",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_s_ops.py",
+          "state": "PASS",
+          "receipt_status": "reconciled"
+        },
+        {
+          "id": "F02-P013",
+          "job": "F02",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_do_calculus_postpass.py",
+          "state": "PASS",
+          "receipt_status": "reconciled"
+        },
+        {
+          "id": "F02-P028",
+          "job": "F02",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_performance_primitives.py",
+          "state": "PASS",
+          "receipt_status": "reconciled"
+        },
+        {
+          "id": "F02-P048",
+          "job": "F02",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/remediation/test_cau_01.py",
+          "state": "PASS",
+          "receipt_status": "reconciled"
+        },
+        {
+          "id": "F02-P050",
+          "job": "F02",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_identify_estimate.py",
+          "state": "PASS",
+          "receipt_status": "reconciled"
+        },
+        {
+          "id": "F02-P068",
+          "job": "F02",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test__interference_contracts.py",
+          "state": "PASS",
+          "receipt_status": "reconciled"
+        },
+        {
+          "id": "F02-P070",
+          "job": "F02",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/remediation/test_cau_03.py",
+          "state": "PASS",
+          "receipt_status": "reconciled"
+        },
+        {
+          "id": "F02-P110",
+          "job": "F02",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/remediation/test_grf_03.py",
+          "state": "PASS",
+          "receipt_status": "reconciled"
+        },
+        {
+          "id": "F02-P118",
+          "job": "F02",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/remediation/test_scm_01.py",
+          "state": "PASS",
+          "receipt_status": "reconciled"
+        },
+        {
+          "id": "F03-P032",
+          "job": "F03",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/foundry/compile/test_trinity_compiler.py",
+          "state": "PASS",
+          "receipt_status": "valid_bound"
+        },
+        {
+          "id": "F03-P050",
+          "job": "F03",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/mechanism/test_runtime.py",
+          "state": "PASS",
+          "receipt_status": "valid_bound"
+        },
+        {
+          "id": "F03-P054",
+          "job": "F03",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/integration/lex_ir_foundry/test_normpack_factlog_method_bridge.py",
+          "state": "PASS",
+          "receipt_status": "valid_bound"
+        },
+        {
+          "id": "F03-P060",
+          "job": "F03",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_fit.py",
+          "state": "PASS",
+          "receipt_status": "valid_bound"
+        },
+        {
+          "id": "F03-P068",
+          "job": "F03",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/foundry/mechanisms/test_mechanism_design.py",
+          "state": "PASS",
+          "receipt_status": "valid_bound"
+        },
+        {
+          "id": "F03-P069",
+          "job": "F03",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/mechanism/test_families.py",
+          "state": "PASS",
+          "receipt_status": "valid_bound"
+        },
+        {
+          "id": "F03-P076",
+          "job": "F03",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/foundry/compile/test_randomization.py",
+          "state": "PASS",
+          "receipt_status": "valid_bound"
+        },
+        {
+          "id": "F03-P077",
+          "job": "F03",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_rdd.py",
+          "state": "PASS",
+          "receipt_status": "valid_bound"
+        },
+        {
+          "id": "F03-P090",
+          "job": "F03",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/remediation/test_cau_02.py",
+          "state": "PASS",
+          "receipt_status": "valid_bound"
+        },
+        {
+          "id": "F03-P095",
+          "job": "F03",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/remediation/test_eco_01.py",
+          "state": "PASS",
+          "receipt_status": "valid_bound"
+        },
+        {
+          "id": "F04-P013",
+          "job": "F04",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_pag_completion.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled_parent"
+        },
+        {
+          "id": "F04-P040",
+          "job": "F04",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/foundry/mechanisms/test_fiscal.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled_parent"
+        },
+        {
+          "id": "F04-P045",
+          "job": "F04",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_query.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled_parent"
+        },
+        {
+          "id": "F04-P049",
+          "job": "F04",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/foundry/mechanisms/test_labor.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled_parent"
+        },
+        {
+          "id": "F04-P060",
+          "job": "F04",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/foundry/mechanisms/test_treasury.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled_parent"
+        },
+        {
+          "id": "F04-P067",
+          "job": "F04",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/foundry/analysis/test_loss_numeric.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled_parent"
+        },
+        {
+          "id": "F04-P069",
+          "job": "F04",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_registration.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled_parent"
+        },
+        {
+          "id": "F04-P092",
+          "job": "F04",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/remediation/test_scm_03.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled_parent"
+        },
+        {
+          "id": "F04-P108",
+          "job": "F04",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/remediation/test_cau_04.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled_parent"
+        },
+        {
+          "id": "F04-P117",
+          "job": "F04",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/remediation/test_lex_01.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled_parent"
+        },
+        {
+          "id": "F04-P138",
+          "job": "F04",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/lex/simulator/test_diff.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled_parent"
+        },
+        {
+          "id": "F05-P020",
+          "job": "F05",
+          "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_s_ops.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F05-P063",
+          "job": "F05",
+          "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+          "path": "policy-engine/tests/unit/ir/test_causal_graph_contract.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F05-P076",
+          "job": "F05",
+          "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+          "path": "policy-engine/tests/integration/lex_ir_foundry/test_normpack_factlog_method_bridge.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F05-P090",
+          "job": "F05",
+          "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_did.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F06-P027",
+          "job": "F06",
+          "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_do_calculus_postpass.py",
+          "state": "PASS",
+          "receipt_status": "valid"
+        },
+        {
+          "id": "F06-P031",
+          "job": "F06",
+          "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+          "state": "PASS",
+          "receipt_status": "valid"
+        },
+        {
+          "id": "F06-P048",
+          "job": "F06",
+          "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_performance_primitives.py",
+          "state": "PASS",
+          "receipt_status": "valid"
+        },
+        {
+          "id": "F06-P052",
+          "job": "F06",
+          "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+          "path": "policy-engine/tests/unit/foundry/compile/test_trinity_compiler.py",
+          "state": "PASS",
+          "receipt_status": "valid"
+        },
+        {
+          "id": "F06-P065",
+          "job": "F06",
+          "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_query.py",
+          "state": "PASS",
+          "receipt_status": "valid"
+        },
+        {
+          "id": "F06-P083",
+          "job": "F06",
+          "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_fit.py",
+          "state": "PASS",
+          "receipt_status": "valid"
+        },
+        {
+          "id": "F06-P087",
+          "job": "F06",
+          "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+          "path": "policy-engine/tests/unit/foundry/contracts/test_layout.py",
+          "state": "PASS",
+          "receipt_status": "valid"
+        },
+        {
+          "id": "F07-P026",
+          "job": "F07",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "path": "policy-engine/tests/unit/remediation/test_scm_02.py",
+          "state": "PASS",
+          "receipt_status": "valid"
+        },
+        {
+          "id": "F07-P049",
+          "job": "F07",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "path": "policy-engine/tests/integration/lex_ir_foundry/test_normpack_factlog_method_bridge.py",
+          "state": "PASS",
+          "receipt_status": "valid"
+        },
+        {
+          "id": "F07-P061",
+          "job": "F07",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_did.py",
+          "state": "PASS",
+          "receipt_status": "valid"
+        },
+        {
+          "id": "F07-P062",
+          "job": "F07",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "path": "policy-engine/tests/unit/remediation/test_cau_03.py",
+          "state": "PASS",
+          "receipt_status": "valid"
+        },
+        {
+          "id": "F07-P069",
+          "job": "F07",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "path": "policy-engine/tests/unit/foundry/compile/test_randomization.py",
+          "state": "PASS",
+          "receipt_status": "valid"
+        },
+        {
+          "id": "F07-P103",
+          "job": "F07",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "path": "policy-engine/tests/unit/remediation/test_grf_03.py",
+          "state": "PASS",
+          "receipt_status": "valid"
+        },
+        {
+          "id": "F07-P110",
+          "job": "F07",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "path": "policy-engine/tests/unit/remediation/test_scm_01.py",
+          "state": "PASS",
+          "receipt_status": "valid"
+        },
+        {
+          "id": "F08-P016",
+          "job": "F08",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_s_ops.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F08-P039",
+          "job": "F08",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "path": "policy-engine/tests/unit/foundry/compile/test_trinity_compiler.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F08-P048",
+          "job": "F08",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "path": "policy-engine/tests/unit/ir/test_causal_graph_contract.py",
+          "state": "FAILED",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F08-P050",
+          "job": "F08",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_query.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F08-P052",
+          "job": "F08",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "path": "policy-engine/tests/unit/remediation/test_cau_01.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F08-P063",
+          "job": "F08",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_fit.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F08-P066",
+          "job": "F08",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "path": "policy-engine/tests/unit/foundry/contracts/test_layout.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F08-P070",
+          "job": "F08",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/mechanism/test_families.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F08-P091",
+          "job": "F08",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "path": "policy-engine/tests/unit/remediation/test_cau_02.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F08-P094",
+          "job": "F08",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "path": "policy-engine/tests/unit/remediation/test_scm_03.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F08-P104",
+          "job": "F08",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "path": "policy-engine/tests/unit/remediation/test_fry_03.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F08-P110",
+          "job": "F08",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "path": "policy-engine/tests/unit/remediation/test_cau_04.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F09-P021",
+          "job": "F09",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_do_calculus_postpass.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F09-P024",
+          "job": "F09",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F09-P036",
+          "job": "F09",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_performance_primitives.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F09-P091",
+          "job": "F09",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "path": "policy-engine/tests/unit/remediation/test_api_01.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F09-P097",
+          "job": "F09",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "path": "policy-engine/tests/unit/remediation/test_eco_01.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F09-P111",
+          "job": "F09",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "path": "policy-engine/tests/unit/remediation/test_fit_01.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F09-P117",
+          "job": "F09",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "path": "policy-engine/tests/unit/remediation/test_cau_05.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F09-P118",
+          "job": "F09",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "path": "policy-engine/tests/unit/remediation/test_lex_01.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F10-P011",
+          "job": "F10",
+          "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_s_ops.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F10-P016",
+          "job": "F10",
+          "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_do_calculus_postpass.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F10-P032",
+          "job": "F10",
+          "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_performance_primitives.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F10-P048",
+          "job": "F10",
+          "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_query.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F10-P066",
+          "job": "F10",
+          "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+          "path": "policy-engine/tests/unit/foundry/contracts/test_layout.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F10-P069",
+          "job": "F10",
+          "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_did.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F11-P040",
+          "job": "F11",
+          "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+          "path": "policy-engine/tests/unit/foundry/compile/test_trinity_compiler.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F11-P060",
+          "job": "F11",
+          "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+          "path": "policy-engine/tests/integration/lex_ir_foundry/test_normpack_factlog_method_bridge.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F11-P066",
+          "job": "F11",
+          "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_fit.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F12-P023",
+          "job": "F12",
+          "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F12-P051",
+          "job": "F12",
+          "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+          "path": "policy-engine/tests/unit/ir/test_causal_graph_contract.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F13-P030",
+          "job": "F13",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "path": "policy-engine/tests/unit/remediation/test_scm_02.py",
+          "state": "FAILED",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F13-P033",
+          "job": "F13",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_performance_primitives.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F13-P053",
+          "job": "F13",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_query.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F13-P057",
+          "job": "F13",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "path": "policy-engine/tests/unit/remediation/test_cau_01.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F13-P079",
+          "job": "F13",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/mechanism/test_families.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F13-P137",
+          "job": "F13",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "path": "policy-engine/tests/unit/remediation/test_scm_01.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F14-P011",
+          "job": "F14",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_s_ops.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F14-P016",
+          "job": "F14",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_do_calculus_postpass.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F14-P039",
+          "job": "F14",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "path": "policy-engine/tests/unit/foundry/compile/test_trinity_compiler.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F14-P064",
+          "job": "F14",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "path": "policy-engine/tests/integration/lex_ir_foundry/test_normpack_factlog_method_bridge.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F14-P071",
+          "job": "F14",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_fit.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F14-P076",
+          "job": "F14",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "path": "policy-engine/tests/unit/foundry/contracts/test_layout.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F14-P082",
+          "job": "F14",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "path": "policy-engine/tests/unit/remediation/test_cau_03.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F14-P089",
+          "job": "F14",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "path": "policy-engine/tests/unit/foundry/compile/test_randomization.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F14-P104",
+          "job": "F14",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "path": "policy-engine/tests/unit/remediation/test_api_01.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F14-P128",
+          "job": "F14",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "path": "policy-engine/tests/unit/remediation/test_fit_01.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F14-P136",
+          "job": "F14",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "path": "policy-engine/tests/unit/remediation/test_cau_05.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F14-P137",
+          "job": "F14",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "path": "policy-engine/tests/unit/remediation/test_lex_01.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F15-P021",
+          "job": "F15",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+          "state": "PASS",
+          "receipt_status": "valid"
+        },
+        {
+          "id": "F15-P052",
+          "job": "F15",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "path": "policy-engine/tests/unit/ir/test_causal_graph_contract.py",
+          "state": "PASS",
+          "receipt_status": "valid"
+        },
+        {
+          "id": "F15-P080",
+          "job": "F15",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_did.py",
+          "state": "PASS",
+          "receipt_status": "valid"
+        },
+        {
+          "id": "F15-P104",
+          "job": "F15",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "path": "policy-engine/tests/unit/remediation/test_cau_02.py",
+          "state": "PASS",
+          "receipt_status": "valid"
+        },
+        {
+          "id": "F15-P107",
+          "job": "F15",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "path": "policy-engine/tests/unit/remediation/test_scm_03.py",
+          "state": "PASS",
+          "receipt_status": "valid"
+        },
+        {
+          "id": "F15-P110",
+          "job": "F15",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "path": "policy-engine/tests/unit/remediation/test_eco_01.py",
+          "state": "PASS",
+          "receipt_status": "valid"
+        },
+        {
+          "id": "F15-P119",
+          "job": "F15",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "path": "policy-engine/tests/unit/remediation/test_fry_03.py",
+          "state": "PASS",
+          "receipt_status": "valid"
+        },
+        {
+          "id": "F15-P127",
+          "job": "F15",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "path": "policy-engine/tests/unit/remediation/test_cau_04.py",
+          "state": "PASS",
+          "receipt_status": "valid"
+        },
+        {
+          "id": "F15-P129",
+          "job": "F15",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "path": "policy-engine/tests/unit/remediation/test_grf_03.py",
+          "state": "PASS",
+          "receipt_status": "valid"
+        }
+      ]
+    },
+    {
+      "name": "B214",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "B214",
+        "--limit",
+        "1000"
+      ],
+      "exit": 0,
+      "matching": 14,
+      "states": {
+        "FAILED": 1,
+        "PASS": 13
+      },
+      "cells": [
+        {
+          "id": "F01-P042",
+          "job": "F01",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/ir/test_causal_graph_contract.py",
+          "state": "PASS",
+          "receipt_status": "valid_bound"
+        },
+        {
+          "id": "F02-P110",
+          "job": "F02",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/remediation/test_grf_03.py",
+          "state": "PASS",
+          "receipt_status": "reconciled"
+        },
+        {
+          "id": "F03-P060",
+          "job": "F03",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_fit.py",
+          "state": "PASS",
+          "receipt_status": "valid_bound"
+        },
+        {
+          "id": "F04-P013",
+          "job": "F04",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_pag_completion.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled_parent"
+        },
+        {
+          "id": "F05-P063",
+          "job": "F05",
+          "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+          "path": "policy-engine/tests/unit/ir/test_causal_graph_contract.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F06-P083",
+          "job": "F06",
+          "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_fit.py",
+          "state": "PASS",
+          "receipt_status": "valid"
+        },
+        {
+          "id": "F07-P103",
+          "job": "F07",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "path": "policy-engine/tests/unit/remediation/test_grf_03.py",
+          "state": "PASS",
+          "receipt_status": "valid"
+        },
+        {
+          "id": "F08-P048",
+          "job": "F08",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "path": "policy-engine/tests/unit/ir/test_causal_graph_contract.py",
+          "state": "FAILED",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F08-P063",
+          "job": "F08",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_fit.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F11-P066",
+          "job": "F11",
+          "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_fit.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F12-P051",
+          "job": "F12",
+          "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+          "path": "policy-engine/tests/unit/ir/test_causal_graph_contract.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F14-P071",
+          "job": "F14",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_fit.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F15-P052",
+          "job": "F15",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "path": "policy-engine/tests/unit/ir/test_causal_graph_contract.py",
+          "state": "PASS",
+          "receipt_status": "valid"
+        },
+        {
+          "id": "F15-P129",
+          "job": "F15",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "path": "policy-engine/tests/unit/remediation/test_grf_03.py",
+          "state": "PASS",
+          "receipt_status": "valid"
+        }
+      ]
+    },
+    {
+      "name": "B215",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "B215",
+        "--limit",
+        "1000"
+      ],
+      "exit": 0,
+      "matching": 9,
+      "states": {
+        "FAILED": 2,
+        "PASS": 7
+      },
+      "cells": [
+        {
+          "id": "F01-P019",
+          "job": "F01",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_twin_network_query.py",
+          "state": "PASS",
+          "receipt_status": "valid_bound"
+        },
+        {
+          "id": "F01-P025",
+          "job": "F01",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/remediation/test_scm_02.py",
+          "state": "FAILED",
+          "receipt_status": "valid_bound"
+        },
+        {
+          "id": "F04-P045",
+          "job": "F04",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_query.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled_parent"
+        },
+        {
+          "id": "F06-P065",
+          "job": "F06",
+          "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_query.py",
+          "state": "PASS",
+          "receipt_status": "valid"
+        },
+        {
+          "id": "F07-P026",
+          "job": "F07",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "path": "policy-engine/tests/unit/remediation/test_scm_02.py",
+          "state": "PASS",
+          "receipt_status": "valid"
+        },
+        {
+          "id": "F08-P050",
+          "job": "F08",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_query.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F10-P048",
+          "job": "F10",
+          "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_query.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F13-P030",
+          "job": "F13",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "path": "policy-engine/tests/unit/remediation/test_scm_02.py",
+          "state": "FAILED",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F13-P053",
+          "job": "F13",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_query.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        }
+      ]
+    },
+    {
+      "name": "LA035",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "LA-035",
+        "--limit",
+        "1000"
+      ],
+      "exit": 0,
+      "matching": 6,
+      "states": {
+        "PASS": 6
+      },
+      "cells": [
+        {
+          "id": "F03-P095",
+          "job": "F03",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/remediation/test_eco_01.py",
+          "state": "PASS",
+          "receipt_status": "valid_bound"
+        },
+        {
+          "id": "F04-P040",
+          "job": "F04",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/foundry/mechanisms/test_fiscal.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled_parent"
+        },
+        {
+          "id": "F04-P049",
+          "job": "F04",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/foundry/mechanisms/test_labor.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled_parent"
+        },
+        {
+          "id": "F04-P067",
+          "job": "F04",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/foundry/analysis/test_loss_numeric.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled_parent"
+        },
+        {
+          "id": "F09-P097",
+          "job": "F09",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "path": "policy-engine/tests/unit/remediation/test_eco_01.py",
+          "state": "PASS",
+          "receipt_status": "valid_reconciled"
+        },
+        {
+          "id": "F15-P110",
+          "job": "F15",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "path": "policy-engine/tests/unit/remediation/test_eco_01.py",
+          "state": "PASS",
+          "receipt_status": "valid"
+        }
+      ]
+    },
+    {
+      "name": "F08-P048",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--cell",
+        "F08-P048",
+        "--details",
+        "--block-limit",
+        "1000"
+      ],
+      "exit": 0,
+      "matching": 1,
+      "states": {
+        "FAILED": 1
+      },
+      "cells": [
+        {
+          "id": "F08-P048",
+          "job": "F08",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "path": "policy-engine/tests/unit/ir/test_causal_graph_contract.py",
+          "state": "FAILED",
+          "receipt_status": "valid_reconciled"
+        }
+      ]
+    },
+    {
+      "name": "F01-P025",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--cell",
+        "F01-P025",
+        "--details",
+        "--block-limit",
+        "1000"
+      ],
+      "exit": 0,
+      "matching": 1,
+      "states": {
+        "FAILED": 1
+      },
+      "cells": [
+        {
+          "id": "F01-P025",
+          "job": "F01",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/remediation/test_scm_02.py",
+          "state": "FAILED",
+          "receipt_status": "valid_bound"
+        }
+      ]
+    },
+    {
+      "name": "F13-P030",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--cell",
+        "F13-P030",
+        "--details",
+        "--block-limit",
+        "1000"
+      ],
+      "exit": 0,
+      "matching": 1,
+      "states": {
+        "FAILED": 1
+      },
+      "cells": [
+        {
+          "id": "F13-P030",
+          "job": "F13",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "path": "policy-engine/tests/unit/remediation/test_scm_02.py",
+          "state": "FAILED",
+          "receipt_status": "valid_reconciled"
+        }
+      ]
+    }
+  ]
+}

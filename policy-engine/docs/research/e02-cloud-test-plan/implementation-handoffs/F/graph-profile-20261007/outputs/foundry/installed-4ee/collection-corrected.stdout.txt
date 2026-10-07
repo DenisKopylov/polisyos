@@ -1,0 +1,25 @@
+tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_mgraph_producer_and_node_refuse_without_retyping_or_publishing
+tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_same_admg_shape_has_real_producer_node_and_fresh_reader
+tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_other_semantic_profiles_refuse_direct_and_supplied_result[False-cpdag]
+tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_other_semantic_profiles_refuse_direct_and_supplied_result[False-pag]
+tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_other_semantic_profiles_refuse_direct_and_supplied_result[False-mgraph]
+tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_other_semantic_profiles_refuse_direct_and_supplied_result[True-cpdag]
+tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_other_semantic_profiles_refuse_direct_and_supplied_result[True-pag]
+tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_other_semantic_profiles_refuse_direct_and_supplied_result[True-mgraph]
+tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_supplied_mgraph_result_and_selected_cache_apply_same_profile_boundary
+tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_genuine_producer_to_fresh_reader_preserves_known_relations[source_graph0-expected0]
+tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_genuine_producer_to_fresh_reader_preserves_known_relations[source_graph1-expected1]
+tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_genuine_producer_to_fresh_reader_preserves_known_relations[source_graph2-expected2]
+tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_genuine_producer_to_fresh_reader_preserves_known_relations[source_graph3-expected3]
+tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_current_real_producer_direction_supersedes_cache
+tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_current_parameters_recompute_full_content
+tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_query_only_replay_reconciles_current_alignment_result
+
+=============================== warnings summary ===============================
+tests/conftest.py:215
+  /tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-consumer/tests/conftest.py:215: PytestUnknownMarkWarning: Unknown pytest.mark.unit - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    item.add_marker(getattr(pytest.mark, primary_marker))
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+16 tests collected in 9.56s
+{"source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d", "mode": "collect", "pytest_exit": 0, "cases": 16, "owned_product_origins": 970, "origin_violations": 0}

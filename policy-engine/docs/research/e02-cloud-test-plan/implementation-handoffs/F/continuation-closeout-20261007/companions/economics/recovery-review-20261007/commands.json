@@ -1,0 +1,572 @@
+[
+  {
+    "name": "AGENTS",
+    "argv": [
+      "git",
+      "show",
+      "fa53da2812eaa8578f79ec914b3b2abe4c491f3d:AGENTS.md"
+    ],
+    "cwd": "/workspace/e02-F-economics-20261006",
+    "exit_code": 0,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/AGENTS.stdout",
+      "bytes": 22656,
+      "sha256": "35b1e1bf610b8a19b417cb35d6f0c7afca341c4c8c9bbc1574400c38f24b7d50"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/AGENTS.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "CONTRIBUTING",
+    "argv": [
+      "git",
+      "show",
+      "fa53da2812eaa8578f79ec914b3b2abe4c491f3d:policy-engine/CONTRIBUTING.md"
+    ],
+    "cwd": "/workspace/e02-F-economics-20261006",
+    "exit_code": 0,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/CONTRIBUTING.stdout",
+      "bytes": 10553,
+      "sha256": "1c9ea84e5fa0d8f05517287523d47d71128742ad02a5d20ce326163d21754783"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/CONTRIBUTING.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "HANDOFF",
+    "argv": [
+      "git",
+      "show",
+      "fa53da2812eaa8578f79ec914b3b2abe4c491f3d:policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md"
+    ],
+    "cwd": "/workspace/e02-F-economics-20261006",
+    "exit_code": 0,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/HANDOFF.stdout",
+      "bytes": 20260,
+      "sha256": "8519f95eb0ff2ec2c64caa4497eb58b957fe7cd47a0a6955bad98a2c20795d3b"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/HANDOFF.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "G-tenth-F.md",
+    "argv": [
+      "git",
+      "show",
+      "855cb26a7a2c9fea60356663cf81e7d01e20c738:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/F.md"
+    ],
+    "cwd": "/workspace/e02-F-economics-20261006",
+    "exit_code": 0,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/G-tenth-F.md.stdout",
+      "bytes": 17214,
+      "sha256": "6fcc13f11194d20e7a3bbadb2d70397da0b2c16e9695f43375a69c8bf222d89b"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/G-tenth-F.md.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "G-tenth-F-criteria-correction.md",
+    "argv": [
+      "git",
+      "show",
+      "855cb26a7a2c9fea60356663cf81e7d01e20c738:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/F-criteria-correction.md"
+    ],
+    "cwd": "/workspace/e02-F-economics-20261006",
+    "exit_code": 0,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/G-tenth-F-criteria-correction.md.stdout",
+      "bytes": 6784,
+      "sha256": "c1afc93ce7dc62b0dbc7c1489e7d5dd113b60c9d2a5d2487e44a40fcda7d7d11"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/G-tenth-F-criteria-correction.md.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "own-head",
+    "argv": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "/workspace/e02-F-economics-20261006",
+    "exit_code": 0,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/own-head.stdout",
+      "bytes": 41,
+      "sha256": "da28370cc27ad0f62119fe6131d210c8f9f989c5443a1f84ed07a968cbf77d4e"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/own-head.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "own-tree",
+    "argv": [
+      "git",
+      "rev-parse",
+      "HEAD^{tree}"
+    ],
+    "cwd": "/workspace/e02-F-economics-20261006",
+    "exit_code": 0,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/own-tree.stdout",
+      "bytes": 41,
+      "sha256": "4f55b9cbba92dc5a9a45c4f8655ee49415c9d8d09e2e0a5b7fb21d27de849b1c"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/own-tree.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "own-branch",
+    "argv": [
+      "git",
+      "symbolic-ref",
+      "HEAD"
+    ],
+    "cwd": "/workspace/e02-F-economics-20261006",
+    "exit_code": 0,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/own-branch.stdout",
+      "bytes": 42,
+      "sha256": "0296a58c80afd21fe8cf5eff13b835467099cab128e87ba9c7d3e218b2433cd9"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/own-branch.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "own-tracked-status",
+    "argv": [
+      "git",
+      "status",
+      "--porcelain",
+      "--untracked-files=no"
+    ],
+    "cwd": "/workspace/e02-F-economics-20261006",
+    "exit_code": 0,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/own-tracked-status.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/own-tracked-status.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "root-head",
+    "argv": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit_code": 0,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/root-head.stdout",
+      "bytes": 41,
+      "sha256": "359d05630c86820b0526cd93d42d5ab2df9458f6ea8fd8d78893bd3b4c1128df"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/root-head.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "process-snapshot",
+    "argv": [
+      "ps",
+      "-eo",
+      "pid,ppid,etime,args"
+    ],
+    "cwd": "/workspace/e02-F-economics-20261006",
+    "exit_code": 0,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/process-snapshot.stdout",
+      "bytes": 18233,
+      "sha256": "04eca5819f482b1eeaf99977f07d7a4e061f59cb6785c3791861c443cfa4c721"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/process-snapshot.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "F8236-to519-economic-full-delta",
+    "argv": [
+      "git",
+      "diff",
+      "--binary",
+      "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "--",
+      "policy-engine/src/polisyos/foundry/agent_sim/distributions.py",
+      "policy-engine/src/polisyos/foundry/plugins/economics/state.py",
+      "policy-engine/src/polisyos/foundry/plugins/economics/objectives.py",
+      "policy-engine/src/polisyos/foundry/plugins/economics/plugin.py",
+      "policy-engine/src/polisyos/foundry/agent_sim/analysis.py",
+      "policy-engine/src/polisyos/foundry/agent_sim/credit_assignment.py",
+      "policy-engine/src/polisyos/foundry/agent_sim/government_policy.py",
+      "policy-engine/src/polisyos/foundry/agent_sim/modes.py",
+      "policy-engine/src/polisyos/foundry/agent_sim/metrics.py",
+      "policy-engine/src/polisyos/foundry/methods/catalog/simulation/dynamics.py",
+      "policy-engine/src/polisyos/foundry/plugins/economics/baselines.py",
+      "policy-engine/src/polisyos/foundry/methods/_internal/loss.py",
+      "policy-engine/src/polisyos/foundry/methods/loss.py",
+      "policy-engine/src/polisyos/foundry/runtime/numeric.py",
+      "policy-engine/src/polisyos/foundry/contracts/state.py",
+      "policy-engine/tests/unit/foundry/agent_sim/test_gini_science.py",
+      "policy-engine/tests/unit/foundry/agent_sim/test_gini_domain.py",
+      "policy-engine/tests/unit/foundry/plugins/test_historical_income_baseline.py",
+      "policy-engine/tests/unit/foundry/agent_sim/test_signed_gini_producer_route.py"
+    ],
+    "cwd": "/workspace/e02-F-economics-20261006",
+    "exit_code": 0,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/F8236-to519-economic-full-delta.stdout",
+      "bytes": 13802,
+      "sha256": "9c7baee617c80059ed61b374dee5905d4e148b9c7c1e82c745af6d07d1dd3077"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/F8236-to519-economic-full-delta.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "F8236-toG855-economic-full-delta",
+    "argv": [
+      "git",
+      "diff",
+      "--binary",
+      "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+      "--",
+      "policy-engine/src/polisyos/foundry/agent_sim/distributions.py",
+      "policy-engine/src/polisyos/foundry/plugins/economics/state.py",
+      "policy-engine/src/polisyos/foundry/plugins/economics/objectives.py",
+      "policy-engine/src/polisyos/foundry/plugins/economics/plugin.py",
+      "policy-engine/src/polisyos/foundry/agent_sim/analysis.py",
+      "policy-engine/src/polisyos/foundry/agent_sim/credit_assignment.py",
+      "policy-engine/src/polisyos/foundry/agent_sim/government_policy.py",
+      "policy-engine/src/polisyos/foundry/agent_sim/modes.py",
+      "policy-engine/src/polisyos/foundry/agent_sim/metrics.py",
+      "policy-engine/src/polisyos/foundry/methods/catalog/simulation/dynamics.py",
+      "policy-engine/src/polisyos/foundry/plugins/economics/baselines.py",
+      "policy-engine/src/polisyos/foundry/methods/_internal/loss.py",
+      "policy-engine/src/polisyos/foundry/methods/loss.py",
+      "policy-engine/src/polisyos/foundry/runtime/numeric.py",
+      "policy-engine/src/polisyos/foundry/contracts/state.py",
+      "policy-engine/tests/unit/foundry/agent_sim/test_gini_science.py",
+      "policy-engine/tests/unit/foundry/agent_sim/test_gini_domain.py",
+      "policy-engine/tests/unit/foundry/plugins/test_historical_income_baseline.py",
+      "policy-engine/tests/unit/foundry/agent_sim/test_signed_gini_producer_route.py"
+    ],
+    "cwd": "/workspace/e02-F-economics-20261006",
+    "exit_code": 0,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/F8236-toG855-economic-full-delta.stdout",
+      "bytes": 32536,
+      "sha256": "3a76cd828ae25207c380de376eb88783f5a78773271730b12e84ddcc0f1764e4"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/F8236-toG855-economic-full-delta.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "prior532-toF8236-Gini-full-delta",
+    "argv": [
+      "git",
+      "diff",
+      "--binary",
+      "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+      "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "--",
+      "policy-engine/src/polisyos/foundry/agent_sim/distributions.py",
+      "policy-engine/tests/unit/foundry/agent_sim/test_gini_science.py"
+    ],
+    "cwd": "/workspace/e02-F-economics-20261006",
+    "exit_code": 0,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/prior532-toF8236-Gini-full-delta.stdout",
+      "bytes": 6246,
+      "sha256": "a19a6abe3e96da6b8f54945915bab0f83ca89414c09925f3f2b2af1e8664a435"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/prior532-toF8236-Gini-full-delta.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "current-519e4822-F.md",
+    "argv": [
+      "git",
+      "show",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82:policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/F.md"
+    ],
+    "cwd": "/workspace/e02-F-economics-20261006",
+    "exit_code": 0,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/current-519e4822-F.md.stdout",
+      "bytes": 26857,
+      "sha256": "724f37608e3f3cbd3ff3445f7bcbd26f90c916c51bb50016ce7389a0c1fd77f4"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/current-519e4822-F.md.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "current-519e4822-method-decisions.md",
+    "argv": [
+      "git",
+      "show",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82:policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md"
+    ],
+    "cwd": "/workspace/e02-F-economics-20261006",
+    "exit_code": 0,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/current-519e4822-method-decisions.md.stdout",
+      "bytes": 106381,
+      "sha256": "1dce4ad02656b5c9d873c2ed6066264a7b3ec3f02766001f437920a789e3f3ca"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/current-519e4822-method-decisions.md.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "current-519e4822-runtime-profiles.md",
+    "argv": [
+      "git",
+      "show",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82:policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/runtime-profiles.md"
+    ],
+    "cwd": "/workspace/e02-F-economics-20261006",
+    "exit_code": 0,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/current-519e4822-runtime-profiles.md.stdout",
+      "bytes": 35578,
+      "sha256": "ad7b68c4f9a35086e7492bfe84fb4f6a854e1d4f27f6addef07d562c06bd42d1"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/current-519e4822-runtime-profiles.md.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "current-519e4822-economic-baseline-profile.md",
+    "argv": [
+      "git",
+      "show",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82:policy-engine/docs/reference/foundry/economic-baseline-profile.md"
+    ],
+    "cwd": "/workspace/e02-F-economics-20261006",
+    "exit_code": 0,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/current-519e4822-economic-baseline-profile.md.stdout",
+      "bytes": 3819,
+      "sha256": "15adc343cc2f252c82d94bd026d5a6fa0384af0c597fb19698b3c5722fd12922"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/current-519e4822-economic-baseline-profile.md.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "current-519e4822-REPORT.md",
+    "argv": [
+      "git",
+      "show",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/REPORT.md"
+    ],
+    "cwd": "/workspace/e02-F-economics-20261006",
+    "exit_code": 0,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/current-519e4822-REPORT.md.stdout",
+      "bytes": 26187,
+      "sha256": "f45a2e848b4ccd57b0bf44d6fb61332f0231a082edc7d2f6d9fc3e7966c9eac0"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/current-519e4822-REPORT.md.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "current-855cb26a-F.md",
+    "argv": [
+      "git",
+      "show",
+      "855cb26a7a2c9fea60356663cf81e7d01e20c738:policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/F.md"
+    ],
+    "cwd": "/workspace/e02-F-economics-20261006",
+    "exit_code": 0,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/current-855cb26a-F.md.stdout",
+      "bytes": 37207,
+      "sha256": "0ce262811ae316de4d493477f7894a76066c0b906baa266dd969a25aee58c454"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/current-855cb26a-F.md.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "current-855cb26a-method-decisions.md",
+    "argv": [
+      "git",
+      "show",
+      "855cb26a7a2c9fea60356663cf81e7d01e20c738:policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md"
+    ],
+    "cwd": "/workspace/e02-F-economics-20261006",
+    "exit_code": 0,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/current-855cb26a-method-decisions.md.stdout",
+      "bytes": 146346,
+      "sha256": "490dd9f23d5b82b9ae5f3243fb3e66886217f29eae19c0b1365cdc8c0d2aa612"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/current-855cb26a-method-decisions.md.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "current-855cb26a-runtime-profiles.md",
+    "argv": [
+      "git",
+      "show",
+      "855cb26a7a2c9fea60356663cf81e7d01e20c738:policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/runtime-profiles.md"
+    ],
+    "cwd": "/workspace/e02-F-economics-20261006",
+    "exit_code": 0,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/current-855cb26a-runtime-profiles.md.stdout",
+      "bytes": 46944,
+      "sha256": "35e15ee0f92a76df0af8cbef16cda9bc3d6b21838a7f81c868c71db3e1d317f0"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/current-855cb26a-runtime-profiles.md.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "current-855cb26a-F.md",
+    "argv": [
+      "git",
+      "show",
+      "855cb26a7a2c9fea60356663cf81e7d01e20c738:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/F.md"
+    ],
+    "cwd": "/workspace/e02-F-economics-20261006",
+    "exit_code": 0,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/current-855cb26a-F.md.stdout",
+      "bytes": 17214,
+      "sha256": "6fcc13f11194d20e7a3bbadb2d70397da0b2c16e9695f43375a69c8bf222d89b"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/current-855cb26a-F.md.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "current-855cb26a-F-criteria-correction.md",
+    "argv": [
+      "git",
+      "show",
+      "855cb26a7a2c9fea60356663cf81e7d01e20c738:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/F-criteria-correction.md"
+    ],
+    "cwd": "/workspace/e02-F-economics-20261006",
+    "exit_code": 0,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/current-855cb26a-F-criteria-correction.md.stdout",
+      "bytes": 6784,
+      "sha256": "c1afc93ce7dc62b0dbc7c1489e7d5dd113b60c9d2a5d2487e44a40fcda7d7d11"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/current-855cb26a-F-criteria-correction.md.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "ECO-full-published-handoff",
+    "argv": [
+      "git",
+      "show",
+      "fa53da2812eaa8578f79ec914b3b2abe4c491f3d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007.json"
+    ],
+    "cwd": "/workspace/e02-F-economics-20261006",
+    "exit_code": 0,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/ECO-full-published-handoff.stdout",
+      "bytes": 106928,
+      "sha256": "24a72061e9e4379753f349f56c110b516cef300457b94e2d6a5e066b702f760e"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/ECO-full-published-handoff.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "existing244-native-receipt",
+    "argv": [
+      "git",
+      "show",
+      "8236d9c368336a5ea20c1586f29aea7321db6536:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-economic-native-final-candidate.json"
+    ],
+    "cwd": "/workspace/e02-F-economics-20261006",
+    "exit_code": 0,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/existing244-native-receipt.stdout",
+      "bytes": 2440,
+      "sha256": "ddd8b2cbe422691580858c62cf98b50e8ea8750889168f085235ceb474535ff9"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/existing244-native-receipt.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+]

@@ -1,0 +1,1846 @@
+FFFFFFFF....F.F.FFFFFFFF........FFFFFFFF........FFFFFFFF........FFFFFFFF [ 64%]
+........FFFFFFFFFFFFFFFFFFFF........FFFF                                 [100%]
+=================================== FAILURES ===================================
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile0-1e-30-eager-float32] _
+
+x64 = False, compiled = False, scale = 1e-30, profile = [1, 2, 3]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3333333730697632 == 0.2222222222222222 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3333333730697632
+E             Expected: 0.2222222222222222 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile0-1e-30-eager-float64] _
+
+x64 = True, compiled = False, scale = 1e-30, profile = [1, 2, 3]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3333333730697632 == 0.2222222222222222 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3333333730697632
+E             Expected: 0.2222222222222222 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile0-1e-30-jit-float32] _
+
+x64 = False, compiled = True, scale = 1e-30, profile = [1, 2, 3]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3333333730697632 == 0.2222222222222222 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3333333730697632
+E             Expected: 0.2222222222222222 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile0-1e-30-jit-float64] _
+
+x64 = True, compiled = True, scale = 1e-30, profile = [1, 2, 3]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3333333730697632 == 0.2222222222222222 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3333333730697632
+E             Expected: 0.2222222222222222 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile0-1e-12-eager-float32] _
+
+x64 = False, compiled = False, scale = 1e-12, profile = [1, 2, 3]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3305383920669556 == 0.2222222222222222 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3305383920669556
+E             Expected: 0.2222222222222222 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile0-1e-12-eager-float64] _
+
+x64 = True, compiled = False, scale = 1e-12, profile = [1, 2, 3]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3305384040140635 == 0.2222222222222222 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3305384040140635
+E             Expected: 0.2222222222222222 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile0-1e-12-jit-float32] _
+
+x64 = False, compiled = True, scale = 1e-12, profile = [1, 2, 3]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3305383920669556 == 0.2222222222222222 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3305383920669556
+E             Expected: 0.2222222222222222 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile0-1e-12-jit-float64] _
+
+x64 = True, compiled = True, scale = 1e-12, profile = [1, 2, 3]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3305384040140635 == 0.2222222222222222 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3305384040140635
+E             Expected: 0.2222222222222222 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile0-1e+30-eager-float32] _
+
+x64 = False, compiled = False, scale = 1e+30, profile = [1, 2, 3]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert 0.2222219705581665 == 0.2222222222222222 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: 0.2222219705581665
+E             Expected: 0.2222222222222222 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile0-1e+30-jit-float32] _
+
+x64 = False, compiled = True, scale = 1e+30, profile = [1, 2, 3]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert 0.2222219705581665 == 0.2222222222222222 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: 0.2222219705581665
+E             Expected: 0.2222222222222222 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile1-1e-30-eager-float32] _
+
+x64 = False, compiled = False, scale = 1e-30, profile = [1, 1, 1]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3333333730697632 == 0.0 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3333333730697632
+E             Expected: 0.0 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile1-1e-30-eager-float64] _
+
+x64 = True, compiled = False, scale = 1e-30, profile = [1, 1, 1]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3333333730697632 == 0.0 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3333333730697632
+E             Expected: 0.0 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile1-1e-30-jit-float32] _
+
+x64 = False, compiled = True, scale = 1e-30, profile = [1, 1, 1]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3333333730697632 == 0.0 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3333333730697632
+E             Expected: 0.0 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile1-1e-30-jit-float64] _
+
+x64 = True, compiled = True, scale = 1e-30, profile = [1, 1, 1]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3333333730697632 == 0.0 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3333333730697632
+E             Expected: 0.0 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile1-1e-12-eager-float32] _
+
+x64 = False, compiled = False, scale = 1e-12, profile = [1, 1, 1]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.332134485244751 == 0.0 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.332134485244751
+E             Expected: 0.0 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile1-1e-12-eager-float64] _
+
+x64 = True, compiled = False, scale = 1e-12, profile = [1, 1, 1]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3321344520986371 == 0.0 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3321344520986371
+E             Expected: 0.0 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile1-1e-12-jit-float32] _
+
+x64 = False, compiled = True, scale = 1e-12, profile = [1, 1, 1]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.332134485244751 == 0.0 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.332134485244751
+E             Expected: 0.0 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile1-1e-12-jit-float64] _
+
+x64 = True, compiled = True, scale = 1e-12, profile = [1, 1, 1]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3321344520986371 == 0.0 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3321344520986371
+E             Expected: 0.0 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile2-1e-30-eager-float32] _
+
+x64 = False, compiled = False, scale = 1e-30, profile = [0, 0, 3]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3333333730697632 == 0.6666666666666666 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3333333730697632
+E             Expected: 0.6666666666666666 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile2-1e-30-eager-float64] _
+
+x64 = True, compiled = False, scale = 1e-30, profile = [0, 0, 3]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3333333730697632 == 0.6666666666666666 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3333333730697632
+E             Expected: 0.6666666666666666 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile2-1e-30-jit-float32] _
+
+x64 = False, compiled = True, scale = 1e-30, profile = [0, 0, 3]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3333333730697632 == 0.6666666666666666 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3333333730697632
+E             Expected: 0.6666666666666666 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile2-1e-30-jit-float64] _
+
+x64 = True, compiled = True, scale = 1e-30, profile = [0, 0, 3]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3333333730697632 == 0.6666666666666666 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3333333730697632
+E             Expected: 0.6666666666666666 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile2-1e-12-eager-float32] _
+
+x64 = False, compiled = False, scale = 1e-12, profile = [0, 0, 3]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3315349817276 == 0.6666666666666666 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3315349817276
+E             Expected: 0.6666666666666666 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile2-1e-12-eager-float64] _
+
+x64 = True, compiled = False, scale = 1e-12, profile = [0, 0, 3]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3315349916130743 == 0.6666666666666666 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3315349916130743
+E             Expected: 0.6666666666666666 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile2-1e-12-jit-float32] _
+
+x64 = False, compiled = True, scale = 1e-12, profile = [0, 0, 3]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3315349817276 == 0.6666666666666666 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3315349817276
+E             Expected: 0.6666666666666666 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile2-1e-12-jit-float64] _
+
+x64 = True, compiled = True, scale = 1e-12, profile = [0, 0, 3]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3315349916130743 == 0.6666666666666666 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3315349916130743
+E             Expected: 0.6666666666666666 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile3-1e-30-eager-float32] _
+
+x64 = False, compiled = False, scale = 1e-30, profile = [0, 2, 2]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3333333730697632 == 0.3333333333333333 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3333333730697632
+E             Expected: 0.3333333333333333 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile3-1e-30-eager-float64] _
+
+x64 = True, compiled = False, scale = 1e-30, profile = [0, 2, 2]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3333333730697632 == 0.3333333333333333 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3333333730697632
+E             Expected: 0.3333333333333333 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile3-1e-30-jit-float32] _
+
+x64 = False, compiled = True, scale = 1e-30, profile = [0, 2, 2]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3333333730697632 == 0.3333333333333333 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3333333730697632
+E             Expected: 0.3333333333333333 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile3-1e-30-jit-float64] _
+
+x64 = True, compiled = True, scale = 1e-30, profile = [0, 2, 2]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3333333730697632 == 0.3333333333333333 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3333333730697632
+E             Expected: 0.3333333333333333 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile3-1e-12-eager-float32] _
+
+x64 = False, compiled = False, scale = 1e-12, profile = [0, 2, 2]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3313357830047607 == 0.3333333333333333 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3313357830047607
+E             Expected: 0.3333333333333333 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile3-1e-12-eager-float64] _
+
+x64 = True, compiled = False, scale = 1e-12, profile = [0, 2, 2]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3313357701932151 == 0.3333333333333333 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3313357701932151
+E             Expected: 0.3333333333333333 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile3-1e-12-jit-float32] _
+
+x64 = False, compiled = True, scale = 1e-12, profile = [0, 2, 2]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3313357830047607 == 0.3333333333333333 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3313357830047607
+E             Expected: 0.3333333333333333 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile3-1e-12-jit-float64] _
+
+x64 = True, compiled = True, scale = 1e-12, profile = [0, 2, 2]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3313357701932151 == 0.3333333333333333 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3313357701932151
+E             Expected: 0.3333333333333333 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile4-1e-30-eager-float32] _
+
+x64 = False, compiled = False, scale = 1e-30, profile = [1, 2, 7]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3333333730697632 == 0.4 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3333333730697632
+E             Expected: 0.4 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile4-1e-30-eager-float64] _
+
+x64 = True, compiled = False, scale = 1e-30, profile = [1, 2, 7]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3333333730697632 == 0.4 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3333333730697632
+E             Expected: 0.4 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile4-1e-30-jit-float32] _
+
+x64 = False, compiled = True, scale = 1e-30, profile = [1, 2, 7]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3333333730697632 == 0.4 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3333333730697632
+E             Expected: 0.4 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile4-1e-30-jit-float64] _
+
+x64 = True, compiled = True, scale = 1e-30, profile = [1, 2, 7]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3333333730697632 == 0.4 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3333333730697632
+E             Expected: 0.4 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile4-1e-12-eager-float32] _
+
+x64 = False, compiled = False, scale = 1e-12, profile = [1, 2, 7]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3281489610671997 == 0.4 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3281489610671997
+E             Expected: 0.4 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile4-1e-12-eager-float64] _
+
+x64 = True, compiled = False, scale = 1e-12, profile = [1, 2, 7]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3281489264097432 == 0.4 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3281489264097432
+E             Expected: 0.4 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile4-1e-12-jit-float32] _
+
+x64 = False, compiled = True, scale = 1e-12, profile = [1, 2, 7]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3281489610671997 == 0.4 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3281489610671997
+E             Expected: 0.4 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile4-1e-12-jit-float64] _
+
+x64 = True, compiled = True, scale = 1e-12, profile = [1, 2, 7]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3281489264097432 == 0.4 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3281489264097432
+E             Expected: 0.4 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile5-1e-30-eager-float32] _
+
+x64 = False, compiled = False, scale = 1e-30, profile = [0, 0, 0]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3333333730697632 == 0.0 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3333333730697632
+E             Expected: 0.0 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile5-1e-30-eager-float64] _
+
+x64 = True, compiled = False, scale = 1e-30, profile = [0, 0, 0]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3333333730697632 == 0.0 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3333333730697632
+E             Expected: 0.0 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile5-1e-30-jit-float32] _
+
+x64 = False, compiled = True, scale = 1e-30, profile = [0, 0, 0]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3333333730697632 == 0.0 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3333333730697632
+E             Expected: 0.0 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile5-1e-30-jit-float64] _
+
+x64 = True, compiled = True, scale = 1e-30, profile = [0, 0, 0]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3333333730697632 == 0.0 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3333333730697632
+E             Expected: 0.0 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile5-1e-12-eager-float32] _
+
+x64 = False, compiled = False, scale = 1e-12, profile = [0, 0, 0]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3333333730697632 == 0.0 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3333333730697632
+E             Expected: 0.0 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile5-1e-12-eager-float64] _
+
+x64 = True, compiled = False, scale = 1e-12, profile = [0, 0, 0]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3333333730697632 == 0.0 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3333333730697632
+E             Expected: 0.0 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile5-1e-12-jit-float32] _
+
+x64 = False, compiled = True, scale = 1e-12, profile = [0, 0, 0]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3333333730697632 == 0.0 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3333333730697632
+E             Expected: 0.0 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile5-1e-12-jit-float64] _
+
+x64 = True, compiled = True, scale = 1e-12, profile = [0, 0, 0]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3333333730697632 == 0.0 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3333333730697632
+E             Expected: 0.0 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile5-1.0-eager-float32] _
+
+x64 = False, compiled = False, scale = 1.0, profile = [0, 0, 0]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3333333730697632 == 0.0 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3333333730697632
+E             Expected: 0.0 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile5-1.0-eager-float64] _
+
+x64 = True, compiled = False, scale = 1.0, profile = [0, 0, 0]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3333333730697632 == 0.0 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3333333730697632
+E             Expected: 0.0 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile5-1.0-jit-float32] _
+
+x64 = False, compiled = True, scale = 1.0, profile = [0, 0, 0]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3333333730697632 == 0.0 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3333333730697632
+E             Expected: 0.0 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile5-1.0-jit-float64] _
+
+x64 = True, compiled = True, scale = 1.0, profile = [0, 0, 0]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3333333730697632 == 0.0 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3333333730697632
+E             Expected: 0.0 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile5-1e+30-eager-float32] _
+
+x64 = False, compiled = False, scale = 1e+30, profile = [0, 0, 0]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3333333730697632 == 0.0 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3333333730697632
+E             Expected: 0.0 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile5-1e+30-eager-float64] _
+
+x64 = True, compiled = False, scale = 1e+30, profile = [0, 0, 0]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3333333730697632 == 0.0 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3333333730697632
+E             Expected: 0.0 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile5-1e+30-jit-float32] _
+
+x64 = False, compiled = True, scale = 1e+30, profile = [0, 0, 0]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3333333730697632 == 0.0 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3333333730697632
+E             Expected: 0.0 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+_ test_exact_gini_matches_pairwise_oracle_across_units[profile5-1e+30-jit-float64] _
+
+x64 = True, compiled = True, scale = 1e+30, profile = [0, 0, 0]
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("scale", [1e-30, 1e-12, 1.0, 1e30])
+    @pytest.mark.parametrize("profile", _PROFILES)
+    def test_exact_gini_matches_pairwise_oracle_across_units(
+        x64: bool, compiled: bool, scale: float, profile: list[int]
+    ) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            # An inactive NaN must not enter sorting, normalization, or the denominator.
+            values = jnp.asarray([profile[0] * scale, np.nan, *[x * scale for x in profile[1:]]], dtype=dtype)
+            active = jnp.asarray([True, False, True, True])
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            actual = function(values, active)
+            assert actual.dtype == dtype
+            assert actual.shape == ()
+>           assert float(actual) == pytest.approx(_pairwise_gini(profile), abs=2e-7)
+E           assert -1.3333333730697632 == 0.0 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3333333730697632
+E             Expected: 0.0 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:54: AssertionError
+________ test_exact_gini_exhaustive_small_nonnegative_population[eager] ________
+
+compiled = False
+
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    def test_exact_gini_exhaustive_small_nonnegative_population(compiled: bool) -> None:
+        function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+        active = jnp.ones(3, dtype=jnp.bool_)
+        for values in itertools.product(range(3), repeat=3):
+            actual = function(jnp.asarray(values, dtype=jnp.float32), active)
+>           assert float(actual) == pytest.approx(_pairwise_gini(list(values)), abs=1e-7)
+E           assert -1.3333333730697632 == 0.0 ± 1.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3333333730697632
+E             Expected: 0.0 ± 1.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:68: AssertionError
+_________ test_exact_gini_exhaustive_small_nonnegative_population[jit] _________
+
+compiled = True
+
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    def test_exact_gini_exhaustive_small_nonnegative_population(compiled: bool) -> None:
+        function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+        active = jnp.ones(3, dtype=jnp.bool_)
+        for values in itertools.product(range(3), repeat=3):
+            actual = function(jnp.asarray(values, dtype=jnp.float32), active)
+>           assert float(actual) == pytest.approx(_pairwise_gini(list(values)), abs=1e-7)
+E           assert -1.3333333730697632 == 0.0 ± 1.0e-07
+E
+E             comparison failed
+E             Obtained: -1.3333333730697632
+E             Expected: 0.0 ± 1.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:68: AssertionError
+__________ test_float64_gini_survives_extreme_finite_rescaling[eager] __________
+
+compiled = False
+
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    def test_float64_gini_survives_extreme_finite_rescaling(compiled: bool) -> None:
+        with jax.enable_x64(True):
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            for scale in (1e-300, 1e300):
+                actual = function(jnp.asarray([scale, 2 * scale, 3 * scale]), jnp.ones(3, dtype=jnp.bool_))
+>               assert float(actual) == pytest.approx(2 / 9, abs=1e-14)
+E               assert -1.3333333730697632 == 0.2222222222222222 ± 1.0e-14
+E
+E                 comparison failed
+E                 Obtained: -1.3333333730697632
+E                 Expected: 0.2222222222222222 ± 1.0e-14
+
+tests/unit/foundry/agent_sim/test_gini_science.py:77: AssertionError
+___________ test_float64_gini_survives_extreme_finite_rescaling[jit] ___________
+
+compiled = True
+
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    def test_float64_gini_survives_extreme_finite_rescaling(compiled: bool) -> None:
+        with jax.enable_x64(True):
+            function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+            for scale in (1e-300, 1e300):
+                actual = function(jnp.asarray([scale, 2 * scale, 3 * scale]), jnp.ones(3, dtype=jnp.bool_))
+>               assert float(actual) == pytest.approx(2 / 9, abs=1e-14)
+E               assert -1.3333333730697632 == 0.2222222222222222 ± 1.0e-14
+E
+E                 comparison failed
+E                 Obtained: -1.3333333730697632
+E                 Expected: 0.2222222222222222 ± 1.0e-14
+
+tests/unit/foundry/agent_sim/test_gini_science.py:77: AssertionError
+___ test_undefined_signed_zero_mean_is_not_a_finite_inequality_score[eager] ____
+
+compiled = False
+
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    def test_undefined_signed_zero_mean_is_not_a_finite_inequality_score(compiled: bool) -> None:
+        function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+>       assert bool(jnp.isnan(function(jnp.asarray([-1.0, 1.0]), jnp.asarray([True, True]))))
+E       assert False
+E        +  where False = bool(Array(False, dtype=bool))
+E        +    where Array(False, dtype=bool) = <PjitFunction of <function isnan at 0x7fc58af91d20>>(Array(2.e+08, dtype=float32))
+E        +      where <PjitFunction of <function isnan at 0x7fc58af91d20>> = jnp.isnan
+E        +      and   Array(2.e+08, dtype=float32) = <function compute_gini_hard at 0x7fc589f54ca0>(Array([-1.,  1.], dtype=float32), Array([ True,  True], dtype=bool))
+E        +        where Array([-1.,  1.], dtype=float32) = <function asarray at 0x7fc58b288e00>([-1.0, 1.0])
+E        +          where <function asarray at 0x7fc58b288e00> = jnp.asarray
+E        +        and   Array([ True,  True], dtype=bool) = <function asarray at 0x7fc58b288e00>([True, True])
+E        +          where <function asarray at 0x7fc58b288e00> = jnp.asarray
+
+tests/unit/foundry/agent_sim/test_gini_science.py:96: AssertionError
+____ test_undefined_signed_zero_mean_is_not_a_finite_inequality_score[jit] _____
+
+compiled = True
+
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    def test_undefined_signed_zero_mean_is_not_a_finite_inequality_score(compiled: bool) -> None:
+        function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
+>       assert bool(jnp.isnan(function(jnp.asarray([-1.0, 1.0]), jnp.asarray([True, True]))))
+E       assert False
+E        +  where False = bool(Array(False, dtype=bool))
+E        +    where Array(False, dtype=bool) = <PjitFunction of <function isnan at 0x7fc58af91d20>>(Array(2.e+08, dtype=float32))
+E        +      where <PjitFunction of <function isnan at 0x7fc58af91d20>> = jnp.isnan
+E        +      and   Array(2.e+08, dtype=float32) = <PjitFunction of <function compute_gini_hard at 0x7fc589f54ca0>>(Array([-1.,  1.], dtype=float32), Array([ True,  True], dtype=bool))
+E        +        where Array([-1.,  1.], dtype=float32) = <function asarray at 0x7fc58b288e00>([-1.0, 1.0])
+E        +          where <function asarray at 0x7fc58b288e00> = jnp.asarray
+E        +        and   Array([ True,  True], dtype=bool) = <function asarray at 0x7fc58b288e00>([True, True])
+E        +          where <function asarray at 0x7fc58b288e00> = jnp.asarray
+
+tests/unit/foundry/agent_sim/test_gini_science.py:96: AssertionError
+_ test_scientific_statistic_reaches_native_plugin_and_global_state_consumers[float32] _
+
+x64 = False
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    def test_scientific_statistic_reaches_native_plugin_and_global_state_consumers(x64: bool) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            plugin = EconomicsPlugin()
+            state = plugin.create_initial_state(DomainConfig(n_agents=12, max_agents=16), jax.random.PRNGKey(113))
+            values = jnp.asarray([1e-12, 2e-12, 3e-12] * 4 + [np.nan] * 4, dtype=dtype)
+            state = state.replace(agents=state.agents.replace(wealth=values, income=values))
+            refreshed = jax.jit(EconomicState.update_aggregates)(state)
+>           assert float(jax.jit(plugin.get_objectives()["gini"].evaluate)(refreshed)) == pytest.approx(2 / 9, abs=2e-7)
+E           assert -1.0467859506607056 == 0.2222222222222222 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.0467859506607056
+E             Expected: 0.2222222222222222 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:116: AssertionError
+_ test_scientific_statistic_reaches_native_plugin_and_global_state_consumers[float64] _
+
+x64 = True
+
+    @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])
+    def test_scientific_statistic_reaches_native_plugin_and_global_state_consumers(x64: bool) -> None:
+        with jax.enable_x64(x64):
+            dtype = jnp.float64 if x64 else jnp.float32
+            plugin = EconomicsPlugin()
+            state = plugin.create_initial_state(DomainConfig(n_agents=12, max_agents=16), jax.random.PRNGKey(113))
+            values = jnp.asarray([1e-12, 2e-12, 3e-12] * 4 + [np.nan] * 4, dtype=dtype)
+            state = state.replace(agents=state.agents.replace(wealth=values, income=values))
+            refreshed = jax.jit(EconomicState.update_aggregates)(state)
+>           assert float(jax.jit(plugin.get_objectives()["gini"].evaluate)(refreshed)) == pytest.approx(2 / 9, abs=2e-7)
+E           assert -1.0467859391661862 == 0.2222222222222222 ± 2.0e-07
+E
+E             comparison failed
+E             Obtained: -1.0467859391661862
+E             Expected: 0.2222222222222222 ± 2.0e-07
+
+tests/unit/foundry/agent_sim/test_gini_science.py:116: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile0-1e-30-eager-float32]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile0-1e-30-eager-float64]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile0-1e-30-jit-float32]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile0-1e-30-jit-float64]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile0-1e-12-eager-float32]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile0-1e-12-eager-float64]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile0-1e-12-jit-float32]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile0-1e-12-jit-float64]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile0-1e+30-eager-float32]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile0-1e+30-jit-float32]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile1-1e-30-eager-float32]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile1-1e-30-eager-float64]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile1-1e-30-jit-float32]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile1-1e-30-jit-float64]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile1-1e-12-eager-float32]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile1-1e-12-eager-float64]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile1-1e-12-jit-float32]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile1-1e-12-jit-float64]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile2-1e-30-eager-float32]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile2-1e-30-eager-float64]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile2-1e-30-jit-float32]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile2-1e-30-jit-float64]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile2-1e-12-eager-float32]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile2-1e-12-eager-float64]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile2-1e-12-jit-float32]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile2-1e-12-jit-float64]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile3-1e-30-eager-float32]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile3-1e-30-eager-float64]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile3-1e-30-jit-float32]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile3-1e-30-jit-float64]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile3-1e-12-eager-float32]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile3-1e-12-eager-float64]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile3-1e-12-jit-float32]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile3-1e-12-jit-float64]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile4-1e-30-eager-float32]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile4-1e-30-eager-float64]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile4-1e-30-jit-float32]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile4-1e-30-jit-float64]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile4-1e-12-eager-float32]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile4-1e-12-eager-float64]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile4-1e-12-jit-float32]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile4-1e-12-jit-float64]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile5-1e-30-eager-float32]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile5-1e-30-eager-float64]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile5-1e-30-jit-float32]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile5-1e-30-jit-float64]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile5-1e-12-eager-float32]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile5-1e-12-eager-float64]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile5-1e-12-jit-float32]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile5-1e-12-jit-float64]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile5-1.0-eager-float32]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile5-1.0-eager-float64]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile5-1.0-jit-float32]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile5-1.0-jit-float64]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile5-1e+30-eager-float32]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile5-1e+30-eager-float64]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile5-1e+30-jit-float32]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_matches_pairwise_oracle_across_units[profile5-1e+30-jit-float64]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_exhaustive_small_nonnegative_population[eager]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_exact_gini_exhaustive_small_nonnegative_population[jit]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_float64_gini_survives_extreme_finite_rescaling[eager]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_float64_gini_survives_extreme_finite_rescaling[jit]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_undefined_signed_zero_mean_is_not_a_finite_inequality_score[eager]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_undefined_signed_zero_mean_is_not_a_finite_inequality_score[jit]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_scientific_statistic_reaches_native_plugin_and_global_state_consumers[float32]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_scientific_statistic_reaches_native_plugin_and_global_state_consumers[float64]

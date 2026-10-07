@@ -1,0 +1,12 @@
+{
+  "trash_cli": {
+    "trash": null,
+    "trash-put": null,
+    "gio": null,
+    "kioclient": null
+  },
+  "user_trash_path": "/home/agent/.local/share/Trash",
+  "user_trash_exists": false,
+  "workspace_trash_exists": false,
+  "permanent_deletion": false
+}

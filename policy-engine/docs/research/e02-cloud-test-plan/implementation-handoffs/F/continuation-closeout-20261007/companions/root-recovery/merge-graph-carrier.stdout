@@ -1,0 +1,354 @@
+Merge made by the 'ort' strategy.
+ .../F/catalog-default-resources-20261007.json      | 1248 +++++++++++++
+ .../api-review/capture_renderer_inputs.py          |    6 +
+ .../api-review/compare_owner_asts.py               |   19 +
+ .../api-review/final-companion-diff.patch.gz       |  Bin 0 -> 1912 bytes
+ .../api-review/final-companion.json                |  107 ++
+ .../api-review/final-companion.stderr.txt.gz       |  Bin 0 -> 20 bytes
+ .../api-review/final-companion.stdout.txt.gz       |  Bin 0 -> 2280 bytes
+ .../api-review/final-renderer-inputs.json          | 1888 ++++++++++++++++++++
+ .../api-review/final-renderer-inputs.stderr.txt.gz |  Bin 0 -> 20 bytes
+ .../api-review/final-renderer-inputs.stdout.txt.gz |  Bin 0 -> 382 bytes
+ .../api-review/finish_review.py                    |   15 +
+ .../first-hatch-observer-error.stderr.txt.gz       |  Bin 0 -> 195 bytes
+ .../first-hatch-observer-error.stdout.txt.gz       |  Bin 0 -> 20 bytes
+ .../api-review/full-diff.patch.gz                  |  Bin 0 -> 8546 bytes
+ .../api-review/graph79.json                        |   34 +
+ .../api-review/graph79.stderr.txt.gz               |  Bin 0 -> 20 bytes
+ .../api-review/graph79.stdout.txt.gz               |  Bin 0 -> 314 bytes
+ .../api-review/graph79.xml.gz                      |  Bin 0 -> 1881 bytes
+ .../api-review/independent-removal.json            |   50 +
+ .../api-review/independent-removal.stderr.txt.gz   |  Bin 0 -> 20 bytes
+ .../api-review/independent-removal.stdout.txt.gz   |  Bin 0 -> 588 bytes
+ .../api-review/independent_removal.py              |   25 +
+ .../api-review/inspect_contract.py                 |   88 +
+ .../inspect_contract_first_hatch_observer_error.py |   86 +
+ .../api-review/inspection.json                     | 1132 ++++++++++++
+ .../api-review/inspection.stderr.txt.gz            |  Bin 0 -> 20 bytes
+ .../api-review/inspection.stdout.txt.gz            |  Bin 0 -> 1111 bytes
+ .../api-review/owner-ast-delta.json                |   64 +
+ .../api-review/owner-ast-delta.stderr.txt.gz       |  Bin 0 -> 20 bytes
+ .../api-review/owner-ast-delta.stdout.txt.gz       |  Bin 0 -> 666 bytes
+ .../api-review/resource41.json                     |   34 +
+ .../api-review/resource41.stderr.txt.gz            |  Bin 0 -> 20 bytes
+ .../api-review/resource41.stdout.txt.gz            |  Bin 0 -> 304 bytes
+ .../api-review/resource41.xml.gz                   |  Bin 0 -> 1209 bytes
+ .../api-review/review.json                         |  275 +++
+ .../api-review/review_final_companion.py           |   23 +
+ .../api-review/run_native.py                       |    7 +
+ .../api-review/runtime-profile-command.json        |   13 +
+ .../api-review/runtime-profile.stderr.txt.gz       |  Bin 0 -> 20 bytes
+ .../api-review/runtime-profile.stdout.txt.gz       |  Bin 0 -> 413 bytes
+ .../api-review/transfer-selection.json             |  247 +++
+ .../author/capture_consumer_denominator.py         |   23 +
+ .../author/check_corrected_resource_fragment.py    |   17 +
+ .../author/check_resource_fragment.py              |   13 +
+ .../author/curated-consumer-capture.stderr.txt.gz  |  Bin 0 -> 20 bytes
+ .../author/curated-consumer-capture.stdout.json.gz |  Bin 0 -> 389 bytes
+ .../curated-resource-consumer-denominator.json.gz  |  Bin 0 -> 216875 bytes
+ .../author/current-full-ruff.stderr.txt.gz         |  Bin 0 -> 20 bytes
+ .../author/current-full-ruff.stdout.json.gz        |  Bin 0 -> 4704 bytes
+ .../author/diagnosis-and-proposed-lease.json       |  173 ++
+ .../author/loader-ruff-source-attribution.json     |   81 +
+ .../author/new-file-format.stderr.txt.gz           |  Bin 0 -> 20 bytes
+ .../author/new-file-format.stdout.txt.gz           |  Bin 0 -> 60 bytes
+ .../author/new-file-lint.stderr.txt.gz             |  Bin 0 -> 20 bytes
+ .../author/new-file-lint.stdout.txt.gz             |  Bin 0 -> 39 bytes
+ .../author/own-config-import-order.stderr.txt.gz   |  Bin 0 -> 20 bytes
+ .../author/own-config-import-order.stdout.txt.gz   |  Bin 0 -> 58 bytes
+ .../author/owned-format-forward-ast-proof.json     |   69 +
+ .../author/owned-format-forward.stderr.txt.gz      |  Bin 0 -> 20 bytes
+ .../author/owned-format-forward.stdout.txt.gz      |  Bin 0 -> 59 bytes
+ .../author/portable-stage-first-errors.json        |    9 +
+ .../portable-stage-first-errors.stderr.txt.gz      |  Bin 0 -> 611 bytes
+ .../portable-stage-first-errors.stdout.txt.gz      |  Bin 0 -> 20 bytes
+ .../author/post-correction-full-ruff.stderr.txt.gz |  Bin 0 -> 20 bytes
+ .../post-correction-full-ruff.stdout.json.gz       |  Bin 0 -> 4374 bytes
+ .../author/probe_installed_defaults.py             |   26 +
+ .../author/remove-byte-admission-spec.json         |   34 +
+ .../author/remove-byte-admission.json              |   85 +
+ .../author/remove-byte-admission.stderr.txt.gz     |  Bin 0 -> 20 bytes
+ .../author/remove-byte-admission.stdout.txt.gz     |  Bin 0 -> 766 bytes
+ .../author/remove-installed-path-spec.json         |   34 +
+ .../author/remove-installed-path.json              |   85 +
+ .../author/remove-installed-path.stderr.txt.gz     |  Bin 0 -> 20 bytes
+ .../author/remove-installed-path.stdout.txt.gz     |  Bin 0 -> 1245 bytes
+ .../author/remove_resource_property.py             |   24 +
+ .../author/resource-backend-origins-execution.json |   17 +
+ .../author/resource-backend-origins.stderr.txt.gz  |  Bin 0 -> 20 bytes
+ .../author/resource-backend-origins.stdout.json.gz |  Bin 0 -> 611 bytes
+ .../author/resource-companion-correction.patch.gz  |  Bin 0 -> 1881 bytes
+ .../author/resource-companion-source.json          |   29 +
+ .../author/resource-corrected-fragment-spec.json   |   32 +
+ .../author/resource-corrected-fragment.json        |   83 +
+ .../resource-corrected-fragment.stderr.txt.gz      |  Bin 0 -> 206 bytes
+ .../resource-corrected-fragment.stdout.txt.gz      |  Bin 0 -> 1052 bytes
+ .../author/resource-development-graph79-spec.json  |   47 +
+ .../author/resource-development-graph79.json       |   98 +
+ .../resource-development-graph79.stderr.txt.gz     |  Bin 0 -> 20 bytes
+ .../resource-development-graph79.stdout.txt.gz     |  Bin 0 -> 314 bytes
+ .../author/resource-development-graph79.xml.gz     |  Bin 0 -> 1891 bytes
+ .../author/resource-development-native-spec.json   |   47 +
+ .../author/resource-development-native.json        |   99 +
+ .../resource-development-native.stderr.txt.gz      |  Bin 0 -> 20 bytes
+ .../resource-development-native.stdout.txt.gz      |  Bin 0 -> 562 bytes
+ .../author/resource-development-native.xml.gz      |  Bin 0 -> 476 bytes
+ .../author/resource-development-native2-spec.json  |   46 +
+ .../author/resource-development-native2.json       |   97 +
+ .../resource-development-native2.stderr.txt.gz     |  Bin 0 -> 20 bytes
+ .../resource-development-native2.stdout.txt.gz     |  Bin 0 -> 1482 bytes
+ .../author/resource-development-native2.xml.gz     |  Bin 0 -> 2118 bytes
+ .../author/resource-development-native3-spec.json  |   47 +
+ .../author/resource-development-native3.json       |   98 +
+ .../resource-development-native3.stderr.txt.gz     |  Bin 0 -> 20 bytes
+ .../resource-development-native3.stdout.txt.gz     |  Bin 0 -> 304 bytes
+ .../author/resource-development-native3.xml.gz     |  Bin 0 -> 1205 bytes
+ .../resource-final-companion-correction.patch.gz   |  Bin 0 -> 1912 bytes
+ .../author/resource-final-companion-source.json    |    7 +
+ .../author/resource-final-fragment-spec.json       |   32 +
+ .../author/resource-final-fragment.json            |   83 +
+ .../author/resource-final-fragment.stderr.txt.gz   |  Bin 0 -> 20 bytes
+ .../author/resource-final-fragment.stdout.txt.gz   |  Bin 0 -> 968 bytes
+ .../author/resource-final-owned-ruff-spec.json     |   45 +
+ .../author/resource-final-owned-ruff.json          |   96 +
+ .../author/resource-final-owned-ruff.stderr.txt.gz |  Bin 0 -> 20 bytes
+ .../author/resource-final-owned-ruff.stdout.txt.gz |  Bin 0 -> 4374 bytes
+ .../resource-final-precommit-graph79-spec.json     |   47 +
+ .../author/resource-final-precommit-graph79.json   |   98 +
+ .../resource-final-precommit-graph79.stderr.txt.gz |  Bin 0 -> 20 bytes
+ .../resource-final-precommit-graph79.stdout.txt.gz |  Bin 0 -> 314 bytes
+ .../author/resource-final-precommit-graph79.xml.gz |  Bin 0 -> 1875 bytes
+ .../author/resource-final-source-bindings.json     |  172 ++
+ .../resource-fragment-caption-correction.json      |   22 +
+ .../author/resource-fragment-spec.json             |   32 +
+ .../author/resource-fragment.json                  |   83 +
+ .../author/resource-fragment.stderr.txt.gz         |  Bin 0 -> 20 bytes
+ .../author/resource-fragment.stdout.txt.gz         |  Bin 0 -> 871 bytes
+ .../author/resource-implementation-source.json     |  128 ++
+ .../author/resource-implementation.patch.gz        |  Bin 0 -> 8546 bytes
+ .../author/resource-precommit-source-bindings.json |  100 ++
+ .../author/resource-source-publication.json        |   15 +
+ .../author/ruff-development.stderr.txt.gz          |  Bin 0 -> 20 bytes
+ .../author/ruff-development.stdout.txt.gz          |  Bin 0 -> 5563 bytes
+ .../author/ruff-first-auto-fix-unintended.patch.gz |  Bin 0 -> 3316 bytes
+ .../author/scientific647-loader-ruff.stderr.txt.gz |  Bin 0 -> 20 bytes
+ .../scientific647-loader-ruff.stdout.json.gz       |  Bin 0 -> 4357 bytes
+ .../author/sdist-defaults.json                     |   19 +
+ .../author/sdist-defaults.stderr.txt.gz            |  Bin 0 -> 678 bytes
+ .../author/sdist-defaults.stdout.json.gz           |  Bin 0 -> 5509 bytes
+ .../author/slice-base370-loader-ruff.stderr.txt.gz |  Bin 0 -> 20 bytes
+ .../slice-base370-loader-ruff.stdout.json.gz       |  Bin 0 -> 4357 bytes
+ .../author/source-consumer-denominator.json        |  497 ++++++
+ .../author/source-protocol-selfcheck.stderr.txt.gz |  Bin 0 -> 20 bytes
+ .../source-protocol-selfcheck.stdout.json.gz       |  Bin 0 -> 292 bytes
+ .../transport-precommit-decoder.stderr.txt.gz      |  Bin 0 -> 20 bytes
+ .../transport-precommit-decoder.stdout.json.gz     |  Bin 0 -> 2598 bytes
+ .../author/wheel-defaults.json                     |   19 +
+ .../author/wheel-defaults.stderr.txt.gz            |  Bin 0 -> 679 bytes
+ .../author/wheel-defaults.stdout.json.gz           |  Bin 0 -> 5512 bytes
+ .../execution-to-git-locators.json                 | 1770 ++++++++++++++++++
+ .../fit-design/assemble_review.py                  |   76 +
+ .../fit-design/basis-audit.json                    |  746 ++++++++
+ .../fit-design/basis-audit.stderr.txt.gz           |  Bin 0 -> 20 bytes
+ .../fit-design/basis-audit.stdout.txt.gz           |  Bin 0 -> 1320 bytes
+ .../fit-design/inspect_basis.py                    |   64 +
+ .../fit-design/probe_additional_consumers.py       |   68 +
+ .../fit-design/review.json                         |  219 +++
+ .../fit-design/run_probes.py                       |   13 +
+ .../fit-design/sdist-additional.execution.json     |   31 +
+ .../fit-design/sdist-additional.stderr.txt.gz      |  Bin 0 -> 461 bytes
+ .../fit-design/sdist-additional.stdout.txt.gz      |  Bin 0 -> 5873 bytes
+ .../fit-design/transfer-selection.json             |  115 ++
+ .../fit-design/wheel-additional.execution.json     |   31 +
+ .../fit-design/wheel-additional.stderr.txt.gz      |  Bin 0 -> 461 bytes
+ .../fit-design/wheel-additional.stdout.txt.gz      |  Bin 0 -> 5874 bytes
+ .../auxiliary-diagnostic-classification.json       |   49 +
+ .../foundry-b5/diagnose_graph.py                   |    8 +
+ .../foundry-b5/graph-diagnostic-v2.stderr.txt.gz   |  Bin 0 -> 173 bytes
+ .../foundry-b5/graph-diagnostic-v2.stdout.txt.gz   |  Bin 0 -> 1508 bytes
+ .../foundry-b5/graph-diagnostic.stderr.txt.gz      |  Bin 0 -> 241 bytes
+ .../foundry-b5/graph-diagnostic.stdout.txt.gz      |  Bin 0 -> 20 bytes
+ .../foundry-b5/installed-config.json               |   39 +
+ .../outputs.json                                   | 1774 ++++++++++++++++++
+ .../replayers/build_resource_transport.py          |   62 +
+ .../replayers/run_check.py                         |   12 +
+ .../replayers/validate_resource_receipt.py         |   28 +
+ .../replayers/verify_resource_transport.py         |   17 +
+ .../replayers/write_resource_receipt.py            |   65 +
+ 176 files changed, 13456 insertions(+)
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/capture_renderer_inputs.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/compare_owner_asts.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/final-companion-diff.patch.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/final-companion.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/final-companion.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/final-companion.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/final-renderer-inputs.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/final-renderer-inputs.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/final-renderer-inputs.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/finish_review.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/first-hatch-observer-error.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/first-hatch-observer-error.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/full-diff.patch.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/graph79.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/graph79.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/graph79.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/graph79.xml.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/independent-removal.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/independent-removal.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/independent-removal.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/independent_removal.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/inspect_contract.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/inspect_contract_first_hatch_observer_error.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/inspection.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/inspection.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/inspection.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/owner-ast-delta.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/owner-ast-delta.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/owner-ast-delta.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/resource41.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/resource41.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/resource41.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/resource41.xml.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/review.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/review_final_companion.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/run_native.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/runtime-profile-command.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/runtime-profile.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/runtime-profile.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/transfer-selection.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/capture_consumer_denominator.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/check_corrected_resource_fragment.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/check_resource_fragment.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/curated-consumer-capture.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/curated-consumer-capture.stdout.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/curated-resource-consumer-denominator.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/current-full-ruff.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/current-full-ruff.stdout.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/diagnosis-and-proposed-lease.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/loader-ruff-source-attribution.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/new-file-format.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/new-file-format.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/new-file-lint.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/new-file-lint.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/own-config-import-order.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/own-config-import-order.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/owned-format-forward-ast-proof.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/owned-format-forward.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/owned-format-forward.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/portable-stage-first-errors.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/portable-stage-first-errors.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/portable-stage-first-errors.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/post-correction-full-ruff.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/post-correction-full-ruff.stdout.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/probe_installed_defaults.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/remove-byte-admission-spec.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/remove-byte-admission.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/remove-byte-admission.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/remove-byte-admission.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/remove-installed-path-spec.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/remove-installed-path.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/remove-installed-path.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/remove-installed-path.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/remove_resource_property.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-backend-origins-execution.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-backend-origins.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-backend-origins.stdout.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-companion-correction.patch.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-companion-source.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-corrected-fragment-spec.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-corrected-fragment.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-corrected-fragment.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-corrected-fragment.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-development-graph79-spec.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-development-graph79.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-development-graph79.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-development-graph79.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-development-graph79.xml.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-development-native-spec.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-development-native.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-development-native.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-development-native.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-development-native.xml.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-development-native2-spec.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-development-native2.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-development-native2.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-development-native2.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-development-native2.xml.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-development-native3-spec.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-development-native3.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-development-native3.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-development-native3.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-development-native3.xml.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-final-companion-correction.patch.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-final-companion-source.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-final-fragment-spec.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-final-fragment.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-final-fragment.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-final-fragment.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-final-owned-ruff-spec.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-final-owned-ruff.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-final-owned-ruff.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-final-owned-ruff.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-final-precommit-graph79-spec.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-final-precommit-graph79.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-final-precommit-graph79.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-final-precommit-graph79.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-final-precommit-graph79.xml.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-final-source-bindings.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-fragment-caption-correction.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-fragment-spec.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-fragment.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-fragment.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-fragment.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-implementation-source.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-implementation.patch.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-precommit-source-bindings.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-source-publication.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/ruff-development.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/ruff-development.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/ruff-first-auto-fix-unintended.patch.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/scientific647-loader-ruff.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/scientific647-loader-ruff.stdout.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/sdist-defaults.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/sdist-defaults.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/sdist-defaults.stdout.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/slice-base370-loader-ruff.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/slice-base370-loader-ruff.stdout.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/source-consumer-denominator.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/source-protocol-selfcheck.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/source-protocol-selfcheck.stdout.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/transport-precommit-decoder.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/transport-precommit-decoder.stdout.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/wheel-defaults.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/wheel-defaults.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/wheel-defaults.stdout.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/execution-to-git-locators.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/fit-design/assemble_review.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/fit-design/basis-audit.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/fit-design/basis-audit.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/fit-design/basis-audit.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/fit-design/inspect_basis.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/fit-design/probe_additional_consumers.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/fit-design/review.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/fit-design/run_probes.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/fit-design/sdist-additional.execution.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/fit-design/sdist-additional.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/fit-design/sdist-additional.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/fit-design/transfer-selection.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/fit-design/wheel-additional.execution.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/fit-design/wheel-additional.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/fit-design/wheel-additional.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/foundry-b5/auxiliary-diagnostic-classification.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/foundry-b5/diagnose_graph.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/foundry-b5/graph-diagnostic-v2.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/foundry-b5/graph-diagnostic-v2.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/foundry-b5/graph-diagnostic.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/foundry-b5/graph-diagnostic.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/foundry-b5/installed-config.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/outputs.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/replayers/build_resource_transport.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/replayers/run_check.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/replayers/validate_resource_receipt.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/replayers/verify_resource_transport.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/replayers/write_resource_receipt.py

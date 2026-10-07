@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/workspace/e02-F-economics-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/reconcile_current35.py", line 44, in <module>
+    assert r['scratch_card']['sha256']==r['original_card_bindings'][0]['sha256']
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

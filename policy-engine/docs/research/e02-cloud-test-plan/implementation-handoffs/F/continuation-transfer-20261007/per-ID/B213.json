@@ -1,0 +1,309 @@
+{
+  "finding_id": "B213",
+  "primary_owner_from_full_TSV": {
+    "finding_id": "B213",
+    "unit": "F",
+    "docx_analytical_package": "P33",
+    "source_closure_owner": "CAU-04",
+    "source_bundle_ids": "CAU-04",
+    "source_status": "partial"
+  },
+  "bundle_owner_from_full_TSV": {
+    "bundle_id": "CAU-04",
+    "unit": "F",
+    "initial_writer_family": "F-W02",
+    "title": "DoWhy: реальный estimand и point-only результат"
+  },
+  "original_card_refs": [
+    {
+      "criterion_id": "B213",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "lines": [
+        5206,
+        5217
+      ],
+      "bytes": 2615,
+      "sha256": "6684013f61227644563e3dd6ac181b2546b5797168cd0b93fef3ef1bf75fe243",
+      "title": "## B213. Запрошенный estimand_type остаётся только подписью отчёта DoWhy",
+      "byte_binding_check": "PASS"
+    }
+  ],
+  "original_text": "## B213. Запрошенный estimand_type остаётся только подписью отчёта DoWhy\n\n**Приоритет:** высокий при нескольких видах причинного запроса; небольшой явный binding. **Основание:** _run_dowhy; DW05–DW06. [C20.R06, C20.E04]\n\n**Проблема.** Параметр estimand_type объявлен в методе и читается, но не передаётся ни CausalModel, ни identify_effect. В estimate_effect передаётся только method_name. Итоговый report записывает именно запрошенную строку, хотя фактический backend мог использовать свой default.\n\n**Воспроизведение.** Для requested nonparametric-nie recorder с определённым default ATE получил constructor(data,treatment,outcome,graph), identify(proceed_when_unidentifiable=False), estimate(method_name=...). В отчёте одновременно оказались estimand_type=nonparametric-nie и identified_estimand='ATE(x:0->1) [fixture default]'. Это различающий протокольный опыт, не численное оценивание реального NIE.\n\n**Рекомендуемое исправление.** До исполнения связать запрос с поддержанным типом estimand, вмешательством/контрастом, target population и фактической формулой идентификации. Для поддержанного профиля передать параметры по API конкретной версии, проверить ответ; для неподдержанного — точный capability-result. Неизвестное имя нельзя просто переслать в библиотеку и надеяться, что она корректно его поймёт.\n\n**Приёмка.** Наблюдать реальные аргументы identify/estimate на обычном dispatcher-маршруте, а не только совпадение labels. Default ATE должен остаться рабочим. Существующий proceed_when_unidentifiable=False передаётся правильно и сохраняется. Документация DoWhy показывает отдельную точку задания estimand_type; её чтение не доказывает установленную runtime-версию проекта. [C20.E04]\n\n",
+  "primary_acceptance_scope": "Bind requested estimand_type/contrast/target to actual identify_effect/estimate_effect; supported default ATE unchanged, unsupported capability typed, no forced identification.",
+  "source_chain": {
+    "producer": "DoWhyIdentifyEstimate.pure_step / actual selected Python3.12 DoWhy0.14 worker",
+    "artifact": "typed estimate/report, actual identified estimand",
+    "bridge": "worker protocol → parent canonical report → CAS",
+    "consumer": "fresh Python3.14 report reader"
+  },
+  "actual_recorded_consumer": "DoWhyIdentifyEstimate → actual requested estimand_type/contrast/target → genuine identify_effect/estimate_effect → canonical report factory and persisted CAS/fresh reader",
+  "surface": "DoWhyIdentifyEstimate declared estimand parameters, selected worker protocol and typed report/CAS reader ABI",
+  "deciding_receipt_refs": [
+    {
+      "git_ref": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+      "head": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006.json",
+      "bytes": 93732,
+      "sha256": "0a60ca2fa939fb480a989bd87f11312c9543ac458381c197a7288060a3a53833",
+      "git_blob": "e5d1115ce08ceeeafb4e8040faa280c1f1790ff8",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/B213"
+      ]
+    },
+    {
+      "git_ref": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+      "head": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006.json",
+      "bytes": 93732,
+      "sha256": "0a60ca2fa939fb480a989bd87f11312c9543ac458381c197a7288060a3a53833",
+      "git_blob": "e5d1115ce08ceeeafb4e8040faa280c1f1790ff8",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/B213"
+      ],
+      "json_pointer": "/per_finding/1"
+    },
+    {
+      "git_ref": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+      "head": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json",
+      "bytes": 209475,
+      "sha256": "1ebacf5377764b5c0958d7e6597e10eab56536c570aacea64d25be3ee7cff908",
+      "git_blob": "3cdb63e03cebff1667de93028677e7b7a5dee163",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/B213"
+      ],
+      "json_pointer": "/per_id/B213"
+    },
+    {
+      "git_ref": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+      "head": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006.json",
+      "bytes": 71310,
+      "sha256": "00617d32afdafcff3f986fb53043580f6a4a360c4c3f191c3867ed0631357fde",
+      "git_blob": "3c2c69348b131fc84dea659a20394cc0fc8e8705",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/B213"
+      ],
+      "json_pointer": "/per_id/B213"
+    },
+    {
+      "git_ref": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+      "head": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json",
+      "bytes": 60843,
+      "sha256": "4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8",
+      "git_blob": "0ebf3b625085f6521f7430b3d919e8e11848fc21",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/B213"
+      ]
+    }
+  ],
+  "deciding_per_ID_carrier_ref": {
+    "git_ref": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/B213.json",
+    "bytes": 37986,
+    "sha256": "d5cffb97b4430ee2f9585ad963ae58a30d6fcaf56133e73c7c48a22ff5f88ae8",
+    "git_blob": "13f0c8ba4c53682aa27e364bbd91fd18b612a86b"
+  },
+  "scientific_implementation": {
+    "sha": "423165322e508a293ffd23918c039c99fb37e7a7",
+    "tree": "191a4c8997b4bee61a1045d4825bd98759ce0ca8",
+    "not_receipt_carrier": true
+  },
+  "recorded_independent_oracle_and_negative": "Actual supported ATE/backdoor adjustment, independent OLS; unsupported requests refuse; source/CAS payload binding negatives",
+  "complete_raw_receipt_checks_refs": [
+    "c8c2319d6c48f23f90103322da8cd63bc959da6f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006.json#/checks/0",
+    "c8c2319d6c48f23f90103322da8cd63bc959da6f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006.json#/checks/1",
+    "c8c2319d6c48f23f90103322da8cd63bc959da6f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006.json#/checks/2",
+    "c8c2319d6c48f23f90103322da8cd63bc959da6f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006.json#/checks/3",
+    "c8c2319d6c48f23f90103322da8cd63bc959da6f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006.json#/checks/4",
+    "c8c2319d6c48f23f90103322da8cd63bc959da6f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006.json#/checks/5",
+    "c8c2319d6c48f23f90103322da8cd63bc959da6f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006.json#/checks/6",
+    "c8c2319d6c48f23f90103322da8cd63bc959da6f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006.json#/checks/7",
+    "c8c2319d6c48f23f90103322da8cd63bc959da6f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006.json#/checks/8",
+    "c8c2319d6c48f23f90103322da8cd63bc959da6f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006.json#/checks/9",
+    "c8c2319d6c48f23f90103322da8cd63bc959da6f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006.json#/checks/10",
+    "c8c2319d6c48f23f90103322da8cd63bc959da6f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006.json#/checks/11",
+    "c8c2319d6c48f23f90103322da8cd63bc959da6f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006.json#/checks/12",
+    "c8c2319d6c48f23f90103322da8cd63bc959da6f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006.json#/checks/13",
+    "c8c2319d6c48f23f90103322da8cd63bc959da6f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006.json#/checks/14",
+    "c8c2319d6c48f23f90103322da8cd63bc959da6f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006.json#/checks/15",
+    "c8c2319d6c48f23f90103322da8cd63bc959da6f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006.json#/checks/16",
+    "c8c2319d6c48f23f90103322da8cd63bc959da6f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006.json#/checks/17",
+    "c8c2319d6c48f23f90103322da8cd63bc959da6f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006.json#/checks/18",
+    "c8c2319d6c48f23f90103322da8cd63bc959da6f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006.json#/checks/19",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/0",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/1",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/2",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/3",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/4",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/5",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/6",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/7",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/8",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/9",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/10",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/11",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/12",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/13",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/14",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/15",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/16",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/17",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/18",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/19",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/20",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/21",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/22",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/23",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/24",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006.json#/checks/0",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006.json#/checks/1",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006.json#/checks/2",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006.json#/checks/3",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006.json#/checks/4",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006.json#/checks/5",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006.json#/checks/6",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006.json#/checks/7",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006.json#/checks/8",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006.json#/checks/9",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006.json#/checks/10",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006.json#/checks/11",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006.json#/checks/12",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006.json#/checks/13",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006.json#/checks/14",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006.json#/checks/15",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006.json#/checks/16",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006.json#/checks/17",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006.json#/checks/18",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006.json#/checks/19",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/0",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/1",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/2",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/3",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/4",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/5",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/6",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/7",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/8",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/9",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/10",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/11",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/12",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/13"
+  ],
+  "historical_ROOT072": {
+    "check": "PASS",
+    "outcome": "limited",
+    "technical_original_criterion_recommendation": "closed",
+    "current_continuation_outcome_recommendation": "limited",
+    "original_criterion_remainder": "Selected ATE finite profile only, not universal backend method capability.",
+    "actual_consumer": "DoWhyIdentifyEstimate → actual requested estimand_type/contrast/target → genuine identify_effect/estimate_effect → canonical report factory and persisted CAS/fresh reader",
+    "oracle_and_negative": "Actual supported ATE/backdoor adjustment, independent OLS; unsupported requests refuse; source/CAS payload binding negatives",
+    "separate_unavailable_inputs_or_authority": "Admitted real-world graph/source validity and authority positive remain UNRUN."
+  },
+  "independent_original_criterion_recommendation": {
+    "check": "PASS",
+    "outcome": "closed",
+    "basis": "Actual estimand_type/contrast/target binding and typed unsupported routes are the original mechanism. Real observational validity/authority remains separate.",
+    "scientific_rerun": false,
+    "review_scope": "independent criterion/evidence reconciliation; not an independently rerun estimator measurement",
+    "missing_actual_original_criterion": null,
+    "new_owner_review_pending": false,
+    "not_formal_G_closure": true
+  },
+  "separate_unavailable_inputs_or_authority": "Admitted real-world graph/source validity and authority positive remain UNRUN.",
+  "existing_author_or_reviewer_conflict": "Reviewer previously authored CAU and graph-intake provider; current independent role is ROOT original-criterion reconciliation. Prior scientific validation uses source-bound independent economics/graph/API receipts, not self-claimed fresh independent math.",
+  "schema": "e02.F.original-finding.v3",
+  "primary_bundle": "CAU-04",
+  "criterion_short": "Bind requested estimand_type/contrast/target to actual identify_effect/estimate_effect; supported default ATE unchanged, unsupported capability typed, no forced identification.",
+  "check_result": "PASS",
+  "F_finding_outcome": "closed",
+  "F_technical_recommendation": "closed",
+  "F_rationale": "Actual estimand_type/contrast/target binding and typed unsupported routes are the original mechanism. Real observational validity/authority remains separate.",
+  "code_sha": "423165322e508a293ffd23918c039c99fb37e7a7",
+  "code_tree": "191a4c8997b4bee61a1045d4825bd98759ce0ca8",
+  "consumer": "DoWhyIdentifyEstimate → actual requested estimand_type/contrast/target → genuine identify_effect/estimate_effect → canonical report factory and persisted CAS/fresh reader",
+  "oracle_and_negative": "Actual supported ATE/backdoor adjustment, independent OLS; unsupported requests refuse; source/CAS payload binding negatives",
+  "G_finding_acceptance": {
+    "status": "not_issued",
+    "formal_G_closed": false
+  },
+  "G_code_acceptance": {
+    "status": "not_inferred",
+    "source_sha": null,
+    "basis": "Independent F GO/code-ready is not G code acceptance"
+  },
+  "original_missing_input": null,
+  "original_next_owner": null,
+  "next_concrete_result": "G review exact focused4ee source and affected consumer receipts; composed replay after integration freeze",
+  "root_assembled_source": {
+    "sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+    "tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+    "not_new_numerical_proof": true
+  },
+  "new_property_followups_not_automatically_original_reopen": [
+    {
+      "lane": "Graph-profile-and-focused-companions",
+      "git_ref": "e89d449acc6eedb1629c42c428689f7c578fce26",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007.json",
+      "bytes": 38873,
+      "sha256": "dba5e9957daf152c370868e7424bdc90baef646760b57af6a4c1377057ceb439",
+      "git_blob": "268b4b5a0119dabaee1a96e6bc7e5d914bc40e5e",
+      "code_candidate_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "code_candidate_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+      "role": "New property/consumer and companion proof, not new finding ID or G acceptance"
+    },
+    {
+      "lane": "Canonical-graph-profile-receipt",
+      "git_ref": "248497d27aa7951492c9a6d12c3c3493f3c246ec",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007.json",
+      "bytes": 71398,
+      "sha256": "889decd43e053de5c5c13a16bd5f38d49b4065907f92942cd40538ee58386ae5",
+      "git_blob": "01d6d2d1b662971e5534c3b7cebfcfd15812fb4a",
+      "code_candidate_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "code_candidate_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+      "role": "HANDOFF minimal schema/check/property canonical aliases; old source/output bytes and custom receipt remain historical"
+    }
+  ],
+  "focused_continuation": {
+    "source": {
+      "sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+      "base_sha": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+      "not_a_transfer_of_old_numerical_waves": true
+    },
+    "receipt": {
+      "git_ref": "248497d27aa7951492c9a6d12c3c3493f3c246ec",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007.json",
+      "bytes": 71398,
+      "sha256": "889decd43e053de5c5c13a16bd5f38d49b4065907f92942cd40538ee58386ae5",
+      "git_blob": "01d6d2d1b662971e5534c3b7cebfcfd15812fb4a"
+    },
+    "implementation": "unchanged423 worker; changed test body qualified on4ee",
+    "check": "PASS",
+    "consumer": "Actual selected identify_effect/estimate_effect defaults → canonical typed factory → parent CAS → fresh3.14 reader",
+    "result": "Focused3PASS genuine configured3.12/DoWhy0.14; selected ATE/control0/treatment1/targetate binding and fresh-reader assertions executed on exact4ee.",
+    "oracle_negative": "Real selected fit/public builder ABI and persisted interval/non-gating reader checks; previous broader independent OLS/estimand negatives retain their own unchanged source bindings.",
+    "limitation": "No new general mediation profile, actual real-source scientific identification or wholeNode admission proof.",
+    "code_ready": true,
+    "G_new_code_acceptance": "not_issued",
+    "G_formal_finding_closure": "not_issued",
+    "no_original_criterion_rebinding": true,
+    "previous_custom_receipt": {
+      "git_ref": "e89d449acc6eedb1629c42c428689f7c578fce26",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007.json",
+      "bytes": 38873,
+      "sha256": "dba5e9957daf152c370868e7424bdc90baef646760b57af6a4c1377057ceb439",
+      "git_blob": "268b4b5a0119dabaee1a96e6bc7e5d914bc40e5e"
+    },
+    "canonical_handoff_fields_review": "Forward receipt-only correction; no runtime/source/native outcome changes"
+  }
+}

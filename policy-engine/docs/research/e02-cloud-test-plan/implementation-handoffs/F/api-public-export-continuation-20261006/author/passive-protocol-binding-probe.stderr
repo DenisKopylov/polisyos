@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/tmp/e02-F-continuation-20261006/api/passive-protocol-binding-probe.py", line 13, in <module>
+    assert row.export_count is None, 'module import-protocol binding accepted complete though actual import fails'
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: module import-protocol binding accepted complete though actual import fails

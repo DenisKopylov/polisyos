@@ -1,0 +1,1248 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "F",
+  "slice": "catalog-default-resources-20261007",
+  "role": "Bounded source/packaging/runtime-ABI companion; complete newly assembled installed-product positive remains a separate required check",
+  "closure_ids": [],
+  "related_finding_ids": [
+    "B214",
+    "B218"
+  ],
+  "bundle_ids": [
+    "GRF-03"
+  ],
+  "slice_base_sha": "370cac5c342bbc5b206331f93776505e0cffe3a6",
+  "diagnosed_installed_source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+  "implementation_commits": [
+    "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+    "6ba9b8687283c2c0ee87065efa5763671bf95989",
+    "81f482e04bd8a2c85f894d425847c6e8657b6ea6"
+  ],
+  "candidate_sha": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+  "candidate_tree_sha": "120103b1a375b5d405632936b2934f2b36a320f7",
+  "functional_implementation_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+  "branch": "codex/e02-F-graph-20261006",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/docs/reference/data-forge/catalog-default-resources.md",
+    "policy-engine/hatch.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-07-catalog-default-resources.toml",
+    "policy-engine/src/polisyos/data_forge/domains/README.md",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/_resources.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/variable_alignment.py",
+    "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+    "policy-engine/src/polisyos/fabric/connectors/sources/wvs.py",
+    "policy-engine/tests/repo_quality/tools/test_catalog_default_resources_packaging.py",
+    "policy-engine/tests/unit/data_forge/domains/catalog/test_catalog_default_resources.py"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "check_id": "historical-b5-graph-diagnostic-1",
+      "command": "../wheel-env/bin/python -I ../diagnose_graph.py ../installed-config.json",
+      "target_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "environment": "CPython3.14.7/Pydantic2.12.5/Numpy2.3.5/SciPy1.16.3/pytest9.0.2/PyYAML6.0.3; readonly existing app environment. Genuine Hatchling1.32.4 + official dependencies from read-only existing Foundry uv cache for bounded packaging fixture. DoWhy/EconML excluded by Python3.14 markers; their absence is not a backend PASS.",
+      "input_closure": "auxiliary wrong scratch script parent path; no graph test launched",
+      "outcome": "ERROR",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/foundry-b5/graph-diagnostic.stdout.txt.gz",
+      "argv": [
+        "../wheel-env/bin/python",
+        "-I",
+        "../diagnose_graph.py",
+        "../installed-config.json"
+      ],
+      "cwd": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-consumer",
+      "exit": 2,
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/foundry-b5/graph-diagnostic.stderr.txt.gz",
+      "execution_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/foundry-b5/auxiliary-diagnostic-classification.json",
+      "actual_selector": "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_query_only_replay_recomputes_operational_cache"
+    },
+    {
+      "check_id": "historical-b5-graph-diagnostic-2",
+      "command": "../wheel-env/bin/python -I diagnose_graph.py ../installed-config.json",
+      "target_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "environment": "CPython3.14.7/Pydantic2.12.5/Numpy2.3.5/SciPy1.16.3/pytest9.0.2/PyYAML6.0.3; readonly existing app environment. Genuine Hatchling1.32.4 + official dependencies from read-only existing Foundry uv cache for bounded packaging fixture. DoWhy/EconML excluded by Python3.14 markers; their absence is not a backend PASS.",
+      "input_closure": "real existing defaultseed YAML missing; no source/asset injection",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/foundry-b5/graph-diagnostic-v2.stdout.txt.gz",
+      "argv": [
+        "../wheel-env/bin/python",
+        "-I",
+        "diagnose_graph.py",
+        "../installed-config.json"
+      ],
+      "cwd": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-consumer",
+      "exit": 1,
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/foundry-b5/graph-diagnostic-v2.stderr.txt.gz",
+      "execution_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/foundry-b5/auxiliary-diagnostic-classification.json",
+      "actual_selector": "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_query_only_replay_recomputes_operational_cache"
+    },
+    {
+      "check_id": "historical-b5-wheel-default-resource-property",
+      "command": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-env/bin/python -I /tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/probe_installed_defaults.py /tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/installed-config.json wheel",
+      "target_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "environment": "Genuine installed b5 wheel or rebuilt-sdist package; CPython3.14.7 -I, installed product origins only; complete per-origin observations retained.",
+      "input_closure": "Both actual installed profiles lack four defaults; required seed scoring FileNotFoundError, optional proxy/WVS {}. Characterization rc0 is not property PASS.",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/wheel-defaults.stdout.json.gz",
+      "execution_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/wheel-defaults.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/wheel-defaults.stderr.txt.gz"
+    },
+    {
+      "check_id": "historical-b5-sdist-default-resource-property",
+      "command": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-env/bin/python -I /tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/probe_installed_defaults.py /tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/installed-config.json sdist",
+      "target_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "environment": "Genuine installed b5 wheel or rebuilt-sdist package; CPython3.14.7 -I, installed product origins only; complete per-origin observations retained.",
+      "input_closure": "Both actual installed profiles lack four defaults; required seed scoring FileNotFoundError, optional proxy/WVS {}. Characterization rc0 is not property PASS.",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/sdist-defaults.stdout.json.gz",
+      "execution_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/sdist-defaults.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/sdist-defaults.stderr.txt.gz"
+    },
+    {
+      "check_id": "independent-FIT-diagnosis-and-design",
+      "command": "Read-only complete archive/source/default-consumer diagnosis; inspect_basis.py + run_probes.py; exact recorded commands in transported review",
+      "target_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "environment": "CPython3.14.7/Pydantic2.12.5/Numpy2.3.5/SciPy1.16.3/pytest9.0.2/PyYAML6.0.3; readonly existing app environment. Genuine Hatchling1.32.4 + official dependencies from read-only existing Foundry uv cache for bounded packaging fixture. DoWhy/EconML excluded by Python3.14 markers; their absence is not a backend PASS.",
+      "input_closure": "Independent design review only: full archive membership3464/12521/3464 omits four resources. Actual installed explicit-path compatibility remains usable; default-positive is not established.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/fit-design/review.json",
+      "review_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/fit-design/review.json",
+        "bytes": 15140,
+        "sha256": "ee1f456035b4a01689708b1ab0b29d388e97673dadf084c71bcc156c191cf922",
+        "original_execution_path": "/tmp/e02-F-continuation-20261007/fit-tmle/dataforge-resource-review/review.json",
+        "role": "fit-design",
+        "encoding": "identity"
+      },
+      "selection_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/fit-design/transfer-selection.json",
+        "bytes": 5304,
+        "sha256": "3c455f4693f0d645acf2bf2803abd0c5794c77227e3ce5d863a15fb78f4aebd3",
+        "original_execution_path": "/tmp/e02-F-continuation-20261007/fit-tmle/dataforge-resource-review/transfer-selection.json",
+        "role": "fit-design",
+        "encoding": "identity"
+      }
+    },
+    {
+      "check_id": "resource-development-native",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest tests/unit/data_forge/domains/catalog/test_catalog_default_resources.py tests/repo_quality/tools/test_catalog_default_resources_packaging.py tests/unit/data_forge/domains/catalog/knowledge/test_variable_alignment.py tests/unit/data_forge/domains/catalog/knowledge/test_proxy_penalties.py -q -o addopts= --import-mode=importlib -p no:cacheprovider --basetemp /tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/resource-development-native-tmp --junitxml /tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/resource-development-native.xml",
+      "target_sha": "370cac5c342bbc5b206331f93776505e0cffe3a6",
+      "environment": "CPython3.14.7/Pydantic2.12.5/Numpy2.3.5/SciPy1.16.3/pytest9.0.2/PyYAML6.0.3; readonly existing app environment. Genuine Hatchling1.32.4 + official dependencies from read-only existing Foundry uv cache for bounded packaging fixture. DoWhy/EconML excluded by Python3.14 markers; their absence is not a backend PASS.",
+      "input_closure": "Exact workingtree authored fourteen-path resource candidate over HEAD370 (not frozen-commit evidence); complete four original curated YAML; resource-only Hatch fixture, no complete source archive; actual graph CAS consumers. Sourcehashes retained.",
+      "outcome": "ERROR",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-development-native.stdout.txt.gz",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/data_forge/domains/catalog/test_catalog_default_resources.py",
+        "tests/repo_quality/tools/test_catalog_default_resources_packaging.py",
+        "tests/unit/data_forge/domains/catalog/knowledge/test_variable_alignment.py",
+        "tests/unit/data_forge/domains/catalog/knowledge/test_proxy_penalties.py",
+        "-q",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp",
+        "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/resource-development-native-tmp",
+        "--junitxml",
+        "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/resource-development-native.xml"
+      ],
+      "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+      "env": {
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "target_tree_sha": "014203f04f72a477407df231372775f403e0cefb",
+      "exit": 2,
+      "execution_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-development-native.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-development-native.stderr.txt.gz",
+      "qualification": "Recorded HEAD370 plus exact uncommitted fourteen-path workingtree candidate. Runtime proof now separately established at immutable089 by independent reviewer; do not treat original target370 as tested committed source."
+    },
+    {
+      "check_id": "resource-development-native2",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest tests/unit/data_forge/domains/catalog/test_catalog_default_resources.py tests/unit/data_forge/domains/catalog/knowledge/test_variable_alignment.py tests/unit/data_forge/domains/catalog/knowledge/test_proxy_penalties.py -q -o addopts= --import-mode=importlib -p no:cacheprovider --basetemp /tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/resource-development-native2-tmp --junitxml /tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/resource-development-native2.xml",
+      "target_sha": "370cac5c342bbc5b206331f93776505e0cffe3a6",
+      "environment": "CPython3.14.7/Pydantic2.12.5/Numpy2.3.5/SciPy1.16.3/pytest9.0.2/PyYAML6.0.3; readonly existing app environment. Genuine Hatchling1.32.4 + official dependencies from read-only existing Foundry uv cache for bounded packaging fixture. DoWhy/EconML excluded by Python3.14 markers; their absence is not a backend PASS.",
+      "input_closure": "Exact workingtree authored fourteen-path resource candidate over HEAD370 (not frozen-commit evidence); complete four original curated YAML; resource-only Hatch fixture, no complete source archive; actual graph CAS consumers. Sourcehashes retained.",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-development-native2.stdout.txt.gz",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/data_forge/domains/catalog/test_catalog_default_resources.py",
+        "tests/unit/data_forge/domains/catalog/knowledge/test_variable_alignment.py",
+        "tests/unit/data_forge/domains/catalog/knowledge/test_proxy_penalties.py",
+        "-q",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp",
+        "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/resource-development-native2-tmp",
+        "--junitxml",
+        "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/resource-development-native2.xml"
+      ],
+      "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+      "env": {
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "target_tree_sha": "014203f04f72a477407df231372775f403e0cefb",
+      "exit": 1,
+      "execution_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-development-native2.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-development-native2.stderr.txt.gz",
+      "qualification": "Recorded HEAD370 plus exact uncommitted fourteen-path workingtree candidate. Runtime proof now separately established at immutable089 by independent reviewer; do not treat original target370 as tested committed source."
+    },
+    {
+      "check_id": "resource-development-native3",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest tests/unit/data_forge/domains/catalog/test_catalog_default_resources.py tests/repo_quality/tools/test_catalog_default_resources_packaging.py tests/unit/data_forge/domains/catalog/knowledge/test_variable_alignment.py tests/unit/data_forge/domains/catalog/knowledge/test_proxy_penalties.py -q -o addopts= --import-mode=importlib -p no:cacheprovider --basetemp /tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/resource-development-native3-tmp --junitxml /tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/resource-development-native3.xml",
+      "target_sha": "370cac5c342bbc5b206331f93776505e0cffe3a6",
+      "environment": "CPython3.14.7/Pydantic2.12.5/Numpy2.3.5/SciPy1.16.3/pytest9.0.2/PyYAML6.0.3; readonly existing app environment. Genuine Hatchling1.32.4 + official dependencies from read-only existing Foundry uv cache for bounded packaging fixture. DoWhy/EconML excluded by Python3.14 markers; their absence is not a backend PASS.",
+      "input_closure": "Exact workingtree authored fourteen-path resource candidate over HEAD370 (not frozen-commit evidence); complete four original curated YAML; resource-only Hatch fixture, no complete source archive; actual graph CAS consumers. Sourcehashes retained.; genuineHatchling1.32.4+dependencies atread-only existingFoundrybuildcache, no new environment/shim/source archive.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-development-native3.stdout.txt.gz",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/data_forge/domains/catalog/test_catalog_default_resources.py",
+        "tests/repo_quality/tools/test_catalog_default_resources_packaging.py",
+        "tests/unit/data_forge/domains/catalog/knowledge/test_variable_alignment.py",
+        "tests/unit/data_forge/domains/catalog/knowledge/test_proxy_penalties.py",
+        "-q",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp",
+        "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/resource-development-native3-tmp",
+        "--junitxml",
+        "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/resource-development-native3.xml"
+      ],
+      "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+      "env": {
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/FRfxDH8nJU3psJuO:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/UiWY5OJhIS1bCbbj:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/rzzxdszJdjA2TxUF:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/jzraMA8hdiRZ6IzT:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/5rluSUsE3KBgGB71:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/5Ru6KSKyfVbEb5in",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "target_tree_sha": "014203f04f72a477407df231372775f403e0cefb",
+      "exit": 0,
+      "execution_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-development-native3.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-development-native3.stderr.txt.gz",
+      "qualification": "Recorded HEAD370 plus exact uncommitted fourteen-path workingtree candidate. Runtime proof now separately established at immutable089 by independent reviewer; do not treat original target370 as tested committed source."
+    },
+    {
+      "check_id": "resource-development-graph79",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest tests/unit/scientist/methods/causal/test_graph_intake_current_content.py tests/unit/scientist/methods/causal/test_reconcile_causal_graph_node.py tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py -q -o addopts= --import-mode=importlib -p no:cacheprovider --basetemp /tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/resource-development-graph79-tmp --junitxml /tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/resource-development-graph79.xml",
+      "target_sha": "370cac5c342bbc5b206331f93776505e0cffe3a6",
+      "environment": "CPython3.14.7/Pydantic2.12.5/Numpy2.3.5/SciPy1.16.3/pytest9.0.2/PyYAML6.0.3; readonly existing app environment. Genuine Hatchling1.32.4 + official dependencies from read-only existing Foundry uv cache for bounded packaging fixture. DoWhy/EconML excluded by Python3.14 markers; their absence is not a backend PASS.",
+      "input_closure": "Exact workingtree authored fourteen-path resource candidate over HEAD370 (not frozen-commit evidence); complete four original curated YAML; resource-only Hatch fixture, no complete source archive; actual graph CAS consumers. Sourcehashes retained.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-development-graph79.stdout.txt.gz",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py",
+        "tests/unit/scientist/methods/causal/test_reconcile_causal_graph_node.py",
+        "tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py",
+        "tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+        "-q",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp",
+        "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/resource-development-graph79-tmp",
+        "--junitxml",
+        "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/resource-development-graph79.xml"
+      ],
+      "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+      "env": {
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "target_tree_sha": "014203f04f72a477407df231372775f403e0cefb",
+      "exit": 0,
+      "execution_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-development-graph79.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-development-graph79.stderr.txt.gz",
+      "qualification": "Recorded HEAD370 plus exact uncommitted fourteen-path workingtree candidate. Runtime proof now separately established at immutable089 by independent reviewer; do not treat original target370 as tested committed source."
+    },
+    {
+      "check_id": "resource-final-precommit-graph79",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest tests/unit/scientist/methods/causal/test_graph_intake_current_content.py tests/unit/scientist/methods/causal/test_reconcile_causal_graph_node.py tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py -q -o addopts= --import-mode=importlib -p no:cacheprovider --basetemp /tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/resource-final-precommit-graph79-tmp --junitxml /tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/resource-final-precommit-graph79.xml",
+      "target_sha": "370cac5c342bbc5b206331f93776505e0cffe3a6",
+      "environment": "CPython3.14.7/Pydantic2.12.5/Numpy2.3.5/SciPy1.16.3/pytest9.0.2/PyYAML6.0.3; readonly existing app environment. Genuine Hatchling1.32.4 + official dependencies from read-only existing Foundry uv cache for bounded packaging fixture. DoWhy/EconML excluded by Python3.14 markers; their absence is not a backend PASS.",
+      "input_closure": "Final fourteen workingtree resource bodies over370 afternarrow ownimport/Pathwrapper correction+ASTequal formatting; all79actualgraphintake cases on supported nativeNumpy/CAS. Notimmutablecommit proof; candidate-source hashes retained.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-final-precommit-graph79.stdout.txt.gz",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py",
+        "tests/unit/scientist/methods/causal/test_reconcile_causal_graph_node.py",
+        "tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py",
+        "tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+        "-q",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp",
+        "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/resource-final-precommit-graph79-tmp",
+        "--junitxml",
+        "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/resource-final-precommit-graph79.xml"
+      ],
+      "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+      "env": {
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "target_tree_sha": "014203f04f72a477407df231372775f403e0cefb",
+      "exit": 0,
+      "execution_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-final-precommit-graph79.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-final-precommit-graph79.stderr.txt.gz",
+      "qualification": "Recorded HEAD370 plus exact uncommitted fourteen-path workingtree candidate. Runtime proof now separately established at immutable089 by independent reviewer; do not treat original target370 as tested committed source."
+    },
+    {
+      "check_id": "resource-fragment",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/check_resource_fragment.py",
+      "target_sha": "370cac5c342bbc5b206331f93776505e0cffe3a6",
+      "environment": "CPython3.14.7/Pydantic2.12.5/Numpy2.3.5/SciPy1.16.3/pytest9.0.2/PyYAML6.0.3; readonly existing app environment. Genuine Hatchling1.32.4 + official dependencies from read-only existing Foundry uv cache for bounded packaging fixture. DoWhy/EconML excluded by Python3.14 markers; their absence is not a backend PASS.",
+      "input_closure": "Canonical actualownedfragment schema/gate/render; compatibleinternal packaging only, no fullrepository release gate PASSclaim",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-fragment.stdout.txt.gz",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/check_resource_fragment.py"
+      ],
+      "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+      "env": {
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/FRfxDH8nJU3psJuO:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/UiWY5OJhIS1bCbbj:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/rzzxdszJdjA2TxUF:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/jzraMA8hdiRZ6IzT:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/5rluSUsE3KBgGB71:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/5Ru6KSKyfVbEb5in",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "target_tree_sha": "014203f04f72a477407df231372775f403e0cefb",
+      "exit": 0,
+      "execution_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-fragment.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-fragment.stderr.txt.gz",
+      "qualification": "Original internal classification passed only scoped fragment grammar; actual nested PUBLIC_EXPERIMENTAL classification was missing and superseded by metadata6ba9/81, not declared full public release PASS."
+    },
+    {
+      "check_id": "resource-corrected-fragment",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/check_corrected_resource_fragment.py",
+      "target_sha": "6ba9b8687283c2c0ee87065efa5763671bf95989",
+      "environment": "CPython3.14.7/Pydantic2.12.5/Numpy2.3.5/SciPy1.16.3/pytest9.0.2/PyYAML6.0.3; readonly existing app environment. Genuine Hatchling1.32.4 + official dependencies from read-only existing Foundry uv cache for bounded packaging fixture. DoWhy/EconML excluded by Python3.14 markers; their absence is not a backend PASS.",
+      "input_closure": "Actual immutable6ba9 metadata successor; one owned public_experimental Path compatibility record uses canonical validator/renderer. All runtime/tests/Hatch/fouroriginalYAML byte-identical089. No whole repository gate verdict.",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-corrected-fragment.stdout.txt.gz",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/check_corrected_resource_fragment.py"
+      ],
+      "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+      "env": {
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/FRfxDH8nJU3psJuO:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/UiWY5OJhIS1bCbbj:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/rzzxdszJdjA2TxUF:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/jzraMA8hdiRZ6IzT:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/5rluSUsE3KBgGB71:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/5Ru6KSKyfVbEb5in",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "target_tree_sha": "a1691e3b0f6de61e246d7bf20b7671c6bad99dc3",
+      "exit": 1,
+      "execution_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-corrected-fragment.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-corrected-fragment.stderr.txt.gz",
+      "qualification": "Exact recorded source guard; original target and before/after bindings preserved."
+    },
+    {
+      "check_id": "resource-final-fragment",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/check_corrected_resource_fragment.py",
+      "target_sha": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+      "environment": "CPython3.14.7/Pydantic2.12.5/Numpy2.3.5/SciPy1.16.3/pytest9.0.2/PyYAML6.0.3; readonly existing app environment. Genuine Hatchling1.32.4 + official dependencies from read-only existing Foundry uv cache for bounded packaging fixture. DoWhy/EconML excluded by Python3.14 markers; their absence is not a backend PASS.",
+      "input_closure": "Actual immutable81 reviewed=true metadata successor, one canonical public_experimental Path fragment. All runtime/tests/Hatch/fouroriginalYAML are byte-identical089. No whole gate verdict.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-final-fragment.stdout.txt.gz",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/check_corrected_resource_fragment.py"
+      ],
+      "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+      "env": {
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/FRfxDH8nJU3psJuO:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/UiWY5OJhIS1bCbbj:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/rzzxdszJdjA2TxUF:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/jzraMA8hdiRZ6IzT:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/5rluSUsE3KBgGB71:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/5Ru6KSKyfVbEb5in",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "target_tree_sha": "120103b1a375b5d405632936b2934f2b36a320f7",
+      "exit": 0,
+      "execution_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-final-fragment.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-final-fragment.stderr.txt.gz",
+      "qualification": "Actual immutable81 source/target guard. Copied free-text input_closure caption mentions6ba9 incorrectly; additive observerERROR preserves original record; this primary check uses the authoritative actual81 input closure."
+    },
+    {
+      "check_id": "remove-installed-path",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/remove_resource_property.py installed-path /tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/remove-installed-path-tmp",
+      "target_sha": "370cac5c342bbc5b206331f93776505e0cffe3a6",
+      "environment": "CPython3.14.7/Pydantic2.12.5/Numpy2.3.5/SciPy1.16.3/pytest9.0.2/PyYAML6.0.3; readonly existing app environment. Genuine Hatchling1.32.4 + official dependencies from read-only existing Foundry uv cache for bounded packaging fixture. DoWhy/EconML excluded by Python3.14 markers; their absence is not a backend PASS.",
+      "input_closure": "Exactworkingtree14bodies; process-memory property deletion with original source/module/filenames/resource4paths markers retained. No actual file changes. Expected scientific/property FAIL, never aggregate PASS.",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/remove-installed-path.stdout.txt.gz",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/remove_resource_property.py",
+        "installed-path",
+        "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/remove-installed-path-tmp"
+      ],
+      "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+      "env": {
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/FRfxDH8nJU3psJuO:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/UiWY5OJhIS1bCbbj:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/rzzxdszJdjA2TxUF:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/jzraMA8hdiRZ6IzT:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/5rluSUsE3KBgGB71:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/5Ru6KSKyfVbEb5in",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "target_tree_sha": "014203f04f72a477407df231372775f403e0cefb",
+      "exit": 1,
+      "execution_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/remove-installed-path.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/remove-installed-path.stderr.txt.gz",
+      "qualification": "Exact recorded source guard; original target and before/after bindings preserved."
+    },
+    {
+      "check_id": "remove-byte-admission",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/remove_resource_property.py byte-admission /tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/remove-byte-admission-tmp",
+      "target_sha": "370cac5c342bbc5b206331f93776505e0cffe3a6",
+      "environment": "CPython3.14.7/Pydantic2.12.5/Numpy2.3.5/SciPy1.16.3/pytest9.0.2/PyYAML6.0.3; readonly existing app environment. Genuine Hatchling1.32.4 + official dependencies from read-only existing Foundry uv cache for bounded packaging fixture. DoWhy/EconML excluded by Python3.14 markers; their absence is not a backend PASS.",
+      "input_closure": "Exactworkingtree14bodies; process-memory property deletion with original source/module/filenames/resource4paths markers retained. No actual file changes. Expected scientific/property FAIL, never aggregate PASS.",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/remove-byte-admission.stdout.txt.gz",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/remove_resource_property.py",
+        "byte-admission",
+        "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/remove-byte-admission-tmp"
+      ],
+      "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+      "env": {
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/FRfxDH8nJU3psJuO:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/UiWY5OJhIS1bCbbj:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/rzzxdszJdjA2TxUF:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/jzraMA8hdiRZ6IzT:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/5rluSUsE3KBgGB71:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/5Ru6KSKyfVbEb5in",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "target_tree_sha": "014203f04f72a477407df231372775f403e0cefb",
+      "exit": 1,
+      "execution_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/remove-byte-admission.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/remove-byte-admission.stderr.txt.gz",
+      "qualification": "Exact recorded source guard; original target and before/after bindings preserved."
+    },
+    {
+      "check_id": "resource-final-owned-ruff",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m ruff check --output-format=json src/polisyos/data_forge/domains/catalog/_resources.py src/polisyos/data_forge/domains/catalog/batch/config.py src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py src/polisyos/data_forge/domains/catalog/batch/harvester.py src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py src/polisyos/data_forge/domains/catalog/knowledge/variable_alignment.py src/polisyos/data_forge/read_api/catalog.py src/polisyos/fabric/connectors/sources/wvs.py tests/repo_quality/tools/test_catalog_default_resources_packaging.py tests/unit/data_forge/domains/catalog/test_catalog_default_resources.py",
+      "target_sha": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+      "environment": "CPython3.14.7/Pydantic2.12.5/Numpy2.3.5/SciPy1.16.3/pytest9.0.2/PyYAML6.0.3; readonly existing app environment. Genuine Hatchling1.32.4 + official dependencies from read-only existing Foundry uv cache for bounded packaging fixture. DoWhy/EconML excluded by Python3.14 markers; their absence is not a backend PASS.",
+      "input_closure": "Exact immutable81 ten authored Python source/test paths using current canonical Ruff policy. Three new paths absent slice370; source change intersects provider inputs, so P41not_established. This is own finite denominator, not full repository gate.",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-final-owned-ruff.stdout.txt.gz",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--output-format=json",
+        "src/polisyos/data_forge/domains/catalog/_resources.py",
+        "src/polisyos/data_forge/domains/catalog/batch/config.py",
+        "src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+        "src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+        "src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+        "src/polisyos/data_forge/domains/catalog/knowledge/variable_alignment.py",
+        "src/polisyos/data_forge/read_api/catalog.py",
+        "src/polisyos/fabric/connectors/sources/wvs.py",
+        "tests/repo_quality/tools/test_catalog_default_resources_packaging.py",
+        "tests/unit/data_forge/domains/catalog/test_catalog_default_resources.py"
+      ],
+      "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+      "env": {
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "target_tree_sha": "120103b1a375b5d405632936b2934f2b36a320f7",
+      "exit": 1,
+      "execution_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-final-owned-ruff.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-final-owned-ruff.stderr.txt.gz",
+      "qualification": "Exact recorded source guard; original target and before/after bindings preserved."
+    },
+    {
+      "check_id": "observer-final-fragment-stale-caption",
+      "command": "Compare original final-fragment sourceguard fields and copied free-text caption",
+      "target_sha": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+      "environment": "CPython3.14.7/Pydantic2.12.5/Numpy2.3.5/SciPy1.16.3/pytest9.0.2/PyYAML6.0.3; readonly existing app environment. Genuine Hatchling1.32.4 + official dependencies from read-only existing Foundry uv cache for bounded packaging fixture. DoWhy/EconML excluded by Python3.14 markers; their absence is not a backend PASS.",
+      "input_closure": "Observer metadata error only. Actual target/sourcebefore/sourceafter is81; old caption says6ba9. Raw spec and execution preserved unchanged, additive correction only.",
+      "outcome": "ERROR",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-fragment-caption-correction.json"
+    },
+    {
+      "check_id": "first-overbroad-Ruff-auto-fix-attempt",
+      "command": "python -m ruff check --fix <ten authored Python files>",
+      "target_sha": "370cac5c342bbc5b206331f93776505e0cffe3a6",
+      "environment": "CPython3.14.7/Pydantic2.12.5/Numpy2.3.5/SciPy1.16.3/pytest9.0.2/PyYAML6.0.3; readonly existing app environment. Genuine Hatchling1.32.4 + official dependencies from read-only existing Foundry uv cache for bounded packaging fixture. DoWhy/EconML excluded by Python3.14 markers; their absence is not a backend PASS.",
+      "input_closure": "Initial workingtree attempt altered42 unrelated legacy imports. No tests ran on it. Full diagnostics and unintended patch retained; workingtree reconstructed from exact370 plus leased changes without reset/history rewrite.",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/ruff-development.stdout.txt.gz",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/ruff-development.stderr.txt.gz",
+      "full_unintended_diff": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/ruff-first-auto-fix-unintended.patch.gz",
+        "bytes": 3316,
+        "sha256": "7baae85b1a6703e0ebb7711589a8f28ac25630e4c7f7df013a50a5ff6c362195",
+        "original_execution_path": "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/ruff-first-auto-fix-unintended.patch",
+        "role": "author",
+        "encoding": "gzip",
+        "decoded_bytes": 13340,
+        "decoded_sha256": "2ad5bd013f6cd550d97a81450dcb8d1fbefa56ca4b94e6ba59df3adad3878122",
+        "decompressed_bytes": 13340,
+        "decompressed_sha256": "2ad5bd013f6cd550d97a81450dcb8d1fbefa56ca4b94e6ba59df3adad3878122"
+      }
+    },
+    {
+      "check_id": "historical-loader-Ruff-source-attribution",
+      "command": "Recorded canonical Ruff --stdin-filename on exact370 and647 loader bodies",
+      "target_sha": "370cac5c342bbc5b206331f93776505e0cffe3a6",
+      "environment": "CPython3.14.7/Pydantic2.12.5/Numpy2.3.5/SciPy1.16.3/pytest9.0.2/PyYAML6.0.3; readonly existing app environment. Genuine Hatchling1.32.4 + official dependencies from read-only existing Foundry uv cache for bounded packaging fixture. DoWhy/EconML excluded by Python3.14 markers; their absence is not a backend PASS.",
+      "input_closure": "Each original source has103samecode diagnostics. Whole candidate gate has intersecting inputs and three new files absent base; P41 not_established. Historical red is not an inherited-pass claim.",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/loader-ruff-source-attribution.json"
+    },
+    {
+      "check_id": "new-files-canonical-Ruff",
+      "command": "python -m ruff check <new resolver and two new tests>",
+      "target_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+      "environment": "CPython3.14.7/Pydantic2.12.5/Numpy2.3.5/SciPy1.16.3/pytest9.0.2/PyYAML6.0.3; readonly existing app environment. Genuine Hatchling1.32.4 + official dependencies from read-only existing Foundry uv cache for bounded packaging fixture. DoWhy/EconML excluded by Python3.14 markers; their absence is not a backend PASS.",
+      "input_closure": "Three new files, canonical current policy; actual allchecks passed. This is not full ten-file or repository quality PASS.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/new-file-lint.stdout.txt.gz",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/new-file-lint.stderr.txt.gz"
+    },
+    {
+      "check_id": "owned-forward-format-AST-equality",
+      "command": "Canonical Ruff format on eight owned files; full AST before/after equality",
+      "target_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+      "environment": "CPython3.14.7/Pydantic2.12.5/Numpy2.3.5/SciPy1.16.3/pytest9.0.2/PyYAML6.0.3; readonly existing app environment. Genuine Hatchling1.32.4 + official dependencies from read-only existing Foundry uv cache for bounded packaging fixture. DoWhy/EconML excluded by Python3.14 markers; their absence is not a backend PASS.",
+      "input_closure": "Two existing owner files formatted and six unchanged. Actual full AST equality proves formatting delta only; no import-law cleanup or unrelated code surgery.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/owned-format-forward-ast-proof.json"
+    },
+    {
+      "check_id": "genuine-Hatch-backend-origin-witness",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -c 'import importlib,importlib.metadata,json,platform,sys\nmodules={}\nfor name,dist in [('\"'\"'hatchling'\"'\"','\"'\"'hatchling'\"'\"'),('\"'\"'pathspec'\"'\"','\"'\"'pathspec'\"'\"'),('\"'\"'trove_classifiers'\"'\"','\"'\"'trove-classifiers'\"'\"'),('\"'\"'pluggy'\"'\"','\"'\"'pluggy'\"'\"'),('\"'\"'packaging'\"'\"','\"'\"'packaging'\"'\"'),('\"'\"'tomlkit'\"'\"','\"'\"'tomlkit'\"'\"'),('\"'\"'pytest'\"'\"','\"'\"'pytest'\"'\"'),('\"'\"'yaml'\"'\"','\"'\"'PyYAML'\"'\"'),('\"'\"'polisyos.data_forge.domains.catalog._resources'\"'\"',None)]:\n m=importlib.import_module(name); modules[name]={'\"'\"'origin'\"'\"':m.__file__,'\"'\"'version'\"'\"':importlib.metadata.version(dist) if dist else None}\nprint(json.dumps({'\"'\"'python'\"'\"':sys.version,'\"'\"'executable'\"'\"':sys.executable,'\"'\"'platform'\"'\"':platform.platform(),'\"'\"'modules'\"'\"':modules},indent=2))\n'",
+      "target_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+      "environment": "CPython3.14.7/Pydantic2.12.5/Numpy2.3.5/SciPy1.16.3/pytest9.0.2/PyYAML6.0.3; readonly existing app environment. Genuine Hatchling1.32.4 + official dependencies from read-only existing Foundry uv cache for bounded packaging fixture. DoWhy/EconML excluded by Python3.14 markers; their absence is not a backend PASS.",
+      "input_closure": "Actual official cached Hatchling1.32.4 and five dependency import origins/version identity, own helper source origin. Backend fixture does not substitute for whole-product installed proof.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-backend-origins.stdout.json.gz",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-c",
+        "import importlib,importlib.metadata,json,platform,sys\nmodules={}\nfor name,dist in [('hatchling','hatchling'),('pathspec','pathspec'),('trove_classifiers','trove-classifiers'),('pluggy','pluggy'),('packaging','packaging'),('tomlkit','tomlkit'),('pytest','pytest'),('yaml','PyYAML'),('polisyos.data_forge.domains.catalog._resources',None)]:\n m=importlib.import_module(name); modules[name]={'origin':m.__file__,'version':importlib.metadata.version(dist) if dist else None}\nprint(json.dumps({'python':sys.version,'executable':sys.executable,'platform':platform.platform(),'modules':modules},indent=2))\n"
+      ],
+      "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+      "env": {
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/FRfxDH8nJU3psJuO:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/UiWY5OJhIS1bCbbj:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/rzzxdszJdjA2TxUF:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/jzraMA8hdiRZ6IzT:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/5rluSUsE3KBgGB71:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/5Ru6KSKyfVbEb5in",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "execution_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-backend-origins-execution.json",
+        "bytes": 1876,
+        "sha256": "87c67c79d39385676f35aae5cb633cff24b24e5e8f31a2e3cf808de5b6099852",
+        "original_execution_path": "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/resource-backend-origins-execution.json",
+        "role": "author",
+        "encoding": "identity"
+      }
+    },
+    {
+      "check_id": "ordinary-source-publication-readback",
+      "command": "git push origin codex/e02-F-graph-20261006; git ls-remote --heads origin codex/e02-F-graph-20261006",
+      "target_sha": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+      "environment": "CPython3.14.7/Pydantic2.12.5/Numpy2.3.5/SciPy1.16.3/pytest9.0.2/PyYAML6.0.3; readonly existing app environment. Genuine Hatchling1.32.4 + official dependencies from read-only existing Foundry uv cache for bounded packaging fixture. DoWhy/EconML excluded by Python3.14 markers; their absence is not a backend PASS.",
+      "input_closure": "Published immutable81 ordinary non-force push over370; actual remote head equality. Source commits and finding closure are distinct.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-source-publication.json"
+    },
+    {
+      "check_id": "independent-frozen-resource41",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest tests/unit/data_forge/domains/catalog/test_catalog_default_resources.py tests/repo_quality/tools/test_catalog_default_resources_packaging.py tests/unit/data_forge/domains/catalog/knowledge/test_variable_alignment.py tests/unit/data_forge/domains/catalog/knowledge/test_proxy_penalties.py -q -o addopts= --import-mode=importlib -p no:cacheprovider --basetemp /tmp/e02-F-continuation-20261007/api/resource-review-089/resource41-temp --junitxml /tmp/e02-F-continuation-20261007/api/resource-review-089/resource41.xml",
+      "target_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+      "environment": "CPython3.14.7/Pydantic2.12.5/Numpy2.3.5/SciPy1.16.3/pytest9.0.2/PyYAML6.0.3; readonly existing app environment. Genuine Hatchling1.32.4 + official dependencies from read-only existing Foundry uv cache for bounded packaging fixture. DoWhy/EconML excluded by Python3.14 markers; their absence is not a backend PASS.",
+      "input_closure": "41native resource/helper/currentHatch/existingseed+proxy cases;1cache_dir configwarning;0skip/error. GenuineHatch boundedfixture, not wholeproductinstalledPASS.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/resource41.stdout.txt.gz",
+      "reviewer": "independent causal_api",
+      "review_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/review.json",
+        "bytes": 16345,
+        "sha256": "308094c7e9699e1b6e7fd00e9e144799a6e28ce9e898917cb3ec67d113c307aa",
+        "original_execution_path": "/tmp/e02-F-continuation-20261007/api/resource-review-089/review.json",
+        "role": "api-review",
+        "encoding": "identity"
+      },
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/data_forge/domains/catalog/test_catalog_default_resources.py",
+        "tests/repo_quality/tools/test_catalog_default_resources_packaging.py",
+        "tests/unit/data_forge/domains/catalog/knowledge/test_variable_alignment.py",
+        "tests/unit/data_forge/domains/catalog/knowledge/test_proxy_penalties.py",
+        "-q",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp",
+        "/tmp/e02-F-continuation-20261007/api/resource-review-089/resource41-temp",
+        "--junitxml",
+        "/tmp/e02-F-continuation-20261007/api/resource-review-089/resource41.xml"
+      ],
+      "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+      "env": {
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/FRfxDH8nJU3psJuO:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/UiWY5OJhIS1bCbbj:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/rzzxdszJdjA2TxUF:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/jzraMA8hdiRZ6IzT:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/5rluSUsE3KBgGB71:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/5Ru6KSKyfVbEb5in",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "target_tree_sha": "cc4c47d1c12fd3174b546d9622a0878d3b88361d",
+      "exit": 0,
+      "execution_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/resource41.json"
+    },
+    {
+      "check_id": "independent-frozen-graph79",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest tests/unit/scientist/methods/causal/test_graph_intake_current_content.py tests/unit/scientist/methods/causal/test_reconcile_causal_graph_node.py tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py -q -o addopts= --import-mode=importlib -p no:cacheprovider --basetemp /tmp/e02-F-continuation-20261007/api/resource-review-089/graph79-temp --junitxml /tmp/e02-F-continuation-20261007/api/resource-review-089/graph79.xml",
+      "target_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+      "environment": "CPython3.14.7/Pydantic2.12.5/Numpy2.3.5/SciPy1.16.3/pytest9.0.2/PyYAML6.0.3; readonly existing app environment. Genuine Hatchling1.32.4 + official dependencies from read-only existing Foundry uv cache for bounded packaging fixture. DoWhy/EconML excluded by Python3.14 markers; their absence is not a backend PASS.",
+      "input_closure": "79actual canonicalGraph/CAS source consumer cases;1configwarning;0skip/error. Numpy/nativeGraph property profile, no DoWhy/EconMLauthority.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/graph79.stdout.txt.gz",
+      "reviewer": "independent causal_api",
+      "review_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/review.json",
+        "bytes": 16345,
+        "sha256": "308094c7e9699e1b6e7fd00e9e144799a6e28ce9e898917cb3ec67d113c307aa",
+        "original_execution_path": "/tmp/e02-F-continuation-20261007/api/resource-review-089/review.json",
+        "role": "api-review",
+        "encoding": "identity"
+      },
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py",
+        "tests/unit/scientist/methods/causal/test_reconcile_causal_graph_node.py",
+        "tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py",
+        "tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+        "-q",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp",
+        "/tmp/e02-F-continuation-20261007/api/resource-review-089/graph79-temp",
+        "--junitxml",
+        "/tmp/e02-F-continuation-20261007/api/resource-review-089/graph79.xml"
+      ],
+      "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+      "env": {
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "target_tree_sha": "cc4c47d1c12fd3174b546d9622a0878d3b88361d",
+      "exit": 0,
+      "execution_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/graph79.json"
+    },
+    {
+      "check_id": "independent-six-owner-facade-ABI-G-parity",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261007/api/resource-review-089/inspect_contract.py",
+      "target_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+      "environment": "CPython3.14.7/Pydantic2.12.5/Numpy2.3.5/SciPy1.16.3/pytest9.0.2/PyYAML6.0.3; readonly existing app environment. Genuine Hatchling1.32.4 + official dependencies from read-only existing Foundry uv cache for bounded packaging fixture. DoWhy/EconML excluded by Python3.14 markers; their absence is not a backend PASS.",
+      "input_closure": "Full14diff/6existingdefaultowners/readAPI/Hatch+4unchangedYAML. ActualfiniteLiteral4→durablePath,canonicalfunction/FQN/pickle/pydoc and existingoverrides reaching realseedscore/proxypenalty/FabricYAML. G6owners/readAPI==370; HatchpriorF7mappings separatelybound,new4 total11.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/inspection.stdout.txt.gz",
+      "reviewer": "independent causal_api",
+      "review_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/review.json",
+        "bytes": 16345,
+        "sha256": "308094c7e9699e1b6e7fd00e9e144799a6e28ce9e898917cb3ec67d113c307aa",
+        "original_execution_path": "/tmp/e02-F-continuation-20261007/api/resource-review-089/review.json",
+        "role": "api-review",
+        "encoding": "identity"
+      },
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261007/api/resource-review-089/inspect_contract.py"
+      ],
+      "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+      "env": {
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      }
+    },
+    {
+      "check_id": "independent-native-imported-function-overrides",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261007/api/resource-review-089/inspect_contract.py",
+      "target_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+      "environment": "CPython3.14.7/Pydantic2.12.5/Numpy2.3.5/SciPy1.16.3/pytest9.0.2/PyYAML6.0.3; readonly existing app environment. Genuine Hatchling1.32.4 + official dependencies from read-only existing Foundry uv cache for bounded packaging fixture. DoWhy/EconML excluded by Python3.14 markers; their absence is not a backend PASS.",
+      "input_closure": "Existing variable_alignment.default_seed_alignments_path replacement consumed by real score;existing proxy default consumed by realpenalty;Fabric imported binding consumed actualcustomYAML. Does not claim patches propagate to unrelated already-imported function references.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/inspection.stdout.txt.gz",
+      "reviewer": "independent causal_api",
+      "review_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/review.json",
+        "bytes": 16345,
+        "sha256": "308094c7e9699e1b6e7fd00e9e144799a6e28ce9e898917cb3ec67d113c307aa",
+        "original_execution_path": "/tmp/e02-F-continuation-20261007/api/resource-review-089/review.json",
+        "role": "api-review",
+        "encoding": "identity"
+      },
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261007/api/resource-review-089/inspect_contract.py"
+      ],
+      "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+      "env": {
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      }
+    },
+    {
+      "check_id": "independent-whole-function-AST-scope",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261007/api/resource-review-089/compare_owner_asts.py",
+      "target_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+      "environment": "CPython3.14.7/Pydantic2.12.5/Numpy2.3.5/SciPy1.16.3/pytest9.0.2/PyYAML6.0.3; readonly existing app environment. Genuine Hatchling1.32.4 + official dependencies from read-only existing Foundry uv cache for bounded packaging fixture. DoWhy/EconML excluded by Python3.14 markers; their absence is not a backend PASS.",
+      "input_closure": "Actual207functions across6owners+nestedfacade;7functionASTs changed(all defaultselection),200remainingASTequal. Top-levelimports/map separatelyfull-diffread. No globalP41disjointclaim.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/owner-ast-delta.stdout.txt.gz",
+      "reviewer": "independent causal_api",
+      "review_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/review.json",
+        "bytes": 16345,
+        "sha256": "308094c7e9699e1b6e7fd00e9e144799a6e28ce9e898917cb3ec67d113c307aa",
+        "original_execution_path": "/tmp/e02-F-continuation-20261007/api/resource-review-089/review.json",
+        "role": "api-review",
+        "encoding": "identity"
+      },
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261007/api/resource-review-089/compare_owner_asts.py"
+      ],
+      "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+      "env": {
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      }
+    },
+    {
+      "check_id": "independent-canonical-relocated-gate-removal",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261007/api/resource-review-089/independent_removal.py",
+      "target_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+      "environment": "CPython3.14.7/Pydantic2.12.5/Numpy2.3.5/SciPy1.16.3/pytest9.0.2/PyYAML6.0.3; readonly existing app environment. Genuine Hatchling1.32.4 + official dependencies from read-only existing Foundry uv cache for bounded packaging fixture. DoWhy/EconML excluded by Python3.14 markers; their absence is not a backend PASS.",
+      "input_closure": "4current canonical installedprofile fixture calls PASS; replaced source-onlyselection leads4actualAssertionError FAIL at canonicalPath/byteassertions whileLiteral/name/FQN/annotationsremain. Scratchimportedmodule only; no product/site mutation.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/independent-removal.stdout.txt.gz",
+      "reviewer": "independent causal_api",
+      "review_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/review.json",
+        "bytes": 16345,
+        "sha256": "308094c7e9699e1b6e7fd00e9e144799a6e28ce9e898917cb3ec67d113c307aa",
+        "original_execution_path": "/tmp/e02-F-continuation-20261007/api/resource-review-089/review.json",
+        "role": "api-review",
+        "encoding": "identity"
+      },
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261007/api/resource-review-089/independent_removal.py"
+      ],
+      "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+      "env": {
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      }
+    },
+    {
+      "check_id": "independent-final-companion-canonical-predicate",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261007/api/resource-review-089/review_final_companion.py",
+      "target_sha": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+      "environment": "CPython3.14.7/Pydantic2.12.5/Numpy2.3.5/SciPy1.16.3/pytest9.0.2/PyYAML6.0.3; readonly existing app environment. Genuine Hatchling1.32.4 + official dependencies from read-only existing Foundry uv cache for bounded packaging fixture. DoWhy/EconML excluded by Python3.14 markers; their absence is not a backend PASS.",
+      "input_closure": "Independent canonical oneownedfragment validator+renderer:python-public-api compatible,0errors/findings. Actual3docs/README/fragment delta and15unchangedruntime/test/Hatch/YAML inputbindings. No runtime repeat.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/final-companion.stdout.txt.gz",
+      "reviewer": "independent causal_api",
+      "review_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/review.json",
+        "bytes": 16345,
+        "sha256": "308094c7e9699e1b6e7fd00e9e144799a6e28ce9e898917cb3ec67d113c307aa",
+        "original_execution_path": "/tmp/e02-F-continuation-20261007/api/resource-review-089/review.json",
+        "role": "api-review",
+        "encoding": "identity"
+      },
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261007/api/resource-review-089/review_final_companion.py"
+      ],
+      "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+      "env": {
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      }
+    },
+    {
+      "check_id": "independent-full-maintained-renderer-closure",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261007/api/resource-review-089/capture_renderer_inputs.py",
+      "target_sha": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+      "environment": "CPython3.14.7/Pydantic2.12.5/Numpy2.3.5/SciPy1.16.3/pytest9.0.2/PyYAML6.0.3; readonly existing app environment. Genuine Hatchling1.32.4 + official dependencies from read-only existing Foundry uv cache for bounded packaging fixture. DoWhy/EconML excluded by Python3.14 markers; their absence is not a backend PASS.",
+      "input_closure": "Actual253operations103read_bytes150is_file, allmeasuredreadbytesGit-bound. JSON+Markdown unchanged exact;changed14path/readintersection0. Nestedcatalogalias outside existingstandalonemanifest denominator; nativeABI separate. No canonicalderivedwrite.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/final-renderer-inputs.stdout.txt.gz",
+      "reviewer": "independent causal_api",
+      "review_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/review.json",
+        "bytes": 16345,
+        "sha256": "308094c7e9699e1b6e7fd00e9e144799a6e28ce9e898917cb3ec67d113c307aa",
+        "original_execution_path": "/tmp/e02-F-continuation-20261007/api/resource-review-089/review.json",
+        "role": "api-review",
+        "encoding": "identity"
+      },
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261007/api/resource-review-089/capture_renderer_inputs.py"
+      ],
+      "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+      "env": {
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      }
+    },
+    {
+      "check_id": "independent-canonical-public-surface-completeness",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261007/api/resource-review-089/capture_renderer_inputs.py",
+      "target_sha": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+      "environment": "CPython3.14.7/Pydantic2.12.5/Numpy2.3.5/SciPy1.16.3/pytest9.0.2/PyYAML6.0.3; readonly existing app environment. Genuine Hatchling1.32.4 + official dependencies from read-only existing Foundry uv cache for bounded packaging fixture. DoWhy/EconML excluded by Python3.14 markers; their absence is not a backend PASS.",
+      "input_closure": "Actual maintained _check_public_surface_contracts returns38incomplete_exports;all38totalsnull,known0,completefalse. Representation/freshnessPASS does notpromotecompleteness.",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/final-renderer-inputs.stdout.txt.gz",
+      "reviewer": "independent causal_api",
+      "review_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/review.json",
+        "bytes": 16345,
+        "sha256": "308094c7e9699e1b6e7fd00e9e144799a6e28ce9e898917cb3ec67d113c307aa",
+        "original_execution_path": "/tmp/e02-F-continuation-20261007/api/resource-review-089/review.json",
+        "role": "api-review",
+        "encoding": "identity"
+      },
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261007/api/resource-review-089/capture_renderer_inputs.py"
+      ],
+      "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+      "env": {
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      }
+    },
+    {
+      "check_id": "independent-fresh-full-installed-profile",
+      "command": "UNRUN; new whole-product installed default resource wave awaits common source freeze and sole Foundry builder",
+      "target_sha": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+      "environment": "CPython3.14.7/Pydantic2.12.5/Numpy2.3.5/SciPy1.16.3/pytest9.0.2/PyYAML6.0.3; readonly existing app environment. Genuine Hatchling1.32.4 + official dependencies from read-only existing Foundry uv cache for bounded packaging fixture. DoWhy/EconML excluded by Python3.14 markers; their absence is not a backend PASS.",
+      "input_closure": "Newrootassembledwheel/sdistGraph79+resource consumerwave pending. Historicalb5 fullinstalledconsumer130PASS32FAIL each retainedimmutableNO-GO; no exactnewwholeinstalledPASS inferred.",
+      "outcome": "UNRUN",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/final-companion.json",
+      "reviewer": "independent causal_api",
+      "review_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/review.json",
+        "bytes": 16345,
+        "sha256": "308094c7e9699e1b6e7fd00e9e144799a6e28ce9e898917cb3ec67d113c307aa",
+        "original_execution_path": "/tmp/e02-F-continuation-20261007/api/resource-review-089/review.json",
+        "role": "api-review",
+        "encoding": "identity"
+      }
+    },
+    {
+      "check_id": "first-portable-stage-harness",
+      "command": "build_resource_transport.py then write_resource_receipt.py on preexisting first stage",
+      "target_sha": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+      "environment": "CPython3.14.7/Pydantic2.12.5/Numpy2.3.5/SciPy1.16.3/pytest9.0.2/PyYAML6.0.3; readonly existing app environment. Genuine Hatchling1.32.4 + official dependencies from read-only existing Foundry uv cache for bounded packaging fixture. DoWhy/EconML excluded by Python3.14 markers; their absence is not a backend PASS.",
+      "input_closure": "Existing staged script bytes differed and overwrite guard correctly refused; following receipt writer read incomplete older manifest. New stage-v2 is separate and complete; no product/scientific change.",
+      "outcome": "ERROR",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/portable-stage-first-errors.stderr.txt.gz",
+      "execution_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/portable-stage-first-errors.json",
+        "bytes": 889,
+        "sha256": "e20c809752ea8a66081393cd155694ec17505ae59f41a01745888284e40a8a84",
+        "original_execution_path": "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/portable-stage-first-errors.json",
+        "role": "author",
+        "encoding": "identity"
+      }
+    }
+  ],
+  "checks_denominator": {
+    "canonical_checks": 34,
+    "outcomes": {
+      "ERROR": 4,
+      "FAIL": 11,
+      "PASS": 18,
+      "UNRUN": 1
+    },
+    "role": "Historical failures/errors + source qualification + native proof + independent review/completeness/futureinstalled remain separate; counts are not an aggregate scientific closure proxy."
+  },
+  "property": {
+    "statement": "One catalog-domain resolver selects exactly four original curated default YAML resources from its own exact source anchor or an unpacked installed package. Wheels and rebuilt-sdist wheels project original bytes. Six existing default consumers share this owner; durable Path ABI, explicit path overrides and original optional fallback laws remain.",
+    "runtime_path": [
+      "Current genuine persisted SCM fragments",
+      "ReconcileCausalGraphNode canonical composition reconstruction",
+      "Fragment alignment certificate verifier",
+      "DataForge variable alignment default seed score",
+      "canonical catalog resource Path resolver",
+      "original curated YAML source or exact package projection",
+      "fresh current composition/CAS consumer"
+    ],
+    "consumer_denominator": {
+      "source_profile": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "all_source_python_inputs": 2699,
+      "complete_lexical_reference_files": 18,
+      "default_owner_files": 6,
+      "actual_curated_originals": 4,
+      "scope": "Full source lexical/static calls/imports/string references. No claim about arbitrary dynamic future plugins.",
+      "deciding_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/curated-resource-consumer-denominator.json.gz",
+        "bytes": 216875,
+        "sha256": "1c5ea6b7db0aa96ea06e33e047916a236590739f0fe6f18f72770a02bc8b8acb",
+        "original_execution_path": "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/curated-resource-consumer-denominator.json",
+        "role": "author",
+        "encoding": "gzip",
+        "decoded_bytes": 727099,
+        "decoded_sha256": "a4931aea7621ef9b4386a1dbb730812fd71c389b66b46a08884a2ee23f74aaa9",
+        "decompressed_bytes": 727099,
+        "decompressed_sha256": "a4931aea7621ef9b4386a1dbb730812fd71c389b66b46a08884a2ee23f74aaa9"
+      }
+    },
+    "independent_original_law": {
+      "seed_pairs": 8,
+      "WVS_registry_indicators": 1049,
+      "WVS_wave7_rows": 400,
+      "proxy_rows": 1,
+      "metrics_top_level_entries": 14,
+      "curated_yaml_sha_identity": "All four exact original bytes unchanged versus370/current089/81 and G a0; no curated/production data modifications."
+    },
+    "proxy_divergence": "Imports, existing source file names, successful optional {} fallback, Path type labels or forced-include markers alone do not prove default content was read. Removal of installed selection and resource-byte admission retains these markers but fails canonical oracles.",
+    "negative_controls": [
+      "Unknown resource filename refuses ValueError before path construction",
+      "CWD shadow and neighboring repository cannot select defaults",
+      "Missing installed projection never falls back to neighboring source checkout",
+      "Source-shaped path without own manifest selects installed profile",
+      "One projection removed retains sdist source marker but byte oracle rejects",
+      "Valid YAML penalty changed0.15→0.25 retains shape and names but byte oracle rejects",
+      "Memory-only installed-selection removal:4actualFAIL",
+      "Memory-only byte-admission removal:1actualFAIL",
+      "Independent scratch imported selection removal:4actualbehavioralFAIL,4currentPASS"
+    ]
+  },
+  "predicate_basis": "recomputed and independently_reconciled",
+  "capability_state_or_finding_state": "Bounded native Path/consumer/resource-byte packaging/experimental facade ABI PASS. Whole newly assembled installed default composition UNRUN at this carrier; current canonical public-surface completeness FAIL38 and ten-file Ruff FAIL103 remain explicit. No ledger or empirical/policy authority closure.",
+  "per_id": {
+    "B214": {
+      "check": "PASS",
+      "outcome": "limited",
+      "scope": "Maintained native current graph/CAS intake survives canonical default-resource change; full calibrated partial discovery capability remains original finite residual, not a resource/policy flag proof.",
+      "negative": "Historical installedb5 FileNotFoundFAIL and current selection/byte removal controls remain full evidence.",
+      "limit": "Root current original-criterion decision and final composed installed wave are separate; no new partial-identification or temporal engine.",
+      "next_owner": "ROOT original/current decisions; Foundry final installed consumer; G formal integration/ledger."
+    },
+    "B218": {
+      "check": "PASS",
+      "outcome": "closed",
+      "scope": "Prior original storage/static incompatibility recommendation remains source-specific on647/370; this packaging companion keeps its native graph intake profile usable.",
+      "closure_basis": "This companion does not independently replace the canonical original B218 decision or claim new temporal authority. closure_ids is empty.",
+      "limit": "Whole new installed composition proof pending; full temporal causal transformation unclaimed.",
+      "next_owner": "ROOT preserved original/current decision; Foundry final installed consumer; G formal adoption."
+    }
+  },
+  "source_identity": {
+    "candidate_sha": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+    "candidate_tree_sha": "120103b1a375b5d405632936b2934f2b36a320f7",
+    "functional_implementation_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+    "slice_base_sha": "370cac5c342bbc5b206331f93776505e0cffe3a6",
+    "authored_path_count": 14,
+    "original_curated_resource_count": 4,
+    "files": [
+      {
+        "path": "policy-engine/docs/reference/data-forge/catalog-default-resources.md",
+        "source_sha": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+        "git_blob_sha": "d3e22ee2398a29d5f85b825feb97433d9854b9a6",
+        "bytes": 2667,
+        "sha256": "560fe59923f18982d33a18a443ec7fc46c24bc914243d560abf86252245bf77e",
+        "original_YAML_unchanged": false,
+        "functional_source_identical089": false
+      },
+      {
+        "path": "policy-engine/hatch.toml",
+        "source_sha": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+        "git_blob_sha": "ab91c577cc1fc7beed00b78d29efd9c84ba7c9f7",
+        "bytes": 2194,
+        "sha256": "24ad192a85397fdf56e2722275e19adf79c10a27938640f5bc4f86353936efcd",
+        "original_YAML_unchanged": false,
+        "functional_source_identical089": true
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-07-catalog-default-resources.toml",
+        "source_sha": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+        "git_blob_sha": "44ac48039635aab7c61e06a79b07640e0b4ad7c3",
+        "bytes": 2119,
+        "sha256": "8f7a53c9e1f75fd69d5e223854764d1e26d59ba29d3c74a62ee88e597cc2c13c",
+        "original_YAML_unchanged": false,
+        "functional_source_identical089": false
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/README.md",
+        "source_sha": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+        "git_blob_sha": "53ab141fd82e55159670384ec4ff2442cff4f35d",
+        "bytes": 2100,
+        "sha256": "197210b6730b1ca2644b14aeb0498cc6df20b799172f89d1b7690db49261f2a7",
+        "original_YAML_unchanged": false,
+        "functional_source_identical089": false
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/_resources.py",
+        "source_sha": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+        "git_blob_sha": "0867804c64b5468bff7025a5208574b2390b90ad",
+        "bytes": 1914,
+        "sha256": "6c36ffce957ade642ba1cc1dab2367c2620dd7c75d0219520c64b3eec94bf0a6",
+        "original_YAML_unchanged": false,
+        "functional_source_identical089": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+        "source_sha": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+        "git_blob_sha": "f688aee6a609a5d7e7c7f656cef89659928783c0",
+        "bytes": 9406,
+        "sha256": "a36c29470453ce0a5465a8f7ed9cb5c2c9f890c8d4bae098c05dd37fd2aa941b",
+        "original_YAML_unchanged": false,
+        "functional_source_identical089": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+        "source_sha": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+        "git_blob_sha": "fb6d0f4d9bbc52b20cbdf0ceec88e411348948ba",
+        "bytes": 65343,
+        "sha256": "fd7b207553fc7ec7e0747a5981ab93c3c9469639fbd214e9eda7edd423fb7574",
+        "original_YAML_unchanged": false,
+        "functional_source_identical089": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+        "source_sha": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+        "git_blob_sha": "7f2da42fadbeb5a0ccd1ae8b1d3b2f0e9844a25d",
+        "bytes": 80809,
+        "sha256": "78d7666e95c310c6ef0e2651135377eb0ecdb71523d95506f4987f799d9b23c4",
+        "original_YAML_unchanged": false,
+        "functional_source_identical089": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+        "source_sha": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+        "git_blob_sha": "e6dda2023438f9c65f3ee59c5959c154092b11fa",
+        "bytes": 5973,
+        "sha256": "589026e8fb6751b04039baed5794e4df152caa15d218805bbb7bffc8ada137fe",
+        "original_YAML_unchanged": false,
+        "functional_source_identical089": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/variable_alignment.py",
+        "source_sha": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+        "git_blob_sha": "abe7878b7ccd24414349e660dd1664c1b7137ab5",
+        "bytes": 18695,
+        "sha256": "bb547db9fee687f463b633b4f0d6ee24ab527c1b0ea207160aaffddf6c7d1422",
+        "original_YAML_unchanged": false,
+        "functional_source_identical089": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+        "source_sha": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+        "git_blob_sha": "2c72928690b4981542475bc0f7861bb808c921b1",
+        "bytes": 37750,
+        "sha256": "a77be622a7e8193b0c245d4a731fcf4128d84faa48b48e63460246db5673af47",
+        "original_YAML_unchanged": false,
+        "functional_source_identical089": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/sources/wvs.py",
+        "source_sha": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+        "git_blob_sha": "11da30a73e3286d145846701a32ff28503d614d2",
+        "bytes": 18202,
+        "sha256": "c1b45bd356f9ca7e0a65edf202f827b0145eb9421c89de07512e07de37256fc7",
+        "original_YAML_unchanged": false,
+        "functional_source_identical089": true
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/tools/test_catalog_default_resources_packaging.py",
+        "source_sha": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+        "git_blob_sha": "2097797d90b8dfb0f9fca9082c6f34b2d9ddcff7",
+        "bytes": 4539,
+        "sha256": "0219d8c046bdce189e574f7116aab478dff98d8f06a7c9072833f83c704e20e2",
+        "original_YAML_unchanged": false,
+        "functional_source_identical089": true
+      },
+      {
+        "path": "policy-engine/tests/unit/data_forge/domains/catalog/test_catalog_default_resources.py",
+        "source_sha": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+        "git_blob_sha": "d1345a0411d394a4136c0037553819a9f07620bf",
+        "bytes": 10467,
+        "sha256": "62f847792345f52f226481451867314520b6b794d7ce7e159663885e71215f89",
+        "original_YAML_unchanged": false,
+        "functional_source_identical089": true
+      },
+      {
+        "path": "policy-engine/data/dataset_catalog/seed_variable_alignments.yaml",
+        "source_sha": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+        "git_blob_sha": "49d63f6e693ab9488fad50b25d75b042f3dff9dd",
+        "bytes": 1309,
+        "sha256": "cb1daa3237ff58d8c875571ff2459a55c5182c3a4f13a076497a517f9a8740d8",
+        "original_YAML_unchanged": true,
+        "functional_source_identical089": true
+      },
+      {
+        "path": "policy-engine/data/dataset_catalog/proxy_metric_alignments.yaml",
+        "source_sha": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+        "git_blob_sha": "649cd9a249ca12745b4ed9c9871d2aca57eb0a61",
+        "bytes": 293,
+        "sha256": "4c6c04bb99ea566b061c7b2d23540d22f8eb7c043067585a7e9b93ccaf87388b",
+        "original_YAML_unchanged": true,
+        "functional_source_identical089": true
+      },
+      {
+        "path": "policy-engine/data/dataset_catalog/wvs_indicator_registry.yaml",
+        "source_sha": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+        "git_blob_sha": "e28c9dfc7e83f3c7d2fbf020312dcfdd66bee3a0",
+        "bytes": 160329,
+        "sha256": "dabbadf04fdbf6c4658a720a6af5b63a60c69727b2350c0424368691399e413d",
+        "original_YAML_unchanged": true,
+        "functional_source_identical089": true
+      },
+      {
+        "path": "policy-engine/data/dataset_catalog/metrics_map.yaml",
+        "source_sha": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+        "git_blob_sha": "7f6cf78a02e4e58219353548af604de49e796442",
+        "bytes": 2163,
+        "sha256": "0877e6521e4dd66dbc2c08010367c79f672c37a8b6b30e68f47b10135f680266",
+        "original_YAML_unchanged": true,
+        "functional_source_identical089": true
+      }
+    ]
+  },
+  "surface": {
+    "internal_owner": "polisyos.data_forge.domains.catalog._resources.catalog_default_resource_path",
+    "public_experimental_nested_alias": "polisyos.data_forge.read_api.catalog.catalog_default_resource_path",
+    "classification_basis": "Existing architecture/public_surface/contract.toml DataForge supported window and real nested __all__/Fabric caller; no new root export, standalone namespace registry or fake provider",
+    "canonical_identity": "Same function object, canonical FQN, native signature/pydoc/pickle and existing override consumers independently measured",
+    "schema_wire_changes": false,
+    "original_YAML_changes": false
+  },
+  "authority_purpose": "Exact curated default metadata/package custody and synthetic native graph computation only; no statistical, institutional or empirical production authority.",
+  "environment_identity": {
+    "origins_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-backend-origins.stdout.json.gz",
+      "bytes": 611,
+      "sha256": "a3cf55e1786ce371c1fe38d111ace3f586f2a4afc2f6758e639ee46463c10c82",
+      "original_execution_path": "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/resource-backend-origins.stdout.json",
+      "role": "author",
+      "encoding": "gzip",
+      "decoded_bytes": 1974,
+      "decoded_sha256": "0a64de4f4ba1fc5dcb8447b3231ea2dde439964b632e9b0812c27d3269d593a6",
+      "decompressed_bytes": 1974,
+      "decompressed_sha256": "0a64de4f4ba1fc5dcb8447b3231ea2dde439964b632e9b0812c27d3269d593a6"
+    },
+    "backend_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/resource-backend-origins-execution.json",
+      "bytes": 1876,
+      "sha256": "87c67c79d39385676f35aae5cb633cff24b24e5e8f31a2e3cf808de5b6099852",
+      "original_execution_path": "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/resource-backend-origins-execution.json",
+      "role": "author",
+      "encoding": "identity"
+    },
+    "baseline_python_markers": "Python3.14 DoWhy/EconML excluded, not a positive backend witness; no parallel shim."
+  },
+  "P41": {
+    "check": "not_established",
+    "why": "Candidate provider/test inputs intersect, new files absent exactbase; same103loader diagnostics on370/647 are precise observations, not full disjoint current failure attribution."
+  },
+  "limitations_and_next_owner": [
+    "Foundry sole builder must run whole newly assembled wheel and rebuilt-sdist graph79+four-resource consumers with complete archive/site origins and bytes; current positive remainsUNRUN.",
+    "Root final whole source-quality checks remain separate; owned ten-file Ruff fails103loader diagnostics. No checker weakening, suppression or unrelated import/typing/SQL cleanup.",
+    "Maintained renderer trace253operations103reads150is_file and both snapshots byte-identical is freshness/representation evidence; canonical38incomplete_exports remainsFAIL.",
+    "Current supported resource profile is exact own source checkout or unpacked installed filesystem. Zipimport extraction, missing/corrupt YAML scientific law expansion and rawWVS/CSV/production bundling are outside scope.",
+    "G formal code/ledger adoption and admitted real-data runs remain separate; current known synthetic/curated property does not establish empirical causal claims.",
+    "Historical development workingtree attempts retain complete raw outputs and sourcehashes but were not committed source proofs; final immutable089 reviewer evidence is deciding."
+  ],
+  "historical_graph_intake_primary_ref": {
+    "git_ref": "370cac5c342bbc5b206331f93776505e0cffe3a6",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007.json",
+    "bytes": 89153,
+    "sha256": "f3cbaadef8f0fb163150356bfa3a46edbd343bbd3934b0b86a919be7d629688b",
+    "source_sha": "647f5d35362c2a5d7ad32283b804a5b03ea56e83",
+    "meaning": "Retain prior immutable source/current-content proof and its complete FAIL/BLOCK histories; new packaging followup does not relabel it as installed PASS."
+  },
+  "independent_review": {
+    "decision": "GO",
+    "review_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/review.json",
+      "bytes": 16345,
+      "sha256": "308094c7e9699e1b6e7fd00e9e144799a6e28ce9e898917cb3ec67d113c307aa",
+      "original_execution_path": "/tmp/e02-F-continuation-20261007/api/resource-review-089/review.json",
+      "role": "api-review",
+      "encoding": "identity"
+    },
+    "selection_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/transfer-selection.json",
+      "bytes": 9943,
+      "sha256": "440db219706bca583ddeeba446a7d7ea0ad5cd5c42aba5ec48003bfc04fbe9c5",
+      "original_execution_path": "/tmp/e02-F-continuation-20261007/api/resource-review-089/transfer-selection.json",
+      "role": "api-review",
+      "encoding": "identity"
+    },
+    "runtime_proof_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+    "metadata_proof_sha": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+    "review_source_writes": false,
+    "design_review_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/fit-design/review.json",
+      "bytes": 15140,
+      "sha256": "ee1f456035b4a01689708b1ab0b29d388e97673dadf084c71bcc156c191cf922",
+      "original_execution_path": "/tmp/e02-F-continuation-20261007/fit-tmle/dataforge-resource-review/review.json",
+      "role": "fit-design",
+      "encoding": "identity"
+    }
+  },
+  "development_history": {
+    "initial_Hatchling_import": "ERROR retained; later official cachedbackend origins positively recorded, no shim.",
+    "initial_WVS_uppercase_oracle": "1FAIL34PASS retained; corrected oracle uses existing source normalization, no curated law change.",
+    "first_Ruff_autofix": "FAIL+unintended fullpatch preserved; unrelated imports restored from exact370 without Git reset/rewrite; no tests ran against that attempt.",
+    "metadata_internal_class": "Original scoped internal fragment grammar PASS was insufficient for real nested experimental facade; forward3companion migration preserves that old record.",
+    "metadata_review_field": "Immutable6ba9 canonicalFAIL retained; actual independent ABI/renderer review supports81 reviewed=true and scoped validatorPASS.",
+    "metadata_caption": "Copied finalfragment free-text6ba9 caption ERROR retained; actual target/sourceguards81 and independent final81 canonicalcheck are explicit."
+  },
+  "evidence_transfer": {
+    "status": "Complete lossless stored and decoded moderate deciding output bytes; scratch originals retained; no production data copied",
+    "full_output_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/outputs.json",
+      "bytes": 104943,
+      "sha256": "1435329de7dede38088bbad0aebc1bd041c8043efab32e907e435143db648d18"
+    },
+    "execution_path_locator_map": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/execution-to-git-locators.json",
+      "bytes": 117946,
+      "sha256": "f35961307d2130ba572768297957decaf87977cdafed43b073102f788a214bd1"
+    },
+    "files": 173,
+    "stored_bytes": 811803,
+    "decoded_gzip_files": 96,
+    "decoded_gzip_bytes": 1787956,
+    "originals_preserved": true,
+    "replay": "verify_resource_transport.py takes literal carrier SHA. Execution commands require matching immutable source/environment; use new unique output/CAS dirs, never rerun historicalb5/370attempts against81 and relabel."
+  }
+}

@@ -1,0 +1,38 @@
+FF..F.FF..                                                               [100%]
+=================================== FAILURES ===================================
+_______ test_scope_is_bound_before_limit_and_ambiguous_units_fail_closed _______
+tests/unit/remediation/test_emp_01.py:160: in test_scope_is_bound_before_limit_and_ambiguous_units_fail_closed
+    assert statement.index("country_code = ?") < statement.index("LIMIT")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   ValueError: substring not found
+________ test_scope_filter_excludes_other_regions_before_profile_limit _________
+tests/unit/remediation/test_emp_01.py:211: in test_scope_filter_excludes_other_regions_before_profile_limit
+    profile = generation_cycle.RealValueOwnerGateway(repo_root=tmp_path).load_value_data_profile(
+src/polisyos/runtime/quality/generation_cycle.py:4313: in load_value_data_profile
+    profile = _load_value_data_profile_from_l1_dcat(
+src/polisyos/runtime/quality/generation_cycle.py:10274: in _load_value_data_profile_from_l1_dcat
+    raise ValueOwnerAccessError(
+E   polisyos.runtime.quality.generation_cycle.ValueOwnerAccessError: owner observations span multiple or missing dataset/source identities, but the catalog has no declared measurement-unit binding over the selected profile; refusing to combine periods owner_access_ref=catalog://emp01/outcome#measurement-unit-binding
+_________________ test_owner_row_cap_refuses_truncated_profile _________________
+tests/unit/remediation/test_emp_01.py:361: in test_owner_row_cap_refuses_truncated_profile
+    assert "LIMIT 20001" in connection.calls[0][0]
+E   assert 'LIMIT 20001' in "\n            SELECT\n              COALESCE(NULLIF(country_code, ''), 'unknown') AS unit_id,\n              COALESCE...      )\n            ORDER BY unit_id, period_id, dataset_id, observation_id, value\n            LIMIT ?\n            "
+_____ test_identification_set_and_statistical_uncertainty_remain_separate ______
+tests/unit/remediation/test_emp_01.py:408: in test_identification_set_and_statistical_uncertainty_remain_separate
+    assert getattr(value_set, "statistical_lower", None) == (1.0,)
+E   AssertionError: assert None == (1.0,)
+E    +  where None = getattr(ValueOuterSet(representation='interval_box', lower=(4.0,), upper=(4.0,), coordinates=('emp01_test_method',), identific...aaaaaaaaaaaaaaaaaaaaaaa', epoch='2026-Q3', representation_status='certified', solver_time_budget_ms=None, width=(0.0,)), 'statistical_lower', None)
+__________ test_asymmetric_interval_is_preserved_by_value_projection ___________
+tests/unit/remediation/test_emp_01.py:421: in test_asymmetric_interval_is_preserved_by_value_projection
+    assert value_set.lower == (1.0,)
+E   assert (-0.5,) == (1.0,)
+E     
+E     At index 0 diff: -0.5 != 1.0
+E     Use -v to get more diff
+=========================== short test summary info ============================
+FAILED tests/unit/remediation/test_emp_01.py::test_scope_is_bound_before_limit_and_ambiguous_units_fail_closed
+FAILED tests/unit/remediation/test_emp_01.py::test_scope_filter_excludes_other_regions_before_profile_limit
+FAILED tests/unit/remediation/test_emp_01.py::test_owner_row_cap_refuses_truncated_profile
+FAILED tests/unit/remediation/test_emp_01.py::test_identification_set_and_statistical_uncertainty_remain_separate
+FAILED tests/unit/remediation/test_emp_01.py::test_asymmetric_interval_is_preserved_by_value_projection
+5 failed, 5 passed in 35.32s

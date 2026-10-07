@@ -1,0 +1,42 @@
+{
+  "source_sha": "fc0d896e86ffb346381bbcc95b81d24c84e1a351",
+  "expected_sha": "fc0d896e86ffb346381bbcc95b81d24c84e1a351",
+  "source_hash_before": "b9ba0a6747e7813e2855eaa7821e3ab3092294e8de43f65a0b78500137e91cc5",
+  "source_hash_after": "b9ba0a6747e7813e2855eaa7821e3ab3092294e8de43f65a0b78500137e91cc5",
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/foundry/methods/catalog/causal/test_did_selected_participation.py",
+    "tests/unit/foundry/methods/catalog/causal/test_did_diagnostics_ownership.py",
+    "tests/unit/remediation/test_cau_02.py",
+    "tests/unit/remediation/test_cau_05.py",
+    "-o",
+    "addopts=",
+    "-v",
+    "--tb=short"
+  ],
+  "native_returncode": 0,
+  "control_returncode": 0,
+  "wall_seconds": 65.22523260116577,
+  "maximum_child_rss_kib": 617400,
+  "native_output": {
+    "path": "/workspace/e02-F-20261006-receipts/economics/cau-independent-native.txt",
+    "bytes": 10366,
+    "sha256": "aea2ea28aaa4c1258ec5574a66aeb9e3c8b4d2206c6c3210c7c075cd678761ea"
+  },
+  "controls_output": {
+    "path": "/workspace/e02-F-20261006-receipts/economics/cau-independent-controls.txt",
+    "bytes": 658,
+    "sha256": "a28e3285199d5a8a42f83e312987cf7e78f2ac8b22af2861aeba3a1153694b80"
+  },
+  "analytic_review": "Read fixed cohort eligibility contract, missing-control refusal, share-ratio IF, shared-unit iid Mammen law, scalar null/CI order statistic and pretrend ownership. Ratio IF includes n/selected-count cohort composition term; unit-shared sum centered. Known synthetic DGP does not prove real-input identification or finite-cluster coverage. Boundary declared-alpha precision remains under review.",
+  "review_verdict": "BLOCKED_exact_declared_inversion_boundary",
+  "blocking_issue": {
+    "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+    "line": 943,
+    "property": "Reported finite-B test inversion uses the same rejection event as its closed CI",
+    "observed": "At either exact CI endpoint, p=.05, CI contains null, but p<1-.95 is True due to .050000000000000044 floating alpha.",
+    "recommended_control": "Evaluate inclusive CI endpoint through native report and declared rejection rule; use rank cutoff bound to critical order."
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "target_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+  "tree": "cc4c47d1c12fd3174b546d9622a0878d3b88361d",
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py",
+    "tests/unit/scientist/methods/causal/test_reconcile_causal_graph_node.py",
+    "tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py",
+    "tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+    "-q",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp",
+    "/tmp/e02-F-continuation-20261007/api/resource-review-089/graph79-temp",
+    "--junitxml",
+    "/tmp/e02-F-continuation-20261007/api/resource-review-089/graph79.xml"
+  ],
+  "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+  "env": {
+    "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "exit_code": 0,
+  "seconds": 31.21908634400461,
+  "stdout_sha256": "cdd1786bb84344e1caa6a83ca1b98f230741198372d1de9ebd335f0c82243846",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "frozen_source_unchanged": true,
+  "source_spec_qualification": "Author precommit command copied; independent execution target is immutable089 above."
+}

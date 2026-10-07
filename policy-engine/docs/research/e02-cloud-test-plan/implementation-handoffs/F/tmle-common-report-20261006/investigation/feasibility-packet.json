@@ -1,0 +1,523 @@
+{
+  "schema": "policyos.e02.readonly-dependency-packet.v1",
+  "source_sha": "4a038c2ebf0c4fd79dcc084c983ed7b76756a488",
+  "source_tree": "63cdae9393a55b3acda824ab955fd89e3ca1c8b9",
+  "finding_ids": [
+    "B56"
+  ],
+  "disposition": "limited: codeable typed common producer/consumer bridge authorized only after exact lease; genuine admitted workload/shared aggregate resource positive UNRUN",
+  "preserved_B54": "Existing fitcacheidentity/readermutability/binaryboundedlogit/regular_iidEIF implementations unchanged; this packet does not replace prior deciding native receipts",
+  "source_bindings": [
+    {
+      "git_ref": "4a038c2ebf0c4fd79dcc084c983ed7b76756a488",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/local_runner.py",
+      "git_blob": "3d789d27667fb75bbcac07e03a446a5255b31b82",
+      "bytes": 3228,
+      "sha256": "daf521c6b1f2085e251002aa3f32f90e94a2c0e27288cd2bfeb2b1db5be92496"
+    },
+    {
+      "git_ref": "4a038c2ebf0c4fd79dcc084c983ed7b76756a488",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/config.py",
+      "git_blob": "c23adac6ae72e81dd0f1128d8255c171cbe6454a",
+      "bytes": 5169,
+      "sha256": "3657ff0f7deeb60fb01351273052f24ba7965db9fbaaea35d100f63c51ced176"
+    },
+    {
+      "git_ref": "4a038c2ebf0c4fd79dcc084c983ed7b76756a488",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/local_pool.py",
+      "git_blob": "1c57325b0133222154b0298c814a701b568ccc50",
+      "bytes": 6899,
+      "sha256": "f926950c6b5dff4d6f90f688210f41b13f534ef09e7cb252df4c69cebbf23a6c"
+    },
+    {
+      "git_ref": "4a038c2ebf0c4fd79dcc084c983ed7b76756a488",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/task_router.py",
+      "git_blob": "c17679c11d55683121e077414dfb8183aa4fd142",
+      "bytes": 4718,
+      "sha256": "3fa5cfb1e404985c4c1ed272e62ea6c8721a362716ea54e10bbfbb0d665430c5"
+    },
+    {
+      "git_ref": "4a038c2ebf0c4fd79dcc084c983ed7b76756a488",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py",
+      "git_blob": "cf3613c67755e170c51f06dcc3d2f831fd5de02a",
+      "bytes": 17516,
+      "sha256": "4ab2dbf51ce6b41d4b091557aca6794429cc526696f85632a970c94cca14309e"
+    },
+    {
+      "git_ref": "4a038c2ebf0c4fd79dcc084c983ed7b76756a488",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py",
+      "git_blob": "cccc5bc78e255a6e5025eb81293a658b6817953b",
+      "bytes": 30101,
+      "sha256": "93c5f4b5577e00dd18e83ff4b4b4423d99706da90300d0ea44d74c2a06d96bb7"
+    },
+    {
+      "git_ref": "4a038c2ebf0c4fd79dcc084c983ed7b76756a488",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+      "git_blob": "8756fd0a66cdf91c18e8b7c3bb60872926af05be",
+      "bytes": 92937,
+      "sha256": "df4857a73b177854553f244612779a43ca377dabbff986c2feda4db576220c45"
+    },
+    {
+      "git_ref": "4a038c2ebf0c4fd79dcc084c983ed7b76756a488",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+      "git_blob": "4dcf43321044bd9bf9a0c579417af8ba29344945",
+      "bytes": 6067,
+      "sha256": "7473c899326ced68354b9acb46d7b9d7b77deabe762d9c8743840aa4fe5faef0"
+    },
+    {
+      "git_ref": "4a038c2ebf0c4fd79dcc084c983ed7b76756a488",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/workflows/builder.py",
+      "git_blob": "52de4ccb6a4d9989265c8c2b4213dd02bf8b048f",
+      "bytes": 44706,
+      "sha256": "39b0a80bf4e336e42f60a32f44011869309b74f1d1297cab6705298320b26c95"
+    },
+    {
+      "git_ref": "4a038c2ebf0c4fd79dcc084c983ed7b76756a488",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/workflows/causal_full.py",
+      "git_blob": "07a8f89ce8786847fe49189e5629d103fa571680",
+      "bytes": 8972,
+      "sha256": "f048a1c1941ef36d756c0a1d50361abe44fc99a3ec17e2aab77a68cf9512c788"
+    },
+    {
+      "git_ref": "4a038c2ebf0c4fd79dcc084c983ed7b76756a488",
+      "path": "policy-engine/src/polisyos/scientist/api.py",
+      "git_blob": "00a723f27c161fd8304d494e24525ffd9529c378",
+      "bytes": 12901,
+      "sha256": "8c18960085bb5c519fa9fcfe7f7a57aad8413151c4fffbd22120a38ed1110ff3"
+    },
+    {
+      "git_ref": "4a038c2ebf0c4fd79dcc084c983ed7b76756a488",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "git_blob": "85d24cf2c2233a570ccf1274c6436df7c5aaa218",
+      "bytes": 347497,
+      "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9"
+    },
+    {
+      "git_ref": "4a038c2ebf0c4fd79dcc084c983ed7b76756a488",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control_worker.py",
+      "git_blob": "9584c2a30ef59cd0dbdfdad1186bc0d2c9032c6f",
+      "bytes": 13613,
+      "sha256": "4b319c7b70d0664c2039676dc7424f71468faa9df2b45f95c605cc38831f9b5c"
+    },
+    {
+      "git_ref": "4a038c2ebf0c4fd79dcc084c983ed7b76756a488",
+      "path": "policy-engine/src/polisyos/runtime/quality/evaluation_safety.py",
+      "git_blob": "d390f002c09cffa24f87ddd403bd28c4e5cee1d8",
+      "bytes": 97542,
+      "sha256": "9f5146deb64ce4038fbdb2f8b034e6f88b184a3479e38aff1b43108042c592f8"
+    },
+    {
+      "git_ref": "4a038c2ebf0c4fd79dcc084c983ed7b76756a488",
+      "path": "policy-engine/src/polisyos/foundry/methods/components/io.py",
+      "git_blob": "ef58fdce69de184765575024b25934daf317c927",
+      "bytes": 7890,
+      "sha256": "11fd5a3c49d0beb745d3007cb123671c9a53981f1856c1c1591ad909fcb6a621"
+    },
+    {
+      "git_ref": "4a038c2ebf0c4fd79dcc084c983ed7b76756a488",
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/numpy_runner.py",
+      "git_blob": "97ee25f2fa5552de075bf5715de16b0363eca6dd",
+      "bytes": 5225,
+      "sha256": "a36c55d2996b178e2671fbd433e56f9e5d5cde327989907ad49f6fc59297c505"
+    },
+    {
+      "git_ref": "4a038c2ebf0c4fd79dcc084c983ed7b76756a488",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/_common.py",
+      "git_blob": "9097e312036819146bac6bbd8bc8decebf236f3f",
+      "bytes": 4365,
+      "sha256": "afe8b61f2d8bd9ff8b6c357ff8c42133603f2a1bc2b437e3546d681a5a1490ab"
+    },
+    {
+      "git_ref": "4a038c2ebf0c4fd79dcc084c983ed7b76756a488",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/g_computation.py",
+      "git_blob": "e5139a9f4901ac6ef18b733b85cf2586814d6c9c",
+      "bytes": 51811,
+      "sha256": "102df6d770da882a0ddcf4018b944ceb7fc050400b486473ee513345568b8e56"
+    },
+    {
+      "git_ref": "4a038c2ebf0c4fd79dcc084c983ed7b76756a488",
+      "path": "policy-engine/src/polisyos/foundry/methods/selection/advisor.py",
+      "git_blob": "47aa05a090e01d7ba0ea047345407193d25d1b27",
+      "bytes": 161642,
+      "sha256": "939dc81300e48b8815e46c903375add8d48b34b58b6a9af1e55cb30e2381d1eb"
+    },
+    {
+      "git_ref": "4a038c2ebf0c4fd79dcc084c983ed7b76756a488",
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py",
+      "git_blob": "630265e9216390b58c4eb3e2c2aa5bdaa0ae17a5",
+      "bytes": 18330,
+      "sha256": "7b7da64baf54cdf94752c63f52fd2dda05eeec4469f81f09ae61a5515d5a3f04"
+    },
+    {
+      "git_ref": "4a038c2ebf0c4fd79dcc084c983ed7b76756a488",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FIT-01.md",
+      "git_blob": "9a7c550c56937430370253621bbd0a84c2fea3ec",
+      "bytes": 14761,
+      "sha256": "af58e73e27d8417f9744dbf93a8adb8bb3badaf979d70c16ab924d76a4358075"
+    }
+  ],
+  "actual_executions": [
+    {
+      "name": "job-v2",
+      "execution": {
+        "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/job-v2.json",
+        "bytes": 5820,
+        "sha256": "770a64fbb943c612db5c528bf493a3788a91553f0657d65ea5988effc3de904a"
+      },
+      "output": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/job-v2.stdout.txt",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/job-v2.stdout.txt",
+        "bytes": 129773,
+        "sha256": "a075e325a3a3b0630ec320ebeaf8b3f0e03376cd77bfc4d437c712397cccfa02"
+      },
+      "stderr_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/job-v2.stderr.txt",
+        "bytes": 96,
+        "sha256": "f5e58b820e7b616439ac86d8f5cfd31eaab3c3ba88865be354e5dceb83ddd55a"
+      },
+      "observed_probes": [
+        {
+          "probe": "actual_configured_MethodJob_parameter_refusal",
+          "fqn": "causal.treatment_effects.tmle@1.0.0",
+          "issues": [
+            {
+              "loc": [
+                "method_runner"
+              ],
+              "message": "Unknown parameters for causal.treatment_effects.tmle@1.0.0: ['__disable_shared_nuisance_cache', 'calibration_mode', 'ci_mode', 'coverage_guard', 'crossfit_folds', 'inference_profile', 'n_repeats', 'outcome_backend', 'outcome_scaling', 'propensity_backend', 'random_seed']",
+              "error_type": "runtime",
+              "input_value": null,
+              "path": null,
+              "code": null,
+              "expected": null,
+              "actual": null,
+              "severity": null
+            }
+          ],
+          "signature_parameters": [],
+          "native_fits_executed": 0,
+          "claim": "genuine current public parameter ABI gap"
+        }
+      ],
+      "user_warnings": 0,
+      "prometheus_bootstrap_warnings": 1,
+      "claim": "PASS means the stated current behavior/refusal was reproduced, not production budget/causal authority admission"
+    },
+    {
+      "name": "jobdefault-v3",
+      "execution": {
+        "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/jobdefault-v3.json",
+        "bytes": 5849,
+        "sha256": "e9c613b9a2489d32080a8a046d9590cda7148fbec7f99004dfd102511a7d089b"
+      },
+      "output": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/jobdefault-v3.stdout.txt",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/jobdefault-v3.stdout.txt",
+        "bytes": 753624,
+        "sha256": "1179d399e9bf4546beaa60433cfda28148d801cfcfdd30d511b51eef6f03fc39"
+      },
+      "stderr_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/jobdefault-v3.stderr.txt",
+        "bytes": 21000,
+        "sha256": "7414ac40bc6487189af7a32833d4ec0ed136cd94827292e334e01e6b26f3301f"
+      },
+      "observed_probes": [
+        {
+          "probe": "actual_native_MethodJob_and_fresh_CAS_reader",
+          "fqn": "causal.treatment_effects.tmle@1.0.0",
+          "output_keys": [
+            "result"
+          ],
+          "result_status": "candidate",
+          "ci": [
+            0.27261462314906926,
+            0.5801354912211695
+          ],
+          "ate": 0.42637505718511937,
+          "report_absent": true,
+          "result_ref": {
+            "artifact_id": "sha256:b726f746090b3bb6900f9ac15229a3d19d022b82b240e51f322a524749660551",
+            "kind": "scientist.method_result.causal.treatment_effects",
+            "media_type": "application/json"
+          },
+          "evidence_ref": {
+            "artifact_id": "sha256:2486aa0179b0c13c2ff5eef8c17de1a45343d33e9d6bf8eb0df23b1c8d5060d9",
+            "kind": "scientist.method_evidence",
+            "media_type": "application/json"
+          },
+          "issues": [],
+          "warnings": [
+            "legacy_method_adapter_ref:sha256:ca9b3e839a50a4b924eaccf7a018b8fe89285310e282a8d5490b75ad395cdd46"
+          ],
+          "folds": 5,
+          "repeats": 3,
+          "native_tasks": 15,
+          "execution_policy": {
+            "aggregate_admission_owner": "Scientist worker pool",
+            "effective_fold_workers": 1,
+            "policy": "serial_folds_within_admitted_job",
+            "requested_max_parallel_folds": 0,
+            "requested_parallel_folds": true
+          },
+          "claim": "numerical synthetic producer only; not common admitted node/pool budget/identification"
+        }
+      ],
+      "user_warnings": 90,
+      "prometheus_bootstrap_warnings": 0,
+      "claim": "PASS means the stated current behavior/refusal was reproduced, not production budget/causal authority admission"
+    },
+    {
+      "name": "input-v2",
+      "execution": {
+        "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/input-v2.json",
+        "bytes": 5825,
+        "sha256": "9cc4182103fa1daf215803dd5b99c3ede3cbbd594fab105f8ca7b279bdc9e701"
+      },
+      "output": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/input-v2.stdout.txt",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/input-v2.stdout.txt",
+        "bytes": 1532,
+        "sha256": "09a12d0398720852e8e5051043e8d9189fe66bd3f8d2ea6580585557f3bbc508"
+      },
+      "stderr_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/input-v2.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "observed_probes": [
+        {
+          "probe": "actual_input_loader_and_authority_refusals",
+          "fqn": "causal.treatment_effects.tmle@1.0.0",
+          "hte_typed_valid": true,
+          "hte_contract_id": null,
+          "common_load_error": "5 validation errors for PanelObservationalData\ntime_treatment\n  Field required [type=missing, input_value={'confounder_names': None....0, 0.0, 1.0, 1.0, 1.0]}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nconfounder_names\n  Extra inputs are not permitted [type=extra_forbidden, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden\nconfounders\n  Extra inputs are not permitted [type=extra_forbidden, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden\nfeature_names\n  Extra inputs are not permitted [type=extra_forbidden, input_value=['w'], input_type=list]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden\nsample_ids\n  Extra inputs are not permitted [type=extra_forbidden, input_value=[0, 1, 2, 3, 4, 5, 6, 7, ...115, 116, 117, 118, 119], input_type=list]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden",
+          "typed_direct_error": "'HTEObservationalData' object is not subscriptable",
+          "tmle_enum_absent": true,
+          "safety_blockers": [
+            "polisyos.eval_safety.execution_context_missing@1.0.0"
+          ],
+          "claim": "all refusals genuine current existing consumer calls; no fake admission positive"
+        }
+      ],
+      "user_warnings": 0,
+      "prometheus_bootstrap_warnings": 0,
+      "claim": "PASS means the stated current behavior/refusal was reproduced, not production budget/causal authority admission"
+    },
+    {
+      "name": "pool-v2",
+      "execution": {
+        "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/pool-v2.json",
+        "bytes": 5820,
+        "sha256": "82542ef2f8bd25ebabe9b31339ed6b3fcf6057c5e2b2481e61688f8b560afead"
+      },
+      "output": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/pool-v2.stdout.txt",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/pool-v2.stdout.txt",
+        "bytes": 944,
+        "sha256": "b58310faacaf7d54f0727e6f23eb77ca1e33882c8d56cc4bf1e63044e91d530e"
+      },
+      "stderr_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/pool-v2.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "observed_probes": [
+        {
+          "probe": "real_registered_common_node_via_existing_LocalWorkerPool",
+          "configured_budget": 1,
+          "submitted": 2,
+          "results": [
+            {
+              "status": "fail",
+              "error": {
+                "code": "foundry.execute_failed",
+                "message": "Attempted-evaluation safety admission blocked causal evaluation.",
+                "details": {
+                  "blocker_codes": [
+                    "polisyos.eval_safety.execution_context_missing@1.0.0"
+                  ]
+                }
+              }
+            },
+            {
+              "status": "fail",
+              "error": {
+                "code": "foundry.execute_failed",
+                "message": "Attempted-evaluation safety admission blocked causal evaluation.",
+                "details": {
+                  "blocker_codes": [
+                    "polisyos.eval_safety.execution_context_missing@1.0.0"
+                  ]
+                }
+              }
+            }
+          ],
+          "registered_node": "scientist.node_run_causal_evaluation@2.0.0",
+          "source_ref": {
+            "artifact_id": "sha256:0286c2bcdaaafc92998e8df4d6234afc18b36ce07b957a06cbaf89c3859f08b8",
+            "kind": "ir.observational_data",
+            "media_type": "application/json"
+          },
+          "native_fits_executed": 0,
+          "claim": "actual authority carrier refusal; not numerical/pool budget acceptance positive"
+        }
+      ],
+      "user_warnings": 0,
+      "prometheus_bootstrap_warnings": 0,
+      "claim": "PASS means the stated current behavior/refusal was reproduced, not production budget/causal authority admission"
+    }
+  ],
+  "historical_errors_retained": [
+    {
+      "execution": {
+        "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/job.json",
+        "bytes": 5807,
+        "sha256": "52634f316ac58262e67d1cf0b3e20495637055d2aa4fe6a3d0b83e48a087b59d"
+      },
+      "outcome": "ERROR",
+      "exit_code": 1,
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/job.stdout.txt",
+        "bytes": 129109,
+        "sha256": "9eed938d388330d3ca9e76560937f0286b9d73e5ec2bb44c5fc22e19c9c58ec9"
+      },
+      "stderr_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/job.stderr.txt",
+        "bytes": 759,
+        "sha256": "e0beeb3013a6355104f9e9a62bf1846a86c3be622ab5144b2b3dabe3e0f91072"
+      },
+      "classification": "Whole original assertion ERROR; partial actual MethodJob configured-parameter refusal genuine"
+    },
+    {
+      "execution": {
+        "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/input.json",
+        "bytes": 5810,
+        "sha256": "a47c1539f8408546a3dd7de70b9caf7e687339625f281d511f6e3f6ab531e3cd"
+      },
+      "outcome": "ERROR",
+      "exit_code": 1,
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/input.stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/input.stderr.txt",
+        "bytes": 363,
+        "sha256": "7b128e5c8fdd6bc6c9c37709f6c101d5d61268dad7416a7243417d9f79a79f06"
+      },
+      "classification": "Scratch expected blocker omitted @1.0.0 suffix; genuine current refusal retained"
+    },
+    {
+      "execution": {
+        "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/pool.json",
+        "bytes": 5807,
+        "sha256": "a57fdfde8690566109280c4716616464b35a10cca0eb9757ffc34953b0a40618"
+      },
+      "outcome": "ERROR",
+      "exit_code": 1,
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/pool.stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/pool.stderr.txt",
+        "bytes": 1301,
+        "sha256": "335992cf7a76dc328a84afa0a06df42a4904a2f3a8538fc7ef4bdeb57a68f6f0"
+      },
+      "classification": "Scratch expected blocker omitted @1.0.0 suffix; genuine existing-pool refusal retained"
+    },
+    {
+      "execution": {
+        "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/jobdefault-v2.json",
+        "bytes": 5852,
+        "sha256": "5486de5f9c715a24942ff1c0b8f8022c11d70f4c557940ab3892229958f19361"
+      },
+      "outcome": "ERROR",
+      "exit_code": 1,
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/jobdefault-v2.stdout.txt",
+        "bytes": 752490,
+        "sha256": "56f673e80b48425f5170c7b6537df512a7f997a66aadcf0a9ba2b660b4c68a08"
+      },
+      "stderr_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/jobdefault-v2.stderr.txt",
+        "bytes": 21226,
+        "sha256": "2729fb00dbd2e152c29c2e584154084fc8d37426e871110b42268f2ab412f827"
+      },
+      "classification": "Scratch compared JSON-normalized persisted tuples/lists with raw Python structures; native job succeeded; subsequent distinct semantic-normalized freshreader receipt supplies PASS"
+    }
+  ],
+  "constructor_denominator": {
+    "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/pool-construction-census.json",
+    "bytes": 1345,
+    "sha256": "1e0905880bcdb94cf0777722bd3facd30da36e9a863bfe18c4c4af1d9087bdb7"
+  },
+  "observations": [
+    {
+      "axis": "producer_method_identity",
+      "property": "Canonical cross-sectional binary-treatment TMLE has FQN causal.treatment_effects.tmle@1.0.0; CausalMethod currently has no TMLE value; LTMLE is genuinely longitudinal state A_seq/L_seq with E[Y^a], not equivalent"
+    },
+    {
+      "axis": "input_route",
+      "property": "HTEObservationalData is an existing shape-valid cross-sectional DTO, but lacks contract_id. TMLE accepts only raw Mapping X/treatment/outcome; common legacy loader classifies exactTMLE as defaultPanel and fails. Selected ObservationMethodInputEnvelope rejects absent native method contract capability; no new ID is inferred"
+    },
+    {
+      "axis": "public_parameters",
+      "property": "TMLE signature.parameters empty causes actual configured MethodJob rejection before fit. Direct pure_step-only tests do not cover this real ABI. Canonical defaults must use ATENuisanceContract.from_params({}), whose outcome_scaling auto differs from dataclass constructor raw+standardized"
+    },
+    {
+      "axis": "numerical_output",
+      "property": "Default real MethodJob invokes native models, serial all 15 default fold tasks, outputs result only with actual candidate point/CI. Complete fresh CAS semantic-normalized result equality established. Producer/reader metadata is reproducibility evidence only, not permission or identification"
+    },
+    {
+      "axis": "resource_composition",
+      "property": "LocalWorkerPool exposes real admission/queue but current common Node worker context drops EvalSafety context/verifier; actual registered common node returns execution_context_missing twice, no fits. LocalWorkflowRunner instantiates per-workflow AsyncWorkflowExecutor. Actual scientist_causal_full builder uses syncWorkflowExecutor; Runtime embedded ControlWorker leases one job at a time per worker and Runtime RunLifecycle supplies legitimate admission to local run_experiment. No shared all-deployment concurrency budget is inferred from these per-instance limits"
+    },
+    {
+      "axis": "budget_owner",
+      "property": "BudgetMiddleware is thread-safe monetary reservation/spend/ledger accounting, not CPU/fold admission. Runtime NL max_parallel_models is run-specific. No new global scheduler or shared executor substitution is proposed"
+    },
+    {
+      "axis": "prior_pool_fixture",
+      "property": "Existing test_native_studies_wait_in_actual_worker_pool_without_nested_fold_fanout genuinely tests pool/native folds/CAS for synthetic registered StudyNode; it does not execute the canonical common causal Node, Runtime admission or deployed all-study workload"
+    }
+  ],
+  "proposed_producer_lease": [
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/treatment_effects.py (TMLE branch only, native ParameterSpec declarations, HTE|legacy adaptation, additive declared literal result/report/envelope slots, public pure projection)",
+    "policy-engine/src/polisyos/ir/analytics/causal.py (only scientific CausalMethod.TMLE=\"tmle\", existing status/report validation unchanged)",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_tmle_common_report.py (unique actual MethodJob/freshreader/type/consumer/negative profiles)",
+    "policy-engine/docs/reference/foundry/tmle-common-report.md (unique candidate/lifecycle limits)",
+    "policy-engine/release-fragments/unreleased/2026-10-06-tmle-common-report.toml (structured additive public enum/method compatibility)",
+    "unique own handoff/complete deciding logs"
+  ],
+  "root_shared_consumer_lease": "Existing run_causal_evaluation.py typed HTE route for exact canonical TMLE + persisted report/projection/result reconciliation; existing blocked admission and candidate caps retained. Root owns schema/public census refresh. Native typed legacy CAS route can be implemented without guessed new contract ID; selected input-envelope path requires actual owner registration packet",
+  "schema_delta": "Only $defs.CausalMethod enum adds scientifically truthful tmle; CausalEffectReport field/schema_version1.0/status validation unchanged; existing report JSON consumers regression tested; previous reader that lacks enum requires coherent consumer upgrade, not alleged backward parsing acceptance",
+  "projection": "Exact finite regular_iid/no-trim/converged EIF result creates SUCCESS point/CI candidate report. Unsupported inference/trim/positivity gives existing point-free ASSUMPTION_FAILED report; nonconverged gives point-free NUMERICAL_FAILURE, confidence_interval=None. Actual descriptive payload persists as legacy result. Existing failure uncertainty range is explicitly heuristic and non-gating, never relabelled confidence interval.",
+  "minimum_owner_packet": [
+    {
+      "owner": "Runtime/PDC current EvaluationSafety composition",
+      "required": "An existing appointed EvalSafetyVerifierPort, accepted current EvaluationExecutionContext/revision/owner/mode, exact real CAS observational/selectedcontract/bundle/intake identities and independently reconciled provenance; fresh actual common consumer challenge must verify. Supply canonical owner fixture/constructor from actual Runtime, not fake verifier/marker/state flag"
+    },
+    {
+      "owner": "IR/Foundry DataForge existing input-contract owner",
+      "required": "Exact admitted cross-sectional view with outcome,treatment,covariates/sample order/feature names/target population/estimand/contrast; if selected ObservationMethodInputEnvelope is acceptance prerequisite, supply genuine native registered contract_id + target owner and method relation. HTE shape validity alone is not input source/admission"
+    },
+    {
+      "owner": "C/Runtime runner &deployment resource owner",
+      "required": "Actual production entrypoint path Runtime durable job\u2192configured worker instances\u2192Scientist common node\u2192MethodJob and resource policy/configuration owner/revision; identify whether cap is per study/workflow/worker/process/deployment, current worker count/shared queue identity, actual existing admission/wait trace. Provide canonical accepted local context carrier or remote worker verifier reconstruction bridge before real-pool positive"
+    },
+    {
+      "owner": "G actual study workload owner",
+      "required": "Pinned candidate SHA + admitted finite run/study IDs, exact retained data refs/local access, complete model/fit configs, seeds and seed manifest, folds/repeats/test index digests, competing jobs, required aggregate budget scope/resource metrics. G measures complete allfold results, numerical/provenance equality across allowed budgets, real active/wait/maxRSS/wall with no omitted studies or repeats"
+    },
+    {
+      "owner": "Runtime/IR identification issuer",
+      "required": "Identification authorization distinct from EvalSafety. Until genuine current source/graph/estimand/target-bound issuer/verifier bridge is supplied, reports/envelopes remain candidate/non-gating even numerical SUCCESS/CI."
+    }
+  ],
+  "falsifier": "On exact coherent candidate, run current Runtime-issued context/input-bound common node alongside competing admitted jobs under the actual owner budget; observe admission/wait counts and all native fold executions and persisted fresh-reader full report/result lineage. Any wrong input/seed/estimand, unsupported profile/fake admission/context or copied proof must refuse/non-gate. If fresh canonical common admission/workload cannot be supplied, production B56 remains UNRUN/limited.",
+  "production_writes": false,
+  "tests_only_scratch": true
+}

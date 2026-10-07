@@ -1,0 +1,28 @@
+{
+  "source_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+  "source_tree": "1a078f2fd38602dd0f885f77be1f3fa7585852ad",
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "tools/quality/diagnostics/gen_schema.py",
+    "--check"
+  ],
+  "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+  "environment_overrides": {
+    "PYTHONPATH": "src:."
+  },
+  "started_utc": "2026-10-06T10:56:10.139284+00:00",
+  "wall_s": 17.380249645997537,
+  "exit": 1,
+  "outputs": [
+    {
+      "path": "/workspace/e02-F-20261006-receipts/graph/scm-final1e/schema-full.stdout.txt",
+      "bytes": 265,
+      "sha256": "66c4356a4fb36b8cd6dea0fb5dd6783ec02ec2af22cf62a51b75dd85f0a5b2ed"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/graph/scm-final1e/schema-full.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

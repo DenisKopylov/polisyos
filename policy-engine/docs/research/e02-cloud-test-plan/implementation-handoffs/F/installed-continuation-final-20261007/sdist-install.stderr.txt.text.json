@@ -1,0 +1,6 @@
+{
+  "schema": "policyos.e02.lossless_utf8_text.v1",
+  "decoded_bytes": 286,
+  "decoded_sha256": "93743f361bb0d5dc4b36c85c19c8accf0a580f319d5c9ab13803c61b277f63f1",
+  "text": "Using Python 3.14.7 environment at: sdist-env\nResolved 1 package in 3ms\nPrepared 1 package in 105ms\nInstalled 1 package in 15ms\n + policy-engine==0.1.0 (from file:///tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/dist-rebuilt/policy_engine-0.1.0-py3-none-any.whl)\n"
+}

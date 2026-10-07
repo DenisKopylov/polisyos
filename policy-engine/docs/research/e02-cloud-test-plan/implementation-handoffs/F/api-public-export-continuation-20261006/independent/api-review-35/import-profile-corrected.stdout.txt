@@ -1,0 +1,371 @@
+{"case": "default_callback", "actual_type": "_UnresolvedExportDeclarationError", "source": "def p(v=foreign_callback()): pass\nM={\"StaticName\":None}\n__all__=sorted(M)\n"}
+.{"case": "default_attribute", "actual_type": "_UnresolvedExportDeclarationError", "source": "def p(v=foreign.attr): pass\nM={\"StaticName\":None}\n__all__=sorted(M)\n"}
+.{"case": "annotation_attribute", "actual_type": "_UnresolvedExportDeclarationError", "source": "def p(v: foreign.attr): pass\nM={\"StaticName\":None}\n__all__=sorted(M)\n"}
+.{"case": "type_parameter_header", "actual_type": "_UnresolvedExportDeclarationError", "source": "def p[T: foreign.attr](): pass\nM={\"StaticName\":None}\n__all__=sorted(M)\n"}
+.{
+  "case": "missing_builtin_name",
+  "source": "from .owner import len\nM={\"StaticName\":None}\n__all__=sorted(M)\n",
+  "owner_source": "def __getattr__(name):\n    import builtins\n    builtins.sorted = lambda values: [\"RuntimeShadow\"]\n    if name == \"__path__\":\n        raise AttributeError(name)\n    return None\n",
+  "controlled_actual_CPython_import_all": [
+    "RuntimeShadow"
+  ],
+  "child_argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-I",
+    "-c",
+    "import sys,json;sys.path.insert(0,'/tmp/e02-F-continuation-20261006/graph/api-review-35/import-profile-corrected-tmp/test_real_local_import_owner_p0/src');import polisyos.fixture as f;print(json.dumps(f.__all__))"
+  ],
+  "child_stdout": "[\"RuntimeShadow\"]\n",
+  "child_stderr": "",
+  "static_exports": [
+    "StaticName"
+  ],
+  "export_count": 1,
+  "known_export_count": 1,
+  "complete": true,
+  "resolution": {
+    "complete_verdict": true,
+    "finding_coverage": "explicit file-reader operations only",
+    "inputs": [
+      {
+        "path": "src/polisyos/fixture.py",
+        "operation": "is_file",
+        "status": "absent",
+        "result": false
+      },
+      {
+        "path": "src/polisyos/fixture/__init__.py",
+        "operation": "is_file",
+        "status": "present",
+        "result": true
+      },
+      {
+        "path": "src/polisyos/fixture/__init__.py",
+        "operation": "read_bytes",
+        "status": "read",
+        "bytes": 63,
+        "sha256": "fb362483546a15fbde78451668774a9c1eee63116e945456e7232f28e260291f"
+      },
+      {
+        "path": "src/polisyos/__init__.py",
+        "operation": "is_file",
+        "status": "present",
+        "result": true
+      },
+      {
+        "path": "src/polisyos/__init__.py",
+        "operation": "read_bytes",
+        "status": "read",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "src/polisyos/fixture/owner.py",
+        "operation": "is_file",
+        "status": "present",
+        "result": true
+      },
+      {
+        "path": "src/polisyos/fixture/owner/__init__.py",
+        "operation": "is_file",
+        "status": "absent",
+        "result": false
+      },
+      {
+        "path": "src/polisyos/fixture/owner.py",
+        "operation": "read_bytes",
+        "status": "read",
+        "bytes": 176,
+        "sha256": "83f111a6e3268512ac8bd32f9ef295e8ff433aa978904262b7aed7d7dc58cd31"
+      },
+      {
+        "path": "src/polisyos/__init__.py",
+        "operation": "is_file",
+        "status": "present",
+        "result": true
+      },
+      {
+        "path": "src/polisyos/fixture/__init__.py",
+        "operation": "is_file",
+        "status": "present",
+        "result": true
+      }
+    ],
+    "unresolved_by_construction": [
+      "Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt."
+    ],
+    "complete": true,
+    "selector": "Declared __all__; literal sequences/mapping keys, named/imported declarations, concatenation and sorted/list/tuple. Every read local module is audited against a finite pure import-time declaration grammar; external imports, control/context statements, class construction, decorated/type-parameterized function headers and foreign attribute/subscript/operator/callback protocols remain unknown. Function bodies are excluded. No module execution or runtime dispatch."
+  },
+  "canonical_violations": []
+}
+F{
+  "case": "defined_passive_name",
+  "source": "from .owner import PASSIVE\nM={\"StaticName\":None}\n__all__=sorted(M)\n",
+  "owner_source": "PASSIVE=1\ndef __getattr__(name):\n    import builtins\n    builtins.sorted = lambda values: [\"RuntimeShadow\"]\n    if name == \"__path__\":\n        raise AttributeError(name)\n    return None\n",
+  "controlled_actual_CPython_import_all": [
+    "RuntimeShadow"
+  ],
+  "child_argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-I",
+    "-c",
+    "import sys,json;sys.path.insert(0,'/tmp/e02-F-continuation-20261006/graph/api-review-35/import-profile-corrected-tmp/test_real_local_import_owner_p1/src');import polisyos.fixture as f;print(json.dumps(f.__all__))"
+  ],
+  "child_stdout": "[\"RuntimeShadow\"]\n",
+  "child_stderr": "",
+  "static_exports": [
+    "StaticName"
+  ],
+  "export_count": 1,
+  "known_export_count": 1,
+  "complete": true,
+  "resolution": {
+    "complete_verdict": true,
+    "finding_coverage": "explicit file-reader operations only",
+    "inputs": [
+      {
+        "path": "src/polisyos/fixture.py",
+        "operation": "is_file",
+        "status": "absent",
+        "result": false
+      },
+      {
+        "path": "src/polisyos/fixture/__init__.py",
+        "operation": "is_file",
+        "status": "present",
+        "result": true
+      },
+      {
+        "path": "src/polisyos/fixture/__init__.py",
+        "operation": "read_bytes",
+        "status": "read",
+        "bytes": 67,
+        "sha256": "59b95ee67c1dc51a0f03a4766850ff5f25192509900a8ed2ac4895f45e10a289"
+      },
+      {
+        "path": "src/polisyos/__init__.py",
+        "operation": "is_file",
+        "status": "present",
+        "result": true
+      },
+      {
+        "path": "src/polisyos/__init__.py",
+        "operation": "read_bytes",
+        "status": "read",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "src/polisyos/fixture/owner.py",
+        "operation": "is_file",
+        "status": "present",
+        "result": true
+      },
+      {
+        "path": "src/polisyos/fixture/owner/__init__.py",
+        "operation": "is_file",
+        "status": "absent",
+        "result": false
+      },
+      {
+        "path": "src/polisyos/fixture/owner.py",
+        "operation": "read_bytes",
+        "status": "read",
+        "bytes": 186,
+        "sha256": "dba7a2a841e3b588e512b0a577ee138d9bf7d0d09ead3a501b22f90bdbe40267"
+      },
+      {
+        "path": "src/polisyos/__init__.py",
+        "operation": "is_file",
+        "status": "present",
+        "result": true
+      },
+      {
+        "path": "src/polisyos/fixture/__init__.py",
+        "operation": "is_file",
+        "status": "present",
+        "result": true
+      }
+    ],
+    "unresolved_by_construction": [
+      "Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt."
+    ],
+    "complete": true,
+    "selector": "Declared __all__; literal sequences/mapping keys, named/imported declarations, concatenation and sorted/list/tuple. Every read local module is audited against a finite pure import-time declaration grammar; external imports, control/context statements, class construction, decorated/type-parameterized function headers and foreign attribute/subscript/operator/callback protocols remain unknown. Function bodies are excluded. No module execution or runtime dispatch."
+  },
+  "canonical_violations": []
+}
+F{
+  "case": "no_hook_positive",
+  "source": "from .owner import PASSIVE\nM={\"StaticName\":None}\n__all__=sorted(M)\n",
+  "owner_source": "PASSIVE=1\n",
+  "controlled_actual_CPython_import_all": [
+    "StaticName"
+  ],
+  "child_argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-I",
+    "-c",
+    "import sys,json;sys.path.insert(0,'/tmp/e02-F-continuation-20261006/graph/api-review-35/import-profile-corrected-tmp/test_real_local_import_owner_p2/src');import polisyos.fixture as f;print(json.dumps(f.__all__))"
+  ],
+  "child_stdout": "[\"StaticName\"]\n",
+  "child_stderr": "",
+  "static_exports": [
+    "StaticName"
+  ],
+  "export_count": 1,
+  "known_export_count": 1,
+  "complete": true,
+  "resolution": {
+    "complete_verdict": true,
+    "finding_coverage": "explicit file-reader operations only",
+    "inputs": [
+      {
+        "path": "src/polisyos/fixture.py",
+        "operation": "is_file",
+        "status": "absent",
+        "result": false
+      },
+      {
+        "path": "src/polisyos/fixture/__init__.py",
+        "operation": "is_file",
+        "status": "present",
+        "result": true
+      },
+      {
+        "path": "src/polisyos/fixture/__init__.py",
+        "operation": "read_bytes",
+        "status": "read",
+        "bytes": 67,
+        "sha256": "59b95ee67c1dc51a0f03a4766850ff5f25192509900a8ed2ac4895f45e10a289"
+      },
+      {
+        "path": "src/polisyos/__init__.py",
+        "operation": "is_file",
+        "status": "present",
+        "result": true
+      },
+      {
+        "path": "src/polisyos/__init__.py",
+        "operation": "read_bytes",
+        "status": "read",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "src/polisyos/fixture/owner.py",
+        "operation": "is_file",
+        "status": "present",
+        "result": true
+      },
+      {
+        "path": "src/polisyos/fixture/owner/__init__.py",
+        "operation": "is_file",
+        "status": "absent",
+        "result": false
+      },
+      {
+        "path": "src/polisyos/fixture/owner.py",
+        "operation": "read_bytes",
+        "status": "read",
+        "bytes": 10,
+        "sha256": "7bcf100478ff46a9bd3628cbd10e8a7a574499e463cabc482201bfc03c497324"
+      },
+      {
+        "path": "src/polisyos/__init__.py",
+        "operation": "is_file",
+        "status": "present",
+        "result": true
+      },
+      {
+        "path": "src/polisyos/fixture/__init__.py",
+        "operation": "is_file",
+        "status": "present",
+        "result": true
+      }
+    ],
+    "unresolved_by_construction": [
+      "Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt."
+    ],
+    "complete": true,
+    "selector": "Declared __all__; literal sequences/mapping keys, named/imported declarations, concatenation and sorted/list/tuple. Every read local module is audited against a finite pure import-time declaration grammar; external imports, control/context statements, class construction, decorated/type-parameterized function headers and foreign attribute/subscript/operator/callback protocols remain unknown. Function bodies are excluded. No module execution or runtime dispatch."
+  },
+  "canonical_violations": []
+}
+.
+=================================== FAILURES ===================================
+_ test_real_local_import_owner_protocol_cannot_grant_false_complete[missing_builtin_name] _
+
+tmp_path = PosixPath('/tmp/e02-F-continuation-20261006/graph/api-review-35/import-profile-corrected-tmp/test_real_local_import_owner_p0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fdb78066140>
+name = 'missing_builtin_name'
+
+    @pytest.mark.parametrize('name', ['missing_builtin_name','defined_passive_name','no_hook_positive'])
+    def test_real_local_import_owner_protocol_cannot_grant_false_complete(tmp_path,monkeypatch,name):
+        root=tmp_path/'src';package=root/'polisyos/fixture';package.mkdir(parents=True);(root/'polisyos/__init__.py').write_text('')
+        hook='def __getattr__(name):\n    import builtins\n    builtins.sorted = lambda values: ["RuntimeShadow"]\n    if name == "__path__":\n        raise AttributeError(name)\n    return None\n'
+        owner=('PASSIVE=1\n'+hook if name=='defined_passive_name' else hook if name=='missing_builtin_name' else 'PASSIVE=1\n')
+        imported='len' if name=='missing_builtin_name' else 'PASSIVE'
+        source=f'from .owner import {imported}\nM={{"StaticName":None}}\n__all__=sorted(M)\n'
+        (package/'owner.py').write_text(owner);facade=package/'__init__.py';facade.write_text(source)
+        monkeypatch.setattr(guardrails,'SRC_ROOT',root);monkeypatch.setattr(guardrails,'REPO_ROOT',tmp_path)
+        policy=guardrails.PackagePolicy(module='polisyos.fixture',classification='public_experimental',facade_mode='eager_exports',owner='independent-review',readme=facade,reference_doc=facade,supported_entrypoints=('polisyos.fixture',),major_subsystem=False,notes='Closed exact local source import fixture')
+        inventory=guardrails.build_public_surface_inventory([policy]);row=inventory[0].entrypoints[0];violations=guardrails._check_public_surface_contracts(inventory)
+        # Genuine CPython import of these fully authored closed files in a fresh child.
+        # No global builtins mutation escapes this child; reader itself never imports fixture.
+        code=f'import sys,json;sys.path.insert(0,{str(root)!r});import polisyos.fixture as f;print(json.dumps(f.__all__))'
+        proc=subprocess.run([sys.executable,'-I','-c',code],cwd=tmp_path,capture_output=True,text=True)
+        assert proc.returncode==0,proc.stderr
+        actual=json.loads(proc.stdout)
+        record={'case':name,'source':source,'owner_source':owner,'controlled_actual_CPython_import_all':actual,'child_argv':proc.args,'child_stdout':proc.stdout,'child_stderr':proc.stderr,'static_exports':list(row.exports),'export_count':row.export_count,'known_export_count':row.known_export_count,'complete':row.export_resolution['complete'],'resolution':row.export_resolution,'canonical_violations':[asdict(v) for v in violations]}
+        print(json.dumps(record,indent=2))
+        if name=='no_hook_positive':
+            assert actual==['StaticName'] and row.exports==('StaticName',) and row.export_count==1 and not violations
+        else:
+            assert actual==['RuntimeShadow']
+>           assert row.export_count is None,'import protocol executed body while pure static owner accepted complete WRONG namespace'
+E           AssertionError: import protocol executed body while pure static owner accepted complete WRONG namespace
+E           assert 1 is None
+E            +  where 1 = SupportedEntrypointInventory(module='polisyos.fixture', facade_mode_observed='eager_exports', export_count=1, known_ex...t/operator/callback protocols remain unknown. Function bodies are excluded. No module execution or runtime dispatch.'}).export_count
+
+/tmp/e02-F-continuation-20261006/graph/api-review-35/test_import_profile_corrected.py:41: AssertionError
+_ test_real_local_import_owner_protocol_cannot_grant_false_complete[defined_passive_name] _
+
+tmp_path = PosixPath('/tmp/e02-F-continuation-20261006/graph/api-review-35/import-profile-corrected-tmp/test_real_local_import_owner_p1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fdb77e46050>
+name = 'defined_passive_name'
+
+    @pytest.mark.parametrize('name', ['missing_builtin_name','defined_passive_name','no_hook_positive'])
+    def test_real_local_import_owner_protocol_cannot_grant_false_complete(tmp_path,monkeypatch,name):
+        root=tmp_path/'src';package=root/'polisyos/fixture';package.mkdir(parents=True);(root/'polisyos/__init__.py').write_text('')
+        hook='def __getattr__(name):\n    import builtins\n    builtins.sorted = lambda values: ["RuntimeShadow"]\n    if name == "__path__":\n        raise AttributeError(name)\n    return None\n'
+        owner=('PASSIVE=1\n'+hook if name=='defined_passive_name' else hook if name=='missing_builtin_name' else 'PASSIVE=1\n')
+        imported='len' if name=='missing_builtin_name' else 'PASSIVE'
+        source=f'from .owner import {imported}\nM={{"StaticName":None}}\n__all__=sorted(M)\n'
+        (package/'owner.py').write_text(owner);facade=package/'__init__.py';facade.write_text(source)
+        monkeypatch.setattr(guardrails,'SRC_ROOT',root);monkeypatch.setattr(guardrails,'REPO_ROOT',tmp_path)
+        policy=guardrails.PackagePolicy(module='polisyos.fixture',classification='public_experimental',facade_mode='eager_exports',owner='independent-review',readme=facade,reference_doc=facade,supported_entrypoints=('polisyos.fixture',),major_subsystem=False,notes='Closed exact local source import fixture')
+        inventory=guardrails.build_public_surface_inventory([policy]);row=inventory[0].entrypoints[0];violations=guardrails._check_public_surface_contracts(inventory)
+        # Genuine CPython import of these fully authored closed files in a fresh child.
+        # No global builtins mutation escapes this child; reader itself never imports fixture.
+        code=f'import sys,json;sys.path.insert(0,{str(root)!r});import polisyos.fixture as f;print(json.dumps(f.__all__))'
+        proc=subprocess.run([sys.executable,'-I','-c',code],cwd=tmp_path,capture_output=True,text=True)
+        assert proc.returncode==0,proc.stderr
+        actual=json.loads(proc.stdout)
+        record={'case':name,'source':source,'owner_source':owner,'controlled_actual_CPython_import_all':actual,'child_argv':proc.args,'child_stdout':proc.stdout,'child_stderr':proc.stderr,'static_exports':list(row.exports),'export_count':row.export_count,'known_export_count':row.known_export_count,'complete':row.export_resolution['complete'],'resolution':row.export_resolution,'canonical_violations':[asdict(v) for v in violations]}
+        print(json.dumps(record,indent=2))
+        if name=='no_hook_positive':
+            assert actual==['StaticName'] and row.exports==('StaticName',) and row.export_count==1 and not violations
+        else:
+            assert actual==['RuntimeShadow']
+>           assert row.export_count is None,'import protocol executed body while pure static owner accepted complete WRONG namespace'
+E           AssertionError: import protocol executed body while pure static owner accepted complete WRONG namespace
+E           assert 1 is None
+E            +  where 1 = SupportedEntrypointInventory(module='polisyos.fixture', facade_mode_observed='eager_exports', export_count=1, known_ex...t/operator/callback protocols remain unknown. Function bodies are excluded. No module execution or runtime dispatch.'}).export_count
+
+/tmp/e02-F-continuation-20261006/graph/api-review-35/test_import_profile_corrected.py:41: AssertionError
+=========================== short test summary info ============================
+FAILED ../../../tmp/e02-F-continuation-20261006/graph/api-review-35/test_import_profile_corrected.py::test_real_local_import_owner_protocol_cannot_grant_false_complete[missing_builtin_name]
+FAILED ../../../tmp/e02-F-continuation-20261006/graph/api-review-35/test_import_profile_corrected.py::test_real_local_import_owner_protocol_cannot_grant_false_complete[defined_passive_name]
+2 failed, 5 passed in 0.28s

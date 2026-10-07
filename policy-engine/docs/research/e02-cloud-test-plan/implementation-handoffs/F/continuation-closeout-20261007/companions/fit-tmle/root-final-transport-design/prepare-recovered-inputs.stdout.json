@@ -1,0 +1,15 @@
+{
+  "quality": {
+    "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/quality-519-execution-selection.json",
+    "bytes": 6781,
+    "sha256": "49483b15148f8c8186d9419b80f9a97fbb412b494f3dd3098dd2082a3fcf9253",
+    "files": 18,
+    "source_refs": 5
+  },
+  "graph_spec": {
+    "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/published-graph-ffae-spec.json",
+    "bytes": 3512,
+    "sha256": "52d0f3a1825ec47b0b341f0f0af2a376ef3877841fcaf4f49b33d1d124b2bbbd",
+    "published_refs": 5
+  }
+}

@@ -1,0 +1,214 @@
+{
+  "schema": "policyos.e02.complete_late_transport_validation.v1",
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/late-transport-validation/fix-completed-cli.stdout.json",
+      "encoding": "identity",
+      "bytes": 989,
+      "sha256": "b2499eef9ff8b3345b4d10d06e6d5345df47e5d27604a9109bcf409d6dd60563",
+      "decoded_bytes": 989,
+      "decoded_sha256": "b2499eef9ff8b3345b4d10d06e6d5345df47e5d27604a9109bcf409d6dd60563",
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/fix-completed-cli.stdout.json",
+      "role": "Complete actual completed helper byte-custody output/context/replayer; original outcomes and environmental/source scopes unchanged."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/late-transport-validation/fix-completed-cli.stderr.txt",
+      "encoding": "identity",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/fix-completed-cli.stderr.txt",
+      "role": "Complete actual completed helper byte-custody output/context/replayer; original outcomes and environmental/source scopes unchanged."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/late-transport-validation/execute_completed_cli.py",
+      "encoding": "identity",
+      "bytes": 1721,
+      "sha256": "d00c6975ad39fa02e331b25eaba45ace97be23b6e2b752111447f0da1025bc9f",
+      "decoded_bytes": 1721,
+      "decoded_sha256": "d00c6975ad39fa02e331b25eaba45ace97be23b6e2b752111447f0da1025bc9f",
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/execute_completed_cli.py",
+      "role": "Complete actual completed helper byte-custody output/context/replayer; original outcomes and environmental/source scopes unchanged."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/late-transport-validation/execute-completed-cli.stdout.json",
+      "encoding": "identity",
+      "bytes": 899,
+      "sha256": "e0d30d797b89ab98c7cf521696a6f115992eff8e65932195eff6c826c394ac4f",
+      "decoded_bytes": 899,
+      "decoded_sha256": "e0d30d797b89ab98c7cf521696a6f115992eff8e65932195eff6c826c394ac4f",
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/execute-completed-cli.stdout.json",
+      "role": "Complete actual completed helper byte-custody output/context/replayer; original outcomes and environmental/source scopes unchanged."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/late-transport-validation/execute-completed-cli.stderr.txt",
+      "encoding": "identity",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/execute-completed-cli.stderr.txt",
+      "role": "Complete actual completed helper byte-custody output/context/replayer; original outcomes and environmental/source scopes unchanged."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/late-transport-validation/final-cdf-v5-completed-refresh.execution.json",
+      "encoding": "identity",
+      "bytes": 5065,
+      "sha256": "10357de074bb03465d83e61c73ea53fabc18cf17f64634714ad1eef40e22d45b",
+      "decoded_bytes": 5065,
+      "decoded_sha256": "10357de074bb03465d83e61c73ea53fabc18cf17f64634714ad1eef40e22d45b",
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/final-cdf-v5-completed-refresh.execution.json",
+      "role": "Complete actual completed helper byte-custody output/context/replayer; original outcomes and environmental/source scopes unchanged."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/late-transport-validation/final-cdf-v5-completed-refresh.stdout.json",
+      "encoding": "identity",
+      "bytes": 559,
+      "sha256": "0fc4b5102771622a24909432cc508c437c6e6c6257c5571ea1ee49f4eadc027c",
+      "decoded_bytes": 559,
+      "decoded_sha256": "0fc4b5102771622a24909432cc508c437c6e6c6257c5571ea1ee49f4eadc027c",
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/final-cdf-v5-completed-refresh.stdout.json",
+      "role": "Complete actual completed helper byte-custody output/context/replayer; original outcomes and environmental/source scopes unchanged."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/late-transport-validation/final-cdf-v5-completed-refresh.stderr.txt",
+      "encoding": "identity",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/final-cdf-v5-completed-refresh.stderr.txt",
+      "role": "Complete actual completed helper byte-custody output/context/replayer; original outcomes and environmental/source scopes unchanged."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/late-transport-validation/final-cdf-v5-completed-validate.execution.json",
+      "encoding": "identity",
+      "bytes": 1606,
+      "sha256": "fc6d8f4a273f562c396c7d4253ef8278f9039957d023012e4de601b5dd78592c",
+      "decoded_bytes": 1606,
+      "decoded_sha256": "fc6d8f4a273f562c396c7d4253ef8278f9039957d023012e4de601b5dd78592c",
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/final-cdf-v5-completed-validate.execution.json",
+      "role": "Complete actual completed helper byte-custody output/context/replayer; original outcomes and environmental/source scopes unchanged."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/late-transport-validation/final-cdf-v5-completed-validate.stdout.json",
+      "encoding": "identity",
+      "bytes": 168,
+      "sha256": "afd0acd4cbb27b55c671af7de2dc4a96b9566ee4edaef3f7cfbe25d5a6259590",
+      "decoded_bytes": 168,
+      "decoded_sha256": "afd0acd4cbb27b55c671af7de2dc4a96b9566ee4edaef3f7cfbe25d5a6259590",
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/final-cdf-v5-completed-validate.stdout.json",
+      "role": "Complete actual completed helper byte-custody output/context/replayer; original outcomes and environmental/source scopes unchanged."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/late-transport-validation/final-cdf-v5-completed-validate.stderr.txt",
+      "encoding": "identity",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/final-cdf-v5-completed-validate.stderr.txt",
+      "role": "Complete actual completed helper byte-custody output/context/replayer; original outcomes and environmental/source scopes unchanged."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/late-transport-validation/materialize_late_transport_capture.py",
+      "encoding": "identity",
+      "bytes": 3843,
+      "sha256": "d18b24500950d0d75e546d4767386c4af94697ef7d295a7ed832f177a201745c",
+      "decoded_bytes": 3843,
+      "decoded_sha256": "d18b24500950d0d75e546d4767386c4af94697ef7d295a7ed832f177a201745c",
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/materialize_late_transport_capture.py",
+      "role": "Complete actual completed helper byte-custody output/context/replayer; original outcomes and environmental/source scopes unchanged."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/late-transport-validation/prepare_late_capture_selection.py",
+      "encoding": "identity",
+      "bytes": 4227,
+      "sha256": "b3fcd1fdc280bf674f0a4d979c7da54722f435c90da086b464b619cd32c0b607",
+      "decoded_bytes": 4227,
+      "decoded_sha256": "b3fcd1fdc280bf674f0a4d979c7da54722f435c90da086b464b619cd32c0b607",
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/prepare_late_capture_selection.py",
+      "role": "Complete actual completed helper byte-custody output/context/replayer; original outcomes and environmental/source scopes unchanged."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/late-transport-validation/recipe/selection.json",
+      "encoding": "identity",
+      "bytes": 12857,
+      "sha256": "f56f0a4be3015d1032e99c0946e5fef6a96abdbf81f21cc489d5b21325c9c6cd",
+      "decoded_bytes": 12857,
+      "decoded_sha256": "f56f0a4be3015d1032e99c0946e5fef6a96abdbf81f21cc489d5b21325c9c6cd",
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/late-refresh-validation-selection.json",
+      "role": "Exact frozen late-capture plan; output manifest binds it without recursive self-hash."
+    }
+  ],
+  "already_main_transported_context": [
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/final-cdf-v5-refresh.execution.json",
+      "decoded_bytes": 4914,
+      "decoded_sha256": "d04ba9b05a10ffbbd9abeb84b5bff9292555145065a11ce1a91e2099ebb7240b",
+      "main_manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/artifact-transports.json",
+      "stored_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/final-cdf-v5-refresh.execution.json",
+      "scope": "Original completed ERROR/trace/input, completed CLI or ROOT ready template already preserved in frozen main input. No copied context bodies."
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/final-cdf-v5-refresh.stdout.json",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "main_manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/artifact-transports.json",
+      "stored_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/root-integration/final-checkpoint-fetch.stdout",
+      "scope": "Original completed ERROR/trace/input, completed CLI or ROOT ready template already preserved in frozen main input. No copied context bodies."
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/final-cdf-v5-refresh.stderr.txt",
+      "decoded_bytes": 623,
+      "decoded_sha256": "687f898a1dcfbfb6779dbed5d210215fe84d0615b96bb733ba7c0b3a095ab4e6",
+      "main_manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/artifact-transports.json",
+      "stored_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/final-cdf-v5-refresh.stderr.txt",
+      "scope": "Original completed ERROR/trace/input, completed CLI or ROOT ready template already preserved in frozen main input. No copied context bodies."
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/final-cdf-v5-execution-cli.json",
+      "decoded_bytes": 8900,
+      "decoded_sha256": "c2e32472d4f9c0789d5a069ab2248b74448d2f34e8ae7855b205f438e7b020f7",
+      "main_manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/artifact-transports.json",
+      "stored_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/final-cdf-v5-execution-cli.json",
+      "scope": "Original completed ERROR/trace/input, completed CLI or ROOT ready template already preserved in frozen main input. No copied context bodies."
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/final-cdf-v5-completed-execution-cli.json",
+      "decoded_bytes": 9534,
+      "decoded_sha256": "43f1beddd98a83180531f44022b92f7e5e7d721971c6f71507e891a76394e181",
+      "main_manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/artifact-transports.json",
+      "stored_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/final-cdf-v5-completed-execution-cli.json",
+      "scope": "Original completed ERROR/trace/input, completed CLI or ROOT ready template already preserved in frozen main input. No copied context bodies."
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/root-recovery/final-primary-template-ready.json",
+      "decoded_bytes": 114462,
+      "decoded_sha256": "107f9b5b1d59556b062f0e2ff417d8fb7d78cbdf2f653bd77d4d56908d2a657d",
+      "main_manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/artifact-transports.json",
+      "stored_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/root-recovery/final-primary-template-ready.json",
+      "scope": "Original completed ERROR/trace/input, completed CLI or ROOT ready template already preserved in frozen main input. No copied context bodies."
+    }
+  ],
+  "main_artifact_transports": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/artifact-transports.json",
+    "bytes": 1455204,
+    "sha256": "1834969a52cefc86bbc08de65206a1425dcd9b325ba02b8855fc610dc9384f48"
+  },
+  "frozen_main_selection": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/recipe/selection-final.json",
+    "bytes": 1572145,
+    "sha256": "860c3784156b773e8e1a8f9ae47cc0c5d434d66a3e6f52c05009effb548a303d"
+  },
+  "scope": "Completed exact final byte-custody refresh and validation captures; original ERROR preserved. No scientific PASS, source changes, new admissions or finding closure. Main selection/manifest and input primary template untouched.",
+  "sanitation": "none; complete byte-exact identity or lossless gzip; original files remain unchanged.",
+  "science_tests_run": false,
+  "Git_writes": false,
+  "counts": {
+    "complete_late_capture_files": 14,
+    "stored_bytes": 31934,
+    "decoded_bytes": 31934
+  }
+}

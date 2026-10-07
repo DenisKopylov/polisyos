@@ -1,0 +1,159 @@
+...................................F.FFF                                 [100%]
+=================================== FAILURES ===================================
+____________ test_real_dowhy_primary_binding_and_canonical_consumer ____________
+
+execution_context = ExecutionContext(store=<polisyos.core.artifacts.store.FileSystemCAS object at 0x7fb8458f6850>, run=RunContext(store=<p...one, memory=None, eval_safety_execution_context=None, eval_safety_verifier=None, epoch_certificate_issuance_owner=None)
+minimal_state = ExperimentState(schema_version='1.3', run_id='R_test', inputs={'registry_bundle_ref': ArtifactRef(artifact_id=Artifact...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fb844f55f30>
+
+    def test_real_dowhy_primary_binding_and_canonical_consumer(
+        execution_context,
+        minimal_state,
+        monkeypatch,
+    ):
+        worker = os.environ.get("E02_TEST_DOWHY_WORKER_PYTHON")
+>       assert worker and Path(worker).is_file(), "selected backend is required; absence is no PASS"
+E       AssertionError: selected backend is required; absence is no PASS
+E       assert (None)
+
+tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py:171: AssertionError
+_ test_actual_worker_result_cannot_be_replaced_by_consistent_report_projections[False] _
+
+execution_context = ExecutionContext(store=<polisyos.core.artifacts.store.FileSystemCAS object at 0x7fb844f36150>, run=RunContext(store=<p...one, memory=None, eval_safety_execution_context=None, eval_safety_verifier=None, epoch_certificate_issuance_owner=None)
+minimal_state = ExperimentState(schema_version='1.3', run_id='R_test', inputs={'registry_bundle_ref': ArtifactRef(artifact_id=Artifact...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fb8450c6510>
+point_only = False
+
+    @pytest.mark.parametrize("point_only", [False, True])
+    def test_actual_worker_result_cannot_be_replaced_by_consistent_report_projections(
+        execution_context, minimal_state, monkeypatch, point_only
+    ):
+        """Preserve real backend/source markers while falsifying consumed quantities."""
+        worker = os.environ.get("E02_TEST_DOWHY_WORKER_PYTHON")
+>       assert worker and Path(worker).is_file()
+E       assert (None)
+
+tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py:236: AssertionError
+_ test_actual_worker_result_cannot_be_replaced_by_consistent_report_projections[True] _
+
+execution_context = ExecutionContext(store=<polisyos.core.artifacts.store.FileSystemCAS object at 0x7fb844f36b50>, run=RunContext(store=<p...one, memory=None, eval_safety_execution_context=None, eval_safety_verifier=None, epoch_certificate_issuance_owner=None)
+minimal_state = ExperimentState(schema_version='1.3', run_id='R_test', inputs={'registry_bundle_ref': ArtifactRef(artifact_id=Artifact...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fb8450c6450>
+point_only = True
+
+    @pytest.mark.parametrize("point_only", [False, True])
+    def test_actual_worker_result_cannot_be_replaced_by_consistent_report_projections(
+        execution_context, minimal_state, monkeypatch, point_only
+    ):
+        """Preserve real backend/source markers while falsifying consumed quantities."""
+        worker = os.environ.get("E02_TEST_DOWHY_WORKER_PYTHON")
+>       assert worker and Path(worker).is_file()
+E       assert (None)
+
+tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py:236: AssertionError
+_____________ test_selected_did_peer_and_actual_source_must_match ______________
+
+execution_context = ExecutionContext(store=<polisyos.core.artifacts.store.FileSystemCAS object at 0x7fb844f37250>, run=RunContext(store=<p...one, memory=None, eval_safety_execution_context=None, eval_safety_verifier=None, epoch_certificate_issuance_owner=None)
+minimal_state = ExperimentState(schema_version='1.3', run_id='R_test', inputs={'registry_bundle_ref': ArtifactRef(artifact_id=Artifact...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fb844f536a0>
+
+    def test_selected_did_peer_and_actual_source_must_match(
+        execution_context, minimal_state, monkeypatch
+    ):
+        data = _panel()
+        state, _ = _admit_source(
+            execution_context, minimal_state, data, StaggeredDifferenceInDifferences
+        )
+        spec = JobSpec(
+            job_kind="method", method_fqn=state.causal_method_fqn, method_params={"n_bootstrap": 399}
+        )
+        genuine = _run_primary_causal_job(
+            ctx=execution_context, state=state, spec=spec, observational_data=data
+        )
+        offered = genuine.model_copy(deep=True)
+        offered.final_state["report"].point_estimate += 0.01
+        monkeypatch.setattr(owner, "run_job", lambda *args, **kwargs: offered)
+        with pytest.raises(ValueError, match="persisted/offered report"):
+            _run_primary_causal_job(
+                ctx=execution_context, state=state, spec=spec, observational_data=data
+            )
+        monkeypatch.setattr(owner, "run_job", lambda *args, **kwargs: genuine)
+        changed = data.model_copy(deep=True)
+        changed.outcome[0, -1] += 0.25
+        with pytest.raises(ValueError, match="target does not bind"):
+>           _run_primary_causal_job(
+                ctx=execution_context, state=state, spec=spec, observational_data=changed
+            )
+
+tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py:371: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py:543: in _run_primary_causal_job
+    _verify_selected_did_diagnostics(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+output = {'envelope': UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', ...tart (unless explicitly modeled).', 'stable_composition': 'Group composition is stable over analysis horizon.'}}), ...}
+
+    def _verify_selected_did_diagnostics(
+        output: Any, *, observational_data: PanelObservationalData, staggered: bool
+    ) -> None:
+        """Recompute the complete diagnostic basis and result at the actual reader."""
+        if not isinstance(output, dict) or "report" not in output:
+            raise ValueError("selected DiD output is missing its report")
+        report = CausalEffectReport.model_validate(output["report"])
+        if report.status is not EstimationStatus.SUCCESS and not report.diagnostics:
+            # Invalid inputs refused before producing diagnostics remain invalid.
+            return
+        owner = StaggeredDifferenceInDifferences if staggered else StandardDifferenceInDifferences
+        expected = owner._diagnostic_contract(observational_data)
+        if any(report.method_params.get(key) != value for key, value in expected.items()):
+>           raise ValueError("selected DiD diagnostic basis/result does not bind current panel")
+E           ValueError: selected DiD diagnostic basis/result does not bind current panel
+
+src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py:640: ValueError
+
+During handling of the above exception, another exception occurred:
+
+execution_context = ExecutionContext(store=<polisyos.core.artifacts.store.FileSystemCAS object at 0x7fb844f37250>, run=RunContext(store=<p...one, memory=None, eval_safety_execution_context=None, eval_safety_verifier=None, epoch_certificate_issuance_owner=None)
+minimal_state = ExperimentState(schema_version='1.3', run_id='R_test', inputs={'registry_bundle_ref': ArtifactRef(artifact_id=Artifact...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fb844f536a0>
+
+    def test_selected_did_peer_and_actual_source_must_match(
+        execution_context, minimal_state, monkeypatch
+    ):
+        data = _panel()
+        state, _ = _admit_source(
+            execution_context, minimal_state, data, StaggeredDifferenceInDifferences
+        )
+        spec = JobSpec(
+            job_kind="method", method_fqn=state.causal_method_fqn, method_params={"n_bootstrap": 399}
+        )
+        genuine = _run_primary_causal_job(
+            ctx=execution_context, state=state, spec=spec, observational_data=data
+        )
+        offered = genuine.model_copy(deep=True)
+        offered.final_state["report"].point_estimate += 0.01
+        monkeypatch.setattr(owner, "run_job", lambda *args, **kwargs: offered)
+        with pytest.raises(ValueError, match="persisted/offered report"):
+            _run_primary_causal_job(
+                ctx=execution_context, state=state, spec=spec, observational_data=data
+            )
+        monkeypatch.setattr(owner, "run_job", lambda *args, **kwargs: genuine)
+        changed = data.model_copy(deep=True)
+        changed.outcome[0, -1] += 0.25
+>       with pytest.raises(ValueError, match="target does not bind"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'target does not bind'
+E         Actual message: 'selected DiD diagnostic basis/result does not bind current panel'
+
+tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py:370: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 16:47:08 [info     ] method_registered              backend=numpy fqn=causal.inference.did.staggered@1.0.0 lazy=False namespace=causal.inference.did override=True tags=['causal', 'cross-section', 'difference-in-differences', 'estimation', 'panel', 'uncertainty'] version=1.0.0
+2026-10-06 16:47:08 [debug    ] method_dispatch_start          backend=numpy fqn=causal.inference.did.staggered@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 16:47:08 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=12.68 fqn=causal.inference.did.staggered@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py::test_real_dowhy_primary_binding_and_canonical_consumer
+FAILED tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py::test_actual_worker_result_cannot_be_replaced_by_consistent_report_projections[False]
+FAILED tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py::test_actual_worker_result_cannot_be_replaced_by_consistent_report_projections[True]
+FAILED tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py::test_selected_did_peer_and_actual_source_must_match
+4 failed, 36 passed in 63.68s (0:01:03)

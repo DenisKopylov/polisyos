@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="7" skipped="0" tests="7" time="13.046" timestamp="2026-10-06T15:22:43.241711+00:00" hostname="6d6fd139922b"><testcase classname="tests.unit.foundry.agent_sim.test_gini_domain" name="test_registered_objective_refuses_current_signed_population_despite_valid_cached_metric[values0-eager]" time="4.395"><failure message="Failed: DID NOT RAISE any of (&lt;class 'RuntimeError'&gt;, &lt;class 'ValueError'&gt;)">tests/unit/foundry/agent_sim/test_gini_domain.py:117: in test_registered_objective_refuses_current_signed_population_despite_valid_cached_metric
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (&lt;class 'RuntimeError'&gt;, &lt;class 'ValueError'&gt;)</failure></testcase><testcase classname="tests.unit.foundry.agent_sim.test_gini_domain" name="test_registered_objective_refuses_current_signed_population_despite_valid_cached_metric[values0-jit]" time="1.050"><failure message="Failed: DID NOT RAISE any of (&lt;class 'RuntimeError'&gt;, &lt;class 'ValueError'&gt;)">tests/unit/foundry/agent_sim/test_gini_domain.py:117: in test_registered_objective_refuses_current_signed_population_despite_valid_cached_metric
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (&lt;class 'RuntimeError'&gt;, &lt;class 'ValueError'&gt;)</failure></testcase><testcase classname="tests.unit.foundry.agent_sim.test_gini_domain" name="test_registered_objective_refuses_current_signed_population_despite_valid_cached_metric[values1-eager]" time="0.670"><failure message="Failed: DID NOT RAISE any of (&lt;class 'RuntimeError'&gt;, &lt;class 'ValueError'&gt;)">tests/unit/foundry/agent_sim/test_gini_domain.py:117: in test_registered_objective_refuses_current_signed_population_despite_valid_cached_metric
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (&lt;class 'RuntimeError'&gt;, &lt;class 'ValueError'&gt;)</failure></testcase><testcase classname="tests.unit.foundry.agent_sim.test_gini_domain" name="test_registered_objective_refuses_current_signed_population_despite_valid_cached_metric[values1-jit]" time="0.708"><failure message="Failed: DID NOT RAISE any of (&lt;class 'RuntimeError'&gt;, &lt;class 'ValueError'&gt;)">tests/unit/foundry/agent_sim/test_gini_domain.py:117: in test_registered_objective_refuses_current_signed_population_despite_valid_cached_metric
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (&lt;class 'RuntimeError'&gt;, &lt;class 'ValueError'&gt;)</failure></testcase><testcase classname="tests.unit.foundry.agent_sim.test_gini_domain" name="test_composite_interaction_current_population_is_admitted_at_registered_objective" time="4.157"><failure message="Failed: DID NOT RAISE any of (&lt;class 'RuntimeError'&gt;, &lt;class 'ValueError'&gt;)">tests/unit/foundry/agent_sim/test_gini_domain.py:148: in test_composite_interaction_current_population_is_admitted_at_registered_objective
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (&lt;class 'RuntimeError'&gt;, &lt;class 'ValueError'&gt;)</failure></testcase><testcase classname="tests.unit.foundry.agent_sim.test_gini_consumers" name="test_social_welfare_uses_current_gini_with_original_sign_and_weight[eager]" time="0.698"><failure message="assert -0.045152854174375534 == -0.175 ± 2.0e-07&#10;  &#10;  comparison failed&#10;  Obtained: -0.045152854174375534&#10;  Expected: -0.175 ± 2.0e-07">tests/unit/foundry/agent_sim/test_gini_consumers.py:149: in test_social_welfare_uses_current_gini_with_original_sign_and_weight
+    assert float(evaluate(current)) == pytest.approx(-0.7 / 4, abs=2e-7)
+E   assert -0.045152854174375534 == -0.175 ± 2.0e-07
+E     
+E     comparison failed
+E     Obtained: -0.045152854174375534
+E     Expected: -0.175 ± 2.0e-07</failure></testcase><testcase classname="tests.unit.foundry.agent_sim.test_gini_consumers" name="test_social_welfare_uses_current_gini_with_original_sign_and_weight[jit]" time="0.634"><failure message="assert -0.045152854174375534 == -0.175 ± 2.0e-07&#10;  &#10;  comparison failed&#10;  Obtained: -0.045152854174375534&#10;  Expected: -0.175 ± 2.0e-07">tests/unit/foundry/agent_sim/test_gini_consumers.py:149: in test_social_welfare_uses_current_gini_with_original_sign_and_weight
+    assert float(evaluate(current)) == pytest.approx(-0.7 / 4, abs=2e-7)
+E   assert -0.045152854174375534 == -0.175 ± 2.0e-07
+E     
+E     comparison failed
+E     Obtained: -0.045152854174375534
+E     Expected: -0.175 ± 2.0e-07</failure></testcase></testsuite></testsuites>

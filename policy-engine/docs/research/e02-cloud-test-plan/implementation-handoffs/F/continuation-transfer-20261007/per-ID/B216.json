@@ -1,0 +1,247 @@
+{
+  "finding_id": "B216",
+  "primary_owner_from_full_TSV": {
+    "finding_id": "B216",
+    "unit": "F",
+    "docx_analytical_package": "P34",
+    "source_closure_owner": "GRF-01",
+    "source_bundle_ids": "GRF-01",
+    "source_status": "partial"
+  },
+  "bundle_owner_from_full_TSV": {
+    "bundle_id": "GRF-01",
+    "unit": "F",
+    "initial_writer_family": "F-W06",
+    "title": "Правильные static ADMG m-separation и perfect-do"
+  },
+  "original_card_refs": [
+    {
+      "criterion_id": "B216",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "lines": [
+        5333,
+        5346
+      ],
+      "bytes": 5017,
+      "sha256": "5da65926eb9350c67aa4c305de165e0919a8ab5eff319562d1fa3d3b499bdcd2",
+      "title": "## B216. Общий m-separation неверно обрабатывает вилку и collider; двусторонняя проверка не устраняет ошибку",
+      "byte_binding_check": "PASS"
+    }
+  ],
+  "original_text": "## B216. Общий m-separation неверно обрабатывает вилку и collider; двусторонняя проверка не устраняет ошибку\n\n**Происхождение и приоритет:** C21-01. Высокий для маршрутов, использующих общий разделитель как основание преобразования. Основания: `admg_ops.m_separation`, `do_calculus.apply_rule1`, вызывающие do/sigma-правила. [C21.R02–R03]\n\n**Проблема.** Обход хранит состояние `(node, via_child)`, но `via_child` не участвует в выборе разрешённых переходов. Переход к родителю разрешается только через принадлежность текущей вершины множеству обусловленных вершин или их предков; обычная открытая вилка из-за этого не проходится. Bidirected-переходы также не сохраняют правильное правило открытия collider. В `apply_rule1` есть существующая защита — проверка разделимости в обе стороны. Она полезно показывает, что асимметрия была замечена, но два одинаково неверных ответа не становятся правильным.\n\n**Различающие проверки SEP01–SEP08.** Для DAG `X ← U → Y` функция объявляет X и Y разделёнными без условий в обе стороны. Извлечённое тело Rule 1 поэтому удаляет X из `P(Y|X)`, возвращая `P(Y)`. Независимый эталон считает путь открытым. На единственном ребре X→Y результат зависит от порядка X/Y. На bidirected-collider `X ↔ M ↔ Y` пустое условие ошибочно открывает путь, а условие M его закрывает. Положительный контроль: обусловливание U действительно разделяет общую причину.\n\nПолный конечный перебор трёхвершинной области: 25 ациклических направленных графов × 8 наборов bidirected-рёбер = 200 ADMG, для каждого 12 запросов. На 2400 запросах получены 384 расхождения примитива с эталоном и 78 расхождений после двустороннего AND. Эталон заменяет каждое bidirected-ребро уникальной скрытой общей причиной и вызывает настоящий NetworkX `is_d_separator`. Такое каноническое развёртывание описано и в Ananke. [C21.E01–E02]\n\n**Оптимальное направление исправления.** Один корректный статический ADMG-разделитель, учитывающий входную и выходную метки в вершине, collider и предков обусловленного множества. Переиспользовать имеющиеся adjacency и очередь; не вводить второй конкурирующий идентификатор. NetworkX в тесте — независимый oracle, не обязательная runtime-зависимость. Локальный endpoint-aware контроль совпал с эталоном во всех 2400 случаях и не позволил Rule 1 удалить зависимое наблюдение. Это ограниченная регрессионная проверка, не доказательство корректности на всех графах.\n\n**Приёмка и ограничения.** Добавить симметрию, переименование/перестановку вершин, цепь, вилку, collider и его обусловленного потомка; затем проверить реальные потребители do/sigma/IDC. PAG/CPDAG требуют отдельной определённой семантики: объединение нескольких удобных трактовок меток не устанавливает корректность для всего класса эквивалентности. Не следует трактовать найденное как опровержение каждой формулы всего ID-engine: его полноценный запуск здесь отсутствует. Числа 2400 — область одного дифференциального опыта, не число production-инцидентов.\n\n",
+  "primary_acceptance_scope": "Fully specified static ADMG separation against independent latent-DAG oracle, symmetry/rename/descendant conditioning and actual do/sigma/ID/IDC family callers.",
+  "source_chain": {
+    "producer": "CausalGraphModel + canonical static ADMG operators",
+    "artifact": "immutable explicit marks/lag/source graph snapshot",
+    "bridge": "CachedAdjacency / graph surgery / do-sigma-ID-IDC callers",
+    "consumer": "actual finite separation/identification callers"
+  },
+  "actual_recorded_consumer": "CachedAdjacency/m_separation → actual do/sigma/ID/IDC/IDC*/AMN/CTF finite static ADMG callers",
+  "surface": "Canonical internal static ADMG separation/surgery operators and actual do/sigma/ID/IDC method callers",
+  "deciding_receipt_refs": [
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+      "bytes": 150139,
+      "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+      "git_blob": "c33de33430598b4f91f3824f36b044b1d7dcc7ac",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/B216"
+      ]
+    },
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+      "bytes": 150139,
+      "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+      "git_blob": "c33de33430598b4f91f3824f36b044b1d7dcc7ac",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/B216"
+      ],
+      "json_pointer": "/per_id/2"
+    },
+    {
+      "git_ref": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "head": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006.json",
+      "bytes": 50088,
+      "sha256": "d71112938c6ee404c4436979df7139a2b6c7948d34fea1597de48ec2d0704818",
+      "git_blob": "4f84768ca1b2399e27e1c6083c6bfbecf3e07263",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/B216"
+      ],
+      "json_pointer": "/per_id/B216"
+    },
+    {
+      "git_ref": "46bbfa53adc8da775a08b66b80d02109cc5b2db8",
+      "head": "46bbfa53adc8da775a08b66b80d02109cc5b2db8",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006.json",
+      "bytes": 62265,
+      "sha256": "64f54650f7e13d33c11a7ac4fa84b48e25abef1183349a9c38dec96496e3913c",
+      "git_blob": "38077d22133e61b7bc8275cebba500aaa563f476",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/B216"
+      ],
+      "json_pointer": "/per_id/B216"
+    },
+    {
+      "git_ref": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+      "head": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json",
+      "bytes": 60843,
+      "sha256": "4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8",
+      "git_blob": "0ebf3b625085f6521f7430b3d919e8e11848fc21",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/B216"
+      ]
+    }
+  ],
+  "deciding_per_ID_carrier_ref": {
+    "git_ref": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/B216.json",
+    "bytes": 35720,
+    "sha256": "039b272e8c96e984ea2be733c9278aabc79821e9504e72ef43fd1f638385f0a1",
+    "git_blob": "dae54c1be168182f8fc93f7cfdc452af92d7345f"
+  },
+  "scientific_implementation": {
+    "sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+    "tree": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+    "not_receipt_carrier": true
+  },
+  "recorded_independent_oracle_and_negative": "200ADMG×12 independent latent moralization plus static518 real fork/collider/descendant, do/sigma, two actual IDC ID calls and IDC*",
+  "complete_raw_receipt_checks_refs": [
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/0",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/1",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/2",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/3",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/4",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/5",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/6",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/7",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/8",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/9",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/10",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/11",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/12",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/13",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/14",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/15",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/16",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/17",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/18",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/19",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/20",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/21",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/22",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/23",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/24",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/25",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/26",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/27",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/28",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/29",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/30",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/31",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/32",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/33",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/34",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/35",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/36",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006.json#/checks/0",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006.json#/checks/1",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006.json#/checks/2",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006.json#/checks/3",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006.json#/checks/4",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006.json#/checks/5",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006.json#/checks/6",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006.json#/checks/7",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006.json#/checks/8",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006.json#/checks/9",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006.json#/checks/10",
+    "46bbfa53adc8da775a08b66b80d02109cc5b2db8:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006.json#/checks/0",
+    "46bbfa53adc8da775a08b66b80d02109cc5b2db8:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006.json#/checks/1",
+    "46bbfa53adc8da775a08b66b80d02109cc5b2db8:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006.json#/checks/2",
+    "46bbfa53adc8da775a08b66b80d02109cc5b2db8:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006.json#/checks/3",
+    "46bbfa53adc8da775a08b66b80d02109cc5b2db8:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006.json#/checks/4",
+    "46bbfa53adc8da775a08b66b80d02109cc5b2db8:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006.json#/checks/5",
+    "46bbfa53adc8da775a08b66b80d02109cc5b2db8:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006.json#/checks/6",
+    "46bbfa53adc8da775a08b66b80d02109cc5b2db8:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006.json#/checks/7",
+    "46bbfa53adc8da775a08b66b80d02109cc5b2db8:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006.json#/checks/8",
+    "46bbfa53adc8da775a08b66b80d02109cc5b2db8:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006.json#/checks/9",
+    "46bbfa53adc8da775a08b66b80d02109cc5b2db8:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006.json#/checks/10",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/0",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/1",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/2",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/3",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/4",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/5",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/6",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/7",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/8",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/9",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/10",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/11",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/12",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/13"
+  ],
+  "historical_ROOT072": {
+    "check": "PASS",
+    "outcome": "closed",
+    "technical_original_criterion_recommendation": "closed",
+    "current_continuation_outcome_recommendation": "closed",
+    "original_criterion_remainder": "Finite supported fully specified static ADMG only; malformed fixture failures retained.",
+    "actual_consumer": "CachedAdjacency/m_separation → actual do/sigma/ID/IDC/IDC*/AMN/CTF finite static ADMG callers",
+    "oracle_and_negative": "200ADMG×12 independent latent moralization plus static518 real fork/collider/descendant, do/sigma, two actual IDC ID calls and IDC*",
+    "separate_unavailable_inputs_or_authority": "No completeness for arbitrary PAG/temporal identification."
+  },
+  "independent_original_criterion_recommendation": {
+    "check": "PASS",
+    "outcome": "closed",
+    "basis": "Verified original block/TSV/source-tree/receipt bytes and pointers support the recorded bounded native discriminator; extra universal production authority is not substituted for this finite property.",
+    "scientific_rerun": false,
+    "review_scope": "independent criterion/evidence reconciliation; not an independently rerun estimator measurement",
+    "missing_actual_original_criterion": null,
+    "new_owner_review_pending": false,
+    "not_formal_G_closure": true
+  },
+  "separate_unavailable_inputs_or_authority": "No completeness for arbitrary PAG/temporal identification.",
+  "existing_author_or_reviewer_conflict": null,
+  "schema": "e02.F.original-finding.v3",
+  "primary_bundle": "GRF-01",
+  "criterion_short": "Fully specified static ADMG separation against independent latent-DAG oracle, symmetry/rename/descendant conditioning and actual do/sigma/ID/IDC family callers.",
+  "check_result": "PASS",
+  "F_finding_outcome": "closed",
+  "F_technical_recommendation": "closed",
+  "F_rationale": "Verified original block/TSV/source-tree/receipt bytes and pointers support the recorded bounded native discriminator; extra universal production authority is not substituted for this finite property.",
+  "code_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+  "code_tree": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+  "consumer": "CachedAdjacency/m_separation → actual do/sigma/ID/IDC/IDC*/AMN/CTF finite static ADMG callers",
+  "oracle_and_negative": "200ADMG×12 independent latent moralization plus static518 real fork/collider/descendant, do/sigma, two actual IDC ID calls and IDC*",
+  "G_finding_acceptance": {
+    "status": "not_issued",
+    "formal_G_closed": false
+  },
+  "G_code_acceptance": {
+    "status": "not_inferred",
+    "source_sha": null,
+    "basis": "Independent F GO/code-ready is not G code acceptance"
+  },
+  "original_missing_input": null,
+  "original_next_owner": null,
+  "next_concrete_result": "G review/adopt exact own topic histories; composed integration freeze replay only if affected",
+  "root_assembled_source": {
+    "sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+    "tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+    "not_new_numerical_proof": true
+  },
+  "new_property_followups_not_automatically_original_reopen": []
+}

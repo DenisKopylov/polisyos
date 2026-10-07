@@ -1,0 +1,66 @@
+{
+  "schema": "policyos.e02.readonly_publication_binding.v1",
+  "outcome": "PASS",
+  "root_doc_ref": "7ba0ce11648aac20351e7e9f4bf3fa61c0a847de",
+  "root_tree": "2af786a18104cca9224588cdf64226f5fc71bc2d",
+  "eco_primary": {
+    "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007.json",
+    "bytes": 106928,
+    "sha256": "24a72061e9e4379753f349f56c110b516cef300457b94e2d6a5e066b702f760e"
+  },
+  "complete_evidence_count": 108,
+  "complete_decoded_bytes": 7839324,
+  "all31_caption_source_bytes_and_literal_locators": "PASS",
+  "four_owned_sources_match_root": "PASS",
+  "three_current_docs": [
+    {
+      "git_ref": "7ba0ce11648aac20351e7e9f4bf3fa61c0a847de",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/F.md",
+      "bytes": 26757,
+      "sha256": "4538c75a0aaf11eb253e9d7831d884859acb4c3ff9c81fea62ee2e0df8fdf2c6",
+      "matches_previously_read_working_delta": true,
+      "old_ref": "5609d09cbf519f01bde1ea81c6b3ee4a36a484a8",
+      "old_identity": {
+        "bytes": 23767,
+        "sha256": "00da8e6d723c1397546c706beb2b4dfec2664012dedc64f48c02de2126861872"
+      }
+    },
+    {
+      "git_ref": "7ba0ce11648aac20351e7e9f4bf3fa61c0a847de",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md",
+      "bytes": 106381,
+      "sha256": "1dce4ad02656b5c9d873c2ed6066264a7b3ec3f02766001f437920a789e3f3ca",
+      "matches_previously_read_working_delta": true,
+      "old_ref": "5609d09cbf519f01bde1ea81c6b3ee4a36a484a8",
+      "old_identity": {
+        "bytes": 104210,
+        "sha256": "47993533fca8f262817dac4e93805d208c42efb63de797ef083668e30f1566a2"
+      }
+    },
+    {
+      "git_ref": "7ba0ce11648aac20351e7e9f4bf3fa61c0a847de",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/runtime-profiles.md",
+      "bytes": 35578,
+      "sha256": "ad7b68c4f9a35086e7492bfe84fb4f6a854e1d4f27f6addef07d562c06bd42d1",
+      "matches_previously_read_working_delta": true,
+      "old_ref": "5609d09cbf519f01bde1ea81c6b3ee4a36a484a8",
+      "old_identity": {
+        "bytes": 34592,
+        "sha256": "09a9d58d24e39a79f62c71548498a2eb96d763b45c2778d22bc974e284973cc0"
+      }
+    }
+  ],
+  "fragment_warning_preserved": [
+    {
+      "check": "fragment-compatibility",
+      "severity": "warning",
+      "subject": "release-fragments",
+      "message": "no structured compatibility changes found in selected fragments",
+      "detail": ""
+    }
+  ],
+  "numeric_suites_executed_here": false,
+  "historical_caption_decision": "BLOCK at5609 for presenting absent new optimizer/intent as LA035 relocation prerequisite; corrected ROOT7ba0 economic captions GO_BOUNDED",
+  "scope": "Economic caption/source/evidence companion only. Full35 formal acceptance and unrelated statuses assigned to ROOT/CAU/G."
+}

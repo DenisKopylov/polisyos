@@ -1,0 +1,30 @@
+{
+  "argv": [
+    "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-env/bin/python",
+    "-I",
+    "/tmp/e02-F-continuation-20261007/api/run_installed_graph_reconciliation.py",
+    "/tmp/e02-F-continuation-20261007/api/wheel-consumer-config.json",
+    "positive"
+  ],
+  "cwd": "/tmp/e02-F-continuation-20261007/api/wheel-consumer",
+  "env_override": {
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "test_carrier_sha": "6f39b0edc48ec59db3731fa917c615b9f97e4dc0",
+  "test_blob": "0444ce845d1854e43e00ddbb601af3447cd38c93",
+  "distribution_source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+  "exit_code": 0,
+  "elapsed_seconds": 52.6181459579966,
+  "outcome": "PASS",
+  "expected_exit": 0,
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261007/api/wheel-positive.stdout",
+    "bytes": 291819,
+    "sha256": "8de3b0e9a545dfcf665225b544f283dd2e2b313dccddf5b98e793019012d6132"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261007/api/wheel-positive.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

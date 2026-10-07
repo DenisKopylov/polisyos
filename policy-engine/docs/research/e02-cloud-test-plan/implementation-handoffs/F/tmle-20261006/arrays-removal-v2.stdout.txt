@@ -1,0 +1,62 @@
+{"mode": "arrays", "module": "/workspace/e02-F-tmle-20261006/policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py", "function": "_readonly_array", "original_function_sha256": "6f69475c933c424343a378c93ff390db77d265831f3a2e1fef73989c0c647c05", "mutated_function_sha256": "123e39cb41e58f80aba7c5958dc8cf83705496a1973c2e70ce9c7856db4ad933", "selector": "tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py::test_native_cold_warm_rebind_and_reader_isolation", "mutation_scope": "memory-only; markers and test unchanged"}
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.0.2, pluggy-1.6.0
+cachedir: _cache/pytest
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/e02-F-tmle-20261006/policy-engine
+configfile: pytest.ini
+plugins: langsmith-0.6.0, jaxtyping-0.3.4, xdist-3.8.0, anyio-4.12.0, asyncio-1.3.0, benchmark-5.2.3, hypothesis-6.151.2
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 1 item
+
+tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py F
+
+=================================== FAILURES ===================================
+______________ test_native_cold_warm_rebind_and_reader_isolation _______________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f98e76410f0>
+
+    def test_native_cold_warm_rebind_and_reader_isolation(monkeypatch: pytest.MonkeyPatch) -> None:
+        x, a, y = _dgp()
+        calls = []
+        native = core._fit_crossfit_fold
+    
+        def observe(**kwargs):
+            calls.append((kwargs["rep_seed"], kwargs["fold_id"]))
+            return native(**kwargs)
+    
+        monkeypatch.setattr(core, "_fit_crossfit_fold", observe)
+        params = _params(__shared_nuisance_key="study")
+        contract = core.ATENuisanceContract.from_params(params)
+        first = core.fit_crossfit_nuisance_bundle(x, a, y, contract, params)
+        assert len(calls) == 6
+        updated = replace(
+            contract,
+            min_effective_sample_size=1000,
+            coverage_guard="ess_aware",
+            overlap_diagnostic_policy="current-report-policy",
+        )
+        second = core.fit_crossfit_nuisance_bundle(x, a, y, updated, params)
+        assert len(calls) == 6
+        assert second.diagnostics()["min_effective_sample_size"] == 1000
+        assert second.contract is updated
+        assert first.contract is contract
+        assert all(r["split_policy"] == "current-report-policy" for r in second.selection_manifest)
+        for name in ("propensity", "mu1", "mu0", "trim_mask"):
+            array = getattr(second, name)
+            expected = array.copy()
+>           with pytest.raises(ValueError):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py:77: Failed
+=============================== warnings summary ===============================
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py::test_native_cold_warm_rebind_and_reader_isolation
+========================= 1 failed, 1 warning in 0.55s =========================

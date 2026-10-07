@@ -1,0 +1,34 @@
+{
+  "argv": [
+    "uv",
+    "run",
+    "--no-sync",
+    "polisyos-tools",
+    "workspace",
+    "doctor",
+    "--worktree-admission",
+    "resume",
+    "--branch",
+    "codex/e02-F-closeout-20261006",
+    "--path",
+    "/workspace/e02-F-closeout-20261006"
+  ],
+  "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+  "head": "b300da2e134a67fbd6f585a21ab42286c356fe7e",
+  "tree": "396e5e0998c9e0cc11ba7372dcce6773200dd7bf",
+  "returncode": 0,
+  "elapsed_s": 2.356137752532959,
+  "outputs": {
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/root-final-publication/receipt-resume-admission.stdout.txt",
+      "bytes": 147971,
+      "sha256": "2d121618f1c656b67275979e7d56ca0c8ca762a87b5ba20a49ad8d88ea52ba4e"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/root-final-publication/receipt-resume-admission.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "read_only": true
+}

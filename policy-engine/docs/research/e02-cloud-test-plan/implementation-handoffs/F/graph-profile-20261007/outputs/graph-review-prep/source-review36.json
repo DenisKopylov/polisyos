@@ -1,0 +1,917 @@
+{
+  "schema": "policyos.e02.independent_graph_profile_source_review.v1",
+  "reviewer": "graph_scm",
+  "role": "Independent source/companion review, not runtime execution or source author",
+  "check": "PASS",
+  "outcome": "GO_BOUNDED_SOURCE",
+  "slice_base_sha": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+  "candidate_sha": "36b18cc142aff77a5825126b4f07bafec09a5180",
+  "candidate_tree": "28a104214fe96f1ccf572aeb64a7866c41776344",
+  "composed_candidate_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+  "composed_candidate_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+  "full_exact_diff_paths": [
+    "policy-engine/docs/reference/scientist/causal-graph-intake.md",
+    "policy-engine/release-fragments/unreleased/2026-10-07-causal-graph-intake.toml",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+    "policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py"
+  ],
+  "source_refs": [
+    {
+      "path": "policy-engine/docs/reference/scientist/causal-graph-intake.md",
+      "source_sha": "36b18cc142aff77a5825126b4f07bafec09a5180",
+      "source_blob": "c466cd06a14c37736924709bc8ebae99f6174f37",
+      "composed_source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "composed_blob": "c466cd06a14c37736924709bc8ebae99f6174f37",
+      "bytes": 3865,
+      "sha256": "a9989b4216f1428923558add2cb56ce99e3a65b5687d2d70546311ada79c92fc",
+      "same36_and4ee": true
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-causal-graph-intake.toml",
+      "source_sha": "36b18cc142aff77a5825126b4f07bafec09a5180",
+      "source_blob": "0d506b76554a16ff2c605a812d176ebe7d5560b7",
+      "composed_source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "composed_blob": "0d506b76554a16ff2c605a812d176ebe7d5560b7",
+      "bytes": 2432,
+      "sha256": "aa5ce09f178044a7a3ef5519613f6d159abdbc19f9fda59850f74ffd46e44903",
+      "same36_and4ee": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+      "source_sha": "36b18cc142aff77a5825126b4f07bafec09a5180",
+      "source_blob": "3af0355c3f7e0dc4872f20c3b1d0223423785f55",
+      "composed_source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "composed_blob": "3af0355c3f7e0dc4872f20c3b1d0223423785f55",
+      "bytes": 62982,
+      "sha256": "087608c68bda58d1ae026006085665d04dce6d8f63c65849f200027fe4340855",
+      "same36_and4ee": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+      "source_sha": "36b18cc142aff77a5825126b4f07bafec09a5180",
+      "source_blob": "411d98f8bc3d355a997a83653d2b551011ba35d9",
+      "composed_source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "composed_blob": "411d98f8bc3d355a997a83653d2b551011ba35d9",
+      "bytes": 48337,
+      "sha256": "1491b91aaeb57b30d32e34c8fa1b5ab3be5ed20b0907dc9765eb3d916597bcdc",
+      "same36_and4ee": true
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+      "source_sha": "36b18cc142aff77a5825126b4f07bafec09a5180",
+      "source_blob": "072c10f4a75f32f2443e78cc6a8a55015a545bdc",
+      "composed_source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "composed_blob": "072c10f4a75f32f2443e78cc6a8a55015a545bdc",
+      "bytes": 45219,
+      "sha256": "37f7fc1dc7a3d4d840ba1c42472854dcf00a895a3dfae8213c6f2ef562e42712",
+      "same36_and4ee": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py",
+      "source_sha": "36b18cc142aff77a5825126b4f07bafec09a5180",
+      "source_blob": "5bfcc1b7fc4241422cd1eb4b69cc6a36693fd13c",
+      "composed_source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "composed_blob": "5bfcc1b7fc4241422cd1eb4b69cc6a36693fd13c",
+      "bytes": 26534,
+      "sha256": "d1c11a3161cca0d7720e9d3c4a7ba46649a2e672f2202688c8f03206bbb99465",
+      "same36_and4ee": true
+    }
+  ],
+  "all_owned_test_module_AST_inputs": [
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+      "full_module_AST_read": true,
+      "tests": [
+        {
+          "name": "test_literature_and_data_agreement_increases_combined_confidence",
+          "line": 192,
+          "end_line": 208
+        },
+        {
+          "name": "test_data_wins_when_direction_conflicts_with_literature",
+          "line": 211,
+          "end_line": 224
+        },
+        {
+          "name": "test_llm_only_hint_is_marked_unsupported_and_capped",
+          "line": 227,
+          "end_line": 242
+        },
+        {
+          "name": "test_simple_cycle_converts_min_confidence_edge_to_lagged_edge",
+          "line": 245,
+          "end_line": 262
+        },
+        {
+          "name": "test_more_than_eight_cycles_triggers_fallback_removal_warning",
+          "line": 265,
+          "end_line": 287
+        },
+        {
+          "name": "test_cycle_edge_with_lag_depth_limit_is_removed",
+          "line": 290,
+          "end_line": 308
+        },
+        {
+          "name": "test_triangle_conflict_produces_positive_cyclic_inconsistency_norm",
+          "line": 311,
+          "end_line": 325
+        },
+        {
+          "name": "test_irreducible_conflict_triggers_expert_review_flag",
+          "line": 328,
+          "end_line": 340
+        },
+        {
+          "name": "test_diagnostics_truncated_when_hard_limits_exceeded",
+          "line": 343,
+          "end_line": 356
+        },
+        {
+          "name": "test_compose_scm_fragments_refuses_other_semantic_profiles",
+          "line": 360,
+          "end_line": 386
+        },
+        {
+          "name": "test_compose_scm_fragments_preserves_exact_observed_interface",
+          "line": 389,
+          "end_line": 455
+        },
+        {
+          "name": "test_compose_scm_fragments_defers_when_cycle_contract_requires_review",
+          "line": 458,
+          "end_line": 506
+        },
+        {
+          "name": "test_compose_scm_fragments_blocks_research_only_cycle_contracts",
+          "line": 509,
+          "end_line": 555
+        },
+        {
+          "name": "test_compose_scm_fragments_allows_supported_internal_cyclic_scc",
+          "line": 558,
+          "end_line": 613
+        },
+        {
+          "name": "test_compose_scm_fragments_blocks_cross_fragment_cyclic_scc",
+          "line": 616,
+          "end_line": 673
+        },
+        {
+          "name": "test_compose_scm_fragments_promotes_output_to_admg_when_any_fragment_is_admg",
+          "line": 676,
+          "end_line": 717
+        },
+        {
+          "name": "test_compose_scm_fragments_allows_asymmetric_output_input_stitch",
+          "line": 720,
+          "end_line": 772
+        },
+        {
+          "name": "test_compose_scm_fragments_allows_chain_topology",
+          "line": 775,
+          "end_line": 832
+        },
+        {
+          "name": "test_compose_scm_fragments_rejects_disconnected_fragment_topology",
+          "line": 835,
+          "end_line": 891
+        },
+        {
+          "name": "test_compose_scm_fragments_rejects_unobserved_or_latent_pending_interfaces",
+          "line": 894,
+          "end_line": 926
+        },
+        {
+          "name": "test_compose_scm_fragments_allows_proxy_but_marks_deferred",
+          "line": 929,
+          "end_line": 977
+        },
+        {
+          "name": "test_compose_scm_fragments_promotes_human_verified_proxy_to_preserved",
+          "line": 980,
+          "end_line": 1028
+        },
+        {
+          "name": "test_compose_scm_fragments_blocks_explicit_incompatible_pair_labels",
+          "line": 1031,
+          "end_line": 1072
+        },
+        {
+          "name": "test_compose_scm_fragments_defers_pending_latent_bridge_and_rejects_cycles",
+          "line": 1075,
+          "end_line": 1149
+        },
+        {
+          "name": "test_compose_scm_fragments_allows_human_verified_latent_bridge",
+          "line": 1152,
+          "end_line": 1204
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py",
+      "full_module_AST_read": true,
+      "tests": [
+        {
+          "name": "test_mgraph_producer_and_node_refuse_without_retyping_or_publishing",
+          "line": 122,
+          "end_line": 145
+        },
+        {
+          "name": "test_same_admg_shape_has_real_producer_node_and_fresh_reader",
+          "line": 148,
+          "end_line": 157
+        },
+        {
+          "name": "test_other_semantic_profiles_refuse_direct_and_supplied_result",
+          "line": 162,
+          "end_line": 199
+        },
+        {
+          "name": "test_supplied_mgraph_result_and_selected_cache_apply_same_profile_boundary",
+          "line": 202,
+          "end_line": 226
+        },
+        {
+          "name": "test_genuine_producer_to_fresh_reader_preserves_known_relations",
+          "line": 256,
+          "end_line": 270
+        },
+        {
+          "name": "test_current_real_producer_direction_supersedes_cache",
+          "line": 273,
+          "end_line": 287
+        },
+        {
+          "name": "test_current_parameters_recompute_full_content",
+          "line": 290,
+          "end_line": 298
+        },
+        {
+          "name": "test_supplied_bad_data_is_not_absence_or_producer_fallback",
+          "line": 304,
+          "end_line": 309
+        },
+        {
+          "name": "test_supplied_data_and_actual_producer_must_agree",
+          "line": 312,
+          "end_line": 317
+        },
+        {
+          "name": "test_unsupported_static_profile_refuses_before_real_producer_and_node",
+          "line": 331,
+          "end_line": 348
+        },
+        {
+          "name": "test_missing_cache_is_not_admitted_even_with_valid_current_source",
+          "line": 351,
+          "end_line": 362
+        },
+        {
+          "name": "test_graph_shaped_wrong_actual_kind_is_not_admitted",
+          "line": 365,
+          "end_line": 387
+        },
+        {
+          "name": "test_real_cache_without_current_basis_is_not_source_authority",
+          "line": 390,
+          "end_line": 398
+        },
+        {
+          "name": "test_actual_cache_blob_corruption_is_refused",
+          "line": 401,
+          "end_line": 408
+        },
+        {
+          "name": "test_supplied_malformed_sources_refuse_before_graph_admission",
+          "line": 422,
+          "end_line": 431
+        },
+        {
+          "name": "test_cached_graph_schema_is_actual_not_ref_label",
+          "line": 434,
+          "end_line": 452
+        },
+        {
+          "name": "test_graph_body_version_must_match_actual_schema",
+          "line": 455,
+          "end_line": 474
+        },
+        {
+          "name": "test_query_only_replay_recomputes_operational_cache",
+          "line": 521,
+          "end_line": 559
+        },
+        {
+          "name": "test_query_only_replay_reconciles_current_alignment_result",
+          "line": 562,
+          "end_line": 585
+        },
+        {
+          "name": "test_query_only_replay_reconciles_complete_certificate_projection",
+          "line": 599,
+          "end_line": 614
+        },
+        {
+          "name": "test_query_only_replay_resolves_selected_source_view",
+          "line": 617,
+          "end_line": 630
+        },
+        {
+          "name": "test_query_only_replay_reconciles_persisted_failure_card_body",
+          "line": 633,
+          "end_line": 657
+        }
+      ]
+    }
+  ],
+  "unchanged_shared_mechanisms": [
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py",
+    "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+    "policy-engine/src/polisyos/ir/analytics/mgraph.py",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/_graph_projection.py"
+  ],
+  "findings": [],
+  "reasoning": [
+    "One local allowlist DAG/ADMG over graph_type precedes existing shared static endpoint/lag check. Future unsupported tags fail by construction; no special metadata-name filtering.",
+    "ReconcileCausalGraph admission executes before cutoff/materialization/cycle repair; Node uses same predicate when resolving current refs, reproducing query-only composition and admitting final recomputed output.",
+    "Compose ordinary FragmentCompositionData constructor already refuses unsupported tags; new pure_step defensive predicate prevents explicitly unsafe typed model_copy updates from bypassing that law. Initial contrary source analysis is preserved as ERROR, not scientific FAIL.",
+    "All five GraphType values are explicitly bounded: DAG/ADMG allowed; CPDAG/PAG/MGRAPH unsupported for this reconciliation seam even if edges are empty/fully resolved. Other graph consumers and original MGRAPH persistence/read API remain unchanged.",
+    "Four mechanism fixtures change CPDAG to ADMG so they still exercise supported cycle/diagnostic law; reverse input fixture moves PAG to ADMG while retaining arrow-tail oracle. Original GRF03 PAG projection tests remain untouched.",
+    "Actual native test delta includes genuine scored build_mgraph refusal through registered producer and Node, same-shape ADMG positive, supplied CAS/result and cache type refusals, empty/high-cutoff discriminators, original source MGRAPH fresh reader. No confidence/metadata declaration substitutes for runtime type admission.",
+    "Docs distinguish local finite support from global partial-graph prohibition or causal authority. Existing structured fragment records breaking internal migration and unchanged schema1.0."
+  ],
+  "P40": "Same static-profile admission class, semantic type depth; generic local boundary widens quantity instead of site ladder",
+  "P41": "not_established; no red attribution/replay here",
+  "original_B214": "limited; no general PAG/CPDAG family identification or policy authority closure",
+  "runtime_check": "UNRUN pending authorized affected wave",
+  "future_independent_complement": "Different-PID fresh CAS original MGRAPH remains readable and genuine same-shaped ADMG MethodJob→Node result remains readable. This is separate from maintained affected suite/root typeguard removal.",
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--name-only",
+        "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+        "36b18cc142aff77a5825126b4f07bafec09a5180"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout": {
+        "bytes": 480,
+        "sha256": "dd09cd6f71e0ecfc0321aad2a3e0ca201dbfff4527d361e7bc5b4e9d367de891"
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "36b18cc142aff77a5825126b4f07bafec09a5180:policy-engine/docs/reference/scientist/causal-graph-intake.md"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout": {
+        "bytes": 3865,
+        "sha256": "a9989b4216f1428923558add2cb56ce99e3a65b5687d2d70546311ada79c92fc"
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d:policy-engine/docs/reference/scientist/causal-graph-intake.md"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout": {
+        "bytes": 3865,
+        "sha256": "a9989b4216f1428923558add2cb56ce99e3a65b5687d2d70546311ada79c92fc"
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "36b18cc142aff77a5825126b4f07bafec09a5180:policy-engine/docs/reference/scientist/causal-graph-intake.md"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout": {
+        "bytes": 41,
+        "sha256": "f5a7088695f47135e4fead8478bdfa54c0ee8e29e377cfa881a8c60303ac333d"
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d:policy-engine/docs/reference/scientist/causal-graph-intake.md"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout": {
+        "bytes": 41,
+        "sha256": "f5a7088695f47135e4fead8478bdfa54c0ee8e29e377cfa881a8c60303ac333d"
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "36b18cc142aff77a5825126b4f07bafec09a5180:policy-engine/release-fragments/unreleased/2026-10-07-causal-graph-intake.toml"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout": {
+        "bytes": 2432,
+        "sha256": "aa5ce09f178044a7a3ef5519613f6d159abdbc19f9fda59850f74ffd46e44903"
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d:policy-engine/release-fragments/unreleased/2026-10-07-causal-graph-intake.toml"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout": {
+        "bytes": 2432,
+        "sha256": "aa5ce09f178044a7a3ef5519613f6d159abdbc19f9fda59850f74ffd46e44903"
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "36b18cc142aff77a5825126b4f07bafec09a5180:policy-engine/release-fragments/unreleased/2026-10-07-causal-graph-intake.toml"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout": {
+        "bytes": 41,
+        "sha256": "52375783680751d613bffb850fdfbf15154bd8f1867b5c67e9b6856f1b9f680f"
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d:policy-engine/release-fragments/unreleased/2026-10-07-causal-graph-intake.toml"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout": {
+        "bytes": 41,
+        "sha256": "52375783680751d613bffb850fdfbf15154bd8f1867b5c67e9b6856f1b9f680f"
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "36b18cc142aff77a5825126b4f07bafec09a5180:policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout": {
+        "bytes": 62982,
+        "sha256": "087608c68bda58d1ae026006085665d04dce6d8f63c65849f200027fe4340855"
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d:policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout": {
+        "bytes": 62982,
+        "sha256": "087608c68bda58d1ae026006085665d04dce6d8f63c65849f200027fe4340855"
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "36b18cc142aff77a5825126b4f07bafec09a5180:policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout": {
+        "bytes": 41,
+        "sha256": "6f9b1cd4203aea440c1d04e534f97977eeeaea9bd2268efce03a0b852f663bcc"
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d:policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout": {
+        "bytes": 41,
+        "sha256": "6f9b1cd4203aea440c1d04e534f97977eeeaea9bd2268efce03a0b852f663bcc"
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "36b18cc142aff77a5825126b4f07bafec09a5180:policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout": {
+        "bytes": 48337,
+        "sha256": "1491b91aaeb57b30d32e34c8fa1b5ab3be5ed20b0907dc9765eb3d916597bcdc"
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d:policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout": {
+        "bytes": 48337,
+        "sha256": "1491b91aaeb57b30d32e34c8fa1b5ab3be5ed20b0907dc9765eb3d916597bcdc"
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "36b18cc142aff77a5825126b4f07bafec09a5180:policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout": {
+        "bytes": 41,
+        "sha256": "54f38fe765df2dd0ed6efd0a89a8c29332278342a515248343ce3e1d072106fd"
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d:policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout": {
+        "bytes": 41,
+        "sha256": "54f38fe765df2dd0ed6efd0a89a8c29332278342a515248343ce3e1d072106fd"
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "36b18cc142aff77a5825126b4f07bafec09a5180:policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout": {
+        "bytes": 45219,
+        "sha256": "37f7fc1dc7a3d4d840ba1c42472854dcf00a895a3dfae8213c6f2ef562e42712"
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d:policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout": {
+        "bytes": 45219,
+        "sha256": "37f7fc1dc7a3d4d840ba1c42472854dcf00a895a3dfae8213c6f2ef562e42712"
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "36b18cc142aff77a5825126b4f07bafec09a5180:policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout": {
+        "bytes": 41,
+        "sha256": "156e9719a204b2beb34e6b0ff7873eb2e1f531d5260230be8b3be15f91393338"
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d:policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout": {
+        "bytes": 41,
+        "sha256": "156e9719a204b2beb34e6b0ff7873eb2e1f531d5260230be8b3be15f91393338"
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "36b18cc142aff77a5825126b4f07bafec09a5180:policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout": {
+        "bytes": 26534,
+        "sha256": "d1c11a3161cca0d7720e9d3c4a7ba46649a2e672f2202688c8f03206bbb99465"
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d:policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout": {
+        "bytes": 26534,
+        "sha256": "d1c11a3161cca0d7720e9d3c4a7ba46649a2e672f2202688c8f03206bbb99465"
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "36b18cc142aff77a5825126b4f07bafec09a5180:policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout": {
+        "bytes": 41,
+        "sha256": "aa253c22a364a463a5abe872c142d2f63d68c52ba26f95df5d716b3e21ea8e13"
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d:policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout": {
+        "bytes": 41,
+        "sha256": "aa253c22a364a463a5abe872c142d2f63d68c52ba26f95df5d716b3e21ea8e13"
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "25cdea9064ddea2c3a812fd68670076bd4b088cb:policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout": {
+        "bytes": 41,
+        "sha256": "250290a9a500b36859bee6e956e9ce848d3e8bd693218fe82e1577032aad145a"
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "36b18cc142aff77a5825126b4f07bafec09a5180:policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout": {
+        "bytes": 41,
+        "sha256": "250290a9a500b36859bee6e956e9ce848d3e8bd693218fe82e1577032aad145a"
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d:policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout": {
+        "bytes": 41,
+        "sha256": "250290a9a500b36859bee6e956e9ce848d3e8bd693218fe82e1577032aad145a"
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "25cdea9064ddea2c3a812fd68670076bd4b088cb:policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout": {
+        "bytes": 41,
+        "sha256": "7716422bd4d9c2bf68fc58b0ba6dd7e89aa99d377d6d9939e1c326991d062b41"
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "36b18cc142aff77a5825126b4f07bafec09a5180:policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout": {
+        "bytes": 41,
+        "sha256": "7716422bd4d9c2bf68fc58b0ba6dd7e89aa99d377d6d9939e1c326991d062b41"
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d:policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout": {
+        "bytes": 41,
+        "sha256": "7716422bd4d9c2bf68fc58b0ba6dd7e89aa99d377d6d9939e1c326991d062b41"
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "25cdea9064ddea2c3a812fd68670076bd4b088cb:policy-engine/src/polisyos/ir/analytics/causal_graph.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout": {
+        "bytes": 41,
+        "sha256": "2414aae0eb75ffa3b9d4d50d1ca1859f61054c033e1941a9853dcc90ef8ccaa3"
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "36b18cc142aff77a5825126b4f07bafec09a5180:policy-engine/src/polisyos/ir/analytics/causal_graph.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout": {
+        "bytes": 41,
+        "sha256": "2414aae0eb75ffa3b9d4d50d1ca1859f61054c033e1941a9853dcc90ef8ccaa3"
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d:policy-engine/src/polisyos/ir/analytics/causal_graph.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout": {
+        "bytes": 41,
+        "sha256": "2414aae0eb75ffa3b9d4d50d1ca1859f61054c033e1941a9853dcc90ef8ccaa3"
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "25cdea9064ddea2c3a812fd68670076bd4b088cb:policy-engine/src/polisyos/ir/analytics/mgraph.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout": {
+        "bytes": 41,
+        "sha256": "8f9af499300c7181d4b59c844efd16f353cc97cb296c045f966d0290229899c6"
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "36b18cc142aff77a5825126b4f07bafec09a5180:policy-engine/src/polisyos/ir/analytics/mgraph.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout": {
+        "bytes": 41,
+        "sha256": "8f9af499300c7181d4b59c844efd16f353cc97cb296c045f966d0290229899c6"
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d:policy-engine/src/polisyos/ir/analytics/mgraph.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout": {
+        "bytes": 41,
+        "sha256": "8f9af499300c7181d4b59c844efd16f353cc97cb296c045f966d0290229899c6"
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "25cdea9064ddea2c3a812fd68670076bd4b088cb:policy-engine/src/polisyos/foundry/methods/catalog/causal/_graph_projection.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout": {
+        "bytes": 41,
+        "sha256": "9736fd58b21f9113991e178c0bcdb376fb6a0407b7d1db75dfd84ede3cebe351"
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "36b18cc142aff77a5825126b4f07bafec09a5180:policy-engine/src/polisyos/foundry/methods/catalog/causal/_graph_projection.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout": {
+        "bytes": 41,
+        "sha256": "9736fd58b21f9113991e178c0bcdb376fb6a0407b7d1db75dfd84ede3cebe351"
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d:policy-engine/src/polisyos/foundry/methods/catalog/causal/_graph_projection.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout": {
+        "bytes": 41,
+        "sha256": "9736fd58b21f9113991e178c0bcdb376fb6a0407b7d1db75dfd84ede3cebe351"
+      },
+      "stderr": ""
+    }
+  ]
+}

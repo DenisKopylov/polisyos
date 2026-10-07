@@ -1,0 +1,802 @@
+{
+  "check": "PASS",
+  "scope": "Independent docs-only semantic/card/receipt reconciliation, not scientific rerun or G acceptance",
+  "candidate_sha": "99f196be45dec7acabdc05f0cb3af5430ec94c9e",
+  "candidate_tree": "18711c5732863a4e50672112c7f3c5ba4a1b229b",
+  "slice_base_sha": "d9c48853c5ab9ad7473df204bf3a7a1995a32057",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/F.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/runtime-profiles.md"
+  ],
+  "source_refs": [
+    {
+      "source_sha": "99f196be45dec7acabdc05f0cb3af5430ec94c9e",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/F.md",
+      "bytes": 20726,
+      "sha256": "a654c049c83a0133503926f47e77950bea3817443fc317eccdc685d9e52be38b"
+    },
+    {
+      "source_sha": "99f196be45dec7acabdc05f0cb3af5430ec94c9e",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md",
+      "bytes": 104210,
+      "sha256": "47993533fca8f262817dac4e93805d208c42efb63de797ef083668e30f1566a2"
+    },
+    {
+      "source_sha": "99f196be45dec7acabdc05f0cb3af5430ec94c9e",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/runtime-profiles.md",
+      "bytes": 34592,
+      "sha256": "09a9d58d24e39a79f62c71548498a2eb96d763b45c2778d22bc974e284973cc0"
+    }
+  ],
+  "base_three_blobs_identical_root53afa776": true,
+  "nonF_C_D_E_section_bytes_unchanged": true,
+  "F_method_anchors": 16,
+  "F_bundle_anchors": 17,
+  "original_finding_IDs": 35,
+  "original_bindings": 36,
+  "unique_original_card_blocks": 35,
+  "document_current_continuation_recommendation_counts": {
+    "closed": 21,
+    "limited": 13,
+    "held": 1
+  },
+  "technical_proposal_counts": {
+    "closed": 26,
+    "limited": 8,
+    "held": 1
+  },
+  "current_receipt_registry": [
+    {
+      "key": "eco",
+      "git_ref": "d9c48853c5ab9ad7473df204bf3a7a1995a32057",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006.json",
+      "bytes": 127652,
+      "sha256": "ced279a2a9ce169c271c4dedbb2ac18a27193de75dd7cd2cf80375fb633c4162",
+      "implementation_commits": [
+        "964c76dad1dc9f56bd89e2216bded373f0e66883",
+        "4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3"
+      ],
+      "candidate_tree_sha": "134aca5ad6bac87da8d2f3d18a4be0ab20652251",
+      "checks": 16,
+      "full_json_read_and_hash_check": "PASS"
+    },
+    {
+      "key": "eco_dtype",
+      "git_ref": "d9c48853c5ab9ad7473df204bf3a7a1995a32057",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006.json",
+      "bytes": 58922,
+      "sha256": "cb9efb8452c6446d78d19225dcae4c69dadaa817810e16fcc9c8741dee8ad6c7",
+      "implementation_commits": [
+        "c003bd673fd672726db18773bf888357a468d901"
+      ],
+      "candidate_tree_sha": "16927b18be300fc6c1723c2af4bb8a421ccac357",
+      "checks": 11,
+      "full_json_read_and_hash_check": "PASS"
+    },
+    {
+      "key": "fry",
+      "git_ref": "e00dd3799cf2cdd14baf4b26e175ba1e848c3a6a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006.json",
+      "bytes": 97248,
+      "sha256": "04fba06be549c934631ea496ae1cbf6b3698e2f235a94b61880ba540308f2cbf",
+      "implementation_commits": [
+        "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+        "3e1819173f0593ce93d257c3c62cdb2fa627e426"
+      ],
+      "candidate_tree_sha": "45852a68bb786a96d6d23c52cea790f13d3489d3",
+      "checks": 18,
+      "full_json_read_and_hash_check": "PASS"
+    },
+    {
+      "key": "scm_version",
+      "git_ref": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json",
+      "bytes": 131648,
+      "sha256": "0aef8daff10c6a047fd5104910bdf79bfc06f58a2cd0c7ef3ba80c2406292570",
+      "implementation_commits": [
+        "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+        "e94a40e78416b7392edf96f1f24c7846a808c8d0"
+      ],
+      "candidate_tree_sha": "8fcab970c187cb6f15f4b3a7cb368b9f929db2fd",
+      "checks": 24,
+      "full_json_read_and_hash_check": "PASS"
+    },
+    {
+      "key": "scm_static",
+      "git_ref": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006.json",
+      "bytes": 50088,
+      "sha256": "d71112938c6ee404c4436979df7139a2b6c7948d34fea1597de48ec2d0704818",
+      "implementation_commits": [
+        "5182825c190aa403bee765e339a119bb53e805e0"
+      ],
+      "candidate_tree_sha": "87e2bc0e426a2e1cc41fdb3adb340a70ed0c8b1e",
+      "checks": 11,
+      "full_json_read_and_hash_check": "PASS"
+    },
+    {
+      "key": "scm_poly",
+      "git_ref": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006.json",
+      "bytes": 44860,
+      "sha256": "2aa65d305f67d094489b849ee64cff927db717bd866acb51484e99ed051f91f4",
+      "implementation_commits": [
+        "6f95f55ca7d9c5cd9489256a354a27da058b46b9"
+      ],
+      "candidate_tree_sha": "1481e08664a271f12e77807f2468906efd7e40c5",
+      "checks": 11,
+      "full_json_read_and_hash_check": "PASS"
+    },
+    {
+      "key": "cau",
+      "git_ref": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json",
+      "bytes": 162688,
+      "sha256": "ba2405cc2cafdb42b2bcfaab0606aacb60056cdffe9fc4f304f854c1283e62dc",
+      "implementation_commits": [
+        "759c984f475d07c982c0f22f747588706ac752e8",
+        "856caddfa71423a439b1257d947d9657b6a29ff3",
+        "0b522ed173730b4ec744253bb75b6ee260bfcebb"
+      ],
+      "candidate_tree_sha": "a402720194c41d0b6c5bb93cceb326cd4699df72",
+      "checks": 18,
+      "full_json_read_and_hash_check": "PASS"
+    },
+    {
+      "key": "cau_science",
+      "git_ref": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+      "bytes": 216928,
+      "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+      "implementation_commits": [
+        "fc0d896e86ffb346381bbcc95b81d24c84e1a351",
+        "c7d33a223e467964c589f61c8b097eb9175335c5",
+        "0a25f3afee4c12ba8079c781618229589ef8af75",
+        "cebe94d8134a4652bbfc1ae4d74ec6403940ced5"
+      ],
+      "candidate_tree_sha": "a2ed0a07151263cd747cff5ec410643e326620a9",
+      "checks": 21,
+      "full_json_read_and_hash_check": "PASS"
+    },
+    {
+      "key": "rdd",
+      "git_ref": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-sharp-rbc-20261006.json",
+      "bytes": 68616,
+      "sha256": "99a51663ca672ad1809a04dfbdca89bcf65c65f964b43a5bd9305b33dd5cae60",
+      "implementation_commits": [
+        "cdede69e8c0713aac4fd6c8b393ae34837c3a594",
+        "fb022aa12599ee1617f83d154cd9a8027b2a58b8"
+      ],
+      "candidate_tree_sha": "bee112b9284e11b78c96d2f91660f330d68b26c7",
+      "checks": 13,
+      "full_json_read_and_hash_check": "PASS"
+    },
+    {
+      "key": "root",
+      "git_ref": "4a0c831ce1088c4e2fe1587b6c5a2eb1fb85b75c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006.json",
+      "bytes": 13477,
+      "sha256": "0ec2f8e09b0dfc2be368d6aa30dd1160ffc4c0d2e3fc9bf1f9f1bdcc398d0927",
+      "implementation_commits": [
+        "05f86c84a3cc9720fc5d7eb86a6b0c1b7090c282",
+        "86e7f9afe25e5f171a0fb03669ce0d9cb5269624",
+        "3afb3ea5f26ad429ac45be78bd2cbd180fcc5a77"
+      ],
+      "candidate_tree_sha": "508884be8ea79e5b87844030ea4122c8e74d610a",
+      "checks": 5,
+      "full_json_read_and_hash_check": "PASS"
+    }
+  ],
+  "current_registry_check_denominator": 148,
+  "explicit_F_receipt_citation_bindings": [
+    {
+      "artifact_git_ref": "d9c48853c5ab9ad7473df204bf3a7a1995a32057",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006.json",
+      "bytes": 127652,
+      "sha256": "ced279a2a9ce169c271c4dedbb2ac18a27193de75dd7cd2cf80375fb633c4162",
+      "candidate_tree_sha": "134aca5ad6bac87da8d2f3d18a4be0ab20652251",
+      "checks": 16
+    },
+    {
+      "artifact_git_ref": "d9c48853c5ab9ad7473df204bf3a7a1995a32057",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006.json",
+      "bytes": 58922,
+      "sha256": "cb9efb8452c6446d78d19225dcae4c69dadaa817810e16fcc9c8741dee8ad6c7",
+      "candidate_tree_sha": "16927b18be300fc6c1723c2af4bb8a421ccac357",
+      "checks": 11
+    },
+    {
+      "artifact_git_ref": "e00dd3799cf2cdd14baf4b26e175ba1e848c3a6a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006.json",
+      "bytes": 97248,
+      "sha256": "04fba06be549c934631ea496ae1cbf6b3698e2f235a94b61880ba540308f2cbf",
+      "candidate_tree_sha": "45852a68bb786a96d6d23c52cea790f13d3489d3",
+      "checks": 18
+    },
+    {
+      "artifact_git_ref": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json",
+      "bytes": 131648,
+      "sha256": "0aef8daff10c6a047fd5104910bdf79bfc06f58a2cd0c7ef3ba80c2406292570",
+      "candidate_tree_sha": "8fcab970c187cb6f15f4b3a7cb368b9f929db2fd",
+      "checks": 24
+    },
+    {
+      "artifact_git_ref": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006.json",
+      "bytes": 50088,
+      "sha256": "d71112938c6ee404c4436979df7139a2b6c7948d34fea1597de48ec2d0704818",
+      "candidate_tree_sha": "87e2bc0e426a2e1cc41fdb3adb340a70ed0c8b1e",
+      "checks": 11
+    },
+    {
+      "artifact_git_ref": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006.json",
+      "bytes": 44860,
+      "sha256": "2aa65d305f67d094489b849ee64cff927db717bd866acb51484e99ed051f91f4",
+      "candidate_tree_sha": "1481e08664a271f12e77807f2468906efd7e40c5",
+      "checks": 11
+    },
+    {
+      "artifact_git_ref": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json",
+      "bytes": 162688,
+      "sha256": "ba2405cc2cafdb42b2bcfaab0606aacb60056cdffe9fc4f304f854c1283e62dc",
+      "candidate_tree_sha": "a402720194c41d0b6c5bb93cceb326cd4699df72",
+      "checks": 18
+    },
+    {
+      "artifact_git_ref": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+      "bytes": 216928,
+      "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+      "candidate_tree_sha": "a2ed0a07151263cd747cff5ec410643e326620a9",
+      "checks": 21
+    },
+    {
+      "artifact_git_ref": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-sharp-rbc-20261006.json",
+      "bytes": 68616,
+      "sha256": "99a51663ca672ad1809a04dfbdca89bcf65c65f964b43a5bd9305b33dd5cae60",
+      "candidate_tree_sha": "bee112b9284e11b78c96d2f91660f330d68b26c7",
+      "checks": 13
+    },
+    {
+      "artifact_git_ref": "4a0c831ce1088c4e2fe1587b6c5a2eb1fb85b75c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006.json",
+      "bytes": 13477,
+      "sha256": "0ec2f8e09b0dfc2be368d6aa30dd1160ffc4c0d2e3fc9bf1f9f1bdcc398d0927",
+      "candidate_tree_sha": "508884be8ea79e5b87844030ea4122c8e74d610a",
+      "checks": 5
+    },
+    {
+      "artifact_git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+      "bytes": 150139,
+      "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+      "candidate_tree_sha": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+      "checks": 37
+    },
+    {
+      "artifact_git_ref": "f4fa51e6dd247cfd967450263579d67233a743d6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json",
+      "bytes": 77903,
+      "sha256": "ff8a8f2b2689fb9793c5ab03f29fde1412eb5fe03dae961656fad722a108176e",
+      "candidate_tree_sha": "dab61c3e7a161e00837f5a128fc2768a36e9b19a",
+      "checks": 14
+    },
+    {
+      "artifact_git_ref": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006.json",
+      "bytes": 93732,
+      "sha256": "0a60ca2fa939fb480a989bd87f11312c9543ac458381c197a7288060a3a53833",
+      "candidate_tree_sha": "191a4c8997b4bee61a1045d4825bd98759ce0ca8",
+      "checks": 20
+    },
+    {
+      "artifact_git_ref": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006.json",
+      "bytes": 28486,
+      "sha256": "5870aaedd4d4eb83a1f40c392c5cec79660d28927a5846981e8a363702945429",
+      "candidate_tree_sha": "4d87ce0690e001967b245ce18217cb36fff3c988",
+      "checks": 13
+    },
+    {
+      "artifact_git_ref": "449d32909928caf39382f4ff02ac74b0adf277eb",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006.json",
+      "bytes": 33029,
+      "sha256": "6729aabae4bd540d2b1e3077e5f7f39a007868d30fb1f265ced62f6798e8ce99",
+      "candidate_tree_sha": "7ced77fdbd83e65efbd14d4bd518de2f786b1e9a",
+      "checks": 15
+    },
+    {
+      "artifact_git_ref": "77166daa0ff8b9659e3978447f9016c691694266",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-20261006.json",
+      "bytes": 24363,
+      "sha256": "0d6e1e2bde0a76edfe74fed0ed278df7c73fc209c982cbfcf54fbb7347631f1a",
+      "candidate_tree_sha": "e84f7a4d1cb91c624264e6c95f5d0c07fb3510f3",
+      "checks": 8
+    },
+    {
+      "artifact_git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006.json",
+      "bytes": 66228,
+      "sha256": "b36bac6bf8f01a2821d8077e34166acdda487d21467a8c06a706177747177b6b",
+      "candidate_tree_sha": "9fd2bd6d9aebdb48d1a2bed266483a8b4ab1974e",
+      "checks": 9,
+      "locator_basis": "Doc explicitly says this receipt on the same carrier as preceding source-bound SCM citation."
+    }
+  ],
+  "original_card_bindings": [
+    {
+      "finding_id": "B204",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5094,
+        5105
+      ],
+      "bytes": 3579,
+      "sha256": "4604b95f70da45f417834b0b73cce792ba92c2709c35021952fc50cccb3e655a",
+      "title": "## B204. Стандартный DiD принимает отсутствие предшествующего периода за пригодный дизайн"
+    },
+    {
+      "finding_id": "B205",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5106,
+        5119
+      ],
+      "bytes": 4088,
+      "sha256": "ac0680b5d70af76383c9aac15ab1c58437abd9118b0c7dba427dfe837ba3d5dc",
+      "title": "## B205. Запрошенная covariance не исполняется: HC1 считает повторные периоды новой информацией"
+    },
+    {
+      "finding_id": "B206",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5120,
+        5131
+      ],
+      "bytes": 2372,
+      "sha256": "f405d3e2327c1cc0d64e6de308412c81eebe210af6ae5968af830b7e032fa0a1",
+      "title": "## B206. В DiD и RDD уровень интервала меняет подпись, но не границы"
+    },
+    {
+      "finding_id": "B207",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5132,
+        5145
+      ],
+      "bytes": 3913,
+      "sha256": "5b23dffbebbbaafe40934fedd710b77b0143fffb0073bbf58d1c5ca57d6ad6ca",
+      "title": "## B207. Bootstrap готовых ATT(g,t) не восстанавливает неопределённость панельных наблюдений"
+    },
+    {
+      "finding_id": "B208",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5146,
+        5157
+      ],
+      "bytes": 2624,
+      "sha256": "2df281351c22b1e79c6b0400c5ca6ccb312fc43666fd3ebc9e4e66031381d78d",
+      "title": "## B208. Staggered p-value сравнивает bootstrap с самой оценкой, а не с нулевой гипотезой"
+    },
+    {
+      "finding_id": "B209",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5158,
+        5169
+      ],
+      "bytes": 2656,
+      "sha256": "b774fd7cd4f1653c0771ee5e20e7d3ee990c14bb47cc698b284e581ac75cc44f",
+      "title": "## B209. Anticipation учитывается в baseline treated-группы, но не при выборе not-yet-treated controls"
+    },
+    {
+      "finding_id": "B210",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5170,
+        5181
+      ],
+      "bytes": 3218,
+      "sha256": "3b72bb59c40ef347388195b3309dd81f188e96d3bb205b3e3be72c77b76ac010",
+      "title": "## B210. RDD сообщает включённую bias correction без её вычисления"
+    },
+    {
+      "finding_id": "B211",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5182,
+        5193
+      ],
+      "bytes": 2695,
+      "sha256": "cf651667294eca28d2feef026f185292e15f443e1d3f4e8d515b40b67835b674",
+      "title": "## B211. Локальная RDD-подгонка материализует квадратичную диагональную матрицу весов"
+    },
+    {
+      "finding_id": "B212",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5194,
+        5205
+      ],
+      "bytes": 2849,
+      "sha256": "dd369570f1235d66729b8c5526f88a5968905343594089f5a4c00da90631238f",
+      "title": "## B212. Point-only ответ DoWhy превращается в почти точный доверительный интервал"
+    },
+    {
+      "finding_id": "B213",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5206,
+        5217
+      ],
+      "bytes": 2615,
+      "sha256": "6684013f61227644563e3dd6ac181b2546b5797168cd0b93fef3ef1bf75fe243",
+      "title": "## B213. Запрошенный estimand_type остаётся только подписью отчёта DoWhy"
+    },
+    {
+      "finding_id": "B214",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5218,
+        5229
+      ],
+      "bytes": 3537,
+      "sha256": "48c1311f230c5c8f4886013cf47fec75931cde810c20feee8889c9d820dcb1ad",
+      "title": "## B214. Проекция PAG/CPDAG разворачивает известное направление и может создать цикл"
+    },
+    {
+      "finding_id": "B215",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5230,
+        5243
+      ],
+      "bytes": 3763,
+      "sha256": "285a9f3f9267aaf97e7844c252fffd271febbc5cfb5212bcbbdefd7252f119a9",
+      "title": "## B215. Абдукция принимает подставленное среднее скрытого родителя за наблюдённый факт"
+    },
+    {
+      "finding_id": "B216",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5333,
+        5346
+      ],
+      "bytes": 5017,
+      "sha256": "5da65926eb9350c67aa4c305de165e0919a8ab5eff319562d1fa3d3b499bdcd2",
+      "title": "## B216. Общий m-separation неверно обрабатывает вилку и collider; двусторонняя проверка не устраняет ошибку"
+    },
+    {
+      "finding_id": "B217",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5347,
+        5360
+      ],
+      "bytes": 3662,
+      "sha256": "347b041bb8cdd642f730dda6caa9fb11367ebb047cfe11abf095166f8730c443",
+      "title": "## B217. Perfect do оставляет связь скрытого родителя с вмешиваемой переменной"
+    },
+    {
+      "finding_id": "B218",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5361,
+        5374
+      ],
+      "bytes": 3861,
+      "sha256": "8ce1868ddb2663580547f475288d03502e03ae6a4bc38923313bc069efb0a40a",
+      "title": "## B218. Временной граф теряет лаги при экспорте, а лаговая самозависимость отвергается как обычный self-loop"
+    },
+    {
+      "finding_id": "B219",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5375,
+        5388
+      ],
+      "bytes": 3117,
+      "sha256": "c3c2613bd397c8dd5d252ccb15562a6aa2f4bee46e36fa86eff1b12bf7c30009",
+      "title": "## B219. Простое DiGraph-представление перезаписывает параллельные причинные отношения"
+    },
+    {
+      "finding_id": "B220",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5389,
+        5402
+      ],
+      "bytes": 3831,
+      "sha256": "d0c39288b089bc7e1a85c4eec40ffd1c4fa3273293734b758729b4bb7dc54b71",
+      "title": "## B220. Frozen-модель не обеспечивает неизменность topology; кэш и копия расходятся с текущим графом"
+    },
+    {
+      "finding_id": "B221",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5403,
+        5416
+      ],
+      "bytes": 3594,
+      "sha256": "e22ca23d5d49e736162b73f80d43ae77719ada061f0898f1ba083a31e54943e4",
+      "title": "## B221. Fitting игнорирует наблюдаемые корни, а query придумывает для них стандартный Normal"
+    },
+    {
+      "finding_id": "B222",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5417,
+        5430
+      ],
+      "bytes": 3359,
+      "sha256": "b13339d3c9e2d80995027a0f1acbaf09ccad855a643deb0b283c065bc4232aa5",
+      "title": "## B222. Сохранённый полином исполняется как линейная аппроксимация с шумом от более точной модели"
+    },
+    {
+      "finding_id": "B223",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5431,
+        5444
+      ],
+      "bytes": 3092,
+      "sha256": "2f7406d0704ebafed25947c6ebdc6e7e910da062e19fc8b62aed081343ffefcf",
+      "title": "## B223. Attribution вычитает одно и то же вмешательство из самого себя"
+    },
+    {
+      "finding_id": "B224",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5445,
+        5458
+      ],
+      "bytes": 3959,
+      "sha256": "854f9eab140c71438e188c91ef3d9792895b0402ab22c5866de3584683596ca1",
+      "title": "## B224. Идеальное do сначала выполняет заменяемый механизм; нерелевантные узлы расходуют работу и память"
+    },
+    {
+      "finding_id": "B225",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5459,
+        5472
+      ],
+      "bytes": 3659,
+      "sha256": "9fc38772c0cd77e8bb8da7abd1d8423345cf151f598107387b177b4900860879",
+      "title": "## B225. Ошибка стохастической политики меняет вмешательство; хвостовой truncnorm превращается в атом"
+    },
+    {
+      "finding_id": "B54",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        1379,
+        1394
+      ],
+      "bytes": 5315,
+      "sha256": "ea5c3023d7b4bec4ee7a1a32b5a258dcceb5c67e3e4f47d28dac84b84f149c9d",
+      "title": "## B54. Кэш вспомогательной оценки сохраняет старую политику диагностики и возвращает общий изменяемый объект"
+    },
+    {
+      "finding_id": "B56",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        1409,
+        1424
+      ],
+      "bytes": 4524,
+      "sha256": "5b45e8c8b6ace1a66b9acdd9be541750cfac8c10558f6b21c6f6ec122743e77b",
+      "title": "## B56. Внутренняя параллельность folds не связана с общим ресурсом исследования"
+    },
+    {
+      "finding_id": "LA-001",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "lines": [
+        82,
+        108
+      ],
+      "bytes": 3007,
+      "sha256": "35f63e8bacf3c27cd4148db8119837ff30df91a5de9f73d52ead6e4fc73d9dd0",
+      "title": "## LA-001. Treasury: инфраструктура случайности под предметным названием"
+    },
+    {
+      "finding_id": "LA-002",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "lines": [
+        109,
+        135
+      ],
+      "bytes": 2982,
+      "sha256": "3acebb36bff2fda1f1ec71e0afc3f42f8aa1b2c160bc41ab564f03004893a336",
+      "title": "## LA-002. Design: каталог семейств рядом с исполняемыми механизмами"
+    },
+    {
+      "finding_id": "LA-003",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "lines": [
+        136,
+        166
+      ],
+      "bytes": 3450,
+      "sha256": "8e52a4ec93513e106070221058490c2c1c1d337ff27ddd7c453bb655e44710d5",
+      "title": "## LA-003. Fiscal/labor: живые kernels ранних базовых моделей"
+    },
+    {
+      "finding_id": "LA-004",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "lines": [
+        167,
+        197
+      ],
+      "bytes": 3498,
+      "sha256": "6e02db40071d978f1bb642bfff99ad1eb8102a565e90238a90259ed15f5acf4a",
+      "title": "## LA-004. Две экономические реализации: согласовать, но не подменять"
+    },
+    {
+      "finding_id": "LA-007",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "lines": [
+        254,
+        280
+      ],
+      "bytes": 2383,
+      "sha256": "f0b3ae2a0552d0b28a06b02d50dad0aaefb418a5cf7bcd52d6a1664edd9c90e0",
+      "title": "## LA-007. id_engine.py рядом с id_engine/: пустая тень, не адаптер"
+    },
+    {
+      "finding_id": "LA-016",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "lines": [
+        513,
+        539
+      ],
+      "bytes": 3048,
+      "sha256": "21aad31f6591c55749e29ede4b3db2933dd99ad76733ca1c77718c8688945555",
+      "title": "## LA-016. DiD umbrella-wrapper удерживает метаданные новых методов"
+    },
+    {
+      "finding_id": "LA-016",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "lines": [
+        513,
+        539
+      ],
+      "bytes": 3048,
+      "sha256": "21aad31f6591c55749e29ede4b3db2933dd99ad76733ca1c77718c8688945555",
+      "title": "## LA-016. DiD umbrella-wrapper удерживает метаданные новых методов"
+    },
+    {
+      "finding_id": "LA-017",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "lines": [
+        540,
+        570
+      ],
+      "bytes": 3335,
+      "sha256": "6d9ba04eca544917e9fce398fa9fce7a17ef81b1ae7f44216d74892c35ed072c",
+      "title": "## LA-017. Lex simulator: норм-различия, проверки и эвристика воздействия смешаны"
+    },
+    {
+      "finding_id": "LA-019",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "lines": [
+        930,
+        959
+      ],
+      "bytes": 3647,
+      "sha256": "cbc1ce3fc94f7590d343300b41db34e53ac4b87e2a9c242ff20859423665c3aa",
+      "title": "## LA-019. Ещё два пустых файла после выделения причинных пакетов"
+    },
+    {
+      "finding_id": "LA-020",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "lines": [
+        960,
+        989
+      ],
+      "bytes": 4138,
+      "sha256": "f87876bc9a834d23256c57f6aee11b5a6483cd8d159d816081db9404110ef3d5",
+      "title": "## LA-020. Фасады причинных пакетов сохраняют устройство старого монолита"
+    },
+    {
+      "finding_id": "LA-035",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "lines": [
+        2066,
+        2102
+      ],
+      "bytes": 7176,
+      "sha256": "59a23ac14a1d02f92da6bad843f4beffa7e61bd67830b0a792bec1610083ac69",
+      "title": "## LA-035. policy_loss_fn: ранний экономический baseline у общего method-владельца"
+    },
+    {
+      "finding_id": "LA-037",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "lines": [
+        2146,
+        2178
+      ],
+      "bytes": 5602,
+      "sha256": "79dc9efe37fc67c6b481db97f51d50a38d4aea4cff051ce0ffcf864ce049589c",
+      "title": "## LA-037. Slot layout: две последовательные compatibility-обёртки после переноса в IR"
+    }
+  ],
+  "actual_DID_wave": {
+    "scientific_source": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+    "original_counts": {
+      "datasets_each_arm": 160,
+      "null_coverage": 154,
+      "alternative_coverage": 154,
+      "null_rejections": 6,
+      "alternative_rejections": 160
+    },
+    "source0b_diagnostics_not_wave_relabel": true
+  },
+  "actual_RDD_wave": {
+    "product_source": "fb022aa12599ee1617f83d154cd9a8027b2a58b8",
+    "product_module_sha256": "1e13e98fa6238f76b545c8597b03ae1eff648807e17609713ad084c21701e009",
+    "scientific_original_target": "cdede69e8c0713aac4fd6c8b393ae34837c3a594",
+    "actual_external_differential_cases": 4036,
+    "coverage_each_arm": 2000,
+    "covered": [
+      1879,
+      1877
+    ],
+    "removal_numeric_failures": 12108,
+    "removal_covered": [
+      1687,
+      1676
+    ],
+    "GPL_development_oracle_not_product_prerequisite": true
+  },
+  "B225_independence": "math.erfc and SF differences vs SciPy sampler; actual immutable test inspected",
+  "LA004_original_property": "DISTINCT economic models with equal-regime and deliberate-inequivalence/accounting/seed/observable controls; current Gini remains separately scoped, not substitution for LA004 or LA035 intent.",
+  "G_acceptance": "UNRUN",
+  "scientific_reruns": false,
+  "source_begin_end_stable": true,
+  "working_status_begin": "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/\n",
+  "working_status_end": "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/\n",
+  "untracked_receipt_companions_outside_frozen_product_scope": true
+}

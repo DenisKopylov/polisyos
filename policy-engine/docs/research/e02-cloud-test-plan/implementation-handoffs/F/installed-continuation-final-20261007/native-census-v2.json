@@ -1,0 +1,122 @@
+{
+  "source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+  "source_tree": "055871c409ce72e6a29619b235698aa45a6844d4",
+  "profiles": {
+    "wheel": {
+      "actual_cases": 162,
+      "outcomes": {
+        "PASS": 130,
+        "FAIL": 32
+      },
+      "by_module": {
+        "test_graph_intake_current_content": {
+          "PASS": 28,
+          "FAIL": 10
+        },
+        "test_reconcile_causal_graph_node": {
+          "PASS": 2,
+          "FAIL": 7
+        },
+        "test_reconcile_causal_graph": {
+          "PASS": 8
+        },
+        "test_graph_reconciliation": {
+          "PASS": 9,
+          "FAIL": 15
+        },
+        "test_installed_graph_contract_reconciliation": {
+          "PASS": 2
+        },
+        "test_tmle_persisted_evidence_consumers": {
+          "PASS": 53
+        },
+        "test_historical_income_baseline": {
+          "PASS": 21
+        },
+        "test_signed_gini_producer_route": {
+          "PASS": 7
+        }
+      },
+      "parent_product_origins": 1122,
+      "fresh_isolated_readers": 53,
+      "actual_reader_origin_proof_count": 2,
+      "reader_origin_count_range": [
+        791,
+        793
+      ],
+      "zero_origin_escapes": true,
+      "all_readers_same_actual_native_report": "sha256:d671d21736330644711d4455492ed337aa31101ff6f7667c598e233b843d8e42",
+      "all_kept_SUCCESS_CI_candidate_Confidence_blocker_value_contract_refusal": true,
+      "literal_warning_counts": {
+        "expected_bad_SimulationResult_loads": 36,
+        "Prometheus_fixed9464_bootstrap_failures_child": 36,
+        "Prometheus_bootstrap_mentions_complete_stdout": 36,
+        "PytestUnknownMarkWarning_unit": 1,
+        "Equinox_LayerNorm_deprecations": 15,
+        "actual_AnomalyFlag_warning_pattern": 0,
+        "LightGBM_literal": 0
+      },
+      "stderr_expected_negative_Gini_JAX_callback_tracebacks": 2
+    },
+    "sdist": {
+      "actual_cases": 162,
+      "outcomes": {
+        "PASS": 130,
+        "FAIL": 32
+      },
+      "by_module": {
+        "test_graph_intake_current_content": {
+          "PASS": 28,
+          "FAIL": 10
+        },
+        "test_reconcile_causal_graph_node": {
+          "PASS": 2,
+          "FAIL": 7
+        },
+        "test_reconcile_causal_graph": {
+          "PASS": 8
+        },
+        "test_graph_reconciliation": {
+          "PASS": 9,
+          "FAIL": 15
+        },
+        "test_installed_graph_contract_reconciliation": {
+          "PASS": 2
+        },
+        "test_tmle_persisted_evidence_consumers": {
+          "PASS": 53
+        },
+        "test_historical_income_baseline": {
+          "PASS": 21
+        },
+        "test_signed_gini_producer_route": {
+          "PASS": 7
+        }
+      },
+      "parent_product_origins": 1122,
+      "fresh_isolated_readers": 53,
+      "actual_reader_origin_proof_count": 2,
+      "reader_origin_count_range": [
+        791,
+        793
+      ],
+      "zero_origin_escapes": true,
+      "all_readers_same_actual_native_report": "sha256:d671d21736330644711d4455492ed337aa31101ff6f7667c598e233b843d8e42",
+      "all_kept_SUCCESS_CI_candidate_Confidence_blocker_value_contract_refusal": true,
+      "literal_warning_counts": {
+        "expected_bad_SimulationResult_loads": 36,
+        "Prometheus_fixed9464_bootstrap_failures_child": 36,
+        "Prometheus_bootstrap_mentions_complete_stdout": 36,
+        "PytestUnknownMarkWarning_unit": 1,
+        "Equinox_LayerNorm_deprecations": 15,
+        "actual_AnomalyFlag_warning_pattern": 0,
+        "LightGBM_literal": 0
+      },
+      "stderr_expected_negative_Gini_JAX_callback_tracebacks": 2
+    }
+  },
+  "outcome": "FAIL",
+  "deciding_blocker": "32Graph cases each fail missing existing default seed_variable_alignments.yaml. Full162/no skip/error census kept. Archive3459declaredbyteclosure passing does not establish actual default-resource dependency closure.",
+  "warnings_scope": "Current literal162 counts only. Earlier15=14runtime+1instrumentation and0runtime/90optionalLightGBM profile are retained exact8236 proof, not remeasured in this affectedwave. Existing source conftest logging filters retained; no warning suppression introduced. Prometheus fixed-port bootstrap failures retained; exporter positive UNRUN.",
+  "scientific_limits": "Synthetic numerical candidates are not genuine operational/statistical/value authority or B56 admitted aggregate study budget."
+}

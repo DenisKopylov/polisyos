@@ -1,0 +1,10 @@
+{
+  "check_id": "encoded-artifact-staged-whitespace",
+  "outcome": "PASS",
+  "exit": 0,
+  "command": "git diff --cached --check",
+  "source_sha": "647f5d35362c2a5d7ad32283b804a5b03ea56e83",
+  "stdout_bytes": 0,
+  "stderr_bytes": 0,
+  "meaning": "After lossless artifact transport only; raw historical whitespace FAIL is retained unchanged. No scientific source re-run or source mutation."
+}

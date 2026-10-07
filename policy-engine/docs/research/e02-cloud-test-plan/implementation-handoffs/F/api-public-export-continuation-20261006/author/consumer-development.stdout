@@ -1,0 +1,58 @@
+........................F.............                                   [100%]
+=================================== FAILURES ===================================
+____ test_real_registry_keeps_canonical_method_and_public_engine_identities ____
+
+    def test_real_registry_keeps_canonical_method_and_public_engine_identities() -> None:
+        from polisyos.foundry.methods.catalog.causal._registry_boot import register_causal_methods
+        from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
+        from polisyos.foundry.methods.catalog.causal.causal_engine.api import CausalEngine as Owner
+        from polisyos.foundry.methods.catalog.causal.symbolic_identify import SymbolicIdentify
+        from polisyos.foundry.methods.registry import MethodRegistry
+    
+        methods = register_causal_methods()
+        assert SymbolicIdentify in methods
+>       assert MethodRegistry.get_instance().get(SymbolicIdentify.signature.fqn) is SymbolicIdentify
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/foundry/methods/catalog/causal/test_facade_consumer_continuation.py:48: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <MethodRegistry methods=0>
+name = 'causal.transport.symbolic_identify@1.0.0', version = None
+
+    def get(
+        self,
+        name: str,
+        version: str | None = None,
+        *,
+        policy: ResolutionPolicy | None = None,
+        constraint: VersionConstraint | None = None,
+    ) -> type[FoundryMethod]:
+        """
+        Get a method by name with version resolution.
+    
+        This is the primary retrieval method. It supports:
+        - Direct FQN lookup (O(1))
+        - Short name lookup with version resolution
+        - Base name (namespace.name) with version resolution
+        """
+        policy = policy or self.get_default_policy()
+    
+        if "@" in name:
+            with self._reg_lock:
+                entry = self._entries.get(name)
+            if entry is None:
+>               raise MethodNotFoundError(name)
+E               polisyos.foundry.methods.exceptions.MethodNotFoundError: Method not found: causal.transport.symbolic_identify@1.0.0
+
+src/polisyos/foundry/methods/selection/registry.py:702: MethodNotFoundError
+=============================== warnings summary ===============================
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/catalog/causal/test_facade_consumer_continuation.py::test_real_registry_keeps_canonical_method_and_public_engine_identities
+1 failed, 37 passed, 65 deselected, 1 warning in 27.26s

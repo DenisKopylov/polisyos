@@ -1,0 +1,32 @@
+{
+  "source_start": "d550a8980ec32fc5cf6186c253b409fdc75ec47e",
+  "tree_start": "030404edf62392258f5144a04cc326dc0a02582c",
+  "status_start": "",
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "tools.cli",
+    "architecture",
+    "guardrails",
+    "check"
+  ],
+  "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+  "source_sha": "d550a8980ec32fc5cf6186c253b409fdc75ec47e",
+  "tree": "030404edf62392258f5144a04cc326dc0a02582c",
+  "status": "",
+  "exit": 2,
+  "wall_s": 221.9189339269942,
+  "pythonpath": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine",
+  "outputs": {
+    "stdout": {
+      "path": "/workspace/e02-F-20261006-receipts/consumer/complete-projection-architecture.stdout",
+      "sha256": "e7591dc8abc54bfb69ba59ae78ed3406c7cba86721a8f871267e56c980fa3221",
+      "bytes": 128094
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-20261006-receipts/consumer/complete-projection-architecture.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  }
+}

@@ -7,12 +7,14 @@ from pydantic import BaseModel, ConfigDict, Field
 from polisyos.core.canon import content_hash
 from polisyos.core.contracts.foundry import ProgramGraph
 
+TREASURY_SALTS_PROFILE = "randomization:treasury_salts_v1"
+
 
 class TreasuryPlan(BaseModel):
     """Deterministic salt plan for compiled program execution streams.
 
-    The plan is consumed by the Trinity compiler to derive stable, per-node
-    randomization streams. It is intentionally lightweight and serializable so
+    The compiler persists this plan and the versioned executor consumes its
+    stable, per-node randomization streams. It is lightweight and serializable so
     it can be embedded into compile artifacts and replayed later.
     """
 

@@ -1,0 +1,19 @@
+fatal: path 'policy-engine/tests/unit/foundry/agent_sim/test_gini_science.py' exists on disk, but not in '855cb26a7a2c9fea60356663cf81e7d01e20c738'
+fatal: path 'policy-engine/tests/unit/foundry/agent_sim/test_gini_domain.py' exists on disk, but not in '855cb26a7a2c9fea60356663cf81e7d01e20c738'
+fatal: path 'policy-engine/tests/unit/foundry/plugins/test_historical_income_baseline.py' exists on disk, but not in '855cb26a7a2c9fea60356663cf81e7d01e20c738'
+fatal: path 'policy-engine/tests/unit/foundry/agent_sim/test_signed_gini_producer_route.py' exists on disk, but not in '855cb26a7a2c9fea60356663cf81e7d01e20c738'
+fatal: path 'policy-engine/docs/reference/foundry/economic-baseline-profile.md' exists on disk, but not in '855cb26a7a2c9fea60356663cf81e7d01e20c738'
+fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-current35-20261007/REPORT.md' does not exist in '519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82'
+fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-current35-20261007/index.json' does not exist in '519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82'
+fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-current35-20261007/full-audit.json' does not exist in '519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82'
+fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/F.md' does not exist in '519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82'
+fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/F-criteria-correction.md' does not exist in '519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82'
+fatal: path 'policy-engine/docs/reference/foundry/economic-baseline-profile.md' exists on disk, but not in '855cb26a7a2c9fea60356663cf81e7d01e20c738'
+fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-current35-20261007/REPORT.md' does not exist in '855cb26a7a2c9fea60356663cf81e7d01e20c738'
+fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-current35-20261007/index.json' does not exist in '855cb26a7a2c9fea60356663cf81e7d01e20c738'
+fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-current35-20261007/full-audit.json' does not exist in '855cb26a7a2c9fea60356663cf81e7d01e20c738'
+Traceback (most recent call last):
+  File "/tmp/e02-F-continuation-20261007/economics/recovery_review.py", line 86, in <module>
+    hp='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007.json';hb=cmd('ECO-full-published-handoff',['git','show',E+':'+hp]);handoff=json.loads(hb);assert handoff['candidate_tree_sha']=='81c2e3e636bec4c5d81b8f918bb61cca6a49309b'
+                                                                                                                                                                                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

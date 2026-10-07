@@ -1,0 +1,38 @@
+.........F...                                                            [100%]
+=================================== FAILURES ===================================
+_ test_installed_id_package_executes_identification_and_reopens_persisted_result _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-92/test_installed_id_package_exec0')
+
+    def test_installed_id_package_executes_identification_and_reopens_persisted_result(
+        tmp_path: Path,
+    ) -> None:
+        """An actual nonempty package supplies algorithms after empty-shim retirement."""
+        package = importlib.import_module(PREFIX + ".id_engine")
+        assert Path(package.__file__).name == "__init__.py"
+        assert package.__path__
+        result = causal_engine.CausalEngine().identify("X", "Y", _graph())
+        assert result.status is package.IdentificationStatus.IDENTIFIED
+        _, bundle, certificate = causal_engine.CausalEngine().run(
+            "X", "Y", _graph(), run_id="installed-package-api"
+        )
+        assert certificate is None
+        assert bundle.identification_status == "identified"
+        store = FileSystemCAS(tmp_path / "cas")
+        reference = store.put_json(
+            bundle,
+            PutOptions(kind="research.api.identification", media_type="application/json"),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        reopened = FileSystemCAS(tmp_path / "cas")
+>       restored = EvidenceBundle.model_validate(json.loads(reopened.get_bytes(reference)))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for EvidenceBundle
+E       data_provenance.0.quality_score
+E         Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_type
+
+tests/unit/foundry/methods/catalog/causal/test_installed_facade_contract.py:187: ValidationError
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/catalog/causal/test_installed_facade_contract.py::test_installed_id_package_executes_identification_and_reopens_persisted_result
+1 failed, 12 passed in 5.10s

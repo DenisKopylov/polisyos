@@ -1,0 +1,19 @@
+{
+  "output": {
+    "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/utility-probe/refreshed.json",
+    "bytes": 5880,
+    "sha256": "8880f5b233a1c6e7ccf9f35e24ee67ed3294256232b95a1ceb68431408ef6001"
+  },
+  "counts": {
+    "logical_files": 5,
+    "unique_transport_files": 4,
+    "aliases": 1,
+    "existing_git_files": 0,
+    "changed_prior_inputs": 1,
+    "unique_raw_transport_bytes": 24610
+  },
+  "pending_extensions": [],
+  "root_source_writes": false,
+  "Git_writes": false,
+  "tests_run": false
+}

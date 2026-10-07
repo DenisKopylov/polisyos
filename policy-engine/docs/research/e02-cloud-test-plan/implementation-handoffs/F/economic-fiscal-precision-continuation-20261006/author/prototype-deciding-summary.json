@@ -1,0 +1,28 @@
+{
+  "source_sha": "e84acb04fbe1fbebdfa5a54f87ff0fc72640a4ef",
+  "source_status": "",
+  "candidate_sha256": "ed0daf0927e4685aa740dce293520b9acf5761225a37fe4c0caed39a8c1068da",
+  "native_prototype": {
+    "cases": 35,
+    "passed": 35,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "junit_path": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/prototype-candidate-input-precision.xml"
+  },
+  "fp32_baseline_equivalence": {
+    "cases": 24,
+    "all_complete_patch_state_tree_leaves_rate_attribute_and_key_bytes_identical": true,
+    "baseline": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/fp32-matrix-baseline.json",
+    "candidate": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/fp32-matrix-candidate-input-precision.json",
+    "bytes": 204411,
+    "sha256": "7ef5af92d17d7b203a7443ab85eaf70c8b63c54641936278fc92d4dbfad1056f"
+  },
+  "actual_spec_compile_cas_fresh_reader": {
+    "low_original_exact_assertion": false,
+    "prototype_exact_assertion": true,
+    "lowered_parameter_payloads_identical": true,
+    "full_trace": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/prototype-trace/fiscal-precision-trace.json"
+  },
+  "scope": "prototype only, no sourcewrites; explicitly approved .rate source dtype64 delta, no neutralABI claim"
+}

@@ -14,7 +14,7 @@ from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.compiler.report import CompileReport
-from polisyos.core.contracts.foundry import FoundryCompileConfig, ProgramGraph
+from polisyos.core.contracts.foundry import ExecPlan, FoundryCompileConfig, ProgramGraph
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.foundry.compile.randomization import TreasuryPlan
@@ -86,13 +86,18 @@ def _assert_persisted_contracts(store: FileSystemCAS, state: ExperimentState) ->
 
     graph = ProgramGraph.model_validate(from_canonical_bytes(store.get_bytes(program_ref)))
     treasury = TreasuryPlan.model_validate(from_canonical_bytes(store.get_bytes(treasury_ref)))
-    # The compiler historically uses root_seed=0. This does not establish a runtime salt consumer.
-    assert treasury.root_seed == 0
+    plan = ExecPlan.model_validate(
+        from_canonical_bytes(store.get_bytes(state.artifacts_index["exec_plan_ref"]))
+    )
+    assert treasury.root_seed == (plan.random_seed or 0)
+    prefix = f"{treasury.root_seed}:" if treasury.root_seed != 0 else ""
     assert treasury.node_salts == {
-        node.node_id: int(sha256(f"node:{node.node_id}".encode()).hexdigest()[:16], 16)
+        node.node_id: int(sha256(f"{prefix}node:{node.node_id}".encode()).hexdigest()[:16], 16)
         for node in graph.nodes
     }
-    assert treasury.stream_salts == {"default": int(sha256(b"stream:default").hexdigest()[:16], 16)}
+    assert treasury.stream_salts == {
+        "default": int(sha256(f"{prefix}stream:default".encode()).hexdigest()[:16], 16)
+    }
     layout = SlotLayout.model_validate(from_canonical_bytes(store.get_bytes(layout_ref)))
     assert layout.layout["agents.income"] == "agents.income"
     assert layout.layout["government.balance"] == "government_balance"
@@ -134,7 +139,9 @@ def test_compiler_artifact_contract_rejects_same_shape_missing_property(
 
     context, initial = _context_and_state(tmp_path / "cas")
     if artifact == "treasury":
-        monkeypatch.setattr(trinity_compiler, "build_treasury_plan", lambda _graph: TreasuryPlan())
+        monkeypatch.setattr(
+            trinity_compiler, "build_treasury_plan", lambda _graph, **_kw: TreasuryPlan()
+        )
     else:
         monkeypatch.setattr(trinity_compiler, "build_slot_layout", lambda _registry: SlotLayout())
     outcome = CompileFoundryNode().execute(context, initial)

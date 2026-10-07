@@ -1,0 +1,44 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "polisyos.runtime.quality.production_invocation",
+    "--repo-root",
+    "/workspace/e02-F-api-20261006/policy-engine",
+    "--base",
+    "421f1dd977b237307394c68820caab4156716eb2",
+    "--receipt",
+    "/tmp/e02-F-continuation-20261006/root-final-quality-8236/invocation-full.json"
+  ],
+  "cwd": "/workspace/e02-F-api-20261006/policy-engine",
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-F-api-20261006/policy-engine/src:/workspace/e02-F-api-20261006/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "actual_application_interpreter": "Python3.14.7"
+  },
+  "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+  "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+  "slice_base_sha": "421f1dd977b237307394c68820caab4156716eb2",
+  "exit_code": 1,
+  "wall_seconds": 239.08224702600273,
+  "complete_input_python_paths": "full maintained checker denominator",
+  "outputs": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-final-quality-8236/invocation.stdout.txt",
+      "bytes": 9449,
+      "sha256": "396fbf353e48fe52aabd29da95546a22d508e4792db2f5cd25b6dea6cb1bf5c0"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-final-quality-8236/invocation.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-final-quality-8236/invocation-full.json",
+      "bytes": 171579228,
+      "sha256": "a238b347a3086a5db2a2b4bd934de93b6fdf84f473553e8f1ff39d898b95f983"
+    }
+  ],
+  "check": "FAIL",
+  "limitation": "Static checker/schema/drift/lint is not native runtime invocation or authority evidence. FullFAIL/ERROR staysred; P41not_established."
+}

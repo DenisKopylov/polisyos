@@ -1,0 +1,18 @@
+{
+  "source_sha": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+  "tree_sha": "4d87ce0690e001967b245ce18217cb36fff3c988",
+  "paths": {
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py": {
+      "sha256": "cf8d32b9fd825fa2efdd169652de78164f714c7ad01f2d8fde387095111103a0",
+      "git_blob": "96a9006df3f35174c549cf57b2d6b6927fbe556a"
+    },
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py": {
+      "sha256": "7b7da64baf54cdf94752c63f52fd2dda05eeec4469f81f09ae61a5515d5a3f04",
+      "git_blob": "630265e9216390b58c4eb3e2c2aa5bdaa0ae17a5"
+    },
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_treatment_effects.py": {
+      "sha256": "dc6364a0a7045219711e0bfbc4ce674888e15c556533be3933d7a6f9d4ac3476",
+      "git_blob": "0626e60b8d59ea97b2a78646a0688cc8e2474367"
+    }
+  }
+}

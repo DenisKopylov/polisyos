@@ -1,0 +1,36 @@
+{
+  "main_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "main_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "anchor": "1ddcd7b3905e52c0d19db091823a64830139fa64",
+  "anchor_is_ancestor": true,
+  "historical_grade": "transfer_and_navigation_only",
+  "raw_archives": 0,
+  "checks": [
+    {
+      "name": "import-check",
+      "command": [
+        "python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py",
+        "--check"
+      ],
+      "exit": 0,
+      "stdout_sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4",
+      "stdout_bytes": 112
+    },
+    {
+      "name": "F-failures",
+      "command": [
+        "python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--unit",
+        "F",
+        "--failures-only",
+        "--limit",
+        "30"
+      ],
+      "exit": 0,
+      "stdout_sha256": "23a1055d9986961c3130b79f72aa924bec7788f4f5c0670eb49caa1e3b139201",
+      "stdout_bytes": 19253
+    }
+  ]
+}

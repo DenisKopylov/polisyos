@@ -1,0 +1,133 @@
+{
+  "outcome": "FAIL",
+  "scope": "Installed default composition consumer NO-GO; independent complete declared-byte custody PASS separately",
+  "primary_review": "/tmp/e02-F-continuation-20261007/api/installed-final-independent/b5-independent-review.json",
+  "files": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-final-independent/b5-independent-review.json",
+      "bytes": 53667,
+      "sha256": "7ebcaf5a9b2d9154f35a272677f6299a15707f624172678022586de46afcb5ac"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-final-independent/b5-independent-review-companion.json",
+      "bytes": 10527,
+      "sha256": "bc5e1b6c6fed8938e9ef882063059410f60e7bc2a5b5b947010d5b1f15733471"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-final-independent/b5-full-source-manifest.json.gz",
+      "bytes": 1357069,
+      "sha256": "033a2a68b9a4632deb900dee453fadd274b45b98cf5ac4eab7692b37292d97c2",
+      "compression": "gzip",
+      "decoded_bytes": 4961391,
+      "decoded_sha256": "2b6060bf52a2353f8e233aca3f73dc944bbce1d4407cbaa60e61b5140013aefe"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-final-independent/review_b5_packet.py",
+      "bytes": 14702,
+      "sha256": "3b843c284ba36455dab472be776847e2441ff02ee281bf326091c644b7733f61"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-final-independent/review_b5_packet_first_observer_error.py",
+      "bytes": 12182,
+      "sha256": "45c85e3d9b4bdf1e604f0b3d11b4b33d104651195f126991d69481c3be884b0e"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-final-independent/review_b5_packet_second_observer_error.py",
+      "bytes": 13485,
+      "sha256": "09773930239a5198c78502820225a815c45a27c56afc8a651ebbc1601c21001d"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-final-independent/b5-independent-review.stdout.txt",
+      "bytes": 2197,
+      "sha256": "fd53d5a9facda42f085599d12a6b18bc54ee07fd8f4e438eaa22cc3c98df7dc0"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-final-independent/b5-independent-review.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-final-independent/b5-first-observer-error.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-final-independent/b5-first-observer-error.stderr.txt",
+      "bytes": 3636,
+      "sha256": "3a494198a518a2d0f660f0f51299403cc5a9bf888343a3d1566dbc2a0e34c80c"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-final-independent/b5-second-observer-error.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-final-independent/b5-second-observer-error.stderr.txt",
+      "bytes": 227,
+      "sha256": "7685c77d5033823748482dd485b085cacf916f21b81a93632808ae8ec2e13715"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-final-independent/resource-absence.json",
+      "bytes": 4861,
+      "sha256": "0be4b7fbd7d3a81d0131d6d292b637fbef2c26ed653a5d7af5c0240744212301"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-final-independent/wheel-resource-absence.stdout.txt",
+      "bytes": 724,
+      "sha256": "2f3a2f2976a0c87512aa88013b265af72fd62bb80f908cb81c024f9d6056f331"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-final-independent/wheel-resource-absence.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-final-independent/sdist-resource-absence.stdout.txt",
+      "bytes": 724,
+      "sha256": "2bcaf79fe54d806caf65c6d87a69048adf71cb2821dce9d2d3ad79280120df33"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-final-independent/sdist-resource-absence.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-final-independent/frozen-source-bindings.json",
+      "bytes": 1845,
+      "sha256": "e43e499619c237154609b9d228cb6e86a50929f8dc536771a4ed370384b05184"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-final-independent/full-product-delta.diff",
+      "bytes": 38787,
+      "sha256": "f9ce33229480285d99859f17032cae3fecb9b94d8cebe6b48069ec760ed43f21"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-final-independent/g-a0-resource-boundary-baseline.json",
+      "bytes": 3587,
+      "sha256": "ee4ed188d6d317400359fca38b677af0e350ea272121bf4786ae0010e528d62c"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-final-independent/finish_b5_review.py",
+      "bytes": 5873,
+      "sha256": "cc4a17471e60bec689497558ea84030935d6e4fcb98f0986437d54a98f93273d"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-final-independent/finish_b5_review_first_warning_observer_error.py",
+      "bytes": 4983,
+      "sha256": "c79b12dd2086e4241f757133f1ff5803db43069f11b9c204522f03196ddb1fa1"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-final-independent/b5-warning-observer-error.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-final-independent/b5-warning-observer-error.stderr.txt",
+      "bytes": 328,
+      "sha256": "f0e76ac9a504d5f975f179c9610360652414f63127fb2f499a268a472f871a9c"
+    }
+  ],
+  "native_reexecuted": false,
+  "complete_moderate_outputs": true,
+  "source_or_installed_asset_mutation": false
+}

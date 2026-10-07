@@ -50,6 +50,7 @@ from polisyos.foundry.methods.catalog.causal._id_contracts import (
     SourceDomain,
 )
 from polisyos.foundry.methods.catalog.causal.admg_ops import (
+    _validate_static_admg,
     ancestors,
     augment_with_s_nodes,
     c_components,
@@ -87,6 +88,7 @@ from polisyos.ir.analytics.estimand import (
 # PAG-specific identification (Malinsky & Spirtes 2017)
 # ---------------------------------------------------------------------------
 
+
 def _pag_id_algorithm(
     *,
     treatment: frozenset[str],
@@ -118,6 +120,7 @@ def _pag_id_algorithm(
         Apply R1–R3 first, then run standard ID and annotate the trace with
         ``id_confidence_under_pag`` if the result is IDENTIFIED but confidence < 1.
     """
+    _validate_static_admg(graph)
     from polisyos.foundry.methods.catalog.causal.pag_completion import apply_pag_orientation_rules
     from polisyos.ir.analytics.causal_graph import EdgeMark, PAGIdentificationPolicy
 
@@ -573,6 +576,7 @@ def id_algorithm(
 
     Returns IdentificationResult with status IDENTIFIED, HEDGE_FOUND, or ORACLE_NEEDED.
     """
+    _validate_static_admg(graph)
     if _trace is None:
         _trace = []
     if available_vars is None:
@@ -881,6 +885,7 @@ def idc_algorithm(
 
     This follows Shpitser & Pearl (2008) / Bareinboim & Pearl (2012).
     """
+    _validate_static_admg(graph)
     trace: list[str] = [
         f"idc_algorithm: Y={sorted(outcome)}, X={sorted(treatment)}, Z={sorted(conditions)}"
     ]
@@ -1240,6 +1245,7 @@ def tr_algorithm(
     _steps: list[ProofStep] = []
 
     graph = selection_diagram.base_graph
+    _validate_static_admg(graph)
 
     if not selection_diagram.s_nodes:
         trace.append("tr_algorithm: no S-nodes → direct ID on base graph")

@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/tmp/e02-F-graph-profile-20261007/economics-review/inspect_inventory.py", line 76, in <module>
+    assert per['G_code_acceptance']['status'] == 'not_inferred'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

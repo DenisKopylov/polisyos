@@ -1,0 +1,31 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "tests/unit/foundry/agent_sim/test_gini_science.py",
+    "tests/unit/foundry/plugins/test_economic_profiles.py"
+  ],
+  "cwd": "/workspace/e02-F-economics-20261006/policy-engine",
+  "source_sha": "3f4ebe5641f68535ce5dbdf57db859bffc241bb3",
+  "tree": "14959cdd4fa5802ade6c68befc2f05a748bb2e94",
+  "status": "",
+  "exit": 0,
+  "wall_s": 83.5333934740047,
+  "pythonpath": "/workspace/e02-F-economics-20261006/policy-engine/src:/workspace/e02-F-economics-20261006/policy-engine",
+  "outputs": {
+    "stdout": {
+      "path": "/workspace/e02-F-20261006-receipts/root-review/economics-native.stdout",
+      "sha256": "cc4c8c6751c1c9ec698c8bbd4247c0b6373f8001b7dfbf5b253b4967d9dbbd51",
+      "bytes": 271
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-20261006-receipts/root-review/economics-native.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  }
+}

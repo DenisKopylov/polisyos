@@ -1,0 +1,124 @@
+{
+  "source_guard": {
+    "refresh_selection_v4.py": "3df0d51dffda5c4ad5f6232c759d830efd23bd5c5ce3b43cf6a56050fb8d63a7",
+    "refresh_selection_v3.py": "4df1398167268650297f6a27acffe472759a3bd4829e741273bc10256a94d05a",
+    "publish_transport_v3.py": "c55ab809c690634feb93b4b819d58f3b64518b9d15220742261805180bec41f4",
+    "transport_text_policy.py": "2d332a9099f212564d14ce3a0b5f3b8515eb34148611ebfc41bb1af76ef2101a"
+  },
+  "science_tests_run": false,
+  "Git_or_product_writes": false,
+  "input_payload_bytes": 15,
+  "results": [
+    {
+      "case": "valid-files",
+      "outcome": "PASS",
+      "copied_precompressed_bytes_identical": true,
+      "full_decoded_bytes_identical": true,
+      "input_encoding_and_binding_preserved": true
+    },
+    {
+      "case": "valid-items",
+      "outcome": "PASS",
+      "copied_precompressed_bytes_identical": true,
+      "full_decoded_bytes_identical": true,
+      "input_encoding_and_binding_preserved": true
+    },
+    {
+      "case": "valid-selection",
+      "outcome": "PASS",
+      "copied_precompressed_bytes_identical": true,
+      "full_decoded_bytes_identical": true,
+      "input_encoding_and_binding_preserved": true
+    },
+    {
+      "case": "bad-stored-sha",
+      "outcome": "PASS",
+      "actual_intake_exit": 1,
+      "bad_input_refused": true
+    },
+    {
+      "case": "bad-stored-size",
+      "outcome": "PASS",
+      "actual_intake_exit": 1,
+      "bad_input_refused": true
+    },
+    {
+      "case": "bad-decoded-sha",
+      "outcome": "PASS",
+      "actual_intake_exit": 1,
+      "bad_input_refused": true
+    },
+    {
+      "case": "bad-decoded-size",
+      "outcome": "PASS",
+      "actual_intake_exit": 1,
+      "bad_input_refused": true
+    },
+    {
+      "case": "missing-decoded-identity",
+      "outcome": "PASS",
+      "actual_intake_exit": 1,
+      "bad_input_refused": true
+    },
+    {
+      "case": "unknown-encoding",
+      "outcome": "PASS",
+      "actual_intake_exit": 1,
+      "bad_input_refused": true
+    },
+    {
+      "case": "ambiguous",
+      "outcome": "PASS",
+      "bad_input_refused": true
+    },
+    {
+      "case": "different-stored-same-decoded",
+      "outcome": "OBSERVED",
+      "canonical_original_stored_bytes_preserved": true,
+      "other_original_stored_bytes_recoverable_from_alias": false,
+      "decoded_identity_equal": true,
+      "alias_input_binding_preserved_in_selection": true,
+      "scope_question": "Deduplication binds decoded bytes; original distinct gzip-container bytes are not both transported."
+    },
+    {
+      "case": "codec-only-wrong-decoded",
+      "outcome": "FAIL",
+      "actual_intake_exit": 0,
+      "wrong_decoded_identity_accepted": true,
+      "selected_row": {
+        "original_path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/a.gz",
+        "bytes": 35,
+        "sha256": "02dc5d5c9c26f2885574f19adfe8fcf7ae1a9dc7aa2b2fc0b113f29d2d87ce71",
+        "role": "Complete explicit final input; original outcome/scope retained.",
+        "transport_format_check": {
+          "gzip_required": true,
+          "reasons": [
+            "binary_control_byte",
+            "binary_nul",
+            "non_utf8"
+          ],
+          "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+        },
+        "disposition": "transport",
+        "encoding": "gzip",
+        "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/api/transport-v4-independent/a.gz"
+      }
+    },
+    {
+      "case": "bad-alias",
+      "outcome": "PASS",
+      "actual_publisher_exit": 1,
+      "bad_alias_refused": true
+    },
+    {
+      "case": "future-git",
+      "outcome": "PASS",
+      "unknown_ref_refused": true
+    }
+  ],
+  "actual_control_counts": {
+    "PASS": 12,
+    "OBSERVED": 1,
+    "FAIL": 1
+  }
+}

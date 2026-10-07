@@ -1,0 +1,19 @@
+# Cross-sectional TMLE result and causal report
+
+`causal.treatment_effects.tmle@1.0.0` accepts the existing typed `HTEObservationalData` or the legacy `X`/`treatment`/`outcome` mapping. Typed covariates and optional confounders form one adjustment matrix, in that order. The method declares the current `ATENuisanceContract.from_params({})` defaults as public parameters. Its native numerical core, nuisance cache identity, fold execution, targeting and EIF calculation are unchanged.
+
+The original `result` scalar JSON slot and its descriptive payload remain available. Two additional scalar JSON slots contain the canonical `CausalEffectReport` (`report`) and its `UncertaintyEnvelope` projection (`envelope`). `TMLEEstimator.report_from_result(data=..., params=..., result=...)` is the same plain projection used by the producer; it does not refit or verify the supplied result.
+
+A finite, converged, untrimmed result with the supported `regular_iid` profile produces `CausalMethod.TMLE`, `SUCCESS`, and exactly the native point estimate, standard error and 95% Wald EIF interval. This names cross-sectional TMLE; it does not reuse the longitudinal `LTMLE` method label. The profile asserts regular IID sampling and identifying assumptions; it does not establish them from observed data. The report and envelope remain non-gating candidates without accepted causal identification admission.
+
+Unsupported sampling profiles, observed positivity failure and a trimmed population target produce the existing `ASSUMPTION_FAILED` report. A nonconverged targeting score or invalid numerical interval produces `NUMERICAL_FAILURE`. These reports contain no point, standard error or confidence interval; the legacy result still holds the actual descriptive numerical output. Their existing failure envelope is explicitly a heuristic sentinel range, never a manufactured confidence interval or gating permission.
+
+## Consumer and reader window
+
+Existing raw result consumers retain their `result` slot ID and payload. Consumers requiring an exact output key set must handle the additive `report` and `envelope` slots. MethodJob callers can supply the declared native parameters; private in-memory nuisance objects remain outside the JSON parameter contract. Readers of a new TMLE report need the `tmle` value in the existing `CausalMethod` enum. Existing report fields and `schema_version` remain unchanged, and readers for prior method values remain supported. Deploy updated producers, enum readers and generated schema/catalog snapshots together; an older reader without the new enum value cannot parse a new TMLE report.
+
+## Common admitted studies and finite limitation
+
+Native MethodJob execution and CAS readback demonstrate the configured numerical producer. They do not demonstrate an admitted production study or an aggregate resource cap. The existing LocalWorkerPool subprocess context currently lacks the canonical evaluation-safety context/verifier carrier; a real common causal node fails with `polisyos.eval_safety.execution_context_missing@1.0.0` before any nuisance fold. No replacement scheduler, admission flag or identification issuer is introduced here.
+
+A production B56 witness requires the Runtime/C/G owner packet: the accepted evaluation context revision and appointed verifier, exact CAS observations/selected method/intake refs and registered input contract where required, deployment pool/worker and wait-budget configuration, and the admitted studies/models/seeds/repeats/folds plus competing-job trace. The falsifier is a fresh actual common-node run which binds that context and workload, retains every native fold, waits on the existing pool resource boundary, persists results, and reproduces them through a fresh reader. Until that packet is supplied, full production admission and budget coverage remain UNRUN/limited. Causal identification authority also requires its existing legitimate owner/verifier bridge.

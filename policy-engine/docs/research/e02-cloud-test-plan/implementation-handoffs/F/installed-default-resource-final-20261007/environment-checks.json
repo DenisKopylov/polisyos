@@ -1,0 +1,68 @@
+[
+  {
+    "source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+    "source_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+    "argv": [
+      "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/wheel-env/bin/python",
+      "-I",
+      "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/environment.py"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/wheel-consumer",
+    "exit_code": 0,
+    "observation_only": true,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/wheel-environment.stdout.json",
+      "bytes": 8269,
+      "sha256": "8f419895270245a6692e842ea9087a3790f54503452e92c23fc60adb995716d6"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/wheel-environment.stderr.json",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+    "source_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+    "argv": [
+      "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/sdist-env/bin/python",
+      "-I",
+      "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/environment.py"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/sdist-consumer",
+    "exit_code": 0,
+    "observation_only": true,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/sdist-environment.stdout.json",
+      "bytes": 8269,
+      "sha256": "28b13d6dd21ab2918dd9ac6dc11ea07fcb851938a04d89ef7948608e5aea2011"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/sdist-environment.stderr.json",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+    "argv": [
+      "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/bin/python",
+      "-I",
+      "-c",
+      "import importlib.metadata,platform,sys;print(platform.python_version());print(importlib.metadata.version('dowhy'));print(sys.executable)"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward",
+    "exit_code": 0,
+    "scope": "External locked backend metadata/resource observation only, no new inference/backend-execution positive",
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/worker-metadata.stdout.txt",
+      "bytes": 94,
+      "sha256": "feaaef6589e6b0deadcfe777f943a14a7164944a4fd06a6eac5532800e62de60"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/worker-metadata.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+]

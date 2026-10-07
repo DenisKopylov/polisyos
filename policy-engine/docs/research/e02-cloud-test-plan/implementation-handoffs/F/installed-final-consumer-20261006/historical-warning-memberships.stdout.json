@@ -1,0 +1,885 @@
+{
+  "fixture": {
+    "bytes": 11758,
+    "git_blob": "093d88257fe28274fc01b8ae9daa140c31a2ad77",
+    "git_sha": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+    "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_worker_profile.py",
+    "sha256": "b8f9227a18737490a539a70cbace221344a72e4935c6f28d9a7f35b65dc40f42"
+  },
+  "identical_memberships": true,
+  "launcher": {
+    "bytes": 1849,
+    "git_blob": "51a0f7111adefa881dcefb698004a8adf7a5296a",
+    "git_sha": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006/author/final_launch.py",
+    "sha256": "011268e1fad1c819b1a5111a8acc4580df7e492938862680b760eb75973dbfd5"
+  },
+  "limitations": [
+    "Native3PASS per historical profile is bounded scientific computation; warning anomaly14 was real and preserved.",
+    "Baseline configured external3.12 worker via POLISYOS_DOWHY_WORKER_PYTHON; no default-interpreter discovery proof.",
+    "No source/installed environments modified; actual archives/build/new consumers held until composed common freeze.",
+    "Optional LightGBM warnings are separate categories, not runtime monitor corrections."
+  ],
+  "outcome": "PASS",
+  "profiles": [
+    {
+      "archive": {
+        "bytes": 15078639,
+        "path": "/workspace/e02-F-20261006-receipts/installed-latest/dist/policy_engine-0.1.0-py3-none-any.whl",
+        "sha256": "3ca350edb9ece34937555aad15540d6981a8ec46cf97c4f8594dd4de36cb6376"
+      },
+      "argv": [
+        "/workspace/e02-F-20261006-receipts/installed-latest/wheel-env/bin/python",
+        "-I",
+        "/workspace/e02-F-20261006-receipts/installed-latest/final_launch.py",
+        "wheel",
+        "native"
+      ],
+      "command": "/workspace/e02-F-20261006-receipts/installed-latest/wheel-env/bin/python -I /workspace/e02-F-20261006-receipts/installed-latest/final_launch.py wheel native",
+      "consumer": "/workspace/e02-F-20261006-receipts/installed-latest/wheel-consumer",
+      "counts": {
+        "distinct_runtime_messages": 11,
+        "instrumentation_warnings": 1,
+        "passed": 3,
+        "pytest_warnings": 15,
+        "runtime_by_test": {
+          "test_installed_worker_profile.py::test_installed_true_gcm_job_and_scientist_source_bound_interval_consumer": 9,
+          "test_installed_worker_profile.py::test_real_installed_method_job_factory_and_fresh_reader_with_asset_removal": 5
+        },
+        "runtime_codes": {
+          "empty_array": 3,
+          "missing_key": 1,
+          "unexpected_key": 10
+        },
+        "runtime_warnings": 14
+      },
+      "cwd": "/workspace/e02-F-20261006-receipts/installed-latest/wheel-consumer",
+      "environment": "Application Python3.14.7 owned wheel/rebuilt-sdist product site under -I; literal read-only shared third-party .pth. Actual configured Python3.12.14/DoWhy0.14 worker environment unchanged/read-only; installed canonical six profile assets execute. No PYTHONPATH source fallback.",
+      "execution_test_order": [
+        "test_public_canonical_helpers_and_pure_report_factory_identity",
+        "test_real_installed_method_job_factory_and_fresh_reader_with_asset_removal",
+        "test_installed_true_gcm_job_and_scientist_source_bound_interval_consumer"
+      ],
+      "fixture_carriers": {
+        "test_causal_graph_cache_rows.py": {
+          "bytes": 4320,
+          "git_blob": "46fc62eb211a1cd47922450a195c0d55a2ff005f",
+          "sha256": "3a060e7207d024f11e6c98353524d22ccb63f1e10c81a63d1b5d1ecc96ce480b",
+          "source_path": "policy-engine/tests/unit/ir/test_causal_graph_cache_rows.py"
+        },
+        "test_dowhy_worker.py": {
+          "bytes": 16553,
+          "git_blob": "5f41c64d6f2df411a0cf49f2d4d19f9dd672ab39",
+          "sha256": "3ab405d256bd4ff53b2d4e04afadc7f1ae3ebe50d5d029f290862f1bb259c095",
+          "source_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py"
+        },
+        "test_gcm_backend_contract.py": {
+          "bytes": 21216,
+          "git_blob": "1ba29602702927e3aa80b6d85f017ea71d4afd89",
+          "sha256": "acd5d0bd70fa0768df0e517882501d7c8ea836038102f046dac42888e7776d40",
+          "source_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py"
+        },
+        "test_installed_worker_profile.py": {
+          "bytes": 11758,
+          "git_blob": "093d88257fe28274fc01b8ae9daa140c31a2ad77",
+          "sha256": "b8f9227a18737490a539a70cbace221344a72e4935c6f28d9a7f35b65dc40f42",
+          "source_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_worker_profile.py"
+        },
+        "test_performance_primitives.py": {
+          "bytes": 8512,
+          "git_blob": "257bf3503976b9584a684854dcb82d468105220e",
+          "sha256": "f52b445544f858a5fee857cf3fdea8a4806759b3f98ea81876c6bd59a167e664",
+          "source_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_performance_primitives.py"
+        }
+      },
+      "interpreter": "/workspace/e02-F-20261006-receipts/installed-latest/wheel-env/bin/python",
+      "isolated": 1,
+      "output_ref": {
+        "bytes": 597330,
+        "git_blob": "14df639696e2b61e710e9d98422c8f249b46f560",
+        "git_sha": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006/author/wheel-native.stdout",
+        "sha256": "cf980dd8304c9393b650e8381b84e02dd8faa3b64e9ef5d90a50f8f7f63950d4"
+      },
+      "profile": "wheel",
+      "pytest_args": [
+        "-o",
+        "addopts=",
+        "-p",
+        "no:cacheprovider",
+        "-v",
+        "-s",
+        "/workspace/e02-F-20261006-receipts/installed-latest/wheel-consumer/test_installed_worker_profile.py"
+      ],
+      "pytest_seconds": 39.83,
+      "runtime_memberships": [
+        {
+          "category": "UserWarning",
+          "code": "unexpected_key",
+          "key": "warnings",
+          "message": "[WARNING] warnings: unexpected_key \u2014 Key 'warnings' not declared in output slots",
+          "severity": "warning",
+          "test": "test_installed_worker_profile.py::test_real_installed_method_job_factory_and_fresh_reader_with_asset_removal"
+        },
+        {
+          "category": "UserWarning",
+          "code": "unexpected_key",
+          "key": "warnings",
+          "message": "[WARNING] warnings: unexpected_key \u2014 Key 'warnings' not declared in output slots",
+          "severity": "warning",
+          "test": "test_installed_worker_profile.py::test_installed_true_gcm_job_and_scientist_source_bound_interval_consumer"
+        },
+        {
+          "category": "UserWarning",
+          "code": "unexpected_key",
+          "key": "report",
+          "message": "[WARNING] report: unexpected_key \u2014 Key 'report' not declared in output slots",
+          "severity": "warning",
+          "test": "test_installed_worker_profile.py::test_real_installed_method_job_factory_and_fresh_reader_with_asset_removal"
+        },
+        {
+          "category": "UserWarning",
+          "code": "unexpected_key",
+          "key": "envelope",
+          "message": "[WARNING] envelope: unexpected_key \u2014 Key 'envelope' not declared in output slots",
+          "severity": "warning",
+          "test": "test_installed_worker_profile.py::test_real_installed_method_job_factory_and_fresh_reader_with_asset_removal"
+        },
+        {
+          "category": "UserWarning",
+          "code": "unexpected_key",
+          "key": "envelope",
+          "message": "[WARNING] envelope: unexpected_key \u2014 Key 'envelope' not declared in output slots",
+          "severity": "warning",
+          "test": "test_installed_worker_profile.py::test_installed_true_gcm_job_and_scientist_source_bound_interval_consumer"
+        },
+        {
+          "category": "UserWarning",
+          "code": "missing_key",
+          "key": "causal_effect_report",
+          "message": "[ERROR] causal_effect_report: missing_key \u2014 Declared output slot 'causal_effect_report' missing from result",
+          "severity": "error",
+          "test": "test_installed_worker_profile.py::test_real_installed_method_job_factory_and_fresh_reader_with_asset_removal"
+        },
+        {
+          "category": "UserWarning",
+          "code": "empty_array",
+          "key": "warnings",
+          "message": "[WARNING] warnings: empty_array \u2014 Output 'warnings' is an empty array",
+          "severity": "warning",
+          "test": "test_installed_worker_profile.py::test_real_installed_method_job_factory_and_fresh_reader_with_asset_removal"
+        },
+        {
+          "category": "UserWarning",
+          "code": "empty_array",
+          "key": "warnings",
+          "message": "[WARNING] warnings: empty_array \u2014 Output 'warnings' is an empty array",
+          "severity": "warning",
+          "test": "test_installed_worker_profile.py::test_installed_true_gcm_job_and_scientist_source_bound_interval_consumer"
+        },
+        {
+          "category": "UserWarning",
+          "code": "unexpected_key",
+          "key": "scm_spec",
+          "message": "[WARNING] scm_spec: unexpected_key \u2014 Key 'scm_spec' not declared in output slots",
+          "severity": "warning",
+          "test": "test_installed_worker_profile.py::test_installed_true_gcm_job_and_scientist_source_bound_interval_consumer"
+        },
+        {
+          "category": "UserWarning",
+          "code": "unexpected_key",
+          "key": "latent_vars",
+          "message": "[WARNING] latent_vars: unexpected_key \u2014 Key 'latent_vars' not declared in output slots",
+          "severity": "warning",
+          "test": "test_installed_worker_profile.py::test_installed_true_gcm_job_and_scientist_source_bound_interval_consumer"
+        },
+        {
+          "category": "UserWarning",
+          "code": "unexpected_key",
+          "key": "projected_graph",
+          "message": "[WARNING] projected_graph: unexpected_key \u2014 Key 'projected_graph' not declared in output slots",
+          "severity": "warning",
+          "test": "test_installed_worker_profile.py::test_installed_true_gcm_job_and_scientist_source_bound_interval_consumer"
+        },
+        {
+          "category": "UserWarning",
+          "code": "empty_array",
+          "key": "latent_vars",
+          "message": "[WARNING] latent_vars: empty_array \u2014 Output 'latent_vars' is an empty array",
+          "severity": "warning",
+          "test": "test_installed_worker_profile.py::test_installed_true_gcm_job_and_scientist_source_bound_interval_consumer"
+        },
+        {
+          "category": "UserWarning",
+          "code": "unexpected_key",
+          "key": "estimator_envelope",
+          "message": "[WARNING] estimator_envelope: unexpected_key \u2014 Key 'estimator_envelope' not declared in output slots",
+          "severity": "warning",
+          "test": "test_installed_worker_profile.py::test_installed_true_gcm_job_and_scientist_source_bound_interval_consumer"
+        },
+        {
+          "category": "UserWarning",
+          "code": "unexpected_key",
+          "key": "query_result",
+          "message": "[WARNING] query_result: unexpected_key \u2014 Key 'query_result' not declared in output slots",
+          "severity": "warning",
+          "test": "test_installed_worker_profile.py::test_installed_true_gcm_job_and_scientist_source_bound_interval_consumer"
+        }
+      ],
+      "site": "/workspace/e02-F-20261006-receipts/installed-latest/wheel-env/lib/python3.14/site-packages",
+      "source_sha": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+      "source_tree": "c75afd88c27037708844f48d7789fbcbe84a4797",
+      "warning_groups": [
+        {
+          "category": "PytestAssertRewriteWarning",
+          "classification": "instrumentation_or_other",
+          "location": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303",
+          "message": "Module already imported so cannot be rewritten; jaxtyping",
+          "observed_group_order": 0,
+          "occurrences": 1,
+          "test_memberships": []
+        },
+        {
+          "category": "UserWarning",
+          "classification": "runtime_output_monitor",
+          "code": "unexpected_key",
+          "key": "warnings",
+          "location": "/workspace/e02-F-20261006-receipts/installed-latest/wheel-env/lib/python3.14/site-packages/polisyos/scientist/compute/runner.py:686",
+          "message": "[WARNING] warnings: unexpected_key \u2014 Key 'warnings' not declared in output slots",
+          "observed_group_order": 1,
+          "occurrences": 2,
+          "reason": "Key 'warnings' not declared in output slots",
+          "severity": "warning",
+          "test_memberships": [
+            "test_installed_worker_profile.py::test_real_installed_method_job_factory_and_fresh_reader_with_asset_removal",
+            "test_installed_worker_profile.py::test_installed_true_gcm_job_and_scientist_source_bound_interval_consumer"
+          ]
+        },
+        {
+          "category": "UserWarning",
+          "classification": "runtime_output_monitor",
+          "code": "unexpected_key",
+          "key": "report",
+          "location": "/workspace/e02-F-20261006-receipts/installed-latest/wheel-env/lib/python3.14/site-packages/polisyos/scientist/compute/runner.py:686",
+          "message": "[WARNING] report: unexpected_key \u2014 Key 'report' not declared in output slots",
+          "observed_group_order": 2,
+          "occurrences": 1,
+          "reason": "Key 'report' not declared in output slots",
+          "severity": "warning",
+          "test_memberships": [
+            "test_installed_worker_profile.py::test_real_installed_method_job_factory_and_fresh_reader_with_asset_removal"
+          ]
+        },
+        {
+          "category": "UserWarning",
+          "classification": "runtime_output_monitor",
+          "code": "unexpected_key",
+          "key": "envelope",
+          "location": "/workspace/e02-F-20261006-receipts/installed-latest/wheel-env/lib/python3.14/site-packages/polisyos/scientist/compute/runner.py:686",
+          "message": "[WARNING] envelope: unexpected_key \u2014 Key 'envelope' not declared in output slots",
+          "observed_group_order": 3,
+          "occurrences": 2,
+          "reason": "Key 'envelope' not declared in output slots",
+          "severity": "warning",
+          "test_memberships": [
+            "test_installed_worker_profile.py::test_real_installed_method_job_factory_and_fresh_reader_with_asset_removal",
+            "test_installed_worker_profile.py::test_installed_true_gcm_job_and_scientist_source_bound_interval_consumer"
+          ]
+        },
+        {
+          "category": "UserWarning",
+          "classification": "runtime_output_monitor",
+          "code": "missing_key",
+          "key": "causal_effect_report",
+          "location": "/workspace/e02-F-20261006-receipts/installed-latest/wheel-env/lib/python3.14/site-packages/polisyos/scientist/compute/runner.py:686",
+          "message": "[ERROR] causal_effect_report: missing_key \u2014 Declared output slot 'causal_effect_report' missing from result",
+          "observed_group_order": 4,
+          "occurrences": 1,
+          "reason": "Declared output slot 'causal_effect_report' missing from result",
+          "severity": "error",
+          "test_memberships": [
+            "test_installed_worker_profile.py::test_real_installed_method_job_factory_and_fresh_reader_with_asset_removal"
+          ]
+        },
+        {
+          "category": "UserWarning",
+          "classification": "runtime_output_monitor",
+          "code": "empty_array",
+          "key": "warnings",
+          "location": "/workspace/e02-F-20261006-receipts/installed-latest/wheel-env/lib/python3.14/site-packages/polisyos/scientist/compute/runner.py:686",
+          "message": "[WARNING] warnings: empty_array \u2014 Output 'warnings' is an empty array",
+          "observed_group_order": 5,
+          "occurrences": 2,
+          "reason": "Output 'warnings' is an empty array",
+          "severity": "warning",
+          "test_memberships": [
+            "test_installed_worker_profile.py::test_real_installed_method_job_factory_and_fresh_reader_with_asset_removal",
+            "test_installed_worker_profile.py::test_installed_true_gcm_job_and_scientist_source_bound_interval_consumer"
+          ]
+        },
+        {
+          "category": "UserWarning",
+          "classification": "runtime_output_monitor",
+          "code": "unexpected_key",
+          "key": "scm_spec",
+          "location": "/workspace/e02-F-20261006-receipts/installed-latest/wheel-env/lib/python3.14/site-packages/polisyos/scientist/compute/runner.py:686",
+          "message": "[WARNING] scm_spec: unexpected_key \u2014 Key 'scm_spec' not declared in output slots",
+          "observed_group_order": 6,
+          "occurrences": 1,
+          "reason": "Key 'scm_spec' not declared in output slots",
+          "severity": "warning",
+          "test_memberships": [
+            "test_installed_worker_profile.py::test_installed_true_gcm_job_and_scientist_source_bound_interval_consumer"
+          ]
+        },
+        {
+          "category": "UserWarning",
+          "classification": "runtime_output_monitor",
+          "code": "unexpected_key",
+          "key": "latent_vars",
+          "location": "/workspace/e02-F-20261006-receipts/installed-latest/wheel-env/lib/python3.14/site-packages/polisyos/scientist/compute/runner.py:686",
+          "message": "[WARNING] latent_vars: unexpected_key \u2014 Key 'latent_vars' not declared in output slots",
+          "observed_group_order": 7,
+          "occurrences": 1,
+          "reason": "Key 'latent_vars' not declared in output slots",
+          "severity": "warning",
+          "test_memberships": [
+            "test_installed_worker_profile.py::test_installed_true_gcm_job_and_scientist_source_bound_interval_consumer"
+          ]
+        },
+        {
+          "category": "UserWarning",
+          "classification": "runtime_output_monitor",
+          "code": "unexpected_key",
+          "key": "projected_graph",
+          "location": "/workspace/e02-F-20261006-receipts/installed-latest/wheel-env/lib/python3.14/site-packages/polisyos/scientist/compute/runner.py:686",
+          "message": "[WARNING] projected_graph: unexpected_key \u2014 Key 'projected_graph' not declared in output slots",
+          "observed_group_order": 8,
+          "occurrences": 1,
+          "reason": "Key 'projected_graph' not declared in output slots",
+          "severity": "warning",
+          "test_memberships": [
+            "test_installed_worker_profile.py::test_installed_true_gcm_job_and_scientist_source_bound_interval_consumer"
+          ]
+        },
+        {
+          "category": "UserWarning",
+          "classification": "runtime_output_monitor",
+          "code": "empty_array",
+          "key": "latent_vars",
+          "location": "/workspace/e02-F-20261006-receipts/installed-latest/wheel-env/lib/python3.14/site-packages/polisyos/scientist/compute/runner.py:686",
+          "message": "[WARNING] latent_vars: empty_array \u2014 Output 'latent_vars' is an empty array",
+          "observed_group_order": 9,
+          "occurrences": 1,
+          "reason": "Output 'latent_vars' is an empty array",
+          "severity": "warning",
+          "test_memberships": [
+            "test_installed_worker_profile.py::test_installed_true_gcm_job_and_scientist_source_bound_interval_consumer"
+          ]
+        },
+        {
+          "category": "UserWarning",
+          "classification": "runtime_output_monitor",
+          "code": "unexpected_key",
+          "key": "estimator_envelope",
+          "location": "/workspace/e02-F-20261006-receipts/installed-latest/wheel-env/lib/python3.14/site-packages/polisyos/scientist/compute/runner.py:686",
+          "message": "[WARNING] estimator_envelope: unexpected_key \u2014 Key 'estimator_envelope' not declared in output slots",
+          "observed_group_order": 10,
+          "occurrences": 1,
+          "reason": "Key 'estimator_envelope' not declared in output slots",
+          "severity": "warning",
+          "test_memberships": [
+            "test_installed_worker_profile.py::test_installed_true_gcm_job_and_scientist_source_bound_interval_consumer"
+          ]
+        },
+        {
+          "category": "UserWarning",
+          "classification": "runtime_output_monitor",
+          "code": "unexpected_key",
+          "key": "query_result",
+          "location": "/workspace/e02-F-20261006-receipts/installed-latest/wheel-env/lib/python3.14/site-packages/polisyos/scientist/compute/runner.py:686",
+          "message": "[WARNING] query_result: unexpected_key \u2014 Key 'query_result' not declared in output slots",
+          "observed_group_order": 11,
+          "occurrences": 1,
+          "reason": "Key 'query_result' not declared in output slots",
+          "severity": "warning",
+          "test_memberships": [
+            "test_installed_worker_profile.py::test_installed_true_gcm_job_and_scientist_source_bound_interval_consumer"
+          ]
+        }
+      ],
+      "worker_assets": {
+        ".python-version": {
+          "bytes": 5,
+          "git_blob": "e4fba2183587225f216eeada4c78dfab6b2e65f5",
+          "sha256": "7b55f8e67b5623c4bef3fa691288da9437d79d3aba156de48d481db32ac7d16d",
+          "source_path": "policy-engine/workers/dowhy-014/.python-version"
+        },
+        "README.md": {
+          "bytes": 4934,
+          "git_blob": "84528b455b39585aa3e507e4c6697213c7f7365a",
+          "sha256": "fc4b60aecff0f52a19866c17da419ac4583de6fe09d74b424f8f9908f795f198",
+          "source_path": "policy-engine/workers/dowhy-014/README.md"
+        },
+        "protocol.py": {
+          "bytes": 4704,
+          "git_blob": "ca392779e3351e4cf13b23db0a27077487a29368",
+          "sha256": "1a1d09c47883728c8fc8cf4d9ec8eb200340a5fadd28d531c6edd2be0d75c239",
+          "source_path": "policy-engine/workers/dowhy-014/protocol.py"
+        },
+        "pyproject.toml": {
+          "bytes": 379,
+          "git_blob": "770a46160a0b13614507d345f729910c9e81acde",
+          "sha256": "df7ceb44d49f3e1befdf470a26cdff8146c91343dac13fb2f41f9fff97f94447",
+          "source_path": "policy-engine/workers/dowhy-014/pyproject.toml"
+        },
+        "uv.lock": {
+          "bytes": 98340,
+          "git_blob": "77ce3b5392703b452d70da87c0f57372b88e9117",
+          "sha256": "c33e8f99180bb587b49c9473d40258502532bfbd0d6e792d6d31e5d545f71f3a",
+          "source_path": "policy-engine/workers/dowhy-014/uv.lock"
+        },
+        "worker.py": {
+          "bytes": 10652,
+          "git_blob": "8e4ea39ce6b4f03626b30fb674b0d3f881557aef",
+          "sha256": "27ca68b50842b8bf1b6396e5862cf4052c10d8d3359b60b65237d62551cde253",
+          "source_path": "policy-engine/workers/dowhy-014/worker.py"
+        }
+      }
+    },
+    {
+      "archive": {
+        "bytes": 71441223,
+        "path": "/workspace/e02-F-20261006-receipts/installed-latest/dist/policy_engine-0.1.0.tar.gz",
+        "sha256": "bcd8b27b291172f42c1a2ccf4b2d07e56d66f76235971b47aff413019a659bab"
+      },
+      "argv": [
+        "/workspace/e02-F-20261006-receipts/installed-latest/sdist-env/bin/python",
+        "-I",
+        "/workspace/e02-F-20261006-receipts/installed-latest/final_launch.py",
+        "sdist",
+        "native"
+      ],
+      "command": "/workspace/e02-F-20261006-receipts/installed-latest/sdist-env/bin/python -I /workspace/e02-F-20261006-receipts/installed-latest/final_launch.py sdist native",
+      "consumer": "/workspace/e02-F-20261006-receipts/installed-latest/sdist-consumer",
+      "counts": {
+        "distinct_runtime_messages": 11,
+        "instrumentation_warnings": 1,
+        "passed": 3,
+        "pytest_warnings": 15,
+        "runtime_by_test": {
+          "test_installed_worker_profile.py::test_installed_true_gcm_job_and_scientist_source_bound_interval_consumer": 9,
+          "test_installed_worker_profile.py::test_real_installed_method_job_factory_and_fresh_reader_with_asset_removal": 5
+        },
+        "runtime_codes": {
+          "empty_array": 3,
+          "missing_key": 1,
+          "unexpected_key": 10
+        },
+        "runtime_warnings": 14
+      },
+      "cwd": "/workspace/e02-F-20261006-receipts/installed-latest/sdist-consumer",
+      "environment": "Application Python3.14.7 owned wheel/rebuilt-sdist product site under -I; literal read-only shared third-party .pth. Actual configured Python3.12.14/DoWhy0.14 worker environment unchanged/read-only; installed canonical six profile assets execute. No PYTHONPATH source fallback.",
+      "execution_test_order": [
+        "test_public_canonical_helpers_and_pure_report_factory_identity",
+        "test_real_installed_method_job_factory_and_fresh_reader_with_asset_removal",
+        "test_installed_true_gcm_job_and_scientist_source_bound_interval_consumer"
+      ],
+      "fixture_carriers": {
+        "test_causal_graph_cache_rows.py": {
+          "bytes": 4320,
+          "git_blob": "46fc62eb211a1cd47922450a195c0d55a2ff005f",
+          "sha256": "3a060e7207d024f11e6c98353524d22ccb63f1e10c81a63d1b5d1ecc96ce480b",
+          "source_path": "policy-engine/tests/unit/ir/test_causal_graph_cache_rows.py"
+        },
+        "test_dowhy_worker.py": {
+          "bytes": 16553,
+          "git_blob": "5f41c64d6f2df411a0cf49f2d4d19f9dd672ab39",
+          "sha256": "3ab405d256bd4ff53b2d4e04afadc7f1ae3ebe50d5d029f290862f1bb259c095",
+          "source_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py"
+        },
+        "test_gcm_backend_contract.py": {
+          "bytes": 21216,
+          "git_blob": "1ba29602702927e3aa80b6d85f017ea71d4afd89",
+          "sha256": "acd5d0bd70fa0768df0e517882501d7c8ea836038102f046dac42888e7776d40",
+          "source_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py"
+        },
+        "test_installed_worker_profile.py": {
+          "bytes": 11758,
+          "git_blob": "093d88257fe28274fc01b8ae9daa140c31a2ad77",
+          "sha256": "b8f9227a18737490a539a70cbace221344a72e4935c6f28d9a7f35b65dc40f42",
+          "source_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_worker_profile.py"
+        },
+        "test_performance_primitives.py": {
+          "bytes": 8512,
+          "git_blob": "257bf3503976b9584a684854dcb82d468105220e",
+          "sha256": "f52b445544f858a5fee857cf3fdea8a4806759b3f98ea81876c6bd59a167e664",
+          "source_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_performance_primitives.py"
+        }
+      },
+      "interpreter": "/workspace/e02-F-20261006-receipts/installed-latest/sdist-env/bin/python",
+      "isolated": 1,
+      "output_ref": {
+        "bytes": 597862,
+        "git_blob": "2080b509aaf7fd8380ec29b7a6f575f211ab1cc1",
+        "git_sha": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006/author/sdist-native.stdout",
+        "sha256": "731eaf1d0f1b234cf70b304f279752081963e34cc228d4145af310e3cba4dda3"
+      },
+      "profile": "sdist",
+      "pytest_args": [
+        "-o",
+        "addopts=",
+        "-p",
+        "no:cacheprovider",
+        "-v",
+        "-s",
+        "/workspace/e02-F-20261006-receipts/installed-latest/sdist-consumer/test_installed_worker_profile.py"
+      ],
+      "pytest_seconds": 40.41,
+      "runtime_memberships": [
+        {
+          "category": "UserWarning",
+          "code": "unexpected_key",
+          "key": "envelope",
+          "message": "[WARNING] envelope: unexpected_key \u2014 Key 'envelope' not declared in output slots",
+          "severity": "warning",
+          "test": "test_installed_worker_profile.py::test_real_installed_method_job_factory_and_fresh_reader_with_asset_removal"
+        },
+        {
+          "category": "UserWarning",
+          "code": "unexpected_key",
+          "key": "envelope",
+          "message": "[WARNING] envelope: unexpected_key \u2014 Key 'envelope' not declared in output slots",
+          "severity": "warning",
+          "test": "test_installed_worker_profile.py::test_installed_true_gcm_job_and_scientist_source_bound_interval_consumer"
+        },
+        {
+          "category": "UserWarning",
+          "code": "unexpected_key",
+          "key": "warnings",
+          "message": "[WARNING] warnings: unexpected_key \u2014 Key 'warnings' not declared in output slots",
+          "severity": "warning",
+          "test": "test_installed_worker_profile.py::test_real_installed_method_job_factory_and_fresh_reader_with_asset_removal"
+        },
+        {
+          "category": "UserWarning",
+          "code": "unexpected_key",
+          "key": "warnings",
+          "message": "[WARNING] warnings: unexpected_key \u2014 Key 'warnings' not declared in output slots",
+          "severity": "warning",
+          "test": "test_installed_worker_profile.py::test_installed_true_gcm_job_and_scientist_source_bound_interval_consumer"
+        },
+        {
+          "category": "UserWarning",
+          "code": "unexpected_key",
+          "key": "report",
+          "message": "[WARNING] report: unexpected_key \u2014 Key 'report' not declared in output slots",
+          "severity": "warning",
+          "test": "test_installed_worker_profile.py::test_real_installed_method_job_factory_and_fresh_reader_with_asset_removal"
+        },
+        {
+          "category": "UserWarning",
+          "code": "missing_key",
+          "key": "causal_effect_report",
+          "message": "[ERROR] causal_effect_report: missing_key \u2014 Declared output slot 'causal_effect_report' missing from result",
+          "severity": "error",
+          "test": "test_installed_worker_profile.py::test_real_installed_method_job_factory_and_fresh_reader_with_asset_removal"
+        },
+        {
+          "category": "UserWarning",
+          "code": "empty_array",
+          "key": "warnings",
+          "message": "[WARNING] warnings: empty_array \u2014 Output 'warnings' is an empty array",
+          "severity": "warning",
+          "test": "test_installed_worker_profile.py::test_real_installed_method_job_factory_and_fresh_reader_with_asset_removal"
+        },
+        {
+          "category": "UserWarning",
+          "code": "empty_array",
+          "key": "warnings",
+          "message": "[WARNING] warnings: empty_array \u2014 Output 'warnings' is an empty array",
+          "severity": "warning",
+          "test": "test_installed_worker_profile.py::test_installed_true_gcm_job_and_scientist_source_bound_interval_consumer"
+        },
+        {
+          "category": "UserWarning",
+          "code": "unexpected_key",
+          "key": "latent_vars",
+          "message": "[WARNING] latent_vars: unexpected_key \u2014 Key 'latent_vars' not declared in output slots",
+          "severity": "warning",
+          "test": "test_installed_worker_profile.py::test_installed_true_gcm_job_and_scientist_source_bound_interval_consumer"
+        },
+        {
+          "category": "UserWarning",
+          "code": "unexpected_key",
+          "key": "scm_spec",
+          "message": "[WARNING] scm_spec: unexpected_key \u2014 Key 'scm_spec' not declared in output slots",
+          "severity": "warning",
+          "test": "test_installed_worker_profile.py::test_installed_true_gcm_job_and_scientist_source_bound_interval_consumer"
+        },
+        {
+          "category": "UserWarning",
+          "code": "unexpected_key",
+          "key": "projected_graph",
+          "message": "[WARNING] projected_graph: unexpected_key \u2014 Key 'projected_graph' not declared in output slots",
+          "severity": "warning",
+          "test": "test_installed_worker_profile.py::test_installed_true_gcm_job_and_scientist_source_bound_interval_consumer"
+        },
+        {
+          "category": "UserWarning",
+          "code": "empty_array",
+          "key": "latent_vars",
+          "message": "[WARNING] latent_vars: empty_array \u2014 Output 'latent_vars' is an empty array",
+          "severity": "warning",
+          "test": "test_installed_worker_profile.py::test_installed_true_gcm_job_and_scientist_source_bound_interval_consumer"
+        },
+        {
+          "category": "UserWarning",
+          "code": "unexpected_key",
+          "key": "estimator_envelope",
+          "message": "[WARNING] estimator_envelope: unexpected_key \u2014 Key 'estimator_envelope' not declared in output slots",
+          "severity": "warning",
+          "test": "test_installed_worker_profile.py::test_installed_true_gcm_job_and_scientist_source_bound_interval_consumer"
+        },
+        {
+          "category": "UserWarning",
+          "code": "unexpected_key",
+          "key": "query_result",
+          "message": "[WARNING] query_result: unexpected_key \u2014 Key 'query_result' not declared in output slots",
+          "severity": "warning",
+          "test": "test_installed_worker_profile.py::test_installed_true_gcm_job_and_scientist_source_bound_interval_consumer"
+        }
+      ],
+      "site": "/workspace/e02-F-20261006-receipts/installed-latest/sdist-env/lib/python3.14/site-packages",
+      "source_sha": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+      "source_tree": "c75afd88c27037708844f48d7789fbcbe84a4797",
+      "warning_groups": [
+        {
+          "category": "PytestAssertRewriteWarning",
+          "classification": "instrumentation_or_other",
+          "location": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303",
+          "message": "Module already imported so cannot be rewritten; jaxtyping",
+          "observed_group_order": 0,
+          "occurrences": 1,
+          "test_memberships": []
+        },
+        {
+          "category": "UserWarning",
+          "classification": "runtime_output_monitor",
+          "code": "unexpected_key",
+          "key": "envelope",
+          "location": "/workspace/e02-F-20261006-receipts/installed-latest/sdist-env/lib/python3.14/site-packages/polisyos/scientist/compute/runner.py:686",
+          "message": "[WARNING] envelope: unexpected_key \u2014 Key 'envelope' not declared in output slots",
+          "observed_group_order": 1,
+          "occurrences": 2,
+          "reason": "Key 'envelope' not declared in output slots",
+          "severity": "warning",
+          "test_memberships": [
+            "test_installed_worker_profile.py::test_real_installed_method_job_factory_and_fresh_reader_with_asset_removal",
+            "test_installed_worker_profile.py::test_installed_true_gcm_job_and_scientist_source_bound_interval_consumer"
+          ]
+        },
+        {
+          "category": "UserWarning",
+          "classification": "runtime_output_monitor",
+          "code": "unexpected_key",
+          "key": "warnings",
+          "location": "/workspace/e02-F-20261006-receipts/installed-latest/sdist-env/lib/python3.14/site-packages/polisyos/scientist/compute/runner.py:686",
+          "message": "[WARNING] warnings: unexpected_key \u2014 Key 'warnings' not declared in output slots",
+          "observed_group_order": 2,
+          "occurrences": 2,
+          "reason": "Key 'warnings' not declared in output slots",
+          "severity": "warning",
+          "test_memberships": [
+            "test_installed_worker_profile.py::test_real_installed_method_job_factory_and_fresh_reader_with_asset_removal",
+            "test_installed_worker_profile.py::test_installed_true_gcm_job_and_scientist_source_bound_interval_consumer"
+          ]
+        },
+        {
+          "category": "UserWarning",
+          "classification": "runtime_output_monitor",
+          "code": "unexpected_key",
+          "key": "report",
+          "location": "/workspace/e02-F-20261006-receipts/installed-latest/sdist-env/lib/python3.14/site-packages/polisyos/scientist/compute/runner.py:686",
+          "message": "[WARNING] report: unexpected_key \u2014 Key 'report' not declared in output slots",
+          "observed_group_order": 3,
+          "occurrences": 1,
+          "reason": "Key 'report' not declared in output slots",
+          "severity": "warning",
+          "test_memberships": [
+            "test_installed_worker_profile.py::test_real_installed_method_job_factory_and_fresh_reader_with_asset_removal"
+          ]
+        },
+        {
+          "category": "UserWarning",
+          "classification": "runtime_output_monitor",
+          "code": "missing_key",
+          "key": "causal_effect_report",
+          "location": "/workspace/e02-F-20261006-receipts/installed-latest/sdist-env/lib/python3.14/site-packages/polisyos/scientist/compute/runner.py:686",
+          "message": "[ERROR] causal_effect_report: missing_key \u2014 Declared output slot 'causal_effect_report' missing from result",
+          "observed_group_order": 4,
+          "occurrences": 1,
+          "reason": "Declared output slot 'causal_effect_report' missing from result",
+          "severity": "error",
+          "test_memberships": [
+            "test_installed_worker_profile.py::test_real_installed_method_job_factory_and_fresh_reader_with_asset_removal"
+          ]
+        },
+        {
+          "category": "UserWarning",
+          "classification": "runtime_output_monitor",
+          "code": "empty_array",
+          "key": "warnings",
+          "location": "/workspace/e02-F-20261006-receipts/installed-latest/sdist-env/lib/python3.14/site-packages/polisyos/scientist/compute/runner.py:686",
+          "message": "[WARNING] warnings: empty_array \u2014 Output 'warnings' is an empty array",
+          "observed_group_order": 5,
+          "occurrences": 2,
+          "reason": "Output 'warnings' is an empty array",
+          "severity": "warning",
+          "test_memberships": [
+            "test_installed_worker_profile.py::test_real_installed_method_job_factory_and_fresh_reader_with_asset_removal",
+            "test_installed_worker_profile.py::test_installed_true_gcm_job_and_scientist_source_bound_interval_consumer"
+          ]
+        },
+        {
+          "category": "UserWarning",
+          "classification": "runtime_output_monitor",
+          "code": "unexpected_key",
+          "key": "latent_vars",
+          "location": "/workspace/e02-F-20261006-receipts/installed-latest/sdist-env/lib/python3.14/site-packages/polisyos/scientist/compute/runner.py:686",
+          "message": "[WARNING] latent_vars: unexpected_key \u2014 Key 'latent_vars' not declared in output slots",
+          "observed_group_order": 6,
+          "occurrences": 1,
+          "reason": "Key 'latent_vars' not declared in output slots",
+          "severity": "warning",
+          "test_memberships": [
+            "test_installed_worker_profile.py::test_installed_true_gcm_job_and_scientist_source_bound_interval_consumer"
+          ]
+        },
+        {
+          "category": "UserWarning",
+          "classification": "runtime_output_monitor",
+          "code": "unexpected_key",
+          "key": "scm_spec",
+          "location": "/workspace/e02-F-20261006-receipts/installed-latest/sdist-env/lib/python3.14/site-packages/polisyos/scientist/compute/runner.py:686",
+          "message": "[WARNING] scm_spec: unexpected_key \u2014 Key 'scm_spec' not declared in output slots",
+          "observed_group_order": 7,
+          "occurrences": 1,
+          "reason": "Key 'scm_spec' not declared in output slots",
+          "severity": "warning",
+          "test_memberships": [
+            "test_installed_worker_profile.py::test_installed_true_gcm_job_and_scientist_source_bound_interval_consumer"
+          ]
+        },
+        {
+          "category": "UserWarning",
+          "classification": "runtime_output_monitor",
+          "code": "unexpected_key",
+          "key": "projected_graph",
+          "location": "/workspace/e02-F-20261006-receipts/installed-latest/sdist-env/lib/python3.14/site-packages/polisyos/scientist/compute/runner.py:686",
+          "message": "[WARNING] projected_graph: unexpected_key \u2014 Key 'projected_graph' not declared in output slots",
+          "observed_group_order": 8,
+          "occurrences": 1,
+          "reason": "Key 'projected_graph' not declared in output slots",
+          "severity": "warning",
+          "test_memberships": [
+            "test_installed_worker_profile.py::test_installed_true_gcm_job_and_scientist_source_bound_interval_consumer"
+          ]
+        },
+        {
+          "category": "UserWarning",
+          "classification": "runtime_output_monitor",
+          "code": "empty_array",
+          "key": "latent_vars",
+          "location": "/workspace/e02-F-20261006-receipts/installed-latest/sdist-env/lib/python3.14/site-packages/polisyos/scientist/compute/runner.py:686",
+          "message": "[WARNING] latent_vars: empty_array \u2014 Output 'latent_vars' is an empty array",
+          "observed_group_order": 9,
+          "occurrences": 1,
+          "reason": "Output 'latent_vars' is an empty array",
+          "severity": "warning",
+          "test_memberships": [
+            "test_installed_worker_profile.py::test_installed_true_gcm_job_and_scientist_source_bound_interval_consumer"
+          ]
+        },
+        {
+          "category": "UserWarning",
+          "classification": "runtime_output_monitor",
+          "code": "unexpected_key",
+          "key": "estimator_envelope",
+          "location": "/workspace/e02-F-20261006-receipts/installed-latest/sdist-env/lib/python3.14/site-packages/polisyos/scientist/compute/runner.py:686",
+          "message": "[WARNING] estimator_envelope: unexpected_key \u2014 Key 'estimator_envelope' not declared in output slots",
+          "observed_group_order": 10,
+          "occurrences": 1,
+          "reason": "Key 'estimator_envelope' not declared in output slots",
+          "severity": "warning",
+          "test_memberships": [
+            "test_installed_worker_profile.py::test_installed_true_gcm_job_and_scientist_source_bound_interval_consumer"
+          ]
+        },
+        {
+          "category": "UserWarning",
+          "classification": "runtime_output_monitor",
+          "code": "unexpected_key",
+          "key": "query_result",
+          "location": "/workspace/e02-F-20261006-receipts/installed-latest/sdist-env/lib/python3.14/site-packages/polisyos/scientist/compute/runner.py:686",
+          "message": "[WARNING] query_result: unexpected_key \u2014 Key 'query_result' not declared in output slots",
+          "observed_group_order": 11,
+          "occurrences": 1,
+          "reason": "Key 'query_result' not declared in output slots",
+          "severity": "warning",
+          "test_memberships": [
+            "test_installed_worker_profile.py::test_installed_true_gcm_job_and_scientist_source_bound_interval_consumer"
+          ]
+        }
+      ],
+      "worker_assets": {
+        ".python-version": {
+          "bytes": 5,
+          "git_blob": "e4fba2183587225f216eeada4c78dfab6b2e65f5",
+          "sha256": "7b55f8e67b5623c4bef3fa691288da9437d79d3aba156de48d481db32ac7d16d",
+          "source_path": "policy-engine/workers/dowhy-014/.python-version"
+        },
+        "README.md": {
+          "bytes": 4934,
+          "git_blob": "84528b455b39585aa3e507e4c6697213c7f7365a",
+          "sha256": "fc4b60aecff0f52a19866c17da419ac4583de6fe09d74b424f8f9908f795f198",
+          "source_path": "policy-engine/workers/dowhy-014/README.md"
+        },
+        "protocol.py": {
+          "bytes": 4704,
+          "git_blob": "ca392779e3351e4cf13b23db0a27077487a29368",
+          "sha256": "1a1d09c47883728c8fc8cf4d9ec8eb200340a5fadd28d531c6edd2be0d75c239",
+          "source_path": "policy-engine/workers/dowhy-014/protocol.py"
+        },
+        "pyproject.toml": {
+          "bytes": 379,
+          "git_blob": "770a46160a0b13614507d345f729910c9e81acde",
+          "sha256": "df7ceb44d49f3e1befdf470a26cdff8146c91343dac13fb2f41f9fff97f94447",
+          "source_path": "policy-engine/workers/dowhy-014/pyproject.toml"
+        },
+        "uv.lock": {
+          "bytes": 98340,
+          "git_blob": "77ce3b5392703b452d70da87c0f57372b88e9117",
+          "sha256": "c33e8f99180bb587b49c9473d40258502532bfbd0d6e792d6d31e5d545f71f3a",
+          "source_path": "policy-engine/workers/dowhy-014/uv.lock"
+        },
+        "worker.py": {
+          "bytes": 10652,
+          "git_blob": "8e4ea39ce6b4f03626b30fb674b0d3f881557aef",
+          "sha256": "27ca68b50842b8bf1b6396e5862cf4052c10d8d3359b60b65237d62551cde253",
+          "source_path": "policy-engine/workers/dowhy-014/worker.py"
+        }
+      }
+    }
+  ],
+  "receipt": {
+    "bytes": 209475,
+    "git_blob": "3cdb63e03cebff1667de93028677e7b7a5dee163",
+    "git_sha": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json",
+    "sha256": "1ebacf5377764b5c0958d7e6597e10eab56536c570aacea64d25be3ee7cff908"
+  },
+  "scope": "Complete two native raw stdout warning blocks at historical installed scientific source; no new runtime execution.",
+  "warning_order": "Retain actual group ordering separately; order differs between independent interpreters due to runtime unordered slot iteration, not membership."
+}

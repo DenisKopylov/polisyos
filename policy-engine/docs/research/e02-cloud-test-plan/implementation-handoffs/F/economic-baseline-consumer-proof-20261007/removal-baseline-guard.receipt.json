@@ -1,0 +1,42 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-F-continuation-20261007/economics/removal.py",
+    "baseline-guard"
+  ],
+  "cwd": "/workspace/e02-F-economics-20261006/policy-engine",
+  "source_sha": "193b3582a72c640c1d06a131f93502654a77a36a",
+  "source_tree": "81c2e3e636bec4c5d81b8f918bb61cca6a49309b",
+  "runtime_source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+  "published_C_G_source_sha": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+  "exit_code": 1,
+  "wall_seconds": 45.515455371001735,
+  "check": "FAIL",
+  "environment": {
+    "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "/workspace/e02-F-economics-20261006/policy-engine/src:/workspace/e02-F-economics-20261006/policy-engine/tools:/workspace/e02-F-economics-20261006/policy-engine:/tmp/e02-F-continuation-20261007/economics",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "outputs": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/economics/removal-baseline-guard.stdout.txt",
+      "bytes": 3701,
+      "sha256": "b55e87cba956b6f3767f79e3ef2e2e9b8475e1925832430995d845521fcd7987"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/economics/removal-baseline-guard.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/economics/removal-baseline-guard.xml",
+      "bytes": 5999,
+      "sha256": "358d08c8e1fdcfc031cf39aceb2af3b6fb558957a18d6f1e6f3cc4169a06b792"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/economics/removal-baseline-guard-origins.json",
+      "bytes": 1120264,
+      "sha256": "6cd3226f2f7f877821d2bfd6bb7f115a2852cca855bf4a49355e2343f5be7fb3"
+    }
+  ]
+}

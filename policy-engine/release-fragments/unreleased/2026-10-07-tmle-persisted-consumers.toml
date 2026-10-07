@@ -1,0 +1,24 @@
+id = "2026-10-07-tmle-persisted-consumers"
+title = "Verify persisted native TMLE through confidence and value consumers"
+type = "added"
+component = "foundry-causal"
+owner = "team-polisyos"
+summary = "One registered native TMLE MethodJob binds report and envelope CAS lineage for fresh ConfidencePass and value projection readers, including sibling CAS failures and source relabeling controls."
+change_class = "internal"
+surface_classification = "internal: regression fixture and consumer documentation; no runtime contract or facade changes"
+compatibility = "Production sources, enum/schema, method signature, cache, folds, and authority policy are unchanged. The fixture retains numerical SUCCESS and CI while asserting non-gating causal disposition and an honest upstream value-contract refusal."
+migration = "No caller migration. Use the source-bound receipt for the tested consumer window. Do not infer genuine identification, positive value eligibility, or B56 study-wide resource admission from this fixture."
+limitations = "Accepted causal-identification issuer/verification/input bridge and native TMLE value projection contract remain owner dependencies. Actual admitted common-study workload and budget remain UNRUN."
+evidence = ["tests/unit/scientist/governance/test_tmle_persisted_evidence_consumers.py"]
+migration_docs = ["docs/reference/foundry/tmle-persisted-consumers.md"]
+generated_client_compatibility = "not_applicable"
+
+[[compatibility_change]]
+id = "tmle-persisted-consumer-verification"
+change_class = "internal"
+impact = "compatible"
+surface = "internal: native TMLE consumer verification and documentation"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Verify the existing candidate/refusal disposition against real persisted native TMLE output without new identification authority or value contract."

@@ -1,0 +1,847 @@
+[
+  {
+    "name": "finding-B54",
+    "command": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--finding",
+      "B54",
+      "--limit",
+      "1000",
+      "--details"
+    ],
+    "returncode": 0,
+    "bytes": 10217,
+    "sha256": "2c345193b835948bf5391937e1f8173ba7897dc2bfe88810513250681ddfbc83",
+    "matching_cells": 8,
+    "displayed_cells": 8,
+    "states": {
+      "PASS": 8
+    },
+    "source_blocks": 0,
+    "raw_archives_received": 0
+  },
+  {
+    "name": "finding-B56",
+    "command": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--finding",
+      "B56",
+      "--limit",
+      "1000",
+      "--details"
+    ],
+    "returncode": 0,
+    "bytes": 10217,
+    "sha256": "6520d99211ff0a6ded89f2406d27900375a05535ca4bd27261ddb0789e0f2bc2",
+    "matching_cells": 8,
+    "displayed_cells": 8,
+    "states": {
+      "PASS": 8
+    },
+    "source_blocks": 0,
+    "raw_archives_received": 0
+  },
+  {
+    "name": "finding-B204",
+    "command": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--finding",
+      "B204",
+      "--limit",
+      "1000",
+      "--details"
+    ],
+    "returncode": 0,
+    "bytes": 10332,
+    "sha256": "675cf0e0284038c54ec7334e4609845d6c81807ae9bb0cdd24b5cc38cfa8a4ff",
+    "matching_cells": 8,
+    "displayed_cells": 8,
+    "states": {
+      "PASS": 8
+    },
+    "source_blocks": 0,
+    "raw_archives_received": 0
+  },
+  {
+    "name": "finding-B205",
+    "command": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--finding",
+      "B205",
+      "--limit",
+      "1000",
+      "--details"
+    ],
+    "returncode": 0,
+    "bytes": 10332,
+    "sha256": "8ad8480ebfdad6815f88ff0c0c3dff72b0db2cd9d6df6b0650a51784e2238770",
+    "matching_cells": 8,
+    "displayed_cells": 8,
+    "states": {
+      "PASS": 8
+    },
+    "source_blocks": 0,
+    "raw_archives_received": 0
+  },
+  {
+    "name": "finding-B206",
+    "command": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--finding",
+      "B206",
+      "--limit",
+      "1000",
+      "--details"
+    ],
+    "returncode": 0,
+    "bytes": 10332,
+    "sha256": "138b1791fc4f53a1aea96fbc6e7b5ba13faa5bf22d7ebbe6c7121f7d56d7818c",
+    "matching_cells": 8,
+    "displayed_cells": 8,
+    "states": {
+      "PASS": 8
+    },
+    "source_blocks": 0,
+    "raw_archives_received": 0
+  },
+  {
+    "name": "finding-B207",
+    "command": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--finding",
+      "B207",
+      "--limit",
+      "1000",
+      "--details"
+    ],
+    "returncode": 0,
+    "bytes": 10219,
+    "sha256": "ec822f82b9979b3a792a9da5cdb04322785173bdcf91ece85b95b405066e25e2",
+    "matching_cells": 8,
+    "displayed_cells": 8,
+    "states": {
+      "PASS": 8
+    },
+    "source_blocks": 0,
+    "raw_archives_received": 0
+  },
+  {
+    "name": "finding-B208",
+    "command": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--finding",
+      "B208",
+      "--limit",
+      "1000",
+      "--details"
+    ],
+    "returncode": 0,
+    "bytes": 10219,
+    "sha256": "d19ca8c83a52cf56ca389a8fd062302e4a0465a89798a1e22ad5b7dc2e8ce0da",
+    "matching_cells": 8,
+    "displayed_cells": 8,
+    "states": {
+      "PASS": 8
+    },
+    "source_blocks": 0,
+    "raw_archives_received": 0
+  },
+  {
+    "name": "finding-B209",
+    "command": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--finding",
+      "B209",
+      "--limit",
+      "1000",
+      "--details"
+    ],
+    "returncode": 0,
+    "bytes": 10219,
+    "sha256": "e9d960099427e2c62bc4eb8e812f572722040ce03e787e8487a473e79557f62c",
+    "matching_cells": 8,
+    "displayed_cells": 8,
+    "states": {
+      "PASS": 8
+    },
+    "source_blocks": 0,
+    "raw_archives_received": 0
+  },
+  {
+    "name": "finding-B210",
+    "command": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--finding",
+      "B210",
+      "--limit",
+      "1000",
+      "--details"
+    ],
+    "returncode": 0,
+    "bytes": 5773,
+    "sha256": "72f9dfca90a4c4fc304998257e34888a0e707ecb1688f9c6118b88cbe273d122",
+    "matching_cells": 4,
+    "displayed_cells": 4,
+    "states": {
+      "PASS": 4
+    },
+    "source_blocks": 0,
+    "raw_archives_received": 0
+  },
+  {
+    "name": "finding-B211",
+    "command": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--finding",
+      "B211",
+      "--limit",
+      "1000",
+      "--details"
+    ],
+    "returncode": 0,
+    "bytes": 5773,
+    "sha256": "7bb86a2c575d571e917f4290f244d766ab18cddbb4ca53c314420df3fba47b79",
+    "matching_cells": 4,
+    "displayed_cells": 4,
+    "states": {
+      "PASS": 4
+    },
+    "source_blocks": 0,
+    "raw_archives_received": 0
+  },
+  {
+    "name": "finding-B212",
+    "command": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--finding",
+      "B212",
+      "--limit",
+      "1000",
+      "--details"
+    ],
+    "returncode": 0,
+    "bytes": 8526,
+    "sha256": "b8a3a95f2de79a631212b9639ee500261d1bc11c889b5dab3aa48dbb55ec96cf",
+    "matching_cells": 4,
+    "displayed_cells": 4,
+    "states": {
+      "PASS": 4
+    },
+    "source_blocks": 3,
+    "raw_archives_received": 0
+  },
+  {
+    "name": "finding-B213",
+    "command": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--finding",
+      "B213",
+      "--limit",
+      "1000",
+      "--details"
+    ],
+    "returncode": 0,
+    "bytes": 8526,
+    "sha256": "a21454b9c354f9a3404e428f32832bf99b422861c80421adbc3e63b46bc48fb5",
+    "matching_cells": 4,
+    "displayed_cells": 4,
+    "states": {
+      "PASS": 4
+    },
+    "source_blocks": 3,
+    "raw_archives_received": 0
+  },
+  {
+    "name": "finding-B214",
+    "command": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--finding",
+      "B214",
+      "--limit",
+      "1000",
+      "--details"
+    ],
+    "returncode": 0,
+    "bytes": 21540,
+    "sha256": "7000d14820140c4e83bd1da7089b6f75fcad47d5cca41b883ca1c53bbd54b45f",
+    "matching_cells": 14,
+    "displayed_cells": 14,
+    "states": {
+      "FAILED": 1,
+      "PASS": 13
+    },
+    "source_blocks": 4,
+    "raw_archives_received": 0
+  },
+  {
+    "name": "finding-B215",
+    "command": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--finding",
+      "B215",
+      "--limit",
+      "1000",
+      "--details"
+    ],
+    "returncode": 0,
+    "bytes": 16726,
+    "sha256": "393e7a5ce6e39b309411d9519a57c0b9b57ed0ada65138a4df0540eabebd5bd0",
+    "matching_cells": 9,
+    "displayed_cells": 9,
+    "states": {
+      "FAILED": 2,
+      "PASS": 7
+    },
+    "source_blocks": 7,
+    "raw_archives_received": 0
+  },
+  {
+    "name": "finding-B216",
+    "command": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--finding",
+      "B216",
+      "--limit",
+      "1000",
+      "--details"
+    ],
+    "returncode": 0,
+    "bytes": 12498,
+    "sha256": "531353c75914404f32bee1b9320a0947a23942b1f31b45a1a88ff0de9a5241d7",
+    "matching_cells": 10,
+    "displayed_cells": 10,
+    "states": {
+      "PASS": 10
+    },
+    "source_blocks": 0,
+    "raw_archives_received": 0
+  },
+  {
+    "name": "finding-B217",
+    "command": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--finding",
+      "B217",
+      "--limit",
+      "1000",
+      "--details"
+    ],
+    "returncode": 0,
+    "bytes": 12498,
+    "sha256": "c2f0ec7377688192457326b928c4ea4a0342c4b11db0025c4825b1e43a1222fe",
+    "matching_cells": 10,
+    "displayed_cells": 10,
+    "states": {
+      "PASS": 10
+    },
+    "source_blocks": 0,
+    "raw_archives_received": 0
+  },
+  {
+    "name": "finding-B218",
+    "command": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--finding",
+      "B218",
+      "--limit",
+      "1000",
+      "--details"
+    ],
+    "returncode": 0,
+    "bytes": 21540,
+    "sha256": "fdf708464c00b055a9b2b1c4f9d65817dd1fe2d9f7ed7b7eb09a158a0139b506",
+    "matching_cells": 14,
+    "displayed_cells": 14,
+    "states": {
+      "FAILED": 1,
+      "PASS": 13
+    },
+    "source_blocks": 4,
+    "raw_archives_received": 0
+  },
+  {
+    "name": "finding-B219",
+    "command": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--finding",
+      "B219",
+      "--limit",
+      "1000",
+      "--details"
+    ],
+    "returncode": 0,
+    "bytes": 17187,
+    "sha256": "e666d7a0069487e428b6f2079b2c7f59b20f0162b41502d0c1fc9c4774d6999f",
+    "matching_cells": 10,
+    "displayed_cells": 10,
+    "states": {
+      "FAILED": 1,
+      "PASS": 9
+    },
+    "source_blocks": 4,
+    "raw_archives_received": 0
+  },
+  {
+    "name": "finding-B220",
+    "command": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--finding",
+      "B220",
+      "--limit",
+      "1000",
+      "--details"
+    ],
+    "returncode": 0,
+    "bytes": 17220,
+    "sha256": "3f6f863697a3e269a10a8dcd1f8db38cc081276082fcdf72754006176674c237",
+    "matching_cells": 10,
+    "displayed_cells": 10,
+    "states": {
+      "FAILED": 1,
+      "PASS": 9
+    },
+    "source_blocks": 4,
+    "raw_archives_received": 0
+  },
+  {
+    "name": "finding-B221",
+    "command": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--finding",
+      "B221",
+      "--limit",
+      "1000",
+      "--details"
+    ],
+    "returncode": 0,
+    "bytes": 4612,
+    "sha256": "6d42aeeea4cc6e0f78e52903d09d1cc625d30e7ecc0c20c6fd7fb9cf88fa32fe",
+    "matching_cells": 3,
+    "displayed_cells": 3,
+    "states": {
+      "PASS": 3
+    },
+    "source_blocks": 0,
+    "raw_archives_received": 0
+  },
+  {
+    "name": "finding-B222",
+    "command": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--finding",
+      "B222",
+      "--limit",
+      "1000",
+      "--details"
+    ],
+    "returncode": 0,
+    "bytes": 4612,
+    "sha256": "963fbd5d6550dbe3c2174ddc0661fce958df0a678bae77c40486ef012dec887d",
+    "matching_cells": 3,
+    "displayed_cells": 3,
+    "states": {
+      "PASS": 3
+    },
+    "source_blocks": 0,
+    "raw_archives_received": 0
+  },
+  {
+    "name": "finding-B223",
+    "command": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--finding",
+      "B223",
+      "--limit",
+      "1000",
+      "--details"
+    ],
+    "returncode": 0,
+    "bytes": 16726,
+    "sha256": "279e6d9108f44876e27f51a703aadf648b5a0f111317e13d31f9f24fb6fa3682",
+    "matching_cells": 9,
+    "displayed_cells": 9,
+    "states": {
+      "FAILED": 2,
+      "PASS": 7
+    },
+    "source_blocks": 7,
+    "raw_archives_received": 0
+  },
+  {
+    "name": "finding-B224",
+    "command": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--finding",
+      "B224",
+      "--limit",
+      "1000",
+      "--details"
+    ],
+    "returncode": 0,
+    "bytes": 13581,
+    "sha256": "22f6f6c7465cc07bf34f20ae7fba747f1386cb0fdb18e0de0489c0a65fd145f3",
+    "matching_cells": 8,
+    "displayed_cells": 8,
+    "states": {
+      "PASS": 8
+    },
+    "source_blocks": 5,
+    "raw_archives_received": 0
+  },
+  {
+    "name": "finding-B225",
+    "command": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--finding",
+      "B225",
+      "--limit",
+      "1000",
+      "--details"
+    ],
+    "returncode": 0,
+    "bytes": 13581,
+    "sha256": "aceb6afb021fe30dee597beff502dc9c380392da070da69ae55526ca3bac4d9d",
+    "matching_cells": 8,
+    "displayed_cells": 8,
+    "states": {
+      "PASS": 8
+    },
+    "source_blocks": 5,
+    "raw_archives_received": 0
+  },
+  {
+    "name": "finding-LA-001",
+    "command": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--finding",
+      "LA-001",
+      "--limit",
+      "1000",
+      "--details"
+    ],
+    "returncode": 0,
+    "bytes": 21036,
+    "sha256": "046936f3673b9a747f12c98002317e01467e61e758f9a6c5aef0819587abcf57",
+    "matching_cells": 18,
+    "displayed_cells": 18,
+    "states": {
+      "PASS": 18
+    },
+    "source_blocks": 0,
+    "raw_archives_received": 0
+  },
+  {
+    "name": "finding-LA-002",
+    "command": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--finding",
+      "LA-002",
+      "--limit",
+      "1000",
+      "--details"
+    ],
+    "returncode": 0,
+    "bytes": 21036,
+    "sha256": "ed748fbeaeafddc4fe09dbbf6f7cb5cc7b83738094e89a532c057831e0436aaa",
+    "matching_cells": 18,
+    "displayed_cells": 18,
+    "states": {
+      "PASS": 18
+    },
+    "source_blocks": 0,
+    "raw_archives_received": 0
+  },
+  {
+    "name": "finding-LA-003",
+    "command": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--finding",
+      "LA-003",
+      "--limit",
+      "1000",
+      "--details"
+    ],
+    "returncode": 0,
+    "bytes": 7971,
+    "sha256": "88d431394e80338d2df457c57d6f80afbbd44f4eecdc7139362a783818fa60ac",
+    "matching_cells": 6,
+    "displayed_cells": 6,
+    "states": {
+      "PASS": 6
+    },
+    "source_blocks": 0,
+    "raw_archives_received": 0
+  },
+  {
+    "name": "finding-LA-004",
+    "command": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--finding",
+      "LA-004",
+      "--limit",
+      "1000",
+      "--details"
+    ],
+    "returncode": 0,
+    "bytes": 7855,
+    "sha256": "32b276ec2102ecfe9dd004ea69c58464d87a4c24d69d92016621edb8770ff4be",
+    "matching_cells": 6,
+    "displayed_cells": 6,
+    "states": {
+      "PASS": 6
+    },
+    "source_blocks": 0,
+    "raw_archives_received": 0
+  },
+  {
+    "name": "finding-LA-007",
+    "command": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--finding",
+      "LA-007",
+      "--limit",
+      "1000",
+      "--details"
+    ],
+    "returncode": 0,
+    "bytes": 12544,
+    "sha256": "af718dcdca2140a35cac940511b84438dc62eba343c7f79e40a215377145fb60",
+    "matching_cells": 10,
+    "displayed_cells": 10,
+    "states": {
+      "PASS": 10
+    },
+    "source_blocks": 0,
+    "raw_archives_received": 0
+  },
+  {
+    "name": "finding-LA-016",
+    "command": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--finding",
+      "LA-016",
+      "--limit",
+      "1000",
+      "--details"
+    ],
+    "returncode": 0,
+    "bytes": 15019,
+    "sha256": "f9f6f5e2cbdbb20ad9a1057c8fbee6a5e08a092e0a959acf5dae92d52b291867",
+    "matching_cells": 12,
+    "displayed_cells": 12,
+    "states": {
+      "PASS": 12
+    },
+    "source_blocks": 0,
+    "raw_archives_received": 0
+  },
+  {
+    "name": "finding-LA-017",
+    "command": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--finding",
+      "LA-017",
+      "--limit",
+      "1000",
+      "--details"
+    ],
+    "returncode": 0,
+    "bytes": 12576,
+    "sha256": "508413df0aff7d7833b0e23690732b8296f5cfaafa762d1eee2953dd3f783ee1",
+    "matching_cells": 10,
+    "displayed_cells": 10,
+    "states": {
+      "PASS": 10
+    },
+    "source_blocks": 0,
+    "raw_archives_received": 0
+  },
+  {
+    "name": "finding-LA-019",
+    "command": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--finding",
+      "LA-019",
+      "--limit",
+      "1000",
+      "--details"
+    ],
+    "returncode": 0,
+    "bytes": 12544,
+    "sha256": "e305ec2aa48b34b51b1de66fe84c2588674f9798d363f06bd975096afa387b43",
+    "matching_cells": 10,
+    "displayed_cells": 10,
+    "states": {
+      "PASS": 10
+    },
+    "source_blocks": 0,
+    "raw_archives_received": 0
+  },
+  {
+    "name": "finding-LA-020",
+    "command": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--finding",
+      "LA-020",
+      "--limit",
+      "1000",
+      "--details"
+    ],
+    "returncode": 0,
+    "bytes": 6856,
+    "sha256": "a3d0e646509215c2082403aada653550f5afeb977bed22da9bbe5b6021b60ee1",
+    "matching_cells": 5,
+    "displayed_cells": 5,
+    "states": {
+      "PASS": 5
+    },
+    "source_blocks": 0,
+    "raw_archives_received": 0
+  },
+  {
+    "name": "finding-LA-035",
+    "command": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--finding",
+      "LA-035",
+      "--limit",
+      "1000",
+      "--details"
+    ],
+    "returncode": 0,
+    "bytes": 7855,
+    "sha256": "13695d227995583379ff42701f1873f3f1de8ecc743c108c4cd30b3147efc09a",
+    "matching_cells": 6,
+    "displayed_cells": 6,
+    "states": {
+      "PASS": 6
+    },
+    "source_blocks": 0,
+    "raw_archives_received": 0
+  },
+  {
+    "name": "finding-LA-037",
+    "command": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--finding",
+      "LA-037",
+      "--limit",
+      "1000",
+      "--details"
+    ],
+    "returncode": 0,
+    "bytes": 21036,
+    "sha256": "c0f9079fc5aa2864b23f34c95052f9b7db654ad7c7aef0facfd0ad9817d19bc8",
+    "matching_cells": 18,
+    "displayed_cells": 18,
+    "states": {
+      "PASS": 18
+    },
+    "source_blocks": 0,
+    "raw_archives_received": 0
+  },
+  {
+    "name": "F01-P025",
+    "command": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--cell",
+      "F01-P025",
+      "--details",
+      "--job-context",
+      "--block-limit",
+      "1000"
+    ],
+    "returncode": 0,
+    "bytes": 8535,
+    "sha256": "99f5bcef69dfab190026301a6cb6005aae4ef41ee5da3f31321a8170a7cd5fd9",
+    "matching_cells": 1,
+    "displayed_cells": 1,
+    "states": {
+      "FAILED": 1
+    },
+    "source_blocks": 1,
+    "raw_archives_received": 0
+  },
+  {
+    "name": "F08-P048",
+    "command": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--cell",
+      "F08-P048",
+      "--details",
+      "--job-context",
+      "--block-limit",
+      "1000"
+    ],
+    "returncode": 0,
+    "bytes": 36355,
+    "sha256": "dcb08523ea7435c9b62d623fee4086bc2e2b46a0087e3f3a17ae2657be3dda7a",
+    "matching_cells": 1,
+    "displayed_cells": 1,
+    "states": {
+      "FAILED": 1
+    },
+    "source_blocks": 4,
+    "raw_archives_received": 0
+  },
+  {
+    "name": "F13-P030",
+    "command": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--cell",
+      "F13-P030",
+      "--details",
+      "--job-context",
+      "--block-limit",
+      "1000"
+    ],
+    "returncode": 0,
+    "bytes": 6410,
+    "sha256": "d60d6247cc4356e3129921afaecc406ca2992eb432d7e98e133d09ff65b9f3b8",
+    "matching_cells": 1,
+    "displayed_cells": 1,
+    "states": {
+      "FAILED": 1
+    },
+    "source_blocks": 1,
+    "raw_archives_received": 0
+  }
+]

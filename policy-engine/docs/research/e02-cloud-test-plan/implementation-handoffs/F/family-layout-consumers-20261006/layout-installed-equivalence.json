@@ -1,0 +1,87 @@
+{
+  "source": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+  "installed_scientific_source": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+  "source_equivalence": [
+    {
+      "path": "policy-engine/src/polisyos/ir/kernel/slots.py",
+      "sources": {
+        "7f05b6259e0c78fac81a0baa4bff41e648a9d771": {
+          "git_blob": "1d656cc5b6643f6378f8dc54f4cc4272895cb6b8",
+          "sha256": "6f24e435089d0c7d0cbb3b52fde1e2cb8f3b042c41f6b69adb37bb91620d4c81",
+          "bytes": 18445
+        },
+        "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6": {
+          "git_blob": "1d656cc5b6643f6378f8dc54f4cc4272895cb6b8",
+          "sha256": "6f24e435089d0c7d0cbb3b52fde1e2cb8f3b042c41f6b69adb37bb91620d4c81",
+          "bytes": 18445
+        }
+      },
+      "byte_equivalent": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/layout.py",
+      "sources": {
+        "7f05b6259e0c78fac81a0baa4bff41e648a9d771": {
+          "git_blob": "a48ecff22baec80ddaf8d2939417f48086a00555",
+          "sha256": "fb528428135bf40ddf36336bbdac7043b049d4ef9bf7e954ada1c9727100a69b",
+          "bytes": 350
+        },
+        "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6": {
+          "git_blob": "a48ecff22baec80ddaf8d2939417f48086a00555",
+          "sha256": "fb528428135bf40ddf36336bbdac7043b049d4ef9bf7e954ada1c9727100a69b",
+          "bytes": 350
+        }
+      },
+      "byte_equivalent": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/compiler/layout.py",
+      "sources": {
+        "7f05b6259e0c78fac81a0baa4bff41e648a9d771": {
+          "git_blob": "a732c7945a25c09de05ee0a7be8f1a8ec8c90fe3",
+          "sha256": "d0f981b9d24ed767107a9238f5bc9a16c6f5b45ed533a01adf0c35e52cd6f1b7",
+          "bytes": 220
+        },
+        "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6": {
+          "git_blob": "a732c7945a25c09de05ee0a7be8f1a8ec8c90fe3",
+          "sha256": "d0f981b9d24ed767107a9238f5bc9a16c6f5b45ed533a01adf0c35e52cd6f1b7",
+          "bytes": 220
+        }
+      },
+      "byte_equivalent": true
+    }
+  ],
+  "original_installed_receipt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json",
+    "git_sha": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+    "sha256": "1ebacf5377764b5c0958d7e6597e10eab56536c570aacea64d25be3ee7cff908",
+    "bytes": 209475
+  },
+  "reconciled_existing_checks": [
+    {
+      "command": "/workspace/e02-F-20261006-receipts/installed-latest/wheel-env/bin/python -I /workspace/e02-F-20261006-receipts/installed-latest/compatibility_launch.py wheel",
+      "target_sha": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006/independent/fit/wheel-compatibility.stdout.txt",
+      "output_sha256": "5191d6133ab7e753c5e9bd151bbe5a2085b668dafb433a376dd1232b1ee95b7b",
+      "output_bytes": 144237,
+      "observed_census_lines": [
+        "13 passed in 5.78s"
+      ],
+      "custody": "Complete deciding output already committed at original_installed_receipt.git_sha:output. Reference/hash only; no redundant copy."
+    },
+    {
+      "command": "/workspace/e02-F-20261006-receipts/installed-latest/sdist-env/bin/python -I /workspace/e02-F-20261006-receipts/installed-latest/compatibility_launch.py sdist",
+      "target_sha": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006/independent/fit/sdist-compatibility.stdout.txt",
+      "output_sha256": "2ed8d20b54410462f00badbdb875c5269f432afa97c676ff4bb1936a60c1dd5c",
+      "output_bytes": 144237,
+      "observed_census_lines": [
+        "13 passed in 5.70s"
+      ],
+      "custody": "Complete deciding output already committed at original_installed_receipt.git_sha:output. Reference/hash only; no redundant copy."
+    }
+  ],
+  "scope": "Native IR slot owner+both preserved wrappers only, source byte-equivalent to installed witness. No new FRY Treasury law, new monitor, full installed candidate/worker/profile activation claim."
+}

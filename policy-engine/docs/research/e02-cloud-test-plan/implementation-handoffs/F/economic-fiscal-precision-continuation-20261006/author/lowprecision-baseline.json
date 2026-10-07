@@ -1,0 +1,2486 @@
+{
+  "cases": 40,
+  "scope": "only native existing lowerfloat/integer input behavior comparison; no new integer-income semantics",
+  "rows": [
+    {
+      "x64": false,
+      "requested_input_dtype": "int32",
+      "actual_income": {
+        "dtype": "int32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "01000000030000000900000011000000",
+        "values": [
+          1.0,
+          3.0,
+          9.0,
+          17.0
+        ]
+      },
+      "kind": "income_tax",
+      "compiled": false,
+      "rate_attribute": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "cdcccc3d",
+        "values": 0.10000000149011612
+      },
+      "sector_weights": null,
+      "delta": {
+        "dtype": "float32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "cdccccbd9a9999be676666bf9a99d9bf",
+        "values": [
+          -0.10000000149011612,
+          -0.30000001192092896,
+          -0.9000000357627869,
+          -1.7000000476837158
+        ]
+      },
+      "government": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "00004040",
+        "values": 3.0
+      },
+      "key": {
+        "dtype": "uint32",
+        "shape": [
+          2
+        ],
+        "bytes_hex": "0000000000000000",
+        "values": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "x64": false,
+      "requested_input_dtype": "int32",
+      "actual_income": {
+        "dtype": "int32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "01000000030000000900000011000000",
+        "values": [
+          1.0,
+          3.0,
+          9.0,
+          17.0
+        ]
+      },
+      "kind": "income_tax",
+      "compiled": true,
+      "rate_attribute": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "cdcccc3d",
+        "values": 0.10000000149011612
+      },
+      "sector_weights": null,
+      "delta": {
+        "dtype": "float32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "cdccccbd9a9999be676666bf9a99d9bf",
+        "values": [
+          -0.10000000149011612,
+          -0.30000001192092896,
+          -0.9000000357627869,
+          -1.7000000476837158
+        ]
+      },
+      "government": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "00004040",
+        "values": 3.0
+      },
+      "key": {
+        "dtype": "uint32",
+        "shape": [
+          2
+        ],
+        "bytes_hex": "0000000000000000",
+        "values": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "x64": false,
+      "requested_input_dtype": "int32",
+      "actual_income": {
+        "dtype": "int32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "01000000030000000900000011000000",
+        "values": [
+          1.0,
+          3.0,
+          9.0,
+          17.0
+        ]
+      },
+      "kind": "tax_subsidy",
+      "compiled": false,
+      "rate_attribute": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "cdcccc3d",
+        "values": 0.10000000149011612
+      },
+      "sector_weights": {
+        "dtype": "float32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "0000803f0000803f0000803f0000803f",
+        "values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "delta": {
+        "dtype": "float32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "cdcccc3d9a99993e6766663f9a99d93f",
+        "values": [
+          0.10000000149011612,
+          0.30000001192092896,
+          0.9000000357627869,
+          1.7000000476837158
+        ]
+      },
+      "government": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "000040c0",
+        "values": -3.0
+      },
+      "key": {
+        "dtype": "uint32",
+        "shape": [
+          2
+        ],
+        "bytes_hex": "0000000000000000",
+        "values": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "x64": false,
+      "requested_input_dtype": "int32",
+      "actual_income": {
+        "dtype": "int32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "01000000030000000900000011000000",
+        "values": [
+          1.0,
+          3.0,
+          9.0,
+          17.0
+        ]
+      },
+      "kind": "tax_subsidy",
+      "compiled": true,
+      "rate_attribute": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "cdcccc3d",
+        "values": 0.10000000149011612
+      },
+      "sector_weights": {
+        "dtype": "float32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "0000803f0000803f0000803f0000803f",
+        "values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "delta": {
+        "dtype": "float32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "cdcccc3d9a99993e6766663f9a99d93f",
+        "values": [
+          0.10000000149011612,
+          0.30000001192092896,
+          0.9000000357627869,
+          1.7000000476837158
+        ]
+      },
+      "government": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "000040c0",
+        "values": -3.0
+      },
+      "key": {
+        "dtype": "uint32",
+        "shape": [
+          2
+        ],
+        "bytes_hex": "0000000000000000",
+        "values": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "x64": false,
+      "requested_input_dtype": "int64",
+      "actual_income": {
+        "dtype": "int32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "01000000030000000900000011000000",
+        "values": [
+          1.0,
+          3.0,
+          9.0,
+          17.0
+        ]
+      },
+      "kind": "income_tax",
+      "compiled": false,
+      "rate_attribute": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "cdcccc3d",
+        "values": 0.10000000149011612
+      },
+      "sector_weights": null,
+      "delta": {
+        "dtype": "float32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "cdccccbd9a9999be676666bf9a99d9bf",
+        "values": [
+          -0.10000000149011612,
+          -0.30000001192092896,
+          -0.9000000357627869,
+          -1.7000000476837158
+        ]
+      },
+      "government": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "00004040",
+        "values": 3.0
+      },
+      "key": {
+        "dtype": "uint32",
+        "shape": [
+          2
+        ],
+        "bytes_hex": "0000000000000000",
+        "values": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "x64": false,
+      "requested_input_dtype": "int64",
+      "actual_income": {
+        "dtype": "int32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "01000000030000000900000011000000",
+        "values": [
+          1.0,
+          3.0,
+          9.0,
+          17.0
+        ]
+      },
+      "kind": "income_tax",
+      "compiled": true,
+      "rate_attribute": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "cdcccc3d",
+        "values": 0.10000000149011612
+      },
+      "sector_weights": null,
+      "delta": {
+        "dtype": "float32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "cdccccbd9a9999be676666bf9a99d9bf",
+        "values": [
+          -0.10000000149011612,
+          -0.30000001192092896,
+          -0.9000000357627869,
+          -1.7000000476837158
+        ]
+      },
+      "government": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "00004040",
+        "values": 3.0
+      },
+      "key": {
+        "dtype": "uint32",
+        "shape": [
+          2
+        ],
+        "bytes_hex": "0000000000000000",
+        "values": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "x64": false,
+      "requested_input_dtype": "int64",
+      "actual_income": {
+        "dtype": "int32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "01000000030000000900000011000000",
+        "values": [
+          1.0,
+          3.0,
+          9.0,
+          17.0
+        ]
+      },
+      "kind": "tax_subsidy",
+      "compiled": false,
+      "rate_attribute": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "cdcccc3d",
+        "values": 0.10000000149011612
+      },
+      "sector_weights": {
+        "dtype": "float32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "0000803f0000803f0000803f0000803f",
+        "values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "delta": {
+        "dtype": "float32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "cdcccc3d9a99993e6766663f9a99d93f",
+        "values": [
+          0.10000000149011612,
+          0.30000001192092896,
+          0.9000000357627869,
+          1.7000000476837158
+        ]
+      },
+      "government": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "000040c0",
+        "values": -3.0
+      },
+      "key": {
+        "dtype": "uint32",
+        "shape": [
+          2
+        ],
+        "bytes_hex": "0000000000000000",
+        "values": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "x64": false,
+      "requested_input_dtype": "int64",
+      "actual_income": {
+        "dtype": "int32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "01000000030000000900000011000000",
+        "values": [
+          1.0,
+          3.0,
+          9.0,
+          17.0
+        ]
+      },
+      "kind": "tax_subsidy",
+      "compiled": true,
+      "rate_attribute": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "cdcccc3d",
+        "values": 0.10000000149011612
+      },
+      "sector_weights": {
+        "dtype": "float32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "0000803f0000803f0000803f0000803f",
+        "values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "delta": {
+        "dtype": "float32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "cdcccc3d9a99993e6766663f9a99d93f",
+        "values": [
+          0.10000000149011612,
+          0.30000001192092896,
+          0.9000000357627869,
+          1.7000000476837158
+        ]
+      },
+      "government": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "000040c0",
+        "values": -3.0
+      },
+      "key": {
+        "dtype": "uint32",
+        "shape": [
+          2
+        ],
+        "bytes_hex": "0000000000000000",
+        "values": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "x64": false,
+      "requested_input_dtype": "bool",
+      "actual_income": {
+        "dtype": "bool",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "01010101",
+        "values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "kind": "income_tax",
+      "compiled": false,
+      "rate_attribute": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "cdcccc3d",
+        "values": 0.10000000149011612
+      },
+      "sector_weights": null,
+      "delta": {
+        "dtype": "float32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "cdccccbdcdccccbdcdccccbdcdccccbd",
+        "values": [
+          -0.10000000149011612,
+          -0.10000000149011612,
+          -0.10000000149011612,
+          -0.10000000149011612
+        ]
+      },
+      "government": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "cdcccc3e",
+        "values": 0.4000000059604645
+      },
+      "key": {
+        "dtype": "uint32",
+        "shape": [
+          2
+        ],
+        "bytes_hex": "0000000000000000",
+        "values": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "x64": false,
+      "requested_input_dtype": "bool",
+      "actual_income": {
+        "dtype": "bool",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "01010101",
+        "values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "kind": "income_tax",
+      "compiled": true,
+      "rate_attribute": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "cdcccc3d",
+        "values": 0.10000000149011612
+      },
+      "sector_weights": null,
+      "delta": {
+        "dtype": "float32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "cdccccbdcdccccbdcdccccbdcdccccbd",
+        "values": [
+          -0.10000000149011612,
+          -0.10000000149011612,
+          -0.10000000149011612,
+          -0.10000000149011612
+        ]
+      },
+      "government": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "cdcccc3e",
+        "values": 0.4000000059604645
+      },
+      "key": {
+        "dtype": "uint32",
+        "shape": [
+          2
+        ],
+        "bytes_hex": "0000000000000000",
+        "values": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "x64": false,
+      "requested_input_dtype": "bool",
+      "actual_income": {
+        "dtype": "bool",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "01010101",
+        "values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "kind": "tax_subsidy",
+      "compiled": false,
+      "rate_attribute": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "cdcccc3d",
+        "values": 0.10000000149011612
+      },
+      "sector_weights": {
+        "dtype": "float32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "0000803f0000803f0000803f0000803f",
+        "values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "delta": {
+        "dtype": "float32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "cdcccc3dcdcccc3dcdcccc3dcdcccc3d",
+        "values": [
+          0.10000000149011612,
+          0.10000000149011612,
+          0.10000000149011612,
+          0.10000000149011612
+        ]
+      },
+      "government": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "cdccccbe",
+        "values": -0.4000000059604645
+      },
+      "key": {
+        "dtype": "uint32",
+        "shape": [
+          2
+        ],
+        "bytes_hex": "0000000000000000",
+        "values": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "x64": false,
+      "requested_input_dtype": "bool",
+      "actual_income": {
+        "dtype": "bool",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "01010101",
+        "values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "kind": "tax_subsidy",
+      "compiled": true,
+      "rate_attribute": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "cdcccc3d",
+        "values": 0.10000000149011612
+      },
+      "sector_weights": {
+        "dtype": "float32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "0000803f0000803f0000803f0000803f",
+        "values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "delta": {
+        "dtype": "float32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "cdcccc3dcdcccc3dcdcccc3dcdcccc3d",
+        "values": [
+          0.10000000149011612,
+          0.10000000149011612,
+          0.10000000149011612,
+          0.10000000149011612
+        ]
+      },
+      "government": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "cdccccbe",
+        "values": -0.4000000059604645
+      },
+      "key": {
+        "dtype": "uint32",
+        "shape": [
+          2
+        ],
+        "bytes_hex": "0000000000000000",
+        "values": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "x64": false,
+      "requested_input_dtype": "float16",
+      "actual_income": {
+        "dtype": "float16",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "803c8042c048704c",
+        "values": [
+          1.125,
+          3.25,
+          9.5,
+          17.75
+        ]
+      },
+      "kind": "income_tax",
+      "compiled": false,
+      "rate_attribute": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "cdcccc3d",
+        "values": 0.10000000149011612
+      },
+      "sector_weights": null,
+      "delta": {
+        "dtype": "float32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "6766e6bd6766a6be333373bf3333e3bf",
+        "values": [
+          -0.11250000447034836,
+          -0.32500001788139343,
+          -0.949999988079071,
+          -1.774999976158142
+        ]
+      },
+      "government": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "66664a40",
+        "values": 3.1624999046325684
+      },
+      "key": {
+        "dtype": "uint32",
+        "shape": [
+          2
+        ],
+        "bytes_hex": "0000000000000000",
+        "values": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "x64": false,
+      "requested_input_dtype": "float16",
+      "actual_income": {
+        "dtype": "float16",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "803c8042c048704c",
+        "values": [
+          1.125,
+          3.25,
+          9.5,
+          17.75
+        ]
+      },
+      "kind": "income_tax",
+      "compiled": true,
+      "rate_attribute": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "cdcccc3d",
+        "values": 0.10000000149011612
+      },
+      "sector_weights": null,
+      "delta": {
+        "dtype": "float32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "6766e6bd6766a6be333373bf3333e3bf",
+        "values": [
+          -0.11250000447034836,
+          -0.32500001788139343,
+          -0.949999988079071,
+          -1.774999976158142
+        ]
+      },
+      "government": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "66664a40",
+        "values": 3.1624999046325684
+      },
+      "key": {
+        "dtype": "uint32",
+        "shape": [
+          2
+        ],
+        "bytes_hex": "0000000000000000",
+        "values": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "x64": false,
+      "requested_input_dtype": "float16",
+      "actual_income": {
+        "dtype": "float16",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "803c8042c048704c",
+        "values": [
+          1.125,
+          3.25,
+          9.5,
+          17.75
+        ]
+      },
+      "kind": "tax_subsidy",
+      "compiled": false,
+      "rate_attribute": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "cdcccc3d",
+        "values": 0.10000000149011612
+      },
+      "sector_weights": {
+        "dtype": "float32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "0000803f0000803f0000803f0000803f",
+        "values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "delta": {
+        "dtype": "float32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "6766e63d6766a63e3333733f3333e33f",
+        "values": [
+          0.11250000447034836,
+          0.32500001788139343,
+          0.949999988079071,
+          1.774999976158142
+        ]
+      },
+      "government": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "66664ac0",
+        "values": -3.1624999046325684
+      },
+      "key": {
+        "dtype": "uint32",
+        "shape": [
+          2
+        ],
+        "bytes_hex": "0000000000000000",
+        "values": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "x64": false,
+      "requested_input_dtype": "float16",
+      "actual_income": {
+        "dtype": "float16",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "803c8042c048704c",
+        "values": [
+          1.125,
+          3.25,
+          9.5,
+          17.75
+        ]
+      },
+      "kind": "tax_subsidy",
+      "compiled": true,
+      "rate_attribute": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "cdcccc3d",
+        "values": 0.10000000149011612
+      },
+      "sector_weights": {
+        "dtype": "float32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "0000803f0000803f0000803f0000803f",
+        "values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "delta": {
+        "dtype": "float32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "6766e63d6766a63e3333733f3333e33f",
+        "values": [
+          0.11250000447034836,
+          0.32500001788139343,
+          0.949999988079071,
+          1.774999976158142
+        ]
+      },
+      "government": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "66664ac0",
+        "values": -3.1624999046325684
+      },
+      "key": {
+        "dtype": "uint32",
+        "shape": [
+          2
+        ],
+        "bytes_hex": "0000000000000000",
+        "values": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "x64": false,
+      "requested_input_dtype": "bfloat16",
+      "actual_income": {
+        "dtype": "bfloat16",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "903f504018418e41",
+        "values": [
+          1.125,
+          3.25,
+          9.5,
+          17.75
+        ]
+      },
+      "kind": "income_tax",
+      "compiled": false,
+      "rate_attribute": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "cdcccc3d",
+        "values": 0.10000000149011612
+      },
+      "sector_weights": null,
+      "delta": {
+        "dtype": "float32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "6766e6bd6766a6be333373bf3333e3bf",
+        "values": [
+          -0.11250000447034836,
+          -0.32500001788139343,
+          -0.949999988079071,
+          -1.774999976158142
+        ]
+      },
+      "government": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "66664a40",
+        "values": 3.1624999046325684
+      },
+      "key": {
+        "dtype": "uint32",
+        "shape": [
+          2
+        ],
+        "bytes_hex": "0000000000000000",
+        "values": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "x64": false,
+      "requested_input_dtype": "bfloat16",
+      "actual_income": {
+        "dtype": "bfloat16",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "903f504018418e41",
+        "values": [
+          1.125,
+          3.25,
+          9.5,
+          17.75
+        ]
+      },
+      "kind": "income_tax",
+      "compiled": true,
+      "rate_attribute": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "cdcccc3d",
+        "values": 0.10000000149011612
+      },
+      "sector_weights": null,
+      "delta": {
+        "dtype": "float32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "6766e6bd6766a6be333373bf3333e3bf",
+        "values": [
+          -0.11250000447034836,
+          -0.32500001788139343,
+          -0.949999988079071,
+          -1.774999976158142
+        ]
+      },
+      "government": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "66664a40",
+        "values": 3.1624999046325684
+      },
+      "key": {
+        "dtype": "uint32",
+        "shape": [
+          2
+        ],
+        "bytes_hex": "0000000000000000",
+        "values": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "x64": false,
+      "requested_input_dtype": "bfloat16",
+      "actual_income": {
+        "dtype": "bfloat16",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "903f504018418e41",
+        "values": [
+          1.125,
+          3.25,
+          9.5,
+          17.75
+        ]
+      },
+      "kind": "tax_subsidy",
+      "compiled": false,
+      "rate_attribute": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "cdcccc3d",
+        "values": 0.10000000149011612
+      },
+      "sector_weights": {
+        "dtype": "float32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "0000803f0000803f0000803f0000803f",
+        "values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "delta": {
+        "dtype": "float32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "6766e63d6766a63e3333733f3333e33f",
+        "values": [
+          0.11250000447034836,
+          0.32500001788139343,
+          0.949999988079071,
+          1.774999976158142
+        ]
+      },
+      "government": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "66664ac0",
+        "values": -3.1624999046325684
+      },
+      "key": {
+        "dtype": "uint32",
+        "shape": [
+          2
+        ],
+        "bytes_hex": "0000000000000000",
+        "values": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "x64": false,
+      "requested_input_dtype": "bfloat16",
+      "actual_income": {
+        "dtype": "bfloat16",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "903f504018418e41",
+        "values": [
+          1.125,
+          3.25,
+          9.5,
+          17.75
+        ]
+      },
+      "kind": "tax_subsidy",
+      "compiled": true,
+      "rate_attribute": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "cdcccc3d",
+        "values": 0.10000000149011612
+      },
+      "sector_weights": {
+        "dtype": "float32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "0000803f0000803f0000803f0000803f",
+        "values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "delta": {
+        "dtype": "float32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "6766e63d6766a63e3333733f3333e33f",
+        "values": [
+          0.11250000447034836,
+          0.32500001788139343,
+          0.949999988079071,
+          1.774999976158142
+        ]
+      },
+      "government": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "66664ac0",
+        "values": -3.1624999046325684
+      },
+      "key": {
+        "dtype": "uint32",
+        "shape": [
+          2
+        ],
+        "bytes_hex": "0000000000000000",
+        "values": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "x64": true,
+      "requested_input_dtype": "int32",
+      "actual_income": {
+        "dtype": "int32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "01000000030000000900000011000000",
+        "values": [
+          1.0,
+          3.0,
+          9.0,
+          17.0
+        ]
+      },
+      "kind": "income_tax",
+      "compiled": false,
+      "rate_attribute": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "cdcccc3d",
+        "values": 0.10000000149011612
+      },
+      "sector_weights": null,
+      "delta": {
+        "dtype": "float32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "cdccccbd9a9999be676666bf9a99d9bf",
+        "values": [
+          -0.10000000149011612,
+          -0.30000001192092896,
+          -0.9000000357627869,
+          -1.7000000476837158
+        ]
+      },
+      "government": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "00004040",
+        "values": 3.0
+      },
+      "key": {
+        "dtype": "uint32",
+        "shape": [
+          2
+        ],
+        "bytes_hex": "0000000000000000",
+        "values": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "x64": true,
+      "requested_input_dtype": "int32",
+      "actual_income": {
+        "dtype": "int32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "01000000030000000900000011000000",
+        "values": [
+          1.0,
+          3.0,
+          9.0,
+          17.0
+        ]
+      },
+      "kind": "income_tax",
+      "compiled": true,
+      "rate_attribute": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "cdcccc3d",
+        "values": 0.10000000149011612
+      },
+      "sector_weights": null,
+      "delta": {
+        "dtype": "float32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "cdccccbd9a9999be676666bf9a99d9bf",
+        "values": [
+          -0.10000000149011612,
+          -0.30000001192092896,
+          -0.9000000357627869,
+          -1.7000000476837158
+        ]
+      },
+      "government": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "00004040",
+        "values": 3.0
+      },
+      "key": {
+        "dtype": "uint32",
+        "shape": [
+          2
+        ],
+        "bytes_hex": "0000000000000000",
+        "values": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "x64": true,
+      "requested_input_dtype": "int32",
+      "actual_income": {
+        "dtype": "int32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "01000000030000000900000011000000",
+        "values": [
+          1.0,
+          3.0,
+          9.0,
+          17.0
+        ]
+      },
+      "kind": "tax_subsidy",
+      "compiled": false,
+      "rate_attribute": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "cdcccc3d",
+        "values": 0.10000000149011612
+      },
+      "sector_weights": {
+        "dtype": "float64",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "000000000000f03f000000000000f03f000000000000f03f000000000000f03f",
+        "values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "delta": {
+        "dtype": "float64",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "000000a09999b93f000000403333d33f000000e0ccccec3f000000403333fb3f",
+        "values": [
+          0.10000000149011612,
+          0.30000001192092896,
+          0.9000000357627869,
+          1.7000000476837158
+        ]
+      },
+      "government": {
+        "dtype": "float64",
+        "shape": [],
+        "bytes_hex": "0000000d000008c0",
+        "values": -3.0000000968575478
+      },
+      "key": {
+        "dtype": "uint32",
+        "shape": [
+          2
+        ],
+        "bytes_hex": "0000000000000000",
+        "values": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "x64": true,
+      "requested_input_dtype": "int32",
+      "actual_income": {
+        "dtype": "int32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "01000000030000000900000011000000",
+        "values": [
+          1.0,
+          3.0,
+          9.0,
+          17.0
+        ]
+      },
+      "kind": "tax_subsidy",
+      "compiled": true,
+      "rate_attribute": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "cdcccc3d",
+        "values": 0.10000000149011612
+      },
+      "sector_weights": {
+        "dtype": "float64",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "000000000000f03f000000000000f03f000000000000f03f000000000000f03f",
+        "values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "delta": {
+        "dtype": "float64",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "000000a09999b93f000000403333d33f000000e0ccccec3f000000403333fb3f",
+        "values": [
+          0.10000000149011612,
+          0.30000001192092896,
+          0.9000000357627869,
+          1.7000000476837158
+        ]
+      },
+      "government": {
+        "dtype": "float64",
+        "shape": [],
+        "bytes_hex": "0000000d000008c0",
+        "values": -3.0000000968575478
+      },
+      "key": {
+        "dtype": "uint32",
+        "shape": [
+          2
+        ],
+        "bytes_hex": "0000000000000000",
+        "values": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "x64": true,
+      "requested_input_dtype": "int64",
+      "actual_income": {
+        "dtype": "int64",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "0100000000000000030000000000000009000000000000001100000000000000",
+        "values": [
+          1.0,
+          3.0,
+          9.0,
+          17.0
+        ]
+      },
+      "kind": "income_tax",
+      "compiled": false,
+      "rate_attribute": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "cdcccc3d",
+        "values": 0.10000000149011612
+      },
+      "sector_weights": null,
+      "delta": {
+        "dtype": "float32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "cdccccbd9a9999be676666bf9a99d9bf",
+        "values": [
+          -0.10000000149011612,
+          -0.30000001192092896,
+          -0.9000000357627869,
+          -1.7000000476837158
+        ]
+      },
+      "government": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "00004040",
+        "values": 3.0
+      },
+      "key": {
+        "dtype": "uint32",
+        "shape": [
+          2
+        ],
+        "bytes_hex": "0000000000000000",
+        "values": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "x64": true,
+      "requested_input_dtype": "int64",
+      "actual_income": {
+        "dtype": "int64",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "0100000000000000030000000000000009000000000000001100000000000000",
+        "values": [
+          1.0,
+          3.0,
+          9.0,
+          17.0
+        ]
+      },
+      "kind": "income_tax",
+      "compiled": true,
+      "rate_attribute": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "cdcccc3d",
+        "values": 0.10000000149011612
+      },
+      "sector_weights": null,
+      "delta": {
+        "dtype": "float32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "cdccccbd9a9999be676666bf9a99d9bf",
+        "values": [
+          -0.10000000149011612,
+          -0.30000001192092896,
+          -0.9000000357627869,
+          -1.7000000476837158
+        ]
+      },
+      "government": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "00004040",
+        "values": 3.0
+      },
+      "key": {
+        "dtype": "uint32",
+        "shape": [
+          2
+        ],
+        "bytes_hex": "0000000000000000",
+        "values": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "x64": true,
+      "requested_input_dtype": "int64",
+      "actual_income": {
+        "dtype": "int64",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "0100000000000000030000000000000009000000000000001100000000000000",
+        "values": [
+          1.0,
+          3.0,
+          9.0,
+          17.0
+        ]
+      },
+      "kind": "tax_subsidy",
+      "compiled": false,
+      "rate_attribute": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "cdcccc3d",
+        "values": 0.10000000149011612
+      },
+      "sector_weights": {
+        "dtype": "float64",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "000000000000f03f000000000000f03f000000000000f03f000000000000f03f",
+        "values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "delta": {
+        "dtype": "float64",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "000000a09999b93f000000403333d33f000000e0ccccec3f000000403333fb3f",
+        "values": [
+          0.10000000149011612,
+          0.30000001192092896,
+          0.9000000357627869,
+          1.7000000476837158
+        ]
+      },
+      "government": {
+        "dtype": "float64",
+        "shape": [],
+        "bytes_hex": "0000000d000008c0",
+        "values": -3.0000000968575478
+      },
+      "key": {
+        "dtype": "uint32",
+        "shape": [
+          2
+        ],
+        "bytes_hex": "0000000000000000",
+        "values": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "x64": true,
+      "requested_input_dtype": "int64",
+      "actual_income": {
+        "dtype": "int64",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "0100000000000000030000000000000009000000000000001100000000000000",
+        "values": [
+          1.0,
+          3.0,
+          9.0,
+          17.0
+        ]
+      },
+      "kind": "tax_subsidy",
+      "compiled": true,
+      "rate_attribute": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "cdcccc3d",
+        "values": 0.10000000149011612
+      },
+      "sector_weights": {
+        "dtype": "float64",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "000000000000f03f000000000000f03f000000000000f03f000000000000f03f",
+        "values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "delta": {
+        "dtype": "float64",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "000000a09999b93f000000403333d33f000000e0ccccec3f000000403333fb3f",
+        "values": [
+          0.10000000149011612,
+          0.30000001192092896,
+          0.9000000357627869,
+          1.7000000476837158
+        ]
+      },
+      "government": {
+        "dtype": "float64",
+        "shape": [],
+        "bytes_hex": "0000000d000008c0",
+        "values": -3.0000000968575478
+      },
+      "key": {
+        "dtype": "uint32",
+        "shape": [
+          2
+        ],
+        "bytes_hex": "0000000000000000",
+        "values": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "x64": true,
+      "requested_input_dtype": "bool",
+      "actual_income": {
+        "dtype": "bool",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "01010101",
+        "values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "kind": "income_tax",
+      "compiled": false,
+      "rate_attribute": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "cdcccc3d",
+        "values": 0.10000000149011612
+      },
+      "sector_weights": null,
+      "delta": {
+        "dtype": "float32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "cdccccbdcdccccbdcdccccbdcdccccbd",
+        "values": [
+          -0.10000000149011612,
+          -0.10000000149011612,
+          -0.10000000149011612,
+          -0.10000000149011612
+        ]
+      },
+      "government": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "cdcccc3e",
+        "values": 0.4000000059604645
+      },
+      "key": {
+        "dtype": "uint32",
+        "shape": [
+          2
+        ],
+        "bytes_hex": "0000000000000000",
+        "values": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "x64": true,
+      "requested_input_dtype": "bool",
+      "actual_income": {
+        "dtype": "bool",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "01010101",
+        "values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "kind": "income_tax",
+      "compiled": true,
+      "rate_attribute": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "cdcccc3d",
+        "values": 0.10000000149011612
+      },
+      "sector_weights": null,
+      "delta": {
+        "dtype": "float32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "cdccccbdcdccccbdcdccccbdcdccccbd",
+        "values": [
+          -0.10000000149011612,
+          -0.10000000149011612,
+          -0.10000000149011612,
+          -0.10000000149011612
+        ]
+      },
+      "government": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "cdcccc3e",
+        "values": 0.4000000059604645
+      },
+      "key": {
+        "dtype": "uint32",
+        "shape": [
+          2
+        ],
+        "bytes_hex": "0000000000000000",
+        "values": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "x64": true,
+      "requested_input_dtype": "bool",
+      "actual_income": {
+        "dtype": "bool",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "01010101",
+        "values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "kind": "tax_subsidy",
+      "compiled": false,
+      "rate_attribute": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "cdcccc3d",
+        "values": 0.10000000149011612
+      },
+      "sector_weights": {
+        "dtype": "float64",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "000000000000f03f000000000000f03f000000000000f03f000000000000f03f",
+        "values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "delta": {
+        "dtype": "float64",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "000000a09999b93f000000a09999b93f000000a09999b93f000000a09999b93f",
+        "values": [
+          0.10000000149011612,
+          0.10000000149011612,
+          0.10000000149011612,
+          0.10000000149011612
+        ]
+      },
+      "government": {
+        "dtype": "float64",
+        "shape": [],
+        "bytes_hex": "000000a09999d9bf",
+        "values": -0.4000000059604645
+      },
+      "key": {
+        "dtype": "uint32",
+        "shape": [
+          2
+        ],
+        "bytes_hex": "0000000000000000",
+        "values": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "x64": true,
+      "requested_input_dtype": "bool",
+      "actual_income": {
+        "dtype": "bool",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "01010101",
+        "values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "kind": "tax_subsidy",
+      "compiled": true,
+      "rate_attribute": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "cdcccc3d",
+        "values": 0.10000000149011612
+      },
+      "sector_weights": {
+        "dtype": "float64",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "000000000000f03f000000000000f03f000000000000f03f000000000000f03f",
+        "values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "delta": {
+        "dtype": "float64",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "000000a09999b93f000000a09999b93f000000a09999b93f000000a09999b93f",
+        "values": [
+          0.10000000149011612,
+          0.10000000149011612,
+          0.10000000149011612,
+          0.10000000149011612
+        ]
+      },
+      "government": {
+        "dtype": "float64",
+        "shape": [],
+        "bytes_hex": "000000a09999d9bf",
+        "values": -0.4000000059604645
+      },
+      "key": {
+        "dtype": "uint32",
+        "shape": [
+          2
+        ],
+        "bytes_hex": "0000000000000000",
+        "values": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "x64": true,
+      "requested_input_dtype": "float16",
+      "actual_income": {
+        "dtype": "float16",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "803c8042c048704c",
+        "values": [
+          1.125,
+          3.25,
+          9.5,
+          17.75
+        ]
+      },
+      "kind": "income_tax",
+      "compiled": false,
+      "rate_attribute": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "cdcccc3d",
+        "values": 0.10000000149011612
+      },
+      "sector_weights": null,
+      "delta": {
+        "dtype": "float32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "6766e6bd6766a6be333373bf3333e3bf",
+        "values": [
+          -0.11250000447034836,
+          -0.32500001788139343,
+          -0.949999988079071,
+          -1.774999976158142
+        ]
+      },
+      "government": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "66664a40",
+        "values": 3.1624999046325684
+      },
+      "key": {
+        "dtype": "uint32",
+        "shape": [
+          2
+        ],
+        "bytes_hex": "0000000000000000",
+        "values": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "x64": true,
+      "requested_input_dtype": "float16",
+      "actual_income": {
+        "dtype": "float16",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "803c8042c048704c",
+        "values": [
+          1.125,
+          3.25,
+          9.5,
+          17.75
+        ]
+      },
+      "kind": "income_tax",
+      "compiled": true,
+      "rate_attribute": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "cdcccc3d",
+        "values": 0.10000000149011612
+      },
+      "sector_weights": null,
+      "delta": {
+        "dtype": "float32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "6766e6bd6766a6be333373bf3333e3bf",
+        "values": [
+          -0.11250000447034836,
+          -0.32500001788139343,
+          -0.949999988079071,
+          -1.774999976158142
+        ]
+      },
+      "government": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "66664a40",
+        "values": 3.1624999046325684
+      },
+      "key": {
+        "dtype": "uint32",
+        "shape": [
+          2
+        ],
+        "bytes_hex": "0000000000000000",
+        "values": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "x64": true,
+      "requested_input_dtype": "float16",
+      "actual_income": {
+        "dtype": "float16",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "803c8042c048704c",
+        "values": [
+          1.125,
+          3.25,
+          9.5,
+          17.75
+        ]
+      },
+      "kind": "tax_subsidy",
+      "compiled": false,
+      "rate_attribute": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "cdcccc3d",
+        "values": 0.10000000149011612
+      },
+      "sector_weights": {
+        "dtype": "float64",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "000000000000f03f000000000000f03f000000000000f03f000000000000f03f",
+        "values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "delta": {
+        "dtype": "float64",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "000000e0ccccbc3f000000e0ccccd43f000000606666ee3f000000606666fc3f",
+        "values": [
+          0.11250000447034836,
+          0.32500001788139343,
+          0.949999988079071,
+          1.774999976158142
+        ]
+      },
+      "government": {
+        "dtype": "float64",
+        "shape": [],
+        "bytes_hex": "000000cbcc4c09c0",
+        "values": -3.162499986588955
+      },
+      "key": {
+        "dtype": "uint32",
+        "shape": [
+          2
+        ],
+        "bytes_hex": "0000000000000000",
+        "values": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "x64": true,
+      "requested_input_dtype": "float16",
+      "actual_income": {
+        "dtype": "float16",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "803c8042c048704c",
+        "values": [
+          1.125,
+          3.25,
+          9.5,
+          17.75
+        ]
+      },
+      "kind": "tax_subsidy",
+      "compiled": true,
+      "rate_attribute": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "cdcccc3d",
+        "values": 0.10000000149011612
+      },
+      "sector_weights": {
+        "dtype": "float64",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "000000000000f03f000000000000f03f000000000000f03f000000000000f03f",
+        "values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "delta": {
+        "dtype": "float64",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "000000e0ccccbc3f000000e0ccccd43f000000606666ee3f000000606666fc3f",
+        "values": [
+          0.11250000447034836,
+          0.32500001788139343,
+          0.949999988079071,
+          1.774999976158142
+        ]
+      },
+      "government": {
+        "dtype": "float64",
+        "shape": [],
+        "bytes_hex": "000000cbcc4c09c0",
+        "values": -3.162499986588955
+      },
+      "key": {
+        "dtype": "uint32",
+        "shape": [
+          2
+        ],
+        "bytes_hex": "0000000000000000",
+        "values": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "x64": true,
+      "requested_input_dtype": "bfloat16",
+      "actual_income": {
+        "dtype": "bfloat16",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "903f504018418e41",
+        "values": [
+          1.125,
+          3.25,
+          9.5,
+          17.75
+        ]
+      },
+      "kind": "income_tax",
+      "compiled": false,
+      "rate_attribute": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "cdcccc3d",
+        "values": 0.10000000149011612
+      },
+      "sector_weights": null,
+      "delta": {
+        "dtype": "float32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "6766e6bd6766a6be333373bf3333e3bf",
+        "values": [
+          -0.11250000447034836,
+          -0.32500001788139343,
+          -0.949999988079071,
+          -1.774999976158142
+        ]
+      },
+      "government": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "66664a40",
+        "values": 3.1624999046325684
+      },
+      "key": {
+        "dtype": "uint32",
+        "shape": [
+          2
+        ],
+        "bytes_hex": "0000000000000000",
+        "values": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "x64": true,
+      "requested_input_dtype": "bfloat16",
+      "actual_income": {
+        "dtype": "bfloat16",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "903f504018418e41",
+        "values": [
+          1.125,
+          3.25,
+          9.5,
+          17.75
+        ]
+      },
+      "kind": "income_tax",
+      "compiled": true,
+      "rate_attribute": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "cdcccc3d",
+        "values": 0.10000000149011612
+      },
+      "sector_weights": null,
+      "delta": {
+        "dtype": "float32",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "6766e6bd6766a6be333373bf3333e3bf",
+        "values": [
+          -0.11250000447034836,
+          -0.32500001788139343,
+          -0.949999988079071,
+          -1.774999976158142
+        ]
+      },
+      "government": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "66664a40",
+        "values": 3.1624999046325684
+      },
+      "key": {
+        "dtype": "uint32",
+        "shape": [
+          2
+        ],
+        "bytes_hex": "0000000000000000",
+        "values": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "x64": true,
+      "requested_input_dtype": "bfloat16",
+      "actual_income": {
+        "dtype": "bfloat16",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "903f504018418e41",
+        "values": [
+          1.125,
+          3.25,
+          9.5,
+          17.75
+        ]
+      },
+      "kind": "tax_subsidy",
+      "compiled": false,
+      "rate_attribute": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "cdcccc3d",
+        "values": 0.10000000149011612
+      },
+      "sector_weights": {
+        "dtype": "float64",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "000000000000f03f000000000000f03f000000000000f03f000000000000f03f",
+        "values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "delta": {
+        "dtype": "float64",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "000000e0ccccbc3f000000e0ccccd43f000000606666ee3f000000606666fc3f",
+        "values": [
+          0.11250000447034836,
+          0.32500001788139343,
+          0.949999988079071,
+          1.774999976158142
+        ]
+      },
+      "government": {
+        "dtype": "float64",
+        "shape": [],
+        "bytes_hex": "000000cbcc4c09c0",
+        "values": -3.162499986588955
+      },
+      "key": {
+        "dtype": "uint32",
+        "shape": [
+          2
+        ],
+        "bytes_hex": "0000000000000000",
+        "values": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "x64": true,
+      "requested_input_dtype": "bfloat16",
+      "actual_income": {
+        "dtype": "bfloat16",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "903f504018418e41",
+        "values": [
+          1.125,
+          3.25,
+          9.5,
+          17.75
+        ]
+      },
+      "kind": "tax_subsidy",
+      "compiled": true,
+      "rate_attribute": {
+        "dtype": "float32",
+        "shape": [],
+        "bytes_hex": "cdcccc3d",
+        "values": 0.10000000149011612
+      },
+      "sector_weights": {
+        "dtype": "float64",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "000000000000f03f000000000000f03f000000000000f03f000000000000f03f",
+        "values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "delta": {
+        "dtype": "float64",
+        "shape": [
+          4
+        ],
+        "bytes_hex": "000000e0ccccbc3f000000e0ccccd43f000000606666ee3f000000606666fc3f",
+        "values": [
+          0.11250000447034836,
+          0.32500001788139343,
+          0.949999988079071,
+          1.774999976158142
+        ]
+      },
+      "government": {
+        "dtype": "float64",
+        "shape": [],
+        "bytes_hex": "000000cbcc4c09c0",
+        "values": -3.162499986588955
+      },
+      "key": {
+        "dtype": "uint32",
+        "shape": [
+          2
+        ],
+        "bytes_hex": "0000000000000000",
+        "values": [
+          0.0,
+          0.0
+        ]
+      }
+    }
+  ]
+}

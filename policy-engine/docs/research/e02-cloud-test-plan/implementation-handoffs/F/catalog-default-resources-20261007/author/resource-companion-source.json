@@ -1,0 +1,29 @@
+{
+  "implementation_sha": "6ba9b8687283c2c0ee87065efa5763671bf95989",
+  "tree": "a1691e3b0f6de61e246d7bf20b7671c6bad99dc3",
+  "parent": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+  "changed_paths": [
+    "policy-engine/docs/reference/data-forge/catalog-default-resources.md",
+    "policy-engine/src/polisyos/data_forge/domains/README.md",
+    "policy-engine/release-fragments/unreleased/2026-10-07-catalog-default-resources.toml"
+  ],
+  "all_other_original18_inputs_byte_identical": [
+    "policy-engine/hatch.toml",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/_resources.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/variable_alignment.py",
+    "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+    "policy-engine/src/polisyos/fabric/connectors/sources/wvs.py",
+    "policy-engine/tests/repo_quality/tools/test_catalog_default_resources_packaging.py",
+    "policy-engine/tests/unit/data_forge/domains/catalog/test_catalog_default_resources.py",
+    "policy-engine/data/dataset_catalog/seed_variable_alignments.yaml",
+    "policy-engine/data/dataset_catalog/proxy_metric_alignments.yaml",
+    "policy-engine/data/dataset_catalog/wvs_indicator_registry.yaml",
+    "policy-engine/data/dataset_catalog/metrics_map.yaml"
+  ],
+  "runtime_and_test_body_changes": false,
+  "purpose": "Forward metadata correction of actual nested public_experimental function contract; no numeric rerun/relabel."
+}

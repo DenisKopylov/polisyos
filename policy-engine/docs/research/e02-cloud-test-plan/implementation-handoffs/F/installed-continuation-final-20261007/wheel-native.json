@@ -1,0 +1,40 @@
+{
+  "source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+  "source_tree": "055871c409ce72e6a29619b235698aa45a6844d4",
+  "kind": "wheel",
+  "argv": [
+    "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-env/bin/python",
+    "-I",
+    "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/launch.py",
+    "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/installed-config.json",
+    "wheel"
+  ],
+  "measured_argv": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-resources.txt",
+    "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-env/bin/python",
+    "-I",
+    "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/launch.py",
+    "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/installed-config.json",
+    "wheel"
+  ],
+  "cwd": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-consumer",
+  "environment": {
+    "PYTHONPATH": "absent",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "OMP_NUM_THREADS": "absent",
+    "OPENBLAS_NUM_THREADS": "absent",
+    "MKL_NUM_THREADS": "absent",
+    "NUMEXPR_NUM_THREADS": "absent",
+    "XLA_FLAGS": "absent",
+    "XLA_PYTHON_CLIENT_PREALLOCATE": "absent",
+    "JAX_PLATFORM_NAME": "absent",
+    "JAX_PLATFORMS": "absent",
+    "POLISYOS_DOWHY_WORKER_PYTHON": "absent"
+  },
+  "new_quota": false,
+  "parallel_profiles": 2,
+  "status": "RUNNING"
+}

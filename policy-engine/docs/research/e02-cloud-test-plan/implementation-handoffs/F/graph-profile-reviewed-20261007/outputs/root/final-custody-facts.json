@@ -1,0 +1,34 @@
+{
+  "candidate_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+  "candidate_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+  "canonical_handoff_commit": "248497d27aa7951492c9a6d12c3c3493f3c246ec",
+  "ledger_commit": "3d43eb459eec1f346571306647e5dbc68f32f076",
+  "current_head": "3d43eb459eec1f346571306647e5dbc68f32f076",
+  "source_delta_path_count": 10,
+  "new_G_checkpoint": "9806442ddb47d624a2940bac75d9d6248e934c48",
+  "main_unchanged": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "root_doctor": {
+    "outcome": "PASS",
+    "status": "admitted"
+  },
+  "ordinary_topic_push_exitcodes": {
+    "source-push": "1",
+    "source-push-retry": "0",
+    "evidence-ledger-push": "0",
+    "canonical-ledger-push": "0"
+  },
+  "CAU_publication": "Exact GitREST object SHA reproduction + non-force own ref; historical ordinarypush500 saved",
+  "no_main_or_integration_mutation": true,
+  "cleanup_action": "none",
+  "native_wave_repeated_for_receipt_correction": false,
+  "raw_receipt_whitespace": {
+    "outcome": "FAIL",
+    "scope": "Git diff-check textual stored raw patches/logs; source10/authored14 separatePASS",
+    "stdout": "/tmp/e02-F-graph-profile-20261007/root/receipt-byte-preservation-diff-check.stdout",
+    "locations": 112,
+    "trailing_whitespace_locations": 105,
+    "EOF_locations": 7,
+    "files": 18,
+    "P41_inherited": "not_established"
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "refs": {
+    "HEAD": {
+      "sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "tree": "750d28da94f372848fe6b2db5f88db95b94cb57d"
+    },
+    "origin/main": {
+      "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8"
+    },
+    "origin/codex/e02-integration": {
+      "sha": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+      "tree": "2e228785406834ba128bb7b4dd9c636a6a2a1cb5"
+    },
+    "origin/codex/e02-F-closeout-20261006": {
+      "sha": "56e4513787773e6860b55163cd792062abe66a94",
+      "tree": "35f35af7333d5894e90fd9fc02e457729b1c88af"
+    },
+    "origin/codex/e02-F-graph-20261006": {
+      "sha": "ffae9fa4b45c23c3d2dca5c1bbf78d18418a7634",
+      "tree": "aa83a73a8b27785adc761898aa23d3ec85e83078"
+    },
+    "origin/codex/e02-F-api-20261006": {
+      "sha": "605dadeb76499c3f6eadd95e16a8df1bbb2cb89f",
+      "tree": "c7c71a12bc04238dce414455a06849a9f49a824f"
+    },
+    "origin/codex/e02-F-tmle-20261006": {
+      "sha": "e04ddf884071b17ffb1d021c9a6b23f826d76774",
+      "tree": "13736344f761ab911a1607fc2ebb9d722395ec68"
+    },
+    "origin/codex/e02-F-economics-20261006": {
+      "sha": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+      "tree": "334f80bc471c2a686ab4f7a5101c44d0cb4c6b90"
+    },
+    "origin/codex/e02-F-cau-20261006": {
+      "sha": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+      "tree": "d24808dc3eeed4881256f2a70cdeb02357c425c7"
+    },
+    "origin/codex/e02-F-fry-20261006": {
+      "sha": "c22786dfce8308bb7d48a177ccb1b109843262b5",
+      "tree": "2a13485d2b198b51643f78929a15d920b58e8e86"
+    }
+  },
+  "historical_G_ancestor_exit_codes": {
+    "a0ac10fc11975c345312034d0e568b4cfc330d76": 0,
+    "76746fececd1a183a516c48f07ce2835baa8a2d1": 0
+  },
+  "parent_sha": "50257c154b04aeb4e772fefae469970e5010b645 81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+  "branch": "codex/e02-F-closeout-20261006",
+  "status": "## codex/e02-F-closeout-20261006\n?? policy-engine/workers/dowhy-014/.venv"
+}

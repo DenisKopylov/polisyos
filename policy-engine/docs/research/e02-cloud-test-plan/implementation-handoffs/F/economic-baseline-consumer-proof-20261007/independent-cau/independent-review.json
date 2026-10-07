@@ -1,0 +1,852 @@
+{
+  "schema": "F-independent-economic-baseline-PPO-review/2026-10-07",
+  "reviewer": "/root/cau",
+  "review_target": {
+    "sha": "193b3582a72c640c1d06a131f93502654a77a36a",
+    "tree": "81c2e3e636bec4c5d81b8f918bb61cca6a49309b",
+    "defining_paths": [
+      "policy-engine/docs/reference/foundry/economic-baseline-profile.md",
+      "policy-engine/release-fragments/unreleased/2026-10-07-economic-baseline-consumer-proof.toml",
+      "policy-engine/tests/unit/foundry/agent_sim/test_signed_gini_producer_route.py",
+      "policy-engine/tests/unit/foundry/plugins/test_historical_income_baseline.py"
+    ],
+    "product_source_changes": 0,
+    "canonical_baseline_blob_equal_8236": true
+  },
+  "verdict": "GO_BOUNDED",
+  "check": "PASS",
+  "issues": [],
+  "original_criterion": {
+    "id": "LA-035",
+    "owner": "ECO-01",
+    "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+    "lines": [
+      2066,
+      2102
+    ],
+    "bytes": 7176,
+    "sha256": "59a23ac14a1d02f92da6bad843f4beffa7e61bd67830b0a792bec1610083ac69",
+    "recommendation": "closed for original equivalent relocation, not formalG closure",
+    "COMMON_authority": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7 explicitly supersedes added optimizer/welfare hold",
+    "acceptance": "Preserved original sign/scale/population/budget/invalid regimes, native GlobalState/real guard, promised JIT/grad, supported aliases/callers, owner import side effects. Production optimizer/welfare ratification is not an equivalent-relocation prerequisite."
+  },
+  "native_checks": {
+    "native": {
+      "schema": "independent-native-check/1",
+      "config": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/economics-review/native-config.json",
+        "bytes": 1306,
+        "sha256": "46fc2751442ff1c6bdab2dd8434255612eecd9e5e13f85d01598da46fde9c4d1"
+      },
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "-ra",
+        "tests/unit/foundry/plugins/test_historical_income_baseline.py",
+        "tests/unit/foundry/agent_sim/test_signed_gini_producer_route.py"
+      ],
+      "cwd": "/workspace/e02-F-economics-20261006/policy-engine",
+      "source_sha": "193b3582a72c640c1d06a131f93502654a77a36a",
+      "source_tree": "81c2e3e636bec4c5d81b8f918bb61cca6a49309b",
+      "environment_overrides": {
+        "PYTHONPATH": "src:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "launcher_python": "3.12.14",
+      "source_before": [
+        {
+          "path": "policy-engine/docs/reference/foundry/economic-baseline-profile.md",
+          "bytes": 3244,
+          "sha256": "6ab27dbe5b9e6bbbe88ea6d670047f434f29475ca154f415110f6a6a8c09b1de",
+          "git_blob": "6e38b0f88efd596f5205ef06e41d26bf2e0f83b6"
+        },
+        {
+          "path": "policy-engine/release-fragments/unreleased/2026-10-07-economic-baseline-consumer-proof.toml",
+          "bytes": 1453,
+          "sha256": "6032dc792dbafa93d538ca74db4d29f36969cf02c6fb6da6b1bb83b40cd6b0a6",
+          "git_blob": "c411fcd3f1e8001175ec5a4e755fa7394ed58b64"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/agent_sim/test_signed_gini_producer_route.py",
+          "bytes": 7881,
+          "sha256": "adf3645051001e0e7a6a5f6af13b935517baeb5d0165a6f6ae9d902b99eb110c",
+          "git_blob": "837ecded46cf58203b7aca69c684139170c59e98"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/plugins/test_historical_income_baseline.py",
+          "bytes": 4971,
+          "sha256": "fb2bd027688ad5688132d2673e9c2e52005bd876e258b9a04f49fbb7e307a9bf",
+          "git_blob": "e7c9601aa273822e5a5f050bdb6f17ca4f0fadb7"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/plugins/economics/baselines.py",
+          "bytes": 1629,
+          "sha256": "85f12a1ef624ba4fd96c08b0874e27d5dc3a0b65c0ce5663d7484f61793c36d3",
+          "git_blob": "77c803bca19be9689906cb5c92ed6f824c5fe45c"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/plugins/training_adapter.py",
+          "bytes": 24397,
+          "sha256": "aaaa6e65f0cd6f845a0b9b8b989e5d19b2e5e35f497d2c4704e29dd7c5594715",
+          "git_blob": "5e5b6de213899c164e639eb5b67a76ca0af9e248"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/plugins/composite.py",
+          "bytes": 9613,
+          "sha256": "113cc5803c0f54bc9920364d0a88c147ba9e816299641578770dbf9a2c2a5f27",
+          "git_blob": "d5a43a7aa78834baff0540c1d18cd8c44fd9c91a"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/plugins/economics/mechanisms.py",
+          "bytes": 5729,
+          "sha256": "7068670282d94e4708fa2e5a5bffaa7d902fc2aed8cdce4e173b20d287d792a8",
+          "git_blob": "253c8dedf326c54fd3f0ba602836e73327edb5ce"
+        }
+      ],
+      "source_after": [
+        {
+          "path": "policy-engine/docs/reference/foundry/economic-baseline-profile.md",
+          "bytes": 3244,
+          "sha256": "6ab27dbe5b9e6bbbe88ea6d670047f434f29475ca154f415110f6a6a8c09b1de",
+          "git_blob": "6e38b0f88efd596f5205ef06e41d26bf2e0f83b6"
+        },
+        {
+          "path": "policy-engine/release-fragments/unreleased/2026-10-07-economic-baseline-consumer-proof.toml",
+          "bytes": 1453,
+          "sha256": "6032dc792dbafa93d538ca74db4d29f36969cf02c6fb6da6b1bb83b40cd6b0a6",
+          "git_blob": "c411fcd3f1e8001175ec5a4e755fa7394ed58b64"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/agent_sim/test_signed_gini_producer_route.py",
+          "bytes": 7881,
+          "sha256": "adf3645051001e0e7a6a5f6af13b935517baeb5d0165a6f6ae9d902b99eb110c",
+          "git_blob": "837ecded46cf58203b7aca69c684139170c59e98"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/plugins/test_historical_income_baseline.py",
+          "bytes": 4971,
+          "sha256": "fb2bd027688ad5688132d2673e9c2e52005bd876e258b9a04f49fbb7e307a9bf",
+          "git_blob": "e7c9601aa273822e5a5f050bdb6f17ca4f0fadb7"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/plugins/economics/baselines.py",
+          "bytes": 1629,
+          "sha256": "85f12a1ef624ba4fd96c08b0874e27d5dc3a0b65c0ce5663d7484f61793c36d3",
+          "git_blob": "77c803bca19be9689906cb5c92ed6f824c5fe45c"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/plugins/training_adapter.py",
+          "bytes": 24397,
+          "sha256": "aaaa6e65f0cd6f845a0b9b8b989e5d19b2e5e35f497d2c4704e29dd7c5594715",
+          "git_blob": "5e5b6de213899c164e639eb5b67a76ca0af9e248"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/plugins/composite.py",
+          "bytes": 9613,
+          "sha256": "113cc5803c0f54bc9920364d0a88c147ba9e816299641578770dbf9a2c2a5f27",
+          "git_blob": "d5a43a7aa78834baff0540c1d18cd8c44fd9c91a"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/plugins/economics/mechanisms.py",
+          "bytes": 5729,
+          "sha256": "7068670282d94e4708fa2e5a5bffaa7d902fc2aed8cdce4e173b20d287d792a8",
+          "git_blob": "253c8dedf326c54fd3f0ba602836e73327edb5ce"
+        }
+      ],
+      "exit": 0,
+      "wall_s": 69.41224787998362,
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/economics-review/native.stdout",
+        "bytes": 966,
+        "sha256": "a7ffc168a24e1b6ea1457d68c509ee11dd7dd86d69e04b6cbc50b8d6a05ffdf5"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/economics-review/native.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "siblings": {
+      "schema": "independent-native-check/1",
+      "config": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/economics-review/siblings-config.json",
+        "bytes": 1398,
+        "sha256": "1db1daebd166a4cbeea8bed94af07bca67b388bb0d2a58e17ad14a2cb3726e7e"
+      },
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "-ra",
+        "tests/unit/foundry/plugins/test_economic_profiles.py",
+        "tests/unit/foundry/plugins/test_economic_profile_consumers.py",
+        "tests/unit/foundry/analysis/test_loss_numeric.py",
+        "tests/unit/remediation/test_eco_01.py"
+      ],
+      "cwd": "/workspace/e02-F-economics-20261006/policy-engine",
+      "source_sha": "193b3582a72c640c1d06a131f93502654a77a36a",
+      "source_tree": "81c2e3e636bec4c5d81b8f918bb61cca6a49309b",
+      "environment_overrides": {
+        "PYTHONPATH": "src:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "launcher_python": "3.12.14",
+      "source_before": [
+        {
+          "path": "policy-engine/docs/reference/foundry/economic-baseline-profile.md",
+          "bytes": 3244,
+          "sha256": "6ab27dbe5b9e6bbbe88ea6d670047f434f29475ca154f415110f6a6a8c09b1de",
+          "git_blob": "6e38b0f88efd596f5205ef06e41d26bf2e0f83b6"
+        },
+        {
+          "path": "policy-engine/release-fragments/unreleased/2026-10-07-economic-baseline-consumer-proof.toml",
+          "bytes": 1453,
+          "sha256": "6032dc792dbafa93d538ca74db4d29f36969cf02c6fb6da6b1bb83b40cd6b0a6",
+          "git_blob": "c411fcd3f1e8001175ec5a4e755fa7394ed58b64"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/agent_sim/test_signed_gini_producer_route.py",
+          "bytes": 7881,
+          "sha256": "adf3645051001e0e7a6a5f6af13b935517baeb5d0165a6f6ae9d902b99eb110c",
+          "git_blob": "837ecded46cf58203b7aca69c684139170c59e98"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/plugins/test_historical_income_baseline.py",
+          "bytes": 4971,
+          "sha256": "fb2bd027688ad5688132d2673e9c2e52005bd876e258b9a04f49fbb7e307a9bf",
+          "git_blob": "e7c9601aa273822e5a5f050bdb6f17ca4f0fadb7"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/plugins/economics/baselines.py",
+          "bytes": 1629,
+          "sha256": "85f12a1ef624ba4fd96c08b0874e27d5dc3a0b65c0ce5663d7484f61793c36d3",
+          "git_blob": "77c803bca19be9689906cb5c92ed6f824c5fe45c"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/plugins/training_adapter.py",
+          "bytes": 24397,
+          "sha256": "aaaa6e65f0cd6f845a0b9b8b989e5d19b2e5e35f497d2c4704e29dd7c5594715",
+          "git_blob": "5e5b6de213899c164e639eb5b67a76ca0af9e248"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/plugins/composite.py",
+          "bytes": 9613,
+          "sha256": "113cc5803c0f54bc9920364d0a88c147ba9e816299641578770dbf9a2c2a5f27",
+          "git_blob": "d5a43a7aa78834baff0540c1d18cd8c44fd9c91a"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/plugins/economics/mechanisms.py",
+          "bytes": 5729,
+          "sha256": "7068670282d94e4708fa2e5a5bffaa7d902fc2aed8cdce4e173b20d287d792a8",
+          "git_blob": "253c8dedf326c54fd3f0ba602836e73327edb5ce"
+        }
+      ],
+      "source_after": [
+        {
+          "path": "policy-engine/docs/reference/foundry/economic-baseline-profile.md",
+          "bytes": 3244,
+          "sha256": "6ab27dbe5b9e6bbbe88ea6d670047f434f29475ca154f415110f6a6a8c09b1de",
+          "git_blob": "6e38b0f88efd596f5205ef06e41d26bf2e0f83b6"
+        },
+        {
+          "path": "policy-engine/release-fragments/unreleased/2026-10-07-economic-baseline-consumer-proof.toml",
+          "bytes": 1453,
+          "sha256": "6032dc792dbafa93d538ca74db4d29f36969cf02c6fb6da6b1bb83b40cd6b0a6",
+          "git_blob": "c411fcd3f1e8001175ec5a4e755fa7394ed58b64"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/agent_sim/test_signed_gini_producer_route.py",
+          "bytes": 7881,
+          "sha256": "adf3645051001e0e7a6a5f6af13b935517baeb5d0165a6f6ae9d902b99eb110c",
+          "git_blob": "837ecded46cf58203b7aca69c684139170c59e98"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/plugins/test_historical_income_baseline.py",
+          "bytes": 4971,
+          "sha256": "fb2bd027688ad5688132d2673e9c2e52005bd876e258b9a04f49fbb7e307a9bf",
+          "git_blob": "e7c9601aa273822e5a5f050bdb6f17ca4f0fadb7"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/plugins/economics/baselines.py",
+          "bytes": 1629,
+          "sha256": "85f12a1ef624ba4fd96c08b0874e27d5dc3a0b65c0ce5663d7484f61793c36d3",
+          "git_blob": "77c803bca19be9689906cb5c92ed6f824c5fe45c"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/plugins/training_adapter.py",
+          "bytes": 24397,
+          "sha256": "aaaa6e65f0cd6f845a0b9b8b989e5d19b2e5e35f497d2c4704e29dd7c5594715",
+          "git_blob": "5e5b6de213899c164e639eb5b67a76ca0af9e248"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/plugins/composite.py",
+          "bytes": 9613,
+          "sha256": "113cc5803c0f54bc9920364d0a88c147ba9e816299641578770dbf9a2c2a5f27",
+          "git_blob": "d5a43a7aa78834baff0540c1d18cd8c44fd9c91a"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/plugins/economics/mechanisms.py",
+          "bytes": 5729,
+          "sha256": "7068670282d94e4708fa2e5a5bffaa7d902fc2aed8cdce4e173b20d287d792a8",
+          "git_blob": "253c8dedf326c54fd3f0ba602836e73327edb5ce"
+        }
+      ],
+      "exit": 0,
+      "wall_s": 55.36460614099633,
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/economics-review/siblings.stdout",
+        "bytes": 620,
+        "sha256": "a1c05439082ac7f33c4095d91ab82a64763364e449a16e749aca87cb8ace77d6"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/economics-review/siblings.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "oracle": {
+      "schema": "independent-native-check/1",
+      "config": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/economics-review/oracle-config.json",
+        "bytes": 1153,
+        "sha256": "5b9c0b6ddebd905aacf45b7b7e63a8073903128c7019631f3326d9850314511d"
+      },
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261007/cau/economics-review/independent_economic_oracle.py"
+      ],
+      "cwd": "/workspace/e02-F-economics-20261006/policy-engine",
+      "source_sha": "193b3582a72c640c1d06a131f93502654a77a36a",
+      "source_tree": "81c2e3e636bec4c5d81b8f918bb61cca6a49309b",
+      "environment_overrides": {
+        "PYTHONPATH": "src:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "launcher_python": "3.12.14",
+      "source_before": [
+        {
+          "path": "policy-engine/docs/reference/foundry/economic-baseline-profile.md",
+          "bytes": 3244,
+          "sha256": "6ab27dbe5b9e6bbbe88ea6d670047f434f29475ca154f415110f6a6a8c09b1de",
+          "git_blob": "6e38b0f88efd596f5205ef06e41d26bf2e0f83b6"
+        },
+        {
+          "path": "policy-engine/release-fragments/unreleased/2026-10-07-economic-baseline-consumer-proof.toml",
+          "bytes": 1453,
+          "sha256": "6032dc792dbafa93d538ca74db4d29f36969cf02c6fb6da6b1bb83b40cd6b0a6",
+          "git_blob": "c411fcd3f1e8001175ec5a4e755fa7394ed58b64"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/agent_sim/test_signed_gini_producer_route.py",
+          "bytes": 7881,
+          "sha256": "adf3645051001e0e7a6a5f6af13b935517baeb5d0165a6f6ae9d902b99eb110c",
+          "git_blob": "837ecded46cf58203b7aca69c684139170c59e98"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/plugins/test_historical_income_baseline.py",
+          "bytes": 4971,
+          "sha256": "fb2bd027688ad5688132d2673e9c2e52005bd876e258b9a04f49fbb7e307a9bf",
+          "git_blob": "e7c9601aa273822e5a5f050bdb6f17ca4f0fadb7"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/plugins/economics/baselines.py",
+          "bytes": 1629,
+          "sha256": "85f12a1ef624ba4fd96c08b0874e27d5dc3a0b65c0ce5663d7484f61793c36d3",
+          "git_blob": "77c803bca19be9689906cb5c92ed6f824c5fe45c"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/plugins/training_adapter.py",
+          "bytes": 24397,
+          "sha256": "aaaa6e65f0cd6f845a0b9b8b989e5d19b2e5e35f497d2c4704e29dd7c5594715",
+          "git_blob": "5e5b6de213899c164e639eb5b67a76ca0af9e248"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/plugins/composite.py",
+          "bytes": 9613,
+          "sha256": "113cc5803c0f54bc9920364d0a88c147ba9e816299641578770dbf9a2c2a5f27",
+          "git_blob": "d5a43a7aa78834baff0540c1d18cd8c44fd9c91a"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/plugins/economics/mechanisms.py",
+          "bytes": 5729,
+          "sha256": "7068670282d94e4708fa2e5a5bffaa7d902fc2aed8cdce4e173b20d287d792a8",
+          "git_blob": "253c8dedf326c54fd3f0ba602836e73327edb5ce"
+        }
+      ],
+      "source_after": [
+        {
+          "path": "policy-engine/docs/reference/foundry/economic-baseline-profile.md",
+          "bytes": 3244,
+          "sha256": "6ab27dbe5b9e6bbbe88ea6d670047f434f29475ca154f415110f6a6a8c09b1de",
+          "git_blob": "6e38b0f88efd596f5205ef06e41d26bf2e0f83b6"
+        },
+        {
+          "path": "policy-engine/release-fragments/unreleased/2026-10-07-economic-baseline-consumer-proof.toml",
+          "bytes": 1453,
+          "sha256": "6032dc792dbafa93d538ca74db4d29f36969cf02c6fb6da6b1bb83b40cd6b0a6",
+          "git_blob": "c411fcd3f1e8001175ec5a4e755fa7394ed58b64"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/agent_sim/test_signed_gini_producer_route.py",
+          "bytes": 7881,
+          "sha256": "adf3645051001e0e7a6a5f6af13b935517baeb5d0165a6f6ae9d902b99eb110c",
+          "git_blob": "837ecded46cf58203b7aca69c684139170c59e98"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/plugins/test_historical_income_baseline.py",
+          "bytes": 4971,
+          "sha256": "fb2bd027688ad5688132d2673e9c2e52005bd876e258b9a04f49fbb7e307a9bf",
+          "git_blob": "e7c9601aa273822e5a5f050bdb6f17ca4f0fadb7"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/plugins/economics/baselines.py",
+          "bytes": 1629,
+          "sha256": "85f12a1ef624ba4fd96c08b0874e27d5dc3a0b65c0ce5663d7484f61793c36d3",
+          "git_blob": "77c803bca19be9689906cb5c92ed6f824c5fe45c"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/plugins/training_adapter.py",
+          "bytes": 24397,
+          "sha256": "aaaa6e65f0cd6f845a0b9b8b989e5d19b2e5e35f497d2c4704e29dd7c5594715",
+          "git_blob": "5e5b6de213899c164e639eb5b67a76ca0af9e248"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/plugins/composite.py",
+          "bytes": 9613,
+          "sha256": "113cc5803c0f54bc9920364d0a88c147ba9e816299641578770dbf9a2c2a5f27",
+          "git_blob": "d5a43a7aa78834baff0540c1d18cd8c44fd9c91a"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/plugins/economics/mechanisms.py",
+          "bytes": 5729,
+          "sha256": "7068670282d94e4708fa2e5a5bffaa7d902fc2aed8cdce4e173b20d287d792a8",
+          "git_blob": "253c8dedf326c54fd3f0ba602836e73327edb5ce"
+        }
+      ],
+      "exit": 0,
+      "wall_s": 8.829701284994371,
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/economics-review/oracle.stdout",
+        "bytes": 8957,
+        "sha256": "b1045d3e15fcea8bb82fda15cfa224be1b11253323edcd01b8475e755a487b09"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/economics-review/oracle.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "oracle-removal": {
+      "schema": "independent-native-check/1",
+      "config": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/economics-review/oracle-removal-config.json",
+        "bytes": 1191,
+        "sha256": "a82358f39be1c4efbf4af051ddc1ff5b921bb7f4170ad47d24062c07d1f0097c"
+      },
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261007/cau/economics-review/independent_economic_oracle.py",
+        "--remove-normalization"
+      ],
+      "cwd": "/workspace/e02-F-economics-20261006/policy-engine",
+      "source_sha": "193b3582a72c640c1d06a131f93502654a77a36a",
+      "source_tree": "81c2e3e636bec4c5d81b8f918bb61cca6a49309b",
+      "environment_overrides": {
+        "PYTHONPATH": "src:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "launcher_python": "3.12.14",
+      "source_before": [
+        {
+          "path": "policy-engine/docs/reference/foundry/economic-baseline-profile.md",
+          "bytes": 3244,
+          "sha256": "6ab27dbe5b9e6bbbe88ea6d670047f434f29475ca154f415110f6a6a8c09b1de",
+          "git_blob": "6e38b0f88efd596f5205ef06e41d26bf2e0f83b6"
+        },
+        {
+          "path": "policy-engine/release-fragments/unreleased/2026-10-07-economic-baseline-consumer-proof.toml",
+          "bytes": 1453,
+          "sha256": "6032dc792dbafa93d538ca74db4d29f36969cf02c6fb6da6b1bb83b40cd6b0a6",
+          "git_blob": "c411fcd3f1e8001175ec5a4e755fa7394ed58b64"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/agent_sim/test_signed_gini_producer_route.py",
+          "bytes": 7881,
+          "sha256": "adf3645051001e0e7a6a5f6af13b935517baeb5d0165a6f6ae9d902b99eb110c",
+          "git_blob": "837ecded46cf58203b7aca69c684139170c59e98"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/plugins/test_historical_income_baseline.py",
+          "bytes": 4971,
+          "sha256": "fb2bd027688ad5688132d2673e9c2e52005bd876e258b9a04f49fbb7e307a9bf",
+          "git_blob": "e7c9601aa273822e5a5f050bdb6f17ca4f0fadb7"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/plugins/economics/baselines.py",
+          "bytes": 1629,
+          "sha256": "85f12a1ef624ba4fd96c08b0874e27d5dc3a0b65c0ce5663d7484f61793c36d3",
+          "git_blob": "77c803bca19be9689906cb5c92ed6f824c5fe45c"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/plugins/training_adapter.py",
+          "bytes": 24397,
+          "sha256": "aaaa6e65f0cd6f845a0b9b8b989e5d19b2e5e35f497d2c4704e29dd7c5594715",
+          "git_blob": "5e5b6de213899c164e639eb5b67a76ca0af9e248"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/plugins/composite.py",
+          "bytes": 9613,
+          "sha256": "113cc5803c0f54bc9920364d0a88c147ba9e816299641578770dbf9a2c2a5f27",
+          "git_blob": "d5a43a7aa78834baff0540c1d18cd8c44fd9c91a"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/plugins/economics/mechanisms.py",
+          "bytes": 5729,
+          "sha256": "7068670282d94e4708fa2e5a5bffaa7d902fc2aed8cdce4e173b20d287d792a8",
+          "git_blob": "253c8dedf326c54fd3f0ba602836e73327edb5ce"
+        }
+      ],
+      "source_after": [
+        {
+          "path": "policy-engine/docs/reference/foundry/economic-baseline-profile.md",
+          "bytes": 3244,
+          "sha256": "6ab27dbe5b9e6bbbe88ea6d670047f434f29475ca154f415110f6a6a8c09b1de",
+          "git_blob": "6e38b0f88efd596f5205ef06e41d26bf2e0f83b6"
+        },
+        {
+          "path": "policy-engine/release-fragments/unreleased/2026-10-07-economic-baseline-consumer-proof.toml",
+          "bytes": 1453,
+          "sha256": "6032dc792dbafa93d538ca74db4d29f36969cf02c6fb6da6b1bb83b40cd6b0a6",
+          "git_blob": "c411fcd3f1e8001175ec5a4e755fa7394ed58b64"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/agent_sim/test_signed_gini_producer_route.py",
+          "bytes": 7881,
+          "sha256": "adf3645051001e0e7a6a5f6af13b935517baeb5d0165a6f6ae9d902b99eb110c",
+          "git_blob": "837ecded46cf58203b7aca69c684139170c59e98"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/plugins/test_historical_income_baseline.py",
+          "bytes": 4971,
+          "sha256": "fb2bd027688ad5688132d2673e9c2e52005bd876e258b9a04f49fbb7e307a9bf",
+          "git_blob": "e7c9601aa273822e5a5f050bdb6f17ca4f0fadb7"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/plugins/economics/baselines.py",
+          "bytes": 1629,
+          "sha256": "85f12a1ef624ba4fd96c08b0874e27d5dc3a0b65c0ce5663d7484f61793c36d3",
+          "git_blob": "77c803bca19be9689906cb5c92ed6f824c5fe45c"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/plugins/training_adapter.py",
+          "bytes": 24397,
+          "sha256": "aaaa6e65f0cd6f845a0b9b8b989e5d19b2e5e35f497d2c4704e29dd7c5594715",
+          "git_blob": "5e5b6de213899c164e639eb5b67a76ca0af9e248"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/plugins/composite.py",
+          "bytes": 9613,
+          "sha256": "113cc5803c0f54bc9920364d0a88c147ba9e816299641578770dbf9a2c2a5f27",
+          "git_blob": "d5a43a7aa78834baff0540c1d18cd8c44fd9c91a"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/plugins/economics/mechanisms.py",
+          "bytes": 5729,
+          "sha256": "7068670282d94e4708fa2e5a5bffaa7d902fc2aed8cdce4e173b20d287d792a8",
+          "git_blob": "253c8dedf326c54fd3f0ba602836e73327edb5ce"
+        }
+      ],
+      "exit": 1,
+      "wall_s": 7.239573617000133,
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/economics-review/oracle-removal.stdout",
+        "bytes": 149,
+        "sha256": "91e1c57be5811989ea7f729232d687acadcddb3940c291185ab4ef704b7f0f77"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/economics-review/oracle-removal.stderr",
+        "bytes": 1278,
+        "sha256": "a4d029e568a31d199669248953d2bacd2e472784426869ffa078ffc44aeed15e"
+      }
+    },
+    "gini-removal": {
+      "schema": "independent-native-check/1",
+      "config": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/economics-review/gini-removal-config.json",
+        "bytes": 1222,
+        "sha256": "167ce59a23ca48edf3a7992b46baba627a3f6a2e62a5d4cbf6d9221aab89b06f"
+      },
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261007/cau/economics-review/remove_gini_admission.py"
+      ],
+      "cwd": "/workspace/e02-F-economics-20261006/policy-engine",
+      "source_sha": "193b3582a72c640c1d06a131f93502654a77a36a",
+      "source_tree": "81c2e3e636bec4c5d81b8f918bb61cca6a49309b",
+      "environment_overrides": {
+        "PYTHONPATH": "src:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "launcher_python": "3.12.14",
+      "source_before": [
+        {
+          "path": "policy-engine/docs/reference/foundry/economic-baseline-profile.md",
+          "bytes": 3244,
+          "sha256": "6ab27dbe5b9e6bbbe88ea6d670047f434f29475ca154f415110f6a6a8c09b1de",
+          "git_blob": "6e38b0f88efd596f5205ef06e41d26bf2e0f83b6"
+        },
+        {
+          "path": "policy-engine/release-fragments/unreleased/2026-10-07-economic-baseline-consumer-proof.toml",
+          "bytes": 1453,
+          "sha256": "6032dc792dbafa93d538ca74db4d29f36969cf02c6fb6da6b1bb83b40cd6b0a6",
+          "git_blob": "c411fcd3f1e8001175ec5a4e755fa7394ed58b64"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/agent_sim/test_signed_gini_producer_route.py",
+          "bytes": 7881,
+          "sha256": "adf3645051001e0e7a6a5f6af13b935517baeb5d0165a6f6ae9d902b99eb110c",
+          "git_blob": "837ecded46cf58203b7aca69c684139170c59e98"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/plugins/test_historical_income_baseline.py",
+          "bytes": 4971,
+          "sha256": "fb2bd027688ad5688132d2673e9c2e52005bd876e258b9a04f49fbb7e307a9bf",
+          "git_blob": "e7c9601aa273822e5a5f050bdb6f17ca4f0fadb7"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/plugins/economics/baselines.py",
+          "bytes": 1629,
+          "sha256": "85f12a1ef624ba4fd96c08b0874e27d5dc3a0b65c0ce5663d7484f61793c36d3",
+          "git_blob": "77c803bca19be9689906cb5c92ed6f824c5fe45c"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/plugins/training_adapter.py",
+          "bytes": 24397,
+          "sha256": "aaaa6e65f0cd6f845a0b9b8b989e5d19b2e5e35f497d2c4704e29dd7c5594715",
+          "git_blob": "5e5b6de213899c164e639eb5b67a76ca0af9e248"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/plugins/composite.py",
+          "bytes": 9613,
+          "sha256": "113cc5803c0f54bc9920364d0a88c147ba9e816299641578770dbf9a2c2a5f27",
+          "git_blob": "d5a43a7aa78834baff0540c1d18cd8c44fd9c91a"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/plugins/economics/mechanisms.py",
+          "bytes": 5729,
+          "sha256": "7068670282d94e4708fa2e5a5bffaa7d902fc2aed8cdce4e173b20d287d792a8",
+          "git_blob": "253c8dedf326c54fd3f0ba602836e73327edb5ce"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/agent_sim/distributions.py",
+          "bytes": 29885,
+          "sha256": "4cb032845cf53f16415b483a1b7dd8d266d49cd12339677e13f41ccccdfea291",
+          "git_blob": "cc8e24623bcd76b57924fe5a8e906bfce3b43181"
+        }
+      ],
+      "source_after": [
+        {
+          "path": "policy-engine/docs/reference/foundry/economic-baseline-profile.md",
+          "bytes": 3244,
+          "sha256": "6ab27dbe5b9e6bbbe88ea6d670047f434f29475ca154f415110f6a6a8c09b1de",
+          "git_blob": "6e38b0f88efd596f5205ef06e41d26bf2e0f83b6"
+        },
+        {
+          "path": "policy-engine/release-fragments/unreleased/2026-10-07-economic-baseline-consumer-proof.toml",
+          "bytes": 1453,
+          "sha256": "6032dc792dbafa93d538ca74db4d29f36969cf02c6fb6da6b1bb83b40cd6b0a6",
+          "git_blob": "c411fcd3f1e8001175ec5a4e755fa7394ed58b64"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/agent_sim/test_signed_gini_producer_route.py",
+          "bytes": 7881,
+          "sha256": "adf3645051001e0e7a6a5f6af13b935517baeb5d0165a6f6ae9d902b99eb110c",
+          "git_blob": "837ecded46cf58203b7aca69c684139170c59e98"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/plugins/test_historical_income_baseline.py",
+          "bytes": 4971,
+          "sha256": "fb2bd027688ad5688132d2673e9c2e52005bd876e258b9a04f49fbb7e307a9bf",
+          "git_blob": "e7c9601aa273822e5a5f050bdb6f17ca4f0fadb7"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/plugins/economics/baselines.py",
+          "bytes": 1629,
+          "sha256": "85f12a1ef624ba4fd96c08b0874e27d5dc3a0b65c0ce5663d7484f61793c36d3",
+          "git_blob": "77c803bca19be9689906cb5c92ed6f824c5fe45c"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/plugins/training_adapter.py",
+          "bytes": 24397,
+          "sha256": "aaaa6e65f0cd6f845a0b9b8b989e5d19b2e5e35f497d2c4704e29dd7c5594715",
+          "git_blob": "5e5b6de213899c164e639eb5b67a76ca0af9e248"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/plugins/composite.py",
+          "bytes": 9613,
+          "sha256": "113cc5803c0f54bc9920364d0a88c147ba9e816299641578770dbf9a2c2a5f27",
+          "git_blob": "d5a43a7aa78834baff0540c1d18cd8c44fd9c91a"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/plugins/economics/mechanisms.py",
+          "bytes": 5729,
+          "sha256": "7068670282d94e4708fa2e5a5bffaa7d902fc2aed8cdce4e173b20d287d792a8",
+          "git_blob": "253c8dedf326c54fd3f0ba602836e73327edb5ce"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/agent_sim/distributions.py",
+          "bytes": 29885,
+          "sha256": "4cb032845cf53f16415b483a1b7dd8d266d49cd12339677e13f41ccccdfea291",
+          "git_blob": "cc8e24623bcd76b57924fe5a8e906bfce3b43181"
+        }
+      ],
+      "exit": 1,
+      "wall_s": 37.54887007098296,
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/economics-review/gini-removal.stdout",
+        "bytes": 5125,
+        "sha256": "46400fa678dd3fb340f39e7de208c7fe94ea74e07316ffde5bbe2a0ab3a60e05"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/economics-review/gini-removal.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  },
+  "independent_math_oracle": {
+    "method": "Python Fraction derives exact original normalized mean/budget penalty on32 deterministically sampled dyadic mixed-sign native panels across1/3/7/31 population sizes,64 eager/JIT comparisons; independent analytic gradient formula for below-threshold and mixed normalized regimes",
+    "outcome": "PASS",
+    "output_ref": {
+      "path": "/tmp/e02-F-continuation-20261007/cau/economics-review/oracle.stdout",
+      "bytes": 8957,
+      "sha256": "b1045d3e15fcea8bb82fda15cfa224be1b11253323edcd01b8475e755a487b09"
+    },
+    "product_identity": "Canonical public/internal aliases remain exact same original callable; actual native3.14.7/JAX version and owner origin/hash printed in complete oracle stdout."
+  },
+  "removal_oracles": {
+    "normalized_loss": "Same canonical function object/name/FQN/annotations/aliases, only normalization removed in fresh native process: independent Fraction expected value rejects actual numeric output, no marker/source shim. ActualFAIL preserves complete stdout/stderr.",
+    "signed_Gini": "Same canonical _admit_gini_population function object with only its domain refusal body removed; every actor/labor/tax/plugin/state/PPO/currentmetric retained. Both real bridge and metric-enabled PPO negatives become genuine did-not-raise assertionFAIL; no collection/setup error."
+  },
+  "C_PPO_signed_population_chain": {
+    "producer": "Real ActorCritic\u2192TemporalConsumptionMechanism\u2192_native_to_composite\u2192registered labor_market/taxation/transfers/savings with actual PRNG splits",
+    "artifact": "Native current EconomicState/GlobalState containing wages>0 and wealth=\u22120.1*income from unchanged tax law, not a clamped or forged metric",
+    "consumer": "Actual eager bridge distribution refresh, metric-enabled create_jit_trainer_with_metrics, and real currentMetricsCollector on genuine collect_trajectory/result",
+    "positive": "Nonnegative active wealth and inactive invalid padding accepted; genuine signed trajectory without requested Gini supported",
+    "refusal": "Requested classical Gini over negative active population raises native canonical domain error before a coefficient/history is returned",
+    "law": "Classical nonnegative active-population metric domain unchanged. No new signed-Gini convention, economic model change or real calibration inference.",
+    "cross_owner_byte_proof": [
+      {
+        "path": "policy-engine/src/polisyos/foundry/plugins/training_adapter.py",
+        "G9a_and_F193_git_blob": "5e5b6de213899c164e639eb5b67a76ca0af9e248",
+        "byte_equal": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/plugins/composite.py",
+        "G9a_and_F193_git_blob": "d5a43a7aa78834baff0540c1d18cd8c44fd9c91a",
+        "byte_equal": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/plugins/economics/mechanisms.py",
+        "G9a_and_F193_git_blob": "253c8dedf326c54fd3f0ba602836e73327edb5ce",
+        "byte_equal": true
+      }
+    ],
+    "G_consumer_code_boundary": "Do not equate unmerged G9a distributions bytes with F193 metric law. Actor/labor/tax producer paths alone are exactly G9a-byte-equal."
+  },
+  "static_supported_caller_census": {
+    "check": "PASS",
+    "source_sha": "193b3582a72c640c1d06a131f93502654a77a36a",
+    "source_tree": "81c2e3e636bec4c5d81b8f918bb61cca6a49309b",
+    "full_static_source_config_inputs": 9007,
+    "all_file_bytes_hashes_blobs_independently_verified": true,
+    "matching_literal_files": [
+      "policy-engine/architecture/baselines/structure_remediation/import_graph_pre_decomp.json",
+      "policy-engine/architecture/baselines/structure_remediation/public_surface_pre_decomp.json",
+      "policy-engine/src/polisyos/foundry/methods/_internal/loss.py",
+      "policy-engine/src/polisyos/foundry/methods/loss.py",
+      "policy-engine/src/polisyos/foundry/plugins/economics/baselines.py",
+      "policy-engine/tests/unit/foundry/analysis/test_loss_numeric.py",
+      "policy-engine/tests/unit/foundry/plugins/test_economic_profile_consumers.py",
+      "policy-engine/tests/unit/foundry/plugins/test_economic_profiles.py",
+      "policy-engine/tests/unit/foundry/plugins/test_historical_income_baseline.py",
+      "policy-engine/tests/unit/remediation/test_eco_01.py"
+    ],
+    "patterns": [
+      "\\bpolicy_loss_fn\\b",
+      "\\bnormalized_income_budget_loss\\b",
+      "polisyos\\.foundry\\.methods\\.(?:loss|_internal\\.loss)",
+      "polisyos\\.foundry\\.plugins\\.economics\\.baselines"
+    ],
+    "scope": {
+      "suffixes": [
+        ".cfg",
+        ".cjs",
+        ".ini",
+        ".js",
+        ".json",
+        ".mjs",
+        ".py",
+        ".sh",
+        ".toml",
+        ".ts",
+        ".tsx",
+        ".yaml",
+        ".yml"
+      ],
+      "excluded_roots": [
+        "policy-engine/docs/",
+        "policy-engine/release-fragments/"
+      ],
+      "boundary": "Current tracked literal source/config/FQN census only; constructed strings, external and untracked configurations unknown. Document/release evidence is a separate nonexecuting locator census. No supported optimizer absence prerequisite."
+    },
+    "complete_Git_reconstruction_denominator_sha256": "34615c828ed3b0333830a9d5570c29db761cae84cc92056fb66324026dc87581",
+    "author_full_manifest_ref": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/baseline-consumer-census.json",
+      "bytes": 2426625,
+      "sha256": "e2031e62e2b978c72a2093f2907a430d2ddc5e41b152560caf9ad61bb29b2f1c"
+    },
+    "actual_C_G9a_producer_paths": [
+      {
+        "path": "policy-engine/src/polisyos/foundry/plugins/training_adapter.py",
+        "G9a_and_F193_git_blob": "5e5b6de213899c164e639eb5b67a76ca0af9e248",
+        "byte_equal": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/plugins/composite.py",
+        "G9a_and_F193_git_blob": "d5a43a7aa78834baff0540c1d18cd8c44fd9c91a",
+        "byte_equal": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/plugins/economics/mechanisms.py",
+        "G9a_and_F193_git_blob": "253c8dedf326c54fd3f0ba602836e73327edb5ce",
+        "byte_equal": true
+      }
+    ],
+    "F_Gini_consumer_is_distinct_F_profile": "Do not equate unmerged G9a distributions bytes with F193 metric law. Actor/labor/tax producer paths alone are exactly G9a-byte-equal.",
+    "wall_s": 5.670332798996242
+  },
+  "LA004_separation": "Actual distinct GlobalState/PatchMap baseline versus EconomicState/plugin model regimes are exercised in55 siblings. Gini signed population is a separate consumer property, not the original LA004 finding.",
+  "historical_red_preserved": "Author previous norm-intent hold and harness/profile failures remain historical records; this current review does not relabel them. Parent raw global/ABM/static FAIL/ERROR/SKIP and P41 unknown remain unaffected.",
+  "limitations": [
+    "Original finite relocation closed recommendation is not new objective choice, welfare/optimizer authority or formalG applied closure.",
+    "Known synthetic C/PPO scenario proves actual signed population and refusal, not real data positivity/calibration.",
+    "9007-file census is complete for tracked literal selected suffixes; constructed strings/external/untracked callers remain unknown.",
+    "No whole Runtime institutional admission/PDC semantic resolver/common-budget workload witness.",
+    "No global gate or whole integration/source acceptance; P41 not_established."
+  ],
+  "source_read_complete": true,
+  "no_writes_to_product_or_shared_env": true
+}

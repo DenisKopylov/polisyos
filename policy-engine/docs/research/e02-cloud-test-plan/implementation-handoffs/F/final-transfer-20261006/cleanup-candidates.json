@@ -1,0 +1,207 @@
+{
+  "native_trash_available": false,
+  "deleted": false,
+  "candidates": [
+    {
+      "path": "/workspace/e02-F-closeout-20261006/policy-engine/.venv",
+      "kind": "used environment or repeatable cache",
+      "action": "move to native Trash only when available; never permanent delete"
+    },
+    {
+      "path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv",
+      "kind": "used environment or repeatable cache",
+      "action": "move to native Trash only when available; never permanent delete"
+    },
+    {
+      "path": "/workspace/e02-F-graph-20261006/policy-engine/workers/dowhy-014/.venv",
+      "kind": "used environment or repeatable cache",
+      "action": "move to native Trash only when available; never permanent delete"
+    },
+    {
+      "path": "/workspace/e02-F-rdd-20261006/policy-engine/.venv",
+      "kind": "used environment or repeatable cache",
+      "action": "move to native Trash only when available; never permanent delete"
+    },
+    {
+      "path": "/workspace/e02-F-graph-intake-20261006/policy-engine/.venv",
+      "kind": "used environment or repeatable cache",
+      "action": "move to native Trash only when available; never permanent delete"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/fry-base-tmp",
+      "kind": "repeatable synthetic test directory",
+      "action": "move to native Trash only when available; never permanent delete"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/fry-base-v2-tmp",
+      "kind": "repeatable synthetic test directory",
+      "action": "move to native Trash only when available; never permanent delete"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/fry-base-v3-tmp",
+      "kind": "repeatable synthetic test directory",
+      "action": "move to native Trash only when available; never permanent delete"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/fry-candidate-v1-tmp",
+      "kind": "repeatable synthetic test directory",
+      "action": "move to native Trash only when available; never permanent delete"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/fry-candidate-v2-tmp",
+      "kind": "repeatable synthetic test directory",
+      "action": "move to native Trash only when available; never permanent delete"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/fry-candidate-v3-tmp",
+      "kind": "repeatable synthetic test directory",
+      "action": "move to native Trash only when available; never permanent delete"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/fry-candidate-v4-tmp",
+      "kind": "repeatable synthetic test directory",
+      "action": "move to native Trash only when available; never permanent delete"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/fry-executor-frozen-tmp",
+      "kind": "repeatable synthetic test directory",
+      "action": "move to native Trash only when available; never permanent delete"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/fry-executor-v1-tmp",
+      "kind": "repeatable synthetic test directory",
+      "action": "move to native Trash only when available; never permanent delete"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/fry-full-v1-tmp",
+      "kind": "repeatable synthetic test directory",
+      "action": "move to native Trash only when available; never permanent delete"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/fry-full-v2-tmp",
+      "kind": "repeatable synthetic test directory",
+      "action": "move to native Trash only when available; never permanent delete"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/fry-full-v3-tmp",
+      "kind": "repeatable synthetic test directory",
+      "action": "move to native Trash only when available; never permanent delete"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/fry-full-v4-tmp",
+      "kind": "repeatable synthetic test directory",
+      "action": "move to native Trash only when available; never permanent delete"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/fry-native-frozen-tmp",
+      "kind": "repeatable synthetic test directory",
+      "action": "move to native Trash only when available; never permanent delete"
+    },
+    {
+      "path": "/tmp/e02-F-installed-latest-uv-cache",
+      "kind": "repeatable synthetic test directory",
+      "action": "move to native Trash only when available; never permanent delete"
+    },
+    {
+      "path": "/tmp/e02-F-root-dependency-6jw7kkfk",
+      "kind": "repeatable synthetic test directory",
+      "action": "move to native Trash only when available; never permanent delete"
+    },
+    {
+      "path": "/tmp/e02-F-root-dependency-clzfcvod",
+      "kind": "repeatable synthetic test directory",
+      "action": "move to native Trash only when available; never permanent delete"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/installed-worker/candidate-dist",
+      "kind": "repeatable build/install or numerical oracle environment",
+      "action": "move to native Trash only when available; never permanent delete; retain all deciding receipts"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/installed-worker/final-dist",
+      "kind": "repeatable build/install or numerical oracle environment",
+      "action": "move to native Trash only when available; never permanent delete; retain all deciding receipts"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/installed-worker/pre-mapping-dist",
+      "kind": "repeatable build/install or numerical oracle environment",
+      "action": "move to native Trash only when available; never permanent delete; retain all deciding receipts"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/installed-worker/pre-mapping-env",
+      "kind": "repeatable build/install or numerical oracle environment",
+      "action": "move to native Trash only when available; never permanent delete; retain all deciding receipts"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/installed-worker/sdist-consumer",
+      "kind": "repeatable build/install or numerical oracle environment",
+      "action": "move to native Trash only when available; never permanent delete; retain all deciding receipts"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/installed-worker/sdist-env",
+      "kind": "repeatable build/install or numerical oracle environment",
+      "action": "move to native Trash only when available; never permanent delete; retain all deciding receipts"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/installed-worker/wheel-env",
+      "kind": "repeatable build/install or numerical oracle environment",
+      "action": "move to native Trash only when available; never permanent delete; retain all deciding receipts"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/installed-latest/dist",
+      "kind": "repeatable build/install or numerical oracle environment",
+      "action": "move to native Trash only when available; never permanent delete; retain all deciding receipts"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/installed-latest/sdist-consumer",
+      "kind": "repeatable build/install or numerical oracle environment",
+      "action": "move to native Trash only when available; never permanent delete; retain all deciding receipts"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/installed-latest/sdist-env",
+      "kind": "repeatable build/install or numerical oracle environment",
+      "action": "move to native Trash only when available; never permanent delete; retain all deciding receipts"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/installed-latest/wheel-env",
+      "kind": "repeatable build/install or numerical oracle environment",
+      "action": "move to native Trash only when available; never permanent delete; retain all deciding receipts"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/api/candidate-dist",
+      "kind": "repeatable build/install or numerical oracle environment",
+      "action": "move to native Trash only when available; never permanent delete; retain all deciding receipts"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/api/dist",
+      "kind": "repeatable build/install or numerical oracle environment",
+      "action": "move to native Trash only when available; never permanent delete; retain all deciding receipts"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/api/sdist-consumer",
+      "kind": "repeatable build/install or numerical oracle environment",
+      "action": "move to native Trash only when available; never permanent delete; retain all deciding receipts"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/api/sdist-env",
+      "kind": "repeatable build/install or numerical oracle environment",
+      "action": "move to native Trash only when available; never permanent delete; retain all deciding receipts"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/api/wheel-env",
+      "kind": "repeatable build/install or numerical oracle environment",
+      "action": "move to native Trash only when available; never permanent delete; retain all deciding receipts"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/rdd/oracle-venv",
+      "kind": "repeatable build/install or numerical oracle environment",
+      "action": "move to native Trash only when available; never permanent delete; retain all deciding receipts"
+    }
+  ],
+  "preserve": [
+    "/workspace/e02-F-20261006-receipts",
+    "all code/worktrees/registrations",
+    "all unique deciding evidence and useful documentation",
+    "production data remains local-only and untouched"
+  ]
+}

@@ -1,0 +1,59 @@
+{"mode": "temporal", "base_sha": "4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3", "restored_source": "policy-engine/src/polisyos/foundry/agent_sim/temporal_mechanisms.py", "bytes": 3559, "sha256": "f0aaaff60c0282f67de37368f0ada515dc84842fb11c7cf7032ec2ae8bc31004", "functions": ["TemporalConsumptionMechanism.apply"], "markers": "Canonical class, function names, state fields, RNG law and storage keys remain; only forward encoding/carry mechanism removed."}
+F.F.F.F.F.                                                               [100%]
+=================================== FAILURES ===================================
+_ test_real_actor64_transition_matches_equation_and_input_field_dtype[eager-fluid-float32] _
+tests/unit/foundry/agent_sim/test_temporal_consumption_dtype.py:67: in test_real_actor64_transition_matches_equation_and_input_field_dtype
+    assert actual.dtype == original.dtype == dtype
+E   AssertionError: assert dtype('float64') == dtype('float32')
+E    +  where dtype('float64') = Array([1.56004379, 3.67443258, 1.55993221, 5.87218081], dtype=float64).dtype
+E    +  and   dtype('float32') = Array([0., 0., 0., 0.], dtype=float32).dtype
+_ test_real_actor64_transition_matches_equation_and_input_field_dtype[eager-hard-float32] _
+tests/unit/foundry/agent_sim/test_temporal_consumption_dtype.py:67: in test_real_actor64_transition_matches_equation_and_input_field_dtype
+    assert actual.dtype == original.dtype == dtype
+E   AssertionError: assert dtype('float64') == dtype('float32')
+E    +  where dtype('float64') = Array([1.29480354, 2.43816947, 1.85804219, 4.51954447], dtype=float64).dtype
+E    +  and   dtype('float32') = Array([0., 0., 0., 0.], dtype=float32).dtype
+_ test_real_actor64_transition_matches_equation_and_input_field_dtype[jit-fluid-float32] _
+tests/unit/foundry/agent_sim/test_temporal_consumption_dtype.py:67: in test_real_actor64_transition_matches_equation_and_input_field_dtype
+    assert actual.dtype == original.dtype == dtype
+E   AssertionError: assert dtype('float64') == dtype('float32')
+E    +  where dtype('float64') = Array([1.56004379, 3.67443258, 1.55993221, 5.87218081], dtype=float64).dtype
+E    +  and   dtype('float32') = Array([0., 0., 0., 0.], dtype=float32).dtype
+_ test_real_actor64_transition_matches_equation_and_input_field_dtype[jit-hard-float32] _
+tests/unit/foundry/agent_sim/test_temporal_consumption_dtype.py:67: in test_real_actor64_transition_matches_equation_and_input_field_dtype
+    assert actual.dtype == original.dtype == dtype
+E   AssertionError: assert dtype('float64') == dtype('float32')
+E    +  where dtype('float64') = Array([1.29480354, 2.43816947, 1.85804219, 4.51954447], dtype=float64).dtype
+E    +  and   dtype('float32') = Array([0., 0., 0., 0.], dtype=float32).dtype
+_ test_native_executor_scan_and_gradient_keep_state_profile_with_actor64[float32] _
+tests/unit/foundry/agent_sim/test_temporal_consumption_dtype.py:90: in test_native_executor_scan_and_gradient_keep_state_profile_with_actor64
+    after, _ = executor.run(before, 3)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/executor.py:103: in run
+    final_state, all_metrics = jax.lax.scan(
+E   TypeError: scan body function carry input and carry output must have equal types, but they differ:
+E   
+E     * the input carry component state.agents.consumption has type float32[4] but the corresponding output carry component has type float64[4], so the dtypes do not match;
+E   
+E     * the input carry component state.agents.expected_lifetime_utility has type float32[4] but the corresponding output carry component has type float64[4], so the dtypes do not match;
+E     * the input carry component state.agents.wealth has type float32[4] but the corresponding output carry component has type float64[4], so the dtypes do not match.
+E   
+E   Revise the function so that all output types match the corresponding input types.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+=============================== warnings summary ===============================
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+tests/unit/foundry/agent_sim/test_temporal_consumption_dtype.py: 21 warnings
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/equinox/nn/_normalisation.py:92: UserWarning: LayerNorm(elementwise_affine=...) is deprecated in favour of LayerNorm(use_weight=...) and LayerNorm(use_bias=...)
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/agent_sim/test_temporal_consumption_dtype.py::test_real_actor64_transition_matches_equation_and_input_field_dtype[eager-fluid-float32]
+FAILED tests/unit/foundry/agent_sim/test_temporal_consumption_dtype.py::test_real_actor64_transition_matches_equation_and_input_field_dtype[eager-hard-float32]
+FAILED tests/unit/foundry/agent_sim/test_temporal_consumption_dtype.py::test_real_actor64_transition_matches_equation_and_input_field_dtype[jit-fluid-float32]
+FAILED tests/unit/foundry/agent_sim/test_temporal_consumption_dtype.py::test_real_actor64_transition_matches_equation_and_input_field_dtype[jit-hard-float32]
+FAILED tests/unit/foundry/agent_sim/test_temporal_consumption_dtype.py::test_native_executor_scan_and_gradient_keep_state_profile_with_actor64[float32]

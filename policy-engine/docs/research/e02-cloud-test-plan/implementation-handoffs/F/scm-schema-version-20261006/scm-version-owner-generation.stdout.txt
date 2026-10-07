@@ -1,0 +1,63 @@
+Generated ABI schema snapshots for 1 models (2 file updates, scan_mode=full)
+{
+  "canonical_generator": "/workspace/e02-F-graph-20261006/policy-engine/tools/quality/diagnostics/gen_schema.py",
+  "argv": [
+    "--models",
+    "structural_causal_model_spec",
+    "--output-dir",
+    "/tmp/e02-F-continuation-20261006/graph/scm-version-generated/snapshots",
+    "--cache-dir",
+    "/tmp/e02-F-continuation-20261006/graph/scm-version-generated/generator-cache"
+  ],
+  "generator_exit_code": 0,
+  "selected_abi_entries": [
+    "structural_causal_model_spec"
+  ],
+  "apply": true,
+  "inputs": [
+    {
+      "path": "schemas/snapshots/ir/structural_causal_model_spec.schema.json",
+      "read_bytes": 15243,
+      "read_sha256": "6af18c2cdb9901cd54568d0b1e83676ced66d809dc7851817c6efc1def40fde5",
+      "canonical_owner_packet_bytes": 15243,
+      "canonical_owner_packet_sha256": "e0709ef298134086b4f57c279ac1cdd5cb173afaf1b8577a458bccca31387df4",
+      "equal_before": false
+    },
+    {
+      "path": "schemas/snapshots/ir/_manifest.json",
+      "read_bytes": 52447,
+      "read_sha256": "28c3d16267ad9de8c7f741c2547055fafd60275bc0f9f9d9bfee9b5b6abf21ae",
+      "canonical_owner_packet_bytes": 52447,
+      "canonical_owner_packet_sha256": "0fa78f82d255b20801be81c7d739714e4e9f0f2b17bd2675be1448c3f6b44617",
+      "equal_before": false
+    },
+    {
+      "path": "docs/reference/ir/schema-catalog.md",
+      "read_bytes": 1641802,
+      "read_sha256": "03d37a6c16fe61b0b0ec0a3b3536e20c7121ec39fd1b3adbac180c828f7eeada",
+      "canonical_owner_packet_bytes": 1641843,
+      "canonical_owner_packet_sha256": "8cb5795e0a5c2228b83267b8231aafdd30124b409418e63edf3fa0ce21d572cb",
+      "equal_before": false
+    },
+    {
+      "path": "docs/reference/schemas.md",
+      "read_bytes": 29371,
+      "read_sha256": "02c3503d4c07dd737103dbaf1f3c80ca25637198513c5b415be5cded36d9d389",
+      "canonical_owner_packet_bytes": 29376,
+      "canonical_owner_packet_sha256": "914dc3f70a4044ac4a70b7859270ca9b4d6e5247cb0603320b3c957ef586bc22",
+      "equal_before": false
+    }
+  ],
+  "manifest_other_entries_retained": 98,
+  "manifest_header_retained": true,
+  "canonical_full_reference_outputs": [
+    "/tmp/e02-F-continuation-20261006/graph/scm-version-generated/schema-catalog.md",
+    "/tmp/e02-F-continuation-20261006/graph/scm-version-generated/schemas.md"
+  ],
+  "non_owner_reference_scope": {
+    "schema_catalog_full_equivalence": true,
+    "schema_reference_full_equivalence": true,
+    "interpretation": "Full canonical references generated/read; only the approved SCM section/row is applied. Any full-document drift is separate and not attributed as inherited."
+  },
+  "owner_packet_check": "PASS"
+}

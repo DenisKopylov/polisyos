@@ -1,0 +1,22 @@
+{
+  "command": [
+    "uv",
+    "run",
+    "--no-sync",
+    "polisyos-tools",
+    "workspace",
+    "doctor",
+    "--worktree-admission",
+    "resume",
+    "--branch",
+    "codex/e02-F-closeout-20261006",
+    "--path",
+    "/workspace/e02-F-closeout-20261006"
+  ],
+  "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+  "started_epoch": 1791374775.4011638,
+  "finished_epoch": 1791374777.9403753,
+  "exit_code": 0,
+  "stdout": "/tmp/e02-F-continuation-20261007/root-recovery/own-admission.stdout",
+  "stderr": "/tmp/e02-F-continuation-20261007/root-recovery/own-admission.stderr"
+}

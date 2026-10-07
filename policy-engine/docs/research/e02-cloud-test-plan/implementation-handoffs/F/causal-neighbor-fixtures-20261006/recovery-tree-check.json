@@ -1,0 +1,29 @@
+{
+  "command": [
+    "git",
+    "diff",
+    "--exit-code",
+    "b52c64c36504e17da9ae3f70f5551bfd1e01a5d5",
+    "7185572917f7a3db5e93385a176cb611b35aff42",
+    "--"
+  ],
+  "checkpoint_sha": "b52c64c36504e17da9ae3f70f5551bfd1e01a5d5",
+  "target_sha": "7185572917f7a3db5e93385a176cb611b35aff42",
+  "checkpoint_tree": "90fbdfba15cbc22e8cee477b2c21260c08e09197",
+  "target_tree": "90fbdfba15cbc22e8cee477b2c21260c08e09197",
+  "exit_code": 0,
+  "check": "PASS",
+  "output_refs": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/recovery-tree-check.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/recovery-tree-check.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "complete_tree_denominator": true
+}

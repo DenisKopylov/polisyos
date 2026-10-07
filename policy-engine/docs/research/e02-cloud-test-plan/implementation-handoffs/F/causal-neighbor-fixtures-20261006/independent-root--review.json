@@ -1,0 +1,80 @@
+{
+  "schema": "e02-F-independent-neighbor-fixture-review/1",
+  "reviewer": "/root; independent of graph fixture writer",
+  "source_sha": "9824e04d630d42765ed44b9ff88702fcff885e08",
+  "source_tree": "9aeed3f6a3ed62594062ab8cb10b24d719335753",
+  "slice_base": "b52c64c36504e17da9ae3f70f5551bfd1e01a5d5",
+  "scope": "Five test/doc/fragment paths only; all production/src/tools/workers/schemas unchanged",
+  "verdict": "GO_BOUNDED",
+  "check": "PASS",
+  "actual_native_cases": 108,
+  "skips": 0,
+  "errors": 0,
+  "failures": 0,
+  "oracle": "Independently written Gaussian pairs beta=9/4,-2 with gamma=1-beta: same nonsingular observed covariance; distinct do means. Actual SID/conditional-ID hedge/certificate/proof checked. Observed-U bidirected collider and its conditioned descendant yield opposite actualm-separation truth. Y--Z CPDAG genuinely refuses before positive separation.",
+  "producer_artifact_bridge_consumer": "Typed CausalGraphModel → native SID/conditional-ID/AMN plus real rewrite_estimand → estimand compiler proof/ExecutorGraph consumer",
+  "negative": "Original observed-U graph remains identified positive; bow genuineHEDGE; endpoint-conditionedAMN false; compiler genuineRule1 changes AST and transfers proof. Author marker-retaining prepass-removal1FAIL kept.",
+  "limitations": [
+    "Historical3FAIL2SKIP retain old exactsource; no inherited-red/P41 claim",
+    "Known finite graph behavior does not establish general ID/PAG/CPDAG or real-data authority",
+    "Fixture correction has no automatically reassigned historical finding ID"
+  ],
+  "outputs": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-neighbor-review/independent_oracle.py",
+      "bytes": 2480,
+      "sha256": "063e47daf59a69406fa03f4c58cce95b0e75c97c9cc32de35d60104475901f69"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-neighbor-review/junit.xml",
+      "bytes": 18662,
+      "sha256": "9ba7cb7f7d0e62fa95b391bbf686e08fe817d3e5971bf9f17bec4fcb47b40b1f"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-neighbor-review/oracle.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-neighbor-review/oracle.stdout.txt",
+      "bytes": 616,
+      "sha256": "e040a3e42cae54f2e0dc1d9fc8d33a6751df4747cf668670bb6125831a720f37"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-neighbor-review/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-neighbor-review/stdout.txt",
+      "bytes": 109,
+      "sha256": "514c228d2f441d31d222a0deec21a994c8d9f376dbd3f242fbcfdcb06a013d87"
+    }
+  ],
+  "defining_paths": [
+    "policy-engine/docs/reference/foundry/causal-neighbor-fixtures.md",
+    "policy-engine/release-fragments/unreleased/2026-10-06-causal-neighbor-fixtures.toml",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_compile_estimand_do_calculus_prepass.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_id_engine_extensions.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_twin_amn_graph.py"
+  ],
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-s",
+    "tests/unit/foundry/methods/catalog/causal/test_id_engine_extensions.py",
+    "tests/unit/foundry/methods/catalog/causal/test_twin_amn_graph.py",
+    "tests/unit/foundry/methods/catalog/causal/test_compile_estimand_do_calculus_prepass.py",
+    "--junitxml=/tmp/e02-F-continuation-20261006/root-neighbor-review/junit.xml"
+  ],
+  "oracle_command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-F-continuation-20261006/root-neighbor-review/independent_oracle.py"
+  ],
+  "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine/tools"
+  }
+}

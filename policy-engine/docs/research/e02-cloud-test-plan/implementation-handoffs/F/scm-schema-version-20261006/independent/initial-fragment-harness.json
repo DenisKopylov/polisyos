@@ -1,0 +1,27 @@
+{
+  "name": "initial_final_metadata_audit_harness_error",
+  "command": "python3 /tmp/e02-F-continuation-20261006/foundry/schema-review/replay_final_fragment.py",
+  "target_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+  "outcome": "ERROR",
+  "exit_code": 1,
+  "wall_seconds": 0.15595164999831468,
+  "environment": {
+    "interpreter": "python3",
+    "role": "scratch metadata audit only"
+  },
+  "input_closure": "Read-only parsed TOML audit failed before the actual product/public gate because compatibility_change is a list, not a mapping",
+  "output": "/tmp/e02-F-continuation-20261006/foundry/schema-review/initial-fragment-harness.stdout.txt",
+  "output_refs": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/initial-fragment-harness.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/initial-fragment-harness.stderr.txt",
+      "bytes": 455,
+      "sha256": "8a9d0e7032914ad682e35349144a90f4c7e5f6c98549d2e1bc29f4217a4756ce"
+    }
+  ],
+  "interpretation": "Reviewer harness error; not product failure or PASS. Correct indexed structured record before final actual gate."
+}

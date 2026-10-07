@@ -1,0 +1,29 @@
+Memory-only actual report function body changed; class/function identity, SUCCESS, CI, source fields and identification reason markers retained. No source writes.
+2026-10-06 16:39:04 [debug    ] method_dispatch_start          backend=numpy fqn=causal.inference.regression_discontinuity@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 16:39:04 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=31.06 fqn=causal.inference.regression_discontinuity@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+FFF
+=================================== FAILURES ===================================
+___________ test_success_ci_real_report_cas_remains_refused[missing] ___________
+/tmp/e02-F-continuation-20261006/foundry/test_value_consumer_identification.py:111: in test_success_ci_real_report_cas_remains_refused
+    assert envelope is not None and envelope.confidence_interval == native.confidence_interval
+E   AssertionError: assert (UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', mode=<Numeric...ates randomization.', 'no_precise_manipulation': 'Units cannot precisely manipulate the running variable at cutoff.'}}) is not None and (2.5206142540....631854422419) == (2.5206142540...8544224186207)
+E     
+E     At index 0 diff: 2.520614254073 != 2.5206142540732452
+E     Use -v to get more diff)
+________ test_success_ci_real_report_cas_remains_refused[present_fake] _________
+/tmp/e02-F-continuation-20261006/foundry/test_value_consumer_identification.py:111: in test_success_ci_real_report_cas_remains_refused
+    assert envelope is not None and envelope.confidence_interval == native.confidence_interval
+E   AssertionError: assert (UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', mode=<Numeric...ates randomization.', 'no_precise_manipulation': 'Units cannot precisely manipulate the running variable at cutoff.'}}) is not None and (2.5206142540....631854422419) == (2.5206142540...8544224186207)
+E     
+E     At index 0 diff: 2.520614254073 != 2.5206142540732452
+E     Use -v to get more diff)
+______ test_success_ci_real_report_cas_remains_refused[swapped_real_cas] _______
+/tmp/e02-F-continuation-20261006/foundry/test_value_consumer_identification.py:90: in test_success_ci_real_report_cas_remains_refused
+    graph_ref=str(other_graph.artifact_id), query_ref=str(other_query.artifact_id),
+                                                          ^^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'dict' object has no attribute 'artifact_id'
+=========================== short test summary info ============================
+FAILED ../../../tmp/e02-F-continuation-20261006/foundry/test_value_consumer_identification.py::test_success_ci_real_report_cas_remains_refused[missing]
+FAILED ../../../tmp/e02-F-continuation-20261006/foundry/test_value_consumer_identification.py::test_success_ci_real_report_cas_remains_refused[present_fake]
+FAILED ../../../tmp/e02-F-continuation-20261006/foundry/test_value_consumer_identification.py::test_success_ci_real_report_cas_remains_refused[swapped_real_cas]
+3 failed, 2 deselected in 8.35s

@@ -4,7 +4,7 @@
 computations: ABI contracts, registry/discovery, DAG composition, backend
 dispatch, capability metadata, and the domain catalog under `catalog/`.
 
-- Last updated: 2026-08-27
+- Last updated: 2026-10-07
 
 ## Purpose
 
@@ -63,6 +63,27 @@ typed discovery, versioning, dispatch, and evidence.
 | `advise_methods()`                 | Ranks candidate methods for a planning query.                             |
 
 ## Internal Layout
+
+### Source-bound causal consumers
+
+Import `causal_worker_execution_context`, `validate_source_bound_gcm_spec`,
+`validate_source_bound_causal_estimator_interval`, and
+`validate_source_bound_causal_worker_response` from `polisyos.foundry` for
+cross-package use; the method package retains the same canonical aliases.
+These lazy exports resolve to the existing canonical provider functions; they
+introduce no second validator, artifact store or scheduler. The execution context
+requires an actual CAS and source reference. The validators reopen source bytes
+and reconcile the selected worker request, rows, graph, code/lock identity and
+supported fitted values. Missing worker resources return a typed unavailable
+failure; malformed or inconsistent bindings return a typed refusal.
+
+Scientist causal query consumers use this facade before consuming a fitted model
+or a separate refit estimator interval. Validation establishes supported
+computation and source custody, not causal identification, sampling-law admission
+or policy authority. The current Python 3.14 application's missing in-process
+DoWhy/EconML dependencies do not count as a backend witness. See
+[structural causal models](../../../../docs/reference/foundry/structural-causal-models.md)
+for the selected Python 3.12 / DoWhy 0.14 profile and its supported estimands.
 
 - `api.py` and `__init__.py` own the stable lazy facade. Treat `api.py` as the
   public-surface map; add exported names there instead of exposing loose
@@ -150,6 +171,14 @@ Catalog-family tests should mirror the package layout under
 
 ## Known Shims/Deprecations
 
+- Slot-layout types and builders belong to `polisyos.ir.kernel.slots`.
+  `polisyos.foundry.methods.layout` retains direct compatibility bindings;
+  `polisyos.foundry.methods.compiler.layout` retains the legacy alias with
+  the same IR object identities. Both nested paths are internal under the
+  [public-surface contract](../../../../architecture/public_surface/contract.toml).
+  Foundry owners preserve both addresses for compatible callers until a
+  separate lifecycle decision updates callers, references, and release notes.
+  See [compiler layout compatibility](compiler/README.md#layout-compatibility).
 - Package-level compatibility and deprecation records are governed by
   [architecture/shims.toml](../../../../architecture/shims.toml) and the
   method lifecycle/deprecation helpers under `lifecycle/`.

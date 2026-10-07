@@ -1,0 +1,254 @@
+{
+  "source_sha": "3afb3ea5f26ad429ac45be78bd2cbd180fcc5a77",
+  "source_tree": "508884be8ea79e5b87844030ea4122c8e74d610a",
+  "review": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/root-causal-consumer-independent-review.json",
+    "bytes": 27315,
+    "sha256": "e6857858d1aec5075b1552e58080d6bf7065a7e330f4566015bc02f3f00855e8"
+  },
+  "items": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/resolver-independent-multiview.stdout",
+      "bytes": 1526,
+      "sha256": "dbbabe72f86302d1d690cdca94cba0de73c93a92879ee70523d250dd4ae3a8cc"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/resolver-independent-multiview.stderr",
+      "bytes": 876,
+      "sha256": "06e203ff590fd1e4f04f31660e2e787ed9ca7b6860e6fac7db651782b09781e3"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/resolver-independent-multiview.execution.json",
+      "bytes": 1115,
+      "sha256": "d80bae29fd93d2fb7b35146ed96cc9d64b1b123812bd23654d32d3996c0eb5eb"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-native.stdout",
+      "bytes": 6314,
+      "sha256": "ca1958bae2a3c6dd204f3308a3f2db5956324dc7dc64a4df3b0227e8e2ecee2d"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-native.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-native.execution.json",
+      "bytes": 1374,
+      "sha256": "81f7d5000ef4a4db9c4089567a799c01a550296cf2f8ca2843918e5f2ab21907"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-native-corrected.stdout",
+      "bytes": 7822,
+      "sha256": "fd75ace75fab35605ffae9058549144a09be020f7133eedda5a7466b6decac06"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-native-corrected.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-native-corrected.execution.json",
+      "bytes": 1198,
+      "sha256": "84cc16787c3721565fd3baf03a95e5c09e5ed3fc446a1462f5dea7137d4c9bcf"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-native-frozen-collection.stdout",
+      "bytes": 2885,
+      "sha256": "5ef254cdfaddcda2f6b3592cd980a21f1b2a11f6b5d4f2c013518ec93b704135"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-native-frozen-collection.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-native-frozen-collection.execution.json",
+      "bytes": 1217,
+      "sha256": "10372c4b8b6133e1ef63c8dd5059646b7c3945099c925a93679862db9c7faef9"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-removal.stdout",
+      "bytes": 24280,
+      "sha256": "21e4e1da7fe154c6e2de5896620862de6121db63f268b863e5113bbf3b88d97b"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-removal.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-removal.execution.json",
+      "bytes": 1186,
+      "sha256": "23ab36b2c137815397d487f79a6495f2a33cb979eee03d12723d202b6d3b03cc"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-siblings.stdout",
+      "bytes": 3125,
+      "sha256": "0bec70a68ac69975e2f0ee1f18e847c2918976cd378be0c333af2a41e18843c4"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-siblings.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-siblings.execution.json",
+      "bytes": 1196,
+      "sha256": "59be15557af72aeba78db86a6dfc20f7381e0882fb1a34d8ed7a34c2becfb725"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-oracle.stdout",
+      "bytes": 1282,
+      "sha256": "ff3079349c5d62afaf0a176fc39d8dcc6b65e8c566571df0ec16369dd0c28f60"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-oracle.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-oracle.execution.json",
+      "bytes": 1194,
+      "sha256": "a41b3cd632a0fe9e4f51e4b53130b8fcc3446fc1cf03035cd950f55733b216b5"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-native.stdout",
+      "bytes": 2885,
+      "sha256": "08f041859d6ae91668cd88187e032999793e1474e70d20055ee6ec20f4c4f56c"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-native.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-native.execution.json",
+      "bytes": 1184,
+      "sha256": "56b092471b055569319afcf0e8ad0f7a9a87520a0fd734e4ab9f5dfbe952a676"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-control.stdout",
+      "bytes": 1565,
+      "sha256": "ffafe365b4ae520b25bb0ba2b56173334f9489440134f00a10b8f07d817e8656"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-control.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-control.execution.json",
+      "bytes": 1197,
+      "sha256": "a8e03fd3a67cca5fe2414e2dd885bc2ceda216f145d8314dbfa8ca8c6a9f0d9d"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-removal.stdout",
+      "bytes": 1608,
+      "sha256": "1d381267257816c5f29b6eb2abd772b43f91141e0958590a3af4c9b86da33c56"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-removal.stderr",
+      "bytes": 372,
+      "sha256": "a1837b5f85bd0b5ced4566c85fee8520ba53d5d60a7f86ab62ae966c4eb03471"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-removal.execution.json",
+      "bytes": 1216,
+      "sha256": "1c14475873367f48064cbbecfa6c1a8d6c1a473c67ece66eada34e4b05571158"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-environment.stdout",
+      "bytes": 313,
+      "sha256": "1dad33fdbc5e49d6ef7fac170c78072be5e27a9ca7b03e11eae4fcf34d919c49"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-environment.stderr",
+      "bytes": 827,
+      "sha256": "ff6d1776a6a3be8cce877c1d0d6afd1f6bb4042ee1f635ee303e230cfcd5807a"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-environment.execution.json",
+      "bytes": 1198,
+      "sha256": "e18c0cb10e515cf8a529b5dc8bc08e18249513bd8f3260f84a0d29dfc546a21a"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-environment-corrected.stdout",
+      "bytes": 5233,
+      "sha256": "7e6caa4d54e7a858ef625fe25254219d5b9ace9f2dd70ae5d01a470a8a49945b"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-environment-corrected.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-environment-corrected.execution.json",
+      "bytes": 1220,
+      "sha256": "f8da36bd4b83932910cbf2e3b73118e3042e735f4239127c394e32034e19a9df"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/capture.py",
+      "bytes": 1108,
+      "sha256": "faba4e389019eea9fd1a67ad657a5563376c5c1f3c9107b99ef05bd3c2ec7c81"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/review-input-resolver.py",
+      "bytes": 3414,
+      "sha256": "61206ef3c966e5d2d6cc51ab71829a5e9de2fb21563e387f9ea4faf6588dea2a"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/frozen-import/sitecustomize.py",
+      "bytes": 2008,
+      "sha256": "d5edde33451e99397b65a59dca050cc4f6afc2e82b91898ba10807de12b43542"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-removal.py",
+      "bytes": 1007,
+      "sha256": "fbdb2153155e891703a542223579c9854f6bca9c3bd1da29095166d7c8528266"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-sibling-controls.py",
+      "bytes": 1805,
+      "sha256": "fbdcaf11a25335131487c7ec4e899361480fb730a4b4dcea37f93ae81fd23c4c"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent-oracle.py",
+      "bytes": 2057,
+      "sha256": "0aa752cf8eea886bac573e62638ef806acc3e2722214426fa2954cf58edd3731"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/root-frozen-native.py",
+      "bytes": 1102,
+      "sha256": "31e7e4af9871d1493c0597656d83141bb39eae4003b667673330af1ab2d665c6"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/root-frozen-native-v2.py",
+      "bytes": 1763,
+      "sha256": "109e393761f8cf76b66de65197f26e1db5fe1e66ccffe6a30278e5f4295eb691"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/root-selected-views-independent.py",
+      "bytes": 3733,
+      "sha256": "5cf789e94e2b52f1b42f6c0f6740b8270a29c6cc1bf9e09aa6b780fcb82fb4ea"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/root-review-environment.py",
+      "bytes": 2514,
+      "sha256": "900dcf4beecad79024e6cdff201c323904a5d6e7430ce7fa8d8ea2584481a840"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/root-review-environment-v2.py",
+      "bytes": 2507,
+      "sha256": "b2679662c3b01ecd424df4d53d14010d07fbac9aca3e39dfacff5d50105a67d2"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/root-causal-consumer-independent-review.json",
+      "bytes": 27315,
+      "sha256": "e6857858d1aec5075b1552e58080d6bf7065a7e330f4566015bc02f3f00855e8"
+    }
+  ],
+  "count": 48,
+  "total_bytes": 125741,
+  "excluded": "No CAS fixture directories, bytecode caches, source-derived full footprints or running-status scratch selected; all unique measured outputs/errors/successes/scripts retained."
+}

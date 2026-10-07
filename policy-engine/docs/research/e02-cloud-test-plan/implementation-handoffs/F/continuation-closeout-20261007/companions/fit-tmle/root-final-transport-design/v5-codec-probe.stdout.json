@@ -1,0 +1,65 @@
+{
+  "results": [
+    {
+      "mode": "files",
+      "outcome": "PASS",
+      "stored_bytes_exact_reused": true,
+      "same_complete_decoded_payload": true
+    },
+    {
+      "mode": "items",
+      "outcome": "PASS",
+      "stored_bytes_exact_reused": true,
+      "same_complete_decoded_payload": true
+    },
+    {
+      "mode": "selection",
+      "outcome": "PASS",
+      "stored_bytes_exact_reused": true,
+      "same_complete_decoded_payload": true
+    },
+    {
+      "mode": "bad-stored",
+      "outcome": "FAIL",
+      "expected_control_detected": true,
+      "marker_encoding_retained": "gzip"
+    },
+    {
+      "mode": "bad-decoded",
+      "outcome": "FAIL",
+      "expected_control_detected": true,
+      "marker_encoding_retained": "gzip"
+    },
+    {
+      "mode": "ambiguous",
+      "outcome": "FAIL",
+      "expected_control_detected": true
+    },
+    {
+      "mode": "different-stored-same-decoded",
+      "outcome": "PASS",
+      "both_complete_original_containers_retained": true
+    },
+    {
+      "mode": "forged-decoded-only-alias",
+      "outcome": "FAIL",
+      "expected_control_detected": true
+    },
+    {
+      "mode": "codec-only",
+      "outcome": "FAIL",
+      "expected_control_detected": true
+    },
+    {
+      "mode": "unknown-codec",
+      "outcome": "FAIL",
+      "expected_control_detected": true
+    },
+    {
+      "mode": "contradictory-codec",
+      "outcome": "FAIL",
+      "expected_control_detected": true
+    }
+  ],
+  "complete_output_dir": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe"
+}

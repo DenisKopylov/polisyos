@@ -1,0 +1,145 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "F",
+  "slice": "continuation-inputs-and-storage-20261006",
+  "closure_ids": [],
+  "related_finding_ids": [],
+  "branch": "codex/e02-F-closeout-20261006",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/65",
+  "slice_base_sha": "6f1d8b11552fe099fe3ccea0091ebc5d6d49cc99",
+  "slice_base_tree_sha": "2f14bc4409c4bc7b7be8fe09a5af98655026be65",
+  "candidate_source_sha": "6f1d8b11552fe099fe3ccea0091ebc5d6d49cc99",
+  "candidate_tree_sha": "2f14bc4409c4bc7b7be8fe09a5af98655026be65",
+  "implementation_commits": [],
+  "changed_paths": [],
+  "checks": [
+    {
+      "command": [
+        "python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py",
+        "--check"
+      ],
+      "target_sha": "6f1d8b11552fe099fe3ccea0091ebc5d6d49cc99",
+      "environment": "systemPython3.12; immutable tracked transfer results pack",
+      "input_closure": "All15 transferred texts andverificationindex2074cells; check before query results",
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-inputs-and-storage-20261006/root-result-recheck/import.stdout.txt",
+        "bytes": 112,
+        "sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4",
+        "decoded_bytes": 112,
+        "decoded_sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4",
+        "encoding": "raw",
+        "original_execution_path": "/tmp/e02-F-continuation-20261006/root-result-recheck/import.stdout.txt"
+      },
+      "meaning": "Byte/index validation only; transfer_and_navigation_only and rawarchives0 unchanged"
+    },
+    {
+      "command": "Exact39 literal argv in committed root-result-recheck/receipt.json: failures-only30 +35 IDs +3failurecells with jobcontext",
+      "target_sha": "6f1d8b11552fe099fe3ccea0091ebc5d6d49cc99",
+      "environment": "systemPython3.12",
+      "input_closure": "Full transferred pack and original35 IDs/3failurecellqueries; no ignored production inputs",
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-inputs-and-storage-20261006/root-result-recheck/receipt.json.gz",
+        "bytes": 989,
+        "sha256": "1f1cb0ea086854712f66ea15ef31b41e20bf09e3c3ccca23bbef2b8f414c828b",
+        "decoded_bytes": 19714,
+        "decoded_sha256": "2b7f3523ce28399db5ac71623de704b31ce37303e48e4b06d7b79b8187fc0823",
+        "encoding": "gzip",
+        "original_execution_path": "/tmp/e02-F-continuation-20261006/root-result-recheck/receipt.json"
+      },
+      "meaning": "Query/navigation execution. Historical source FAIL/ERROR/SKIP retained; no new candidate behavioral witness"
+    },
+    {
+      "command": "Two-phase canonical active-cuDNN environment+uv-cache relocation; exact script/plan/full before+after hashes andrefs/worktreeregistrations committed",
+      "target_sha": "7185572917f7a3db5e93385a176cb611b35aff42",
+      "environment": "writers paused; originalPython3.14.7/NumPy2.3.5/SciPy1.16.3/JAX0.8.2 unchanged; no CUDAbackendtest",
+      "input_closure": "44files2107204224B; canonicalenv+cachepaths distinct sharedhardlinkgroups; allGitrefs+24worktrees androotHEAD/tree unchanged",
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-inputs-and-storage-20261006/active-environment-relocation/receipt.json.gz",
+        "bytes": 3444,
+        "sha256": "603ce9706b901e95349956296dde21966c0b243173552dc912d6c2a124c0c79f",
+        "decoded_bytes": 35146,
+        "decoded_sha256": "59514746daca31e428126b7d55895ef5a5dceab5413bb63b90cdbf2271aa471f",
+        "encoding": "gzip",
+        "original_execution_path": "/tmp/e02-F-continuation-20261006/active-environment-relocation/receipt.json"
+      },
+      "meaning": "Active bytes safely retained on /tmp and canonicalsymlinks verified; NOTretired cleanup or backend witness"
+    },
+    {
+      "command": "Original relocation first attempt preserved stderr, ENOSPC onfirstcanonical symlink; corrected two-phase resume movesbothhardlinkgroups beforelinking",
+      "target_sha": "7185572917f7a3db5e93385a176cb611b35aff42",
+      "environment": "full overlay",
+      "input_closure": "Originalactiveenvironmentbytes beforemanifest unchanged; firstdest complete butfirstsymlink absent untilcorrectedresume",
+      "outcome": "ERROR",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-inputs-and-storage-20261006/active-environment-relocation/stderr.txt",
+        "bytes": 624,
+        "sha256": "bfa2706fd5ecfb774a1865eee5b19d3344bd0ca0469974d8de9805e32b800fb3",
+        "decoded_bytes": 624,
+        "decoded_sha256": "bfa2706fd5ecfb774a1865eee5b19d3344bd0ca0469974d8de9805e32b800fb3",
+        "encoding": "raw",
+        "original_execution_path": "/tmp/e02-F-continuation-20261006/active-environment-relocation/stderr.txt"
+      },
+      "meaning": "Original infrastructure failure retained. No data lost, no permanentdelete"
+    },
+    {
+      "command": [
+        "uv",
+        "run",
+        "--no-sync",
+        "polisyos-tools",
+        "workspace",
+        "doctor",
+        "--worktree-admission",
+        "resume",
+        "--branch",
+        "codex/e02-F-closeout-20261006",
+        "--path",
+        "/workspace/e02-F-closeout-20261006"
+      ],
+      "target_sha": "6f1d8b11552fe099fe3ccea0091ebc5d6d49cc99",
+      "environment": "canonical activePython3.14.7 env; doctorread-only",
+      "input_closure": "Same exact existing F branch and absolute path; currentregistry/authoredtopic",
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-inputs-and-storage-20261006/root-post-api-fiscal-admission.json.gz",
+        "bytes": 11971,
+        "sha256": "4a54afeb6a1801fcfb22e75ac0c8bca6e4314ae05bec646988625c39a75199cd",
+        "decoded_bytes": 147971,
+        "decoded_sha256": "07973de315476978f336cff9cd481f8079e086e6a9642b9c2f88ae93ec1cbd99",
+        "encoding": "gzip",
+        "original_execution_path": "/tmp/e02-F-continuation-20261006/root-post-api-fiscal-admission.json"
+      }
+    }
+  ],
+  "baseline_cells": [
+    "F01-P025",
+    "F08-P048",
+    "F13-P030"
+  ],
+  "original_source_criterion_refs": [],
+  "property": "Preserve exact source-bound initial and fresh navigation inputs, activeenvironmentbytes andappend-only checkpoint/admission custody. No causal/scientific findings derive closure from this packet.",
+  "predicate_basis": "full byte bindings; navigation/infrastructure only",
+  "capability_state_or_finding_state": "input custody code-ready; not new scientific acceptance",
+  "full_output_transport": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-inputs-and-storage-20261006/transport.json",
+  "limitations_and_next_owner": [
+    "All historical results remain source_reported_compact_text_only, rawarchives0, transfer_and_navigation_only.",
+    "Full active cuDNN44files hashes/modes are committed; librarybytes remain in active environment. Relocation is preservation, not cleanup.",
+    "Initial relocation ERROR retained; original first script byteversion was overwritten on resume and is unavailable, whereas before/after manifests and originalstdout/stderr are complete. Corrected exact script committed.",
+    "No production data, cross-chat messages, mainpush/historyrewrite or fakebackendwitness."
+  ],
+  "cleanup": {
+    "native_trash_available": false,
+    "permanent_deletion_permitted": false,
+    "cleanup_candidates": [],
+    "active_not_cleanup": [
+      "/tmp/e02-F-continuation-20261006/active-git-objects",
+      "/tmp/e02-F-continuation-20261006/active-environment-relocation/cudnn-environment",
+      "/tmp/e02-F-continuation-20261006/active-environment-relocation/cudnn-cache-archive"
+    ],
+    "preserve": "Allsource/docs/uniqueinputs/decidingoutputs andactiveenv/Gitdata. No nativeTrash; nothing deleted."
+  }
+}

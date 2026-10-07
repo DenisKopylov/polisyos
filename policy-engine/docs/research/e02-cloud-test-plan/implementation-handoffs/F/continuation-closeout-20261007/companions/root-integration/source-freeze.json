@@ -1,0 +1,48 @@
+{
+  "before": "50257c154b04aeb4e772fefae469970e5010b645",
+  "resource_source": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+  "resource_implementation": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+  "resource_doc_successors": [
+    "6ba9b8687283c2c0ee87065efa5763671bf95989",
+    "81f482e04bd8a2c85f894d425847c6e8657b6ea6"
+  ],
+  "resource_slice_base": "370cac5c342bbc5b206331f93776505e0cffe3a6",
+  "resource_source_tree": "120103b1a375b5d405632936b2934f2b36a320f7",
+  "complete_resource_paths": [
+    "policy-engine/docs/reference/data-forge/catalog-default-resources.md",
+    "policy-engine/hatch.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-07-catalog-default-resources.toml",
+    "policy-engine/src/polisyos/data_forge/domains/README.md",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/_resources.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/variable_alignment.py",
+    "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+    "policy-engine/src/polisyos/fabric/connectors/sources/wvs.py",
+    "policy-engine/tests/repo_quality/tools/test_catalog_default_resources_packaging.py",
+    "policy-engine/tests/unit/data_forge/domains/catalog/test_catalog_default_resources.py"
+  ],
+  "exit_code": 0,
+  "head": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+  "tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+  "full_status": "?? policy-engine/workers/dowhy-014/.venv",
+  "first_b5_failed_freeze": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+  "independent_review": "API exact81 source/ABI/metadata boundedGO; source41+graph79 PASS; renderer253ops/103reads samebytes/38UNKNOWN and38FAIL retained; actual4retainedmarker profile removalsFAIL",
+  "science_methods_unchanged": true,
+  "new_product_paths": [
+    "policy-engine/hatch.toml",
+    "policy-engine/src/polisyos/data_forge/domains/README.md",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/_resources.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/variable_alignment.py",
+    "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+    "policy-engine/src/polisyos/fabric/connectors/sources/wvs.py",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py"
+  ]
+}

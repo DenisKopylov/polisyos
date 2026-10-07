@@ -1,0 +1,57 @@
+{
+  "source_sha": "964c76dad1dc9f56bd89e2216bded373f0e66883",
+  "rows": [
+    {
+      "source_dtype": "<class 'jax.numpy.float32'>",
+      "cache_dtype": "<class 'jax.numpy.float32'>",
+      "prior_scalar_dtype": "float32",
+      "prior_reward_dtype": "float32",
+      "current_dtypes": {
+        "mode": "float32",
+        "government": "float32",
+        "reward": "float32",
+        "objective": "float32",
+        "socialobjective": "float32"
+      }
+    },
+    {
+      "source_dtype": "<class 'jax.numpy.float32'>",
+      "cache_dtype": "<class 'jax.numpy.float64'>",
+      "prior_scalar_dtype": "float64",
+      "prior_reward_dtype": "float64",
+      "current_dtypes": {
+        "mode": "float32",
+        "government": "float32",
+        "reward": "float32",
+        "objective": "float32",
+        "socialobjective": "float32"
+      }
+    },
+    {
+      "source_dtype": "<class 'jax.numpy.float64'>",
+      "cache_dtype": "<class 'jax.numpy.float32'>",
+      "prior_scalar_dtype": "float32",
+      "prior_reward_dtype": "float32",
+      "current_dtypes": {
+        "mode": "float64",
+        "government": "float64",
+        "reward": "float64",
+        "objective": "float64",
+        "socialobjective": "float64"
+      }
+    },
+    {
+      "source_dtype": "<class 'jax.numpy.float64'>",
+      "cache_dtype": "<class 'jax.numpy.float64'>",
+      "prior_scalar_dtype": "float64",
+      "prior_reward_dtype": "float64",
+      "current_dtypes": {
+        "mode": "float64",
+        "government": "float64",
+        "reward": "float64",
+        "objective": "float64",
+        "socialobjective": "float64"
+      }
+    }
+  ]
+}

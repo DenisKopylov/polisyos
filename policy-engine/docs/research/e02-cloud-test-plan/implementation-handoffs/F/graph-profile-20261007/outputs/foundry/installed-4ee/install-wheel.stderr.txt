@@ -1,0 +1,5 @@
+Using Python 3.14.7 environment at: wheel-env
+Resolved 1 package in 4ms
+Prepared 1 package in 121ms
+Installed 1 package in 19ms
+ + policy-engine==0.1.0 (from file:///tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/dist/policy_engine-0.1.0-py3-none-any.whl)

@@ -1,0 +1,39 @@
+{
+  "source_root": "/workspace/e02-F-api-20261006",
+  "target_sha": "35b1808c63fa84dd0555ff9043e0aaffe9831e7b",
+  "cwd": "/workspace/e02-F-api-20261006/policy-engine",
+  "environment": {
+    "PYTHONPATH": "src:tools:.",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/repo_quality/architecture/test_public_surface_export_resolution.py",
+    "tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py",
+    "-q",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "-p",
+    "no:cacheprovider"
+  ],
+  "output_prefix": "/tmp/e02-F-continuation-20261006/api/pure-declaration-final-frozen",
+  "tree_sha": "0002a76b106d74a3bc5fb341b578c1093e6c193c",
+  "source_status_before": "",
+  "elapsed_seconds": 31.943411827087402,
+  "exit_code": 0,
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261006/api/pure-declaration-final-frozen.stdout",
+    "bytes": 700,
+    "sha256": "0d6b1684f90d5f56ec9c1f59f469dee4110990346aac419ddbe9f5a2fe8d27fe"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261006/api/pure-declaration-final-frozen.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "source_status_after": "",
+  "artifacts": []
+}

@@ -1,0 +1,3 @@
+Using CPython 3.14.7 interpreter at: e02-F-closeout-20261006/policy-engine/.venv/bin/python
+Creating virtual environment at: e02-F-20261006-receipts/api/wheel-env
+Activate with: source e02-F-20261006-receipts/api/wheel-env/bin/activate

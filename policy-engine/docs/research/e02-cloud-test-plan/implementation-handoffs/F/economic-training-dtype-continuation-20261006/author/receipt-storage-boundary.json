@@ -1,0 +1,10 @@
+{
+  "schema": "policyos.e02.receipt_transport_boundary.v1",
+  "outcome": "ERROR",
+  "reason": "Measured shared overlay filesystem free0B; no receiptcopy/add/commit attempted after failing space preflight. Runtime source c003 already pushed/readback; no product failure or source loss inferred.",
+  "source_sha": "c003bd673fd672726db18773bf888357a468d901",
+  "source_tree": "16927b18be300fc6c1723c2af4bb8a421ccac357",
+  "receipt_local_path": "/tmp/e02-F-continuation-20261006/economics/economics-continuation-20261006.json",
+  "archive_local_path": "/tmp/e02-F-continuation-20261006/economics/economics-continuation-20261006-evidence.tar.xz",
+  "root_recovery": "All own Git mutations paused while root relocates active canonical Git objects losslessly to/tmp with full byte verification. No deletion/envcleanup/history rewrite."
+}

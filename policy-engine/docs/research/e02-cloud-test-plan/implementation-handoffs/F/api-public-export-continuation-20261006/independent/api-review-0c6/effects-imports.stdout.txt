@@ -1,0 +1,704 @@
+{
+  "case": "implicit_function_decorator",
+  "source": "\ndef poison(function):\n    global sorted\n    sorted = lambda values: [\"RuntimeShadow\"]\n    return function\n@poison\ndef harmless():\n    pass\nM = {\"StaticName\": None}\n__all__ = sorted(M)\n",
+  "controlled_runtime_all": [
+    "RuntimeShadow"
+  ],
+  "actual_static_inventory": {
+    "module": "polisyos.fixture",
+    "classification": "public_experimental",
+    "facade_mode_expected": "eager_exports",
+    "facade_mode_observed": "unresolved_exports",
+    "owner": "independent-review",
+    "readme": "src/polisyos/fixture/__init__.py",
+    "reference_doc": "src/polisyos/fixture/__init__.py",
+    "supported_entrypoints": [
+      "polisyos.fixture"
+    ],
+    "major_subsystem": false,
+    "export_count": null,
+    "known_export_count": 0,
+    "exports": [],
+    "has___getattr__": false,
+    "has___dir__": false,
+    "source_file": "src/polisyos/fixture/__init__.py",
+    "summary": "",
+    "notes": "Closed adversarial fixture",
+    "entrypoints": [
+      {
+        "module": "polisyos.fixture",
+        "facade_mode_observed": "unresolved_exports",
+        "export_count": null,
+        "known_export_count": 0,
+        "exports": [],
+        "has___getattr__": false,
+        "has___dir__": false,
+        "source_file": "src/polisyos/fixture/__init__.py",
+        "summary": "",
+        "export_resolution": {
+          "complete_verdict": false,
+          "finding_coverage": "explicit file-reader operations only",
+          "inputs": [
+            {
+              "path": "src/polisyos/fixture.py",
+              "operation": "is_file",
+              "status": "absent",
+              "result": false
+            },
+            {
+              "path": "src/polisyos/fixture/__init__.py",
+              "operation": "is_file",
+              "status": "present",
+              "result": true
+            },
+            {
+              "path": "src/polisyos/fixture/__init__.py",
+              "operation": "read_bytes",
+              "status": "read",
+              "bytes": 185,
+              "sha256": "78c00176ab51def5fb05ba9e3412318381130021f012e8c9d38fdbce0c122662"
+            },
+            {
+              "path": "src/polisyos/__init__.py",
+              "operation": "is_file",
+              "status": "absent",
+              "result": false
+            }
+          ],
+          "unresolved_by_construction": [
+            "Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt."
+          ],
+          "complete": false,
+          "reason": "Unresolved import-time FunctionDef outside pure-declaration grammar: src/polisyos/fixture/__init__.py:@poison\ndef harmless():\n    pass",
+          "exports_scope": "no names proven by the bounded parser; not an empty runtime namespace",
+          "declared_export_candidates": [
+            "StaticName"
+          ],
+          "candidate_scope": "Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.",
+          "selector": "Declared __all__; literal sequences/mapping keys, named/imported declarations, concatenation and sorted/list/tuple. Every read local module is audited against a finite pure import-time declaration grammar; external imports, control/context statements, class construction, decorated/type-parameterized function headers and foreign attribute/subscript/operator/callback protocols remain unknown. Imported local dependencies and package initializers additionally require a passive-binding-only profile without callable definitions; imported names must have explicit owner bindings, never ambient builtin fallbacks. Plain selected-module function bodies are excluded. No module execution or runtime dispatch."
+        }
+      }
+    ]
+  },
+  "actual_canonical_contract_violations": [
+    {
+      "check": "public_surface",
+      "subject": "polisyos.fixture",
+      "message": "polisyos.fixture export total is unresolved: Unresolved import-time FunctionDef outside pure-declaration grammar: src/polisyos/fixture/__init__.py:@poison\ndef harmless():\n    pass.",
+      "detail": "incomplete_exports",
+      "source_module": "",
+      "target_module": ""
+    }
+  ],
+  "property": "Unknown import-time effects must refuse a complete selected namespace when they change the invoked export builtin identity."
+}
+.{
+  "case": "implicit_descriptor_hook",
+  "source": "\nclass Descriptor:\n    def __set_name__(self, owner, name):\n        M[\"RuntimeAdded\"] = None\nD = Descriptor()\nM = {\"StaticName\": None}\nclass C:\n    descriptor = D\n__all__ = sorted(M)\n",
+  "controlled_runtime_all": [
+    "RuntimeAdded",
+    "StaticName"
+  ],
+  "actual_static_inventory": {
+    "module": "polisyos.fixture",
+    "classification": "public_experimental",
+    "facade_mode_expected": "eager_exports",
+    "facade_mode_observed": "unresolved_exports",
+    "owner": "independent-review",
+    "readme": "src/polisyos/fixture/__init__.py",
+    "reference_doc": "src/polisyos/fixture/__init__.py",
+    "supported_entrypoints": [
+      "polisyos.fixture"
+    ],
+    "major_subsystem": false,
+    "export_count": null,
+    "known_export_count": 0,
+    "exports": [],
+    "has___getattr__": false,
+    "has___dir__": false,
+    "source_file": "src/polisyos/fixture/__init__.py",
+    "summary": "",
+    "notes": "Closed adversarial fixture",
+    "entrypoints": [
+      {
+        "module": "polisyos.fixture",
+        "facade_mode_observed": "unresolved_exports",
+        "export_count": null,
+        "known_export_count": 0,
+        "exports": [],
+        "has___getattr__": false,
+        "has___dir__": false,
+        "source_file": "src/polisyos/fixture/__init__.py",
+        "summary": "",
+        "export_resolution": {
+          "complete_verdict": false,
+          "finding_coverage": "explicit file-reader operations only",
+          "inputs": [
+            {
+              "path": "src/polisyos/fixture.py",
+              "operation": "is_file",
+              "status": "absent",
+              "result": false
+            },
+            {
+              "path": "src/polisyos/fixture/__init__.py",
+              "operation": "is_file",
+              "status": "present",
+              "result": true
+            },
+            {
+              "path": "src/polisyos/fixture/__init__.py",
+              "operation": "read_bytes",
+              "status": "read",
+              "bytes": 183,
+              "sha256": "11d046182a647bb3e70aaaf6ae753578ae3511a8da69cd05ed71c2da898a7d85"
+            },
+            {
+              "path": "src/polisyos/__init__.py",
+              "operation": "is_file",
+              "status": "absent",
+              "result": false
+            }
+          ],
+          "unresolved_by_construction": [
+            "Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt."
+          ],
+          "complete": false,
+          "reason": "Unresolved import-time ClassDef outside pure-declaration grammar: src/polisyos/fixture/__init__.py:class Descriptor:\n\n    def __set_name__(self, owner, name):\n        M['RuntimeAdded'] = None",
+          "exports_scope": "no names proven by the bounded parser; not an empty runtime namespace",
+          "declared_export_candidates": [
+            "StaticName"
+          ],
+          "candidate_scope": "Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.",
+          "selector": "Declared __all__; literal sequences/mapping keys, named/imported declarations, concatenation and sorted/list/tuple. Every read local module is audited against a finite pure import-time declaration grammar; external imports, control/context statements, class construction, decorated/type-parameterized function headers and foreign attribute/subscript/operator/callback protocols remain unknown. Imported local dependencies and package initializers additionally require a passive-binding-only profile without callable definitions; imported names must have explicit owner bindings, never ambient builtin fallbacks. Plain selected-module function bodies are excluded. No module execution or runtime dispatch."
+        }
+      }
+    ]
+  },
+  "actual_canonical_contract_violations": [
+    {
+      "check": "public_surface",
+      "subject": "polisyos.fixture",
+      "message": "polisyos.fixture export total is unresolved: Unresolved import-time ClassDef outside pure-declaration grammar: src/polisyos/fixture/__init__.py:class Descriptor:\n\n    def __set_name__(self, owner, name):\n        M['RuntimeAdded'] = None.",
+      "detail": "incomplete_exports",
+      "source_module": "",
+      "target_module": ""
+    }
+  ],
+  "property": "Unknown import-time effects must refuse a complete selected namespace when they change the invoked export builtin identity."
+}
+.{
+  "case": "prebinding_builtin_rebind",
+  "source": "\nglobals()[\"sorted\"] = lambda values: [\"RuntimeShadow\"]\nM = {\"StaticName\": None}\n__all__ = sorted(M)\n",
+  "controlled_runtime_all": [
+    "RuntimeShadow"
+  ],
+  "actual_static_inventory": {
+    "module": "polisyos.fixture",
+    "classification": "public_experimental",
+    "facade_mode_expected": "eager_exports",
+    "facade_mode_observed": "unresolved_exports",
+    "owner": "independent-review",
+    "readme": "src/polisyos/fixture/__init__.py",
+    "reference_doc": "src/polisyos/fixture/__init__.py",
+    "supported_entrypoints": [
+      "polisyos.fixture"
+    ],
+    "major_subsystem": false,
+    "export_count": null,
+    "known_export_count": 0,
+    "exports": [],
+    "has___getattr__": false,
+    "has___dir__": false,
+    "source_file": "src/polisyos/fixture/__init__.py",
+    "summary": "",
+    "notes": "Closed adversarial fixture",
+    "entrypoints": [
+      {
+        "module": "polisyos.fixture",
+        "facade_mode_observed": "unresolved_exports",
+        "export_count": null,
+        "known_export_count": 0,
+        "exports": [],
+        "has___getattr__": false,
+        "has___dir__": false,
+        "source_file": "src/polisyos/fixture/__init__.py",
+        "summary": "",
+        "export_resolution": {
+          "complete_verdict": false,
+          "finding_coverage": "explicit file-reader operations only",
+          "inputs": [
+            {
+              "path": "src/polisyos/fixture.py",
+              "operation": "is_file",
+              "status": "absent",
+              "result": false
+            },
+            {
+              "path": "src/polisyos/fixture/__init__.py",
+              "operation": "is_file",
+              "status": "present",
+              "result": true
+            },
+            {
+              "path": "src/polisyos/fixture/__init__.py",
+              "operation": "read_bytes",
+              "status": "read",
+              "bytes": 101,
+              "sha256": "a2fe530a4c23234c7911b751335dcc55ce97cc8dcc96ffd23d9e0c3e646e20b1"
+            },
+            {
+              "path": "src/polisyos/__init__.py",
+              "operation": "is_file",
+              "status": "absent",
+              "result": false
+            }
+          ],
+          "unresolved_by_construction": [
+            "Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt."
+          ],
+          "complete": false,
+          "reason": "Unresolved import-time Assign outside pure-declaration grammar: src/polisyos/fixture/__init__.py:globals()['sorted'] = lambda values: ['RuntimeShadow']",
+          "exports_scope": "no names proven by the bounded parser; not an empty runtime namespace",
+          "declared_export_candidates": [
+            "StaticName"
+          ],
+          "candidate_scope": "Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.",
+          "selector": "Declared __all__; literal sequences/mapping keys, named/imported declarations, concatenation and sorted/list/tuple. Every read local module is audited against a finite pure import-time declaration grammar; external imports, control/context statements, class construction, decorated/type-parameterized function headers and foreign attribute/subscript/operator/callback protocols remain unknown. Imported local dependencies and package initializers additionally require a passive-binding-only profile without callable definitions; imported names must have explicit owner bindings, never ambient builtin fallbacks. Plain selected-module function bodies are excluded. No module execution or runtime dispatch."
+        }
+      }
+    ]
+  },
+  "actual_canonical_contract_violations": [
+    {
+      "check": "public_surface",
+      "subject": "polisyos.fixture",
+      "message": "polisyos.fixture export total is unresolved: Unresolved import-time Assign outside pure-declaration grammar: src/polisyos/fixture/__init__.py:globals()['sorted'] = lambda values: ['RuntimeShadow'].",
+      "detail": "incomplete_exports",
+      "source_module": "",
+      "target_module": ""
+    }
+  ],
+  "property": "Unknown import-time effects must refuse a complete selected namespace when they change the invoked export builtin identity."
+}
+.{
+  "case": "multiline_selected_mapping_value_call",
+  "source": "\ndef poison():\n    globals()[\"sorted\"] = lambda values: [\"RuntimeShadow\"]\n    return None\nM = {\n    \"StaticName\": poison(),\n}\n__all__ = sorted(M)\n",
+  "controlled_runtime_all": [
+    "RuntimeShadow"
+  ],
+  "actual_static_inventory": {
+    "module": "polisyos.fixture",
+    "classification": "public_experimental",
+    "facade_mode_expected": "eager_exports",
+    "facade_mode_observed": "unresolved_exports",
+    "owner": "independent-review",
+    "readme": "src/polisyos/fixture/__init__.py",
+    "reference_doc": "src/polisyos/fixture/__init__.py",
+    "supported_entrypoints": [
+      "polisyos.fixture"
+    ],
+    "major_subsystem": false,
+    "export_count": null,
+    "known_export_count": 0,
+    "exports": [],
+    "has___getattr__": false,
+    "has___dir__": false,
+    "source_file": "src/polisyos/fixture/__init__.py",
+    "summary": "",
+    "notes": "Closed adversarial fixture",
+    "entrypoints": [
+      {
+        "module": "polisyos.fixture",
+        "facade_mode_observed": "unresolved_exports",
+        "export_count": null,
+        "known_export_count": 0,
+        "exports": [],
+        "has___getattr__": false,
+        "has___dir__": false,
+        "source_file": "src/polisyos/fixture/__init__.py",
+        "summary": "",
+        "export_resolution": {
+          "complete_verdict": false,
+          "finding_coverage": "explicit file-reader operations only",
+          "inputs": [
+            {
+              "path": "src/polisyos/fixture.py",
+              "operation": "is_file",
+              "status": "absent",
+              "result": false
+            },
+            {
+              "path": "src/polisyos/fixture/__init__.py",
+              "operation": "is_file",
+              "status": "present",
+              "result": true
+            },
+            {
+              "path": "src/polisyos/fixture/__init__.py",
+              "operation": "read_bytes",
+              "status": "read",
+              "bytes": 146,
+              "sha256": "9acac91092077009fc695efa88cc9d953af942cbc56de4e4ae15f1e147e31bbb"
+            },
+            {
+              "path": "src/polisyos/__init__.py",
+              "operation": "is_file",
+              "status": "absent",
+              "result": false
+            }
+          ],
+          "unresolved_by_construction": [
+            "Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt."
+          ],
+          "complete": false,
+          "reason": "Unresolved import-time Call outside pure-declaration grammar: src/polisyos/fixture/__init__.py:poison()",
+          "exports_scope": "no names proven by the bounded parser; not an empty runtime namespace",
+          "declared_export_candidates": [
+            "StaticName"
+          ],
+          "candidate_scope": "Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.",
+          "selector": "Declared __all__; literal sequences/mapping keys, named/imported declarations, concatenation and sorted/list/tuple. Every read local module is audited against a finite pure import-time declaration grammar; external imports, control/context statements, class construction, decorated/type-parameterized function headers and foreign attribute/subscript/operator/callback protocols remain unknown. Imported local dependencies and package initializers additionally require a passive-binding-only profile without callable definitions; imported names must have explicit owner bindings, never ambient builtin fallbacks. Plain selected-module function bodies are excluded. No module execution or runtime dispatch."
+        }
+      }
+    ]
+  },
+  "actual_canonical_contract_violations": [
+    {
+      "check": "public_surface",
+      "subject": "polisyos.fixture",
+      "message": "polisyos.fixture export total is unresolved: Unresolved import-time Call outside pure-declaration grammar: src/polisyos/fixture/__init__.py:poison().",
+      "detail": "incomplete_exports",
+      "source_module": "",
+      "target_module": ""
+    }
+  ],
+  "property": "Unknown import-time effects must refuse a complete selected namespace when they change the invoked export builtin identity."
+}
+..{"error_type": "OSError", "same_exception_propagated": true, "not_typed_unknown": true}
+.{"error_type": "SyntaxError", "same_exception_propagated": true, "not_typed_unknown": true}
+.{"error_type": "ValueError", "same_exception_propagated": true, "not_typed_unknown": true}
+.{"error_type": "TypeError", "same_exception_propagated": true, "not_typed_unknown": true}
+.{"case": "default_callback", "actual_type": "_UnresolvedExportDeclarationError", "source": "def p(v=foreign_callback()): pass\nM={\"StaticName\":None}\n__all__=sorted(M)\n"}
+.{"case": "default_attribute", "actual_type": "_UnresolvedExportDeclarationError", "source": "def p(v=foreign.attr): pass\nM={\"StaticName\":None}\n__all__=sorted(M)\n"}
+.{"case": "annotation_attribute", "actual_type": "_UnresolvedExportDeclarationError", "source": "def p(v: foreign.attr): pass\nM={\"StaticName\":None}\n__all__=sorted(M)\n"}
+.{"case": "type_parameter_header", "actual_type": "_UnresolvedExportDeclarationError", "source": "def p[T: foreign.attr](): pass\nM={\"StaticName\":None}\n__all__=sorted(M)\n"}
+.{
+  "case": "missing_builtin_name",
+  "source": "from .owner import len\nM={\"StaticName\":None}\n__all__=sorted(M)\n",
+  "owner_source": "def __getattr__(name):\n    import builtins\n    builtins.sorted = lambda values: [\"RuntimeShadow\"]\n    if name == \"__path__\":\n        raise AttributeError(name)\n    return None\n",
+  "controlled_actual_CPython_import_all": [
+    "RuntimeShadow"
+  ],
+  "child_argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-I",
+    "-c",
+    "import sys,json;sys.path.insert(0,'/tmp/e02-F-continuation-20261006/graph/api-review-0c6/effects-imports-tmp/test_real_local_import_owner_p0/src');import polisyos.fixture as f;print(json.dumps(f.__all__))"
+  ],
+  "child_stdout": "[\"RuntimeShadow\"]\n",
+  "child_stderr": "",
+  "static_exports": [],
+  "export_count": null,
+  "known_export_count": 0,
+  "complete": false,
+  "resolution": {
+    "complete_verdict": false,
+    "finding_coverage": "explicit file-reader operations only",
+    "inputs": [
+      {
+        "path": "src/polisyos/fixture.py",
+        "operation": "is_file",
+        "status": "absent",
+        "result": false
+      },
+      {
+        "path": "src/polisyos/fixture/__init__.py",
+        "operation": "is_file",
+        "status": "present",
+        "result": true
+      },
+      {
+        "path": "src/polisyos/fixture/__init__.py",
+        "operation": "read_bytes",
+        "status": "read",
+        "bytes": 63,
+        "sha256": "fb362483546a15fbde78451668774a9c1eee63116e945456e7232f28e260291f"
+      },
+      {
+        "path": "src/polisyos/__init__.py",
+        "operation": "is_file",
+        "status": "present",
+        "result": true
+      },
+      {
+        "path": "src/polisyos/__init__.py",
+        "operation": "read_bytes",
+        "status": "read",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "src/polisyos/fixture/owner.py",
+        "operation": "is_file",
+        "status": "present",
+        "result": true
+      },
+      {
+        "path": "src/polisyos/fixture/owner/__init__.py",
+        "operation": "is_file",
+        "status": "absent",
+        "result": false
+      },
+      {
+        "path": "src/polisyos/fixture/owner.py",
+        "operation": "read_bytes",
+        "status": "read",
+        "bytes": 176,
+        "sha256": "83f111a6e3268512ac8bd32f9ef295e8ff433aa978904262b7aed7d7dc58cd31"
+      },
+      {
+        "path": "src/polisyos/__init__.py",
+        "operation": "is_file",
+        "status": "present",
+        "result": true
+      },
+      {
+        "path": "src/polisyos/fixture/__init__.py",
+        "operation": "is_file",
+        "status": "present",
+        "result": true
+      }
+    ],
+    "unresolved_by_construction": [
+      "Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt."
+    ],
+    "complete": false,
+    "reason": "Unresolved passive binding: src/polisyos/fixture/owner.py:len",
+    "exports_scope": "no names proven by the bounded parser; not an empty runtime namespace",
+    "declared_export_candidates": [
+      "StaticName"
+    ],
+    "candidate_scope": "Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.",
+    "selector": "Declared __all__; literal sequences/mapping keys, named/imported declarations, concatenation and sorted/list/tuple. Every read local module is audited against a finite pure import-time declaration grammar; external imports, control/context statements, class construction, decorated/type-parameterized function headers and foreign attribute/subscript/operator/callback protocols remain unknown. Imported local dependencies and package initializers additionally require a passive-binding-only profile without callable definitions; imported names must have explicit owner bindings, never ambient builtin fallbacks. Plain selected-module function bodies are excluded. No module execution or runtime dispatch."
+  },
+  "canonical_violations": [
+    {
+      "check": "public_surface",
+      "subject": "polisyos.fixture",
+      "message": "polisyos.fixture export total is unresolved: Unresolved passive binding: src/polisyos/fixture/owner.py:len.",
+      "detail": "incomplete_exports",
+      "source_module": "",
+      "target_module": ""
+    }
+  ]
+}
+.{
+  "case": "defined_passive_name",
+  "source": "from .owner import PASSIVE\nM={\"StaticName\":None}\n__all__=sorted(M)\n",
+  "owner_source": "PASSIVE=1\ndef __getattr__(name):\n    import builtins\n    builtins.sorted = lambda values: [\"RuntimeShadow\"]\n    if name == \"__path__\":\n        raise AttributeError(name)\n    return None\n",
+  "controlled_actual_CPython_import_all": [
+    "RuntimeShadow"
+  ],
+  "child_argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-I",
+    "-c",
+    "import sys,json;sys.path.insert(0,'/tmp/e02-F-continuation-20261006/graph/api-review-0c6/effects-imports-tmp/test_real_local_import_owner_p1/src');import polisyos.fixture as f;print(json.dumps(f.__all__))"
+  ],
+  "child_stdout": "[\"RuntimeShadow\"]\n",
+  "child_stderr": "",
+  "static_exports": [],
+  "export_count": null,
+  "known_export_count": 0,
+  "complete": false,
+  "resolution": {
+    "complete_verdict": false,
+    "finding_coverage": "explicit file-reader operations only",
+    "inputs": [
+      {
+        "path": "src/polisyos/fixture.py",
+        "operation": "is_file",
+        "status": "absent",
+        "result": false
+      },
+      {
+        "path": "src/polisyos/fixture/__init__.py",
+        "operation": "is_file",
+        "status": "present",
+        "result": true
+      },
+      {
+        "path": "src/polisyos/fixture/__init__.py",
+        "operation": "read_bytes",
+        "status": "read",
+        "bytes": 67,
+        "sha256": "59b95ee67c1dc51a0f03a4766850ff5f25192509900a8ed2ac4895f45e10a289"
+      },
+      {
+        "path": "src/polisyos/__init__.py",
+        "operation": "is_file",
+        "status": "present",
+        "result": true
+      },
+      {
+        "path": "src/polisyos/__init__.py",
+        "operation": "read_bytes",
+        "status": "read",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "src/polisyos/fixture/owner.py",
+        "operation": "is_file",
+        "status": "present",
+        "result": true
+      },
+      {
+        "path": "src/polisyos/fixture/owner/__init__.py",
+        "operation": "is_file",
+        "status": "absent",
+        "result": false
+      },
+      {
+        "path": "src/polisyos/fixture/owner.py",
+        "operation": "read_bytes",
+        "status": "read",
+        "bytes": 186,
+        "sha256": "dba7a2a841e3b588e512b0a577ee138d9bf7d0d09ead3a501b22f90bdbe40267"
+      },
+      {
+        "path": "src/polisyos/__init__.py",
+        "operation": "is_file",
+        "status": "present",
+        "result": true
+      },
+      {
+        "path": "src/polisyos/fixture/__init__.py",
+        "operation": "is_file",
+        "status": "present",
+        "result": true
+      }
+    ],
+    "unresolved_by_construction": [
+      "Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt."
+    ],
+    "complete": false,
+    "reason": "Unresolved import-time FunctionDef outside pure-declaration grammar: src/polisyos/fixture/owner.py:def __getattr__(name):\n    import builtins\n    builtins.sorted = lambda values: ['RuntimeShadow']\n    if name == '__path__':\n        raise AttributeError(name)\n    return None",
+    "exports_scope": "no names proven by the bounded parser; not an empty runtime namespace",
+    "declared_export_candidates": [
+      "StaticName"
+    ],
+    "candidate_scope": "Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.",
+    "selector": "Declared __all__; literal sequences/mapping keys, named/imported declarations, concatenation and sorted/list/tuple. Every read local module is audited against a finite pure import-time declaration grammar; external imports, control/context statements, class construction, decorated/type-parameterized function headers and foreign attribute/subscript/operator/callback protocols remain unknown. Imported local dependencies and package initializers additionally require a passive-binding-only profile without callable definitions; imported names must have explicit owner bindings, never ambient builtin fallbacks. Plain selected-module function bodies are excluded. No module execution or runtime dispatch."
+  },
+  "canonical_violations": [
+    {
+      "check": "public_surface",
+      "subject": "polisyos.fixture",
+      "message": "polisyos.fixture export total is unresolved: Unresolved import-time FunctionDef outside pure-declaration grammar: src/polisyos/fixture/owner.py:def __getattr__(name):\n    import builtins\n    builtins.sorted = lambda values: ['RuntimeShadow']\n    if name == '__path__':\n        raise AttributeError(name)\n    return None.",
+      "detail": "incomplete_exports",
+      "source_module": "",
+      "target_module": ""
+    }
+  ]
+}
+.{
+  "case": "no_hook_positive",
+  "source": "from .owner import PASSIVE\nM={\"StaticName\":None}\n__all__=sorted(M)\n",
+  "owner_source": "PASSIVE=1\n",
+  "controlled_actual_CPython_import_all": [
+    "StaticName"
+  ],
+  "child_argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-I",
+    "-c",
+    "import sys,json;sys.path.insert(0,'/tmp/e02-F-continuation-20261006/graph/api-review-0c6/effects-imports-tmp/test_real_local_import_owner_p2/src');import polisyos.fixture as f;print(json.dumps(f.__all__))"
+  ],
+  "child_stdout": "[\"StaticName\"]\n",
+  "child_stderr": "",
+  "static_exports": [
+    "StaticName"
+  ],
+  "export_count": 1,
+  "known_export_count": 1,
+  "complete": true,
+  "resolution": {
+    "complete_verdict": true,
+    "finding_coverage": "explicit file-reader operations only",
+    "inputs": [
+      {
+        "path": "src/polisyos/fixture.py",
+        "operation": "is_file",
+        "status": "absent",
+        "result": false
+      },
+      {
+        "path": "src/polisyos/fixture/__init__.py",
+        "operation": "is_file",
+        "status": "present",
+        "result": true
+      },
+      {
+        "path": "src/polisyos/fixture/__init__.py",
+        "operation": "read_bytes",
+        "status": "read",
+        "bytes": 67,
+        "sha256": "59b95ee67c1dc51a0f03a4766850ff5f25192509900a8ed2ac4895f45e10a289"
+      },
+      {
+        "path": "src/polisyos/__init__.py",
+        "operation": "is_file",
+        "status": "present",
+        "result": true
+      },
+      {
+        "path": "src/polisyos/__init__.py",
+        "operation": "read_bytes",
+        "status": "read",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "src/polisyos/fixture/owner.py",
+        "operation": "is_file",
+        "status": "present",
+        "result": true
+      },
+      {
+        "path": "src/polisyos/fixture/owner/__init__.py",
+        "operation": "is_file",
+        "status": "absent",
+        "result": false
+      },
+      {
+        "path": "src/polisyos/fixture/owner.py",
+        "operation": "read_bytes",
+        "status": "read",
+        "bytes": 10,
+        "sha256": "7bcf100478ff46a9bd3628cbd10e8a7a574499e463cabc482201bfc03c497324"
+      },
+      {
+        "path": "src/polisyos/__init__.py",
+        "operation": "is_file",
+        "status": "present",
+        "result": true
+      },
+      {
+        "path": "src/polisyos/fixture/__init__.py",
+        "operation": "is_file",
+        "status": "present",
+        "result": true
+      }
+    ],
+    "unresolved_by_construction": [
+      "Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt."
+    ],
+    "complete": true,
+    "selector": "Declared __all__; literal sequences/mapping keys, named/imported declarations, concatenation and sorted/list/tuple. Every read local module is audited against a finite pure import-time declaration grammar; external imports, control/context statements, class construction, decorated/type-parameterized function headers and foreign attribute/subscript/operator/callback protocols remain unknown. Imported local dependencies and package initializers additionally require a passive-binding-only profile without callable definitions; imported names must have explicit owner bindings, never ambient builtin fallbacks. Plain selected-module function bodies are excluded. No module execution or runtime dispatch."
+  },
+  "canonical_violations": []
+}
+.
+16 passed in 0.31s

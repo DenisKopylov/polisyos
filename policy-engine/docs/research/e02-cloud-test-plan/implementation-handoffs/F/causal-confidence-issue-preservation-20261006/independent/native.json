@@ -1,0 +1,47 @@
+{
+  "source_sha": "df5057dd3816885fc5bfacd9a9f1ee772df9ac51",
+  "source_tree": "e49bf230bbf7b6a52da0243693ef700620a82e03",
+  "after_sha_tree": [
+    "df5057dd3816885fc5bfacd9a9f1ee772df9ac51",
+    "e49bf230bbf7b6a52da0243693ef700620a82e03"
+  ],
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/scientist/governance/test_confidence_issue_accumulation.py",
+    "tests/unit/scientist/governance/test_causal_confidence_candidate.py",
+    "tests/unit/scientist/governance/test_confidence_pass.py",
+    "-o",
+    "addopts=",
+    "-o",
+    "cache_dir=/tmp/e02-F-continuation-20261006/foundry/confidence-review/native-cache",
+    "-q",
+    "-ra",
+    "--basetemp=/tmp/e02-F-continuation-20261006/foundry/confidence-review/native-tmp"
+  ],
+  "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+  "exit_code": 0,
+  "wall_seconds": 9.841411934001371,
+  "child_peak_rss_kib": 608712,
+  "environment": {
+    "python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "/workspace/e02-F-tmle-20261006/policy-engine:/workspace/e02-F-tmle-20261006/policy-engine/src:/workspace/e02-F-tmle-20261006/policy-engine/tools",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "TMPDIR": "/tmp",
+    "shared_venv_read_only": true,
+    "resource_caps_added": false
+  },
+  "outputs": {
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/native.stdout.txt",
+      "sha256": "d1b5ef9453784a53b87928abad5f8daacace9b082374a5d4247518d449bb9659",
+      "size_bytes": 615
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/native.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    }
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "check": "PASS",
+  "rows": [
+    {
+      "finding_id": "B214",
+      "bundle_id": "GRF-03",
+      "current_root_packet_ref": {
+        "git_ref": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/B214.json",
+        "bytes": 39196,
+        "sha256": "028c32dc8a74f30ea3a9ce5c59b8bd0a04086304513ac853a969615cfebcd31c"
+      },
+      "original_criterion_ref": {
+        "criterion_id": "B214",
+        "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "lines": [
+          5218,
+          5229
+        ],
+        "bytes": 3537,
+        "sha256": "48c1311f230c5c8f4886013cf47fec75931cde810c20feee8889c9d820dcb1ad",
+        "title": "## B214. Проекция PAG/CPDAG разворачивает известное направление и может создать цикл",
+        "byte_binding_check": "PASS",
+        "complete_original_block": "## B214. Проекция PAG/CPDAG разворачивает известное направление и может создать цикл\n\n**Приоритет:** высокий при передаче графа DAG-потребителю; нормализация известного направления дешева, выбор допустимого расширения — отдельная задача. **Основание:** полный _graph_projection.py, CausalGraphModel и GCM-fit caller; GP01–GP04. [C20.R08–R10]\n\n**Проблема.** Единственный признанный полностью ориентированным случай — tail на src и arrow на dst. Случай arrow на src и tail на dst означает известное обратное направление, но обрабатывается как неопределённость: метки меняются на tail/arrow без перестановки концов. Для неопределённых рёбер применяется тот же порядок хранения, после чего graph_type заменяется на DAG через model_copy без повторной валидации.\n\n**Воспроизведение.** В PAG ребро X←Y стало X→Y и получило orientation_uncertain=True. Полный неориентированный CPDAG-треугольник, записанный A—B, B—C, C—A, стал циклом A→B→C→A с меткой DAG. Численная фикстура графа — не полный native DTO; допустимость такого reversed edge и запрет циклов в настоящем DAG проверены чтением контракта.\n\n**Рекомендуемое исправление.** Сначала канонически нормализовать уже известные направления, сохраняя origin и marks. Затем либо использовать допускающий частичную ориентацию идентификатор, либо строить согласованное расширение с проверкой направлений, ацикличности и свойств класса эквивалентности. Для PAG произвольный выбор одного DAG вообще не заменяет causal-identification по допустимому семейству; исследовательскую модель нужно сохранять условной.\n\n**Положительные контроли.** Готовый корректный DAG возвращается без изменения; bidirected edge заменяется общим latent U и двумя исходящими рёбрами. Это полезные существующие части. Уточнение не должно превращать все частично определённые графы в полный отказ: можно сохранять несколько допустимых моделей или ограниченный результат. Простое удаление ребра цикла либо отключение DAG-validation неприемлемо. Исправленная нормализация одного известного reversed edge проверена отдельно; общий sound-extension алгоритм здесь не реализован.\n\n"
+      },
+      "prior_root_check": "PASS",
+      "prior_root_outcome": "limited",
+      "current_slice_predicate": "actual selected current CAS content and full recomputation before cached source admission; known endpoint identity retained and unsupported static marks/lag refuse",
+      "current_scope": "bounded existing canonical graph intake; existing projection/representation evidence remains on its own original SHA, no temporal or general PAG completion implementation",
+      "whole_original_outcome_proposal": "limited",
+      "ledger_acceptance": "not_issued"
+    },
+    {
+      "finding_id": "B218",
+      "bundle_id": "GRF-03",
+      "current_root_packet_ref": {
+        "git_ref": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/B218.json",
+        "bytes": 39221,
+        "sha256": "655fab3290e09a951357d6fe5645e635ef86dd23acfbf4347a3cd127b2cdf4ea"
+      },
+      "original_criterion_ref": {
+        "criterion_id": "B218",
+        "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "lines": [
+          5361,
+          5374
+        ],
+        "bytes": 3861,
+        "sha256": "8ce1868ddb2663580547f475288d03502e03ae6a4bc38923313bc069efb0a40a",
+        "title": "## B218. Временной граф теряет лаги при экспорте, а лаговая самозависимость отвергается как обычный self-loop",
+        "byte_binding_check": "PASS",
+        "complete_original_block": "## B218. Временной граф теряет лаги при экспорте, а лаговая самозависимость отвергается как обычный self-loop\n\n**Происхождение и приоритет:** C21-03. Высокий при передаче temporal discovery в статические методы; иначе условный. Основания: `CausalGraphModel` validation/export, adjacency и GCM parent-view. [C21.R01–R02, C21.R05]\n\n**Проблема.** Контракт хранит `lag` и допускает взаимные лаговые рёбра, проверяя ацикличность лишь для одновременных. Но `to_dot` не передаёт lag и использует одно имя переменной на все времена. Общие ADMG-операции включают лаговые отношения как статические, тогда как GCM parent-map их пропускает. Одновременно любая связь `src==dst` отвергается до проверки лага. Поэтому разные потребители получают разные временные модели из одного объекта.\n\n**TIME01–TIME04.** X→Y с lag=1 и lag=2 дают один и тот же DOT. Допустимый в DTO граф X→Y lag=1, Y→X lag=1 после статического представления имеет цикл. Простая авторегрессия X(t−1)→X(t), записанная одним именем и lag=1, отвергается. Контрольное конечное развёртывание обратной связи на четыре момента, восемь узлов, ациклично.\n\n**Исправление.** Разрешать временную семантику на границе потребителя: координата `(variable,time)`, соглашение о лаге, начальные условия и горизонт. Использовать подходящий temporal-consumer либо конечное развёртывание только нужной области запроса. Для чисто статического потребителя возвращать точную несовместимость, если временное преобразование ещё не выполнено.\n\nПараметризация одной переменной во времени и явные временные узлы могут сосуществовать через однозначный адаптер. Не следует просто разрешить все self-loops, отбросить лаг или удалить неудобное ребро для получения DAG. Нулевая задержка в обычном DAG по-прежнему требует запрета цикла. Проверка expanded-формы должна относиться к фактически читаемым данным и временам, иначе правильный рисунок не обеспечит правильного расчёта.\n\n**Приёмка/граница.** Round-trip должен различать lag1/lag2 и сохранять причинное время. Для известного статического DAG путь не меняется. Контрпример касается принятого compact temporal-формата; отдельный маршрут, сразу создающий явные временные узлы, может не испытывать этого дефекта. Не установлено, что вся временная часть системы использует данный экспорт.\n\n"
+      },
+      "prior_root_check": "PASS",
+      "prior_root_outcome": "limited",
+      "current_slice_predicate": "actual selected current CAS content and full recomputation before cached source admission; known endpoint identity retained and unsupported static marks/lag refuse",
+      "current_scope": "bounded existing canonical graph intake; existing projection/representation evidence remains on its own original SHA, no temporal or general PAG completion implementation",
+      "whole_original_outcome_proposal": "limited",
+      "ledger_acceptance": "not_issued"
+    }
+  ],
+  "earlier_harness_error": "An initial line-join omitted the final LF and failed the byte assertion; corrected keepends slices reproduce exact original hashes; no original hashes/source altered"
+}

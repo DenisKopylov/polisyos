@@ -1,0 +1,113 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "unit": "F",
+  "reviewer": "F/causal_api",
+  "source_sha": "4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3",
+  "source_tree": "134aca5ad6bac87da8d2f3d18a4be0ab20652251",
+  "slice_base_sha": "964c76dad1dc9f56bd89e2216bded373f0e66883",
+  "decision": "GO bounded current-value + legacy consumer dtype delta",
+  "reviewed_changed_paths": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/analysis.py",
+      "bytes": 9393,
+      "sha256": "0ff782e2d9828701012bb6708e4eea3c462d257af1fe717ebf9557310ab58223",
+      "blob": "42e44c09277e71a1ff16c99de29c50aaf1226f04"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/distributions.py",
+      "bytes": 29885,
+      "sha256": "4cb032845cf53f16415b483a1b7dd8d266d49cd12339677e13f41ccccdfea291",
+      "blob": "cc8e24623bcd76b57924fe5a8e906bfce3b43181"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/government_policy.py",
+      "bytes": 7146,
+      "sha256": "a1090d78fea6f2982c2595b93cd717a7e18eaa24186dab81102733bb886e54dc",
+      "blob": "4fc4524e9889edfbec5f0dafe528170911a10457"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/metrics.py",
+      "bytes": 9343,
+      "sha256": "7c6dc4955a85f3fa5d11061590e983c7093fc99662f7fc58c2dc10b8ba99e146",
+      "blob": "68440c5481e4bd81814291fc8e5954884a34dfc1"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/modes.py",
+      "bytes": 12644,
+      "sha256": "3e6833aec7c1fb6a6862f6cbff8473720256fea3f001ddf4ad041fb6d820f640",
+      "blob": "070df688d333733b698d3419eae4688a213114ae"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/plugins/economics/README.md",
+      "bytes": 7094,
+      "sha256": "f0265e9bb6dc53b779a6900cb2b91ac7721db611f3cabfabd2e852d53a48758f",
+      "blob": "66beab6e63fcd450673119887cab6bb3d51e007b"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/plugins/economics/objectives.py",
+      "bytes": 4276,
+      "sha256": "71a89f0b55eac0d420ee74db09f06f23d8174c93e79428a4929e5181726b25fa",
+      "blob": "c8966fa5ead8349a83df72b82ece7c36b6fe97e1"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/agent_sim/test_gini_consumers.py",
+      "bytes": 13310,
+      "sha256": "c85b6bb49851d438497b2de0d781836a7cb4ea1a625e10357a556608b221914b",
+      "blob": "6622ccdf343c033891a74d5b8b1c6b51b0eb3545"
+    }
+  ],
+  "defining_property": "Canonical Gini admits and measures current active resources first; only result presentation uses existing snapshot dtype. Explicit float32 metric storage/critic interfaces stay unchanged. Original cache scalar .4 does not become current Gini .25. Genuine PureExecutor/JAX scan retains compatible carry types.",
+  "scientific_owner": "compute_gini_hard/_admit_gini_population equations unchanged by this delta; normalized income objective, weights/signs and fiscal/labor laws unchanged.",
+  "scope_notes": [
+    "Government final scalar still follows original promotion of unconditional zero-weight aggregate terms; test independently constructs the legacy expression. This is not a promise that every reward has snapshot dtype independent of other fields.",
+    "Only8changedpaths read and84newmixed population/snapshot f32/f64 eager/JIT/actualscan cases independently replayed; earlier96479+3+7 evidence remains pinned to964.",
+    "Author broader97counts/skip/base3fail not promoted or attributed as inherited P41 by this reviewer.",
+    "No Gini normative preference, production calibration, optimizer equivalence, Runtime authority or wholeLA004/035 closure."
+  ],
+  "checks": [
+    {
+      "command_argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/foundry/agent_sim/test_gini_consumers.py::test_current_population_gini_preserves_existing_consumer_dtype_abi",
+        "tests/unit/foundry/agent_sim/test_gini_consumers.py::test_actual_executor_reward_and_welfare_scan_preserves_prior_carry_dtype",
+        "-q",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "-p",
+        "no:cacheprovider"
+      ],
+      "cwd": "/workspace/e02-F-economics-20261006/policy-engine",
+      "environment": {
+        "PYTHONPATH": "src:tools:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "target_sha": "4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3",
+      "outcome": "PASS",
+      "passed": 84,
+      "skipped": 0,
+      "errors": 0,
+      "exit_code": 0,
+      "output": "/tmp/e02-F-continuation-20261006/api/eco-independent/dtype-delta-native.stdout",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/api/eco-independent/dtype-delta-native.stdout",
+        "bytes": 700,
+        "sha256": "01f0e1ae544f42ff20c72814bf97508c92b732c0be05d841fadb27b8a860fc1f"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261006/api/eco-independent/dtype-delta-native.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "metadata": "/tmp/e02-F-continuation-20261006/api/eco-independent/dtype-delta-native.json"
+    }
+  ],
+  "same_legacy_objective_paths": [
+    "policy-engine/src/polisyos/foundry/plugins/economics/baselines.py",
+    "policy-engine/src/polisyos/foundry/methods/loss.py",
+    "policy-engine/src/polisyos/foundry/methods/_internal/loss.py"
+  ],
+  "source_status": ""
+}

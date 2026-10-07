@@ -1,0 +1,8 @@
+{"read_transport_records": 500, "elapsed_seconds": 2.24354038698948}
+{"read_transport_records": 1000, "elapsed_seconds": 4.922490325989202}
+{"read_transport_records": 1500, "elapsed_seconds": 7.555574753991095}
+{"read_transport_records": 2000, "elapsed_seconds": 9.534132987988414}
+{"read_transport_records": 2500, "elapsed_seconds": 11.26315079399501}
+{"read_transport_records": 3000, "elapsed_seconds": 13.49119871397852}
+{"read_transport_records": 3500, "elapsed_seconds": 15.006450913992012}
+{"documents": 155, "IDs": 35, "bindings": 36, "stored_records": 3532, "states": {"PASS": 3532, "UNRUN": 0}, "elapsed_seconds": 15.088678518979577}

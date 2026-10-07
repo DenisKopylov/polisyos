@@ -1,0 +1,20 @@
+{
+  "command": [
+    "git",
+    "fetch",
+    "origin",
+    "refs/heads/main:refs/remotes/origin/main",
+    "refs/heads/codex/e02-integration:refs/remotes/origin/codex/e02-integration",
+    "refs/heads/codex/e02-F-closeout-20261006:refs/remotes/origin/codex/e02-F-closeout-20261006",
+    "refs/heads/codex/e02-F-graph-20261006:refs/remotes/origin/codex/e02-F-graph-20261006",
+    "refs/heads/codex/e02-F-api-20261006:refs/remotes/origin/codex/e02-F-api-20261006",
+    "refs/heads/codex/e02-F-tmle-20261006:refs/remotes/origin/codex/e02-F-tmle-20261006",
+    "refs/heads/codex/e02-F-economics-20261006:refs/remotes/origin/codex/e02-F-economics-20261006",
+    "refs/heads/codex/e02-F-cau-20261006:refs/remotes/origin/codex/e02-F-cau-20261006",
+    "refs/heads/codex/e02-F-fry-20261006:refs/remotes/origin/codex/e02-F-fry-20261006"
+  ],
+  "cwd": "/workspace/e02-F-closeout-20261006",
+  "started_epoch": 1791374844.1072445,
+  "finished_epoch": 1791374847.337198,
+  "exit_code": 0
+}

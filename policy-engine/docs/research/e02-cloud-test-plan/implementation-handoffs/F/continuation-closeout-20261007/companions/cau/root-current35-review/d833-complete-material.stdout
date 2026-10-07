@@ -1,0 +1,54 @@
+{
+  "check": "PASS",
+  "target": {
+    "sha": "d8334672f44d24dd32113264f96ca3f7954dace4",
+    "tree": "a68dbc3ecf4ccf9a5a59fa4b830464e32d81dd8f"
+  },
+  "denominator": {
+    "IDs": 35,
+    "bundles": 17,
+    "original_bindings": 36
+  },
+  "issues": [],
+  "negative_controls": [
+    {
+      "control": "remove-original-binding",
+      "validator_check": "FAIL",
+      "harness_check": "PASS",
+      "reason": "original36 binding denominator"
+    },
+    {
+      "control": "wrong-card-hash",
+      "validator_check": "FAIL",
+      "harness_check": "PASS",
+      "reason": "original card bytes: B204"
+    },
+    {
+      "control": "missing-ID",
+      "validator_check": "FAIL",
+      "harness_check": "PASS",
+      "reason": "original35 ID denominator"
+    },
+    {
+      "control": "wrong-source-tree",
+      "validator_check": "FAIL",
+      "harness_check": "PASS",
+      "reason": "scientific source/tree: B204"
+    },
+    {
+      "control": "wrong-owner",
+      "validator_check": "FAIL",
+      "harness_check": "PASS",
+      "reason": "TSV owner: B204"
+    },
+    {
+      "control": "stale-per-ID-hash",
+      "validator_check": "FAIL",
+      "harness_check": "PASS",
+      "reason": "artifact bytes/hash: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B204.json"
+    }
+  ],
+  "complete_deciding_check_pointer_count": 446,
+  "elapsed_s": 9.241381466999883
+}
+{"verified_artifacts": 1659, "decoded_artifacts": 480, "historical_output_custody_UNRUN": 20, "manifest_record_occurrences": 373, "output": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/d833-complete-material-review.json"}

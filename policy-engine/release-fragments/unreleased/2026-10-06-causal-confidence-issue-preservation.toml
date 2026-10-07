@@ -1,0 +1,23 @@
+id = "2026-10-06-causal-confidence-issue-preservation"
+title = "Preserve confidence blockers when simulation artifact loading degrades"
+type = "fixed"
+component = "scientist-governance"
+owner = "team-scientist"
+summary = "ConfidencePass appends its simulation-load warning to accumulated issues, retaining an existing causal-purpose blocker on missing, malformed, or invalid simulation artifacts."
+change_class = "internal"
+surface_classification = "internal: Scientist ConfidencePass"
+compatibility = "Existing issue codes, severities, schemas, ref resolution, noncausal confidence thresholds, and candidate numerical reports are unchanged. The causal-purpose blocker now survives the degraded simulation-load return."
+migration = "Consumers must retain both the existing blocker and the simulation-load warning. Handle the already-declared issue codes; do not treat a degraded artifact read as permission to gate an unadmitted causal candidate."
+limitations = "Positive causal identification authority and the admitted production TMLE workload/budget remain UNRUN pending the existing owner/verifier and Runtime execution-context packets."
+evidence = ["tests/unit/scientist/governance/test_confidence_issue_accumulation.py", "tests/unit/scientist/governance/test_causal_confidence_candidate.py", "tests/unit/scientist/governance/test_confidence_pass.py"]
+migration_docs = ["docs/reference/scientist/causal-confidence-issue-preservation.md"]
+
+[[compatibility_change]]
+id = "confidence-simulation-failure-preserves-prior-issues"
+change_class = "internal"
+impact = "compatible"
+surface = "internal: polisyos.scientist.governance.passes.confidence_pass.ConfidencePass"
+owner = "team-scientist"
+version_owner = "team-scientist"
+deprecation_window = "not_applicable"
+release_note = "A simulation load failure appends the existing degraded warning without dropping prior confidence blockers. No authority issuer, status, enum, or schema is added."

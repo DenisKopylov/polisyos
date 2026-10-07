@@ -1,0 +1,202 @@
+{
+  "finding_id": "LA-016",
+  "primary_owner_from_full_TSV": {
+    "finding_id": "LA-016",
+    "unit": "F",
+    "docx_analytical_package": "P33",
+    "source_closure_owner": "CAU-05",
+    "source_bundle_ids": "CAU-01,CAU-05",
+    "source_status": "partial"
+  },
+  "bundle_owner_from_full_TSV": {
+    "bundle_id": "CAU-05",
+    "unit": "F",
+    "initial_writer_family": "F-W02",
+    "title": "DiD: dedicated planning, old-slot replay и retirement umbrella"
+  },
+  "original_card_refs": [
+    {
+      "criterion_id": "LA-016",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "document_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+      "lines": [
+        513,
+        539
+      ],
+      "bytes": 3048,
+      "sha256": "21aad31f6591c55749e29ede4b3db2933dd99ad76733ca1c77718c8688945555",
+      "title": "## LA-016. DiD umbrella-wrapper удерживает метаданные новых методов",
+      "byte_binding_check": "PASS"
+    },
+    {
+      "criterion_id": "LA-016",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "document_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+      "lines": [
+        513,
+        539
+      ],
+      "bytes": 3048,
+      "sha256": "21aad31f6591c55749e29ede4b3db2933dd99ad76733ca1c77718c8688945555",
+      "title": "## LA-016. DiD umbrella-wrapper удерживает метаданные новых методов",
+      "byte_binding_check": "PASS"
+    }
+  ],
+  "original_text": "## LA-016. DiD umbrella-wrapper удерживает метаданные новых методов\n\n**Слияние / разделение ответственности**\n\n**Статус.** Deprecated агрегатор подтверждён; новые классы всё ещё зависят от него.\n\n**Точная область:**\n\n`src/polisyos/foundry/methods/catalog/causal/did.py#DifferenceInDifferences`\n\n**Что установлено и почему это legacy-кандидат.** DifferenceInDifferences выбирает standard/staggered по флагу и переводит старые slot names outcome_panel/treatment_indicator. Уже есть StandardDifferenceInDifferences и StaggeredDifferenceInDifferences, но они читают metadata старого класса; общие _run_* helpers тоже берут assumptions из него. Удаление «только deprecated класса» сломает живые пути.\n\n**Что сохранить.** Оба numerical helpers, общий контракт панели, assumptions/citations/equations и alias-mapping старых slots для объявленного перехода. Dedicated methods — более точная интерфейсная декомпозиция, не доказательство исправленной статистики.\n\n**Куда перенести / с чем объединить.** Существующие dedicated classes в том же did.py. Общие определения поднять в независимые module constants либо маленький adjacent shared module только при оправданном размере. Legacy class оставить временным адаптером, затем снять регистрацию.\n\n**Порядок миграции.** Сначала отвязать metadata от deprecated class; мигрировать old FQN, флаг staggered и имена slots в явный dedicated request. Сохранить старое чтение frozen plans по утверждённой версии. Не менять численный estimator в той же relocation-правке.\n\n**Приёмочная проверка.** Одинаковые эффективные запросы обеих оболочек дают одинаковый результат и warnings; registry не предлагает старую generic route для нового планирования; старые replay inputs обрабатываются согласованно.\n\n**Приоритет.** Высокая отдача при средней цене; хороший ограниченный consolidation-пакет.\n\n**Граница вывода.** Это не основание удалять did.py целиком. Переход к dedicated class не исправляет сам собой ранее замеченные inferential-дефекты.\n\n**Основания:** E29.\n\n<!-- PAGEBREAK -->\n",
+  "primary_acceptance_scope": "Dedicated DiD metadata independent of deprecated umbrella, maintained FQN/flag/slots dedicated requests, retired default registry plus declared historical replay/warnings equivalence.",
+  "source_chain": {
+    "producer": "maintained G2 dedicated MethodCandidate + independent DiD metadata",
+    "artifact": "native dedicated request and historical legacy inputs",
+    "bridge": "actual MethodRegistry/dispatcher + declared old-route adapter",
+    "consumer": "MethodJob/CAS/canonical output consumer"
+  },
+  "actual_recorded_consumer": "Maintained G2 request candidate → dedicated standardFQN → actual registry/dispatcher/CAS; declared historical direct adapter",
+  "surface": "Dedicated DiD class metadata/FQN/flags/input slots, maintained MethodCandidate/registry and declared historical adapter window",
+  "deciding_receipt_refs": [
+    {
+      "git_ref": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+      "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+      "bytes": 216928,
+      "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+      "git_blob": "0ec1597eb6f77d833cb10103513c1d16aa6d682a",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/LA-016"
+      ]
+    },
+    {
+      "git_ref": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+      "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+      "bytes": 216928,
+      "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+      "git_blob": "0ec1597eb6f77d833cb10103513c1d16aa6d682a",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/LA-016"
+      ],
+      "json_pointer": "/per_finding/LA-016"
+    },
+    {
+      "git_ref": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+      "head": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json",
+      "bytes": 162688,
+      "sha256": "ba2405cc2cafdb42b2bcfaab0606aacb60056cdffe9fc4f304f854c1283e62dc",
+      "git_blob": "52e8ce5c1ad6f4fc5d43f01d47f46f48ca4890f9",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/LA-016"
+      ],
+      "json_pointer": "/per_finding/LA-016"
+    }
+  ],
+  "deciding_per_ID_carrier_ref": {
+    "git_ref": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/LA-016.json",
+    "bytes": 49845,
+    "sha256": "5a6a70e815436c26aff3943232aada798b11d0e5474b540a6ba80b1cbc273e1f",
+    "git_blob": "f994fa9a1449ab599bcb58e7e0a6d98f7dc539d7"
+  },
+  "scientific_implementation": {
+    "sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+    "tree": "a2ed0a07151263cd747cff5ec410643e326620a9",
+    "not_receipt_carrier": true
+  },
+  "recorded_independent_oracle_and_negative": "0b/f88 complete maintained source/config6507/6509+outside4694 census, actualroute9PASS; restoreoldFQN1FAIL; original wrappers/metadata poison",
+  "complete_raw_receipt_checks_refs": [
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/0",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/1",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/2",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/3",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/4",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/5",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/6",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/7",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/8",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/9",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/10",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/11",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/12",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/13",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/14",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/15",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/16",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/17",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/18",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/19",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/20",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/0",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/1",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/2",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/3",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/4",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/5",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/6",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/7",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/8",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/9",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/10",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/11",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/12",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/13",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/14",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/15",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/16",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/17"
+  ],
+  "historical_ROOT072": {
+    "check": "PASS",
+    "outcome": "closed",
+    "technical_original_criterion_recommendation": "closed",
+    "current_continuation_outcome_recommendation": "closed",
+    "original_criterion_remainder": "Bounded supported maintained window, historical direct-import replay kept explicit.",
+    "actual_consumer": "Maintained G2 request candidate → dedicated standardFQN → actual registry/dispatcher/CAS; declared historical direct adapter",
+    "oracle_and_negative": "0b/f88 complete maintained source/config6507/6509+outside4694 census, actualroute9PASS; restoreoldFQN1FAIL; original wrappers/metadata poison",
+    "separate_unavailable_inputs_or_authority": "Unenumerated external dynamic/frozen inputs require owner packet, not universal criterion."
+  },
+  "independent_original_criterion_recommendation": {
+    "check": "PASS",
+    "outcome": "closed",
+    "basis": "Verified original block/TSV/source-tree/receipt bytes and pointers support the recorded bounded native discriminator; extra universal production authority is not substituted for this finite property.",
+    "scientific_rerun": false,
+    "review_scope": "independent criterion/evidence reconciliation; not an independently rerun estimator measurement",
+    "missing_actual_original_criterion": null,
+    "new_owner_review_pending": false,
+    "not_formal_G_closure": true
+  },
+  "separate_unavailable_inputs_or_authority": "Unenumerated external dynamic/frozen inputs require owner packet, not universal criterion.",
+  "existing_author_or_reviewer_conflict": "Reviewer previously authored CAU and graph-intake provider; current independent role is ROOT original-criterion reconciliation. Prior scientific validation uses source-bound independent economics/graph/API receipts, not self-claimed fresh independent math.",
+  "schema": "e02.F.original-finding.v3",
+  "primary_bundle": "CAU-05",
+  "criterion_short": "Dedicated DiD metadata independent of deprecated umbrella, maintained FQN/flag/slots dedicated requests, retired default registry plus declared historical replay/warnings equivalence.",
+  "check_result": "PASS",
+  "F_finding_outcome": "closed",
+  "F_technical_recommendation": "closed",
+  "F_rationale": "Verified original block/TSV/source-tree/receipt bytes and pointers support the recorded bounded native discriminator; extra universal production authority is not substituted for this finite property.",
+  "code_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+  "code_tree": "a2ed0a07151263cd747cff5ec410643e326620a9",
+  "consumer": "Maintained G2 request candidate → dedicated standardFQN → actual registry/dispatcher/CAS; declared historical direct adapter",
+  "oracle_and_negative": "0b/f88 complete maintained source/config6507/6509+outside4694 census, actualroute9PASS; restoreoldFQN1FAIL; original wrappers/metadata poison",
+  "G_finding_acceptance": {
+    "status": "not_issued",
+    "formal_G_closed": false
+  },
+  "G_code_acceptance": {
+    "status": "not_inferred",
+    "source_sha": null,
+    "basis": "Independent F GO/code-ready is not G code acceptance"
+  },
+  "original_missing_input": null,
+  "original_next_owner": null,
+  "next_concrete_result": "G review/adopt exact own topic histories; composed integration freeze replay only if affected",
+  "root_assembled_source": {
+    "sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+    "tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+    "not_new_numerical_proof": true
+  },
+  "new_property_followups_not_automatically_original_reopen": []
+}

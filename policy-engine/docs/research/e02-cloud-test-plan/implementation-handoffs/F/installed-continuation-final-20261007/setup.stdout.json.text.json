@@ -1,0 +1,6 @@
+{
+  "schema": "policyos.e02.lossless_utf8_text.v1",
+  "decoded_bytes": 954,
+  "decoded_sha256": "827eb098b65f5249702c290ea4bfaf817b6e531a2c3c2b85ebf2569a4b47e301",
+  "text": "{\"source_sha\": \"b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a\", \"source_tree\": \"055871c409ce72e6a29619b235698aa45a6844d4\", \"installed_config\": \"/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/installed-config.json\", \"archives\": {\"wheel\": \"/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/dist-source/policy_engine-0.1.0-py3-none-any.whl\", \"sdist\": \"/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/dist-source/policy_engine-0.1.0.tar.gz\", \"rebuilt_wheel\": \"/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/dist-rebuilt/policy_engine-0.1.0-py3-none-any.whl\"}, \"sites\": {\"wheel\": \"/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-env/lib/python3.14/site-packages\", \"sdist\": \"/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-env/lib/python3.14/site-packages\"}, \"outcome\": \"distribution setup complete; native tests UNRUN\"}\n"
+}

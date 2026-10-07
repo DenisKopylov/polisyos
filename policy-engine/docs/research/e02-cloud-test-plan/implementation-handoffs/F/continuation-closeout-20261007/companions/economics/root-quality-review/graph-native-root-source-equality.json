@@ -1,0 +1,18 @@
+[
+  {
+    "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+    "root_source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+    "graph_candidate_sha": "647f5d35362c2a5d7ad32283b804a5b03ea56e83",
+    "bytes": 62212,
+    "sha256": "559af61ee42f294bf28fe71beca620c9ce4091bcc2ffdc38c611f3a8da83ee44",
+    "byte_equal": true
+  },
+  {
+    "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+    "root_source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+    "graph_candidate_sha": "647f5d35362c2a5d7ad32283b804a5b03ea56e83",
+    "bytes": 48349,
+    "sha256": "4696b3597bf23b6dab8d3170cd846151d8c6d78b5c52d8dcc21a2d54aebe1253",
+    "byte_equal": true
+  }
+]

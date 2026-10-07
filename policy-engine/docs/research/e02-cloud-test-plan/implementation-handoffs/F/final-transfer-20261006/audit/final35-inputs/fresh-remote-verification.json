@@ -1,0 +1,123 @@
+{
+  "schema": "policyos.e02.F_final35_remote_snapshot.v1",
+  "observed_utc": "2026-10-06T13:02:18.213409+00:00",
+  "command_argv": [
+    "git",
+    "-C",
+    "/workspace/e02-F-economics-20261006",
+    "ls-remote",
+    "--heads",
+    "origin",
+    "refs/heads/codex/e02-F-api-20261006",
+    "refs/heads/codex/e02-F-cau-20261006",
+    "refs/heads/codex/e02-F-dowhy-20261006",
+    "refs/heads/codex/e02-F-economics-20261006",
+    "refs/heads/codex/e02-F-fry-20261006",
+    "refs/heads/codex/e02-F-graph-20261006",
+    "refs/heads/codex/e02-F-graph-intake-20261006",
+    "refs/heads/codex/e02-F-lex-20261006",
+    "refs/heads/codex/e02-F-rdd-20261006",
+    "refs/heads/codex/e02-F-tmle-20261006",
+    "refs/heads/codex/e02-F-installed-worker-20261006",
+    "refs/heads/codex/e02-F-closeout-20261006"
+  ],
+  "exit_code": 0,
+  "check": "PASS",
+  "heads": [
+    {
+      "lane": "api",
+      "ref": "refs/heads/codex/e02-F-api-20261006",
+      "head": "449d32909928caf39382f4ff02ac74b0adf277eb",
+      "observed_remote_head": "449d32909928caf39382f4ff02ac74b0adf277eb",
+      "check": "PASS"
+    },
+    {
+      "lane": "cau",
+      "ref": "refs/heads/codex/e02-F-cau-20261006",
+      "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+      "observed_remote_head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+      "check": "PASS"
+    },
+    {
+      "lane": "dowhy",
+      "ref": "refs/heads/codex/e02-F-dowhy-20261006",
+      "head": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+      "observed_remote_head": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+      "check": "PASS"
+    },
+    {
+      "lane": "economics",
+      "ref": "refs/heads/codex/e02-F-economics-20261006",
+      "head": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+      "observed_remote_head": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+      "check": "PASS"
+    },
+    {
+      "lane": "fry",
+      "ref": "refs/heads/codex/e02-F-fry-20261006",
+      "head": "f4fa51e6dd247cfd967450263579d67233a743d6",
+      "observed_remote_head": "f4fa51e6dd247cfd967450263579d67233a743d6",
+      "check": "PASS"
+    },
+    {
+      "lane": "graph",
+      "ref": "refs/heads/codex/e02-F-graph-20261006",
+      "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "observed_remote_head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "check": "PASS"
+    },
+    {
+      "lane": "graph-intake",
+      "ref": "refs/heads/codex/e02-F-graph-intake-20261006",
+      "head": "2044260c39dc4988b37d5a1568b65a1cdb1e3d31",
+      "observed_remote_head": "2044260c39dc4988b37d5a1568b65a1cdb1e3d31",
+      "check": "PASS"
+    },
+    {
+      "lane": "lex",
+      "ref": "refs/heads/codex/e02-F-lex-20261006",
+      "head": "77166daa0ff8b9659e3978447f9016c691694266",
+      "observed_remote_head": "77166daa0ff8b9659e3978447f9016c691694266",
+      "check": "PASS"
+    },
+    {
+      "lane": "rdd",
+      "ref": "refs/heads/codex/e02-F-rdd-20261006",
+      "head": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+      "observed_remote_head": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+      "check": "PASS"
+    },
+    {
+      "lane": "tmle",
+      "ref": "refs/heads/codex/e02-F-tmle-20261006",
+      "head": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+      "observed_remote_head": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+      "check": "PASS"
+    },
+    {
+      "lane": "installed-worker",
+      "ref": "refs/heads/codex/e02-F-installed-worker-20261006",
+      "head": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+      "observed_remote_head": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+      "check": "PASS"
+    },
+    {
+      "lane": "closeout",
+      "ref": "refs/heads/codex/e02-F-closeout-20261006",
+      "head": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "observed_remote_head": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "check": "PASS"
+    }
+  ],
+  "stdout": {
+    "path": "/workspace/e02-F-20261006-receipts/economics/final35/fresh-remote-heads.txt",
+    "bytes": 962,
+    "sha256": "45e662f0ee37d3ab5c3e00ad17cbb83f009cefe49b18baee6918d086b814bbd3"
+  },
+  "stderr": {
+    "path": "/workspace/e02-F-20261006-receipts/economics/final35/fresh-remote-heads.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "scope": "Exact ordinary Git remote refs at observed time. No merge or G acceptance inferred."
+}

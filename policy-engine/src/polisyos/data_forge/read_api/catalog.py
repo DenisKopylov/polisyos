@@ -193,6 +193,7 @@ _EXPORTS = {
     "compose_confidence_harmonic": "polisyos.data_forge.domains.catalog.knowledge.proxy_resolver",
     "compare_catalog_shadow_bundles": _CATALOG_DOMAIN,
     "default_catalog_source_registry_path": _CATALOG_DOMAIN,
+    "catalog_default_resource_path": "polisyos.data_forge.domains.catalog._resources",
     "default_seed_alignments_path": (
         "polisyos.data_forge.domains.catalog.knowledge.variable_alignment"
     ),
@@ -210,9 +211,7 @@ _EXPORTS = {
     ),
     "open_catalog_read_session": "polisyos.data_forge.domains.catalog.knowledge.overlay",
     "project_catalog_acquisition_state": ("polisyos.data_forge.domains.catalog.knowledge.overlay"),
-    "validate_overlay_admission_receipt": (
-        "polisyos.data_forge.domains.catalog.knowledge.overlay"
-    ),
+    "validate_overlay_admission_receipt": ("polisyos.data_forge.domains.catalog.knowledge.overlay"),
     "plan_catalog_source_stage_contracts": _CATALOG_DOMAIN,
     "plan_catalog_source_modules": _CATALOG_DOMAIN,
     "resolve_proxy": "polisyos.data_forge.domains.catalog.knowledge.proxy_resolver",

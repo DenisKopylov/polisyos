@@ -1,0 +1,387 @@
+{
+  "files": [
+    {
+      "git_ref": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007.json",
+      "bytes": 20686,
+      "sha256": "90dc84a5d1cc424cd9768937693fe8e32267f2a4a1b1b8a78151ce03c35bff88",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already published installed recovery fresh-PID complete output/receipt. No duplicate body; source519 scope separate from old same-process primary and actual TMLE53."
+    },
+    {
+      "git_ref": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/outputs.json",
+      "bytes": 35134,
+      "sha256": "52da7232b5911a9dfdf4af7ac4637e94882efa7b428bcceca00ae2815803897a",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already published installed recovery fresh-PID complete output/receipt. No duplicate body; source519 scope separate from old same-process primary and actual TMLE53."
+    },
+    {
+      "git_ref": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/capture_fresh_bridge.py",
+      "bytes": 1192,
+      "sha256": "f1a8cd2b7cd3e684ae35e551eb120903054c167ba36f76bf37556e6aaebc19b0",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already published installed recovery fresh-PID complete output/receipt. No duplicate body; source519 scope separate from old same-process primary and actual TMLE53."
+    },
+    {
+      "git_ref": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/capture_postguard.py",
+      "bytes": 1157,
+      "sha256": "eef4e09270010f5f94f68e2a39da2245bf7614395f78088afd6e67adb8c49e85",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already published installed recovery fresh-PID complete output/receipt. No duplicate body; source519 scope separate from old same-process primary and actual TMLE53."
+    },
+    {
+      "git_ref": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/capture_recovered.py",
+      "bytes": 1079,
+      "sha256": "646da63f2740722f98f8877fff56d2bf009640447070db697978631227114efd",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already published installed recovery fresh-PID complete output/receipt. No duplicate body; source519 scope separate from old same-process primary and actual TMLE53."
+    },
+    {
+      "git_ref": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/custody-review.json",
+      "bytes": 7155,
+      "sha256": "0fcc484ffca12c7d28d3d307ef96139c0ef81a1a948f223a032c868ccb05366e",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already published installed recovery fresh-PID complete output/receipt. No duplicate body; source519 scope separate from old same-process primary and actual TMLE53."
+    },
+    {
+      "git_ref": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/finish_recovered_review.py",
+      "bytes": 9455,
+      "sha256": "8fbdf40ea6527732dbb265a637705ecb7683446759aa0dd495b233f86412f88d",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already published installed recovery fresh-PID complete output/receipt. No duplicate body; source519 scope separate from old same-process primary and actual TMLE53."
+    },
+    {
+      "git_ref": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/fresh-bridge-proof.json.gz",
+      "bytes": 13681,
+      "sha256": "56c854f1d132b349b327b3bc186ce832d9e651fdaa138b85e5ade3eab665f271",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already published installed recovery fresh-PID complete output/receipt. No duplicate body; source519 scope separate from old same-process primary and actual TMLE53."
+    },
+    {
+      "git_ref": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/fresh-bridge.command.json",
+      "bytes": 1175,
+      "sha256": "5e39cb196bae1f694c4fa5607fcf0ab1843f799508a787cfa77afd36463b0659",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already published installed recovery fresh-PID complete output/receipt. No duplicate body; source519 scope separate from old same-process primary and actual TMLE53."
+    },
+    {
+      "git_ref": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/custody-review.stderr.txt.gz",
+      "bytes": 20,
+      "sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already published installed recovery fresh-PID complete output/receipt. No duplicate body; source519 scope separate from old same-process primary and actual TMLE53."
+    },
+    {
+      "git_ref": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/fresh-bridge.stdout.txt.gz",
+      "bytes": 444,
+      "sha256": "a5ae3f4a12032bff88cf92eedde15dfaf0f3bff4efbe1a72afa77f78a7241a3b",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already published installed recovery fresh-PID complete output/receipt. No duplicate body; source519 scope separate from old same-process primary and actual TMLE53."
+    },
+    {
+      "git_ref": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/fresh-reader-proof.json",
+      "bytes": 18276,
+      "sha256": "b3b17cc655ac9362d378271683ea823cb9e215b8ba4e57221242e1db1a72b4a6",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already published installed recovery fresh-PID complete output/receipt. No duplicate body; source519 scope separate from old same-process primary and actual TMLE53."
+    },
+    {
+      "git_ref": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/fresh-reader.command.json",
+      "bytes": 975,
+      "sha256": "8eafa47234a3f1424c378e025e358b1a9e064eb1912aeeb857eef4751ca0a103",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already published installed recovery fresh-PID complete output/receipt. No duplicate body; source519 scope separate from old same-process primary and actual TMLE53."
+    },
+    {
+      "git_ref": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/fresh-reader.stdout.txt.gz",
+      "bytes": 222,
+      "sha256": "1199ebd9040c8143a83a6e077f1059c2bfaff643460dab03b17a220a262b7144",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already published installed recovery fresh-PID complete output/receipt. No duplicate body; source519 scope separate from old same-process primary and actual TMLE53."
+    },
+    {
+      "git_ref": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/fresh_graph_bridge.py",
+      "bytes": 7583,
+      "sha256": "f3eb8abaa05c8155d4cacda69eb91c1f4a332b210e62def6c100f8e9d6fecbee",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already published installed recovery fresh-PID complete output/receipt. No duplicate body; source519 scope separate from old same-process primary and actual TMLE53."
+    },
+    {
+      "git_ref": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/native-output-review.json",
+      "bytes": 21686,
+      "sha256": "d591489ba2e06efb26c6425f69f6aae518e38d08116a82ee131f31886bfa506c",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already published installed recovery fresh-PID complete output/receipt. No duplicate body; source519 scope separate from old same-process primary and actual TMLE53."
+    },
+    {
+      "git_ref": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/observed-cas-payloads.json",
+      "bytes": 5745,
+      "sha256": "d98c9b2cdef1215459fbc94669d5d9637239860214e777f036ef86757c401ba9",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already published installed recovery fresh-PID complete output/receipt. No duplicate body; source519 scope separate from old same-process primary and actual TMLE53."
+    },
+    {
+      "git_ref": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/original-publication-readback.json",
+      "bytes": 421,
+      "sha256": "b78e040b710cd13f8cfee39954fbd8b23a8dfba371453eb91a24a43c246bec2a",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already published installed recovery fresh-PID complete output/receipt. No duplicate body; source519 scope separate from old same-process primary and actual TMLE53."
+    },
+    {
+      "git_ref": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/post-own-probe-guard.json",
+      "bytes": 405,
+      "sha256": "ea7eead4ca66360dea955be15700cd43ce7720115908ad20bd7c26dfdd092fba",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already published installed recovery fresh-PID complete output/receipt. No duplicate body; source519 scope separate from old same-process primary and actual TMLE53."
+    },
+    {
+      "git_ref": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/post-recovered-fresh-bridge.command.json",
+      "bytes": 1260,
+      "sha256": "24424cede874f423b9bffa27b3a0693745661bfbbb489a5a80eed1b4ccedd1a2",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already published installed recovery fresh-PID complete output/receipt. No duplicate body; source519 scope separate from old same-process primary and actual TMLE53."
+    },
+    {
+      "git_ref": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/post-own-probe-guard.stdout.txt.gz",
+      "bytes": 288,
+      "sha256": "6aa1587c3f01d671d60a752276ca0bcad19783a47a37b9b78d6b11511aff03f9",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already published installed recovery fresh-PID complete output/receipt. No duplicate body; source519 scope separate from old same-process primary and actual TMLE53."
+    },
+    {
+      "git_ref": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/post_own_probe_guard.py",
+      "bytes": 1452,
+      "sha256": "132435bb1cae47d06454d8ebc7e3e8490a60c88aa1f2a83647e1310d7b66f775",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already published installed recovery fresh-PID complete output/receipt. No duplicate body; source519 scope separate from old same-process primary and actual TMLE53."
+    },
+    {
+      "git_ref": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/preflight.json",
+      "bytes": 8274,
+      "sha256": "f9826d77e92f73a0e2709f493c6f26193b27d5ef5cb6b67a1ce79ac174d56b85",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already published installed recovery fresh-PID complete output/receipt. No duplicate body; source519 scope separate from old same-process primary and actual TMLE53."
+    },
+    {
+      "git_ref": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/reader-input.json",
+      "bytes": 3057,
+      "sha256": "2125d4fc3760ca97e409f9ab58e5aedd4c63ff4f4a0615cab8b955d1de364eff",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already published installed recovery fresh-PID complete output/receipt. No duplicate body; source519 scope separate from old same-process primary and actual TMLE53."
+    },
+    {
+      "git_ref": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/review.json",
+      "bytes": 12457,
+      "sha256": "ff8f74c56c2142d6a2a9c534d21fa2cc7ef122b9e8f76e3440aa1db728bd113a",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already published installed recovery fresh-PID complete output/receipt. No duplicate body; source519 scope separate from old same-process primary and actual TMLE53."
+    },
+    {
+      "git_ref": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/review_custody.command.json",
+      "bytes": 1131,
+      "sha256": "6941743631a945c9944fc2707eff22bcc9e479773f7044ff6c2b3ef02e66776f",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already published installed recovery fresh-PID complete output/receipt. No duplicate body; source519 scope separate from old same-process primary and actual TMLE53."
+    },
+    {
+      "git_ref": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/review_custody.py",
+      "bytes": 8174,
+      "sha256": "5ac9b42b498c129543c11d41772f6f4e29dc629d2e8b2de71db4b64e96eebd7d",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already published installed recovery fresh-PID complete output/receipt. No duplicate body; source519 scope separate from old same-process primary and actual TMLE53."
+    },
+    {
+      "git_ref": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/review_native_outputs.command.json",
+      "bytes": 1153,
+      "sha256": "2aa3e0674107a2b160ded32a364eee5303f977083632715dc45fb4bf99472d2e",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already published installed recovery fresh-PID complete output/receipt. No duplicate body; source519 scope separate from old same-process primary and actual TMLE53."
+    },
+    {
+      "git_ref": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/review_native_outputs.py",
+      "bytes": 7724,
+      "sha256": "1a7f42c2e63f4343451eeb977188105aec7075f01ad1fcf16ff744f77a5d05d7",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already published installed recovery fresh-PID complete output/receipt. No duplicate body; source519 scope separate from old same-process primary and actual TMLE53."
+    },
+    {
+      "git_ref": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/native-output-review.stdout.txt.gz",
+      "bytes": 479,
+      "sha256": "dfd920779eb70ca5b5262bafec97a0e76bc15bcf422df0c7e2d27ee91ea156bc",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already published installed recovery fresh-PID complete output/receipt. No duplicate body; source519 scope separate from old same-process primary and actual TMLE53."
+    },
+    {
+      "git_ref": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/synthetic-context/cas/artifacts/sha256/d0/97/d097e64f0afa5a1d63943453615e6aa1545811162dc977e88173923a15881dbc.blob.gz",
+      "bytes": 373,
+      "sha256": "b91abd8167590f01f25f4e53ed2f56245ef4a39b521e97a2bc0cb0e4425b4bae",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already published installed recovery fresh-PID complete output/receipt. No duplicate body; source519 scope separate from old same-process primary and actual TMLE53."
+    },
+    {
+      "git_ref": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/synthetic-context/cas/artifacts/sha256/d0/97/d097e64f0afa5a1d63943453615e6aa1545811162dc977e88173923a15881dbc.manifest.json",
+      "bytes": 636,
+      "sha256": "df61cd4f97b8694ab1a8c389bd2fc3c7ce77636d45c95cbecec3644b7561da74",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already published installed recovery fresh-PID complete output/receipt. No duplicate body; source519 scope separate from old same-process primary and actual TMLE53."
+    },
+    {
+      "git_ref": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/synthetic-context/cas/artifacts/sha256/dd/5f/dd5f5b51f842f843c740747628b9b0ec4d2032082f94fcfa209101f37815c1bf.blob.gz",
+      "bytes": 674,
+      "sha256": "219c022d6abf91f6a32c55774ee13f3303d7c7284b5d3b219db3699b6cbb01f8",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already published installed recovery fresh-PID complete output/receipt. No duplicate body; source519 scope separate from old same-process primary and actual TMLE53."
+    },
+    {
+      "git_ref": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/synthetic-context/cas/artifacts/sha256/dd/5f/dd5f5b51f842f843c740747628b9b0ec4d2032082f94fcfa209101f37815c1bf.manifest.json",
+      "bytes": 765,
+      "sha256": "0fce40347610f961fd9602e1b0a97dc7f5fc68c0a36f57cf370c25ab14f3d3cd",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already published installed recovery fresh-PID complete output/receipt. No duplicate body; source519 scope separate from old same-process primary and actual TMLE53."
+    },
+    {
+      "git_ref": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/synthetic-context/cas/artifacts/sha256/e8/8b/e88b7f3bfbb8ccb56f01f4c0a42b0aceedd734fe4cce745f4c08c9b7fe07e10e.blob.gz",
+      "bytes": 723,
+      "sha256": "79c12253116a6b5f1e4b20072a2b1d1bd1c80ee156c1e2a2807d94c314b321ff",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already published installed recovery fresh-PID complete output/receipt. No duplicate body; source519 scope separate from old same-process primary and actual TMLE53."
+    },
+    {
+      "git_ref": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/synthetic-context/cas/artifacts/sha256/e8/8b/e88b7f3bfbb8ccb56f01f4c0a42b0aceedd734fe4cce745f4c08c9b7fe07e10e.manifest.json",
+      "bytes": 717,
+      "sha256": "9224029ecc4f61d5dabc597b294c5047e1564875f3bfbcf6b203a2c495f2ecff",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already published installed recovery fresh-PID complete output/receipt. No duplicate body; source519 scope separate from old same-process primary and actual TMLE53."
+    },
+    {
+      "git_ref": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/transfer-selection.json",
+      "bytes": 13084,
+      "sha256": "3d2c675e413daf32484fecd1e13cd33387d6ec08c1080993d1c5fd0b3cd6cd67",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already published installed recovery fresh-PID complete output/receipt. No duplicate body; source519 scope separate from old same-process primary and actual TMLE53."
+    },
+    {
+      "git_ref": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/assemble_recovery_receipt.py",
+      "bytes": 8860,
+      "sha256": "f65ae22760a9c636a6cdf88001dca4bc41185fb4e79ee66da34e73a26e34e7fb",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already published installed recovery fresh-PID complete output/receipt. No duplicate body; source519 scope separate from old same-process primary and actual TMLE53."
+    }
+  ],
+  "actual_manifest_rows": 44,
+  "distinct_stored_paths": 36,
+  "scope": "Published current source519 recovery/fresh child receipt plus complete byte-bound stored/decoded outputs; default resource91 and original TMLE53 retain their existing distinct source scopes."
+}

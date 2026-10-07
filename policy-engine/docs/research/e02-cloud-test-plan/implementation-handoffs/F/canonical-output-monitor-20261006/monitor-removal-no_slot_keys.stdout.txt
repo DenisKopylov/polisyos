@@ -1,0 +1,25 @@
+........F..                                                              [100%]
+=================================== FAILURES ===================================
+__________ test_canonical_missing_and_extra_keys_remain_typed_errors ___________
+
+    def test_canonical_missing_and_extra_keys_remain_typed_errors() -> None:
+        flags = MethodOutputMonitor().check_output_contract(
+            slot_outputs={"wrong": np.array([2.0, 5.0])},
+            raw_output={"report": np.array([2.0, 5.0])},
+            expected_keys={"result"},
+        )
+>       assert {(f.key, f.reason, f.severity) for f in flags} == {
+            ("result", "missing_key", "error"),
+            ("wrong", "unexpected_key", "warning"),
+        }
+E       AssertionError: assert set() == {('result', '...', 'warning')}
+E         
+E         Extra items in the right set:
+E         ('wrong', 'unexpected_key', 'warning')
+E         ('result', 'missing_key', 'error')
+E         Use -v to get more diff
+
+tests/unit/foundry/methods/backends/test_dispatch_output_contract.py:172: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/backends/test_dispatch_output_contract.py::test_canonical_missing_and_extra_keys_remain_typed_errors
+1 failed, 10 passed in 8.43s

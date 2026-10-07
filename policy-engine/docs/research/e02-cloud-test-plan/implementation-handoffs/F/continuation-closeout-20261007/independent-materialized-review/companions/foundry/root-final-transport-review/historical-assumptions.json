@@ -1,0 +1,13 @@
+{
+  "historical_script_bytes": 11725,
+  "historical_script_sha256": "62b90343a4295366b2baef145c156a160212e852d6c5d006fde583c4ea930566",
+  "historical_actual_root_validation": "UNRUN",
+  "assumptions_corrected_before_first_actual_execution": [
+    "Everycommandrequiredstring: actual19typed checks are9lists6strings4boundedUNRUNnull.",
+    "Compact index row equals full per-ID body: actualcompact row is a strict projection of rich original binding record.",
+    "Filename determines codec: actualV5 explicitidentity/gzip requires strictcodec, rawcontaineridentity distinct fromdecoded identity.",
+    "Aliases are normal pathrefs: actual675aliases use stored_path and complete canonical stored/codec/decoded profile.",
+    "Onlyrepositoryrelative output strings: actualrootrelative scratch refs are bound through committedmanifest, SHA:path refs through actualGit."
+  ],
+  "meaning": "Prepared historical helper had only AST check; no scientific or materializedroot PASS/FAIL execution was claimed."
+}

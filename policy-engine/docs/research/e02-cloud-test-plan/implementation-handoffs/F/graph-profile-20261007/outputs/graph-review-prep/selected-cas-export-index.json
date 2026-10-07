@@ -1,0 +1,366 @@
+{
+  "check": "PASS",
+  "refs": [
+    {
+      "artifact_ref": {
+        "artifact_id": "sha256:05c7489e6606ef960a9889dee4d83eec5fd64f7f955923cad27dd36c11d92013",
+        "kind": "ir.causal_graph_model",
+        "media_type": "application/json"
+      },
+      "case": "freshpid-native",
+      "check": "PASS",
+      "manifest": {
+        "bytes": 717,
+        "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-05c7489e6606ef960a9889dee4d83eec5fd64f7f955923cad27dd36c11d92013.manifest.json",
+        "sha256": "298b130c9d436654549de228d59ea0d0284573fb4bc5a3fb578dbe0d5126d5d4"
+      },
+      "native_record_locators": [
+        "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native/fresh-reader-inputs.json/reconciled_admg_ref"
+      ],
+      "payload": {
+        "bytes": 3371,
+        "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-05c7489e6606ef960a9889dee4d83eec5fd64f7f955923cad27dd36c11d92013.payload.json",
+        "sha256": "05c7489e6606ef960a9889dee4d83eec5fd64f7f955923cad27dd36c11d92013"
+      }
+    },
+    {
+      "artifact_ref": {
+        "artifact_id": "sha256:1d496668cfd81b9af9666e6f8c7bc5729f53a41e559b5299290d7c5ab7fbefd0",
+        "kind": "ir.causal_graph_model",
+        "media_type": "application/json"
+      },
+      "case": "freshpid-native",
+      "check": "PASS",
+      "manifest": {
+        "bytes": 608,
+        "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-1d496668cfd81b9af9666e6f8c7bc5729f53a41e559b5299290d7c5ab7fbefd0.manifest.json",
+        "sha256": "8e21bb4c57726c9e28611fe9dd1849d27fd09f5ca5e07fb149b066e16324eee7"
+      },
+      "native_record_locators": [
+        "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native/fresh-reader-inputs.json/original_mgraph_ref"
+      ],
+      "payload": {
+        "bytes": 1715,
+        "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-1d496668cfd81b9af9666e6f8c7bc5729f53a41e559b5299290d7c5ab7fbefd0.payload.json",
+        "sha256": "1d496668cfd81b9af9666e6f8c7bc5729f53a41e559b5299290d7c5ab7fbefd0"
+      }
+    },
+    {
+      "artifact_ref": {
+        "artifact_id": "sha256:5c656309bf2a096914007e484b34a5362e0a790e8795bb10a0beb4484583be16",
+        "kind": "ir.causal_graph_model",
+        "media_type": "application/json"
+      },
+      "case": "freshpid-native",
+      "check": "PASS",
+      "manifest": {
+        "bytes": 717,
+        "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-5c656309bf2a096914007e484b34a5362e0a790e8795bb10a0beb4484583be16.manifest.json",
+        "sha256": "de7f7e776cc798b1f2c7f4a53abcfc8313d9d88abcc4712caaf703b6b028f228"
+      },
+      "native_record_locators": [
+        "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native/fresh-reader-inputs.json/reverse_admg_ref"
+      ],
+      "payload": {
+        "bytes": 1786,
+        "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-5c656309bf2a096914007e484b34a5362e0a790e8795bb10a0beb4484583be16.payload.json",
+        "sha256": "5c656309bf2a096914007e484b34a5362e0a790e8795bb10a0beb4484583be16"
+      }
+    },
+    {
+      "artifact_ref": {
+        "artifact_id": "sha256:05c7489e6606ef960a9889dee4d83eec5fd64f7f955923cad27dd36c11d92013",
+        "kind": "ir.causal_graph_model",
+        "media_type": "application/json"
+      },
+      "case": "freshpid-native-corrected",
+      "check": "PASS",
+      "manifest": {
+        "bytes": 717,
+        "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-05c7489e6606ef960a9889dee4d83eec5fd64f7f955923cad27dd36c11d92013.manifest.json",
+        "sha256": "85a81541d69974c3d5872900f957b58f567408a81f5b14687d719e59283d8bc7"
+      },
+      "native_record_locators": [
+        "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native-corrected/fresh-reader-inputs.json/reconciled_admg_ref",
+        "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native-corrected/native-witness.json/admg_node/artifacts/0",
+        "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native-corrected/native-witness.json/admg_node/state/artifacts_index/reconciled_causal_graph_ref"
+      ],
+      "payload": {
+        "bytes": 3371,
+        "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-05c7489e6606ef960a9889dee4d83eec5fd64f7f955923cad27dd36c11d92013.payload.json",
+        "sha256": "05c7489e6606ef960a9889dee4d83eec5fd64f7f955923cad27dd36c11d92013"
+      }
+    },
+    {
+      "artifact_ref": {
+        "artifact_id": "sha256:163117cc1a72fb87d6d3a403fd5d426b1a0c9f6a9b50aa3d8bc4a37188eaf398",
+        "kind": "tests.synthetic.independent_graph_profile",
+        "media_type": "application/json"
+      },
+      "case": "freshpid-native-corrected",
+      "check": "PASS",
+      "manifest": {
+        "bytes": 635,
+        "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-163117cc1a72fb87d6d3a403fd5d426b1a0c9f6a9b50aa3d8bc4a37188eaf398.manifest.json",
+        "sha256": "cd2320e67d1906dfb569a26e9b464895122ba149b5833fb139ad6beece42cde6"
+      },
+      "native_record_locators": [
+        "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native-corrected/native-witness.json/static_refusals/2/input_ref"
+      ],
+      "payload": {
+        "bytes": 812,
+        "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-163117cc1a72fb87d6d3a403fd5d426b1a0c9f6a9b50aa3d8bc4a37188eaf398.payload.json",
+        "sha256": "163117cc1a72fb87d6d3a403fd5d426b1a0c9f6a9b50aa3d8bc4a37188eaf398"
+      }
+    },
+    {
+      "artifact_ref": {
+        "artifact_id": "sha256:1d496668cfd81b9af9666e6f8c7bc5729f53a41e559b5299290d7c5ab7fbefd0",
+        "kind": "ir.causal_graph_model",
+        "media_type": "application/json"
+      },
+      "case": "freshpid-native-corrected",
+      "check": "PASS",
+      "manifest": {
+        "bytes": 608,
+        "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-1d496668cfd81b9af9666e6f8c7bc5729f53a41e559b5299290d7c5ab7fbefd0.manifest.json",
+        "sha256": "e06f35eaa08640884347f7f394e18b1ed188f585739ff7dba94a9581a6229e20"
+      },
+      "native_record_locators": [
+        "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native-corrected/fresh-reader-inputs.json/original_mgraph_ref"
+      ],
+      "payload": {
+        "bytes": 1715,
+        "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-1d496668cfd81b9af9666e6f8c7bc5729f53a41e559b5299290d7c5ab7fbefd0.payload.json",
+        "sha256": "1d496668cfd81b9af9666e6f8c7bc5729f53a41e559b5299290d7c5ab7fbefd0"
+      }
+    },
+    {
+      "artifact_ref": {
+        "artifact_id": "sha256:2ade1c9f9d292b888cb6643c83156d80a841d00bd2aff09f9b15b338d7871538",
+        "kind": "scientist.method_result.causal.prior",
+        "media_type": "application/json"
+      },
+      "case": "freshpid-native-corrected",
+      "check": "PASS",
+      "manifest": {
+        "bytes": 765,
+        "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-2ade1c9f9d292b888cb6643c83156d80a841d00bd2aff09f9b15b338d7871538.manifest.json",
+        "sha256": "16e1b0492b942bf178e722cde34bb5590a38ab779470aebd7b49c67ce1613f48"
+      },
+      "native_record_locators": [
+        "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native-corrected/native-witness.json/admg_node/state/artifacts_index/causal_method_result_ref",
+        "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native-corrected/native-witness.json/admg_producer/method_result_ref",
+        "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native-corrected/native-witness.json/admg_producer/simulation_results_ref"
+      ],
+      "payload": {
+        "bytes": 4618,
+        "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-2ade1c9f9d292b888cb6643c83156d80a841d00bd2aff09f9b15b338d7871538.payload.json",
+        "sha256": "2ade1c9f9d292b888cb6643c83156d80a841d00bd2aff09f9b15b338d7871538"
+      }
+    },
+    {
+      "artifact_ref": {
+        "artifact_id": "sha256:39a10e3946cebb526c969186bd5189691a95595e594f9dafc85b9e144bd3a70e",
+        "kind": "tests.synthetic.independent_graph_profile",
+        "media_type": "application/json"
+      },
+      "case": "freshpid-native-corrected",
+      "check": "PASS",
+      "manifest": {
+        "bytes": 635,
+        "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-39a10e3946cebb526c969186bd5189691a95595e594f9dafc85b9e144bd3a70e.manifest.json",
+        "sha256": "120ee807fa39e8140db909d35605ebb7ce9b2262233b76a85159911a9cea5d6d"
+      },
+      "native_record_locators": [
+        "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native-corrected/native-witness.json/static_refusals/0/input_ref"
+      ],
+      "payload": {
+        "bytes": 817,
+        "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-39a10e3946cebb526c969186bd5189691a95595e594f9dafc85b9e144bd3a70e.payload.json",
+        "sha256": "39a10e3946cebb526c969186bd5189691a95595e594f9dafc85b9e144bd3a70e"
+      }
+    },
+    {
+      "artifact_ref": {
+        "artifact_id": "sha256:431ac07e741dc44d2bdd0453886593575e12008fa9cca764ca291bb0253da9cc",
+        "kind": "scientist.method_evidence",
+        "media_type": "application/json"
+      },
+      "case": "freshpid-native-corrected",
+      "check": "PASS",
+      "manifest": {
+        "bytes": 747,
+        "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-431ac07e741dc44d2bdd0453886593575e12008fa9cca764ca291bb0253da9cc.manifest.json",
+        "sha256": "8dd539002d6291059c60eb1ac441d9fb6edc735d99e94ba481e327260c23adeb"
+      },
+      "native_record_locators": [
+        "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native-corrected/native-witness.json/admg_producer/method_evidence_ref"
+      ],
+      "payload": {
+        "bytes": 7727,
+        "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-431ac07e741dc44d2bdd0453886593575e12008fa9cca764ca291bb0253da9cc.payload.json",
+        "sha256": "431ac07e741dc44d2bdd0453886593575e12008fa9cca764ca291bb0253da9cc"
+      }
+    },
+    {
+      "artifact_ref": {
+        "artifact_id": "sha256:44ad6d6798b4dffa9d6e4fa0e721bf3f2ac9a5999225d3d52801178c0f50b4fa",
+        "kind": "scientist.method_evidence",
+        "media_type": "application/json"
+      },
+      "case": "freshpid-native-corrected",
+      "check": "PASS",
+      "manifest": {
+        "bytes": 747,
+        "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-44ad6d6798b4dffa9d6e4fa0e721bf3f2ac9a5999225d3d52801178c0f50b4fa.manifest.json",
+        "sha256": "2dd3ec324179ebace05995c425521186f48cdbbac2ad980c8ee8a6cdd14e37b0"
+      },
+      "native_record_locators": [
+        "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native-corrected/native-witness.json/reverse_admg_producer/method_evidence_ref"
+      ],
+      "payload": {
+        "bytes": 7729,
+        "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-44ad6d6798b4dffa9d6e4fa0e721bf3f2ac9a5999225d3d52801178c0f50b4fa.payload.json",
+        "sha256": "44ad6d6798b4dffa9d6e4fa0e721bf3f2ac9a5999225d3d52801178c0f50b4fa"
+      }
+    },
+    {
+      "artifact_ref": {
+        "artifact_id": "sha256:5c656309bf2a096914007e484b34a5362e0a790e8795bb10a0beb4484583be16",
+        "kind": "ir.causal_graph_model",
+        "media_type": "application/json"
+      },
+      "case": "freshpid-native-corrected",
+      "check": "PASS",
+      "manifest": {
+        "bytes": 717,
+        "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-5c656309bf2a096914007e484b34a5362e0a790e8795bb10a0beb4484583be16.manifest.json",
+        "sha256": "ced7647985f147dd9ebe4f5262e2072a9c58900fb04f34c2daa012a888ea9a3d"
+      },
+      "native_record_locators": [
+        "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native-corrected/fresh-reader-inputs.json/reverse_admg_ref",
+        "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native-corrected/native-witness.json/reverse_admg_node/artifacts/0",
+        "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native-corrected/native-witness.json/reverse_admg_node/state/artifacts_index/reconciled_causal_graph_ref"
+      ],
+      "payload": {
+        "bytes": 1786,
+        "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-5c656309bf2a096914007e484b34a5362e0a790e8795bb10a0beb4484583be16.payload.json",
+        "sha256": "5c656309bf2a096914007e484b34a5362e0a790e8795bb10a0beb4484583be16"
+      }
+    },
+    {
+      "artifact_ref": {
+        "artifact_id": "sha256:6af8646ec1ab413311dc299ed352e1325f7b8f63e92724b4930a47cda635124b",
+        "kind": "tests.synthetic.independent_graph_profile",
+        "media_type": "application/json"
+      },
+      "case": "freshpid-native-corrected",
+      "check": "PASS",
+      "manifest": {
+        "bytes": 636,
+        "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-6af8646ec1ab413311dc299ed352e1325f7b8f63e92724b4930a47cda635124b.manifest.json",
+        "sha256": "96190d3263d1f04b544ee963474c5c4a70b81afc881c48ef653aba39d7f81497"
+      },
+      "native_record_locators": [
+        "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native-corrected/native-witness.json/admg_input_ref"
+      ],
+      "payload": {
+        "bytes": 1916,
+        "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-6af8646ec1ab413311dc299ed352e1325f7b8f63e92724b4930a47cda635124b.payload.json",
+        "sha256": "6af8646ec1ab413311dc299ed352e1325f7b8f63e92724b4930a47cda635124b"
+      }
+    },
+    {
+      "artifact_ref": {
+        "artifact_id": "sha256:c27b170595172ddaa354da23b7e0707308372cdb1a7d0a3297ab9dbeaed5722e",
+        "kind": "tests.synthetic.independent_graph_profile",
+        "media_type": "application/json"
+      },
+      "case": "freshpid-native-corrected",
+      "check": "PASS",
+      "manifest": {
+        "bytes": 635,
+        "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-c27b170595172ddaa354da23b7e0707308372cdb1a7d0a3297ab9dbeaed5722e.manifest.json",
+        "sha256": "824d35fd8dc35af903f1c5a0aec697cddcaa6632e51f80c890fd50d568dbf988"
+      },
+      "native_record_locators": [
+        "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native-corrected/native-witness.json/static_refusals/1/input_ref"
+      ],
+      "payload": {
+        "bytes": 814,
+        "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-c27b170595172ddaa354da23b7e0707308372cdb1a7d0a3297ab9dbeaed5722e.payload.json",
+        "sha256": "c27b170595172ddaa354da23b7e0707308372cdb1a7d0a3297ab9dbeaed5722e"
+      }
+    },
+    {
+      "artifact_ref": {
+        "artifact_id": "sha256:cbc14eb81f46f68da4e92f523717a12cd7d344f2910958f5dd843c1a2b07e497",
+        "kind": "tests.synthetic.independent_graph_profile",
+        "media_type": "application/json"
+      },
+      "case": "freshpid-native-corrected",
+      "check": "PASS",
+      "manifest": {
+        "bytes": 636,
+        "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-cbc14eb81f46f68da4e92f523717a12cd7d344f2910958f5dd843c1a2b07e497.manifest.json",
+        "sha256": "5f874ddd06c16e7f2608aba249edd68a649de3aa80bab3907f565c9e674cd22c"
+      },
+      "native_record_locators": [
+        "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native-corrected/native-witness.json/mgraph_input_ref"
+      ],
+      "payload": {
+        "bytes": 1918,
+        "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-cbc14eb81f46f68da4e92f523717a12cd7d344f2910958f5dd843c1a2b07e497.payload.json",
+        "sha256": "cbc14eb81f46f68da4e92f523717a12cd7d344f2910958f5dd843c1a2b07e497"
+      }
+    },
+    {
+      "artifact_ref": {
+        "artifact_id": "sha256:ea9bfafe1eb32ea4da4d30305f38d7f9c50c9153d724b379f1d837384ce674a0",
+        "kind": "scientist.method_result.causal.prior",
+        "media_type": "application/json"
+      },
+      "case": "freshpid-native-corrected",
+      "check": "PASS",
+      "manifest": {
+        "bytes": 765,
+        "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-ea9bfafe1eb32ea4da4d30305f38d7f9c50c9153d724b379f1d837384ce674a0.manifest.json",
+        "sha256": "522bd5ff0c973988a7a808913da692cbb91f00ba359a8d6f8d71bb80f7010e07"
+      },
+      "native_record_locators": [
+        "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native-corrected/native-witness.json/reverse_admg_node/state/artifacts_index/causal_method_result_ref",
+        "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native-corrected/native-witness.json/reverse_admg_producer/method_result_ref",
+        "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native-corrected/native-witness.json/reverse_admg_producer/simulation_results_ref"
+      ],
+      "payload": {
+        "bytes": 2441,
+        "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-ea9bfafe1eb32ea4da4d30305f38d7f9c50c9153d724b379f1d837384ce674a0.payload.json",
+        "sha256": "ea9bfafe1eb32ea4da4d30305f38d7f9c50c9153d724b379f1d837384ce674a0"
+      }
+    },
+    {
+      "artifact_ref": {
+        "artifact_id": "sha256:fba274e017515af817aae7a0a6f2db08c61e17eca98591d7c2ddb948ce175d66",
+        "kind": "tests.synthetic.independent_graph_profile",
+        "media_type": "application/json"
+      },
+      "case": "freshpid-native-corrected",
+      "check": "PASS",
+      "manifest": {
+        "bytes": 635,
+        "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-fba274e017515af817aae7a0a6f2db08c61e17eca98591d7c2ddb948ce175d66.manifest.json",
+        "sha256": "ca46e5aa0a2b5e3546b67326ff6858f3f1cfb5f2b652ed14e82bb010d979f573"
+      },
+      "native_record_locators": [
+        "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native-corrected/native-witness.json/reverse_admg_input_ref"
+      ],
+      "payload": {
+        "bytes": 815,
+        "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-fba274e017515af817aae7a0a6f2db08c61e17eca98591d7c2ddb948ce175d66.payload.json",
+        "sha256": "fba274e017515af817aae7a0a6f2db08c61e17eca98591d7c2ddb948ce175d66"
+      }
+    }
+  ],
+  "schema": "selected_native_cas_byte_transfer/1.0"
+}

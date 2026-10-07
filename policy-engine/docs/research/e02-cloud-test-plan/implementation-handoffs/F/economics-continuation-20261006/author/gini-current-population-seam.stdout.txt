@@ -1,0 +1,115 @@
+FFFFF                                                                    [100%]
+=================================== FAILURES ===================================
+_ test_registered_objective_refuses_current_signed_population_despite_valid_cached_metric[values0-eager] _
+
+compiled = False, values = [-2.0, 1.0]
+
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("values", [[-2.0, 1.0], [-1.0, 2.0]])
+    def test_registered_objective_refuses_current_signed_population_despite_valid_cached_metric(
+        compiled, values
+    ) -> None:
+        state = EconomicState.empty(n_agents=2, seed=7)
+        state = state.replace(agents=state.agents.replace(wealth=jnp.asarray(values)))
+        assert np.isfinite(float(state.distributions.gini_wealth))
+        evaluate = EconomicsPlugin().get_objectives()["gini"].evaluate
+        if compiled:
+            evaluate = jax.jit(evaluate)
+>       with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/foundry/agent_sim/test_gini_domain.py:110: Failed
+_ test_registered_objective_refuses_current_signed_population_despite_valid_cached_metric[values0-jit] _
+
+compiled = True, values = [-2.0, 1.0]
+
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("values", [[-2.0, 1.0], [-1.0, 2.0]])
+    def test_registered_objective_refuses_current_signed_population_despite_valid_cached_metric(
+        compiled, values
+    ) -> None:
+        state = EconomicState.empty(n_agents=2, seed=7)
+        state = state.replace(agents=state.agents.replace(wealth=jnp.asarray(values)))
+        assert np.isfinite(float(state.distributions.gini_wealth))
+        evaluate = EconomicsPlugin().get_objectives()["gini"].evaluate
+        if compiled:
+            evaluate = jax.jit(evaluate)
+>       with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/foundry/agent_sim/test_gini_domain.py:110: Failed
+_ test_registered_objective_refuses_current_signed_population_despite_valid_cached_metric[values1-eager] _
+
+compiled = False, values = [-1.0, 2.0]
+
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("values", [[-2.0, 1.0], [-1.0, 2.0]])
+    def test_registered_objective_refuses_current_signed_population_despite_valid_cached_metric(
+        compiled, values
+    ) -> None:
+        state = EconomicState.empty(n_agents=2, seed=7)
+        state = state.replace(agents=state.agents.replace(wealth=jnp.asarray(values)))
+        assert np.isfinite(float(state.distributions.gini_wealth))
+        evaluate = EconomicsPlugin().get_objectives()["gini"].evaluate
+        if compiled:
+            evaluate = jax.jit(evaluate)
+>       with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/foundry/agent_sim/test_gini_domain.py:110: Failed
+_ test_registered_objective_refuses_current_signed_population_despite_valid_cached_metric[values1-jit] _
+
+compiled = True, values = [-1.0, 2.0]
+
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("values", [[-2.0, 1.0], [-1.0, 2.0]])
+    def test_registered_objective_refuses_current_signed_population_despite_valid_cached_metric(
+        compiled, values
+    ) -> None:
+        state = EconomicState.empty(n_agents=2, seed=7)
+        state = state.replace(agents=state.agents.replace(wealth=jnp.asarray(values)))
+        assert np.isfinite(float(state.distributions.gini_wealth))
+        evaluate = EconomicsPlugin().get_objectives()["gini"].evaluate
+        if compiled:
+            evaluate = jax.jit(evaluate)
+>       with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/foundry/agent_sim/test_gini_domain.py:110: Failed
+_ test_composite_interaction_current_population_is_admitted_at_registered_objective _
+
+    def test_composite_interaction_current_population_is_admitted_at_registered_objective() -> None:
+        registry = PluginRegistry()
+        registry.clear()
+        plugin = EconomicsPlugin()
+        registry.register(plugin)
+        state = EconomicState.empty(n_agents=12, seed=7)
+        state = state.replace(agents=state.agents.replace(wealth=jnp.asarray([2., 1.] * 6)))
+        interaction = CrossDomainInteraction(
+            source_domain="economics", target_domain="economics",
+            source_field="agents.wealth", target_field="agents.wealth",
+            transform=lambda values: values * jnp.asarray([-1., 1.] * 6),
+        )
+        config = CompositeStateConfig(domains={"economics": DomainConfig(
+            n_agents=12, enabled_mechanisms=("taxation",))}, interactions=[interaction])
+        composite = CompositeState(domain_states={"economics": state}, time_step=jnp.asarray(0),
+                                   config=config)
+        after = CompositeExecutor(["economics"], registry).step(composite, jax.random.PRNGKey(3))
+        current = after.get_domain("economics")
+        np.testing.assert_array_equal(current.agents.wealth, [-2., 1.] * 6)
+        assert np.isfinite(float(current.distributions.gini_wealth))
+>       with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/foundry/agent_sim/test_gini_domain.py:134: Failed
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_registered_objective_refuses_current_signed_population_despite_valid_cached_metric[values0-eager]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_registered_objective_refuses_current_signed_population_despite_valid_cached_metric[values0-jit]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_registered_objective_refuses_current_signed_population_despite_valid_cached_metric[values1-eager]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_registered_objective_refuses_current_signed_population_despite_valid_cached_metric[values1-jit]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_composite_interaction_current_population_is_admitted_at_registered_objective

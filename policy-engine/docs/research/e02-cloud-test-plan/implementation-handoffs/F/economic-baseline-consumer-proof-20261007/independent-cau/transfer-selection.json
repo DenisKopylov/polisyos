@@ -1,0 +1,193 @@
+{
+  "schema": "scratch-full-transfer-selection/1",
+  "candidate_sha": "193b3582a72c640c1d06a131f93502654a77a36a",
+  "items": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/economics-review/assemble_review.py",
+      "bytes": 6217,
+      "sha256": "2fa278759b76928d893f0e7b3a2b448c21868b8ee8cb728c0f5cefe9bbf09956",
+      "role": "complete native deciding stdout/stderr/execution/config/independent oracle/controls/static census/review"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/economics-review/census-review.json",
+      "bytes": 3011,
+      "sha256": "96b0278e6421c2795ea6f07a36709aaeb64b8adf90da8c21b0360808141fbb44",
+      "role": "complete native deciding stdout/stderr/execution/config/independent oracle/controls/static census/review"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/economics-review/census.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete native deciding stdout/stderr/execution/config/independent oracle/controls/static census/review"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/economics-review/census.stdout",
+      "bytes": 2697,
+      "sha256": "82d3bc03712e6c55b5a395a1bf8ae1f03124962be37463b1923cc4e63d20c046",
+      "role": "complete native deciding stdout/stderr/execution/config/independent oracle/controls/static census/review"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/economics-review/gini-removal-config.json",
+      "bytes": 1222,
+      "sha256": "167ce59a23ca48edf3a7992b46baba627a3f6a2e62a5d4cbf6d9221aab89b06f",
+      "role": "complete native deciding stdout/stderr/execution/config/independent oracle/controls/static census/review"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/economics-review/gini-removal.execution.json",
+      "bytes": 6034,
+      "sha256": "79ec18886a0fecb6feb8bf0ecf5ac2e369b90d09ab7d058b155d77b644df59e8",
+      "role": "complete native deciding stdout/stderr/execution/config/independent oracle/controls/static census/review"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/economics-review/gini-removal.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete native deciding stdout/stderr/execution/config/independent oracle/controls/static census/review"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/economics-review/gini-removal.stdout",
+      "bytes": 5125,
+      "sha256": "46400fa678dd3fb340f39e7de208c7fe94ea74e07316ffde5bbe2a0ab3a60e05",
+      "role": "complete native deciding stdout/stderr/execution/config/independent oracle/controls/static census/review"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/economics-review/independent-review.json",
+      "bytes": 40561,
+      "sha256": "4369e1936d4a6cd83b0394f15eb667ff3c9fb061eea7186cff2b78d7b1bd50bf",
+      "role": "complete native deciding stdout/stderr/execution/config/independent oracle/controls/static census/review"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/economics-review/independent_economic_oracle.py",
+      "bytes": 3188,
+      "sha256": "7f0133b9503df7cdb7c9c30e3bd50ef6e66591b8f4990c7db0a8e09e6dac848b",
+      "role": "complete native deciding stdout/stderr/execution/config/independent oracle/controls/static census/review"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/economics-review/native-config.json",
+      "bytes": 1306,
+      "sha256": "46fc2751442ff1c6bdab2dd8434255612eecd9e5e13f85d01598da46fde9c4d1",
+      "role": "complete native deciding stdout/stderr/execution/config/independent oracle/controls/static census/review"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/economics-review/native.execution.json",
+      "bytes": 5656,
+      "sha256": "5a136d629699766e32460e3212eb82506e827a2f02843cdec8534559a78d94a0",
+      "role": "complete native deciding stdout/stderr/execution/config/independent oracle/controls/static census/review"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/economics-review/native.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete native deciding stdout/stderr/execution/config/independent oracle/controls/static census/review"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/economics-review/native.stdout",
+      "bytes": 966,
+      "sha256": "a7ffc168a24e1b6ea1457d68c509ee11dd7dd86d69e04b6cbc50b8d6a05ffdf5",
+      "role": "complete native deciding stdout/stderr/execution/config/independent oracle/controls/static census/review"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/economics-review/oracle-config.json",
+      "bytes": 1153,
+      "sha256": "5b9c0b6ddebd905aacf45b7b7e63a8073903128c7019631f3326d9850314511d",
+      "role": "complete native deciding stdout/stderr/execution/config/independent oracle/controls/static census/review"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/economics-review/oracle-removal-config.json",
+      "bytes": 1191,
+      "sha256": "a82358f39be1c4efbf4af051ddc1ff5b921bb7f4170ad47d24062c07d1f0097c",
+      "role": "complete native deciding stdout/stderr/execution/config/independent oracle/controls/static census/review"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/economics-review/oracle-removal.execution.json",
+      "bytes": 5560,
+      "sha256": "601dd15f76e269d037429ea17bc076c6bca2da25c240b14a615f7fbe0ebecf26",
+      "role": "complete native deciding stdout/stderr/execution/config/independent oracle/controls/static census/review"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/economics-review/oracle-removal.stderr",
+      "bytes": 1278,
+      "sha256": "a4d029e568a31d199669248953d2bacd2e472784426869ffa078ffc44aeed15e",
+      "role": "complete native deciding stdout/stderr/execution/config/independent oracle/controls/static census/review"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/economics-review/oracle-removal.stdout",
+      "bytes": 149,
+      "sha256": "91e1c57be5811989ea7f729232d687acadcddb3940c291185ab4ef704b7f0f77",
+      "role": "complete native deciding stdout/stderr/execution/config/independent oracle/controls/static census/review"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/economics-review/oracle.execution.json",
+      "bytes": 5504,
+      "sha256": "29ded1b22c618dc41f310cf5f0c06f54cd7382ad5202cf55dc686bbb495f9597",
+      "role": "complete native deciding stdout/stderr/execution/config/independent oracle/controls/static census/review"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/economics-review/oracle.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete native deciding stdout/stderr/execution/config/independent oracle/controls/static census/review"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/economics-review/oracle.stdout",
+      "bytes": 8957,
+      "sha256": "b1045d3e15fcea8bb82fda15cfa224be1b11253323edcd01b8475e755a487b09",
+      "role": "complete native deciding stdout/stderr/execution/config/independent oracle/controls/static census/review"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/economics-review/remove_gini_admission.py",
+      "bytes": 919,
+      "sha256": "d0c539892e0092c6bb766caad89829ca4c973e7fb5ced1cd1c2b068ce307a767",
+      "role": "complete native deciding stdout/stderr/execution/config/independent oracle/controls/static census/review"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/economics-review/review.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete native deciding stdout/stderr/execution/config/independent oracle/controls/static census/review"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/economics-review/review.stdout",
+      "bytes": 478,
+      "sha256": "f4b9d77057d23ea161e68b64d425b8db480f78f0940ef8af46fb3d168e5113b7",
+      "role": "complete native deciding stdout/stderr/execution/config/independent oracle/controls/static census/review"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/economics-review/siblings-config.json",
+      "bytes": 1398,
+      "sha256": "1db1daebd166a4cbeea8bed94af07bca67b388bb0d2a58e17ad14a2cb3726e7e",
+      "role": "complete native deciding stdout/stderr/execution/config/independent oracle/controls/static census/review"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/economics-review/siblings.execution.json",
+      "bytes": 5752,
+      "sha256": "5a9f9eede31fde1f2e038ed7fcec1f9a783f2fd9e0c9e7921f80e746f3ed521c",
+      "role": "complete native deciding stdout/stderr/execution/config/independent oracle/controls/static census/review"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/economics-review/siblings.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete native deciding stdout/stderr/execution/config/independent oracle/controls/static census/review"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/economics-review/siblings.stdout",
+      "bytes": 620,
+      "sha256": "a1c05439082ac7f33c4095d91ab82a64763364e449a16e749aca87cb8ace77d6",
+      "role": "complete native deciding stdout/stderr/execution/config/independent oracle/controls/static census/review"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/economics-review/verify_census.py",
+      "bytes": 3393,
+      "sha256": "f07877904cc4adab5c029cf4fb39df0b533141bc791db8dc0410e42ea797b94e",
+      "role": "complete native deciding stdout/stderr/execution/config/independent oracle/controls/static census/review"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/run_review_check.py",
+      "bytes": 1921,
+      "sha256": "963247de5c28f0cb38071e4ec0744ca565cc7ea8a944742ff8b453cba9a7017f",
+      "role": "complete sourceguarded native capture replayer"
+    }
+  ],
+  "total_bytes": 114256
+}

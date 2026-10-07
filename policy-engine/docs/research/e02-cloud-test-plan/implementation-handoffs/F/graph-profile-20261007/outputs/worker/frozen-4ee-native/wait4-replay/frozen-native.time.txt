@@ -1,0 +1,8 @@
+{
+  "measurement": "Linux os.wait4 actual native pytest process rusage",
+  "pid": 1004302,
+  "ru_maxrss_KiB": 590320,
+  "user_cpu_seconds": 26.398825,
+  "system_cpu_seconds": 1.48978,
+  "scope": "Actual child/waited descendants high-water rusage, not simultaneous aggregate cgroup peak or global CPU budget proof. No optional external time executable, quota or timeout added."
+}

@@ -1,0 +1,353 @@
+{
+  "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+  "source_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+  "outcome": "PASS",
+  "candidate_wheel": {
+    "path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/dist/policy_engine-0.1.0-py3-none-any.whl",
+    "bytes": 15147133,
+    "sha256": "1c912ce057fcdd3f91201979025867f9df1f2dc9041020877e2476cd7d396159"
+  },
+  "complete_candidate_source_wheel_site_files": 3464,
+  "actual_python_files": 3147,
+  "carrier_logical_to_absolute_binding_adapter": [
+    {
+      "logical_path": "policy-engine/tests/_helpers/__init__.py",
+      "stored_carrier_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-consumer/tests/_helpers/__init__.py",
+      "git_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "logical_path": "policy-engine/tests/_helpers/acquisition_chain.py",
+      "stored_carrier_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-consumer/tests/_helpers/acquisition_chain.py",
+      "git_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "git_blob": "170fd3cb355de4fb87103c1aa5c2b277cb9964ca",
+      "bytes": 10878,
+      "sha256": "a9c80b88d3437c13b5267cb6a6fe0fe3bbf33afd2e1c90c06b48c7faf7fd9cc8"
+    },
+    {
+      "logical_path": "policy-engine/tests/_helpers/acquisition_epoch_production.py",
+      "stored_carrier_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-consumer/tests/_helpers/acquisition_epoch_production.py",
+      "git_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "git_blob": "9a8d8842376a746fbd901bf37d6b582db49734e6",
+      "bytes": 7281,
+      "sha256": "ee68578f03d60cd7df54849a1d975ee719733b8904092a2b51393fe81a28e7ef"
+    },
+    {
+      "logical_path": "policy-engine/tests/_helpers/acquisition_human_decision.py",
+      "stored_carrier_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-consumer/tests/_helpers/acquisition_human_decision.py",
+      "git_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "git_blob": "4191d4925709c172014b81e82bf072532bedbe4c",
+      "bytes": 12473,
+      "sha256": "b6107b2f37e031eb84eca028996f77aab8bae52dcd8ba84d57dc629cd383b278"
+    },
+    {
+      "logical_path": "policy-engine/tests/_helpers/acquisition_movement.py",
+      "stored_carrier_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-consumer/tests/_helpers/acquisition_movement.py",
+      "git_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "git_blob": "b3975deaf87b27fc41e16199146765f9f89d26ec",
+      "bytes": 9106,
+      "sha256": "ff56d70724c99dd12dfa7075b4b9e866f2cbe4be5fd29343e9c0099673836489"
+    },
+    {
+      "logical_path": "policy-engine/tests/_helpers/acquisition_production.py",
+      "stored_carrier_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-consumer/tests/_helpers/acquisition_production.py",
+      "git_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "git_blob": "65020462d09f74d4fc218a1c6b8ab8631217530d",
+      "bytes": 17120,
+      "sha256": "1e004223eb1fa78a672e3db5f716ec897c49638421a44b7651e0ee8499ff587f"
+    },
+    {
+      "logical_path": "policy-engine/tests/_helpers/acquisition_supplier.py",
+      "stored_carrier_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-consumer/tests/_helpers/acquisition_supplier.py",
+      "git_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "git_blob": "eb795977614f229bb804d2fc03d37504bc774fb1",
+      "bytes": 3082,
+      "sha256": "505c0be95628f07912a959a9eb97625d0af5cffdd06abdf8a399083a5fea3de4"
+    },
+    {
+      "logical_path": "policy-engine/tests/_helpers/artifacts.py",
+      "stored_carrier_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-consumer/tests/_helpers/artifacts.py",
+      "git_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "git_blob": "7bbf2cd7ef2d8b97455788aa3560bed5cd19d664",
+      "bytes": 9046,
+      "sha256": "0c50d082c6861b08aa8d8d0c9f0753bac567204b6bb7fd69457be6700ec7fecf"
+    },
+    {
+      "logical_path": "policy-engine/tests/_helpers/c7_synthetic_data.py",
+      "stored_carrier_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-consumer/tests/_helpers/c7_synthetic_data.py",
+      "git_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "git_blob": "e9d9ff7342bad71b8f1d47c7d90c8f3392651028",
+      "bytes": 31194,
+      "sha256": "22ba84f8db13df430a28e31717680c3145f1e5036d7286b1c55a311db92d6a3a"
+    },
+    {
+      "logical_path": "policy-engine/tests/_helpers/causal_scm_fixtures.py",
+      "stored_carrier_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-consumer/tests/_helpers/causal_scm_fixtures.py",
+      "git_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "git_blob": "a0af722fc7ece0fb152b8078043ff0f65407cd61",
+      "bytes": 8112,
+      "sha256": "8c381aa9afbc59d96660645254d4a4a081c679c9093e5035a2c5c4f6211cbdb3"
+    },
+    {
+      "logical_path": "policy-engine/tests/_helpers/chronology_qualification.py",
+      "stored_carrier_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-consumer/tests/_helpers/chronology_qualification.py",
+      "git_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "git_blob": "f0ccce158aa5d2a1f4e026429ad7208634cf65e5",
+      "bytes": 88529,
+      "sha256": "12131fa3bff8aa9a6fbe4d2bc9da982efd708d96c6de6ffddd4254bfe3de4714"
+    },
+    {
+      "logical_path": "policy-engine/tests/_helpers/control_worker.py",
+      "stored_carrier_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-consumer/tests/_helpers/control_worker.py",
+      "git_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "git_blob": "35b6ffbf0e66abc1af4b8338ef108323063bcded",
+      "bytes": 3128,
+      "sha256": "060132f88dc11d72dab9215f2d8245339e013716907fe18da11616d6b097b269"
+    },
+    {
+      "logical_path": "policy-engine/tests/_helpers/controlled_candidate_profile.py",
+      "stored_carrier_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-consumer/tests/_helpers/controlled_candidate_profile.py",
+      "git_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "git_blob": "c987b343e740ae87114172be41d5df90278d1b98",
+      "bytes": 10771,
+      "sha256": "9456d7811ff0b58e681c11733511f86be086f3a0b4ff8eb7695b7f7f1b9adf04"
+    },
+    {
+      "logical_path": "policy-engine/tests/_helpers/custody_markdown.py",
+      "stored_carrier_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-consumer/tests/_helpers/custody_markdown.py",
+      "git_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "git_blob": "a4011a9db7433cce530b88d989080c354d4bcddd",
+      "bytes": 2294,
+      "sha256": "abc23b97e43d05d9e3bee7553f7717868a604e339c30021cebb94f9817d704dd"
+    },
+    {
+      "logical_path": "policy-engine/tests/_helpers/hds_quality.py",
+      "stored_carrier_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-consumer/tests/_helpers/hds_quality.py",
+      "git_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "git_blob": "79e943bb681c634b5b9734dff017190636dd986d",
+      "bytes": 139138,
+      "sha256": "389e71836146218e2b09a9d1eca0aee524baa1011586d2c442db221bc932a01b"
+    },
+    {
+      "logical_path": "policy-engine/tests/_helpers/mirror_contracts.py",
+      "stored_carrier_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-consumer/tests/_helpers/mirror_contracts.py",
+      "git_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "git_blob": "1859c7ebf683f7fea303f149d26b1d9bc3b9fecb",
+      "bytes": 1953,
+      "sha256": "5e287fddd810a14131d5be42a5ef7626b587148a4358120dd91c78b224951b1a"
+    },
+    {
+      "logical_path": "policy-engine/tests/_helpers/observability.py",
+      "stored_carrier_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-consumer/tests/_helpers/observability.py",
+      "git_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "git_blob": "745c3fd6f8531f6f76339b153a9b6667e230ee55",
+      "bytes": 2392,
+      "sha256": "612a617513e52f310e81fc48dc930c0c6bb95ca091ab66c81779075618a48ff8"
+    },
+    {
+      "logical_path": "policy-engine/tests/_helpers/policy_design_case_projection.py",
+      "stored_carrier_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-consumer/tests/_helpers/policy_design_case_projection.py",
+      "git_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "git_blob": "31470a6abfabc40e1508bd05cbe840b185d09c82",
+      "bytes": 2717,
+      "sha256": "4e8514c7c9e9a52d62c174e3ec24fc608bcdacaee6572e81d2b7f75229c05234"
+    },
+    {
+      "logical_path": "policy-engine/tests/_helpers/runtime_http.py",
+      "stored_carrier_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-consumer/tests/_helpers/runtime_http.py",
+      "git_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "git_blob": "fcf3b172b787ac8f6e8f43ebca5ebea1babaac78",
+      "bytes": 56431,
+      "sha256": "b1e9e4a3ca5ae825aaed75b814e48d2e842800aa3dd9ab21be3848f2a230a85e"
+    },
+    {
+      "logical_path": "policy-engine/tests/_helpers/scientist_runtime.py",
+      "stored_carrier_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-consumer/tests/_helpers/scientist_runtime.py",
+      "git_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "git_blob": "30f18c3d737d56b5ba91b127df7eea9a29bc6edf",
+      "bytes": 14637,
+      "sha256": "f506c8b714388dceca16a275d3e84c5ae7923e6ca712d6738835de25981265cd"
+    },
+    {
+      "logical_path": "policy-engine/tests/_helpers/search_strategies.py",
+      "stored_carrier_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-consumer/tests/_helpers/search_strategies.py",
+      "git_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "git_blob": "99589ee19d48f4090c1a984a2fe1be7a2521f8ac",
+      "bytes": 1741,
+      "sha256": "8d443fc9e91e643e016461548aca52292a5d44a9fd96fe707ef67a5b3f553687"
+    },
+    {
+      "logical_path": "policy-engine/tests/_helpers/semantic_epoch_native.py",
+      "stored_carrier_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-consumer/tests/_helpers/semantic_epoch_native.py",
+      "git_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "git_blob": "2bf1456346880edecb02fa2a9d34641a75fcf46e",
+      "bytes": 10497,
+      "sha256": "6b5df236c53627b3d0325d66ece56e730339774630b41026bf63377110b48d77"
+    },
+    {
+      "logical_path": "policy-engine/tests/conftest.py",
+      "stored_carrier_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-consumer/tests/conftest.py",
+      "git_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "git_blob": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168",
+      "bytes": 9664,
+      "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a"
+    },
+    {
+      "logical_path": "policy-engine/tests/unit/foundry/conftest.py",
+      "stored_carrier_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-consumer/tests/unit/foundry/conftest.py",
+      "git_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "git_blob": "4a7555a6dc2292312f0a053de3b5e2e34f6744cd",
+      "bytes": 969,
+      "sha256": "53c808c34be3ea5d31db2c8e5172c0c75235a0ea1f11846416dacc2501b5ec40"
+    },
+    {
+      "logical_path": "policy-engine/tests/unit/foundry/methods/conftest.py",
+      "stored_carrier_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-consumer/tests/unit/foundry/methods/conftest.py",
+      "git_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "git_blob": "2b7d7725ef999c197f322af6b8d746f7e6c1ce0c",
+      "bytes": 11773,
+      "sha256": "d4cc421ea080fd04e04c93345f066c9f2993020a1e95219e325319d0fb987d11"
+    },
+    {
+      "logical_path": "policy-engine/tests/unit/scientist/conftest.py",
+      "stored_carrier_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-consumer/tests/unit/scientist/conftest.py",
+      "git_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "git_blob": "8da092e5640e18bcdac257e5521f4d3a4e7aa2c0",
+      "bytes": 103,
+      "sha256": "9d711f8d627e1aec1d9baa959b5cac44971a4383aa44a449b348a085495d6fcd"
+    },
+    {
+      "logical_path": "policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py",
+      "stored_carrier_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-consumer/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py",
+      "git_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "git_blob": "5bfcc1b7fc4241422cd1eb4b69cc6a36693fd13c",
+      "bytes": 26534,
+      "sha256": "d1c11a3161cca0d7720e9d3c4a7ba46649a2e672f2202688c8f03206bbb99465"
+    },
+    {
+      "logical_path": "policy-engine/tests/unit/scientist/nodes/conftest.py",
+      "stored_carrier_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-consumer/tests/unit/scientist/nodes/conftest.py",
+      "git_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "git_blob": "190c0e9665f2b4ab1507868978b4193872079006",
+      "bytes": 1556,
+      "sha256": "5efe0ef0510816c884b4ae09930fadeabd058eb8dfb16b1f3e281fdd5096d9b7"
+    }
+  ],
+  "unchanged_packaging_lock_resources": [
+    {
+      "path": "policy-engine/hatch.toml",
+      "old_source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "candidate_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "git_blob": "ab91c577cc1fc7beed00b78d29efd9c84ba7c9f7"
+    },
+    {
+      "path": "policy-engine/uv.lock",
+      "old_source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "candidate_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "git_blob": "85f1fb2150a4da454fee02108565381d44f56730"
+    },
+    {
+      "path": "policy-engine/pyproject.toml",
+      "old_source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "candidate_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c"
+    },
+    {
+      "path": "policy-engine/data/dataset_catalog/seed_variable_alignments.yaml",
+      "old_source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "candidate_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "git_blob": "49d63f6e693ab9488fad50b25d75b042f3dff9dd"
+    },
+    {
+      "path": "policy-engine/data/dataset_catalog/proxy_metric_alignments.yaml",
+      "old_source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "candidate_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "git_blob": "649cd9a249ca12745b4ed9c9871d2aca57eb0a61"
+    },
+    {
+      "path": "policy-engine/data/dataset_catalog/wvs_indicator_registry.yaml",
+      "old_source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "candidate_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "git_blob": "e28c9dfc7e83f3c7d2fbf020312dcfdd66bee3a0"
+    },
+    {
+      "path": "policy-engine/data/dataset_catalog/metrics_map.yaml",
+      "old_source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "candidate_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "git_blob": "7f6cf78a02e4e58219353548af604de49e796442"
+    },
+    {
+      "path": "policy-engine/architecture/production_quality/method_catalog_dependency_digest_domains.toml",
+      "old_source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "candidate_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "git_blob": "caf4fa98a0669f6d81bd8b5db0014cb015b9492f"
+    },
+    {
+      "path": "policy-engine/workers/dowhy-014/worker.py",
+      "old_source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "candidate_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "git_blob": "8e4ea39ce6b4f03626b30fb674b0d3f881557aef"
+    },
+    {
+      "path": "policy-engine/workers/dowhy-014/protocol.py",
+      "old_source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "candidate_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "git_blob": "ca392779e3351e4cf13b23db0a27077487a29368"
+    },
+    {
+      "path": "policy-engine/workers/dowhy-014/pyproject.toml",
+      "old_source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "candidate_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "git_blob": "770a46160a0b13614507d345f729910c9e81acde"
+    },
+    {
+      "path": "policy-engine/workers/dowhy-014/uv.lock",
+      "old_source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "candidate_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "git_blob": "77ce3b5392703b452d70da87c0f57372b88e9117"
+    },
+    {
+      "path": "policy-engine/workers/dowhy-014/.python-version",
+      "old_source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "candidate_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "git_blob": "e4fba2183587225f216eeada4c78dfab6b2e65f5"
+    },
+    {
+      "path": "policy-engine/workers/dowhy-014/README.md",
+      "old_source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "candidate_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "git_blob": "84528b455b39585aa3e507e4c6697213c7f7365a"
+    }
+  ],
+  "old519_archives": [
+    {
+      "name": "wheel-archive",
+      "source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/dist-source/policy_engine-0.1.0-py3-none-any.whl",
+      "bytes": 15146001,
+      "sha256": "ba048b292f6b22f5a0ae3afb98c1ce6bd3fc2bfe0429c63ed9181793945a13ac"
+    },
+    {
+      "name": "sdist-archive",
+      "source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/dist-source/policy_engine-0.1.0.tar.gz",
+      "bytes": 121945591,
+      "sha256": "d6957fecf70c2815851c234d6d5242b37d70190249f8c84aac4fab75d88be873"
+    },
+    {
+      "name": "rebuilt_wheel-archive",
+      "source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/dist-rebuilt/policy_engine-0.1.0-py3-none-any.whl",
+      "bytes": 15146001,
+      "sha256": "ba048b292f6b22f5a0ae3afb98c1ce6bd3fc2bfe0429c63ed9181793945a13ac"
+    }
+  ],
+  "old519_sites": {
+    "profiles": 2,
+    "files_each": 3464,
+    "all_declared_bytes_match_original": true
+  },
+  "limits": "Actual old/new immutable byte custody; no new old519 scientific run or new sdist qualification."
+}

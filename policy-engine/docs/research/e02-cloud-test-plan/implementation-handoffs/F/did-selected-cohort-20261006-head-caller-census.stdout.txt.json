@@ -1,0 +1,6 @@
+{
+  "encoding": "utf8-json-string",
+  "decoded_bytes": 678,
+  "decoded_sha256": "ad6d940e9b13f4768abf6901ed282ad4dee3e8981f2df441e6e1f95313a87cb7",
+  "text": "{\"source_sha\": \"cebe94d8134a4652bbfc1ae4d74ec6403940ced5\", \"complete_tracked_file_types\": {\".md\": 2146, \".yml\": 71, \".json\": 2954, \".py\": 6441, \".toml\": 265, \".yaml\": 85, \".txt\": 108}, \"record_count\": 24, \"decode_errors\": 0, \"parse_errors\": 0, \"roles\": {\"historical_structural_baseline\": 1, \"other_needs_review\": 2, \"source_card_or_historical_receipt_documentation\": 7, \"other_method_slot_names\": 5, \"canonical_historical_adapter_definition\": 1, \"historical_replay_or_consumer_test\": 8}, \"live_references\": [\"policy-engine/architecture/policy_design_case/layer3_g2_foundry_method_registry_search.json\", \"policy-engine/tools/ops_runners/experiments/run_msme_deadline_suite.py\"]}\n"
+}

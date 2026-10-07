@@ -1,0 +1,6 @@
+remote: Internal Server Error        
+remote: Request ID 6FAC:2E4A69:44C2C89:41BDF0B:6AC67A57        
+remote: Time 2026-10-07T16:59:05Z
+To https://github.com/DenisKopylov/polisyos.git
+ ! [remote rejected]     HEAD -> codex/e02-F-cau-20261006 (Internal Server Error)
+error: failed to push some refs to 'https://github.com/DenisKopylov/polisyos.git'

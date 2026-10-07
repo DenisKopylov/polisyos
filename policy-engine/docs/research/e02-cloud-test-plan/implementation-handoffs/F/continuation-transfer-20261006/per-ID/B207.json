@@ -1,0 +1,570 @@
+{
+  "schema": "F-original-finding-continuation-receipt/1",
+  "unit": "F",
+  "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+  "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+  "formal_G_acceptance": "not_issued",
+  "check_scope": "Actual bounded measurement is separate from unresolved original/current authority inputs.",
+  "complete_original_bound_row": {
+    "finding_id": "B207",
+    "primary_bundle": "CAU-02",
+    "primary_tsv_owner": {
+      "finding_id": "B207",
+      "unit": "F",
+      "docx_analytical_package": "P33",
+      "source_closure_owner": "CAU-02",
+      "source_bundle_ids": "CAU-02",
+      "source_status": "partial"
+    },
+    "original_source_criterion_refs": [
+      {
+        "criterion_id": "B207",
+        "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "lines": [
+          5132,
+          5145
+        ],
+        "bytes": 3913,
+        "sha256": "5b23dffbebbbaafe40934fedd710b77b0143fffb0073bbf58d1c5ca57d6ad6ca",
+        "title": "## B207. Bootstrap готовых ATT(g,t) не восстанавливает неопределённость панельных наблюдений",
+        "byte_binding_check": "PASS",
+        "complete_original_block": "## B207. Bootstrap готовых ATT(g,t) не восстанавливает неопределённость панельных наблюдений\n\n**Приоритет:** высокий; содержательная замена уровня повторной выборки, не увеличение n_bootstrap. **Основание:** _cohort_time_att и _run_staggered_did; SB01–SB05. [C20.R02, C20.E01]\n\n**Проблема.** После расчёта ATT по когортам и времени повторно выбираются индексы этих уже агрегированных ячеек. Исходные единицы, их внутрипанельная зависимость и общие контрольные наблюдения в bootstrap не участвуют. Поэтому получаемый разброс относится не к принятой процедуре наблюдения данных.\n\n**Воспроизведение.** Одна когорта, один post-период, treated-изменения [2,4,6,8], control-изменения 0. ATT=5, но любая повторная выборка единственной ячейки даёт 5. При 200 и 2000 повторениях интервал [5,5]. Эффект сохраняется при 80 единицах и 160 панельных строках. Полный перебор 256 стратифицированных повторных выборок четырёх treated-единиц даёт разброс средних, SD=1,118033988750 и процентильный интервал [3,7]. Это контроль механизма, не утверждение о номинальном покрытии на этой малой выборке.\n\n**Рекомендуемое исправление.** Сохранять влияние каждой независимой единицы на набор ATT(g,t), затем повторно выбирать единицы/кластеры либо применять совместный multiplier-bootstrap к этим вкладам. Один draw должен согласованно действовать на все ячейки, имеющие общие наблюдения. Агрегируемый estimand, веса когорт и горизонтов объявляются отдельно: нынешнее взвешивание размера когорты по ячейкам не названо универсально ошибочным.\n\n**Экономный путь.** Один подготовленный panel-view, заранее рассчитанные допустимые группы, исходные разности и score-вклады; далее пакетная линейная алгебра. Это может быть значительно дешевле повторной сборки и подгонки всех моделей на каждом bootstrap. Поисковые проходы с point-only результатом остаются возможными, но не получают выдуманный интервал.\n\n**Приёмка.** Одна ячейка с варьирующими единицами не вырождается только из-за числа ячеек; постоянный модельный эффект сохраняется; идентичности единиц и повторов записаны. Затем нужны независимые симуляционные проверки покрытия при серийной корреляции и нескольких когортах. Официальная реализация did использует единичные influence-вклады и multiplier/cluster-процедуры; она не запускалась здесь. [C20.E01]\n\n"
+      }
+    ],
+    "criterion_short_ru": "Selected-cohort scalar/share-ratio influence function under declared IID-unit profile",
+    "actual_consumer": "StaggeredDifferenceInDifferences → genuine MethodJob/CAS → fresh report reader",
+    "source_scope": "Fixed selected-participation estimand with estimated-share ratio IF and one iid unit multiplier",
+    "oracle_and_negative": "Independent share derivative and shared-unit law; single-cell variance, serial multi-cohort MC160 retained, share-IF removal FAIL",
+    "predicate_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Fixed selected-participation estimand with estimated-share ratio IF and one iid unit multiplier. Independent oracle/retained-marker negative: Independent share derivative and shared-unit law; single-cell variance, serial multi-cohort MC160 retained, share-IF removal FAIL. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+    "check": "PASS",
+    "outcome": "limited",
+    "state_role": "Explicit F ROOT recommendation on original byte-bound criterion; separate technical profile and current continuation. G formal acceptance not issued.",
+    "technical_original_criterion_recommendation": "closed",
+    "technical_historical_baseline_profile_outcome": null,
+    "technical_check": "PASS",
+    "current_continuation_outcome_recommendation": "limited",
+    "check_interpretation": "Proposed original/current criterion measurement disposition. Component-native PASSs remain on their exact source; pending owner/authority measurements are not PASS.",
+    "original_criterion_remainder": "Original selected iid-unit scientific discriminator is established; final composition source must stay distinct.",
+    "separate_unavailable_inputs_or_authority": "Full production EvalSafety/admitted units/real graph and parallel trends remain UNRUN separately.",
+    "limit_next_owner_short_ru": "Original selected iid-unit scientific discriminator is established; final composition source must stay distinct.",
+    "authority_check": "UNRUN",
+    "formal_G_accepted": false,
+    "formal_ledger_acceptance": "not_issued",
+    "receipt_ref": {
+      "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+      "branch": "refs/heads/codex/e02-F-cau-20261006",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+      "bytes": 216928,
+      "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+      "table": "per_finding",
+      "per_id": "B207"
+    },
+    "implementation_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+    "candidate_tree_sha": "a2ed0a07151263cd747cff5ec410643e326620a9",
+    "historical_421_per_id_deciding_refs": [
+      {
+        "index": 1,
+        "check_id": "published-native",
+        "outcome": "PASS",
+        "target_sha": "0a25f3afee4c12ba8079c781618229589ef8af75",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-native.stdout.txt.json"
+      },
+      {
+        "index": 3,
+        "check_id": "head-dgp",
+        "outcome": "PASS",
+        "target_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-dgp.stdout.txt.json"
+      },
+      {
+        "index": 4,
+        "check_id": "final-cell-oracle",
+        "outcome": "PASS",
+        "target_sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-cell-oracle.stdout.txt.json"
+      },
+      {
+        "index": 5,
+        "check_id": "final-removal-share",
+        "outcome": "FAIL",
+        "target_sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-share.stdout.txt.json"
+      }
+    ],
+    "historical_421_owner_decision": {
+      "property": "Selected participation theta_sel has fixed within-cohort averages and estimated share ratio IF; shared iid Mammen draws apply once per independent panel unit across all cells.",
+      "selectors": [
+        "test_unequal_followup_selected_target_and_ratio_influence",
+        "test_staggered_bootstrap_resamples_panel_units_not_att_cells",
+        "test_seeded_serial_panel_null_coverage_and_alternative_binomial_bounds"
+      ],
+      "checks": [
+        "published-native",
+        "head-dgp",
+        "final-cell-oracle",
+        "final-removal-share"
+      ],
+      "negative": "Removing estimated-share IF rejected by independent finite derivative; unique-unit/timing/fixed-target invalid requests refuse.",
+      "limits": "Known synthetic pointwise iid/large-unit profile; no official external did runtime witness, small-G or admitted real-data identification.",
+      "criterion_refs": [
+        {
+          "criterion_id": "B207",
+          "document": "B_r19",
+          "lines": [
+            5132,
+            5145
+          ],
+          "sha256": "5b23dffbebbbaafe40934fedd710b77b0143fffb0073bbf58d1c5ca57d6ad6ca",
+          "card": "CAU-02"
+        }
+      ],
+      "method_decision": "F-M5",
+      "native_outcome": "PASS",
+      "finding_state": "limited",
+      "criterion_source": "Original card blocks and method decisions; generic coverage paraphrases for B208/B209/LA-016 are not substituted for source discriminator.",
+      "prior_publication_classification": {
+        "receipt_commit": "67b2adb96afa878a00ea1f818840ad2738d9e3b4",
+        "native_outcome": "PASS_BOUNDED",
+        "finding_state": "limited_pending_G_replay_and_real_input_authority",
+        "superseded": true
+      },
+      "original_criterion": {
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "lines": [
+          5132,
+          5145
+        ],
+        "sha256": "5b23dffbebbbaafe40934fedd710b77b0143fffb0073bbf58d1c5ca57d6ad6ca",
+        "exact_acceptance_text": "**Приёмка.** Одна ячейка с варьирующими единицами не вырождается только из-за числа ячеек; постоянный модельный эффект сохраняется; идентичности единиц и повторов записаны. Затем нужны независимые симуляционные проверки покрытия при серийной корреляции и нескольких когортах. Официальная реализация did использует единичные influence-вклады и multiplier/cluster-процедуры; она не запускалась здесь. [C20.E01]",
+        "full_card_text": "## B207. Bootstrap готовых ATT(g,t) не восстанавливает неопределённость панельных наблюдений\n\n**Приоритет:** высокий; содержательная замена уровня повторной выборки, не увеличение n_bootstrap. **Основание:** _cohort_time_att и _run_staggered_did; SB01–SB05. [C20.R02, C20.E01]\n\n**Проблема.** После расчёта ATT по когортам и времени повторно выбираются индексы этих уже агрегированных ячеек. Исходные единицы, их внутрипанельная зависимость и общие контрольные наблюдения в bootstrap не участвуют. Поэтому получаемый разброс относится не к принятой процедуре наблюдения данных.\n\n**Воспроизведение.** Одна когорта, один post-период, treated-изменения [2,4,6,8], control-изменения 0. ATT=5, но любая повторная выборка единственной ячейки даёт 5. При 200 и 2000 повторениях интервал [5,5]. Эффект сохраняется при 80 единицах и 160 панельных строках. Полный перебор 256 стратифицированных повторных выборок четырёх treated-единиц даёт разброс средних, SD=1,118033988750 и процентильный интервал [3,7]. Это контроль механизма, не утверждение о номинальном покрытии на этой малой выборке.\n\n**Рекомендуемое исправление.** Сохранять влияние каждой независимой единицы на набор ATT(g,t), затем повторно выбирать единицы/кластеры либо применять совместный multiplier-bootstrap к этим вкладам. Один draw должен согласованно действовать на все ячейки, имеющие общие наблюдения. Агрегируемый estimand, веса когорт и горизонтов объявляются отдельно: нынешнее взвешивание размера когорты по ячейкам не названо универсально ошибочным.\n\n**Экономный путь.** Один подготовленный panel-view, заранее рассчитанные допустимые группы, исходные разности и score-вклады; далее пакетная линейная алгебра. Это может быть значительно дешевле повторной сборки и подгонки всех моделей на каждом bootstrap. Поисковые проходы с point-only результатом остаются возможными, но не получают выдуманный интервал.\n\n**Приёмка.** Одна ячейка с варьирующими единицами не вырождается только из-за числа ячеек; постоянный модельный эффект сохраняется; идентичности единиц и повторов записаны. Затем нужны независимые симуляционные проверки покрытия при серийной корреляции и нескольких когортах. Официальная реализация did использует единичные influence-вклады и multiplier/cluster-процедуры; она не запускалась здесь. [C20.E01]\n\n",
+        "source_is_original_card": true
+      },
+      "check": "PASS",
+      "outcome": "limited",
+      "source_criterion_outcome": "closed",
+      "decision_reason": "Original scientific discriminator is closed for the selected iid-unit profile: the single-cell interval is nondegenerate with varying units, shared unit multipliers and estimated-share influence are real, and independently replayed serial/multi-cohort null and alternative coverage are inside declared binomial bounds. Overall continuation outcome remains limited until the separately required F-M5 whole Scientist-node input/target binding is composed and independently received on the final root SHA; no blanket real-data prerequisite is imposed on the scientific predicate.",
+      "canonical_checks": [
+        {
+          "check_id": "published-native",
+          "check": "PASS",
+          "exit": 0,
+          "target_sha": "0a25f3afee4c12ba8079c781618229589ef8af75",
+          "role": "native_property_measurement"
+        },
+        {
+          "check_id": "head-dgp",
+          "check": "PASS",
+          "exit": 0,
+          "target_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+          "role": "native_property_measurement"
+        },
+        {
+          "check_id": "final-cell-oracle",
+          "check": "PASS",
+          "exit": 0,
+          "target_sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+          "role": "native_property_measurement"
+        },
+        {
+          "check_id": "final-removal-share",
+          "check": "FAIL",
+          "exit": 1,
+          "target_sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+          "role": "property_removal_expected_rejection"
+        }
+      ],
+      "required_remaining_checks": [
+        {
+          "owner": "F root/G integration",
+          "check": "UNRUN",
+          "scope": "Exact final composed whole Scientist node: original unit/target/E_g/query and complete report versus genuine method CAS result; earlier root binding prototype is explicitly not final closure."
+        }
+      ],
+      "closure_is_product_approval": false
+    },
+    "owner_proposals_complete": [
+      {
+        "registry_index": 1,
+        "receipt_ref": {
+          "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+          "bytes": 216928,
+          "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73"
+        },
+        "json_pointer": "/per_finding/B207",
+        "complete_owner_entry": {
+          "property": "Selected participation theta_sel has fixed within-cohort averages and estimated share ratio IF; shared iid Mammen draws apply once per independent panel unit across all cells.",
+          "selectors": [
+            "test_unequal_followup_selected_target_and_ratio_influence",
+            "test_staggered_bootstrap_resamples_panel_units_not_att_cells",
+            "test_seeded_serial_panel_null_coverage_and_alternative_binomial_bounds"
+          ],
+          "checks": [
+            "published-native",
+            "head-dgp",
+            "final-cell-oracle",
+            "final-removal-share"
+          ],
+          "negative": "Removing estimated-share IF rejected by independent finite derivative; unique-unit/timing/fixed-target invalid requests refuse.",
+          "limits": "Known synthetic pointwise iid/large-unit profile; no official external did runtime witness, small-G or admitted real-data identification.",
+          "criterion_refs": [
+            {
+              "criterion_id": "B207",
+              "document": "B_r19",
+              "lines": [
+                5132,
+                5145
+              ],
+              "sha256": "5b23dffbebbbaafe40934fedd710b77b0143fffb0073bbf58d1c5ca57d6ad6ca",
+              "card": "CAU-02"
+            }
+          ],
+          "method_decision": "F-M5",
+          "native_outcome": "PASS",
+          "finding_state": "limited",
+          "criterion_source": "Original card blocks and method decisions; generic coverage paraphrases for B208/B209/LA-016 are not substituted for source discriminator.",
+          "prior_publication_classification": {
+            "receipt_commit": "67b2adb96afa878a00ea1f818840ad2738d9e3b4",
+            "native_outcome": "PASS_BOUNDED",
+            "finding_state": "limited_pending_G_replay_and_real_input_authority",
+            "superseded": true
+          },
+          "original_criterion": {
+            "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+            "lines": [
+              5132,
+              5145
+            ],
+            "sha256": "5b23dffbebbbaafe40934fedd710b77b0143fffb0073bbf58d1c5ca57d6ad6ca",
+            "exact_acceptance_text": "**Приёмка.** Одна ячейка с варьирующими единицами не вырождается только из-за числа ячеек; постоянный модельный эффект сохраняется; идентичности единиц и повторов записаны. Затем нужны независимые симуляционные проверки покрытия при серийной корреляции и нескольких когортах. Официальная реализация did использует единичные influence-вклады и multiplier/cluster-процедуры; она не запускалась здесь. [C20.E01]",
+            "full_card_text": "## B207. Bootstrap готовых ATT(g,t) не восстанавливает неопределённость панельных наблюдений\n\n**Приоритет:** высокий; содержательная замена уровня повторной выборки, не увеличение n_bootstrap. **Основание:** _cohort_time_att и _run_staggered_did; SB01–SB05. [C20.R02, C20.E01]\n\n**Проблема.** После расчёта ATT по когортам и времени повторно выбираются индексы этих уже агрегированных ячеек. Исходные единицы, их внутрипанельная зависимость и общие контрольные наблюдения в bootstrap не участвуют. Поэтому получаемый разброс относится не к принятой процедуре наблюдения данных.\n\n**Воспроизведение.** Одна когорта, один post-период, treated-изменения [2,4,6,8], control-изменения 0. ATT=5, но любая повторная выборка единственной ячейки даёт 5. При 200 и 2000 повторениях интервал [5,5]. Эффект сохраняется при 80 единицах и 160 панельных строках. Полный перебор 256 стратифицированных повторных выборок четырёх treated-единиц даёт разброс средних, SD=1,118033988750 и процентильный интервал [3,7]. Это контроль механизма, не утверждение о номинальном покрытии на этой малой выборке.\n\n**Рекомендуемое исправление.** Сохранять влияние каждой независимой единицы на набор ATT(g,t), затем повторно выбирать единицы/кластеры либо применять совместный multiplier-bootstrap к этим вкладам. Один draw должен согласованно действовать на все ячейки, имеющие общие наблюдения. Агрегируемый estimand, веса когорт и горизонтов объявляются отдельно: нынешнее взвешивание размера когорты по ячейкам не названо универсально ошибочным.\n\n**Экономный путь.** Один подготовленный panel-view, заранее рассчитанные допустимые группы, исходные разности и score-вклады; далее пакетная линейная алгебра. Это может быть значительно дешевле повторной сборки и подгонки всех моделей на каждом bootstrap. Поисковые проходы с point-only результатом остаются возможными, но не получают выдуманный интервал.\n\n**Приёмка.** Одна ячейка с варьирующими единицами не вырождается только из-за числа ячеек; постоянный модельный эффект сохраняется; идентичности единиц и повторов записаны. Затем нужны независимые симуляционные проверки покрытия при серийной корреляции и нескольких когортах. Официальная реализация did использует единичные influence-вклады и multiplier/cluster-процедуры; она не запускалась здесь. [C20.E01]\n\n",
+            "source_is_original_card": true
+          },
+          "check": "PASS",
+          "outcome": "limited",
+          "source_criterion_outcome": "closed",
+          "decision_reason": "Original scientific discriminator is closed for the selected iid-unit profile: the single-cell interval is nondegenerate with varying units, shared unit multipliers and estimated-share influence are real, and independently replayed serial/multi-cohort null and alternative coverage are inside declared binomial bounds. Overall continuation outcome remains limited until the separately required F-M5 whole Scientist-node input/target binding is composed and independently received on the final root SHA; no blanket real-data prerequisite is imposed on the scientific predicate.",
+          "canonical_checks": [
+            {
+              "check_id": "published-native",
+              "check": "PASS",
+              "exit": 0,
+              "target_sha": "0a25f3afee4c12ba8079c781618229589ef8af75",
+              "role": "native_property_measurement"
+            },
+            {
+              "check_id": "head-dgp",
+              "check": "PASS",
+              "exit": 0,
+              "target_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+              "role": "native_property_measurement"
+            },
+            {
+              "check_id": "final-cell-oracle",
+              "check": "PASS",
+              "exit": 0,
+              "target_sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+              "role": "native_property_measurement"
+            },
+            {
+              "check_id": "final-removal-share",
+              "check": "FAIL",
+              "exit": 1,
+              "target_sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+              "role": "property_removal_expected_rejection"
+            }
+          ],
+          "required_remaining_checks": [
+            {
+              "owner": "F root/G integration",
+              "check": "UNRUN",
+              "scope": "Exact final composed whole Scientist node: original unit/target/E_g/query and complete report versus genuine method CAS result; earlier root binding prototype is explicitly not final closure."
+            }
+          ],
+          "closure_is_product_approval": false
+        }
+      },
+      {
+        "registry_index": 21,
+        "receipt_ref": {
+          "head": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json",
+          "bytes": 162688,
+          "sha256": "ba2405cc2cafdb42b2bcfaab0606aacb60056cdffe9fc4f304f854c1283e62dc"
+        },
+        "json_pointer": "/per_finding/B207",
+        "complete_owner_entry": {
+          "check": "PASS",
+          "outcome": "limited",
+          "original_criterion": {
+            "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+            "lines": [
+              5132,
+              5145
+            ],
+            "sha256": "5b23dffbebbbaafe40934fedd710b77b0143fffb0073bbf58d1c5ca57d6ad6ca",
+            "exact_acceptance_text": "**Приёмка.** Одна ячейка с варьирующими единицами не вырождается только из-за числа ячеек; постоянный модельный эффект сохраняется; идентичности единиц и повторов записаны. Затем нужны независимые симуляционные проверки покрытия при серийной корреляции и нескольких когортах. Официальная реализация did использует единичные influence-вклады и multiplier/cluster-процедуры; она не запускалась здесь. [C20.E01]",
+            "source_is_original_card": true
+          },
+          "original_criterion_source_sha": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+          "original_card_binding_check": "PASS",
+          "prior_per_id_receipt": {
+            "git_ref": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+            "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+            "pointer": "/per_finding/B207"
+          },
+          "method_decision": "F-M5",
+          "decision_basis": "Original generic scientific predicate retained on its exact prior source; focused current native sibling tests cover modifiedproducer. No oldMC receipt relabelled current.",
+          "negative": "diagnostic input digest removal4FAIL; stale/forged/coherent diagnostic claims refused in portable rootproposal",
+          "limits": "Known synthetic pointwise iid/large-unit profile; no official external did runtime witness, small-G or admitted real-data identification.",
+          "new_whole_diagnostic_consumer_check": "UNRUN",
+          "new_whole_diagnostic_consumer_owner": "root Scientist canonical projection; G assembles/fresh verifier Runtime admission on actuallocal inputs, not scientific authority owner."
+        }
+      }
+    ],
+    "supplemental_receipt_registry_indices": [
+      1,
+      14,
+      21,
+      22,
+      26
+    ],
+    "current_exact_consumer_receipts": [
+      {
+        "key": "cau_science",
+        "git_ref": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+        "bytes": 216928,
+        "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+        "implementation_commits": [
+          "fc0d896e86ffb346381bbcc95b81d24c84e1a351",
+          "c7d33a223e467964c589f61c8b097eb9175335c5",
+          "0a25f3afee4c12ba8079c781618229589ef8af75",
+          "cebe94d8134a4652bbfc1ae4d74ec6403940ced5"
+        ],
+        "candidate_tree_sha": "a2ed0a07151263cd747cff5ec410643e326620a9"
+      },
+      {
+        "key": "cau",
+        "git_ref": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json",
+        "bytes": 162688,
+        "sha256": "ba2405cc2cafdb42b2bcfaab0606aacb60056cdffe9fc4f304f854c1283e62dc",
+        "implementation_commits": [
+          "759c984f475d07c982c0f22f747588706ac752e8",
+          "856caddfa71423a439b1257d947d9657b6a29ff3",
+          "0b522ed173730b4ec744253bb75b6ee260bfcebb"
+        ],
+        "candidate_tree_sha": "a402720194c41d0b6c5bb93cceb326cd4699df72"
+      },
+      {
+        "key": "root",
+        "git_ref": "4a0c831ce1088c4e2fe1587b6c5a2eb1fb85b75c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006.json",
+        "bytes": 13477,
+        "sha256": "0ec2f8e09b0dfc2be368d6aa30dd1160ffc4c0d2e3fc9bf1f9f1bdcc398d0927",
+        "implementation_commits": [
+          "05f86c84a3cc9720fc5d7eb86a6b0c1b7090c282",
+          "86e7f9afe25e5f171a0fb03669ce0d9cb5269624",
+          "3afb3ea5f26ad429ac45be78bd2cbd180fcc5a77"
+        ],
+        "candidate_tree_sha": "508884be8ea79e5b87844030ea4122c8e74d610a"
+      }
+    ],
+    "canonical_owner_re_adjudication_required": "For unavailable semantic/institutional inputs only; source-bound ROOT decisions and independent reviews are carried separately.",
+    "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate",
+    "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+    "historical_proposal_before_ROOT_adjudication": {
+      "original_criterion_remainder": "Original selected iid-unit scientific discriminator is established; final composition source must stay distinct.",
+      "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate",
+      "outcome": "limited",
+      "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+      "oracle_and_negative": "Independent share derivative and shared-unit law; single-cell variance, serial multi-cohort MC160 retained, share-IF removal FAIL",
+      "source_scope": "Fixed selected-participation estimand with estimated-share ratio IF and one iid unit multiplier",
+      "actual_consumer": "StaggeredDifferenceInDifferences → genuine MethodJob/CAS → fresh report reader",
+      "check": "PASS",
+      "decision_basis": null,
+      "separate_unavailable_inputs_or_authority": "Full production EvalSafety/admitted units/real graph and parallel trends remain UNRUN separately.",
+      "criterion_short_ru": "Selected-cohort scalar/share-ratio influence function under declared IID-unit profile",
+      "technical_original_criterion_recommendation": "closed",
+      "deciding_receipt_refs": null
+    },
+    "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Fixed selected-participation estimand with estimated-share ratio IF and one iid unit multiplier. Independent oracle/retained-marker negative: Independent share derivative and shared-unit law; single-cell variance, serial multi-cohort MC160 retained, share-IF removal FAIL. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+    "check_scope": "Explicit source-bound ROOT original/current criterion adjudication; exact component outcomes remain separately preserved",
+    "ROOT_deciding_refs": [
+      {
+        "git_ref": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+        "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+        "bytes": 216928,
+        "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+        "git_blob": "0ec1597eb6f77d833cb10103513c1d16aa6d682a",
+        "check": "PASS",
+        "origins": [
+          "ROOT_adjudication/B207"
+        ]
+      },
+      {
+        "git_ref": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+        "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+        "bytes": 216928,
+        "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+        "git_blob": "0ec1597eb6f77d833cb10103513c1d16aa6d682a",
+        "check": "PASS",
+        "origins": [
+          "ROOT_adjudication/B207"
+        ],
+        "json_pointer": "/per_finding/B207",
+        "complete_deciding_entry": {
+          "property": "Selected participation theta_sel has fixed within-cohort averages and estimated share ratio IF; shared iid Mammen draws apply once per independent panel unit across all cells.",
+          "selectors": [
+            "test_unequal_followup_selected_target_and_ratio_influence",
+            "test_staggered_bootstrap_resamples_panel_units_not_att_cells",
+            "test_seeded_serial_panel_null_coverage_and_alternative_binomial_bounds"
+          ],
+          "checks": [
+            "published-native",
+            "head-dgp",
+            "final-cell-oracle",
+            "final-removal-share"
+          ],
+          "negative": "Removing estimated-share IF rejected by independent finite derivative; unique-unit/timing/fixed-target invalid requests refuse.",
+          "limits": "Known synthetic pointwise iid/large-unit profile; no official external did runtime witness, small-G or admitted real-data identification.",
+          "criterion_refs": [
+            {
+              "criterion_id": "B207",
+              "document": "B_r19",
+              "lines": [
+                5132,
+                5145
+              ],
+              "sha256": "5b23dffbebbbaafe40934fedd710b77b0143fffb0073bbf58d1c5ca57d6ad6ca",
+              "card": "CAU-02"
+            }
+          ],
+          "method_decision": "F-M5",
+          "native_outcome": "PASS",
+          "finding_state": "limited",
+          "criterion_source": "Original card blocks and method decisions; generic coverage paraphrases for B208/B209/LA-016 are not substituted for source discriminator.",
+          "prior_publication_classification": {
+            "receipt_commit": "67b2adb96afa878a00ea1f818840ad2738d9e3b4",
+            "native_outcome": "PASS_BOUNDED",
+            "finding_state": "limited_pending_G_replay_and_real_input_authority",
+            "superseded": true
+          },
+          "original_criterion": {
+            "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+            "lines": [
+              5132,
+              5145
+            ],
+            "sha256": "5b23dffbebbbaafe40934fedd710b77b0143fffb0073bbf58d1c5ca57d6ad6ca",
+            "exact_acceptance_text": "**Приёмка.** Одна ячейка с варьирующими единицами не вырождается только из-за числа ячеек; постоянный модельный эффект сохраняется; идентичности единиц и повторов записаны. Затем нужны независимые симуляционные проверки покрытия при серийной корреляции и нескольких когортах. Официальная реализация did использует единичные influence-вклады и multiplier/cluster-процедуры; она не запускалась здесь. [C20.E01]",
+            "full_card_text": "## B207. Bootstrap готовых ATT(g,t) не восстанавливает неопределённость панельных наблюдений\n\n**Приоритет:** высокий; содержательная замена уровня повторной выборки, не увеличение n_bootstrap. **Основание:** _cohort_time_att и _run_staggered_did; SB01–SB05. [C20.R02, C20.E01]\n\n**Проблема.** После расчёта ATT по когортам и времени повторно выбираются индексы этих уже агрегированных ячеек. Исходные единицы, их внутрипанельная зависимость и общие контрольные наблюдения в bootstrap не участвуют. Поэтому получаемый разброс относится не к принятой процедуре наблюдения данных.\n\n**Воспроизведение.** Одна когорта, один post-период, treated-изменения [2,4,6,8], control-изменения 0. ATT=5, но любая повторная выборка единственной ячейки даёт 5. При 200 и 2000 повторениях интервал [5,5]. Эффект сохраняется при 80 единицах и 160 панельных строках. Полный перебор 256 стратифицированных повторных выборок четырёх treated-единиц даёт разброс средних, SD=1,118033988750 и процентильный интервал [3,7]. Это контроль механизма, не утверждение о номинальном покрытии на этой малой выборке.\n\n**Рекомендуемое исправление.** Сохранять влияние каждой независимой единицы на набор ATT(g,t), затем повторно выбирать единицы/кластеры либо применять совместный multiplier-bootstrap к этим вкладам. Один draw должен согласованно действовать на все ячейки, имеющие общие наблюдения. Агрегируемый estimand, веса когорт и горизонтов объявляются отдельно: нынешнее взвешивание размера когорты по ячейкам не названо универсально ошибочным.\n\n**Экономный путь.** Один подготовленный panel-view, заранее рассчитанные допустимые группы, исходные разности и score-вклады; далее пакетная линейная алгебра. Это может быть значительно дешевле повторной сборки и подгонки всех моделей на каждом bootstrap. Поисковые проходы с point-only результатом остаются возможными, но не получают выдуманный интервал.\n\n**Приёмка.** Одна ячейка с варьирующими единицами не вырождается только из-за числа ячеек; постоянный модельный эффект сохраняется; идентичности единиц и повторов записаны. Затем нужны независимые симуляционные проверки покрытия при серийной корреляции и нескольких когортах. Официальная реализация did использует единичные influence-вклады и multiplier/cluster-процедуры; она не запускалась здесь. [C20.E01]\n\n",
+            "source_is_original_card": true
+          },
+          "check": "PASS",
+          "outcome": "limited",
+          "source_criterion_outcome": "closed",
+          "decision_reason": "Original scientific discriminator is closed for the selected iid-unit profile: the single-cell interval is nondegenerate with varying units, shared unit multipliers and estimated-share influence are real, and independently replayed serial/multi-cohort null and alternative coverage are inside declared binomial bounds. Overall continuation outcome remains limited until the separately required F-M5 whole Scientist-node input/target binding is composed and independently received on the final root SHA; no blanket real-data prerequisite is imposed on the scientific predicate.",
+          "canonical_checks": [
+            {
+              "check_id": "published-native",
+              "check": "PASS",
+              "exit": 0,
+              "target_sha": "0a25f3afee4c12ba8079c781618229589ef8af75",
+              "role": "native_property_measurement"
+            },
+            {
+              "check_id": "head-dgp",
+              "check": "PASS",
+              "exit": 0,
+              "target_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+              "role": "native_property_measurement"
+            },
+            {
+              "check_id": "final-cell-oracle",
+              "check": "PASS",
+              "exit": 0,
+              "target_sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+              "role": "native_property_measurement"
+            },
+            {
+              "check_id": "final-removal-share",
+              "check": "FAIL",
+              "exit": 1,
+              "target_sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+              "role": "property_removal_expected_rejection"
+            }
+          ],
+          "required_remaining_checks": [
+            {
+              "owner": "F root/G integration",
+              "check": "UNRUN",
+              "scope": "Exact final composed whole Scientist node: original unit/target/E_g/query and complete report versus genuine method CAS result; earlier root binding prototype is explicitly not final closure."
+            }
+          ],
+          "closure_is_product_approval": false
+        }
+      },
+      {
+        "git_ref": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+        "head": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json",
+        "bytes": 162688,
+        "sha256": "ba2405cc2cafdb42b2bcfaab0606aacb60056cdffe9fc4f304f854c1283e62dc",
+        "git_blob": "52e8ce5c1ad6f4fc5d43f01d47f46f48ca4890f9",
+        "check": "PASS",
+        "origins": [
+          "ROOT_adjudication/B207"
+        ],
+        "json_pointer": "/per_finding/B207",
+        "complete_deciding_entry": {
+          "check": "PASS",
+          "outcome": "limited",
+          "original_criterion": {
+            "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+            "lines": [
+              5132,
+              5145
+            ],
+            "sha256": "5b23dffbebbbaafe40934fedd710b77b0143fffb0073bbf58d1c5ca57d6ad6ca",
+            "exact_acceptance_text": "**Приёмка.** Одна ячейка с варьирующими единицами не вырождается только из-за числа ячеек; постоянный модельный эффект сохраняется; идентичности единиц и повторов записаны. Затем нужны независимые симуляционные проверки покрытия при серийной корреляции и нескольких когортах. Официальная реализация did использует единичные influence-вклады и multiplier/cluster-процедуры; она не запускалась здесь. [C20.E01]",
+            "source_is_original_card": true
+          },
+          "original_criterion_source_sha": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+          "original_card_binding_check": "PASS",
+          "prior_per_id_receipt": {
+            "git_ref": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+            "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+            "pointer": "/per_finding/B207"
+          },
+          "method_decision": "F-M5",
+          "decision_basis": "Original generic scientific predicate retained on its exact prior source; focused current native sibling tests cover modifiedproducer. No oldMC receipt relabelled current.",
+          "negative": "diagnostic input digest removal4FAIL; stale/forged/coherent diagnostic claims refused in portable rootproposal",
+          "limits": "Known synthetic pointwise iid/large-unit profile; no official external did runtime witness, small-G or admitted real-data identification.",
+          "new_whole_diagnostic_consumer_check": "UNRUN",
+          "new_whole_diagnostic_consumer_owner": "root Scientist canonical projection; G assembles/fresh verifier Runtime admission on actuallocal inputs, not scientific authority owner."
+        }
+      }
+    ],
+    "ROOT_adjudication_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/root-adjudication.json",
+      "bytes": 130025,
+      "sha256": "0fc3e6440719fc3094bb13d82a809586cf05776bcf6a4dc3807e9cbfde44126f",
+      "head": "cda9c4e57a4efc68386c5896775059abcfbe189e",
+      "git_ref": "cda9c4e57a4efc68386c5896775059abcfbe189e",
+      "json_pointer": "/rows/3"
+    }
+  },
+  "independent_packet_review_resolution": {
+    "check": "UNRUN at this immutable packet seal",
+    "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+    "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+  }
+}

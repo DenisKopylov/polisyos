@@ -1,0 +1,270 @@
+{
+  "schema": "e02-independent-tmle-common-report-review-v1",
+  "reviewer": "F/CAU independent leaf",
+  "candidate_sha": "6c711bd2d4f1b6bf851c42a5f3d22b795efb020d",
+  "candidate_tree": "e035bb5cdf9bde154fe08bcb72a0341cfeb2a970",
+  "slice_parent": "66588374da9f407a870880be675b5c751aef44da",
+  "decision": "GO_BOUNDED",
+  "check": "PASS",
+  "outcome": "limited",
+  "blocking_source_issues": [],
+  "checks": [
+    {
+      "id": "packet-custody",
+      "kind": "input_binding",
+      "check": "PASS",
+      "outcome": "closed",
+      "output": "/tmp/e02-F-continuation-20261006/cau/tmle-review/prepare.json",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/prepare.json",
+        "bytes": 13560,
+        "sha256": "9ef16e7baeaa55c07c035c6899a6f2fa84c30c3a06d5fec070875b18db5c32ba"
+      },
+      "summary": "All35 files of genuine baseline feasibility packet verified at exact1,933,487B. No fake pool/context; manifest keyfiles used after initial empty-denominator harness correction.",
+      "actual_counts": {
+        "artifacts": 35,
+        "bytes": 1933487
+      }
+    },
+    {
+      "id": "scope",
+      "kind": "static_source",
+      "check": "PASS",
+      "outcome": "closed",
+      "output": "/tmp/e02-F-continuation-20261006/cau/tmle-review/static-scope.json",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/static-scope.json",
+        "bytes": 653,
+        "sha256": "dc49efd25e8418c2b09323f9e75ac272d119d0d2f928bab1059cb310394efd21"
+      },
+      "summary": "All5 other estimator class ASTs unchanged; canonical TMLE numerical core byte-identical to66588374 parent."
+    },
+    {
+      "id": "initial-native",
+      "kind": "native",
+      "check": "FAIL",
+      "outcome": "open",
+      "output": "/tmp/e02-F-continuation-20261006/cau/tmle-review/native.stdout.txt",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/native.stdout.txt",
+        "bytes": 950885,
+        "sha256": "5b4f7818d7a8901cea75e192cd132d04f835ef24e81a26f57e0a0c6bfbca1044"
+      },
+      "summary": "Actual initial50 selectors49PASS1own harnessFAIL: list/tuple method_params comparison after CAS normalization; no product issue inferred. Source45author selectors+1historical sibling allPASS. Complete warnings127 and raw stderr retained.",
+      "actual_counts": {
+        "passed": 49,
+        "failed": 1,
+        "skipped": 0,
+        "errors": 0,
+        "warnings": 127
+      }
+    },
+    {
+      "id": "corrected-independent",
+      "kind": "native",
+      "check": "PASS",
+      "outcome": "closed",
+      "output": "/tmp/e02-F-continuation-20261006/cau/tmle-review/native-corrected.stdout.txt",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/native-corrected.stdout.txt",
+        "bytes": 130624,
+        "sha256": "89da523cd8c3c32705ed056ce9f16598692db3365832253cb020e350cfb78418"
+      },
+      "summary": "Four independent selectorsPASS. Genuine configured MethodJob/CAS + separate Python reader, XthenW full content and order observed in real6folds, all32effective defaults, independent EIF SE and stdlibGaussian95%CI, historic result-onlysignature, limited/trim/nonconverged point-free contracts.",
+      "actual_counts": {
+        "passed": 4,
+        "failed": 0,
+        "skipped": 0,
+        "errors": 0
+      }
+    },
+    {
+      "id": "same-abi-se-removal",
+      "kind": "property_removal",
+      "check": "PASS",
+      "outcome": "closed",
+      "output": "/tmp/e02-F-continuation-20261006/cau/tmle-review/removal-se-corrected.stdout.txt",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/removal-se-corrected.stdout.txt",
+        "bytes": 130855,
+        "sha256": "44a34ce03a8627ed747f568e83bd013e5e4e9a497b2978eba82699dcc0e1a5fc"
+      },
+      "summary": "Expected native1FAIL rejects SE doubled from genuine .037295091575418736 to.07459018315083747. Actual fit/result/status/profile/FQN/slots/functionsignature/CI preserved. Independent EIF assertion fails before unrelated CAS tuple/list comparison.",
+      "actual_counts": {
+        "passed": 0,
+        "failed": 1,
+        "skipped": 0,
+        "errors": 0,
+        "warnings": 1
+      },
+      "expected_execution_exit_code": 1,
+      "negative_control_measured": "behavioral_rejection"
+    },
+    {
+      "id": "same-shape-order-removal",
+      "kind": "property_removal",
+      "check": "PASS",
+      "outcome": "closed",
+      "output": "/tmp/e02-F-continuation-20261006/cau/tmle-review/removal-order-corrected.stdout.txt",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/removal-order-corrected.stdout.txt",
+        "bytes": 133033,
+        "sha256": "2b0168e32a3aa6560cec1eb37a3fe651ef39f7f77233987bcde704cf21e570ff"
+      },
+      "summary": "Expected native1FAIL rejects WbeforeX with same4columnshape: all2400arrayvalues differ from actual requested XthenW matrix. Canonical fit call itself observed; no fakefit.",
+      "actual_counts": {
+        "passed": 0,
+        "failed": 1,
+        "skipped": 0,
+        "errors": 0,
+        "warnings": 1
+      },
+      "expected_execution_exit_code": 1,
+      "negative_control_measured": "behavioral_rejection"
+    },
+    {
+      "id": "public-provider-identity",
+      "kind": "consumer_ABI",
+      "check": "PASS",
+      "outcome": "closed",
+      "output": "/tmp/e02-F-continuation-20261006/cau/tmle-review/alias.stdout.txt",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/alias.stdout.txt",
+        "bytes": 359,
+        "sha256": "52bacb7b77f70a46f62df687f46abe2446768a174200ee3a6a2a5da0cd8e186d"
+      },
+      "summary": "Existing publicmethods.causal and catalog classes/factory identities match actual producer; pickle sameobject, signature32native fields and literalresult/report/envelope slots. Producer monkeypatch/factory execution covered in45sourcecases.",
+      "actual_counts": {
+        "exit_code": 0
+      }
+    },
+    {
+      "id": "common-node-budget-admission",
+      "kind": "production_scope",
+      "check": "UNRUN",
+      "outcome": "limited",
+      "output": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/feasibility-packet.json",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/feasibility-packet.json",
+        "bytes": 28980,
+        "sha256": "1e483edb81f4afe6e7adb31a89269bd7d391de32b7c7b8c89fdb3e222f30e443"
+      },
+      "summary": "Retained exact4a baseline actualLocalWorkerPool/commonnode refused execution_context_missing before nativefits0. This review exercises genuineMethodJob and CAS but not admitted Runtime/commonnode or allstudy deploymentworkload budget. No new authority positive fabricated."
+    }
+  ],
+  "numerical_oracle": {
+    "data": "Known randomized600row BernoulliDGP; distinct2X+2W adjustmentcolumns. No admittedrealdata claim.",
+    "point_estimate": 0.31776298725360436,
+    "standard_error": 0.037295091575418736,
+    "confidence_interval": [
+      0.24466595096566046,
+      0.39086002354154825
+    ],
+    "law": "s(EIF,ddof=1)/sqrt(N); nativeuntrimmedfullN600; independentstatistics.NormalDist inverseCDF .975 versus coreliteralz.",
+    "native_parameters": 32,
+    "actual_configured_folds": 6,
+    "actual_default_folds": 15,
+    "fold_completion": "Each600heldoutrows exactlyonce perrepeat; genuinecorefit observer forwards nativefunction.",
+    "default_fold_evidence": "Source test_real_default_method_job_uses_current_public_contract_and_all_folds passed in initial45sourcefile selectors.",
+    "historical_compatibility": "Originalraw result same canonicalizedpayload and same cache; genuine historical1resultslotdematerializerprojects exactsameobject. Addedreport/envelope andenumtmle require readers/schema/catalog synchronized; olderenumreadercompatibility notclaimed."
+  },
+  "source_custody": {
+    "execution_files": [
+      {
+        "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/alias.execution.json",
+        "bytes": 4465,
+        "sha256": "d29fb784f2c83f9d84f85d881cd6997d629e92bdb71065bd8195fa4d1df93f49"
+      },
+      {
+        "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/native-corrected.execution.json",
+        "bytes": 5433,
+        "sha256": "2ae81ece1b8ab941f0e42a03614603e6abfe1baf0087446ae110e9dc7e05e8d6"
+      },
+      {
+        "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/native.execution.json",
+        "bytes": 6152,
+        "sha256": "3df68aa8f20cc7542176409de9fc908958c7b1b144d0120375b2cafbc2912ae3"
+      },
+      {
+        "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/removal-order-corrected.execution.json",
+        "bytes": 5494,
+        "sha256": "154a667e373c622683ccf146aa9682da711dc3c0fbdfa79dae4f10a08becd2f0"
+      },
+      {
+        "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/removal-order.execution.json",
+        "bytes": 5996,
+        "sha256": "46e9d9314a88eb0bca47fa9d5366b7baf075813d682a695775bbc88c5f788554"
+      },
+      {
+        "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/removal-se-corrected.execution.json",
+        "bytes": 5483,
+        "sha256": "690747686245d4a9037cd6576b78fec35d333282a2d80bb719643dce06a0105e"
+      },
+      {
+        "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/removal-se.execution.json",
+        "bytes": 5985,
+        "sha256": "7ca4f193abe5bf11a5c4f3338359db97812a6ad4d3da3b141f67ffb08fb287fe"
+      }
+    ],
+    "environment": {
+      "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/environment.json",
+      "bytes": 16539,
+      "sha256": "70a23c8951bf22652fa06b486bd15dfcc6540e4aa02ee075f2a73b514065d6ec"
+    },
+    "scope": {
+      "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/static-scope.json",
+      "bytes": 653,
+      "sha256": "dc49efd25e8418c2b09323f9e75ac272d119d0d2f928bab1059cb310394efd21"
+    },
+    "core_sha256": "cf8d32b9fd825fa2efdd169652de78164f714c7ad01f2d8fde387095111103a0",
+    "all_begin_end_source_hashes_match": true,
+    "source_writes": false,
+    "git_mutations": false,
+    "env_mutations": false
+  },
+  "harness_observations": [
+    {
+      "observation": "Initialpacketchecker usedwrongkey items/artifacts ratherthanfiles, reportedzero custody denominator.",
+      "classification": "nonmeasurement",
+      "retained": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/prepare-initial-zero-denominator.json",
+        "bytes": 2489,
+        "sha256": "475fa06eb7ee0d050bc3879a9cb94add9e48bb7b5f9f55dbda366620ccccd0c3"
+      },
+      "correction": "prepare.json usesfiles and validates all35, exactbytes/hashes."
+    },
+    {
+      "observation": "Owninitialmethodparams expectedtuple vs actualJSONlists in2candidatebackendfields;30otherssame.",
+      "classification": "probe_comparison_ERROR_not_product_defect",
+      "raw_actual_pytest": "1FAIL49PASS127warnings",
+      "retained_test": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/test_independent_tmle_projection_initial.py",
+        "bytes": 7621,
+        "sha256": "ed160bf84992ee865f32870c708d486a10bdee02f91aa7ee4d9bdb44b59c5976"
+      },
+      "correction": "Compare through existingto_python_data normalization; corrected4PASS fullnative/freshreader and remutations rerun.",
+      "execution_script_transport": "Initialexecution metadata preserves actualargv and maps checksum-bound script refs to retained _initial.py exactbytes; correctedexecution refs retain current script. No stdout/source/count rewrite."
+    }
+  ],
+  "limitations": [
+    "CausalMethod.TMLE SUCCESS is numericalcandidate, not causal identification authority. identified_estimand/graph_ref remainNone and envelopealwaysnon-gating.",
+    "No acceptedexchangeability/populationpositivity/consistency/IID sampling is inferred from syntheticDGP or reportmarkers.",
+    "report_from_result intentionally projects suppliedresult without refitting; rootScientist actualcurrentresult/inputbinding remains separatewriter/integrationreview.",
+    "Rootcommon-node typedintake bridge/generated enum/schema/catalog snapshots and sharedall-study Runtime resourceworkload admission are not established by this producerreview.",
+    "Retainedbaseline commonnode missingEvalSafetycontext is actualrefusal before0fits, notbudgetpositive; legitimate appointedcontext/verifier/workload ownerpacket required.",
+    "Initialcombinednative retained127warnings (126sklearnfeature-name UserWarnings and1pytestdisabledcache configwarning); correctednative stderr2CanonViolation optionaladapter artifact_write_failed messages preserved. Actual methodresult/evidencelineage and fresh readerpassed; no globalABI/architecture/CIgategreen inferred.",
+    "FiniteCI/PASS tests do not calibratecoverage across samplinglaws; unchangedcore mathnotnewinferential law."
+  ],
+  "raw_output_policy": "Fullstdout/stderr retained, including verbose registrations and warnings. No truncation, suppression, quotas or shim. Source-derivedtracked files cited immutableGit only.",
+  "external_packet": {
+    "source_sha": "4a038c2ebf0c4fd79dcc084c983ed7b76756a488",
+    "manifest": {
+      "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/transfer-selection.json",
+      "bytes": 7914,
+      "sha256": "99f611e54b29821dc716eecce588f80878b2e0552f3c5ebeea4fe8429008416d"
+    },
+    "bytes": 1933487,
+    "files": 35,
+    "transport_owner": "FIT/root; reviewerprepare binds every file; no duplicate sourcecopies here."
+  }
+}

@@ -39,8 +39,8 @@ from benchmarks.reporting import (  # noqa: E402
 )
 from benchmarks.runtime import BenchmarkMode, resolve_mode  # noqa: E402
 from polisyos.foundry.methods.catalog.causal.did import (  # noqa: E402
-    DifferenceInDifferences,
     StaggeredDifferenceInDifferences,
+    StandardDifferenceInDifferences,
 )
 from polisyos.foundry.methods.catalog.causal.protocols import PanelObservationalData  # noqa: E402
 from polisyos.ir.analytics.causal import EstimationStatus  # noqa: E402
@@ -101,7 +101,7 @@ def _build_panel_data(
 
 
 def _runner_standard_did(data: PanelObservationalData, *, seed: int = 0) -> dict[str, Any]:
-    result = DifferenceInDifferences.pure_step(
+    result = StandardDifferenceInDifferences.pure_step(
         data,
         {"confidence_level": 0.95, "n_bootstrap": 128, "__rng__": np.random.default_rng(seed)},
     )
@@ -147,8 +147,23 @@ def _case_clean_rollout() -> BenchmarkCase:
             raise AssertionError(
                 f"clean rollout ATT drifted: want {expected_att}, got {report.point_estimate}"
             )
-        if not report.diagnostics or not report.diagnostics[0].passed:
-            raise AssertionError("clean rollout should pass the parallel-trends diagnostic")
+        pretrend = next(
+            (test for test in report.diagnostics if test.test_name == "pre_trend_parallelism"),
+            None,
+        )
+        # Two pre-treatment periods cannot support the pretrend test; ATT is checked above.
+        if (
+            pretrend is None
+            or pretrend.passed is not False
+            or pretrend.statistic is not None
+            or pretrend.p_value is not None
+            or pretrend.details.get("status") != "not_testable"
+            or pretrend.details.get("reason") != "insufficient_pre_periods"
+            or pretrend.details.get("identification_authority") is not False
+        ):
+            raise AssertionError(
+                "two-pre-period rollout must retain an untestable pretrend diagnostic"
+            )
         return True
 
     return BenchmarkCase(

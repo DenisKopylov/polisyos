@@ -1,0 +1,107 @@
+{"case": "default_callback", "actual_type": "_UnresolvedExportDeclarationError", "source": "def p(v=foreign_callback()): pass\nM={\"StaticName\":None}\n__all__=sorted(M)\n"}
+.{"case": "default_attribute", "actual_type": "_UnresolvedExportDeclarationError", "source": "def p(v=foreign.attr): pass\nM={\"StaticName\":None}\n__all__=sorted(M)\n"}
+.{"case": "annotation_attribute", "actual_type": "_UnresolvedExportDeclarationError", "source": "def p(v: foreign.attr): pass\nM={\"StaticName\":None}\n__all__=sorted(M)\n"}
+.{"case": "type_parameter_header", "actual_type": "_UnresolvedExportDeclarationError", "source": "def p[T: foreign.attr](): pass\nM={\"StaticName\":None}\n__all__=sorted(M)\n"}
+.FFF
+=================================== FAILURES ===================================
+_ test_real_local_import_owner_protocol_cannot_grant_false_complete[missing_builtin_name] _
+
+tmp_path = PosixPath('/tmp/e02-F-continuation-20261006/graph/api-review-35/import-profile-tmp/test_real_local_import_owner_p0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7ff4f9c72140>
+name = 'missing_builtin_name'
+
+    @pytest.mark.parametrize('name', ['missing_builtin_name','defined_passive_name','no_hook_positive'])
+    def test_real_local_import_owner_protocol_cannot_grant_false_complete(tmp_path,monkeypatch,name):
+        root=tmp_path/'src';package=root/'polisyos/fixture';package.mkdir(parents=True)
+        hook='def __getattr__(name):\n    import builtins\n    builtins.sorted = lambda values: ["RuntimeShadow"]\n    return None\n'
+        owner=('PASSIVE=1\n'+hook if name=='defined_passive_name' else hook if name=='missing_builtin_name' else 'PASSIVE=1\n')
+        imported='len' if name=='missing_builtin_name' else 'PASSIVE'
+        source=f'from .owner import {imported}\nM={{"StaticName":None}}\n__all__=sorted(M)\n'
+        (package/'owner.py').write_text(owner);facade=package/'__init__.py';facade.write_text(source)
+        monkeypatch.setattr(guardrails,'SRC_ROOT',root);monkeypatch.setattr(guardrails,'REPO_ROOT',tmp_path)
+        policy=guardrails.PackagePolicy(module='polisyos.fixture',classification='public_experimental',facade_mode='eager_exports',owner='independent-review',readme=facade,reference_doc=facade,supported_entrypoints=('polisyos.fixture',),major_subsystem=False,notes='Closed exact local source import fixture')
+        inventory=guardrails.build_public_surface_inventory([policy]);row=inventory[0].entrypoints[0];violations=guardrails._check_public_surface_contracts(inventory)
+        # Genuine CPython import of these fully authored closed files in a fresh child.
+        # No global builtins mutation escapes this child; reader itself never imports fixture.
+        code=f'import sys,json;sys.path.insert(0,{str(root)!r});import polisyos.fixture as f;print(json.dumps(f.__all__))'
+        proc=subprocess.run([sys.executable,'-I','-c',code],cwd=tmp_path,capture_output=True,text=True)
+>       assert proc.returncode==0,proc.stderr
+E       AssertionError: Traceback (most recent call last):
+E           File "<string>", line 1, in <module>
+E             import sys,json;sys.path.insert(0,'/tmp/e02-F-continuation-20261006/graph/api-review-35/import-profile-tmp/test_real_local_import_owner_p0/src');import polisyos.fixture as f;print(json.dumps(f.__all__))
+E                                                                                                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E         ModuleNotFoundError: No module named 'polisyos.fixture'
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python', '-I', '-c', "import sys,js...                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nModuleNotFoundError: No module named \'polisyos.fixture\'\n').returncode
+
+/tmp/e02-F-continuation-20261006/graph/api-review-35/test_import_profile.py:33: AssertionError
+_ test_real_local_import_owner_protocol_cannot_grant_false_complete[defined_passive_name] _
+
+tmp_path = PosixPath('/tmp/e02-F-continuation-20261006/graph/api-review-35/import-profile-tmp/test_real_local_import_owner_p1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7ff4f9a3e050>
+name = 'defined_passive_name'
+
+    @pytest.mark.parametrize('name', ['missing_builtin_name','defined_passive_name','no_hook_positive'])
+    def test_real_local_import_owner_protocol_cannot_grant_false_complete(tmp_path,monkeypatch,name):
+        root=tmp_path/'src';package=root/'polisyos/fixture';package.mkdir(parents=True)
+        hook='def __getattr__(name):\n    import builtins\n    builtins.sorted = lambda values: ["RuntimeShadow"]\n    return None\n'
+        owner=('PASSIVE=1\n'+hook if name=='defined_passive_name' else hook if name=='missing_builtin_name' else 'PASSIVE=1\n')
+        imported='len' if name=='missing_builtin_name' else 'PASSIVE'
+        source=f'from .owner import {imported}\nM={{"StaticName":None}}\n__all__=sorted(M)\n'
+        (package/'owner.py').write_text(owner);facade=package/'__init__.py';facade.write_text(source)
+        monkeypatch.setattr(guardrails,'SRC_ROOT',root);monkeypatch.setattr(guardrails,'REPO_ROOT',tmp_path)
+        policy=guardrails.PackagePolicy(module='polisyos.fixture',classification='public_experimental',facade_mode='eager_exports',owner='independent-review',readme=facade,reference_doc=facade,supported_entrypoints=('polisyos.fixture',),major_subsystem=False,notes='Closed exact local source import fixture')
+        inventory=guardrails.build_public_surface_inventory([policy]);row=inventory[0].entrypoints[0];violations=guardrails._check_public_surface_contracts(inventory)
+        # Genuine CPython import of these fully authored closed files in a fresh child.
+        # No global builtins mutation escapes this child; reader itself never imports fixture.
+        code=f'import sys,json;sys.path.insert(0,{str(root)!r});import polisyos.fixture as f;print(json.dumps(f.__all__))'
+        proc=subprocess.run([sys.executable,'-I','-c',code],cwd=tmp_path,capture_output=True,text=True)
+>       assert proc.returncode==0,proc.stderr
+E       AssertionError: Traceback (most recent call last):
+E           File "<string>", line 1, in <module>
+E             import sys,json;sys.path.insert(0,'/tmp/e02-F-continuation-20261006/graph/api-review-35/import-profile-tmp/test_real_local_import_owner_p1/src');import polisyos.fixture as f;print(json.dumps(f.__all__))
+E                                                                                                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E         ModuleNotFoundError: No module named 'polisyos.fixture'
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python', '-I', '-c', "import sys,js...                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nModuleNotFoundError: No module named \'polisyos.fixture\'\n').returncode
+
+/tmp/e02-F-continuation-20261006/graph/api-review-35/test_import_profile.py:33: AssertionError
+_ test_real_local_import_owner_protocol_cannot_grant_false_complete[no_hook_positive] _
+
+tmp_path = PosixPath('/tmp/e02-F-continuation-20261006/graph/api-review-35/import-profile-tmp/test_real_local_import_owner_p2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7ff4f9a3e950>
+name = 'no_hook_positive'
+
+    @pytest.mark.parametrize('name', ['missing_builtin_name','defined_passive_name','no_hook_positive'])
+    def test_real_local_import_owner_protocol_cannot_grant_false_complete(tmp_path,monkeypatch,name):
+        root=tmp_path/'src';package=root/'polisyos/fixture';package.mkdir(parents=True)
+        hook='def __getattr__(name):\n    import builtins\n    builtins.sorted = lambda values: ["RuntimeShadow"]\n    return None\n'
+        owner=('PASSIVE=1\n'+hook if name=='defined_passive_name' else hook if name=='missing_builtin_name' else 'PASSIVE=1\n')
+        imported='len' if name=='missing_builtin_name' else 'PASSIVE'
+        source=f'from .owner import {imported}\nM={{"StaticName":None}}\n__all__=sorted(M)\n'
+        (package/'owner.py').write_text(owner);facade=package/'__init__.py';facade.write_text(source)
+        monkeypatch.setattr(guardrails,'SRC_ROOT',root);monkeypatch.setattr(guardrails,'REPO_ROOT',tmp_path)
+        policy=guardrails.PackagePolicy(module='polisyos.fixture',classification='public_experimental',facade_mode='eager_exports',owner='independent-review',readme=facade,reference_doc=facade,supported_entrypoints=('polisyos.fixture',),major_subsystem=False,notes='Closed exact local source import fixture')
+        inventory=guardrails.build_public_surface_inventory([policy]);row=inventory[0].entrypoints[0];violations=guardrails._check_public_surface_contracts(inventory)
+        # Genuine CPython import of these fully authored closed files in a fresh child.
+        # No global builtins mutation escapes this child; reader itself never imports fixture.
+        code=f'import sys,json;sys.path.insert(0,{str(root)!r});import polisyos.fixture as f;print(json.dumps(f.__all__))'
+        proc=subprocess.run([sys.executable,'-I','-c',code],cwd=tmp_path,capture_output=True,text=True)
+>       assert proc.returncode==0,proc.stderr
+E       AssertionError: Traceback (most recent call last):
+E           File "<string>", line 1, in <module>
+E             import sys,json;sys.path.insert(0,'/tmp/e02-F-continuation-20261006/graph/api-review-35/import-profile-tmp/test_real_local_import_owner_p2/src');import polisyos.fixture as f;print(json.dumps(f.__all__))
+E                                                                                                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E         ModuleNotFoundError: No module named 'polisyos.fixture'
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python', '-I', '-c', "import sys,js...                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nModuleNotFoundError: No module named \'polisyos.fixture\'\n').returncode
+
+/tmp/e02-F-continuation-20261006/graph/api-review-35/test_import_profile.py:33: AssertionError
+=========================== short test summary info ============================
+FAILED ../../../tmp/e02-F-continuation-20261006/graph/api-review-35/test_import_profile.py::test_real_local_import_owner_protocol_cannot_grant_false_complete[missing_builtin_name]
+FAILED ../../../tmp/e02-F-continuation-20261006/graph/api-review-35/test_import_profile.py::test_real_local_import_owner_protocol_cannot_grant_false_complete[defined_passive_name]
+FAILED ../../../tmp/e02-F-continuation-20261006/graph/api-review-35/test_import_profile.py::test_real_local_import_owner_protocol_cannot_grant_false_complete[no_hook_positive]
+3 failed, 4 passed in 0.32s

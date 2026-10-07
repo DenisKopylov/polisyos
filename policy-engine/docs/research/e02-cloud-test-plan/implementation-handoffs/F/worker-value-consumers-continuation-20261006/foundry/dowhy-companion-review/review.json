@@ -1,0 +1,298 @@
+{
+  "schema": "policyos.e02.independent-review.v1",
+  "reviewer": "F/foundry independent peer",
+  "source_sha": "386b361865fb22d6da241716481d919b6ebd8249",
+  "source_tree": "4fe794fb3b1a57b4771594cf91e5f1202d73eccf",
+  "slice_base_sha": "4a038c2ebf0c4fd79dcc084c983ed7b76756a488",
+  "implementation_commits": [
+    "47a2ff90186628afafa4c01ecf7158325b0026fc",
+    "46932cd30935b08e1da795f505a9b443c9dc668a",
+    "386b361865fb22d6da241716481d919b6ebd8249"
+  ],
+  "changed_paths": [
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py"
+  ],
+  "scope": "One test-only actual selected DoWhy worker/CAS/fresh Python3.14 native report reader companion corrected for shared identification-candidate policy and explicit envelope numeric canonicalization.",
+  "specification_verdict": "GO bounded numerical-statistics preservation with non-gating causal candidate semantics",
+  "engineering_quality_verdict": "GO exact one-test append-only footprint;3 historical actual FAIL outputs retained; actual final1PASS0warnings independently read/hash-reconciled without worker rerun.",
+  "closure_ids": [],
+  "finding_state": "limited",
+  "predicate_basis": "independently_reconciled",
+  "source_refs": [
+    {
+      "git_sha": "4a038c2ebf0c4fd79dcc084c983ed7b76756a488",
+      "tree": "63cdae9393a55b3acda824ab955fd89e3ca1c8b9",
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+      "bytes": 16553,
+      "sha256": "3ab405d256bd4ff53b2d4e04afadc7f1ae3ebe50d5d029f290862f1bb259c095"
+    },
+    {
+      "git_sha": "47a2ff90186628afafa4c01ecf7158325b0026fc",
+      "tree": "d7f5e47193b7049fd06b7a59e0a759b796e0934a",
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+      "bytes": 16768,
+      "sha256": "b6548852447e62975283aee7519a175e98bce4ffd6180e1769976f8e7fecfb7b"
+    },
+    {
+      "git_sha": "46932cd30935b08e1da795f505a9b443c9dc668a",
+      "tree": "77443e1dfa6cc82cce2560793239daf4b5436117",
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+      "bytes": 16785,
+      "sha256": "e8ab139583d771c50ffdbc2f245498f51eaac05c567665b7307b5be6aaeabede"
+    },
+    {
+      "git_sha": "386b361865fb22d6da241716481d919b6ebd8249",
+      "tree": "4fe794fb3b1a57b4771594cf91e5f1202d73eccf",
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+      "bytes": 16846,
+      "sha256": "5a479bc577181020b229be26415ece9453d5b54c5b83188ae39b5dbe21fc17ac"
+    }
+  ],
+  "checks": [
+    {
+      "name": "independent_exact_companion_source_and_deciding_output_audit",
+      "command": "python3 /tmp/e02-F-continuation-20261006/foundry/audit_dowhy_companion.py",
+      "target_sha": "386b361865fb22d6da241716481d919b6ebd8249",
+      "environment": {
+        "interpreter": "python3",
+        "role": "readonly Git/Python AST/full receipt output audit; no product worker execution or environment change"
+      },
+      "input_closure": "All3 implementation commits and complete exact one-file diff; outer test AST and remaining embedded fresh-reader AST;4 full source-bound author receipts/stdout/stderr observations",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": "/tmp/e02-F-continuation-20261006/foundry/dowhy-companion-audit.stdout.txt",
+      "output_refs": [
+        {
+          "path": "/tmp/e02-F-continuation-20261006/foundry/dowhy-companion-audit.stdout.txt",
+          "bytes": 12223,
+          "sha256": "eaa93d915e8ed3fea00a7ee70d6474d5ebbd0679911d6d4a9b7c2b3e2a804866"
+        },
+        {
+          "path": "/tmp/e02-F-continuation-20261006/foundry/dowhy-companion-audit.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    }
+  ],
+  "existing_actual_native_observations": [
+    {
+      "name": "root-composed-boundaries",
+      "target_sha": "4a038c2ebf0c4fd79dcc084c983ed7b76756a488",
+      "target_tree": "63cdae9393a55b3acda824ab955fd89e3ca1c8b9",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest -o addopts= -q -o cache_dir=/tmp/e02-F-continuation-20261006/root-composed-boundaries/cache --basetemp /tmp/e02-F-continuation-20261006/root-composed-boundaries/tmp tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py::test_actual_gcm_job_persisted_fresh_reader_and_scientist_consumer tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_real_worker_job_cas_fresh_python314_reader tests/unit/foundry/methods/backends/test_dispatch_output_contract.py tests/unit/ir/analytics/test_causal_identification_candidate.py tests/unit/scientist/governance/test_causal_confidence_candidate.py tests/unit/scientist/nodes/builtins/simulate/test_causal_input_byte_binding.py tests/unit/scientist/nodes/builtins/simulate/test_did_diagnostic_consumer.py",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine/tools",
+        "TMPDIR": "/tmp"
+      },
+      "input_closure": "Exact authored real selected worker/MethodJob/CAS/fresh Python3.14 report reader path; oldwave also includes all7 declared native consumer selections.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_seconds": 70.58392945899686,
+      "output": "/tmp/e02-F-continuation-20261006/root-composed-boundaries/stdout",
+      "output_refs": [
+        {
+          "path": "/tmp/e02-F-continuation-20261006/root-composed-boundaries/stdout",
+          "bytes": 5879,
+          "sha256": "127a2f5ded1db5fdc8db0228ffa16eb1d301ca996c4e4c9ca9ef1715e43a7ddd"
+        },
+        {
+          "path": "/tmp/e02-F-continuation-20261006/root-composed-boundaries/stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "interpretation": "old positive identification gate assertion",
+      "role": "Existing author actual run independently read and reconciled; no reviewer worker rerun"
+    },
+    {
+      "name": "root-composed-worker-candidate",
+      "target_sha": "47a2ff90186628afafa4c01ecf7158325b0026fc",
+      "target_tree": "d7f5e47193b7049fd06b7a59e0a759b796e0934a",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest -o addopts= -q -o cache_dir=/tmp/e02-F-continuation-20261006/root-composed-worker-candidate/cache --basetemp /tmp/e02-F-continuation-20261006/root-composed-worker-candidate/tmp tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_real_worker_job_cas_fresh_python314_reader",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine/tools",
+        "TMPDIR": "/tmp"
+      },
+      "input_closure": "Exact authored real selected worker/MethodJob/CAS/fresh Python3.14 report reader path; oldwave also includes all7 declared native consumer selections.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_seconds": 20.828501987998607,
+      "output": "/tmp/e02-F-continuation-20261006/root-composed-worker-candidate/stdout",
+      "output_refs": [
+        {
+          "path": "/tmp/e02-F-continuation-20261006/root-composed-worker-candidate/stdout",
+          "bytes": 6347,
+          "sha256": "a5679ad9bd15e21727c1dec9ddbbb4f3c9c80c6b7da3d7150aaf0d57a53a3f9c"
+        },
+        {
+          "path": "/tmp/e02-F-continuation-20261006/root-composed-worker-candidate/stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "interpretation": "nonexistent UncertaintyEnvelope.ci attribute",
+      "role": "Existing author actual run independently read and reconciled; no reviewer worker rerun"
+    },
+    {
+      "name": "root-composed-worker-corrected",
+      "target_sha": "46932cd30935b08e1da795f505a9b443c9dc668a",
+      "target_tree": "77443e1dfa6cc82cce2560793239daf4b5436117",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest -o addopts= -q -o cache_dir=/tmp/e02-F-continuation-20261006/root-composed-worker-corrected/cache --basetemp /tmp/e02-F-continuation-20261006/root-composed-worker-corrected/tmp tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_real_worker_job_cas_fresh_python314_reader",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine/tools",
+        "TMPDIR": "/tmp"
+      },
+      "input_closure": "Exact authored real selected worker/MethodJob/CAS/fresh Python3.14 report reader path; oldwave also includes all7 declared native consumer selections.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_seconds": 18.34697806100303,
+      "output": "/tmp/e02-F-continuation-20261006/root-composed-worker-corrected/stdout",
+      "output_refs": [
+        {
+          "path": "/tmp/e02-F-continuation-20261006/root-composed-worker-corrected/stdout",
+          "bytes": 6134,
+          "sha256": "f5ae61e5c9d7d0daa9e41193997abc001a4adb93477e826a4f32ee27f31b1a27"
+        },
+        {
+          "path": "/tmp/e02-F-continuation-20261006/root-composed-worker-corrected/stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "interpretation": "raw equality against declared12-decimal canonicalization",
+      "role": "Existing author actual run independently read and reconciled; no reviewer worker rerun"
+    },
+    {
+      "name": "root-composed-worker-policy",
+      "target_sha": "386b361865fb22d6da241716481d919b6ebd8249",
+      "target_tree": "4fe794fb3b1a57b4771594cf91e5f1202d73eccf",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest -o addopts= -q -o cache_dir=/tmp/e02-F-continuation-20261006/root-composed-worker-policy/cache --basetemp /tmp/e02-F-continuation-20261006/root-composed-worker-policy/tmp tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_real_worker_job_cas_fresh_python314_reader",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine/tools",
+        "TMPDIR": "/tmp"
+      },
+      "input_closure": "Exact authored real selected worker/MethodJob/CAS/fresh Python3.14 report reader path; oldwave also includes all7 declared native consumer selections.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 18.72357058399939,
+      "output": "/tmp/e02-F-continuation-20261006/root-composed-worker-policy/stdout",
+      "output_refs": [
+        {
+          "path": "/tmp/e02-F-continuation-20261006/root-composed-worker-policy/stdout",
+          "bytes": 99,
+          "sha256": "99c0ab52b603515602dfc1ee4946e6a859c1e7f6ee04df01903a95e2e018848f"
+        },
+        {
+          "path": "/tmp/e02-F-continuation-20261006/root-composed-worker-policy/stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "interpretation": "corrected canonical interval and non-gating candidate assertions",
+      "role": "Existing author actual run independently read and reconciled; no reviewer worker rerun"
+    }
+  ],
+  "review_findings": [
+    "Final assertion retains all actual Python3.12/DoWhy0.14 backend, source CAS byte-hash, producer response reconstruction, report raw point/CI and lineage checks. It asserts actual current envelope nongating plus explicit causal_identification_admission_not_established reason.",
+    "Raw worker/report CI equality remains before envelope comparison, and known synthetic point2.016134929864521 / raw95percentCI[1.8265023190563892,2.2057675406726527] remain independent expected values in actual test. Envelope equality applies its existing declared NumericPolicySpec.canonicalize; no tolerance relaxation, refit, wrapper/shim or warning suppression.",
+    "The whole92-case oldwave stays FAIL with1 stale identification-positive assertion and91PASS.47a retains nonexistent ci attribute FAIL;46932 retains raw-float versus canonical12-decimal interval FAIL.386 actual native real worker/fresh-reader1PASS0warnings is a separate exact source observation, not a relabel of those earlier runs.",
+    "Complete exact diff is5 insertions/1 deletion in one test over3 append-only commits; all product/provider/worker/lock/schema/catalog bytes unchanged from declared4a slice base. All other test code and embedded actual reader source-binding pipeline AST remain equal.",
+    "Reviewer independently exercised this same native canonical numerical/candidate boundary through the separate source-bound value witness at53afa (20PASS plus genuine4 removal failures), but does not call that a new DoWhy worker execution."
+  ],
+  "property_vs_proxy": "Numerical success+CI do not establish independently admitted causal identification. Test invokes and reconstructs real worker-bound reports through fresh CAS/native reader, then preserves statistics under the actual declared envelope numeric policy and asserts nongating property; class/field labels alone are insufficient.",
+  "P40_bucket": "Mandatory shared-confidence boundary consumer companion, not a new provider patch or per-estimator authority rule.",
+  "limitations_and_next_owner": [
+    "Known controlled synthetic DGP and explicitly selected actual DoWhy0.14 profile only; no admitted-real-data causal identification or production authority positive.",
+    "Actual final1PASS is authored native execution independently read and reconciled, not new reviewer rerun; existing full deciding bytes are selected for root publication.",
+    "Initial wholewave FAIL and two fixture FAILs retained. No inherited-red/P41 attribution or global/installed/G acceptance is made.",
+    "Root publishes companion receipt plus full existing observations/storage audit and owns ledger decisions; reviewer does not edit source or claim G integration."
+  ],
+  "review_actions": {
+    "product_source_writes": false,
+    "git_mutations": false,
+    "worker_reexecution": false,
+    "new_checkout": false,
+    "dependency_mutation": false,
+    "children": false
+  },
+  "external_full_refs": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-composed-boundaries/receipt.json",
+      "bytes": 1905,
+      "sha256": "059a187ddba4f04fe93bd6b80f99821132e346a05bdfb2047899e93a16944df9"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-composed-boundaries/stdout",
+      "bytes": 5879,
+      "sha256": "127a2f5ded1db5fdc8db0228ffa16eb1d301ca996c4e4c9ca9ef1715e43a7ddd"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-composed-boundaries/stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-composed-worker-candidate/receipt.json",
+      "bytes": 1217,
+      "sha256": "3ee42a9f62839cbffa3c2544a5603049912d5dc5cda63bcd01805fafc4d67bad"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-composed-worker-candidate/stdout",
+      "bytes": 6347,
+      "sha256": "a5679ad9bd15e21727c1dec9ddbbb4f3c9c80c6b7da3d7150aaf0d57a53a3f9c"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-composed-worker-candidate/stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-composed-worker-corrected/receipt.json",
+      "bytes": 1392,
+      "sha256": "b811f2b810bd84ca7b3621add647b96a1071cc63d44096dce5c9064b9a49bfce"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-composed-worker-corrected/stdout",
+      "bytes": 6134,
+      "sha256": "f5ae61e5c9d7d0daa9e41193997abc001a4adb93477e826a4f32ee27f31b1a27"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-composed-worker-corrected/stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-composed-worker-policy/receipt.json",
+      "bytes": 1378,
+      "sha256": "fe41f552de42b7e307ca5c73aa993159c45ff70d465d039d3f9d6e8726555aca"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-composed-worker-policy/stdout",
+      "bytes": 99,
+      "sha256": "99c0ab52b603515602dfc1ee4946e6a859c1e7f6ee04df01903a95e2e018848f"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-composed-worker-policy/stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "content_refs": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/audit_dowhy_companion.py",
+      "bytes": 6091,
+      "sha256": "63095536c34cdd8b888405c101ae6792e1a0b1bac45f82cedaf052acc7c0a14c"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/dowhy-companion-audit.stdout.txt",
+      "bytes": 12223,
+      "sha256": "eaa93d915e8ed3fea00a7ee70d6474d5ebbd0679911d6d4a9b7c2b3e2a804866"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/dowhy-companion-audit.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

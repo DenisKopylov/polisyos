@@ -1,0 +1,220 @@
+{
+  "verdict": "GO_BOUNDED transport-format metadata only",
+  "frozen_helpers": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v3.py",
+      "bytes": 14155,
+      "sha256": "4df1398167268650297f6a27acffe472759a3bd4829e741273bc10256a94d05a"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v3.py",
+      "bytes": 11196,
+      "sha256": "c55ab809c690634feb93b4b819d58f3b64518b9d15220742261805180bec41f4"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/transport_text_policy.py",
+      "bytes": 1375,
+      "sha256": "2d332a9099f212564d14ce3a0b5f3b8515eb34148611ebfc41bb1af76ef2101a"
+    }
+  ],
+  "selection": {
+    "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/selection-refreshed-current-v3.json",
+    "bytes": 287012,
+    "sha256": "f0e3da878cd3a684baff5f7d0c23eab884dabd0ce5a91b9dbfec79789db4fc1e"
+  },
+  "complete_outputs": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh-current-v3.stdout.json",
+      "bytes": 1453,
+      "sha256": "297d015b2eb9899916a5bc3318f35ba08f4b7cbb66a5ae7ddda00bb23c3a40ad"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh-current-v3.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v3-validation.stdout.json",
+      "bytes": 1066,
+      "sha256": "05bac49ec6b3861381794c1e20ef123aecada1e10e5a8a6cb857e2feb80b9674"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v3-validation.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "validation": {
+    "mode": "validation_only",
+    "validated_logical_files": 429,
+    "checks": "PASS",
+    "science_tests_run": false,
+    "git_writes": false,
+    "pending_extensions": [
+      {
+        "id": "new-final-root-quality",
+        "status": "UNRUN",
+        "git_ref": null,
+        "path": null,
+        "reason": "New source/resource fix has not frozen with exact final quality receipt; append only after publication and byte readback."
+      },
+      {
+        "id": "new-final-installed-composition",
+        "status": "UNRUN",
+        "git_ref": null,
+        "path": null,
+        "reason": "Repaired actual wheel/sdist final composition receipt not available yet; no future SHA or pass carry."
+      },
+      {
+        "id": "packaged-resource-owner-receipt",
+        "status": "UNRUN",
+        "git_ref": null,
+        "path": null,
+        "reason": "Root assigned canonical Graph author. Reference author published resource proposal/diagnostics/own review instead of duplicate transfer. Existing FIT resource proposal review/selection and Graph diagnosis are not copied by this root transport."
+      }
+    ]
+  },
+  "forced_lossless_gzip_files": [
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/root-integration/graph-complete.patch",
+      "bytes": 70854,
+      "sha256": "831548ddf80636c419d985bdecd56c45a5cf7ad8fd552088e2c1d6db502069e3",
+      "format_check": {
+        "gzip_required": true,
+        "reasons": [
+          "trailing_ascii_whitespace"
+        ],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/root-integration/source8236-to-freeze-product-full.patch",
+      "bytes": 38663,
+      "sha256": "afc8f40f67c4cbabec4ab7f9ecd4276705a2ed19d2b18f9d16a7a1dadd1b203c",
+      "format_check": {
+        "gzip_required": true,
+        "reasons": [
+          "trailing_ascii_whitespace"
+        ],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/economics/root-quality-review/full-path-list-072d45a5.stdout",
+      "bytes": 1574609,
+      "sha256": "26f4ec04ac46bbf536736810032e58be250449b2af46c31ce982f82951088f0b",
+      "format_check": {
+        "gzip_required": true,
+        "reasons": [
+          "binary_control_byte",
+          "binary_nul"
+        ],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/economics/root-quality-review/full-path-list-b5a421d8.stdout",
+      "bytes": 1642911,
+      "sha256": "b2325f5396d80fd52a34fa3af0831e4d4416479c8941d4a29b53389fbd24d105",
+      "format_check": {
+        "gzip_required": true,
+        "reasons": [
+          "binary_control_byte",
+          "binary_nul"
+        ],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/economics/root-quality-review/graph-existing-native-14.stdout",
+      "bytes": 700,
+      "sha256": "3ca16f9c534ee5492f1b559439cae8f620e85fb14b5d6e16684ac0b481845a5a",
+      "format_check": {
+        "gzip_required": true,
+        "reasons": [
+          "trailing_ascii_whitespace"
+        ],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/economics/root-quality-review/graph-existing-native-8.stdout",
+      "bytes": 700,
+      "sha256": "b96579496922904236e7993b50ac897214c71cf7b5c00e02f048ba38fc15d6dd",
+      "format_check": {
+        "gzip_required": true,
+        "reasons": [
+          "trailing_ascii_whitespace"
+        ],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/economics/root-companion-review/312-api-full-handoff-delta.stdout",
+      "bytes": 673065,
+      "sha256": "53507e78c05877e851e568e95a78396b16f43704c55dff05a21651437fc632d0",
+      "format_check": {
+        "gzip_required": true,
+        "reasons": [
+          "terminal_blank_line"
+        ],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/economics/root-companion-review/351-competing-canonical-graph-patch.stdout",
+      "bytes": 1530,
+      "sha256": "6c8f9047ec1f0cccef1a354a402b368b1505678299a3aedba75904169e911a9f",
+      "format_check": {
+        "gzip_required": true,
+        "reasons": [
+          "trailing_ascii_whitespace"
+        ],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/economics/root-companion-review/352-competing-all-seven-path-patch.stdout",
+      "bytes": 13659,
+      "sha256": "139b75ef0f1b9af5f949f2962c87b65142bbdeac1126597926ca0d0804ab8452",
+      "format_check": {
+        "gzip_required": true,
+        "reasons": [
+          "trailing_ascii_whitespace"
+        ],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/economics/root-companion-review/353-competing-canonical-full-seven-patch.stdout",
+      "bytes": 3469,
+      "sha256": "1cd3c58dbf32afbc29534752c079e6c773cdd48e6c8218cf0fef14b25eead3da",
+      "format_check": {
+        "gzip_required": true,
+        "reasons": [
+          "trailing_ascii_whitespace"
+        ],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/economics/root-companion-review/357-bound-companion-blobs.stdout",
+      "bytes": 788243,
+      "sha256": "abd6a88e067dcdd3d22f4644cb5f81ce71f184126512a6b9d223241e86a45ccb",
+      "format_check": {
+        "gzip_required": true,
+        "reasons": [
+          "binary_control_byte",
+          "binary_nul",
+          "non_utf8",
+          "space_before_tab",
+          "terminal_blank_line",
+          "trailing_ascii_whitespace"
+        ],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    }
+  ],
+  "count": 11,
+  "preserved": "All original raw and frozen v1/v2/staged-draft files untouched. Current V3 selection remains historical d833 demonstration with3pending actual final extensions; final ROOT freeze is not claimed. No scientific/source/Git tests or writes."
+}

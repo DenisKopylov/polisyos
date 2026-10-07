@@ -1,0 +1,65 @@
+{
+  "schema": "policyos.e02.transport_cli_inputs.v1",
+  "source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+  "source_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+  "root_source_or_Git_writes": false,
+  "refresh_command": [
+    "python3",
+    "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v3.py",
+    "--seed-selection",
+    "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/selection-draft.json",
+    "--prior-manifest",
+    "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/staged-draft/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/artifact-transports.json",
+    "--prior-staging-root",
+    "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/staged-draft",
+    "--repository",
+    "/workspace/e02-F-closeout-20261006",
+    "--final-source-sha",
+    "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+    "--refresh-directory",
+    "/tmp/e02-F-continuation-20261007/root-integration",
+    "--include-directory",
+    "root-recovery=/tmp/e02-F-continuation-20261007/root-recovery",
+    "--include-selection",
+    "quality-519-execution=/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/quality-519-execution-selection.json",
+    "--existing-git-spec",
+    "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/published-graph-ffae-spec.json",
+    "--resolve-pending",
+    "packaged-resource-owner-receipt",
+    "--include-file",
+    "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/recovered_validate.py",
+    "--include-file",
+    "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/recovered-validation.json",
+    "--include-file",
+    "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/recovered-validation.stdout.json",
+    "--include-file",
+    "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/recovered-validation.stderr.txt",
+    "--include-file",
+    "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/prepare_recovered_inputs.py",
+    "--output",
+    "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/selection-recovered-519-v3.json"
+  ],
+  "pending_named_packets": [
+    {
+      "id": "new-final-root-quality",
+      "needed": "Complete final source-bound independent economic scanner/quality ERROR classification + full selected outputs, exact frozen transfer selection. Both raw SIGKILL attempts are currently available and included; no missing full scanner JSON represented as PASS."
+    },
+    {
+      "id": "new-final-installed-composition",
+      "needed": "Actual published Foundry519 wheel/sdist91+six-removal/fresh-child receipt, immutable carrier/primary/outputs full size/hash and observed origin head. Source-reported or local-only object is insufficient."
+    },
+    {
+      "id": "later-G-merge-recovery-records",
+      "needed": "Actual later G855 ordinary merge/reconciliation/checkpoint full commands/status/readback/source identity. Include only after execution; this is an additive custody input, no future event/SHA."
+    }
+  ],
+  "validation_command": [
+    "python3",
+    "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v3.py",
+    "--selection",
+    "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/selection-recovered-519-v3.json",
+    "--repository",
+    "/workspace/e02-F-closeout-20261006"
+  ],
+  "materialization_rule": "ROOT only: append --materialize --destination <authorized destination>; primary optional only ROOT-adjudicated exact actual primary with canonical check strings. This leaf has no ROOT source/docs/Git write lease."
+}

@@ -309,14 +309,19 @@ def test_standalone_configured_enforcer_binds_native_cache_to_fresh_paid_receipt
 
     def after_paid(owner, response):
         if remove_readback:
-            monkeypatch.setattr(owner, "resolve_spend_safe", lambda event_id: None)
+            # Canonical B1.2 constructs a completion-resolver owner view. Fault
+            # the actual read operation used by every such bound view, retaining
+            # the original paid bytes, receipt DTO, trace and cache issuer.
+            monkeypatch.setattr(FileBudgetLedger, "resolve_spend", lambda self, event_id: None)
 
     evaluate, calls, returned = _configured_cached_calls(monkeypatch, after_paid=after_paid)
     # No external funnel receipt context: the ordinary enforcer supplies its
     # configured owner's existing exact readback port for native cache intake.
     if remove_readback:
-        with pytest.raises(LLMAccountingError):
+        with pytest.raises(LLMAccountingError) as denied:
             evaluate(owner)
+        assert isinstance(denied.value.cause, ValueError)
+        assert "cache reuse receipt readback unavailable" in str(denied.value.cause)
     else:
         evaluate(owner)
     snapshot = FileBudgetLedger(path).snapshot()
@@ -373,3 +378,49 @@ def test_supported_invoke_adapter_runs_native_response_decoder_and_reopens_paid_
         )
         == settlement.ack.receipts[0]
     )
+
+
+@pytest.mark.parametrize("remove_financial_admission", [False, True])
+def test_current_financial_admission_precedes_durable_zero_ack_and_release(
+    tmp_path, monkeypatch, remove_financial_admission
+):
+    from polisyos.scientist.orchestration.llm import budget_enforcer
+
+    path = tmp_path / "budget.json"
+    owner = BudgetMiddleware(
+        BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("5"))}),
+        ledger=FileBudgetLedger(path),
+    )
+
+    def after_paid(owner, first):
+        original = producer_settlement(first)
+        assert (
+            FileBudgetLedger(path).resolve_spend(original.ack.receipts[0].event_id)
+            == original.ack.receipts[0]
+        )
+        # Original issuer, content, paid DTO, receipt bytes and raw markers stay.
+        # Every constructor-bound owner loses only current financial readback.
+        monkeypatch.setattr(FileBudgetLedger, "resolve_spend", lambda self, event_id: None)
+        if remove_financial_admission:
+            monkeypatch.setattr(
+                budget_enforcer, "_require_durable_cache_reuse", lambda response: None
+            )
+
+    evaluate, calls, returned = _configured_cached_calls(monkeypatch, after_paid=after_paid)
+    if remove_financial_admission:
+        evaluate(owner)
+        reused = producer_settlement(returned[1])
+        assert reused.event.kind == "reuse" and reused.event.amount == 0
+        assert reused.ack.status == "committed" and reused.ack.durability == "ledger"
+        assert returned[1].raw["_polisyos_cache"]["status"] == "hit"
+    else:
+        with pytest.raises(LLMAccountingError) as denied:
+            evaluate(owner)
+        assert isinstance(denied.value.cause, ValueError)
+        assert "cache reuse receipt readback unavailable" in str(denied.value.cause)
+        assert len(returned) == 1
+    fresh = FileBudgetLedger(path).snapshot()
+    assert len(calls) == 1 and len(fresh.spend_receipts) == 1
+    assert fresh.state.spent["run"] == 1 and fresh.state.reserved["run"] == 0
+    assert fresh.completion_obligations == {}
+    assert tuple(fresh.spend_receipts.values()) == producer_settlement(returned[0]).ack.receipts

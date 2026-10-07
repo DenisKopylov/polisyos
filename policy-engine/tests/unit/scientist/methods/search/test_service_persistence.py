@@ -965,11 +965,10 @@ def test_decimal_recorded_owner_underflow_is_unavailable_and_wire_underflow_refu
     source.ask(None, None, {})
     payload = from_canonical_bytes(store.get_verified_snapshot(source.checkpoint_ref).data)
     if representation == "wire":
-        raw = (
-            json.dumps(payload, sort_keys=True)
-            .replace('"budget_spent": 0.0', '"budget_spent": 1e-1000')
-            .encode()
-        )
+        assert payload["run_state"]["budget_spent"] is None
+        wire = json.dumps(payload, sort_keys=True)
+        assert wire.count('"budget_spent": null') == 1
+        raw = wire.replace('"budget_spent": null', '"budget_spent": 1e-1000', 1).encode()
         assert b'"budget_spent": 1e-1000' in raw
     else:
         payload["run_state"]["budget_spent"] = {"_type": "float", "repr": "1e-1000"}

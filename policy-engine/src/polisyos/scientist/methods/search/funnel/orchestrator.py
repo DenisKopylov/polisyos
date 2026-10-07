@@ -970,7 +970,10 @@ class FunnelOrchestrator:
         response may repeat that verified event, but cannot issue new reuse.
         This is local accounting, not external billing or permission authority.
         """
-        from polisyos.core.llm.response import extract_llm_response_data
+        from polisyos.core.llm.response import (
+            _require_durable_cache_reuse,
+            extract_llm_response_data,
+        )
         from polisyos.core.llm.settlement import LLMSettledResponse, producer_settlement
         from polisyos.scientist.orchestration.engine.budget_ledger import BudgetLedgerSpendReceipt
 
@@ -1023,8 +1026,9 @@ class FunnelOrchestrator:
             receipt_event, receipts = origin.event, origin.ack.receipts
             if previous is None:
                 # This runs inside the actual traced receiver's cache context.
-                # The core intake independently checks its issuer seal, exact
-                # request/content and every original paid receipt via readback.
+                # Financial intake requires the same current paid-origin guard
+                # as the durable enforcer, beyond functional cache telemetry.
+                _require_durable_cache_reuse(response)
                 data = extract_llm_response_data(response)
                 if not data.cache_hit or data.reuse_event_id != event.event_id:
                     raise ValueError("funnel cache reuse lacks current owner-bound paid lineage")

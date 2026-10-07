@@ -3,7 +3,9 @@
 Owner: `team-policyos-runtime`.
 
 The search checkpoint and Pareto child modules are internal under the current
-public-surface contract. Their persisted profiles still require explicit consumer
+public-surface contract. The existing `NativeSearchService`, `SearchServiceCheckpoint`
+and `SearchLoopRunner` aliases at `polisyos.scientist` are stable public exports.
+Their persisted profiles still require explicit consumer
 action when a version or numerical basis is unsupported. These instructions do
 not appoint an evidence issuer or authorize production observations.
 
@@ -267,3 +269,40 @@ not a claim that every recipe was rerun by this documentation change.
 The supported acquisition policy `sobol_ranked_restarts.v1` changes restart
 selection. Replay requires its recorded local RNG and policy; ambient process RNG
 or a seed-only reconstruction does not substitute for the saved stream.
+
+## Configured canonical owner in the public runner
+
+`SearchLoopRunner` accepts optional constructor keywords `budget_middleware`,
+`budget_key="run"` and `cost_budget_usd=None`. Supply the actual canonical
+`BudgetMiddleware` owner selected by the caller. A declared cost limit requires
+that owner and the existing finite, strictly positive `CostBudgetStopping` USD
+law; booleans, nonfinite values, underflow and unrepresentable amounts refuse.
+A key must be a nonblank string. The runner passes this same configuration into
+`run`, `create_service` and fresh public `resume`; callers do not modify private
+controller configuration to install the owner. Defaults without an owner remain
+the previous iteration-limited profile. A declared cost rule is combined with
+`MaxIterations` using the existing OR stopping contract.
+
+The `create_service` return annotation now names its existing `NativeSearchService`
+class instead of `Any`; the returned class and factory defaults are unchanged.
+Configured sensitivity must retain the exact resolved analysis reference, and
+artifact-producing evaluation uses the existing verified-snapshot owner port.
+
+The resource owner admits the declared key before proposals. After a proposal
+failure, native rollback restores generator/history/pending ownership, then reads
+the current canonical accounting again. An unresolved charge stays unavailable
+with `budget_spent=None`; external durable accounting is not rolled back with
+local proposals. An exhausted recorded budget retains its known amount. An
+admitted literal recorded zero remains available and does not claim a provider
+invoice. The original proposal refusal remains the caller's failure. This
+preflight and later recheck do not promise atomicity between separate owner
+reads and a future producer write.
+
+Retain the exact service checkpoint reference and reopen the original artifact
+store with the same actual owner identity, declared key and positive cost limit.
+Changed configuration refuses before state admission. New source-bound factory
+builds also refuse checkpoints from other builds: use their recorded supported
+reader for exact continuation or start a new run after resolving outstanding
+work with the canonical owner. The owner retains ledger schema/migration and
+completion-resolution authority; this port neither replaces that owner nor
+appoints a served production caller.

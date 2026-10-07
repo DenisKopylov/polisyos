@@ -1,0 +1,17 @@
+id = "2026-10-07-durable-cache-financial-boundary"
+title = "Admit durable cache money before zero acknowledgement"
+type = "fixed"
+component = "scientist-search"
+owner = "team-policyos-runtime"
+summary = "Canonical cache reuse keeps its operational unmanaged and memory behavior; configured durable enforcers and funnel consumers require the existing paid-origin proof and current receipt readback before accepting zero-charge financial reuse."
+change_class = "internal"
+surface_classification = "internal: internal-only"
+evidence = ["tests/integration/scientist/methods/search/funnel/test_cache_settlement_binding.py", "tests/integration/scientist/methods/search/funnel/test_native_resource_cost_stopping.py", "tests/unit/remediation/test_llm_01.py", "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py"]
+compatibility = "The existing canonical unmanaged/memory operational ACK and receiver HMAC semantics are preserved. A durable money claim still requires actual canonical paid receipts; operational telemetry, copied markers and receipt lookalikes cannot authorize that claim. No parser or ledger schema changes are introduced."
+migration = "Keep the initialized canonical middleware, nonempty run scope, actual cache emitter and existing receiver/receipt bridges. B1.2 constructs a completion-bound middleware view; test read and settlement failures at that actual view or canonical backend operation."
+api = "Internal financial admission reuses the existing paid-origin predicate before durable settlement and at first funnel financial observation. No new public cache, receipt, or authority API is added."
+limitations = "An authentic physically unentered cache-only request can abort its own intent after financial refusal. An obtained physical unknown-cost completion retains its canonical obligation and reservation. The bounded native callers do not appoint invoice, native-sample, refinement or promotion authority."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/core/llm/README.md", "src/polisyos/scientist/orchestration/llm/README.md", "src/polisyos/scientist/methods/search/funnel/README.md"]
+runbook_docs = ["src/polisyos/scientist/methods/search/funnel/README.md"]

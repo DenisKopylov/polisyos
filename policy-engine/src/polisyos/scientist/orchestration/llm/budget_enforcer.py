@@ -16,6 +16,7 @@ from polisyos.common.logger import get_logger
 from polisyos.common.serialization import stable_json_dumps, to_python_data
 from polisyos.core.llm.response import (
     _extract_physical_provider_response_data,
+    _require_durable_cache_reuse,
     extract_llm_response_data,
 )
 from polisyos.core.llm.settlement import (
@@ -886,6 +887,11 @@ class LLMBudgetEnforcer:
     def _settle_event(
         self, event: LLMProducerEvent, response: Any, reservation: _BudgetReservation, run_id: str
     ) -> LLMSettlementAck:
+        if event.kind == "reuse" and self._budget_middleware is not None:
+            # This is financial admission, before any zero ACK, completion
+            # transition or reservation release. Functional cache telemetry
+            # alone cannot authorize a durable paid-origin reuse.
+            _require_durable_cache_reuse(response)
         self._unknown_settlements[event.event_id] = (event, reservation)
         self._retained_responses[event.event_id] = response
         self._retained_run_ids[event.event_id] = run_id

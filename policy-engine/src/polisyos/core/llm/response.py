@@ -162,12 +162,34 @@ def extract_llm_response_data(
 def _extract_cache_provenance(
     response: Any,
 ) -> tuple[bool, str, str | None, str | None]:
-    """Consume B's receiver-bound operational cache capability, not a type marker."""
-    from .settlement import LLMProducerSettlement, _cache_reuse_provenance, producer_settlement
+    """Recognize B's receiver-bound operational capability, not a financial debit."""
+    from .settlement import _cache_reuse_provenance
 
     provenance = _cache_reuse_provenance(response)
     if provenance is None:
         return False, "provider", None, None
+    return True, "provider", provenance.reuse_event_id, provenance.cache_key
+
+
+def _require_durable_cache_reuse(response: Any) -> None:
+    """Admit zero new charge only after the current paid-origin ledger readback.
+
+    Generic cache discovery remains B's operational receiver capability. This
+    existing financial predicate runs before a durable D owner issues its ACK.
+    """
+    from .settlement import (
+        LLMProducerSettlement,
+        LLMSettledResponse,
+        _cache_reuse_provenance,
+        producer_settlement,
+    )
+
+    if isinstance(response, LLMSettledResponse):
+        response = response.response
+
+    provenance = _cache_reuse_provenance(response)
+    if provenance is None:
+        raise ValueError("durable cache reuse requires current receiver capability")
     origin = producer_settlement(response)
     resolver = _LOCAL_RECEIPT_RESOLVER.get()
     if not isinstance(origin, LLMProducerSettlement) or resolver is None:
@@ -212,7 +234,6 @@ def _extract_cache_provenance(
         raise ValueError("cache reuse reported cost conflicts with original paid receipt")
     if event.cost_origin == "estimated" and reported is not None:
         raise ValueError("cache reuse cannot relabel an estimated origin as reported cost")
-    return True, "provider", provenance.reuse_event_id, provenance.cache_key
 
 
 def _extract_physical_provider_response_data(response: Any) -> LLMResponseData:

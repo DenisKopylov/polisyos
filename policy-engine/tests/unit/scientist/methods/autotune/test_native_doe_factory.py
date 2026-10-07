@@ -337,3 +337,56 @@ def test_changed_native_subject_in_actual_checkpoint_refuses_before_live_effect(
     assert target._pending_candidates == {}
     assert target.checkpoint_ref is None
     assert target.controller._generator.get_state() == before
+
+
+@pytest.mark.parametrize("changed_ref", ["missing", "different"])
+def test_actual_resolved_analysis_return_ref_cannot_change_before_factory_publication(
+    tmp_path, monkeypatch, changed_ref
+):
+    from hashlib import sha256
+
+    from polisyos.scientist.methods.search.sensitivity_adapter import (
+        SensitivityAwareCandidateGenerator,
+    )
+
+    store = FileSystemCAS(tmp_path / "cas")
+    answer, suite = _analysis(store), _suite(store)
+    spec = _spec(answer)
+    resolved = []
+    actual_resolver = SensitivityAwareCandidateGenerator.from_artifact.__func__
+
+    def changed_resolver(cls, base, actual_store, ref, **kwargs):
+        configured = actual_resolver(cls, base, actual_store, ref, **kwargs)
+        assert configured.analysis_ref == answer["analysis_ref"]
+        assert configured.order_profile == "exploratory_coordinate_order.v1"
+        resolved.append((configured, configured.get_state()))
+        configured._analysis_ref = None if changed_ref == "missing" else suite
+        return configured
+
+    def cas_bytes():
+        return {
+            str(path.relative_to(tmp_path / "cas")): sha256(path.read_bytes()).hexdigest()
+            for path in (tmp_path / "cas").rglob("*")
+            if path.is_file()
+        }
+
+    before = cas_bytes()
+    monkeypatch.setattr(
+        SensitivityAwareCandidateGenerator, "from_artifact", classmethod(changed_resolver)
+    )
+    with pytest.raises(ValueError, match="search_analysis_artifact_ref_configuration_mismatch"):
+        SearchLoopRunner(store=store).create_service(spec, suite_ref=suite)
+    assert len(resolved) == 1
+    configured, configured_state = resolved[0]
+    assert configured.get_state() == configured_state
+    assert configured_state["activity_started"] is False
+    assert configured_state["history_rows"] == []
+    assert configured._base._optimizer._model is None
+    assert cas_bytes() == before
+    print(
+        "actual_analysis_return_ref_refusal",
+        changed_ref,
+        answer["analysis_ref"].model_dump(mode="json"),
+        configured.analysis_ref.model_dump(mode="json") if configured.analysis_ref else None,
+        sorted(before),
+    )

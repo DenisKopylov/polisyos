@@ -1,0 +1,32 @@
+id = "2026-10-07-native-search-budget-owner-port"
+title = "Configure canonical budget ownership in the native search runner"
+type = "added"
+component = "scientist-search"
+owner = "team-policyos-runtime"
+surface_classification = "public_stable: polisyos.scientist"
+change_class = "python-public-api"
+summary = "SearchLoopRunner configures the existing canonical budget owner once for run, create_service and public resume, preserving unavailable cost through proposal rollback."
+api = "SearchLoopRunner.__init__(*, store=None, registry=None, budget_middleware=None, budget_key='run', cost_budget_usd=None) adds optional keyword inputs. A declared limit requires the actual canonical BudgetMiddleware and the existing finite strictly positive CostBudgetStopping law; a key must be a nonblank string. The three existing native aliases remain the same exports. create_service now declares its existing NativeSearchService return instead of Any; the concrete returned class is unchanged. Configured sensitivity refuses absent or changed resolved analysis references and uses the existing verified-snapshot owner port."
+compatibility = "Default iteration-limited calls without an owner retain their behavior. A supplied cost limit uses existing CostBudgetStopping OR MaxIterations and records the same owner/key/rule in the native checkpoint configuration. Proposal rollback restores candidate ownership and rechecks actual external accounting rather than reverting unresolved money to stale zero."
+migration = "Configure the actual canonical owner through the runner constructor and use that matching configured runner for fresh public resume. Preserve original checkpoint references; changed source-bound factory builds or owner/key/rule configurations refuse. Use the recorded supported reader or an explicitly new run after canonical completion resolution, without marker edits or invented migration."
+limitations = "Recorded owner state does not appoint a scientific evaluator, served production caller, provider invoice or permission issuer. Owner schema/migration and completion resolution remain canonical B responsibilities. Separate admission/read calls do not establish atomicity with future producer writes or distributed coordination."
+evidence = ["tests/unit/scientist/methods/search/test_controller_owner_admission.py", "tests/unit/scientist/methods/search/test_service_owner_budget_factory.py", "tests/unit/scientist/methods/search/test_service_persistence.py", "tests/unit/scientist/methods/autotune/test_native_doe_factory.py"]
+generated_client_compatibility = "not_applicable"
+# Existing generated public-surface inventory resolves SearchLoopRunner at the
+# stable polisyos.scientist facade. No facade export or wire client is added.
+public_surface_inventory_reviewed = true
+migration_docs = ["docs/how-to/search-checkpoint-profile-compatibility.md"]
+runbook_docs = ["docs/how-to/search-checkpoint-profile-compatibility.md"]
+
+[[compatibility_change]]
+id = "native-runner-canonical-budget-owner-keyword-port"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.scientist.SearchLoopRunner"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "not_applicable"
+release_note = "Optional canonical budget_middleware/budget_key/cost_budget_usd constructor keywords activate the existing owner admission and cost stopping law consistently through run/create_service/resume. The default profile is unchanged. Unknown accounting remains None through rollback and genuine admitted zero remains a measurement."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["docs/how-to/search-checkpoint-profile-compatibility.md"]
+runbook_docs = ["docs/how-to/search-checkpoint-profile-compatibility.md"]

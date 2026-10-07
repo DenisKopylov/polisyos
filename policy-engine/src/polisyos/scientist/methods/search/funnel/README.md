@@ -59,3 +59,14 @@ provider null is invalid-present; omitted cost can be priced only from supported
 validated observed usage. Real literal zero keeps its known zero receipt. The
 native configured caller tests control HTTP bytes, not an invoice, native raw
 sample law, authorized estimate refinement or promotion permit authority.
+
+
+The paid-origin predicate runs in the durable enforcer before any reuse zero ACK
+or release, and again at the funnel's first financial observation. Generic cache
+receiver evidence is operational; D money intake additionally requires current
+canonical receipts. The guard-removal control retains the genuine issuer, paid
+content/DTO/ledger bytes and raw cache markers while removing only current
+receipt readback, then shows that removing financial admission would admit the
+forbidden zero ACK. Actual physically executed unknown-cost controls retain
+pending/reserved state. A physically unentered cache-only refusal can abort its
+own intent, preserving the original paid receipt and issuing no new charge ACK.

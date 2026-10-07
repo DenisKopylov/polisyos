@@ -151,7 +151,7 @@ def test_trace_cost_one_without_settlement_cannot_establish_controller_cutoff(
         tmp_path, monkeypatch, levels=(4,)
     )
 
-    def remove_settlement(event_id, key, amount, *, payload_digest, provider=None):
+    def remove_settlement(self, event_id, key, amount, *, payload_digest, provider=None):
         # A typed-looking ACK retains all markers but writes no real receipt.
         return BudgetLedgerSpendReceipt(
             event_id=event_id,
@@ -163,7 +163,7 @@ def test_trace_cost_one_without_settlement_cannot_establish_controller_cutoff(
             committed_at=datetime.now(UTC),
         )
 
-    monkeypatch.setattr(owner, "settle_spend_safe", remove_settlement)
+    monkeypatch.setattr(FileBudgetLedger, "settle_spend", remove_settlement)
     stage = funnel._stages_by_level[4]
     native_evaluate = stage.evaluate
     # Keep the old trace-cost marker after the real paid response while the
@@ -191,10 +191,12 @@ def test_trace_cost_one_without_settlement_cannot_establish_controller_cutoff(
         split=False,
         stage_b=observe_native_stage_b,
     )
-    with pytest.raises(AssertionError, match="proposal generated after expected cost cutoff"):
-        controller.run(context)
+    result = controller.run(context)
 
-    assert calls == ["translator"] and generator.calls == 2
+    # Canonical unresolved completion fences new work. No known zero/cutoff is
+    # inferred from retained trace=1 or the fake ACK with no durable receipt.
+    assert "Cost budget unavailable" in result.stopping_reason
+    assert calls == ["translator"] and generator.calls == 1
     assert len(evaluated) == 1
     outcome = evaluated[0]["_funnel_outcome"]
     assert outcome.trace[0].compute_actual_usd == 1.0
@@ -202,7 +204,12 @@ def test_trace_cost_one_without_settlement_cannot_establish_controller_cutoff(
     assert outcome.final_action == "reject"
     reopened = FileBudgetLedger(path).snapshot()
     assert reopened.state.spent == {} and reopened.spend_receipts == {}
-    assert controller._run_state.budget_snapshot == {"cumulative_cost_usd": 0.0}
+    assert controller._run_state.budget_snapshot == {}
+    assert controller._run_state.budget_spent is None
+    assert controller._run_state.budget_available is False
+    assert controller._stopping_state()["budget_spent"] is None
+    assert reopened.state.reserved["run"] > 0
+    assert reopened.completion_obligations
     # The positive custody oracle fails with trace=1 and all new markers still
     # present. No paid receipt or cutoff is inferred from that trace scalar.
     with pytest.raises(AssertionError):

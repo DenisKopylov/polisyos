@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import asyncio
-from dataclasses import asdict, replace
 from decimal import Decimal
 from functools import partial
 from pathlib import Path
@@ -11,8 +10,12 @@ from typing import Any
 
 import pytest
 
-from polisyos.core.llm.response import llm_local_receipt_resolver
-from polisyos.core.llm.settlement import producer_settlement
+from polisyos.core.llm.response import _require_durable_cache_reuse, llm_local_receipt_resolver
+from polisyos.core.llm.settlement import (
+    _cache_reuse_consumer_context,
+    _request_digest,
+    producer_settlement,
+)
 from polisyos.core.llm.traced_client import LLMAccountingError, TracedLLMClient
 from polisyos.scientist.methods.search.funnel.types import resolve_funnel_local_receipt
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
@@ -127,6 +130,7 @@ def _paid_cache_stack(
         budget_keys=["run"],
         budget_middleware=middleware,
         model_name="fixture-model",
+        run_id="llm-01-paid-cache-run",
     )
     return provider, cached, enforcer, middleware, ledger_path
 
@@ -324,12 +328,18 @@ async def test_budget_enforcer_charges_misses_not_cache_reuse_and_charges_after_
 @pytest.mark.asyncio
 async def test_paid_cache_reuse_without_local_readback_refuses_without_new_charge(
     tmp_path: Path,
+    monkeypatch,
 ) -> None:
     provider, _, enforcer, _, ledger_path = _paid_cache_stack(tmp_path, ttl_s=3600)
     first = await enforcer.generate(user="hello", max_tokens=2, _prompt_tokens_estimate=3)
     original = _assert_original_paid_receipt(first, ledger_path)
-    with pytest.raises(ValueError, match="original producer settlement and local receipt readback"):
+    # The ordinary enforcer now supplies its own exact read-only owner bridge.
+    # Remove the actual ledger read operation, preserving the paid record.
+    monkeypatch.setattr(FileBudgetLedger, "resolve_spend", lambda self, event_id: None)
+    with pytest.raises(LLMAccountingError) as denied:
         await enforcer.generate(user="hello", max_tokens=2, _prompt_tokens_estimate=3)
+    assert isinstance(denied.value.cause, ValueError)
+    assert "cache reuse receipt readback unavailable" in str(denied.value.cause)
     snapshot = FileBudgetLedger(ledger_path).snapshot()
     assert len(provider.calls) == 1
     assert snapshot.state.spent["run"] == Decimal("0.02")
@@ -340,27 +350,27 @@ async def test_paid_cache_reuse_without_local_readback_refuses_without_new_charg
 @pytest.mark.parametrize("invalid_readback", ["missing", "lookalike", "conflicting_amount"])
 @pytest.mark.asyncio
 async def test_paid_cache_reuse_invalid_readback_refuses_and_preserves_original_receipt(
-    tmp_path: Path, invalid_readback: str
+    tmp_path: Path, monkeypatch, invalid_readback: str
 ) -> None:
     provider, _, enforcer, _, ledger_path = _paid_cache_stack(tmp_path, ttl_s=3600)
     first = await enforcer.generate(user="hello", max_tokens=2, _prompt_tokens_estimate=3)
     original = _assert_original_paid_receipt(first, ledger_path)
-    reader = _fresh_receipt_owner(ledger_path)
+    actual_resolve = FileBudgetLedger.resolve_spend
 
-    def resolver(declared: Any) -> Any:
-        actual = resolve_funnel_local_receipt(reader, declared)
-        assert actual is not None  # Valid original readback remains present in every negative.
+    def corrupt_readback(ledger, event_id):
+        actual = actual_resolve(ledger, event_id)
+        assert actual is not None  # Genuine paid bytes remain in every negative.
         if invalid_readback == "missing":
             return None
         if invalid_readback == "lookalike":
-            return asdict(actual)
-        return replace(actual, amount=Decimal("0.04"))
+            return actual.model_dump()
+        return actual.model_copy(update={"amount": Decimal("0.04")})
 
-    with (
-        llm_local_receipt_resolver(resolver),
-        pytest.raises(ValueError, match=r"receipt readback unavailable|conflicts with original"),
-    ):
+    monkeypatch.setattr(FileBudgetLedger, "resolve_spend", corrupt_readback)
+    with pytest.raises(LLMAccountingError) as denied:
         await enforcer.generate(user="hello", max_tokens=2, _prompt_tokens_estimate=3)
+    assert isinstance(denied.value.cause, ValueError)
+    assert "cache reuse receipt readback unavailable" in str(denied.value.cause)
     snapshot = FileBudgetLedger(ledger_path).snapshot()
     assert len(provider.calls) == 1
     assert snapshot.state.spent["run"] == Decimal("0.02")
@@ -382,11 +392,19 @@ async def test_unsettled_cache_origin_cannot_become_paid_reuse_with_a_real_reade
     assert original.ack.receipts == ()
     ledger_path = tmp_path / "unpaid-origin-budget.json"
     reader = _fresh_receipt_owner(ledger_path)
+    reused = await traced.generate(user="hello")
+    # Unmanaged functional reuse does not acquire D financial authority simply
+    # because a real empty ledger reader is present. The same paid-origin guard
+    # used before durable settlement rejects its exact original unmanaged ACK.
     with (
+        _cache_reuse_consumer_context(
+            cached._cache_reuse_owner,
+            _request_digest({"args": (), "kwargs": {"user": "hello"}}),
+        ),
         llm_local_receipt_resolver(partial(resolve_funnel_local_receipt, reader)),
         pytest.raises(ValueError, match="original response content/context and paid receipt"),
     ):
-        await traced.generate(user="hello")
+        _require_durable_cache_reuse(reused)
     assert len(provider.calls) == 1
     snapshot = FileBudgetLedger(ledger_path).snapshot()
     assert snapshot.spend_receipts == {}

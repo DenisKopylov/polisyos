@@ -85,3 +85,12 @@ registrations are not serialized permission or financial authority.
 The exact configured traced wrapper also reports preflight versus delegation. A refusal before
 delegation cannot manufacture a new provider event from an older pending accounting response;
 failure after entering a foreign provider remains unknown without exact completion evidence.
+
+
+D financial cache admission distinguishes operational cache evidence from money.
+The canonical receiver HMAC remains valid for generic unmanaged/memory cache
+consumption, whose typed ACK does not prove durable debit. The existing strict
+paid-origin/content/request/ledger-readback predicate runs before a configured
+durable enforcer issues a zero reuse ACK, and before the funnel admits that
+financial event. Operational telemetry is not a financial receipt. Physical
+provider completion and numeric-cost admission keep their existing boundaries.

@@ -131,3 +131,16 @@ invent a run identity for a missing operational scope.
 The factory's traced client refuses delegated streaming when required accounting is configured;
 streaming is not a supported financial completion port in this profile. Unmanaged streaming is
 outside these completion receipts.
+
+
+Configured durable cache reuse is admitted before monetary settlement, completion
+transition or reservation release. It requires the actual receiver capability,
+original provider settlement and content/context binding, plus current readback
+of every canonical paid receipt. B1.2 middleware creates a constructor-bound
+completion-resolver owner view; failure controls target that view or the actual
+ledger operation, rather than an unrelated supplied middleware object's method.
+A cache-only request proved physically unentered can abort its own intent after
+financial refusal. An obtained physical completion with unknown cost keeps its
+canonical pending obligation and reservation. Generic unmanaged/memory cache
+semantics retain their existing typed operational ACK and do not establish a
+durable D financial claim.

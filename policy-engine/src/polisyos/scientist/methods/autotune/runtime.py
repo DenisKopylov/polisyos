@@ -17,7 +17,12 @@ from polisyos.scientist.methods.search.objective import (
     OptimizationDirection,
 )
 from polisyos.scientist.methods.search.run_state import checkpoint_json
-from polisyos.scientist.methods.search.stopping import MaxIterations
+from polisyos.scientist.methods.search.stopping import (
+    CompositeStoppingCriterion,
+    CostBudgetStopping,
+    MaxIterations,
+    StoppingCriterion,
+)
 
 from .models import (
     BenchmarkComparisonBasis,
@@ -33,11 +38,16 @@ from .models import (
     load_model_artifact,
     persist_benchmark_evaluation,
     persist_mutation_artifact,
+    verified_artifact_snapshot,
 )
 from .registry import ChampionRegistry
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts.protocol import ArtifactStore
+    from polisyos.scientist.methods.search.service import NativeSearchService
+    from polisyos.scientist.orchestration.engine.budget_middleware import (
+        BudgetMiddleware,
+    )
 
 
 ModelT = TypeVar("ModelT", bound=MutationArtifact)
@@ -219,7 +229,28 @@ class SearchLoopRunner:
         *,
         store: ArtifactStore | None = None,
         registry: ChampionRegistry | None = None,
+        budget_middleware: BudgetMiddleware | None = None,
+        budget_key: str = "run",
+        cost_budget_usd: float | None = None,
     ) -> None:
+        if not isinstance(budget_key, str) or not budget_key.strip():
+            raise ValueError("search_runner_budget_key_requires_nonblank_string")
+        if budget_middleware is not None:
+            from polisyos.scientist.orchestration.engine.budget_middleware import (
+                BudgetMiddleware,
+            )
+
+            if not isinstance(budget_middleware, BudgetMiddleware):
+                raise ValueError("search_runner_requires_canonical_budget_middleware")
+        if cost_budget_usd is not None and budget_middleware is None:
+            raise ValueError("search_runner_cost_budget_requires_canonical_owner")
+        # Delegate the existing strict positive USD law once, without treating
+        # a literal recorded zero as an absent measurement or inventing a limit.
+        self._cost_budget_usd = (
+            CostBudgetStopping(cost_budget_usd)._max_cost if cost_budget_usd is not None else None
+        )
+        self._budget_middleware = budget_middleware
+        self._budget_key = budget_key
         self._store = store or default_store()
         self._registry = registry or ChampionRegistry(store=self._store)
 
@@ -251,7 +282,7 @@ class SearchLoopRunner:
         *,
         suite_ref: ArtifactRef,
         max_iterations: int = 10,
-    ) -> Any:
+    ) -> NativeSearchService:
         """Build the native persisted service with this runner's actual evaluator."""
         from polisyos.scientist.methods.search.service import NativeSearchService
 
@@ -261,11 +292,18 @@ class SearchLoopRunner:
         generator, analysis = self._configured_generator(spec)
         spec = replace(spec, candidate_generator=generator)
         objective = CompositeObjective([_AutotuneObjective(spec.promotion_policy)])
+        stopping: StoppingCriterion = MaxIterations(max_iterations)
+        if self._cost_budget_usd is not None:
+            stopping = CompositeStoppingCriterion(
+                [CostBudgetStopping(self._cost_budget_usd), stopping]
+            )
         controller = SearchController(
             config=SearchConfig(
-                stopping=MaxIterations(max_iterations),
+                stopping=stopping,
                 objective=objective,
                 enable_stage_a=False,
+                budget_middleware=self._budget_middleware,
+                budget_key=self._budget_key,
             ),
             candidate_generator=generator,
             stage_a_evaluator=lambda candidate, ctx: (0.0, True),
@@ -321,8 +359,11 @@ class SearchLoopRunner:
         configured = SensitivityAwareCandidateGenerator.from_artifact(generator, self._store, ref)
         if configured.order_profile != spec.metadata["analysis_order_profile"]:
             raise ValueError("search_analysis_order_profile_unsupported_by_generator")
+        configured_ref = configured.analysis_ref
+        if configured_ref is None or configured_ref != ref:
+            raise ValueError("search_analysis_artifact_ref_configuration_mismatch")
         return configured, {
-            "analysis_ref": configured.analysis_ref.model_dump(mode="json"),
+            "analysis_ref": configured_ref.model_dump(mode="json"),
             "order_profile": configured.order_profile,
             "purpose": "exploratory",
         }
@@ -407,7 +448,7 @@ class SearchLoopRunner:
             )
 
             if type(generator) is SensitivityAwareCandidateGenerator and generator.analysis_ref:
-                self._store.get_verified_snapshot(generator.analysis_ref)
+                verified_artifact_snapshot(self._store, generator.analysis_ref)
                 inputs.append(
                     input_ref_from_artifact_ref(generator.analysis_ref, role="sensitivity_analysis")
                 )

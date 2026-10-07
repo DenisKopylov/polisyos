@@ -555,6 +555,13 @@ class NativeSearchService:
     ) -> list[CandidateProposal]:
         """Generate proposals and retain candidate-ID ownership for ``tell``."""
         self._require_publication_ready()
+        if self.controller._config.budget_middleware is not None:
+            # Accounting custody belongs to the durable resource owner. Admit
+            # it before the proposal transaction so a refused external charge
+            # cannot be represented by the old local zero diagnostic.
+            admission_error = self.controller._refresh_budget_snapshot(context)
+            if admission_error is not None:
+                raise admission_error
         generator = self.controller._generator
         get_state = getattr(generator, "get_state", None)
         restore = getattr(generator, "set_state", None)
@@ -589,6 +596,11 @@ class NativeSearchService:
                 self._publication_blocked = True
             if self.controller._diversity_enabled:
                 self._publication_blocked = True
+            if self.controller._config.budget_middleware is not None:
+                # The canonical owner may have changed after preflight. Local
+                # proposal rollback does not roll back its durable accounting;
+                # re-read its current admission/evidence instead of stale cost.
+                self.controller._refresh_budget_snapshot(context)
             raise
 
     def _require_publication_ready(self) -> None:

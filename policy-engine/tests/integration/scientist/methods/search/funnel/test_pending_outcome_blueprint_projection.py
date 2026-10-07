@@ -26,17 +26,17 @@ _workflow = run_path(str(Path(__file__).with_name("test_orchestrator.py")))
 def test_actual_native_pending_receipt_survives_blueprint_json_and_fresh_cas(
     tmp_path, monkeypatch, write_before_ack
 ):
-    ledger_path, owner, funnel, calls, observed, context = _workflow["configured_workflow"](
+    ledger_path, _owner, funnel, calls, observed, context = _workflow["configured_workflow"](
         tmp_path, monkeypatch, levels=(3,)
     )
-    settle = owner.settle_spend_safe
+    settle = FileBudgetLedger.settle_spend
 
-    def lose_ack(*args, **kwargs):
+    def lose_ack(ledger, *args, **kwargs):
         if write_before_ack:
-            settle(*args, **kwargs)
+            settle(ledger, *args, **kwargs)
         raise OSError("actual settlement acknowledgment unavailable")
 
-    monkeypatch.setattr(owner, "settle_spend_safe", lose_ack)
+    monkeypatch.setattr(FileBudgetLedger, "settle_spend", lose_ack)
     outcome = funnel.advance(funnel.submit({"candidate_id": "candidate-1"}, context), policy="full")
     ledger = FileBudgetLedger(ledger_path).snapshot()
     assert calls == ["adversary"] and observed == []

@@ -302,9 +302,11 @@ def test_zero_measurement_and_paid_failed_stage_are_distinct(tmp_path, monkeypat
 
 
 def test_trace_cost_one_without_settlement_fails_accounting_control(tmp_path, monkeypatch):
-    path, owner, funnel, calls, _, context = configured_workflow(tmp_path, monkeypatch, levels=(4,))
+    path, _owner, funnel, calls, _, context = configured_workflow(
+        tmp_path, monkeypatch, levels=(4,)
+    )
 
-    def remove_settlement(event_id, key, amount, *, payload_digest, provider=None):
+    def remove_settlement(self, event_id, key, amount, *, payload_digest, provider=None):
         from datetime import UTC, datetime
 
         from polisyos.scientist.orchestration.engine.budget_ledger import BudgetLedgerSpendReceipt
@@ -320,7 +322,7 @@ def test_trace_cost_one_without_settlement_fails_accounting_control(tmp_path, mo
             committed_at=datetime.now(UTC),
         )
 
-    monkeypatch.setattr(owner, "settle_spend_safe", remove_settlement)
+    monkeypatch.setattr(FileBudgetLedger, "settle_spend", remove_settlement)
     stage = funnel._stages_by_level[4]
     native = stage.evaluate
     monkeypatch.setattr(
@@ -342,19 +344,19 @@ def test_trace_cost_one_without_settlement_fails_accounting_control(tmp_path, mo
 def test_actual_native_unknown_ack_retains_observed_input_and_exact_fresh_readback(
     tmp_path, monkeypatch, write_before_ack
 ):
-    path, owner, funnel, calls, observed, context = configured_workflow(
+    path, _owner, funnel, calls, observed, context = configured_workflow(
         tmp_path, monkeypatch, levels=(3,)
     )
-    original = owner.settle_spend_safe
+    original = FileBudgetLedger.settle_spend
     actual_inputs = []
 
-    def lose_ack(*args, **kwargs):
+    def lose_ack(ledger, *args, **kwargs):
         actual_inputs.append((args, kwargs))
         if write_before_ack:
-            original(*args, **kwargs)
+            original(ledger, *args, **kwargs)
         raise OSError("actual settlement acknowledgment unavailable")
 
-    monkeypatch.setattr(owner, "settle_spend_safe", lose_ack)
+    monkeypatch.setattr(FileBudgetLedger, "settle_spend", lose_ack)
     outcome = funnel.advance(funnel.submit({"candidate_id": "candidate-1"}, context), policy="full")
     assert calls == ["adversary"] and observed == []
     assert outcome.final_action == "reject" and not outcome.final_result.is_promising
@@ -371,7 +373,7 @@ def test_actual_native_unknown_ack_retains_observed_input_and_exact_fresh_readba
             feedback["resource_unknown_ack_readback_ids"][0] + ":budget:"
         )
         assert receipt.payload_digest == kwargs["payload_digest"]
-        assert original(*args, **kwargs) == receipt
+        assert original(FileBudgetLedger(path), *args, **kwargs) == receipt
         assert FileBudgetLedger(path).load().spent["run"] == Decimal(1)
     else:
         assert feedback["resource_settlement_status"] == "unknown"

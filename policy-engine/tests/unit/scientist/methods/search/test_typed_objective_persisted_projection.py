@@ -11,6 +11,7 @@ from polisyos.scientist.methods.search.objective import (
     BudgetDeficitObjective,
     CompositeObjective,
 )
+from polisyos.scientist.methods.search.run_state import checkpoint_json
 from polisyos.scientist.methods.search.service import NativeSearchService
 from polisyos.scientist.methods.search.stopping import MaxIterations
 from polisyos.scientist.policy_design.objectives import ObjectiveStack
@@ -73,7 +74,11 @@ def test_real_objective_stack_native_cas_preserves_invalid_present_and_legacy_pr
     fresh = _service(tmp_path / "cas")
     fresh.restore(ref, context=context)
     restored = fresh.resume_search(context=context)
-    assert restored.history == result.history
+    # Input bundles have a declared JSON checkpoint projection; the explicit
+    # PolicyEvaluationVector remains typed, while raw StageB bundle models are
+    # read back as their full original JSON payload rather than arbitrary objects.
+    assert checkpoint_json(restored.history) == checkpoint_json(result.history)
+    assert restored.history[0].policy_evaluation == result.history[0].policy_evaluation
     assert restored.best_candidate == result.best_candidate
     assert restored.best_objective == result.best_objective
     assert restored.pareto_front == result.pareto_front
@@ -98,13 +103,17 @@ def test_real_objective_stack_native_cas_preserves_invalid_present_and_legacy_pr
         assert row.policy_evaluation_status == "missing" and row.policy_evaluation is None
         assert row.policy_evaluation_error is None
         assert restored.best_candidate == {"cost": -100}
-        assert restored.best_objective == -100
+        assert restored.best_objective == 100
         assert len(restored.pareto_front) == 1
         assert restored.telemetry["policy_evaluation_errors"] == 0
     else:
         assert len(calls) == 1 and calls[0].simulation_metrics["policy_value"] == 2
         assert row.policy_evaluation_status == "valid" and row.policy_evaluation is not None
         assert row.policy_evaluation.primary["policy_value"].value == 2
-        assert row.objective_value == row.policy_evaluation.legacy_scalar_proxy != -100
+        assert row.stage_b_result["policy_evaluation_bundle"]["simulation_metrics"] == {
+            "employment": 0.5,
+            "policy_value": 2.0,
+        }
+        assert row.objective_value == row.policy_evaluation.legacy_scalar_proxy != 100
         assert row.policy_evaluation_error is None
         assert restored.telemetry["policy_evaluation_errors"] == 0

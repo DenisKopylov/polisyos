@@ -1,0 +1,2816 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "continuation-gateway-numeric",
+  "closure_ids": [],
+  "bundle_ids": [
+    "LLM-01",
+    "CTL-03"
+  ],
+  "slice_base_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+  "implementation_commits": [
+    "81abcf87803270ed1463157d4149722d7b04ab42",
+    "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+    "7447f461691c4fe081db7bf3d14ceb6ac5e3a044",
+    "e98d4ddf727224ddcd2fdba6225f53b59532fd73",
+    "1cac85dd540c2109d2172892a95c2c0c18a17254"
+  ],
+  "candidate_tree_sha": "d32ca3217289429dca0dbe73cf104c12a710731e",
+  "branch": "codex/e02-B-current-adapters",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/64",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected-qualified/native.utf8.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected-qualified/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected-qualified/profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected-qualified/wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected/native.utf8.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected/profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected/wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/before/native.utf8.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/before/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/before/profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/before/wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/candidate/native.utf8.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/candidate/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/candidate/profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/candidate/wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/capture-current.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/capture-original.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/foreign-packet-readback.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/format.utf8.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/mypy.utf8.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/package.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/production-invocation.utf8.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/quality-checks.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/removal/native.utf8.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/removal/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/removal/profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/removal/wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/representation-forward.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/ruff.utf8.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/runtime-closure.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/status-partition.json",
+    "policy-engine/release-fragments/unreleased/2026-10-07-e02-b-gateway-exact-numeric-decode.toml",
+    "policy-engine/src/polisyos/scientist/orchestration/llm/README.md",
+    "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+    "policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py"
+  ],
+  "baseline_cells": [
+    {
+      "id": "F01-P026",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "state": "PASS",
+      "collected": "24",
+      "calls": "24",
+      "call_pass": "24",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "1.81",
+      "rss_kib": "98192",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F01.txt",
+      "source_line": "143",
+      "extra_json": "{}",
+      "findings": [
+        "B65",
+        "B66"
+      ],
+      "basis": "historical_source_reported_navigation_only",
+      "actual_environment_and_input_locator": {
+        "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json",
+        "sha256": "5a442a264f7b3d753cc748ed77f174a19c090c7272965ed8b9b26d4339157c83",
+        "bytes": 185506
+      },
+      "raw_archive_available": false
+    },
+    {
+      "id": "F03-P066",
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+      "state": "PASS",
+      "collected": "13",
+      "calls": "13",
+      "call_pass": "13",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "1.08",
+      "rss_kib": "89096.0",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F03.txt",
+      "source_line": "196",
+      "extra_json": "{}",
+      "findings": [
+        "B65",
+        "B66"
+      ],
+      "basis": "historical_source_reported_navigation_only",
+      "actual_environment_and_input_locator": {
+        "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json",
+        "sha256": "5a442a264f7b3d753cc748ed77f174a19c090c7272965ed8b9b26d4339157c83",
+        "bytes": 185506
+      },
+      "raw_archive_available": false
+    },
+    {
+      "id": "F03-P091",
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+      "state": "PASS",
+      "collected": "8",
+      "calls": "8",
+      "call_pass": "8",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "1.35",
+      "rss_kib": "96640.0",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F03.txt",
+      "source_line": "221",
+      "extra_json": "{}",
+      "findings": [
+        "B65",
+        "B66"
+      ],
+      "basis": "historical_source_reported_navigation_only",
+      "actual_environment_and_input_locator": {
+        "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json",
+        "sha256": "5a442a264f7b3d753cc748ed77f174a19c090c7272965ed8b9b26d4339157c83",
+        "bytes": 185506
+      },
+      "raw_archive_available": false
+    },
+    {
+      "id": "F05-P047",
+      "job": "F05",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "state": "PASS",
+      "collected": "16",
+      "calls": "16",
+      "call_pass": "16",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "1.6",
+      "rss_kib": "110596",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F05.txt",
+      "source_line": "457",
+      "extra_json": "{}",
+      "findings": [
+        "B65",
+        "B66"
+      ],
+      "basis": "historical_source_reported_navigation_only",
+      "actual_environment_and_input_locator": {
+        "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json",
+        "sha256": "5a442a264f7b3d753cc748ed77f174a19c090c7272965ed8b9b26d4339157c83",
+        "bytes": 185506
+      },
+      "raw_archive_available": false
+    },
+    {
+      "id": "F07-P027",
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "state": "PASS",
+      "collected": "24",
+      "calls": "24",
+      "call_pass": "24",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "1.668851613998413",
+      "rss_kib": "110980.0",
+      "receipt_status": "valid",
+      "source_file": "received/F07.txt",
+      "source_line": "33",
+      "extra_json": "{}",
+      "findings": [
+        "B65",
+        "B66"
+      ],
+      "basis": "historical_source_reported_navigation_only",
+      "actual_environment_and_input_locator": {
+        "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json",
+        "sha256": "5a442a264f7b3d753cc748ed77f174a19c090c7272965ed8b9b26d4339157c83",
+        "bytes": 185506
+      },
+      "raw_archive_available": false
+    },
+    {
+      "id": "F07-P084",
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+      "state": "PASS",
+      "collected": "8",
+      "calls": "8",
+      "call_pass": "8",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "1.569864273071289",
+      "rss_kib": "111512.0",
+      "receipt_status": "valid",
+      "source_file": "received/F07.txt",
+      "source_line": "90",
+      "extra_json": "{}",
+      "findings": [
+        "B65",
+        "B66"
+      ],
+      "basis": "historical_source_reported_navigation_only",
+      "actual_environment_and_input_locator": {
+        "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json",
+        "sha256": "5a442a264f7b3d753cc748ed77f174a19c090c7272965ed8b9b26d4339157c83",
+        "bytes": 185506
+      },
+      "raw_archive_available": false
+    },
+    {
+      "id": "F10-P031",
+      "job": "F10",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "state": "PASS",
+      "collected": "16",
+      "calls": "16",
+      "call_pass": "16",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "3.69",
+      "rss_kib": "120512",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F10.txt",
+      "source_line": "151",
+      "extra_json": "{}",
+      "findings": [
+        "B65",
+        "B66"
+      ],
+      "basis": "historical_source_reported_navigation_only",
+      "actual_environment_and_input_locator": {
+        "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json",
+        "sha256": "5a442a264f7b3d753cc748ed77f174a19c090c7272965ed8b9b26d4339157c83",
+        "bytes": 185506
+      },
+      "raw_archive_available": false
+    },
+    {
+      "id": "F13-P104",
+      "job": "F13",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+      "state": "PASS",
+      "collected": "8",
+      "calls": "8",
+      "call_pass": "8",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "1.3",
+      "rss_kib": "118468",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F13.txt",
+      "source_line": "231",
+      "extra_json": "{}",
+      "findings": [
+        "B65",
+        "B66"
+      ],
+      "basis": "historical_source_reported_navigation_only",
+      "actual_environment_and_input_locator": {
+        "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json",
+        "sha256": "5a442a264f7b3d753cc748ed77f174a19c090c7272965ed8b9b26d4339157c83",
+        "bytes": 185506
+      },
+      "raw_archive_available": false
+    },
+    {
+      "id": "F15-P032",
+      "job": "F15",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "state": "PASS",
+      "collected": "24",
+      "calls": "24",
+      "call_pass": "24",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "1.53",
+      "rss_kib": "112148",
+      "receipt_status": "valid",
+      "source_file": "received/F15.txt",
+      "source_line": "187",
+      "extra_json": "{\"reason\":\"null\"}",
+      "findings": [
+        "B65",
+        "B66"
+      ],
+      "basis": "historical_source_reported_navigation_only",
+      "actual_environment_and_input_locator": {
+        "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json",
+        "sha256": "5a442a264f7b3d753cc748ed77f174a19c090c7272965ed8b9b26d4339157c83",
+        "bytes": 185506
+      },
+      "raw_archive_available": false
+    },
+    {
+      "id": "F01-P022",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/scientist/search/test_search_loop.py",
+      "state": "PASS",
+      "collected": "26",
+      "calls": "26",
+      "call_pass": "26",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "44.77",
+      "rss_kib": "1258588",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F01.txt",
+      "source_line": "139",
+      "extra_json": "{}",
+      "findings": [
+        "B120"
+      ],
+      "basis": "historical_source_reported_navigation_only",
+      "actual_environment_and_input_locator": {
+        "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json",
+        "sha256": "5a442a264f7b3d753cc748ed77f174a19c090c7272965ed8b9b26d4339157c83",
+        "bytes": 185506
+      },
+      "raw_archive_available": false
+    },
+    {
+      "id": "F02-P093",
+      "job": "F02",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_srv_01.py",
+      "state": "PASS",
+      "collected": "8",
+      "calls": "8",
+      "call_pass": "8",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "20.4",
+      "rss_kib": "1205832",
+      "receipt_status": "reconciled",
+      "source_file": "received/F02.txt",
+      "source_line": "221",
+      "extra_json": "{}",
+      "findings": [
+        "B120"
+      ],
+      "basis": "historical_source_reported_navigation_only",
+      "actual_environment_and_input_locator": {
+        "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json",
+        "sha256": "5a442a264f7b3d753cc748ed77f174a19c090c7272965ed8b9b26d4339157c83",
+        "bytes": 185506
+      },
+      "raw_archive_available": false
+    },
+    {
+      "id": "F02-P129",
+      "job": "F02",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/scientist/search/test_sentinels.py",
+      "state": "PASS",
+      "collected": "3",
+      "calls": "3",
+      "call_pass": "3",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "16.7",
+      "rss_kib": "1207356",
+      "receipt_status": "reconciled",
+      "source_file": "received/F02.txt",
+      "source_line": "257",
+      "extra_json": "{}",
+      "findings": [
+        "B120"
+      ],
+      "basis": "historical_source_reported_navigation_only",
+      "actual_environment_and_input_locator": {
+        "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json",
+        "sha256": "5a442a264f7b3d753cc748ed77f174a19c090c7272965ed8b9b26d4339157c83",
+        "bytes": 185506
+      },
+      "raw_archive_available": false
+    },
+    {
+      "id": "F04-P048",
+      "job": "F04",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/scientist/search/test_cost_stopping.py",
+      "state": "PASS",
+      "collected": "17",
+      "calls": "17",
+      "call_pass": "17",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "7.72",
+      "rss_kib": "517960",
+      "receipt_status": "valid_reconciled_parent",
+      "source_file": "received/F04.txt",
+      "source_line": "258",
+      "extra_json": "{}",
+      "findings": [
+        "B120"
+      ],
+      "basis": "historical_source_reported_navigation_only",
+      "actual_environment_and_input_locator": {
+        "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json",
+        "sha256": "5a442a264f7b3d753cc748ed77f174a19c090c7272965ed8b9b26d4339157c83",
+        "bytes": 185506
+      },
+      "raw_archive_available": false
+    },
+    {
+      "id": "F04-P114",
+      "job": "F04",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/scientist/search/strategies/test_controller_batch.py",
+      "state": "PASS",
+      "collected": "5",
+      "calls": "5",
+      "call_pass": "5",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "7.316",
+      "rss_kib": "504248",
+      "receipt_status": "valid_reconciled_parent",
+      "source_file": "received/F04.txt",
+      "source_line": "324",
+      "extra_json": "{}",
+      "findings": [
+        "B120"
+      ],
+      "basis": "historical_source_reported_navigation_only",
+      "actual_environment_and_input_locator": {
+        "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json",
+        "sha256": "5a442a264f7b3d753cc748ed77f174a19c090c7272965ed8b9b26d4339157c83",
+        "bytes": 185506
+      },
+      "raw_archive_available": false
+    },
+    {
+      "id": "F05-P042",
+      "job": "F05",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/scientist/search/test_search_loop.py",
+      "state": "PASS",
+      "collected": "17",
+      "calls": "17",
+      "call_pass": "17",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "45.71",
+      "rss_kib": "1355152",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F05.txt",
+      "source_line": "452",
+      "extra_json": "{}",
+      "findings": [
+        "B120"
+      ],
+      "basis": "historical_source_reported_navigation_only",
+      "actual_environment_and_input_locator": {
+        "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json",
+        "sha256": "5a442a264f7b3d753cc748ed77f174a19c090c7272965ed8b9b26d4339157c83",
+        "bytes": 185506
+      },
+      "raw_archive_available": false
+    },
+    {
+      "id": "F06-P069",
+      "job": "F06",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/scientist/search/test_cost_stopping.py",
+      "state": "PASS",
+      "collected": "17",
+      "calls": "17",
+      "call_pass": "17",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "34.03464961051941",
+      "rss_kib": "1327980",
+      "receipt_status": "valid",
+      "source_file": "received/F06.txt",
+      "source_line": "253",
+      "extra_json": "{\"reason\":\"null\"}",
+      "findings": [
+        "B120"
+      ],
+      "basis": "historical_source_reported_navigation_only",
+      "actual_environment_and_input_locator": {
+        "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json",
+        "sha256": "5a442a264f7b3d753cc748ed77f174a19c090c7272965ed8b9b26d4339157c83",
+        "bytes": 185506
+      },
+      "raw_archive_available": false
+    },
+    {
+      "id": "F06-P128",
+      "job": "F06",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/scientist/search/strategies/test_controller_batch.py",
+      "state": "PASS",
+      "collected": "3",
+      "calls": "3",
+      "call_pass": "3",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "36.01247000694275",
+      "rss_kib": "1336072",
+      "receipt_status": "valid",
+      "source_file": "received/F06.txt",
+      "source_line": "312",
+      "extra_json": "{\"reason\":\"null\"}",
+      "findings": [
+        "B120"
+      ],
+      "basis": "historical_source_reported_navigation_only",
+      "actual_environment_and_input_locator": {
+        "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json",
+        "sha256": "5a442a264f7b3d753cc748ed77f174a19c090c7272965ed8b9b26d4339157c83",
+        "bytes": 185506
+      },
+      "raw_archive_available": false
+    },
+    {
+      "id": "F06-P140",
+      "job": "F06",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/scientist/search/test_sentinels.py",
+      "state": "PASS",
+      "collected": "3",
+      "calls": "3",
+      "call_pass": "3",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "34.23766803741455",
+      "rss_kib": "1333004",
+      "receipt_status": "valid",
+      "source_file": "received/F06.txt",
+      "source_line": "324",
+      "extra_json": "{\"reason\":\"null\"}",
+      "findings": [
+        "B120"
+      ],
+      "basis": "historical_source_reported_navigation_only",
+      "actual_environment_and_input_locator": {
+        "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json",
+        "sha256": "5a442a264f7b3d753cc748ed77f174a19c090c7272965ed8b9b26d4339157c83",
+        "bytes": 185506
+      },
+      "raw_archive_available": false
+    },
+    {
+      "id": "F07-P086",
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/remediation/test_srv_01.py",
+      "state": "PASS",
+      "collected": "8",
+      "calls": "8",
+      "call_pass": "8",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "31.671063661575317",
+      "rss_kib": "1323116.0",
+      "receipt_status": "valid",
+      "source_file": "received/F07.txt",
+      "source_line": "92",
+      "extra_json": "{}",
+      "findings": [
+        "B120"
+      ],
+      "basis": "historical_source_reported_navigation_only",
+      "actual_environment_and_input_locator": {
+        "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json",
+        "sha256": "5a442a264f7b3d753cc748ed77f174a19c090c7272965ed8b9b26d4339157c83",
+        "bytes": 185506
+      },
+      "raw_archive_available": false
+    },
+    {
+      "id": "F08-P053",
+      "job": "F08",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/scientist/search/test_cost_stopping.py",
+      "state": "PASS",
+      "collected": "17",
+      "calls": "17",
+      "call_pass": "17",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "40.09351468086243",
+      "rss_kib": "1319808",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F08.txt",
+      "source_line": "176",
+      "extra_json": "{}",
+      "findings": [
+        "B120"
+      ],
+      "basis": "historical_source_reported_navigation_only",
+      "actual_environment_and_input_locator": {
+        "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json",
+        "sha256": "5a442a264f7b3d753cc748ed77f174a19c090c7272965ed8b9b26d4339157c83",
+        "bytes": 185506
+      },
+      "raw_archive_available": false
+    },
+    {
+      "id": "F08-P115",
+      "job": "F08",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/scientist/search/strategies/test_controller_batch.py",
+      "state": "PASS",
+      "collected": "5",
+      "calls": "5",
+      "call_pass": "5",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "39.089630365371704",
+      "rss_kib": "1319336",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F08.txt",
+      "source_line": "238",
+      "extra_json": "{}",
+      "findings": [
+        "B120"
+      ],
+      "basis": "historical_source_reported_navigation_only",
+      "actual_environment_and_input_locator": {
+        "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json",
+        "sha256": "5a442a264f7b3d753cc748ed77f174a19c090c7272965ed8b9b26d4339157c83",
+        "bytes": 185506
+      },
+      "raw_archive_available": false
+    },
+    {
+      "id": "F08-P126",
+      "job": "F08",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/scientist/search/test_sentinels.py",
+      "state": "PASS",
+      "collected": "3",
+      "calls": "3",
+      "call_pass": "3",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "42.109466791152954",
+      "rss_kib": "1320924",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F08.txt",
+      "source_line": "249",
+      "extra_json": "{}",
+      "findings": [
+        "B120"
+      ],
+      "basis": "historical_source_reported_navigation_only",
+      "actual_environment_and_input_locator": {
+        "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json",
+        "sha256": "5a442a264f7b3d753cc748ed77f174a19c090c7272965ed8b9b26d4339157c83",
+        "bytes": 185506
+      },
+      "raw_archive_available": false
+    },
+    {
+      "id": "F09-P032",
+      "job": "F09",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/scientist/search/test_search_loop.py",
+      "state": "PASS",
+      "collected": "26",
+      "calls": "26",
+      "call_pass": "26",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "45.8",
+      "rss_kib": "1398540",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F09.txt",
+      "source_line": "148",
+      "extra_json": "{}",
+      "findings": [
+        "B120"
+      ],
+      "basis": "historical_source_reported_navigation_only",
+      "actual_environment_and_input_locator": {
+        "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json",
+        "sha256": "5a442a264f7b3d753cc748ed77f174a19c090c7272965ed8b9b26d4339157c83",
+        "bytes": 185506
+      },
+      "raw_archive_available": false
+    },
+    {
+      "id": "F10-P051",
+      "job": "F10",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/scientist/search/test_cost_stopping.py",
+      "state": "PASS",
+      "collected": "17",
+      "calls": "17",
+      "call_pass": "17",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "40.09",
+      "rss_kib": "1388108",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F10.txt",
+      "source_line": "171",
+      "extra_json": "{}",
+      "findings": [
+        "B120"
+      ],
+      "basis": "historical_source_reported_navigation_only",
+      "actual_environment_and_input_locator": {
+        "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json",
+        "sha256": "5a442a264f7b3d753cc748ed77f174a19c090c7272965ed8b9b26d4339157c83",
+        "bytes": 185506
+      },
+      "raw_archive_available": false
+    },
+    {
+      "id": "F10-P100",
+      "job": "F10",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/scientist/search/strategies/test_controller_batch.py",
+      "state": "PASS",
+      "collected": "3",
+      "calls": "3",
+      "call_pass": "3",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "39.97",
+      "rss_kib": "1393320",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F10.txt",
+      "source_line": "220",
+      "extra_json": "{}",
+      "findings": [
+        "B120"
+      ],
+      "basis": "historical_source_reported_navigation_only",
+      "actual_environment_and_input_locator": {
+        "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json",
+        "sha256": "5a442a264f7b3d753cc748ed77f174a19c090c7272965ed8b9b26d4339157c83",
+        "bytes": 185506
+      },
+      "raw_archive_available": false
+    },
+    {
+      "id": "F11-P031",
+      "job": "F11",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/scientist/search/test_search_loop.py",
+      "state": "PASS",
+      "collected": "17",
+      "calls": "17",
+      "call_pass": "17",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "46.008",
+      "rss_kib": "1382372",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F11.txt",
+      "source_line": "160",
+      "extra_json": "{\"receipt_quality\":\"reconciled\",\"input_custody_blockers\":\"0\"}",
+      "findings": [
+        "B120"
+      ],
+      "basis": "historical_source_reported_navigation_only",
+      "actual_environment_and_input_locator": {
+        "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json",
+        "sha256": "5a442a264f7b3d753cc748ed77f174a19c090c7272965ed8b9b26d4339157c83",
+        "bytes": 185506
+      },
+      "raw_archive_available": false
+    },
+    {
+      "id": "F12-P115",
+      "job": "F12",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/scientist/search/test_sentinels.py",
+      "state": "PASS",
+      "collected": "3",
+      "calls": "3",
+      "call_pass": "3",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "60.021897095000895",
+      "rss_kib": "1229728.0",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F12.txt",
+      "source_line": "700",
+      "extra_json": "{\"reason\":\"native\"}",
+      "findings": [
+        "B120"
+      ],
+      "basis": "historical_source_reported_navigation_only",
+      "actual_environment_and_input_locator": {
+        "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json",
+        "sha256": "5a442a264f7b3d753cc748ed77f174a19c090c7272965ed8b9b26d4339157c83",
+        "bytes": 185506
+      },
+      "raw_archive_available": false
+    },
+    {
+      "id": "F13-P058",
+      "job": "F13",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/scientist/search/test_cost_stopping.py",
+      "state": "PASS",
+      "collected": "17",
+      "calls": "17",
+      "call_pass": "17",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "11.15",
+      "rss_kib": "1358264",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F13.txt",
+      "source_line": "185",
+      "extra_json": "{}",
+      "findings": [
+        "B120"
+      ],
+      "basis": "historical_source_reported_navigation_only",
+      "actual_environment_and_input_locator": {
+        "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json",
+        "sha256": "5a442a264f7b3d753cc748ed77f174a19c090c7272965ed8b9b26d4339157c83",
+        "bytes": 185506
+      },
+      "raw_archive_available": false
+    },
+    {
+      "id": "F13-P106",
+      "job": "F13",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_srv_01.py",
+      "state": "PASS",
+      "collected": "8",
+      "calls": "8",
+      "call_pass": "8",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "12.13",
+      "rss_kib": "1364664",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F13.txt",
+      "source_line": "233",
+      "extra_json": "{}",
+      "findings": [
+        "B120"
+      ],
+      "basis": "historical_source_reported_navigation_only",
+      "actual_environment_and_input_locator": {
+        "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json",
+        "sha256": "5a442a264f7b3d753cc748ed77f174a19c090c7272965ed8b9b26d4339157c83",
+        "bytes": 185506
+      },
+      "raw_archive_available": false
+    },
+    {
+      "id": "F14-P134",
+      "job": "F14",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/scientist/search/strategies/test_controller_batch.py",
+      "state": "PASS",
+      "collected": "5",
+      "calls": "5",
+      "call_pass": "5",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "27.148860493998654",
+      "rss_kib": "1359280",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F14.txt",
+      "source_line": "484",
+      "extra_json": "{}",
+      "findings": [
+        "B120"
+      ],
+      "basis": "historical_source_reported_navigation_only",
+      "actual_environment_and_input_locator": {
+        "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json",
+        "sha256": "5a442a264f7b3d753cc748ed77f174a19c090c7272965ed8b9b26d4339157c83",
+        "bytes": 185506
+      },
+      "raw_archive_available": false
+    },
+    {
+      "id": "F15-P028",
+      "job": "F15",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/scientist/search/test_search_loop.py",
+      "state": "PASS",
+      "collected": "26",
+      "calls": "26",
+      "call_pass": "26",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "32.11",
+      "rss_kib": "1389452",
+      "receipt_status": "valid",
+      "source_file": "received/F15.txt",
+      "source_line": "183",
+      "extra_json": "{\"reason\":\"null\"}",
+      "findings": [
+        "B120"
+      ],
+      "basis": "historical_source_reported_navigation_only",
+      "actual_environment_and_input_locator": {
+        "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json",
+        "sha256": "5a442a264f7b3d753cc748ed77f174a19c090c7272965ed8b9b26d4339157c83",
+        "bytes": 185506
+      },
+      "raw_archive_available": false
+    },
+    {
+      "id": "F15-P151",
+      "job": "F15",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/scientist/search/test_sentinels.py",
+      "state": "PASS",
+      "collected": "3",
+      "calls": "3",
+      "call_pass": "3",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "11.98",
+      "rss_kib": "1325452",
+      "receipt_status": "valid",
+      "source_file": "received/F15.txt",
+      "source_line": "306",
+      "extra_json": "{\"reason\":\"null\"}",
+      "findings": [
+        "B120"
+      ],
+      "basis": "historical_source_reported_navigation_only",
+      "actual_environment_and_input_locator": {
+        "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json",
+        "sha256": "5a442a264f7b3d753cc748ed77f174a19c090c7272965ed8b9b26d4339157c83",
+        "bytes": 185506
+      },
+      "raw_archive_available": false
+    }
+  ],
+  "checks": [
+    {
+      "id": "before",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/capture.py",
+        "child",
+        "81abcf87803270ed1463157d4149722d7b04ab42",
+        "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/before/profile.json",
+        "-v",
+        "-s",
+        "--tb=short",
+        "--cache-clear",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/before/pytest-cache",
+        "--basetemp=/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/before/fixtures",
+        "--junitxml=/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/before/native.xml",
+        "tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py"
+      ],
+      "target_sha": "81abcf87803270ed1463157d4149722d7b04ab42",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "PYTHONPATH": "/workspace/e02-B-current-adapters/policy-engine/src:/workspace/e02-B-current-adapters/policy-engine",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "versions": {
+          "pytest": "9.0.2",
+          "aiohttp": "3.13.3",
+          "pydantic": "2.12.5",
+          "orjson": "3.11.5",
+          "tiktoken": "0.12.0"
+        },
+        "actual_origins": {
+          "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/before/profile.json",
+          "sha256": "7082178cf401efcaad1fe0813569371f7d92a9386323545dd0766f7ed6d35e87",
+          "bytes": 57196
+        }
+      },
+      "input_closure": {
+        "actual_executed_driver_sha256": "019528af29cbfa4f5959e394a1b79b3736c8a741289edf8cef399ba947ba96b0",
+        "driver": {
+          "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/capture-original.source.txt",
+          "sha256": "019528af29cbfa4f5959e394a1b79b3736c8a741289edf8cef399ba947ba96b0",
+          "bytes": 4609
+        },
+        "whole_file_selectors": [
+          "tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py"
+        ],
+        "exec_overlay": null,
+        "source_custody": "All file-backed loaded polisyos modules compared byte-for-byte to this check target Git SHA; hook/end-of-pytest module census, not every transitive external resource/child readset",
+        "tokenizer_input": {
+          "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/runtime-closure.json",
+          "sha256": "e5edd9174777e863c0adfb07281eb124b7dea9843cfdbdfbfb0a8c20fec04dec",
+          "bytes": 14473
+        },
+        "fixtures": "Ephemeral real loopback aiohttp port; isolated listed basetemp/cache; no live provider TCP beyond owned loopback, no production dataset",
+        "initial_absent_selector": false
+      },
+      "outcome": "FAIL",
+      "outcome_details": {
+        "actual_exit": 1,
+        "wall_s": 1.9275627939787228,
+        "rss_kib": 109908,
+        "collected": 30,
+        "phase_count": 90,
+        "case_outcomes": {
+          "FAIL": 20,
+          "PASS": 10
+        },
+        "phase_outcomes": {
+          "setup:passed": 30,
+          "call:failed": 20,
+          "teardown:passed": 30,
+          "call:passed": 10
+        },
+        "origin_count": 81,
+        "origin_mismatch_count": 0,
+        "source_before_after_clean": true,
+        "classification": "Literal native outcomes preserved; removalFAIL is the intended discriminator, not PASS; initial absent selector entered no case bodies"
+      },
+      "output": {
+        "stdout": {
+          "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/before/native.utf8.json",
+          "sha256": "e76e2e408c125444bc493cd36480d350330e77f49baa80a9fcf011189d26df35",
+          "bytes": 17638
+        },
+        "junit_lossless_wrapper_decode_text": {
+          "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/before/native.xml",
+          "sha256": "8e3dae12496d50ccbfca098b3ec1799eab79848f75a20b74e783ad34600d697f",
+          "bytes": 21202
+        },
+        "wrapper": {
+          "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/before/wrapper.json",
+          "sha256": "3e410d93f8a7fb5e6bade775a94bc5d84e3b320a2cb0b926cebbb8f719099c18",
+          "bytes": 2769
+        },
+        "allcase_partition": {
+          "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/status-partition.json",
+          "sha256": "7a0063732bb721b298c3da00ea548dfa70dfca51aea5ee0fb051522c19d46155",
+          "bytes": 399350
+        }
+      }
+    },
+    {
+      "id": "candidate",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/capture.py",
+        "child",
+        "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+        "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/candidate/profile.json",
+        "-v",
+        "-s",
+        "--tb=short",
+        "--cache-clear",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/candidate/pytest-cache",
+        "--basetemp=/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/candidate/fixtures",
+        "--junitxml=/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/candidate/native.xml",
+        "tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py"
+      ],
+      "target_sha": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "PYTHONPATH": "/workspace/e02-B-current-adapters/policy-engine/src:/workspace/e02-B-current-adapters/policy-engine",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "versions": {
+          "pytest": "9.0.2",
+          "aiohttp": "3.13.3",
+          "pydantic": "2.12.5",
+          "orjson": "3.11.5",
+          "tiktoken": "0.12.0"
+        },
+        "actual_origins": {
+          "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/candidate/profile.json",
+          "sha256": "db0b4d1371247c9b01c4d72e4f71ecd692ba3719652033fe111a985a9896b96b",
+          "bytes": 57196
+        }
+      },
+      "input_closure": {
+        "actual_executed_driver_sha256": "019528af29cbfa4f5959e394a1b79b3736c8a741289edf8cef399ba947ba96b0",
+        "driver": {
+          "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/capture-original.source.txt",
+          "sha256": "019528af29cbfa4f5959e394a1b79b3736c8a741289edf8cef399ba947ba96b0",
+          "bytes": 4609
+        },
+        "whole_file_selectors": [
+          "tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py"
+        ],
+        "exec_overlay": null,
+        "source_custody": "All file-backed loaded polisyos modules compared byte-for-byte to this check target Git SHA; hook/end-of-pytest module census, not every transitive external resource/child readset",
+        "tokenizer_input": {
+          "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/runtime-closure.json",
+          "sha256": "e5edd9174777e863c0adfb07281eb124b7dea9843cfdbdfbfb0a8c20fec04dec",
+          "bytes": 14473
+        },
+        "fixtures": "Ephemeral real loopback aiohttp port; isolated listed basetemp/cache; no live provider TCP beyond owned loopback, no production dataset",
+        "initial_absent_selector": false
+      },
+      "outcome": "PASS",
+      "outcome_details": {
+        "actual_exit": 0,
+        "wall_s": 1.775847351003904,
+        "rss_kib": 109520,
+        "collected": 30,
+        "phase_count": 90,
+        "case_outcomes": {
+          "PASS": 30
+        },
+        "phase_outcomes": {
+          "setup:passed": 30,
+          "call:passed": 30,
+          "teardown:passed": 30
+        },
+        "origin_count": 81,
+        "origin_mismatch_count": 0,
+        "source_before_after_clean": true,
+        "classification": "Literal native outcomes preserved; removalFAIL is the intended discriminator, not PASS; initial absent selector entered no case bodies"
+      },
+      "output": {
+        "stdout": {
+          "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/candidate/native.utf8.json",
+          "sha256": "3fbafd85927717643110fe8c6880094cda50629b701320c80f61ae1023574652",
+          "bytes": 3563
+        },
+        "junit_lossless_wrapper_decode_text": {
+          "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/candidate/native.xml",
+          "sha256": "883fd7a27b2b5bcce8ebd0aeb0da83cbe090ae670572a1eeaa014b19aa0cd59e",
+          "bytes": 6219
+        },
+        "wrapper": {
+          "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/candidate/wrapper.json",
+          "sha256": "898da0968630d33b5372c1f1dd2fa3252684ea0fbd83cc4300fcd7f4ab0f21ec",
+          "bytes": 2787
+        },
+        "allcase_partition": {
+          "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/status-partition.json",
+          "sha256": "7a0063732bb721b298c3da00ea548dfa70dfca51aea5ee0fb051522c19d46155",
+          "bytes": 399350
+        }
+      }
+    },
+    {
+      "id": "removal",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/capture.py",
+        "child",
+        "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+        "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/removal/profile.json",
+        "-v",
+        "-s",
+        "--tb=short",
+        "--cache-clear",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/removal/pytest-cache",
+        "--basetemp=/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/removal/fixtures",
+        "--junitxml=/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/removal/native.xml",
+        "tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py"
+      ],
+      "target_sha": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "PYTHONPATH": "/workspace/e02-B-current-adapters/policy-engine/src:/workspace/e02-B-current-adapters/policy-engine",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "versions": {
+          "pytest": "9.0.2",
+          "aiohttp": "3.13.3",
+          "pydantic": "2.12.5",
+          "orjson": "3.11.5",
+          "tiktoken": "0.12.0"
+        },
+        "actual_origins": {
+          "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/removal/profile.json",
+          "sha256": "0cdac3f2d5dc4092dbaf89602e33b205892366231b4ea50acdfb55399f9dc57d",
+          "bytes": 57474
+        }
+      },
+      "input_closure": {
+        "actual_executed_driver_sha256": "720e981ec657d17b1d26b022bf2ad64f7f1b6dabc89441313e30a07e00e8a596",
+        "driver": {
+          "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/capture-current.source.txt",
+          "sha256": "720e981ec657d17b1d26b022bf2ad64f7f1b6dabc89441313e30a07e00e8a596",
+          "bytes": 5873
+        },
+        "whole_file_selectors": [
+          "tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py"
+        ],
+        "exec_overlay": {
+          "kind": "in_memory_AST_keyword_removal",
+          "method": "GatewayLLMClient._post_json",
+          "removed_keywords": 1,
+          "file_bytes_unchanged": true,
+          "original_method_sha256": "7a613db3391b5d487c2a34a0abacd851610e168f4439795866d6a28653b8cccc"
+        },
+        "source_custody": "All file-backed loaded polisyos modules compared byte-for-byte to this check target Git SHA; hook/end-of-pytest module census, not every transitive external resource/child readset",
+        "tokenizer_input": {
+          "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/runtime-closure.json",
+          "sha256": "e5edd9174777e863c0adfb07281eb124b7dea9843cfdbdfbfb0a8c20fec04dec",
+          "bytes": 14473
+        },
+        "fixtures": "Ephemeral real loopback aiohttp port; isolated listed basetemp/cache; no live provider TCP beyond owned loopback, no production dataset",
+        "initial_absent_selector": false
+      },
+      "outcome": "FAIL",
+      "outcome_details": {
+        "actual_exit": 1,
+        "wall_s": 1.8823611559928395,
+        "rss_kib": 109756,
+        "collected": 30,
+        "phase_count": 90,
+        "case_outcomes": {
+          "FAIL": 20,
+          "PASS": 10
+        },
+        "phase_outcomes": {
+          "setup:passed": 30,
+          "call:failed": 20,
+          "teardown:passed": 30,
+          "call:passed": 10
+        },
+        "origin_count": 81,
+        "origin_mismatch_count": 0,
+        "source_before_after_clean": true,
+        "classification": "Literal native outcomes preserved; removalFAIL is the intended discriminator, not PASS; initial absent selector entered no case bodies"
+      },
+      "output": {
+        "stdout": {
+          "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/removal/native.utf8.json",
+          "sha256": "f96e75375dfc4f1cabe0a389a566e25ac36e26b75541af1631c30db7ad36dbc8",
+          "bytes": 17641
+        },
+        "junit_lossless_wrapper_decode_text": {
+          "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/removal/native.xml",
+          "sha256": "6db6dd1ee5807a9d104ffc05099478f34c2602e462d1bf3b33eb4e761bed3219",
+          "bytes": 21203
+        },
+        "wrapper": {
+          "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/removal/wrapper.json",
+          "sha256": "dc5bc1de2d792ab53fd783cd13aef9c33310d705e4a34688b0429b2fa22cfa42",
+          "bytes": 2776
+        },
+        "allcase_partition": {
+          "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/status-partition.json",
+          "sha256": "7a0063732bb721b298c3da00ea548dfa70dfca51aea5ee0fb051522c19d46155",
+          "bytes": 399350
+        }
+      }
+    },
+    {
+      "id": "affected",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/capture.py",
+        "child",
+        "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+        "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/affected/profile.json",
+        "-v",
+        "-s",
+        "--tb=short",
+        "--cache-clear",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/affected/pytest-cache",
+        "--basetemp=/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/affected/fixtures",
+        "--junitxml=/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/affected/native.xml",
+        "tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py",
+        "tests/unit/scientist/orchestration/llm/test_gateway_client_retry.py",
+        "tests/unit/core/test_llm_core.py",
+        "tests/unit/scientist/orchestration/llm/test_factory.py",
+        "tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+        "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+        "tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+        "tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py",
+        "tests/unit/scientist/orchestration/llm/test_protected_audit_admission_e02.py",
+        "tests/unit/scientist/orchestration/llm/test_shared_flight_completion_independent_e02.py",
+        "tests/unit/scientist/orchestration/llm/test_prompt_sanitization.py",
+        "tests/unit/scientist/orchestration/llm/test_provider_verification.py",
+        "tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+        "tests/core/observability/test_cost_metrics.py",
+        "tests/unit/remediation/test_llm_01.py",
+        "tests/unit/scientist/agent/tools/test_tool_loop.py",
+        "tests/unit/scientist/agent/tools/test_tool_loop_hardening.py",
+        "tests/unit/scientist/validation/test_citation_faithfulness.py",
+        "tests/unit/runtime/quality/test_design_generation.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py"
+      ],
+      "target_sha": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "PYTHONPATH": "/workspace/e02-B-current-adapters/policy-engine/src:/workspace/e02-B-current-adapters/policy-engine",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "versions": {
+          "pytest": "9.0.2",
+          "aiohttp": "3.13.3",
+          "pydantic": "2.12.5",
+          "orjson": "3.11.5",
+          "tiktoken": "0.12.0"
+        },
+        "actual_origins": {
+          "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected/profile.json",
+          "sha256": "35d691603a811adaeab78af0bd802ef207e042bf163478ecafa2732a5f69d73a",
+          "bytes": 23812
+        }
+      },
+      "input_closure": {
+        "actual_executed_driver_sha256": "720e981ec657d17b1d26b022bf2ad64f7f1b6dabc89441313e30a07e00e8a596",
+        "driver": {
+          "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/capture-current.source.txt",
+          "sha256": "720e981ec657d17b1d26b022bf2ad64f7f1b6dabc89441313e30a07e00e8a596",
+          "bytes": 5873
+        },
+        "whole_file_selectors": [
+          "tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py",
+          "tests/unit/scientist/orchestration/llm/test_gateway_client_retry.py",
+          "tests/unit/core/test_llm_core.py",
+          "tests/unit/scientist/orchestration/llm/test_factory.py",
+          "tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+          "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+          "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+          "tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+          "tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py",
+          "tests/unit/scientist/orchestration/llm/test_protected_audit_admission_e02.py",
+          "tests/unit/scientist/orchestration/llm/test_shared_flight_completion_independent_e02.py",
+          "tests/unit/scientist/orchestration/llm/test_prompt_sanitization.py",
+          "tests/unit/scientist/orchestration/llm/test_provider_verification.py",
+          "tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+          "tests/core/observability/test_cost_metrics.py",
+          "tests/unit/remediation/test_llm_01.py",
+          "tests/unit/scientist/agent/tools/test_tool_loop.py",
+          "tests/unit/scientist/agent/tools/test_tool_loop_hardening.py",
+          "tests/unit/scientist/validation/test_citation_faithfulness.py",
+          "tests/unit/runtime/quality/test_design_generation.py",
+          "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py"
+        ],
+        "exec_overlay": null,
+        "source_custody": "All file-backed loaded polisyos modules compared byte-for-byte to this check target Git SHA; hook/end-of-pytest module census, not every transitive external resource/child readset",
+        "tokenizer_input": {
+          "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/runtime-closure.json",
+          "sha256": "e5edd9174777e863c0adfb07281eb124b7dea9843cfdbdfbfb0a8c20fec04dec",
+          "bytes": 14473
+        },
+        "fixtures": "Ephemeral real loopback aiohttp port; isolated listed basetemp/cache; no live provider TCP beyond owned loopback, no production dataset",
+        "initial_absent_selector": true
+      },
+      "outcome": "ERROR",
+      "outcome_details": {
+        "actual_exit": 4,
+        "wall_s": 1.7424861970066559,
+        "rss_kib": 95464,
+        "collected": 0,
+        "phase_count": 0,
+        "case_outcomes": {},
+        "phase_outcomes": {},
+        "origin_count": 64,
+        "origin_mismatch_count": 0,
+        "source_before_after_clean": true,
+        "classification": "Literal native outcomes preserved; removalFAIL is the intended discriminator, not PASS; initial absent selector entered no case bodies"
+      },
+      "output": {
+        "stdout": {
+          "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected/native.utf8.json",
+          "sha256": "e6640ea34a603b48088dd79e9ccaf707fa46c598b7745be87b923136180928e8",
+          "bytes": 1374
+        },
+        "junit_lossless_wrapper_decode_text": {
+          "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected/native.xml",
+          "sha256": "b0af7d4dc27a936b7d83975e6a075eb48aa20dc4c5a18602d86fd0fb038e4246",
+          "bytes": 469
+        },
+        "wrapper": {
+          "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected/wrapper.json",
+          "sha256": "ac6b684a7104d22c1f49b97981ae511083595788b50e80146b4926c6cd3d8048",
+          "bytes": 4161
+        },
+        "allcase_partition": {
+          "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/status-partition.json",
+          "sha256": "7a0063732bb721b298c3da00ea548dfa70dfca51aea5ee0fb051522c19d46155",
+          "bytes": 399350
+        }
+      }
+    },
+    {
+      "id": "affected-qualified",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/capture.py",
+        "child",
+        "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+        "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/affected-qualified/profile.json",
+        "-v",
+        "-s",
+        "--tb=short",
+        "--cache-clear",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/affected-qualified/pytest-cache",
+        "--basetemp=/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/affected-qualified/fixtures",
+        "--junitxml=/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/affected-qualified/native.xml",
+        "tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py",
+        "tests/unit/scientist/orchestration/llm/test_gateway_client_retry.py",
+        "tests/unit/core/test_llm_core.py",
+        "tests/unit/scientist/orchestration/llm/test_factory.py",
+        "tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+        "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+        "tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+        "tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py",
+        "tests/unit/scientist/orchestration/llm/test_protected_audit_admission_e02.py",
+        "tests/unit/scientist/orchestration/llm/test_shared_flight_completion_independent_e02.py",
+        "tests/unit/scientist/orchestration/llm/test_prompt_sanitization.py",
+        "tests/unit/scientist/orchestration/llm/test_provider_verification.py",
+        "tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+        "tests/unit/remediation/test_llm_01.py",
+        "tests/unit/scientist/agent/tools/test_tool_loop.py",
+        "tests/unit/scientist/agent/tools/test_tool_loop_hardening.py",
+        "tests/unit/scientist/validation/test_citation_faithfulness.py",
+        "tests/unit/runtime/quality/test_design_generation.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py"
+      ],
+      "target_sha": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "PYTHONPATH": "/workspace/e02-B-current-adapters/policy-engine/src:/workspace/e02-B-current-adapters/policy-engine",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "versions": {
+          "pytest": "9.0.2",
+          "aiohttp": "3.13.3",
+          "pydantic": "2.12.5",
+          "orjson": "3.11.5",
+          "tiktoken": "0.12.0"
+        },
+        "actual_origins": {
+          "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected-qualified/profile.json",
+          "sha256": "4bf8a15fd8352806f7bd5b913a850fa5b1970ec3a5ed935aa1100cbdeec2d9c8",
+          "bytes": 1086014
+        }
+      },
+      "input_closure": {
+        "actual_executed_driver_sha256": "720e981ec657d17b1d26b022bf2ad64f7f1b6dabc89441313e30a07e00e8a596",
+        "driver": {
+          "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/capture-current.source.txt",
+          "sha256": "720e981ec657d17b1d26b022bf2ad64f7f1b6dabc89441313e30a07e00e8a596",
+          "bytes": 5873
+        },
+        "whole_file_selectors": [
+          "tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py",
+          "tests/unit/scientist/orchestration/llm/test_gateway_client_retry.py",
+          "tests/unit/core/test_llm_core.py",
+          "tests/unit/scientist/orchestration/llm/test_factory.py",
+          "tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+          "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+          "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+          "tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+          "tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py",
+          "tests/unit/scientist/orchestration/llm/test_protected_audit_admission_e02.py",
+          "tests/unit/scientist/orchestration/llm/test_shared_flight_completion_independent_e02.py",
+          "tests/unit/scientist/orchestration/llm/test_prompt_sanitization.py",
+          "tests/unit/scientist/orchestration/llm/test_provider_verification.py",
+          "tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+          "tests/unit/remediation/test_llm_01.py",
+          "tests/unit/scientist/agent/tools/test_tool_loop.py",
+          "tests/unit/scientist/agent/tools/test_tool_loop_hardening.py",
+          "tests/unit/scientist/validation/test_citation_faithfulness.py",
+          "tests/unit/runtime/quality/test_design_generation.py",
+          "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py"
+        ],
+        "exec_overlay": null,
+        "source_custody": "All file-backed loaded polisyos modules compared byte-for-byte to this check target Git SHA; hook/end-of-pytest module census, not every transitive external resource/child readset",
+        "tokenizer_input": {
+          "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/runtime-closure.json",
+          "sha256": "e5edd9174777e863c0adfb07281eb124b7dea9843cfdbdfbfb0a8c20fec04dec",
+          "bytes": 14473
+        },
+        "fixtures": "Ephemeral real loopback aiohttp port; isolated listed basetemp/cache; no live provider TCP beyond owned loopback, no production dataset",
+        "initial_absent_selector": false
+      },
+      "outcome": "FAIL",
+      "outcome_details": {
+        "actual_exit": 1,
+        "wall_s": 86.93349623100949,
+        "rss_kib": 970216,
+        "collected": 554,
+        "phase_count": 1662,
+        "case_outcomes": {
+          "PASS": 541,
+          "FAIL": 13
+        },
+        "phase_outcomes": {
+          "setup:passed": 554,
+          "call:passed": 541,
+          "teardown:passed": 554,
+          "call:failed": 13
+        },
+        "origin_count": 1530,
+        "origin_mismatch_count": 0,
+        "source_before_after_clean": true,
+        "classification": "Literal native outcomes preserved; removalFAIL is the intended discriminator, not PASS; initial absent selector entered no case bodies"
+      },
+      "output": {
+        "stdout": {
+          "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected-qualified/native.utf8.json",
+          "sha256": "a67a4edb011dd0de6b17bdb791b83eee559d4c1a0760a733fdc4c179a59514b1",
+          "bytes": 1363236
+        },
+        "junit_lossless_wrapper_decode_text": {
+          "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected-qualified/native.xml",
+          "sha256": "9ba06e0fad696d951f05c58f15dee4dc6ac3482148baebc0861c93e0ee7eb5b1",
+          "bytes": 114799
+        },
+        "wrapper": {
+          "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected-qualified/wrapper.json",
+          "sha256": "6150e6302e91fb073b01144d52e16ac2ac34f236ec47cf260e4d11037d0aa070",
+          "bytes": 4186
+        },
+        "allcase_partition": {
+          "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/status-partition.json",
+          "sha256": "7a0063732bb721b298c3da00ea548dfa70dfca51aea5ee0fb051522c19d46155",
+          "bytes": 399350
+        }
+      }
+    },
+    {
+      "id": "ruff",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "src/polisyos/scientist/orchestration/llm/gateway_client.py",
+        "tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py"
+      ],
+      "target_sha": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+        "runtime": {
+          "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/runtime-closure.json",
+          "sha256": "e5edd9174777e863c0adfb07281eb124b7dea9843cfdbdfbfb0a8c20fec04dec",
+          "bytes": 14473
+        }
+      },
+      "input_closure": {
+        "source_point": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+        "base": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+        "complete_quality_measurement": {
+          "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/quality-checks.json",
+          "sha256": "9d8dc8c88383dc9a0d9f138db6e9f78a3f5d971e15389b89824fc151d08e70a6",
+          "bytes": 3309
+        },
+        "mypy_scope": "Actual gateway file plus imported type graph; no inherited-red waiver; checked1 source, diagnostics31files110errors",
+        "scanner_scope": "All tracked src/tools/tests Python requested; no completed diagnostic receipt, no complete source graph proof"
+      },
+      "outcome": "PASS",
+      "outcome_details": {
+        "id": "ruff",
+        "command": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "-m",
+          "ruff",
+          "check",
+          "src/polisyos/scientist/orchestration/llm/gateway_client.py",
+          "tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py"
+        ],
+        "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+        "outcome": "PASS",
+        "output": "ruff.txt",
+        "exit_basis": "completed literal All checks passed; initial combined Ruff check+format shell exit0"
+      },
+      "output": {
+        "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/ruff.utf8.json",
+        "sha256": "3ad64ec41b2e4f189cffa72dd8fefd3ab6a96c6cbe6e5aa614d1fc250acc9835",
+        "bytes": 217
+      }
+    },
+    {
+      "id": "format",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "src/polisyos/scientist/orchestration/llm/gateway_client.py",
+        "tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py"
+      ],
+      "target_sha": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+        "runtime": {
+          "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/runtime-closure.json",
+          "sha256": "e5edd9174777e863c0adfb07281eb124b7dea9843cfdbdfbfb0a8c20fec04dec",
+          "bytes": 14473
+        }
+      },
+      "input_closure": {
+        "source_point": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+        "base": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+        "complete_quality_measurement": {
+          "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/quality-checks.json",
+          "sha256": "9d8dc8c88383dc9a0d9f138db6e9f78a3f5d971e15389b89824fc151d08e70a6",
+          "bytes": 3309
+        },
+        "mypy_scope": "Actual gateway file plus imported type graph; no inherited-red waiver; checked1 source, diagnostics31files110errors",
+        "scanner_scope": "All tracked src/tools/tests Python requested; no completed diagnostic receipt, no complete source graph proof"
+      },
+      "outcome": "PASS",
+      "outcome_details": {
+        "id": "format",
+        "command": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "src/polisyos/scientist/orchestration/llm/gateway_client.py",
+          "tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py"
+        ],
+        "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+        "outcome": "PASS",
+        "output": "format.txt",
+        "actual_exit": 0
+      },
+      "output": {
+        "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/format.utf8.json",
+        "sha256": "520587e53683251edbf851d8424854975d4ea3b7e9fb168d725681a1dca6a092",
+        "bytes": 226
+      }
+    },
+    {
+      "id": "mypy",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "mypy",
+        "src/polisyos/scientist/orchestration/llm/gateway_client.py"
+      ],
+      "target_sha": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+        "MYPYPATH": "src",
+        "runtime": {
+          "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/runtime-closure.json",
+          "sha256": "e5edd9174777e863c0adfb07281eb124b7dea9843cfdbdfbfb0a8c20fec04dec",
+          "bytes": 14473
+        }
+      },
+      "input_closure": {
+        "source_point": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+        "base": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+        "complete_quality_measurement": {
+          "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/quality-checks.json",
+          "sha256": "9d8dc8c88383dc9a0d9f138db6e9f78a3f5d971e15389b89824fc151d08e70a6",
+          "bytes": 3309
+        },
+        "mypy_scope": "Actual gateway file plus imported type graph; no inherited-red waiver; checked1 source, diagnostics31files110errors",
+        "scanner_scope": "All tracked src/tools/tests Python requested; no completed diagnostic receipt, no complete source graph proof"
+      },
+      "outcome": "FAIL",
+      "outcome_details": {
+        "id": "mypy",
+        "command": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "-m",
+          "mypy",
+          "src/polisyos/scientist/orchestration/llm/gateway_client.py"
+        ],
+        "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+        "environment": {
+          "MYPYPATH": "src"
+        },
+        "outcome": "FAIL",
+        "actual_exit": 1,
+        "output": "mypy.txt",
+        "detail": "Found110errors31files checked1sourcefile; no exact slice-base full-input isolation, no inherited/P41 waiver"
+      },
+      "output": {
+        "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/mypy.utf8.json",
+        "sha256": "b10605a7f7d2dcbb9849a3c8f2d433cdd3a822a807da5f017f43e109628639aa",
+        "bytes": 20027
+      }
+    },
+    {
+      "id": "production_invocation",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "polisyos.runtime.quality.production_invocation",
+        "--base",
+        "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+        "--receipt",
+        "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/production-invocation.json"
+      ],
+      "target_sha": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+        "PYTHONPATH": "/workspace/e02-B-current-adapters/policy-engine/src:/workspace/e02-B-current-adapters/policy-engine",
+        "runtime": {
+          "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/runtime-closure.json",
+          "sha256": "e5edd9174777e863c0adfb07281eb124b7dea9843cfdbdfbfb0a8c20fec04dec",
+          "bytes": 14473
+        }
+      },
+      "input_closure": {
+        "source_point": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+        "base": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+        "complete_quality_measurement": {
+          "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/quality-checks.json",
+          "sha256": "9d8dc8c88383dc9a0d9f138db6e9f78a3f5d971e15389b89824fc151d08e70a6",
+          "bytes": 3309
+        },
+        "mypy_scope": "Actual gateway file plus imported type graph; no inherited-red waiver; checked1 source, diagnostics31files110errors",
+        "scanner_scope": "All tracked src/tools/tests Python requested; no completed diagnostic receipt, no complete source graph proof"
+      },
+      "outcome": "ERROR",
+      "outcome_details": {
+        "id": "production_invocation",
+        "command": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "-m",
+          "polisyos.runtime.quality.production_invocation",
+          "--base",
+          "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+          "--receipt",
+          "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/production-invocation.json"
+        ],
+        "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+        "environment": {
+          "PYTHONPATH": "/workspace/e02-B-current-adapters/policy-engine/src:/workspace/e02-B-current-adapters/policy-engine"
+        },
+        "outcome": "ERROR",
+        "actual_shell_exit": 137,
+        "output": "production-invocation.txt",
+        "tool_output": "/bin/bash: line 1: 660548 Killed Python production_invocation; no complete receipt emitted",
+        "diagnostic_receipt_exists": false,
+        "resource_observation": {
+          "pid": 660548,
+          "rss_kib_at_single_observation": 983976,
+          "after_memory_max": "17179869184",
+          "after_memory_events": "low 0\nhigh 0\nmax 278344\noom 8\noom_kill 6\noom_group_kill 0\n",
+          "before_counters": "not_measured",
+          "peak_rss": "not_measured",
+          "signalcause": "not_established"
+        },
+        "detail": "Incomplete diagnostic execution does not establish either source regression or staticPASS; ready native checks ran concurrently without supplied quotas"
+      },
+      "output": {
+        "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/production-invocation.utf8.json",
+        "sha256": "9dfcff9e9c39df7aea4024e3d4a1b41b10fc35c4d9a690c9f4fadeccc9fba642",
+        "bytes": 213
+      }
+    },
+    {
+      "name": "baseline-original",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "--noconftest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-s",
+        "/workspace/e02-B-current-execution-state/policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py",
+        "--basetemp=/tmp/e02-B-gateway-exact-money-baseline/full",
+        "--junitxml=/tmp/e02-B-gateway-exact-money-baseline/full.xml"
+      ],
+      "target_sha": "384f238491d21f76b8691d34371db631025fb003",
+      "target_tree": "c67b14b7d49f36a4f4997c8dbc7e3b69073bc76a",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+        "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": null,
+        "E02_B_PROPERTY_REMOVAL": null,
+        "UV_PROJECT_ENVIRONMENT": null,
+        "UV_NO_SYNC": null,
+        "E02_B_COHORT_INVENTORY_PATH": null,
+        "E02_MONEY_SOURCE_ROOT": "/workspace/e02-B-current-execution-state",
+        "E02_MONEY_SOURCE_SHA": "384f238491d21f76b8691d34371db631025fb003",
+        "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "mutation_of_shared_environment": false,
+        "caps_removed_by_literal_outer_env": [
+          "OMP_NUM_THREADS",
+          "MKL_NUM_THREADS",
+          "OPENBLAS_NUM_THREADS",
+          "NUMEXPR_NUM_THREADS",
+          "VECLIB_MAXIMUM_THREADS",
+          "BLIS_NUM_THREADS"
+        ]
+      },
+      "input_closure": {
+        "test_sha": "384f238491d21f76b8691d34371db631025fb003",
+        "test_path": "policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py",
+        "d_sha": "8f58d7349edefebbac7e7f21e6859f8daa075c1d",
+        "d_modules": [
+          "polisyos.common.serialization",
+          "polisyos.scientist.methods.search.objective",
+          "polisyos.scientist.methods.search.stopping"
+        ],
+        "actual_b_parent_and_child_origins": "Full native stdout per-case measured origin/path/source hashes; exact three D Git modules separately recorded.",
+        "fixture": "Isolated ephemeral loopback HTTP port; emitted actual response.bin and fsynced http-work.jsonl; initialized actual FileBudgetLedger, fresh process actual D stopping after canonical B admission guard.",
+        "property_removal": null
+      },
+      "outcome": "FAIL",
+      "counts": {
+        "PASS": 5,
+        "FAIL": 10,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "harness_state": "EXECUTED",
+      "wall_s": 120.5422165079799,
+      "rss_kib": 600312,
+      "output": {
+        "source_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/native.txt",
+        "bytes": 459460,
+        "sha256": "0fe286e91faf755e3dbcbe99d541375f424755ac5641d1e12c74228897302690"
+      },
+      "junit": {
+        "source_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/native.xml",
+        "bytes": 23450,
+        "sha256": "f01116f55b30dfa2011e7fa771197ed328bfed0c07ff153a61328fe3a5144bc8"
+      },
+      "wrapper": {
+        "source_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/wrapper.json",
+        "bytes": 2179,
+        "sha256": "70b6dfbb0cbde9ab11d2f23849673c92e5ad0667903c8ed0a5df1d7b96a557dc"
+      },
+      "qualification": "Original wrong PendingError class assertion preserved (actual RequiredError fence worked); does not attribute those class mismatches to product.",
+      "id": "foreign-exe-0",
+      "external_authority_scope": "Independent EXE oracle; real D reader is explicit B-pre_check-gated external3Git-module composition, no defaultDfactory closure"
+    },
+    {
+      "name": "candidate-parent-absent",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "--noconftest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-s",
+        "/workspace/e02-B-current-execution-state/policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py",
+        "--basetemp=/tmp/e02-B-gateway-exact-money-candidate/full",
+        "--junitxml=/tmp/e02-B-gateway-exact-money-candidate/full.xml"
+      ],
+      "target_sha": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+      "target_tree": "bd3d76242c3c222b0bee7dd2c81bc73c2ecb374f",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-adapters/policy-engine/src:/workspace/e02-B-current-adapters/policy-engine",
+        "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": null,
+        "E02_B_PROPERTY_REMOVAL": null,
+        "UV_PROJECT_ENVIRONMENT": null,
+        "UV_NO_SYNC": null,
+        "E02_B_COHORT_INVENTORY_PATH": null,
+        "E02_MONEY_SOURCE_ROOT": "/workspace/e02-B-current-adapters",
+        "E02_MONEY_SOURCE_SHA": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+        "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "mutation_of_shared_environment": false,
+        "caps_removed_by_literal_outer_env": [
+          "OMP_NUM_THREADS",
+          "MKL_NUM_THREADS",
+          "OPENBLAS_NUM_THREADS",
+          "NUMEXPR_NUM_THREADS",
+          "VECLIB_MAXIMUM_THREADS",
+          "BLIS_NUM_THREADS"
+        ]
+      },
+      "input_closure": {
+        "test_sha": "384f238491d21f76b8691d34371db631025fb003",
+        "test_path": "policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py",
+        "d_sha": "8f58d7349edefebbac7e7f21e6859f8daa075c1d",
+        "d_modules": [
+          "polisyos.common.serialization",
+          "polisyos.scientist.methods.search.objective",
+          "polisyos.scientist.methods.search.stopping"
+        ],
+        "actual_b_parent_and_child_origins": "Full native stdout per-case measured origin/path/source hashes; exact three D Git modules separately recorded.",
+        "fixture": "Isolated ephemeral loopback HTTP port; emitted actual response.bin and fsynced http-work.jsonl; initialized actual FileBudgetLedger, fresh process actual D stopping after canonical B admission guard.",
+        "property_removal": null
+      },
+      "outcome": "ERROR",
+      "counts": {
+        "PASS": 0,
+        "FAIL": 0,
+        "ERROR": 15,
+        "SKIP": 0
+      },
+      "harness_state": "EXECUTED",
+      "wall_s": 1.7107216729782522,
+      "rss_kib": 97552,
+      "output": {
+        "source_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-parent-absent/native.txt",
+        "bytes": 27614,
+        "sha256": "8059c7dbedf75a9a32d88ba46ff3f47eae314a4ca2ad33e5e0b04cd304483b87"
+      },
+      "junit": {
+        "source_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-parent-absent/native.xml",
+        "bytes": 28983,
+        "sha256": "80cfa1da0412b6486c209d750366d6d33363adb54032d70059b09aac279e5baa"
+      },
+      "wrapper": {
+        "source_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-parent-absent/wrapper.json",
+        "bytes": 2153,
+        "sha256": "a1a280c5b61586592d37e1d4ced791b4e567b3a2bc3d0d37410c2e2c984dfd50"
+      },
+      "qualification": "All15 setup errors before HTTP/property due missing parent fixture directory; actual executed pytest retained, runtime property UNRUN.",
+      "id": "foreign-exe-1",
+      "external_authority_scope": "Independent EXE oracle; real D reader is explicit B-pre_check-gated external3Git-module composition, no defaultDfactory closure"
+    },
+    {
+      "name": "candidate-original",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "--noconftest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-s",
+        "/workspace/e02-B-current-execution-state/policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py",
+        "--basetemp=/tmp/e02-B-gateway-exact-money-candidate/qualified-full",
+        "--junitxml=/tmp/e02-B-gateway-exact-money-candidate/qualified-full.xml"
+      ],
+      "target_sha": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+      "target_tree": "bd3d76242c3c222b0bee7dd2c81bc73c2ecb374f",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-adapters/policy-engine/src:/workspace/e02-B-current-adapters/policy-engine",
+        "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": null,
+        "E02_B_PROPERTY_REMOVAL": null,
+        "UV_PROJECT_ENVIRONMENT": null,
+        "UV_NO_SYNC": null,
+        "E02_B_COHORT_INVENTORY_PATH": null,
+        "E02_MONEY_SOURCE_ROOT": "/workspace/e02-B-current-adapters",
+        "E02_MONEY_SOURCE_SHA": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+        "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "mutation_of_shared_environment": false,
+        "caps_removed_by_literal_outer_env": [
+          "OMP_NUM_THREADS",
+          "MKL_NUM_THREADS",
+          "OPENBLAS_NUM_THREADS",
+          "NUMEXPR_NUM_THREADS",
+          "VECLIB_MAXIMUM_THREADS",
+          "BLIS_NUM_THREADS"
+        ]
+      },
+      "input_closure": {
+        "test_sha": "384f238491d21f76b8691d34371db631025fb003",
+        "test_path": "policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py",
+        "d_sha": "8f58d7349edefebbac7e7f21e6859f8daa075c1d",
+        "d_modules": [
+          "polisyos.common.serialization",
+          "polisyos.scientist.methods.search.objective",
+          "polisyos.scientist.methods.search.stopping"
+        ],
+        "actual_b_parent_and_child_origins": "Full native stdout per-case measured origin/path/source hashes; exact three D Git modules separately recorded.",
+        "fixture": "Isolated ephemeral loopback HTTP port; emitted actual response.bin and fsynced http-work.jsonl; initialized actual FileBudgetLedger, fresh process actual D stopping after canonical B admission guard.",
+        "property_removal": null
+      },
+      "outcome": "FAIL",
+      "counts": {
+        "PASS": 5,
+        "FAIL": 10,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "harness_state": "EXECUTED",
+      "wall_s": 116.39054657801171,
+      "rss_kib": 600376,
+      "output": {
+        "source_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/native.txt",
+        "bytes": 449015,
+        "sha256": "dc188b58f537b988d05ffb88714234cbc055a5e4e5f9fd3a8f74c6edea065a10"
+      },
+      "junit": {
+        "source_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/native.xml",
+        "bytes": 25452,
+        "sha256": "bb61df9559a95a4db4b2f02aba69107082e7e04b33d692f8a8c0932fedb9a639"
+      },
+      "wrapper": {
+        "source_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/wrapper.json",
+        "bytes": 2184,
+        "sha256": "65965d1afe2a537b6fa781dd1ba760de162e3c61f3982a2cabd9b9478ad96853"
+      },
+      "qualification": "Original wrong PendingError class assertion preserved (actual RequiredError fence worked); does not attribute those class mismatches to product.",
+      "id": "foreign-exe-2",
+      "external_authority_scope": "Independent EXE oracle; real D reader is explicit B-pre_check-gated external3Git-module composition, no defaultDfactory closure"
+    },
+    {
+      "name": "baseline",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "--noconftest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-s",
+        "/workspace/e02-B-current-execution-state/policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py",
+        "--basetemp=/tmp/e02-B-gateway-exact-money-baseline/qualified-595",
+        "--junitxml=/tmp/e02-B-gateway-exact-money-baseline/qualified-595.xml"
+      ],
+      "target_sha": "595a2595316e3bd2aa791f2769b12f1180beba62",
+      "target_tree": "4f9469c7f7b6b0ecbb3931c64ef0732cef2d23a4",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+        "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": null,
+        "E02_B_PROPERTY_REMOVAL": null,
+        "UV_PROJECT_ENVIRONMENT": null,
+        "UV_NO_SYNC": null,
+        "E02_B_COHORT_INVENTORY_PATH": null,
+        "E02_MONEY_SOURCE_ROOT": "/workspace/e02-B-current-execution-state",
+        "E02_MONEY_SOURCE_SHA": "595a2595316e3bd2aa791f2769b12f1180beba62",
+        "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "mutation_of_shared_environment": false,
+        "caps_removed_by_literal_outer_env": [
+          "OMP_NUM_THREADS",
+          "MKL_NUM_THREADS",
+          "OPENBLAS_NUM_THREADS",
+          "NUMEXPR_NUM_THREADS",
+          "VECLIB_MAXIMUM_THREADS",
+          "BLIS_NUM_THREADS"
+        ]
+      },
+      "input_closure": {
+        "test_sha": "595a2595316e3bd2aa791f2769b12f1180beba62",
+        "test_path": "policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py",
+        "d_sha": "8f58d7349edefebbac7e7f21e6859f8daa075c1d",
+        "d_modules": [
+          "polisyos.common.serialization",
+          "polisyos.scientist.methods.search.objective",
+          "polisyos.scientist.methods.search.stopping"
+        ],
+        "actual_b_parent_and_child_origins": "Full native stdout per-case measured origin/path/source hashes; exact three D Git modules separately recorded.",
+        "fixture": "Isolated ephemeral loopback HTTP port; emitted actual response.bin and fsynced http-work.jsonl; initialized actual FileBudgetLedger, fresh process actual D stopping after canonical B admission guard.",
+        "property_removal": null
+      },
+      "outcome": "FAIL",
+      "counts": {
+        "PASS": 13,
+        "FAIL": 2,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "harness_state": "EXECUTED",
+      "wall_s": 148.8961999809835,
+      "rss_kib": 600800,
+      "output": {
+        "source_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/native.txt",
+        "bytes": 3720260,
+        "sha256": "f5ce589095c5c2ee4cdf11773feaaf94e8dc08e6b6dd8d930f28045f78ea5bac"
+      },
+      "junit": {
+        "source_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/native.xml",
+        "bytes": 6047,
+        "sha256": "40e0e90dfb233eee8a35e15ddc10542321d298b7deb9a4fb24fffc8aea933a68"
+      },
+      "wrapper": {
+        "source_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/wrapper.json",
+        "bytes": 2207,
+        "sha256": "a5a280cd1cb45d9fd91975af7dbc8eb77f91d53eda395e3e30a0250689d9ae9e"
+      },
+      "qualification": "Same corrected native test input, source-bound actual physical artifacts and D reader.",
+      "id": "foreign-exe-3",
+      "external_authority_scope": "Independent EXE oracle; real D reader is explicit B-pre_check-gated external3Git-module composition, no defaultDfactory closure"
+    },
+    {
+      "name": "candidate",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "--noconftest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-s",
+        "/workspace/e02-B-current-execution-state/policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py",
+        "--basetemp=/tmp/e02-B-gateway-exact-money-candidate/qualified-595",
+        "--junitxml=/tmp/e02-B-gateway-exact-money-candidate/qualified-595.xml"
+      ],
+      "target_sha": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+      "target_tree": "bd3d76242c3c222b0bee7dd2c81bc73c2ecb374f",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-adapters/policy-engine/src:/workspace/e02-B-current-adapters/policy-engine",
+        "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": null,
+        "E02_B_PROPERTY_REMOVAL": null,
+        "UV_PROJECT_ENVIRONMENT": null,
+        "UV_NO_SYNC": null,
+        "E02_B_COHORT_INVENTORY_PATH": null,
+        "E02_MONEY_SOURCE_ROOT": "/workspace/e02-B-current-adapters",
+        "E02_MONEY_SOURCE_SHA": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+        "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "mutation_of_shared_environment": false,
+        "caps_removed_by_literal_outer_env": [
+          "OMP_NUM_THREADS",
+          "MKL_NUM_THREADS",
+          "OPENBLAS_NUM_THREADS",
+          "NUMEXPR_NUM_THREADS",
+          "VECLIB_MAXIMUM_THREADS",
+          "BLIS_NUM_THREADS"
+        ]
+      },
+      "input_closure": {
+        "test_sha": "595a2595316e3bd2aa791f2769b12f1180beba62",
+        "test_path": "policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py",
+        "d_sha": "8f58d7349edefebbac7e7f21e6859f8daa075c1d",
+        "d_modules": [
+          "polisyos.common.serialization",
+          "polisyos.scientist.methods.search.objective",
+          "polisyos.scientist.methods.search.stopping"
+        ],
+        "actual_b_parent_and_child_origins": "Full native stdout per-case measured origin/path/source hashes; exact three D Git modules separately recorded.",
+        "fixture": "Isolated ephemeral loopback HTTP port; emitted actual response.bin and fsynced http-work.jsonl; initialized actual FileBudgetLedger, fresh process actual D stopping after canonical B admission guard.",
+        "property_removal": null
+      },
+      "outcome": "PASS",
+      "counts": {
+        "PASS": 15,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "harness_state": "EXECUTED",
+      "wall_s": 149.02171649198863,
+      "rss_kib": 600500,
+      "output": {
+        "source_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/native.txt",
+        "bytes": 3613492,
+        "sha256": "a08b0354ac1428026cf0ee223b0dbb69ff874891a7d1f16a1b8b5fadaceab124"
+      },
+      "junit": {
+        "source_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/native.xml",
+        "bytes": 3063,
+        "sha256": "c067e68fd69e289594aad0aca96eb1b132044e899befed5ffb89a0d1e1982707"
+      },
+      "wrapper": {
+        "source_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/wrapper.json",
+        "bytes": 2176,
+        "sha256": "be1050e19813f47f662d2178c597ca61143068236fbea4eb0739da402e9e9f90"
+      },
+      "qualification": "Same corrected native test input, source-bound actual physical artifacts and D reader.",
+      "id": "foreign-exe-4",
+      "external_authority_scope": "Independent EXE oracle; real D reader is explicit B-pre_check-gated external3Git-module composition, no defaultDfactory closure"
+    },
+    {
+      "name": "removal",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "/tmp/e02-B-gateway-exact-money-source/remove_exact_decode.py",
+        "--noconftest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-s",
+        "/workspace/e02-B-current-execution-state/policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py",
+        "-k",
+        "tiny-positive or tiny-negative",
+        "--basetemp=/tmp/e02-B-gateway-exact-money-candidate/removal-595",
+        "--junitxml=/tmp/e02-B-gateway-exact-money-candidate/removal-595.xml"
+      ],
+      "target_sha": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+      "target_tree": "bd3d76242c3c222b0bee7dd2c81bc73c2ecb374f",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-adapters/policy-engine/src:/workspace/e02-B-current-adapters/policy-engine",
+        "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": null,
+        "E02_B_PROPERTY_REMOVAL": null,
+        "UV_PROJECT_ENVIRONMENT": null,
+        "UV_NO_SYNC": null,
+        "E02_B_COHORT_INVENTORY_PATH": null,
+        "E02_MONEY_SOURCE_ROOT": "/workspace/e02-B-current-adapters",
+        "E02_MONEY_SOURCE_SHA": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+        "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "mutation_of_shared_environment": false,
+        "caps_removed_by_literal_outer_env": [
+          "OMP_NUM_THREADS",
+          "MKL_NUM_THREADS",
+          "OPENBLAS_NUM_THREADS",
+          "NUMEXPR_NUM_THREADS",
+          "VECLIB_MAXIMUM_THREADS",
+          "BLIS_NUM_THREADS"
+        ]
+      },
+      "input_closure": {
+        "test_sha": "595a2595316e3bd2aa791f2769b12f1180beba62",
+        "test_path": "policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py",
+        "d_sha": "8f58d7349edefebbac7e7f21e6859f8daa075c1d",
+        "d_modules": [
+          "polisyos.common.serialization",
+          "polisyos.scientist.methods.search.objective",
+          "polisyos.scientist.methods.search.stopping"
+        ],
+        "actual_b_parent_and_child_origins": "Full native stdout per-case measured origin/path/source hashes; exact three D Git modules separately recorded.",
+        "fixture": "Isolated ephemeral loopback HTTP port; emitted actual response.bin and fsynced http-work.jsonl; initialized actual FileBudgetLedger, fresh process actual D stopping after canonical B admission guard.",
+        "property_removal": "Only one parse_float=Decimal keyword removed in actual Gateway._post_json AST; all filesystem/HTTP/consumer code unchanged."
+      },
+      "outcome": "FAIL",
+      "counts": {
+        "PASS": 0,
+        "FAIL": 2,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "harness_state": "EXECUTED",
+      "wall_s": 20.54441494998173,
+      "rss_kib": 600476,
+      "output": {
+        "source_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/removal/native.txt",
+        "bytes": 490994,
+        "sha256": "ca80d2df9bde5388102086a8acabb989e5d6a703b214262ae13f1de58a96603a"
+      },
+      "junit": {
+        "source_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/removal/native.xml",
+        "bytes": 3706,
+        "sha256": "b0c166b0af9aa552ec362bccf62aa8c74a18622942eb6257392fdb1a111c825d"
+      },
+      "wrapper": {
+        "source_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/removal/wrapper.json",
+        "bytes": 2261,
+        "sha256": "a2c548afe2a3ab5730aeaac7e802166c79eec134b4e7f369ed30aa0f64c6128a"
+      },
+      "qualification": "Same corrected native test input, source-bound actual physical artifacts and D reader.",
+      "id": "foreign-exe-5",
+      "external_authority_scope": "Independent EXE oracle; real D reader is explicit B-pre_check-gated external3Git-module composition, no defaultDfactory closure"
+    },
+    {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py"
+      ],
+      "target_sha": "595a2595316e3bd2aa791f2769b12f1180beba62",
+      "environment": {
+        "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "cwd": "/workspace/e02-B-current-execution-state/policy-engine"
+      },
+      "input_closure": {
+        "test_path": "tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py",
+        "production_changed": false
+      },
+      "outcome": "PASS",
+      "output": {
+        "source_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/style.json",
+        "bytes": 943,
+        "sha256": "b9de58213c6ab5424bf6081ece95c8ee249db8298873002a74cdd77157e7adf5"
+      },
+      "id": "foreign-exe-6",
+      "external_authority_scope": "Independent EXE oracle; real D reader is explicit B-pre_check-gated external3Git-module composition, no defaultDfactory closure"
+    },
+    {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py"
+      ],
+      "target_sha": "595a2595316e3bd2aa791f2769b12f1180beba62",
+      "environment": {
+        "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "cwd": "/workspace/e02-B-current-execution-state/policy-engine"
+      },
+      "input_closure": {
+        "test_path": "tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py",
+        "production_changed": false
+      },
+      "outcome": "PASS",
+      "output": {
+        "source_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/style.json",
+        "bytes": 943,
+        "sha256": "b9de58213c6ab5424bf6081ece95c8ee249db8298873002a74cdd77157e7adf5"
+      },
+      "id": "foreign-exe-7",
+      "external_authority_scope": "Independent EXE oracle; real D reader is explicit B-pre_check-gated external3Git-module composition, no defaultDfactory closure"
+    }
+  ],
+  "property": {
+    "statement": "Successful HTTP completion numeric lexemes reach existing monetary/usage admission without binary-float underflow or integer rounding; actual nonzero±1e-1000 cannot become a reported-zero charge. Existing float money profile rejects that input as invalid/unknown, preserving request intent rather than minting zeroACK.",
+    "runtime_path": [
+      "real response.text UTF8 bytes from owned ephemeralHTTP server",
+      "GatewayLLMClient._post_json json.loads(parse_float=Decimal)",
+      "canonical extract_llm_response_data -> GatewayUsage explicit knowledge",
+      "Traced/cache completion -> actual LLMBudgetEnforcer -> initialized FileBudgetLedger",
+      "foreign fresh B middleware pre_check gates exactD8f58 CostBudgetStopping reader via independentEXE15-native oracle; externalcomposition only"
+    ],
+    "proxy_divergence": "A pre-parsed mocked Decimal/string dictionary already exercises the normalizer safety gate and misses prior transport loss. PackagePASS or atomically written zero receipt does not prove the cost was known. Overflow raw-evidence tests distinguish exact preservation while the old monetary gate already refused inf.",
+    "negative_controls": [
+      "Own immutable30-case HTTP source before fix:20FAIL10PASS; same actual30 candidatePASS",
+      "In-memory AST removal of ONLY parse_float keyword:20FAIL10PASS under unchanged canonical file bytes",
+      "All three usage cost aliases, top-level cost, base/fee components and fractional-token evidence",
+      "Literal0/0.0/-0.0/0e-1000/.02 known; bool/NaN/Infinity invalid; embedded tool stringfloat/int unchanged",
+      "Independent corrected15 exactinput595: baselinef796production13PASS2tinyFAIL -> candidateE7same15PASS; only decoderhook removaltiny±2materialFAIL, fullphysicalHTTP/ledger/freshDoutputs committedb82"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": {
+    "B66": "BOUNDED_IMPLEMENTATION_VERIFIED_OWN30_AND_INDEPENDENT15_PENDING_ROOT_G_ACCEPTANCE",
+    "B65": "UNCHANGED_ACCOUNTING_AUDIT_PROFILE_CURRENT_SCOPED_REGRESSIONS_ONLY",
+    "B120": "D_OWNED_BOUNDED_GUARDED_EXTERNAL_CONSUMER15PASS_DEFAULT_CONTROLLER_CONTOUR_NOT_ESTABLISHED",
+    "formal_closure_ids": []
+  },
+  "limitations_and_next_owner": [
+    "G/root owns formal code acceptance and finding closure; no author self-acceptance.",
+    "Normalized cost_usd remains float|None: representable valid finite nonnegative values accepted; no arbitrary-precision tiny invoice amount synthesized. Raw fractional/exponent numbers become Decimal, cache raw snapshots exact numeric strings.",
+    "Non-accounting embedded tool string JSON/model catalog/error-code decoders unchanged. Required-accounting streaming stays unsupported; C source untouched.",
+    "A response_shapes optional served-cost None→0 aggregation remains A/G-owned. Institutional reuse permission remains external/held; no response metadata authority.",
+    "Full20 native literal541PASS13FAIL retained. Every FAIL in design_generation wholefile, with missingL6/production inputs or unavailable/organ mismatch; not marked inherited or waived underP41. LocalG exactSOURCE rerun whole tests/unit/runtime/quality/test_design_generation.py with canonical production dataset/L6 inputs.",
+    "Mypy actual110errors31files remainsFAIL. Mandatory production_invocation actual shell137/Killed without receipt remainsERROR/incomplete; source-regression/staticPASS and signalcause not_established. G/root owns complete required quality gates and exact source-bound rerun.",
+    "Initial affected selector exit4/0collected is retained setup-input failure; corrected existing20paths execute554actualcases. No missing backend/count promoted toPASS.",
+    "Initial7447 packaging diff--check failed nativeXML traceback whitespace; all5XML now losslessly wrapped with original7447 Git/byte hashes, no raw normalization/deletion/history rewrite. Decode JSON.text before parsing XML.",
+    "Tracked module census is at end of pytest.main, not every finalization/resource/child input. Originalbaseline raw archives missing; historical9+23unique32cells are navigation, no new fix proof.",
+    "Independent EXE actual default D controller raw-snapshot projection is a separate D/G-owned probe; the15 external-reader positive uses explicit Bpre_check admission before CostBudgetStopping. No allB120/currentdefaultcontroller upgrade."
+  ],
+  "source_points": {
+    "execution_source_sha": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+    "execution_source_tree": "bd3d76242c3c222b0bee7dd2c81bc73c2ecb374f",
+    "candidate_sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+    "source_context": {
+      "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json",
+      "sha256": "5a442a264f7b3d753cc748ed77f174a19c090c7272965ed8b9b26d4339157c83",
+      "bytes": 185506
+    },
+    "evidence_index": {
+      "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/index.json",
+      "sha256": "83161771937051c8fcd74572b4b84274d62f077a9f07a25e135c533ca76bcd06",
+      "bytes": 20065
+    },
+    "original1862": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+    "fetched_G_dependency": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+    "fetched_D_reader": "8f58d7349edefebbac7e7f21e6859f8daa075c1d",
+    "main_ancestry": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "admission": {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/admission/adapters-resume.json",
+      "sha256": "3be7be90907b91a6de98fbc8db7188b197bd405235804fc64ca2697ebcb68e33",
+      "status": "admitted",
+      "requested": {
+        "mode": "resume",
+        "path": "/workspace/e02-B-current-adapters",
+        "branch": "codex/e02-B-current-adapters"
+      },
+      "boundary": "Rootsuppliedexistingattachedmatchinglane; resume snapshotconsumer_asserted, not a newreservation or arbitraryfuture admission."
+    }
+  },
+  "representation_forward": {
+    "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/representation-forward.json",
+    "sha256": "ee3dd08f9162c6b81012c0a5c3115af951e7a7a28f1bdb367c288c90019e0546",
+    "bytes": 1597
+  },
+  "quality_grade": "NATIVE_BOUNDED_GREEN_WITH_FULL_AFFECTED_FAIL_AND_REQUIRED_QUALITY_FAIL_ERROR",
+  "finding_dispositions": [
+    {
+      "id": "B65",
+      "state": "bounded_current_regression_no_closure",
+      "evidence": "Full affected required_audit/protected_audit/cost_metrics bodies; core accountingaudit source unchanged",
+      "next_owner": "root/G",
+      "limitation": "No universal protected audit/invoice/deployment claim"
+    },
+    {
+      "id": "B66",
+      "state": "bounded_HTTP_numeric_decode_mechanism_repaired_own30_and_foreign15_no_formal_closure",
+      "evidence": "candidate30/base30/removal30/full20file541PASS13FAIL plus independent290 same15 baseline13PASS2FAIL/candidate15PASS/removal2FAIL",
+      "next_owner": "root/G/A optional servedaggregation",
+      "limitation": "finite float profile, not arbitraryprecisionbilling or institutionalcacheauthority"
+    },
+    {
+      "id": "B120",
+      "state": "bounded_external_guarded_D_consumer_verified_defaultD_unestablished",
+      "evidence": "IndependentEXE290/b82 actual15realHTTP->ledger->freshBpre_check->D8f58, exact15 positive/unknown/control outputs",
+      "next_owner": "D/G",
+      "limitation": "No defaultDfactory/controller exposure or formalDclosure; actualrawsnapshot consumer probe belongsD/G"
+    }
+  ],
+  "foreign_independent_handoff": {
+    "commit": "29024b9537b46376957350c9e12f648c0bfb2d63",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent.json",
+    "sha256": "e228737f65b0578b32d9a5a0261149549f1f4fa9bd6b56da37a39df32eeaae38",
+    "bytes": 112840
+  },
+  "foreign_independent_readback": {
+    "commit": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/foreign-packet-readback.json",
+    "sha256": "08786130fdd78cf77c9533992f58e5962c4d3e640cb5f9376b1c9e4dab045dd8"
+  },
+  "original_packaging_record": "7447 retains exactoriginalJUnit; e98 wraps payloads losslessly, indexes originalGitrefs and bytes. No retired/deleted paths.",
+  "net_changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected-qualified/native.utf8.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected-qualified/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected-qualified/profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected-qualified/wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected/native.utf8.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected/profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected/wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/before/native.utf8.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/before/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/before/profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/before/wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/candidate/native.utf8.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/candidate/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/candidate/profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/candidate/wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/capture-current.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/capture-original.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/foreign-packet-readback.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/format.utf8.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/mypy.utf8.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/package.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/production-invocation.utf8.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/quality-checks.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/removal/native.utf8.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/removal/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/removal/profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/removal/wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/representation-forward.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/ruff.utf8.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/runtime-closure.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/status-partition.json",
+    "policy-engine/release-fragments/unreleased/2026-10-07-e02-b-gateway-exact-numeric-decode.toml",
+    "policy-engine/src/polisyos/scientist/orchestration/llm/README.md",
+    "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+    "policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py"
+  ],
+  "implementation_footprint_union": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected-qualified/native.utf8.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected-qualified/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected-qualified/profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected-qualified/wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected/native.utf8.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected/profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected/wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/before/native.utf8.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/before/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/before/profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/before/wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/candidate/native.utf8.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/candidate/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/candidate/profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/candidate/wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/capture-current.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/capture-original.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/foreign-packet-readback.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/format.utf8.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/mypy.utf8.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/package.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/production-invocation.utf8.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/quality-checks.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/removal/native.utf8.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/removal/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/removal/profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/removal/wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/representation-forward.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/ruff.utf8.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/runtime-closure.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/status-partition.json",
+    "policy-engine/release-fragments/unreleased/2026-10-07-e02-b-gateway-exact-numeric-decode.toml",
+    "policy-engine/src/polisyos/scientist/orchestration/llm/README.md",
+    "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+    "policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py"
+  ]
+}

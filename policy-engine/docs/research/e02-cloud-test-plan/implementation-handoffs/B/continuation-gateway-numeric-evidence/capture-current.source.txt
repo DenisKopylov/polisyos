@@ -1,0 +1,90 @@
+from __future__ import annotations
+import hashlib
+import importlib.metadata
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+import time
+
+ROOT = Path('/workspace/e02-B-current-adapters')
+RAW = ROOT / '.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric'
+PYTHON = '/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python'
+
+def git(*args):
+    return subprocess.check_output(['git', '-C', str(ROOT), *args], text=True).strip()
+
+if sys.argv[1] == 'child':
+    import pytest
+    overlay = None
+    if Path(sys.argv[3]).parent.name == 'removal':
+        import ast, inspect, textwrap
+        from polisyos.scientist.orchestration.llm import gateway_client
+        original = inspect.getsource(gateway_client.GatewayLLMClient._post_json)
+        code = ast.parse(textwrap.dedent(original))
+        removed = 0
+        for node in ast.walk(code):
+            if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and isinstance(node.func.value, ast.Name) and node.func.value.id == 'json' and node.func.attr == 'loads':
+                keywords = [kw for kw in node.keywords if kw.arg != 'parse_float']
+                removed += len(node.keywords) - len(keywords)
+                node.keywords = keywords
+        assert removed == 1
+        namespace = {}
+        exec(compile(ast.fix_missing_locations(code), '<decoder-property-removal>', 'exec'), gateway_client.__dict__, namespace)
+        gateway_client.GatewayLLMClient._post_json = namespace['_post_json']
+        overlay = {'kind': 'in_memory_AST_keyword_removal', 'method': 'GatewayLLMClient._post_json', 'removed_keywords': removed, 'file_bytes_unchanged': True, 'original_method_sha256': hashlib.sha256(original.encode()).hexdigest()}
+    target = sys.argv[2]
+    output = Path(sys.argv[3])
+    class Inventory:
+        def __init__(self):
+            self.items = []
+            self.reports = []
+            self.collection = []
+        def pytest_collection_modifyitems(self, items):
+            self.items = [item.nodeid for item in items]
+        def pytest_runtest_logreport(self, report):
+            self.reports.append({'nodeid': report.nodeid, 'when': report.when, 'outcome': report.outcome, 'wasxfail': getattr(report, 'wasxfail', None)})
+        def pytest_collectreport(self, report):
+            if report.failed or report.skipped:
+                self.collection.append({'nodeid': report.nodeid, 'outcome': report.outcome, 'longrepr': str(report.longrepr)})
+    observer = Inventory()
+    result = pytest.main(sys.argv[4:], plugins=[observer])
+    rows = []
+    for name, module in sorted(sys.modules.items()):
+        if name.startswith('polisyos') and getattr(module, '__file__', None):
+            path = Path(module.__file__).resolve()
+            entry = {'module': name, 'path': str(path), 'sha256': hashlib.sha256(path.read_bytes()).hexdigest()}
+            if path.is_relative_to(ROOT):
+                entry['relative_path'] = str(path.relative_to(ROOT))
+                expected = subprocess.check_output(['git', '-C', str(ROOT), 'show', f'{target}:{path.relative_to(ROOT)}'])
+                entry['git_byte_match'] = path.read_bytes() == expected
+            else:
+                entry['git_byte_match'] = False
+            rows.append(entry)
+    data = {'target_sha': target, 'observer_hook_exit': int(result), 'execution_overlay': overlay, 'items': observer.items, 'reports': observer.reports, 'collection_nonpass': observer.collection, 'origins': rows, 'versions': {name: importlib.metadata.version(name) for name in ('pytest', 'aiohttp', 'pydantic', 'orjson', 'tiktoken')}, 'python': sys.version, 'executable': sys.executable}
+    output.write_text(json.dumps(data, indent=2) + '\n')
+    if not all(row['git_byte_match'] for row in rows):
+        raise SystemExit(91)
+    raise SystemExit(int(result))
+
+label = sys.argv[1]
+selectors = sys.argv[2:]
+folder = RAW / label
+folder.mkdir(exist_ok=False)
+head = git('rev-parse', 'HEAD')
+tree = git('rev-parse', 'HEAD^{tree}')
+status = git('status', '--porcelain')
+assert not status, status
+args = [PYTHON, str(Path(__file__).resolve()), 'child', head, str(folder / 'profile.json'), '-v', '-s', '--tb=short', '--cache-clear', '-o', f'cache_dir={folder / "pytest-cache"}', f'--basetemp={folder / "fixtures"}', f'--junitxml={folder / "native.xml"}', *selectors]
+env = os.environ.copy()
+env['PYTHONPATH'] = f'{ROOT}/policy-engine/src:{ROOT}/policy-engine'
+env['TIKTOKEN_CACHE_DIR'] = '/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache'
+start = time.monotonic()
+with (folder / 'native.txt').open('xb') as stream:
+    proc = subprocess.Popen(args, cwd=ROOT / 'policy-engine', env=env, stdout=stream, stderr=subprocess.STDOUT)
+    pid, waitstatus, usage = os.wait4(proc.pid, 0)
+    proc.returncode = os.waitstatus_to_exitcode(waitstatus)
+record = {'schema': 'e02-independent-native-capture/v1', 'state': 'EXECUTED', 'setup_failure': None, 'command': args, 'cwd': str(ROOT / 'policy-engine'), 'target_sha': head, 'target_tree': tree, 'head_after': git('rev-parse', 'HEAD'), 'tree_after': git('rev-parse', 'HEAD^{tree}'), 'status_before': status, 'status_after': git('status', '--porcelain'), 'actual_exit': proc.returncode, 'wall_s': time.monotonic() - start, 'max_rss_kib': usage.ru_maxrss, 'environment': {'python': PYTHON, 'PYTHONPATH': env['PYTHONPATH'], 'TIKTOKEN_CACHE_DIR': env['TIKTOKEN_CACHE_DIR']}, 'driver_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(), 'outputs': {name: {'path': str(folder / name), 'sha256': hashlib.sha256((folder / name).read_bytes()).hexdigest(), 'bytes': (folder / name).stat().st_size} for name in ('native.txt', 'native.xml', 'profile.json') if (folder / name).exists()}}
+(folder / 'wrapper.json').write_text(json.dumps(record, indent=2) + '\n')
+print(json.dumps(record))

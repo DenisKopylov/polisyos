@@ -86,8 +86,8 @@ def _function_captures(function: FunctionType) -> dict[str, Any]:
         name = instruction.argval
         if name in function.__globals__:
             result[name] = function.__globals__[name]
-        elif name in function.__builtins__:
-            result[name] = function.__builtins__[name]
+        elif name in cast("Any", function).__builtins__:
+            result[name] = cast("Any", function).__builtins__[name]
     return result
 
 
@@ -165,7 +165,14 @@ def _external_member_boundary(value: Any) -> dict[str, Any] | None:
     if not (inspect.isfunction(value) or inspect.isclass(value) or callable(value)):
         return None
     value_type = type(value)
-    module = inspect.getattr_static(value, "__module__", value_type.__module__)
+    # FunctionType and ordinary type have fixed runtime identity attributes;
+    # getattr_static would return their descriptors, not the selected values.
+    if value_type is FunctionType or value_type is type:
+        module = value.__module__
+        name = value.__qualname__
+    else:
+        module = inspect.getattr_static(value, "__module__", value_type.__module__)
+        name = inspect.getattr_static(value, "__qualname__", None)
     if not isinstance(module, str):
         module = value_type.__module__
     root = module.split(".")[0]
@@ -174,7 +181,6 @@ def _external_member_boundary(value: Any) -> dict[str, Any] | None:
     version = _version(root)
     if version is None:
         return None
-    name = inspect.getattr_static(value, "__qualname__", None)
     if not isinstance(name, str):
         name = inspect.getattr_static(value, "__name__", value_type.__qualname__)
     if not isinstance(name, str):

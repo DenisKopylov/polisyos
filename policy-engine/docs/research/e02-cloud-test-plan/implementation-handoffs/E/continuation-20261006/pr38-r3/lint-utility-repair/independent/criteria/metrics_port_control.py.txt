@@ -1,0 +1,40 @@
+import json
+import os
+import urllib.request
+from prometheus_client import CollectorRegistry, Counter, start_http_server
+from polisyos.core.observability.config import OTelConfig
+
+os.environ['POLISYOS_METRICS_PORT'] = '0'
+config = OTelConfig()
+if config.metrics_port != 0 or not config.enabled:
+    raise AssertionError('environment must isolate the exporter port without disabling observability')
+servers = []
+try:
+    rows = []
+    for index in range(2):
+        registry = CollectorRegistry()
+        counter = Counter('e02_independent_port_probe', 'Independent port isolation control', registry=registry)
+        counter.inc(index + 1)
+        server, thread = start_http_server(config.metrics_port, registry=registry)
+        servers.append((server, thread))
+        port = server.server_address[1]
+        with urllib.request.urlopen(f'http://127.0.0.1:{port}/metrics', timeout=5) as response:
+            body = response.read().decode()
+            if response.status != 200 or f'e02_independent_port_probe_total {float(index + 1)}' not in body:
+                raise AssertionError('ephemeral exporter is not serving the actual metric')
+        rows.append({'configured_port': config.metrics_port, 'actual_port': port, 'thread_alive': thread.is_alive(), 'http_status': response.status, 'metric_value': index + 1})
+    if rows[0]['actual_port'] == rows[1]['actual_port']:
+        raise AssertionError('simultaneous exporters did not receive distinct ports')
+    try:
+        collision_server, collision_thread = start_http_server(rows[0]['actual_port'], registry=CollectorRegistry())
+    except OSError as error:
+        collision = {'outcome': 'REFUSED', 'class': type(error).__name__, 'reason': str(error)}
+    else:
+        servers.append((collision_server, collision_thread))
+        raise AssertionError('fixed-port collision control unexpectedly bound')
+    print(json.dumps({'otel_enabled': config.enabled, 'metrics_exporter': config.metrics_exporter.value, 'servers': rows, 'fixed_port_collision_control': collision, 'cpu_worker_thread_caps': 'not introduced'}, indent=2))
+finally:
+    for server, thread in servers:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)

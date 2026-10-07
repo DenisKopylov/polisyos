@@ -1,0 +1,12 @@
+{
+  "historical_attempt": "probe_skip_nonzero.py",
+  "outcome": "ERROR",
+  "reason": "Observer control omitted collector-required literal --basetemp in numerical command argv; native run_check receipt remained preserved. No product fix was needed for this observer error.",
+  "preserved_source": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe_skip_nonzero.py",
+  "preserved_stdout": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe-skip-nonzero.stdout.txt",
+  "preserved_stderr": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe-skip-nonzero.stderr.txt",
+  "corrective_observer": "probe_skip_nonzero_admitted.py",
+  "fresh_output_suffix": "admitted",
+  "source_unchanged": true,
+  "additional_custody_limit": "Corrective observer accidentally reused four outer capture paths edge-*.stdout/stderr.txt. The first attempt complete child stdout, JUnit, native receipts and observer ERROR traceback remain in its unique wave. No first-attempt outer-wrapper stdout/stderr custody is claimed; the current edge-* bytes are the corrective admitted attempt."
+}

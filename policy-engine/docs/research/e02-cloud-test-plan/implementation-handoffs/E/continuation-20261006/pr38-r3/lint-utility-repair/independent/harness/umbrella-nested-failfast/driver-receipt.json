@@ -1,0 +1,9 @@
+{
+  "candidate_sha": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+  "variant": "nested-failfast",
+  "native_exit_code": 7,
+  "synthetic_factory_control": true,
+  "full_canonical_stage_wave_executed": false,
+  "factory_driver_source_sha256": "d8f846511c963e9e4db61e4a38629aa06e140f36d4dedb0ef71b9b24f646bede",
+  "executed_umbrella_sha256": "13b50c23a2636baaccd7e07ea29abc5e0a21c8c2a0db61e1ef73a7b37292b67e"
+}

@@ -1,0 +1,50 @@
+{
+  "candidate_sha": "74d0452848a7461d82ea7f150f126631d9fc8399",
+  "candidate_tree": "a4e4793be4d1aec6adea623b930a65304ab42d64",
+  "cases": [
+    {
+      "case": "pure_exact_new_IR_test_route",
+      "outcome": "PASS",
+      "expected": "MC_joint_law_support_and_Scientist_consumer",
+      "observed": "MC_joint_law_support_and_Scientist_consumer",
+      "property_scope": "Pure existing family_for API only; does not claim that the future owner test file exists or was executed."
+    },
+    {
+      "case": "remove_exact_route_property_keeps_helpers_but_discriminator_FAIL",
+      "outcome": "PASS",
+      "negative_gate_outcome": "FAIL",
+      "observed": null,
+      "helper_names_preserved": true
+    }
+  ],
+  "case_count": 2,
+  "fail_count": 0,
+  "actual_new_IR_test_prepare_inclusion": {
+    "outcome": "UNRUN",
+    "reason": "Exact target file is absent from this author candidate and observed composed root; IR author source is in progress per parent. Root will assert actual new test inclusion after genuine source merge before the single execute.",
+    "lane_source": "74d0452848a7461d82ea7f150f126631d9fc8399",
+    "lane_ls_tree_result": [],
+    "root_source": "fd9cc860b14bb10b9f72cd3ab2914fd450fcb78e",
+    "root_tree": "7f9f1be07eb026fc72bd36d1c33759feaf843ab4",
+    "root_ls_tree_result": [],
+    "root_full_prepare_repeated": false
+  },
+  "observer_correction": {
+    "supersedes": "corrective-review-results.json cases exact_posterior_test_maps_to_MC_and_is_in_actual_prepared_input and remove_selector_keeps_markers_but_actual_test_omitted",
+    "classification": "Observer mismatch, not product FAIL. The first asserted a nonexistent source file; the removal was not effective because both plans omitted it. Those two historical observations are preserved and excluded from the final valid control count."
+  },
+  "inputs": {
+    "executed_module": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/plan_wave.py",
+      "bytes": 25922,
+      "sha256": "3e1367f35392c8334a849da655035113c543066425d2bdb67643468a5b8038e4"
+    },
+    "driver": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/probe_selector_correction.py",
+      "bytes": 3301,
+      "sha256": "b10e901217ae97a93bcd52a0612211ba27e8f6f438b7d428fe6475d5a722fcb0"
+    }
+  },
+  "common_wave_executed": false,
+  "finding_closure": false
+}

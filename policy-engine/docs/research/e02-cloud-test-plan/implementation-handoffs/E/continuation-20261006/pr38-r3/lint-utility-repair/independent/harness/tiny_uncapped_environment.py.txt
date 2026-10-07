@@ -1,0 +1,14 @@
+import json
+import os
+from pathlib import Path
+
+CAPS = (
+    'OMP_NUM_THREADS', 'OPENBLAS_NUM_THREADS', 'MKL_NUM_THREADS',
+    'NUMEXPR_NUM_THREADS', 'VECLIB_MAXIMUM_THREADS', 'BLIS_NUM_THREADS',
+    'POLISYOS_PYTEST_WORKERS',
+)
+
+def test_actual_child_is_uncapped():
+    observed = {name: os.environ[name] for name in CAPS if name in os.environ}
+    Path(os.environ['HARNESS_ENV_OBSERVER']).write_text(json.dumps(observed, indent=2) + '\n')
+    assert observed == {}, observed

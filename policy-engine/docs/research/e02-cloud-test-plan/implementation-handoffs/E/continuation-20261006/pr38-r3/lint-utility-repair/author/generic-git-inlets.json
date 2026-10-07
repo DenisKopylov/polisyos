@@ -1,0 +1,267 @@
+[
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-current-validator-v3/validate_binding_v3.py",
+    "inlet": "git_bytes",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-owner-independent/review_packet.py",
+    "inlet": "git",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/assembly-independent/review_assembly.py",
+    "inlet": "git",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v3-author/_external/common-wave-publication-prep/collect_wave_v3_final.py",
+    "inlet": "git_bytes",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v4-author/_external/common-wave-publication-prep/collect_wave_v4.py",
+    "inlet": "git_bytes",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/audit_inputs.py",
+    "inlet": "git",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-f445-v1/build_packet.py",
+    "inlet": "git",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-f445-v1/validate.py",
+    "inlet": "git",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/build_final.py",
+    "inlet": "git",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/validate.py",
+    "inlet": "git",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-v1-independent/git-inputs-b5/criteria-f445-v1/build_packet.py",
+    "inlet": "git",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-v1-independent/git-inputs-b5/criteria-f445-v1/validate.py",
+    "inlet": "git",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-v1-independent/review_publication.py",
+    "inlet": "git",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-v1-independent/validate_independently_f445.py",
+    "inlet": "git",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/current-consumer-trace/trace.py",
+    "inlet": "git",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/baseline_falsifier.py",
+    "inlet": "git",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/finalize_review.py",
+    "inlet": "git",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/run_review.py",
+    "inlet": "git",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-stress-dependency/trace.py",
+    "inlet": "git",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collect_wave.py",
+    "inlet": "git_bytes",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collect_wave_v2.py",
+    "inlet": "git_bytes",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-independent/audit_inputs.py",
+    "inlet": "git",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-assembly-delta-independent/review_assembly.py",
+    "inlet": "git",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/exact-Git-inputs/build_final.py",
+    "inlet": "git",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/exact-Git-inputs/validate.py",
+    "inlet": "git",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.attempt1-used.py",
+    "inlet": "git",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.attempt2-used.py",
+    "inlet": "git",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.attempt3-used.py",
+    "inlet": "git",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.attempt4-used.py",
+    "inlet": "git",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.attempt5-used.py",
+    "inlet": "git",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.attempt6-used.py",
+    "inlet": "git",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.py",
+    "inlet": "git",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/g-checkpoint11-assembly-independent/review_delta.py",
+    "inlet": "git",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/plan_wave.py",
+    "inlet": "git_result",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/run_check.py",
+    "inlet": "git_result",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/old-exact/plan_wave.py",
+    "inlet": "git_result",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/old-exact/run_check.py",
+    "inlet": "git_result",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/plan_wave.py",
+    "inlet": "git_result",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/run_check.py",
+    "inlet": "git_result",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-independent/exact-old-git-blobs/plan_wave.py",
+    "inlet": "git_result",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-independent/exact-old-git-blobs/run_check.py",
+    "inlet": "git_result",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-independent/review_harness.py",
+    "inlet": "git",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/run_review.py",
+    "inlet": "git",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/run_review.py",
+    "inlet": "git",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/lint-publication-independent/classify_lint.py",
+    "inlet": "git",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-owner-v1/edge_probe.py",
+    "inlet": "git",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-owner-v1/review_owned_companion.py",
+    "inlet": "git",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/publication-freeze-adapter-v3/adapt_publication_freeze.py",
+    "inlet": "git_bytes",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/release-compatibility-author/ddm/prepare_companion.py",
+    "inlet": "git",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/release-compatibility-independent/review.py",
+    "inlet": "git",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+    "inlet": "git_bytes",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+    "inlet": "git_result",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+    "inlet": "git_result",
+    "object_admission": "option/NUL/type/canonical-relative-path; named legacy refs preserved"
+  }
+]

@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/git_controls.py", line 41, in <module>
+    ns,fn,prefix,child,data=prepare(row); healthy=fn(*prefix,'show',E9+':AGENTS.md');require((healthy.stdout if hasattr(healthy,'stdout') else healthy) in {b'fixture\n',b'fixture','fixture','fixture\n'} and len(child.calls)==1,'healthy argument routing:'+row['path']+':'+repr(healthy))
+                                                  ~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/run_review.py[actual-immutable-definitions]", line 72, in git
+NameError: name 'lane' is not defined. Did you mean: 'range'?

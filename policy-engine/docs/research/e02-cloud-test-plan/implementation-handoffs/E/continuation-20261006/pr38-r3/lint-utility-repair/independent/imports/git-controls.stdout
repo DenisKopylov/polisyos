@@ -1,0 +1,43 @@
+{
+  "schema": "policyos.e02.independent_git_wrapper_controls.v1",
+  "source_sha": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+  "wrapper_denominator": 53,
+  "invalid_controls": 530,
+  "all_bad_child_calls": 0,
+  "named_ref_classes": {
+    "strict_full_SHA": 5,
+    "legacy_named_available": 48
+  },
+  "property_removal": [
+    {
+      "scope": "generic",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-current-validator-v3/validate_binding_v3.py",
+      "inlet": "git_bytes",
+      "required_negative_gate": "FAIL",
+      "discriminator": "PASS",
+      "child_calls": 1,
+      "reason": "admission property removed but marker/API retained"
+    },
+    {
+      "scope": "strict",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-f445-v1/validate.py",
+      "inlet": "git",
+      "required_negative_gate": "FAIL",
+      "discriminator": "PASS",
+      "child_calls": 1,
+      "reason": "admission property removed but marker/API retained"
+    }
+  ],
+  "actual_Git_positive": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/validate.py",
+    "object": "e9cb425e4dfe888720f93eb84f1667f24a8a92c4:AGENTS.md",
+    "bytes": 22656,
+    "sha256": "35b1e1bf610b8a19b417cb35d6f0c7afca341c4c8c9bbc1574400c38f24b7d50",
+    "oracle": "independent git cat-file blob bytes"
+  },
+  "limits": [
+    "Actual wrapper AST/admission/argv exercised with terminal child spy; only representative immutable read uses real Git backend.",
+    "Named legacy refs remain explicitly available in48 retired wrapper variants; live strict admissions require full immutable SHA.",
+    "Does not execute all229 builder bodies, confer finding closure or replace criteria/historical byte-guard controls."
+  ]
+}

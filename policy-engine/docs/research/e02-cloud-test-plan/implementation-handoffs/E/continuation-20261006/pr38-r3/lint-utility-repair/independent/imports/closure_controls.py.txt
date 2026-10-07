@@ -1,0 +1,76 @@
+"""Execute actual default-capture definitions after two distinct loop creations."""
+import ast
+import asyncio
+import copy
+import hashlib
+import itertools
+import json
+import subprocess
+import sys
+import types
+from pathlib import Path
+REPO=Path('/workspace/e02-E-cal05-20261006'); ROOT=Path('/workspace/e02-E-pr38-r3-receipts/import-lint-independent'); BASE='8047bfdbb1a7e8c4b031384acf6b45e302591620'; FINAL='f3ec0335e992fa7a5107000224f8ba6deefd02e5'
+def require(value,reason):
+ if not value:raise AssertionError(reason)
+def read(ref,path):return subprocess.check_output(['/usr/bin/git','show',ref+':'+path],cwd=REPO)
+def defs(tree):
+ out={}
+ def walk(n,scope):
+  if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef)):scope=scope+'.'+n.name;out[scope]=n
+  for child in ast.iter_child_nodes(n):walk(child,scope)
+ walk(tree,'module');return out
+class BackendReachedError(RuntimeError):pass
+
+def named_control(row,removed=False):
+ oldtree=ast.parse(read(BASE,row['path'])); tree=ast.parse(read(FINAL,row['path'])); oldmap=defs(oldtree);newmap=defs(tree)
+ node=copy.deepcopy(newmap[row['scope']]); old=oldmap[row['scope']]
+ if row['scope'].endswith('.counted'):return None
+ if removed:node.args=copy.deepcopy(old.args)
+ callbacks=[]; states=[]
+ def original(*args,**kwargs):return ('original',args)
+ ns={'product':itertools.product,'original':original,'BackendReachedError':BackendReachedError}
+ for i in (1,2):
+  def build(*args,_marker=i,**kwargs):
+   def fn(**params):return _marker
+   fn._sensitivity_map={'marker':_marker};return fn,[_marker]
+  state={'counts':{'loader':0,'emitter':0},'callback_count':[0],'dispatch_count':[0],'calls':[],'count':[0],'launches':[],'sign':1 if i==1 else -1,'metric':'metric'+str(i)};states.append(state)
+  ns.update(state);ns.update(original_build=build,original_dispatch=lambda *args,_marker=i,**kwargs:_marker)
+  module=ast.fix_missing_locations(ast.Module(body=[copy.deepcopy(node)],type_ignores=[]));exec(compile(module,row['path']+'[actual-capture]','exec'),ns);callbacks.append(ns[node.name])
+ name=node.name;results=[]
+ for fn in callbacks:
+  try:
+   if name=='loader':result=fn(None)
+   elif name=='observed_emitter':result=fn(None,'payload')
+   elif name=='counted_build':callback,mapped=fn();result={'value':callback(),'mapped':mapped,'metadata':callback._sensitivity_map}
+   elif name=='counted_dispatch':result=fn('payload')
+   elif name=='spy':result=fn({'num_vars':2},N=3)
+   elif name=='observe':result=list(fn([0,1],[2]))
+   elif name in {'evaluator','evaluate'}:result=fn({'x':0.25},None)
+   elif isinstance(node,ast.AsyncFunctionDef):result=asyncio.run(fn('payload'))
+   elif name=='f':result=fn(a=3,b=2)
+   else:raise AssertionError('unclassified capture:'+row['scope'])
+  except (BackendReachedError,AssertionError) as error:result={'raised':type(error).__name__,'reason':str(error)}
+  results.append(result)
+ if name=='loader':require([s['counts']['loader'] for s in states]==[1,1],'loader counters shared')
+ elif name=='observed_emitter':require([s['counts']['emitter'] for s in states]==[1,1],'emitter counters shared')
+ elif name=='counted_build':require([x['value'] for x in results]==[1,2] and [s['callback_count'][0] for s in states]==[1,1],'escaped counted callback shared')
+ elif name=='counted_dispatch':require(results==[1,2] and [s['dispatch_count'][0] for s in states]==[1,1],'dispatch capture shared')
+ elif name=='spy':require([len(s['calls']) for s in states]==[1,1],'spy calls shared')
+ elif name=='observe':require([s['count'][0] for s in states]==[2,2],'product counters shared')
+ elif name in {'evaluator','evaluate'}:
+  require([len(s['calls']) for s in states]==[1,1],'evaluator calls shared')
+  if name=='evaluator':require([list(x['simulation_results']) for x in results]==[['metric1'],['metric2']],'metric capture shared')
+ elif isinstance(node,ast.AsyncFunctionDef):require([len(s['launches']) for s in states]==[1,1],'async launches shared')
+ elif name=='f':require([len(s['calls']) for s in states]==[1,1] and results==[{'y':5},{'y':1}],'MC sign/counter capture shared')
+ return {'path':row['path'],'scope':row['scope'],'source_sha256':hashlib.sha256(read(FINAL,row['path'])).hexdigest(),'after_loop_results':results,'state_rows':states,'outcome':'PASS'}
+rows=json.loads((ROOT/'closure-census.json').read_text())['changed_existing_default_rows'];results=[]
+for row in rows:
+ if row['scope'].endswith(('.validate','.verify')):continue
+ result=named_control(row)
+ if result:results.append(result)
+selected=next(r for r in rows if r['scope']=='module.f')
+try:named_control(selected,removed=True)
+except AssertionError as error:removal={'scope':selected['scope'],'path':selected['path'],'negative_gate_outcome':'FAIL','discriminator':'PASS','reason':str(error)}
+else:raise AssertionError('removed capture escaped detector')
+out={'schema':'policyos.e02.independent_closure_controls.v1','source_sha':FINAL,'utility_denominator':229,'actual_named_capture_rows':len(results),'nested_counted_definitions_executed_via_outer':2,'results':results,'property_removal':removal,'limits':'Actual capture AST executed after loop with isolated instrumentation sentinels; no product/served numerical backend authority and no full builder replay. Three API defaults are reviewed by criteria_r4.'}
+(ROOT/'closure-controls.json').write_text(json.dumps(out,indent=2)+'\n');sys.stdout.write(json.dumps({k:v for k,v in out.items() if k!='results'},indent=2)+'\n')

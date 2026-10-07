@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/git_controls.py", line 41, in <module>
+    ns,fn,prefix,child,data=prepare(row); healthy=fn(*prefix,'show',E9+':AGENTS.md');require(healthy==b'fixture\n' and len(child.calls)==1,'healthy argument routing')
+                                                                                     ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/git_controls.py", line 25, in require
+    if not condition:raise AssertionError(reason)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: healthy argument routing

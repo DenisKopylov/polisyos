@@ -1,0 +1,6 @@
+{
+  "patches": 5,
+  "base": "31059ec77f9add8651667967a4b1a51acfab6d24",
+  "fixture_root": "/workspace/e02-E-pr38-r3-receipts/lint-r4/public-owner-git-builder/fixture-current",
+  "pending_owner_ratification": true
+}

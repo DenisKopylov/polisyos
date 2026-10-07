@@ -1,0 +1,116 @@
+{
+  "candidate": "74d0452848a7461d82ea7f150f126631d9fc8399",
+  "tree": "a4e4793be4d1aec6adea623b930a65304ab42d64",
+  "baseline": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+  "rows": [
+    {
+      "source_sha": "74d0452848a7461d82ea7f150f126631d9fc8399",
+      "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+      "git_blob": "ad35e3b7cce69e2e1baf316ef99ea74f28187638",
+      "bytes": 25922,
+      "sha256": "3e1367f35392c8334a849da655035113c543066425d2bdb67643468a5b8038e4",
+      "materialized": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/plan_wave.py"
+    },
+    {
+      "source_sha": "74d0452848a7461d82ea7f150f126631d9fc8399",
+      "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+      "git_blob": "423b1ba6187047fd852be570dde28bd63ddcdd57",
+      "bytes": 12609,
+      "sha256": "16caf0aecfe2c247b211f5a7611e9ce423f238dc2506e72dc99de16802ce8fec",
+      "materialized": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/run_check.py"
+    },
+    {
+      "source_sha": "74d0452848a7461d82ea7f150f126631d9fc8399",
+      "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+      "git_blob": "008ade1c13a250c7cb14c78333ec32501f426a84",
+      "bytes": 41358,
+      "sha256": "3e80760446ed4a6fda0f46dde07b0efbb8aa4da29a28d2779a8a6737b63450ac",
+      "materialized": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collect_wave.py"
+    },
+    {
+      "source_sha": "74d0452848a7461d82ea7f150f126631d9fc8399",
+      "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py",
+      "git_blob": "06de7485b52139234316419370e899e95f29d6f2",
+      "bytes": 7221,
+      "sha256": "13b50c23a2636baaccd7e07ea29abc5e0a21c8c2a0db61e1ef73a7b37292b67e",
+      "materialized": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/uncapped_umbrella.py"
+    },
+    {
+      "source_sha": "74d0452848a7461d82ea7f150f126631d9fc8399",
+      "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v3-author/_external/common-wave-publication-prep/collect_wave_v3_final.py",
+      "git_blob": "d505b8892d392554bcec5b8d3790c2e560fb7d29",
+      "bytes": 41313,
+      "sha256": "9373eae465c903b17b2cdbc0ff6862f53981c4d94b1f451ab880b5294cedb6e8"
+    },
+    {
+      "source_sha": "74d0452848a7461d82ea7f150f126631d9fc8399",
+      "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v4-author/_external/common-wave-publication-prep/collect_wave_v4.py",
+      "git_blob": "008ade1c13a250c7cb14c78333ec32501f426a84",
+      "bytes": 41358,
+      "sha256": "3e80760446ed4a6fda0f46dde07b0efbb8aa4da29a28d2779a8a6737b63450ac"
+    },
+    {
+      "source_sha": "74d0452848a7461d82ea7f150f126631d9fc8399",
+      "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collect_wave.py",
+      "git_blob": "19b7b0a086e1b7ec38b784006a1f926f010d7c12",
+      "bytes": 34283,
+      "sha256": "43cc25506b3fc2eb770d95d062860223fac345ff2f6695f33dd888713b9d72e2"
+    },
+    {
+      "source_sha": "74d0452848a7461d82ea7f150f126631d9fc8399",
+      "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collect_wave_v2.py",
+      "git_blob": "e5492342f58bed40974fd4961da2d6f8f463bd68",
+      "bytes": 35751,
+      "sha256": "1d3ba8a67f6823f561145e30c2d02e352cebf065f62dbaff32c58718752dea15"
+    },
+    {
+      "source_sha": "74d0452848a7461d82ea7f150f126631d9fc8399",
+      "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/run_check.py",
+      "git_blob": "8450e572e8f792c43326c33ad9e691c51fe93fc1",
+      "bytes": 12576,
+      "sha256": "2e20e4d3b9ee8639d6826781baf679188752afaa176f279136e8acc6dc87e7d7"
+    },
+    {
+      "source_sha": "74d0452848a7461d82ea7f150f126631d9fc8399",
+      "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/old-exact/run_check.py",
+      "git_blob": "8450e572e8f792c43326c33ad9e691c51fe93fc1",
+      "bytes": 12576,
+      "sha256": "2e20e4d3b9ee8639d6826781baf679188752afaa176f279136e8acc6dc87e7d7"
+    },
+    {
+      "source_sha": "74d0452848a7461d82ea7f150f126631d9fc8399",
+      "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/run_check.py",
+      "git_blob": "8450e572e8f792c43326c33ad9e691c51fe93fc1",
+      "bytes": 12576,
+      "sha256": "2e20e4d3b9ee8639d6826781baf679188752afaa176f279136e8acc6dc87e7d7"
+    },
+    {
+      "source_sha": "74d0452848a7461d82ea7f150f126631d9fc8399",
+      "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-independent/exact-old-git-blobs/run_check.py",
+      "git_blob": "8450e572e8f792c43326c33ad9e691c51fe93fc1",
+      "bytes": 12576,
+      "sha256": "2e20e4d3b9ee8639d6826781baf679188752afaa176f279136e8acc6dc87e7d7"
+    },
+    {
+      "source_sha": "74d0452848a7461d82ea7f150f126631d9fc8399",
+      "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+      "git_blob": "008ade1c13a250c7cb14c78333ec32501f426a84",
+      "bytes": 41358,
+      "sha256": "3e80760446ed4a6fda0f46dde07b0efbb8aa4da29a28d2779a8a6737b63450ac"
+    },
+    {
+      "source_sha": "74d0452848a7461d82ea7f150f126631d9fc8399",
+      "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+      "git_blob": "ad35e3b7cce69e2e1baf316ef99ea74f28187638",
+      "bytes": 25922,
+      "sha256": "3e1367f35392c8334a849da655035113c543066425d2bdb67643468a5b8038e4"
+    },
+    {
+      "source_sha": "74d0452848a7461d82ea7f150f126631d9fc8399",
+      "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+      "git_blob": "423b1ba6187047fd852be570dde28bd63ddcdd57",
+      "bytes": 12609,
+      "sha256": "16caf0aecfe2c247b211f5a7611e9ce423f238dc2506e72dc99de16802ce8fec"
+    }
+  ]
+}

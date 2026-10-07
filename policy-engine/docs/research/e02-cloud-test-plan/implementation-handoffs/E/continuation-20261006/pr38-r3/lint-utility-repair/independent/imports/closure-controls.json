@@ -1,0 +1,763 @@
+{
+  "schema": "policyos.e02.independent_closure_controls.v1",
+  "source_sha": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+  "utility_denominator": 229,
+  "actual_named_capture_rows": 12,
+  "nested_counted_definitions_executed_via_outer": 2,
+  "results": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-gaussian-noise-preflight-r2-20261006.probe.py",
+      "scope": "module.loader",
+      "source_sha256": "3d12f707b8101a3b242e947ecab3b60b9b9f162bfc6edbb3595b9e64d3e210b6",
+      "after_loop_results": [
+        {
+          "params": {
+            "rate": 0.25
+          },
+          "schedule": {
+            "start_step": 0,
+            "end_step": 0
+          }
+        },
+        {
+          "params": {
+            "rate": 0.25
+          },
+          "schedule": {
+            "start_step": 0,
+            "end_step": 0
+          }
+        }
+      ],
+      "state_rows": [
+        {
+          "counts": {
+            "loader": 1,
+            "emitter": 0
+          },
+          "callback_count": [
+            0
+          ],
+          "dispatch_count": [
+            0
+          ],
+          "calls": [],
+          "count": [
+            0
+          ],
+          "launches": [],
+          "sign": 1,
+          "metric": "metric1"
+        },
+        {
+          "counts": {
+            "loader": 1,
+            "emitter": 0
+          },
+          "callback_count": [
+            0
+          ],
+          "dispatch_count": [
+            0
+          ],
+          "calls": [],
+          "count": [
+            0
+          ],
+          "launches": [],
+          "sign": -1,
+          "metric": "metric2"
+        }
+      ],
+      "outcome": "PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-gaussian-noise-preflight-r2-20261006.probe.py",
+      "scope": "module.observed_emitter",
+      "source_sha256": "3d12f707b8101a3b242e947ecab3b60b9b9f162bfc6edbb3595b9e64d3e210b6",
+      "after_loop_results": [
+        [
+          "original",
+          [
+            null,
+            "payload"
+          ]
+        ],
+        [
+          "original",
+          [
+            null,
+            "payload"
+          ]
+        ]
+      ],
+      "state_rows": [
+        {
+          "counts": {
+            "loader": 0,
+            "emitter": 1
+          },
+          "callback_count": [
+            0
+          ],
+          "dispatch_count": [
+            0
+          ],
+          "calls": [],
+          "count": [
+            0
+          ],
+          "launches": [],
+          "sign": 1,
+          "metric": "metric1"
+        },
+        {
+          "counts": {
+            "loader": 0,
+            "emitter": 1
+          },
+          "callback_count": [
+            0
+          ],
+          "dispatch_count": [
+            0
+          ],
+          "calls": [],
+          "count": [
+            0
+          ],
+          "launches": [],
+          "sign": -1,
+          "metric": "metric2"
+        }
+      ],
+      "outcome": "PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/historical-r4/calibration_reader_probe.py",
+      "scope": "module.counted_build",
+      "source_sha256": "e3c94d12f34a8d11d2ed2bd57d470f825480ac0353e33b17f4a8a9f27391fafc",
+      "after_loop_results": [
+        {
+          "value": 1,
+          "mapped": [
+            1
+          ],
+          "metadata": {
+            "marker": 1
+          }
+        },
+        {
+          "value": 2,
+          "mapped": [
+            2
+          ],
+          "metadata": {
+            "marker": 2
+          }
+        }
+      ],
+      "state_rows": [
+        {
+          "counts": {
+            "loader": 0,
+            "emitter": 0
+          },
+          "callback_count": [
+            1
+          ],
+          "dispatch_count": [
+            0
+          ],
+          "calls": [],
+          "count": [
+            0
+          ],
+          "launches": [],
+          "sign": 1,
+          "metric": "metric1"
+        },
+        {
+          "counts": {
+            "loader": 0,
+            "emitter": 0
+          },
+          "callback_count": [
+            1
+          ],
+          "dispatch_count": [
+            0
+          ],
+          "calls": [],
+          "count": [
+            0
+          ],
+          "launches": [],
+          "sign": -1,
+          "metric": "metric2"
+        }
+      ],
+      "outcome": "PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/historical-r4/calibration_reader_probe.py",
+      "scope": "module.counted_dispatch",
+      "source_sha256": "e3c94d12f34a8d11d2ed2bd57d470f825480ac0353e33b17f4a8a9f27391fafc",
+      "after_loop_results": [
+        1,
+        2
+      ],
+      "state_rows": [
+        {
+          "counts": {
+            "loader": 0,
+            "emitter": 0
+          },
+          "callback_count": [
+            0
+          ],
+          "dispatch_count": [
+            1
+          ],
+          "calls": [],
+          "count": [
+            0
+          ],
+          "launches": [],
+          "sign": 1,
+          "metric": "metric1"
+        },
+        {
+          "counts": {
+            "loader": 0,
+            "emitter": 0
+          },
+          "callback_count": [
+            0
+          ],
+          "dispatch_count": [
+            1
+          ],
+          "calls": [],
+          "count": [
+            0
+          ],
+          "launches": [],
+          "sign": -1,
+          "metric": "metric2"
+        }
+      ],
+      "outcome": "PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/baseline_falsifier.py",
+      "scope": "module.spy",
+      "source_sha256": "58105c4614013fd87dc8ccde1d9a82ec22399152ea94e06baf81f4e68b2ebb13",
+      "after_loop_results": [
+        {
+          "raised": "BackendReachedError",
+          "reason": "real SALib sample inlet reached"
+        },
+        {
+          "raised": "BackendReachedError",
+          "reason": "real SALib sample inlet reached"
+        }
+      ],
+      "state_rows": [
+        {
+          "counts": {
+            "loader": 0,
+            "emitter": 0
+          },
+          "callback_count": [
+            0
+          ],
+          "dispatch_count": [
+            0
+          ],
+          "calls": [
+            {
+              "N": 3,
+              "num_vars": 2
+            }
+          ],
+          "count": [
+            0
+          ],
+          "launches": [],
+          "sign": 1,
+          "metric": "metric1"
+        },
+        {
+          "counts": {
+            "loader": 0,
+            "emitter": 0
+          },
+          "callback_count": [
+            0
+          ],
+          "dispatch_count": [
+            0
+          ],
+          "calls": [
+            {
+              "N": 3,
+              "num_vars": 2
+            }
+          ],
+          "count": [
+            0
+          ],
+          "launches": [],
+          "sign": -1,
+          "metric": "metric2"
+        }
+      ],
+      "outcome": "PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-stress-dependency/controls.py",
+      "scope": "module.observe",
+      "source_sha256": "3725619d5b9e0a76ddddc9f894f331879c3fa88d598e74022ac7de31b19ec194",
+      "after_loop_results": [
+        [
+          [
+            0,
+            2
+          ],
+          [
+            1,
+            2
+          ]
+        ],
+        [
+          [
+            0,
+            2
+          ],
+          [
+            1,
+            2
+          ]
+        ]
+      ],
+      "state_rows": [
+        {
+          "counts": {
+            "loader": 0,
+            "emitter": 0
+          },
+          "callback_count": [
+            0
+          ],
+          "dispatch_count": [
+            0
+          ],
+          "calls": [],
+          "count": [
+            2
+          ],
+          "launches": [],
+          "sign": 1,
+          "metric": "metric1"
+        },
+        {
+          "counts": {
+            "loader": 0,
+            "emitter": 0
+          },
+          "callback_count": [
+            0
+          ],
+          "dispatch_count": [
+            0
+          ],
+          "calls": [],
+          "count": [
+            2
+          ],
+          "launches": [],
+          "sign": -1,
+          "metric": "metric2"
+        }
+      ],
+      "outcome": "PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-stress-dependency/controls.py",
+      "scope": "module.evaluator",
+      "source_sha256": "3725619d5b9e0a76ddddc9f894f331879c3fa88d598e74022ac7de31b19ec194",
+      "after_loop_results": [
+        {
+          "simulation_results": {
+            "metric1": 0.25
+          }
+        },
+        {
+          "simulation_results": {
+            "metric2": 0.25
+          }
+        }
+      ],
+      "state_rows": [
+        {
+          "counts": {
+            "loader": 0,
+            "emitter": 0
+          },
+          "callback_count": [
+            0
+          ],
+          "dispatch_count": [
+            0
+          ],
+          "calls": [
+            0.25
+          ],
+          "count": [
+            0
+          ],
+          "launches": [],
+          "sign": 1,
+          "metric": "metric1"
+        },
+        {
+          "counts": {
+            "loader": 0,
+            "emitter": 0
+          },
+          "callback_count": [
+            0
+          ],
+          "dispatch_count": [
+            0
+          ],
+          "calls": [
+            0.25
+          ],
+          "count": [
+            0
+          ],
+          "launches": [],
+          "sign": -1,
+          "metric": "metric2"
+        }
+      ],
+      "outcome": "PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-stress-dependency/trace.py",
+      "scope": "module.evaluate",
+      "source_sha256": "fb347aa9d16cebb88a8ac788d7ea5a3a091acdc9aff0398865e160185a19afbc",
+      "after_loop_results": [
+        {
+          "simulation_results": {
+            "gdp_change": -5
+          }
+        },
+        {
+          "simulation_results": {
+            "gdp_change": -5
+          }
+        }
+      ],
+      "state_rows": [
+        {
+          "counts": {
+            "loader": 0,
+            "emitter": 0
+          },
+          "callback_count": [
+            0
+          ],
+          "dispatch_count": [
+            0
+          ],
+          "calls": [
+            0.25
+          ],
+          "count": [
+            0
+          ],
+          "launches": [],
+          "sign": 1,
+          "metric": "metric1"
+        },
+        {
+          "counts": {
+            "loader": 0,
+            "emitter": 0
+          },
+          "callback_count": [
+            0
+          ],
+          "dispatch_count": [
+            0
+          ],
+          "calls": [
+            0.25
+          ],
+          "count": [
+            0
+          ],
+          "launches": [],
+          "sign": -1,
+          "metric": "metric2"
+        }
+      ],
+      "outcome": "PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-independent/review_harness.py",
+      "scope": "module.main.forbidden",
+      "source_sha256": "8ab525823e4fe4c2f632f8f0f4980e39ffa61d38afceaa025eb860604a005584",
+      "after_loop_results": [
+        {
+          "raised": "AssertionError",
+          "reason": "child must not launch on inadmissible scratch"
+        },
+        {
+          "raised": "AssertionError",
+          "reason": "child must not launch on inadmissible scratch"
+        }
+      ],
+      "state_rows": [
+        {
+          "counts": {
+            "loader": 0,
+            "emitter": 0
+          },
+          "callback_count": [
+            0
+          ],
+          "dispatch_count": [
+            0
+          ],
+          "calls": [],
+          "count": [
+            0
+          ],
+          "launches": [
+            [
+              "payload"
+            ]
+          ],
+          "sign": 1,
+          "metric": "metric1"
+        },
+        {
+          "counts": {
+            "loader": 0,
+            "emitter": 0
+          },
+          "callback_count": [
+            0
+          ],
+          "dispatch_count": [
+            0
+          ],
+          "calls": [],
+          "count": [
+            0
+          ],
+          "launches": [
+            [
+              "payload"
+            ]
+          ],
+          "sign": -1,
+          "metric": "metric2"
+        }
+      ],
+      "outcome": "PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/mc/mc-gaussian-independent.py",
+      "scope": "module.f",
+      "source_sha256": "970ff4a014033e4f1a7b935d384b807f3fc49eea0a8e1b3be53f7fbc8b370b16",
+      "after_loop_results": [
+        {
+          "y": 5
+        },
+        {
+          "y": 1
+        }
+      ],
+      "state_rows": [
+        {
+          "counts": {
+            "loader": 0,
+            "emitter": 0
+          },
+          "callback_count": [
+            0
+          ],
+          "dispatch_count": [
+            0
+          ],
+          "calls": [
+            [
+              3.0,
+              2.0
+            ]
+          ],
+          "count": [
+            0
+          ],
+          "launches": [],
+          "sign": 1,
+          "metric": "metric1"
+        },
+        {
+          "counts": {
+            "loader": 0,
+            "emitter": 0
+          },
+          "callback_count": [
+            0
+          ],
+          "dispatch_count": [
+            0
+          ],
+          "calls": [
+            [
+              3.0,
+              2.0
+            ]
+          ],
+          "count": [
+            0
+          ],
+          "launches": [],
+          "sign": -1,
+          "metric": "metric2"
+        }
+      ],
+      "outcome": "PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r4/calibration_reader_probe.py",
+      "scope": "module.counted_build",
+      "source_sha256": "db0ce838d315c3d0d7a85dc776956b16cc27c3fd5106432e10f58587f225c015",
+      "after_loop_results": [
+        {
+          "value": 1,
+          "mapped": [
+            1
+          ],
+          "metadata": {
+            "marker": 1
+          }
+        },
+        {
+          "value": 2,
+          "mapped": [
+            2
+          ],
+          "metadata": {
+            "marker": 2
+          }
+        }
+      ],
+      "state_rows": [
+        {
+          "counts": {
+            "loader": 0,
+            "emitter": 0
+          },
+          "callback_count": [
+            1
+          ],
+          "dispatch_count": [
+            0
+          ],
+          "calls": [],
+          "count": [
+            0
+          ],
+          "launches": [],
+          "sign": 1,
+          "metric": "metric1"
+        },
+        {
+          "counts": {
+            "loader": 0,
+            "emitter": 0
+          },
+          "callback_count": [
+            1
+          ],
+          "dispatch_count": [
+            0
+          ],
+          "calls": [],
+          "count": [
+            0
+          ],
+          "launches": [],
+          "sign": -1,
+          "metric": "metric2"
+        }
+      ],
+      "outcome": "PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r4/calibration_reader_probe.py",
+      "scope": "module.counted_dispatch",
+      "source_sha256": "db0ce838d315c3d0d7a85dc776956b16cc27c3fd5106432e10f58587f225c015",
+      "after_loop_results": [
+        1,
+        2
+      ],
+      "state_rows": [
+        {
+          "counts": {
+            "loader": 0,
+            "emitter": 0
+          },
+          "callback_count": [
+            0
+          ],
+          "dispatch_count": [
+            1
+          ],
+          "calls": [],
+          "count": [
+            0
+          ],
+          "launches": [],
+          "sign": 1,
+          "metric": "metric1"
+        },
+        {
+          "counts": {
+            "loader": 0,
+            "emitter": 0
+          },
+          "callback_count": [
+            0
+          ],
+          "dispatch_count": [
+            1
+          ],
+          "calls": [],
+          "count": [
+            0
+          ],
+          "launches": [],
+          "sign": -1,
+          "metric": "metric2"
+        }
+      ],
+      "outcome": "PASS"
+    }
+  ],
+  "property_removal": {
+    "scope": "module.f",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/mc/mc-gaussian-independent.py",
+    "negative_gate_outcome": "FAIL",
+    "discriminator": "PASS",
+    "reason": "MC sign/counter capture shared"
+  },
+  "limits": "Actual capture AST executed after loop with isolated instrumentation sentinels; no product/served numerical backend authority and no full builder replay. Three API defaults are reviewed by criteria_r4."
+}

@@ -1,0 +1,74 @@
+"""Independent actual-AST wrapper controls, without loading mutable utility bodies."""
+import ast
+import copy
+import hashlib
+import json
+import re
+import shutil
+import subprocess
+import sys
+import types
+from functools import cache
+from pathlib import Path
+REPO=Path('/workspace/e02-E-cal05-20261006')
+ROOT=Path('/workspace/e02-E-pr38-r3-receipts/import-lint-independent')
+REF='f3ec0335e992fa7a5107000224f8ba6deefd02e5'
+E9='e9cb425e4dfe888720f93eb84f1667f24a8a92c4'
+INLETS=json.loads(Path('/workspace/e02-E-pr38-r3-receipts/lint-r4/generic-git-inlets.json').read_text())
+
+class Child:
+ def __init__(self):self.calls=[]
+ def check_output(self,argv,**kwargs):self.calls.append({'argv':argv,'kwargs':kwargs});return b'fixture\n'
+ def run(self,argv,**kwargs):self.calls.append({'argv':argv,'kwargs':kwargs});return types.SimpleNamespace(stdout=b'fixture\n',stderr=b'',returncode=0)
+
+def require(condition,reason):
+ if not condition:raise AssertionError(reason)
+
+def source(path):return subprocess.check_output(['/usr/bin/git','show',REF+':'+path],cwd=REPO)
+def prepare(row):
+ data=source(row['path']);tree=ast.parse(data);names={'_admit_git_object_arguments','_resolve_executable','require','_admit_require','admit_source',row['inlet']};definitions=[n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name in names]
+ pure_assignments=[n for n in tree.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='_NO_PATH' for t in n.targets)]
+ require(any(n.name=='_admit_git_object_arguments' for n in definitions),'unprotected wrapper')
+ child=Child(); namespace={'Path':Path,'re':re,'shutil':shutil,'cache':cache,'subprocess':child,'REPO':REPO,'ROOT':REPO,'R':REPO,'LANE':REPO,'lane':REPO,'require':require}
+ body=ast.fix_missing_locations(ast.Module(body=pure_assignments+definitions,type_ignores=[]))
+ exec(compile(body,row['path']+'[actual-immutable-definitions]','exec'),namespace)
+ fn=namespace[row['inlet']];node=next(n for n in definitions if n.name==row['inlet']);prefix=[REPO] if node.args.args and node.args.args[0].arg=='repo' else []
+ return namespace,fn,prefix,child,data
+
+rows=[]
+invalid=[('show_option',('show','--output=/not-executed')),('rev_parse_option',('rev-parse','--output=/not-executed')),('empty',('show','')),('NUL',('show','bad\0value')),('None',('show',None)),('bool',('show',True)),('absolute_path',('show',E9+':/absolute')),('parent_path',('show',E9+':a/../b')),('empty_path',('show',E9+':')),('noncanonical_path',('show',E9+':a//b'))]
+for row in INLETS:
+ ns,fn,prefix,child,data=prepare(row); healthy=fn(*prefix,'show',E9+':AGENTS.md');require((healthy.stdout if hasattr(healthy,'stdout') else healthy) in {b'fixture\n',b'fixture','fixture','fixture\n'} and len(child.calls)==1,'healthy argument routing:'+row['path']+':'+repr(healthy))
+ require(child.calls[0]['argv'][0]==str(Path(shutil.which('git')).resolve()),'unresolved executable')
+ require(child.calls[0]['argv'][-2:]==['show',E9+':AGENTS.md'],'object arguments changed')
+ refusals=[]
+ for label,args in invalid:
+  child.calls.clear()
+  try:fn(*prefix,*args)
+  except (ValueError,TypeError) as error:refusals.append({'case':label,'error':type(error).__name__,'reason':str(error),'child_calls':len(child.calls)})
+  else:raise AssertionError('invalid object admitted:'+row['path']+':'+label)
+  require(not child.calls,'refusal followed child:'+label)
+ child.calls.clear()
+ try:fn(*prefix,'show','HEAD')
+ except ValueError:named='REFUSED_before_child';require(not child.calls,'strict ref after child')
+ else:named='legacy_named_ref_available';require(len(child.calls)==1,'legacy named callback shape')
+ rows.append({'path':row['path'],'inlet':row['inlet'],'source_sha256':hashlib.sha256(data).hexdigest(),'healthy_object_argv':'PASS','invalid_refusals':refusals,'named_ref_scope':named})
+
+removal=[]
+for scope in ['generic','strict']:
+ row=next(r for r,x in zip(INLETS,rows) if (x['named_ref_scope']=='REFUSED_before_child')==(scope=='strict'))
+ ns,fn,prefix,child,data=prepare(row)
+ ns['_admit_git_object_arguments']=lambda arguments:None
+ if scope=='strict':ns['admit_source']=lambda *arguments:None
+ fn(*prefix,'show','--output=/not-executed')
+ require(len(child.calls)==1,'property removal not effective')
+ try:require(not child.calls,'admission property removed but marker/API retained')
+ except AssertionError as error:removal.append({'scope':scope,'path':row['path'],'inlet':row['inlet'],'required_negative_gate':'FAIL','discriminator':'PASS','child_calls':len(child.calls),'reason':str(error)})
+ else:raise AssertionError('negative gate falsely passed')
+
+live_row=next(r for r in INLETS if r['path'].endswith('criteria-frozen-a9-v2/validate.py'))
+ns,fn,prefix,child,data=prepare(live_row);ns['subprocess']=subprocess
+observed=fn(*prefix,'show',E9+':AGENTS.md');expected=subprocess.check_output(['/usr/bin/git','cat-file','blob',E9+':AGENTS.md'],cwd=REPO)
+require(observed==expected,'actual Git read diverged from independent cat-file')
+out={'schema':'policyos.e02.independent_git_wrapper_controls.v1','source_sha':REF,'wrapper_denominator':len(rows),'invalid_controls':sum(len(r['invalid_refusals']) for r in rows),'all_bad_child_calls':sum(x['child_calls'] for r in rows for x in r['invalid_refusals']),'named_ref_classes':{'strict_full_SHA':sum(r['named_ref_scope']=='REFUSED_before_child' for r in rows),'legacy_named_available':sum(r['named_ref_scope']=='legacy_named_ref_available' for r in rows)},'rows':rows,'property_removal':removal,'actual_Git_positive':{'path':live_row['path'],'object':E9+':AGENTS.md','bytes':len(observed),'sha256':hashlib.sha256(observed).hexdigest(),'oracle':'independent git cat-file blob bytes'},'limits':['Actual wrapper AST/admission/argv exercised with terminal child spy; only representative immutable read uses real Git backend.','Named legacy refs remain explicitly available in48 retired wrapper variants; live strict admissions require full immutable SHA.','Does not execute all229 builder bodies, confer finding closure or replace criteria/historical byte-guard controls.']}
+(ROOT/'git-wrapper-controls.json').write_text(json.dumps(out,indent=2)+'\n');sys.stdout.write(json.dumps({k:v for k,v in out.items() if k!='rows'},indent=2)+'\n')

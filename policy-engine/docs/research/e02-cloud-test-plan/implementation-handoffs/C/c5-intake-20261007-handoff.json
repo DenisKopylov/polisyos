@@ -1,0 +1,120 @@
+{
+  "baseline_cells": [],
+  "branch": "codex/e02-C-continuation-20261006",
+  "bundle_ids": [
+    "C5"
+  ],
+  "candidate_tree_sha": "3fe8ba434d2598811cb25e242164567161dabdb5",
+  "capability_state_or_finding_state": "evidence_intake_only; no product capability, installed wheel, or broad test-suite result is claimed.",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c5-intake/"
+  ],
+  "checks": [
+    {
+      "command": "Read back attached branch identity and receipt commit tree",
+      "environment": "Local Root worktree, attached branch codex/e02-C-continuation-20261006",
+      "input_closure": "Git commit/tree plus tracked C5 intake receipt and output index",
+      "outcome": "PASS",
+      "output": "git status clean; symbolic HEAD refs/heads/codex/e02-C-continuation-20261006; HEAD 23ec3ab0b9d91bb7814fbdaa4b895a0bb06416a9; tree 3fe8ba434d2598811cb25e242164567161dabdb5.",
+      "target_sha": "23ec3ab0b9d91bb7814fbdaa4b895a0bb06416a9"
+    },
+    {
+      "command": "Captured local workspace doctor admission checks for Root, DFK, Legal, DFK review, and Legal review",
+      "environment": "Local host; original Root checkout tool invocation; full JSON outputs committed under receipts/c5-intake/outputs/admission",
+      "input_closure": "Root resume; DFK create/create confirmation/resume; Legal create/resume; two review-lane create/resume JSON outputs",
+      "outcome": "PASS",
+      "output": "All captured local doctor JSONs report status=admitted, complete_verdict=true, unresolved_inputs=[], findings=[]. Each reports selector_predicate_class=consumer_asserted; see committed command indexes and full JSONs.",
+      "target_sha": "c5668bcb9ac76a55984fce0d196197dbfded1151"
+    },
+    {
+      "command": "Canonical `uv run --no-sync polisyos-tools workspace doctor ...` admission attempts",
+      "environment": "Local host; uv 0.10.6; Python 3.14.3 selected by root attempt",
+      "input_closure": "Five lane attempts preserved in root/DFK/Legal/review command indexes",
+      "outcome": "ERROR",
+      "output": "Spawn failed before doctor observation: `polisyos-tools` not found. Root attempt also created the partial `.venv` recorded in its scoped environment receipt; do not read exit 2 as an admission rejection.",
+      "target_sha": "c5668bcb9ac76a55984fce0d196197dbfded1151"
+    },
+    {
+      "command": "python3 policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py --check",
+      "environment": "Local Root checkout",
+      "input_closure": "Tracked result artifact set listed by command output",
+      "outcome": "PASS",
+      "output": "outputs/intake/import-check.stdout.txt; exact stdout JSON reports six expected artifacts.",
+      "target_sha": "c5668bcb9ac76a55984fce0d196197dbfded1151"
+    },
+    {
+      "command": "DFK exact-two-file native macOS Trash retirement with inode/hash readback",
+      "environment": "Local macOS; original DFK worktree source paths",
+      "input_closure": "Two exact source files; preflight no-open observation; native trashItem receipt",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c5-intake/outputs/environment/dfk-native-trash-readback.json; both destination identities/hash match, source paths absent, Trash not emptied.",
+      "target_sha": "28b04149e6477216f37c2ab2e0abfc54b8857ac6"
+    },
+    {
+      "command": "C5 read-only build-backend and bounded known-Trash inventory",
+      "environment": "macOS Apple Silicon; uv 0.10.6; Python 3.14 host/original/UV-managed environments",
+      "input_closure": "CAN pyproject.toml + uv.lock blob ids; preflight command index; exact already-cited C2/C3 Trash paths",
+      "outcome": "PASS",
+      "output": "outputs/environment/backend-preflight-v1/index.json and outputs/environment/known-trash-ro-audit.json; checks are availability observations, not a wheel build.",
+      "target_sha": "e3cb3fafc847b94a5d4b3adc03b814b4c711920c"
+    },
+    {
+      "command": "CAN noneditable wheel build",
+      "environment": "Scoped local environment only",
+      "input_closure": "CAN declares hatchling>=1.27.0 / hatchling.build; Hatchling absent from inspected interpreters",
+      "outcome": "UNRUN",
+      "output": "Receipt records the exact source input and preflight outputs; no dependency installation/network access was performed.",
+      "target_sha": "e3cb3fafc847b94a5d4b3adc03b814b4c711920c"
+    },
+    {
+      "command": "DFK noneditable wheel build",
+      "environment": "No installed-wheel environment provisioned in this intake",
+      "input_closure": "DFK source/lane state only",
+      "outcome": "UNRUN",
+      "output": "No wheel build was run; no product failure inferred.",
+      "target_sha": "28b04149e6477216f37c2ab2e0abfc54b8857ac6"
+    }
+  ],
+  "closure_ids": [],
+  "created_at_utc": "2026-10-07T19:04:11.209898+00:00",
+  "implementation_commits": [
+    "23ec3ab0b9d91bb7814fbdaa4b895a0bb06416a9"
+  ],
+  "limitations_and_next_owner": [
+    "The canonical `polisyos-tools` entrypoint is unavailable in the inspected C5 source environment; repair or separately verify before relying on that invocation.",
+    "CAN wheel remains UNRUN because Hatchling is absent in the scoped environments; CAN pyproject and uv.lock inputs were not changed.",
+    "DFK noneditable wheel remains UNRUN.",
+    "The recorded hnswlib 0.8.0 binary is from `/Users/deniskopylov/polisyos/policy-engine/.venv`; Legal author imported candidate source by PYTHONPATH over those primary dependencies.",
+    "Root C5 coordinator owns any later package-build provisioning or final partial-venv cleanup decision. No environment or Trash item was moved by this intake."
+  ],
+  "parent_state_commit": "23ec3ab0b9d91bb7814fbdaa4b895a0bb06416a9",
+  "predicate_basis": "consumer_asserted",
+  "property": {
+    "negative_controls": [
+      "Canonical entrypoint spawn failure preserved as ERROR/nonreceipt.",
+      "Query/census outputs are explicitly marked navigation-only.",
+      "HNSW binary SHA is tied to the original user checkout environment; no isolated wheel or candidate-worktree install is claimed."
+    ],
+    "proxy_divergence": "Treating the canonical command exit 2 as a doctor rejection would be false: stderr says the `polisyos-tools` executable could not be spawned, and no doctor JSON was emitted. Local doctor outputs are separately captured as admitted.",
+    "runtime_path": [
+      "captured argv and source identity",
+      "doctor JSON / environment output",
+      "content-hashed tracked evidence index",
+      "C5 intake receipt and machine handoff"
+    ],
+    "statement": "Keep C5 environment/admission/cleanup facts bound to the actual command outputs and exact inspected package origins; distinguish a successful doctor result from a console-entrypoint spawn error."
+  },
+  "pull_request": null,
+  "receipt": {
+    "evidence_index": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c5-intake/outputs/evidence-index.json",
+    "evidence_index_sha256": "4660c58409eb47367a2b864eecf4140aade6579fc53cb247b1c3f2e8ac5ba8ca",
+    "git_blob_oid": "0d1c7f8c6b482f323b07b1d68472483d9d74ba04",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c5-intake/C5-intake-20261007.json",
+    "sha256": "d3d028b0543563bf061f0343a2a79422b23da1d9be7e2880416d35a07bee364a",
+    "tracked_output_count": 104
+  },
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "slice": "c5-intake-20261007",
+  "slice_base_sha": "c5668bcb9ac76a55984fce0d196197dbfded1151",
+  "unit": "C"
+}

@@ -1127,10 +1127,6 @@ class RecursiveGenerationCycleController:
         candidate_simulation_currentness_resolvers_by_node: Mapping[
             str, Callable[[], bool]
         ] | None = None,
-        candidate_simulation_context_resolvers_by_node: Mapping[
-            str, Callable[[DesignProblem], object]
-        ]
-        | None = None,
         n4_generation_ports_by_node: Mapping[str, N4GenerationPort] | None = None,
         evaluation_contexts_by_node: Mapping[str, EvaluationExecutionContext] | None = None,
         execution_intents_by_node: Mapping[str, ExecutionIntent] | None = None,
@@ -1221,27 +1217,6 @@ class RecursiveGenerationCycleController:
             raise RecursiveGenerationCycleError(
                 "recursive_candidate_simulation_currentness_denominator_mismatch"
             )
-        if candidate_simulation_context_resolvers_by_node is not None:
-            context_resolver_refs = set(candidate_simulation_context_resolvers_by_node)
-            if not context_resolver_refs.issubset(leaf_refs):
-                raise RecursiveGenerationCycleError(
-                    "recursive_candidate_simulation_context_resolver_not_leaf"
-                )
-            if any(
-                not callable(resolver)
-                for resolver in candidate_simulation_context_resolvers_by_node.values()
-            ):
-                raise RecursiveGenerationCycleError(
-                    "recursive_candidate_simulation_context_resolver_not_callable"
-                )
-            if not context_resolver_refs.issubset(set(candidate_simulation_handoffs_by_node or {})):
-                raise RecursiveGenerationCycleError(
-                    "recursive_candidate_simulation_context_resolver_without_handoff"
-                )
-            if context_resolver_refs and self._cycle_controller_factory is not None:
-                raise RecursiveGenerationCycleError(
-                    "recursive_candidate_simulation_factory_bypass_forbidden"
-                )
         if candidate_simulation_handoffs_by_node and self._cycle_controller_factory is not None:
             raise RecursiveGenerationCycleError(
                 "recursive_candidate_simulation_factory_bypass_forbidden"
@@ -1509,9 +1484,6 @@ class RecursiveGenerationCycleController:
                         ).get(node_ref),
                         candidate_simulation_currentness_resolver=(
                             candidate_simulation_currentness_resolvers_by_node or {}
-                        ).get(node_ref),
-                        candidate_simulation_context_resolver=(
-                            candidate_simulation_context_resolvers_by_node or {}
                         ).get(node_ref),
                         promotion_runtime=self._promotion_runtime,
                         artifact_store=self._artifact_store,

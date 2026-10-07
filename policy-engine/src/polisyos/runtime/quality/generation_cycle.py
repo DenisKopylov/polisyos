@@ -6103,9 +6103,6 @@ class GenerationCycleController:
         eval_safety_verifier: EvalSafetyVerifierPort | None = None,
         candidate_simulation_handoff: CandidateSimulationContextHandoff | None = None,
         candidate_simulation_currentness_resolver: Callable[[], bool] | None = None,
-        candidate_simulation_context_resolver: (
-            Callable[[DesignProblem], object | None] | None
-        ) = None,
         observation_to_contract_manifest: object = _OBSERVATION_MANIFEST_UNSUPPLIED,
         observation_family: str | None = None,
         authority_scope: Literal["production", "contract_testing"] = "production",
@@ -6213,7 +6210,6 @@ class GenerationCycleController:
         self._candidate_simulation_currentness_resolver = (
             candidate_simulation_currentness_resolver
         )
-        self._candidate_simulation_context_resolver = candidate_simulation_context_resolver
         if candidate_simulation_handoff is not None:
             if (
                 cycle_substrate_context is None
@@ -6506,16 +6502,7 @@ class GenerationCycleController:
                 blocked_reason = exc.code
                 cycles[-1] = _blocked_cycle(cycle, reason=exc.code)
                 break
-            revised_problem = cycle.revision_request.revised_problem
-            if cycle_index + 1 < max_cycles:
-                try:
-                    self._refresh_candidate_context_for_revision(revised_problem)
-                except GenerationCycleError as exc:
-                    terminal_status = "blocked"
-                    blocked_reason = exc.code
-                    cycles[-1] = _blocked_cycle(cycle, reason=exc.code)
-                    break
-            current_problem = revised_problem
+            current_problem = cycle.revision_request.revised_problem
             cycle_index += 1
 
         if cycles:
@@ -8499,78 +8486,6 @@ class GenerationCycleController:
                 "n7_acq01_context_rebuild_invalid",
                 str(exc),
             ) from exc
-
-    def _refresh_candidate_context_for_revision(self, problem: DesignProblem) -> None:
-        """Reissue a changed problem's context through the configured job owner.
-
-        Profile selection remains exact. A revision without a matching admitted
-        profile stops before N4/N5; execution hints do not authorize reuse of a
-        previous problem's context or evidence.
-        """
-
-        from polisyos.runtime.quality.candidate_simulation import (
-            CandidateSimulationContextHandoff,
-            candidate_simulation_profile_ref,
-        )
-        from polisyos.runtime.quality.cycle_substrate import (
-            cycle_job_design_problem_ref,
-            cycle_job_profile_selection_ref,
-            revalidate_cycle_substrate_context,
-        )
-
-        prior_context = self._cycle_substrate_context
-        if prior_context is None:
-            return
-        expected_problem_ref = cycle_job_design_problem_ref(problem)
-        if prior_context.design_problem_ref == expected_problem_ref:
-            return
-        prior_handoff = self._candidate_simulation_handoff
-        resolver = self._candidate_simulation_context_resolver
-        if type(prior_handoff) is not CandidateSimulationContextHandoff or resolver is None:
-            raise GenerationCycleError("candidate_simulation_revision_context_reissue_unavailable")
-        try:
-            resolved = resolver(problem)
-            if type(resolved) is not CandidateSimulationContextHandoff:
-                raise GenerationCycleError("candidate_simulation_revision_context_not_admitted")
-            revalidate_cycle_substrate_context(resolved.context)
-            if (
-                resolved.context.design_problem_ref != expected_problem_ref
-                or resolved.profile.profile_selection_ref
-                != cycle_job_profile_selection_ref(problem)
-                or resolved.profile_config_ref != candidate_simulation_profile_ref(resolved.profile)
-                or (resolved.job_id, resolved.run_id, resolved.tenant_id, resolved.cell_id)
-                != (
-                    prior_handoff.job_id,
-                    prior_handoff.run_id,
-                    prior_handoff.tenant_id,
-                    prior_handoff.cell_id,
-                )
-            ):
-                raise GenerationCycleError("candidate_simulation_revision_context_binding_mismatch")
-            if (
-                self._candidate_simulation_currentness_resolver is None
-                or self._candidate_simulation_currentness_resolver() is not True
-            ):
-                raise GenerationCycleError("candidate_simulation_revision_worker_not_current")
-        except GenerationCycleError:
-            raise
-        except (OSError, RuntimeError, TypeError, ValueError) as exc:
-            raise GenerationCycleError(
-                "candidate_simulation_revision_context_reissue_failed", str(exc)
-            ) from exc
-        # An explicit Evaluation Safety context needs its own owner reissue.
-        # The candidate-only default N8 constructs its context from each new N5.
-        if isinstance(self._value_port, FoundryValuePort):
-            raise GenerationCycleError(
-                "candidate_simulation_revision_evaluation_context_reissue_required"
-            )
-        self._candidate_simulation_handoff = resolved
-        self._bind_n7_cycle_substrate_context(resolved.context)
-        if isinstance(self._generation_port, N4GenerationPort):
-            self._generation_port._cycle_substrate_context = resolved.context
-            self._generation_port._candidate_simulation_handoff = resolved
-        if isinstance(self._simulation_port, JointSimulationPort):
-            self._simulation_port._candidate_simulation_handoff = resolved
 
     def _bind_n7_cycle_substrate_context(self, context: CycleSubstrateContext) -> None:
         """Rebind controller-owned N5/N8 defaults to one fresh context."""

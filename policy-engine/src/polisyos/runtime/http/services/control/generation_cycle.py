@@ -1186,12 +1186,6 @@ async def compile_and_run_recursive_generation_cycle(
                 and candidate_simulation_currentness_resolver is not None
                 else None
             ),
-            candidate_simulation_context_resolvers_by_node=(
-                {root_ref: cycle_substrate_context_resolver}
-                if candidate_simulation_handoff is not None
-                and cycle_substrate_context_resolver is not None
-                else None
-            ),
             n4_generation_ports_by_node=(
                 {root_ref: root_n4_generation_port}
                 if root_n4_generation_port is not None

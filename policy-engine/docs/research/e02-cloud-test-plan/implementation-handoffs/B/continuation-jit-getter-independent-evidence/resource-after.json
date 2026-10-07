@@ -1,0 +1,27 @@
+{
+  "observed_after_utc": "2026-10-07T09:24:43.373635+00:00",
+  "scope": "single after-completion host snapshot; not job peak or signal cause",
+  "cgroup": {
+    "memory.current": "16204857344\n",
+    "memory.max": "17179869184\n",
+    "memory.events": "low 0\nhigh 0\nmax 701861\noom 17\noom_kill 13\noom_group_kill 0\n"
+  },
+  "filesystem": {
+    "/workspace": {
+      "total": 33770192896,
+      "used": 32064753664,
+      "free": 0
+    },
+    "/tmp": {
+      "total": 9441349632,
+      "used": 7301963776,
+      "free": 2139385856
+    },
+    "/dev/shm": {
+      "total": 9441349632,
+      "used": 7115980800,
+      "free": 2325368832
+    }
+  },
+  "no_cleanup_no_limits": true
+}
